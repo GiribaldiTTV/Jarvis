@@ -12,6 +12,10 @@ This model applies to governance/source-truth/process reform only.
 
 It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch deletion, worktree cleanup, provider/model execution, downloads, memory work, voice/Core sync, shortcut or installer work, AI Product Contract import, or private Dev ORIN import.
 
+External Operational State Store / Release Debt Abolition work starts as docs-only source-truth contract work. Helper code creation, validator code changes, external folder creation, worktree-local staging folder creation, state migration, file moves, file deletion, file archival, commits, pushes, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase.
+
+Planning Reference: `Docs/external_operational_state_store_reform_plan.md` preserves the agreed sequencing and implementation design. Use it as the durable future-work reference, not as active migration authority.
+
 ## Rule ID And Owner Model
 
 Future governance changes should use a rule ID, one owner, and compact mirrors.
@@ -88,6 +92,237 @@ Derived live truth comes from Git, GitHub, or approved helpers. Examples include
 Governance receipts are recorded after live truth is checked. Examples include USER assignment decisions, branch admission, release scope interpretation, merge closeout, watcher repair proof, and branch-plan fold-down.
 
 Docs may record historical receipts, but they must not pretend to be live operational truth. When a current operational fact is needed, run a helper or live check and report it as evidence.
+
+## External Operational State Store Contract
+
+Rule Name: `External Operational State Store Contract`
+
+Owner: `Docs/governance_efficiency_operating_model.md`
+
+Applies To: active branch state, active branch plans, worktree assignment, release-window assembly, PR watcher state, USER review bundle manifests, rebaseline audit packets, temporary Codex handoff digests, fold-down previews, cross-worktree lessons, governance candidates, state promotion packets, worktree acknowledgements, and any other live operational tracker that exists to coordinate Codex/worktree activity rather than to define durable project truth.
+
+Required State:
+
+- Repo docs own durable source truth.
+- `C:\Nexus Governance State` owns accepted operational state after the external-state system is USER-approved and initialized.
+- `<worktree>\.nexus_state_staging\` may hold proposed state only after USER approves worktree-local staging.
+- Git, GitHub, and approved helpers own derived live facts.
+- External governance candidates are not binding governance until folded into repo source truth through a USER-approved repo update and merge.
+
+Allowed Values:
+
+- External State Item Status: `Active`, `Queued`, `Promotion Pending`, `Promoted`, `Fold-Down Pending`, `Folded`, `Archived`, `Expired`, `Rejected`, `USER Decision Required`
+- Worktree Acknowledgement State: `Pending`, `Accepted`, `Conflict`, `Not Applicable`
+- Lock State: `Unlocked`, `Locked`, `Expired`, `Stale`, `Conflict`, `Released`, `Recovery Required`
+- Promotion Result: `Approved`, `Rejected`, `Blocked`, `Superseded`, `Folded Into Repo`, `External Only`, `USER Decision Required`
+- Release Readiness Live-State Result: `Clear`, `External Operational State Conflict`, `Repo Live-State Leakage`, `Durable Release Truth Defect`, `USER Decision Required`
+
+Invalid Values:
+
+- canonical external operational state inside any Git worktree
+- repo-root `.nexus_state`, `.nexus_local_state`, or `.nexus_state_staging` treated as accepted central state
+- worktree-local staging treated as accepted central state
+- external governance candidates treated as binding repo governance
+- generated global indexes treated as primary hand-edited state
+- active branch, PR, worktree, watcher, release-window, selected-next, or temporary handoff state treated as durable repo source truth by inertia
+
+Blocking Condition:
+
+- `External State Missing`: active local workflow requires external operational state but the approved root is absent or uninitialized.
+- `External State Schema Conflict`: external state files declare mixed or unsupported `External State Schema` values, or a schema migration would rewrite active state without a migration packet, snapshot, validation, and USER decision.
+- `External State Lock Missing`: external state mutation is requested without the relevant lock.
+- `External State Version Conflict`: the state version changed between read and write.
+- `External State Owner Conflict`: two owners claim the same state partition.
+- `External State Promotion Missing`: staged or proposed state is being used as central accepted state without a promotion packet.
+- `Governance Candidate Not Promoted`: an external candidate that affects durable release truth, public safety, validator correctness, or source-truth ownership has not been promoted or dispositioned.
+- `Cross-Worktree Acknowledgement Missing`: merged governance/source-truth changes that affect an active worktree have not been acknowledged.
+- `Repo Live-State Leakage`: repo docs contain live operational state that should be external or derived.
+- `Fold-Down Decision Missing`: an operational state item has reached fold-down but lacks final disposition.
+- `Release Debt Misclassified`: stale operational tracker state is treated as durable public release debt.
+- `External State Corrupt`: external state cannot be parsed, validated, or matched to its schema.
+- `Stale Lock Recovery Required`: a lock is expired/stale and the recovery risk is unclear.
+
+Repair Owner: standing Governance intake or the current USER-approved legal carrier named by phase governance.
+
+Repair Path: classify the item, decide whether it belongs in repo durable truth, central external state, worktree-local staging, Git/GitHub/helper-derived live truth, or historical receipt; then repair through the legal carrier. Active state migration and helper/validator implementation require separate USER approval.
+
+USER Decision Required: required before external root creation, staging folder creation, schema migration, state migration, shared-state promotion, release-window state mutation, selected-next posture mutation, branch authority mutation, fold-down, cloud backup, private repo creation, or any file move/delete/archive.
+
+Validation Owner: repo durable-truth validation remains owned by repo validators. External operational validation is a future helper/validator implementation decision and must not be required by GitHub Actions or clean-clone repo validation before that implementation is approved.
+
+Final Disposition: external operational state may remain external-only, be folded into repo source truth as a durable receipt, be archived, expire, be rejected, or require USER decision. Governance law becomes binding only after USER-approved repo source-truth update and merge.
+
+## Deterministic Binding Language Contract
+
+Binding governance sections that control ownership, mutation, locks, promotion, fold-down, Release Readiness, cross-worktree reconciliation, source-truth ownership, validator blocking, or external operational state must use deterministic rule language.
+
+Each binding rule must include:
+
+- `Rule Name`
+- `Owner`
+- `Applies To`
+- `Required State`
+- `Allowed Values`
+- `Invalid Values`
+- `Blocking Condition`
+- `Repair Owner`
+- `Repair Path`
+- `USER Decision Required`
+- `Validation Owner`
+- `Final Disposition`
+
+Planning and recommendation sections may use softer wording only when explicitly marked `Non-Binding Planning`.
+
+## CI And Clean Clone Boundary
+
+Repo validators running in GitHub Actions or on clean clones validate durable repo truth only. They must not require access to `C:\Nexus Governance State`.
+
+Local governance validators may require external state only for active local workflow, Release Readiness analysis, worktree coordination, external-state migration, external-state validation, lock/snapshot/recovery workflows, or another USER-approved local operational pass.
+
+If external state is unavailable in CI, the result is not a repo failure unless repo docs contain `Repo Live-State Leakage`.
+
+## External State Bootstrap Rule
+
+If external state is missing during active local workflow, Codex must return `External State Missing` and provide a bootstrap packet instead of inferring active branch, selected-next, worktree assignment, release-window state, or watcher state from stale repo docs.
+
+The bootstrap packet must include:
+
+- desired root: `C:\Nexus Governance State`
+- worktree label
+- source repo path
+- branch
+- source repo `HEAD`
+- schema version
+- initialization scope
+- exact USER decision needed
+
+Future helper command expectation:
+
+```text
+python dev\orin_external_state_init.py --root "C:\Nexus Governance State" --worktree "<label>" --repo "<repo_path>" --schema <schema_version>
+```
+
+Until USER approves initialization, active operational workflow waits. Analysis-only work may continue only with an explicit analysis-only waiver.
+
+## Canonical External State Root Rule
+
+Canonical external operational state must live outside every Git worktree.
+
+Valid canonical root:
+
+- `C:\Nexus Governance State`
+
+Invalid as canonical state:
+
+- repo-root `.nexus_state`
+- repo-root `.nexus_local_state`
+- repo-root `.nexus_state_staging`
+- any folder inside a Git worktree
+
+Repo-root ignored folders are staging or scratch only. Canonical operational state inside a Git worktree is invalid unless USER grants a one-off migration waiver.
+
+## External State Schema Migration Rule
+
+Every external state file must name:
+
+- `External State Schema`
+- `State Version`
+- `Last Updated`
+- `Last Updated By`
+- `Worktree`
+- `Branch`
+- `Source Repo HEAD`
+
+Schema changes require a migration packet, snapshot, validation, USER decision, and audit log entry before active state is rewritten.
+
+Mixed schema versions, unsupported schema values, or schema rewrites without the required packet return `External State Schema Conflict`.
+
+## Generated Index Rule
+
+`state_index.md` and global external-state indexes are generated reports, not primary state.
+
+Primary state lives in branch, worktree, release-window, candidate, promotion, acknowledgement, and fold-down records.
+
+Manual edits to generated indexes are invalid unless helper repair or recovery is USER-approved.
+
+## State Promotion And No-Loss Rule
+
+Worktree-local staging is proposed state only. Central external state is accepted operational state.
+
+Promotion from staging to central state requires a State Promotion Packet, lock acquisition, central state version check, conflict scan, validation, snapshot when risk warrants it, audit log entry, and USER decision when shared state, release-window state, selected-next posture, branch authority, fold-down, or cross-worktree lesson state is affected.
+
+Promotion does not delete the staging source by default. Promotion must update central state, record final disposition, write the audit log, and preserve the staging source until promotion result is recorded. Staging source may expire or archive only after promotion result and audit log exist.
+
+No-loss tracking applies to every external lesson, candidate, staged state change, promotion packet, and fold-down packet. Each item must have owner, status, target, final disposition, validation result, and USER decision state when required.
+
+Allowed no-loss statuses:
+
+- `Open`
+- `Queued`
+- `Promoted`
+- `Folded Down`
+- `Rejected`
+- `Superseded`
+- `Expired`
+- `USER Decision Required`
+
+## Worktree Acknowledgement Trigger Rule
+
+After merged repo governance/source-truth changes, acknowledgement is required for active worktrees when the changes affect:
+
+- phase rules
+- branch plan rules
+- validator behavior
+- source-truth ownership
+- Release Readiness
+- review bundles
+- external state schema
+- worktree slots
+- any active branch implementation or proof path
+
+Other changes may be `Not Applicable`.
+
+Acknowledgement conflicts return one of:
+
+- rebaseline packet
+- branch-plan revision packet
+- external state promotion packet
+- USER decision packet
+
+## Governance Candidate Release Readiness Boundary
+
+Governance candidates affecting durable release truth, public safety, validator correctness, or source-truth ownership may block Release Readiness until promoted, rejected, waived, or dispositioned by USER decision.
+
+Local-only, future-only, unrelated, or advisory governance candidates remain external operational state and do not block Release Readiness.
+
+## Release Debt Redefinition
+
+Release debt means durable public release truth is missing or wrong.
+
+Examples of real release debt:
+
+- wrong tag, body, or release notes
+- invalid or missing artifact
+- missing durable public milestone summary
+- released capability absent from durable product history
+
+These are not release debt after the external-state reform:
+
+- branch record still active
+- branch plan still active
+- worktree slot stale
+- selected-next stale
+- PR watcher stale
+- release-window operational state stale
+- post-release closure state pending
+
+Those become external operational state updates or `Repo Live-State Leakage` findings.
+
+## External-State Reform Sequencing
+
+The default path for the current PR #220 / v1.7.23 release-readiness blocker is to clear PR #220 under existing rules, rerun Release Readiness, and then begin external-state reform.
+
+External-state implementation does not become the immediate release unblocker unless USER explicitly pauses release flow and approves that route.
 
 ## Duplicate Live-State Guard
 

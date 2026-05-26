@@ -8,9 +8,9 @@ Plan Identity: `FAM-007 v1.7.23 Post-Release Canon Closure - Branch Runtime Engi
 Owning Branch: `feature/fam-007-v1-7-23-post-release-canon-closure`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md`
-Current Phase: `Branch Readiness Stage 2`
-Branch Runtime Engineering Plan: Active source-truth execution plan for the FAM-007 v1.7.23-prebeta post-release canon-closure carrier.
-Engineering Plan Status: Present - Active Stage 2 canon-closure plan; no runtime implementation is admitted.
+Current Phase: `Historical Traceability`
+Branch Runtime Engineering Plan: Historical planning receipt for the FAM-007 v1.7.23-prebeta post-release canon-closure carrier merged by PR #220.
+Engineering Plan Status: Retired from active planning posture after PR #220 merge; no runtime implementation was admitted.
 Current Runtime Baseline: `origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4`, the published v1.7.23-prebeta target containing PR #217, PR #218, and PR #219, with state/config/schema/UI/desktop runtime behavior unchanged by this source-truth-only branch.
 Branch Purpose: Fold v1.7.23-prebeta release evidence into FAM-007 source truth so PR #217, PR #218, and PR #219 no longer remain current merged-unreleased release-window posture after publication.
 Planned Runtime Delta: None. This branch changes source-truth receipts and review-packet surfaces only.
@@ -26,14 +26,14 @@ Per-Seam User-Facing Proof Checklist: Because no visible runtime surface changes
 Future-Gated Items: `Private Dev repo creation, private Owner repo creation, Owner local-only vault/private root, GitHub Desktop private remote setup, off-boot backup/recovery implementation, Public-to-Dev import, provider/model execution, downloads, external calls, memory/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution remain pending USER decisions.`
 Approval-Boundary Audit: `USER approved Branch Readiness Stage 2 setup, canon closure, validation, commit, push, and review packet refresh if required. USER did not approve Workstream implementation, PR creation, merge, release execution, cleanup, or private/runtime/provider/model work.`
 FAM / Shared-Surface Overlap Forecast: FAM-006 and Governance are context only. The standing Governance record is updated only as release evidence for PR #219, not as a sibling worktree mutation.
-Open Questions: `Whether USER wants PR Readiness Stage 1 for this closure carrier after Stage 2, and which later FAM-007 successor should carry private Dev/Owner runtime planning or implementation.`
+Open Questions: `Which later FAM-007 successor should carry private Dev/Owner runtime planning or implementation after USER-approved Branch Readiness.`
 USER Planning Decisions: `USER approved Branch Readiness Stage 2 in C:\Nexus Worktrees\FAM-007 for feature/fam-007-v1-7-23-post-release-canon-closure from origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4.`
 Plan Revision History: `v1 created during Branch Readiness Stage 2 after v1.7.23-prebeta release publication.`
 Plan-To-Implementation Traceability: `This plan maps the canon-closure branch to release truth v1.7.23-prebeta, PR #217 USER branch plan review gate, PR #218 FAM-007 Dev/Owner Skeleton Readiness Foundation, PR #219 branch-authority fold-down prevention, compact pointer updates, and validation.`
 Proof Expectations: `The branch must prove latest public prerelease v1.7.23-prebeta, released PR #217/#218/#219 evidence, historical released FAM-007 Dev/Owner posture, preserved private/provider/runtime exclusions, review packet consistency if generated, green validators, commit, and push.`
 Risk Forecast: `Source-truth drift risk if old merged-unreleased wording remains; branch-authority risk if this active carrier is not recorded; release-boundary risk if canon closure is mistaken for release execution; private/provider/runtime risk if future FAM-007 work is admitted by accident.`
 Recommendations And Alternatives: `Recommended path is this focused closure branch. Alternatives such as direct main mutation, standalone governance cleanup, or updating the old merged branch by inertia are rejected by source truth.`
-Plan Version / Revision Status: `v1 active during Branch Readiness Stage 2; revise only if validation exposes missing canon-closure proof.`
+Plan Version / Revision Status: `v1 historical after PR #220 merge; future FAM-007 work requires a separate USER-approved carrier.`
 
 ## Product Definition Plan
 
@@ -41,11 +41,11 @@ Product Vision: FAM-007 remains local-first, public-safe, and explicit about pri
 User-Facing Goal: Keep public source truth clear that v1.7.23-prebeta has released Dev/Owner skeleton readiness planning while no private or functional AI behavior has shipped.
 Project-Wide Vision Alignment: Nexus Desktop AI continues to separate public coordination truth from private Owner/Dev roots, provider execution, model downloads, memory, backup roots, and release actions.
 Branch-Specific Vision Alignment: This branch repairs release interpretation only; it does not widen FAM-007 capability or start a new runtime package.
-USER Vision Question Packet: `Does USER approve PR Readiness Stage 1 after this closure is committed and pushed? Future private Dev/Owner work remains a separate branch-readiness decision.`
+USER Vision Question Packet: `Historical after PR #220 merge; future private Dev/Owner work remains a separate Branch Readiness decision.`
 Codex Product Interpretation: `The safest product reading is that v1.7.23 made the planning gates public and reviewable, not that Dev/Owner runtime exists.`
 Codex Implementation Recommendation: `Patch compact source truth and authority records only; keep implementation and private setup blocked.`
 Codex Additional Recommendations: `Use future Branch Readiness to choose the next real FAM-007 runtime/private-boundary successor after this closure PR lands.`
-USER Critique Loop: `USER may accept, revise, reject, or request more analysis during PR Readiness Stage 1 before PR creation.`
+USER Critique Loop: `Historical after PR #220 merge; future successor planning must use a fresh USER Branch Plan Review Gate.`
 USER Decision Ledger: `Approved: Branch Readiness Stage 2 canon closure, validation, commit, push, and packet refresh if required. Pending: PR creation, merge, release execution, cleanup, Workstream/private/runtime/provider/model work, and v1.8.0-prebeta.`
 Full Feature Element Breakdown: `Element 1 carrier authority; Element 2 latest public prerelease correction; Element 3 PR #217 released evidence; Element 4 PR #218 released evidence; Element 5 PR #219 released evidence; Element 6 private/provider/runtime exclusion preservation.`
 System Concept Model: `Release publication is external live truth; repo source truth records interpretation after publication; this branch is the bridge that lands that interpretation in remote source truth.`
@@ -65,11 +65,11 @@ Why The Branch Is Large Enough: `It touches every current-state owner that can m
 Why It Should Not Split Into Tiny Branches: `Splitting PR #217/#218/#219 release evidence across branches would preserve drift and make validation weaker.`
 Acceptance Criteria: `All stale current merged-unreleased v1.7.23 posture is folded to released evidence, active carrier authority exists, validation is green, and private/provider/runtime exclusions remain closed.`
 Screenshot / Live / User Test Summary Proof Requirements: `Not applicable for runtime UI; no-visible-runtime-surface source-truth waiver is enough because no visible surface changes.`
-Implementation Sequence Proposal: `1. Create/admit carrier. 2. Patch release-canon receipts. 3. Validate. 4. Commit/push. 5. Refresh review packet if required. 6. Return PR Readiness Stage 1 decision.`
-Open USER Decision Points: `PR Readiness Stage 1, PR creation, merge, branch/worktree cleanup, future FAM-007 successor, private Dev/Owner roots, backup/import/provider/model/memory/voice/Core/shortcut/installer work, and v1.8.0-prebeta.`
+Implementation Sequence Proposal: `Historical complete after PR #220 merge; rerun Release Readiness from current origin/main after post-merge fold-down validation is green.`
+Open USER Decision Points: `Release execution, branch/worktree cleanup, future FAM-007 successor, private Dev/Owner roots, backup/import/provider/model/memory/voice/Core/shortcut/installer work, and v1.8.0-prebeta.`
 Deferred Ideas / Future Package Ledger: `Private Dev skeleton, Owner skeleton, backup/recovery implementation, Public-to-Dev import, provider/model execution, memory/personalization, packaging identity, and AI Product Contract import remain deferred.`
 Planning Blockers: `None for canon closure if validation is green; implementation/private/runtime work remains blocked.`
-USER Decisions Needed: `Approve PR Readiness Stage 1 after this Stage 2 carrier is committed and pushed.`
+USER Decisions Needed: `None for this merged historical carrier; future FAM-007 successor Branch Readiness, release execution, cleanup, or private/runtime/provider/model work remain separate USER decisions.`
 
 ## Runtime Branch Engineering Contract
 
@@ -86,20 +86,20 @@ Future-Gated Items: `Private Dev/Owner roots, private remotes, backup/import/pro
 Workstream Seam Map: `No Workstream implementation; Stage 2 canon-closure seams are listed above.`
 Proof Expectations: `Release/tag truth plus source-truth validation, no-visible-runtime-surface waiver, and branch authority validation.`
 Risk Forecast: `Drift if release evidence remains stale; no runtime risk because runtime changes are excluded.`
-Recommendations And Alternatives: `Use PR Readiness Stage 1 after commit/push; do not create a runtime/private branch by inertia.`
-Plan Version / Revision Status: `v1 active`
+Recommendations And Alternatives: `Rerun Release Readiness after post-merge fold-down validation; do not create a runtime/private branch by inertia.`
+Plan Version / Revision Status: `v1 historical after PR #220 merge`
 Plan-To-Implementation Traceability: `Each changed source-truth file is listed in the Branch Change Intent Ledger.`
 
 ## Element-to-Phase Proof Matrix
 
 | Element ID | Element | Branch Readiness Stage 2 | Workstream | Hardening | Live Validation / UTS | USER Acceptance | Deferred / Future Boundaries | Source Owner |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `FAM007-V1723-CANON-001` | v1.7.23-prebeta release-canon closure for PR #217/#218/#219 | Create carrier, patch source truth, validate, commit, push | Not admitted | Not admitted | No-visible-runtime-surface waiver; no UTS needed | PR Readiness Stage 1 remains next USER decision | No private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work | This branch record and plan; FAM-007 historical record/plan; backlog; roadmap; worktree slot; retirement index |
+| `FAM007-V1723-CANON-001` | v1.7.23-prebeta release-canon closure for PR #217/#218/#219 | Historical after PR #220 merge | Not admitted | Not admitted | No-visible-runtime-surface waiver; no UTS needed | Release Readiness rerun remains the next review path | No private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work | This branch record and plan; FAM-007 historical record/plan; backlog; roadmap; worktree slot; retirement index |
 
 ## USER Branch Plan Review Gate
 
 USER Branch Plan Review: `Stage 2 canon-closure review through this plan and completion packet.`
-Review Status: `Pending final Stage 2 completion packet; USER may accept, revise, reject, or request more analysis before PR Readiness.`
+Review Status: `Historical after PR #220 merge; no active PR Readiness decision remains for this carrier.`
 Desktop Review Bundle: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 if refreshed by the registered helper.`
 Plain-Language Branch Goal: `Record that v1.7.23-prebeta released the FAM-007 Dev/Owner skeleton readiness work and related governance repairs, so future work does not keep treating them as unreleased.`
 Planned User-Facing Outcome: `No app behavior changes; USER gets clean release-canon evidence and the next PR Readiness decision.`
@@ -108,13 +108,13 @@ Implementation Breakdown: `Patch authority/plan receipts, backlog/roadmap compac
 Element-to-Phase Proof Matrix: `FAM007-V1723-CANON-001 maps all closure work to Stage 2 and future PR Readiness.`
 Hardening Plan: `Not admitted; validators provide source-truth proof.`
 Live Validation / UTS Plan: `No-visible-runtime-surface waiver; no desktop UTS required.`
-Open USER Questions: `Whether to approve PR Readiness Stage 1 after Stage 2.`
-Codex Recommendations: `Proceed to PR Readiness Stage 1 after green Stage 2 push.`
+Open USER Questions: `None for this merged carrier; future successor work requires a new USER-approved Branch Readiness packet.`
+Codex Recommendations: `Rerun Release Readiness from current origin/main after post-merge fold-down validation is green.`
 Alternatives / Tradeoffs: `Direct main and standalone cleanup are rejected; delaying leaves release-canon drift.`
 Accepted Scope: `Stage 2 canon closure, validation, commit, push, and optional review packet refresh.`
 Deferred Scope: `PR creation, merge, cleanup, Workstream implementation, private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work.`
 Rejected Scope: `Release execution, private roots, provider/model execution, downloads, external calls, hidden runtime behavior, and cleanup during this pass.`
-Exact USER Decision Needed: `Approve PR Readiness Stage 1 for feature/fam-007-v1-7-23-post-release-canon-closure in C:\Nexus Worktrees\FAM-007 from origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4 to verify the v1.7.23-prebeta post-release canon closure, branch-authority posture, release/source-truth evidence, validation, and PR readiness without creating a PR, merging, releasing, cleaning branches/worktrees, or executing private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work.`
+Exact USER Decision Needed: `None for this merged historical carrier; rerun Release Readiness from current origin/main through the legal release carrier when validation is green.`
 Implementation Approval: `Denied for runtime/private Workstream implementation; not applicable to this source-truth-only canon closure.`
 
 ## Branch Change Intent Ledger
@@ -381,17 +381,17 @@ Implementation Approval: `Denied for runtime/private Workstream implementation; 
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Readiness Stage 2`
-Next Legal Phase: `PR Readiness Stage 1`
-Why This Phase Is Next: `After Stage 2 commits and pushes the post-release canon closure, PR Readiness Stage 1 must review PR readiness before any PR creation.`
-Approval Required: `USER approval is required before PR Readiness Stage 1 and separately before PR creation, merge, cleanup, release execution, or private/runtime work.`
-Exact USER Approval Text: `Approve PR Readiness Stage 1 for feature/fam-007-v1-7-23-post-release-canon-closure in C:\Nexus Worktrees\FAM-007 from origin/main@73b4905cc5e6c626fae56ffd83f9df6c25e116a4 to verify the v1.7.23-prebeta post-release canon closure, branch-authority posture, release/source-truth evidence, validation, and PR readiness without creating a PR, merging, releasing, cleaning branches/worktrees, or executing private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work.`
-Allowed Scope: `PR Readiness Stage 1 analysis only after this Stage 2 branch is committed and pushed.`
+Current Phase: `Historical Traceability`
+Next Legal Phase: `Release Readiness`
+Why This Phase Is Next: `PR #220 already merged this canon-closure carrier; Release Readiness may now evaluate current origin/main, while future FAM-007 work needs a separate USER-approved Branch Readiness pass.`
+Approval Required: `USER approval is required before release execution, cleanup, successor Branch Readiness, Workstream implementation, or private/runtime work.`
+Exact USER Approval Text: `Rerun Release Readiness Stage 1 from current origin/main after the PR #220 post-merge fold-down repair validates green; do not create a PR, merge, release, clean branches/worktrees, or execute private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work unless separately approved.`
+Allowed Scope: `Historical traceability only; no active branch mutation is authorized by this plan.`
 Explicit Exclusions: `No Workstream implementation, private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup/recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python dev\orin_public_leak_prevention_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_validation_suite.py --phase branch-readiness; python -m compileall -q dev desktop Audio main.py; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_v1_7_23_post_release_canon_closure.md.`
 Stop Conditions: `Stop if origin/main advances, release truth conflicts, source truth remains stale, private/provider/runtime boundaries weaken, packet decision fields conflict, branch plan intent is missing, or validation fails.`
-USER Plan Review Gate: `USER may accept, revise, reject, or request more analysis during PR Readiness Stage 1.`
+USER Plan Review Gate: `Historical; no active plan review is pending for this merged carrier.`
 USER Inspection Files: `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md; Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md; Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; Docs/worktree_slots.md; Docs/branch_plans/retirement_index.md; Docs/governance_docs_full_inventory_reform_audit.md; Docs/governance_docs_reform_user_review_index.md; C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 if refreshed.`
-Review Required Because: `The branch changes post-release canon and release-dependent FAM-007 source truth after v1.7.23-prebeta publication.`
+Review Required Because: `Historical receipt retained for PR #220 traceability after post-release canon closure merged.`
 Implementation Blocker: `Workstream/private/runtime/provider/model/backup/import/memory/voice/Core/shortcut/installer work remains unauthorized.`
-Review Waiver Reason: `Not waived - PR Readiness Stage 1 review remains required before PR creation.`
+Review Waiver Reason: `Not applicable - PR #220 already merged.`
