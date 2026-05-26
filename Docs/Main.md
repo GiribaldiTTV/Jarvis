@@ -39,6 +39,8 @@ Repo docs own governance intent, USER decisions, branch authority, phase approva
 
 Do not make backlog, roadmap, branch records, or worktree-slot records manually own volatile Git/GitHub facts unless a historical receipt explicitly says the fact was validated and recorded as interpretation. Current operational truth must be derived from Git, GitHub, or an approved helper before mutation.
 
+External operational state is a separate local coordination layer after USER-approved initialization. `Docs/governance_efficiency_operating_model.md` owns the External Operational State Store contract: repo docs remain durable source truth, `C:\Nexus Governance State` is the planned accepted operational-state root, `<worktree>\.nexus_state_staging\` is proposed staging only, and external governance candidates do not become binding governance until a USER-approved repo source-truth update merges. In clean clones and GitHub Actions, repo validators must validate durable repo truth without requiring the external state root.
+
 ## Workspace And Thread Identity Baseline
 
 Nexus may use multiple local folders for the same GitHub repository, but `origin/main` remains the canonical remote source truth.
@@ -100,7 +102,7 @@ Automation reliability is graded by current source-truth ownership, not by stale
 
 PR Readiness Stage 2 approval includes watcher provisioning by default. Codex must not require a separate watcher-specific approval after USER approves PR creation / Stage 2 execution; skipping the watcher requires an explicit USER watcher waiver or a documented platform/runtime blocker.
 
-`Docs/governance_efficiency_operating_model.md` owns the governance efficiency operating model. Use it for Rule ID / owner / compact mirror decisions, duplicate live-state prevention, current-summary versus historical-appendix split, phase alias UX, release ownership UX, public language mapping, and the reform pass completion boundary.
+`Docs/governance_efficiency_operating_model.md` owns the governance efficiency operating model. Use it for Rule ID / owner / compact mirror decisions, duplicate live-state prevention, the External Operational State Store contract, current-summary versus historical-appendix split, phase alias UX, release ownership UX, public language mapping, and the reform pass completion boundary.
 
 Docs Source-Truth Reform Model: Compact Pointer Layer. `Docs/governance_docs_full_inventory_reform_audit.md` is the full Docs inventory and reform audit. The accepted ownership direction is backlog as compact product registry, roadmap as pre-Beta/Beta/release stage-breakpoint schedule outline, worktree slots as reusable slot assignment receipts, branch records as authority/structured traceability receipts, branch plans as active runtime engineering plans that retire after fold-down, workstreams/family dossiers as durable package/slice/proof history, and Git/GitHub/helpers as live operational truth.
 
@@ -177,7 +179,7 @@ Main routes Codex to:
 - active branch vision, planning, UFD, Element-to-Phase Proof Matrix, and Branch Change Intent Ledger: `Docs/branch_plans/<branch_slug>.md`
 - workstream and family implementation history: `Docs/workstreams/`
 - digest profiles and non-compaction standards: `Docs/governance_intake_triage_and_digest_profiles.md`
-- source-truth ownership and USER review bundle rules: `Docs/governance_efficiency_operating_model.md`
+- source-truth ownership, External Operational State Store contract, and USER review bundle rules: `Docs/governance_efficiency_operating_model.md`
 - helper and validator ownership: `Docs/validation_helper_registry.md`
 
 Context docs may explain, summarize, or point to the owners above. They must not supersede Main or the named owner. If a context doc conflicts with Main or the relevant owner, Codex must follow Main to the owner, report the conflict, and repair through the legal branch/phase instead of inferring behavior.
@@ -239,6 +241,7 @@ Repo-wide validation-helper rules also live in this governance layer.
 Broad governance reform uses the `Governance Intake Triage Packet`, smallest legal `Digest Profile`, and `Digest Non-Compaction Rule` standards from `Docs/governance_intake_triage_and_digest_profiles.md`; selecting a focused profile must not compact the digest ever.
 Formal Next Legal Phase Digest guidance is owned by `Docs/phase_governance.md`; use that owner for the required field contract, plan-review fields, non-compaction rule, and `Next Legal Phase Digest Missing` blocker.
 When a governance change risks duplicating policy or live state, use the governance efficiency operating model instead of creating another current-state owner.
+When a governance change concerns active branch state, active branch plans, worktree assignment, release-window assembly, PR watcher state, review-bundle manifests, rebaseline packets, handoff digests, fold-down previews, cross-worktree lessons, governance candidates, worktree acknowledgements, external-state schema, or state-promotion packets, load `Docs/governance_efficiency_operating_model.md` and apply the External Operational State Store contract before adding or updating repo-tracked state.
 When Codex asks USER to inspect repo files or approve a review packet, the `USER Review Desktop Bundle Rule` in `Docs/governance_efficiency_operating_model.md` requires the stable Desktop root `Nexus USER Review`, a worktree-labeled child folder derived from the active worktree when USER does not provide one, flat copied review files, a stable uploadable zip at `Nexus USER Review\<worktree-label>.zip`, and a `START_HERE.md` review guide that maps each copied file back to source truth with `Review Export Zip Source HEAD:` and stale-guard proof. For Workstream Entry, this bundle supports the `USER Branch Plan Review Gate` and must include the files USER needs to accept, revise, defer with waiver, reject, or request more analysis before implementation begins.
 Use `Docs/nexus_startup_contract.md` as the compact ChatGPT/new-chat loader map only.
 Do not treat it as execution authority.
