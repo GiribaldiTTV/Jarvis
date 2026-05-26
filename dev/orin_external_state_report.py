@@ -2,7 +2,14 @@ from __future__ import annotations
 
 import argparse
 
-from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT, load_json, resolve_path, validate_canonical_root
+from orin_external_state_common import (
+    DEFAULT_EXTERNAL_STATE_ROOT,
+    DEFAULT_SCHEMA_VERSION,
+    REQUIRED_STATE_FIELDS,
+    load_json,
+    resolve_path,
+    validate_canonical_root,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -41,10 +48,24 @@ def main() -> int:
     except Exception as exc:  # noqa: BLE001 - report corrupt local state without traceback
         print(f"External State Result: External State Corrupt - {manifest_path}: {exc}")
         return 1
+    missing_fields = [field for field in REQUIRED_STATE_FIELDS if field not in manifest]
     print(f"External State Schema: {manifest.get('External State Schema', 'MISSING')}")
     print(f"State Version: {manifest.get('State Version', 'MISSING')}")
     print(f"Last Updated: {manifest.get('Last Updated', 'MISSING')}")
     print(f"Source Repo HEAD: {manifest.get('Source Repo HEAD', 'MISSING')}")
+    if missing_fields:
+        print(
+            "External State Result: External State Corrupt - missing required manifest fields: "
+            + ", ".join(missing_fields)
+        )
+        return 1
+    schema = manifest.get("External State Schema")
+    if schema != DEFAULT_SCHEMA_VERSION:
+        print(
+            "External State Result: External State Schema Conflict - "
+            f"expected {DEFAULT_SCHEMA_VERSION}, found {schema or 'MISSING'}"
+        )
+        return 1
     print("External State Result: Clear")
     return 0 if not issues else 1
 

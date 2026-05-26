@@ -83,8 +83,10 @@ def main() -> int:
             issues.append(f"External State Corrupt: {state_file}: {exc}")
             continue
         schema = payload.get("External State Schema")
-        if schema:
-            schemas.add(str(schema))
+        if not schema:
+            issues.append(f"External State Corrupt: {state_file}: missing External State Schema")
+            continue
+        schemas.add(str(schema))
     if len(schemas) > 1 or (schemas and args.schema not in schemas):
         issues.append(
             "External State Schema Conflict: mixed or unsupported schema values found: "
