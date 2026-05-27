@@ -957,8 +957,11 @@ def build_comment_repair_worker_prompt(
         "5. Commit and push the fix.\n"
         "6. Reply to each addressed top-level bot review comment with a concise resolution note naming the new commit SHA.\n"
         "7. Resolve each addressed review thread.\n"
-        f"8. Update {branch_record_path} so the bot-review state truth reflects `Comment addressed` for the current head when applicable.\n"
-        "9. Do not merge the PR. Do not widen scope. Do not create a new branch.\n\n"
+        "8. Ask Codex to re-analyze the updated PR head after the addressed thread is resolved.\n"
+        f"9. Update {branch_record_path} so the bot-review state truth records the repair history "
+        "without treating `Comment addressed` as green; PR green still requires a fresh "
+        "current-head thumbs-up reaction from the Codex GitHub bot.\n"
+        "10. Do not merge the PR. Do not widen scope. Do not create a new branch.\n\n"
         "Respond with a short final summary only."
     )
 
