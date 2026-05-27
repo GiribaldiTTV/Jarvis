@@ -7565,6 +7565,197 @@ def _highest_known_prebeta_tag() -> str:
     return max(tags, key=lambda tag: _parse_prebeta_version(tag) or (0, 0, 0))
 
 
+def _git_prebeta_tag_commit(tag: str) -> str:
+    if not tag:
+        return ""
+
+    local_ref = subprocess.run(
+        ("git", "rev-parse", "--verify", f"refs/tags/{tag}^{{commit}}"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if local_ref.returncode == 0:
+        candidate = local_ref.stdout.strip()
+        if re.fullmatch(r"[0-9a-fA-F]{40}", candidate):
+            return candidate
+
+    remote_ref = subprocess.run(
+        ("git", "ls-remote", "--tags", "origin", f"refs/tags/{tag}*"),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if remote_ref.returncode != 0:
+        return ""
+
+    lightweight_candidate = ""
+    peeled_ref = f"refs/tags/{tag}^{{}}"
+    direct_ref = f"refs/tags/{tag}"
+    for line in remote_ref.stdout.splitlines():
+        sha, _, ref_name = line.strip().partition("\t")
+        if not re.fullmatch(r"[0-9a-fA-F]{40}", sha):
+            continue
+        if ref_name == peeled_ref:
+            return sha
+        if ref_name == direct_ref:
+            lightweight_candidate = sha
+    return lightweight_candidate
+
+
+def _branch_ref_file_stem(branch_ref: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", branch_ref.casefold()).strip("_")
+
+
+def _add_release_window_entry(
+    identifiers: set[str],
+    branch_file_stems: set[str],
+    sha: str,
+    subject: str,
+) -> None:
+    sha = sha.strip().casefold()
+    if re.fullmatch(r"[0-9a-f]{40}", sha):
+        identifiers.update({sha, sha[:12], sha[:10], sha[:8]})
+
+    for match in re.finditer(r"Merge (?:pull request|PR) #(\d+)", subject, flags=re.IGNORECASE):
+        identifiers.add(f"pr #{match.group(1)}")
+
+    branch_match = re.search(r"from [^/]+/(\S+)", subject)
+    if branch_match:
+        branch_ref = branch_match.group(1).strip().casefold()
+        branch_file_stem = _branch_ref_file_stem(branch_ref)
+        identifiers.add(branch_ref)
+        identifiers.add(branch_file_stem)
+        branch_file_stems.add(branch_file_stem)
+
+
+def _github_published_release_window_scope(
+    previous_tag: str,
+    release_tag: str,
+) -> tuple[set[str], set[str]]:
+    if not previous_tag or not release_tag:
+        return set(), set()
+
+    repository_full_name, repository_error = _git_origin_repository_full_name()
+    if repository_error or not repository_full_name:
+        return set(), set()
+
+    base = urllib_parse.quote(previous_tag, safe="")
+    head = urllib_parse.quote(release_tag, safe="")
+    identifiers: set[str] = set()
+    branch_file_stems: set[str] = set()
+    page = 1
+    while True:
+        payload, _error = _github_api_json(
+            "https://api.github.com/repos/"
+            f"{repository_full_name}/compare/{base}...{head}"
+            f"?per_page=100&page={page}"
+        )
+        if not isinstance(payload, dict):
+            break
+
+        commits = payload.get("commits")
+        if not isinstance(commits, list) or not commits:
+            break
+
+        for commit_entry in commits:
+            if not isinstance(commit_entry, dict):
+                continue
+            sha = str(commit_entry.get("sha") or "")
+            commit_payload = commit_entry.get("commit")
+            if not isinstance(commit_payload, dict):
+                continue
+            message = str(commit_payload.get("message") or "")
+            subject = message.splitlines()[0] if message else ""
+            _add_release_window_entry(identifiers, branch_file_stems, sha, subject)
+
+        if len(commits) < 100:
+            break
+        page += 1
+
+    return identifiers, branch_file_stems
+
+
+def _previous_known_prebeta_tag(release_tag: str) -> str:
+    release_version = _parse_prebeta_version(release_tag)
+    if release_version is None:
+        return ""
+
+    tags = sorted(
+        set(_git_prebeta_tags()) | set(_git_remote_prebeta_tags()),
+        key=lambda tag: _parse_prebeta_version(tag) or (0, 0, 0),
+    )
+    previous_tags = [
+        tag
+        for tag in tags
+        if (_parse_prebeta_version(tag) or (0, 0, 0)) < release_version
+    ]
+    return previous_tags[-1] if previous_tags else ""
+
+
+def _published_release_window_scope(release_tag: str) -> tuple[set[str], set[str]]:
+    """Return line identifiers and branch-file stems included in a published release window."""
+
+    previous_tag = _previous_known_prebeta_tag(release_tag)
+    release_ref = _git_prebeta_tag_commit(release_tag)
+    previous_ref = _git_prebeta_tag_commit(previous_tag) if previous_tag else ""
+    if not release_ref:
+        return set(), set()
+    if previous_tag and not previous_ref:
+        return _github_published_release_window_scope(previous_tag, release_tag)
+
+    rev_range = f"{previous_ref}..{release_ref}" if previous_ref else release_ref
+    completed = subprocess.run(
+        ("git", "log", "--first-parent", "--format=%H%x09%s", rev_range),
+        cwd=ROOT_DIR,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if completed.returncode != 0:
+        return _github_published_release_window_scope(previous_tag, release_tag)
+
+    identifiers: set[str] = set()
+    branch_file_stems: set[str] = set()
+    for line in completed.stdout.splitlines():
+        sha, _, subject = line.partition("\t")
+        _add_release_window_entry(identifiers, branch_file_stems, sha, subject)
+
+    return identifiers, branch_file_stems
+
+
+def _path_matches_published_release_window_branch(
+    relative_path: Path,
+    branch_file_stems: set[str],
+) -> bool:
+    if not branch_file_stems:
+        return False
+    normalized = relative_path.as_posix()
+    if normalized == "Docs/branch_records/feature_release_readiness_source_truth_intake.md":
+        return False
+    if not (
+        normalized.startswith("Docs/branch_records/")
+        or normalized.startswith("Docs/branch_plans/")
+    ):
+        return False
+    return relative_path.stem.casefold() in branch_file_stems
+
+
+def _is_allowed_published_release_merged_unreleased_line(line_lower: str) -> bool:
+    if "historical pre-release snapshot" in line_lower:
+        return True
+    if "no current merged-unreleased" in line_lower:
+        return True
+    if "merged-unreleased release-debt owner" in line_lower and "none" in line_lower:
+        return True
+    return False
+
+
 def _published_release_closure_scan_paths() -> list[Path]:
     paths: set[Path] = set(PUBLISHED_RELEASE_CLOSURE_SCAN_PATHS)
     for directory in PUBLISHED_RELEASE_CLOSURE_SCAN_DIRS:
@@ -7584,24 +7775,36 @@ def _validate_published_release_canon_closure(require, release_tag: str) -> None
         return
 
     release_tag_lower = release_tag.casefold()
+    release_window_identifiers, branch_file_stems = _published_release_window_scope(release_tag)
     for relative_path in _published_release_closure_scan_paths():
         path = ROOT_DIR / relative_path
         if not path.is_file():
             continue
         text = _read_text(relative_path)
+        file_matches_window_branch = _path_matches_published_release_window_branch(
+            relative_path,
+            branch_file_stems,
+        )
         for line_number, line in enumerate(text.splitlines(), start=1):
             line_lower = line.casefold()
-            if "merged-unreleased" not in line_lower or release_tag_lower not in line_lower:
+            if "merged-unreleased" not in line_lower:
                 continue
-            if "historical pre-release snapshot" in line_lower:
+            if _is_allowed_published_release_merged_unreleased_line(line_lower):
+                continue
+            line_matches_release = release_tag_lower in line_lower
+            line_matches_window = any(
+                identifier in line_lower
+                for identifier in release_window_identifiers
+            )
+            if not (line_matches_release or line_matches_window or file_matches_window_branch):
                 continue
             require(
                 False,
                 (
                     f"{relative_path}:{line_number}: Post-Release Canon Closure Drift; "
                     f"{release_tag} is published, so source truth must not keep included "
-                    "scope as merged-unreleased for that same tag. Fold the scope to "
-                    "released/closed posture or label it as historical pre-release snapshot evidence."
+                    "release-window scope as current merged-unreleased posture. Fold the scope "
+                    "to released/closed posture or label it as historical pre-release snapshot evidence."
                 ),
             )
 
@@ -20986,6 +21189,7 @@ def main() -> int:
                 "`Implementation Entry: Blocked until closure repair validates green`."
             ),
         )
+    if highest_known_prebeta_tag:
         _validate_published_release_canon_closure(require, highest_known_prebeta_tag)
 
     fb038_entry = _entry_by_id(backlog_entries, "FB-038")

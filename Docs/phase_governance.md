@@ -1491,7 +1491,8 @@ The blocker for missing or ambiguous contributor inventory is `Release Window Co
 
 Post-release closure rule:
 
-- once a public prerelease tag exists, no current-state owner, compact pointer row, canonical detail branch record, retired branch plan, worktree slot receipt, or family vision pointer may keep that exact tag's included scope as `merged-unreleased`
+- once a public prerelease tag exists, no current-state owner, compact pointer row, canonical detail branch record, retired branch plan, worktree slot receipt, or family vision pointer may keep that published release window's included scope as current `merged-unreleased` posture
+- validation must derive the included release window from Git/GitHub/tag truth and first-parent PR/merge commits, resolving prerelease tags to explicit commit IDs or paginated GitHub compare truth before building the scan range so remote-only tag discovery cannot fall back to a tag-text-only check; when the previous prerelease commit is unavailable, validation must use paginated compare truth rather than widening to a full-history scan, then scan release-window branch records, branch plans, retirement rows, and compact pointers by release tag, PR number, merge commit, and branch identity
 - included scope must be folded to released/closed or explicitly labeled as historical pre-release snapshot evidence that is not current posture
 - Release Readiness must stop on `Post-Release Canon Closure Drift` when the selected candidate has already been published but source truth still describes an included contributor as merged-unreleased for that published tag
 - the standing Governance intake lane is the legal carrier for post-release source-truth/governance drift discovered after publication; Release Readiness remains file-frozen and must not patch the drift directly
