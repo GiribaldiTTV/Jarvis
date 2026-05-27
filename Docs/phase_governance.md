@@ -1559,7 +1559,7 @@ Release Readiness is analysis-only for repository files:
 
 Release Readiness may read External Governance State only after USER-approved initialization. Repo-file validation in GitHub Actions or clean clones must not require `C:\Nexus Governance State`; those environments validate durable repo truth only. If external state is missing during active local Release Readiness analysis, Codex reports `External State Missing` and returns the bootstrap packet from `Docs/governance_efficiency_operating_model.md` instead of inferring active branch, selected-next, worktree assignment, release-window, or watcher state from stale repo docs.
 
-External state mutation during Release Readiness remains blocked unless USER explicitly approves a local operational-state reconciliation. Even when approved, that mutation is limited to external operational release-window state, external acknowledgement state, or external promotion/recovery packets; it must not edit repo files or create release artifacts.
+External state mutation during Release Readiness remains blocked unless USER explicitly approves a local operational-state reconciliation, except for bounded RR2 post-release external state carry-forward reconciliation after release publication and green post-publish release/tag/body/health validation. Even when allowed, that mutation is limited to external operational release-window state, external acknowledgement state, external promotion/recovery packets, or external carry-forward records under `C:\Nexus Governance State`; it must not edit repo files, create release artifacts, create branches or PRs, merge, release again, clean branches or worktrees, or touch FAM/runtime/private/provider/cache/memory surfaces.
 
 Allowed in `Release Readiness`:
 
