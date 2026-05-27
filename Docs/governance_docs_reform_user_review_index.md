@@ -95,7 +95,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 
 Cleanup Pass Status: USER requested a docs organization cleanup pass.
 Execution Boundary: non-destructive organization planning and queue clarification only. This pass does not move, rename, delete, archive, or rewrite historical files.
-Source Review Surface: `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md`, and the USER Desktop review bundle.
+Source Review Surface: `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md`, and the local USER Review Hub bundle.
 Next USER Decision: choose one focused cleanup lane before any physical file or history-affecting change.
 
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |

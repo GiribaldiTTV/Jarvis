@@ -117,6 +117,8 @@ Reusable guard requirements:
 - reject BP3 when it returns Workstream or SLC implementation approval while BP1 or BP2 is pending, unclear, stale, incomplete, rejected, or unwaived
 - keep `START_HERE.md`, `USER_BRANCH_VISION_REVIEW.md`, and `USER_BRANCH_PLAN_REVIEW.md` user-facing; branch HEAD, SHA, origin/main, merge base, ZIP hash, and similar technical packet fields belong in helper output, validator output, Codex chat digests, or external governance state
 - preserve the stable worktree-label artifact model: `C:\Nexus USER\<worktree-label>` plus `C:\Nexus USER\<worktree-label>.zip`; sidecars, uniquely named upload ZIPs, separate top-level Review / Upload folder taxonomies, and upload-marker files require separate USER admission
+- treat `Nexus USER.lnk` as an optional Desktop convenience shortcut to `C:\Nexus USER`, not as an upload source or mirror authority
+- keep root-level USER convenience files such as `C:\Nexus USER\User Test Summary.txt` outside the review-bundle stale-output invariant unless USER later admits a deeper USER hub taxonomy; durable UTS outcomes still belong in the owning phase source truth
 
 ## External State Transition Validator Hook
 

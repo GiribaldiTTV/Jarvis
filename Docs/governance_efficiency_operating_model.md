@@ -638,6 +638,8 @@ The USER Review Hub bundle must:
 - generate the sibling upload artifact at `C:\Nexus USER\<worktree-label>.zip`; USER should read `C:\Nexus USER\<worktree-label>\` and upload the matching sibling zip
 - quarantine or clear the old matched pair, `C:\Nexus USER\<worktree-label>\` and `C:\Nexus USER\<worktree-label>.zip`, before regeneration, prove those stable paths are absent, then regenerate and verify both together
 - treat cloud-backed Desktop / OneDrive copies as optional backup or convenience mirrors only; helper output must not tell USER to upload from Desktop / OneDrive
+- allow an optional Desktop shortcut named `Nexus USER.lnk` pointing to `C:\Nexus USER` for convenience without making Desktop or OneDrive byte-authoritative
+- keep simple USER convenience files such as `User Test Summary.txt` at the `C:\Nexus USER` root unless USER later approves a deeper taxonomy; durable UTS results and digests still fold into the owning phase source truth
 - be refreshed only while the active early-phase USER review loop needs it, such as Branch Readiness / Branch Planning / BP3; after Workstream completes, later phases should use source truth, branch diff, proof artifacts, fold-down receipts, and phase packets unless they explicitly route back to Branch Planning or Branch Readiness
 - never replace source-truth files, commit artifacts, validation proof, or branch authority records
 
