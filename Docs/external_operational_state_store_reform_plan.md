@@ -1181,6 +1181,7 @@ Release Readiness blocks on:
 - `Durable Release Truth Defect`
 - `External Operational State Conflict`
 - `Repo Live-State Leakage`
+- `Post-Release Canon Closure Drift` when repo durable receipts for an included published release window still keep current `merged-unreleased` posture instead of released/closed or explicitly historical pre-release snapshot evidence
 - `Governance Candidate Not Promoted` when it affects durable release truth, public safety, validator correctness, or source-truth ownership
 - `USER Decision Required`
 
