@@ -7,13 +7,13 @@
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
-This file owns feature-family identity, priority, broad status, family scope, package posture summary, and canonical pointers. It does not own live Git/GitHub state, active branch state, live PR state, latest release state, release-window inventories, package trace tables, slice trace tables, or long branch-history narration.
+This file is an index. It owns feature-family identity, priority, durable registry posture, family scope, package posture summary, and canonical pointers. It does not own live Git/GitHub state, active branch state, live PR state, latest release state, release-window inventories, package trace tables, slice trace tables, branch-plan ledgers, or long branch-history narration.
 
-Use Git, GitHub, or approved helpers for live operational truth. Use branch records, branch plans, workstream records, and family dossiers for detailed planning, implementation proof, package/slice history, and branch receipts.
+Use Git, GitHub, approved helpers, or `C:\Nexus Governance State` for live operational truth. Use branch records, branch plans, workstream records, and family dossiers as durable evidence pointers or historical receipts only; active detailed planning and implementation ledgers belong outside this backlog index.
 
 ## Registry Rules
 
-- `Status` is the delivery or work field.
+- `Status` is a durable registry posture field, not active operational state.
 - `Record State` is the canonical-record lifecycle field.
 - `Priority` is the primary backlog selection signal for open candidate work.
 - `Target Version` is not an open-backlog selection field and must not be used to rank, select, defer, or skip open backlog candidates.
@@ -28,8 +28,8 @@ Use Git, GitHub, or approved helpers for live operational truth. Use branch reco
 | --- | --- |
 | Live branch, worktree, `HEAD`, ahead/behind, PR, review, tag, or release state | Git, GitHub, or approved helper output |
 | Feature family identity, broad priority, high-level status, and pointer routing | `Docs/feature_backlog.md` |
-| Branch authority, approvals, current phase, blockers, and legal next phase | `Docs/branch_records/<branch>.md` |
-| Active runtime implementation plan, seam checklist, proof plan, and plan-to-implementation trace | `Docs/branch_plans/<branch>.md` |
+| Durable branch identity, approvals, and historical receipt pointers | `Docs/branch_records/<branch>.md` |
+| Active branch lifecycle, current phase, blockers, legal next phase, runtime implementation plan, seam checklist, proof plan, and plan-to-implementation trace | `C:\Nexus Governance State\branches\<branch_slug>\` or approved helper-derived packets |
 | Durable package trace, slice trace, proof history, branch lessons, and reusable continuity | `Docs/workstreams/` records or family dossiers |
 | Release sequencing and public milestone posture | `Docs/prebeta_roadmap.md` |
 
@@ -250,13 +250,11 @@ Package Completion State: Open / not package-complete
 Single-Slice Package User Approval: Not required - package history is multi-slice; future scope still requires USER approval.
 Canonical Detail Owner: `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
 Family Vision Owner: `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
-Next Workstream: Selected
+Future Planning Evidence: FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision remains durable planning context for the existing FAM-007 backlog family.
+Branch Evidence Pointer: `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`
 Minimal Scope: FAM-007 runtime action-gate planning slice for Breakpoint 2 private Dev/Owner skeleton setup decision, preserving provider/model/runtime/cache/memory execution as later USER-gated work.
-Selected Next Workstream: FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision.
-Selected Next Implementation Branch: Deferred to Branch Readiness
-Branch: Deferred to Branch Readiness
-Selection / Unblock: USER-approved PR Readiness Stage 1 selected-next sync for the existing FAM-007 backlog family; this does not create a new backlog family, branch, private repo, private remote, provider/model execution path, runtime cache behavior, memory behavior, or release action.
-Operational Selection Pointer: The compact selected-next marker above exists only to satisfy PR Readiness Stage 1 successor/no-release-debt truth for existing FAM-007. Live branch, PR, review, watcher, merge, release, and worktree posture remain external operational state or Git/GitHub/helper truth.
+Operational Selection Owner: `C:\Nexus Governance State` plus Git/GitHub/helper live checks own selected-next, branch creation, active/complete status, PR state, review state, watcher state, merge state, release-window posture, and worktree posture.
+Selection / Unblock Boundary: This compact backlog row may name durable family direction and branch evidence pointers, but it must not create a new backlog family, branch, private repo, private remote, provider/model execution path, runtime cache behavior, memory behavior, release action, or live lifecycle state.
 Historical Branch Runtime Engineering Plans: see FAM-007 branch-plan records under `Docs/branch_plans/`.
 Historical Trace Coverage: FAM-007 branch records, family vision, branch plans, workstream evidence, and public release receipts. Detailed PR, release-readiness, post-release, and canon-closure interpretation lives in canonical detail owners, not this compact backlog registry.
 

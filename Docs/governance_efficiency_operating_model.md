@@ -4,7 +4,7 @@
 
 This document is the compact operating model for governance reform after the multi-worktree transition.
 
-It exists to reduce repeated source-truth updates, shrink routine prompt load, and keep safety gates enforceable without turning backlog, roadmap, or branch records into duplicate live-state ledgers.
+It exists to reduce repeated source-truth updates, shrink routine prompt load, and keep safety gates enforceable by treating repo Docs as durable index/context files, not operational ledgers.
 
 ## Scope
 
@@ -37,26 +37,34 @@ Required fields for new reform rules:
 
 Full normative policy belongs in the owner file. Mirrors should summarize the rule and point to the owner instead of repeating full policy prose.
 
+## Repo Docs Index-Only Contract
+
+Repo Docs are durable index/context files. They may contain governance law, product vision, architecture contracts, source-truth routing, durable evidence pointers, compact historical receipts, and public-safe explanation needed from a clean clone.
+
+Repo Docs must not contain active operational ledger material for branch state, branch plans, UFD rows, Branch Change Intent rows, Element-to-Phase rows, worktree assignment state, PR watcher state, release-window assembly, selected-next posture, review-bundle manifests, rebaseline packets, or temporary Codex handoff state. Those ledgers belong in `C:\Nexus Governance State`, approved worktree-local staging, Git/GitHub/helper-derived truth, or later USER-approved external owners.
+
+When a repo doc needs to reference operational work, it may record only a compact evidence pointer such as branch name, branch record path, external-state owner path, workstream/family owner, PR/release receipt, or historical interpretation. It must not record whether the operational item is currently active, complete, pending, blocked, open, mergeable, released, selected-next, or no-branch-created unless the line is clearly labeled as historical receipt evidence.
+
 ## Source-Truth Ownership Matrix
 
 Use this ownership model before creating or updating a governance/source-truth file:
 
 | Surface | Owns | Must Not Own |
 | --- | --- | --- |
-| `Docs/Main.md` | least-updated canonical docs index, source-truth layer ownership, recovery pointers, and clear digest of valid governance/source-truth files | detailed branch execution narratives or volatile current-state ledgers |
+| `Docs/Main.md` | least-updated canonical docs index, source-truth layer ownership, recovery pointers, and clear digest of valid governance/source-truth files | detailed branch execution narratives or operational ledgers |
 | `Docs/phase_governance.md` | normative phase rules, phase enum, blockers, gates, proof hierarchy | branch-local implementation details |
 | `Docs/development_rules.md` | developer-facing execution rules and compact phase mirrors | duplicate full policy blocks already owned elsewhere |
 | `Docs/codex_modes.md` | Codex operating posture and mode behavior | branch-local truth or release receipts |
 | `Docs/orin_task_template.md` | reusable prompt skeleton fields | current live branch facts |
 | `Docs/codex_user_guide.md` | human-readable operator guide | machine-enforced current-state authority |
-| `Docs/worktree_slots.md` | stable slot IDs and intended assignment receipts | `HEAD`, dirty state, ahead/behind, PR state, latest tag, latest release |
-| `Docs/feature_backlog.md` | compact feature-family registry, status, and pointer layer | detailed active-branch execution planning |
-| `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, and broad feature-family checkpoints | volatile Git/GitHub operational state or active release ledger fields |
+| `Docs/worktree_slots.md` | stable slot IDs and intended lane labels | active worktree assignment ledger, `HEAD`, dirty state, ahead/behind, PR state, latest tag, latest release |
+| `Docs/feature_backlog.md` | compact feature-family registry and pointer layer | detailed active-branch execution planning, package/slice ledgers, or live lifecycle posture |
+| `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, broad feature-family checkpoints, and durable branch evidence pointers | volatile Git/GitHub operational state, active release ledger fields, or active/complete/pending branch posture |
 | `Docs/nexus_vision.md` | project-wide product vision contract, long-term standards, and durable product direction | active branch implementation plans or family-specific execution ledgers |
 | `Docs/family_visions/` | family-specific durable product direction and reusable USER-accepted standards | active branch authority, live state, or per-seam implementation checklists |
 | `Docs/branch_records/index.md` | durable branch-record law, standing Governance active-authority exception, historical receipt routing, and pointers to external active operational branch authority | detailed branch implementation checklists or general live active-branch operations lists |
-| `Docs/branch_records/<branch>.md` | branch authority, phase history, approvals, legal next phase, compact UFD pointer/status markers, structured traceability receipt | volatile live state, unindexed execution diaries, full feedback text, or reusable family-level implementation history after promotion |
-| `Docs/branch_plans/<branch>.md` | active runtime branch engineering plan, non-runtime Branch Engineering Plan when overlap intent evidence is required, USER Feedback Disposition full-detail owner while active, Branch Change Intent Ledger owner for `Rebaseline Overlap Files:`, per-seam checklist, plan-to-implementation traceability while active | permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger after retirement |
+| `Docs/branch_records/<branch>.md` | durable branch identity, approval evidence, compact historical receipt, and pointers to external operational owners | active branch lifecycle ledger, volatile live state, unindexed execution diary, full feedback text, or reusable family-level implementation history after promotion |
+| `Docs/branch_plans/<branch>.md` | Branch Runtime Engineering Plan shape, transition-approved plan receipts, retired/historical branch-plan evidence, and durable lookup paths | canonical live branch status, active/complete/pending lifecycle posture, permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger |
 | `Docs/workstreams/index.md` | canonical workstream and dossier routing | per-branch live state by inertia |
 | `Docs/workstreams/<id>.md` | durable promoted implementation history and reusable continuity | volatile branch/PR state |
 | `Docs/validation_helper_registry.md` | durable helper inventory, statuses, reuse/consolidation decisions | workstream evidence details already owned by branch/workstream docs |
@@ -69,18 +77,18 @@ Use this ownership model before creating or updating a governance/source-truth f
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
-The post-audit reform model has one owner per active fact class:
+The post-audit reform model has one owner per fact class and keeps repo Docs index-only:
 
-- backlog owns compact product-family identity and canonical pointers
-- roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints
-- worktree slots own reusable slot definitions and intended assignment receipts
-- branch records own branch authority, approvals, phase history, and structured branch traceability receipts
-- branch plans own detailed active runtime-branch engineering plans, full active USER Feedback Disposition items, USER-reviewable Element-to-Phase Proof Matrix planning, and retire after fold-down
-- branch plans own full active Branch Change Intent Ledger evidence when rebaseline overlap exists; branch records receive compact fold-down receipts only when durable evidence remains useful
+- backlog owns compact product-family identity and canonical pointers; it does not own live lifecycle posture
+- roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, broad feature-family checkpoints, and durable branch evidence pointers; it does not own active/complete/pending state
+- worktree slots own reusable slot definitions and lane labels; external state owns current assignment ledger detail
+- branch records own durable branch identity, approval evidence, and compact historical receipts; external state owns active branch lifecycle ledgers
+- branch plans define plan shape and may preserve transition-approved or historical plan receipts; external branch state owns active runtime-branch engineering plans, full active USER Feedback Disposition rows, USER-reviewable Element-to-Phase Proof Matrix rows, and active Branch Change Intent rows
+- branch records receive compact fold-down receipts only when durable evidence remains useful
 - workstreams and family dossiers own durable package trace, slice trace, proof history, and reusable continuity
 - Git, GitHub, and approved helpers own live operational truth
 
-Backlog and roadmap must not contain `Package Trace:` or `Slice Trace:` sections. Those detailed ledgers belong in workstream records, family dossiers, active branch plans, or structured branch receipts.
+Backlog and roadmap must not contain `Package Trace:` or `Slice Trace:` sections. Those detailed ledgers belong in workstream records, family dossiers, external active branch plans, transition-approved branch plans, or structured branch receipts.
 
 Backlog and roadmap must not manually maintain latest public prerelease, latest tag, release URL, target commit, open PR state, active branch identity, review-thread state, worktree dirty state, or ahead/behind state as active truth. The roadmap is a stage-breakpoint reference, not a release ledger. These surfaces may point to the helper or owner that derives live truth.
 
@@ -109,6 +117,7 @@ Required State:
 - `<worktree>\.nexus_state_staging\` may hold proposed state only after USER approves worktree-local staging.
 - Git, GitHub, and approved helpers own derived live facts.
 - External governance candidates are not binding governance until folded into repo source truth through a USER-approved repo update and merge.
+- Repo docs may keep durable branch/document evidence pointers and historical receipts, but they must not own active/complete/pending lifecycle posture for branches, PRs, worktrees, selected-next decisions, release windows, watcher state, review bundles, or temporary handoffs.
 
 Allowed Values:
 
@@ -126,6 +135,7 @@ Invalid Values:
 - external governance candidates treated as binding repo governance
 - generated global indexes treated as primary hand-edited state
 - active branch, PR, worktree, watcher, release-window, selected-next, or temporary handoff state treated as durable repo source truth by inertia
+- backlog, roadmap, branch-record index, branch plans, worktree slots, or review surfaces using current-state words such as `active`, `complete`, `pending`, `no branch created`, `no live PR`, `PR creation pending`, `Stage 2 pending`, or release-window ownership as live operational truth instead of historical evidence or external/derived state
 
 Blocking Condition:
 
@@ -566,7 +576,7 @@ Accepted assumptions expire or require review when branch scope changes, returne
 
 USER Feedback Disposition (UFD) preserves meaningful USER feedback without creating another permanent feedback ledger.
 
-The active Branch Runtime Engineering Plan is the full-detail owner for UFD items while the branch is active. Branch records, backlog, roadmap, workstream docs, family dossiers, Nexus Vision, and family vision owners may carry compact UFD pointers or folded outcomes only when they are the correct owner for the final disposition.
+The active branch planning owner is the full-detail owner for UFD items while the branch is active. After the External Operational State Store transition, that active owner is external operational state or an approved worktree-local staging packet; repo branch plans preserve only transition-approved evidence or historical receipts. Branch records, backlog, roadmap, workstream docs, family dossiers, Nexus Vision, and family vision owners may carry compact UFD pointers or folded outcomes only when they are the correct owner for the final disposition.
 
 The branch plan keeps one ledger-level owner through `UFD Ledger Owner:`, one `UFD Ledger Status:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:`. Each meaningful feedback item lives in a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block.
 
@@ -589,7 +599,7 @@ Required decisions from that intake:
 - Complete the Docs reform as staged internal work on this same Governance carrier and one final PR path; avoid revolving PRs for every subtopic.
 - Keep `Docs/Main.md` as the least-updated canonical docs index, recovery map, and pointer ledger.
 - Distinguish canonical docs from context docs. Canonical docs own law, routing, or source-truth roles; context docs preserve evidence, product reasoning, implementation history, receipts, or review detail.
-- Treat Branch Runtime Engineering Plans as canonical while active, then fold down and retire after durable content migrates. Deletion is not the default.
+- Treat Branch Runtime Engineering Plans as canonical planning contracts only in the approved active owner. After external-state transition, repo copies are transition receipts or historical receipts; fold down durable outcomes and retire them after durable content migrates. Deletion is not the default.
 - Treat branch records as structured traceability receipts that may remain large when they preserve useful debugging, rollback, commit, PR, release, validation, and changed-surface evidence.
 - Do not use "compaction" to erase traceability. The reform target is duplicate live-state removal, clearer organization, and owner routing.
 - Delete or collapse low-risk/reference docs only after a reference scan, replacement owner, and USER acceptance prove the move is safe.
@@ -615,7 +625,7 @@ The Desktop bundle must:
 - be refreshed when the underlying review files change
 - never replace source-truth files, commit artifacts, validation proof, or branch authority records
 
-For Workstream Entry, the Desktop bundle is required before USER green-lights implementation when the branch has runtime, user-facing, source-truth, helper/validator, or workflow impact. The bundle must copy the branch vision, active Branch Runtime Engineering Plan or Branch Engineering Plan, Element-to-Phase Proof Matrix owner, branch authority record, relevant Nexus/family vision files, UFD/change-intent surfaces when applicable, and any other source-truth files the USER needs to inspect. The Workstream Entry digest must report the folder path, copied files, `USER Branch Plan Review Gate` status, `USER Review Packet Finding:`, and whole-package analysis status when multiple slices or seams are admitted. `USER Review Packet Finding:` must name `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, the exported zip, packet source HEAD, current branch HEAD, freshness result, digest status, and waiver/blocker status. `USER_BRANCH_PLAN_REVIEW.md` must act as the USER-facing design review: it presents planned feature behavior, accessible surfaces, Codex recommendations, implementation options, design/scope questions, and a USER response area. Workstream implementation cannot begin until USER response is attached or inserted and Codex digests it into the Workstream Entry decision, or until USER explicitly waives that response/digest requirement. The bundle supports USER accepting, revising, deferring with waiver, rejecting, or requesting more analysis before implementation begins.
+For Workstream Entry, the Desktop bundle is required before USER green-lights implementation when the branch has runtime, user-facing, source-truth, helper/validator, or workflow impact. The bundle must copy the branch vision, active external Branch Runtime Engineering Plan or approved transition Branch Engineering Plan, Element-to-Phase Proof Matrix owner, branch authority evidence pointer, relevant Nexus/family vision files, UFD/change-intent surfaces when applicable, and any other source-truth files the USER needs to inspect. The Workstream Entry digest must report the folder path, copied files, `USER Branch Plan Review Gate` status, `USER Review Packet Finding:`, and whole-package analysis status when multiple slices or seams are admitted. `USER Review Packet Finding:` must name `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, the exported zip, packet source HEAD, current branch HEAD, freshness result, digest status, and waiver/blocker status. `USER_BRANCH_PLAN_REVIEW.md` must act as the USER-facing design review: it presents planned feature behavior, accessible surfaces, Codex recommendations, implementation options, design/scope questions, and a USER response area. Workstream implementation cannot begin until USER response is attached or inserted and Codex digests it into the Workstream Entry decision, or until USER explicitly waives that response/digest requirement. The bundle supports USER accepting, revising, deferring with waiver, rejecting, or requesting more analysis before implementation begins.
 
 USER_BRANCH_PLAN_REVIEW.md product/design reinforcement: the review is the USER Branch Plan Contract and must also include `Contract Status`, `Contract Version / Revision`, `What Will I Actually See, And Where Will I See It?`, `End-State Vision`, `Visual / Functional Walkthrough`, surface map, implementation options with pros/cons/risk, Codex recommended direction, `Why This Fits The Nexus Vision`, USER design direction decision, current branch scope, future-gated scope, Implementation Staging Notes, USER decisions, USER response, Codex response digest, implementation constraints created by USER response, rejected/deferred ideas, Vision Delta / Source-Truth Impact, Contract Change Log, Contract Completion Checklist, waiver path, and Workstream Entry result area. The artifact is meant to help USER decide whether the planned feature looks and feels right before bounded Workstream implementation. The primary decision surface is the end-state and possibility space, not a per-slice implementation breakdown. `Contract Status` must be `Complete` or `Waived by USER` before implementation approval is legal; `Draft`, `Pending USER Response`, `Pending Codex Digest`, and `Pending USER Confirmation` block implementation. If USER feedback changes branch direction, feature shape, UI behavior, workflow, scope, boundaries, or seam order, Codex must update source truth, refresh the Desktop packet/ZIP, set Contract Status to Pending USER Confirmation, and wait for USER confirmation or explicit waiver.
 

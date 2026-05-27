@@ -23,6 +23,7 @@ USER_REVIEW_BUNDLE_HELPER = Path("dev/orin_user_review_bundle.py")
 
 REQUIRED_MODEL_PHRASES = (
     "Rule ID And Owner Model",
+    "Repo Docs Index-Only Contract",
     "Source-Truth Ownership Matrix",
     "Docs Source-Truth Reform Model",
     "Derived Live Truth Versus Historical Receipt",
@@ -134,6 +135,9 @@ BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN = (
     "Current active workstream: Branch-local",
     "PR Readiness Stage 2 / PR creation",
     "PR Readiness Stage 2 execution gate",
+    "Branch Creation Status: No branch created",
+    "No branch created",
+    "No live PR",
 )
 
 BACKLOG_ROADMAP_POINTER_FORBIDDEN = (
@@ -147,6 +151,7 @@ BACKLOG_ROADMAP_POINTER_FORBIDDEN = (
 BACKLOG_ROADMAP_CURRENT_STATE_BRANCH_FIELDS = (
     "Selected Next Implementation Branch",
     "Current Carrier Branch",
+    "Branch Creation Status",
     "Branch",
 )
 
@@ -190,7 +195,7 @@ BRANCH_RECORD_INDEX_REQUIRED = (
 )
 
 BRANCH_PLAN_README_REQUIRED = (
-    "Branch plans are canonical while the owning branch is active",
+    "Repo branch-plan files are not the long-term place to maintain active ledger rows",
     "At PR Readiness, the `PR Fold-Down Packet:` must classify plan content",
     "It must not preserve stale active phase",
     "USER Feedback Disposition",
@@ -621,12 +626,16 @@ def validate() -> list[str]:
             failures.append(
                 f"{path}: missing Docs Source-Truth Reform Model compact pointer marker"
             )
+        if "index" not in text.lower():
+            failures.append(
+                f"{path}: compact pointer surface must explicitly identify itself as an index/reference surface, not an operational ledger"
+            )
         for phrase in BACKLOG_ROADMAP_POINTER_FORBIDDEN:
             if phrase in text:
                 failures.append(
                     f"{path}: compact pointer surface retains stale pre-PR/PR-creation "
                     f"wording {phrase!r}; use merged-unreleased, released/closed, "
-                    "historical receipt, or no-active-branch posture instead"
+                    "historical receipt, external operational state, or Git/GitHub/helper-derived truth instead"
                 )
 
         current_state_text = "\n".join(
@@ -637,7 +646,7 @@ def validate() -> list[str]:
                 failures.append(
                     f"{path}: current-state section carries branch-local/live-state phrase "
                     f"{phrase!r}; backlog/roadmap must stay compact and route active branch "
-                    "identity to branch authority records, branch plans, or historical receipts"
+                    "identity to external operational state, Git/GitHub/helper-derived truth, or historical receipts"
                 )
         for line in current_state_text.splitlines():
             for field in BACKLOG_ROADMAP_CURRENT_STATE_BRANCH_FIELDS:
@@ -646,14 +655,14 @@ def validate() -> list[str]:
                     failures.append(
                         f"{path}: current-state field {field!r} carries branch-local/live-state "
                         "identity; backlog/roadmap must stay compact and route active branch "
-                        "identity to branch authority records, branch plans, or historical receipts"
+                        "identity to external operational state, Git/GitHub/helper-derived truth, or historical receipts"
                     )
         for pattern, label in BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN_PATTERNS:
             if re.search(pattern, current_state_text):
                 failures.append(
                     f"{path}: current-state section carries branch-local/live-state pattern "
                     f"{label!r}; backlog/roadmap must stay compact and route active branch "
-                    "identity to branch authority records, branch plans, or historical receipts"
+                    "identity to external operational state, Git/GitHub/helper-derived truth, or historical receipts"
                 )
 
     worktree_slots_text = _read(Path("Docs/worktree_slots.md"))

@@ -213,9 +213,9 @@ OWNER_DESCRIPTIONS = {
         "volatile live state, unindexed execution diaries, or reusable family implementation history after promotion",
     ),
     "branch runtime engineering plan": (
-        "active branch engineering plan",
-        "per-seam checklists, deltas, proof, approval boundaries while active",
-        "permanent family dossier or active/live branch authority after PR fold-down",
+        "branch engineering plan shape and durable/historical branch-plan receipt",
+        "per-seam checklists, deltas, proof, approval boundaries as transition evidence or historical receipt",
+        "canonical live branch state, active/live branch authority, or permanent family dossier after PR fold-down",
     ),
     "branch plan standard": (
         "branch runtime engineering plan standard",
@@ -439,9 +439,9 @@ def owner_for(rel: str) -> str:
 
 def owner_for_fact(fact: str) -> str:
     mapping = {
-        "active branch authority": "Docs/branch_records/index.md and active branch authority record",
-        "current branch status": "Git/GitHub/helper-derived truth plus active branch authority record receipt",
-        "next legal phase": "active branch authority record or phase packet",
+        "active branch authority": "C:\\Nexus Governance State plus Git/GitHub/helper-derived truth; repo keeps only standing Governance exception and historical receipts",
+        "current branch status": "Git/GitHub/helper-derived truth plus external operational branch state",
+        "next legal phase": "phase packet or external operational branch state",
         "selected-next": "Branch/PR Readiness packet and owning branch record only when USER-approved",
         "worktree slot assignment": "Docs/worktree_slots.md assignment receipt",
         "worktree live state": "git status / worktree preflight / helper output",
@@ -454,7 +454,7 @@ def owner_for_fact(fact: str) -> str:
         "package trace": "Docs/workstreams or family dossiers",
         "slice trace": "Docs/workstreams or family dossiers",
         "issue posture": "GitHub issues plus structured historical receipt when needed",
-        "branch runtime plan": "Docs/branch_plans/<branch>.md while active",
+        "branch runtime plan": "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md while active; repo branch plans are transition/historical receipts",
         "branch phase history": "Docs/branch_records/<branch>.md structured receipt",
         "branch receipt": "Docs/branch_records/<branch>.md",
         "workstream durable history": "Docs/workstreams/<id>.md or family dossier",
@@ -520,9 +520,9 @@ def action_for(
     active_branch_plan_paths = active_branch_plan_paths or set()
     if owner == "branch runtime engineering plan" and rel in active_branch_plan_paths:
         return (
-            "Keep active branch plan",
+            "Transition active branch plan",
             completed,
-            "Keep as active planning authority for the current branch until PR fold-down; do not queue for retired-plan cleanup while active.",
+            "If this file still carries live branch planning state, move that operational state to external branch state or convert it to a historical receipt before PR green.",
         )
     if owner == "branch runtime engineering plan":
         return (
@@ -620,7 +620,7 @@ def consolidation_target_for(row: dict[str, object]) -> str:
     if rel == "Docs/Main.md":
         return "Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs."
     if bool(row.get("active_branch_plan")):
-        return "Current active branch plan; keep as live branch authority until PR Readiness fold-down moves it to historical posture."
+        return "Current branch-plan transition candidate; active operational planning must live in external branch state, while repo retains only approved transition evidence or historical receipt."
     if owner == "branch runtime engineering plan":
         return "Listed in Docs/branch_plans/retirement_index.md as historical retired posture; keep durable lookup paths in branch records/workstreams/family vision owners."
     if owner == "branch plan retirement index":
@@ -671,7 +671,7 @@ def deletion_posture_for(row: dict[str, object]) -> str:
     owner = str(row["owner"])
     action = str(row["action"])
     if bool(row.get("active_branch_plan")):
-        return "Active branch plan; do not delete, archive, or retire while this branch remains active."
+        return "Transition branch-plan receipt; do not delete, archive, or retire without external replacement proof and USER approval."
     if owner == "branch runtime engineering plan":
         return "Retired from active planning posture; do not delete without separate USER approval and reference proof."
     if owner == "pending fold-source file":
@@ -763,7 +763,7 @@ USER_RESPONSE_INTEGRATION_ROWS = (
     ),
     (
         "Branch plans retire, not delete by default",
-        "Plans are canonical while active, then fold down, migrate durable content, and retire.",
+        "Active operational plans live in external state after transition; repo plan files preserve transition evidence or historical receipts, then fold down, migrate durable content, and retire.",
         "Branch plan README; branch record index; dossier",
         "Historical plan files are indexed as retired from active planning posture; deletion remains USER-gated.",
         "Planning fixtures and governance efficiency validation preserve the lifecycle language.",
@@ -1572,11 +1572,12 @@ def generate() -> None:
     add("")
     for principle in (
         "Git/GitHub/helpers own live operational truth: `HEAD`, `origin/main`, dirty state, ahead/behind, merge base, remote refs, PR state, reviews, latest tag/release, release existence, and issue state.",
-        "Docs own governance intent, USER decisions, approvals, branch authority, historical interpretation, durable implementation proof, and compact pointers to owning records.",
-        "Backlog owns compact feature-family identity, priority, status, family scope, package summary, and canonical pointers only.",
-        "Roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, and broad feature-family checkpoints only.",
-        "Branch records own branch authority, phase history, approvals, legal carrier status, and structured current/historical traceability receipts.",
-        "Branch plans own detailed active-branch engineering plans while active, then fold down during PR Readiness and retire after durable content is migrated and no active branch depends on them.",
+        "Repo Docs are durable index/context files: they own governance law, vision, compact pointers, and historical receipts, not operational ledgers.",
+        "Docs own governance intent, USER decisions, approvals, historical interpretation, durable implementation proof pointers, and compact pointers to owning records.",
+        "Backlog owns compact feature-family identity, priority, durable registry posture, family scope, package summary, and canonical pointers only.",
+        "Roadmap owns the pre-Beta/Beta/release schedule outline, milestone breakpoints, broad feature-family checkpoints, and durable branch evidence pointers only.",
+        "Branch records own durable branch identity, approval evidence, and compact historical receipts; external operational state owns active branch lifecycle ledgers.",
+        "Branch plans define the engineering plan shape and may preserve transition-approved or historical plan receipts; active operational planning lives in external branch state after transition.",
         "Workstreams and family dossiers own durable package trace, slice trace, implementation proof, closure history, and reusable continuity.",
         "Main owns recovery routing and source-truth ownership mapping, not detailed branch execution.",
         "Worktree slots own stable slot definitions and assignment/retirement receipts, not live Git/GitHub state.",
@@ -1590,12 +1591,12 @@ def generate() -> None:
     ownership_rows = (
         ("Git/GitHub/helpers", "live operational truth", "governance decisions or durable source-truth interpretation"),
         ("Docs/Main.md", "least-updated canonical docs index, recovery map, and ownership routing", "detailed branch/release/live-state narration"),
-        ("Docs/feature_backlog.md", "compact FAM registry and pointer layer", "Package Trace, Slice Trace, live branch/release/issue state"),
-        ("Docs/prebeta_roadmap.md", "stage-breakpoint schedule outline and broad milestone checkpoints", "live latest-release, release-window, PR-window, or current branch state truth"),
-        ("Docs/worktree_slots.md", "slot definitions and assignment receipts", "HEAD, dirty state, ahead/behind, PR/release state"),
+        ("Docs/feature_backlog.md", "compact FAM registry and pointer layer", "Package Trace, Slice Trace, active lifecycle posture, or live branch/release/issue state"),
+        ("Docs/prebeta_roadmap.md", "stage-breakpoint schedule outline, broad milestone checkpoints, and durable branch evidence pointers", "live latest-release, release-window, PR-window, active/complete/pending branch state truth"),
+        ("Docs/worktree_slots.md", "slot definitions and intended lane labels", "active worktree assignment ledger, HEAD, dirty state, ahead/behind, PR/release state"),
         ("Docs/branch_records/index.md", "branch authority routing", "implementation checklists"),
-        ("Docs/branch_records/<branch>.md", "authority, approvals, phase history, structured traceability receipts", "volatile live state or unindexed execution diary"),
-        ("Docs/branch_plans/<branch>.md", "active branch engineering plan", "permanent active authority or family dossier after fold-down"),
+        ("Docs/branch_records/<branch>.md", "durable branch identity, approval evidence, compact historical receipt, and pointers to external operational owners", "active lifecycle ledger, volatile live state, or unindexed execution diary"),
+        ("Docs/branch_plans/<branch>.md", "branch engineering plan shape and durable/historical branch-plan receipt", "canonical live branch state, active branch authority, or permanent family dossier after fold-down"),
         ("Docs/workstreams/<id>.md", "durable implementation and proof history", "volatile Git/GitHub live facts"),
         ("Docs/workstreams/*_family_dossier.md", "family continuity and migrated reusable detail", "active PR/worktree state"),
         ("Docs/validation_helper_registry.md", "helper inventory and responsibility", "branch-specific proof detail"),

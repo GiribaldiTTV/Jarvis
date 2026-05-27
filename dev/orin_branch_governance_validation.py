@@ -2477,8 +2477,8 @@ ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = {
         "`No Existing Owner Fits`",
         "`Element Ledger Placement Drift`",
         "Promoted workstream: canonical workstream doc.",
-        "Registry-only active branch: active branch authority record.",
-        "Large active ledger: optional companion file with canonical pointer",
+        "Registry-only active branch: external branch state or the standing Governance intake exception while legally active.",
+        "Large active ledger: external branch state, optional companion file with canonical pointer",
         "Every active ledger row should identify the element ID",
         "Element Validation Ledger status values should use this vocabulary",
         "`Implemented Pending Proof`",
@@ -4997,7 +4997,7 @@ USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
     Path("Docs/governance_efficiency_operating_model.md"): (
         "USER Feedback Disposition Model",
         "UFD Ledger Owner:",
-        "full active USER Feedback Disposition items",
+        "full active USER Feedback Disposition rows",
         "exact-normalized duplicate `Feedback Summary:`",
     ),
     Path("Docs/validation_helper_registry.md"): (
@@ -5264,7 +5264,7 @@ GOVERNANCE_RECURRENCE_DOCS = (
 GOVERNANCE_RECURRENCE_PHRASES = (
     "patch the canon or validator rule that allowed it before the repair is considered complete",
     "drift prevention proof is mandatory",
-    "merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership",
+    "merge-stable pointer surfaces such as backlog and roadmap must not mirror transient repair-branch ownership",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
 )
@@ -5606,7 +5606,7 @@ MERGE_STABLE_CURRENT_STATE_DOCS = (
 )
 
 MERGE_STABLE_CURRENT_STATE_PHRASES = (
-    "merge-target current-state owners must be merge-stable",
+    "merge-target pointer surfaces must be merge-stable",
     "Merge-target post-merge-stable authority projection is mandatory before PR green",
     "Docs/feature_backlog.md",
     "Docs/prebeta_roadmap.md",
@@ -20824,6 +20824,23 @@ def main() -> int:
     active_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
     historical_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Historical Branch Authority Records")
     current_git_branch = _git_current_branch()
+    active_non_standing_branch_record_paths = [
+        path
+        for path in active_branch_record_paths
+        if path != STANDING_GOVERNANCE_INTAKE_RECORD_PATH
+    ]
+    require(
+        not active_non_standing_branch_record_paths,
+        (
+            "Repo Active Operational State Prohibited: "
+            "Docs/branch_records/index.md may not list non-standing active branch "
+            "authority records after the External Operational State Store transition. "
+            "Repo docs may keep durable branch/document evidence pointers and historical "
+            "receipts only; active branch lifecycle state belongs in external operational "
+            "state or Git/GitHub/helper-derived truth. Offending record(s): "
+            + ", ".join(active_non_standing_branch_record_paths)
+        ),
+    )
     for prohibited_prefix in PROHIBITED_ACTIVE_BRANCH_PREFIXES:
         require(
             current_git_branch == "main" or not current_git_branch.startswith(prohibited_prefix),
@@ -20865,11 +20882,6 @@ def main() -> int:
         "Repo State: No Active Branch" in backlog_text or "Repo State: No Active Branch" in roadmap_text
     )
     if _is_merged_main_snapshot() and merged_no_active_branch_truth:
-        active_non_standing_branch_record_paths = [
-            path
-            for path in active_branch_record_paths
-            if path != STANDING_GOVERNANCE_INTAKE_RECORD_PATH
-        ]
         require(
             not active_non_standing_branch_record_paths,
             (
