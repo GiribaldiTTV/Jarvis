@@ -1559,7 +1559,7 @@ Release Readiness is analysis-only for repository files:
 
 Release Readiness may read External Governance State only after USER-approved initialization. Repo-file validation in GitHub Actions or clean clones must not require `C:\Nexus Governance State`; those environments validate durable repo truth only. If external state is missing during active local Release Readiness analysis, Codex reports `External State Missing` and returns the bootstrap packet from `Docs/governance_efficiency_operating_model.md` instead of inferring active branch, selected-next, worktree assignment, release-window, or watcher state from stale repo docs.
 
-External state mutation during Release Readiness remains blocked unless USER explicitly approves a local operational-state reconciliation. Even when approved, that mutation is limited to external operational release-window state, external acknowledgement state, or external promotion/recovery packets; it must not edit repo files or create release artifacts.
+External state mutation during Release Readiness remains blocked unless USER explicitly approves a local operational-state reconciliation, except for bounded RR2 post-release external state carry-forward reconciliation after release publication and green post-publish release/tag/body/health validation. Even when allowed, that mutation is limited to external operational release-window state, external acknowledgement state, external promotion/recovery packets, or external carry-forward records under `C:\Nexus Governance State`; it must not edit repo files, create release artifacts, create branches or PRs, merge, release again, clean branches or worktrees, or touch FAM/runtime/private/provider/cache/memory surfaces.
 
 Allowed in `Release Readiness`:
 
@@ -2268,6 +2268,8 @@ The `## Branch Readiness Stage 1 Analysis Packet` must include governed state ma
 
 `Stale Branch Cleanup Plan:` is required when Release Readiness, PR Readiness, or multi-worktree preflight identified old/stale branches, retired worktrees, or stale GitHub Desktop entries. Stage 1 analyzes only. The cleanup itself belongs to `Branch Readiness Stage 2 - Execution Gate` alongside branch/worktree creation or validation, because every Git repository and GitHub Desktop-bound worktree must keep a valid branch target until the replacement target is ready. If cleanup touches a stable family alias such as a durable FAM worktree folder, `Stable Worktree Path Preservation Gate:` must prove `Stable Worktree Path:` and `Replacement Binding Path:` before cleanup proceeds.
 
+`Post-Release External State Carry-Forward:` is required in Branch Readiness Stage 1 when the previous Release Readiness Stage 2 release has completed and external operational records still point at the just-released branch, PR, release-window, selected-next state, or old source commit. This is a normal BR1 check, not a blocker by itself. Stage 1 must report whether the carry-forward was already reconciled during bounded RR2 post-release closeout or must be reconciled in Branch Readiness Stage 2 before branch/worktree setup or implementation. It becomes `External Operational State Conflict` only when the external state disagrees with Git/GitHub/repo validation in a way that changes the legal next carrier, requires repo source-truth mutation, requires branch/worktree cleanup, or could authorize stale runtime/FAM/private work.
+
 For broad implementation family packages, Branch Readiness planning is not complete until the planning packet records USER vision inputs or explicit unanswered-question blockers, project-wide vision alignment, branch-specific vision alignment, Codex product interpretation, Codex implementation recommendation, Codex additional recommendations, USER/ChatGPT review checkpoint, USER critique loop, USER decision ledger, full feature element breakdown, system concept model, entity/profile model, user workflow model, scale/data-volume model, configuration/state model, whole-system interaction map, minimum viable versus full-system boundary, alternatives/tradeoffs reviewed, rejected shallow plan, current-branch versus future-package boundaries, affected files/surfaces, branch reach/package-size proof, expected user-facing outcomes, acceptance criteria, screenshot/live/User Test Summary proof requirements for user-facing work, implementation sequence proposal, deferred ideas/future-package ledger, open USER decision points, and USER decisions needed. Marker-only planning, a one-screen/simple-system plan, scaffold-only proof, or Codex self-assessment that the plan is "simple enough" is insufficient. The same planning proof remains required if the active implementation branch has already moved into Workstream, Hardening, Live Validation, or PR Readiness; later phases must route back to Branch Readiness instead of continuing with shallow planning debt.
 
 The active implementation branch `Product Definition Plan` must include non-empty, concrete, non-placeholder `Project-Wide Vision Alignment:`, `Branch-Specific Vision Alignment:`, `System Concept Model:`, `Entity / Profile Model:`, `User Workflow Model:`, `Scale / Data Volume Model:`, `Configuration And State Model:`, `Expected User-Facing Outcomes:`, `Codex Additional Recommendations:`, `USER Critique Loop:`, `USER Decision Ledger:`, `Deferred Ideas / Future Package Ledger:`, `Planning Adequacy Review:`, `Rejected Shallow Plan:`, `Alternatives And Tradeoffs Reviewed:`, `Whole-System Interaction Map:`, `Minimum Viable vs Full System Boundary:`, and `Open Questions / USER Decision Points:` markers before Workstream, Hardening, Live Validation, or PR Readiness can begin or resume. `Planning Packet Status: Complete` is invalid when those values are placeholder, self-assessed, too shallow, or missing the required USER critique/decision state.
@@ -2554,6 +2556,14 @@ Exit:
 - ready for release packaging
 - or returned to the failed earlier phase with explicit blockers
 
+### Post-Release External Operational State Carry-Forward
+
+After Release Readiness Stage 2 publishes a GitHub prerelease and post-publish release/tag/body/health validation is green, external operational records that still point to the just-closed branch, PR, release window, selected-next state, or previous source commit are normal carry-forward, not a Release Readiness blocker, when Git/GitHub/repo validators prove the release is published and merged repo source truth is already aligned.
+
+Codex may reconcile that external operational carry-forward in the same bounded RR2 post-release closeout without a separate USER decision when the reconciliation only updates `C:\Nexus Governance State` to match live Git/GitHub/repo truth and does not mutate repo source files, create branches or PRs, merge, release again, clean branches or worktrees, or touch FAM/runtime/private/provider/cache/memory surfaces.
+
+If not reconciled during RR2, Branch Readiness Stage 1 must report `Post-Release External State Carry-Forward:` as a normal check and Branch Readiness Stage 2 must reconcile it before branch/worktree setup or implementation. It becomes `External Operational State Conflict` only when the stale external state conflicts with Git/GitHub/repo validation, changes the legal next carrier, requires repo source-truth mutation, requires branch/worktree cleanup, or could permit runtime/FAM/private work from stale authority.
+
 ## Thread Launch / Write-Target Identity Lock
 
 Before meaningful repo work, file mutation, phase entry, branch/worktree creation, commit, push, PR creation, release action, runtime validation, shortcut mutation, provider/model installation, or GitHub Desktop handoff, Codex must verify the active chat lane, local workspace path, git root, branch, upstream, `HEAD`, `origin/main`, `git worktree list`, clean state, worktree role, expected phase/seam, and intended write target.
@@ -2729,6 +2739,7 @@ Digest non-compaction is mandatory. Choosing the smallest legal digest profile s
 Purpose:
 
 - classify escaped canon drift after a release without turning Release Readiness into a mutation phase or using `main` as a work surface
+- keep external operational state carry-forward separate from durable repo canon drift
 
 Allowed:
 
@@ -2740,6 +2751,7 @@ Allowed:
 Forbidden:
 
 - treating post-release canon repair as a Release Readiness mutation phase or standalone cleanup lane instead of a standard PR Readiness / next Branch Readiness Stage 2 checkpoint
+- treating normal post-release external operational state carry-forward as durable repo canon drift or as a Release Readiness blocker when Git/GitHub/repo validation is green
 - using post-release repair instead of the merge-target canon completeness gate
 - turning the repair path into a new implementation lane by accident
 - opening a governance-only branch

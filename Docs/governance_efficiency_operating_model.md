@@ -125,7 +125,7 @@ Allowed Values:
 - Worktree Acknowledgement State: `Pending`, `Accepted`, `Conflict`, `Not Applicable`
 - Lock State: `Unlocked`, `Locked`, `Expired`, `Stale`, `Conflict`, `Released`, `Recovery Required`
 - Promotion Result: `Approved`, `Rejected`, `Blocked`, `Superseded`, `Folded Into Repo`, `External Only`, `USER Decision Required`
-- Release Readiness Live-State Result: `Clear`, `External Operational State Conflict`, `Repo Live-State Leakage`, `Durable Release Truth Defect`, `USER Decision Required`
+- Release Readiness Live-State Result: `Clear`, `Post-Release External State Carry-Forward`, `External Operational State Conflict`, `Repo Live-State Leakage`, `Durable Release Truth Defect`, `USER Decision Required`
 
 Invalid Values:
 

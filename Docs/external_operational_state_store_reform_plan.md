@@ -825,7 +825,7 @@ Required state models:
 - Worktree Acknowledgement State: `Pending`, `Accepted`, `Conflict`, `Not Applicable`
 - Lock State: `Unlocked`, `Locked`, `Expired`, `Stale`, `Conflict`, `Released`, `Recovery Required`
 - Promotion Result: `Approved`, `Rejected`, `Blocked`, `Superseded`, `Folded Into Repo`, `External Only`, `USER Decision Required`
-- Release Readiness Live-State Result: `Clear`, `External Operational State Conflict`, `Repo Live-State Leakage`, `Durable Release Truth Defect`, `USER Decision Required`
+- Release Readiness Live-State Result: `Clear`, `Post-Release External State Carry-Forward`, `External Operational State Conflict`, `Repo Live-State Leakage`, `Durable Release Truth Defect`, `USER Decision Required`
 
 Required named blockers:
 
@@ -1185,7 +1185,9 @@ Release Readiness blocks on:
 - `Governance Candidate Not Promoted` when it affects durable release truth, public safety, validator correctness, or source-truth ownership
 - `USER Decision Required`
 
-Release Readiness remains repo-file-frozen. External Governance State may be read during Release Readiness after USER-approved initialization. External state mutation during Release Readiness requires explicit USER approval and is limited to operational release-window state or approved external operational state reconciliation.
+`Post-Release External State Carry-Forward` is the expected state after RR2 release publication when external operational records still point to the just-released branch, PR, release window, selected-next state, or previous source commit but Git/GitHub/repo release validation is green. It is not release debt, not durable repo canon drift, and not a blocker by itself. Bounded RR2 closeout may reconcile only external operational files to live truth without a new USER decision; if not reconciled there, Branch Readiness Stage 1 reports the carry-forward and Branch Readiness Stage 2 reconciles it before branch/worktree setup or implementation.
+
+Release Readiness remains repo-file-frozen. External Governance State may be read during Release Readiness after USER-approved initialization. External state mutation during Release Readiness requires explicit USER approval except for bounded RR2 post-release external state carry-forward reconciliation, and is limited to operational release-window state or approved external operational state reconciliation.
 
 ## Review Bundle Integration
 
