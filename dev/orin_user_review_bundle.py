@@ -368,8 +368,10 @@ def _validate_export_zip(
             ) from exc
         try:
             vision_review = archive.read(USER_BRANCH_VISION_REVIEW_FILE).decode("utf-8")
-        except KeyError:
-            vision_review = ""
+        except KeyError as exc:
+            raise ValueError(
+                f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
+            ) from exc
         if "UPLOAD_THIS_ZIP.md" in entries:
             raise ValueError(
                 "Review export zip contains UPLOAD_THIS_ZIP.md, which is outside "
@@ -397,9 +399,12 @@ def _validate_export_zip(
         raise ValueError("Review export zip START_HERE.md is missing temporary review-aid scope")
     if USER_BRANCH_PLAN_REVIEW_FILE not in start_here:
         raise ValueError(f"Review export zip START_HERE.md is missing {USER_BRANCH_PLAN_REVIEW_FILE}")
+    if USER_BRANCH_VISION_REVIEW_FILE not in start_here:
+        raise ValueError(
+            f"Review export zip START_HERE.md is missing {USER_BRANCH_VISION_REVIEW_FILE}"
+        )
     _validate_user_facing_review_text(USER_BRANCH_PLAN_REVIEW_FILE, user_review)
-    if vision_review:
-        _validate_user_facing_review_text(USER_BRANCH_VISION_REVIEW_FILE, vision_review)
+    _validate_user_facing_review_text(USER_BRANCH_VISION_REVIEW_FILE, vision_review)
     for required_heading in (
         "## Contract Status",
         "## Contract Version / Revision",
@@ -1057,6 +1062,81 @@ def _write_user_branch_plan_review(
     return review_path.resolve()
 
 
+def _write_user_branch_vision_review(
+    *,
+    target: Path,
+    title: str,
+    review_purpose: str,
+    exact_user_decision: str,
+    pending_user_decisions: list[str],
+) -> Path:
+    lines = [
+        f"# USER Branch Vision Review - {title}",
+        "",
+        "## Review Scope",
+        "",
+        "This file is the BP1 USER-facing Branch Vision review surface. It is a temporary USER/ChatGPT context aid for deciding whether the branch direction is understandable before engineering plan review and implementation. It is not canon, not durable evidence, not a posterity archive, and not a later-phase report.",
+        "",
+        "## Review Purpose",
+        "",
+        review_purpose,
+        "",
+        "## Branch Goal",
+        "",
+        "Give USER and ChatGPT a clear product/governance vision to inspect before Codex proceeds to the next approved stage.",
+        "",
+        "## End-State Vision",
+        "",
+        "The accepted branch vision, USER constraints, and decisions should be folded into the proper source-truth owner. The Desktop review folder may then be replaced or discarded because it is only the review aid.",
+        "",
+        "## What Will I Actually See, And Where Will I See It?",
+        "",
+        "USER should see a small, readable review folder with this Branch Vision review, the Branch Plan review, and selected supporting files. Technical proof details are not part of the USER-facing folder.",
+        "",
+        "## How It Will Function",
+        "",
+        "USER and ChatGPT inspect the copied review files, decide whether the vision is accepted, revised, rejected, deferred, or waived, and Codex folds the accepted outcome into durable source truth before implementation or PR-readiness work proceeds.",
+        "",
+        "## Product Options / Design Paths",
+        "",
+        *_markdown_lines(
+            [
+                "Accept the current branch vision and continue to the next approved stage.",
+                "Request a revision to the branch vision before planning or readiness continues.",
+                "Explicitly waive the Branch Vision review when USER decides the current source truth is sufficient.",
+            ]
+        ),
+        "",
+        "## Codex Recommendation",
+        "",
+        "Use the USER Review Folder only for current USER/ChatGPT review. Keep accepted direction in source truth and keep technical proof in helper output, validator output, Codex chat digest, or external governance state.",
+        "",
+        "## USER Response",
+        "",
+        "Status: Use the exact USER decision below, or revise this Branch Vision before continuing.",
+        "",
+        "## Accepted Branch Vision",
+        "",
+        "Pending USER acceptance, revision, rejection, deferral, or waiver for this review loop.",
+        "",
+        "## Source-Truth Fold-In",
+        "",
+        "Accepted USER outcomes, constraints, and decisions must be folded into the proper durable source-truth owner. This file does not become the durable owner.",
+        "",
+        "## Pending USER Decisions",
+        "",
+        *_markdown_lines(pending_user_decisions),
+        "",
+        "## Exact USER Decision Supported",
+        "",
+        exact_user_decision,
+        "",
+    ]
+    review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+    review_path.write_text("\n".join(lines), encoding="utf-8")
+    return review_path.resolve()
+
+
 def _packet_text_status(text: str) -> str:
     normalized = re.sub(r"\s+", " ", text).casefold()
     implementation_markers = (
@@ -1267,6 +1347,13 @@ def build_bundle(
         codex_response_digest_override=codex_response_digest,
         workstream_entry_result_override=workstream_entry_result,
     )
+    vision_review_file = _write_user_branch_vision_review(
+        target=target,
+        title=title,
+        review_purpose=review_purpose,
+        exact_user_decision=exact_user_decision,
+        pending_user_decisions=pending_user_decisions,
+    )
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
         custom_review_path_reason_value = custom_review_path_reason or "Not recorded"
@@ -1274,7 +1361,7 @@ def build_bundle(
         custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
         custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
-    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file}
+    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file, vision_review_file}
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
