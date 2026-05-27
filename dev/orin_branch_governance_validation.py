@@ -5135,10 +5135,9 @@ BOT_REVIEW_SIGNAL_PHRASES = (
     "live PR",
     "thumbs-up reaction",
     "bot comment",
-    "current PR head",
-    "asks Codex to re-analyze",
+    "no later thumbs-up is required",
     "same-PR Codex bot-review repair loop",
-    "Stage 2 final handoff and merge execution cannot be green",
+    "Stage 2 final handoff cannot be green until bot-review closeout is verified",
 )
 
 PR_WATCHER_THREAD_CONTRACT_DOCS = (
@@ -18629,17 +18628,25 @@ def _run_pr_live_state_gate(
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
     manual_comment_resolution_clear = False
     if normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold():
-        require(
-            False,
-            (
-                "PR readiness gate: Bot Review Signal Pending is active; recorded bot-review "
-                f"status '{BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED}' in "
-                f"{active_branch_record_path or 'the active branch record'} is repair history only. "
-                "Fix the bot comment, push the same PR branch, reply/resolve the thread, ask Codex "
-                "to re-analyze the updated head, and wait for a fresh current-head thumbs-up "
-                "reaction before PR green or merge."
-            ),
-        )
+        if recorded_bot_review_head == current_head_sha and current_head_sha:
+            manual_comment_resolution_clear = True
+        elif recorded_bot_review_head and current_head_sha:
+            followthrough_ok, followthrough_error = _bot_review_comment_closeout_followthrough_ok(
+                recorded_bot_review_head,
+                current_head_sha,
+            )
+            require(
+                followthrough_ok,
+                (
+                    "PR readiness gate: PR Validation Pending blocker is active; recorded bot-review "
+                    f"signal head '{recorded_bot_review_head}' in "
+                    f"{active_branch_record_path or 'the active branch record'} does not match current "
+                    f"head '{current_head_sha}', and the later follow-through is not limited to bounded "
+                    f"closeout/governance files: {followthrough_error}"
+                ),
+            )
+            if followthrough_ok:
+                manual_comment_resolution_clear = True
 
     require(
         pr_state == "OPEN",
@@ -18736,9 +18743,8 @@ def _run_pr_live_state_gate(
                 (
                     "PR readiness gate: PR Validation Pending blocker is active; bounded fallback "
                     f"runtime proof for PR {pr_url or pr_info.get('number')} reports "
-                    f"{fallback_bot_comment_count} bot comment(s); fix, push, reply/resolve, "
-                    "ask Codex to re-analyze the updated head, and wait for a fresh current-head "
-                    "thumbs-up reaction before PR green"
+                    f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, and "
+                    "record comment-addressed closeout before PR green"
                 ),
             )
         if not fallback_bot_approval:
@@ -18831,15 +18837,18 @@ def _run_pr_live_state_gate(
     signal_timestamp = live_signal.get("timestamp", "")
     signal_actor = live_signal.get("actor", "")
     if signal_status == "comment":
+        inline_review_thread_resolved = (
+            signal_source == "inline review comment"
+            and live_codex_review_threads_clear
+        )
         require(
-            False,
+            inline_review_thread_resolved,
             (
                 "PR readiness gate: PR Validation Pending blocker is active; bot review comment "
                 f"detected from '{signal_actor or BOT_REVIEW_BOT_LOGIN}' via {signal_source or 'comment'} "
                 f"at '{signal_timestamp or 'unknown time'}' on live PR "
                 f"'{pr_url or pr_info.get('number') or 'UNKNOWN'}'; fix, push, resolve the "
-                "comment, ask Codex to re-analyze the updated head, and wait for a fresh "
-                "current-head thumbs-up reaction before PR green or merge"
+                "comment, and then PR green may return without waiting for a later thumbs-up"
             ),
         )
     elif signal_status != BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold():
@@ -18848,7 +18857,7 @@ def _run_pr_live_state_gate(
             (
                 "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
                 f"for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}'; wait "
-                "for a current-head thumbs-up reaction on the live PR"
+                "for a thumbs-up reaction or a bot comment on the live PR"
             ),
         )
         return

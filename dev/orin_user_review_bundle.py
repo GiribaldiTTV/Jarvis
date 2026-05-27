@@ -18,7 +18,6 @@ import re
 import shutil
 import stat
 import subprocess
-import tempfile
 import zipfile
 from collections import Counter
 from dataclasses import dataclass
@@ -150,32 +149,17 @@ class WorkstreamEntryPacketDecisionPathResult:
 
 
 def _default_review_root() -> Path:
-    return _review_root_path(DEFAULT_REVIEW_ROOT_NAME)
+    return Path(DEFAULT_REVIEW_ROOT_NAME)
 
 
 def _review_root_path(review_root_name: str) -> Path:
     path = Path(review_root_name)
-    windows_path = PureWindowsPath(review_root_name)
-    if path.is_absolute():
-        return path.resolve()
-    if windows_path.is_absolute():
-        if os.name == "nt":
-            return path.resolve()
-        fallback_root = os.environ.get("NEXUS_USER_REVIEW_ROOT", "").strip()
-        if fallback_root:
-            fallback_path = Path(fallback_root).expanduser()
-            if not fallback_path.is_absolute():
-                raise ValueError(
-                    "NEXUS_USER_REVIEW_ROOT must be an absolute local path when overriding "
-                    f"the approved active USER hub {DEFAULT_REVIEW_ROOT_NAME}."
-                )
-            return fallback_path.resolve()
-        return (Path(tempfile.gettempdir()) / windows_path.name).resolve()
-    else:
+    if not path.is_absolute():
         raise ValueError(
             "Review root must be an absolute local path. The approved active USER hub is "
             f"{DEFAULT_REVIEW_ROOT_NAME}."
         )
+    return path.resolve()
 
 
 def _same_path(left: Path, right: Path) -> bool:
