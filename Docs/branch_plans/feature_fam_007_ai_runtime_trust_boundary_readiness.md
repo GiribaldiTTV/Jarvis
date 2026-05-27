@@ -18,7 +18,7 @@ Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`
 Current Phase: `Historical Traceability`
 Branch Runtime Engineering Plan: `Retired from active planning posture - preserved as historical branch-local plan for AI runtime/trust-boundary readiness Options 1 through 4.`
-Engineering Plan Status: `Historical complete after PR #240 merge - USER accepted the Branch Plan Review contract and bounded Workstream implementation completed Options 1 through 4 as public-safe readiness/proof seams only.`
+Engineering Plan Status: `Historical released complete after PR #240 merge and v1.7.27-prebeta publication - USER accepted the Branch Plan Review contract and bounded Workstream implementation completed Options 1 through 4 as public-safe readiness/proof seams only.`
 Current Runtime Baseline: `Runtime state is provider-disabled, prompt-disabled, provider-visible data none, no external calls, no downloads, no model execution, no runtime cache behavior, no memory/personalization, and no private roots/remotes.`
 Branch Purpose: `Map the accepted AI Runtime And Trust Architecture into FAM-007 branch-local readiness Options 1 through 4 before any provider/model/cache/memory/private implementation can be considered.`
 Planned Runtime Delta: `No runtime code, config, schema, UI, provider, model, cache, or memory delta; Workstream added validator/fixture proof only.`
@@ -40,10 +40,10 @@ Plan Revision History: `v1 - created during Branch Readiness Stage 2 from origin
 Plan-To-Implementation Traceability Table: `Implemented - planned deltas will be compared with actual implementation by tracing Option 1 through Option 4 planned rows to actual implementation files, fixture fields in dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json, direct validator assertions in dev/orin_public_leak_prevention_validation.py, and branch-record fold-down receipts.`
 Hardening Comparison Checklist: `Complete - H1 compared implementation against this plan, branch record, AI Runtime And Trust Architecture, FAM-007 family vision, AI Edition plan, provider-state proof, public leak-prevention proof, packet decision-path proof, and future-gated boundaries.`
 Live Validation Proof Or Waiver Checklist: `Complete - LV1 proved no visible runtime surface changed and recorded USER Test Summary waiver, packet integrity, provider/private/runtime exclusions, and no runtime/provider/cache/memory behavior.`
-PR Readiness Fold-Down / Retention Checklist: `Complete after PR #240 merge: this plan is retired from active planning posture and preserved as historical proof; branch lifecycle, PR, selected-next, release-window, and worktree posture are not active repo state.`
+PR Readiness Fold-Down / Retention Checklist: `Complete after PR #240 merge and v1.7.27-prebeta publication: this plan is retired from active planning posture and preserved as historical released proof; branch lifecycle, PR, selected-next, release-window, and worktree posture are not active repo state.`
 Release Readiness Public-Scope Translation Checklist: `Release Readiness may describe only public-safe planning/proof scope; private repos, providers, models, cache runtime, memory, imports, and v1.8.0 remain excluded.`
 USER Planning Review: `Required through the USER Branch Plan Review Gate before Workstream implementation.`
-PR Fold-Down Packet: `Complete - PR #240 merged; the branch record is historical merged-unreleased evidence and this plan is retired from active planning posture.`
+PR Fold-Down Packet: `Complete - PR #240 merged and v1.7.27-prebeta was published; the branch record is historical released/closed evidence and this plan is retired from active planning posture.`
 Runtime Implementation Approval: `Granted only for bounded public-safe readiness/proof Options 1 through 4; no runtime provider execution, model execution, cache runtime behavior, memory, private setup, PR, merge, release, cleanup, or v1.8.0 execution is approved.`
 
 ## PR Readiness Stage 1 Repair Receipt
@@ -60,7 +60,7 @@ Single-Slice Drift Review: `PASS - next candidate is not a standalone cache/prov
 Family Organization Review: `PASS - no new backlog family is created; FAM-008 and pending FAM-010 material remain dependency/policy context.`
 Element Coverage Review: `PASS - next pre-plan covers private skeleton, private remote safety, public/private boundary validation, provider/model/cache/memory gates, and release impact.`
 Release-Debt Handling Status: `PASS - no release debt introduced by this Stage 1 repair.`
-Post-Merge Branch Authority Projection: `Complete - branch record is historical merged-unreleased receipt posture after PR #240 merge.`
+Post-Merge Branch Authority Projection: `Complete - branch record is historical released/closed receipt posture after PR #240 merge and v1.7.27-prebeta publication; historical pre-release snapshot posture was merged-unreleased only before release publication.`
 Exact Stage 2 Approval Text: `Historical - USER approved PR Readiness Stage 2 PR creation for feature/fam-007-ai-runtime-trust-boundary-readiness; PR #240 merged and release/cleanup/provider/model/runtime/cache/memory/private actions remain blocked.`
 
 ## Source-Truth Placement Preflight

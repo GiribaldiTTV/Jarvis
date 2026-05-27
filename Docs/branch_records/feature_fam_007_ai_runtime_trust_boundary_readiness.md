@@ -4,11 +4,11 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 
 ## Record State
 
-Record State: `Historical merged-unreleased branch receipt`
+Record State: `Historical released/closed branch receipt`
 
 ## Status
 
-Status: `Historical merged-unreleased FAM-007 AI runtime/trust-boundary readiness receipt after PR #240 merged into origin/main. The record preserves public-safe Options 1 through 4 proof, Workstream Green, Hardening H1 Green, Live Validation LV1 Green, PR Readiness evidence, and future-gated provider/model/runtime/cache/memory/private boundaries. It is not active branch authority; live lifecycle state is external operational state or Git/GitHub/helper truth.`
+Status: `Historical released FAM-007 AI runtime/trust-boundary readiness receipt after PR #240 merged into origin/main and v1.7.27-prebeta was published. The record preserves public-safe Options 1 through 4 proof, Workstream Green, Hardening H1 Green, Live Validation LV1 Green, PR Readiness evidence, release evidence, and future-gated provider/model/runtime/cache/memory/private boundaries. It is not active branch authority; live lifecycle state is external operational state or Git/GitHub/helper truth.`
 
 ## Branch Identity
 
@@ -25,6 +25,9 @@ Status: `Historical merged-unreleased FAM-007 AI runtime/trust-boundary readines
 - Created From: `origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9`
 - Branch Creation Basis: `USER-approved selected-next Branch Readiness Stage 2 setup after FAM-007 selected-next analysis.`
 - Latest Public Prerelease At Merge: `v1.7.26-prebeta`
+- Released In: `v1.7.27-prebeta`
+- Release URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/releases/tag/v1.7.27-prebeta`
+- Release Target Commit: `00a8ee3b288032306f78275116707e5e55ef1c28`
 - Current Source Baseline: `origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9`
 - Merge PR: `PR #240`
 - Merge Commit: `acd6bc24bb6e4c2e077826e94b8335caed0d8b17`
@@ -34,14 +37,14 @@ Status: `Historical merged-unreleased FAM-007 AI runtime/trust-boundary readines
 
 Phase: `Historical Traceability`
 
-Stage: `Merged-unreleased historical evidence`
+Stage: `Released/closed historical evidence`
 
 Seam: `FAM-007 AI runtime and trust-boundary readiness historical PR #240 evidence`
 
 ## Phase Status
 
 - Branch Authority Marker: `Historical Branch Evidence`
-- Branch Authority State: `Historical merged-unreleased evidence after PR #240; not active branch authority on merged main`
+- Branch Authority State: `Historical released/closed evidence after PR #240 and v1.7.27-prebeta; not active branch authority on merged main`
 - Branch Evidence Branch: `feature/fam-007-ai-runtime-trust-boundary-readiness`
 - PR Readiness Stage 1 USER Approval: `Historical complete - USER approved bounded PR Readiness Stage 1 repair for this branch at origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9.`
 - PR Readiness Stage 1 Outcome: `Historical complete - Stage 1 reached Stage 2-ready before PR #240.`
@@ -131,7 +134,7 @@ Target End-State: `Stage 2 leaves a validated active branch record, a Branch Run
 
 Branch Completion Goal: `Complete the FAM-007 AI runtime/trust-boundary readiness carrier through branch setup, Workstream Entry review, public-safe readiness/proof Options 1 through 4, H1, and LV1 while keeping runtime/private/provider/cache/memory actions gated.`
 Known Future-Dependent Blockers: `Private Dev repo creation, private Owner repo creation, private remotes, off-boot backup or recovery root implementation, Public-to-Dev import implementation, provider SDK/model execution, model downloads, runtime provider execution, cache runtime behavior, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release execution, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 execution.`
-Branch Closure Rule: `The branch may close only after its admitted public-safe readiness options are implemented, hardened, live-validated or waived according to source truth, PR-ready, merged, and later released only after separate USER approvals.`
+Branch Closure Rule: `Closed as a historical released receipt after its admitted public-safe readiness options were implemented, hardened, live-validated or waived according to source truth, PR-ready, merged in PR #240, and released in v1.7.27-prebeta. Future provider/model/runtime/cache/memory/private actions remain separate USER decisions.`
 
 ## Backlog Completion Status
 
@@ -220,13 +223,13 @@ PR Summary: `PR #240 recorded that FAM-007 AI runtime/trust-boundary readiness p
 Required Current-Branch Source-Truth Sync: `Historical complete - PR #240 merged and this receipt now records branch evidence without owning live lifecycle state.`
 Merge-Target Canon Update: `Complete - exact PR/merge metadata is recorded and active-state posture is external or Git/GitHub/helper-derived.`
 Selected-Next / No-Release-Debt Handling Status: `Historical planning evidence only - FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision remains future planning context under existing FAM-007; live selected-next posture belongs to external operational state.`
-Required Post-Merge Path: `Merged-unreleased FAM-007 readiness receipt until a separate USER-approved release path executes.`
+Required Post-Merge Path: `Released/closed FAM-007 readiness receipt after v1.7.27-prebeta publication; historical pre-release snapshot was merged-unreleased after PR #240 until release execution completed separately.`
 Ranked Runtime FAM Candidates: `1. FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision; 2. FAM-006 future runtime recording implementation remains sibling-worktree context only; 3. FAM-008 install/cache-root UX remains dependency context only.`
 Recommended Next Package: `FAM-007 / PKG-007 Breakpoint 2 private Dev/Owner skeleton setup decision`
 Recommended Next Package USER Waiver: `Not required - USER approved recording this existing-FAM selected-next/pre-plan truth during Stage 1 repair.`
 Package-Size / Single-Slice Drift Review: `PASS - Breakpoint 2 has multiple coupled action-gate slices and remains under existing FAM-007 / PKG-007 rather than creating a tiny branch or new backlog family.`
 Element Coverage Review: `PASS - next pre-plan covers private Dev skeleton, private Owner skeleton, private remote safety, public/private boundary validation, and future provider/model/cache/memory gates.`
-Release-Debt Impact: `None beyond normal merged-unreleased release-bearing branch posture; release execution remains a separate USER decision.`
+Release-Debt Impact: `None - PR #240 is included in released v1.7.27-prebeta; no current merged-unreleased release-debt posture remains for this receipt.`
 Release-Debt Handling Status: `PASS - no unavoidable release debt is introduced by this Stage 1 repair.`
 Origin/Main Freshness Check: `Complete - see the dedicated Origin/Main Freshness Check section.`
 Planned Next Branch Block: `Present - see Next Branch and Next Branch Pre-Plan sections.`
@@ -251,7 +254,7 @@ User-Facing Output: A USER decision packet that explains the private Dev/Owner s
 Candidate Slices: `Private Dev skeleton setup decision; Private Owner skeleton setup decision; GitHub Desktop private remote/public-upstream safety; public/private boundary validation; provider/model/cache/memory gate preservation.`
 Dependencies / Blockers: `Private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, backup/import behavior, provider SDK/model execution, downloads, runtime provider execution, cache runtime behavior, memory/learning/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 execution remain USER-gated.`
 Validation Needs: `Branch governance, PR readiness, provider-state, public leak-prevention, source-owner, release-body, branch-readiness fixtures, and future private-boundary validation before any private action gate executes.`
-Release Impact: `No release execution is approved here; after merge this branch is merged-unreleased until a later USER-approved release.`
+Release Impact: `Historical complete - PR #240 was released in v1.7.27-prebeta after separate USER-approved release execution. This receipt still does not authorize provider/model/runtime/cache/memory/private actions.`
 Selection Truth Status: `Selected/pre-plan recorded by USER-approved PR Readiness Stage 1 repair under existing FAM-007.`
 Future Branch Creation Boundary: `Live branch creation status is external operational state or Git/GitHub/helper-derived; this receipt only records that no next-branch implementation was authorized by PR #240.`
 Next Workstream User Waiver: `Not required - USER approved selected-next/pre-plan recording for FAM-007 Breakpoint 2 in this Stage 1 repair.`
@@ -317,11 +320,11 @@ GitHub PR bodies and PR Summary copy must not include phase-digest or Codex oper
 
 ## Release Readiness Health Pass
 
-Post-Merge Branch Authority Projection: `PASS - post-merge current-state owners project this branch as a merged-unreleased FAM-007 AI runtime/trust-boundary readiness receipt with exact PR and merge metadata filled during Stage 2/merge closeout.`
+Post-Merge Branch Authority Projection: `Historical pre-release snapshot - post-merge current-state owners projected this branch as a FAM-007 AI runtime/trust-boundary readiness receipt after PR #240; current posture is released/closed under v1.7.27-prebeta.`
 Stale Active Branch Wording Scan: `PASS - post-merge state below avoids active-branch current-phase wording.`
 Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - pre-PR and Stage 2-pending wording is confined to the active Stage 1 packet and not used in projected post-merge state.`
-Merged-Unreleased Scope Posture: `PASS - branch scope is public-safe source-truth/validator readiness proof and becomes merged-unreleased until separate release execution.`
-Release Execution Gate: `PASS - release, tag, GitHub Release, and artifact execution remain blocked pending separate USER approval.`
+Merged-Unreleased Scope Posture: `Historical pre-release snapshot - branch scope was public-safe source-truth/validator readiness proof after PR #240 merge until v1.7.27-prebeta release execution completed separately.`
+Release Execution Gate: `Historical complete - v1.7.27-prebeta was published separately; this receipt authorizes no further release, tag, GitHub Release, or artifact execution.`
 Watcher / Live PR State Projection: `PASS - Stage 2 will create a live PR and provision watcher proof after USER approval; projected post-merge state does not retain live watcher state.`
 Branch Cleanup Plan: `PASS - no branch/worktree cleanup is authorized; cleanup remains a later USER decision.`
 Branch Cleanup Execution Gate: `PASS - cleanup execution is blocked outside a future USER-approved Branch Readiness cleanup gate.`
@@ -348,20 +351,20 @@ Release Window Split Waiver: None
 
 ## Post-Merge State
 
-Repo State: `Merged-unreleased FAM-007 AI runtime/trust-boundary readiness receipt until separate USER-approved release execution.`
+Repo State: `Released/closed FAM-007 AI runtime/trust-boundary readiness receipt under v1.7.27-prebeta.`
 Post-Merge Branch Authority Projection: `Branch receipt records completed Options 1 through 4, H1, LV1, and Stage 1 readiness proof; exact PR number, PR URL, and merge commit are filled by the later Stage 2/merge closeout packet.`
 Successor-Branch Handling: `FAM-007 Breakpoint 2 remains the successor candidate/pre-plan; branch creation is deferred to later Branch Readiness and is not part of this Stage 1 repair.`
 Merged-Unreleased Release-Debt Owner: `None - no repair-only release debt owner is created by this Stage 1 repair.`
-Release Target: `Next USER-approved public prerelease after merge`
+Release Target: `v1.7.27-prebeta`
 Release Floor: `patch prerelease`
 Version Rationale: `Public-safe AI runtime/trust-boundary readiness proof only; no user-facing runtime capability or provider/model/private behavior is added.`
 Release Scope: `FAM-007 Options 1 through 4 readiness proof, direct validation, packet proof, and selected-next/pre-plan repair.`
-Release Artifacts: `GitHub Release assets only if USER separately approves release execution; no model, private, provider, cache, memory, backup, installer, or v1.8.0 artifacts.`
-Post-Release Truth: `After publication, source truth must fold this branch from merged-unreleased to released/closed receipt for the published tag.`
+Release Artifacts: `Pre-Beta v1.7.27 GitHub Release; no model, private, provider, cache, memory, backup, installer, or v1.8.0 artifacts.`
+Post-Release Truth: `Folded to released/closed receipt for v1.7.27-prebeta; no current merged-unreleased release-window posture remains for PR #240.`
 Future Planning Evidence: `FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision`
 Operational Selection Owner: `C:\Nexus Governance State` plus Git/GitHub/helper live checks own selected-next and branch-creation posture.
 Next-Branch Creation Gate: `Blocked until USER approves future Branch Readiness for Breakpoint 2.`
-No-Release-Debt Posture: `PASS - Stage 1 creates no extra release debt beyond normal merged-unreleased release handling.`
+No-Release-Debt Posture: `PASS - v1.7.27-prebeta publication closed the release-window posture for PR #240; no current release debt remains for this receipt.`
 
 ## Seam Continuation Decision
 
