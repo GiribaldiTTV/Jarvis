@@ -723,9 +723,9 @@ def _write_user_branch_plan_review(
         codex_response_digest = None
         workstream_entry_result = None
         contract_status = "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
-        contract_version = "v1 - Generated USER Branch Plan Contract."
-        what_user_sees = "USER should see the feature's planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
-        why_nexus = "The recommendation should explain how the branch aligns with the project vision, keeps scope bounded, and preserves user-facing clarity."
+        contract_version = "v1 - Generated BP2 USER Branch Plan Contract."
+        what_user_sees = "USER should see how the engineering plan builds the accepted or waived BP1 branch vision, including planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
+        why_nexus = "The recommendation should explain how the engineering route aligns with the project vision, accepted branch vision, safe branch size, and user-facing clarity."
         design_ballot = [
             "Accept Codex recommendation.",
             "Accept with changes.",
@@ -756,7 +756,7 @@ def _write_user_branch_plan_review(
         implementation_constraints = ["Pending USER response or explicit waiver."]
         rejected_deferred = ["Pending USER response or explicit waiver."]
         source_truth_impact = ["Pending USER response or explicit waiver."]
-        contract_change_log = ["v1 - Generated USER Branch Plan Contract."]
+        contract_change_log = ["v1 - Generated BP2 USER Branch Plan Contract."]
         completion_checklist = [
             "Contract Status is Complete or Waived by USER.",
             "USER response is present, attached, or explicitly waived.",
@@ -770,9 +770,9 @@ def _write_user_branch_plan_review(
             "Exact implementation approval text cites completed or waived contract status.",
         ]
         plain_english_summary = (
-            "This branch-plan review summarizes the branch's intended product, "
-            "runtime, source-truth, and validation direction before Workstream "
-            "Entry performs deeper implementation planning."
+            "This BP2 branch-plan review summarizes the engineering plan derived "
+            "from the accepted or waived BP1 branch vision before BP3 / Workstream "
+            "Entry validates orchestration."
         )
         end_state_vision = (
             "When the branch is complete, USER should understand what visible/runtime behavior "
@@ -789,14 +789,14 @@ def _write_user_branch_plan_review(
             "Relevant family vision, backlog, roadmap, validators, and copied review files.",
         ]
         implementation_options = [
-            "Option A - Accept Codex's recommended end-state and keep later implementation staging future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
-            "Option B - Revise the end-state before implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
-            "Option C - Waive unresolved end-state questions explicitly. Pros: unblocks implementation; Cons: records less USER design input; Risk: medium.",
+            "Option A - Accept Codex's recommended engineering route when it clearly builds the accepted BP1 end-state and keeps later implementation staging future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
+            "Option B - Revise the engineering plan before BP3 or implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
+            "Option C - Waive unresolved BP1 or BP2 questions explicitly. Pros: unblocks BP3; Cons: records less USER design or plan input; Risk: medium.",
         ]
         recommended_direction = (
-            "Codex recommends accepting the branch plan only when the user-facing outcome, "
-            "surface map, options, proof path, and pending boundaries are understandable enough "
-            "for USER to decide whether implementation should begin."
+            "Codex recommends accepting the branch plan only when the accepted BP1 trace, "
+            "implementation package, surface map, options, proof path, and pending boundaries "
+            "are understandable enough for USER to decide whether BP3 may validate orchestration."
         )
         current_scope = [
             "Confirm the branch outcome and admitted package.",
@@ -806,12 +806,12 @@ def _write_user_branch_plan_review(
             "Any item not explicitly admitted by the active branch plan remains future-gated.",
         ]
         slc_package_plan = [
-            "Implementation staging must support the accepted end-state; seam/slice details are background execution scaffolding, not the primary USER decision surface.",
+            "Implementation staging must support the accepted BP1 end-state; seam/slice/SLC details are BP2 engineering scaffolding, not the primary BP1 USER decision surface.",
         ]
         user_decisions = [
-            "Does USER accept the branch goal and end-state direction?",
-            "Does USER want to revise any user-facing behavior, layout, workflow, or future-gated boundary before implementation?",
-            "Does USER waive any unanswered design question, or should implementation remain blocked until it is answered?",
+            "Does USER accept that this BP2 engineering plan builds the accepted or waived BP1 branch vision?",
+            "Does USER want to revise any implementation route, proof expectation, workflow detail, or future-gated boundary before BP3?",
+            "Does USER waive any unanswered BP1/BP2 question, or should BP3 and implementation remain blocked until it is answered?",
         ]
     lines = [
         f"# USER Branch Plan Review - {title}",
@@ -828,7 +828,7 @@ def _write_user_branch_plan_review(
         "",
         plain_english_summary,
         "",
-        "This file is a required user-facing product/design planning gate. It should help USER answer: Do I actually like what Codex is about to build?",
+        "This file is the BP2 USER Branch Plan Contract. It should help USER answer: Does this engineering plan correctly build the accepted or waived BP1 branch vision?",
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
@@ -866,7 +866,7 @@ def _write_user_branch_plan_review(
         "",
         "## USER Decisions Needed",
         "",
-        "USER may answer in order or respond generally. Useful feedback includes visual direction, workflow changes, window behavior, output-file expectations, deferred scope, or anything that would make the branch plan feel wrong before implementation planning begins.",
+        "USER may answer in order or respond generally. Useful feedback includes plan-route changes, proof expectations, workflow details, deferred scope, or anything that would make the BP2 engineering plan fail the accepted BP1 vision before BP3 begins.",
         "",
         *_markdown_lines(user_decisions),
         "",
