@@ -116,7 +116,7 @@ The audit packet must include:
 
 `Rebaseline Overlap Files:` is the intersection of incoming changed files and the current branch/worktree changed files. Current branch/worktree changed files means branch changed files from `merge_base..HEAD` plus staged, unstaged, untracked, or current-worktree changed files when present. When this field is `None`, `Rebaseline Overlap Intent Gate` reports `Not Applicable` and the normal Pre-Rebaseline Impact Audit still controls mutation approval. When this field names any file, Codex must freeze rebaseline mutation, classify every overlapping file, and inspect branch-owned intent before recommending merge, rebase, fast-forward, conflict resolution, or acceptance.
 
-`Rebaseline Overlap Intent Gate` uses the active branch plan as the full-detail owner. Runtime branches use the Branch Runtime Engineering Plan shape. Non-runtime branches with `Rebaseline Overlap Files:` must admit or update an active Branch Engineering Plan under `Docs/branch_plans/<branch_slug>.md` before rebaseline mutation can proceed. The required section is `Branch Change Intent Ledger`; each `Changed Surface: <path>` block records `Surface Class:`, `Change Intent:`, `Why This File Was Touched:`, `Owned Behavior / Fact Class:`, `Canonical Owner / Source Owner:`, `Resolution Owner:`, `Shared Surface:`, `Overlap Risk:`, `Expected Conflict Risk:`, `Semantic Merge Risk:`, `Regression / Gating Impact:`, `Conflict Resolution Rule:`, `Rebaseline Handling:`, `Validation Proof:`, `Fallback Evidence:`, `USER Decision / Waiver:`, and `Fold-Down Target:`. `Regression / Gating Impact:` uses `None`, `Low`, `Medium`, `High`, or `Unknown`; fixture/test overlap with `Medium`, `High`, or `Unknown` impact blocks until evidence or USER decision resolves it.
+`Rebaseline Overlap Intent Gate` uses the active branch planning owner as the full-detail owner. Runtime branches use the Branch Runtime Engineering Plan shape. Non-runtime branches with `Rebaseline Overlap Files:` must admit or update an active external Branch Engineering Plan, or an explicitly approved transition branch plan under `Docs/branch_plans/<branch_slug>.md`, before rebaseline mutation can proceed. The required section is `Branch Change Intent Ledger`; each `Changed Surface: <path>` block records `Surface Class:`, `Change Intent:`, `Why This File Was Touched:`, `Owned Behavior / Fact Class:`, `Canonical Owner / Source Owner:`, `Resolution Owner:`, `Shared Surface:`, `Overlap Risk:`, `Expected Conflict Risk:`, `Semantic Merge Risk:`, `Regression / Gating Impact:`, `Conflict Resolution Rule:`, `Rebaseline Handling:`, `Validation Proof:`, `Fallback Evidence:`, `USER Decision / Waiver:`, and `Fold-Down Target:`. `Regression / Gating Impact:` uses `None`, `Low`, `Medium`, `High`, or `Unknown`; fixture/test overlap with `Medium`, `High`, or `Unknown` impact blocks until evidence or USER decision resolves it.
 
 `Rebaseline Overlap Failure Procedure` triggers when an overlapping file has missing, weak, stale, or conflicting intent evidence. The packet must include `Overall Overlap Gate Result:`, `Rebaseline Overlap Files:`, per-file `File:`, `Surface Class:`, incoming and current branch change summaries, `Branch Change Intent Present:`, `Incoming Intent Evidence Present:`, `Fallback Evidence:`, `Risk:`, `Per-File Result: PASS / WARN / BLOCKED`, `Recommended Resolution:`, `Resolution Owner:`, `Validation Required:`, `USER Decision Needed:`, and `Rebaseline Mutation Status:`. `Overall Overlap Gate Result:` is the highest per-file severity. Any `BLOCKED` file keeps mutation blocked by `Rebaseline Overlap Intent Missing` until repaired, waived, deferred by USER decision, or sequencing changes. Fallback evidence supports classification and USER decision-making only; after the effective point, fallback evidence alone cannot produce `PASS`.
 
@@ -263,7 +263,7 @@ Default rule: extend the existing owner first. A new active source-truth file re
 
 When the proposed concept touches backlog identity, family vision, architecture, cross-family policy, experience design, runtime subsystem behavior, capability-pack domains, AI-native planning, or AI operational cache behavior, the preflight must also run the `Backlog Taxonomy And Source-Truth Placement Gate` from `Docs/feature_backlog.md`. The packet must classify the concept as exactly one or more of `Backlog family`, `Family vision`, `Architecture layer`, `Cross-family policy owner`, `Experience layer`, `Runtime subsystem`, `Capability-pack domain`, or `Package/slice/seam`; name rejected owner classes; name existing owner files to extend first; and state whether USER approval is required for any new backlog family or new source-truth owner. Missing or ambiguous classification blocks on `Backlog Taxonomy Gate Missing`; creating a new FAM without explicit USER approval remains blocked on `Backlog Addition User Approval Missing`.
 
-AI Operational Cache Governance must not be promoted as a new FAM by inertia. Cache is not memory: cache is operational, purpose-bound, explainable, clearable, and policy-governed, while memory is durable user-personal knowledge and requires separate explicit consent. Cross-family cache architecture, replay safety, provenance, invalidation, Trust Journal cache events, and policy placement route through `Docs/ai_runtime_and_trust_architecture.md`; family-specific cache placement routes through existing FAM-007 AI/runtime/capability-pack owners, FAM-008 setup/install/cache-root UX owners, the relevant implementing family vision for local data/privacy implications, and the active branch plan for implementation-specific cache behavior. Any further new AI architecture or policy owner is legal only after the placement preflight records `No Existing Owner Fits` or USER approves a companion source-truth file.
+AI Operational Cache Governance must not be promoted as a new FAM by inertia. Cache is not memory: cache is operational, purpose-bound, explainable, clearable, and policy-governed, while memory is durable user-personal knowledge and requires separate explicit consent. Cross-family cache architecture, replay safety, provenance, invalidation, Trust Journal cache events, and policy placement route through `Docs/ai_runtime_and_trust_architecture.md`; family-specific cache placement routes through existing FAM-007 AI/runtime/capability-pack owners, FAM-008 setup/install/cache-root UX owners, the relevant implementing family vision for local data/privacy implications, and the active branch planning owner for implementation-specific cache behavior. Any further new AI architecture or policy owner is legal only after the placement preflight records `No Existing Owner Fits` or USER approves a companion source-truth file.
 
 `Element Ledger Placement Drift` blocks Stage 2 completion when Codex adds or recommends a new active source-truth artifact without this preflight, when a new artifact duplicates an existing owner, or when the owning record does not point to a large companion ledger file.
 
@@ -274,8 +274,8 @@ The `Element Validation Ledger` is the row-level proof ledger for product-signif
 The ledger is canonical only inside the existing authority owner:
 
 - Promoted workstream: canonical workstream doc.
-- Registry-only active branch: active branch authority record.
-- Large active ledger: optional companion file with canonical pointer from the owning workstream doc or branch authority record.
+- Registry-only active branch: external branch state or the standing Governance intake exception while legally active.
+- Large active ledger: external branch state, optional companion file with canonical pointer from the owning workstream doc, or transition-approved branch authority receipt.
 - Family dossier: aggregate or historical trace only.
 - Feature backlog: identity and registry only.
 - Roadmap: stage-breakpoint schedule outline and broad milestone checkpoints only.
@@ -290,7 +290,7 @@ Each seam must run an `Element Delta Capture` for product/runtime/UI/source-trut
 
 Marker-only proof cannot satisfy user-facing element acceptance. User-facing and hidden-user-facing ledger rows require screenshot/live proof and Live Validation / UTS coverage unless an explicit waiver is recorded. Deferred, future, dependency-only, and non-gating supporting rows must name their boundary so they neither block nor falsely satisfy the current release.
 
-The active Branch Runtime Engineering Plan must carry an `Element-to-Phase Proof Matrix` before Workstream implementation begins or resumes when a branch plans, creates, touches, affects, defers, or preserves user-facing, runtime, UI, provider, validation/helper, source-truth, or workflow elements. The matrix is a USER-reviewable pre-implementation bridge from element coverage to Workstream implementation, Workstream proof, Hardening proof, Live Validation proof or waiver, UTS / USER acceptance, future/deferred boundaries, USER decision state, and source owner / ledger owner. It extends the Element Validation Ledger model and does not create a global ledger or live-state owner. Matrix status markers must use the allowed values in `Docs/branch_plans/README.md`, owner markers must name concrete source-truth owners or repo-relative owner paths, and Element IDs must be unique inside the matrix.
+The active branch planning owner must carry an `Element-to-Phase Proof Matrix` before Workstream implementation begins or resumes when a branch plans, creates, touches, affects, defers, or preserves user-facing, runtime, UI, provider, validation/helper, source-truth, or workflow elements. The matrix is a USER-reviewable pre-implementation bridge from element coverage to Workstream implementation, Workstream proof, Hardening proof, Live Validation proof or waiver, UTS / USER acceptance, future/deferred boundaries, USER decision state, and source owner / ledger owner. It extends the Element Validation Ledger model and does not create a global ledger or live-state owner. Matrix status markers must use the allowed values in `Docs/branch_plans/README.md`, owner markers must name concrete source-truth owners or repo-relative owner paths, and Element IDs must be unique inside the matrix.
 
 Branch Readiness Stage 2 and Workstream Entry must produce or admit the matrix before Workstream implementation. Workstream seam closeout updates matrix rows with implemented, skipped, deferred, or future-gated status. Hardening compares actual implementation against the matrix. Live Validation compares observed behavior, user-facing proof, UTS posture, and waiver posture against the matrix. PR Readiness folds durable matrix outcomes into the branch record, workstream doc, family dossier, or Element Validation Ledger owner.
 
@@ -415,7 +415,7 @@ The branch must either:
 
 - move the record into the historical branch-record list with merge-safe phase-status wording, or
 - remove the record entirely if no durable historical value remains
-- when post-merge truth will remain `No Active Branch`, merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership; that transient execution truth belongs only in the active branch authority record until merge
+- when post-merge truth will remain `No Active Branch`, merge-stable pointer surfaces such as backlog and roadmap must not mirror transient repair-branch ownership; that transient execution truth belongs only in external operational state, Git/GitHub/helper-derived truth, or the standing Governance intake exception until merge
 
 ### Repo-Level Admission Gate
 
@@ -540,7 +540,7 @@ Branch Runtime Engineering Plan:
 - new or re-entering runtime-focused branches must create or admit the detailed active-branch execution plan under `Docs/branch_plans/<branch_slug>.md` during Branch Readiness Stage 2 when repo truth supports runtime work
 - the branch authority record must remain the control surface and must include `Branch Runtime Engineering Plan:`, `Branch Runtime Engineering Plan Path:`, and `Engineering Plan Status:` when the plan is required, present, accepted, revised, folded, or historical
 - backlog and roadmap remain compact pointer/status surfaces; detailed runtime baseline, planned delta, per-seam checklist, validation checklist, user-facing proof checklist, future-gated ledger, approval-boundary audit, and plan-to-implementation traceability belong in the Branch Runtime Engineering Plan or folded historical record
-- Branch Readiness Stage 2 and Workstream Entry must admit a USER-reviewable `Element-to-Phase Proof Matrix` in the active branch plan when the branch plans, creates, touches, affects, defers, or preserves product/runtime/UI/source-truth/helper/workflow elements; each current planned/created/touched/affected element must name Workstream implementation, Workstream proof, Hardening proof, Live Validation proof or waiver, UTS / USER acceptance, USER decision state, and source owner / ledger owner before Workstream begins or resumes
+- Branch Readiness Stage 2 and Workstream Entry must admit a USER-reviewable `Element-to-Phase Proof Matrix` in the active branch planning owner when the branch plans, creates, touches, affects, defers, or preserves product/runtime/UI/source-truth/helper/workflow elements; each current planned/created/touched/affected element must name Workstream implementation, Workstream proof, Hardening proof, Live Validation proof or waiver, UTS / USER acceptance, USER decision state, and source owner / ledger owner before Workstream begins or resumes
 - Workstream Entry must include a full non-compacted Workstream Entry Review Digest and the active worktree's Desktop `USER Review Desktop Bundle` under `Nexus USER Review\<worktree-label>`, with flat copied branch vision, branch plan, branch authority, relevant Nexus/family vision, matrix, UFD/change-intent, and source-truth files needed for USER inspection before USER can green-light implementation
 - Workstream Entry must include the named `USER Branch Plan Review Gate` for runtime/user-facing/source-truth work. The review packet summarizes the plain-language branch goal, planned user-facing outcome, visual/behavioral description when relevant, implementation breakdown, Element-to-Phase Proof Matrix summary, Hardening plan, Live Validation / UTS plan, open USER questions, USER design review questions, Codex recommendations, implementation options, alternatives/tradeoffs, accepted/deferred/rejected scope, exact USER decision needed, `USER Review Response:`, `Codex Response Digest:`, and `USER Review Packet Finding:`. The finding must prove the Desktop USER Review Packet was loaded and digested or name the exact waiver/blocker. Workstream implementation stays blocked on `USER Branch Plan Review Missing`, `USER Review Packet Stale`, or `USER Review Packet Not Digested` until USER accepts, revises, rejects, asks for more analysis, defers with waiver, or approves packet refresh, and until USER response is attached/inserted and digested or explicitly waived.
 - Workstream Entry reads the plan and returns whole-package analysis before first-seam implementation, each seam updates traceability, Hardening compares actual implementation against it, Live Validation records proof or waiver posture, PR Readiness produces the `PR Fold-Down Packet:`, and Release Readiness translates the plan into public scope without internal governance jargon
@@ -549,18 +549,18 @@ Branch Runtime Engineering Plan:
 USER Feedback Disposition:
 
 - meaningful USER feedback during Branch Readiness, Workstream, Hardening, Live Validation, or PR Readiness must be classified through `USER Feedback Disposition` when it affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision
-- the active Branch Runtime Engineering Plan owns full UFD detail while the branch is active; branch records, backlog, roadmap, Nexus Vision, family vision, workstream docs, and family dossiers may carry compact pointers or folded outcomes only when they are the correct owner for the final disposition
+- the active branch planning owner owns full UFD detail while the branch is active; branch records, backlog, roadmap, Nexus Vision, family vision, workstream docs, and family dossiers may carry compact pointers or folded outcomes only when they are the correct owner for the final disposition
 - UFD ledger markers include `USER Feedback Disposition Required:`, `UFD Ledger Status:`, `UFD Ledger Owner:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:`
 - each meaningful feedback item uses a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block with `Feedback ID:`, `Feedback Summary:`, `Feedback Source:`, `Feedback Phase:`, `Disposition Type:`, `USER Decision State:`, `Owner Class:`, `Canonical Owner File:`, `Workstream Severity:`, `Status:`, `Fold-Down Target:`, and `Pointer Locations:`
 - Codex may recommend UFD disposition, owner, severity, and no-action posture, but USER decision controls accepted branch scope; Codex and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, waives, or supersedes them
-- pointer locations may carry only UFD ID, short title, canonical owner, compact status, and fold-down status; full feedback text, full decision history, and live implementation state stay with the active branch plan until PR Readiness fold-down
-- `No Durable Owner Needed` is valid only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with `No-Action Reason:` recorded in the active branch plan or return digest
+- pointer locations may carry only UFD ID, short title, canonical owner, compact status, and fold-down status; full feedback text, full decision history, and live implementation state stay with the active branch planning owner until PR Readiness fold-down
+- `No Durable Owner Needed` is valid only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with `No-Action Reason:` recorded in the active branch planning owner or return digest
 - UFD IDs use `UFD-<scope>-YYYYMMDD-NNN`; do not use `FBK-*` because it collides visually with historical `FB-###` workstream records
 
 Vision Contract / Vision-to-Plan loop:
 
 - runtime/user-facing branches must not silently convert Codex or ChatGPT design recommendations into implementation truth
-- Nexus Vision owns project-wide product principles; optional family vision or family dossier sections own broad feature-family direction only when the family is large enough; the active branch plan owns the Branch Vision Contract Snapshot for branch-specific accepted vision
+- Nexus Vision owns project-wide product principles; optional family vision or family dossier sections own broad feature-family direction only when the family is large enough; the active branch planning owner owns the Branch Vision Contract Snapshot for branch-specific accepted vision
 - `Vision Contract Required:` is `Yes` for user-facing UI/UX behavior changes, runtime behavior changes, workflow hierarchy changes, visual standard changes, setup/activation behavior changes, provider/model/memory/voice/Core behavior, returned UTS that changes target behavior, broad family planning, ambiguous acceptance criteria, conflicting prior source truth, or any Codex recommendation that would otherwise become product/design truth
 - `Vision Contract Required:` may be `No` only for mechanical docs-only repair, validator-only repair with no product/runtime/user-facing impact, release-body formatting repair, source-truth typo/format repair, or branch metadata repair, and the reason must be recorded
 - valid design assumption states are `Proposed by Codex`, `Recommended by ChatGPT`, `Accepted by USER`, `Revised by USER`, `Rejected by USER`, `Deferred by USER`, `Deferred With Waiver`, `Superseded`, and `Needs USER Decision`; only `Accepted by USER`, `Revised by USER`, or `Deferred With Waiver` are implementation-safe for product/runtime/user-facing behavior
@@ -579,7 +579,7 @@ Vision Update Decision Matrix:
 | Reusable family-level product direction or design standard | Active branch plan first, with family vision as alignment reference | `Docs/family_visions/FAM-XXX_*.md` or family dossier section | USER accepts the standard, it applies beyond one branch, and it avoids branch-local implementation detail |
 | Project-wide or cross-family product principle, long-term standard, AI/privacy/execution direction, or foundational behavior | Active branch plan or governance intake until USER acceptance and scope are clear | `Docs/nexus_vision.md` | USER accepts the standard and it affects multiple families or Nexus-wide principles |
 | Proposed, uncertain, conflicting, or ChatGPT/Codex-recommended idea | Active branch plan question queue, UFD item, assumption ledger, or Vision Question Digest | No durable owner until USER accepts, revises, defers with waiver, rejects, or supersedes it | USER decision or waiver is required before implementation-safe product/runtime/user-facing scope |
-| Future feature/package idea outside current branch scope | Active branch plan UFD/future-package queue while active | Backlog compact pointer, family dossier, or future branch plan only after accepted/deferred disposition | USER accepts future-work posture or PR Readiness assigns a named future owner |
+| Future feature/package idea outside current branch scope | Active branch planning owner UFD/future-package queue while active | Backlog compact pointer, family dossier, or future branch plan only after accepted/deferred disposition | USER accepts future-work posture or PR Readiness assigns a named future owner |
 | Mechanical docs-only, validator-only, release-body-format, typo/format, or branch-metadata repair with no product/runtime/user-facing impact | Current repair branch plan or return digest with `Vision Contract Required: No` reason | Relevant governance receipt only if the repair creates durable interpretation | Record the not-required reason; do not promote to Nexus or family vision |
 
 Branch plan first. Family vision only when reusable and USER accepted. Nexus Vision only when project-wide or cross-family. Proposed or unresolved ideas must not be promoted to durable vision owners by Codex inference.
@@ -728,7 +728,7 @@ If any required merge-target canon update is missing, the branch remains blocked
 
 ### Exceptional Merged-Unreleased Release-Debt Owner Contract
 
-Release debt is not a normal acceptable merge state. When an implementation branch would unavoidably merge unreleased product behavior beyond the latest public prerelease, PR Readiness Stage 1 must first record explicit USER approval for that exception, the named owner, the release target/floor semantics, Release Window Audit posture, selected-next or USER-waiver truth, and the real carrier plan. Only then may PR Readiness leave exact post-merge release-debt truth in canon before PR green.
+Release debt is not a normal acceptable merge state. When an implementation branch would unavoidably merge unreleased product behavior beyond the latest public prerelease, PR Readiness Stage 1 must first record explicit USER approval for that exception, the named owner, the release target/floor semantics, Release Window Audit posture, and the real carrier plan. Selected-next truth is not part of the default release-debt exception; PR Readiness records it only when USER explicitly approves PR-time successor selection or already-encoded selected-next truth would merge as durable source truth. Only then may PR Readiness leave exact post-merge release-debt truth in canon before PR green.
 
 After the External Operational State Store contract is implemented, release debt means durable public release truth is missing or wrong. Wrong tag/body/release notes, invalid or missing artifacts, missing durable public milestone summaries, and released capabilities absent from durable product history remain release debt. Stale active branch records, active branch plans, worktree slots, selected-next operational posture, PR watcher state, release-window operational state, and post-release closure status become `Repo Live-State Leakage` or `External Operational State Conflict`, not release debt. This reclassification does not take effect as a migration until the USER approves external-state implementation and validator transition.
 
@@ -742,13 +742,16 @@ Required machine-checkable fields:
 - `Release Scope:`
 - `Release Artifacts:`
 - `Post-Release Truth:`
+
+Conditional machine-checkable fields, required only when USER explicitly approved PR-time successor selection or already-encoded selected-next truth would merge as durable source truth:
+
 - `Selected Next Workstream:`
 - `Next-Branch Creation Gate:`
 
 Required owner docs:
 
 - `Docs/feature_backlog.md` names the workstream as merged-unreleased release debt, not active execution truth
-- `Docs/prebeta_roadmap.md` names the current release-debt owner, release target, release scope, release artifacts, selected next workstream, and branch-creation gate
+- `Docs/prebeta_roadmap.md` names the current release-debt owner, release target, release scope, and release artifacts as durable pointers; it names selected-next and branch-creation gate truth only when USER explicitly approved PR-time successor selection or selected-next truth already exists
 - `Docs/workstreams/index.md` moves the workstream from `Active` to `Merged / Release Debt Owners`
 - the canonical workstream doc records the same merged-unreleased release-debt owner contract
 
@@ -789,14 +792,17 @@ Post-release closure is mandatory after release execution:
 
 Rule:
 
-- PR Readiness successor selection is allowed only when the USER has already approved selecting or continuing a backlog identity for the next branch, or when existing canon already contains that explicit USER-approved selection.
-- A branch is not `PR Readiness`-complete when a USER-approved successor exists unless that next real runtime workstream is selected, canon-defined, assigned a valid record state, minimally scoped as a runtime slice, and explicitly not branched yet.
+- Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection.
+- Branch selection is rooted in project vision, family vision, branch vision, current completed work, and the next implementation need. It must not be selected by PR Readiness inertia, release-debt avoidance, old selected-next ledgers, or stale backlog/roadmap posture.
+- PR Readiness does not require selected-next truth or a waiver by default. Its default job is to prove the current branch is merge-ready, merge-stable, and free of stale active operational state.
+- PR Readiness validates selected-next truth only when USER explicitly approves PR-time successor selection or repo/external state already encodes a USER-approved successor selection.
+- When no USER-approved selected-next truth exists, the next implementation carrier is selected later through Branch Readiness Stage 1 after the current PR merges and updated `main` / external operational state are revalidated.
 
 Exception:
 
-- If USER approval for a new or successor backlog identity is absent, `Backlog Addition User Approval Missing` supersedes `Next Runtime Candidate Selection Pending`; Codex must not select, split, promote, or create a successor backlog identity by inertia.
-- If post-merge truth would resolve to `No Active Branch` because release handling or another repo-level admission blocker remains open, Stage 1 must treat that as an explicit USER waiver/defer question, not a default. Successor branch creation remains deferred only when that waiver/defer is recorded; otherwise Stage 1 stops on the appropriate selected-next or backlog-approval blocker.
-- If USER approval exists but no real runtime successor can be selected, `Next Runtime Candidate Selection Pending` remains a PR Readiness blocker and the branch must stop in PR Readiness rather than advance to Release Readiness.
+- If USER approval for a new or successor backlog identity is absent, Codex must not select, split, promote, or create a successor backlog identity by inertia.
+- If selected-next truth already exists, PR Readiness must verify it is USER-approved, vision-aligned, merge-stable, not stale, and not a live operational ledger in repo docs.
+- If selected-next truth is absent, that absence is not a PR Readiness blocker. The future branch decision moves to Branch Readiness Stage 1, where Codex must evaluate vision alignment, current work, dependency boundaries, family ownership, implementation need, package/slice shape, and USER questions before admitting any branch.
 
 ### Backlog Identity Admission Gate
 
@@ -857,7 +863,7 @@ It must not mint a standalone backlog identity, single-slice package, successor 
 Historical pass aliases, support/governance lanes, and old registry-only implemented IDs are trace rows, not selectable backlog items. Re-promoting one into a parseable backlog identity requires explicit USER approval and a recorded reason that family/workstream/branch traceability is insufficient.
 Any approved new backlog identity must use the fresh broad FAM namespace, not `FB-###`.
 
-When USER-approved successor selection exists, this gate requires all of the following before PR creation is allowed:
+When USER-approved successor selection already exists and PR Readiness is asked to preserve or validate that existing selected-next truth, this gate requires all of the following before PR creation is allowed:
 
 - the next workstream identity is selected from current canon using open backlog `Priority` plus deferred-context readiness, not `Target Version`
 - that workstream exists in `Docs/feature_backlog.md`
@@ -876,23 +882,22 @@ Machine-checkable canon markers:
 
 - the selected backlog entry must include `Next Workstream: Selected`
 - the selected backlog entry must include `Minimal Scope:`
-- the roadmap must include `## Selected Next Workstream`
-- the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
+- when USER-approved selected-next truth exists, the roadmap must include `## Selected Next Workstream`
+- when USER-approved selected-next truth exists, the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
 
 When post-merge `No Active Branch` handling applies, the branch must instead:
 
 - make the post-merge `No Active Branch` state explicit in current-state canon
 - name the blocking admission item explicitly
-- keep selected-next truth absent only when explicit USER approval waives or defers selected-next branch/workstream truth
+- keep selected-next truth absent by default unless USER explicitly approved PR-time successor selection or selected-next truth already exists
 - avoid creating or executing the next implementation branch by inertia
 
 Temporary `emergency canon repair` branches that are explicitly recorded as repair-only must not be treated as the selected-next implementation branch for this gate. Validator and canon checks should distinguish those repair branches from real successor implementation-branch creation.
 
-If the next workstream is not selected, is not recorded in backlog and roadmap, lacks valid record state, or lacks minimal scope, the branch is blocked by `Next Workstream Undefined`.
-If no real runtime candidate is selected before attempting to leave PR Readiness after USER-approved successor selection exists, the branch is blocked by `Next Runtime Candidate Selection Pending`.
-If USER approval for new or successor backlog selection is absent, the branch is blocked first by `Backlog Addition User Approval Missing`.
-Explicit successor-selection approval must be machine-recorded as `Successor Selection User Approval: Granted`; if that approval marker exists but no real runtime Feature Family candidate is selected, `Next Runtime Candidate Selection Pending` supersedes the missing-approval blocker.
-When `Backlog Addition User Approval Missing` is explicitly recorded with post-merge `No Active Branch` truth and no selected-next entry, PR Readiness must stop on the next-workstream blocker unless `Next Workstream User Waiver: Granted` or equivalent USER-approved defer is recorded; recommendation-only next workstream analysis is not enough for Stage 2. Post-merge `No Active Branch` is not the default closeout posture when the next branch/workstream should already be selected.
+If selected-next truth is present but not recorded in backlog and roadmap, lacks valid record state, or lacks minimal scope, the branch is blocked by `Next Workstream Undefined`.
+If USER approval for new or successor backlog selection is absent, PR Readiness must not create selected-next truth. The next branch decision waits for Branch Readiness Stage 1.
+Explicit PR-time successor-selection approval must be machine-recorded as `Successor Selection User Approval: Granted`; otherwise PR Readiness treats successor recommendations as non-binding planning context only.
+When post-merge `No Active Branch` truth is merge-stable and no selected-next entry exists, PR Readiness may proceed without `Next Workstream User Waiver:` because the next runtime implementation pipeline belongs to the next Branch Readiness Stage 1 pass.
 If a selected deferred workstream lacks deferred-context fields, the branch is blocked by `Deferred Selection Context Missing`.
 If a successor branch is created before `Branch Readiness`, the branch is blocked by `Successor Lock Missing`.
 
@@ -902,15 +907,15 @@ PR Readiness must not report green while any pre-merge process blocker remains u
 
 Hard blockers:
 
-- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream`, `Next Runtime Candidate Selection Pending`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, `Package Completion Unproven`, `PR Readiness Execution User Approval Missing`, `deferred-context`, `desktop-shortcut`, `uts-results`
+- canonical shorthand: `stale-canon`, `post-merge`, `dirty`, `docs-sync`, `next-workstream-if-selected`, `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, `Single-Slice Package User Approval Missing`, `Package Completion Unproven`, `PR Readiness Execution User Approval Missing`, `deferred-context`, `desktop-shortcut`, `uts-results`
 - `Stale Canon`:
   current-state canon and merge-target canon must already reflect the branch's true state and the state that will be true after merge
 - `Post-Merge State Unresolved`:
-  post-merge truth must already encode the selected next governed branch/workstream or explicit USER waiver/defer, plus any branch-creation deferral required when post-merge truth will admit another branch. `No Active Branch` may be projected only with explicit USER waiver/defer; release debt is exceptional and requires explicit USER approval, named owner, release target/floor semantics, Release Window Audit posture, and a real-carrier plan before PR creation.
+  post-merge truth must already be merge-stable for the current branch and must not leave stale active branch authority, live PR state, release-window ownership, or repo-ledger operational state. `No Active Branch` is allowed when no USER-approved successor selection exists; the next runtime implementation pipeline is then selected during Branch Readiness Stage 1.
 - `Next Workstream Undefined`:
-  PR Readiness cannot be green until the next workstream exists in canon, is recorded in backlog and roadmap, has a valid record state, has minimal scope defined, and has no branch created yet
+  If selected-next truth is already encoded or USER explicitly approves PR-time successor selection, PR Readiness cannot be green until that selected workstream exists in canon, is recorded in backlog and roadmap, has a valid record state, has minimal scope defined, and has no branch created yet. If selected-next truth is absent, this blocker does not apply.
 - `Next Runtime Candidate Selection Pending`:
-  PR Readiness cannot advance to Release Readiness after USER-approved successor selection exists until exactly one real runtime candidate is selected from repo truth, recorded as `Next Workstream: Selected`, scoped with a runtime `Minimal Scope:`, mirrored in roadmap `## Selected Next Workstream`, and left unbranched until the next Branch Readiness pass
+  Retired as a default PR Readiness blocker after the external-state/index-only reform. Use this only for inconsistent already-encoded selected-next truth or explicit USER-approved PR-time successor selection that cannot be made coherent. Normal next runtime candidate selection belongs to Branch Readiness Stage 1.
 - `Backlog Addition User Approval Missing`:
   PR Readiness and Branch Readiness cannot add, split, promote, package-admit, branch-create, waive a single-slice package, or select a backlog identity without explicit USER approval. When this blocker is active, Codex must output the still-not-closed FAM list plus every not-complete package/slice instead of creating selected-next truth.
 - `Backlog Exhaustion User Decision Pending`:
@@ -929,7 +934,7 @@ Hard blockers:
   PR Readiness cannot be green while the worktree is dirty, required docs changes are uncommitted, required canon exists only in the working tree, or branch truth is not durable in commit history
 - `Docs Sync Incomplete`:
   docs sync, Governance Drift Audit, validator alignment, and any required post-merge state wording must be complete and mutually consistent
-  merge-target current-state owners must be merge-stable: during explicitly USER-approved exceptional merged-unreleased release-handling windows, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and the canonical workstream `## Phase Status` block may describe only the truth that will still be correct after merge
+  merge-target pointer surfaces must be merge-stable: during explicitly USER-approved exceptional merged-unreleased release-handling windows, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, and the canonical workstream `## Phase Status` block may describe only the durable evidence-pointer truth that will still be correct after merge
   merge-target branch-head hash assertions such as ``origin/main` is `<sha>`` or ``origin/main` remains at `<sha>`` are operator facts only and must not appear in merge-stable current-state owner sections
 - `User-Facing Shortcut Validation Pending`:
   Live Validation and PR Readiness cannot be final-green for a relevant desktop user-facing workstream until the final Live Validation closeout has launched through the declared user-facing desktop shortcut or equivalent user entrypoint, recorded `User-Facing Shortcut Validation: PASS` or `User-Facing Shortcut Validation: WAIVED`, and preserved the evidence before User Test Summary handoff
@@ -945,23 +950,23 @@ Hard blockers:
   PR Readiness Stage 1 - Analysis Gate is an analysis-first readiness-lock gate. PR Readiness cannot enter PR Readiness Stage 2 - Execution Gate, create the PR, provision the watcher, create a next branch, or perform release work until the Stage 1 packet is returned, all USER-approved current-branch Stage 1 repair/re-entry items are validated and durable on the current branch, `Stage 1 Ready For Stage 2` is recorded, and explicit USER approval to enter Stage 2 is recorded.
   This preserves the existing analysis-first blocker repair gate inside the readiness lock.
 - `PR Readiness Stage 1 Repair Pending`:
-  When PR Readiness Stage 1 finds repo drift, source-truth drift, validator drift, branch-authority drift, or a PR-readiness blocker that can be repaired on the current branch, Stage 1 records `PR Readiness Stage 1 Repair Required` and must remain in Stage 1 until the repair is complete. Stage 1 repair/sync may mutate, stage, commit, and push the active branch only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that bounded PR-readiness repair work; Stage 1 specifically owns selected-next branch/workstream truth or USER waiver, merge-target `No Active Branch` projection only when explicitly waived, no-release-debt posture, any unavoidable merged-unreleased release-debt owner contract, and active-branch-authority cleanup when those items are found, and they must not be deferred to Stage 2 as planned sync. Stage 1 still cannot create a PR, provision a watcher, create a branch, admit a package, waive single-slice rules, create a tag, create release artifacts, draft or publish a GitHub Release, or execute a release. Stage 1 may encode selected-next truth only when USER explicitly approves that selected-next sync, and it still must leave branch creation plus runtime package admission blocked for Branch Readiness.
+  When PR Readiness Stage 1 finds repo drift, source-truth drift, validator drift, branch-authority drift, or a PR-readiness blocker that can be repaired on the current branch, Stage 1 records `PR Readiness Stage 1 Repair Required` and must remain in Stage 1 until the repair is complete. Stage 1 repair/sync may mutate, stage, commit, and push the active branch only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that bounded PR-readiness repair work; Stage 1 specifically owns repair or validation of already-encoded selected-next truth, merge-target `No Active Branch` projection, no-release-debt posture, any unavoidable merged-unreleased release-debt owner contract, and active-branch-authority cleanup when those items are found, and they must not be deferred to Stage 2 as planned sync. Stage 1 still cannot create a PR, provision a watcher, create a branch, admit a package, waive single-slice rules, create a tag, create release artifacts, draft or publish a GitHub Release, or execute a release. Stage 1 may encode selected-next truth only when USER explicitly approves that selected-next sync, and it still must leave branch creation plus runtime package admission blocked for Branch Readiness.
 - `No Successor Runtime Branch By Inertia`:
-  Source-only, docs-only, governance, validator, or repo-wide support branches must not invent the next runtime carrier merely to satisfy selected-next gates. When USER explicitly approves no successor runtime branch by inertia, Stage 1 must record `No Successor Runtime Branch By Inertia: USER-waived`, `Selected-Next Defer User Waiver: Granted`, and a post-merge `No Active Branch` projection. That waiver clears the selected-next blocker only for the current non-runtime/support branch; it does not create, select, or admit a runtime successor.
+  Retired as a default PR Readiness waiver requirement after the external-state/index-only reform. Source-only, docs-only, governance, validator, or repo-wide support branches must not invent the next runtime carrier merely to satisfy selected-next gates. When no USER-approved selected-next truth exists, post-merge `No Active Branch` is allowed and the next runtime implementation pipeline waits for Branch Readiness Stage 1; this does not create, select, or admit a runtime successor.
 - `Stage 1 USER Waiver Required`:
-  PR Readiness Stage 1 may request an explicit USER waiver for a required next-workstream/package recommendation or other Stage 1 review item only when repo truth allows a waiver. Without the waiver, Stage 1 remains active and Stage 2 cannot begin.
+  PR Readiness Stage 1 may request an explicit USER waiver for a required Stage 1 review item only when repo truth allows a waiver. A selected-next waiver is not required merely because selected-next truth is absent; normal successor selection belongs to Branch Readiness Stage 1.
 - `Next Workstream User Waiver Missing`:
-  PR Readiness Stage 1 has a hard no-continue gate for next-workstream review. Stage 1 cannot continue to Stage 2 unless the packet analyzes a concrete next-workstream candidate and the candidate work to be done, or an explicit USER waiver records `Next Workstream User Waiver: Granted`. If no legal candidate is found, `Next Workstream Candidate Not Found` remains active until the USER supplies/approves a candidate or grants that waiver.
+  Retired as a default PR Readiness continuation blocker. PR Readiness does not require selected-next truth or a waiver by default. If USER explicitly asks PR Readiness to encode selected-next truth, the packet must record the USER decision and validate that selected-next truth; otherwise the next runtime implementation pipeline is selected later in Branch Readiness Stage 1.
 - `Next Branch Package Shape Unproven`:
-  PR Readiness Stage 1 must pre-plan the next branch shape before Stage 2 can proceed. The packet must name the broad FAM, candidate package, and multiple concrete candidate slices, while keeping branch creation and selected-next truth blocked unless separately USER-approved.
+  Branch Readiness Stage 1 owns normal next-branch package-shape proof. PR Readiness uses this blocker only when USER explicitly approved PR-time selected-next encoding or when already-encoded selected-next truth is inconsistent.
 - `Single-Slice Branch Drift Risk Unresolved`:
-  PR Readiness Stage 1 cannot continue to Stage 2 when the next-branch pre-plan looks like a single-seam, single-slice, or one-off branch unless explicit USER waiver/approval is recorded. Placeholder slices do not satisfy this review.
+  Branch Readiness Stage 1 owns normal single-slice drift review for the next branch. PR Readiness uses this blocker only for already-encoded selected-next truth that would be merged as durable source truth.
 - `Family Organization Drift Risk Unresolved`:
-  PR Readiness Stage 1 cannot continue to Stage 2 when the next-branch pre-plan drifts away from the FAM -> Package -> Slice -> Seam model, reuses old live `FB-###` identity behavior, or treats governance/support work as a standalone feature family without USER approval.
+  Branch Readiness Stage 1 owns normal family-organization review for the next branch. PR Readiness uses this blocker only for already-encoded selected-next truth that drifts away from the FAM -> Package -> Slice -> Seam model.
 - `Current-Branch Branch Readiness Re-entry Required`:
   PR Readiness Stage 1 cannot continue to Stage 2 when next-workstream, next-branch, or governance/source-of-truth ledger blockers show that the current branch is still the legal carrier, but the fix is broader than bounded PR-readiness sync and must re-enter Branch Readiness on the same branch. This includes branch-shape drift, package/slice admission drift, or ledger repair that needs the current carrier's Branch Readiness authority before PR execution.
 - `New Carrier Branch Required`:
-  PR Readiness Stage 1 cannot continue to Stage 2 when the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. This applies to `Next Workstream Candidate Not Found`, `Next Branch Package Shape Unproven`, `Single-Slice Branch Drift Risk Unresolved`, `Family Organization Drift Risk Unresolved`, or ledger items that cannot be cleared without USER waiver/approval or a new Branch Readiness carrier. Ledger-triggered fallback covers identity model drift, FAM taxonomy drift, package/branch rule drift, USER approval blocker drift, Branch Readiness or PR Readiness staging drift, selected-next recommendation drift, real-carrier routing drift, branch-authority lifecycle drift, watcher/automation proof drift, release readiness/execution boundary drift, Element Coverage misuse, ChatGPT loader/source-truth drift, project direction drift, current workflow drift, after-release workflow drift, and absolute-guardrail drift. The Stage 1 packet must output `Governance Ledger Fallback:` and `Branch Readiness Fallback:` and route the next legal work to Branch Readiness rather than create a PR, watcher, branch, package, selected-next truth, or release artifact by inertia. Branch Readiness fallback is real carrier branch/package analysis when PR Stage 1 cannot legally clear the blocker on the current branch; it is not workstream selection by default.
+  PR Readiness Stage 1 cannot continue to Stage 2 when the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. This applies to selected-next and next-branch shape blockers only when USER-approved PR-time selected-next truth or already-encoded selected-next truth is in scope, or to ledger items that cannot be cleared without USER approval or a new Branch Readiness carrier. Ledger-triggered fallback covers identity model drift, FAM taxonomy drift, package/branch rule drift, USER approval blocker drift, Branch Readiness or PR Readiness staging drift, selected-next recommendation drift when in scope, real-carrier routing drift, branch-authority lifecycle drift, watcher/automation proof drift, release readiness/execution boundary drift, Element Coverage misuse, ChatGPT loader/source-truth drift, project direction drift, current workflow drift, after-release workflow drift, and absolute-guardrail drift. The Stage 1 packet must output `Governance Ledger Fallback:` and `Branch Readiness Fallback:` and route the next legal work to Branch Readiness rather than create a PR, watcher, branch, package, selected-next truth, or release artifact by inertia. Branch Readiness fallback is real carrier branch/package analysis when PR Stage 1 cannot legally clear the blocker on the current branch; it is not workstream selection by default.
 - `PR Merge Status Unproven`:
   PR Readiness cannot be green until the live PR has explicitly reported a green merge status. Treat unknown, unset, conflicting, dirty, blocked, or otherwise non-green mergeability/merge-state results as an active blocker until GitHub reports the PR merge status as green.
 - `Bot Review Signal Pending`:
@@ -1002,19 +1007,19 @@ If the normal governance validator passes but the PR-specific gate reports dirty
 
 `PR Readiness` remains one canonical phase. It is organized into two internal stage gates:
 
-- `PR Readiness Stage 1 - Analysis Gate`: analysis-first readiness-lock gate. Stage 1 must analyze repo truth, identify PR-readiness drift/blockers, output the full `## PR Readiness Stage 1 Analysis Packet` for USER review, including next-branch hierarchy and Stage 2 execution plan, and remain active until one outcome is recorded: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. Bounded Stage 1 repair/sync is allowed only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair; repair truth must be validated, committed, and pushed before Stage 1 can be declared ready. Stage 1 owns selected-next branch/workstream truth or USER waiver, merge-target `No Active Branch` projection only when explicitly waived, no-release-debt posture, release target/floor semantics and Release Window Audit when relevant, any unavoidable merged-unreleased release-debt owner contract, and active-branch-authority cleanup when Stage 1 finds them. Stage 1 selected-next/no-release-debt handling is complete only when the next selected branch/workstream is recorded in source truth before PR creation or an explicit USER waiver says no next branch/workstream is selected, release target/floor semantics and Release Window Audit are resolved when relevant, branch-authority cleanup is durable, stale-canon risk is cleared, and any unavoidable release debt has an explicit USER decision, named owner, and real-carrier plan before Stage 2; otherwise Stage 1 must stop on `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required` instead of reporting Stage 2-ready. Stage 1 still cannot create the PR, provision the watcher, create the next branch, execute release work, create tags/artifacts/releases, admit packages, or grant waivers without explicit USER approval. Stage 1 may encode selected-next truth only when USER explicitly approves that selected-next sync, and Stage 2 must verify the synced truth before PR creation.
+- `PR Readiness Stage 1 - Analysis Gate`: analysis-first readiness-lock gate. Stage 1 must analyze repo truth, identify PR-readiness drift/blockers, output the full `## PR Readiness Stage 1 Analysis Packet` for USER review, including Stage 2 execution plan, and remain active until one outcome is recorded: `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, or `Stage 1 USER Waiver Required`. Bounded Stage 1 repair/sync is allowed only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair; repair truth must be validated, committed, and pushed before Stage 1 can be declared ready. Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection, rooted in Nexus Vision, family vision, branch vision, current completed work, and the next implementation need. PR Readiness does not require selected-next truth or a waiver by default; Stage 1 owns repair or validation of selected-next truth only when USER explicitly approves PR-time selected-next sync or selected-next truth already exists and would merge as durable repo truth. Stage 1 also owns merge-target `No Active Branch` projection, no-release-debt posture, release target/floor semantics and Release Window Audit when relevant, any unavoidable merged-unreleased release-debt owner contract, and active-branch-authority cleanup when Stage 1 finds them. Stage 1 still cannot create the PR, provision the watcher, create the next branch, execute release work, create tags/artifacts/releases, admit packages, or grant waivers without explicit USER approval. Stage 1 may encode selected-next truth only when USER explicitly approves that selected-next sync, and Stage 2 must verify the synced truth before PR creation.
   This preserves the existing analysis-first blocker repair gate inside the readiness lock.
 - `PR Readiness Stage 2 - Execution Gate`: begins only after explicit USER approval to enter Stage 2 and only when Stage 1 reports `Stage 1 Ready For Stage 2`. Stage 2 owns final PR execution only: verifying durable Stage 1 projection, commit/push only for bounded operator metadata if legally needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch.
 
-The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, release-debt impact, release-debt handling status, selected-next / no-release-debt handling status, ranked runtime FAM candidates, recommended next package or explicit USER waiver, package-size / single-slice drift review, Element Coverage review, required current-branch source-truth sync, completed merge-target canon updates when repairable drift is found, planned next-branch block, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 execution work, Stage 1 repairs made, Stage 1 repair validation, Governance Ledger fallback status, Branch Readiness fallback status, Stage 2 execution plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2 or create the PR/watcher. It may encode selected-next truth only when USER explicitly approves selected-next sync, and branch creation plus runtime package admission must stay blocked for Branch Readiness. PR creation is blocked while any Stage 1 blocker, Stage 1 repair item, next-workstream hierarchy item, branch-shape review item, merge-target authority projection item, no-release-debt posture, unavoidable release-debt owner contract, selected-next truth or USER waiver, or Stage 2 execution prerequisite remains unresolved.
+The `## PR Readiness Stage 1 Analysis Packet` must include governed state markers, the planned PR title/base/head/summary, required post-merge path, release-debt impact, release-debt handling status, selected-next validation status when selected-next truth exists or PR-time selection is explicitly approved, required current-branch source-truth sync, completed merge-target canon updates when repairable drift is found, planned watcher provisioning and reporting surface, planned validations, expected Stage 2 execution work, Stage 1 repairs made, Stage 1 repair validation, Governance Ledger fallback status, Branch Readiness fallback status, Stage 2 execution plan, drift findings, blocker and waiver findings, release-window audit posture, rollback path, `Next Legal Phase:` digest field, and the exact Stage 2 green-light decision needed from the USER. Packet field labels include `Selected-Next Validation Status:`, `Selected-Next Scope:`, `Branch Readiness Stage 1 Successor Selection Owner:`, and `Optional Next Branch Block:` so the output proves selected-next is either out of scope by default or explicitly validated. It may repair Stage 1 PR-readiness blockers on the current branch, but it must not perform Stage 2 or create the PR/watcher. It may encode selected-next truth only when USER explicitly approves selected-next sync, and branch creation plus runtime package admission must stay blocked for Branch Readiness. PR creation is blocked while any Stage 1 blocker, Stage 1 repair item, selected-next validation item when applicable, branch-shape review item when applicable, merge-target authority projection item, no-release-debt posture, unavoidable release-debt owner contract, or Stage 2 execution prerequisite remains unresolved.
 
-When the active branch plan contains UFD items, PR Readiness Stage 1 must include a USER Feedback Disposition fold-down review. Every `Feedback ID:` must be implemented, rejected/no-action with reason, deferred with waiver, folded into the structured branch receipt, promoted to Nexus/family vision when reusable, carried as a backlog future-candidate pointer only after USER acceptance, or assigned to a named future owner. The fold-down receipt must preserve a lookup path from each UFD ID to its final owner before the branch plan can retire from active planning posture.
+When the active branch planning owner contains UFD items, PR Readiness Stage 1 must include a USER Feedback Disposition fold-down review. Every `Feedback ID:` must be implemented, rejected/no-action with reason, deferred with waiver, folded into the structured branch receipt, promoted to Nexus/family vision when reusable, carried as a backlog future-candidate pointer only after USER acceptance, or assigned to a named future owner. The fold-down receipt must preserve a lookup path from each UFD ID to its final owner before the branch plan can retire from active planning posture.
 
-`PR package ready` is the state where local branch truth, merge-target canon, next-workstream selection, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
+`PR package ready` is the state where local branch truth, merge-target canon, applicable selected-next validation, and copy-ready PR details are complete. It is not `PR Readiness GREEN`.
 
 Live PR creation and validation facts are required for operator output and PR validation, but they are not merge-target current-state truth. Keep live PR state such as `open`, `non-draft`, `mergeable`, review-thread counts, repair-commit containment timing, blocker-clearing branch narration, and merge-target branch-head hash assertions in operator output and explicit historical PR sections only. Do not place those time-sensitive claims in merge-target current-state owner sections such as backlog or roadmap `## Current Branch Execution Posture`, `PR Readiness State:`, `Current Branch Objective:`, `Active Workstream Chain:`, or the canonical workstream merged-unreleased `## Phase Status` block.
 
-Merge-target post-merge-stable authority projection is mandatory before PR green and is a PR Readiness Stage 1 repair responsibility when Stage 1 finds it. If post-merge truth will be `No Active Branch`, the PR branch must not merge an active branch authority record into `main`; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable during Stage 1 before Stage 2 can execute, and that `No Active Branch` projection must be backed by explicit USER waiver/defer when a next branch/workstream should otherwise be selected. Historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`. Operational PR/watcher facts may live in operator output or explicit historical PR sections, but merged current-state owners and historical authority records must already describe the post-merge truth that will remain valid after merge.
+Merge-target post-merge-stable authority projection is mandatory before PR green and is a PR Readiness Stage 1 repair responsibility when Stage 1 finds it. The PR branch must not merge an active branch authority record into `main`; the active authority record must be moved to historical/no-active posture or otherwise made merge-stable during Stage 1 before Stage 2 can execute. Post-merge `No Active Branch` does not require selected-next waiver truth when no USER-approved selected-next truth exists; normal successor selection waits for Branch Readiness Stage 1. Historical branch records must not retain active PR Readiness phase, active seam ownership, live/open PR wording, merge-watch ownership, or `PR Merge Verification Pending`. Operational PR/watcher facts may live in operator output or explicit historical PR sections, but merged current-state owners and historical authority records must already describe the post-merge truth that will remain valid after merge.
 
 A post-merge projection receipt is not enough by itself. If a branch creates a separate projection file, PR Readiness Stage 1 must still fold down the real active authority record or remove it from `Active Branch Authority Records` before it reports `Stage 1 Ready For Stage 2`, before Stage 2 PR creation, and before merge approval. Projection-beside-active-authority blocks on `Merge-Stable Projection Shadowed By Active Authority`.
 
@@ -1054,8 +1059,8 @@ Merge-Stable Source Truth Projection Gate:
 
 - PR Readiness must prove the source truth that will remain valid after the PR merges, not only the pre-PR state that is true before Stage 2.
 - Pre-PR markers such as `No live PR`, `PR Creation Approval: Pending`, `Stage 2 PR Creation: Pending`, `PR creation pending`, and `PR Readiness Stage 1 Ready For Stage 2` are lawful only inside clearly labeled historical pre-PR snapshot sections after a PR merges.
-- Merged-main current-state owners, compact pointer rows, worktree slot receipts, active branch plans, and canonical branch records must instead project historical merged-unreleased, released/closed, or no-active-branch posture after merge.
-- If a merged branch record remains a canonical detail owner, it must name the merge PR/commit when known, clear active PR Readiness / PR creation pending wording from summary fields, retire or historical-label the active branch plan, and route release execution as a separate USER decision.
+- Merged-main current-state owners, compact pointer rows, worktree slot receipts, active branch planning owners, and canonical branch records must instead project historical merged-unreleased, released/closed, or no-active-branch posture after merge.
+- If a merged branch record remains a canonical detail owner, it must name the merge PR/commit when known, clear active PR Readiness / PR creation pending wording from summary fields, retire or historical-label any repo branch-plan receipt, and route release execution as a separate USER decision.
 - `Merged Active Branch Authority Not Folded Down` blocks when any non-standing branch listed under `Active Branch Authority Records` points to a branch ref already merged into `origin/main`; the validator must compare the branch ref to `origin/main` instead of relying only on compact `No Active Branch` wording.
 - `Merge-Stable Projection Shadowed By Active Authority` blocks when a separate historical projection record exists for a branch but the same branch still has an active authority record in `Active Branch Authority Records`.
 - `Merge-Stable Source Truth Projection Missing` blocks PR green, merge approval, or Release Readiness Stage 2 when stale pre-PR or Stage 2-pending wording would land in merged-main source truth.
@@ -1089,16 +1094,15 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Planned Base Branch:
 - Planned Head Branch:
 - Planned PR Summary:
-- User-Facing Next Workstream Block:
 - Required Post-Merge Path:
-- Ranked Runtime FAM Candidates:
-- Recommended Next Package:
-- Recommended Next Package USER Waiver:
+- Selected-Next Validation Status:
+- Selected-Next Scope:
+- Branch Readiness Stage 1 Successor Selection Owner:
 - Package-Size / Single-Slice Drift Review:
 - Element Coverage Review:
 - Release-Debt Impact:
 - Release-Debt Handling Status:
-- Selected-Next / No-Release-Debt Handling Status:
+- No-Release-Debt Handling Status:
 - Required Current-Branch Source-Truth Sync:
 - Planned Merge-Target Canon Updates:
 - Origin/Main Freshness Check:
@@ -1111,7 +1115,7 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Reconciliation File List:
 - Reconciliation Recommendation:
 - Reconciliation Mutation Status:
-- Planned Next Branch Block:
+- Optional Next Branch Block:
 - Planned Watcher Provisioning:
 - Planned Validation Commands:
 - Expected Files To Change:
@@ -1132,10 +1136,11 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Stage 2 Green-Light Decision Needed:
 ```
 
+Selected-next fields in this packet are validation/status fields, not a request for PR Readiness to create successor truth. `Optional Next Branch Block:` must be `Not in scope` unless USER explicitly requested PR-time successor selection, selected-next truth already exists, or Branch Readiness is the next legal phase.
+
 Allowed Stage 1 outcomes are exactly `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. `PR Readiness Stage 1 Repair Required` means bounded current-branch PR-readiness repair/sync remains in Stage 1 before Stage 2. `Current-Branch Branch Readiness Re-entry Required` means the current branch is still the legal carrier, but the fix is broader than PR-readiness sync and must re-enter Branch Readiness on the same branch. `New Carrier Branch Required` means the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. Stage 2 may begin only after `Stage 1 Ready For Stage 2` is recorded and explicit USER approval to enter Stage 2 exists.
 Stage 2 begins only after `Stage 1 Ready For Stage 2` and explicit USER approval.
-The next-workstream/package hierarchy is reviewed in PR Readiness Stage 1, not selected in Branch Readiness by default.
-Selected-next truth and active branch authority are different states. PR Readiness Stage 1 must resolve the next-workstream path with approved selected-next truth or an explicit USER waiver/defer, but a branch that projects post-merge `No Active Branch` must not merge an implementation authority record as active. If no successor is approved before merge, merged `main` may be steady-state `No Active Branch` while carrying merged-unreleased release debt, and the next implementation carrier must be selected later through Branch Readiness from current `origin/main`. Default governance validation and `--pr-readiness-gate` both own this closeout so Release Readiness does not discover stale active-authority truth after merge.
+Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection. That selection must be rooted in project vision, family vision, branch vision, current completed work, and the next implementation need. PR Readiness may recommend next-workstream context, but it does not require selected-next truth or a waiver by default and must not create next-branch live state by inertia. Selected-next truth and active branch authority are different states. PR Readiness validates selected-next truth only when USER explicitly approves PR-time successor selection or already-encoded selected-next truth would merge as durable source truth. If no successor is approved before merge, merged `main` may be steady-state `No Active Branch` while carrying valid merged-unreleased release-window truth, and the next implementation carrier must be selected later through Branch Readiness from current `origin/main` and external operational state. Default governance validation and `--pr-readiness-gate` both own stale active-authority closeout so Release Readiness does not discover stale active-authority truth after merge.
 
 After a PR merges, active branch authority is invalid for that merged branch even when backlog, roadmap, or worktree slots do not project `No Active Branch`. `Active Branch Authority Records` may not retain a non-standing branch whose local or remote ref is already an ancestor of `origin/main`; failing to fold that record down to historical/no-active posture blocks on `Merged Active Branch Authority Not Folded Down`.
 
@@ -1149,7 +1154,7 @@ After a PR merges, active branch authority is invalid for that merged branch eve
 
 `Release Window Contributor Inventory` is required during PR Readiness Stage 1 before Stage 2 can begin for any release-bearing or merged-unreleased branch. Stage 1 must identify whether the projected release candidate may include multiple FAM/worktree contributors, must name each known merged-unreleased contributor included or expected to be included in the target commit, must state whether the release is `Release Ownership Model: Aggregated release window`, and must route any contributor-specific blocker to the owning lane instead of letting merge order decide release ownership.
 
-Stage 1 must also include this user-facing block so USER and ChatGPT can review the successor/runtime path before Stage 2. This is analysis-first output; it may encode selected-next truth only when USER explicitly approves selected-next sync, but it must not create a branch, admit a package, or waive any blocker without separate approval:
+Stage 1 may include this user-facing block as non-binding planning context when USER asks for next-workstream recommendations, or when already-encoded selected-next truth must be validated before merge. This block is not required for PR Readiness Stage 2 by default. It may encode selected-next truth only when USER explicitly approves selected-next sync, and it must not create a branch, admit a package, or waive any blocker without separate approval:
 
 ```markdown
 ## Next Workstream
@@ -1167,9 +1172,9 @@ Stage 1 must also include this user-facing block so USER and ChatGPT can review 
 - Next Workstream User Waiver:
 ```
 
-Stage 1 has a hard no-continue gate here: it must analyze a concrete next-workstream candidate and the candidate work to be done, or explicitly record `Next Workstream User Waiver: Granted`. Without that waiver, missing candidate/work analysis stops on `Next Workstream User Waiver Missing` and cannot continue to Stage 2. If no legal next workstream candidate is found, Stage 1 must stop on `Next Workstream Candidate Not Found`, report the still-not-closed FAM list plus every not-complete package and slice, and record `Stage 1 USER Waiver Required` unless the USER grants a waiver/approval that clears the route. `Backlog Addition User Approval Missing`, `Backlog Exhaustion User Decision Pending`, and `Next Runtime Candidate Selection Pending` still apply according to their existing approval and exhaustion rules.
+Missing next-workstream recommendation, missing selected-next truth, or missing `Next Workstream User Waiver:` does not block PR Readiness Stage 2 by default. If selected-next truth is already encoded, or USER explicitly approves PR-time successor selection, Stage 1 must validate the selected workstream and stop on the applicable selected-next blocker when that truth is inconsistent. Otherwise the next-workstream decision waits for Branch Readiness Stage 1.
 
-Stage 1 must also include this next-branch pre-plan gate. It remains analysis-first and cannot create a branch, admit a package, or waive single-slice rules; it may encode selected-next truth only when USER explicitly approves selected-next sync and still leaves branch creation plus runtime package admission blocked for Branch Readiness:
+Stage 1 may include this next-branch pre-plan gate only when USER asks PR Readiness for a next-branch recommendation or when selected-next truth already exists and must be validated. Normal next-branch package-shape proof belongs to Branch Readiness Stage 1. This block remains analysis-first and cannot create a branch, admit a package, or waive single-slice rules; it may encode selected-next truth only when USER explicitly approves selected-next sync and still leaves branch creation plus runtime package admission blocked for Branch Readiness:
 
 ```markdown
 ## Next Branch Pre-Plan
@@ -1187,16 +1192,16 @@ Stage 1 must also include this next-branch pre-plan gate. It remains analysis-fi
 - USER Approvals Required:
 ```
 
-If the packet cannot show a broad FAM/package with multiple concrete candidate slices, Stage 1 stops on `Next Branch Package Shape Unproven`. If the pre-plan still looks like a single-seam or single-slice branch, Stage 1 stops on `Single-Slice Branch Drift Risk Unresolved`. If the pre-plan drifts away from the family organization model or revives old live `FB-###` branch identity behavior, Stage 1 stops on `Family Organization Drift Risk Unresolved`. Any unresolved pre-plan blocker must be classified as `Current-Branch Branch Readiness Re-entry Required` when the current branch remains the legal carrier, or `New Carrier Branch Required` when the current branch is stale, merged, invalid, or legally cannot own the blocker. Branch Readiness fallback is carrier/branch/package admission after PR Stage 1 has identified the work direction; it is not workstream selection by default.
+If USER-approved PR-time selected-next truth exists and the packet cannot show a broad FAM/package with multiple concrete candidate slices, Stage 1 stops on `Next Branch Package Shape Unproven`. If the pre-plan still looks like a single-seam or single-slice branch, Stage 1 stops on `Single-Slice Branch Drift Risk Unresolved`. If the pre-plan drifts away from the family organization model or revives old live `FB-###` branch identity behavior, Stage 1 stops on `Family Organization Drift Risk Unresolved`. Otherwise those reviews wait for Branch Readiness Stage 1, which is the normal owner for next runtime implementation pipeline selection.
 
-When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
+When `PR Readiness` reports package-ready or `PR package ready`, the response must include markdown-friendly PR operator copy blocks. Include a standardized `Next Branch` block only when USER explicitly requested PR-time successor selection, selected-next truth already exists, or Branch Readiness is the next legal phase.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.
 This is a response contract, not permission to create the PR, merge the branch, release the branch, or create the next branch.
 
-The `Next Branch` block must distinguish the next legal branch from the selected next implementation branch.
+When included, the `Next Branch` block must distinguish the next legal branch from the selected next implementation branch.
 For example, if USER explicitly approves unavoidable post-merge release handling, the next legal branch may be a release-support carrier while the selected next implementation branch remains deferred until after release handling and updated-`main` revalidation.
 
-Required `Next Branch` block:
+Optional conditional `Next Branch` block:
 
 ```markdown
 ## Next Branch
@@ -1255,7 +1260,7 @@ Branch-specific boundaries are allowed inside `## Branch Evidence` when they cla
 The PR summary must describe implemented work, validation evidence, governance/canon state, post-merge truth, and next-branch handling only when those items are part of the implemented branch truth.
 GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.
 Before PR creation, Codex must write the proposed GitHub PR body to a local temporary file and run `python dev\orin_pr_body_quality_audit.py --body-file <path> --body-title "<PR title>"`. If the helper reports `Changed: True` or any warning, PR creation is blocked on `PR Body Drift Check Failed` until Codex reruns the helper with `--apply` or otherwise replaces the proposed body with the normalized body and reruns the check green. After PR creation, Codex must verify the live PR body with `python dev\orin_pr_body_quality_audit.py --limit 1` or a narrower equivalent. The audit must preserve trimmed Summary detail inside `## Branch Evidence`; lossy normalization is invalid.
-If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
+When the conditional `Next Branch` block is included and `May Create Now` is `NO`, the subsection must explain the blocking gate rather than implying branch creation is allowed.
 
 ### Operator Output Content Rule
 
@@ -1742,25 +1747,25 @@ Required sequence:
 
 ### Current-State Claim Containment
 
-Time-sensitive current-state claims must live only in designated current-state owners, or be part of the merge-target canon update set.
+Time-sensitive current-state claims must live only in designated operational owners outside repo durable source truth, or be derived from Git/GitHub/helpers at the time of inspection.
 
-After the External Operational State Store contract is implemented, live operational state that exists only to coordinate active branches, PRs, worktrees, release windows, review bundles, watchers, selected-next posture, or temporary handoffs must not be reintroduced into repo docs as current truth. If Release Readiness finds that state in repo docs, classify it as `Repo Live-State Leakage` unless it is clearly labeled historical receipt evidence.
+After the External Operational State Store contract is implemented, live operational state that exists only to coordinate active branches, PRs, worktrees, release windows, review bundles, watchers, selected-next posture, or temporary handoffs must not be reintroduced into repo docs as current truth. Repo docs may preserve durable branch/document evidence pointers and historical receipts, but they must not own lifecycle posture such as active, complete, pending, no branch created, no live PR, PR creation pending, Stage 2 pending, selected-next current state, release-window ownership, or worktree assignment. If Release Readiness finds that state in repo docs, classify it as `Repo Live-State Leakage` unless it is clearly labeled historical receipt evidence.
 
-Allowed current-state owners:
+Repo docs are index/context files for operational work. They may point to the branch, PR, release, external-state record, workstream, family vision, validator, helper, or receipt that owns detail, but they must not maintain the operational ledger itself. Branch plans, UFD rows, Branch Change Intent rows, Element-to-Phase rows, Workstream Entry review packets, Hardening plans, Live Validation plans, PR watcher state, release-window assembly, and review-bundle manifests belong outside repo docs while active unless USER grants an explicit transition exception.
 
-- backlog
-- roadmap
-- active workstream doc
-- workstreams index
-- closeout index
-- current rebaseline or closeout file
-- `Docs/Main.md` routing
+Allowed operational-state owners after the external-state transition:
 
-Auxiliary guidance docs should be timeless by default.
+- `C:\Nexus Governance State` for accepted local operational state
+- `<worktree>\.nexus_state_staging\` for proposed state only after USER approval
+- Git/GitHub/helper-derived live truth for branch, PR, release, issue, review-thread, and dirty-state facts
+- repo docs only for durable rules, durable vision, branch/document evidence pointers, and historical receipts
+
+Repo durable docs should be timeless or historical by default.
 If they contain live-current claims, they must either:
 
-- be updated as part of canon sync, or
-- stop owning current-state truth
+- be converted to historical receipt evidence,
+- be replaced with a durable pointer to the external/derived owner, or
+- be removed from repo ownership through a USER-approved cleanup or fold-down repair.
 
 ### Governance Validator
 
@@ -1789,7 +1794,7 @@ That validator should verify at minimum:
 - the canonical `bounded multi-seam workflow` contract is present in governance and operator scaffolds
 - prompt scaffolds teach `Seam Sequence`, per-seam validation, and continue-or-stop decisions for multi-seam Workstream execution
 - docs do not teach direct `Workstream` -> `PR Readiness` as the default path
-- PR Readiness prompt scaffolds require the standardized `## Next Branch` block and inclusion-only `## PR Creation Details` operator copy blocks before reporting PR green
+- PR Readiness prompt scaffolds require inclusion-only `## PR Creation Details` operator copy blocks before reporting PR green, and require the standardized `## Next Branch` block only when selected-next truth is explicitly in scope or Branch Readiness is the next legal phase
 - Release Readiness prompt scaffolds require inclusion-only `## Release Package Details` operator copy blocks when release execution is green
 
 A governance or current-state canon branch is not complete until that validator is green.
@@ -2484,12 +2489,12 @@ Required evidence:
 - required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
 - required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
 - merge-target canon completeness gate passed
-- next workstream selected, canon-defined, assigned valid record state, minimally scoped, and explicitly not branched yet
-- successor branch creation deferred to `Branch Readiness`
+- when selected-next truth is explicitly in scope, next workstream selected, canon-defined, assigned valid record state, minimally scoped, and explicitly not branched yet
+- when selected-next truth is explicitly in scope, successor branch creation deferred to `Branch Readiness`
 - post-merge truth fully encoded before merge
 - Governance Drift Audit completed
 - docs sync complete and validator-aligned
-- standardized `## Next Branch` response block and inclusion-only `## PR Creation Details` operator copy blocks prepared
+- inclusion-only `## PR Creation Details` operator copy blocks prepared, plus standardized `## Next Branch` response block only when selected-next truth is explicitly in scope or Branch Readiness is the next legal phase
 - clean worktree with required branch truth durable in commit history
 - GitHub PR created for the current head branch and intended base branch
 - PR exists, is open, non-draft, conflict-free, and inspectable
@@ -2645,7 +2650,7 @@ Use it when:
 - blocked:
   - a blocker or repair path must be cleared before the next implementation lane may begin
 - steady-state:
-  - outside PR Readiness closeout, no implementation branch is currently selected, and it is valid for the next safe move to be no branch at all until a new approved need exists; PR Readiness closeout must either use explicit USER approval to select the next real runtime candidate or stop on `Backlog Addition User Approval Missing`/`Backlog Exhaustion User Decision Pending` without inventing selected-next truth. PR Readiness must not project steady-state `No Active Branch` merely to avoid selecting, confirming, or explicitly waiving the next branch/workstream path.
+  - no implementation branch is currently selected, and it is valid for the next safe move to be no branch at all until a new approved need exists. PR Readiness may project steady-state `No Active Branch` when no USER-approved selected-next truth exists; it must not invent selected-next truth or create a successor branch by inertia. The next runtime implementation pipeline is selected later through Branch Readiness Stage 1 from current `origin/main`, external operational state, vision, current completed work, and implementation need.
 
 When `No Active Branch` is blocked:
 
