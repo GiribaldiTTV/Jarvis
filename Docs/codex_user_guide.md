@@ -717,7 +717,7 @@ For single-slice drift hardening, only slice rows with `Admission State: Admitte
 `Automation Runtime Unproven` also keeps PR Readiness non-green for any phase-critical automation gate. A card, config file, or automation list showing `ACTIVE` is configuration state, not run proof. Accept run evidence only from thread or inbox output, automation memory/log/state-file updates, or scheduler last-run evidence. If the preferred Codex automation remains `ACTIVE` without run evidence, keep the owning phase blocked until run evidence exists or a bounded fallback is activated. Any bounded fallback must be target-scoped, phase-scoped, read-only, and self-terminating or explicitly deleted when its terminal condition or phase exit occurs.
 Use `dev/automation_observability_report.py` when you need the current automation health picture. This clears or confirms Automation Observability Review Pending by reading Codex automation run/inbox rows plus `$CODEX_HOME/automations/*/memory.md`; `BLOCKER_CANDIDATE` and `REVIEW_REQUIRED` findings are bounded repair candidates, while `REVIEW_INFO` is informational unless it contradicts repo truth. If an automation is background-observability-only, do not treat its `ACTIVE` card, stale memory, or historical toolchain-path report as green proof for a live PR or release gate.
 
-Required `Next Branch` block:
+Optional conditional `Next Branch` block, included only when USER explicitly requested PR-time successor selection, selected-next truth already exists, or Branch Readiness is the next legal phase:
 
 ```markdown
 ## Next Branch
@@ -767,8 +767,8 @@ Required `PR Creation Details` operator blocks:
 ```
 ````
 
-The `Next Branch` block must state whether branch creation is legal now.
-When release debt or updated-`main` revalidation blocks the selected next implementation branch, use `May Create Now: NO` and record the gate.
+When the conditional `Next Branch` block is included, it must state whether branch creation is legal now.
+When release debt or updated-`main` revalidation blocks an in-scope selected next implementation branch, use `May Create Now: NO` and record the gate.
 The PR operator blocks should be markdown-friendly and copy-ready, but they must not create the PR, merge the branch, run release work, or create the next branch by themselves.
 The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.
 `## Summary` must be one concise outcome paragraph, and `## Branch Evidence` must not repeat the Summary through nested `### Summary`, `### Purpose`, or `### Overview` sections.

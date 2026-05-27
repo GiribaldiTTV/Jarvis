@@ -396,7 +396,7 @@ When the approved phase is `PR Readiness`, the output must also explicitly inclu
 - if the in-scope pre-plan cannot show a broad FAM/package with multiple concrete candidate slices, report `Next Branch Package Shape Unproven`
 - if the in-scope pre-plan looks like a single-seam or single-slice branch, report `Single-Slice Branch Drift Risk Unresolved`
 - if the in-scope pre-plan drifts from FAM -> Package -> Slice -> Seam or revives old live `FB-###` identity behavior, report `Family Organization Drift Risk Unresolved`
-- an optional `## Next Branch` section with this exact field shape when selected-next truth is explicitly in scope or Branch Readiness is the next legal phase:
+- Optional conditional `Next Branch` response block: an optional `## Next Branch` section with this exact field shape when selected-next truth is explicitly in scope or Branch Readiness is the next legal phase:
 
 ```markdown
 ## Next Branch

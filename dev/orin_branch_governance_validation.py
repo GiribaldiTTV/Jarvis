@@ -4211,6 +4211,7 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "PR Readiness does not require selected-next truth or a waiver by default",
     "selected-next validation",
     "optional",
+    "Optional conditional `Next Branch`",
     "Current-Branch Branch Readiness Re-entry Required",
     "New Carrier Branch Required",
     "Branch Readiness Fallback:",

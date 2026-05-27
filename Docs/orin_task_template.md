@@ -1055,6 +1055,8 @@ If the phase is `Branch Readiness` and the current stage is `Branch Readiness St
 It must also state `Branch Readiness Execution User Approval Missing`, confirm no repository file mutation occurred, and stop for USER approval to enter Branch Readiness Stage 2.
 `Stale Branch Cleanup Plan:` is analysis-only in Stage 1. Stale/old branch cleanup may execute only during `Branch Readiness Stage 2 - Execution Gate` after branch/worktree creation or validation proves the replacement target, `git worktree list`, branch targets, and GitHub Desktop-bound worktree binding are safe.
 
+Optional conditional `Next Branch` response block, used only when USER asks PR Readiness for successor-selection analysis, selected-next truth already exists, or Branch Readiness is the next legal phase:
+
 ```markdown
 ## Next Branch
 - Next Legal Branch Type:
@@ -1103,8 +1105,8 @@ If `PR Readiness` is package-ready, green, or `PR READY: YES`, the final respons
 ```
 ````
 
-The `Next Branch` block must separate the next legal branch from the selected next implementation branch.
-If the next implementation branch is deferred by release debt, updated-`main` revalidation, or another branch-admission gate, set `May Create Now: NO` and state the reason.
+When included, the `Next Branch` block must separate the next legal branch from the selected next implementation branch.
+If an in-scope next implementation branch is deferred by release debt, updated-`main` revalidation, or another branch-admission gate, set `May Create Now: NO` and state the reason.
 The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.
 `## Summary` must be one concise outcome paragraph, and `## Branch Evidence` must not repeat the Summary through nested `### Summary`, `### Purpose`, or `### Overview` sections.
 Use concrete Branch Evidence subheads such as `### Changes`, `### Context`, `### Source Truth`, or `### Boundaries` only when they improve scanability.

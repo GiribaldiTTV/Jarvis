@@ -1193,14 +1193,14 @@ Stage 1 may include this next-branch pre-plan gate only when USER asks PR Readin
 
 If USER-approved PR-time selected-next truth exists and the packet cannot show a broad FAM/package with multiple concrete candidate slices, Stage 1 stops on `Next Branch Package Shape Unproven`. If the pre-plan still looks like a single-seam or single-slice branch, Stage 1 stops on `Single-Slice Branch Drift Risk Unresolved`. If the pre-plan drifts away from the family organization model or revives old live `FB-###` branch identity behavior, Stage 1 stops on `Family Organization Drift Risk Unresolved`. Otherwise those reviews wait for Branch Readiness Stage 1, which is the normal owner for next runtime implementation pipeline selection.
 
-When `PR Readiness` reports package-ready or `PR package ready`, the response must include a repo-wide standardized `Next Branch` block and markdown-friendly PR operator copy blocks.
+When `PR Readiness` reports package-ready or `PR package ready`, the response must include markdown-friendly PR operator copy blocks. Include a standardized `Next Branch` block only when USER explicitly requested PR-time successor selection, selected-next truth already exists, or Branch Readiness is the next legal phase.
 Those package details are the input to PR creation and validation; they are not themselves proof that PR Readiness is GREEN.
 This is a response contract, not permission to create the PR, merge the branch, release the branch, or create the next branch.
 
-The `Next Branch` block must distinguish the next legal branch from the selected next implementation branch.
+When included, the `Next Branch` block must distinguish the next legal branch from the selected next implementation branch.
 For example, if USER explicitly approves unavoidable post-merge release handling, the next legal branch may be a release-support carrier while the selected next implementation branch remains deferred until after release handling and updated-`main` revalidation.
 
-Required `Next Branch` block:
+Optional conditional `Next Branch` block:
 
 ```markdown
 ## Next Branch
@@ -1259,7 +1259,7 @@ Branch-specific boundaries are allowed inside `## Branch Evidence` when they cla
 The PR summary must describe implemented work, validation evidence, governance/canon state, post-merge truth, and next-branch handling only when those items are part of the implemented branch truth.
 GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.
 Before PR creation, Codex must write the proposed GitHub PR body to a local temporary file and run `python dev\orin_pr_body_quality_audit.py --body-file <path> --body-title "<PR title>"`. If the helper reports `Changed: True` or any warning, PR creation is blocked on `PR Body Drift Check Failed` until Codex reruns the helper with `--apply` or otherwise replaces the proposed body with the normalized body and reruns the check green. After PR creation, Codex must verify the live PR body with `python dev\orin_pr_body_quality_audit.py --limit 1` or a narrower equivalent. The audit must preserve trimmed Summary detail inside `## Branch Evidence`; lossy normalization is invalid.
-If `May Create Now` is `NO`, the `Next Branch` subsection must explain the blocking gate rather than implying branch creation is allowed.
+When the conditional `Next Branch` block is included and `May Create Now` is `NO`, the subsection must explain the blocking gate rather than implying branch creation is allowed.
 
 ### Operator Output Content Rule
 
@@ -1793,7 +1793,7 @@ That validator should verify at minimum:
 - the canonical `bounded multi-seam workflow` contract is present in governance and operator scaffolds
 - prompt scaffolds teach `Seam Sequence`, per-seam validation, and continue-or-stop decisions for multi-seam Workstream execution
 - docs do not teach direct `Workstream` -> `PR Readiness` as the default path
-- PR Readiness prompt scaffolds require the standardized `## Next Branch` block and inclusion-only `## PR Creation Details` operator copy blocks before reporting PR green
+- PR Readiness prompt scaffolds require inclusion-only `## PR Creation Details` operator copy blocks before reporting PR green, and require the standardized `## Next Branch` block only when selected-next truth is explicitly in scope or Branch Readiness is the next legal phase
 - Release Readiness prompt scaffolds require inclusion-only `## Release Package Details` operator copy blocks when release execution is green
 
 A governance or current-state canon branch is not complete until that validator is green.
@@ -2488,12 +2488,12 @@ Required evidence:
 - required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
 - required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
 - merge-target canon completeness gate passed
-- next workstream selected, canon-defined, assigned valid record state, minimally scoped, and explicitly not branched yet
-- successor branch creation deferred to `Branch Readiness`
+- when selected-next truth is explicitly in scope, next workstream selected, canon-defined, assigned valid record state, minimally scoped, and explicitly not branched yet
+- when selected-next truth is explicitly in scope, successor branch creation deferred to `Branch Readiness`
 - post-merge truth fully encoded before merge
 - Governance Drift Audit completed
 - docs sync complete and validator-aligned
-- standardized `## Next Branch` response block and inclusion-only `## PR Creation Details` operator copy blocks prepared
+- inclusion-only `## PR Creation Details` operator copy blocks prepared, plus standardized `## Next Branch` response block only when selected-next truth is explicitly in scope or Branch Readiness is the next legal phase
 - clean worktree with required branch truth durable in commit history
 - GitHub PR created for the current head branch and intended base branch
 - PR exists, is open, non-draft, conflict-free, and inspectable
