@@ -1,18 +1,14 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=user-review-bundle-helper; status=shared
-r"""Create a temporary USER-facing local review bundle from selected repo files.
+"""Create a USER-facing Desktop review bundle from selected repo files.
 
-This helper copies review files to the stable local USER hub at C:\Nexus USER so
-USER review does not depend on manually browsing the worktree or on a
-cloud-backed Desktop upload path. The folder/zip is a USER and ChatGPT review
-aid for current BP1/BP2 vision/plan approval only; accepted outcomes must fold
-into source truth rather than treating the bundle as durable evidence. It never
-edits repo files.
+This helper copies review files to a stable worktree-labeled folder on the
+user's Desktop so USER review does not depend on manually browsing the
+worktree. It never edits repo files.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import os
 import re
 import shutil
@@ -27,7 +23,7 @@ from typing import Mapping
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_REVIEW_ROOT_NAME = r"C:\Nexus USER"
+DEFAULT_REVIEW_ROOT_NAME = "Nexus USER Review"
 CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
 PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "PASS - copied file list and START_HERE file-list metadata are repo-relative "
@@ -35,40 +31,11 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "source truth for USER inspection."
 )
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
-    "PASS - helper quarantined or cleared the previous matched local USER hub "
-    "folder/zip pair, proved the stable paths absent before regeneration, copied "
-    "fresh source-truth files, wrote START_HERE for this Source HEAD, and "
-    "atomically replaced the stable review zip from that refreshed folder."
+    "PASS - helper cleared the stable worktree review folder, copied fresh "
+    "source-truth files, wrote START_HERE for this Source HEAD, and atomically "
+    "replaced the stable review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
-USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
-ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES: tuple[str, ...] = (
-    "this branch is not the runtime implementation carrier",
-    "future runtime implementation carrier",
-    "future user-approved carrier",
-    "later runtime carrier",
-    "workstream is skipped",
-    "planning/governance branch",
-)
-DISALLOWED_USER_FACING_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    ("Source HEAD", re.compile(r"\bSource HEAD\b", re.IGNORECASE)),
-    ("origin/main", re.compile(r"\borigin/main\b", re.IGNORECASE)),
-    ("merge base", re.compile(r"\bmerge base\b", re.IGNORECASE)),
-    ("ZIP SHA", re.compile(r"\b(?:ZIP SHA|SHA256|zip hash)\b", re.IGNORECASE)),
-    ("raw commit hash", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
-)
-
-DISALLOWED_START_HERE_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
-    ("Source Branch", re.compile(r"\bSource Branch\b", re.IGNORECASE)),
-    ("Source HEAD", re.compile(r"\bSource HEAD\b", re.IGNORECASE)),
-    ("Upstream", re.compile(r"\bUpstream\b", re.IGNORECASE)),
-    ("origin/main", re.compile(r"\borigin/main\b", re.IGNORECASE)),
-    ("Review Export Zip", re.compile(r"\bReview Export Zip\b", re.IGNORECASE)),
-    ("Validation Summary", re.compile(r"\bValidation Summary\b", re.IGNORECASE)),
-    ("Stale Guard", re.compile(r"\bStale Guard\b", re.IGNORECASE)),
-    ("raw commit hash", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
-    ("SHA256", re.compile(r"\bSHA256\b", re.IGNORECASE)),
-)
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -148,22 +115,12 @@ class WorkstreamEntryPacketDecisionPathResult:
         }
 
 
-def _default_review_root() -> Path:
-    return Path(DEFAULT_REVIEW_ROOT_NAME)
-
-
-def _review_root_path(review_root_name: str) -> Path:
-    path = Path(review_root_name)
-    if not path.is_absolute():
-        raise ValueError(
-            "Review root must be an absolute local path. The approved active USER hub is "
-            f"{DEFAULT_REVIEW_ROOT_NAME}."
-        )
-    return path.resolve()
-
-
-def _same_path(left: Path, right: Path) -> bool:
-    return os.path.normcase(str(left.resolve())) == os.path.normcase(str(right.resolve()))
+def _desktop_path() -> Path:
+    home = Path.home()
+    onedrive_desktop = home / "OneDrive" / "Desktop"
+    if onedrive_desktop.is_dir():
+        return onedrive_desktop
+    return home / "Desktop"
 
 
 def _sanitize_folder_name(name: str) -> str:
@@ -180,11 +137,14 @@ def _worktree_label(explicit_label: str | None) -> str:
     return _sanitize_folder_name(ROOT.name)
 
 
-def _safe_target(review_root_name: str, worktree_label: str) -> tuple[Path, Path]:
-    review_root = _review_root_path(review_root_name)
+def _safe_target(desktop: Path, review_root_name: str, worktree_label: str) -> tuple[Path, Path]:
+    review_root = (desktop / _sanitize_folder_name(review_root_name)).resolve()
     target = (review_root / _sanitize_folder_name(worktree_label)).resolve()
+    desktop_resolved = desktop.resolve()
+    if review_root == desktop_resolved or desktop_resolved not in review_root.parents:
+        raise ValueError(f"Refusing to write review root outside Desktop: {review_root}")
     if target == review_root or review_root not in target.parents:
-        raise ValueError(f"Refusing to write outside USER hub: {target}")
+        raise ValueError(f"Refusing to write outside Desktop: {target}")
     return review_root, target
 
 
@@ -198,37 +158,6 @@ def _clear_target(target: Path) -> None:
         shutil.rmtree(target, onexc=_clear_readonly)
     except TypeError:
         shutil.rmtree(target, onerror=_clear_readonly)
-
-
-def _quarantine_existing_pair(
-    *,
-    review_root: Path,
-    target: Path,
-    export_zip: Path,
-    label: str,
-) -> Path | None:
-    """Move the old matched folder/zip pair out of stable paths before rebuild."""
-
-    existing = [path for path in (target, export_zip) if path.exists()]
-    if not existing:
-        return None
-
-    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    quarantine_root = review_root / "_quarantine" / f"{_sanitize_folder_name(label)}_{stamp}"
-    quarantine_root.mkdir(parents=True, exist_ok=False)
-
-    if target.exists():
-        shutil.move(str(target), str(quarantine_root / target.name))
-    if export_zip.exists():
-        shutil.move(str(export_zip), str(quarantine_root / export_zip.name))
-
-    still_present = [str(path) for path in (target, export_zip) if path.exists()]
-    if still_present:
-        raise ValueError(
-            "Review hub cleanup failed; stable matched-pair paths still exist: "
-            + ", ".join(still_present)
-        )
-    return quarantine_root
 
 
 def _flat_copy_name(relative_file: str) -> str:
@@ -326,66 +255,6 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
         raise
 
 
-def _sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def _validate_user_facing_review_text(file_name: str, text: str) -> None:
-    for reason, pattern in DISALLOWED_USER_FACING_METADATA_PATTERNS:
-        if pattern.search(text):
-            raise ValueError(
-                f"{file_name}: user-facing review file contains technical packet metadata: {reason}"
-            )
-
-
-def _branch_slug(source_branch: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "_", source_branch.casefold()).strip("_")
-
-
-def _entry_is_active_branch_record_or_plan(entry_name: str, source_branch: str) -> bool:
-    normalized_entry = re.sub(r"[^a-z0-9]+", "_", entry_name.casefold()).strip("_")
-    slug = _branch_slug(source_branch)
-    if slug not in normalized_entry:
-        return False
-    return "branch_records" in normalized_entry or "branch_plans" in normalized_entry
-
-
-def _validate_active_implementation_carrier_files(
-    archive: zipfile.ZipFile,
-    entries: set[str],
-    *,
-    source_branch: str,
-) -> None:
-    if "implementation" not in source_branch.casefold():
-        return
-
-    active_entries = [
-        entry
-        for entry in entries
-        if _entry_is_active_branch_record_or_plan(entry, source_branch)
-    ]
-    has_record = any("branch_records" in entry.casefold() for entry in active_entries)
-    has_plan = any("branch_plans" in entry.casefold() for entry in active_entries)
-    if not has_record or not has_plan:
-        raise ValueError(
-            "Review export zip active implementation carrier guard failed: "
-            "active branch record and active branch plan are both required"
-        )
-
-    for entry in active_entries:
-        text = archive.read(entry).decode("utf-8", errors="replace").casefold()
-        for phrase in ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES:
-            if phrase in text:
-                raise ValueError(
-                    "Review export zip active implementation carrier guard failed: "
-                    f"{entry} contains stale carrier phrase {phrase!r}"
-                )
-
-
 def _validate_export_zip(
     export_zip: Path,
     *,
@@ -406,22 +275,6 @@ def _validate_export_zip(
             raise ValueError(
                 f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
             ) from exc
-        try:
-            vision_review = archive.read(USER_BRANCH_VISION_REVIEW_FILE).decode("utf-8")
-        except KeyError as exc:
-            raise ValueError(
-                f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
-            ) from exc
-        if "UPLOAD_THIS_ZIP.md" in entries:
-            raise ValueError(
-                "Review export zip contains UPLOAD_THIS_ZIP.md, which is outside "
-                "the simplified stable worktree-label artifact model"
-            )
-        _validate_active_implementation_carrier_files(
-            archive,
-            entries,
-            source_branch=source_branch,
-        )
     if entries != expected_entries:
         missing = sorted(expected_entries - entries)
         extra = sorted(entries - expected_entries)
@@ -429,22 +282,30 @@ def _validate_export_zip(
             "Review export zip file-list guard failed: "
             f"missing={missing or 'none'} extra={extra or 'none'}"
         )
-    for label, pattern in DISALLOWED_START_HERE_METADATA_PATTERNS:
-        if pattern.search(start_here):
-            raise ValueError(
-                "Review export zip START_HERE.md contains technical proof metadata "
-                f"reserved for helper output/Codex digest: {label}"
-            )
-    if "Temporary USER/ChatGPT Review Aid" not in start_here:
-        raise ValueError("Review export zip START_HERE.md is missing temporary review-aid scope")
-    if USER_BRANCH_PLAN_REVIEW_FILE not in start_here:
-        raise ValueError(f"Review export zip START_HERE.md is missing {USER_BRANCH_PLAN_REVIEW_FILE}")
-    if USER_BRANCH_VISION_REVIEW_FILE not in start_here:
+    if f"Source Branch: `{source_branch}`" not in start_here:
         raise ValueError(
-            f"Review export zip START_HERE.md is missing {USER_BRANCH_VISION_REVIEW_FILE}"
+            "Review export zip branch guard failed: START_HERE Source Branch "
+            f"does not match {source_branch}"
         )
-    _validate_user_facing_review_text(USER_BRANCH_PLAN_REVIEW_FILE, user_review)
-    _validate_user_facing_review_text(USER_BRANCH_VISION_REVIEW_FILE, vision_review)
+    if f"Source HEAD: `{source_head}`" not in start_here:
+        raise ValueError(
+            "Review export zip stale-head guard failed: START_HERE Source HEAD "
+            f"does not match {source_head}"
+        )
+    if f"origin/main: `{origin_main}`" not in start_here:
+        raise ValueError(
+            "Review export zip origin/main guard failed: START_HERE origin/main "
+            f"does not match {origin_main}"
+        )
+    if f"Review Export Zip Source HEAD: `{source_head}`" not in start_here:
+        raise ValueError(
+            "Review export zip stale-head guard failed: Review Export Zip Source HEAD "
+            f"does not match {source_head}"
+        )
+    if "Review Export Zip Stale Guard: PASS" not in start_here:
+        raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
+    if "USER Review Packet Finding: PASS" not in start_here:
+        raise ValueError("Review export zip is missing USER Review Packet Finding proof")
     for required_heading in (
         "## Contract Status",
         "## Contract Version / Revision",
@@ -555,17 +416,11 @@ def _write_user_branch_plan_review(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     copied: list[tuple[str, str]],
-    contract_status_override: str | None = None,
-    contract_version_override: str | None = None,
-    user_response_override: str | None = None,
-    codex_response_digest_override: str | None = None,
-    workstream_entry_result_override: str | None = None,
 ) -> Path:
     is_active_overlay_recording = any(
         "active_overlay_recording_runtime_foundation" in source_rel
         for source_rel, _copied_rel in copied
     )
-    is_pr_readiness_review = "pr readiness stage 1" in exact_user_decision.casefold()
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
@@ -676,7 +531,7 @@ def _write_user_branch_plan_review(
             "Family vision: record per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
             "Active branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
             "Backlog/roadmap: record planning-governance PR-readiness posture rather than runtime implementation posture.",
-            "Review packet: refresh only while USER/ChatGPT review is active; accepted outcomes fold into source truth.",
+            "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
             "Workstream seam order: target model remains future implementation staging, not current branch work.",
         ]
         contract_change_log = [
@@ -693,7 +548,7 @@ def _write_user_branch_plan_review(
             "Vision Delta / Source-Truth Impact is resolved.",
             "USER Rejected / Deferred Ideas are recorded.",
             "Contract Change Log is current.",
-            "Technical proof metadata stays outside USER-facing review files; helper output and Codex digest carry proof details.",
+            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
             "Workstream Entry Result is present only after response/digest or waiver.",
             "Exact implementation approval text cites completed or waived contract status.",
         ]
@@ -773,14 +628,10 @@ def _write_user_branch_plan_review(
         accepted_user_response = None
         codex_response_digest = None
         workstream_entry_result = None
-        contract_status = (
-            "Complete - this review packet supports PR Readiness Stage 1 and does not request Workstream implementation."
-            if is_pr_readiness_review
-            else "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
-        )
-        contract_version = "v1 - Generated BP2 USER Branch Plan Contract."
-        what_user_sees = "USER should see how the engineering plan builds the accepted or waived BP1 branch vision, including planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
-        why_nexus = "The recommendation should explain how the engineering route aligns with the project vision, accepted branch vision, safe branch size, and user-facing clarity."
+        contract_status = "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
+        contract_version = "v1 - Generated USER Branch Plan Contract."
+        what_user_sees = "USER should see the feature's planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
+        why_nexus = "The recommendation should explain how the branch aligns with the project vision, keeps scope bounded, and preserves user-facing clarity."
         design_ballot = [
             "Accept Codex recommendation.",
             "Accept with changes.",
@@ -808,41 +659,10 @@ def _write_user_branch_plan_review(
             "Contract Status after digest.",
             "Next USER decision needed.",
         ]
-        if is_pr_readiness_review:
-            accepted_user_response = (
-                "Status: Complete for this non-Workstream review packet - USER approved "
-                "bounded decision-state repair before PR Readiness Stage 1."
-            )
-            codex_response_digest = (
-                "Status: Complete - Codex aligned USER_BRANCH_PLAN_REVIEW.md with "
-                "START_HERE.md so both support PR Readiness Stage 1 while preserving "
-                "Workstream implementation as a pending USER decision."
-            )
-            workstream_entry_result = (
-                "Not applicable - this packet is not asking for Workstream implementation; "
-                "the next legal USER decision is PR Readiness Stage 1 analysis."
-            )
-            implementation_constraints = [
-                "This packet may support PR Readiness Stage 1 only.",
-                "It must not approve Workstream implementation, runtime mutation, PR creation, merge, release execution, or unrelated branch mutation.",
-                "If PR Readiness Stage 1 finds a blocker, the blocker routes through the owning phase instead of being hidden by this packet status.",
-            ]
-            rejected_deferred = [
-                "Deferred: PR creation, merge to main, release execution, runtime implementation, FAM mutation, issue mutation, branch cleanup/deletion, sidecar artifacts, and uniquely named ZIP artifacts.",
-            ]
-            source_truth_impact = [
-                "Review bundle helper: supports explicit source-truth-backed decision-state text for non-Workstream PR Readiness packets.",
-                "Validation helper registry: records that the temporary USER review packet must stay user-facing while proof metadata stays in helper output or Codex digest.",
-            ]
-        else:
-            implementation_constraints = ["Pending USER response or explicit waiver."]
-            rejected_deferred = ["Pending USER response or explicit waiver."]
-            source_truth_impact = ["Pending USER response or explicit waiver."]
-        contract_change_log = (
-            ["v1 - Generated PR Readiness review packet with coherent non-Workstream decision state."]
-            if is_pr_readiness_review
-            else ["v1 - Generated BP2 USER Branch Plan Contract."]
-        )
+        implementation_constraints = ["Pending USER response or explicit waiver."]
+        rejected_deferred = ["Pending USER response or explicit waiver."]
+        source_truth_impact = ["Pending USER response or explicit waiver."]
+        contract_change_log = ["v1 - Generated USER Branch Plan Contract."]
         completion_checklist = [
             "Contract Status is Complete or Waived by USER.",
             "USER response is present, attached, or explicitly waived.",
@@ -851,33 +671,20 @@ def _write_user_branch_plan_review(
             "Vision Delta / Source-Truth Impact is resolved.",
             "USER Rejected / Deferred Ideas are recorded.",
             "Contract Change Log is current.",
-            "Technical proof metadata stays outside USER-facing review files; helper output and Codex digest carry proof details.",
+            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
             "Workstream Entry Result is present only after response/digest or waiver.",
             "Exact implementation approval text cites completed or waived contract status.",
         ]
-        if is_pr_readiness_review:
-            plain_english_summary = (
-                "This review packet summarizes the completed governance reform and verifies "
-                "that the packet's decision state supports PR Readiness Stage 1, not "
-                "Workstream implementation."
-            )
-            end_state_vision = (
-                "When this repair is complete, the USER-facing review packet clearly states "
-                "that the next legal USER decision is PR Readiness Stage 1 analysis, "
-                "while PR creation, merge, release, runtime implementation, and unrelated "
-                "branch mutation remain future-gated."
-            )
-        else:
-            plain_english_summary = (
-                "This BP2 branch-plan review summarizes the engineering plan derived "
-                "from the accepted or waived BP1 branch vision before BP3 / Workstream "
-                "Entry validates orchestration."
-            )
-            end_state_vision = (
-                "When the branch is complete, USER should understand what visible/runtime behavior "
-                "will exist, which surfaces are affected, and which future-gated items remain outside "
-                "the branch before implementation begins."
-            )
+        plain_english_summary = (
+            "This branch-plan review summarizes the branch's intended product, "
+            "runtime, source-truth, and validation direction before Workstream "
+            "Entry performs deeper implementation planning."
+        )
+        end_state_vision = (
+            "When the branch is complete, USER should understand what visible/runtime behavior "
+            "will exist, which surfaces are affected, and which future-gated items remain outside "
+            "the branch before implementation begins."
+        )
         walkthrough = [
             "Review the active branch plan to understand the intended user-facing result.",
             "Review the branch authority record to confirm identity and legal next phase.",
@@ -888,62 +695,30 @@ def _write_user_branch_plan_review(
             "Relevant family vision, backlog, roadmap, validators, and copied review files.",
         ]
         implementation_options = [
-            "Option A - Accept Codex's recommended engineering route when it clearly builds the accepted BP1 end-state and keeps later implementation staging future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
-            "Option B - Revise the engineering plan before BP3 or implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
-            "Option C - Waive unresolved BP1 or BP2 questions explicitly. Pros: unblocks BP3; Cons: records less USER design or plan input; Risk: medium.",
+            "Option A - Accept Codex's recommended end-state and keep later implementation staging future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
+            "Option B - Revise the end-state before implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
+            "Option C - Waive unresolved end-state questions explicitly. Pros: unblocks implementation; Cons: records less USER design input; Risk: medium.",
         ]
         recommended_direction = (
-            "Codex recommends accepting the branch plan only when the accepted BP1 trace, "
-            "implementation package, surface map, options, proof path, and pending boundaries "
-            "are understandable enough for USER to decide whether BP3 may validate orchestration."
+            "Codex recommends accepting the branch plan only when the user-facing outcome, "
+            "surface map, options, proof path, and pending boundaries are understandable enough "
+            "for USER to decide whether implementation should begin."
         )
-        if is_pr_readiness_review:
-            current_scope = [
-                "Confirm the completed governance/source-truth/helper/validator reform packet is ready for PR Readiness Stage 1 analysis.",
-                "Confirm packet decision-state wording is coherent without active branch status or technical proof metadata in USER-facing files.",
-                "Confirm the stable review artifact model remains worktree-label folder plus worktree-label zip only.",
-            ]
-            future_scope = [
-                "PR creation, merge to main, release execution, runtime implementation, FAM mutation, issue mutation, branch cleanup/deletion, sidecar artifacts, and uniquely named ZIP artifacts remain future-gated.",
-            ]
-        else:
-            current_scope = [
-                "Confirm the branch outcome and admitted package.",
-                "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
-            ]
-            future_scope = [
-                "Any item not explicitly admitted by the active branch plan remains future-gated.",
-            ]
-        slc_package_plan = [
-            "Implementation staging must support the accepted BP1 end-state; seam/slice/SLC details are BP2 engineering scaffolding, not the primary BP1 USER decision surface.",
+        current_scope = [
+            "Confirm the branch outcome and admitted package.",
+            "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
         ]
-        if is_pr_readiness_review:
-            user_decisions = [
-                "Does USER approve PR Readiness Stage 1 analysis for this governance reform branch?",
-                "Does USER want a revision before PR Readiness Stage 1?",
-                "Does USER agree this packet does not approve Workstream implementation, PR creation, merge, or release execution?",
-            ]
-        else:
-            user_decisions = [
-                "Does USER accept that this BP2 engineering plan builds the accepted or waived BP1 branch vision?",
-                "Does USER want to revise any implementation route, proof expectation, workflow detail, or future-gated boundary before BP3?",
-                "Does USER waive any unanswered BP1/BP2 question, or should BP3 and implementation remain blocked until it is answered?",
-            ]
-    if contract_status_override:
-        contract_status = contract_status_override
-    if contract_version_override:
-        contract_version = contract_version_override
-    if user_response_override:
-        accepted_user_response = user_response_override
-    if codex_response_digest_override:
-        codex_response_digest = codex_response_digest_override
-    if workstream_entry_result_override:
-        workstream_entry_result = workstream_entry_result_override
-    review_contract_sentence = (
-        "This file is the USER-facing plan/decision review for a non-Workstream PR Readiness packet; it should help USER answer whether PR Readiness Stage 1 may analyze this completed governance reform."
-        if is_pr_readiness_review
-        else "This file is the BP2 USER Branch Plan Contract. It should help USER answer: Does this engineering plan correctly build the accepted or waived BP1 branch vision?"
-    )
+        future_scope = [
+            "Any item not explicitly admitted by the active branch plan remains future-gated.",
+        ]
+        slc_package_plan = [
+            "Implementation staging must support the accepted end-state; seam/slice details are background execution scaffolding, not the primary USER decision surface.",
+        ]
+        user_decisions = [
+            "Does USER accept the branch goal and end-state direction?",
+            "Does USER want to revise any user-facing behavior, layout, workflow, or future-gated boundary before implementation?",
+            "Does USER waive any unanswered design question, or should implementation remain blocked until it is answered?",
+        ]
     lines = [
         f"# USER Branch Plan Review - {title}",
         "",
@@ -959,7 +734,7 @@ def _write_user_branch_plan_review(
         "",
         plain_english_summary,
         "",
-        review_contract_sentence,
+        "This file is a required user-facing product/design planning gate. It should help USER answer: Do I actually like what Codex is about to build?",
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
@@ -997,7 +772,7 @@ def _write_user_branch_plan_review(
         "",
         "## USER Decisions Needed",
         "",
-        "USER may answer in order or respond generally. Useful feedback includes plan-route changes, proof expectations, workflow details, deferred scope, or anything that would make the BP2 engineering plan fail the accepted BP1 vision before BP3 begins.",
+        "USER may answer in order or respond generally. Useful feedback includes visual direction, workflow changes, window behavior, output-file expectations, deferred scope, or anything that would make the branch plan feel wrong before implementation planning begins.",
         "",
         *_markdown_lines(user_decisions),
         "",
@@ -1047,9 +822,13 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(slc_package_plan),
         "",
-        "## Review Folder Scope",
+        "## Current Branch State",
         "",
-        "The USER Review Folder is a temporary USER/ChatGPT context aid for this review loop only. Technical proof metadata belongs in helper output, validator output, Codex chat digest, or external governance state, not in USER-facing review files.",
+        f"- Source Branch: `{source_branch}`",
+        f"- Source HEAD: `{source_head}`",
+        f"- Upstream: `{upstream}`",
+        f"- origin/main: `{origin_main}`",
+        f"- Source Repo: `{ROOT}`",
         "",
         "## Workstream Entry Result",
         "",
@@ -1098,81 +877,6 @@ def _write_user_branch_plan_review(
         "",
     ]
     review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
-    review_path.write_text("\n".join(lines), encoding="utf-8")
-    return review_path.resolve()
-
-
-def _write_user_branch_vision_review(
-    *,
-    target: Path,
-    title: str,
-    review_purpose: str,
-    exact_user_decision: str,
-    pending_user_decisions: list[str],
-) -> Path:
-    lines = [
-        f"# USER Branch Vision Review - {title}",
-        "",
-        "## Review Scope",
-        "",
-        "This file is the BP1 USER-facing Branch Vision review surface. It is a temporary USER/ChatGPT context aid for deciding whether the branch direction is understandable before engineering plan review and implementation. It is not canon, not durable evidence, not a posterity archive, and not a later-phase report.",
-        "",
-        "## Review Purpose",
-        "",
-        review_purpose,
-        "",
-        "## Branch Goal",
-        "",
-        "Give USER and ChatGPT a clear product/governance vision to inspect before Codex proceeds to the next approved stage.",
-        "",
-        "## End-State Vision",
-        "",
-        "The accepted branch vision, USER constraints, and decisions should be folded into the proper source-truth owner. The local USER hub review folder may then be replaced or discarded because it is only the review aid.",
-        "",
-        "## What Will I Actually See, And Where Will I See It?",
-        "",
-        "USER should see a small, readable review folder with this Branch Vision review, the Branch Plan review, and selected supporting files. Technical proof details are not part of the USER-facing folder.",
-        "",
-        "## How It Will Function",
-        "",
-        "USER and ChatGPT inspect the copied review files, decide whether the vision is accepted, revised, rejected, deferred, or waived, and Codex folds the accepted outcome into durable source truth before implementation or PR-readiness work proceeds.",
-        "",
-        "## Product Options / Design Paths",
-        "",
-        *_markdown_lines(
-            [
-                "Accept the current branch vision and continue to the next approved stage.",
-                "Request a revision to the branch vision before planning or readiness continues.",
-                "Explicitly waive the Branch Vision review when USER decides the current source truth is sufficient.",
-            ]
-        ),
-        "",
-        "## Codex Recommendation",
-        "",
-        "Use the USER Review Folder only for current USER/ChatGPT review. Keep accepted direction in source truth and keep technical proof in helper output, validator output, Codex chat digest, or external governance state.",
-        "",
-        "## USER Response",
-        "",
-        "Status: Use the exact USER decision below, or revise this Branch Vision before continuing.",
-        "",
-        "## Accepted Branch Vision",
-        "",
-        "Pending USER acceptance, revision, rejection, deferral, or waiver for this review loop.",
-        "",
-        "## Source-Truth Fold-In",
-        "",
-        "Accepted USER outcomes, constraints, and decisions must be folded into the proper durable source-truth owner. This file does not become the durable owner.",
-        "",
-        "## Pending USER Decisions",
-        "",
-        *_markdown_lines(pending_user_decisions),
-        "",
-        "## Exact USER Decision Supported",
-        "",
-        exact_user_decision,
-        "",
-    ]
-    review_path = target / USER_BRANCH_VISION_REVIEW_FILE
     review_path.write_text("\n".join(lines), encoding="utf-8")
     return review_path.resolve()
 
@@ -1327,32 +1031,23 @@ def build_bundle(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     expected_file_count: int | None,
-    contract_status: str | None = None,
-    contract_version: str | None = None,
-    user_response: str | None = None,
-    codex_response_digest: str | None = None,
-    workstream_entry_result: str | None = None,
 ) -> tuple[Path, Path]:
-    custom_root = not _same_path(_review_root_path(review_root_name), _default_review_root())
-    custom_label = worktree_label is not None and _worktree_label(worktree_label) != _worktree_label(None)
+    custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
+    custom_label = worktree_label is not None
     if (custom_root or custom_label) and not allow_custom_review_path:
         raise ValueError(
             "Custom review paths are blocked by default. Use the stable "
-            r"C:\Nexus USER\<worktree-label> destination, or pass "
+            "Nexus USER Review/<worktree-label> destination, or pass "
             "--allow-custom-review-path with --custom-review-path-reason."
         )
     if allow_custom_review_path and not custom_review_path_reason:
         raise ValueError("--custom-review-path-reason is required with --allow-custom-review-path")
 
+    desktop = _desktop_path()
     label = _worktree_label(worktree_label)
-    review_root, target = _safe_target(review_root_name, label)
-    export_zip = _export_zip_path(review_root, label)
-    quarantine_path = _quarantine_existing_pair(
-        review_root=review_root,
-        target=target,
-        export_zip=export_zip,
-        label=label,
-    )
+    review_root, target = _safe_target(desktop, review_root_name, label)
+    if target.exists():
+        _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
 
     copied = [
@@ -1373,6 +1068,7 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
+    export_zip = _export_zip_path(review_root, label)
     user_review_file = _write_user_branch_plan_review(
         target=target,
         title=title,
@@ -1384,18 +1080,6 @@ def build_bundle(
         exact_user_decision=exact_user_decision,
         pending_user_decisions=pending_user_decisions,
         copied=copied,
-        contract_status_override=contract_status,
-        contract_version_override=contract_version,
-        user_response_override=user_response,
-        codex_response_digest_override=codex_response_digest,
-        workstream_entry_result_override=workstream_entry_result,
-    )
-    vision_review_file = _write_user_branch_vision_review(
-        target=target,
-        title=title,
-        review_purpose=review_purpose,
-        exact_user_decision=exact_user_decision,
-        pending_user_decisions=pending_user_decisions,
     )
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
@@ -1404,7 +1088,7 @@ def build_bundle(
         custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
         custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
-    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file, vision_review_file}
+    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file}
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
@@ -1430,12 +1114,33 @@ def build_bundle(
         "## Review Packet",
         "",
         f"Review Purpose: {review_purpose}",
-        "Temporary USER/ChatGPT Review Aid: This folder is for reviewing the current Branch Vision and Branch Plan only. It is not canon, not durable evidence, not a posterity archive, and not a later-phase report.",
-        r"Active USER Hub: C:\Nexus USER is the active local USER-facing review and upload hub. Read the label folder and upload the sibling label ZIP.",
-        "Source-Truth Fold-In: Accepted USER outcomes, constraints, and decisions must be folded into the proper durable source-truth owner before implementation proceeds.",
-        "Technical Proof Location: Helper output, validator output, Codex chat digest, or external governance state carry active-state proof details.",
-        f"Review Label: `{label}`",
-        f"Review Packet Created: {created_at}",
+        f"Source Repo: `{ROOT}`",
+        f"Review Root: `{review_root}`",
+        f"Worktree Review Folder: `{target}`",
+        f"Worktree Label: `{label}`",
+        f"Custom Review Path Waiver: {custom_review_path_waiver}",
+        f"Custom Review Path Reason: {custom_review_path_reason_value}",
+        f"Source Branch: `{source_branch}`",
+        f"Source HEAD: `{source_head}`",
+        f"Upstream: `{upstream}`",
+        f"origin/main: `{origin_main}`",
+        f"Review Export Zip: `{export_zip}`",
+        f"Review Export Zip Source HEAD: `{source_head}`",
+        f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
+        (
+            "USER Review Packet Finding: PASS - helper generated and validated "
+            f"`START_HERE.md`, `{USER_BRANCH_PLAN_REVIEW_FILE}`, and exported zip "
+            f"`{export_zip}` from refreshed Desktop folder `{target}`; Source HEAD "
+            f"`{source_head}` and Review Export Zip Source HEAD `{source_head}` match "
+            "the current branch HEAD, and the packet is loaded/digestible for USER review."
+        ),
+        f"Bundle Created: {created_at}",
+        f"Bundle File Count: {bundle_file_count}",
+        f"Expected File Count: {expected_count}",
+        f"Copied File Count: {copied_count}",
+        f"Extra Bundle File Count: {len(extra_bundle_files)}",
+        f"Public Review Bundle Leak-Prevention: {PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS}",
+        f"Validation Summary: {validation_summary}",
         f"Exact USER Decision This Bundle Supports: {exact_user_decision}",
         "",
         "## Pending USER Decisions",
@@ -1445,6 +1150,10 @@ def build_bundle(
         "## Review Order",
         "",
         *_markdown_lines(review_order),
+        "",
+        "## Extra Bundle Files",
+        "",
+        *_markdown_lines(extra_bundle_files),
         "",
         "## Files",
         "",
@@ -1467,8 +1176,6 @@ def build_bundle(
         origin_main=origin_main,
         expected_entries=expected_zip_entries,
     )
-    if quarantine_path:
-        print(f"Previous matched pair quarantine: {quarantine_path}")
     return target, export_zip
 
 
@@ -1477,7 +1184,7 @@ def main() -> int:
     parser.add_argument(
         "--review-root-name",
         default=DEFAULT_REVIEW_ROOT_NAME,
-        help=r"Stable local USER hub root path. Defaults to C:\Nexus USER. Custom values require --allow-custom-review-path.",
+        help="Stable Desktop review root folder name. Custom values require --allow-custom-review-path.",
     )
     parser.add_argument(
         "--worktree-label",
@@ -1504,34 +1211,10 @@ def main() -> int:
     parser.add_argument(
         "--clear",
         action="store_true",
-        help="Legacy compatibility flag; the helper always quarantines the matched folder/zip pair before copying.",
+        help="Legacy compatibility flag; the helper always clears the Desktop bundle folder before copying.",
     )
     parser.add_argument("--review-purpose", help="Why USER is reviewing this bundle.")
     parser.add_argument("--validation-summary", help="Validation proof or status supporting the review bundle.")
-    parser.add_argument(
-        "--contract-status",
-        help=(
-            "Override USER_BRANCH_PLAN_REVIEW.md Contract Status for a packet whose "
-            "decision state has already been accepted, waived, or otherwise resolved "
-            "by source truth."
-        ),
-    )
-    parser.add_argument(
-        "--contract-version",
-        help="Override USER_BRANCH_PLAN_REVIEW.md Contract Version / Revision.",
-    )
-    parser.add_argument(
-        "--user-response",
-        help="Override USER_BRANCH_PLAN_REVIEW.md USER Response section text.",
-    )
-    parser.add_argument(
-        "--codex-response-digest",
-        help="Override USER_BRANCH_PLAN_REVIEW.md Codex Response Digest section text.",
-    )
-    parser.add_argument(
-        "--workstream-entry-result",
-        help="Override USER_BRANCH_PLAN_REVIEW.md Workstream Entry Result section text.",
-    )
     parser.add_argument(
         "--review-order",
         action="append",
@@ -1553,7 +1236,7 @@ def main() -> int:
     parser.add_argument(
         "--validate-workstream-entry-packet",
         type=Path,
-        help="Validate an existing Workstream Entry USER hub packet decision path.",
+        help="Validate an existing Workstream Entry Desktop packet decision path.",
     )
     parser.add_argument("--expected-branch", help="Expected source branch for Workstream Entry packet validation.")
     parser.add_argument("--expected-head", help="Expected source HEAD for Workstream Entry packet validation.")
@@ -1563,7 +1246,7 @@ def main() -> int:
         action="store_true",
         help="Fail if the packet is branch-correct but still blocks Workstream implementation approval.",
     )
-    parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the local USER hub review bundle.")
+    parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the Desktop review bundle.")
     args = parser.parse_args()
 
     if args.validate_workstream_entry_packet:
@@ -1611,23 +1294,13 @@ def main() -> int:
         exact_user_decision=args.exact_user_decision,
         pending_user_decisions=args.pending_user_decision,
         expected_file_count=args.expected_file_count,
-        contract_status=args.contract_status,
-        contract_version=args.contract_version,
-        user_response=args.user_response,
-        codex_response_digest=args.codex_response_digest,
-        workstream_entry_result=args.workstream_entry_result,
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
-    print(f"Upload this file: {export_zip}")
-    print(f"Review export zip SHA256: {_sha256(export_zip)}")
-    print(f"Source Branch: {_git_output('branch', '--show-current')}")
-    print(f"Source HEAD: {_git_output('rev-parse', 'HEAD')}")
-    print(f"origin/main: {_git_output('rev-parse', 'origin/main')}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
-        "validated against current Source HEAD in helper output."
+        "validated against current Source HEAD."
     )
     return 0
 

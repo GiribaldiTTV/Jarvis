@@ -7,7 +7,7 @@ Review Status: Deferred With Waiver - USER waived deferred provider execution wh
 Contract Status: Waived by USER - USER explicitly waived private-provider setup questions for this contract while preserving current public-safe boundaries.
 Contract Version / Revision: v1 - Fixture contract with explicit deferred-scope waiver.
 Desktop Review Bundle: C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 contains the copied review files and START_HERE map.
-USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip freshness proof match the active review packet.
+USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
 Plain-Language Branch Goal: Build a reviewable public-safe AI Edition boundary without activating private provider execution.
 What Will I Actually See, And Where Will I See It?: USER sees public-safe AI copy, protected private-provider actions absent or disabled, and proof that private setup does not appear on public surfaces.
 Planned User-Facing Outcome: USER sees public-safe copy and protected private-provider actions clearly unavailable for this release.
@@ -38,7 +38,7 @@ USER Rejected / Deferred Ideas: Private provider execution, setup flow, model in
 Vision Delta / Source-Truth Impact: No further source-truth mutation is required because the waiver preserves current public-safe branch boundaries.
 Contract Change Log: v1 created the waived USER Branch Plan Contract for deferred private-provider scope.
 Workstream Entry Result: Workstream Entry may return the first public-safe implementation seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text.
-Contract Completion Checklist: Waived by USER - USER waiver is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet freshness proof is current, and exact implementation approval text must cite the waiver.
+Contract Completion Checklist: Waived by USER - USER waiver is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact implementation approval text must cite the waiver.
 Accepted Scope: Accepted current scope includes public copy, protected-action suppression, validator proof, screenshots, and UTS proof.
 Deferred Scope: Private provider execution, model install, downloads, memory, voice, shortcut, and installer behavior are future scope.
 Rejected Scope: Rejected current scope includes any public runtime path that imports private provider assets or setup flows.

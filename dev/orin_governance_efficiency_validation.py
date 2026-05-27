@@ -36,7 +36,7 @@ REQUIRED_MODEL_PHRASES = (
     "Vision-To-Plan Interaction Loop",
     "USER Feedback Disposition Model",
     "USER Review Integration Decisions",
-    "USER Review Hub Bundle Rule",
+    "USER Review Desktop Bundle Rule",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
     "Public Language Mapping",
@@ -52,7 +52,7 @@ POINTER_REQUIREMENTS = {
         "governance efficiency operating model",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "USER Review Hub Bundle Rule",
+        "USER Review Desktop Bundle Rule",
     ),
     Path("Docs/phase_governance.md"): (
         "Docs/governance_efficiency_operating_model.md",
@@ -223,22 +223,20 @@ EXPECTED_PENDING_FOLD_SOURCE_FILES = (
 
 USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
     "Review Purpose:",
-    "Temporary USER/ChatGPT Review Aid:",
-    "Active USER Hub:",
-    "Source-Truth Fold-In:",
-    "Technical Proof Location:",
-    "Review Order",
-    "Exact USER Decision This Bundle Supports:",
-    "Pending USER Decisions",
-)
-
-USER_REVIEW_BUNDLE_HELPER_OUTPUT_FIELDS = (
     "Source Branch:",
     "Source HEAD:",
     "origin/main:",
-    "Review export zip:",
-    "Review export zip SHA256:",
-    "Upload this file:",
+    "Review Export Zip:",
+    "Review Export Zip Source HEAD:",
+    "Review Export Zip Stale Guard:",
+    "Bundle File Count:",
+    "Expected File Count:",
+    "Copied File Count:",
+    "Extra Bundle File Count:",
+    "Validation Summary:",
+    "Review Order",
+    "Exact USER Decision This Bundle Supports:",
+    "Pending USER Decisions",
 )
 
 WORKSTREAM_INDEX_REQUIRED = (
@@ -438,18 +436,12 @@ def validate() -> list[str]:
                 failures.append(
                     f"{OPERATING_MODEL}: missing required section or phrase {phrase!r}"
                 )
-        desktop_bundle_section = _section(model_text, "## USER Review Hub Bundle Rule")
+        desktop_bundle_section = _section(model_text, "## USER Review Desktop Bundle Rule")
         for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
             if phrase not in desktop_bundle_section:
                 failures.append(
-                    f"{OPERATING_MODEL}: USER Review Hub Bundle Rule missing "
-                    f"required START_HERE plain-index field {phrase!r}"
-                )
-        for phrase in USER_REVIEW_BUNDLE_HELPER_OUTPUT_FIELDS:
-            if phrase not in desktop_bundle_section:
-                failures.append(
-                    f"{OPERATING_MODEL}: USER Review Hub Bundle Rule missing "
-                    f"required helper-output proof field {phrase!r}"
+                    f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
+                    f"required START_HERE metadata field {phrase!r}"
                 )
 
     bundle_helper_text = _read(USER_REVIEW_BUNDLE_HELPER)
@@ -459,12 +451,7 @@ def validate() -> list[str]:
         for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
             if phrase not in bundle_helper_text:
                 failures.append(
-                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE plain-index field {phrase!r}"
-                )
-        for phrase in USER_REVIEW_BUNDLE_HELPER_OUTPUT_FIELDS:
-            if phrase not in bundle_helper_text:
-                failures.append(
-                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required helper-output proof field {phrase!r}"
+                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE metadata field {phrase!r}"
                 )
 
     for path, required_phrases in POINTER_REQUIREMENTS.items():
