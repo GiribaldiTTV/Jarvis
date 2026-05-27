@@ -1330,7 +1330,7 @@ def build_bundle(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     expected_file_count: int | None,
-) -> tuple[Path, Path]:
+) -> tuple[Path, Path, str]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
     if (custom_root or custom_label) and not allow_custom_review_path:
@@ -1502,7 +1502,14 @@ def build_bundle(
         merge_base=merge_base,
         expected_entries=expected_zip_entries,
     )
-    return target, export_zip
+    final_zip_sha256 = _sha256_file(export_zip)
+    final_zip_sha256_verify = _sha256_file(export_zip)
+    if final_zip_sha256 != final_zip_sha256_verify:
+        raise ValueError(
+            "Review export zip SHA256 guard failed: repeated reads of the final "
+            "stable ZIP produced different hashes"
+        )
+    return target, export_zip, final_zip_sha256
 
 
 def main() -> int:
@@ -1606,7 +1613,7 @@ def main() -> int:
     if not args.files:
         parser.error("at least one repo-relative file is required when building a review bundle")
 
-    target, export_zip = build_bundle(
+    target, export_zip, final_zip_sha256 = build_bundle(
         review_root_name=args.review_root_name,
         worktree_label=args.worktree_label or args.folder_name,
         allow_custom_review_path=args.allow_custom_review_path,
@@ -1623,7 +1630,12 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
-    print(f"Review export zip SHA256: {_sha256_file(export_zip)}")
+    if final_zip_sha256 != _sha256_file(export_zip):
+        raise ValueError(
+            "Review export zip SHA256 guard failed: printed SHA would not match "
+            "the final stable ZIP bytes"
+        )
+    print(f"Review export zip SHA256: {final_zip_sha256}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
