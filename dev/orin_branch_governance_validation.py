@@ -6636,6 +6636,9 @@ BRANCH_PLANNING_REFORM_REQUIRED_PHRASES = {
         "BP3 - Workstream Entry / Orchestration Validation",
         "USER_BRANCH_VISION_REVIEW.md",
         "USER_BRANCH_PLAN_REVIEW.md",
+        "temporary USER/ChatGPT review aids",
+        "not durable repo evidence",
+        "fold the accepted outcome, constraints, and decisions into the proper durable repo source-truth owners",
         "Workstream is runtime/code implementation and code-level validation only",
         "SLCs divide work inside a branch",
         "Nexus USER Review\\<worktree-label>",
@@ -6653,6 +6656,7 @@ BRANCH_PLANNING_REFORM_REQUIRED_PHRASES = {
         "Branch Planning separates planning from implementation",
         "BP1 creates or revises `USER_BRANCH_VISION_REVIEW.md`",
         "BP2 creates or revises `USER_BRANCH_PLAN_REVIEW.md`",
+        "early-phase USER/ChatGPT review aids",
         "Workstream itself is runtime/code implementation and code-level validation only",
     ),
     Path("Docs/codex_modes.md"): (
@@ -6670,6 +6674,7 @@ BRANCH_PLANNING_REFORM_REQUIRED_PHRASES = {
         "Branch Planning Review Validator Contract",
         "`USER_BRANCH_VISION_REVIEW.md` is the BP1 Branch Vision Contract",
         "`USER_BRANCH_PLAN_REVIEW.md` is the BP2 engineering plan",
+        "USER review bundles are temporary USER/ChatGPT review aids only",
         "reject BP3 when it returns Workstream or SLC implementation approval while BP1 or BP2 is pending",
     ),
 }

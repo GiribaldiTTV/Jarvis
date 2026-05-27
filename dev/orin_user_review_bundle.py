@@ -1,9 +1,11 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=user-review-bundle-helper; status=shared
-"""Create a USER-facing Desktop review bundle from selected repo files.
+"""Create a temporary USER-facing Desktop review bundle from selected repo files.
 
 This helper copies review files to a stable worktree-labeled folder on the
 user's Desktop so USER review does not depend on manually browsing the
-worktree. It never edits repo files.
+worktree. The folder/zip is a USER and ChatGPT review aid for current BP1/BP2
+vision/plan approval only; accepted outcomes must fold into source truth rather
+than treating the bundle as durable evidence. It never edits repo files.
 """
 
 from __future__ import annotations

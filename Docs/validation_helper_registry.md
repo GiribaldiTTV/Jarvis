@@ -106,6 +106,8 @@ Review-bundle helpers, fixtures, and validators must enforce the reformed lifecy
 
 BP1/BP2 USER review bundles are not live branch-status artifacts after Workstream completes. Helpers and validators must require them while Branch Readiness / Branch Planning / BP3 needs USER vision or plan review, but Hardening, Live Validation, PR Readiness, and Release Readiness should not fail merely because the early USER packet was not regenerated after completed Workstream work. Later phases use source truth, branch diff, proof artifacts, fold-down receipts, and phase-specific packets unless they route back to Branch Planning or Branch Readiness for a vision/plan repair.
 
+USER review bundles are temporary USER/ChatGPT review aids only. They help USER and ChatGPT validate the current Branch Vision and Branch Plan and hold Codex to that accepted direction before implementation. They are not durable repo evidence, not retained for posterity, not a later-phase reporting surface, and not a source-truth owner. Helpers must support clean regeneration of the stable folder/zip for the active review loop, but the accepted outcome must be folded into the proper repo or external source-truth owner before implementation proceeds.
+
 Reusable guard requirements:
 
 - validate BP1 required sections for project/family/feature vision context, branch goal, end-state, user-visible surfaces/flow, product options, Codex line-item recommendations with USER response space, accepted branch vision, assumptions, future-gated ideas, and acceptance/revision/rejection/waiver status

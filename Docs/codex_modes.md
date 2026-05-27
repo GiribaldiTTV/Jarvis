@@ -757,7 +757,7 @@ If `Phase` is missing or is not one of the exact canonical phase names from `Doc
 
 `Branch Planning` is the canonical phase between Branch Readiness and Workstream. BP1 creates/revises `USER_BRANCH_VISION_REVIEW.md`; BP2 creates/revises `USER_BRANCH_PLAN_REVIEW.md`; BP3 is Workstream Entry / Orchestration Validation. Workstream is runtime/code implementation and code-level validation only. Codex must not return Workstream implementation approval while BP1 or BP2 is pending, stale, unclear, rejected, incomplete, or unwaived.
 
-BP1/BP2 USER review packets are early-phase artifacts. Keep them current through BP3 before implementation approval; after Workstream completes, later phases should use source truth, branch diff, proof artifacts, fold-down receipts, and their own phase packets unless they explicitly route back to Branch Planning or Branch Readiness for vision/plan repair.
+BP1/BP2 USER review packets are early-phase USER/ChatGPT review aids, not durable evidence or posterity archives. Keep them current only through the active BP1/BP2/BP3 review loop before implementation approval; fold accepted outcomes into source truth, then let later phases use source truth, branch diff, proof artifacts, fold-down receipts, and their own phase packets unless they explicitly route back to Branch Planning or Branch Readiness for vision/plan repair.
 
 ## Live-State Readiness Sanity Check
 
