@@ -339,18 +339,78 @@ def _export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
 
 
+def _ps_quote(value: Path | str) -> str:
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def _powershell_output(script: str) -> str:
+    return subprocess.check_output(
+        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
+        text=True,
+        stderr=subprocess.PIPE,
+    ).strip()
+
+
+def _powershell_file_hash(path: Path) -> str:
+    return _powershell_output(
+        "$ErrorActionPreference = 'Stop'; "
+        f"(Get-FileHash -Algorithm SHA256 -LiteralPath {_ps_quote(path)}).Hash"
+    ).upper()
+
+
+def _powershell_matching_files(parent: Path, filter_pattern: str) -> list[Path]:
+    output = _powershell_output(
+        "$ErrorActionPreference = 'Stop'; "
+        f"Get-ChildItem -LiteralPath {_ps_quote(parent)} -Filter {_ps_quote(filter_pattern)} "
+        "-File -Force -ErrorAction SilentlyContinue | "
+        "ForEach-Object { $_.FullName }"
+    )
+    if not output:
+        return []
+    return [Path(line.strip()) for line in output.splitlines() if line.strip()]
+
+
+def _powershell_move_file_to_quarantine(
+    path: Path, quarantine_root: Path, review_root: Path
+) -> QuarantineResult:
+    resolved = path.resolve()
+    resolved_review_root = review_root.resolve()
+    if resolved != resolved_review_root and resolved_review_root not in resolved.parents:
+        raise ValueError(f"Refusing to quarantine review artifact outside review root: {resolved}")
+    destination = (quarantine_root / resolved.name).resolve()
+    if quarantine_root not in destination.parents:
+        raise ValueError(f"Refusing to quarantine outside quarantine root: {destination}")
+    quarantine_root.mkdir(parents=True, exist_ok=True)
+    _powershell_output(
+        "$ErrorActionPreference = 'Stop'; "
+        f"if (Test-Path -LiteralPath {_ps_quote(destination)}) "
+        "{ throw 'Refusing to overwrite quarantined review artifact' }; "
+        f"Move-Item -LiteralPath {_ps_quote(resolved)} -Destination {_ps_quote(destination)}; "
+        f"if (Test-Path -LiteralPath {_ps_quote(resolved)}) "
+        "{ throw 'Review artifact still exists after quarantine move' }"
+    )
+    return QuarantineResult(source=resolved, destination=destination, entry_count=1)
+
+
 def _quarantine_review_exports(
     review_root: Path, label: str, quarantine_root: Path
 ) -> list[QuarantineResult]:
     """Move previous zip artifacts for this review label before regenerating."""
     sanitized_label = _sanitize_folder_name(label)
     quarantined: list[QuarantineResult] = []
-    for path in review_root.glob(f"{sanitized_label}*.zip*"):
+    paths = set(review_root.glob(f"{sanitized_label}*.zip*"))
+    if os.name == "nt":
+        paths.update(_powershell_matching_files(review_root, f"{sanitized_label}*.zip*"))
+    for path in sorted(paths, key=lambda candidate: str(candidate).casefold()):
         resolved = path.resolve()
         if resolved.parent != review_root.resolve():
             raise ValueError(f"Refusing to quarantine review export outside review root: {resolved}")
         if resolved.is_file():
             quarantined.append(_move_to_quarantine(resolved, quarantine_root, review_root))
+        elif os.name == "nt":
+            quarantined.append(
+                _powershell_move_file_to_quarantine(resolved, quarantine_root, review_root)
+            )
     return quarantined
 
 
@@ -358,6 +418,20 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
     if target in export_zip.parents or export_zip == target:
         raise ValueError(f"Refusing to write review zip inside bundle folder: {export_zip}")
     export_zip.parent.mkdir(parents=True, exist_ok=True)
+    if os.name == "nt":
+        temp_zip = export_zip.with_name(f".{export_zip.name}.{os.getpid()}.tmp.zip")
+        _powershell_output(
+            "$ErrorActionPreference = 'Stop'; "
+            "Add-Type -AssemblyName System.IO.Compression.FileSystem; "
+            f"if (Test-Path -LiteralPath {_ps_quote(temp_zip)}) "
+            f"{{ Remove-Item -LiteralPath {_ps_quote(temp_zip)} -Force }}; "
+            f"[System.IO.Compression.ZipFile]::CreateFromDirectory({_ps_quote(target)}, {_ps_quote(temp_zip)}, "
+            "[System.IO.Compression.CompressionLevel]::Optimal, $false); "
+            f"Move-Item -LiteralPath {_ps_quote(temp_zip)} -Destination {_ps_quote(export_zip)} -Force; "
+            f"if (-not (Test-Path -LiteralPath {_ps_quote(export_zip)})) "
+            "{ throw 'Stable review zip was not created' }"
+        )
+        return
     temp_zip = export_zip.with_name(f".{export_zip.name}.{os.getpid()}.tmp")
     if temp_zip.exists():
         temp_zip.unlink()
