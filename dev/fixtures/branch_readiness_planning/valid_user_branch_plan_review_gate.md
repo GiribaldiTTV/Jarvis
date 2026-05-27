@@ -7,7 +7,7 @@ Review Status: Accepted by USER - USER accepted this branch plan review for impl
 Contract Status: Complete - USER accepted the final USER Branch Plan Contract and implementation may proceed only through a later bounded approval.
 Contract Version / Revision: v1 - Fixture contract with USER response and Codex digest complete.
 Desktop Review Bundle: C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 contains the copied review files and START_HERE map.
-USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
+USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip freshness proof match the active review packet.
 Plain-Language Branch Goal: Build a user-visible provider setup foundation that explains consent state and safe setup boundaries.
 What Will I Actually See, And Where Will I See It?: USER sees the setup surface with consent/readiness status, disabled protected actions, and clear explanation inside the existing setup flow.
 Planned User-Facing Outcome: USER sees a clear setup path with local-provider consent status and no private-provider execution.
@@ -38,7 +38,7 @@ USER Rejected / Deferred Ideas: Broader setup wizard behavior, provider executio
 Vision Delta / Source-Truth Impact: No further source-truth mutation is required because the fixture contract is complete and aligned with the branch plan.
 Contract Change Log: v1 created the accepted USER Branch Plan Contract for the fixture.
 Workstream Entry Result: Workstream Entry may return the first implementation seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text.
-Contract Completion Checklist: Complete - USER response is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact implementation approval text must cite the complete contract.
+Contract Completion Checklist: Complete - USER response is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet freshness proof is current, and exact implementation approval text must cite the complete contract.
 Accepted Scope: Accepted scope includes consent status, safe setup copy, disabled actions, validation, screenshots, and UTS proof.
 Deferred Scope: Future provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
 Rejected Scope: No rejected current scope beyond excluding protected private-provider behavior from this branch.
