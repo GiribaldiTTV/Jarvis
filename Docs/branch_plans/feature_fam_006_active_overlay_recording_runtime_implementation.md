@@ -105,6 +105,26 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - USER Decision / Waiver: `USER approved Branch Readiness Stage 2 setup for this corrected carrier; no waiver authorizes runtime implementation or old branch deletion.`
 - Fold-Down Target: `Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md remains historical rollback receipt; this branch is now historical PR #222 planning/governance receipt.`
 
+### Changed Surface: Docs/branch_plans/README.md
+
+- Surface Class: `governance/source-truth`
+- Change Intent: `Preserve incoming branch-plan governance, status vocabulary, and current-main planning rules while retaining the FAM-006 implementation carrier's branch-plan review and overlap-intent requirements.`
+- Why This File Was Touched: `The active FAM-006 implementation carrier carries branch-plan governance hardening from USER Branch Plan Contract and review-bundle freshness repair work, while current origin/main now carries newer repo-wide branch-plan governance from release-readiness source-truth intake.`
+- Owned Behavior / Fact Class: `Branch-plan governance index, plan-shape requirements, and reusable planning status semantics.`
+- Canonical Owner / Source Owner: `Docs/branch_plans/README.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High when current-main branch-plan governance updates overlap FAM-006 branch-local planning contract and review-bundle hardening text.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming current-main branch-plan governance as authority, preserve FAM-006 USER Branch Plan Contract and review-bundle trust-but-verify requirements only where they remain current and reusable, and do not let FAM-006 branch-local wording weaken newer repo-wide branch-plan rules.`
+- Rebaseline Handling: `During FAM-006 current-main reconciliation, accept current-main README updates first, then carry forward only the minimal FAM-006 review-bundle / Branch Plan Contract semantics still required by phase governance, validation helper registry, and the active FAM-006 branch plan.`
+- Validation Proof: `Pre-reconciliation overlap audit must pass after this ledger repair; branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, FAM-006 validators, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
+- Fallback Evidence: `Docs/Main.md routes Branch Change Intent Ledger ownership to active branch plans, Docs/phase_governance.md defines the overlap-intent gate, Docs/validation_helper_registry.md owns review-bundle helper requirements, and this branch plan records the FAM-006-specific intent.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-reconciliation overlap-intent repair for this file; no approval is granted for FAM-007 mutation, Workstream Entry analysis, runtime implementation, PR creation, merge, release, or stale artifact handling beyond approved Stage 2 review materials.`
+- Fold-Down Target: `Docs/branch_plans/README.md remains repo-wide branch-plan governance; FAM-006-specific implementation-carrier proof remains in this active branch plan and branch record.`
+
 ### Changed Surface: Docs/feature_backlog.md
 
 - Surface Class: `governance/source-truth`
