@@ -728,25 +728,45 @@ def _write_user_branch_plan_review(
         ]
     elif is_fam007_breakpoint_2:
         seam1_approval_packet = "approve bounded workstream implementation" in exact_user_decision.casefold()
+        seam1_completion_packet = "approve or revise seam 2" in exact_user_decision.casefold()
         accepted_user_response = (
             "Status: USER Accepted - USER approved this repaired branch contract as the "
             "decision-path basis for bounded Seam 1 implementation approval."
             if seam1_approval_packet
+            else (
+                "Status: Seam 1 Complete - this packet records public-safe action-gate "
+                "registry proof and asks USER to approve or revise Seam 2."
+            )
+            if seam1_completion_packet
             else (
                 "Status: Pending USER Acceptance Or Waiver - this repaired contract is ready for "
                 "USER to accept, revise, reject, or explicitly waive before Seam 1 implementation."
             )
         )
         codex_response_digest = (
-            "Workstream Entry analysis is green for the FAM-007 Breakpoint 2 Dev/Owner skeleton "
-            "action-gate readiness carrier. Codex recommends Seam 1 first: action-gate registry "
-            "and exact USER decision proof. Seam 1 should create public-safe proof of the private "
-            "Dev repo, private Owner repo, local-only private root, private remote, backup/import, "
-            "provider/model/runtime/cache/memory, voice/Core, shortcut/installer, PR/merge/release, "
-            "cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 gates without "
-            "performing any gated action."
+            "Seam 1 is complete for the FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate "
+            "readiness carrier. Codex recorded the action-gate registry, exact USER decision proof, "
+            "source-truth fold-down, and direct validator fixture proof without performing any gated "
+            "private/runtime action. Codex recommends Seam 2 next: private/public boundary and "
+            "private remote safety proof."
+            if seam1_completion_packet
+            else (
+                "Workstream Entry analysis is green for the FAM-007 Breakpoint 2 Dev/Owner skeleton "
+                "action-gate readiness carrier. Codex recommends Seam 1 first: action-gate registry "
+                "and exact USER decision proof. Seam 1 should create public-safe proof of the private "
+                "Dev repo, private Owner repo, local-only private root, private remote, backup/import, "
+                "provider/model/runtime/cache/memory, voice/Core, shortcut/installer, PR/merge/release, "
+                "cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 gates without "
+                "performing any gated action."
+            )
         )
         workstream_entry_result = (
+            ((
+                "Status: Seam 1 Complete - action-gate registry and exact USER decision proof "
+                "are implemented as public-safe proof only; Seam 2 remains pending USER decision.\n\n"
+            )
+            if seam1_completion_packet
+            else
             ((
                 "Status: Workstream Entry Green - USER accepted the repaired branch contract; "
                 "Seam 1 is approved as the first bounded Workstream implementation seam: "
@@ -756,7 +776,7 @@ def _write_user_branch_plan_review(
             else (
                 "Status: Workstream Entry Green - recommended first seam is Seam 1, "
                 "Action-gate registry and exact USER decision proof.\n\n"
-            ))
+            )))
             + (
             "Affected surfaces: active branch plan, active branch record, USER review packet, packet "
             "bundle helper, validation helper registry when helper behavior changes, and any public-safe "
@@ -777,6 +797,11 @@ def _write_user_branch_plan_review(
             "Complete - USER accepted the repaired branch-specific Workstream Entry contract for "
             "bounded Seam 1 implementation approval."
             if seam1_approval_packet
+            else (
+                "Complete for Seam 1 - action-gate registry proof is implemented and this packet "
+                "routes USER to approve or revise Seam 2."
+            )
+            if seam1_completion_packet
             else (
                 "Complete - branch-specific Workstream Entry contract repaired and ready for USER "
                 "acceptance or waiver; Seam 1 implementation remains pending until USER sends the exact "
@@ -829,6 +854,11 @@ def _write_user_branch_plan_review(
                 "action-gate registry/proof, deterministic fixtures or validators, source-truth "
                 "fold-down, packet refresh, and validation."
                 if seam1_approval_packet
+                else (
+                    "Seam 1 is complete; Seam 2 remains blocked until USER approves or revises the "
+                    "private/public boundary and private remote safety proof seam."
+                )
+                if seam1_completion_packet
                 else "Until USER accepts or waives this contract, Seam 1 implementation remains blocked."
             ),
             "Seam 1 work is limited to public-safe action-gate registry/proof, deterministic fixtures or validators, source-truth fold-down, packet refresh, and validation.",
@@ -861,6 +891,39 @@ def _write_user_branch_plan_review(
             "No unresolved packet placeholders or packet count mismatches remain.",
             "Validation results are green before Seam 1 starts.",
         ]
+        if seam1_completion_packet:
+            design_ballot = [
+                "Approve Seam 2 as recommended.",
+                "Revise Seam 2 private-boundary proof expectations before implementation.",
+                "Pause after Seam 1 and keep the branch open.",
+                "Reject later seams and request a narrower closeout path.",
+            ]
+            response_structure = [
+                "Decision: approve, revise, pause, or reject.",
+                "Required changes to Seam 2 proof expectations, if any.",
+                "Must-have private-boundary or remote-safety proof.",
+                "Must-not-do boundaries.",
+                "General response.",
+            ]
+            digest_structure = [
+                "USER intent summary.",
+                "Seam 1 completion acceptance or concerns.",
+                "Approved or revised Seam 2 scope.",
+                "Implementation constraints created from USER response.",
+                "Next USER decision needed.",
+            ]
+            contract_change_log = [
+                "v1 - Stage 2 review packet generated with generic USER Branch Plan Review language.",
+                "v2 - Repaired into a branch-specific FAM-007 Breakpoint 2 engineering contract with Workstream Entry result, recommended Seam 1, proof expectations, pending gates, and exact approval text.",
+                "v3 - Seam 1 action-gate registry and exact USER decision proof implemented with direct validator fixture proof.",
+            ]
+            completion_checklist = [
+                "Seam 1 source-truth fold-down is present in the branch plan and branch record.",
+                "Direct validator fixture proof covers the action-gate registry and exact USER decision proof.",
+                "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+                "Packet digest files agree that Seam 1 is complete and Seam 2 remains pending USER approval.",
+                "No unresolved packet placeholders or packet count mismatches remain.",
+            ]
         plain_english_summary = (
             "This FAM-007 branch prepares Breakpoint 2 for a future Dev/Owner skeleton setup decision. "
             "Its job is not to create private repos or turn on AI runtime behavior; its job is to make "
@@ -917,12 +980,46 @@ def _write_user_branch_plan_review(
             "Later seams may add private-boundary readiness, local-only/private-root readiness, private remote safety, public-to-private separation, and provider/model/runtime/cache/memory deferral proof only after USER approves them.",
             "No seam may execute the private/runtime action it is proving as gated.",
         ]
+        if seam1_completion_packet:
+            implementation_options = [
+                "Approve Seam 2 as recommended: implement public-safe private/public boundary and private remote safety proof. Pros: continues the same gated readiness path; Cons: still no private setup; Risk: low.",
+                "Revise Seam 2 proof expectations before implementation. Pros: lets USER tune boundary or remote-safety evidence; Cons: adds packet/source-truth repair; Risk: low.",
+                "Pause after Seam 1 and keep the branch open. Pros: preserves the green Seam 1 proof without expanding scope; Cons: delays Breakpoint 2 readiness; Risk: low.",
+                "Reject later seams and request a narrower closeout path. Pros: maximum scope control; Cons: may leave Breakpoint 2 readiness incomplete; Risk: low but slower.",
+            ]
+            recommended_direction = (
+                "Codex recommends approving Seam 2 only if USER agrees the next proof should focus "
+                "on private/public boundary and private remote safety without configuring private "
+                "remotes or creating private roots."
+            )
+            current_scope = [
+                "Seam 1 action-gate registry proof implemented.",
+                "Exact USER decision proof implemented.",
+                "Direct fixture and validator proof added.",
+                "Branch plan and branch record folded down for Seam 1.",
+                "Desktop packet and ZIP refreshed with current branch, HEAD, origin/main, counts, and next decision.",
+            ]
+            future_scope = [
+                "Seam 2 approval is limited to private/public boundary and private remote safety proof.",
+                "Private Dev/Owner repo creation, local-only private roots, private remotes, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain future-gated.",
+            ]
+            slc_package_plan = [
+                "Seam 1 complete: action-gate registry and exact USER decision proof.",
+                "Seam 2 next candidate: private/public boundary and private remote safety proof.",
+                "No seam may execute the private/runtime action it is proving as gated.",
+            ]
         user_decisions = [
             "Does USER accept or explicitly waive this repaired USER Branch Plan Review contract?",
             "Does USER approve Seam 1 implementation only: action-gate registry and exact USER decision proof?",
             "Does USER require any change to direct proof expectations before Seam 1 begins?",
             "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
         ]
+        if seam1_completion_packet:
+            user_decisions = [
+                "Does USER approve Seam 2 implementation only: private/public boundary and private remote safety proof?",
+                "Does USER require any change to direct proof expectations before Seam 2 begins?",
+                "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+            ]
     else:
         accepted_user_response = None
         codex_response_digest = None
@@ -1203,10 +1300,19 @@ def _write_workstream_entry_packet_digests(
         is_fam007_breakpoint_2
         and "approve bounded workstream implementation" in exact_user_decision.casefold()
     )
+    seam1_completion_packet = (
+        is_fam007_breakpoint_2
+        and "approve or revise seam 2" in exact_user_decision.casefold()
+    )
     packet_status = (
         "workstream implementation approval - Seam 1 public-safe action-gate registry "
         "and exact USER decision proof is approved by this packet decision path."
         if seam1_approval_packet
+        else (
+            "workstream entry final decision review - seam 1 completion review; action-gate registry and exact USER decision "
+            "proof are complete; Seam 2 remains pending USER approval."
+        )
+        if seam1_completion_packet
         else (
             "workstream entry final decision review - Workstream implementation "
             "remains pending USER approval."
@@ -1246,6 +1352,39 @@ def _write_workstream_entry_packet_digests(
             "Workstream Entry digest/checklist files, and copied source-truth files "
             "are loaded and digestible for USER review; the contract is branch-specific "
             "and records the bounded Seam 1 implementation approval boundary."
+        )
+    elif seam1_completion_packet:
+        analysis_status = (
+            "Analysis Status: Seam 1 complete for the FAM-007 Breakpoint 2 Dev/Owner "
+            "skeleton action-gate readiness carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: Seam 1 action-gate registry and exact USER decision "
+            "proof are implemented as public-safe proof only; Seam 2 remains pending USER approval."
+        )
+        recommended_seam = (
+            "Recommended Next Seam: Seam 2, Private/public boundary and private remote safety proof."
+        )
+        scan_result = (
+            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "prebeta roadmap, active branch index, branch record, branch plan, "
+            "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
+            "vision, AI Edition plan, branch-plan README, phase governance, "
+            "development rules, codex modes, validation helper registry, and "
+            "Seam 1 proof surfaces needed for the next USER decision."
+        )
+        checklist_status = (
+            "Checklist Status: PASS for Seam 1 completion review - branch identity, "
+            "source HEAD, origin/main, FAM-007 ownership, Breakpoint 2 product/workstream "
+            "posture, Seam 1 proof, AI Runtime And Trust Architecture placement, backlog "
+            "taxonomy, and private/runtime/provider/cache/memory exclusions are represented "
+            "for USER inspection."
+        )
+        digest_status = (
+            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Workstream Entry digest/checklist files, copied source-truth files, branch "
+            "plan, branch record, fixture proof, and validator proof are loaded and "
+            "digestible for USER review; Seam 2 remains pending USER approval."
         )
     elif is_fam007_breakpoint_2:
         analysis_status = (
@@ -1558,10 +1697,19 @@ def build_bundle(
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded workstream implementation" in exact_user_decision.casefold()
     )
+    seam1_completion_packet = (
+        source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+        and "approve or revise seam 2" in exact_user_decision.casefold()
+    )
     machine_readable_packet_status = (
         "workstream implementation approval - Seam 1 public-safe action-gate registry "
         "and exact USER decision proof is approved by this packet decision path."
         if seam1_approval_packet
+        else (
+            "workstream entry final decision review - seam 1 completion review; action-gate registry and exact USER decision "
+            "proof are complete; Seam 2 remains pending USER approval."
+        )
+        if seam1_completion_packet
         else (
             "workstream entry final decision review - Workstream implementation "
             "remains pending USER approval."

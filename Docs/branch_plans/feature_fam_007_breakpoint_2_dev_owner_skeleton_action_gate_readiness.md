@@ -8,7 +8,7 @@ Plan Identity: `FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness ca
 Owning Branch: `feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
-Current Phase: `Branch Readiness Stage 2`
+Current Phase: `Workstream Implementation - Seam 1`
 
 ## Branch Runtime Engineering Plan
 
@@ -16,21 +16,21 @@ Plan Identity: `FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness ca
 Owning Branch: `feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness`
 Worktree Path: `C:\Nexus Worktrees\FAM-007`
 Branch Authority Record Pointer: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
-Current Phase: `Branch Readiness Stage 2`
+Current Phase: `Workstream Implementation - Seam 1`
 Branch Runtime Engineering Plan: `Active transition-approved branch plan for public-safe Breakpoint 2 Dev/Owner skeleton action-gate readiness.`
-Engineering Plan Status: `Proposed - Stage 2 setup creates the reviewable branch runtime plan while Workstream Entry analysis and Workstream implementation remain pending USER approval.`
+Engineering Plan Status: `Accepted - Seam 1 implemented as public-safe action-gate registry and exact USER decision proof only; later seams remain pending USER approval.`
 Current Runtime Baseline: `Provider/model execution disabled; provider-visible data none; sentToProvider=false; canAcceptPrompts=false; downloads/network/external calls blocked; runtime cache behavior inactive; memory/learning/personalization inactive; voice/Core sync gated; no private Dev/Owner roots, repos, or remotes.`
 Branch Purpose: `Prepare the public-safe decision, proof, and review path for FAM-007 Breakpoint 2 Dev/Owner skeleton setup before any private repository, private root, private remote, backup/import, provider/model, runtime cache, memory, or v1.8.0 action is admitted.`
 Planned Runtime Delta: `No runtime delta during Stage 2. Later Workstream proof may add source-truth, fixture, validator, and packet proof only after USER approval.`
 User-Facing Delta: `No app UI or runtime workflow changes in Stage 2. USER-facing output is the Desktop review packet explaining action gates, proof expectations, and future-gated work.`
 Source-Truth Delta: `Adds a branch authority receipt, active branch runtime plan, compact FAM-007 pointer update, external operational-state handoff, review-packet expectation, and validation plan for Breakpoint 2 action-gate readiness.`
 State / Config / Schema Delta: `No app state/config/schema delta. External operational state records active branch assignment; repo docs preserve durable planning and transition proof.`
-Validator / Helper Delta: `No new helper by default. Reuse branch governance, worktree confinement, release-readiness health, provider-state, public leak-prevention, branch-readiness planning fixture, external-state, user-review bundle, rebaseline audit, and compileall validation.`
+Validator / Helper Delta: `Public leak-prevention validation now directly asserts the Breakpoint 2 Seam 1 action-gate registry fixture; no private/runtime helper or execution path is added.`
 Expected Changed Files / Surfaces: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md; Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; external operational state records; Desktop USER review bundle.`
 Workstream / Seam Map: `Seam 1 action-gate registry and exact USER decision proof; Seam 2 private/public boundary and private remote safety proof; Seam 3 backup/recovery and Public-to-Dev import planning proof; Seam 4 provider/model/runtime/cache/memory deferral and local-only handoff proof.`
-Per-Seam Implementation Checklist: `Pending Workstream Entry - each seam must remain public-safe, planning/proof-only, and directly validator-backed before Workstream Green.`
-Per-Seam Validation Checklist: `Pending Workstream Entry - direct assertions or deterministic fixtures must prove action gates, private-boundary safety, backup/import planning gates, provider/model/runtime/cache/memory deferral, packet integrity, and no public leakage.`
-Per-Seam User-Facing Proof Checklist: `Pending Workstream Entry - USER sees review packet proof only unless a later approved seam changes visible runtime behavior.`
+Per-Seam Implementation Checklist: `Seam 1 implemented; Seams 2 through 4 remain pending USER approval and must stay public-safe, planning/proof-only, and directly validator-backed before Workstream Green.`
+Per-Seam Validation Checklist: `Seam 1 direct fixture assertions prove action gates and exact USER decision proof; later seams must prove private-boundary safety, backup/import planning gates, provider/model/runtime/cache/memory deferral, packet integrity, and no public leakage.`
+Per-Seam User-Facing Proof Checklist: `Seam 1 proof is packet/source-truth/validator only; USER sees review packet proof only unless a later approved seam changes visible runtime behavior.`
 Future-Gated Items: `Future gated items remain pending, blocked, and require separate USER approval: Workstream implementation, private Dev repo, private Owner repo, private roots/remotes, backup/import execution, provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, external calls, memory, voice/Core, shortcuts/installers, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0.`
 Approval-Boundary Audit: `Approval boundary records Stage 2 setup only; Workstream implementation is pending, private/runtime/provider/cache/memory actions are blocked, and later PR/merge/release/cleanup require separate USER approval.`
 FAM / Shared-Surface Overlap Forecast: `FAM-007 owns the carrier; Docs/ai_runtime_and_trust_architecture.md owns cross-family architecture/policy; FAM-008 owns future install/storage/cache-root UX; pending FAM-009/FAM-010 files remain fold-source evidence only; FAM-006 and Governance are overlap context only.`
@@ -44,7 +44,7 @@ PR Readiness Fold-Down / Retention Checklist: `Pending - before PR green, active
 Release Readiness Public-Scope Translation Checklist: `Pending - release notes may describe only public-safe action-gate readiness proof; private/runtime/provider/cache/memory actions remain excluded.`
 USER Planning Review: `Required through Workstream Entry USER Branch Plan Review Gate before implementation.`
 PR Fold-Down Packet: `Pending PR Readiness if USER later approves PR creation.`
-Runtime Implementation Approval: `Not granted by Stage 2.`
+Runtime Implementation Approval: `Granted only for bounded public-safe Seam 1 action-gate registry and exact USER decision proof; no private/runtime/provider/cache/memory action is approved.`
 
 ## Source-Truth Placement Preflight
 
@@ -77,6 +77,24 @@ Seam 4: `Provider/model/runtime/cache/memory deferral and local-only handoff pro
 Seam 4 Goal: `Prove provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, runtime cache inactive, memory inactive, and local-only/private handoff gates preserved.`
 Seam 4 Non-Includes: `No provider SDK, model download/execution, runtime cache implementation, Trust Journal runtime, memory, indexing, retrieval, personalization, external calls, or voice/Core sync.`
 
+## Seam 1 Action-Gate Registry Implementation Receipt
+
+Seam 1 Status: `Implemented - public-safe action-gate registry and exact USER decision proof only`
+Seam 1 Scope: `Action-gate registry and exact USER decision proof for FAM-007 Breakpoint 2 Dev/Owner skeleton readiness.`
+Action-Gate Registry Owner: `Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md plus dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json.`
+Action-Gate Registry Proof: `Implemented - every Breakpoint 2 gated action remains pending USER decision`
+Exact USER Decision Proof: `Implemented - Seam 1 approval was limited to public-safe proof only and does not authorize any gated private/runtime action.`
+Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2Seam1ActionGateRegistry`
+Fixture Surface: `dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json -> breakpoint2Seam1ActionGateRegistry`
+Pending USER Decision Gates Proven: `private Dev repo creation; private Owner repo creation; local-only private root creation; GitHub Desktop private remote configuration; off-boot backup or recovery root implementation; Public-to-Dev import implementation; Private-to-Public sanitization; Owner vault/private hosting; provider SDK/model execution; model downloads; runtime provider execution; runtime cache behavior; memory, learning, indexing, retrieval, or personalization behavior; voice/Core sync; shortcut or installer work; PR creation; merge; release/tag/artifact execution; cleanup; FAM-006 or Governance mutation; AI Product Contract import; Private Dev ORIN import; packaging edition identity; v1.8.0-prebeta execution.`
+Provider Boundary Proof: `provider-visible data none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution disabled; downloads/network/external calls blocked; memory/learning/personalization inactive; voice/Core sync gated.`
+No-Gated-Action Proof: `No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.`
+Public-Safe Metadata Proof: `public-safe fixture metadata contains no private remote URL, token, owner secret, private path, model artifact, prompt payload, memory payload, or private automation content.`
+Source-Truth Fold-Down: `This branch plan and the active branch record record Seam 1 as implemented; Seams 2 through 4 remain pending USER decisions.`
+Packet Proof Expectation: `Refresh the Desktop USER review packet and ZIP after the Seam 1 commit so branch, HEAD, origin/main, file counts, exact next USER decision, and packet decision path are self-consistent.`
+Next Seam Candidate: `Seam 2 - Private/public boundary and private remote safety proof.`
+Exact Next USER Decision Needed: `Approve or revise Seam 2, Private/public boundary and private remote safety proof, for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 after Seam 1 validation is green.`
+
 ## Element-to-Phase Proof Matrix
 
 Matrix Status: `Present`
@@ -87,7 +105,7 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_007_breakpoint_2
 
 | Element ID | Element / Surface | Element Classification | Workstream Implementation Plan | Workstream Proof Plan | Hardening Proof Plan | Live Validation Proof / Waiver Plan | UTS / USER Acceptance Path | Future / Deferred Boundary | USER Decision State | Source Owner / Ledger Owner |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `FAM007-BP2-001` | Dev/Owner skeleton action gates | Planned | Workstream would add a branch-local action-gate registry, exact USER decision text, and deterministic fixture checks after USER approves implementation. | Workstream proof would assert every Dev/Owner skeleton gate remains pending and no private repo, root, remote, token, owner path, or private branch setup exists. | H1 would compare action-gate proof against the AI Edition plan, FAM-007 family vision, external-state records, and this branch plan. | LV1 would use no-visible-runtime waiver only after validator proof shows no runtime or private setup surface changed. | USER acceptance path uses START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, zip packet review, and explicit accept/revise/waive/reject response before implementation. | Private Dev/Owner setup remains future-gated until separate USER action approval. | Needs USER decision - Workstream Entry and implementation approval pending. | This branch plan and branch record own the ledger. |
+| `FAM007-BP2-001` | Dev/Owner skeleton action-gate registry and exact USER decision proof | Created | Workstream added branch-local action-gate registry receipt, exact USER decision proof, and deterministic fixture checks after USER approved Seam 1. | Direct proof asserts every Dev/Owner skeleton gate remains pending and no private repo, root, remote, token, owner path, private branch setup, provider/model execution, cache runtime behavior, memory behavior, backup/import behavior, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 execution occurred. | H1 must compare action-gate proof against the AI Edition plan, FAM-007 family vision, external-state records, validator fixture, and this branch plan. | LV1 may use no-visible-runtime waiver only after validator proof shows no runtime or private setup surface changed. | USER acceptance path uses refreshed START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, ZIP packet review, and explicit Seam 2 decision after Seam 1 completion. | Private Dev/Owner setup remains future-gated until separate USER action approval. | Seam 1 complete; Seam 2 and all private/runtime actions remain pending USER decision. | This branch plan, branch record, fixture, and validator own the ledger. |
 | `FAM007-BP2-002` | Private/public boundary and private remote safety | Planned | Workstream would add public-safe boundary proof and leak-prevention fixture expectations without configuring GitHub Desktop or private remotes. | Workstream proof would assert no private URL, token, secret, owner path, prompt, memory, model artifact, provider data, or private automation content appears in public source truth. | H1 would compare boundary proof against public leak-prevention validation, source-owner validation, provider-state validation, and external-state boundaries. | LV1 would use packet/validator proof only when no runtime, remote, private root, or user-facing setup surface changes. | USER acceptance path reviews private-boundary proof in the Desktop packet and records accepted, revised, waived, or rejected response before implementation. | Private remote setup and private-to-public sanitization remain future-gated. | Needs USER decision - Workstream Entry and implementation approval pending. | This branch plan and branch record own the ledger. |
 | `FAM007-BP2-003` | Backup/recovery and Public-to-Dev import gates | Planned | Workstream would add planning-only gate proof for off-boot backup/recovery roots and Public-to-Dev import consent without creating folders or moving data. | Workstream proof would assert backup, restore, recovery-root creation, Public-to-Dev import, and issue/artifact mutation remain disabled and USER-gated. | H1 would compare proof against source-truth action gates, changed-file lists, filesystem non-creation proof, and public/private boundary validators. | LV1 would use packet/validator proof only when no backup/import/runtime surface exists and no local/private path was created. | USER acceptance path reviews the planning gate proof and explicitly accepts, revises, waives, or rejects the next implementation step. | Backup/recovery execution and Public-to-Dev import implementation remain future-gated. | Needs USER decision - Workstream Entry and implementation approval pending. | This branch plan and branch record own the ledger. |
 | `FAM007-BP2-004` | Provider/model/runtime/cache/memory deferral | Planned | Workstream would add provider/model/cache/memory deferral proof and local-only handoff readiness assertions without enabling runtime behavior. | Workstream proof would assert provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, runtime cache inactive, memory inactive, downloads blocked, and external calls blocked. | H1 would compare deferral proof against Docs/ai_runtime_and_trust_architecture.md, provider-state validation, public leak-prevention validation, and FAM-007 AI Edition boundaries. | LV1 would use no-visible-runtime waiver only after validator output proves provider/model/cache/memory/external-call behavior stayed disabled. | USER acceptance path reviews local-only/provider deferral proof in the packet and records explicit accept/revise/waive/reject response before implementation. | Runtime/provider/cache/memory behavior remains future-gated until separate USER approval. | Needs USER decision - Workstream Entry and implementation approval pending. | This branch plan and branch record own the ledger. |
@@ -95,11 +113,11 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_007_breakpoint_2
 ## USER Branch Plan Review Gate
 
 USER Branch Plan Review: `Required before Workstream implementation.`
-Review Status: `Needs USER Decision`
-Contract Status: `Pending USER Response`
-Contract Version / Revision: `v1 - Stage 2 setup creates the Breakpoint 2 action-gate readiness contract.`
+Review Status: `Accepted by USER - USER accepted the branch-specific contract and approved bounded Seam 1 implementation.`
+Contract Status: `Complete - USER accepted the repaired branch-specific contract for bounded Seam 1 implementation.`
+Contract Version / Revision: `v3 - Seam 1 action-gate registry proof implemented.`
 Desktop Review Bundle: `C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007`
-USER Review Packet Finding: `Blocking until refreshed - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, exported .zip, Source HEAD, and current branch HEAD must be fresh and match after final Stage 2 commit; packet files must then be loaded and digested or an explicit waiver must be recorded.`
+USER Review Packet Finding: `Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, exported zip, Source HEAD/current branch HEAD freshness match current branch HEAD at Seam 1 start; final Seam 1 packet refresh is required after the Seam 1 commit.`
 Plain-Language Branch Goal: `Prepare the public-safe proof path for future Dev/Owner skeleton setup without performing private or runtime actions.`
 What Will I Actually See, And Where Will I See It?: `A Desktop review packet under Nexus USER Review\FAM-007; no visible app/runtime change.`
 Planned User-Facing Outcome: `A clear action-gate readiness plan and review path.`
@@ -111,36 +129,36 @@ Implementation Breakdown: `Four public-safe proof seams: action gates; private b
 Element-to-Phase Proof Matrix: `Matrix maps each action-gate, boundary, backup/import, and provider/runtime deferral element through Workstream implementation, Workstream proof, H1 comparison, LV1 or no-visible-runtime waiver, UTS/USER acceptance, future/deferred boundary, and source owner.`
 Hardening Plan: `Compare proof against source truth, validators, fixtures, packet, and action gates.`
 Live Validation / UTS Plan: `Use no-visible-runtime waiver only if no runtime surface changes.`
-Open USER Questions: `Approve Workstream Entry analysis or revise the plan?`
-USER Design Review Questions: `Should any additional action gate, proof field, or boundary be added before Workstream?`
-Codex Recommendations: `Proceed to Workstream Entry analysis and keep all private/runtime actions gated.`
+Open USER Questions: `Approve or revise Seam 2 private/public boundary and private remote safety proof after Seam 1 validation is green?`
+USER Design Review Questions: `Should any additional private-boundary proof field be added before Seam 2?`
+Codex Recommendations: `Proceed to Seam 2 only after USER approval; keep all private/runtime actions gated.`
 Implementation Options: `Option A accept public-safe proof path; Option B revise proof seams; Option C defer a seam with waiver; Option D reject/narrow.`
 Recommended Direction: `Option A - accept the whole action-gate readiness package for Workstream Entry analysis.`
 Why This Fits The Nexus Vision: `It keeps ORIN/Nexus AI-native expansion permission-enforced, transparent, local-first, provider-safe, and traceable.`
-USER Design Direction Decision: `Needs USER decision - USER must accept, revise, waive, or reject the Breakpoint 2 action-gate readiness direction during Workstream Entry before implementation can proceed.`
-Current Branch Scope: `Stage 2 setup and later public-safe proof only after USER approval.`
+USER Design Direction Decision: `Accepted for Seam 1 - USER accepted the repaired contract and approved bounded public-safe Seam 1 proof.`
+Current Branch Scope: `Seam 1 public-safe proof implemented; Seams 2 through 4 remain pending USER approval.`
 Future-Gated Scope: `Private/runtime/provider/cache/memory/backup/import/voice/Core/shortcut/installer/PR/merge/release/cleanup/v1.8.0 actions remain future-gated.`
 Implementation Staging Notes: `Stage 2 setup now; Workstream Entry analysis next; Workstream proof seams only after USER approval.`
-USER Decisions Needed: `Approve, revise, waive, or reject Workstream Entry analysis and later Workstream implementation.`
+USER Decisions Needed: `Approve or revise Seam 2 private/public boundary and private remote safety proof; all private/runtime actions remain pending.`
 Alternatives / Tradeoffs: `Private setup now is blocked; provider-first is blocked; narrow cache/provider-only work risks drift; this package keeps coupled gates together.`
-USER Review Response: `Needs USER Response - USER response is pending and must be attached, inserted, digested, or explicitly waived/rejected before Workstream implementation.`
-Codex Response Digest: `Pending USER response digest - Codex must digest accepted/revised/waived/rejected USER response and record implementation constraints before Workstream implementation.`
-Implementation Constraints Created By USER Response: `Pending USER response; current constraints already block private/runtime/provider/cache/memory actions and any accepted response must preserve those gates unless USER grants a separate approval.`
+USER Review Response: `Accepted by USER - USER response was attached in chat and approved bounded Workstream implementation for Seam 1 only.`
+Codex Response Digest: `Digested - Codex recorded the USER response before Workstream implementation and implemented Seam 1 as public-safe action-gate registry and exact USER decision proof; no gated private/runtime action was performed.`
+Implementation Constraints Created By USER Response: `Seam 1 was limited to public-safe action-gate registry/proof, deterministic fixture or validator coverage, source-truth fold-down, packet refresh, and validation.`
 USER Rejected / Deferred Ideas: `Deferred: private repos, private roots/remotes, backup/import implementation, provider/model/runtime/cache/memory, voice/Core, shortcuts/installers, PR, merge, release, cleanup, AI Product Contract, Private Dev ORIN, and v1.8.0.`
 Vision Delta / Source-Truth Impact: `No new backlog family or architecture owner; existing FAM-007 and AI Runtime And Trust Architecture source truth is consumed.`
-Contract Change Log: `v1 - Stage 2 setup created the reviewable Breakpoint 2 branch-plan contract, packet freshness requirement, and four public-safe proof seams while leaving implementation pending.`
-Workstream Entry Result: `Pending USER approval.`
-Contract Completion Checklist: `Pending - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, zip, Source HEAD/current branch HEAD freshness, USER response or waiver, Codex digest, accepted/deferred/rejected scope, constraints, source-truth impact, and exact implementation approval must be complete before implementation.`
-Accepted Scope: `Accepted scope is Stage 2 setup only under current USER approval; Workstream Entry and implementation are deferred until separate USER approval.`
-Deferred Scope: `Deferred scope includes Workstream implementation and all future private/runtime/provider/cache/memory/backup/import/voice/Core/shortcut/installer/PR/merge/release/cleanup/v1.8.0 actions.`
+Contract Change Log: `v1 - Stage 2 setup; v2 - Workstream Entry contract repair and Seam 1 approval packet; v3 - Seam 1 action-gate registry proof implemented.`
+Workstream Entry Result: `Green - USER accepted contract and approved Seam 1.`
+Contract Completion Checklist: `Complete for Seam 1; refreshed packet after the Seam 1 commit must now present Seam 1 completion and Seam 2 as the next USER decision.`
+Accepted Scope: `Accepted scope includes Seam 1 public-safe action-gate registry and exact USER decision proof.`
+Deferred Scope: `Seams 2 through 4 and all future private/runtime/provider/cache/memory/backup/import/voice/Core/shortcut/installer/PR/merge/release/cleanup/v1.8.0 actions.`
 Rejected Scope: `Rejected scope is none for Stage 2; private/runtime execution remains excluded by deferred scope rather than rejected product direction.`
-Exact USER Decision Needed: `Confirm, revise, waive, or reject the USER Branch Plan Review contract by approving Workstream Entry analysis for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness after Stage 2 setup is green.`
-Implementation Approval: `Blocked and pending - Stage 2 does not authorize Workstream implementation; exact USER approval is required before any public-safe proof implementation begins.`
+Exact USER Decision Needed: `Approve or revise Seam 2, Private/public boundary and private remote safety proof, for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 after Seam 1 validation is green.`
+Implementation Approval: `Seam 1 implemented; Seam 2 and later seams remain blocked pending exact USER approval.`
 
 ## Workstream Entry Whole-Package Analysis Gate
 
-Whole-Package Analysis Status: `Required before implementation`
+Whole-Package Analysis Status: `Green - Workstream Entry complete and Seam 1 implemented`
 Admitted Seam Count: `4 planned public-safe proof seams`
-First-Seam Recommendation: `Start with action-gate registry proof.`
+First-Seam Recommendation: `Complete - action-gate registry proof implemented.`
 Dependency Map: `All seams depend on pending-action-gate truth and no-private/no-runtime baseline.`
-Implementation Approval Boundary: `Blocked until USER accepts, revises, or waives the USER Branch Plan Review contract.`
+Implementation Approval Boundary: `Seam 1 approved and implemented; Seam 2 remains blocked until USER approves the private/public boundary and private remote safety proof seam.`

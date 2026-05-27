@@ -627,6 +627,206 @@
       "privateHostingSecret": false
     }
   },
+  "breakpoint2Seam1ActionGateRegistry": {
+    "schema": "fam007-breakpoint2-seam1-action-gate-registry-v1",
+    "branch": "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
+    "seam": "Seam 1",
+    "planningOnly": true,
+    "publicSafeProofOnly": true,
+    "directValidationRequired": true,
+    "allGatesRemainPending": true,
+    "exactUserDecisionProof": "Seam 1, Action-gate registry and exact USER decision proof, is approved only as public-safe proof on feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness. No gated private/runtime action is authorized.",
+    "exactNextUserDecision": "Approve or revise Seam 2, Private/public boundary and private remote safety proof, for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness after Seam 1 validation is green.",
+    "pendingUserDecisionGates": [
+      {
+        "id": "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-LOCAL-ONLY-PRIVATE-ROOT-CREATE",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-OWNER-VAULT-OR-PRIVATE-HOSTING",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-MODEL-DOWNLOADS",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-RUNTIME-PROVIDER-EXECUTION",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-VOICE-CORE-SYNC",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-SHORTCUT-INSTALLER-WORK",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-PR-CREATION",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-MERGE",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-RELEASE-TAG-ARTIFACT",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-BRANCH-WORKTREE-CLEANUP",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-FAM006-GOVERNANCE-MUTATION",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-AI-PRODUCT-CONTRACT-IMPORT",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-PRIVATE-DEV-ORIN-IMPORT",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      },
+      {
+        "id": "USER-GATE-FAM007-V1-8-0-PREBETA",
+        "status": "pending-user-decision",
+        "executed": false,
+        "authorizedBySeam1": false
+      }
+    ],
+    "publicSafetyProof": {
+      "privateDevRepositoryCreated": false,
+      "privateOwnerRepositoryCreated": false,
+      "localOnlyPrivateRootCreated": false,
+      "githubDesktopPrivateRemoteConfigured": false,
+      "offBootBackupRootCreated": false,
+      "publicToDevImportImplemented": false,
+      "providerSdkIntegrated": false,
+      "modelDownloadsEnabled": false,
+      "runtimeProviderExecutionEnabled": false,
+      "runtimeCacheBehaviorEnabled": false,
+      "externalCallsEnabled": false,
+      "memoryLearningIndexingRetrievalPersonalizationEnabled": false,
+      "voiceCoreSyncEnabled": false,
+      "shortcutInstallerWorkPerformed": false,
+      "prCreated": false,
+      "merged": false,
+      "releaseTagArtifactExecuted": false,
+      "cleanupPerformed": false,
+      "fam006GovernanceMutationPerformed": false,
+      "aiProductContractImported": false,
+      "privateDevOrinImported": false,
+      "v180PrebetaExecuted": false
+    },
+    "providerBoundary": {
+      "providerVisibleData": "none",
+      "sentToProvider": false,
+      "canAcceptPrompts": false,
+      "promptProviderModelExecution": "disabled",
+      "downloadsNetworkExternalCalls": "blocked",
+      "memoryLearningPersonalization": "inactive",
+      "voiceCoreSync": "gated"
+    },
+    "forbiddenMaterialPresence": {
+      "privateRemoteUrl": false,
+      "tokenOrCredential": false,
+      "ownerSecret": false,
+      "privatePath": false,
+      "modelArtifact": false,
+      "promptPayload": false,
+      "memoryPayload": false,
+      "privateAutomationContent": false
+    }
+  },
   "blockedCanaries": [
     {
       "caseId": "private-path",
