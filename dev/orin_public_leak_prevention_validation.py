@@ -1030,6 +1030,8 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
         "missing-required-digest-file",
         "conflicting-next-legal-phase",
         "chat-only-decision-missing-packet-evidence",
+        "unresolved-template-placeholder",
+        "packet-count-mismatch",
     ):
         _require(required_case in seen_cases, failures, f"packet decision canaries missing {required_case}")
 

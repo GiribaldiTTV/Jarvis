@@ -93,6 +93,20 @@ DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
 DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
 DECISION_STATUS_REPAIR_REVALIDATION = "repair-revalidation"
 DECISION_STATUS_UNKNOWN = "unknown"
+UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("shell-variable-branch", re.compile(r"(?<![A-Za-z0-9_])\$branch\b")),
+    ("shell-variable-head", re.compile(r"(?<![A-Za-z0-9_])\$head\b")),
+    ("shell-variable-origin-main", re.compile(r"(?<![A-Za-z0-9_])\$originMain\b")),
+    ("shell-variable-packet", re.compile(r"(?<![A-Za-z0-9_])\$packet\b")),
+    ("shell-variable-zip", re.compile(r"(?<![A-Za-z0-9_])\$zip\b")),
+    ("unevaluated-shell-expression", re.compile(r"\$\([^)\n]+\)")),
+)
+BUNDLE_COUNT_FIELDS: tuple[str, ...] = (
+    "Bundle File Count",
+    "Expected File Count",
+    "Copied File Count",
+    "Extra Bundle File Count",
+)
 
 
 @dataclass(frozen=True)
@@ -263,6 +277,7 @@ def _validate_export_zip(
     origin_main: str,
     expected_entries: set[str],
 ) -> None:
+    packet_files: dict[str, str] = {}
     with zipfile.ZipFile(export_zip, "r") as archive:
         entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
         try:
@@ -275,12 +290,26 @@ def _validate_export_zip(
             raise ValueError(
                 f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
             ) from exc
+        for entry in sorted(entries):
+            try:
+                packet_files[entry] = archive.read(entry).decode("utf-8")
+            except UnicodeDecodeError:
+                continue
     if entries != expected_entries:
         missing = sorted(expected_entries - entries)
         extra = sorted(entries - expected_entries)
         raise ValueError(
             "Review export zip file-list guard failed: "
             f"missing={missing or 'none'} extra={extra or 'none'}"
+        )
+    artifact_failures = [
+        *_unresolved_template_placeholder_failures(packet_files),
+        *_packet_count_consistency_failures(packet_files),
+    ]
+    if artifact_failures:
+        raise ValueError(
+            "Review export zip artifact validation failed:\n"
+            + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
     if f"Source Branch: `{source_branch}`" not in start_here:
         raise ValueError(
@@ -376,6 +405,69 @@ def _section(text: str, heading: str) -> str:
     if next_heading < 0:
         return text[start:].strip()
     return text[start:next_heading].strip()
+
+
+def _field_int(text: str, field_name: str) -> int | None:
+    match = re.search(rf"^{re.escape(field_name)}:\s*(\d+)\s*$", text, re.MULTILINE)
+    return int(match.group(1)) if match else None
+
+
+def _unresolved_template_placeholder_failures(packet_files: Mapping[str, str]) -> list[str]:
+    failures: list[str] = []
+    for file_name, text in sorted(packet_files.items()):
+        for reason, pattern in UNRESOLVED_TEMPLATE_PATTERNS:
+            matches = sorted({match.group(0) for match in pattern.finditer(text)})
+            if matches:
+                joined = ", ".join(matches)
+                failures.append(f"{file_name}: unresolved template placeholder {reason}: {joined}")
+    return failures
+
+
+def _packet_count_consistency_failures(packet_files: Mapping[str, str]) -> list[str]:
+    start_here = packet_files.get("START_HERE.md", "")
+    if not start_here:
+        return []
+    parsed = {field: _field_int(start_here, field) for field in BUNDLE_COUNT_FIELDS}
+    if all(value is None for value in parsed.values()):
+        return []
+
+    failures: list[str] = []
+    for field, value in parsed.items():
+        if value is None:
+            failures.append(f"START_HERE.md: packet count field '{field}' is missing")
+
+    bundle_file_count = parsed["Bundle File Count"]
+    expected_file_count = parsed["Expected File Count"]
+    copied_file_count = parsed["Copied File Count"]
+    extra_bundle_file_count = parsed["Extra Bundle File Count"]
+    actual_file_count = len(packet_files)
+
+    if bundle_file_count is not None and bundle_file_count != actual_file_count:
+        failures.append(
+            "START_HERE.md: Bundle File Count "
+            f"{bundle_file_count} does not match actual packet file count {actual_file_count}"
+        )
+    if (
+        expected_file_count is not None
+        and copied_file_count is not None
+        and expected_file_count != copied_file_count
+    ):
+        failures.append(
+            "START_HERE.md: Expected File Count "
+            f"{expected_file_count} does not match Copied File Count {copied_file_count}"
+        )
+    if (
+        bundle_file_count is not None
+        and copied_file_count is not None
+        and extra_bundle_file_count is not None
+        and bundle_file_count != copied_file_count + extra_bundle_file_count + 1
+    ):
+        failures.append(
+            "START_HERE.md: Bundle File Count must equal Copied File Count "
+            f"+ Extra Bundle File Count + START_HERE.md; got {bundle_file_count}, "
+            f"{copied_file_count}, {extra_bundle_file_count}"
+        )
+    return failures
 
 
 def _is_repo_relative_review_path(path: str) -> bool:
@@ -881,6 +973,89 @@ def _write_user_branch_plan_review(
     return review_path.resolve()
 
 
+def _write_workstream_entry_packet_digests(
+    *,
+    target: Path,
+    source_branch: str,
+    source_head: str,
+    origin_main: str,
+    packet_folder: Path,
+    export_zip: Path,
+    copied: list[tuple[str, str]],
+    extra_bundle_files: list[str],
+    bundle_file_count: int,
+    expected_count: int,
+    copied_count: int,
+    exact_user_decision: str,
+    pending_user_decisions: list[str],
+) -> list[Path]:
+    packet_status = (
+        "workstream entry final decision review - Workstream implementation "
+        "remains pending USER approval."
+    )
+    copied_sources = "\n".join(f"- `{source_rel}` -> `{copied_rel}`" for source_rel, copied_rel in copied)
+    pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+    common = (
+        f"Source Branch: `{source_branch}`\n"
+        f"Source HEAD: `{source_head}`\n"
+        f"origin/main: `{origin_main}`\n"
+        f"Packet Decision Status: {packet_status}\n"
+        f"Exact USER Decision: {exact_user_decision}\n"
+    )
+    files: dict[str, str] = {
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": (
+            "# USER Review Folder And File Digest\n\n"
+            f"{common}"
+            f"Folder: `{packet_folder}`\n"
+            f"Zip: `{export_zip}`\n"
+            f"Bundle File Count: {bundle_file_count}\n"
+            f"Expected File Count: {expected_count}\n"
+            f"Copied File Count: {copied_count}\n"
+            f"Extra Bundle File Count: {len(extra_bundle_files)}\n"
+            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Workstream Entry digest/checklist files, and copied source-truth files "
+            "are loaded and digestible for USER review.\n\n"
+            "## Copied Repo Files\n\n"
+            f"{copied_sources}\n"
+        ),
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": (
+            "# Governance Required Files Scan\n\n"
+            f"{common}"
+            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "prebeta roadmap, active branch index, branch record, branch plan, "
+            "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
+            "vision, AI Edition plan, branch-plan README, phase governance, "
+            "development rules, codex modes, validation helper registry, and "
+            "governance inventory review surfaces selected for Stage 2 inspection.\n"
+        ),
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": (
+            "# Workstream Entry Analysis Digest\n\n"
+            f"{common}"
+            "Analysis Status: Stage 2 setup is green; this packet supports "
+            "Workstream Entry final decision review only.\n"
+            "Implementation Posture: Workstream implementation remains pending "
+            "USER approval and is not authorized by this packet.\n\n"
+            "## Pending Gates\n\n"
+            f"{pending}\n"
+        ),
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": (
+            "# Branch Vision Validation Checklist\n\n"
+            f"{common}"
+            "Checklist Status: PASS for Stage 2 packet review - branch identity, "
+            "source HEAD, origin/main, FAM-007 ownership, AI Runtime And Trust "
+            "Architecture placement, backlog taxonomy, product/workstream carrier "
+            "posture, and private/runtime/provider/cache/memory exclusions are "
+            "represented for USER inspection.\n"
+        ),
+    }
+    written: list[Path] = []
+    for name, text in files.items():
+        path = target / name
+        path.write_text(text, encoding="utf-8")
+        written.append(path.resolve())
+    return written
+
+
 def _packet_text_status(text: str) -> str:
     normalized = re.sub(r"\s+", " ", text).casefold()
     implementation_markers = (
@@ -942,6 +1117,8 @@ def _validate_workstream_entry_packet_decision_path(
     require_implementation_ready: bool = False,
 ) -> WorkstreamEntryPacketDecisionPathResult:
     failures: list[str] = []
+    failures.extend(_unresolved_template_placeholder_failures(packet_files))
+    failures.extend(_packet_count_consistency_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if required_file not in packet_files:
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
@@ -1003,10 +1180,10 @@ def validate_workstream_entry_packet_folder(
     require_implementation_ready: bool = False,
 ) -> WorkstreamEntryPacketDecisionPathResult:
     packet_files: dict[str, str] = {}
-    for file_name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
-        path = packet_dir / file_name
-        if path.is_file():
-            packet_files[file_name] = path.read_text(encoding="utf-8")
+    for path in sorted(packet_dir.iterdir()) if packet_dir.exists() else []:
+        if not path.is_file() or path.suffix.lower() not in {".md", ".txt", ".json"}:
+            continue
+        packet_files[path.name] = path.read_text(encoding="utf-8")
     return _validate_workstream_entry_packet_decision_path(
         packet_files,
         expected_branch=expected_branch,
@@ -1088,7 +1265,8 @@ def build_bundle(
         custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
         custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
-    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file}
+    required_digest_paths = {target / name for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES if name != "START_HERE.md"}
+    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file} | required_digest_paths
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
@@ -1107,6 +1285,22 @@ def build_bundle(
             "Public review bundle leak-prevention failed:\n"
             + "\n".join(f"- {failure}" for failure in leak_prevention_failures)
         )
+
+    _write_workstream_entry_packet_digests(
+        target=target,
+        source_branch=source_branch,
+        source_head=source_head,
+        origin_main=origin_main,
+        packet_folder=target,
+        export_zip=export_zip,
+        copied=copied,
+        extra_bundle_files=extra_bundle_files,
+        bundle_file_count=bundle_file_count,
+        expected_count=expected_count,
+        copied_count=copied_count,
+        exact_user_decision=exact_user_decision,
+        pending_user_decisions=pending_user_decisions,
+    )
 
     readme_lines: list[str] = [
         f"# {title}",
@@ -1163,11 +1357,35 @@ def build_bundle(
     for source_rel, copied_rel in copied:
         readme_lines.append(f"| `{source_rel}` | `{copied_rel}` |")
     readme_lines.append("")
+    readme_lines.extend(
+        [
+            "## Machine-Readable Decision Path",
+            "",
+            "Packet Decision Status: workstream entry final decision review - Workstream implementation remains pending USER approval.",
+            f"Source Branch: `{source_branch}`",
+            f"Source HEAD: `{source_head}`",
+            f"origin/main: `{origin_main}`",
+            f"Exact USER Decision: {exact_user_decision}",
+            "",
+        ]
+    )
 
     (target / "START_HERE.md").write_text("\n".join(readme_lines), encoding="utf-8")
-    expected_zip_entries = {
-        path.relative_to(target).as_posix() for path in _bundle_files(target)
+    packet_files = {
+        path.relative_to(target).as_posix(): path.read_text(encoding="utf-8")
+        for path in _bundle_files(target)
+        if path.suffix.lower() in {".md", ".txt", ".json"}
     }
+    artifact_failures = [
+        *_unresolved_template_placeholder_failures(packet_files),
+        *_packet_count_consistency_failures(packet_files),
+    ]
+    if artifact_failures:
+        raise ValueError(
+            "Review bundle artifact validation failed:\n"
+            + "\n".join(f"- {failure}" for failure in artifact_failures)
+        )
+    expected_zip_entries = set(packet_files)
     _write_export_zip(target, export_zip)
     _validate_export_zip(
         export_zip,
