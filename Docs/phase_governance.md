@@ -1094,16 +1094,15 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Planned Base Branch:
 - Planned Head Branch:
 - Planned PR Summary:
-- User-Facing Next Workstream Block:
 - Required Post-Merge Path:
-- Ranked Runtime FAM Candidates:
-- Recommended Next Package:
-- Recommended Next Package USER Waiver:
+- Selected-Next Validation Status:
+- Selected-Next Scope:
+- Branch Readiness Stage 1 Successor Selection Owner:
 - Package-Size / Single-Slice Drift Review:
 - Element Coverage Review:
 - Release-Debt Impact:
 - Release-Debt Handling Status:
-- Selected-Next / No-Release-Debt Handling Status:
+- No-Release-Debt Handling Status:
 - Required Current-Branch Source-Truth Sync:
 - Planned Merge-Target Canon Updates:
 - Origin/Main Freshness Check:
@@ -1116,7 +1115,7 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Reconciliation File List:
 - Reconciliation Recommendation:
 - Reconciliation Mutation Status:
-- Planned Next Branch Block:
+- Optional Next Branch Block:
 - Planned Watcher Provisioning:
 - Planned Validation Commands:
 - Expected Files To Change:
@@ -1136,6 +1135,8 @@ When the response is Stage 1, it must include this packet and stop on `PR Readin
 - Next Legal Phase:
 - Stage 2 Green-Light Decision Needed:
 ```
+
+Selected-next fields in this packet are validation/status fields, not a request for PR Readiness to create successor truth. `Optional Next Branch Block:` must be `Not in scope` unless USER explicitly requested PR-time successor selection, selected-next truth already exists, or Branch Readiness is the next legal phase.
 
 Allowed Stage 1 outcomes are exactly `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. `PR Readiness Stage 1 Repair Required` means bounded current-branch PR-readiness repair/sync remains in Stage 1 before Stage 2. `Current-Branch Branch Readiness Re-entry Required` means the current branch is still the legal carrier, but the fix is broader than PR-readiness sync and must re-enter Branch Readiness on the same branch. `New Carrier Branch Required` means the current branch is stale, merged, invalid, or legally cannot own the blocker, so a new real carrier branch is required. Stage 2 may begin only after `Stage 1 Ready For Stage 2` is recorded and explicit USER approval to enter Stage 2 exists.
 Stage 2 begins only after `Stage 1 Ready For Stage 2` and explicit USER approval.
