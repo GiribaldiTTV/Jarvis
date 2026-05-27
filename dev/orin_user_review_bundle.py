@@ -1,11 +1,12 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=user-review-bundle-helper; status=shared
-"""Create a temporary USER-facing Desktop review bundle from selected repo files.
+r"""Create a temporary USER-facing local review bundle from selected repo files.
 
-This helper copies review files to a stable worktree-labeled folder on the
-user's Desktop so USER review does not depend on manually browsing the
-worktree. The folder/zip is a USER and ChatGPT review aid for current BP1/BP2
-vision/plan approval only; accepted outcomes must fold into source truth rather
-than treating the bundle as durable evidence. It never edits repo files.
+This helper copies review files to the stable local USER hub at C:\Nexus USER so
+USER review does not depend on manually browsing the worktree or on a
+cloud-backed Desktop upload path. The folder/zip is a USER and ChatGPT review
+aid for current BP1/BP2 vision/plan approval only; accepted outcomes must fold
+into source truth rather than treating the bundle as durable evidence. It never
+edits repo files.
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ from typing import Mapping
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_REVIEW_ROOT_NAME = "Nexus USER Review"
+DEFAULT_REVIEW_ROOT_NAME = r"C:\Nexus USER"
 CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
 PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "PASS - copied file list and START_HERE file-list metadata are repo-relative "
@@ -34,9 +35,10 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "source truth for USER inspection."
 )
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
-    "PASS - helper cleared the stable worktree review folder, copied fresh "
-    "source-truth files, wrote START_HERE for this Source HEAD, and atomically "
-    "replaced the stable review zip from that refreshed folder."
+    "PASS - helper quarantined or cleared the previous matched local USER hub "
+    "folder/zip pair, proved the stable paths absent before regeneration, copied "
+    "fresh source-truth files, wrote START_HERE for this Source HEAD, and "
+    "atomically replaced the stable review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
@@ -146,12 +148,22 @@ class WorkstreamEntryPacketDecisionPathResult:
         }
 
 
-def _desktop_path() -> Path:
-    home = Path.home()
-    onedrive_desktop = home / "OneDrive" / "Desktop"
-    if onedrive_desktop.is_dir():
-        return onedrive_desktop
-    return home / "Desktop"
+def _default_review_root() -> Path:
+    return Path(DEFAULT_REVIEW_ROOT_NAME)
+
+
+def _review_root_path(review_root_name: str) -> Path:
+    path = Path(review_root_name)
+    if not path.is_absolute():
+        raise ValueError(
+            "Review root must be an absolute local path. The approved active USER hub is "
+            f"{DEFAULT_REVIEW_ROOT_NAME}."
+        )
+    return path.resolve()
+
+
+def _same_path(left: Path, right: Path) -> bool:
+    return os.path.normcase(str(left.resolve())) == os.path.normcase(str(right.resolve()))
 
 
 def _sanitize_folder_name(name: str) -> str:
@@ -168,14 +180,11 @@ def _worktree_label(explicit_label: str | None) -> str:
     return _sanitize_folder_name(ROOT.name)
 
 
-def _safe_target(desktop: Path, review_root_name: str, worktree_label: str) -> tuple[Path, Path]:
-    review_root = (desktop / _sanitize_folder_name(review_root_name)).resolve()
+def _safe_target(review_root_name: str, worktree_label: str) -> tuple[Path, Path]:
+    review_root = _review_root_path(review_root_name)
     target = (review_root / _sanitize_folder_name(worktree_label)).resolve()
-    desktop_resolved = desktop.resolve()
-    if review_root == desktop_resolved or desktop_resolved not in review_root.parents:
-        raise ValueError(f"Refusing to write review root outside Desktop: {review_root}")
     if target == review_root or review_root not in target.parents:
-        raise ValueError(f"Refusing to write outside Desktop: {target}")
+        raise ValueError(f"Refusing to write outside USER hub: {target}")
     return review_root, target
 
 
@@ -189,6 +198,37 @@ def _clear_target(target: Path) -> None:
         shutil.rmtree(target, onexc=_clear_readonly)
     except TypeError:
         shutil.rmtree(target, onerror=_clear_readonly)
+
+
+def _quarantine_existing_pair(
+    *,
+    review_root: Path,
+    target: Path,
+    export_zip: Path,
+    label: str,
+) -> Path | None:
+    """Move the old matched folder/zip pair out of stable paths before rebuild."""
+
+    existing = [path for path in (target, export_zip) if path.exists()]
+    if not existing:
+        return None
+
+    stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    quarantine_root = review_root / "_quarantine" / f"{_sanitize_folder_name(label)}_{stamp}"
+    quarantine_root.mkdir(parents=True, exist_ok=False)
+
+    if target.exists():
+        shutil.move(str(target), str(quarantine_root / target.name))
+    if export_zip.exists():
+        shutil.move(str(export_zip), str(quarantine_root / export_zip.name))
+
+    still_present = [str(path) for path in (target, export_zip) if path.exists()]
+    if still_present:
+        raise ValueError(
+            "Review hub cleanup failed; stable matched-pair paths still exist: "
+            + ", ".join(still_present)
+        )
+    return quarantine_root
 
 
 def _flat_copy_name(relative_file: str) -> str:
@@ -1087,7 +1127,7 @@ def _write_user_branch_vision_review(
         "",
         "## End-State Vision",
         "",
-        "The accepted branch vision, USER constraints, and decisions should be folded into the proper source-truth owner. The Desktop review folder may then be replaced or discarded because it is only the review aid.",
+        "The accepted branch vision, USER constraints, and decisions should be folded into the proper source-truth owner. The local USER hub review folder may then be replaced or discarded because it is only the review aid.",
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
@@ -1293,22 +1333,26 @@ def build_bundle(
     codex_response_digest: str | None = None,
     workstream_entry_result: str | None = None,
 ) -> tuple[Path, Path]:
-    custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
-    custom_label = worktree_label is not None
+    custom_root = not _same_path(_review_root_path(review_root_name), _default_review_root())
+    custom_label = worktree_label is not None and _worktree_label(worktree_label) != _worktree_label(None)
     if (custom_root or custom_label) and not allow_custom_review_path:
         raise ValueError(
             "Custom review paths are blocked by default. Use the stable "
-            "Nexus USER Review/<worktree-label> destination, or pass "
+            r"C:\Nexus USER\<worktree-label> destination, or pass "
             "--allow-custom-review-path with --custom-review-path-reason."
         )
     if allow_custom_review_path and not custom_review_path_reason:
         raise ValueError("--custom-review-path-reason is required with --allow-custom-review-path")
 
-    desktop = _desktop_path()
     label = _worktree_label(worktree_label)
-    review_root, target = _safe_target(desktop, review_root_name, label)
-    if target.exists():
-        _clear_target(target)
+    review_root, target = _safe_target(review_root_name, label)
+    export_zip = _export_zip_path(review_root, label)
+    quarantine_path = _quarantine_existing_pair(
+        review_root=review_root,
+        target=target,
+        export_zip=export_zip,
+        label=label,
+    )
     target.mkdir(parents=True, exist_ok=True)
 
     copied = [
@@ -1329,7 +1373,6 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    export_zip = _export_zip_path(review_root, label)
     user_review_file = _write_user_branch_plan_review(
         target=target,
         title=title,
@@ -1388,6 +1431,7 @@ def build_bundle(
         "",
         f"Review Purpose: {review_purpose}",
         "Temporary USER/ChatGPT Review Aid: This folder is for reviewing the current Branch Vision and Branch Plan only. It is not canon, not durable evidence, not a posterity archive, and not a later-phase report.",
+        r"Active USER Hub: C:\Nexus USER is the active local USER-facing review and upload hub. Read the label folder and upload the sibling label ZIP.",
         "Source-Truth Fold-In: Accepted USER outcomes, constraints, and decisions must be folded into the proper durable source-truth owner before implementation proceeds.",
         "Technical Proof Location: Helper output, validator output, Codex chat digest, or external governance state carry active-state proof details.",
         f"Review Label: `{label}`",
@@ -1423,6 +1467,8 @@ def build_bundle(
         origin_main=origin_main,
         expected_entries=expected_zip_entries,
     )
+    if quarantine_path:
+        print(f"Previous matched pair quarantine: {quarantine_path}")
     return target, export_zip
 
 
@@ -1431,7 +1477,7 @@ def main() -> int:
     parser.add_argument(
         "--review-root-name",
         default=DEFAULT_REVIEW_ROOT_NAME,
-        help="Stable Desktop review root folder name. Custom values require --allow-custom-review-path.",
+        help=r"Stable local USER hub root path. Defaults to C:\Nexus USER. Custom values require --allow-custom-review-path.",
     )
     parser.add_argument(
         "--worktree-label",
@@ -1458,7 +1504,7 @@ def main() -> int:
     parser.add_argument(
         "--clear",
         action="store_true",
-        help="Legacy compatibility flag; the helper always clears the Desktop bundle folder before copying.",
+        help="Legacy compatibility flag; the helper always quarantines the matched folder/zip pair before copying.",
     )
     parser.add_argument("--review-purpose", help="Why USER is reviewing this bundle.")
     parser.add_argument("--validation-summary", help="Validation proof or status supporting the review bundle.")
@@ -1507,7 +1553,7 @@ def main() -> int:
     parser.add_argument(
         "--validate-workstream-entry-packet",
         type=Path,
-        help="Validate an existing Workstream Entry Desktop packet decision path.",
+        help="Validate an existing Workstream Entry USER hub packet decision path.",
     )
     parser.add_argument("--expected-branch", help="Expected source branch for Workstream Entry packet validation.")
     parser.add_argument("--expected-head", help="Expected source HEAD for Workstream Entry packet validation.")
@@ -1517,7 +1563,7 @@ def main() -> int:
         action="store_true",
         help="Fail if the packet is branch-correct but still blocks Workstream implementation approval.",
     )
-    parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the Desktop review bundle.")
+    parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the local USER hub review bundle.")
     args = parser.parse_args()
 
     if args.validate_workstream_entry_packet:
@@ -1573,6 +1619,7 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
+    print(f"Upload this file: {export_zip}")
     print(f"Review export zip SHA256: {_sha256(export_zip)}")
     print(f"Source Branch: {_git_output('branch', '--show-current')}")
     print(f"Source HEAD: {_git_output('rev-parse', 'HEAD')}")

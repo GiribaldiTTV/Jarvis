@@ -4880,14 +4880,14 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/development_rules.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
+        "USER Review Hub Bundle",
         "Docs/branch_plans/<branch_slug>.md",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
     ),
     Path("Docs/codex_modes.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
+        "USER Review Hub Bundle",
         "Branch Runtime Engineering Plan Path:",
         "Engineering Plan Status:",
         "PR Fold-Down Packet:",
@@ -4902,7 +4902,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
+        "USER Review Hub Bundle",
         "Docs/branch_plans/<branch_slug>.md",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
@@ -6642,7 +6642,7 @@ BRANCH_PLANNING_REFORM_REQUIRED_PHRASES = {
         "Technical proof metadata belongs in helper output",
         "Workstream is runtime/code implementation and code-level validation only",
         "SLCs divide work inside a branch",
-        "Nexus USER Review\\<worktree-label>",
+        "C:\\Nexus USER\\<worktree-label>",
     ),
     Path("Docs/branch_plans/README.md"): (
         "USER Branch Vision Review Gate",
@@ -6677,6 +6677,7 @@ BRANCH_PLANNING_REFORM_REQUIRED_PHRASES = {
         "`USER_BRANCH_VISION_REVIEW.md` is the BP1 Branch Vision Contract",
         "`USER_BRANCH_PLAN_REVIEW.md` is the BP2 engineering plan",
         "USER review bundles are temporary USER/ChatGPT review aids only",
+        "C:\\Nexus USER\\<worktree-label>",
         "`START_HERE.md` as a plain-language index",
         "reject BP3 when it returns Workstream or SLC implementation approval while BP1 or BP2 is pending",
     ),
@@ -9669,12 +9670,13 @@ def _validate_user_branch_plan_review_gate(
         _extract_marker_value(gate_section, "Desktop Review Bundle:")
     )
     require(
-        "nexus user review" in desktop_bundle
+        "c:\\nexus user" in desktop_bundle
+        or "nexus user review" in desktop_bundle
         or "desktop" in desktop_bundle
         or "not required" in desktop_bundle,
         (
             f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Desktop Review "
-            "Bundle must name the stable Desktop review bundle or a not-required reason"
+            "Bundle must name the stable USER review bundle or a not-required reason"
         ),
     )
     review_packet_finding = _extract_marker_value(gate_section, "USER Review Packet Finding:")

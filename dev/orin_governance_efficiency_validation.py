@@ -36,7 +36,7 @@ REQUIRED_MODEL_PHRASES = (
     "Vision-To-Plan Interaction Loop",
     "USER Feedback Disposition Model",
     "USER Review Integration Decisions",
-    "USER Review Desktop Bundle Rule",
+    "USER Review Hub Bundle Rule",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
     "Public Language Mapping",
@@ -52,7 +52,7 @@ POINTER_REQUIREMENTS = {
         "governance efficiency operating model",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "USER Review Desktop Bundle Rule",
+        "USER Review Hub Bundle Rule",
     ),
     Path("Docs/phase_governance.md"): (
         "Docs/governance_efficiency_operating_model.md",
@@ -224,6 +224,7 @@ EXPECTED_PENDING_FOLD_SOURCE_FILES = (
 USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
     "Review Purpose:",
     "Temporary USER/ChatGPT Review Aid:",
+    "Active USER Hub:",
     "Source-Truth Fold-In:",
     "Technical Proof Location:",
     "Review Order",
@@ -237,6 +238,7 @@ USER_REVIEW_BUNDLE_HELPER_OUTPUT_FIELDS = (
     "origin/main:",
     "Review export zip:",
     "Review export zip SHA256:",
+    "Upload this file:",
 )
 
 WORKSTREAM_INDEX_REQUIRED = (
@@ -436,17 +438,17 @@ def validate() -> list[str]:
                 failures.append(
                     f"{OPERATING_MODEL}: missing required section or phrase {phrase!r}"
                 )
-        desktop_bundle_section = _section(model_text, "## USER Review Desktop Bundle Rule")
+        desktop_bundle_section = _section(model_text, "## USER Review Hub Bundle Rule")
         for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
             if phrase not in desktop_bundle_section:
                 failures.append(
-                    f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
+                    f"{OPERATING_MODEL}: USER Review Hub Bundle Rule missing "
                     f"required START_HERE plain-index field {phrase!r}"
                 )
         for phrase in USER_REVIEW_BUNDLE_HELPER_OUTPUT_FIELDS:
             if phrase not in desktop_bundle_section:
                 failures.append(
-                    f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
+                    f"{OPERATING_MODEL}: USER Review Hub Bundle Rule missing "
                     f"required helper-output proof field {phrase!r}"
                 )
 

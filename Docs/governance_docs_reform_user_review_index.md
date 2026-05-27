@@ -145,7 +145,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 | File | Ambiguity Risk | Signals | Action |
 | --- | --- | --- | --- |
-| `Docs/Main.md` | High | `volatile-current-wording=335`; `unclear-ownership-wording=154`; `soft-commitment-wording=60`; `state-ledger-wording=218` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/Main.md` | High | `volatile-current-wording=336`; `unclear-ownership-wording=154`; `soft-commitment-wording=60`; `state-ledger-wording=218` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ai_runtime_and_trust_architecture.md` | High | `volatile-current-wording=10`; `unclear-ownership-wording=13`; `soft-commitment-wording=35`; `state-ledger-wording=34` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/README.md` | High | `volatile-current-wording=68`; `unclear-ownership-wording=68`; `soft-commitment-wording=18`; `state-ledger-wording=86` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | High | `volatile-current-wording=30`; `unclear-ownership-wording=18`; `soft-commitment-wording=4`; `state-ledger-wording=52` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
