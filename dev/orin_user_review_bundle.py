@@ -510,11 +510,17 @@ def _write_user_branch_plan_review(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     copied: list[tuple[str, str]],
+    contract_status_override: str | None = None,
+    contract_version_override: str | None = None,
+    user_response_override: str | None = None,
+    codex_response_digest_override: str | None = None,
+    workstream_entry_result_override: str | None = None,
 ) -> Path:
     is_active_overlay_recording = any(
         "active_overlay_recording_runtime_foundation" in source_rel
         for source_rel, _copied_rel in copied
     )
+    is_pr_readiness_review = "pr readiness stage 1" in exact_user_decision.casefold()
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
@@ -722,7 +728,11 @@ def _write_user_branch_plan_review(
         accepted_user_response = None
         codex_response_digest = None
         workstream_entry_result = None
-        contract_status = "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
+        contract_status = (
+            "Complete - this review packet supports PR Readiness Stage 1 and does not request Workstream implementation."
+            if is_pr_readiness_review
+            else "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
+        )
         contract_version = "v1 - Generated BP2 USER Branch Plan Contract."
         what_user_sees = "USER should see how the engineering plan builds the accepted or waived BP1 branch vision, including planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
         why_nexus = "The recommendation should explain how the engineering route aligns with the project vision, accepted branch vision, safe branch size, and user-facing clarity."
@@ -753,10 +763,41 @@ def _write_user_branch_plan_review(
             "Contract Status after digest.",
             "Next USER decision needed.",
         ]
-        implementation_constraints = ["Pending USER response or explicit waiver."]
-        rejected_deferred = ["Pending USER response or explicit waiver."]
-        source_truth_impact = ["Pending USER response or explicit waiver."]
-        contract_change_log = ["v1 - Generated BP2 USER Branch Plan Contract."]
+        if is_pr_readiness_review:
+            accepted_user_response = (
+                "Status: Complete for this non-Workstream review packet - USER approved "
+                "bounded decision-state repair before PR Readiness Stage 1."
+            )
+            codex_response_digest = (
+                "Status: Complete - Codex aligned USER_BRANCH_PLAN_REVIEW.md with "
+                "START_HERE.md so both support PR Readiness Stage 1 while preserving "
+                "Workstream implementation as a pending USER decision."
+            )
+            workstream_entry_result = (
+                "Not applicable - this packet is not asking for Workstream implementation; "
+                "the next legal USER decision is PR Readiness Stage 1 analysis."
+            )
+            implementation_constraints = [
+                "This packet may support PR Readiness Stage 1 only.",
+                "It must not approve Workstream implementation, runtime mutation, PR creation, merge, release execution, or unrelated branch mutation.",
+                "If PR Readiness Stage 1 finds a blocker, the blocker routes through the owning phase instead of being hidden by this packet status.",
+            ]
+            rejected_deferred = [
+                "Deferred: PR creation, merge to main, release execution, runtime implementation, FAM mutation, issue mutation, branch cleanup/deletion, sidecar artifacts, and uniquely named ZIP artifacts.",
+            ]
+            source_truth_impact = [
+                "Review bundle helper: supports explicit source-truth-backed decision-state text for non-Workstream PR Readiness packets.",
+                "Validation helper registry: records that USER_BRANCH_PLAN_REVIEW.md and START_HERE.md must agree on the next legal decision.",
+            ]
+        else:
+            implementation_constraints = ["Pending USER response or explicit waiver."]
+            rejected_deferred = ["Pending USER response or explicit waiver."]
+            source_truth_impact = ["Pending USER response or explicit waiver."]
+        contract_change_log = (
+            ["v1 - Generated PR Readiness review packet with coherent non-Workstream decision state."]
+            if is_pr_readiness_review
+            else ["v1 - Generated BP2 USER Branch Plan Contract."]
+        )
         completion_checklist = [
             "Contract Status is Complete or Waived by USER.",
             "USER response is present, attached, or explicitly waived.",
@@ -769,16 +810,29 @@ def _write_user_branch_plan_review(
             "Workstream Entry Result is present only after response/digest or waiver.",
             "Exact implementation approval text cites completed or waived contract status.",
         ]
-        plain_english_summary = (
-            "This BP2 branch-plan review summarizes the engineering plan derived "
-            "from the accepted or waived BP1 branch vision before BP3 / Workstream "
-            "Entry validates orchestration."
-        )
-        end_state_vision = (
-            "When the branch is complete, USER should understand what visible/runtime behavior "
-            "will exist, which surfaces are affected, and which future-gated items remain outside "
-            "the branch before implementation begins."
-        )
+        if is_pr_readiness_review:
+            plain_english_summary = (
+                "This review packet summarizes the completed governance reform and verifies "
+                "that the packet's decision state supports PR Readiness Stage 1, not "
+                "Workstream implementation."
+            )
+            end_state_vision = (
+                "When this repair is complete, START_HERE.md and USER_BRANCH_PLAN_REVIEW.md "
+                "agree that the next legal USER decision is PR Readiness Stage 1 analysis, "
+                "while PR creation, merge, release, runtime implementation, and unrelated "
+                "branch mutation remain future-gated."
+            )
+        else:
+            plain_english_summary = (
+                "This BP2 branch-plan review summarizes the engineering plan derived "
+                "from the accepted or waived BP1 branch vision before BP3 / Workstream "
+                "Entry validates orchestration."
+            )
+            end_state_vision = (
+                "When the branch is complete, USER should understand what visible/runtime behavior "
+                "will exist, which surfaces are affected, and which future-gated items remain outside "
+                "the branch before implementation begins."
+            )
         walkthrough = [
             "Review the active branch plan to understand the intended user-facing result.",
             "Review the branch authority record to confirm identity and legal next phase.",
@@ -798,21 +852,53 @@ def _write_user_branch_plan_review(
             "implementation package, surface map, options, proof path, and pending boundaries "
             "are understandable enough for USER to decide whether BP3 may validate orchestration."
         )
-        current_scope = [
-            "Confirm the branch outcome and admitted package.",
-            "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
-        ]
-        future_scope = [
-            "Any item not explicitly admitted by the active branch plan remains future-gated.",
-        ]
+        if is_pr_readiness_review:
+            current_scope = [
+                "Confirm the completed governance/source-truth/helper/validator reform packet is ready for PR Readiness Stage 1 analysis.",
+                "Confirm packet decision-state wording is coherent across START_HERE.md and USER_BRANCH_PLAN_REVIEW.md.",
+                "Confirm the stable review artifact model remains worktree-label folder plus worktree-label zip only.",
+            ]
+            future_scope = [
+                "PR creation, merge to main, release execution, runtime implementation, FAM mutation, issue mutation, branch cleanup/deletion, sidecar artifacts, and uniquely named ZIP artifacts remain future-gated.",
+            ]
+        else:
+            current_scope = [
+                "Confirm the branch outcome and admitted package.",
+                "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
+            ]
+            future_scope = [
+                "Any item not explicitly admitted by the active branch plan remains future-gated.",
+            ]
         slc_package_plan = [
             "Implementation staging must support the accepted BP1 end-state; seam/slice/SLC details are BP2 engineering scaffolding, not the primary BP1 USER decision surface.",
         ]
-        user_decisions = [
-            "Does USER accept that this BP2 engineering plan builds the accepted or waived BP1 branch vision?",
-            "Does USER want to revise any implementation route, proof expectation, workflow detail, or future-gated boundary before BP3?",
-            "Does USER waive any unanswered BP1/BP2 question, or should BP3 and implementation remain blocked until it is answered?",
-        ]
+        if is_pr_readiness_review:
+            user_decisions = [
+                "Does USER approve PR Readiness Stage 1 analysis for this governance reform branch?",
+                "Does USER want a revision before PR Readiness Stage 1?",
+                "Does USER agree this packet does not approve Workstream implementation, PR creation, merge, or release execution?",
+            ]
+        else:
+            user_decisions = [
+                "Does USER accept that this BP2 engineering plan builds the accepted or waived BP1 branch vision?",
+                "Does USER want to revise any implementation route, proof expectation, workflow detail, or future-gated boundary before BP3?",
+                "Does USER waive any unanswered BP1/BP2 question, or should BP3 and implementation remain blocked until it is answered?",
+            ]
+    if contract_status_override:
+        contract_status = contract_status_override
+    if contract_version_override:
+        contract_version = contract_version_override
+    if user_response_override:
+        accepted_user_response = user_response_override
+    if codex_response_digest_override:
+        codex_response_digest = codex_response_digest_override
+    if workstream_entry_result_override:
+        workstream_entry_result = workstream_entry_result_override
+    review_contract_sentence = (
+        "This file is the USER-facing plan/decision review for a non-Workstream PR Readiness packet; it should help USER answer whether PR Readiness Stage 1 may analyze this completed governance reform."
+        if is_pr_readiness_review
+        else "This file is the BP2 USER Branch Plan Contract. It should help USER answer: Does this engineering plan correctly build the accepted or waived BP1 branch vision?"
+    )
     lines = [
         f"# USER Branch Plan Review - {title}",
         "",
@@ -828,7 +914,7 @@ def _write_user_branch_plan_review(
         "",
         plain_english_summary,
         "",
-        "This file is the BP2 USER Branch Plan Contract. It should help USER answer: Does this engineering plan correctly build the accepted or waived BP1 branch vision?",
+        review_contract_sentence,
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
@@ -1121,6 +1207,11 @@ def build_bundle(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     expected_file_count: int | None,
+    contract_status: str | None = None,
+    contract_version: str | None = None,
+    user_response: str | None = None,
+    codex_response_digest: str | None = None,
+    workstream_entry_result: str | None = None,
 ) -> tuple[Path, Path]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
@@ -1170,6 +1261,11 @@ def build_bundle(
         exact_user_decision=exact_user_decision,
         pending_user_decisions=pending_user_decisions,
         copied=copied,
+        contract_status_override=contract_status,
+        contract_version_override=contract_version,
+        user_response_override=user_response,
+        codex_response_digest_override=codex_response_digest,
+        workstream_entry_result_override=workstream_entry_result,
     )
     if allow_custom_review_path:
         custom_review_path_waiver = "Granted"
@@ -1306,6 +1402,30 @@ def main() -> int:
     parser.add_argument("--review-purpose", help="Why USER is reviewing this bundle.")
     parser.add_argument("--validation-summary", help="Validation proof or status supporting the review bundle.")
     parser.add_argument(
+        "--contract-status",
+        help=(
+            "Override USER_BRANCH_PLAN_REVIEW.md Contract Status for a packet whose "
+            "decision state has already been accepted, waived, or otherwise resolved "
+            "by source truth."
+        ),
+    )
+    parser.add_argument(
+        "--contract-version",
+        help="Override USER_BRANCH_PLAN_REVIEW.md Contract Version / Revision.",
+    )
+    parser.add_argument(
+        "--user-response",
+        help="Override USER_BRANCH_PLAN_REVIEW.md USER Response section text.",
+    )
+    parser.add_argument(
+        "--codex-response-digest",
+        help="Override USER_BRANCH_PLAN_REVIEW.md Codex Response Digest section text.",
+    )
+    parser.add_argument(
+        "--workstream-entry-result",
+        help="Override USER_BRANCH_PLAN_REVIEW.md Workstream Entry Result section text.",
+    )
+    parser.add_argument(
         "--review-order",
         action="append",
         default=[],
@@ -1384,6 +1504,11 @@ def main() -> int:
         exact_user_decision=args.exact_user_decision,
         pending_user_decisions=args.pending_user_decision,
         expected_file_count=args.expected_file_count,
+        contract_status=args.contract_status,
+        contract_version=args.contract_version,
+        user_response=args.user_response,
+        codex_response_digest=args.codex_response_digest,
+        workstream_entry_result=args.workstream_entry_result,
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
