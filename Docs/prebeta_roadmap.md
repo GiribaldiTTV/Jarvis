@@ -73,13 +73,13 @@ Cross-family AI-native runtime/trust architecture, including permission-state, d
 | `FAM-004` Voice and Audio | released voice/audio direction and diagnostics evidence; future voice package remains open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` External Integrations | architecture/planning evidence exists; implementation remains future | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
 | `FAM-006` Monitoring and HUD | durable planning and release receipts preserved; future recording runtime remains USER-gated | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` |
-| `FAM-007` Local AI and Capability Packs | local AI readiness history preserved; future private Dev/Owner, backup/recovery, provider/model execution, and release work remain USER-gated | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` |
+| `FAM-007` Local AI and Capability Packs | local AI readiness history preserved; Breakpoint 2 Dev/Owner skeleton action-gate readiness is the current durable branch evidence pointer while private Dev/Owner, backup/recovery, provider/model execution, and release work remain USER-gated | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` |
 | `FAM-008` Packaging and Install Experience | future install/package milestone | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 
 ## Future Planning Pointers
 
-FAM-007 Future Planning Evidence: `FAM-007 Local AI and Capability Packs - Breakpoint 2 private Dev/Owner skeleton setup decision` remains durable planning context for the existing FAM-007 family.
-FAM-007 Branch Evidence Pointer: `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`
+FAM-007 Future Planning Evidence: `FAM-007 Local AI and Capability Packs - Breakpoint 2 private Dev/Owner skeleton setup decision` remains durable planning context for the existing FAM-007 family and is now routed through the Breakpoint 2 action-gate readiness branch record/plan.
+FAM-007 Branch Evidence Pointer: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
 Pointer State: Registry-only durable evidence.
 Minimal Scope: FAM-007 runtime action-gate planning slice for private Dev/Owner skeleton setup decision, private remote safety, and public/private boundary handoff, with provider/model/runtime/cache/memory execution still USER-gated.
 Operational State Owner: `C:\Nexus Governance State` plus Git/GitHub/helper live checks own branch creation, active/complete status, PR state, review state, watcher state, release-window posture, and worktree posture.
