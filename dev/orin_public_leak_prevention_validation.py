@@ -184,14 +184,16 @@ REQUIRED_BREAKPOINT2_PLAN_PHRASES = (
     "Seam 4 Provider/Model/Runtime/Cache/Memory Deferral And Local-Only Handoff Proof: `Implemented - provider/runtime/cache/memory remains blocked`",
     "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2RemainingWorkstreamReadiness`",
     "Workstream Green Candidate: `YES - all admitted Breakpoint 2 seams have direct validator and fixture proof`",
-    "Next Legal Phase: `Hardening`",
     "Hardening H1 Result: `Green - H1 compared Seams 1 through 4",
     "H1 Drift Found: `YES - older duplicate ledger wording still described Seams 2 through 4 as planned or pending Workstream approval.`",
     "H1 Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py rejects stale Breakpoint 2 Workstream-pending ledger phrases after H1.`",
-    "Next Legal Phase: `Live Validation`",
-    "Exact Next USER Decision Needed: `Approve bounded Live Validation LV1/no-visible-runtime proof",
+    "Live Validation LV1 Result: `Green - no visible runtime surface changed",
+    "User Test Summary Results: `WAIVED`",
+    "User-Facing Shortcut Validation: `WAIVED`",
+    "No-Visible-Runtime Proof: `PASS - changed surfaces are source-truth/fixture/validator/helper/packet/external-state only.`",
+    "Next Legal Phase: `PR Readiness`",
+    "Exact Next USER Decision Needed: `Approve bounded PR Readiness Stage 1 analysis",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
-    "Exact Next USER Decision Needed: `Approve bounded Hardening H1",
 )
 
 REQUIRED_BREAKPOINT2_RECORD_PHRASES = (
@@ -208,14 +210,16 @@ REQUIRED_BREAKPOINT2_RECORD_PHRASES = (
     "Backlog Completion State: Implemented Complete Except Future Dependency",
     "Completion Status: Green",
     "Continue Decision: Stop",
-    "Next Legal Phase: `Hardening`",
     "Hardening H1 Result: `Green - H1 compared Seams 1 through 4",
     "H1 Drift Found: `YES - older duplicate ledger wording still described Seams 2 through 4 as planned or pending Workstream approval.`",
     "H1 Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py rejects stale Breakpoint 2 Workstream-pending ledger phrases after H1.`",
-    "Next Legal Phase: `Live Validation`",
-    "Exact Next USER Decision Needed: `Approve bounded Live Validation LV1/no-visible-runtime proof",
+    "Live Validation LV1 Result: `Green - no visible runtime surface changed",
+    "User Test Summary Results: `WAIVED`",
+    "User-Facing Shortcut Validation: `WAIVED`",
+    "No-Visible-Runtime Proof: `PASS - changed surfaces are source-truth/fixture/validator/helper/packet/external-state only.`",
+    "Next Legal Phase: `PR Readiness`",
+    "Exact Next USER Decision Needed: `Approve bounded PR Readiness Stage 1 analysis",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
-    "Exact Next USER Decision Needed: `Approve bounded Hardening H1",
 )
 
 BREAKPOINT2_STALE_WORKSTREAM_PHRASES = (
@@ -231,6 +235,14 @@ BREAKPOINT2_STALE_WORKSTREAM_PHRASES = (
     "Hardening H1 remains blocked until USER approval",
     "Hardening H1 approval is pending USER decision",
     "Hardening H1 is blocked until USER approves",
+    "Live Validation LV1 remains pending USER approval",
+    "Live Validation LV1 remains blocked pending exact USER approval",
+    "Live Validation LV1 remains blocked until USER approval",
+    "Live Validation LV1 approval is pending USER decision",
+    "Approve bounded Live Validation LV1/no-visible-runtime proof",
+    "Approve bounded Hardening H1",
+    "Next Legal Phase: `Hardening`",
+    "Next Legal Phase: `Live Validation`",
 )
 
 REQUIRED_REGISTRY_PHRASES = (
@@ -486,6 +498,7 @@ def _validate_required_source_truth(failures: list[str]) -> None:
         "WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES",
         "_validate_workstream_entry_packet_decision_path",
         "validate_workstream_entry_packet_folder",
+        "DECISION_STATUS_LIVE_VALIDATION_REVIEW",
     ):
         _require(phrase in helper, failures, f"{REVIEW_BUNDLE_HELPER}: missing {phrase!r}")
 
@@ -1377,6 +1390,7 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
         "chat-only-decision-missing-packet-evidence",
         "unresolved-template-placeholder",
         "packet-count-mismatch",
+        "branch-correct-live-validation-review",
     ):
         _require(required_case in seen_cases, failures, f"packet decision canaries missing {required_case}")
 
