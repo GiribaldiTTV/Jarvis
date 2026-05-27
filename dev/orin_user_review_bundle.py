@@ -9,6 +9,7 @@ worktree. It never edits repo files.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import shutil
@@ -38,6 +39,7 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "active branch record/plan identity against START_HERE."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
+UPLOAD_THIS_ZIP_FILE = "UPLOAD_THIS_ZIP.md"
 FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH = (
     "feature/fam-006-active-overlay-recording-runtime-implementation"
 )
@@ -58,6 +60,9 @@ ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES = (
     "future runtime implementation carrier",
     "future user-approved carrier",
     "future user-approved implementation carrier",
+    "later runtime carrier",
+    "workstream is skipped",
+    "planning/governance branch",
 )
 
 
@@ -367,6 +372,14 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
         raise
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest().upper()
+
+
 def _validate_export_zip(
     export_zip: Path,
     *,
@@ -402,6 +415,11 @@ def _validate_export_zip(
         raise ValueError(
             "Review export zip file-list guard failed: "
             f"missing={missing or 'none'} extra={extra or 'none'}"
+        )
+    if UPLOAD_THIS_ZIP_FILE in entries:
+        raise ValueError(
+            "Review export zip simplified stable-model guard failed: "
+            f"{UPLOAD_THIS_ZIP_FILE} must be absent"
         )
     if f"Source Branch: `{source_branch}`" not in start_here:
         raise ValueError(
@@ -1425,6 +1443,7 @@ def build_bundle(
         f"Merge Base: `{merge_base}`",
         f"Review Export Zip: `{export_zip}`",
         f"Review Export Zip Source HEAD: `{source_head}`",
+        "Review Export Zip SHA256: `Reported by helper stdout after final stable zip replacement`",
         "Review Cleanup Mode: `Governed quarantine`",
         f"Review Cleanup Quarantine Root: `{quarantine_root}`",
         f"Review Folder Quarantine Path: `{folder_quarantine_path}`",
@@ -1604,6 +1623,7 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
+    print(f"Review export zip SHA256: {_sha256_file(export_zip)}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
