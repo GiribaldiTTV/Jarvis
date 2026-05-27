@@ -178,8 +178,15 @@ REQUIRED_BREAKPOINT2_PLAN_PHRASES = (
     "Seam 1 Status: `Implemented - public-safe action-gate registry and exact USER decision proof only`",
     "Action-Gate Registry Proof: `Implemented - every Breakpoint 2 gated action remains pending USER decision`",
     "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2Seam1ActionGateRegistry`",
+    "Remaining Workstream Seam Group Implementation Receipt",
+    "Seam 2 Private/Public Boundary And Private Remote Safety Proof: `Implemented - public-safe metadata and private remote safety proof only`",
+    "Seam 3 Backup/Recovery And Public-To-Dev Import Planning Proof: `Implemented - planning-only gate proof`",
+    "Seam 4 Provider/Model/Runtime/Cache/Memory Deferral And Local-Only Handoff Proof: `Implemented - provider/runtime/cache/memory remains blocked`",
+    "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2RemainingWorkstreamReadiness`",
+    "Workstream Green Candidate: `YES - all admitted Breakpoint 2 seams have direct validator and fixture proof`",
+    "Next Legal Phase: `Hardening`",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
-    "Exact Next USER Decision Needed: `Approve or revise Seam 2",
+    "Exact Next USER Decision Needed: `Approve bounded Hardening H1",
 )
 
 REQUIRED_BREAKPOINT2_RECORD_PHRASES = (
@@ -187,8 +194,18 @@ REQUIRED_BREAKPOINT2_RECORD_PHRASES = (
     "Seam 1 Status: `Implemented - public-safe action-gate registry and exact USER decision proof only`",
     "Action-Gate Registry Proof: `Implemented - every Breakpoint 2 gated action remains pending USER decision`",
     "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2Seam1ActionGateRegistry`",
+    "Remaining Workstream Seam Group Implementation Receipt",
+    "Seam 2 Private/Public Boundary And Private Remote Safety Proof: `Implemented - public-safe metadata and private remote safety proof only`",
+    "Seam 3 Backup/Recovery And Public-To-Dev Import Planning Proof: `Implemented - planning-only gate proof`",
+    "Seam 4 Provider/Model/Runtime/Cache/Memory Deferral And Local-Only Handoff Proof: `Implemented - provider/runtime/cache/memory remains blocked`",
+    "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2RemainingWorkstreamReadiness`",
+    "Workstream Green Candidate: `YES - all admitted Breakpoint 2 seams have direct validator and fixture proof`",
+    "Backlog Completion State: Implemented Complete Except Future Dependency",
+    "Completion Status: Green",
+    "Continue Decision: Stop",
+    "Next Legal Phase: `Hardening`",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
-    "Exact Next USER Decision Needed: `Approve or revise Seam 2",
+    "Exact Next USER Decision Needed: `Approve bounded Hardening H1",
 )
 
 REQUIRED_REGISTRY_PHRASES = (
@@ -209,6 +226,8 @@ REQUIRED_REGISTRY_PHRASES = (
     "Options 1 through 4",
     "AI Operational Cache Governance readiness",
     "Breakpoint 2 Seam 1 action-gate registry proof",
+    "Breakpoint 2 remaining Workstream readiness proof",
+    "private/public boundary and private remote safety proof",
     "exact USER decision proof",
 )
 
@@ -1140,6 +1159,109 @@ def _validate_breakpoint2_seam1_action_gate_registry(fixture_set: dict[str, Any]
         _require(phrase in next_decision, failures, f"Breakpoint 2 Seam 1 exact next USER decision missing {phrase!r}")
 
 
+def _validate_breakpoint2_remaining_workstream_readiness(fixture_set: dict[str, Any], failures: list[str]) -> None:
+    readiness = fixture_set.get("breakpoint2RemainingWorkstreamReadiness", {})
+    _require(
+        readiness.get("schema") == "fam007-breakpoint2-remaining-workstream-readiness-v1",
+        failures,
+        "Breakpoint 2 remaining Workstream readiness schema mismatch",
+    )
+    _require(
+        readiness.get("branch") == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
+        failures,
+        "Breakpoint 2 remaining Workstream branch mismatch",
+    )
+    _require(
+        readiness.get("seamGroup") == "Seams 2 through 4",
+        failures,
+        "Breakpoint 2 remaining Workstream seam group mismatch",
+    )
+    for field in ("planningOnly", "publicSafeProofOnly", "directValidationRequired", "workstreamGreenReady", "allFutureGatesRemainPending"):
+        _require(readiness.get(field) is True, failures, f"Breakpoint 2 remaining Workstream must set {field}=true")
+
+    implemented = readiness.get("implementedSeams", {})
+    seam2 = implemented.get("seam2", {})
+    _require(seam2.get("name") == "Private/public boundary and private remote safety proof", failures, "Breakpoint 2 Seam 2 name mismatch")
+    _require(seam2.get("status") == "implemented-public-safe-proof-only", failures, "Breakpoint 2 Seam 2 status mismatch")
+    _require(seam2.get("githubDesktopPrivateRemoteConfigured") is False, failures, "Breakpoint 2 Seam 2 must not configure GitHub Desktop private remote")
+    _require(seam2.get("privateRemoteConfigurationState") == "planning-only", failures, "Breakpoint 2 Seam 2 private remote state must be planning-only")
+    _require(seam2.get("publicRemoteName") == "public-upstream", failures, "Breakpoint 2 Seam 2 public remote name mismatch")
+    for field in ("privateRemoteUrlAllowed", "tokenOrCredentialAllowed", "ownerSecretAllowed", "privatePathAllowed", "modelArtifactAllowed", "promptPayloadAllowed", "memoryPayloadAllowed", "privateAutomationContentAllowed", "publicUpstreamPushAllowed", "publicRemoteAsOriginAllowed"):
+        _require(seam2.get(field) is False, failures, f"Breakpoint 2 Seam 2 must set {field}=false")
+
+    seam3 = implemented.get("seam3", {})
+    _require(seam3.get("name") == "Backup/recovery and Public-to-Dev import planning proof", failures, "Breakpoint 2 Seam 3 name mismatch")
+    _require(seam3.get("status") == "implemented-planning-proof-only", failures, "Breakpoint 2 Seam 3 status mismatch")
+    _require(seam3.get("backupRecoveryPlanningState") == "planning-only", failures, "Breakpoint 2 Seam 3 backup state must be planning-only")
+    _require(seam3.get("offBootRequired") is True, failures, "Breakpoint 2 Seam 3 must require off-boot planning")
+    _require(seam3.get("restoreProofRequiredBeforeImplementation") is True, failures, "Breakpoint 2 Seam 3 must require restore proof before implementation")
+    _require(seam3.get("privateMaterialRequiresEncryptionOrVaultPlan") is True, failures, "Breakpoint 2 Seam 3 must require encryption/vault planning")
+    for field in ("offBootBackupRootCreated", "backupRestoreImplemented", "publicToDevImportImplemented", "publicRepoBackupStorageAllowed", "secretsTokensImportedByDefault", "ownerPrivateDataImportedToDevOrPublic", "noExportDataImportedByDefault"):
+        _require(seam3.get(field) is False, failures, f"Breakpoint 2 Seam 3 must set {field}=false")
+
+    seam4 = implemented.get("seam4", {})
+    _require(seam4.get("name") == "Provider/model/runtime/cache/memory deferral and local-only handoff proof", failures, "Breakpoint 2 Seam 4 name mismatch")
+    _require(seam4.get("status") == "implemented-public-safe-deferral-proof-only", failures, "Breakpoint 2 Seam 4 status mismatch")
+    _require(seam4.get("providerVisibleData") == "none", failures, "Breakpoint 2 Seam 4 providerVisibleData must be none")
+    _require(seam4.get("promptProviderModelExecution") == "disabled", failures, "Breakpoint 2 Seam 4 prompt/provider/model execution must be disabled")
+    _require(seam4.get("downloadsNetworkExternalCalls") == "blocked", failures, "Breakpoint 2 Seam 4 downloads/network/external calls must be blocked")
+    _require(seam4.get("runtimeCacheState") == "inactive", failures, "Breakpoint 2 Seam 4 runtime cache must be inactive")
+    _require(seam4.get("memoryLearningPersonalization") == "inactive", failures, "Breakpoint 2 Seam 4 memory/learning/personalization must be inactive")
+    _require(seam4.get("voiceCoreSync") == "gated", failures, "Breakpoint 2 Seam 4 voice/Core sync must be gated")
+    _require(seam4.get("cacheIsNotMemory") is True, failures, "Breakpoint 2 Seam 4 must preserve cache-is-not-memory")
+    _require(seam4.get("localOnlyHandoffReady") is True, failures, "Breakpoint 2 Seam 4 must be ready for local-only handoff review")
+    for field in ("sentToProvider", "canAcceptPrompts", "providerSdkIntegrated", "modelExecutionEnabled", "modelDownloadsEnabled", "runtimeProviderExecutionEnabled", "runtimeCacheBehaviorEnabled", "externalCallsEnabled", "memoryLearningIndexingRetrievalPersonalizationEnabled", "trustJournalRuntimeImplemented", "telemetryEnabled"):
+        _require(seam4.get(field) is False, failures, f"Breakpoint 2 Seam 4 must set {field}=false")
+
+    gate_states = readiness.get("futureActionGateStates", {})
+    expected_gates = {
+        "privateDevRepo": "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+        "privateOwnerRepo": "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+        "githubDesktopPrivateRemote": "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP",
+        "backupRecovery": "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+        "publicToDevMigration": "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+        "privateToPublicSanitization": "USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION",
+        "providerModelExecution": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+        "memoryLearningPersonalization": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+        "runtimeCacheBehavior": "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR",
+    }
+    for field, expected in expected_gates.items():
+        gate = gate_states.get(field, {})
+        _require(gate.get("id") == expected, failures, f"Breakpoint 2 remaining gate {field} id mismatch")
+        _require(gate.get("status") == "pending-user-decision", failures, f"Breakpoint 2 remaining gate {field} must remain pending")
+        _require(gate.get("executed") is False, failures, f"Breakpoint 2 remaining gate {field} must set executed=false")
+        _require(gate.get("authorizedByWorkstream") is False, failures, f"Breakpoint 2 remaining gate {field} must set authorizedByWorkstream=false")
+
+    forbidden = readiness.get("forbiddenMaterialPresence", {})
+    for field in (
+        "privateRemoteUrl",
+        "tokenOrCredential",
+        "ownerSecret",
+        "privatePath",
+        "modelArtifact",
+        "promptPayload",
+        "memoryPayload",
+        "privateAutomationContent",
+        "privateHostingSecret",
+    ):
+        _require(forbidden.get(field) is False, failures, f"Breakpoint 2 remaining Workstream must set forbidden {field}=false")
+
+    handoff = readiness.get("hardeningHandoff", {})
+    _require(handoff.get("state") == "ready-for-hardening-review", failures, "Breakpoint 2 handoff must be ready for Hardening review")
+    _require(handoff.get("nextLegalPhase") == "Hardening H1", failures, "Breakpoint 2 handoff next legal phase must be Hardening H1")
+    _require(handoff.get("workstreamGreenCandidate") is True, failures, "Breakpoint 2 handoff must mark Workstream green candidate")
+    for field in ("privateRepoCreationAuthorized", "privateRemoteConfigurationAuthorized", "backupImplementationAuthorized", "publicToDevImportAuthorized", "providerModelExecutionAuthorized", "runtimeCacheBehaviorAuthorized", "memoryLearningPersonalizationAuthorized"):
+        _require(handoff.get(field) is False, failures, f"Breakpoint 2 handoff must set {field}=false")
+
+    next_decision = str(readiness.get("exactNextUserDecision", ""))
+    for phrase in (
+        "Hardening H1",
+        "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
+        "all admitted Workstream seams",
+    ):
+        _require(phrase in next_decision, failures, f"Breakpoint 2 remaining exact next USER decision missing {phrase!r}")
+
+
 def _validate_blocked_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:
     canaries = fixture_set.get("blockedCanaries", [])
     _require(len(canaries) >= 10, failures, "blocked canaries must cover all major private/leak classes")
@@ -1239,6 +1361,7 @@ def validate() -> list[str]:
     _validate_remaining_workstream_readiness(fixture_set, failures)
     _validate_ai_runtime_trust_boundary_readiness(fixture_set, failures)
     _validate_breakpoint2_seam1_action_gate_registry(fixture_set, failures)
+    _validate_breakpoint2_remaining_workstream_readiness(fixture_set, failures)
     _validate_blocked_canaries(fixture_set, failures)
     _validate_provider_boundary(failures)
     _validate_workstream_entry_packet_decision_canaries(fixture_set, failures)
