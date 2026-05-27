@@ -728,7 +728,7 @@ If any required merge-target canon update is missing, the branch remains blocked
 
 ### Exceptional Merged-Unreleased Release-Debt Owner Contract
 
-Release debt is not a normal acceptable merge state. When an implementation branch would unavoidably merge unreleased product behavior beyond the latest public prerelease, PR Readiness Stage 1 must first record explicit USER approval for that exception, the named owner, the release target/floor semantics, Release Window Audit posture, selected-next or USER-waiver truth, and the real carrier plan. Only then may PR Readiness leave exact post-merge release-debt truth in canon before PR green.
+Release debt is not a normal acceptable merge state. When an implementation branch would unavoidably merge unreleased product behavior beyond the latest public prerelease, PR Readiness Stage 1 must first record explicit USER approval for that exception, the named owner, the release target/floor semantics, Release Window Audit posture, and the real carrier plan. Selected-next truth is not part of the default release-debt exception; PR Readiness records it only when USER explicitly approves PR-time successor selection or already-encoded selected-next truth would merge as durable source truth. Only then may PR Readiness leave exact post-merge release-debt truth in canon before PR green.
 
 After the External Operational State Store contract is implemented, release debt means durable public release truth is missing or wrong. Wrong tag/body/release notes, invalid or missing artifacts, missing durable public milestone summaries, and released capabilities absent from durable product history remain release debt. Stale active branch records, active branch plans, worktree slots, selected-next operational posture, PR watcher state, release-window operational state, and post-release closure status become `Repo Live-State Leakage` or `External Operational State Conflict`, not release debt. This reclassification does not take effect as a migration until the USER approves external-state implementation and validator transition.
 
@@ -742,13 +742,16 @@ Required machine-checkable fields:
 - `Release Scope:`
 - `Release Artifacts:`
 - `Post-Release Truth:`
+
+Conditional machine-checkable fields, required only when USER explicitly approved PR-time successor selection or already-encoded selected-next truth would merge as durable source truth:
+
 - `Selected Next Workstream:`
 - `Next-Branch Creation Gate:`
 
 Required owner docs:
 
 - `Docs/feature_backlog.md` names the workstream as merged-unreleased release debt, not active execution truth
-- `Docs/prebeta_roadmap.md` names the current release-debt owner, release target, release scope, release artifacts, selected next workstream, and branch-creation gate
+- `Docs/prebeta_roadmap.md` names the current release-debt owner, release target, release scope, and release artifacts as durable pointers; it names selected-next and branch-creation gate truth only when USER explicitly approved PR-time successor selection or selected-next truth already exists
 - `Docs/workstreams/index.md` moves the workstream from `Active` to `Merged / Release Debt Owners`
 - the canonical workstream doc records the same merged-unreleased release-debt owner contract
 
@@ -879,14 +882,14 @@ Machine-checkable canon markers:
 
 - the selected backlog entry must include `Next Workstream: Selected`
 - the selected backlog entry must include `Minimal Scope:`
-- the roadmap must include `## Selected Next Workstream`
-- the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
+- when USER-approved selected-next truth exists, the roadmap must include `## Selected Next Workstream`
+- when USER-approved selected-next truth exists, the roadmap selected-next section must include the same workstream id, its `Record State`, `Minimal Scope:`, and truthful branch status such as `Branch: Not created` before branch creation or the active Branch Readiness branch name after creation
 
 When post-merge `No Active Branch` handling applies, the branch must instead:
 
 - make the post-merge `No Active Branch` state explicit in current-state canon
 - name the blocking admission item explicitly
-- keep selected-next truth absent only when explicit USER approval waives or defers selected-next branch/workstream truth
+- keep selected-next truth absent by default unless USER explicitly approved PR-time successor selection or selected-next truth already exists
 - avoid creating or executing the next implementation branch by inertia
 
 Temporary `emergency canon repair` branches that are explicitly recorded as repair-only must not be treated as the selected-next implementation branch for this gate. Validator and canon checks should distinguish those repair branches from real successor implementation-branch creation.
