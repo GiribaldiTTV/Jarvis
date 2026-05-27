@@ -9,6 +9,7 @@ planning.
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import orin_branch_governance_validation as governance
@@ -123,6 +124,12 @@ INVALID_BP1_MISSING_CONTEXT_FIXTURE = (
 INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_shallow_codex_recommendations.md"
 )
+INVALID_BP1_SLC_CENTERED_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_slc_centered_branch_vision_review.md"
+)
+INVALID_BP1_TECHNICAL_METADATA_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_technical_metadata.md"
+)
 INVALID_BP2_MISSING_BP1_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_bp2_missing_accepted_bp1_trace.md"
 )
@@ -208,6 +215,10 @@ EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET = (
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 EXPECTED_BP1_MISSING_CONTEXT_FAILURE_SNIPPET = "BP1 missing required section"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = "BP1 Codex Recommendations"
+EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET = "BP1 Branch Vision Review is SLC-centered"
+EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
+    "BP1 USER-facing review must not center technical Git packet metadata"
+)
 EXPECTED_BP2_MISSING_TRACE_FAILURE_SNIPPET = "BP2 missing accepted BP1 trace"
 EXPECTED_BP3_PENDING_CONTRACT_FAILURE_SNIPPET = "BP3 cannot return implementation approval"
 
@@ -290,6 +301,25 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
             )
     if any(term in text for term in ("Source HEAD:", "origin/main:", "ZIP SHA", "merge base")):
         failures.append("BP1 USER-facing review must not center technical Git packet metadata")
+    normalized = text.casefold()
+    slc_count = len(re.findall(r"\bslc-\d+\b", normalized))
+    user_surface_terms = sum(
+        1
+        for term in (
+            "dashboard",
+            "window",
+            "card",
+            "surface",
+            "user-facing",
+            "what will i actually see",
+        )
+        if term in normalized
+    )
+    if slc_count >= 4 and user_surface_terms < 4:
+        failures.append(
+            "BP1 Branch Vision Review is SLC-centered; BP1 must lead with user-facing "
+            "branch vision, surfaces, flow, options, and tradeoffs before SLC routing"
+        )
     return failures
 
 
@@ -750,6 +780,8 @@ def validate() -> list[str]:
         VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE,
         INVALID_BP1_MISSING_CONTEXT_FIXTURE,
         INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE,
+        INVALID_BP1_SLC_CENTERED_FIXTURE,
+        INVALID_BP1_TECHNICAL_METADATA_FIXTURE,
         INVALID_BP2_MISSING_BP1_TRACE_FIXTURE,
         INVALID_BP3_PENDING_CONTRACT_IMPLEMENTATION_FIXTURE,
         VALID_BP3_ACCEPTED_TRACE_FIXTURE,
@@ -1211,6 +1243,24 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid BP1 fixture did not reject shallow Codex recommendations"
+        )
+
+    slc_centered_bp1_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_SLC_CENTERED_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET not in "\n".join(
+        slc_centered_bp1_failures
+    ):
+        failures.append("Invalid BP1 fixture did not reject SLC-centered branch vision")
+
+    technical_metadata_bp1_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_TECHNICAL_METADATA_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET not in "\n".join(
+        technical_metadata_bp1_failures
+    ):
+        failures.append(
+            "Invalid BP1 fixture did not reject user-facing technical metadata"
         )
 
     missing_trace_bp2_failures = _validate_bp2_branch_plan_review_text(

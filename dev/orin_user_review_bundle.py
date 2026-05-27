@@ -38,6 +38,14 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
+ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES: tuple[str, ...] = (
+    "this branch is not the runtime implementation carrier",
+    "future runtime implementation carrier",
+    "future user-approved carrier",
+    "later runtime carrier",
+    "workstream is skipped",
+    "planning/governance branch",
+)
 DISALLOWED_USER_FACING_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("Source HEAD", re.compile(r"\bSource HEAD\b", re.IGNORECASE)),
     ("origin/main", re.compile(r"\borigin/main\b", re.IGNORECASE)),
@@ -280,6 +288,50 @@ def _validate_user_facing_review_text(file_name: str, text: str) -> None:
             )
 
 
+def _branch_slug(source_branch: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", source_branch.casefold()).strip("_")
+
+
+def _entry_is_active_branch_record_or_plan(entry_name: str, source_branch: str) -> bool:
+    normalized_entry = re.sub(r"[^a-z0-9]+", "_", entry_name.casefold()).strip("_")
+    slug = _branch_slug(source_branch)
+    if slug not in normalized_entry:
+        return False
+    return "branch_records" in normalized_entry or "branch_plans" in normalized_entry
+
+
+def _validate_active_implementation_carrier_files(
+    archive: zipfile.ZipFile,
+    entries: set[str],
+    *,
+    source_branch: str,
+) -> None:
+    if "implementation" not in source_branch.casefold():
+        return
+
+    active_entries = [
+        entry
+        for entry in entries
+        if _entry_is_active_branch_record_or_plan(entry, source_branch)
+    ]
+    has_record = any("branch_records" in entry.casefold() for entry in active_entries)
+    has_plan = any("branch_plans" in entry.casefold() for entry in active_entries)
+    if not has_record or not has_plan:
+        raise ValueError(
+            "Review export zip active implementation carrier guard failed: "
+            "active branch record and active branch plan are both required"
+        )
+
+    for entry in active_entries:
+        text = archive.read(entry).decode("utf-8", errors="replace").casefold()
+        for phrase in ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES:
+            if phrase in text:
+                raise ValueError(
+                    "Review export zip active implementation carrier guard failed: "
+                    f"{entry} contains stale carrier phrase {phrase!r}"
+                )
+
+
 def _validate_export_zip(
     export_zip: Path,
     *,
@@ -309,6 +361,11 @@ def _validate_export_zip(
                 "Review export zip contains UPLOAD_THIS_ZIP.md, which is outside "
                 "the simplified stable worktree-label artifact model"
             )
+        _validate_active_implementation_carrier_files(
+            archive,
+            entries,
+            source_branch=source_branch,
+        )
     if entries != expected_entries:
         missing = sorted(expected_entries - entries)
         extra = sorted(entries - expected_entries)
