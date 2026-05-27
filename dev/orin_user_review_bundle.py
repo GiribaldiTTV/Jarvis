@@ -31,9 +31,10 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "source truth for USER inspection."
 )
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
-    "PASS - helper cleared the stable worktree review folder, copied fresh "
-    "source-truth files, wrote START_HERE for this Source HEAD, and atomically "
-    "replaced the stable review zip from that refreshed folder."
+    "PASS - helper deleted prior matching zip artifacts, deleted the stable "
+    "worktree review folder, confirmed the recreated folder was empty before "
+    "copying, wrote START_HERE for this Source HEAD, and atomically replaced "
+    "the stable review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH = (
@@ -165,11 +166,30 @@ def _clear_readonly(function, path: str, _exc_info) -> None:
     function(path)
 
 
-def _clear_target(target: Path) -> None:
+def _target_entry_count(target: Path) -> int:
+    if not target.exists():
+        return 0
+    return sum(1 for _path in target.rglob("*"))
+
+
+def _clear_target(target: Path) -> int:
+    removed_count = _target_entry_count(target)
     try:
         shutil.rmtree(target, onexc=_clear_readonly)
     except TypeError:
         shutil.rmtree(target, onerror=_clear_readonly)
+    return removed_count
+
+
+def _assert_target_empty(target: Path) -> None:
+    existing = list(target.iterdir())
+    if existing:
+        preview = ", ".join(path.name for path in existing[:5])
+        raise ValueError(
+            "Review bundle folder pre-copy clean check failed: "
+            f"{target} still contains {len(existing)} entries"
+            + (f" ({preview})" if preview else "")
+        )
 
 
 def _flat_copy_name(relative_file: str) -> str:
@@ -250,7 +270,7 @@ def _export_zip_path(review_root: Path, label: str) -> Path:
 
 
 def _clear_review_exports(review_root: Path, label: str) -> list[Path]:
-    """Remove previous upload artifacts for this review label before regenerating."""
+    """Remove previous zip artifacts for this review label before regenerating."""
     sanitized_label = _sanitize_folder_name(label)
     removed: list[Path] = []
     for path in review_root.glob(f"{sanitized_label}*.zip*"):
@@ -327,6 +347,21 @@ def _validate_export_zip(
         raise ValueError(
             "Review export zip stale-head guard failed: Review Export Zip Source HEAD "
             f"does not match {source_head}"
+        )
+    if "Review Folder Empty Before Copy: PASS" not in start_here:
+        raise ValueError(
+            "Review export zip folder freshness guard failed: START_HERE does not "
+            "prove the review folder was empty before copying fresh files"
+        )
+    if "Review Folder Pre-Clean Removed Count:" not in start_here:
+        raise ValueError(
+            "Review export zip folder freshness guard failed: START_HERE is missing "
+            "folder pre-clean removed count"
+        )
+    if "Review Export Pre-Clean Removed Count:" not in start_here:
+        raise ValueError(
+            "Review export zip stale-export guard failed: START_HERE is missing "
+            "zip pre-clean removed count"
         )
     if source_branch == FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH:
         missing_impl_files = sorted(
@@ -1138,9 +1173,14 @@ def build_bundle(
     desktop = _desktop_path()
     label = _worktree_label(worktree_label)
     review_root, target = _safe_target(desktop, review_root_name, label)
+    review_root.mkdir(parents=True, exist_ok=True)
+    removed_exports = _clear_review_exports(review_root, label)
+    removed_folder_entries = 0
     if target.exists():
-        _clear_target(target)
+        removed_folder_entries = _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
+    _assert_target_empty(target)
+    folder_empty_before_copy = "PASS"
 
     copied = [
         _copy_file(file_name, target, copy_name)
@@ -1160,7 +1200,6 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    removed_exports = _clear_review_exports(review_root, label)
     export_zip = _export_zip_path(review_root, label)
     user_review_file = _write_user_branch_plan_review(
         target=target,
@@ -1222,6 +1261,8 @@ def build_bundle(
         f"origin/main: `{origin_main}`",
         f"Review Export Zip: `{export_zip}`",
         f"Review Export Zip Source HEAD: `{source_head}`",
+        f"Review Folder Pre-Clean Removed Count: {removed_folder_entries}",
+        f"Review Folder Empty Before Copy: {folder_empty_before_copy}",
         f"Review Export Pre-Clean Removed Count: {len(removed_exports)}",
         f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
         (
