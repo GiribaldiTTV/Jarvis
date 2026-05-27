@@ -6,6 +6,7 @@
 
 **Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness`. Do not edit, stage, commit, or push in `Release Readiness`; route the change back to `PR Readiness` before merge, or to the next active `Branch Readiness` after merge.**
 **Release Readiness anchor and aggregation rules are owned by `Docs/phase_governance.md`. This modes file keeps only the compact behavioral mirror: do not mutate files in Release Readiness, and derive candidate/window truth from Git/GitHub/helpers.**
+**Post-release external operational state carry-forward is not a Release Readiness blocker by itself after RR2 release publication when release/tag/body/health validation is green. Codex may reconcile only `C:\Nexus Governance State` in bounded RR2 closeout without a new USER decision; otherwise BR1 reports `Post-Release External State Carry-Forward:` and BR2 reconciles it before branch/worktree setup or implementation.**
 
 ## Purpose
 
