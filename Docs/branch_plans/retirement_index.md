@@ -6,7 +6,7 @@ This index records branch-plan fold-down and retirement posture after the Govern
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
-Branch plans are canonical only while their owning branch is active. After PR Readiness and merge, useful durable content belongs in the structured branch receipt, workstream record, family dossier, or family vision record. The branch plan file may remain as a historical planning receipt, but it must not act as active branch authority.
+After the External Operational State Store transition, repo branch-plan files are not live active-state owners. Active planning belongs in external operational state or an explicitly approved transition packet. After PR Readiness and merge, useful durable content belongs in the structured branch receipt, workstream record, family dossier, or family vision record. A repo branch-plan file may remain as a historical planning receipt, but it must not act as active branch authority or current lifecycle state.
 
 ## Retirement Rule
 
@@ -41,6 +41,7 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 | `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | Retired from active planning posture after PR #215 merge and v1.7.22-prebeta release; preserved as released public leak-prevention foundation planning receipt | `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md`; `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`; `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` |
 | `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | Retired from active planning posture after PR #218 merge; preserved as released v1.7.23-prebeta Dev/Owner Skeleton Readiness Foundation planning receipt | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`; `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`; `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` |
 | `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` | Retired from active planning posture after PR #220 merge; preserved as historical v1.7.23-prebeta post-release canon-closure planning receipt | `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md`; `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`; `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` |
+| `Docs/branch_plans/feature_fam_007_ai_runtime_trust_boundary_readiness.md` | Retired from active planning posture after Workstream Green, H1 Green, LV1 Green, PR Readiness Stage 1 repair, and PR #240 merge; preserved as FAM-007 AI runtime/trust-boundary readiness planning/proof receipt until release execution is separately approved | `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`; `Docs/ai_runtime_and_trust_architecture.md`; `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`; `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_007_local_ai_provider_execution_readiness_gates.md`; `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_007_local_ai_provider_path_and_consent_readiness.md`; `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | Retired from active planning posture | `Docs/branch_records/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md`; `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` |
@@ -49,9 +50,11 @@ Branch plans are canonical only while their owning branch is active. After PR Re
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | Retired from active planning posture | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/validation_helper_registry.md` |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | Retired from active planning posture | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md`; `Docs/validation_helper_registry.md` |
 
-## Active Plan Posture
+## Repo Active Plan Posture
 
-Active runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` - fresh FAM-006 active-overlay recording runtime implementation carrier admitted by Branch Readiness Stage 2; Workstream Entry and runtime implementation remain USER-gated.
+Repo active runtime Branch Runtime Engineering Plan: `None on main. Active operational plans belong in C:\Nexus Governance State after transition or in an explicitly approved transition packet; this index records retired/historical repo plan receipts only.`
+
+Current branch-local runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` - fresh FAM-006 active-overlay recording runtime implementation carrier admitted by Branch Readiness Stage 2; Workstream Entry and runtime implementation remain USER-gated.
 
 Current-main runtime Branch Runtime Engineering Plan context: `FAM-006 active-overlay recording implementation plan is active on feature/fam-006-active-overlay-recording-runtime-implementation; historical FAM plans remain retired/released receipts only.`
 

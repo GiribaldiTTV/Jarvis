@@ -2477,8 +2477,8 @@ ELEMENT_VALIDATION_LEDGER_REQUIRED_PHRASES = {
         "`No Existing Owner Fits`",
         "`Element Ledger Placement Drift`",
         "Promoted workstream: canonical workstream doc.",
-        "Registry-only active branch: active branch authority record.",
-        "Large active ledger: optional companion file with canonical pointer",
+        "Registry-only active branch: external branch state or the standing Governance intake exception while legally active.",
+        "Large active ledger: external branch state, optional companion file with canonical pointer",
         "Every active ledger row should identify the element ID",
         "Element Validation Ledger status values should use this vocabulary",
         "`Implemented Pending Proof`",
@@ -2716,7 +2716,7 @@ SUCCESSOR_LOCK_WAIVER_DOCS = (
     Path("Docs/codex_modes.md"),
 )
 
-SUCCESSOR_LOCK_WAIVER_PHRASE = "Post-merge `No Active Branch` is not the default"
+SUCCESSOR_LOCK_WAIVER_PHRASE = "no USER-approved selected-next truth exists"
 
 NO_ACTIVE_BRANCH_STEADY_STATE_DOCS = (
     Path("Docs/phase_governance.md"),
@@ -4132,7 +4132,6 @@ PR_READINESS_BLOCKER_PHRASES = (
     "dirty",
     "docs-sync",
     "next-workstream",
-    "Next Workstream User Waiver Missing",
     "Next Runtime Candidate Selection Pending",
     "Backlog Addition User Approval Missing",
     "Backlog Exhaustion User Decision Pending",
@@ -4208,34 +4207,15 @@ PR_READINESS_RESPONSE_CONTRACT_DOCS = (
 
 PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "## PR Readiness Stage 1 Analysis Packet",
-    "## Next Workstream",
-    "Recommended Next Workstream:",
-    "Candidate Work To Be Done:",
-    "User-Facing Output:",
-    "Next Workstream User Waiver:",
-    "Next Workstream User Waiver Missing",
-    "Next Workstream Candidate Not Found",
-    "## Next Branch Pre-Plan",
-    "Next Branch Package Shape:",
-    "Single-Slice Drift Review:",
-    "Family Organization Review:",
-    "Element Coverage Review:",
-    "Next Branch Package Shape Unproven",
-    "Single-Slice Branch Drift Risk Unresolved",
-    "Family Organization Drift Risk Unresolved",
+    "Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection",
+    "PR Readiness does not require selected-next truth or a waiver by default",
+    "selected-next validation",
+    "optional",
+    "Optional conditional `Next Branch`",
     "Current-Branch Branch Readiness Re-entry Required",
     "New Carrier Branch Required",
     "Branch Readiness Fallback:",
     "Governance Ledger Fallback:",
-    "## Next Branch",
-    "Next Legal Branch Type:",
-    "Next Branch Name:",
-    "Branch Class:",
-    "Creation Status:",
-    "Creation Gate:",
-    "Selected Next Workstream:",
-    "Selected Next Implementation Branch:",
-    "May Create Now: YES / NO",
     "## PR Creation Details",
     "### PR Title",
     "### Base Branch",
@@ -4283,32 +4263,15 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Planned Base Branch:",
     "Planned Head Branch:",
     "Planned PR Summary:",
-    "## Next Workstream",
-    "Recommended Next Workstream:",
-    "Candidate Work To Be Done:",
-    "User-Facing Output:",
-    "Next Workstream User Waiver:",
-    "Next Workstream User Waiver Missing",
-    "Next Workstream Candidate Not Found",
-    "## Next Branch Pre-Plan",
-    "Next Branch Package Shape:",
-    "Single-Slice Drift Review:",
-    "Family Organization Review:",
-    "Element Coverage Review:",
-    "Next Branch Package Shape Unproven",
-    "Single-Slice Branch Drift Risk Unresolved",
-    "Family Organization Drift Risk Unresolved",
+    "Selected-Next Validation Status:",
+    "Selected-Next Scope:",
+    "Branch Readiness Stage 1 Successor Selection Owner:",
     "Current-Branch Branch Readiness Re-entry Required",
     "New Carrier Branch Required",
     "Required Post-Merge Path:",
-    "Ranked Runtime FAM Candidates:",
-    "Recommended Next Package:",
-    "Recommended Next Package USER Waiver:",
-    "Package-Size / Single-Slice Drift Review:",
-    "Element Coverage Review:",
     "Release-Debt Impact:",
     "Release-Debt Handling Status:",
-    "Selected-Next / No-Release-Debt Handling Status:",
+    "No-Release-Debt Handling Status:",
     "Required Current-Branch Source-Truth Sync:",
     "Planned Merge-Target Canon Updates:",
     "Origin/Main Freshness Check:",
@@ -4322,7 +4285,7 @@ PR_READINESS_STAGE_PACKET_PHRASES = (
     "Reconciliation Recommendation:",
     "Reconciliation Mutation Status:",
     "Origin Main Reconciliation Packet Required",
-    "Planned Next Branch Block:",
+    "Optional Next Branch Block:",
     "Planned Watcher Provisioning:",
     "Expected Files To Change:",
     "Stage 1 Repairs Made:",
@@ -4640,9 +4603,9 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 2 begins only after",
         "Stage 2 owns final PR execution only",
         "PR creation is blocked while any Stage 1 blocker",
-        "next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
+        "Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection",
         "Branch Readiness fallback is real carrier branch/package analysis",
-        "Stage 1 selected-next/no-release-debt handling is complete only when",
+        "PR Readiness does not require selected-next truth or a waiver by default",
     ),
     Path("Docs/development_rules.md"): (
         "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
@@ -4652,7 +4615,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "New Carrier Branch Required",
         "Stage 1 USER Waiver Required",
         "Stage 2 owns final PR execution only",
-        "Stage 1 selected-next/no-release-debt handling is complete only when",
+        "PR Readiness does not require selected-next truth or a waiver by default",
     ),
     Path("Docs/Main.md"): (
         "Stage 1 is the Stage 2 readiness-lock gate",
@@ -4662,9 +4625,8 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "New Carrier Branch Required",
         "Stage 1 USER Waiver Required",
         "Stage 2 owns final PR execution only",
-        "next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
-        "Branch Readiness fallback is not workstream selection by default",
-        "Stage 1 selected-next/no-release-debt handling is complete only when",
+        "Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection",
+        "PR Readiness does not require selected-next truth or a waiver by default",
     ),
     Path("Docs/codex_modes.md"): (
         "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
@@ -4675,7 +4637,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 1 USER Waiver Required",
         "Stage 2 owns final PR execution only",
         "PR creation is blocked while any Stage 1 blocker",
-        "Stage 1 selected-next/no-release-debt handling is complete only when",
+        "PR Readiness does not require selected-next truth or a waiver by default",
     ),
     Path("Docs/orin_task_template.md"): (
         "PR Readiness Stage 1 is the Stage 2 readiness-lock gate",
@@ -4686,7 +4648,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 1 USER Waiver Required",
         "Stage 2 owns final PR execution only",
         "Stage 1 Outcome:",
-        "Stage 1 selected-next/no-release-debt handling is complete only when",
+        "PR Readiness does not require selected-next truth or a waiver by default",
     ),
     Path("Docs/codex_user_guide.md"): (
         "analysis-first readiness-lock gate",
@@ -4696,9 +4658,9 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "New Carrier Branch Required",
         "Stage 1 USER Waiver Required",
         "Stage 2 owns final PR execution only",
-        "Next-workstream/package hierarchy is reviewed in PR Readiness Stage 1",
+        "Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection",
         "Branch Readiness fallback is real carrier branch/package analysis",
-        "Stage 1 selected-next/no-release-debt handling is complete only when",
+        "PR Readiness does not require selected-next truth or a waiver by default",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "analysis-first readiness-lock gate",
@@ -4710,7 +4672,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 2 begins only after",
         "Stage 2 sync plan",
         "Branch Readiness fallback is real carrier branch/package analysis",
-        "Stage 1 selected-next/no-release-debt handling is complete only when",
+        "PR Readiness does not require selected-next truth or a waiver by default",
     ),
     Path("Docs/branch_records/index.md"): (
         "analysis-first readiness-lock gate",
@@ -4721,7 +4683,7 @@ PR_READINESS_STAGE1_READINESS_LOCK_REQUIRED_PHRASES = {
         "Stage 1 USER Waiver Required",
         "approved final PR execution pass",
         "Branch Readiness fallback is real carrier branch/package analysis",
-        "Stage 1 selected-next/no-release-debt handling is complete only when",
+        "PR Readiness does not require selected-next truth or a waiver by default",
     ),
     Path("Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md"): (
         "Branch Readiness Stage 2-R2 PR Readiness Stage 1 Readiness-Lock Governance Repair",
@@ -4997,7 +4959,7 @@ USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
     Path("Docs/governance_efficiency_operating_model.md"): (
         "USER Feedback Disposition Model",
         "UFD Ledger Owner:",
-        "full active USER Feedback Disposition items",
+        "full active USER Feedback Disposition rows",
         "exact-normalized duplicate `Feedback Summary:`",
     ),
     Path("Docs/validation_helper_registry.md"): (
@@ -5264,7 +5226,7 @@ GOVERNANCE_RECURRENCE_DOCS = (
 GOVERNANCE_RECURRENCE_PHRASES = (
     "patch the canon or validator rule that allowed it before the repair is considered complete",
     "drift prevention proof is mandatory",
-    "merge-stable current-state owners such as backlog and roadmap must not mirror transient repair-branch ownership",
+    "merge-stable pointer surfaces such as backlog and roadmap must not mirror transient repair-branch ownership",
     "PR Watcher Provisioning Unproven",
     "PR Watcher Routing Unverified",
 )
@@ -5596,8 +5558,6 @@ MERGED_UNRELEASED_CONTRACT_PHRASES = (
     "Release Scope:",
     "Release Artifacts:",
     "Post-Release Truth:",
-    "Selected Next Workstream:",
-    "Next-Branch Creation Gate:",
 )
 
 MERGE_STABLE_CURRENT_STATE_DOCS = (
@@ -5606,7 +5566,7 @@ MERGE_STABLE_CURRENT_STATE_DOCS = (
 )
 
 MERGE_STABLE_CURRENT_STATE_PHRASES = (
-    "merge-target current-state owners must be merge-stable",
+    "merge-target pointer surfaces must be merge-stable",
     "Merge-target post-merge-stable authority projection is mandatory before PR green",
     "Docs/feature_backlog.md",
     "Docs/prebeta_roadmap.md",
@@ -16863,54 +16823,6 @@ def _run_next_workstream_gate(
 
     selected_entries = _selected_next_workstream_entries(backlog_entries)
     if not selected_entries:
-        not_closed_entries = _format_not_closed_backlog_entries(backlog_entries)
-        if not_closed_entries:
-            if successor_selection_approval_exists():
-                require(
-                    False,
-                    (
-                        "PR readiness gate: Next Runtime Candidate Selection Pending blocker is active; "
-                        "explicit USER successor-selection approval exists, but no real runtime "
-                        "Feature Family candidate is selected. Still-not-closed backlog item(s): "
-                        f"{not_closed_entries}"
-                    ),
-                )
-                return
-            if source_only_no_successor_defer_exists():
-                return
-            if explicitly_records_no_selected_next(BACKLOG_ADDITION_USER_APPROVAL_BLOCKER):
-                if successor_selection_defer_waiver_exists():
-                    return
-                require(
-                    False,
-                    (
-                        "PR readiness gate: Next Workstream User Waiver Missing blocker is active; "
-                        "recommendation-only next workstream analysis is not enough for Stage 2 when "
-                        "no selected-next truth is encoded. Record USER-approved selected-next truth "
-                        "or an explicit USER waiver/defer before PR READY: YES"
-                    ),
-                )
-                return
-            require(
-                False,
-                (
-                    f"PR readiness gate: {BACKLOG_ADDITION_USER_APPROVAL_BLOCKER} blocker is active; "
-                    "Codex must not create, split, promote, or select a backlog identity without explicit "
-                    "USER approval. Still-not-closed backlog item(s): "
-                    f"{not_closed_entries}"
-                ),
-            )
-            return
-        if explicitly_records_no_selected_next(BACKLOG_EXHAUSTION_USER_DECISION_BLOCKER):
-            return
-        require(
-            False,
-            (
-                f"PR readiness gate: {BACKLOG_EXHAUSTION_USER_DECISION_BLOCKER} blocker is active; "
-                "no still-not-closed backlog items remain, and USER direction is required before Codex "
-                "may create any new backlog identity."
-            ),
-        )
         return
 
     require(
@@ -20824,6 +20736,39 @@ def main() -> int:
     active_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
     historical_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Historical Branch Authority Records")
     current_git_branch = _git_current_branch()
+    active_non_standing_branch_record_paths = [
+        path
+        for path in active_branch_record_paths
+        if path != STANDING_GOVERNANCE_INTAKE_RECORD_PATH
+    ]
+    active_non_standing_records_without_transition_waiver: list[str] = []
+    for path in active_non_standing_branch_record_paths:
+        record_text = _read_text(path)
+        has_transition_waiver = all(
+            marker in record_text
+            for marker in (
+                "Active Branch Authority Transition Waiver: Granted",
+                "Transition Waiver USER Decision:",
+                "External State Reconciliation Proof:",
+            )
+        )
+        if not has_transition_waiver:
+            active_non_standing_records_without_transition_waiver.append(path)
+    require(
+        not active_non_standing_records_without_transition_waiver,
+        (
+            "Repo Active Operational State Prohibited: "
+            "Docs/branch_records/index.md may not list non-standing active branch "
+            "authority records after the External Operational State Store transition. "
+            "Repo docs may keep durable branch/document evidence pointers and historical "
+            "receipts only; active branch lifecycle state belongs in external operational "
+            "state or Git/GitHub/helper-derived truth. A USER-approved transition "
+            "waiver must include Active Branch Authority Transition Waiver: Granted, "
+            "Transition Waiver USER Decision:, and External State Reconciliation Proof:. "
+            "Offending record(s): "
+            + ", ".join(active_non_standing_records_without_transition_waiver)
+        ),
+    )
     for prohibited_prefix in PROHIBITED_ACTIVE_BRANCH_PREFIXES:
         require(
             current_git_branch == "main" or not current_git_branch.startswith(prohibited_prefix),
@@ -20865,11 +20810,6 @@ def main() -> int:
         "Repo State: No Active Branch" in backlog_text or "Repo State: No Active Branch" in roadmap_text
     )
     if _is_merged_main_snapshot() and merged_no_active_branch_truth:
-        active_non_standing_branch_record_paths = [
-            path
-            for path in active_branch_record_paths
-            if path != STANDING_GOVERNANCE_INTAKE_RECORD_PATH
-        ]
         require(
             not active_non_standing_branch_record_paths,
             (

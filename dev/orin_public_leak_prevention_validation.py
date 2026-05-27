@@ -33,6 +33,12 @@ FAM007_DEV_OWNER_BRANCH_PLAN = Path(
 FAM007_DEV_OWNER_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md"
 )
+FAM007_AI_RUNTIME_TRUST_BRANCH_PLAN = Path(
+    "Docs/branch_plans/feature_fam_007_ai_runtime_trust_boundary_readiness.md"
+)
+FAM007_AI_RUNTIME_TRUST_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md"
+)
 VALIDATION_REGISTRY = Path("Docs/validation_helper_registry.md")
 REVIEW_BUNDLE_HELPER = Path("dev/orin_user_review_bundle.py")
 FIXTURE_DIR = ROOT / "dev" / "fixtures" / "fam007_public_leak_prevention"
@@ -133,6 +139,34 @@ REQUIRED_DEV_OWNER_RECORD_PHRASES = (
     "No provider/model execution, memory, downloads, external calls, voice/Core sync, backup implementation, private repo creation, private remote configuration, PR, merge, release, cleanup, or v1.8.0 work was performed.",
 )
 
+REQUIRED_AI_RUNTIME_TRUST_PLAN_PHRASES = (
+    "Workstream Implementation Receipt",
+    "Option 1 Permission-State And Provider Boundary Readiness Proof: `Implemented - public-safe planning proof only`",
+    "Option 2 Deterministic Routing And Reliability Readiness Proof: `Implemented - direct deterministic-policy fixture proof only`",
+    "Option 3 Trust Journal And AI Operational Cache Governance Readiness Proof: `Implemented - cache is not memory and runtime cache behavior remains blocked`",
+    "Option 4 Capability-Pack And Local-Only Handoff Readiness Proof: `Implemented - capability-pack/local-only handoff criteria recorded without install or execution`",
+    "Workstream Green Candidate: `YES - Options 1 through 4 have direct validator and fixture proof`",
+    "Hardening H1 Result: `Green - H1 compared Options 1 through 4",
+    "Live Validation LV1 Result: `Green - no visible runtime surface changed",
+    "User Test Summary Results: `WAIVED`",
+    "No provider SDK/model execution, runtime provider execution, runtime cache behavior, memory/learning/personalization, downloads, external calls, private repo creation, private remote configuration, backup/import implementation, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, or v1.8.0 work was performed.",
+)
+
+REQUIRED_AI_RUNTIME_TRUST_RECORD_PHRASES = (
+    "Workstream Implementation Receipt",
+    "Option 1 Permission-State And Provider Boundary Readiness Proof: `Implemented - public-safe planning proof only`",
+    "Option 2 Deterministic Routing And Reliability Readiness Proof: `Implemented - direct deterministic-policy fixture proof only`",
+    "Option 3 Trust Journal And AI Operational Cache Governance Readiness Proof: `Implemented - cache is not memory and runtime cache behavior remains blocked`",
+    "Option 4 Capability-Pack And Local-Only Handoff Readiness Proof: `Implemented - capability-pack/local-only handoff criteria recorded without install or execution`",
+    "Backlog Completion State: Implemented Complete Except Future Dependency",
+    "Completion Status: Green",
+    "Continue Decision: Stop",
+    "Hardening H1 Result: `Green - H1 compared Options 1 through 4",
+    "Live Validation LV1 Result: `Green - no visible runtime surface changed",
+    "User Test Summary Results: `WAIVED`",
+    "No provider SDK/model execution, runtime provider execution, runtime cache behavior, memory/learning/personalization, downloads, external calls, private repo creation, private remote configuration, backup/import implementation, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, or v1.8.0 work was performed.",
+)
+
 REQUIRED_REGISTRY_PHRASES = (
     "dev/orin_public_leak_prevention_validation.py",
     "FAM-007 public leak-prevention validator",
@@ -147,6 +181,9 @@ REQUIRED_REGISTRY_PHRASES = (
     "public-to-private separation remains planning-only",
     "provider/model deferral hardening",
     "future handoff criteria",
+    "AI runtime/trust-boundary readiness",
+    "Options 1 through 4",
+    "AI Operational Cache Governance readiness",
 )
 
 PROTECTED_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -311,6 +348,8 @@ def _validate_required_source_truth(failures: list[str]) -> None:
     branch_record = _read(FAM007_BRANCH_RECORD)
     dev_owner_plan = _read(FAM007_DEV_OWNER_BRANCH_PLAN)
     dev_owner_record = _read(FAM007_DEV_OWNER_BRANCH_RECORD)
+    runtime_trust_plan = _read(FAM007_AI_RUNTIME_TRUST_BRANCH_PLAN)
+    runtime_trust_record = _read(FAM007_AI_RUNTIME_TRUST_BRANCH_RECORD)
     registry = _read(VALIDATION_REGISTRY)
     helper = _read(REVIEW_BUNDLE_HELPER)
     for phrase in REQUIRED_AI_PLAN_PHRASES:
@@ -330,6 +369,18 @@ def _validate_required_source_truth(failures: list[str]) -> None:
             phrase in dev_owner_record,
             failures,
             f"{FAM007_DEV_OWNER_BRANCH_RECORD}: missing {phrase!r}",
+        )
+    for phrase in REQUIRED_AI_RUNTIME_TRUST_PLAN_PHRASES:
+        _require(
+            phrase in runtime_trust_plan,
+            failures,
+            f"{FAM007_AI_RUNTIME_TRUST_BRANCH_PLAN}: missing {phrase!r}",
+        )
+    for phrase in REQUIRED_AI_RUNTIME_TRUST_RECORD_PHRASES:
+        _require(
+            phrase in runtime_trust_record,
+            failures,
+            f"{FAM007_AI_RUNTIME_TRUST_BRANCH_RECORD}: missing {phrase!r}",
         )
     for phrase in REQUIRED_REGISTRY_PHRASES:
         _require(phrase in registry, failures, f"{VALIDATION_REGISTRY}: missing {phrase!r}")
@@ -668,6 +719,240 @@ def _validate_remaining_workstream_readiness(fixture_set: dict[str, Any], failur
         _require(forbidden.get(field) is False, failures, f"remaining Workstream must set forbidden {field}=false")
 
 
+def _validate_ai_runtime_trust_boundary_readiness(fixture_set: dict[str, Any], failures: list[str]) -> None:
+    readiness = fixture_set.get("aiRuntimeTrustBoundaryReadiness", {})
+    _require(
+        readiness.get("schema") == "fam007-ai-runtime-trust-boundary-readiness-fixture-v1",
+        failures,
+        "AI runtime/trust-boundary readiness fixture schema mismatch",
+    )
+    _require(readiness.get("planningOnly") is True, failures, "AI runtime/trust-boundary readiness must be planning-only")
+    _require(
+        readiness.get("publicSafeProofOnly") is True,
+        failures,
+        "AI runtime/trust-boundary readiness must be public-safe proof only",
+    )
+    _require(
+        readiness.get("workstreamGreenReady") is True,
+        failures,
+        "AI runtime/trust-boundary readiness must mark Workstream Green readiness",
+    )
+
+    options = readiness.get("options", {})
+    for option_id in ("option1", "option2", "option3", "option4"):
+        option = options.get(option_id, {})
+        _require(
+            option.get("status") == "implemented-public-safe-proof-only",
+            failures,
+            f"AI runtime/trust-boundary {option_id} must be implemented as public-safe proof only",
+        )
+
+    option1 = options.get("option1", {})
+    required_states = {
+        "Installed",
+        "Available",
+        "Enabled",
+        "Disabled",
+        "Denied",
+        "Suspended",
+        "Revoked",
+        "Requires Setup",
+        "Requires Hardware",
+        "Requires Consent",
+        "Blocked By Privacy Mode",
+        "Blocked By Safety Policy",
+        "Blocked By Competitive Integrity Mode",
+        "Blocked By Provider State",
+    }
+    _require(
+        required_states.issubset(set(option1.get("permissionStates", []))),
+        failures,
+        "Option 1 permission-state proof is missing required capability states",
+    )
+    _require(
+        {"ai-layer", "tool-capability-layer"}.issubset(set(option1.get("enforcedAtLayers", []))),
+        failures,
+        "Option 1 must enforce permission state at AI and tool/capability layers",
+    )
+    provider_boundary = option1.get("providerBoundary", {})
+    _require(provider_boundary.get("providerVisibleData") == "none", failures, "Option 1 providerVisibleData must remain none")
+    for field in ("sentToProvider", "canAcceptPrompts"):
+        _require(provider_boundary.get(field) is False, failures, f"Option 1 provider boundary must set {field}=false")
+    for field, expected in {
+        "promptExecution": "disabled",
+        "providerExecution": "disabled",
+        "modelExecution": "disabled",
+        "downloadsNetworkExternalCalls": "blocked",
+    }.items():
+        _require(provider_boundary.get(field) == expected, failures, f"Option 1 provider boundary {field} mismatch")
+    _require(
+        provider_boundary.get("localOnlyPosturePreserved") is True,
+        failures,
+        "Option 1 must preserve local-only posture",
+    )
+
+    option2 = options.get("option2", {})
+    _require(
+        option2.get("objectiveAnswerPolicy") == "deterministic-or-tool-backed-required",
+        failures,
+        "Option 2 objective-answer policy must require deterministic/tool-backed paths",
+    )
+    _require(option2.get("calculatorMathRouting") == "deterministic-required", failures, "Option 2 calculator/math routing mismatch")
+    _require(option2.get("sourceCitationRouting") == "required-when-source-backed", failures, "Option 2 source/citation routing mismatch")
+    _require(
+        option2.get("windowsHealthRouting") == "observed-versus-inferred-separated",
+        failures,
+        "Option 2 Windows Health routing must separate observed and inferred evidence",
+    )
+    _require(
+        {"Deterministic", "High Confidence", "Advisory", "Creative/Open-ended"}.issubset(
+            set(option2.get("confidenceTiers", []))
+        ),
+        failures,
+        "Option 2 confidence tiers are incomplete",
+    )
+    _require(option2.get("refusalBehavior") == "refuse-to-pretend-certainty", failures, "Option 2 refusal behavior mismatch")
+    _require(option2.get("runtimeRouterImplemented") is False, failures, "Option 2 must not implement a runtime router")
+    _require(
+        option2.get("providerRecommendationExecutionAllowed") is False,
+        failures,
+        "Option 2 provider recommendation execution must remain blocked",
+    )
+
+    option3 = options.get("option3", {})
+    _require(option3.get("cacheIsNotMemory") is True, failures, "Option 3 must preserve cache-is-not-memory")
+    for field in ("runtimeCacheImplementation", "memoryWriteEnabled", "trustJournalRuntimeImplemented", "telemetryEnabled"):
+        _require(option3.get(field) is False, failures, f"Option 3 must set {field}=false")
+    required_scope_classes = {
+        "Session cache",
+        "Operational cache",
+        "Deterministic validation cache",
+        "Advisory cache",
+        "Provider-response cache",
+        "Capability-pack index cache",
+        "Windows Health analysis cache",
+        "Temporary routine-context cache",
+    }
+    _require(
+        required_scope_classes.issubset(set(option3.get("cacheScopeClasses", []))),
+        failures,
+        "Option 3 cache scope classes are incomplete",
+    )
+    _require(
+        {"Low", "Medium", "High", "Very High", "Critical"}.issubset(set(option3.get("cacheSensitivityClasses", []))),
+        failures,
+        "Option 3 cache sensitivity classes are incomplete",
+    )
+    replay = option3.get("replaySafety", {})
+    for field in (
+        "deterministicReplayRequiresInputToolSourcePermissionPolicyMatch",
+        "advisoryProviderCacheCannotReplayAsCurrentTruth",
+        "safetySensitiveCacheRequiresFreshnessRevalidation",
+        "replayDecisionsJournalable",
+    ):
+        _require(replay.get(field) is True, failures, f"Option 3 replay safety must set {field}=true")
+    sanitization = option3.get("providerCacheSanitization", {})
+    for field in (
+        "privatePromptAllowed",
+        "secretAllowed",
+        "privatePathAllowed",
+        "memoryPayloadAllowed",
+        "identityDataAllowed",
+        "protectedRepoMaterialAllowed",
+    ):
+        _require(sanitization.get(field) is False, failures, f"Option 3 provider-cache sanitization must set {field}=false")
+    privacy_modes = option3.get("privacyModes", {})
+    for field in (
+        "localOnlyBlocksProviderCache",
+        "privacyLockdownBlocksSensitiveCacheWrites",
+        "clearOperationalCacheDoesNotDeleteMemoryLogsOrBackups",
+    ):
+        _require(privacy_modes.get(field) is True, failures, f"Option 3 privacy mode proof must set {field}=true")
+
+    option4 = options.get("option4", {})
+    required_manifest = {
+        "declares-capability",
+        "declares-limits",
+        "declares-source-provenance",
+        "declares-hardware-storage-provider-requirements",
+        "declares-cache-ownership",
+        "declares-local-only-or-provider-assisted-mode",
+    }
+    _require(
+        required_manifest.issubset(set(option4.get("capabilityPackManifestExpectations", []))),
+        failures,
+        "Option 4 capability-pack manifest expectations are incomplete",
+    )
+    for field in (
+        "capabilityPackInstalled",
+        "capabilityPackExecuted",
+        "modelOrCapabilityDownloadsEnabled",
+        "storageRootCreated",
+        "privateEditionSkeletonSetup",
+    ):
+        _require(option4.get(field) is False, failures, f"Option 4 must set {field}=false")
+    local_only = option4.get("localOnlyHandoff", {})
+    _require(local_only.get("providerCallsBlocked") is True, failures, "Option 4 local-only handoff must block provider calls")
+    _require(local_only.get("providerCacheBlocked") is True, failures, "Option 4 local-only handoff must block provider cache")
+    _require(
+        local_only.get("hiddenExternalDependenciesAllowed") is False,
+        failures,
+        "Option 4 local-only handoff must block hidden external dependencies",
+    )
+    _require(local_only.get("providerVisibleData") == "none", failures, "Option 4 local-only handoff providerVisibleData must remain none")
+    _require(
+        local_only.get("localOnlyRuntimeGuaranteeImplemented") is False,
+        failures,
+        "Option 4 must not claim a runtime local-only guarantee implementation",
+    )
+
+    setup_state = readiness.get("setupState", {})
+    for field in (
+        "privateDevRepositoryCreated",
+        "privateOwnerRepositoryCreated",
+        "githubDesktopPrivateRemoteConfigured",
+        "offBootBackupRootCreated",
+        "publicToDevImportImplemented",
+        "providerSdkIntegrated",
+        "modelExecutionEnabled",
+        "modelDownloadsEnabled",
+        "runtimeProviderExecutionEnabled",
+        "runtimeCacheBehaviorEnabled",
+        "externalCallsEnabled",
+        "memoryLearningPersonalizationEnabled",
+        "voiceCoreSyncEnabled",
+    ):
+        _require(setup_state.get(field) is False, failures, f"AI runtime/trust-boundary setupState must set {field}=false")
+
+    gates = readiness.get("globalActionGates", {})
+    expected_gates = {
+        "providerModelExecution": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+        "memoryLearningPersonalization": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+        "backupRecovery": "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+        "publicToDevMigration": "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+        "privateDevRepository": "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+        "privateOwnerRepository": "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+        "githubDesktopPrivateRemote": "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP",
+    }
+    for field, expected in expected_gates.items():
+        _require(gates.get(field) == expected, failures, f"AI runtime/trust-boundary action gate {field} mismatch")
+
+    forbidden = readiness.get("forbiddenMaterialPresence", {})
+    for field in (
+        "privateRemoteUrl",
+        "tokenOrCredential",
+        "ownerSecret",
+        "privatePath",
+        "promptPayload",
+        "memoryPayload",
+        "privateAutomation",
+        "modelArtifact",
+        "capabilityPackAsset",
+        "privateHostingSecret",
+    ):
+        _require(forbidden.get(field) is False, failures, f"AI runtime/trust-boundary must set forbidden {field}=false")
+
+
 def _validate_blocked_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:
     canaries = fixture_set.get("blockedCanaries", [])
     _require(len(canaries) >= 10, failures, "blocked canaries must cover all major private/leak classes")
@@ -763,6 +1048,7 @@ def validate() -> list[str]:
     _validate_public_build_audit(failures=failures, fixture_set=fixture_set)
     _validate_dev_owner_skeleton_readiness(fixture_set, failures)
     _validate_remaining_workstream_readiness(fixture_set, failures)
+    _validate_ai_runtime_trust_boundary_readiness(fixture_set, failures)
     _validate_blocked_canaries(fixture_set, failures)
     _validate_provider_boundary(failures)
     _validate_workstream_entry_packet_decision_canaries(fixture_set, failures)

@@ -24,18 +24,26 @@ This file is a planning reference, not an active external-state migration, helpe
 15. Stage 6B branch-authority routing cleanup planning landed through PR #233 and defined the `Docs/branch_records/index.md` execution packet.
 16. Stage 6C branch-authority routing cleanup landed through PR #234 and made `Docs/branch_records/index.md` durable routing law plus standing Governance authority while non-standing active operational authority routes external.
 17. Stage 6D branch-detail-record / branch-plan cleanup planning landed through PR #235 and defined the no-loss cleanup batches.
-18. Current posture is Stage 6E: no-loss cleanup closure. Report-only scans show zero blocking leakage for branch records and branch plans; broad branch-record / branch-plan rewrites are not required for the External Operational State Store transition and would risk durable receipt loss.
-19. File movement, deletion, archival, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, release execution, and any future exact branch-record / branch-plan cleanup found by later validators remain separate USER decisions after Stage 6E is reviewed.
+18. Stage 6E no-loss cleanup closure showed broad branch-record / branch-plan rewrites are not required by default because they risk durable receipt loss.
+19. Post-PR #240 release-readiness drift clarified the permanent boundary: repo docs may keep durable branch/document evidence pointers and historical receipts, but must not own live active/complete/pending lifecycle posture. If a later validator finds repo active-state leakage, fix the exact leakage or route it external without broad receipt loss.
+20. File movement, deletion, archival, worktree-local staging creation, FAM worktree reconciliation, branch cleanup, release execution, and any future exact branch-record / branch-plan cleanup found by later validators remain separate USER decisions after Stage 6E is reviewed.
 
 ## Current Boundaries
 
 Approved now:
 
 - Stage 6E no-loss cleanup closure
-- scanner-backed decision that branch records and branch plans remain durable receipts or transition owners with zero blocking leakage
+- scanner-backed decision that branch records and branch plans remain durable receipts or transition owners unless exact active-state leakage is named
 - completion posture for the External Operational State Store transition
 - USER review bundle refresh for Stage 6E inspection
 - validation and PR Readiness Stage 1 analysis
+
+Permanent intent:
+
+- Repo docs become index/context files for operational work.
+- Repo docs may keep durable governance law, product/architecture vision, compact pointers, public-safe explanations, and historical receipts.
+- Repo docs must not be the active ledger for branch plans, UFD items, Branch Change Intent rows, Element-to-Phase rows, worktree assignment, PR watcher state, release-window assembly, selected-next posture, review-bundle manifests, rebaseline packets, or temporary Codex handoff state.
+- Backlog and roadmap may document that a branch or receipt exists for a family/breakpoint, but live active/complete/pending/no-branch-created status belongs to external operational state or Git/GitHub/helper-derived truth.
 
 Not approved by this planning file:
 
@@ -552,7 +560,7 @@ Stage 6D plans the next cleanup family. It does not edit branch detail records, 
 Stage 6D cleanup objectives:
 
 - Preserve branch records as durable authority receipts, phase history, USER approvals, release interpretation, PR/merge/release evidence, validation proof, accepted vision summaries, and final fold-down history.
-- Preserve branch plans as active planning owners only while active; after fold-down they become historical planning receipts or retire behind `Docs/branch_plans/retirement_index.md`.
+- Preserve active branch planning in external operational state after transition; repo branch plans remain transition-approved evidence or historical planning receipts, and after fold-down they retire behind `Docs/branch_plans/retirement_index.md`.
 - Remove or compress live operational fields only after a later execution lane proves external replacement owners, durable receipt retention, and no-loss auditability.
 - Keep detailed USER Feedback Disposition, Branch Change Intent Ledger, Element-to-Phase matrix, Workstream Entry review, Hardening plan, Live Validation plan, and PR readiness state external while active.
 - Keep repo branch records and branch plans readable from a clean clone as durable historical receipts even when active operational state lives outside the repo.
@@ -628,7 +636,7 @@ Stage 6E completed owner split:
 | compact backlog / roadmap / worktree-slot posture | repo pointer surfaces cleaned in Stage 6A; live state external or derived |
 | branch-record index active list | standing Governance exception only after Stage 6C |
 | branch detail records | durable receipts, transition owners, historical evidence, and future exact cleanup candidates only when blocking leakage appears |
-| branch plans | active planning owners only while active; otherwise historical planning receipts or retirement-index entries |
+| branch plans | external active planning owners after transition; repo copies are transition-approved evidence, historical planning receipts, or retirement-index entries |
 | release debt | durable public release truth defects only; stale operational trackers classify as `Repo Live-State Leakage` or external operational state conflict |
 | local operational state | `C:\Nexus Governance State` with locks, schema, audit, snapshots, reports, and no-loss promotion posture |
 

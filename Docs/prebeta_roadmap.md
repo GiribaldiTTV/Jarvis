@@ -7,7 +7,7 @@
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
-This file is a reference outline, not a release ledger. It does not own live latest-release state, live tag state, active branch state, open PR state, current review state, worktree freshness, or release-window inventories. Those are derived from Git, GitHub, and approved helpers at the time of Release Readiness or release execution.
+This file is an index/reference outline, not a release ledger or branch lifecycle ledger. It may document that a branch, receipt, family vision, or release reference exists for a breakpoint, but it must not maintain whether that item is active, complete, pending, open, selected-next, no-branch-created, or release-window current. Live release and branch facts are derived from Git, GitHub, approved helpers, and `C:\Nexus Governance State` at the time of Release Readiness or release execution.
 
 ## Authority And Boundaries
 
@@ -26,6 +26,7 @@ Roadmap does not own:
 - current `origin/main`, release target commit, or tag commit
 - merged-unreleased PR lists as active truth
 - active runtime branch identity
+- active/complete/pending/no-branch-created lifecycle posture
 - PR Readiness, watcher, mergeability, or review-thread state
 - Package Trace or Slice Trace detail
 - branch execution diaries
@@ -42,6 +43,7 @@ Use these sources instead of manually updating live release facts here:
 | Release window PR inventory | GitHub PR search / compare range helper output |
 | PR state / merge commit / review state | `gh pr view` or GitHub GraphQL |
 | Worktree branch freshness | `git status`, `git merge-base`, and `dev/orin_worktree_rebaseline_audit.py` |
+| Active branch lifecycle / selected-next operational posture | `C:\Nexus Governance State` plus Git/GitHub/helper-derived truth |
 
 Historical receipts may cite releases, PRs, and commits when the receipt is intentionally preserved as interpretation. Do not promote those receipts into live current-state ownership.
 
@@ -73,6 +75,16 @@ Cross-family AI-native runtime/trust architecture, including permission-state, d
 | `FAM-006` Monitoring and HUD | active-overlay recording runtime implementation carrier is in Branch Readiness Stage 2 setup; durable planning and release receipts preserved; future recording runtime remains USER-gated; released planning traceability remains preserved in `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md` |
 | `FAM-007` Local AI and Capability Packs | local AI readiness history preserved; future private Dev/Owner, backup/recovery, provider/model execution, and release work remain USER-gated | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` |
 | `FAM-008` Packaging and Install Experience | future install/package milestone | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
+
+## Future Planning Pointers
+
+FAM-007 Future Planning Evidence: `FAM-007 Local AI and Capability Packs - Breakpoint 2 private Dev/Owner skeleton setup decision` remains durable planning context for the existing FAM-007 family.
+FAM-007 Branch Evidence Pointer: `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`
+Pointer State: Registry-only durable evidence.
+Minimal Scope: FAM-007 runtime action-gate planning slice for private Dev/Owner skeleton setup decision, private remote safety, and public/private boundary handoff, with provider/model/runtime/cache/memory execution still USER-gated.
+Operational State Owner: `C:\Nexus Governance State` plus Git/GitHub/helper live checks own branch creation, active/complete status, PR state, review state, watcher state, release-window posture, and worktree posture.
+Selection Truth Boundary: This roadmap may name durable family direction and branch evidence pointers, but it must not claim current branch lifecycle state such as active, complete, pending, no branch created, live PR, or release-window ownership.
+Release-Debt Handling Boundary: Release debt is derived during Release Readiness from Git/GitHub/helper truth, external operational state, and durable release receipts; this roadmap does not own live release debt.
 
 ## Folded Non-Family Concept Pointers
 
