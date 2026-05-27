@@ -185,6 +185,11 @@ REQUIRED_BREAKPOINT2_PLAN_PHRASES = (
     "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2RemainingWorkstreamReadiness`",
     "Workstream Green Candidate: `YES - all admitted Breakpoint 2 seams have direct validator and fixture proof`",
     "Next Legal Phase: `Hardening`",
+    "Hardening H1 Result: `Green - H1 compared Seams 1 through 4",
+    "H1 Drift Found: `YES - older duplicate ledger wording still described Seams 2 through 4 as planned or pending Workstream approval.`",
+    "H1 Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py rejects stale Breakpoint 2 Workstream-pending ledger phrases after H1.`",
+    "Next Legal Phase: `Live Validation`",
+    "Exact Next USER Decision Needed: `Approve bounded Live Validation LV1/no-visible-runtime proof",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
     "Exact Next USER Decision Needed: `Approve bounded Hardening H1",
 )
@@ -204,8 +209,28 @@ REQUIRED_BREAKPOINT2_RECORD_PHRASES = (
     "Completion Status: Green",
     "Continue Decision: Stop",
     "Next Legal Phase: `Hardening`",
+    "Hardening H1 Result: `Green - H1 compared Seams 1 through 4",
+    "H1 Drift Found: `YES - older duplicate ledger wording still described Seams 2 through 4 as planned or pending Workstream approval.`",
+    "H1 Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py rejects stale Breakpoint 2 Workstream-pending ledger phrases after H1.`",
+    "Next Legal Phase: `Live Validation`",
+    "Exact Next USER Decision Needed: `Approve bounded Live Validation LV1/no-visible-runtime proof",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
     "Exact Next USER Decision Needed: `Approve bounded Hardening H1",
+)
+
+BREAKPOINT2_STALE_WORKSTREAM_PHRASES = (
+    "Workstream implementation is pending",
+    "Pending Workstream approval",
+    "Seam 2 pending USER approval",
+    "Seam 2 and all private/runtime actions remain pending USER decision",
+    "USER reviews refreshed packet before Seam 2",
+    "Approve Workstream Entry analysis next",
+    "USER approved Branch Readiness Stage 2 setup only",
+    "Hardening H1 remains pending USER approval",
+    "Hardening H1 remains blocked pending exact USER approval",
+    "Hardening H1 remains blocked until USER approval",
+    "Hardening H1 approval is pending USER decision",
+    "Hardening H1 is blocked until USER approves",
 )
 
 REQUIRED_REGISTRY_PHRASES = (
@@ -440,6 +465,17 @@ def _validate_required_source_truth(failures: list[str]) -> None:
             phrase in breakpoint2_record,
             failures,
             f"{FAM007_BREAKPOINT2_BRANCH_RECORD}: missing {phrase!r}",
+        )
+    for phrase in BREAKPOINT2_STALE_WORKSTREAM_PHRASES:
+        _require(
+            phrase not in breakpoint2_plan,
+            failures,
+            f"{FAM007_BREAKPOINT2_BRANCH_PLAN}: stale post-H1 Workstream phrase remains {phrase!r}",
+        )
+        _require(
+            phrase not in breakpoint2_record,
+            failures,
+            f"{FAM007_BREAKPOINT2_BRANCH_RECORD}: stale post-H1 Workstream phrase remains {phrase!r}",
         )
     for phrase in REQUIRED_REGISTRY_PHRASES:
         _require(phrase in registry, failures, f"{VALIDATION_REGISTRY}: missing {phrase!r}")
