@@ -2480,6 +2480,7 @@ Required evidence:
 
 - branch-local proof complete
 - validation adequacy review complete under `Docs/validation_helper_registry.md`: helper/validator PASS/GREEN output supports the decision but does not replace Codex responsibility, source-truth review, changed-file inspection, review-bundle freshness, phase-scope checks, or USER-approved acceptance criteria
+- Trust-but-verify helper proof complete: when a helper or validator creates, refreshes, deletes, zips, uploads, copies, or claims freshness for USER-facing artifacts, Codex must independently inspect the relevant filesystem state before and after the helper action. For review bundles this means proving old folder contents and matching zip artifacts were deleted, proving the folder is absent or empty before generation, then proving the regenerated folder and zip contain only the expected current-HEAD packet contents. Helper PASS output alone is not sufficient closeout proof.
 - accepted vision and accepted branch plan satisfied, revised, waived, or folded down with explicit receipt when a Branch Vision Contract Snapshot is required
 - required user-facing desktop shortcut validation digested, passing or explicitly waived, and no `User-Facing Shortcut Validation Pending` blocker
 - required User Test Summary results digested, passing or explicitly waived, and no `User Test Summary Results Pending` blocker
