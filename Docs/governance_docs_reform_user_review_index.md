@@ -7,8 +7,8 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 188
-- Source branch: `feature/release-readiness-source-truth-intake`
+- Docs files covered: 190
+- Source branch: `feature/fam-007-ai-runtime-trust-boundary-readiness`
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
 - Runtime/FAM/Compact-AI mutation: none.
@@ -47,7 +47,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 - USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.
 - This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.
-- Current execution model: this deferred-completion pass updates source truth and review artifacts on the USER-approved bounded governance/source-truth repair branch `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`; PR creation remains separately USER-gated.
+- Current execution model: this deferred-completion pass updates source truth and review artifacts on the USER-approved bounded governance/source-truth repair branch `feature/fam-007-ai-runtime-trust-boundary-readiness` in `C:\Nexus Worktrees\Governance`; PR creation remains separately USER-gated.
 - PR Readiness remains held until validation is green and USER separately approves PR creation.
 
 ## USER Response Integration Summary
@@ -100,7 +100,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
 | --- | ---: | --- | --- |
-| Ambiguous ownership/current-state wording | 143 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Ambiguous ownership/current-state wording | 145 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 37 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 27 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
@@ -157,12 +157,12 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md` | High | `volatile-current-wording=36`; `unclear-ownership-wording=33`; `soft-commitment-wording=7`; `state-ledger-wording=45` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | High | `volatile-current-wording=177`; `unclear-ownership-wording=257`; `soft-commitment-wording=32`; `state-ledger-wording=75` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | High | `volatile-current-wording=114`; `unclear-ownership-wording=174`; `soft-commitment-wording=11`; `state-ledger-wording=114` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/feature_fam_007_ai_runtime_trust_boundary_readiness.md` | High | `volatile-current-wording=21`; `unclear-ownership-wording=30`; `soft-commitment-wording=6`; `state-ledger-wording=33` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | High | `volatile-current-wording=46`; `unclear-ownership-wording=15`; `soft-commitment-wording=13`; `state-ledger-wording=98` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | High | `volatile-current-wording=59`; `unclear-ownership-wording=78`; `soft-commitment-wording=8`; `state-ledger-wording=137` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md` | High | `volatile-current-wording=70`; `unclear-ownership-wording=103`; `soft-commitment-wording=12`; `state-ledger-wording=119` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wording=4`; `state-ledger-wording=53` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` | High | `volatile-current-wording=83`; `unclear-ownership-wording=93`; `soft-commitment-wording=3`; `state-ledger-wording=156` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=11`; `soft-commitment-wording=3`; `state-ledger-wording=84` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 
 ## Structure Review Queue
 
@@ -242,4 +242,4 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 ## Exact USER Decision This Index Supports
 
-`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/release-readiness-source-truth-intake as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
+`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/fam-007-ai-runtime-trust-boundary-readiness as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`

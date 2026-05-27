@@ -74,6 +74,17 @@ Cross-family AI-native runtime/trust architecture, including permission-state, d
 | `FAM-007` Local AI and Capability Packs | local AI readiness history preserved; future private Dev/Owner, backup/recovery, provider/model execution, and release work remain USER-gated | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` |
 | `FAM-008` Packaging and Install Experience | future install/package milestone | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 
+## Selected Next Workstream
+
+Selected Next Workstream: FAM-007 Local AI and Capability Packs - Breakpoint 2 private Dev/Owner skeleton setup decision.
+Record State: Registry-only
+Minimal Scope: FAM-007 runtime action-gate planning slice for private Dev/Owner skeleton setup decision, private remote safety, and public/private boundary handoff, with provider/model/runtime/cache/memory execution still USER-gated.
+Selected Next Implementation Branch: Deferred to Branch Readiness
+Branch: Deferred to Branch Readiness
+Branch Creation Status: No branch created
+Selection Truth Status: USER-approved PR Readiness Stage 1 selected-next sync for the existing FAM-007 family; this is a pre-plan only and not approval to create private repos, configure private remotes, implement backup/import behavior, execute providers/models, enable runtime cache behavior, enable memory, create a PR, merge, release, or run v1.8.0.
+Release-Debt Handling Status: No release debt introduced by selecting this next candidate; current branch remains the release-bearing public-safe readiness proof until separate PR/merge/release approvals.
+
 ## Folded Non-Family Concept Pointers
 
 Workspace/data and safety/privacy are not roadmap milestone families or independent backlog worktrees after the AI-native taxonomy repair. Existing backlog families consume those constraints inside their own Branch Readiness and family visions.
