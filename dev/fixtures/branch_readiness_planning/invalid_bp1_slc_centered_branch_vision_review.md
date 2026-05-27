@@ -112,4 +112,3 @@ v1 fixture.
 ## Acceptance / Revision / Rejection / Waiver Decision
 
 Pending USER decision.
-
