@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import orin_branch_governance_validation as governance
+import orin_user_review_bundle as review_bundle
 import orin_worktree_rebaseline_audit as rebaseline
 
 
@@ -114,6 +115,12 @@ INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE = (
 VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE = (
     FIXTURE_DIR / "valid_user_branch_plan_review_deferred_scope.md"
 )
+VALID_USER_BRANCH_PLAN_CONTRACT_VISION_FIRST_FIXTURE = (
+    FIXTURE_DIR / "valid_user_branch_plan_contract_vision_first.md"
+)
+INVALID_USER_BRANCH_PLAN_CONTRACT_SLC_CENTERED_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_branch_plan_contract_slc_centered.md"
+)
 VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
     FIXTURE_DIR / "valid_merge_stable_source_truth_projection.md"
 )
@@ -186,6 +193,9 @@ EXPECTED_USER_BRANCH_PLAN_FIRST_SEAM_FAILURE_SNIPPET = (
 )
 EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET = (
     "USER Review Response:"
+)
+EXPECTED_USER_BRANCH_PLAN_SLC_CENTERED_FAILURE_SNIPPET = (
+    "mentions SLCs before branch goal/end-state vision"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -351,6 +361,13 @@ def _validate_user_branch_plan_review_text(text: str) -> list[str]:
         require_gate=True,
     )
     return failures
+
+
+def _validate_user_branch_plan_contract_file_text(text: str) -> list[str]:
+    return review_bundle._validate_user_branch_plan_contract_text(
+        text,
+        source_name="<user-branch-plan-contract-fixture>",
+    )
 
 
 def _validate_merge_stable_projection_text(text: str) -> list[str]:
@@ -1033,6 +1050,28 @@ def validate() -> list[str]:
         failures.append(
             "Valid deferred-scope USER Branch Plan Review fixture unexpectedly failed: "
             + "; ".join(deferred_review_failures[:5])
+        )
+
+    valid_contract_failures = _validate_user_branch_plan_contract_file_text(
+        VALID_USER_BRANCH_PLAN_CONTRACT_VISION_FIRST_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_contract_failures:
+        failures.append(
+            "Valid vision-first USER Branch Plan Contract fixture unexpectedly failed: "
+            + "; ".join(valid_contract_failures[:5])
+        )
+
+    slc_centered_contract_failures = _validate_user_branch_plan_contract_file_text(
+        INVALID_USER_BRANCH_PLAN_CONTRACT_SLC_CENTERED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_USER_BRANCH_PLAN_SLC_CENTERED_FAILURE_SNIPPET not in "\n".join(
+        slc_centered_contract_failures
+    ):
+        failures.append(
+            "Invalid USER Branch Plan Contract fixture did not reject SLC-centered "
+            "branch planning before end-state vision"
         )
 
     valid_merge_stable_failures = _validate_merge_stable_projection_text(

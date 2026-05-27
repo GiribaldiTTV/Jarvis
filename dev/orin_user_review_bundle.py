@@ -104,6 +104,7 @@ PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 
 WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES: tuple[str, ...] = (
     "START_HERE.md",
+    USER_BRANCH_PLAN_REVIEW_FILE,
     "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
     "GOVERNANCE_REQUIRED_FILES_SCAN.md",
     "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
@@ -112,6 +113,7 @@ WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES: tuple[str, ...] = (
 
 WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
     "START_HERE.md",
+    USER_BRANCH_PLAN_REVIEW_FILE,
     "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
     "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
     "BRANCH_VISION_VALIDATION_CHECKLIST.md",
@@ -634,12 +636,16 @@ def _validate_export_zip(
     for required_heading in (
         "## Contract Status",
         "## Contract Version / Revision",
-        "## Plain-English Branch Summary",
-        "## What Will I Actually See, And Where Will I See It?",
+        "## Family Vision Context",
+        "## Feature Vision",
+        "## Branch Goal",
         "## End-State Vision",
+        "## What Will I Actually See, And Where Will I See It?",
+        "## How It Will Function",
+        "## User Experience Flow",
         "## Visual / Functional Walkthrough",
         "## Surface Map",
-        "## Implementation Options",
+        "## Implementation Options / Product Shapes",
         "## Recommended Direction",
         "## Why This Fits The Nexus Vision",
         "## USER Design Direction Decision",
@@ -652,6 +658,7 @@ def _validate_export_zip(
         "## Contract Change Log",
         "## Current Branch Scope",
         "## Future-Gated Scope",
+        "## How Codex Would Build This After USER Accepts The Direction",
         "## Implementation Staging Notes",
         "## Workstream Entry Result",
         "## Contract Completion Checklist",
@@ -660,6 +667,15 @@ def _validate_export_zip(
             raise ValueError(
                 f"Review export zip USER_BRANCH_PLAN_REVIEW.md is missing {required_heading}"
             )
+    contract_failures = _validate_user_branch_plan_contract_text(
+        user_review,
+        source_name=f"{export_zip}!{USER_BRANCH_PLAN_REVIEW_FILE}",
+    )
+    if contract_failures:
+        raise ValueError(
+            "Review export zip USER_BRANCH_PLAN_REVIEW.md contract validation failed:\n"
+            + "\n".join(f"- {failure}" for failure in contract_failures)
+        )
     contract_status = _section(user_review, "Contract Status").strip().casefold()
     if not any(
         contract_status.startswith(prefix)
@@ -701,6 +717,130 @@ def _section(text: str, heading: str) -> str:
     if next_heading < 0:
         return text[start:].strip()
     return text[start:next_heading].strip()
+
+
+def _ordered_heading_failures(text: str, headings: tuple[str, ...]) -> list[str]:
+    failures: list[str] = []
+    last_index = -1
+    for heading in headings:
+        marker = f"## {heading}"
+        index = text.find(marker)
+        if index < 0:
+            failures.append(f"missing heading {marker}")
+            continue
+        if index < last_index:
+            failures.append(f"heading {marker} appears before an earlier required heading")
+        last_index = max(last_index, index)
+    return failures
+
+
+def _contract_status_blocks_implementation(contract_status: str) -> bool:
+    normalized = contract_status.strip().casefold()
+    return normalized.startswith(
+        (
+            "draft",
+            "pending user response",
+            "pending codex digest",
+            "pending user confirmation",
+        )
+    )
+
+
+def _validate_user_branch_plan_contract_text(
+    text: str,
+    *,
+    source_name: str,
+    require_implementation_ready: bool = False,
+) -> list[str]:
+    failures: list[str] = []
+    vision_first_headings = (
+        "Contract Status",
+        "Contract Version / Revision",
+        "Family Vision Context",
+        "Feature Vision",
+        "Branch Goal",
+        "End-State Vision",
+        "What Will I Actually See, And Where Will I See It?",
+        "How It Will Function",
+        "User Experience Flow",
+        "Visual / Functional Walkthrough",
+        "Surface Map",
+        "Implementation Options / Product Shapes",
+        "Recommended Direction",
+        "Why This Fits The Nexus Vision",
+        "USER Design Direction Decision",
+        "USER Decisions Needed",
+        "USER Response",
+        "Codex Response Digest",
+        "Implementation Constraints Created By USER Response",
+        "USER Rejected / Deferred Ideas",
+        "Vision Delta / Source-Truth Impact",
+        "Contract Change Log",
+        "Current Branch Scope",
+        "Future-Gated Scope",
+        "How Codex Would Build This After USER Accepts The Direction",
+        "Implementation Staging Notes",
+        "Workstream Entry Result",
+        "Contract Completion Checklist",
+    )
+    failures.extend(
+        f"{source_name}: USER Branch Plan Contract {failure}"
+        for failure in _ordered_heading_failures(text, vision_first_headings)
+    )
+    for heading in vision_first_headings:
+        value = _section(text, heading)
+        if not value:
+            continue
+        word_count = len(re.findall(r"\b[\w'-]+\b", value))
+        if word_count < 8:
+            failures.append(
+                f"{source_name}: USER Branch Plan Contract section ## {heading} is too shallow"
+            )
+
+    slc_index = text.find("SLC-")
+    branch_goal_index = text.find("## Branch Goal")
+    end_state_index = text.find("## End-State Vision")
+    if slc_index >= 0 and (
+        branch_goal_index < 0 or end_state_index < 0 or slc_index < branch_goal_index or slc_index < end_state_index
+    ):
+        failures.append(
+            f"{source_name}: USER Branch Plan Contract mentions SLCs before branch goal/end-state vision"
+        )
+
+    staging = _section(text, "Implementation Staging Notes").casefold()
+    build_after_accept = _section(
+        text, "How Codex Would Build This After USER Accepts The Direction"
+    ).casefold()
+    if "primary user decision surface" not in staging and "secondary" not in build_after_accept:
+        failures.append(
+            f"{source_name}: USER Branch Plan Contract must state SLC/seam details are secondary implementation staging"
+        )
+
+    contract_status = _section(text, "Contract Status")
+    if not contract_status:
+        failures.append(f"{source_name}: USER Branch Plan Contract is missing Contract Status")
+    blocking_contract = _contract_status_blocks_implementation(contract_status)
+    exact_decision = _section(text, "Exact USER Decision Supported").casefold()
+    workstream_result = _section(text, "Workstream Entry Result").casefold()
+    approval_terms = (
+        "approve bounded slc",
+        "approve workstream implementation",
+        "approve bounded workstream implementation",
+        "implementation approval",
+    )
+    if blocking_contract and any(term in exact_decision for term in approval_terms):
+        failures.append(
+            f"{source_name}: USER Branch Plan Contract returns implementation approval while Contract Status blocks implementation"
+        )
+    if require_implementation_ready and blocking_contract:
+        failures.append(
+            f"{source_name}: USER Branch Plan Contract is not Complete or Waived by USER"
+        )
+    if "contract" not in workstream_result and "complete" not in contract_status.casefold():
+        failures.append(
+            f"{source_name}: Workstream Entry Result must cite contract state or completion/waiver"
+        )
+    return failures
 
 
 def _is_repo_relative_review_path(path: str) -> bool:
@@ -818,6 +958,34 @@ def _write_user_branch_plan_review(
             "normal Windows/NDAI window for target summary and future controls/settings, with "
             "secondary settings windows when details would make the main control bulky. Native Log "
             "Loader: a separate future graph/log viewer, not the recording control surface."
+        )
+        family_vision_context = (
+            "FAM-006 owns Monitoring HUD, Dashboard, Overlay Profile, Overlay Display, Monitor "
+            "Group, Sensor Command Center, and active-overlay-driven recording planning. Recording "
+            "must feel connected to the overlay system rather than become a second profile system."
+        )
+        feature_vision = (
+            "The recording feature should derive its target from the currently active Overlay "
+            "Profile, make that target understandable in the HUD Overlay card, and later provide "
+            "a compact standalone Recording Control window while graph/log viewing remains a "
+            "separate future Native Log Loader concept."
+        )
+        branch_goal = (
+            "This branch's product goal is to implement the active-overlay-driven recording runtime "
+            "foundation safely: first prove what would be recorded, then expose the target and "
+            "control surfaces only after the branch vision and proof requirements are accepted."
+        )
+        how_it_functions = (
+            "The active Overlay Profile remains the source of recording target membership. Future "
+            "recording reads that active membership, preserves Monitor Group and Overlay Profile "
+            "ownership boundaries, keeps execution and file writing behind explicit approval, and "
+            "uses future output contracts that can feed graph/plot workflows."
+        )
+        user_experience_flow = (
+            "USER starts in the Dashboard HUD Overlay card, sees the active Overlay Profile and "
+            "recording target/status preview, opens the standalone Recording Control window when "
+            "that surface is admitted, and uses secondary settings/details windows only for bulky "
+            "configuration that should not crowd the compact control window."
         )
         why_nexus = (
             "This fits Nexus because it keeps recording intuitive, avoids a confusing second profile "
@@ -941,6 +1109,13 @@ def _write_user_branch_plan_review(
             "recommends snapshot-at-recording-start by default unless USER revises it, while SLC-051 "
             "proves the live current active-overlay target because no recording is occurring yet."
         )
+        build_after_accept = (
+            "After USER accepts or waives the direction, Codex should translate the branch vision "
+            "into a whole-package Workstream plan, then sequence implementation through SLC-051 "
+            "to SLC-055 as secondary engineering route details. The SLC route must remain bound "
+            "to the accepted branch vision, user-facing surfaces, implementation constraints, and "
+            "future-gated boundaries."
+        )
         current_scope = [
             "Preserve the accepted active-overlay recording end-state as maintained source truth.",
             "Record that active Overlay Profile membership is the source of truth for future recording targets.",
@@ -1004,6 +1179,11 @@ def _write_user_branch_plan_review(
         contract_status = "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
         contract_version = "v1 - Generated USER Branch Plan Contract."
         what_user_sees = "USER should see the feature's planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
+        family_vision_context = "The contract must cite the relevant family vision and explain how the branch fits that family before implementation route details appear."
+        feature_vision = "The contract must explain the feature vision, user-facing behavior, available product shapes, tradeoffs, and Codex recommendation before SLC details."
+        branch_goal = "The branch goal must state what finished feature outcome this branch should make possible and what USER decision the contract is asking for."
+        how_it_functions = "The contract must explain the intended runtime or workflow behavior, ownership boundaries, data/state flow, and future-gated behavior at user-understandable depth."
+        user_experience_flow = "The contract must describe the path USER will take through the feature, including entry point, visible states, decisions, and exit or review surfaces."
         why_nexus = "The recommendation should explain how the branch aligns with the project vision, keeps scope bounded, and preserves user-facing clarity."
         design_ballot = [
             "Accept Codex recommendation.",
@@ -1077,6 +1257,11 @@ def _write_user_branch_plan_review(
             "surface map, options, proof path, and pending boundaries are understandable enough "
             "for USER to decide whether implementation should begin."
         )
+        build_after_accept = (
+            "After USER accepts or waives the direction, Codex should turn the accepted branch "
+            "vision into the Workstream package, affected files, validators, proof path, and "
+            "first bounded seam. SLC/seam details are secondary engineering staging."
+        )
         current_scope = [
             "Confirm the branch outcome and admitted package.",
             "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
@@ -1103,19 +1288,39 @@ def _write_user_branch_plan_review(
         "",
         contract_version,
         "",
+        "## Family Vision Context",
+        "",
+        family_vision_context,
+        "",
+        "## Feature Vision",
+        "",
+        feature_vision,
+        "",
+        "## Branch Goal",
+        "",
+        branch_goal,
+        "",
         "## Plain-English Branch Summary",
         "",
         plain_english_summary,
         "",
         "This file is a required user-facing product/design planning gate. It should help USER answer: Do I actually like what Codex is about to build?",
         "",
+        "## End-State Vision",
+        "",
+        end_state_vision,
+        "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
         what_user_sees,
         "",
-        "## End-State Vision",
+        "## How It Will Function",
         "",
-        end_state_vision,
+        how_it_functions,
+        "",
+        "## User Experience Flow",
+        "",
+        user_experience_flow,
         "",
         "## Visual / Functional Walkthrough",
         "",
@@ -1125,7 +1330,7 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(surface_map),
         "",
-        "## Implementation Options",
+        "## Implementation Options / Product Shapes",
         "",
         *_markdown_lines(implementation_options),
         "",
@@ -1191,6 +1396,10 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(future_scope),
         "",
+        "## How Codex Would Build This After USER Accepts The Direction",
+        "",
+        build_after_accept,
+        "",
         "## Implementation Staging Notes",
         "",
         *_markdown_lines(slc_package_plan),
@@ -1214,7 +1423,7 @@ def _write_user_branch_plan_review(
         "",
         "## Codex Recommendations And Implementation Options",
         "",
-        "This compatibility section is retained for older packet validators. See Implementation Options and Recommended Direction above.",
+        "This compatibility section is retained for older packet validators. See Implementation Options / Product Shapes and Recommended Direction above.",
         "",
         *_markdown_lines(implementation_options),
         "",
@@ -1333,6 +1542,15 @@ def _validate_workstream_entry_packet_decision_path(
     start_here = packet_files.get("START_HERE.md", "")
     if not _field_present(start_here, "Exact USER Decision This Bundle Supports"):
         failures.append("START_HERE.md: Exact USER Decision This Bundle Supports field is missing")
+    user_contract = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE, "")
+    if user_contract:
+        failures.extend(
+            _validate_user_branch_plan_contract_text(
+                user_contract,
+                source_name=USER_BRANCH_PLAN_REVIEW_FILE,
+                require_implementation_ready=require_implementation_ready,
+            )
+        )
     workstream_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
     if "Exact USER Decision" not in workstream_digest:
         failures.append("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: Exact USER Decision field is missing")

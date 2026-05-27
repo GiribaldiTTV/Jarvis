@@ -107,8 +107,13 @@ Required review markers:
 - Contract Version / Revision:
 - Desktop Review Bundle:
 - USER Review Packet Finding:
+- Family Vision Context:
+- Feature Vision:
+- Branch Goal:
 - Plain-Language Branch Goal:
 - What Will I Actually See, And Where Will I See It?:
+- How It Will Function:
+- User Experience Flow:
 - Planned User-Facing Outcome:
 - End-State Vision:
 - Visual / Behavioral Description:
@@ -122,11 +127,13 @@ Required review markers:
 - USER Design Review Questions:
 - Codex Recommendations:
 - Implementation Options:
+- Implementation Options / Product Shapes:
 - Recommended Direction:
 - Why This Fits The Nexus Vision:
 - USER Design Direction Decision:
 - Current Branch Scope:
 - Future-Gated Scope:
+- How Codex Would Build This After USER Accepts The Direction:
 - Implementation Staging Notes:
 - USER Decisions Needed:
 - Alternatives / Tradeoffs:
@@ -144,7 +151,7 @@ Required review markers:
 - Exact USER Decision Needed:
 - Implementation Approval:
 
-`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop USER Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. The packet must give USER answer paths to accept the recommendation, accept with changes, choose another option, request a hybrid option, reject and ask for more options, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the USER Branch Plan Contract: a required user-facing product/design planning artifact, not a normal Codex status digest. It must present the branch summary, what USER will actually see and where, end-state vision, visual/functional walkthrough, surface map, implementation options with pros/cons/risk, Codex recommended direction, why the recommendation fits the Nexus vision, current branch scope, future-gated scope, plain-English Implementation Staging Notes, clear USER decisions, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, completion checklist, and Workstream Entry result area. The primary USER decision surface is the feature end-state and possibility space; SLC/slice/seam details may appear only as implementation staging notes after the end-state recommendation is clear.
+`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop USER Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. The packet must give USER answer paths to accept the recommendation, accept with changes, choose another option, request a hybrid option, reject and ask for more options, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the USER Branch Plan Contract: a required user-facing product/design planning artifact, not a normal Codex status digest. It must present the family vision context, feature vision, branch goal, end-state vision, what USER will actually see and where, how the feature will function, user experience flow, visual/functional walkthrough, surface map, implementation options/product shapes with pros/cons/risk, Codex recommended direction, why the recommendation fits the Nexus vision, current branch scope, future-gated scope, clear USER decisions, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, completion checklist, and Workstream Entry result area before it presents the engineering route. The primary USER decision surface is the feature end-state and possibility space; SLC/slice/seam details may appear only after the branch vision is clear, under `How Codex Would Build This After USER Accepts The Direction` or `Implementation Staging Notes`. A SLC-centered, first-seam-centered, stale, unclear, or not accepted/waived contract blocks Workstream implementation.
 
 The USER Branch Plan Contract lifecycle is closed loop: Codex proposes the product/design direction, USER responds, Codex digests the response, Codex converts that response into explicit implementation constraints, Codex identifies source-truth and review-packet impact, and any plan-changing digest returns `Contract Status:` to `Pending USER Confirmation`. Codex must update the branch record, branch plan, family vision, backlog, roadmap, validation helper registry, review packet, or other required source truth when USER feedback changes branch direction, feature shape, UI behavior, workflow, end-state vision, implementation scope, future-gated boundaries, or seam order. Codex then refreshes the Desktop review packet and exported ZIP. The cycle repeats until USER explicitly confirms the final contract as `Complete` or explicitly waives the gate. Bounded Workstream implementation may proceed only when `Contract Status:` is `Complete` or `Waived by USER`.
 
