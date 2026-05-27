@@ -299,7 +299,17 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
                 "BP1 Codex Recommendations must be visualizable and include "
                 f"{term}"
             )
-    if any(term in text for term in ("Source HEAD:", "origin/main:", "ZIP SHA", "merge base")):
+    if any(
+        term in text
+        for term in (
+            "Source HEAD:",
+            "origin/main:",
+            "ZIP SHA",
+            "merge base",
+            "current branch HEAD",
+            "packet metadata matches HEAD",
+        )
+    ):
         failures.append("BP1 USER-facing review must not center technical Git packet metadata")
     normalized = text.casefold()
     slc_count = len(re.findall(r"\bslc-\d+\b", normalized))
@@ -331,7 +341,17 @@ def _validate_bp2_branch_plan_review_text(text: str) -> list[str]:
     normalized = text.casefold()
     if "bp1 status: complete" not in normalized and "bp1 status: waived by user" not in normalized:
         failures.append("BP2 missing accepted BP1 trace")
-    if any(term in text for term in ("Source HEAD:", "origin/main:", "ZIP SHA", "merge base")):
+    if any(
+        term in text
+        for term in (
+            "Source HEAD:",
+            "origin/main:",
+            "ZIP SHA",
+            "merge base",
+            "current branch HEAD",
+            "packet metadata matches HEAD",
+        )
+    ):
         failures.append("BP2 USER-facing review must not center technical Git packet metadata")
     return failures
 

@@ -662,8 +662,7 @@ USER_REVIEW_PACKET_FINDING_REQUIRED_TERMS = (
     ("START_HERE.md",),
     ("USER_BRANCH_PLAN_REVIEW.md",),
     ("zip", ".zip"),
-    ("Source HEAD", "packet source HEAD", "review zip source HEAD"),
-    ("current branch HEAD", "current HEAD"),
+    ("freshness proof", "fresh", "stale", "current"),
     ("loaded", "waived"),
     ("digested", "waived"),
     ("fresh", "match", "stale", "missing", "blocking", "waived"),
@@ -9678,7 +9677,7 @@ def _validate_user_branch_plan_review_gate(
             (
                 f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} USER Review "
                 "Packet Finding must prove START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, "
-                "the exported zip, Source HEAD/current branch HEAD freshness, and "
+                "the exported zip, review packet freshness proof, and "
                 "loaded/digested or waiver/blocker status"
             ),
         )

@@ -326,7 +326,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 30 | `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` | branch runtime engineering plan | 398 | Retired posture indexed | High | High |
 | 31 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch runtime engineering plan | 90 | Retired posture indexed | Medium | High |
 | 32 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | branch plan inventory receipt | 48 | Keep | Medium | High |
-| 33 | `Docs/branch_plans/README.md` | branch plan standard | 495 | Keep | Medium | High |
+| 33 | `Docs/branch_plans/README.md` | branch plan standard | 497 | Keep | Medium | High |
 | 34 | `Docs/branch_plans/retirement_index.md` | branch plan retirement index | 60 | Keep as retirement index | Medium | High |
 | 35 | `Docs/branch_records/codex_fam_007_branch_readiness.md` | branch authority / structured receipt | 188 | Keep historical receipt | Medium | High |
 | 36 | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | branch authority / structured receipt | 426 | Organize structured receipt | High | High |
@@ -415,9 +415,9 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 119 | `Docs/closeouts/v2.0_closeout.md` | release closeout receipt | 198 | Keep | Low | High |
 | 120 | `Docs/closeouts/v2.2.0_closeout.md` | release closeout receipt | 132 | Keep | Medium | High |
 | 121 | `Docs/closeouts/v2.2.1_closeout.md` | release closeout receipt | 107 | Keep | Medium | High |
-| 122 | `Docs/codex_modes.md` | Codex mode / behavior mirror | 797 | Keep | High | High |
+| 122 | `Docs/codex_modes.md` | Codex mode / behavior mirror | 799 | Keep | High | High |
 | 123 | `Docs/codex_user_guide.md` | operator guide | 860 | Keep | High | High |
-| 124 | `Docs/development_rules.md` | Codex execution rule mirror | 1067 | Keep | High | High |
+| 124 | `Docs/development_rules.md` | Codex execution rule mirror | 1068 | Keep | High | High |
 | 125 | `Docs/external_operational_state_store_reform_plan.md` | external operational state reform plan | 1312 | Keep | High | High |
 | 126 | `Docs/family_visions/FAM-001_boot_interface.md` | family vision | 30 | Keep as family vision owner | Low | High |
 | 127 | `Docs/family_visions/FAM-002_desktop_interface.md` | family vision | 30 | Keep as family vision owner | Low | High |
@@ -448,11 +448,11 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 152 | `Docs/orin_interaction_architecture.md` | product / architecture reference | 285 | Keep | Medium | High |
 | 153 | `Docs/orin_task_template.md` | prompt template | 1170 | Keep | High | High |
 | 154 | `Docs/ownership_ip_plan.md` | product / architecture reference | 112 | Keep | Medium | High |
-| 155 | `Docs/phase_governance.md` | normative phase governance | 2884 | Keep | High | High |
+| 155 | `Docs/phase_governance.md` | normative phase governance | 2886 | Keep | High | High |
 | 156 | `Docs/pr_watcher_mode_contract.md` | governance support standard | 83 | Keep | Medium | High |
 | 157 | `Docs/prebeta_roadmap.md` | release schedule outline | 139 | Keep compact | Critical | High |
 | 158 | `Docs/user_test_summary_guidance.md` | governance support standard | 348 | Keep | Medium | High |
-| 159 | `Docs/validation_helper_registry.md` | validator/helper registry | 299 | Keep | High | High |
+| 159 | `Docs/validation_helper_registry.md` | validator/helper registry | 301 | Keep | High | High |
 | 160 | `Docs/workspace_layout_plan.md` | product / architecture reference | 168 | Keep | Low | High |
 | 161 | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | workstream durable history | 741 | Keep / normalize durable history | Medium | High |
 | 162 | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` | workstream durable history | 408 | Keep / normalize durable history | Medium | High |
@@ -722,7 +722,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` | High | `volatile-current-wording=87`; `unclear-ownership-wording=115`; `soft-commitment-wording=4`; `state-ledger-wording=38` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | Medium | `volatile-current-wording=12`; `unclear-ownership-wording=25`; `soft-commitment-wording=2`; `state-ledger-wording=26` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | Medium | `volatile-current-wording=2`; `unclear-ownership-wording=26`; `state-ledger-wording=20` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/branch_plans/README.md` | High | `volatile-current-wording=68`; `unclear-ownership-wording=65`; `soft-commitment-wording=16`; `state-ledger-wording=85` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/README.md` | High | `volatile-current-wording=68`; `unclear-ownership-wording=66`; `soft-commitment-wording=18`; `state-ledger-wording=86` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/retirement_index.md` | High | `volatile-current-wording=45`; `unclear-ownership-wording=4`; `soft-commitment-wording=1`; `state-ledger-wording=41` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/codex_fam_007_branch_readiness.md` | Medium | `volatile-current-wording=34`; `unclear-ownership-wording=13`; `soft-commitment-wording=4`; `state-ledger-wording=17` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | Medium | `volatile-current-wording=47`; `unclear-ownership-wording=22`; `soft-commitment-wording=1`; `state-ledger-wording=28` | Review for ambiguous current/active/latest/pending ownership language. |
@@ -811,9 +811,9 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/closeouts/v2.0_closeout.md` | Low | `volatile-current-wording=13`; `unclear-ownership-wording=3`; `state-ledger-wording=4` | No scanner ambiguity markers found. |
 | `Docs/closeouts/v2.2.0_closeout.md` | Low | `volatile-current-wording=8`; `state-ledger-wording=1` | No scanner ambiguity markers found. |
 | `Docs/closeouts/v2.2.1_closeout.md` | Low | `volatile-current-wording=7`; `state-ledger-wording=4` | No scanner ambiguity markers found. |
-| `Docs/codex_modes.md` | High | `volatile-current-wording=349`; `unclear-ownership-wording=101`; `soft-commitment-wording=74`; `state-ledger-wording=157` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/codex_modes.md` | High | `volatile-current-wording=350`; `unclear-ownership-wording=102`; `soft-commitment-wording=75`; `state-ledger-wording=157` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/codex_user_guide.md` | High | `volatile-current-wording=301`; `unclear-ownership-wording=69`; `soft-commitment-wording=56`; `state-ledger-wording=144` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/development_rules.md` | High | `volatile-current-wording=430`; `unclear-ownership-wording=140`; `soft-commitment-wording=77`; `state-ledger-wording=239` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/development_rules.md` | High | `volatile-current-wording=431`; `unclear-ownership-wording=141`; `soft-commitment-wording=77`; `state-ledger-wording=239` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/external_operational_state_store_reform_plan.md` | High | `volatile-current-wording=236`; `unclear-ownership-wording=110`; `soft-commitment-wording=29`; `state-ledger-wording=469` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/family_visions/FAM-001_boot_interface.md` | Low | `volatile-current-wording=3`; `unclear-ownership-wording=1`; `soft-commitment-wording=2`; `state-ledger-wording=1` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/family_visions/FAM-002_desktop_interface.md` | Low | `volatile-current-wording=1`; `unclear-ownership-wording=2`; `soft-commitment-wording=2`; `state-ledger-wording=1` | Low ambiguity; keep owner labels precise when edited. |
@@ -831,7 +831,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/feature_backlog.md` | High | `volatile-current-wording=43`; `unclear-ownership-wording=62`; `soft-commitment-wording=6`; `state-ledger-wording=81` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_docs_full_inventory_reform_audit.md` | Low | None found. | Synthetic self-reference; review the actual generated dossier directly. |
 | `Docs/governance_docs_reform_user_review_index.md` | High | `volatile-current-wording=82`; `unclear-ownership-wording=57`; `soft-commitment-wording=7`; `state-ledger-wording=91` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/governance_efficiency_operating_model.md` | High | `volatile-current-wording=164`; `unclear-ownership-wording=118`; `soft-commitment-wording=78`; `state-ledger-wording=293` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/governance_efficiency_operating_model.md` | High | `volatile-current-wording=163`; `unclear-ownership-wording=119`; `soft-commitment-wording=79`; `state-ledger-wording=293` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_intake_triage_and_digest_profiles.md` | Medium | `volatile-current-wording=16`; `unclear-ownership-wording=4`; `soft-commitment-wording=6`; `state-ledger-wording=4` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/governance_process_efficiency_reform_plan.md` | High | `volatile-current-wording=167`; `unclear-ownership-wording=168`; `soft-commitment-wording=65`; `state-ledger-wording=144` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/incident_patterns.md` | High | `volatile-current-wording=55`; `unclear-ownership-wording=20`; `soft-commitment-wording=6`; `state-ledger-wording=26` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -844,11 +844,11 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/orin_interaction_architecture.md` | Medium | `volatile-current-wording=18`; `unclear-ownership-wording=1`; `soft-commitment-wording=33`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/orin_task_template.md` | High | `volatile-current-wording=292`; `unclear-ownership-wording=105`; `soft-commitment-wording=46`; `state-ledger-wording=184` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ownership_ip_plan.md` | Medium | `volatile-current-wording=15`; `unclear-ownership-wording=3`; `soft-commitment-wording=9`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/phase_governance.md` | High | `volatile-current-wording=932`; `unclear-ownership-wording=406`; `soft-commitment-wording=206`; `state-ledger-wording=605` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/phase_governance.md` | High | `volatile-current-wording=932`; `unclear-ownership-wording=407`; `soft-commitment-wording=206`; `state-ledger-wording=605` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/pr_watcher_mode_contract.md` | Medium | `volatile-current-wording=15`; `unclear-ownership-wording=8`; `soft-commitment-wording=2`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/prebeta_roadmap.md` | High | `volatile-current-wording=32`; `unclear-ownership-wording=14`; `soft-commitment-wording=6`; `state-ledger-wording=43` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/user_test_summary_guidance.md` | High | `volatile-current-wording=39`; `unclear-ownership-wording=17`; `soft-commitment-wording=15`; `state-ledger-wording=23` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/validation_helper_registry.md` | High | `volatile-current-wording=133`; `unclear-ownership-wording=95`; `soft-commitment-wording=18`; `state-ledger-wording=346` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/validation_helper_registry.md` | High | `volatile-current-wording=133`; `unclear-ownership-wording=96`; `soft-commitment-wording=19`; `state-ledger-wording=347` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/workspace_layout_plan.md` | Medium | `volatile-current-wording=17`; `soft-commitment-wording=6`; `state-ledger-wording=3` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | High | `volatile-current-wording=115`; `unclear-ownership-wording=23`; `soft-commitment-wording=11`; `state-ledger-wording=115` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` | High | `volatile-current-wording=92`; `unclear-ownership-wording=16`; `soft-commitment-wording=1`; `state-ledger-wording=42` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -1116,7 +1116,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` | 398 | Branch Runtime Engineering Plan: FAM-007 v1.7.23 Post-Release Canon Closure | branch runtime engineering plan | branch engineering plan shape and durable/historical branch-plan receipt | per-seam checklists, deltas, proof, approval boundaries as transition evidence or historical... | No direct edit in this branch; classified and governed by this dossier. | Do not reuse as an active plan; deletion requires later USER approval plus reference proof th... | Retired posture indexed | High | Low | Yes | Yes | Yes | Planning fixture validator checks required plan structure; governance efficiency validation r... | _Add notes here._ |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | 90 | Branch Runtime Engineering Plan - Repo-Wide High-Risk Source Owner Marker Adoption | branch runtime engineering plan | branch engineering plan shape and durable/historical branch-plan receipt | per-seam checklists, deltas, proof, approval boundaries as transition evidence or historical... | No direct edit in this branch; classified and governed by this dossier. | Do not reuse as an active plan; deletion requires later USER approval plus reference proof th... | Retired posture indexed | Medium | Medium | Yes | Yes | Yes | Planning fixture validator checks required plan structure; governance efficiency validation r... | _Add notes here._ |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | 48 | Source Owner Marker Inventory - Repo-Wide First Pass | branch plan inventory receipt | branch-specific inventory evidence | inventory rows and marker evidence while receipt needs it | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/branch_plans/README.md` | 495 | Branch Runtime Engineering Plans | branch plan standard | branch runtime engineering plan standard | required plan markers and lifecycle | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/branch_plans/README.md` | 497 | Branch Runtime Engineering Plans | branch plan standard | branch runtime engineering plan standard | required plan markers and lifecycle | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/branch_plans/retirement_index.md` | 60 | Branch Plan Retirement Index | branch plan retirement index | historical branch-plan retirement posture | retired plan list, durable lookup path, and deletion guardrails | No direct edit in this branch; classified and governed by this dossier. | Keep as the central historical branch-plan retirement posture and deletion guardrail. | Keep as retirement index | High | Low | Yes | Yes | Yes | Governance efficiency validator requires every historical branch plan to appear in the retire... | _Add notes here._ |
 | `Docs/branch_records/codex_fam_007_branch_readiness.md` | 188 | Branch Authority Record: codex/fam-007-branch-readiness | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/codex_fb_037_release_debt_packaging.md` | 426 | Branch Authority Record: codex/fb-037-release-debt-packaging | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | Medium | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
@@ -1205,9 +1205,9 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/closeouts/v2.0_closeout.md` | 198 | Nexus v2.0 Closeout | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeouts/v2.2.0_closeout.md` | 132 | Nexus v2.2.0 Closeout | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeouts/v2.2.1_closeout.md` | 107 | Nexus v2.2.1 Closeout | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/codex_modes.md` | 797 | Nexus Codex Modes | Codex mode / behavior mirror | Codex collaboration modes and compact behavior mirrors | mode behavior, evidence posture, and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/codex_modes.md` | 799 | Nexus Codex Modes | Codex mode / behavior mirror | Codex collaboration modes and compact behavior mirrors | mode behavior, evidence posture, and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/codex_user_guide.md` | 860 | Codex User Guide | operator guide | human-readable guide | operator explanation and examples | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/development_rules.md` | 1067 | Nexus Development Rules | Codex execution rule mirror | developer-facing execution rules and compact governance mirrors | execution reminders and pointers to owners | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/development_rules.md` | 1068 | Nexus Development Rules | Codex execution rule mirror | developer-facing execution rules and compact governance mirrors | execution reminders and pointers to owners | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/external_operational_state_store_reform_plan.md` | 1312 | External Operational State Store / Release Debt Abolition Reform Plan | external operational state reform plan | external operational state transition plan | Docs split target matrix, staged implementation boundaries, and future-work sequencing | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/family_visions/FAM-001_boot_interface.md` | 30 | FAM-001 Boot Interface Vision | family vision | durable family product direction | USER-accepted reusable family standards and future package boundaries | No direct edit in this branch; classified and governed by this dossier. | Receive USER-accepted reusable family product direction; do not absorb branch implementation... | Keep as family vision owner | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/family_visions/FAM-002_desktop_interface.md` | 30 | FAM-002 Desktop Interface Vision | family vision | durable family product direction | USER-accepted reusable family standards and future package boundaries | No direct edit in this branch; classified and governed by this dossier. | Receive USER-accepted reusable family product direction; do not absorb branch implementation... | Keep as family vision owner | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1238,11 +1238,11 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/orin_interaction_architecture.md` | 285 | ORIN Interaction Architecture | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orin_task_template.md` | 1170 | ORIN Task Template | prompt template | reusable prompt packet skeleton | fields prompts should include and owner pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/ownership_ip_plan.md` | 112 | Ownership And IP Protection Plan | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/phase_governance.md` | 2884 | Nexus Phase Governance | normative phase governance | canonical phase names, gates, blockers, proof hierarchy, phase transitions | normative phase rules and machine-facing blocker names | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/phase_governance.md` | 2886 | Nexus Phase Governance | normative phase governance | canonical phase names, gates, blockers, proof hierarchy, phase transitions | normative phase rules and machine-facing blocker names | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/pr_watcher_mode_contract.md` | 83 | PR Watcher Mode Contract | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/prebeta_roadmap.md` | 139 | Nexus Pre-Beta Roadmap | release schedule outline | pre-Beta/Beta/release stage-breakpoint schedule and broad milestone checkpoints | release-stage gates, public milestone checkpoints, and broad feature-family breakpoint refere... | No direct edit in this branch; classified and governed by this dossier. | Keep pointer-only; do not reintroduce live state or detailed trace tables. | Keep compact | High | Low | Yes | Yes | Yes | Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan de... | _Add notes here._ |
 | `Docs/user_test_summary_guidance.md` | 348 | User Test Summary Guidance | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/validation_helper_registry.md` | 299 | Nexus Validation Helper Registry | validator/helper registry | durable helper inventory and responsibility registry | helper statuses, reuse/consolidation story | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/validation_helper_registry.md` | 301 | Nexus Validation Helper Registry | validator/helper registry | durable helper inventory and responsibility registry | helper statuses, reuse/consolidation story | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/workspace_layout_plan.md` | 168 | Nexus Workspace Layout Plan | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | 741 | FB-004 Future Boot Orchestrator Layer | workstream durable history | durable implementation history, proof, package/slice trace | implemented slices, proof, reusable lessons, closeout | No direct edit in this branch; classified and governed by this dossier. | Future focused pass may label old live-state markers as historical without deleting proof. | Keep / normalize durable history | High | Low | Yes | Yes | Yes | Branch governance validator and future dossier checks should preserve durable trace ownership... | _Add notes here._ |
 | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` | 408 | FB-005 Workspace And Folder Organization | workstream durable history | durable implementation history, proof, package/slice trace | implemented slices, proof, reusable lessons, closeout | No direct edit in this branch; classified and governed by this dossier. | Future focused pass may label old live-state markers as historical without deleting proof. | Keep / normalize durable history | High | Low | Yes | Yes | Yes | Branch governance validator and future dossier checks should preserve durable trace ownership... | _Add notes here._ |
@@ -2467,9 +2467,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 33. `Docs/branch_plans/README.md`
 
 - File path: `Docs/branch_plans/README.md`
-- Line count: 495
+- Line count: 497
 - Current purpose: Branch Runtime Engineering Plans
-- Actual observed use: branch plan standard with markers live=14, pr/release/issue=2, package/slice=4, branch/worktree/phase=132, validator/helper=58.
+- Actual observed use: branch plan standard with markers live=11, pr/release/issue=2, package/slice=4, branch/worktree/phase=139, validator/helper=59.
 - Correct owner category: branch plan standard
 - What gets recorded here: branch runtime engineering plan standard.
 - What should be recorded here: required plan markers and lifecycle.
@@ -2479,7 +2479,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=68`; `unclear-ownership-wording=65`; `soft-commitment-wording=16`; `state-ledger-wording=85`
+- Ambiguity signals: `volatile-current-wording=68`; `unclear-ownership-wording=66`; `soft-commitment-wording=18`; `state-ledger-wording=86`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5315,9 +5315,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 122. `Docs/codex_modes.md`
 
 - File path: `Docs/codex_modes.md`
-- Line count: 797
+- Line count: 799
 - Current purpose: Nexus Codex Modes
-- Actual observed use: Codex mode / behavior mirror with markers live=68, pr/release/issue=62, package/slice=16, branch/worktree/phase=451, validator/helper=235.
+- Actual observed use: Codex mode / behavior mirror with markers live=68, pr/release/issue=62, package/slice=16, branch/worktree/phase=453, validator/helper=235.
 - Correct owner category: Codex mode / behavior mirror
 - What gets recorded here: Codex collaboration modes and compact behavior mirrors.
 - What should be recorded here: mode behavior, evidence posture, and pointers.
@@ -5327,7 +5327,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=349`; `unclear-ownership-wording=101`; `soft-commitment-wording=74`; `state-ledger-wording=157`
+- Ambiguity signals: `volatile-current-wording=350`; `unclear-ownership-wording=102`; `soft-commitment-wording=75`; `state-ledger-wording=157`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5379,9 +5379,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 124. `Docs/development_rules.md`
 
 - File path: `Docs/development_rules.md`
-- Line count: 1067
+- Line count: 1068
 - Current purpose: Nexus Development Rules
-- Actual observed use: Codex execution rule mirror with markers live=126, pr/release/issue=73, package/slice=20, branch/worktree/phase=589, validator/helper=341.
+- Actual observed use: Codex execution rule mirror with markers live=126, pr/release/issue=73, package/slice=20, branch/worktree/phase=596, validator/helper=342.
 - Correct owner category: Codex execution rule mirror
 - What gets recorded here: developer-facing execution rules and compact governance mirrors.
 - What should be recorded here: execution reminders and pointers to owners.
@@ -5391,7 +5391,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=430`; `unclear-ownership-wording=140`; `soft-commitment-wording=77`; `state-ledger-wording=239`
+- Ambiguity signals: `volatile-current-wording=431`; `unclear-ownership-wording=141`; `soft-commitment-wording=77`; `state-ledger-wording=239`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5957,7 +5957,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/governance_efficiency_operating_model.md`
 - Line count: 730
 - Current purpose: Governance Efficiency Operating Model
-- Actual observed use: governance support standard with markers live=89, pr/release/issue=20, package/slice=10, branch/worktree/phase=167, validator/helper=152.
+- Actual observed use: governance support standard with markers live=87, pr/release/issue=20, package/slice=10, branch/worktree/phase=169, validator/helper=152.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -5967,7 +5967,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=164`; `unclear-ownership-wording=118`; `soft-commitment-wording=78`; `state-ledger-wording=293`
+- Ambiguity signals: `volatile-current-wording=163`; `unclear-ownership-wording=119`; `soft-commitment-wording=79`; `state-ledger-wording=293`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6371,9 +6371,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 155. `Docs/phase_governance.md`
 
 - File path: `Docs/phase_governance.md`
-- Line count: 2884
+- Line count: 2886
 - Current purpose: Nexus Phase Governance
-- Actual observed use: normative phase governance with markers live=236, pr/release/issue=173, package/slice=48, branch/worktree/phase=1368, validator/helper=766.
+- Actual observed use: normative phase governance with markers live=236, pr/release/issue=173, package/slice=48, branch/worktree/phase=1377, validator/helper=768.
 - Correct owner category: normative phase governance
 - What gets recorded here: canonical phase names, gates, blockers, proof hierarchy, phase transitions.
 - What should be recorded here: normative phase rules and machine-facing blocker names.
@@ -6383,7 +6383,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=932`; `unclear-ownership-wording=406`; `soft-commitment-wording=206`; `state-ledger-wording=605`
+- Ambiguity signals: `volatile-current-wording=932`; `unclear-ownership-wording=407`; `soft-commitment-wording=206`; `state-ledger-wording=605`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6499,9 +6499,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 159. `Docs/validation_helper_registry.md`
 
 - File path: `Docs/validation_helper_registry.md`
-- Line count: 299
+- Line count: 301
 - Current purpose: Nexus Validation Helper Registry
-- Actual observed use: validator/helper registry with markers live=86, pr/release/issue=42, package/slice=8, branch/worktree/phase=251, validator/helper=757.
+- Actual observed use: validator/helper registry with markers live=86, pr/release/issue=42, package/slice=8, branch/worktree/phase=259, validator/helper=761.
 - Correct owner category: validator/helper registry
 - What gets recorded here: durable helper inventory and responsibility registry.
 - What should be recorded here: helper statuses, reuse/consolidation story.
@@ -6511,7 +6511,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=133`; `unclear-ownership-wording=95`; `soft-commitment-wording=18`; `state-ledger-wording=346`
+- Ambiguity signals: `volatile-current-wording=133`; `unclear-ownership-wording=96`; `soft-commitment-wording=19`; `state-ledger-wording=347`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.

@@ -104,6 +104,8 @@ When a review bundle supports a non-Workstream decision such as PR Readiness Sta
 
 Review-bundle helpers, fixtures, and validators must enforce the reformed lifecycle for future branches, not only the branch that exposed the drift. `USER_BRANCH_VISION_REVIEW.md` is the BP1 Branch Vision Contract. `USER_BRANCH_PLAN_REVIEW.md` is the BP2 engineering plan derived from accepted or waived BP1. `BP3 - Workstream Entry / Orchestration Validation` must block implementation approval unless BP1 and BP2 are `Complete` or `Waived by USER`. This keeps the existing `Workstream Entry Whole-Package Analysis Gate` as BP3 orchestration proof rather than a hidden Workstream planning phase.
 
+BP1/BP2 USER review bundles are not live branch-status artifacts after Workstream completes. Helpers and validators must require them while Branch Readiness / Branch Planning / BP3 needs USER vision or plan review, but Hardening, Live Validation, PR Readiness, and Release Readiness should not fail merely because the early USER packet was not regenerated after completed Workstream work. Later phases use source truth, branch diff, proof artifacts, fold-down receipts, and phase-specific packets unless they route back to Branch Planning or Branch Readiness for a vision/plan repair.
+
 Reusable guard requirements:
 
 - validate BP1 required sections for project/family/feature vision context, branch goal, end-state, user-visible surfaces/flow, product options, Codex line-item recommendations with USER response space, accepted branch vision, assumptions, future-gated ideas, and acceptance/revision/rejection/waiver status
