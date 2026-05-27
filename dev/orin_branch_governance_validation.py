@@ -20829,16 +20829,32 @@ def main() -> int:
         for path in active_branch_record_paths
         if path != STANDING_GOVERNANCE_INTAKE_RECORD_PATH
     ]
+    active_non_standing_records_without_transition_waiver: list[str] = []
+    for path in active_non_standing_branch_record_paths:
+        record_text = _read_text(path)
+        has_transition_waiver = all(
+            marker in record_text
+            for marker in (
+                "Active Branch Authority Transition Waiver: Granted",
+                "Transition Waiver USER Decision:",
+                "External State Reconciliation Proof:",
+            )
+        )
+        if not has_transition_waiver:
+            active_non_standing_records_without_transition_waiver.append(path)
     require(
-        not active_non_standing_branch_record_paths,
+        not active_non_standing_records_without_transition_waiver,
         (
             "Repo Active Operational State Prohibited: "
             "Docs/branch_records/index.md may not list non-standing active branch "
             "authority records after the External Operational State Store transition. "
             "Repo docs may keep durable branch/document evidence pointers and historical "
             "receipts only; active branch lifecycle state belongs in external operational "
-            "state or Git/GitHub/helper-derived truth. Offending record(s): "
-            + ", ".join(active_non_standing_branch_record_paths)
+            "state or Git/GitHub/helper-derived truth. A USER-approved transition "
+            "waiver must include Active Branch Authority Transition Waiver: Granted, "
+            "Transition Waiver USER Decision:, and External State Reconciliation Proof:. "
+            "Offending record(s): "
+            + ", ".join(active_non_standing_records_without_transition_waiver)
         ),
     )
     for prohibited_prefix in PROHIBITED_ACTIVE_BRANCH_PREFIXES:

@@ -119,6 +119,7 @@ BACKLOG_ROADMAP_CURRENT_STATE_SECTIONS = (
     "## Current Decision Surface",
     "## Current Branch Execution Posture",
     "## Selected Next Workstream",
+    "## Future Planning Pointers",
 )
 
 BACKLOG_ROADMAP_CURRENT_STATE_FORBIDDEN = (
