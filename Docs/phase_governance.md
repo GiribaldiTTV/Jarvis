@@ -133,6 +133,7 @@ Historical `codex/` branch names remain preserved traceability only and must not
 The only normal branch phases are:
 
 - `Branch Readiness`
+- `Branch Planning`
 - `Workstream`
 - `Hardening`
 - `Live Validation`
@@ -152,6 +153,114 @@ It may be:
 
 `Post-Release Canon Repair` is not a normal branch phase and is not a governance-only branch.
 Codex must not use direct-main repair; `main` is protected and file-frozen for Codex work.
+
+## Phase Lifecycle Matrix
+
+`Docs/phase_governance.md` is the single lifecycle-law owner. Other docs may mirror compact behavior or artifact rules, but phase/stage purpose, entry/exit criteria, allowed work, repair routing, and validation expectations fold back here.
+
+| Phase / Stage | Purpose | Owner Files | Required Artifacts | Allowed Work | Pending USER Decisions | Entry Criteria | Exit Criteria | Validation | Next Legal Stage | Repair Routes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `Branch Readiness` / `BR1 - Candidate / Carrier Readiness Analysis` | decide whether a branch should exist, what carrier is legal, and whether repo/source truth is ready | `Docs/phase_governance.md`, `Docs/branch_records/index.md`, family/project vision owners, active branch authority owner | BR1 analysis packet, carrier lifecycle decision, source-truth loader proof | analysis only, no branch setup or implementation | branch setup, implementation, PR/merge/release, issue mutation | USER asks for next branch/carrier analysis or current branch needs readiness classification | legal carrier, base, blockers, and exact BR2 decision are clear | governance validation when source truth is touched; otherwise identity/freshness proof | `BR2 - Branch Setup / Authority Admission` after USER approval, or blocked route | route to Governance intake, current-main reconciliation, source-truth repair, or no-active-branch wait |
+| `Branch Readiness` / `BR2 - Branch Setup / Authority Admission` | create/rebind the branch, admit authority, create initial planning owners, and create the review packet shell | branch authority owner, branch plan owner, `Docs/branch_plans/README.md`, review bundle helper | branch record/admission receipt, branch plan shell, USER review packet shell, validation proof | branch/worktree setup, authority admission, review shell generation, setup validation | BP1/BP2/BP3, Workstream implementation, PR/merge/release | BR1 accepted and current-main freshness is proven | carrier is created/rebound, authority is admitted, planning owner exists, packet shell exists, validation green | branch governance validation, fixture validation when helper/templates change | `Branch Planning` / `BP1` | repair carrier identity, stale packet, missing branch plan, or validation failure |
+| `Branch Planning` / `BP1 - USER Branch Vision Review` | create or revise the USER-facing branch vision/end-state contract | project vision owner, family vision owner, feature/branch vision owner, branch plan owner, review bundle helper | `USER_BRANCH_VISION_REVIEW.md` | product/vision analysis, options, USER design questions, source-truth digest of accepted vision | branch vision acceptance, revision, rejection, or explicit BP1 waiver | BR2 green or an accepted route-back from BP2/BP3/Hardening | Branch Vision is accepted by USER or explicitly waived; any source-truth impact is recorded | BP1 fixture validation and review-bundle guard when packet changes | `Branch Planning` / `BP2` | return to BP1 revision, source-truth owner decision, or blocker packet |
+| `Branch Planning` / `BP2 - USER Branch Plan Review` | derive the engineering branch plan from accepted BP1 vision and get USER plan acceptance | branch plan owner, `Docs/branch_plans/README.md`, validators/helpers, proof owners | `USER_BRANCH_PLAN_REVIEW.md`, SLC/seam plan, proof matrix, rollback/safety plan | engineering planning only, not runtime mutation | branch plan acceptance, revision, rejection, or explicit BP2 waiver | accepted/waived BP1 and current packet freshness | branch plan is accepted by USER or explicitly waived; plan traces to BP1 | BP2 fixture validation and review-bundle guard when packet changes | `Branch Planning` / `BP3` | route back to BP1 if plan changes vision; otherwise revise BP2 |
+| `Branch Planning` / `BP3 - Workstream Entry / Orchestration Validation` | prove BP2 implements BP1, branch scope is the largest safe feature-focused package, and orchestration/proof paths are ready | branch plan owner, phase governance, validators/helpers, proof owners | BP3 Workstream Entry analysis packet, BP1/BP2 acceptance proof, SLC traceability | orchestration validation, proof/rollback/H1/LV/UTS planning | first bounded Workstream implementation approval | accepted/waived BP1 and BP2 | implementation approval text is legal only when BP1/BP2 are accepted or waived and BP3 is green | branch readiness fixture validation, branch governance validation | `Workstream` after USER approval | return to BP2 for plan gaps, BP1 for vision gaps, or Branch Readiness for carrier/scope failure |
+| `Workstream` | execute approved runtime/code implementation and code-level validation only | active branch plan/workstream owner, source files, validators/helpers | implemented code, tests, code-level proof, plan-to-implementation trace | runtime/code mutation, code-level validation, narrow helper/validator updates required by implementation | Hardening, Live Validation, PR/merge/release, future-gated scope | BP3 green and USER implementation approval | admitted implementation scope complete or blocked by named blocker/waiver | relevant code validators, compile/test suites | `Hardening` | route back to BP3/BP2 for scope/vision drift; repair code defects in Workstream |
+| `Hardening` | pressure-test, sandbox validate, repair defects, and verify implementation against accepted BP1/BP2 | phase governance, branch plan owner, validators/helpers | hardening report, implementation-vs-plan comparison, defect repair proof | pressure tests, sandbox tests, defect repair, plan conformance repair | Live Validation, PR/merge/release, new scope | Workstream green or bounded Hardening repair approval | implementation matches accepted plan or drift is repaired/deferred/waived | hardening validators, sandbox proof, regression checks | `Live Validation` | route back to Workstream for code defects or BP2/BP1 for accepted-plan drift |
+| `Live Validation` | prove user-facing/live behavior and handle UTS | live validation owners, UTS guidance, branch plan owner | live proof, screenshots/evidence, UTS result/digest | user-facing proof, interactive/manual proof, UTS handling, live defect classification | PR Readiness, UTS waiver, merge/release | Hardening green | UTS PASS/WAIVED, live proof accepted, blockers reevaluated | live validators, screenshot/evidence review, UTS proof | `PR Readiness` | route back to Hardening or Workstream for defects; BP2/BP1 for plan/vision mismatch |
+| `PR Readiness` | analyze merge-stable projection and execute PR creation/review/merge after USER approval | phase governance, branch records, PR watcher contract | PR Stage 1 packet, Stage 2 PR execution packet, merge-stable projection | PR readiness analysis, PR creation after USER approval, bot-review repair, merge-watch | PR creation, merge, release, issue mutation, branch cleanup | Live Validation green or legal non-runtime carrier ready for PR | PR created/merged or blocked with exact decision | PR readiness gate, release-readiness health gate, watcher proof | `Release Readiness` after merge when release-bearing | route back to current branch repair, Branch Readiness, Governance intake, or no-active wait |
+| `Release Readiness` | file-frozen release analysis and release execution after USER approval | phase governance, release body validator, Git/GitHub truth | RR Stage 1/Stage 2 packets, release body, release/tag proof | analysis-only for repo files; release execution only after USER approval | release execution, post-release repair, next Branch Readiness | PR merged and release-bearing scope is ready or no-release decision is needed | release published/validated or blocked | release body validator, release readiness health gate, tag/release verification | `No Active Branch` or next `Branch Readiness` | route source changes to PR Readiness before merge or next Branch Readiness after merge |
+
+## Branch Planning Phase
+
+`Branch Planning` is the canonical phase between `Branch Readiness` and `Workstream`. It owns branch vision review, branch plan review, and final pre-implementation orchestration validation. `Workstream Entry` is no longer a hidden planning gate inside `Workstream`; it is `BP3 - Workstream Entry / Orchestration Validation` inside `Branch Planning`.
+
+Workstream is runtime/code implementation and code-level validation only.
+
+### BP1 - USER Branch Vision Review
+
+`BP1` creates or validates `USER_BRANCH_VISION_REVIEW.md` as a USER-facing product/vision document generated from project vision, family vision, feature vision, branch candidate, and accepted USER inputs. The file must avoid technical Git packet metadata such as branch HEAD, SHA, origin/main, merge base, and ZIP hash. Technical packet metadata belongs in `START_HERE.md`, helper output, or Codex chat digests.
+
+Required BP1 content:
+
+- Project Vision Context
+- Family Vision Context
+- Feature Vision Context
+- Branch Goal
+- Codex understanding of what the branch is creating
+- End-State Vision
+- What Will I Actually See, And Where Will I See It?
+- How It Will Function
+- User Experience Flow
+- Surface Map
+- Product Options / Design Paths
+- Codex Recommendations in line-item format with USER response space under each item
+- Why Codex recommendations fit the Nexus project vision and family vision
+- USER Design Questions
+- USER Response
+- Codex Digest
+- Accepted Branch Vision
+- Family-vision versus branch-only vision impact
+- Must-have behavior
+- Must-not-regress / regression-risk rules
+- Must-not-do boundaries
+- Deferred and future-gated ideas
+- Vision Question Queue
+- Design Assumption Ledger
+- Contract Status
+- Contract Revision
+- Acceptance / Revision / Rejection / Waiver decision area
+
+BP1 becomes green only when USER accepts the Branch Vision or explicitly waives the BP1 gate. If USER changes the vision, Codex must digest the response, update the vision contract and required source truth, regenerate the packet, set the contract to the correct pending confirmation state, and return BP1 for USER confirmation.
+
+### BP2 - USER Branch Plan Review
+
+`BP2` creates or validates `USER_BRANCH_PLAN_REVIEW.md` as the engineering plan derived from the accepted BP1 Branch Vision. The file must avoid technical Git packet metadata and must ask whether the implementation plan correctly builds the accepted BP1 vision.
+
+Required BP2 content:
+
+- Accepted Branch Vision Summary
+- Implementation Package Summary
+- Branch Scope Size Test
+- SLC / seam plan
+- Affected surfaces
+- Likely files
+- Validators/helpers
+- Proof requirements
+- Element-to-Phase Proof Matrix
+- H1 expectations
+- LV / UTS expectations
+- Rollback / safety plan
+- Open engineering risks
+- Future-gated boundaries
+- Line-item USER Plan Review list
+- USER response area for each line item where useful
+- Plan Acceptance Checklist
+- Contract Status
+- Exact BP3 approval text when ready
+
+BP2 becomes green only when USER accepts the Branch Plan or explicitly waives the BP2 gate. If BP2 changes the accepted BP1 vision, the branch routes back to BP1 instead of moving forward.
+
+### BP3 - Workstream Entry / Orchestration Validation
+
+`BP3` validates orchestration and is the final pre-implementation gate. BP3 must load accepted or waived BP1/BP2 outputs, prove BP2 implements BP1, prove the branch package is the largest safe feature-focused implementation package, prove SLCs are the engineering route inside one branch rather than automatic separate branches, prove affected files, validators, helper updates, H1, LV, UTS, rollback, and proof paths, and prove future-gated boundaries are preserved.
+
+BP3 may return first bounded Workstream implementation approval only after BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. If BP1 or BP2 is pending, unclear, stale, incomplete, rejected, or unwaived, BP3 must return `BLOCKED` or `REPAIR` and ask for contract acceptance, revision, rejection, or waiver instead of implementation approval.
+
+### Branch Size Law And SLC Traceability
+
+The goal is meaningful throughput with safe scope. A branch should be the largest coherent feature-focused implementation package that can be implemented, validated, hardened, live-validated, reviewed, and rolled back without mixing unrelated product areas. Small single-control branches are discouraged when the control naturally belongs to a larger accepted feature branch. Broad unrelated branches are discouraged when they mix distinct families, provider/model work, export/share work, theme work, or unrelated product surfaces.
+
+SLCs divide work inside a branch. SLCs do not automatically become separate branches. Every SLC must trace to a BP1 accepted branch vision requirement and a BP2 branch plan line item.
+
+### Branch Planning Review Artifact Model
+
+USER review packets use the stable worktree-label artifact model:
+
+- `Nexus USER Review\<worktree-label>`
+- `Nexus USER Review\<worktree-label>.zip`
+
+Sidecar files, uniquely named upload ZIPs, and alternate upload marker files are outside the stable model unless USER separately admits them. USER-facing review files (`USER_BRANCH_VISION_REVIEW.md` and `USER_BRANCH_PLAN_REVIEW.md`) should stay focused on product direction and implementation planning and avoid technical packet metadata. Technical metadata may appear in `START_HERE.md`, helper output, or Codex return packets.
 
 ## Phase Alias UX Boundary
 
@@ -2688,7 +2797,7 @@ Allowed:
 - one standing worktree: `C:\Nexus Worktrees\Governance`
 - one standing branch: `feature/release-readiness-source-truth-intake`
 - one standing active authority record: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- one intake source: `Release Readiness digest` for release-blocker repair, plus USER-approved `automation/worktree governance intake` only when the issue is non-runtime, multi-worktree safety related, plus USER-approved `phase-gate governance intake` only when a live branch exposes a repeatable non-runtime phase-gate miss; every intake remains held to the same one-cycle, PR-gated contract
+- one intake source: `Release Readiness digest` for release-blocker repair, plus USER-approved `automation/worktree governance intake` only when the issue is non-runtime, multi-worktree safety related, plus USER-approved `phase-gate governance intake` only when a live branch exposes a repeatable non-runtime phase-gate miss, plus USER-approved broad governance/source-truth reform only when confined to governance law, helper/validator/template/fixture enforcement, and stable review-packet governance; every intake remains held to the same one-cycle, PR-gated contract
 - one cycle ID format: `RRI-YYYYMMDD-NNN`
 - `One Active Cycle`: only one active `RRI-*` cycle may be in progress; additional digests queue
 - `Sync Rule`: before each new intake, the standing branch must be clean and match current `origin/main`

@@ -9,6 +9,7 @@ worktree. It never edits repo files.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import shutil
@@ -36,6 +37,14 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "replaced the stable review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
+USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
+DISALLOWED_USER_FACING_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("Source HEAD", re.compile(r"\bSource HEAD\b", re.IGNORECASE)),
+    ("origin/main", re.compile(r"\borigin/main\b", re.IGNORECASE)),
+    ("merge base", re.compile(r"\bmerge base\b", re.IGNORECASE)),
+    ("ZIP SHA", re.compile(r"\b(?:ZIP SHA|SHA256|zip hash)\b", re.IGNORECASE)),
+    ("raw commit hash", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
+)
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -255,6 +264,22 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
         raise
 
 
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _validate_user_facing_review_text(file_name: str, text: str) -> None:
+    for reason, pattern in DISALLOWED_USER_FACING_METADATA_PATTERNS:
+        if pattern.search(text):
+            raise ValueError(
+                f"{file_name}: user-facing review file contains technical packet metadata: {reason}"
+            )
+
+
 def _validate_export_zip(
     export_zip: Path,
     *,
@@ -275,6 +300,15 @@ def _validate_export_zip(
             raise ValueError(
                 f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
             ) from exc
+        try:
+            vision_review = archive.read(USER_BRANCH_VISION_REVIEW_FILE).decode("utf-8")
+        except KeyError:
+            vision_review = ""
+        if "UPLOAD_THIS_ZIP.md" in entries:
+            raise ValueError(
+                "Review export zip contains UPLOAD_THIS_ZIP.md, which is outside "
+                "the simplified stable worktree-label artifact model"
+            )
     if entries != expected_entries:
         missing = sorted(expected_entries - entries)
         extra = sorted(entries - expected_entries)
@@ -306,6 +340,9 @@ def _validate_export_zip(
         raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
     if "USER Review Packet Finding: PASS" not in start_here:
         raise ValueError("Review export zip is missing USER Review Packet Finding proof")
+    _validate_user_facing_review_text(USER_BRANCH_PLAN_REVIEW_FILE, user_review)
+    if vision_review:
+        _validate_user_facing_review_text(USER_BRANCH_VISION_REVIEW_FILE, vision_review)
     for required_heading in (
         "## Contract Status",
         "## Contract Version / Revision",
@@ -548,7 +585,7 @@ def _write_user_branch_plan_review(
             "Vision Delta / Source-Truth Impact is resolved.",
             "USER Rejected / Deferred Ideas are recorded.",
             "Contract Change Log is current.",
-            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+            "Packet technical metadata is kept in START_HERE.md and helper output, not in this USER-facing plan.",
             "Workstream Entry Result is present only after response/digest or waiver.",
             "Exact implementation approval text cites completed or waived contract status.",
         ]
@@ -671,7 +708,7 @@ def _write_user_branch_plan_review(
             "Vision Delta / Source-Truth Impact is resolved.",
             "USER Rejected / Deferred Ideas are recorded.",
             "Contract Change Log is current.",
-            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+            "Packet technical metadata is kept in START_HERE.md and helper output, not in this USER-facing plan.",
             "Workstream Entry Result is present only after response/digest or waiver.",
             "Exact implementation approval text cites completed or waived contract status.",
         ]
@@ -822,13 +859,9 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(slc_package_plan),
         "",
-        "## Current Branch State",
+        "## Packet Technical Metadata",
         "",
-        f"- Source Branch: `{source_branch}`",
-        f"- Source HEAD: `{source_head}`",
-        f"- Upstream: `{upstream}`",
-        f"- origin/main: `{origin_main}`",
-        f"- Source Repo: `{ROOT}`",
+        "Technical packet metadata is intentionally kept in START_HERE.md and helper output so this USER-facing plan can stay focused on product direction, engineering plan, accepted constraints, and USER decisions.",
         "",
         "## Workstream Entry Result",
         "",
@@ -1297,6 +1330,7 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
+    print(f"Review export zip SHA256: {_sha256(export_zip)}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "

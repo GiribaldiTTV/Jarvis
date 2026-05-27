@@ -25,6 +25,7 @@ _GITHUB_API_TOKEN_LOADED = False
 
 PHASES = (
     "Branch Readiness",
+    "Branch Planning",
     "Workstream",
     "Hardening",
     "Live Validation",
@@ -6626,6 +6627,52 @@ FRESH_FAMILY_TAXONOMY = {
         "package": "PKG-008",
         "legacy": (),
     },
+}
+
+BRANCH_PLANNING_REFORM_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Branch Planning",
+        "BP1 - USER Branch Vision Review",
+        "BP2 - USER Branch Plan Review",
+        "BP3 - Workstream Entry / Orchestration Validation",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
+        "Workstream is runtime/code implementation and code-level validation only",
+        "SLCs divide work inside a branch",
+        "Nexus USER Review\\<worktree-label>",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "USER Branch Vision Review Gate",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "Accepted Branch Vision Summary:",
+        "Branch Scope Size Test:",
+        "SLC / Seam Plan:",
+        "Exact BP3 approval text",
+        "BP2 must include an accepted BP1 trace",
+    ),
+    Path("Docs/development_rules.md"): (
+        "Branch Planning separates planning from implementation",
+        "BP1 creates or revises `USER_BRANCH_VISION_REVIEW.md`",
+        "BP2 creates or revises `USER_BRANCH_PLAN_REVIEW.md`",
+        "Workstream itself is runtime/code implementation and code-level validation only",
+    ),
+    Path("Docs/codex_modes.md"): (
+        "`Branch Planning` is the canonical phase between Branch Readiness and Workstream",
+        "BP3 is Workstream Entry / Orchestration Validation",
+        "Workstream is runtime/code implementation and code-level validation only",
+    ),
+    Path("Docs/governance_efficiency_operating_model.md"): (
+        "`Branch Planning` separates USER vision acceptance",
+        "BP1 - USER Branch Vision Review",
+        "BP2 - USER Branch Plan Review",
+        "BP3 - Workstream Entry / Orchestration Validation",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "Branch Planning Review Validator Contract",
+        "`USER_BRANCH_VISION_REVIEW.md` is the BP1 Branch Vision Contract",
+        "`USER_BRANCH_PLAN_REVIEW.md` is the BP2 engineering plan",
+        "reject BP3 when it returns Workstream or SLC implementation approval while BP1 or BP2 is pending",
+    ),
 }
 
 FRESH_FAMILY_NAMESPACE_REQUIRED_PHRASES = (
@@ -19050,6 +19097,13 @@ def _run_standing_governance_intake_gate(require) -> None:
         ),
     )
     require(
+        "broad governance/source-truth reform" in intake_source,
+        (
+            f"{expected_record_path}: Intake Source must name the USER-approved "
+            "broad governance/source-truth reform exception"
+        ),
+    )
+    require(
         "Waiting For Governance Intake" in record_text and "Waiting For Updated Main" in record_text,
         (
             f"{expected_record_path}: originating-lane pause semantics must include "
@@ -20577,6 +20631,14 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: USER Branch Plan Review Gate guidance is missing '{required_phrase}'",
+            )
+
+    for relative_path, required_phrases in BRANCH_PLANNING_REFORM_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Branch Planning lifecycle reform guidance is missing '{required_phrase}'",
             )
 
     for relative_path, required_phrases in FORWARDED_DIGEST_NON_COMPACTION_REQUIRED_PHRASES.items():

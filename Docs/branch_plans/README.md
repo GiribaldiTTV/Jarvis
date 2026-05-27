@@ -80,12 +80,14 @@ Every planned/current created/touched/affected user-facing, runtime, UI, provide
 
 ## Workstream Entry Review Bundle
 
-`Workstream Entry` is the pre-implementation review gate inside the `Workstream` phase. It is not a separate canonical phase, but it must produce USER-reviewable evidence before implementation begins or resumes.
+`Workstream Entry` is `BP3 - Workstream Entry / Orchestration Validation` inside the canonical `Branch Planning` phase. It is the final pre-implementation planning gate, not runtime/code implementation and not a hidden subphase of `Workstream`.
 
-Before USER can green-light Workstream implementation, Codex must return a full, non-compacted Workstream Entry Review Digest and create or refresh the active worktree's Desktop `USER Review Desktop Bundle` under the stable `Nexus USER Review\<worktree-label>` root.
+Before USER can green-light Workstream implementation, Codex must return a full, non-compacted BP3 / Workstream Entry Review Digest and create or refresh the active worktree's Desktop `USER Review Desktop Bundle` under the stable `Nexus USER Review\<worktree-label>` root.
 
 The bundle should copy the branch vision and planning files the USER needs to inspect, including:
 
+- `USER_BRANCH_VISION_REVIEW.md` when BP1 is required
+- `USER_BRANCH_PLAN_REVIEW.md` when BP2 is required
 - active external Branch Runtime Engineering Plan or transition-approved Branch Engineering Plan
 - Branch Vision Contract Snapshot owner
 - Element-to-Phase Proof Matrix owner
@@ -95,12 +97,51 @@ The bundle should copy the branch vision and planning files the USER needs to in
 
 The bundle must use the active worktree label, copy the selected files flat into that worktree folder, and rely on `START_HERE.md` to map copied filenames back to repo-relative source paths. The digest must report the review folder path, copied files, source branch, source HEAD, validation summary, exact Workstream green-light decision requested, and pending USER decisions. Missing bundle proof blocks Workstream entry on `Workstream Entry Review Bundle Missing`.
 
+USER-facing review files must not center technical packet metadata. `USER_BRANCH_VISION_REVIEW.md` and `USER_BRANCH_PLAN_REVIEW.md` focus on product direction, accepted vision, engineering plan, USER decisions, and implementation constraints. Git branch, HEAD, origin/main, merge base, and ZIP/hash facts belong in `START_HERE.md`, helper output, or Codex chat digests.
+
+## USER Branch Vision Review Gate
+
+`USER_BRANCH_VISION_REVIEW.md` is the BP1 Branch Vision Contract. It is generated from the project vision, family vision, feature/branch candidate, and accepted USER inputs. It lets USER and ChatGPT critique the branch end-state, user-facing behavior, surfaces, flows, options, tradeoffs, Codex recommendations, and open design decisions before implementation planning hardens around the wrong product shape.
+
+Required BP1 review markers:
+
+- Project Vision Context:
+- Family Vision Context:
+- Feature Vision Context:
+- Branch Goal:
+- Codex Understanding:
+- End-State Vision:
+- What Will I Actually See, And Where Will I See It?:
+- How It Will Function:
+- User Experience Flow:
+- Surface Map:
+- Product Options / Design Paths:
+- Codex Recommendations:
+- Why This Fits The Nexus Vision:
+- USER Design Questions:
+- USER Response:
+- Codex Digest:
+- Accepted Branch Vision:
+- Family-Vision Versus Branch-Only Impact:
+- Must-Have Behavior:
+- Must-Not-Regress / Regression-Risk Rules:
+- Must-Not-Do Boundaries:
+- Deferred And Future-Gated Ideas:
+- Vision Question Queue:
+- Design Assumption Ledger:
+- Contract Status:
+- Contract Revision:
+- Acceptance / Revision / Rejection / Waiver Decision:
+
+`Contract Status:` must be `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. BP1 becomes green only when USER accepts the Branch Vision or explicitly waives the BP1 gate. If USER feedback changes project-wide or family-wide durable direction, Codex must identify the correct source-truth owner and return the exact USER decision needed before promoting the change.
+
 ## USER Branch Plan Review Gate
 
-`USER Branch Plan Review Gate` is the named USER-facing Workstream Entry checkpoint. It wraps the active external branch plan or transition-approved branch plan, Branch Vision Contract Snapshot, Element-to-Phase Proof Matrix, Workstream Entry whole-package analysis, Hardening plan, Live Validation / UTS plan, UFD items, and Branch Change Intent Ledger when present into a plain-language product/design planning packet before Workstream implementation begins or resumes. The packet must help USER answer whether they actually like what Codex is about to build, not merely prove that governance markers exist.
+`USER Branch Plan Review Gate` is the BP2 USER-facing engineering-plan checkpoint. It wraps the accepted BP1 Branch Vision, active external branch plan or transition-approved branch plan, Element-to-Phase Proof Matrix, SLC/seam plan, Hardening plan, Live Validation / UTS plan, UFD items, and Branch Change Intent Ledger when present into a plain-language implementation plan before BP3 and before Workstream implementation begins or resumes. The packet must help USER answer whether the engineering plan correctly builds the accepted branch vision, not merely prove that governance markers exist.
 
 Required review markers:
 
+- Accepted Branch Vision Summary:
 - USER Branch Plan Review:
 - Review Status:
 - Contract Status:
@@ -115,7 +156,17 @@ Required review markers:
 - Visual / Functional Walkthrough:
 - Surface Map:
 - Implementation Breakdown:
+- Branch Scope Size Test:
+- SLC / Seam Plan:
+- Affected Surfaces:
+- Likely Files:
+- Validators / Helpers:
+- Proof Requirements:
 - Element-to-Phase Proof Matrix:
+- H1 Expectations:
+- LV / UTS Expectations:
+- Rollback / Safety Plan:
+- Open Engineering Risks:
 - Hardening Plan:
 - Live Validation / UTS Plan:
 - Open USER Questions:
@@ -138,13 +189,17 @@ Required review markers:
 - Contract Change Log:
 - Workstream Entry Result:
 - Contract Completion Checklist:
+- Plan Acceptance Checklist:
 - Accepted Scope:
 - Deferred Scope:
 - Rejected Scope:
 - Exact USER Decision Needed:
+- Exact BP3 approval text:
 - Implementation Approval:
 
 `Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop USER Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. The packet must give USER answer paths to accept the recommendation, accept with changes, choose another option, request a hybrid option, reject and ask for more options, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the USER Branch Plan Contract: a required user-facing product/design planning artifact, not a normal Codex status digest. It must present the branch summary, what USER will actually see and where, end-state vision, visual/functional walkthrough, surface map, implementation options with pros/cons/risk, Codex recommended direction, why the recommendation fits the Nexus vision, current branch scope, future-gated scope, plain-English Implementation Staging Notes, clear USER decisions, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, completion checklist, and Workstream Entry result area. The primary USER decision surface is the feature end-state and possibility space; SLC/slice/seam details may appear only as implementation staging notes after the end-state recommendation is clear.
+
+BP2 must include an accepted BP1 trace. If BP2 exposes a vision gap or changes the accepted BP1 vision, route back to BP1 instead of returning BP3 or Workstream implementation approval.
 
 The USER Branch Plan Contract lifecycle is closed loop: Codex proposes the product/design direction, USER responds, Codex digests the response, Codex converts that response into explicit implementation constraints, Codex identifies source-truth and review-packet impact, and any plan-changing digest returns `Contract Status:` to `Pending USER Confirmation`. Codex must update the branch record, branch plan, family vision, backlog, roadmap, validation helper registry, review packet, or other required source truth when USER feedback changes branch direction, feature shape, UI behavior, workflow, end-state vision, implementation scope, future-gated boundaries, or seam order. Codex then refreshes the Desktop review packet and exported ZIP. The cycle repeats until USER explicitly confirms the final contract as `Complete` or explicitly waives the gate. Bounded Workstream implementation may proceed only when `Contract Status:` is `Complete` or `Waived by USER`.
 

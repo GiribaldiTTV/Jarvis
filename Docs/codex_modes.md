@@ -755,6 +755,8 @@ When a branch is in governed closeout recovery, prompts should also state:
 
 If `Phase` is missing or is not one of the exact canonical phase names from `Docs/phase_governance.md`, execution must stop at truth-validation or analysis.
 
+`Branch Planning` is the canonical phase between Branch Readiness and Workstream. BP1 creates/revises `USER_BRANCH_VISION_REVIEW.md`; BP2 creates/revises `USER_BRANCH_PLAN_REVIEW.md`; BP3 is Workstream Entry / Orchestration Validation. Workstream is runtime/code implementation and code-level validation only. Codex must not return Workstream implementation approval while BP1 or BP2 is pending, stale, unclear, rejected, incomplete, or unwaived.
+
 ## Live-State Readiness Sanity Check
 
 Before generating any readiness, PR, merge, or release recommendation, validate:

@@ -448,9 +448,10 @@ Validators should prefer the current summary when checking phase posture. Histor
 
 ## Phase Alias UX
 
-Canonical phase names remain unchanged for validators:
+Canonical phase names for validators are:
 
 - `Branch Readiness`
+- `Branch Planning`
 - `Workstream`
 - `Hardening`
 - `Live Validation`
@@ -472,6 +473,16 @@ Human-facing aliases may be used only as explanatory labels:
 Aliases must never replace canonical phase markers in source truth.
 
 ## Branch Planning UX Standard
+
+`Docs/phase_governance.md` owns lifecycle law. This section is only the compact UX mirror for how USER-facing planning should feel after the Branch Planning reform.
+
+`Branch Planning` separates USER vision acceptance from engineering plan acceptance and orchestration validation:
+
+- `BP1 - USER Branch Vision Review`: `USER_BRANCH_VISION_REVIEW.md` explains what the branch is trying to create, how it will look and function, where the USER will see it, which product options exist, what Codex recommends, and what USER accepted, changed, rejected, deferred, or waived.
+- `BP2 - USER Branch Plan Review`: `USER_BRANCH_PLAN_REVIEW.md` explains how Codex would build the accepted BP1 vision: scope size, SLC/seam package, affected surfaces/files, validators/helpers, proof, H1/LV/UTS, rollback, risks, future-gated boundaries, and the plan acceptance checklist.
+- `BP3 - Workstream Entry / Orchestration Validation`: validates that BP2 implements BP1, that the branch is the largest safe feature-focused package, and that SLCs are the engineering route inside one branch. It cannot return implementation approval while BP1 or BP2 is pending, stale, unclear, rejected, or unwaived.
+
+The USER-facing planning files should avoid branch HEAD, SHA, origin/main, merge base, ZIP hash, and similar technical packet metadata. Technical metadata belongs in `START_HERE.md`, helper output, or Codex chat digests.
 
 Runtime Branch Readiness should separate dense planning into:
 
