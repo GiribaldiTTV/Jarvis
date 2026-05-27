@@ -759,6 +759,8 @@ If `Phase` is missing or is not one of the exact canonical phase names from `Doc
 
 BP1/BP2 USER review packets are early-phase USER/ChatGPT review aids, not durable evidence or posterity archives. Keep them current only through the active BP1/BP2/BP3 review loop before implementation approval; fold accepted outcomes into source truth, then let later phases use source truth, branch diff, proof artifacts, fold-down receipts, and their own phase packets unless they explicitly route back to Branch Planning or Branch Readiness for vision/plan repair.
 
+`START_HERE.md`, `USER_BRANCH_VISION_REVIEW.md`, and `USER_BRANCH_PLAN_REVIEW.md` are USER-facing review files. They must not carry active branch status or technical proof metadata such as branch HEAD, origin/main, merge base, validation state, PR state, zip hash, or stale-guard proof. Put those details in helper output, validator output, Codex chat digest, or external governance state.
+
 ## Live-State Readiness Sanity Check
 
 Before generating any readiness, PR, merge, or release recommendation, validate:

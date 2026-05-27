@@ -56,6 +56,18 @@ DISALLOWED_USER_FACING_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...
     ("raw commit hash", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
 )
 
+DISALLOWED_START_HERE_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("Source Branch", re.compile(r"\bSource Branch\b", re.IGNORECASE)),
+    ("Source HEAD", re.compile(r"\bSource HEAD\b", re.IGNORECASE)),
+    ("Upstream", re.compile(r"\bUpstream\b", re.IGNORECASE)),
+    ("origin/main", re.compile(r"\borigin/main\b", re.IGNORECASE)),
+    ("Review Export Zip", re.compile(r"\bReview Export Zip\b", re.IGNORECASE)),
+    ("Validation Summary", re.compile(r"\bValidation Summary\b", re.IGNORECASE)),
+    ("Stale Guard", re.compile(r"\bStale Guard\b", re.IGNORECASE)),
+    ("raw commit hash", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
+    ("SHA256", re.compile(r"\bSHA256\b", re.IGNORECASE)),
+)
+
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
@@ -375,30 +387,16 @@ def _validate_export_zip(
             "Review export zip file-list guard failed: "
             f"missing={missing or 'none'} extra={extra or 'none'}"
         )
-    if f"Source Branch: `{source_branch}`" not in start_here:
-        raise ValueError(
-            "Review export zip branch guard failed: START_HERE Source Branch "
-            f"does not match {source_branch}"
-        )
-    if f"Source HEAD: `{source_head}`" not in start_here:
-        raise ValueError(
-            "Review export zip stale-head guard failed: START_HERE Source HEAD "
-            f"does not match {source_head}"
-        )
-    if f"origin/main: `{origin_main}`" not in start_here:
-        raise ValueError(
-            "Review export zip origin/main guard failed: START_HERE origin/main "
-            f"does not match {origin_main}"
-        )
-    if f"Review Export Zip Source HEAD: `{source_head}`" not in start_here:
-        raise ValueError(
-            "Review export zip stale-head guard failed: Review Export Zip Source HEAD "
-            f"does not match {source_head}"
-        )
-    if "Review Export Zip Stale Guard: PASS" not in start_here:
-        raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
-    if "USER Review Packet Finding: PASS" not in start_here:
-        raise ValueError("Review export zip is missing USER Review Packet Finding proof")
+    for label, pattern in DISALLOWED_START_HERE_METADATA_PATTERNS:
+        if pattern.search(start_here):
+            raise ValueError(
+                "Review export zip START_HERE.md contains technical proof metadata "
+                f"reserved for helper output/Codex digest: {label}"
+            )
+    if "Temporary USER/ChatGPT Review Aid" not in start_here:
+        raise ValueError("Review export zip START_HERE.md is missing temporary review-aid scope")
+    if USER_BRANCH_PLAN_REVIEW_FILE not in start_here:
+        raise ValueError(f"Review export zip START_HERE.md is missing {USER_BRANCH_PLAN_REVIEW_FILE}")
     _validate_user_facing_review_text(USER_BRANCH_PLAN_REVIEW_FILE, user_review)
     if vision_review:
         _validate_user_facing_review_text(USER_BRANCH_VISION_REVIEW_FILE, vision_review)
@@ -633,7 +631,7 @@ def _write_user_branch_plan_review(
             "Family vision: record per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
             "Active branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
             "Backlog/roadmap: record planning-governance PR-readiness posture rather than runtime implementation posture.",
-            "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
+            "Review packet: refresh only while USER/ChatGPT review is active; accepted outcomes fold into source truth.",
             "Workstream seam order: target model remains future implementation staging, not current branch work.",
         ]
         contract_change_log = [
@@ -650,7 +648,7 @@ def _write_user_branch_plan_review(
             "Vision Delta / Source-Truth Impact is resolved.",
             "USER Rejected / Deferred Ideas are recorded.",
             "Contract Change Log is current.",
-            "Packet technical metadata is kept in START_HERE.md and helper output, not in this USER-facing plan.",
+            "Technical proof metadata stays outside USER-facing review files; helper output and Codex digest carry proof details.",
             "Workstream Entry Result is present only after response/digest or waiver.",
             "Exact implementation approval text cites completed or waived contract status.",
         ]
@@ -789,7 +787,7 @@ def _write_user_branch_plan_review(
             ]
             source_truth_impact = [
                 "Review bundle helper: supports explicit source-truth-backed decision-state text for non-Workstream PR Readiness packets.",
-                "Validation helper registry: records that USER_BRANCH_PLAN_REVIEW.md and START_HERE.md must agree on the next legal decision.",
+                "Validation helper registry: records that the temporary USER review packet must stay user-facing while proof metadata stays in helper output or Codex digest.",
             ]
         else:
             implementation_constraints = ["Pending USER response or explicit waiver."]
@@ -808,7 +806,7 @@ def _write_user_branch_plan_review(
             "Vision Delta / Source-Truth Impact is resolved.",
             "USER Rejected / Deferred Ideas are recorded.",
             "Contract Change Log is current.",
-            "Packet technical metadata is kept in START_HERE.md and helper output, not in this USER-facing plan.",
+            "Technical proof metadata stays outside USER-facing review files; helper output and Codex digest carry proof details.",
             "Workstream Entry Result is present only after response/digest or waiver.",
             "Exact implementation approval text cites completed or waived contract status.",
         ]
@@ -819,8 +817,8 @@ def _write_user_branch_plan_review(
                 "Workstream implementation."
             )
             end_state_vision = (
-                "When this repair is complete, START_HERE.md and USER_BRANCH_PLAN_REVIEW.md "
-                "agree that the next legal USER decision is PR Readiness Stage 1 analysis, "
+                "When this repair is complete, the USER-facing review packet clearly states "
+                "that the next legal USER decision is PR Readiness Stage 1 analysis, "
                 "while PR creation, merge, release, runtime implementation, and unrelated "
                 "branch mutation remain future-gated."
             )
@@ -857,7 +855,7 @@ def _write_user_branch_plan_review(
         if is_pr_readiness_review:
             current_scope = [
                 "Confirm the completed governance/source-truth/helper/validator reform packet is ready for PR Readiness Stage 1 analysis.",
-                "Confirm packet decision-state wording is coherent across START_HERE.md and USER_BRANCH_PLAN_REVIEW.md.",
+                "Confirm packet decision-state wording is coherent without active branch status or technical proof metadata in USER-facing files.",
                 "Confirm the stable review artifact model remains worktree-label folder plus worktree-label zip only.",
             ]
             future_scope = [
@@ -1004,9 +1002,9 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(slc_package_plan),
         "",
-        "## Packet Technical Metadata",
+        "## Review Folder Scope",
         "",
-        "Technical packet metadata is intentionally kept in START_HERE.md and helper output so this USER-facing plan can stay focused on product direction, engineering plan, accepted constraints, and USER decisions.",
+        "The USER Review Folder is a temporary USER/ChatGPT context aid for this review loop only. Technical proof metadata belongs in helper output, validator output, Codex chat digest, or external governance state, not in USER-facing review files.",
         "",
         "## Workstream Entry Result",
         "",
@@ -1302,33 +1300,11 @@ def build_bundle(
         "## Review Packet",
         "",
         f"Review Purpose: {review_purpose}",
-        f"Source Repo: `{ROOT}`",
-        f"Review Root: `{review_root}`",
-        f"Worktree Review Folder: `{target}`",
-        f"Worktree Label: `{label}`",
-        f"Custom Review Path Waiver: {custom_review_path_waiver}",
-        f"Custom Review Path Reason: {custom_review_path_reason_value}",
-        f"Source Branch: `{source_branch}`",
-        f"Source HEAD: `{source_head}`",
-        f"Upstream: `{upstream}`",
-        f"origin/main: `{origin_main}`",
-        f"Review Export Zip: `{export_zip}`",
-        f"Review Export Zip Source HEAD: `{source_head}`",
-        f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
-        (
-            "USER Review Packet Finding: PASS - helper generated and validated "
-            f"`START_HERE.md`, `{USER_BRANCH_PLAN_REVIEW_FILE}`, and exported zip "
-            f"`{export_zip}` from refreshed Desktop folder `{target}`; Source HEAD "
-            f"`{source_head}` and Review Export Zip Source HEAD `{source_head}` match "
-            "the current branch HEAD, and the packet is loaded/digestible for USER review."
-        ),
-        f"Bundle Created: {created_at}",
-        f"Bundle File Count: {bundle_file_count}",
-        f"Expected File Count: {expected_count}",
-        f"Copied File Count: {copied_count}",
-        f"Extra Bundle File Count: {len(extra_bundle_files)}",
-        f"Public Review Bundle Leak-Prevention: {PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS}",
-        f"Validation Summary: {validation_summary}",
+        "Temporary USER/ChatGPT Review Aid: This folder is for reviewing the current Branch Vision and Branch Plan only. It is not canon, not durable evidence, not a posterity archive, and not a later-phase report.",
+        "Source-Truth Fold-In: Accepted USER outcomes, constraints, and decisions must be folded into the proper durable source-truth owner before implementation proceeds.",
+        "Technical Proof Location: Helper output, validator output, Codex chat digest, or external governance state carry active-state proof details.",
+        f"Review Label: `{label}`",
+        f"Review Packet Created: {created_at}",
         f"Exact USER Decision This Bundle Supports: {exact_user_decision}",
         "",
         "## Pending USER Decisions",
@@ -1338,10 +1314,6 @@ def build_bundle(
         "## Review Order",
         "",
         *_markdown_lines(review_order),
-        "",
-        "## Extra Bundle Files",
-        "",
-        *_markdown_lines(extra_bundle_files),
         "",
         "## Files",
         "",
@@ -1515,10 +1487,13 @@ def main() -> int:
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
     print(f"Review export zip SHA256: {_sha256(export_zip)}")
+    print(f"Source Branch: {_git_output('branch', '--show-current')}")
+    print(f"Source HEAD: {_git_output('rev-parse', 'HEAD')}")
+    print(f"origin/main: {_git_output('rev-parse', 'origin/main')}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
-        "validated against current Source HEAD."
+        "validated against current Source HEAD in helper output."
     )
     return 0
 

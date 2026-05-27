@@ -99,7 +99,7 @@ None blocking.
 
 ## Design Assumption Ledger
 
-Technical metadata belongs in START_HERE.
+Technical metadata belongs in helper output, validator output, Codex chat digest, or external governance state.
 
 ## Contract Status
 

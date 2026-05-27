@@ -223,20 +223,20 @@ EXPECTED_PENDING_FOLD_SOURCE_FILES = (
 
 USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
     "Review Purpose:",
-    "Source Branch:",
-    "Source HEAD:",
-    "origin/main:",
-    "Review Export Zip:",
-    "Review Export Zip Source HEAD:",
-    "Review Export Zip Stale Guard:",
-    "Bundle File Count:",
-    "Expected File Count:",
-    "Copied File Count:",
-    "Extra Bundle File Count:",
-    "Validation Summary:",
+    "Temporary USER/ChatGPT Review Aid:",
+    "Source-Truth Fold-In:",
+    "Technical Proof Location:",
     "Review Order",
     "Exact USER Decision This Bundle Supports:",
     "Pending USER Decisions",
+)
+
+USER_REVIEW_BUNDLE_HELPER_OUTPUT_FIELDS = (
+    "Source Branch:",
+    "Source HEAD:",
+    "origin/main:",
+    "Review export zip:",
+    "Review export zip SHA256:",
 )
 
 WORKSTREAM_INDEX_REQUIRED = (
@@ -441,7 +441,13 @@ def validate() -> list[str]:
             if phrase not in desktop_bundle_section:
                 failures.append(
                     f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
-                    f"required START_HERE metadata field {phrase!r}"
+                    f"required START_HERE plain-index field {phrase!r}"
+                )
+        for phrase in USER_REVIEW_BUNDLE_HELPER_OUTPUT_FIELDS:
+            if phrase not in desktop_bundle_section:
+                failures.append(
+                    f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
+                    f"required helper-output proof field {phrase!r}"
                 )
 
     bundle_helper_text = _read(USER_REVIEW_BUNDLE_HELPER)
@@ -451,7 +457,12 @@ def validate() -> list[str]:
         for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
             if phrase not in bundle_helper_text:
                 failures.append(
-                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE metadata field {phrase!r}"
+                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE plain-index field {phrase!r}"
+                )
+        for phrase in USER_REVIEW_BUNDLE_HELPER_OUTPUT_FIELDS:
+            if phrase not in bundle_helper_text:
+                failures.append(
+                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required helper-output proof field {phrase!r}"
                 )
 
     for path, required_phrases in POINTER_REQUIREMENTS.items():
