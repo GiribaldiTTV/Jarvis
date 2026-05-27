@@ -34,7 +34,8 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "PASS - helper moved prior matching zip artifacts and the stable worktree "
     "review folder to governed quarantine, confirmed the recreated folder was "
     "empty before copying, wrote START_HERE for this Source HEAD, and atomically "
-    "replaced the stable review zip from that refreshed folder."
+    "replaced the stable review zip from that refreshed folder, then checked "
+    "active branch record/plan identity against START_HERE."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH = (
@@ -48,6 +49,15 @@ FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_PACKET_FILES = frozenset(
         "Docs__branch_records__feature_fam_006_active_overlay_recording_runtime_implementation.md",
         "Docs__branch_plans__feature_fam_006_active_overlay_recording_runtime_implementation.md",
     }
+)
+
+ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES = (
+    "this branch is not the runtime implementation carrier",
+    "not the runtime implementation carrier",
+    "deferred to future user-approved implementation carrier",
+    "future runtime implementation carrier",
+    "future user-approved carrier",
+    "future user-approved implementation carrier",
 )
 
 
@@ -269,6 +279,29 @@ def _git_output(*args: str) -> str:
         return "UNKNOWN"
 
 
+def _branch_slug(branch: str) -> str:
+    slug = re.sub(r"[^A-Za-z0-9]+", "_", branch).strip("_").lower()
+    if not slug:
+        raise ValueError("Cannot derive branch slug from empty source branch")
+    return slug
+
+
+def _active_branch_packet_names(source_branch: str) -> tuple[str, str]:
+    slug = _branch_slug(source_branch)
+    return (
+        f"Docs__branch_records__{slug}.md",
+        f"Docs__branch_plans__{slug}.md",
+    )
+
+
+def _active_branch_source_paths(source_branch: str) -> tuple[Path, Path]:
+    slug = _branch_slug(source_branch)
+    return (
+        ROOT / "Docs" / "branch_records" / f"{slug}.md",
+        ROOT / "Docs" / "branch_plans" / f"{slug}.md",
+    )
+
+
 def _markdown_lines(items: list[str]) -> list[str]:
     if not items:
         return ["- None recorded."]
@@ -340,8 +373,11 @@ def _validate_export_zip(
     source_branch: str,
     source_head: str,
     origin_main: str,
+    merge_base: str,
     expected_entries: set[str],
 ) -> None:
+    active_record_name, active_plan_name = _active_branch_packet_names(source_branch)
+    active_record_source, active_plan_source = _active_branch_source_paths(source_branch)
     with zipfile.ZipFile(export_zip, "r") as archive:
         entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
         try:
@@ -354,6 +390,12 @@ def _validate_export_zip(
             raise ValueError(
                 f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
             ) from exc
+        active_record = (
+            archive.read(active_record_name).decode("utf-8") if active_record_name in entries else None
+        )
+        active_plan = (
+            archive.read(active_plan_name).decode("utf-8") if active_plan_name in entries else None
+        )
     if entries != expected_entries:
         missing = sorted(expected_entries - entries)
         extra = sorted(entries - expected_entries)
@@ -375,6 +417,11 @@ def _validate_export_zip(
         raise ValueError(
             "Review export zip origin/main guard failed: START_HERE origin/main "
             f"does not match {origin_main}"
+        )
+    if f"Merge Base: `{merge_base}`" not in start_here:
+        raise ValueError(
+            "Review export zip merge-base guard failed: START_HERE Merge Base "
+            f"does not match {merge_base}"
         )
     if f"Review Export Zip Source HEAD: `{source_head}`" not in start_here:
         raise ValueError(
@@ -406,6 +453,70 @@ def _validate_export_zip(
             "Review export zip stale-export guard failed: START_HERE is missing "
             "zip pre-clean removed count"
         )
+    if active_record_source.is_file() and active_record_name not in entries:
+        raise ValueError(
+            "Review export zip active-authority guard failed: exported ZIP is missing "
+            f"the active branch record {active_record_name}"
+        )
+    if active_plan_source.is_file() and active_plan_name not in entries:
+        raise ValueError(
+            "Review export zip active-plan guard failed: exported ZIP is missing "
+            f"the active branch plan {active_plan_name}"
+        )
+    for file_name, text in (
+        (active_record_name, active_record),
+        (active_plan_name, active_plan),
+    ):
+        if text is None:
+            continue
+        if source_branch not in text:
+            raise ValueError(
+                "Review export zip active-carrier guard failed: "
+                f"{file_name} does not mention active source branch {source_branch}"
+            )
+        if "runtime_implementation" in file_name or "runtime implementation carrier" in text.casefold():
+            normalized_text = text.casefold()
+            stale_phrases = [
+                phrase
+                for phrase in ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES
+                if phrase in normalized_text
+            ]
+            if stale_phrases:
+                raise ValueError(
+                    "Review export zip active-carrier guard failed: "
+                    f"{file_name} contains stale carrier wording: {stale_phrases}"
+                )
+    if active_record:
+        last_reconciled_origin = _extract_marker_from_text(active_record, "Last Reconciled origin/main:")
+        if last_reconciled_origin and last_reconciled_origin != origin_main:
+            raise ValueError(
+                "Review export zip active-authority guard failed: "
+                "Last Reconciled origin/main in active branch record does not match START_HERE "
+                f"origin/main {origin_main}"
+            )
+        last_reconciled_merge_base = _extract_marker_from_text(
+            active_record, "Last Reconciled Merge Base:"
+        )
+        if last_reconciled_merge_base and last_reconciled_merge_base != merge_base:
+            raise ValueError(
+                "Review export zip active-authority guard failed: "
+                "Last Reconciled Merge Base in active branch record does not match START_HERE "
+                f"Merge Base {merge_base}"
+            )
+    if active_plan:
+        reconciliation_status = _extract_marker_from_text(
+            active_plan, "Current-Main Reconciliation Status:"
+        )
+        if (
+            reconciliation_status
+            and "reconciled" in reconciliation_status.casefold()
+            and origin_main not in reconciliation_status
+        ):
+            raise ValueError(
+                "Review export zip active-plan guard failed: "
+                "Current-Main Reconciliation Status in active branch plan does not match "
+                f"START_HERE origin/main {origin_main}"
+            )
     if source_branch == FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH:
         missing_impl_files = sorted(
             FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_PACKET_FILES - entries
@@ -1251,6 +1362,7 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
+    merge_base = _git_output("merge-base", "HEAD", "origin/main")
     export_zip = _export_zip_path(review_root, label)
     user_review_file = _write_user_branch_plan_review(
         target=target,
@@ -1310,6 +1422,7 @@ def build_bundle(
         f"Source HEAD: `{source_head}`",
         f"Upstream: `{upstream}`",
         f"origin/main: `{origin_main}`",
+        f"Merge Base: `{merge_base}`",
         f"Review Export Zip: `{export_zip}`",
         f"Review Export Zip Source HEAD: `{source_head}`",
         "Review Cleanup Mode: `Governed quarantine`",
@@ -1367,6 +1480,7 @@ def build_bundle(
         source_branch=source_branch,
         source_head=source_head,
         origin_main=origin_main,
+        merge_base=merge_base,
         expected_entries=expected_zip_entries,
     )
     return target, export_zip

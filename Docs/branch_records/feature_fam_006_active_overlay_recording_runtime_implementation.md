@@ -158,11 +158,11 @@ Single-Slice Package User Approval: `Not required - five concrete planned slices
 
 | Slice | Admission State | Purpose | Current Status |
 | --- | --- | --- | --- |
-| `SLC-051` Active Overlay recording target foundation | Future / deferred | Define the active Overlay Profile membership as the recording target and preserve Overlay Profile / Monitor Group separation. | Deferred to future USER-approved implementation carrier |
-| `SLC-052` HUD Overlay recording launcher and active-monitor transparency | Future / deferred | Plan HUD Overlay card launcher, target/status preview, and active monitored monitor visibility without real Start/Stop, tray/export/provider scope, or recording execution. | Deferred to future USER-approved implementation carrier |
-| `SLC-053` standalone Recording Control window foundation | Future / deferred | Plan compact OS-level Recording Control window behavior, target/status summary, independent lifetime from Dashboard, minimization/taskbar restore, and secondary settings-window routing without recording execution. | Deferred to future USER-approved implementation carrier |
-| `SLC-054` durable recording output contract | Future / deferred | Propose and prove a durable graph/plot-ready output-file contract before or alongside any approved recording execution seam. | Deferred to future USER-approved implementation carrier |
-| `SLC-055` validation/live proof readiness | Future / deferred | Plan validators, H1, LV1, screenshot/photo comparison, UTS handoff, null/stress coverage, and future-gated boundary proof. | Deferred to future USER-approved implementation carrier |
+| `SLC-051` Active Overlay recording target foundation | Planned / pending Workstream Entry | Define the active Overlay Profile membership as the recording target and preserve Overlay Profile / Monitor Group separation. | Pending Workstream Entry and USER implementation approval on this carrier |
+| `SLC-052` HUD Overlay recording launcher and active-monitor transparency | Planned / pending Workstream Entry | Plan HUD Overlay card launcher, target/status preview, and active monitored monitor visibility without real Start/Stop, tray/export/provider scope, or recording execution. | Pending Workstream Entry and USER implementation approval on this carrier |
+| `SLC-053` standalone Recording Control window foundation | Planned / pending Workstream Entry | Plan compact OS-level Recording Control window behavior, target/status summary, independent lifetime from Dashboard, minimization/taskbar restore, and secondary settings-window routing without recording execution. | Pending Workstream Entry and USER implementation approval on this carrier |
+| `SLC-054` durable recording output contract | Planned / pending Workstream Entry | Propose and prove a durable graph/plot-ready output-file contract before or alongside any approved recording execution seam. | Pending Workstream Entry and USER implementation approval on this carrier |
+| `SLC-055` validation/live proof readiness | Planned / pending Workstream Entry | Plan validators, H1, LV1, screenshot/photo comparison, UTS handoff, null/stress coverage, and future-gated boundary proof. | Pending Workstream Entry and USER implementation approval on this carrier |
 
 ## Assigned Worktree Confinement
 
