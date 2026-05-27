@@ -31,10 +31,10 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "source truth for USER inspection."
 )
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
-    "PASS - helper deleted prior matching zip artifacts, deleted the stable "
-    "worktree review folder, confirmed the recreated folder was empty before "
-    "copying, wrote START_HERE for this Source HEAD, and atomically replaced "
-    "the stable review zip from that refreshed folder."
+    "PASS - helper moved prior matching zip artifacts and the stable worktree "
+    "review folder to governed quarantine, confirmed the recreated folder was "
+    "empty before copying, wrote START_HERE for this Source HEAD, and atomically "
+    "replaced the stable review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH = (
@@ -172,13 +172,45 @@ def _target_entry_count(target: Path) -> int:
     return sum(1 for _path in target.rglob("*"))
 
 
-def _clear_target(target: Path) -> int:
-    removed_count = _target_entry_count(target)
-    try:
-        shutil.rmtree(target, onexc=_clear_readonly)
-    except TypeError:
-        shutil.rmtree(target, onerror=_clear_readonly)
-    return removed_count
+@dataclass(frozen=True)
+class QuarantineResult:
+    source: Path
+    destination: Path
+    entry_count: int
+
+
+def _quarantine_root(review_root: Path, label: str) -> Path:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    return (
+        review_root
+        / "_stale_review_artifacts"
+        / _sanitize_folder_name(label)
+        / f"{timestamp}_{os.getpid()}"
+    ).resolve()
+
+
+def _move_to_quarantine(path: Path, quarantine_root: Path, review_root: Path) -> QuarantineResult:
+    resolved = path.resolve()
+    resolved_review_root = review_root.resolve()
+    if resolved != resolved_review_root and resolved_review_root not in resolved.parents:
+        raise ValueError(f"Refusing to quarantine review artifact outside review root: {resolved}")
+    destination = (quarantine_root / resolved.name).resolve()
+    if quarantine_root not in destination.parents:
+        raise ValueError(f"Refusing to quarantine outside quarantine root: {destination}")
+    if destination.exists():
+        raise ValueError(f"Refusing to overwrite quarantined review artifact: {destination}")
+    quarantine_root.mkdir(parents=True, exist_ok=True)
+    entry_count = _target_entry_count(resolved) if resolved.is_dir() else 1
+    shutil.move(str(resolved), str(destination))
+    if resolved.exists():
+        raise ValueError(f"Review artifact still exists after quarantine move: {resolved}")
+    return QuarantineResult(source=resolved, destination=destination, entry_count=entry_count)
+
+
+def _quarantine_target(target: Path, quarantine_root: Path, review_root: Path) -> QuarantineResult | None:
+    if not target.exists():
+        return None
+    return _move_to_quarantine(target, quarantine_root, review_root)
 
 
 def _assert_target_empty(target: Path) -> None:
@@ -269,18 +301,19 @@ def _export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
 
 
-def _clear_review_exports(review_root: Path, label: str) -> list[Path]:
-    """Remove previous zip artifacts for this review label before regenerating."""
+def _quarantine_review_exports(
+    review_root: Path, label: str, quarantine_root: Path
+) -> list[QuarantineResult]:
+    """Move previous zip artifacts for this review label before regenerating."""
     sanitized_label = _sanitize_folder_name(label)
-    removed: list[Path] = []
+    quarantined: list[QuarantineResult] = []
     for path in review_root.glob(f"{sanitized_label}*.zip*"):
         resolved = path.resolve()
         if resolved.parent != review_root.resolve():
-            raise ValueError(f"Refusing to clear review export outside review root: {resolved}")
+            raise ValueError(f"Refusing to quarantine review export outside review root: {resolved}")
         if resolved.is_file():
-            resolved.unlink()
-            removed.append(resolved)
-    return removed
+            quarantined.append(_move_to_quarantine(resolved, quarantine_root, review_root))
+    return quarantined
 
 
 def _write_export_zip(target: Path, export_zip: Path) -> None:
@@ -352,6 +385,16 @@ def _validate_export_zip(
         raise ValueError(
             "Review export zip folder freshness guard failed: START_HERE does not "
             "prove the review folder was empty before copying fresh files"
+        )
+    if "Review Cleanup Mode: `Governed quarantine`" not in start_here:
+        raise ValueError(
+            "Review export zip cleanup guard failed: START_HERE does not prove "
+            "USER-visible governed quarantine cleanup"
+        )
+    if "Review Cleanup Quarantine Root:" not in start_here:
+        raise ValueError(
+            "Review export zip cleanup guard failed: START_HERE is missing the "
+            "cleanup quarantine root"
         )
     if "Review Folder Pre-Clean Removed Count:" not in start_here:
         raise ValueError(
@@ -1174,10 +1217,18 @@ def build_bundle(
     label = _worktree_label(worktree_label)
     review_root, target = _safe_target(desktop, review_root_name, label)
     review_root.mkdir(parents=True, exist_ok=True)
-    removed_exports = _clear_review_exports(review_root, label)
-    removed_folder_entries = 0
-    if target.exists():
-        removed_folder_entries = _clear_target(target)
+    quarantine_root = _quarantine_root(review_root, label)
+    quarantined_exports = _quarantine_review_exports(review_root, label, quarantine_root)
+    quarantined_target = _quarantine_target(target, quarantine_root, review_root)
+    removed_folder_entries = quarantined_target.entry_count if quarantined_target else 0
+    folder_quarantine_path = (
+        str(quarantined_target.destination) if quarantined_target else "None - folder absent"
+    )
+    export_quarantine_paths = (
+        ", ".join(str(result.destination) for result in quarantined_exports)
+        if quarantined_exports
+        else "None - no prior matching zip artifacts"
+    )
     target.mkdir(parents=True, exist_ok=True)
     _assert_target_empty(target)
     folder_empty_before_copy = "PASS"
@@ -1261,9 +1312,13 @@ def build_bundle(
         f"origin/main: `{origin_main}`",
         f"Review Export Zip: `{export_zip}`",
         f"Review Export Zip Source HEAD: `{source_head}`",
+        "Review Cleanup Mode: `Governed quarantine`",
+        f"Review Cleanup Quarantine Root: `{quarantine_root}`",
+        f"Review Folder Quarantine Path: `{folder_quarantine_path}`",
+        f"Review Export Quarantine Paths: `{export_quarantine_paths}`",
         f"Review Folder Pre-Clean Removed Count: {removed_folder_entries}",
         f"Review Folder Empty Before Copy: {folder_empty_before_copy}",
-        f"Review Export Pre-Clean Removed Count: {len(removed_exports)}",
+        f"Review Export Pre-Clean Removed Count: {len(quarantined_exports)}",
         f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
         (
             "USER Review Packet Finding: PASS - helper generated and validated "
