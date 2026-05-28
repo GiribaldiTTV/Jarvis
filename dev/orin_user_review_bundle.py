@@ -210,6 +210,48 @@ FAM006_BP2_STALE_PACKET_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         re.compile(r"\bWorkstream Entry final decision review\b", re.IGNORECASE),
     ),
 )
+FAM006_BP3_STALE_PACKET_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "bp1-or-bp2-pending",
+        re.compile(
+            r"\bBP1 remains pending\b|\bBP1 is Draft\b|\bNeeds USER Decision\b|"
+            r"\bBP2 remains pending\b|\bBP2 Branch Plan acceptance, revision, rejection, or waiver\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "bp2-placeholder",
+        re.compile(r"\bBP2 placeholder\b|placeholder generated during BP1", re.IGNORECASE),
+    ),
+    (
+        "bp1-current-state",
+        re.compile(
+            r"currently in BP1 Branch Vision Review|engineering plan must wait until USER "
+            r"accepts, revises, rejects, or explicitly waives BP1|loaded for BP1 review|"
+            r"BP1 Branch Vision Review packet is ready",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "wrong-final-review",
+        re.compile(r"\bWorkstream Entry final decision review\b", re.IGNORECASE),
+    ),
+    ("governance-branch", re.compile(r"\bGovernance branch\b", re.IGNORECASE)),
+    ("governance-user-hub-path", re.compile(r"C:\\Nexus USER\\Governance", re.IGNORECASE)),
+    ("pr-readiness-stage-1", re.compile(r"\bPR Readiness Stage 1\b", re.IGNORECASE)),
+    (
+        "fam007-cross-family",
+        re.compile(
+            r"\bFAM-007\b[^\n]*(?:ownership|family vision|Breakpoint|AI Edition|"
+            r"Dev/Owner|provider|public-safe)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "ai-runtime-trust-architecture",
+        re.compile(r"\bAI Runtime And Trust Architecture\b", re.IGNORECASE),
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -445,6 +487,7 @@ def _validate_export_zip(
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_stale_packet_failures(packet_files),
         *_fam006_bp2_stale_packet_failures(packet_files),
+        *_fam006_bp3_stale_packet_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -710,6 +753,40 @@ def _fam006_bp2_stale_packet_failures(packet_files: Mapping[str, str]) -> list[s
     return failures
 
 
+def _fam006_bp3_stale_packet_failures(packet_files: Mapping[str, str]) -> list[str]:
+    exact_decision_text = "\n".join(
+        packet_files.get(file_name, "")
+        for file_name in (
+            "START_HERE.md",
+            USER_BRANCH_VISION_REVIEW_FILE,
+            USER_BRANCH_PLAN_REVIEW_FILE,
+            "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            "BRANCH_VISION_VALIDATION_CHECKLIST.md",
+            "GOVERNANCE_REQUIRED_FILES_SCAN.md",
+        )
+    ).casefold()
+    is_fam006_bp3_packet = (
+        "fam-006 active overlay recording runtime implementation" in exact_decision_text
+        and "bp3 workstream entry / orchestration validation" in exact_decision_text
+        and "slc-051" in exact_decision_text
+    )
+    if not is_fam006_bp3_packet:
+        return []
+
+    failures: list[str] = []
+    for file_name in USER_FACING_GENERATED_FILES:
+        text = packet_files.get(file_name)
+        if not text:
+            continue
+        for reason, pattern in FAM006_BP3_STALE_PACKET_PATTERNS:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: FAM-006 BP3 packet contains stale {reason} wording"
+                )
+    return failures
+
+
 def _start_here_file_mappings(start_here: str) -> dict[str, str]:
     mappings: dict[str, str] = {}
     row_pattern = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|", re.MULTILINE)
@@ -859,13 +936,25 @@ def _write_user_branch_vision_review(
     copied: list[tuple[str, str]],
 ) -> Path:
     source_files = [f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]
+    is_fam006_active_overlay_implementation = any(
+        "feature_fam_006_active_overlay_recording_runtime_implementation" in source_rel
+        for source_rel, _copied_rel in copied
+    )
     pr_readiness_context_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     fam006_bp2_plan_packet = (
-        "fam-006 active overlay recording runtime implementation" in exact_user_decision.casefold()
+        is_fam006_active_overlay_implementation
         and "bp2 branch plan" in exact_user_decision.casefold()
         and "prepare bp3" in exact_user_decision.casefold()
     )
+    fam006_bp3_packet = (
+        is_fam006_active_overlay_implementation
+        and "approve bounded workstream implementation" in exact_user_decision.casefold()
+        and "slc-051" in exact_user_decision.casefold()
+    )
     review_status = (
+        "Accepted Context - USER accepted BP1 Branch Vision and BP2 Branch Plan; this packet is the active BP3 Workstream Entry / Orchestration Validation review."
+        if fam006_bp3_packet
+        else
         "Accepted Context - USER accepted BP1 Branch Vision; this packet is the active BP2 Branch Plan Review."
         if fam006_bp2_plan_packet
         else
@@ -875,6 +964,9 @@ def _write_user_branch_vision_review(
         else "Needs USER Decision unless this packet records an explicit USER acceptance or waiver."
     )
     contract_status = (
+        "Complete - BP1 Branch Vision accepted by USER; this file is retained as accepted BP1 context for BP3."
+        if fam006_bp3_packet
+        else
         "Complete - BP1 Branch Vision accepted by USER; this file is retained as accepted BP1 context for BP2."
         if fam006_bp2_plan_packet
         else
@@ -884,6 +976,9 @@ def _write_user_branch_vision_review(
         else "Draft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch."
     )
     user_response = (
+        "Accepted by USER - BP1 Branch Vision and BP2 Branch Plan are accepted for FAM-006 Active Overlay Recording Runtime Implementation."
+        if fam006_bp3_packet
+        else
         "Accepted by USER - BP1 Branch Vision is accepted for FAM-006 Active Overlay Recording Runtime Implementation."
         if fam006_bp2_plan_packet
         else
@@ -892,6 +987,9 @@ def _write_user_branch_vision_review(
         else "Pending USER response or explicit waiver."
     )
     codex_digest = (
+        "Codex digested BP1 and BP2 acceptance into the active FAM-006 branch record and branch plan; BP3 Workstream Entry / Orchestration Validation is now active."
+        if fam006_bp3_packet
+        else
         "Codex digested BP1 acceptance into the active FAM-006 branch record and branch plan; BP2 Branch Plan Review is now active."
         if fam006_bp2_plan_packet
         else
@@ -902,11 +1000,67 @@ def _write_user_branch_vision_review(
     )
     accepted_vision = (
         "Accepted Branch Vision: active Overlay Profile is the recording target source; HUD Overlay card is launcher and target/status preview; standalone Recording Control window is the compact future control surface; Native Log Loader is a separate future graph/log viewer; runtime execution and file writing remain future-gated."
+        if fam006_bp3_packet
+        else
+        "Accepted Branch Vision: active Overlay Profile is the recording target source; HUD Overlay card is launcher and target/status preview; standalone Recording Control window is the compact future control surface; Native Log Loader is a separate future graph/log viewer; runtime execution and file writing remain future-gated."
         if fam006_bp2_plan_packet
         else
         "Accepted context: Governance Phase Lifecycle Reform and local USER hub model are represented by the copied source-truth files."
         if pr_readiness_context_packet
         else "Pending USER acceptance or waiver."
+    )
+    product_options = (
+        [
+            "BP1 and BP2 are accepted for this BP3 packet.",
+            "Review whether BP3 correctly validates the accepted BP2 plan against the accepted BP1 vision.",
+            "Approve bounded SLC-051 Workstream implementation only if the first seam and future-gated boundaries are correct.",
+            "Route back to BP2 only if BP3 exposes an engineering-plan gap.",
+        ]
+        if fam006_bp3_packet
+        else [
+            "BP1 is already accepted for this BP2 packet.",
+            "Review whether the BP2 engineering plan correctly builds the accepted Branch Vision.",
+            "Route back to BP1 only if the BP2 plan changes the accepted Branch Vision.",
+            "Keep runtime implementation blocked until BP2 is accepted or waived, BP3 is green, and USER separately approves implementation.",
+        ]
+    )
+    codex_recommendations = (
+        [
+            "Recommendation: Treat BP3 as the orchestration proof that accepted BP2 builds accepted BP1 before implementation.",
+            "  USER response:",
+            "Recommendation: Start Workstream with bounded SLC-051 target foundation only.",
+            "  USER response:",
+        ]
+        if fam006_bp3_packet
+        else [
+            "Recommendation: Treat the accepted BP1 as the product/vision gate and keep SLCs as engineering route details.",
+            "  USER response:",
+            "Recommendation: Use BP2 to review how Codex plans to build the accepted Branch Vision.",
+            "  USER response:",
+        ]
+    )
+    user_design_questions = (
+        [
+            "Does BP3 correctly validate BP2 against accepted BP1?",
+            "Does USER approve bounded SLC-051 Workstream implementation as the first seam?",
+        ]
+        if fam006_bp3_packet
+        else [
+            "Does the BP2 engineering plan correctly build this accepted Branch Vision?",
+            "Does any BP2 item require a route-back to BP1?",
+        ]
+    )
+    must_have_behavior = (
+        [
+            "BP1 and BP2 are accepted; BP3 must prove accepted BP2 traces to accepted BP1 before implementation approval.",
+            "SLCs must trace to an accepted Branch Vision requirement.",
+            "SLC-051 must remain target-foundation only unless USER changes the implementation approval.",
+        ]
+        if fam006_bp3_packet
+        else [
+            "BP1 is accepted; BP2 must be accepted or explicitly waived before BP3 can authorize implementation.",
+            "SLCs must trace to an accepted Branch Vision requirement.",
+        ]
     )
     lines = [
         f"# {title} - USER Branch Vision Review",
@@ -967,17 +1121,11 @@ def _write_user_branch_vision_review(
         "",
         "## Product Options / Design Paths",
         "",
-        "- BP1 is already accepted for this BP2 packet.",
-        "- Review whether the BP2 engineering plan correctly builds the accepted Branch Vision.",
-        "- Route back to BP1 only if the BP2 plan changes the accepted Branch Vision.",
-        "- Keep runtime implementation blocked until BP2 is accepted or waived, BP3 is green, and USER separately approves implementation.",
+        *_markdown_lines(product_options),
         "",
         "## Codex Recommendations",
         "",
-        "- Recommendation: Treat the accepted BP1 as the product/vision gate and keep SLCs as engineering route details.",
-        "  USER response:",
-        "- Recommendation: Use BP2 to review how Codex plans to build the accepted Branch Vision.",
-        "  USER response:",
+        *_markdown_lines(codex_recommendations),
         "",
         "## Why This Fits The Nexus Vision",
         "",
@@ -985,8 +1133,7 @@ def _write_user_branch_vision_review(
         "",
         "## USER Design Questions",
         "",
-        "- Does the BP2 engineering plan correctly build this accepted Branch Vision?",
-        "- Does any BP2 item require a route-back to BP1?",
+        *_markdown_lines(user_design_questions),
         "",
         "## USER Response",
         "",
@@ -1006,8 +1153,7 @@ def _write_user_branch_vision_review(
         "",
         "## Must-Have Behavior",
         "",
-        "- BP1 is accepted; BP2 must be accepted or explicitly waived before BP3 can authorize implementation.",
-        "- SLCs must trace to an accepted Branch Vision requirement.",
+        *_markdown_lines(must_have_behavior),
         "",
         "## Must-Not-Do / Regression-Risk Rules",
         "",
@@ -1021,7 +1167,7 @@ def _write_user_branch_vision_review(
         "",
         "## Vision Question Queue",
         "",
-        "Pending USER review.",
+        "No BP1 vision question remains open for this packet.",
         "",
         "## Design Assumption Ledger",
         "",
@@ -1079,6 +1225,11 @@ def _write_user_branch_plan_review(
         is_fam006_active_overlay_implementation
         and "bp2 branch plan" in decision_lower
         and "prepare bp3" in decision_lower
+    )
+    bp3_fam006_workstream_packet = (
+        is_fam006_active_overlay_implementation
+        and "approve bounded workstream implementation" in decision_lower
+        and "slc-051" in decision_lower
     )
     active_branch_files = [
         copied_rel
@@ -1385,6 +1536,140 @@ def _write_user_branch_plan_review(
             "Does USER require engineering-plan changes before BP3?",
             "Does any BP2 line item change the accepted BP1 vision and need a BP1 route-back?",
             "Does USER explicitly waive BP2 and proceed to BP3 preparation?",
+        ]
+    elif bp3_fam006_workstream_packet:
+        accepted_user_response = (
+            "BP1 Branch Vision and BP2 Branch Plan are accepted by USER. BP3 validates that "
+            "the BP2 engineering plan builds the accepted active-overlay recording Branch Vision."
+        )
+        codex_response_digest = (
+            "BP3 orchestration validation is green for the FAM-006 active-overlay recording package: "
+            "SLC-051 through SLC-055 remain one coherent branch route, SLC-051 is the recommended first "
+            "bounded Workstream seam, and runtime execution beyond SLC-051 remains future-gated."
+        )
+        workstream_entry_result = (
+            "Status: BP3 Green - accepted BP2 traces to accepted BP1, the whole SLC-051 through SLC-055 "
+            "package is coherent, and USER may separately approve bounded SLC-051 Workstream implementation. "
+            "Recording execution, file writing, real Start/Stop controls, tray controls, export/share, "
+            "provider/model work, PR creation, merge, release, issue mutation, branch cleanup, and Governance "
+            "mutation remain pending USER decisions."
+        )
+        contract_status = (
+            "Complete - BP1 and BP2 are accepted by USER; BP3 orchestration validation is green for "
+            "the first bounded SLC-051 implementation decision."
+        )
+        contract_version = "v3 - Generated as FAM-006 BP3 Workstream Entry / Orchestration Validation."
+        what_user_sees = (
+            "USER sees the accepted BP1/BP2 context plus the BP3 orchestration result: Codex recommends "
+            "starting with SLC-051 target foundation only, proving active Overlay Profile membership as the "
+            "future recording target without recording execution, file writing, real Start/Stop, tray, export, "
+            "provider/model, or Native Log Loader implementation."
+        )
+        why_nexus = (
+            "This keeps the first implementation seam small enough to prove the corrected target model, while "
+            "preserving the full active-overlay recording branch package and avoiding a return to the rejected "
+            "separate Recording Profile workflow."
+        )
+        design_ballot = [
+            "Approve bounded SLC-051 Workstream implementation as recommended.",
+            "Revise the first seam before implementation approval.",
+            "Route back to BP2 because the engineering plan needs changes.",
+            "Pause and request more BP3 analysis.",
+        ]
+        response_structure = [
+            "SLC-051 implementation decision.",
+            "Required first-seam changes, if any.",
+            "Must-have proof expectations.",
+            "Must-not-do boundaries.",
+            "Future-gated ideas.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER Workstream implementation intent summary.",
+            "Approved or revised first seam.",
+            "Implementation constraints created from USER response.",
+            "Source-truth owners to update during Workstream.",
+            "Proof and validation expectations.",
+            "Next USER decision needed.",
+        ]
+        implementation_constraints = [
+            "Implement only SLC-051 Active Overlay recording target foundation if USER approves the next decision.",
+            "SLC-051 may prove active Overlay Profile membership target state but must not implement recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, or Native Log Loader.",
+            "Preserve Overlay Profile display ownership, Monitor Group organization, Dashboard, Manage Monitors, Sensor Command Center, and Overlay Display behavior.",
+            "Cover null active profile, empty membership, selected/switched active profile, deleted/stale profile, duplicate/stale-ID, and high-volume membership states where implementation touches target proof.",
+            "Later SLC-052 through SLC-055 remain inside the branch route but require later bounded approvals or continuation gates according to Workstream law.",
+        ]
+        rejected_deferred = [
+            "Rejected: separate profile-loaded Recording Profile system unless USER explicitly re-approves it.",
+            "Deferred: SLC-052 HUD launcher/target preview until target foundation is trustworthy or USER revises sequence.",
+            "Deferred: SLC-053 Recording Control window, SLC-054 output contract, and SLC-055 validation/live proof readiness beyond what SLC-051 needs.",
+            "Deferred: recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, FAM-007 mutation, PR creation, merge, release, issue mutation, branch cleanup, and durable Native Log Loader implementation.",
+        ]
+        source_truth_impact = [
+            "Active branch record and branch plan record BP1/BP2 acceptance and BP3 prepared/green posture.",
+            "During SLC-051 Workstream, implementation traceability must update the active branch plan with changed files, validators, proof, H1/LV/UTS expectations, and deferred boundaries.",
+            "Any product change that alters the accepted BP1 vision or BP2 plan must route back to Branch Planning before implementation continues.",
+        ]
+        contract_change_log = [
+            "v1 - Branch Vision packet prevented stale Governance/FAM-007/Workstream Entry packet drift before BP1 acceptance.",
+            "v2 - BP2 engineering-plan review generated after USER accepted BP1 Branch Vision.",
+            "v3 - BP3 Workstream Entry / Orchestration Validation generated after USER accepted BP2 Branch Plan.",
+        ]
+        completion_checklist = [
+            "BP1 Branch Vision is accepted.",
+            "BP2 Branch Plan is accepted.",
+            "BP2 traces to BP1 without changing the accepted vision.",
+            "SLC-051 through SLC-055 remain one coherent branch package.",
+            "SLC-051 is the first bounded implementation recommendation.",
+            "Future-gated boundaries remain explicit.",
+            "Runtime implementation remains blocked until USER approves bounded SLC-051 Workstream implementation.",
+        ]
+        plain_english_summary = (
+            "BP3 is green for starting implementation with SLC-051 only. The first seam should prove "
+            "what the active Overlay Profile would record, without recording anything yet."
+        )
+        end_state_vision = (
+            "The first approved Workstream seam should leave Nexus with a trustworthy active-overlay "
+            "recording target foundation that later HUD, Recording Control, output-file, and live-proof "
+            "seams can build on without reintroducing a separate Recording Profile selector."
+        )
+        walkthrough = [
+            "Read active Overlay Profile state and membership as the target source.",
+            "Represent or prove the current recording target foundation without user-facing recording execution.",
+            "Preserve Overlay Profile, Monitor Group, Dashboard, Manage Monitors, Sensor Command Center, and Overlay Display behavior.",
+            "Return proof that forbidden recording execution/file-writing/control surfaces did not appear.",
+        ]
+        surface_map = [
+            "Likely runtime files: `desktop/monitoring_hud_state.py`, `desktop/monitoring_hud_status.py`, `desktop/monitoring_hud_controls.py`, `nexus_visual/monitoring_hud.js`, `nexus_visual/monitoring_hud.html`, `nexus_visual/monitoring_hud.css` if needed by the target proof.",
+            "Likely validator/helper files: `dev/orin_monitoring_hud_surface_validation.py`, `dev/orin_monitoring_hud_internal_sandbox_validation.py`, `dev/orin_validation_suite.py` as required by the implementation delta.",
+            "Source-truth files: active FAM-006 branch record/plan, FAM-006 family vision if USER-approved implementation changes alter durable direction.",
+        ]
+        implementation_options = [
+            "Option A - SLC-051 target foundation only. Pros: safest proof-first start; Cons: no visible recording controls yet; Risk: low. Codex recommends this.",
+            "Option B - combine SLC-051 with HUD preview. Pros: earlier visual clarity; Cons: larger UI/state blast radius; Risk: medium.",
+            "Option C - skip to Recording Control window. Pros: visible payoff; Cons: target-model drift risk; Risk: high and not recommended.",
+        ]
+        recommended_direction = (
+            "Codex recommends Option A: approve bounded Workstream implementation for SLC-051 target "
+            "foundation only, then let Workstream continuation decide whether SLC-052 follows after SLC-051 proof."
+        )
+        current_scope = [
+            "BP3 Workstream Entry / Orchestration Validation.",
+            "First bounded implementation recommendation for SLC-051.",
+            "No implementation until USER sends the next exact approval.",
+        ]
+        future_scope = rejected_deferred
+        slc_package_plan = [
+            "SLC-051 first - active Overlay recording target foundation.",
+            "SLC-052 later - HUD Overlay recording launcher and active-monitor transparency.",
+            "SLC-053 later - standalone Recording Control window foundation.",
+            "SLC-054 later - durable recording output contract.",
+            "SLC-055 later - validation/live proof readiness.",
+        ]
+        user_decisions = [
+            "Does USER approve bounded SLC-051 Workstream implementation as recommended?",
+            "Does USER require any first-seam change before implementation?",
+            "Does USER confirm recording execution, file writing, real controls, tray, export/share, provider/model, FAM-007, PR, merge, release, issue, cleanup, and Governance work remain pending?",
         ]
     elif is_active_overlay_recording:
         active_plan_source = next(
@@ -2784,6 +3069,11 @@ def _write_workstream_entry_packet_digests(
         and "bp2 branch plan" in decision_lower
         and "prepare bp3" in decision_lower
     )
+    is_fam006_bp3_packet = (
+        source_branch == "feature/fam-006-active-overlay-recording-runtime-implementation"
+        and "approve bounded workstream implementation" in decision_lower
+        and "slc-051" in decision_lower
+    )
     is_fam007_breakpoint_2 = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
     )
@@ -2822,6 +3112,10 @@ def _write_workstream_entry_packet_digests(
         "revision, rejection, or waiver; BP3, Workstream implementation, SLC-051, and "
         "runtime mutation remain pending USER approval."
         if is_fam006_bp2_packet
+        else
+        "implementation-ready - BP3 Workstream Entry / Orchestration Validation is green; "
+        "SLC-051 bounded Workstream implementation is pending USER approval."
+        if is_fam006_bp3_packet
         else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
@@ -2920,6 +3214,35 @@ def _write_workstream_entry_packet_digests(
             "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, "
             "USER_BRANCH_PLAN_REVIEW.md, supporting digest/checklist files, and copied "
             "source-truth files are loaded for BP2 review; implementation remains blocked."
+        )
+    elif is_fam006_bp3_packet:
+        analysis_status = (
+            "Analysis Summary: FAM-006 BP3 Workstream Entry / Orchestration Validation is green "
+            "for separate USER approval of bounded SLC-051 Workstream implementation."
+        )
+        implementation_posture = (
+            "Implementation Posture: BP1 and BP2 are accepted. BP3 recommends SLC-051 target "
+            "foundation as the first bounded implementation seam; recording execution, file writing, "
+            "real controls, tray controls, export/share, provider/model work, PR, merge, release, "
+            "issue mutation, branch cleanup, and Governance mutation remain pending USER decisions."
+        )
+        recommended_seam = (
+            "Recommended First Bounded Seam: SLC-051 Active Overlay recording target foundation."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes Project Vision, FAM-006 family vision, "
+            "active FAM-006 branch record, active branch plan, phase governance, branch artifact "
+            "rules, and validation helper registry for BP3 review."
+        )
+        checklist_status = (
+            "Checklist Focus: for FAM-006 BP3 - accepted BP2 traces to accepted BP1, SLC-051 "
+            "through SLC-055 remain one coherent branch route, SLC-051 is the first bounded "
+            "implementation recommendation, and future-gated boundaries are preserved."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, USER_BRANCH_PLAN_REVIEW.md, "
+            "supporting digest/checklist files, and copied source-truth files are loaded for BP3 review; "
+            "bounded SLC-051 implementation requires separate USER approval."
         )
     elif pr_stage1_packet:
         analysis_status = (
@@ -3266,6 +3589,14 @@ def _write_workstream_entry_packet_digests(
 
 def _packet_text_status(text: str) -> str:
     normalized = re.sub(r"\s+", " ", text).casefold()
+    bp3_ready_markers = (
+        "decision path: implementation-ready",
+        "bp3 workstream entry / orchestration validation is green",
+        "bp3 orchestration validation is green",
+    )
+    if any(marker in normalized for marker in bp3_ready_markers):
+        return DECISION_STATUS_IMPLEMENTATION_READY
+
     implementation_markers = (
         "approve bounded workstream implementation",
         "approve workstream implementation",
@@ -3396,6 +3727,7 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_fam006_bp1_stale_packet_failures(packet_files))
     failures.extend(_fam006_bp2_stale_packet_failures(packet_files))
+    failures.extend(_fam006_bp3_stale_packet_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if required_file not in packet_files:
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
@@ -3558,6 +3890,11 @@ def build_bundle(
         and "bp2 branch plan" in exact_user_decision.casefold()
         and "prepare bp3" in exact_user_decision.casefold()
     )
+    is_fam006_bp3_packet = (
+        source_branch == "feature/fam-006-active-overlay-recording-runtime-implementation"
+        and "approve bounded workstream implementation" in exact_user_decision.casefold()
+        and "slc-051" in exact_user_decision.casefold()
+    )
     machine_readable_packet_status = (
         "bp1 branch vision review - BP1 remains pending USER acceptance, revision, "
         "rejection, or waiver; BP2, BP3, Workstream implementation, SLC-051, and "
@@ -3568,6 +3905,10 @@ def build_bundle(
         "revision, rejection, or waiver; BP3, Workstream implementation, SLC-051, and "
         "runtime mutation remain pending USER approval."
         if is_fam006_bp2_packet
+        else
+        "implementation-ready - BP3 Workstream Entry / Orchestration Validation is green; "
+        "SLC-051 bounded Workstream implementation is pending USER approval."
+        if is_fam006_bp3_packet
         else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
@@ -3735,6 +4076,8 @@ def build_bundle(
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_stale_packet_failures(packet_files),
+        *_fam006_bp2_stale_packet_failures(packet_files),
+        *_fam006_bp3_stale_packet_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
