@@ -6,7 +6,7 @@ Branch Authority Record Pointer: `Docs/branch_records/feature_fam_006_active_ove
 Created From: `feature/fam-006-recording-profile-runtime-foundation` at `1f399003d2e6d13b34b567cd7f7900a709254bc9`
 Current Plan Phase: `Branch Readiness Stage 2 setup`
 Runtime Implementation Approval: `Pending - this branch is the active runtime implementation carrier, but SLC-051 and runtime mutation remain blocked until USER approves Workstream Entry analysis and then separately approves a bounded implementation packet.`
-Current-Main Reconciliation Status: `Reconciled - governed current-main reconciliation through origin/main@22054e0331d325303011798b12bf1118f7675eda completed on this branch using non-rewrite merge paths. Incoming FAM-007/current-main source-truth context was preserved as current-main context only; FAM-006 did not mutate FAM-007 source truth. Workstream Entry analysis remains pending USER approval.`
+Current-Main Reconciliation Status: `Reconciled - governed current-main reconciliation through origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906 completed on this branch using non-rewrite merge paths. Incoming current-main source-truth context was preserved as current-main context only; FAM-006 did not mutate FAM-007 source truth. Workstream Entry analysis remains pending USER approval.`
 
 ## Branch Runtime Engineering Plan
 
