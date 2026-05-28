@@ -221,7 +221,7 @@ PR Readiness Blocker: `PR Readiness is not reached for this active implementatio
 
 ## Exit Criteria
 
-Exit Criteria: `Stage 2 setup is met: source truth records the accepted v3/v4 contract, the released foundation branch remains historical traceability, and this active implementation carrier is ready for Workstream Entry analysis. Workstream/H1/LV1/UTS are not met or skipped for the implementation package; they remain future gates for approved runtime seams on this carrier.`
+Exit Criteria: `Stage 2 setup remains active after current-main reconciliation: source truth records the accepted v3/v4 contract, the released foundation branch remains historical traceability, and this active implementation carrier must refresh Branch Readiness Stage 2 review/packet posture before Workstream Entry analysis can be re-offered. Workstream/H1/LV1/UTS are not met or skipped for the implementation package; they remain future gates for approved runtime seams on this carrier.`
 
 ## Rollback Target
 
@@ -229,8 +229,8 @@ Rollback Target: `Branch Readiness`
 
 ## Next Legal Phase
 
-Next Legal Phase: `Workstream`
-Next Legal Phase Detail: `FAM-006 current-main reconciliation is complete and the next legal Workstream gate is Workstream Entry analysis only. No FAM-007 mutation is authorized here.`
+Next Legal Phase: `Branch Readiness`
+Next Legal Phase Detail: `Return to Branch Readiness Stage 2 after current-main reconciliation. FAM-006 must refresh the active implementation carrier review/packet posture and current-main source-truth proof before Workstream Entry analysis is re-offered. No FAM-007 mutation is authorized here.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -243,18 +243,18 @@ User Test Summary Strategy: `No UTS is required for this branch because no runti
 ## Formal Next Legal Phase Digest
 
 Current Phase: `Branch Readiness`
-Next Legal Phase: `Workstream`
-Why This Phase Is Next: `FAM-006 current-main reconciliation to origin/main@22054e0331d325303011798b12bf1118f7675eda is complete, validation is expected before closeout, and the Stage 2 USER review packet must represent the reconciled implementation carrier before Workstream Entry analysis begins.`
-Approval Required: `USER approval is required before successor Branch Readiness, Workstream implementation, cleanup, issue mutation, release execution beyond already published v1.7.25-prebeta, or runtime/provider/model work.`
-Exact USER Approval Text: `I approve Workstream Entry analysis for FAM-006 Active Overlay Recording Runtime Implementation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-implementation. This approval covers Workstream Entry analysis only: inspection of source truth, the accepted active-overlay recording contract, Stage 2 USER review packet, runtime surfaces, SLC-051 through SLC-055 package plan, validators/helpers, source-truth updates, proof requirements, USER-facing proof requirements, and return of the first bounded implementation approval packet. This does not approve Workstream implementation, SLC-051 implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 mutation, issue mutation, branch cleanup/deletion, PR creation, merge, release execution, durable Native Log Loader implementation, or Governance worktree mutation.`
-Allowed Scope: `Workstream Entry analysis only after USER approval; runtime implementation remains blocked.`
+Next Legal Phase: `Branch Readiness`
+Why This Phase Is Next: `FAM-006 current-main reconciliation to origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906 is complete. USER requested return to BR2 so the active implementation carrier must refresh Branch Readiness Stage 2 review/packet posture, source-truth proof, and next-decision text before Workstream Entry analysis can be re-offered.`
+Approval Required: `USER approval is required before Branch Readiness Stage 2 packet refresh, Workstream Entry analysis, Workstream implementation, cleanup, issue mutation, release execution beyond already published v1.7.25-prebeta, or runtime/provider/model work.`
+Exact USER Approval Text: `I approve Branch Readiness Stage 2 review/packet refresh for FAM-006 Active Overlay Recording Runtime Implementation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-implementation. This approval covers source-truth verification, current-main reconciliation proof refresh, USER review packet regeneration if required, validation, commit, push if green, and return of the corrected next legal decision text. This does not approve Workstream Entry analysis, Workstream implementation, SLC-051 implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 mutation, issue mutation, branch cleanup/deletion, PR creation, merge, release execution, durable Native Log Loader implementation, artifacts/raw evidence handling beyond approved Stage 2 review materials, or Governance worktree mutation.`
+Allowed Scope: `Branch Readiness Stage 2 review/packet refresh only after USER approval; Workstream Entry and runtime implementation remain blocked.`
 Explicit Exclusions: `Runtime implementation; SLC-051 implementation; Workstream implementation; recording execution; file writing; real Start/Stop controls; tray recording controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; future branch creation; future PR creation; future merge; release execution beyond already published v1.7.25-prebeta; issue mutation; artifacts/raw evidence handling beyond approved review materials; sibling-worktree mutation; old branch cleanup/deletion; Governance worktree mutation.`
 Validation Required: `Identity, source truth, branch governance, worktree confinement, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and focused FAM-006 validators as applicable.`
 Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, missing package/slice proof, stale active-authority drift, or need for runtime implementation.`
 USER Plan Review Gate: `USER accepted the v3/v4 plan as the starting implementation contract for this active carrier. Workstream Entry may revise the contract only through the governed USER review/digest loop before runtime mutation if USER changes direction.`
 USER Inspection Files: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Review Required Because: `Active-overlay-driven recording is a user-facing FAM-006 runtime foundation and must remain distinct from Overlay Profile editing, Monitor Group organization, tray controls, export/share, provider/model work, and broad theme/skin work.`
-Implementation Blocker: `Runtime implementation is not approved by Stage 2 setup or this wording repair. Runtime mutation on this active carrier requires Workstream Entry analysis, regenerated Stage 2 review packet proof, and separate bounded implementation approval.`
+Implementation Blocker: `Runtime implementation is not approved by Stage 2 setup, current-main reconciliation, or this BR2 return. Runtime mutation on this active carrier requires a refreshed Branch Readiness Stage 2 posture, Workstream Entry analysis, regenerated Stage 2 review packet proof when required, and separate bounded implementation approval.`
 Review Waiver Reason: `Not applicable - no review waiver is recorded for this active implementation carrier.`
 
 ## Later-Phase Expectations
