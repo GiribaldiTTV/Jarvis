@@ -102,6 +102,72 @@ Governance receipts are recorded after live truth is checked. Examples include U
 
 Docs may record historical receipts, but they must not pretend to be live operational truth. When a current operational fact is needed, run a helper or live check and report it as evidence.
 
+## Source Truth Authority Hierarchy
+
+When evidence conflicts, Codex must resolve authority by fact class instead of by recency, confidence, or validator color.
+
+Durable governance and product rules use this order:
+
+1. repo durable source truth in the owning file
+2. USER-approved repo source-truth update and merge history
+3. USER-reviewed local artifacts only after Codex digests them into the owning source-truth surface
+4. validator/helper output as evidence
+5. Codex or ChatGPT response text as analysis
+6. Codex memory, chat history, or unstaged local notes as non-authority
+
+Volatile operational facts use this order:
+
+1. Git, GitHub, or approved helper-derived live truth
+2. accepted external operational state when initialized and applicable
+3. repo durable receipts only as historical interpretation
+4. validator/helper output as evidence
+5. Codex or ChatGPT response text as analysis
+
+Invalid states block on `Authority Hierarchy Ambiguous` or `Evidence Treated As Source Truth` when a packet, helper result, review artifact, chat digest, or memory claim overrides the owning repo source-truth file for durable law, or overrides Git/GitHub/helper-derived truth for volatile facts.
+
+## Governance Mirror Drift Control
+
+Every durable governance rule must have exactly one owner file. Mirrors may summarize and route, but they must not add new semantics.
+
+Required mirror discipline:
+
+- name the rule owner when repeating a rule outside its owner file
+- keep mirrors compact and execution-focused
+- avoid copying full policy blocks into Main, branch records, branch plans, generated audits, review packets, or helper output
+- update mirrors only after the owner file is correct
+- treat detailed duplicate rule text as drift unless it is explicitly historical evidence
+
+Recommended fields for new durable rules:
+
+- `Rule Owner:`
+- `Mirror Files:`
+- `Mirror Purpose:`
+- `Do Not Duplicate In:`
+- `Validator / Helper Owner:`
+
+`Governance Mirror Drift` blocks PR Readiness when two source-truth files define conflicting rule behavior, when a mirror silently becomes a second owner, or when a generated/user-review artifact is treated as the canonical rule owner.
+
+## Main / Dev / Owner Boundary Contract
+
+This public repository may define public-safe source-truth boundaries for a future Main / Dev / Owner split, but it must not execute the split by implication.
+
+Boundary model:
+
+| Zone | Public-safe role | May own | Must not own |
+| --- | --- | --- | --- |
+| Main / Public repo | buildable public app source, durable public governance, public product/architecture direction, public validators, release truth | public source truth, public-safe architecture, public release notes, public validators, sanitized promotion receipts | secrets, credentials, private Owner memory, private provider keys, private Dev experiments as authority, unredacted private evidence |
+| Dev / Private development repo | private experiments, provider SDK spikes, internal diagnostics, candidate implementation before promotion | experimental code, Dev-only logs, private harnesses, private proof | accepted public governance law unless promoted to Main, public release truth, Owner-private data |
+| Owner / Private local repo or vault | USER-private preferences, memory, local-only owner context, secrets when an encrypted vault is later approved | owner data, private memory, local vault config, personal context, encrypted secrets | public app source truth, public release artifacts, unredacted import into Main |
+
+Promotion and disclosure gates:
+
+- `Dev-to-Main Promotion Packet` is required before any Dev work becomes Main source truth.
+- `Owner Disclosure Gate` is required before Owner-private data becomes Main or Dev evidence.
+- `Private Reference Leak` blocks when private paths, remotes, memory, prompts, secrets, provider keys, model paths, owner logs, or private strategy leak into Main docs, PRs, releases, or review bundles without a public-safe sanitization receipt.
+- `Shadow Governance In Private Repo` blocks when private Dev/Owner state claims accepted governance authority that has not returned to Main by USER-approved repo update and merge.
+
+FAM-007 owns later AI/provider/runtime/private-edition implementation planning when the work becomes concrete provider behavior, model behavior, capability-pack behavior, memory/cache behavior, private repo setup, private remotes, or private-to-public sanitization workflow. Governance owns only the public-safe repo/source-truth boundary unless USER admits a dedicated split execution carrier.
+
 ## External Operational State Store Contract
 
 Rule Name: `External Operational State Store Contract`

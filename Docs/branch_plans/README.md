@@ -131,6 +131,35 @@ The bundle should copy the branch vision and planning files the USER needs to in
 
 The packet must use the active worktree label, copy the selected files flat into that worktree folder, and rely on `START_HERE.md` to map copied filenames back to source-truth paths. The digest must report the local USER hub packet path, copied files, validation summary, exact Branch Planning or Workstream green-light decision requested, and pending USER decisions. Helper output may report branch/head/origin-main freshness, but USER-facing files should not center mutable technical proof metadata. Missing packet proof blocks Workstream entry on `Branch Planning Review Packet Missing`.
 
+## USER Review Packet Human-Readability QA
+
+USER-facing Branch Planning packets must be readable decision aids, not validator logs, metadata dumps, or Codex status digests.
+
+Every generated USER-facing packet must include:
+
+- plain-language purpose
+- exact USER decision requested
+- what USER will see, inspect, or approve
+- what will change
+- options, tradeoffs, and Codex recommendation
+- open USER questions
+- files to inspect
+- explicit pending/not-approved boundaries
+
+Technical freshness proof such as current branch head, origin/main, ahead/behind, live PR state, ZIP hash, and validation logs belongs in helper output, validator output, external operational state, or the Codex return digest unless a copied source-truth file already contains historical receipt text. `USER Review Packet Human-Readability Missing` blocks when the packet is structurally valid but not useful for USER review. `USER Review Packet Metadata Dump` blocks when mutable technical proof becomes the primary USER-facing content.
+
+## Architecture / Experience / Policy Impact Matrix
+
+When Branch Readiness or Branch Planning touches product, runtime, UI, provider, cache, AI-native, capability-pack, privacy, trust, or source-truth ownership work, the packet must include this matrix or an explicit `No Impact` finding:
+
+| Owner Class | Named Owner | Touches? | Impact Type | Current Branch Scope | Deferred / Future Scope | Proof / Validation Needed |
+| --- | --- | --- | --- | --- | --- | --- |
+| Architecture Layer | `<named architecture layer>` | Yes / No | No Impact / Consume Existing / Extend Existing / Change Existing / New Candidate / USER Decision Required | `<scope>` | `<boundary>` | `<proof>` |
+| Experience Layer | `<named experience layer>` | Yes / No | No Impact / Consume Existing / Extend Existing / Change Existing / New Candidate / USER Decision Required | `<scope>` | `<boundary>` | `<proof>` |
+| Cross-Family Policy Owner | `<named policy owner>` | Yes / No | No Impact / Consume Existing / Extend Existing / Change Existing / New Candidate / USER Decision Required | `<scope>` | `<boundary>` | `<proof>` |
+
+The matrix is a routing/proof surface, not a ledger and not implementation approval. `New Candidate` rows must cite the `Source-Truth Placement Preflight` and `No Existing Owner Fits` proof before a new owner can be proposed.
+
 ## USER Branch Vision Review Gate
 
 `USER Branch Vision Review Gate` is the named BP1 USER-facing checkpoint. It defines the branch goal, end-state, product shape, user-facing behavior, surfaces, options, Codex recommendations, USER decisions, and acceptance status before engineering planning.

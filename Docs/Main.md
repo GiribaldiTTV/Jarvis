@@ -264,6 +264,8 @@ Use these for current product posture, architecture boundaries, and release-stag
 
 These remain authoritative for their layer even where older naming or path references still need later normalization.
 When a task depends on future post-Beta AI behavior, AI-native operating experience, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, privacy posture, local-vs-external execution boundaries, capability-pack architecture, or AI/UI identity, route first to `Docs/nexus_vision.md` for project-wide vision, then to `Docs/ai_runtime_and_trust_architecture.md` for cross-family architecture/policy, and then to `Docs/family_visions/` for family-specific durable direction rather than duplicating that intent in roadmap, backlog, or workstream docs.
+When a branch touches architecture, experience, cross-family policy, AI reliability, provider/cache/trust behavior, privacy boundaries, capability-pack domains, or source-truth ownership, require the `Architecture / Experience / Policy Impact Matrix` from `Docs/phase_governance.md` and `Docs/branch_plans/README.md`. The matrix routes impact to existing owners first and cannot create a new owner or FAM without `No Existing Owner Fits` proof and USER approval.
+When AI behavior is planned, classify user-facing AI output by the reliability model in `Docs/ai_runtime_and_trust_architecture.md`: deterministic facts require proof, high-confidence conclusions require evidence and uncertainty basis, advisory outputs require tradeoffs, exploratory outputs must label hypotheses, and creative outputs require USER acceptance before implementation.
 
 ### Registry And Sequencing
 

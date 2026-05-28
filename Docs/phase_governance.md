@@ -306,6 +306,25 @@ When the proposed concept touches backlog identity, family vision, architecture,
 
 AI Operational Cache Governance must not be promoted as a new FAM by inertia. Cache is not memory: cache is operational, purpose-bound, explainable, clearable, and policy-governed, while memory is durable user-personal knowledge and requires separate explicit consent. Cross-family cache architecture, replay safety, provenance, invalidation, Trust Journal cache events, and policy placement route through `Docs/ai_runtime_and_trust_architecture.md`; family-specific cache placement routes through existing FAM-007 AI/runtime/capability-pack owners, FAM-008 setup/install/cache-root UX owners, the relevant implementing family vision for local data/privacy implications, and the active external branch planning owner for implementation-specific cache behavior. Any further new AI architecture or policy owner is legal only after the placement preflight records `No Existing Owner Fits` or USER approves a companion source-truth file.
 
+### Architecture / Experience / Policy Impact Matrix
+
+Branch Readiness Stage 1 and Branch Planning packets for product, runtime, UI, provider, cache, AI-native, capability-pack, privacy, trust, or source-truth ownership work must include an `Architecture / Experience / Policy Impact Matrix`.
+
+The matrix must classify each touched or plausibly affected owner class as one of:
+
+- `Architecture Layer`
+- `Experience Layer`
+- `Cross-Family Policy Owner`
+- `Runtime Subsystem`
+- `Capability-Pack Domain`
+- `Family Vision`
+- `Package/slice/seam`
+- `No Impact`
+
+Allowed impact values are `No Impact`, `Consume Existing`, `Extend Existing`, `Change Existing`, `New Candidate`, and `USER Decision Required`.
+
+The packet must name the existing owner file, current-branch scope, deferred/future scope, rejected owner classes, and proof or validation needed. A `New Candidate` impact is illegal until `Source-Truth Placement Preflight` proves `No Existing Owner Fits` or USER explicitly approves a new owner. Missing or ambiguous matrix rows block on `Architecture Impact Unclassified`, `Experience Layer Impact Unclassified`, `Cross-Family Policy Impact Unclassified`, or `New Owner Candidate Without Placement Preflight`.
+
 `Element Ledger Placement Drift` blocks Stage 2 completion when Codex adds or recommends a new active source-truth artifact without this preflight, when a new artifact duplicates an existing owner, or when the owning record does not point to a large companion ledger file.
 
 ### Element Validation Ledger

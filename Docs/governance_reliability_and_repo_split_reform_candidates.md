@@ -46,22 +46,22 @@ Because source truth says to run `Source-Truth Placement Preflight` and extend e
 
 Scope Classification:
 
-`RRI-20260528-001` currently contains the completed USER Review Gate semantics repair and the non-binding Governance Reliability / Repo Split Reform candidate plan. It is the first bounded repair cycle of the broader reliability reform. It is not the completed admitted Governance Reliability / Repo Split Reform implementation.
+`RRI-20260528-001` contains the completed USER Review Gate semantics repair and the completed admitted Governance Reliability / Repo Split Reform source-truth contract cycles. Helper/validator code beyond already-committed review-gate false-green prevention, external-state mutation, repo split execution, FAM worktree mutation, main mutation, private repo creation, runtime work, release work, PR creation, and merge remain separate USER decisions.
 
 PR Readiness Posture:
 
-PR Readiness Stage 1 is premature if the USER intent is for this same Governance PR to enact the full admitted Governance Reliability / Repo Split Reform scope. PR Readiness may proceed only if USER explicitly chooses the Limited PR path for the completed USER Review Gate semantics repair. If USER chooses the Full Reform Continuation path, this branch must stay in Governance reform work before PR Readiness.
+The admitted Governance Reliability / Repo Split Reform cycles and final integration hardening are complete. The next legal phase is PR Readiness Stage 1 analysis after USER approval.
 
 Legal Path Options:
 
 | Path | Meaning | Legal Next Phase | PR Readiness Status |
 | --- | --- | --- | --- |
-| Limited PR path | Land only the completed USER Review Gate semantics repair and keep the broader reform as future/pending | PR Readiness Stage 1 for limited repair only, after USER approval | Not premature for limited repair |
-| Full reform continuation path | Continue this Governance branch through the admitted reform cycles before one consolidated PR | Branch Readiness Stage 1 for Cycle 1 - Taxonomy / Owner Discipline | PR Readiness held until all admitted cycles and final integration hardening complete |
+| Limited PR path | Superseded by USER approval to complete all admitted reform cycles in this branch | Not current | Not current |
+| Full reform continuation path | Completed admitted docs/source-truth contract cycles before one consolidated PR | PR Readiness Stage 1 after USER approval | Ready for Stage 1 analysis |
 
 USER Preference Captured:
 
-The USER currently prefers the Full reform continuation path if this Governance PR is intended to enact the Governance Reliability And Repo Split Reform plan. That preference does not by itself authorize the next cycle; it defines the recommended next decision text.
+The USER approved all remaining phases/cycles in bounded mode on 2026-05-28, with USER gates and approvals waived/accepted for completing the admitted reform plan. That approval does not authorize PR creation, merge, release, runtime work, FAM worktree mutation, external-state mutation, repo split execution, private repo creation, file movement/deletion/archival, or helper/validator code mutation beyond the already-committed review-gate false-green prevention.
 
 Current Commit Completion Matrix:
 
@@ -70,20 +70,20 @@ Current Commit Completion Matrix:
 | Active Failure Class - USER Review Gate Bypass | Completed in current branch | Binding source truth, helper behavior, validator checks, fixtures, incident pattern, and USER review packet were updated. |
 | Worktree-Delta Reconciliation Findings | Completed for this cycle | Read-only audit of Main, Governance, FAM-006, and FAM-007 was recorded; product worktrees were not mutated. |
 | Governance Reliability / Repo Split Reform Planning File | Completed as planning evidence | This file exists as non-binding planning and candidate sequencing evidence. |
-| Cycle 1 - Taxonomy / Owner Discipline | Admitted for BR2 / BP1 packet preparation | USER approved Cycle 1 BR2 admission on 2026-05-28. BP1 Branch Vision Review is the active USER gate; binding taxonomy/source-truth owner mutation remains pending later USER approval. |
-| Cycle 2 - Architecture / Experience / Policy Impact Matrix | Planned candidate / not executed | Requires Cycle 1 vocabulary alignment and BR1 admission. |
-| Cycle 3 - Hypothesis-Driven Reliability | Planned candidate / not executed | Requires AI runtime/trust owner review and BR1 admission. |
-| Cycle 4 - PR / Review Drift Prevention | Partially completed | USER Review Gate false-green prevention is complete; PR body drift and review-packet readability QA remain pending cycle work. |
-| Cycle 5 - Main / Dev / Owner Boundary Planning | Planned candidate / not executed | Requires public-safe boundary admission; concrete FAM-007/private/runtime work remains separate. |
+| Cycle 1 - Taxonomy / Owner Discipline | Completed for source-truth contract | `Docs/feature_backlog.md`, `Docs/governance_efficiency_operating_model.md`, `Docs/phase_governance.md`, and compact `Docs/Main.md` routing now preserve taxonomy, family rejection, `No Existing Owner Fits`, and owner-discipline rules. |
+| Cycle 2 - Architecture / Experience / Policy Impact Matrix | Completed for source-truth contract | `Docs/phase_governance.md` and `Docs/branch_plans/README.md` require the matrix; existing owners remain `Docs/ai_runtime_and_trust_architecture.md`, product vision, and family visions. |
+| Cycle 3 - Hypothesis-Driven Reliability | Completed for source-truth contract | `Docs/ai_runtime_and_trust_architecture.md` now records reliability classes and the Observation / Hypothesis / Validation loop. |
+| Cycle 4 - PR / Review Drift Prevention | Completed for source-truth contract | USER Review Gate false-green prevention, PR body drift checks, review packet readability QA, and helper/validator evidence boundaries are recorded. |
+| Cycle 5 - Main / Dev / Owner Boundary Planning | Completed for public-safe governance boundary | `Docs/governance_efficiency_operating_model.md` records the Main / Dev / Owner boundary contract; concrete private/runtime/FAM-007 work remains separate. |
 | Governance Quickstart | Deferred / future candidate | Orientation-only artifact; not required before this reform can proceed unless USER admits it. |
 | Optional explicit registries | Deferred / future candidate | May be created only after `No Existing Owner Fits` is proven. |
-| Helper / validator implementation beyond current bypass checks | Requires separate USER decision unless admitted in a later cycle | Current branch changed helper/validator only for the USER Review Gate false-green prevention. |
+| Helper / validator implementation beyond current bypass checks | Deferred / separate USER decision | Current branch changed helper/validator only for the USER Review Gate false-green prevention; later code hardening must be separately admitted if needed. |
 | Repo split execution, external-state migration, file movement, deletion, archival, private repo creation | Requires separate branch or later cycle | Not authorized and not performed. |
-| Final integration hardening | Missing / pending | Must run after all admitted cycles complete and before PR Readiness for the full reform. |
+| Final integration hardening | Completed for current admitted source-truth contract | Owner conflicts, mirror drift, phase wording, taxonomy consistency, helper/validator guidance, PR/review drift, packet readability, private/public boundary leakage, and source-truth placement were checked before PR Readiness Stage 1 recommendation. |
 
 Admitted Scope Rule:
 
-Before more mutation toward the full reform, the next USER decision must close the active cycle gate, name the allowed owner files and write set for the next gate or phase, and preserve PR Readiness as held until all admitted cycles and final integration hardening are complete.
+Further mutation requires a new legal phase decision. The next legal phase for this branch is PR Readiness Stage 1 analysis; PR creation, merge, release, helper/validator code expansion, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, runtime work, FAM worktree mutation, and main mutation remain separate USER decisions.
 
 ## Cycle 1 BR2 Admission - Taxonomy / Owner Discipline
 
@@ -95,16 +95,16 @@ Cycle 1 is admitted as a bounded Governance Reliability / Repo Split Reform cycl
 
 Current Gate:
 
-BP1 USER Branch Vision Review is the active USER review gate for Cycle 1. The BP1 packet may become reviewable, but BP1 is not accepted, waived, rejected, revised, or blocked until USER responds and Codex digests that response.
+Cycle 1 BP1, BP2, BP3, Workstream, Hardening, and LV1/non-applicability were completed under the USER's 2026-05-28 bounded all-phases/all-cycles approval. The earlier BP1 reviewable/pending packet is now superseded by this completion record.
 
 Cycle 1 Packet State:
 
-- Packet Reviewability State: `Reviewable` after the refreshed `C:\Nexus USER\Governance` packet and matching ZIP are generated and validated.
-- USER Gate State: `Pending USER Review`.
-- BP2 Plan Review: `Pending later USER decision`.
-- BP3 Workstream Entry / Orchestration Validation: `Pending later USER decision`.
-- Workstream Implementation: `Blocked pending accepted or waived BP1, accepted or waived BP2, legal BP3 posture, and separate USER implementation approval`.
-- PR Readiness: `Held until all admitted reform cycles and final integration hardening complete, unless USER explicitly chooses a limited PR path later`.
+- Packet Reviewability State: `Superseded`.
+- USER Gate State: `USER Waived`.
+- BP2 Plan Review: `Completed under bounded all-cycles approval`.
+- BP3 Workstream Entry / Orchestration Validation: `Completed under bounded all-cycles approval`.
+- Workstream Implementation: `Completed for docs/source-truth contract only`.
+- PR Readiness: `Ready for Stage 1 analysis after USER approval`.
 
 Cycle 1 Vision:
 
@@ -141,6 +141,44 @@ Cycle 1 Stop Conditions:
 - Stop if the taxonomy change would mutate FAM-006, FAM-007, main, runtime/provider/model behavior, external operational state, private repo boundaries, file movement, deletion, archival, helper code, or validator code without separate USER approval.
 - Stop if packet reviewability is mistaken for BP1 acceptance.
 - Stop if BP2, BP3, Workstream, PR Readiness, PR creation, merge, or release is requested before the prior gates close legally.
+
+## Full Reform Completion Record - 2026-05-28
+
+Completion Scope:
+
+The admitted Governance Reliability / Repo Split Reform source-truth contract is complete for the current Governance branch. The completed scope is docs/source-truth governance contract work and USER packet refresh only.
+
+Completed Cycles:
+
+- Cycle 0 - USER Review Gate semantics repair.
+- Cycle 1 - Taxonomy / Owner Discipline.
+- Cycle 2 - Architecture / Experience / Policy Impact Matrix.
+- Cycle 3 - Hypothesis-Driven Reliability.
+- Cycle 4 - PR / Review Drift Prevention.
+- Cycle 5 - Main / Dev / Owner Boundary Planning, public-safe boundary only.
+
+Cycle Proof Summary:
+
+- Taxonomy / Owner Discipline: backlog taxonomy, family rejection tests, `No Existing Owner Fits`, source-truth authority hierarchy, and mirror drift control are recorded in the existing owners.
+- Architecture / Experience / Policy Impact Matrix: Branch Readiness and Branch Planning must classify architecture, experience, policy, runtime subsystem, capability-pack, family vision, package/slice/seam, or no-impact routing before implementation.
+- Hypothesis-Driven Reliability: AI runtime/trust architecture records deterministic, high-confidence, advisory, exploratory/hypothesis, and creative reliability classes plus the Observation / Hypothesis / Validation loop.
+- PR / Review Drift Prevention: PR body drift checks, USER review packet human-readability QA, packet reviewability versus USER acceptance, and validators-as-evidence boundaries are recorded.
+- Main / Dev / Owner Boundary Planning: public-safe repo/source-truth boundary, promotion/disclosure gates, private-reference leak blockers, and FAM-007/private implementation deferral are recorded.
+
+Final Integration Hardening:
+
+- Owner conflicts: no new durable owner file was created; existing owners were extended first.
+- Mirror drift: Main and review/packet surfaces remain compact pointers while owner files carry the durable rules.
+- Phase wording conflicts: BP1/BP2/BP3 acceptance semantics remain unchanged; this record only notes the USER's all-cycle waiver for this bounded governance run.
+- Taxonomy consistency: `FAM-009` remains reusable because workspace/data and safety/privacy fold-source files are not active families or number reservations.
+- Validator/helper guidance consistency: helper/validator code expansion remains future/deferred unless separately approved; registry guidance names reuse-first targets.
+- PR/review drift: PR body audit and review-packet readability rules are recorded without creating PRs.
+- Private/public boundary leakage: Main / Dev / Owner split is public-safe planning only; private repo creation, private remotes, provider/model execution, memory/cache implementation, and private import are still blocked.
+- Source-truth placement: no repo docs were moved, deleted, archived, or converted into new ledgers.
+
+Next Legal Phase:
+
+PR Readiness Stage 1 analysis, after USER approval. PR creation, merge, release, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, runtime work, FAM worktree mutation, main mutation, and helper/validator code expansion remain separate USER decisions.
 
 ## Active Failure Class - USER Review Gate Bypass / Packet Validation Treated As USER Acceptance
 
@@ -998,22 +1036,21 @@ Helper code, validator code, private/public leak scanners, architecture drift sc
 
 ## Recommended Next USER Decision
 
-Cycle 1 is now admitted at BR2. The next legal USER decision is BP1 USER Branch Vision Review disposition for Taxonomy / Owner Discipline, not PR Readiness.
+The admitted Governance Reliability / Repo Split Reform source-truth contract cycles and final integration hardening are complete. The next legal USER decision is PR Readiness Stage 1 analysis.
 
-Suggested exact decision shape for accepting BP1 as written:
+Suggested exact decision shape:
 
 ```text
-I accept Cycle 1 BP1 USER Branch Vision Review for Taxonomy / Owner Discipline as written and approve Codex to proceed to Cycle 1 BP2 USER Branch Plan Review preparation on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake.
+I approve PR Readiness Stage 1 analysis for the Governance Reliability / Repo Split Reform source-truth contract on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake.
 
-BP2 is planning/review only and must return the exact implementation plan before any binding taxonomy/source-truth owner mutation. This does not approve BP2 acceptance, BP3, Workstream implementation, binding taxonomy/source-truth owner mutation, helper code mutation, validator code mutation, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, FAM-006/FAM-007/main mutation, runtime/provider/model/shortcut/installer work, PR creation, merge, release, issue mutation, cleanup, Private Dev ORIN import, or AI Product Contract import.
+Stage 1 may analyze PR readiness, repair only bounded current-branch PR-readiness drift if source truth permits, run validation, and return the Stage 1 packet. This does not approve PR Readiness Stage 2, PR creation, merge, release, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, FAM-006/FAM-007/main mutation, runtime/provider/model/shortcut/installer work, issue mutation, cleanup, Private Dev ORIN import, AI Product Contract import, or helper/validator code expansion beyond already-approved current-branch repair.
 ```
 
 Other legal USER responses:
 
-- Revise the Cycle 1 BP1 vision and ask Codex to digest the revision.
-- Request more taxonomy/owner-discipline options before BP2 preparation.
-- Reject or narrow Cycle 1.
-- Explicitly waive BP1 and approve BP2 preparation.
+- Request more hardening detail before PR Readiness.
+- Choose a limited split PR strategy if Stage 1 finds merge-risk.
+- Block PR Readiness and request another Governance reform cycle.
 
 ## Final Recommendation
 
