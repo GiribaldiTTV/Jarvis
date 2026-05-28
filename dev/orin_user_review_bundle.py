@@ -129,6 +129,7 @@ class WorkstreamEntryPacketDecisionPathResult:
             DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW,
             DECISION_STATUS_HARDENING_REVIEW,
             DECISION_STATUS_LIVE_VALIDATION_REVIEW,
+            DECISION_STATUS_PR_READINESS_STAGE2_REVIEW,
             DECISION_STATUS_REPAIR_REVALIDATION,
             DECISION_STATUS_UNKNOWN,
         }
@@ -309,7 +310,10 @@ def _validate_export_zip(
         )
     artifact_failures = [
         *_unresolved_template_placeholder_failures(packet_files),
-        *_packet_count_consistency_failures(packet_files),
+        *_packet_count_consistency_failures(
+            packet_files,
+            actual_file_count=len(entries),
+        ),
     ]
     if artifact_failures:
         raise ValueError(
@@ -428,7 +432,11 @@ def _unresolved_template_placeholder_failures(packet_files: Mapping[str, str]) -
     return failures
 
 
-def _packet_count_consistency_failures(packet_files: Mapping[str, str]) -> list[str]:
+def _packet_count_consistency_failures(
+    packet_files: Mapping[str, str],
+    *,
+    actual_file_count: int | None = None,
+) -> list[str]:
     start_here = packet_files.get("START_HERE.md", "")
     if not start_here:
         return []
@@ -445,7 +453,8 @@ def _packet_count_consistency_failures(packet_files: Mapping[str, str]) -> list[
     expected_file_count = parsed["Expected File Count"]
     copied_file_count = parsed["Copied File Count"]
     extra_bundle_file_count = parsed["Extra Bundle File Count"]
-    actual_file_count = len(packet_files)
+    if actual_file_count is None:
+        actual_file_count = len(packet_files)
 
     if bundle_file_count is not None and bundle_file_count != actual_file_count:
         failures.append(
@@ -2266,10 +2275,16 @@ def _validate_workstream_entry_packet_decision_path(
     expected_head: str,
     expected_origin_main: str,
     require_implementation_ready: bool = False,
+    actual_file_count: int | None = None,
 ) -> WorkstreamEntryPacketDecisionPathResult:
     failures: list[str] = []
     failures.extend(_unresolved_template_placeholder_failures(packet_files))
-    failures.extend(_packet_count_consistency_failures(packet_files))
+    failures.extend(
+        _packet_count_consistency_failures(
+            packet_files,
+            actual_file_count=actual_file_count,
+        )
+    )
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if required_file not in packet_files:
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
@@ -2331,8 +2346,13 @@ def validate_workstream_entry_packet_folder(
     require_implementation_ready: bool = False,
 ) -> WorkstreamEntryPacketDecisionPathResult:
     packet_files: dict[str, str] = {}
-    for path in sorted(packet_dir.iterdir()) if packet_dir.exists() else []:
-        if not path.is_file() or path.suffix.lower() not in {".md", ".txt", ".json"}:
+    all_files = (
+        sorted(path for path in packet_dir.iterdir() if path.is_file())
+        if packet_dir.exists()
+        else []
+    )
+    for path in all_files:
+        if path.suffix.lower() not in {".md", ".txt", ".json"}:
             continue
         packet_files[path.name] = path.read_text(encoding="utf-8")
     return _validate_workstream_entry_packet_decision_path(
@@ -2341,6 +2361,7 @@ def validate_workstream_entry_packet_folder(
         expected_head=expected_head,
         expected_origin_main=expected_origin_main,
         require_implementation_ready=require_implementation_ready,
+        actual_file_count=len(all_files),
     )
 
 
@@ -2579,21 +2600,25 @@ def build_bundle(
     )
 
     (target / "START_HERE.md").write_text("\n".join(readme_lines), encoding="utf-8")
+    bundle_paths = _bundle_files(target)
     packet_files = {
         path.relative_to(target).as_posix(): path.read_text(encoding="utf-8")
-        for path in _bundle_files(target)
+        for path in bundle_paths
         if path.suffix.lower() in {".md", ".txt", ".json"}
     }
     artifact_failures = [
         *_unresolved_template_placeholder_failures(packet_files),
-        *_packet_count_consistency_failures(packet_files),
+        *_packet_count_consistency_failures(
+            packet_files,
+            actual_file_count=len(bundle_paths),
+        ),
     ]
     if artifact_failures:
         raise ValueError(
             "Review bundle artifact validation failed:\n"
             + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
-    expected_zip_entries = set(packet_files)
+    expected_zip_entries = {path.relative_to(target).as_posix() for path in bundle_paths}
     _write_export_zip(target, export_zip)
     _validate_export_zip(
         export_zip,

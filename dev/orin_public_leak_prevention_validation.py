@@ -1363,6 +1363,7 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
             expected_head=canary.get("expectedHead", ""),
             expected_origin_main=canary.get("expectedOriginMain", ""),
             require_implementation_ready=canary.get("requireImplementationReady", False),
+            actual_file_count=canary.get("actualFileCount"),
         )
         expected_valid = canary.get("expectedValid")
         expected_status = canary.get("expectedStatus")
@@ -1394,6 +1395,7 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
         "chat-only-decision-missing-packet-evidence",
         "unresolved-template-placeholder",
         "packet-count-mismatch",
+        "packet-count-with-nontext-asset",
         "branch-correct-live-validation-review",
         "branch-correct-pr-stage2-review",
     ):

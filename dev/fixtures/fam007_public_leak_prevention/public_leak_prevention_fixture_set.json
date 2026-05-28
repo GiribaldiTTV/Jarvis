@@ -274,6 +274,23 @@
       }
     },
     {
+      "caseId": "packet-count-with-nontext-asset",
+      "expectedBranch": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation",
+      "expectedHead": "synthetic-dev-owner-head",
+      "expectedOriginMain": "synthetic-origin-main",
+      "requireImplementationReady": false,
+      "actualFileCount": 6,
+      "expectedValid": true,
+      "expectedStatus": "workstream-entry-final-review",
+      "files": {
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nBundle File Count: 6\nExpected File Count: 1\nCopied File Count: 1\nExtra Bundle File Count: 4\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Workstream Entry final decision review.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+      }
+    },
+    {
       "caseId": "branch-correct-live-validation-review",
       "expectedBranch": "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
       "expectedHead": "synthetic-breakpoint2-head",
