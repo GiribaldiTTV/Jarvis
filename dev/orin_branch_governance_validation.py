@@ -259,6 +259,10 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING = "Branch Runtime Engineering Plan"
 BRANCH_RUNTIME_ENGINEERING_PLAN_POINTER_LABEL = "Branch Runtime Engineering Plan:"
 BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL = "Branch Runtime Engineering Plan Path:"
 BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = "Docs/branch_plans/"
+EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = (
+    "C:/Nexus Governance State/branches/"
+)
+EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_FILE = "branch_plan.md"
 BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS = 8
 BRANCH_RUNTIME_ENGINEERING_PLAN_STATUS_TERMS = (
     "required",
@@ -3554,38 +3558,38 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
         "Main-First Loader Chain",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Context docs may explain",
     ),
     Path("Docs/development_rules.md"): (
         "Main is the first repo loader and routing index",
         "Nexus Vision",
         "family vision",
-        "active branch plan",
+        "active external branch plan",
     ),
     Path("Docs/codex_modes.md"): (
         "Main is the first repo loader and routing index",
         "Nexus Vision",
         "family vision",
-        "active branch plans",
+        "active external branch plans",
     ),
     Path("Docs/codex_user_guide.md"): (
         "Main is the first repo loader and source-truth router",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "active branch plan",
+        "active external branch plan",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Generated prompts must preserve the Main-first loader chain",
         "Docs/Main.md",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
     Path("Docs/orin_task_template.md"): (
         "Preserve the Main-first loader chain",
         "project/family vision",
-        "active branch plan",
+        "active external branch plan",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
     ),
@@ -3596,13 +3600,13 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
     ),
     Path("Docs/branch_plans/README.md"): (
         "Main-first loader chain",
-        "active branch plan",
+        "external operational state",
         "branch-local engineering detail",
     ),
     Path("Docs/family_visions/README.md"): (
         "Main-first loader chain",
         "Docs/nexus_vision.md",
-        "active branch plan",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
 }
 
@@ -4866,7 +4870,7 @@ RUNTIME_ENGINEERING_CONTRACT_PHRASES = (
 BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "Branch Runtime Engineering Plan",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
         "PR Readiness fold-down",
     ),
@@ -4881,7 +4885,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/development_rules.md"): (
         "Branch Runtime Engineering Plan",
         "USER Review Desktop Bundle",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
     ),
@@ -4903,14 +4907,14 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/nexus_startup_contract.md"): (
         "Branch Runtime Engineering Plan",
         "USER Review Desktop Bundle",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
         "Workstream Entry bundles",
-        "Docs/branch_plans/<branch_slug>.md",
+        "active external branch plans",
         "invalid backlog planning sprawl",
     ),
     Path("Docs/branch_records/index.md"): (
@@ -4921,14 +4925,14 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/workstreams/index.md"): (
         "Branch Runtime Engineering Plan",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "PR Readiness fold-down",
     ),
     Path("Docs/branch_plans/README.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
         "Workstream Entry Review Bundle",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
         "Release Readiness Public-Scope Translation Checklist:",
@@ -4938,7 +4942,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
 USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "USER Feedback Disposition",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "compact UFD pointers",
     ),
     Path("Docs/phase_governance.md"): (
@@ -6866,6 +6870,21 @@ def _extract_colon_value(block: str, label: str) -> str:
 
 def _extract_colon_values(block: str, label: str) -> list[str]:
     return [match.strip() for match in re.findall(rf"^{re.escape(label)}:\s*(.+)$", block, flags=re.M)]
+
+
+def _is_external_branch_plan_path(path: str) -> bool:
+    normalized = path.replace("\\", "/").strip().strip("`")
+    return (
+        normalized.startswith(EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY)
+        and normalized.endswith(f"/{EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_FILE}")
+    )
+
+
+def _is_repo_branch_plan_path(path: str) -> bool:
+    normalized = path.replace("\\", "/").strip().strip("`")
+    return normalized.startswith(BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY) and normalized.endswith(
+        ".md"
+    )
 
 
 def _clean_release_value(value: str) -> str:
@@ -9303,7 +9322,7 @@ def _validate_element_to_phase_proof_matrix(
     require(
         has_matrix or not require_matrix,
         (
-            f"{source_path}: active branch planning is missing "
+            f"{source_path}: active external branch planning is missing "
             f"'## {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING}'"
         ),
     )
@@ -9341,10 +9360,14 @@ def _validate_element_to_phase_proof_matrix(
                 ),
             )
         if marker in ELEMENT_TO_PHASE_MATRIX_OWNER_MARKERS:
+            normalized_owner_path = value.replace("\\", "/")
             require(
                 (
                     value.startswith("Docs/")
                     or value.startswith("dev/")
+                    or _is_external_branch_plan_path(normalized_owner_path)
+                    or "external branch plan" in normalized_marker_value
+                    or "external operational state" in normalized_marker_value
                     or "source-truth owner" in normalized_marker_value
                     or "branch runtime engineering plan" in normalized_marker_value
                     or "branch engineering plan" in normalized_marker_value
@@ -9353,7 +9376,7 @@ def _validate_element_to_phase_proof_matrix(
                 (
                     f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} "
                     f"marker '{marker}' must name a concrete source-truth owner "
-                    "or repo-relative owner path"
+                    "or external/repo-relative owner path"
                 ),
             )
 
@@ -10164,11 +10187,12 @@ def _validate_user_feedback_disposition(
     ledger_owner = _extract_marker_value(ufd_section, "UFD Ledger Owner:").strip()
     normalized_ledger_owner = ledger_owner.replace("\\", "/")
     require(
-        normalized_ledger_owner.startswith("Docs/branch_plans/")
-        and normalized_ledger_owner.endswith(".md"),
+        _is_external_branch_plan_path(normalized_ledger_owner)
+        or _is_repo_branch_plan_path(normalized_ledger_owner),
         (
-            f"{source_path}: UFD Ledger Owner must point to the active "
-            "Docs/branch_plans/<branch_slug>.md branch plan"
+            f"{source_path}: UFD Ledger Owner must point to the active external "
+            "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md "
+            "branch plan or a repo branch-plan historical receipt"
         ),
     )
 
@@ -10476,17 +10500,21 @@ def _validate_branch_runtime_engineering_plan_pointer(
         bool(plan_path),
         f"{source_path}: accepted/present runtime plan pointer is missing '{BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL}'",
     )
-    plan_path_valid = normalized_path.startswith(
-        BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY
-    ) and normalized_path.endswith(".md")
+    plan_path_valid = _is_external_branch_plan_path(normalized_path) or _is_repo_branch_plan_path(
+        normalized_path
+    )
     require(
         plan_path_valid,
         (
             f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL} must point "
-            f"under {BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY}<branch_slug>.md"
+            "to C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md "
+            f"for active planning or under {BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY}<branch_slug>.md "
+            "for repo historical receipts"
         ),
     )
     if not (plan_path and plan_path_valid):
+        return
+    if _is_external_branch_plan_path(normalized_path):
         return
     plan_file = ROOT_DIR / normalized_path
     require(

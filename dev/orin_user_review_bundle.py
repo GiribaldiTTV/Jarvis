@@ -645,7 +645,7 @@ def _write_user_branch_plan_review(
         ]
         source_truth_impact = [
             "Family vision: record per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
-            "Active branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
+            "Active external branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
             "Backlog/roadmap: record planning-governance PR-readiness posture rather than runtime implementation posture.",
             "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
             "Workstream seam order: target model remains future implementation staging, not current branch work.",
@@ -870,7 +870,7 @@ def _write_user_branch_plan_review(
         workstream_entry_result = (
             workstream_status_text
             + (
-            "Affected surfaces: active branch plan, active branch record, USER review packet, packet "
+            "Affected surfaces: active external branch plan, active branch record, USER review packet, packet "
             "bundle helper, validation helper registry when helper behavior changes, and any public-safe "
             "fixtures or validators needed to prove action-gate preservation.\n\n"
             "Validators and fixtures: branch governance, worktree confinement, release-readiness health, "
@@ -1000,7 +1000,7 @@ def _write_user_branch_plan_review(
             "Rejected for Seam 1: any hidden private setup, silent provider enablement, cache/memory runtime behavior, or action that would make a USER gate look already completed.",
         ]
         source_truth_impact = [
-            "Active branch plan and branch record should preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
+            "Active external branch plan and branch record should preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
             "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
             "Review packet should remain branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that Seam 1 approval covers only public-safe action-gate proof.",
             "Source-truth fold-down during Seam 1 should record proof of action-gate preservation without executing gated private/runtime actions.",
@@ -1068,14 +1068,14 @@ def _write_user_branch_plan_review(
         walkthrough = [
             "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact USER decision.",
             "Open USER_BRANCH_PLAN_REVIEW.md and review this contract, especially Seam 1, action-gate proof expectations, and pending gates.",
-            "Open the active branch plan to verify the product/workstream carrier posture and Breakpoint 2 scope.",
+            "Open the active external branch plan to verify the product/workstream carrier posture and Breakpoint 2 scope.",
             "Inspect the action-gate registry/proof surface once Seam 1 is implemented; each gated action should say pending, blocked, or USER-required rather than completed.",
             "Review validator or fixture outputs proving no private repo, private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, or PR/merge/release work occurred.",
             "Confirm the refreshed ZIP matches the live Desktop packet before approving the next phase.",
         ]
         surface_map = [
             "USER review packet: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, folder/file digest, governance scan, Workstream Entry digest, branch vision checklist, and ZIP export.",
-            "Branch plan: Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md.",
+            "Active external branch plan: C:\\Nexus Governance State\\branches\\feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness\\branch_plan.md.",
             "Branch record: Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md.",
             "Architecture owner: Docs/ai_runtime_and_trust_architecture.md.",
             "FAM-007 owners: Docs/family_visions/FAM-007_local_ai_and_capability_packs.md and Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md.",
@@ -1113,7 +1113,7 @@ def _write_user_branch_plan_review(
             walkthrough = [
                 "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact USER decision.",
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Workstream Green with Hardening H1 as the next decision.",
-                "Open the active branch plan and branch record to verify Seams 1 through 4 are recorded as public-safe proof only.",
+                "Open the active external branch plan and branch record to verify Seams 1 through 4 are recorded as public-safe proof only.",
                 "Review the fixture and validator proof showing all private/runtime/provider/cache/memory gates remain pending.",
                 "Confirm the refreshed ZIP matches the live Desktop packet before approving or revising Hardening H1.",
             ]
@@ -1189,7 +1189,7 @@ def _write_user_branch_plan_review(
                 "Rejected for Hardening H1: executing the private/runtime action being pressure-tested as gated, silently enabling provider/cache/memory behavior, or turning proof comparison into PR/merge/release work.",
             ]
             source_truth_impact = [
-                "Active branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
+                "Active external branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
                 "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
                 "Review packet remains branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that Hardening H1 approval covers only proof comparison and H1-scoped repair.",
                 "Source-truth fold-down records Seams 1 through 4 as public-safe proof without executing gated private/runtime actions.",
@@ -1198,7 +1198,7 @@ def _write_user_branch_plan_review(
             walkthrough = [
                 "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact USER decision.",
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Hardening H1 Green with Live Validation LV1 as the next decision.",
-                "Open the active branch plan and branch record to verify the H1 comparison receipt and stale-ledger repair.",
+                "Open the active external branch plan and branch record to verify the H1 comparison receipt and stale-ledger repair.",
                 "Review validator proof showing stale Workstream-pending phrases are rejected and all private/runtime/provider/cache/memory gates remain pending.",
                 "Confirm the refreshed ZIP matches the live Desktop packet before approving or revising LV1/no-visible-runtime proof.",
             ]
@@ -1274,7 +1274,7 @@ def _write_user_branch_plan_review(
                 "Rejected for LV1: executing runtime/private/provider/cache/memory behavior just to prove it did not change.",
             ]
             source_truth_impact = [
-                "Active branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
+                "Active external branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
                 "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
                 "Review packet remains branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that LV1 approval covers only no-visible-runtime proof and UTS waiver digestion.",
                 "Source-truth fold-down records H1 Green without executing gated private/runtime actions.",
@@ -1283,7 +1283,7 @@ def _write_user_branch_plan_review(
             walkthrough = [
                 "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact USER decision.",
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Live Validation LV1 Green with PR Readiness Stage 1 as the next decision.",
-                "Open the active branch plan and branch record to verify the LV1/no-visible-runtime proof receipt and UTS waiver.",
+                "Open the active external branch plan and branch record to verify the LV1/no-visible-runtime proof receipt and UTS waiver.",
                 "Review validator proof showing LV1 source-truth phrases are present and stale H1/LV1-pending phrases are rejected.",
                 "Confirm the refreshed ZIP matches the live Desktop packet before approving or revising PR Readiness Stage 1 analysis.",
             ]
@@ -1361,7 +1361,7 @@ def _write_user_branch_plan_review(
                 "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
             ]
             source_truth_impact = [
-                "Active branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier completed through LV1.",
+                "Active external branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier completed through LV1.",
                 "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
                 "Review packet remains branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that PR Readiness Stage 1 approval covers analysis only.",
                 "Source-truth fold-down records LV1 Green without executing gated private/runtime actions.",
@@ -1602,12 +1602,12 @@ def _write_user_branch_plan_review(
             "the branch before implementation begins."
         )
         walkthrough = [
-            "Review the active branch plan to understand the intended user-facing result.",
+            "Review the active external branch plan to understand the intended user-facing result.",
             "Review the branch authority record to confirm identity and legal next phase.",
             "Review copied source-truth files to confirm active/historical routing and future boundaries.",
         ]
         surface_map = [
-            "Active branch plan and authority record.",
+            "Active external branch plan and authority record.",
             "Relevant family vision, backlog, roadmap, validators, and copied review files.",
         ]
         implementation_options = [
@@ -1625,7 +1625,7 @@ def _write_user_branch_plan_review(
             "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
         ]
         future_scope = [
-            "Any item not explicitly admitted by the active branch plan remains future-gated.",
+            "Any item not explicitly admitted by the active external branch plan remains future-gated.",
         ]
         slc_package_plan = [
             "Implementation staging must support the accepted end-state; seam/slice details are background execution scaffolding, not the primary USER decision surface.",
@@ -1771,7 +1771,7 @@ def _write_user_branch_plan_review(
         "",
         "Legacy compatibility sections are retained only for older validators and should not replace the contract sections above.",
         "",
-        "## Active Branch Plan Files",
+        "## Active External Branch Plan / Historical Branch Plan Files",
         "",
         *_markdown_lines(active_branch_files),
         "",

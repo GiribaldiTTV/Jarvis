@@ -179,7 +179,7 @@ Retirement is not branch deletion by default. Branch deletion, worktree removal,
 
 ## Branch Runtime Engineering Plan Relationship
 
-For runtime-focused branches, the slot points to the branch authority record, and the branch authority record points to the Branch Runtime Engineering Plan under `Docs/branch_plans/<branch_slug>.md`.
+For runtime-focused branches, the slot points to the branch authority record, and the branch authority record points to the active Branch Runtime Engineering Plan under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`. Repo branch-plan files under `Docs/branch_plans/` are historical receipts after fold-down, not active slot state.
 
 The Branch Runtime Engineering Plan is canonical while the branch is active. PR Readiness must produce a fold-down or retirement packet deciding what durable content becomes structured branch receipt evidence, what is promoted to canonical workstream or family-dossier history, and when the plan is retired from active planning posture.
 

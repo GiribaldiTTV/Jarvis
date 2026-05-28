@@ -469,7 +469,7 @@ def owner_for_fact(fact: str) -> str:
 
 
 def branch_name_to_plan_path(branch: str) -> str:
-    """Return the canonical branch-plan path for a live branch name."""
+    """Return the repo historical branch-plan receipt path for a branch name."""
     return f"Docs/branch_plans/{branch.replace('-', '_').replace('/', '_')}.md"
 
 
@@ -520,7 +520,7 @@ def action_for(
     active_branch_plan_paths = active_branch_plan_paths or set()
     if owner == "branch runtime engineering plan" and rel in active_branch_plan_paths:
         return (
-            "Transition active branch plan",
+            "Externalize active branch plan",
             completed,
             "If this file still carries live branch planning state, move that operational state to external branch state or convert it to a historical receipt before PR green.",
         )
@@ -570,7 +570,7 @@ def action_for(
         return (
             "Keep as project-wide vision owner",
             completed,
-            "Keep as project-wide product vision contract; route family-specific durable direction to family vision records and active implementation detail to branch plans.",
+            "Keep as project-wide product vision contract; route family-specific durable direction to family vision records and active implementation detail to external branch plans.",
         )
     if owner == "AI Runtime And Trust Architecture":
         return (
@@ -636,11 +636,11 @@ def consolidation_target_for(row: dict[str, object]) -> str:
     if owner == "family vision index":
         return "Keep as family vision router; use to find durable family vision records."
     if owner == "family vision":
-        return "Keep as family-specific product vision owner; move active implementation detail to branch plans and durable proof to workstreams/branch receipts."
+        return "Keep as family-specific product vision owner; move active implementation detail to external branch plans and durable proof to workstreams/branch receipts."
     if owner == "pending fold-source file":
         return "Temporary source material only; fold durable content into existing family visions and architecture owners before any USER-approved deletion/rename."
     if owner == "Nexus Vision Contract":
-        return "Keep as project-wide product vision contract; route family-specific direction to Docs/family_visions/ and active execution detail to branch plans."
+        return "Keep as project-wide product vision contract; route family-specific direction to Docs/family_visions/ and active execution detail to external branch plans."
     if owner == "AI Runtime And Trust Architecture":
         return "Keep as cross-family AI runtime/trust architecture; implementation-specific work still belongs to the owning FAM branch plan."
     if owner == "release closeout receipt":
@@ -1445,7 +1445,7 @@ def generate() -> None:
     add("- Every file has an ambiguity risk and structure risk classification for USER review.")
     add("- USER review responses are integrated as model decisions, not only preserved as notes.")
     add("- Backlog, roadmap, and worktree-slot ownership rules are captured as compact pointer/status surfaces.")
-    add("- Branch Runtime Engineering Plan lifecycle is stated as active-only, fold-down, then retirement after migration.")
+    add("- Branch Runtime Engineering Plan lifecycle is stated as external-active-only, fold-down, then repo historical receipt retirement after migration.")
     add("- Duplicate fact classes are mapped to their correct owner surfaces.")
     add("- Validator coverage checks dossier file count, required sections, file-by-file entries, and review index presence.")
     add("- A short user review index is generated for easier inspection before PR Readiness.")
@@ -1482,7 +1482,7 @@ def generate() -> None:
     add("- Execution posture: deferred-completion source-truth maintenance on this single Governance branch; PR creation remains separately USER-gated.")
     add("- PR Readiness remains held until validation is green and USER separately approves PR creation.")
     add("- Main model: `Docs/Main.md` should be the least-updated canonical docs index and recovery map, not an execution diary.")
-    add("- Branch plan model: Branch Runtime Engineering Plans fold down and retire after durable content migrates; deletion is not the default.")
+    add("- Branch plan model: active Branch Runtime Engineering Plans live in external operational state; repo branch-plan receipts fold down and retire after durable content migrates; deletion is not the default.")
     add("- Branch record model: branch records may be large when they are structured traceability ledgers; the reform target is clear organization and no duplicate live state, not evidence loss.")
     add("- Vision model: `Docs/nexus_vision.md` is the Nexus-wide vision contract; family vision records under `Docs/family_visions/` own durable family product direction.")
     add("")
@@ -1748,7 +1748,7 @@ def generate() -> None:
     add("## Branch Plans Lifecycle And Retirement Rule")
     add("")
     add(
-        "Branch Runtime Engineering Plans are canonical only while the owning branch is active. They "
+        "Active Branch Runtime Engineering Plans are external operational-state records while the owning branch is active. They "
         "are created/admitted during Branch Readiness Stage 2 for runtime-focused branches, used "
         "through Workstream/Hardening/Live Validation, folded down during PR Readiness Stage 1, and "
         "retired during or before PR Readiness Stage 2 only after durable content has been migrated "
@@ -1759,10 +1759,10 @@ def generate() -> None:
     add("")
     add("## Branch Runtime Engineering Plan Lifecycle Proof")
     add("")
-    add("- Branch Runtime Engineering Plans are canonical active-branch planning docs while a runtime branch is active.")
-    add("- Branch plans contain detailed per-seam implementation, validation, user-facing proof, future-gated items, and approval boundaries.")
-    add("- Branch plans are folded down during PR Readiness Stage 1.")
-    add("- Branch plans are retired during or before PR Readiness Stage 2 approval after durable content is migrated or lookup-safe historical posture is recorded.")
+    add("- Active Branch Runtime Engineering Plans live in external operational state while a runtime branch is active.")
+    add("- Repo branch-plan files contain schema, transition evidence, or historical per-seam receipts only after fold-down.")
+    add("- Active external branch plans are folded down during PR Readiness Stage 1.")
+    add("- Repo branch-plan receipts are retired during or before PR Readiness Stage 2 approval after durable content is migrated or lookup-safe historical posture is recorded.")
     add("- Durable content moves to the branch receipt, workstream doc, family dossier, or validated historical receipt owner.")
     add("- Backlog and roadmap remain compact pointer/status surfaces and must not absorb detailed branch planning.")
     add("")

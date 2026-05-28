@@ -482,7 +482,7 @@ Runtime Branch Readiness should separate dense planning into:
 - `Implementation Sequence`
 - `Proof Plan`
 
-The user-facing packet should summarize each area and point to the Branch Runtime Engineering Plan for detail. The detailed plan remains in `Docs/branch_plans/<branch_slug>.md`; backlog and roadmap stay compact pointer/status surfaces.
+The user-facing packet should summarize each area and point to the active external Branch Runtime Engineering Plan for detail. The detailed active plan remains in `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`; repo branch-plan files are historical receipts after fold-down, and backlog and roadmap stay compact pointer/status surfaces.
 
 ## Branch Record / Plan / Workstream Fold-Down Model
 

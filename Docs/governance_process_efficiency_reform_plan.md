@@ -175,8 +175,8 @@ Covered surface classes:
 - `asset/media`
 
 Required active owner:
-- `Docs/branch_plans/<branch_slug>.md` owns active full-detail change intent while the branch is active.
-- Runtime branches use the Branch Runtime Engineering Plan shape. When a non-runtime branch has `Rebaseline Overlap Files:`, an active Branch Engineering Plan under `Docs/branch_plans/<branch_slug>.md` must be admitted or updated as the active change-intent owner before rebaseline mutation can proceed, using the smallest source-truth-supported branch-plan variant.
+- `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` owns active full-detail change intent while the branch is active.
+- Runtime branches use the Branch Runtime Engineering Plan shape. When a non-runtime branch has `Rebaseline Overlap Files:`, an active external Branch Engineering Plan under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` must be admitted or updated as the active change-intent owner before rebaseline mutation can proceed, using the smallest source-truth-supported branch-plan variant.
 - The branch authority record owns compact authority/receipt status and fold-down evidence after PR Readiness decides what should survive.
 - Workstreams and family dossiers own reusable or historical implementation lessons after fold-down.
 - Backlog, roadmap, worktree slots, and `Docs/Main.md` remain compact pointer/routing surfaces, not overlap ledgers.
@@ -273,7 +273,7 @@ Rebaseline Mutation Status:
 ```
 
 Fallback evidence sources:
-- active branch plan
+- active external branch plan
 - branch record
 - PR body when available
 - commit messages
@@ -734,7 +734,7 @@ Scope:
 Implementation model:
 - Vision Contract complements the Branch Runtime Engineering Plan rather than replacing it.
 - Nexus Vision remains the project-wide product intent layer at `Docs/nexus_vision.md`; family vision lives under `Docs/family_visions/` when feature-family direction is broad enough to justify durable ownership.
-- Branch Vision Contract Snapshot belongs inside the active branch plan so accepted branch-specific vision is close to the seams, files, validators, and proof it governs.
+- Branch Vision Contract Snapshot belongs inside the active external branch plan so accepted branch-specific vision is close to the seams, files, validators, and proof it governs.
 - Codex and ChatGPT recommendations remain proposed until USER accepts, revises, rejects, defers, waives, or supersedes them.
 - `USER Vision Green: Yes` is the Workstream continuity lock: after it is recorded, Codex continues on the accepted plan unless a Level 2 seam-blocking or Level 3 workstream-breaking question appears.
 - New design questions during Workstream should be classified as Level 1 non-blocking, Level 2 seam-blocking, or Level 3 workstream-breaking so implementation does not churn on harmless questions or silently ignore blocking ones.
@@ -772,11 +772,11 @@ Implemented and future-extension target files:
 - `dev/fixtures/branch_readiness_planning/<ufd_valid_or_invalid_fixture>.md`
 
 Recommended model:
-- Active full-detail feedback belongs in the active Branch Runtime Engineering Plan at `Docs/branch_plans/<branch_slug>.md`.
-- The active branch plan owns one UFD ledger with `UFD Ledger Status:`, `UFD Ledger Owner:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:` at section level.
+- Active full-detail feedback belongs in the active external Branch Runtime Engineering Plan at `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`.
+- The active external branch plan owns one UFD ledger with `UFD Ledger Status:`, `UFD Ledger Owner:`, `Open UFD Count:`, `Blocking UFD Count:`, and `Fold-Down Status:` at section level.
 - Each meaningful feedback item lives in a repeatable `### UFD Item: UFD-<scope>-YYYYMMDD-NNN` block.
 - Every meaningful USER feedback item should have one stable ID, one full-detail active owner, one disposition state, one USER decision state, one current/future branch impact classification, and one fold-down target.
-- Branch records carry compact feedback status and a pointer to the active branch plan.
+- Branch records carry compact feedback status and a pointer to the active external branch plan.
 - Backlog carries compact future-candidate pointers only after USER accepts the future-work disposition.
 - Roadmap carries no feedback detail unless the accepted feedback changes release-stage breakpoint or public milestone sequencing.
 - Worktree slots carry no feedback detail.
@@ -810,7 +810,7 @@ Split-state recommendation:
 | `Status:` | Current handling state for one feedback item. | Open; Queued; Blocking; Closed; Folded Down; Deferred; Superseded |
 
 Owner-class guardrail:
-- `No Durable Owner Needed` may be used only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with reason recorded in the active branch plan or return digest.
+- `No Durable Owner Needed` may be used only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with reason recorded in the active external branch plan or return digest.
 
 Minimum UFD ledger record:
 - `USER Feedback Disposition Required:`
@@ -912,7 +912,7 @@ Naming inventory:
 | Governance Receipt | Historical interpretation after validation. | Recorded decision/evidence, not live truth. | Medium. | Keep; define beside derived live truth. | `Docs/governance_efficiency_operating_model.md` | Low | No |
 | Runtime Branch Engineering Contract | Engineering intent contract. | Branch-wide runtime baseline/delta/proof contract. | Medium: overlaps branch plan. | Keep; state contract = intent, plan = execution blueprint. | `Docs/phase_governance.md` | Low | No |
 | Vision Contract | Product/design intent layer. | USER-accepted product/design standard. | Medium: can sound like new file. | Keep; use `Nexus Vision`, `Family Vision`, or `Branch Vision Snapshot` by scope. | `Docs/branch_plans/README.md` | Medium | Future file decision |
-| Branch Vision Snapshot | Branch-specific accepted vision. | Snapshot inside active branch plan. | Low. | Use `Branch Vision Contract Snapshot` formally. | `Docs/branch_plans/README.md` | Low | No |
+| Branch Vision Snapshot | Branch-specific accepted vision. | Snapshot inside active external branch plan. | Low. | Use `Branch Vision Contract Snapshot` formally. | `Docs/branch_plans/README.md` | Low | No |
 | USER Feedback Disposition | Feedback routing model. | Item-level classification and final owner proof. | Implemented governance term. | Use `USER Feedback Disposition (UFD)` with ID glossary. | `Docs/branch_plans/README.md`; this plan | High | No |
 | USER Decision Ledger | Planning decision record. | USER decisions, waivers, rejects, accepts. | Medium: could duplicate UFD. | Keep; UFD items link to it rather than copy. | `Docs/phase_governance.md` | Medium | No |
 | Assumption Ledger | Design assumption states. | Codex/ChatGPT/USER assumption decision states. | Medium. | Use `Design Assumption Ledger`. | `Docs/branch_plans/README.md` | Low | No |
@@ -959,7 +959,7 @@ File naming analysis:
 | --- | --- | --- | --- | --- | --- |
 | Top-level Docs files | `Docs/<clear_topic>.md`; noun phrase matching owner role. | `Docs/Main.md`, `Docs/phase_governance.md`, `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`. | Ambiguous old one-off topic files only after reference scan. | Medium because many prompts reference exact paths. | Yes for deletion/rename. |
 | Branch records | `Docs/branch_records/<branch_slug>.md`. | Historical `codex_*` and `feature_*` records as receipts. | New active `codex/` naming; active repair-only naming by inertia. | High for historical links. | Yes for historical rewrites. |
-| Branch plans | `Docs/branch_plans/<branch_slug>.md`. | Existing active/historical plans until fold-down review. | Permanent branch-specific plan sprawl after fold-down. | Medium. | Yes before deletion. |
+| Branch plans | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` for active plans; `Docs/branch_plans/<branch_slug>.md` for repo historical receipts. | External active plans plus historical repo receipts until fold-down review. | Permanent branch-specific plan sprawl after fold-down. | Medium. | Yes before deletion. |
 | Workstream docs | `Docs/workstreams/FB-XXX_slug.md` for historical/promoted records. | Existing FB historical trace names. | New live FB IDs. | High; legacy evidence paths. | Yes for rename. |
 | Family dossiers | `Docs/workstreams/FB-XXX_slug_family_dossier.md` until a future family-dossier directory is approved. | Existing family dossiers. | Mixing dossier and workstream meaning in text. | Medium. | Yes for directory split. |
 | Validators/helpers | `dev/orin_<domain>_<capability>_validation.py`, `_audit.py`, `_harness.py`, `_helper.py`. | Existing reusable helper names. | Seam-number helper names unless temporary with consolidation target. | Low/Medium. | No for new names, yes for bulk rename. |

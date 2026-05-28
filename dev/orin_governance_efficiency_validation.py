@@ -388,9 +388,10 @@ def _non_historical_stale_vision_refs() -> list[str]:
 def _branch_plan_requires_retirement_index_row(text: str) -> bool:
     """Return true only for plans that declare folded/historical posture.
 
-    Active branches are allowed to carry active branch plans before PR
-    Readiness fold-down; the retirement index should not force those plans to
-    become historical by inertia.
+    Active branches carry active planning in the External Operational State
+    Store after transition. Repo branch-plan files are schema/transition or
+    historical receipt surfaces; the retirement index should not force
+    transition evidence to become historical by inertia.
     """
 
     status_lines = [
