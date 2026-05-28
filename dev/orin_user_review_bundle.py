@@ -93,6 +93,7 @@ DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
 DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
 DECISION_STATUS_HARDENING_REVIEW = "hardening-final-review"
 DECISION_STATUS_LIVE_VALIDATION_REVIEW = "live-validation-final-review"
+DECISION_STATUS_PR_READINESS_STAGE2_REVIEW = "pr-readiness-stage2-review"
 DECISION_STATUS_REPAIR_REVALIDATION = "repair-revalidation"
 DECISION_STATUS_UNKNOWN = "unknown"
 UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -736,6 +737,7 @@ def _write_user_branch_plan_review(
         workstream_green_packet = "approve bounded hardening h1" in exact_user_decision.casefold()
         hardening_h1_packet = "approve bounded live validation lv1" in exact_user_decision.casefold()
         lv1_green_packet = "approve bounded pr readiness stage 1" in exact_user_decision.casefold()
+        pr_stage2_packet = "approve pr readiness stage 2" in exact_user_decision.casefold()
         accepted_user_response = (
             "Status: USER Accepted - USER approved this repaired branch contract as the "
             "decision-path basis for bounded Seam 1 implementation approval."
@@ -805,7 +807,25 @@ def _write_user_branch_plan_review(
                 "all private/runtime/provider/cache/memory action gates, and recommends bounded PR "
                 "Readiness Stage 1 analysis next."
             )
-        if workstream_green_packet:
+        if pr_stage2_packet:
+            accepted_user_response = (
+                "Status: PR Readiness Stage 1 Ready For Stage 2 - this packet records no live PR, "
+                "Stage 2 PR creation pending USER approval, merge-stable historical/no-active projection, "
+                "no-release-debt posture, selected-next default/defer posture, and preserved private/runtime gates."
+            )
+            codex_response_digest = (
+                "PR Readiness Stage 1 is green for the FAM-007 Breakpoint 2 Dev/Owner skeleton "
+                "action-gate readiness carrier. Codex recorded no-live-PR posture, pending Stage 2 PR "
+                "creation approval, folded repo-tracked active authority to historical/no-active projection, "
+                "refreshed packet/source-truth evidence, preserved no-release-debt posture, and recommends "
+                "PR Readiness Stage 2 PR creation only after explicit USER approval."
+            )
+        if pr_stage2_packet:
+            workstream_status_text = (
+                "Status: PR Readiness Stage 1 Ready For Stage 2 - no live PR exists; "
+                "PR Readiness Stage 2 PR creation remains pending USER approval.\n\n"
+            )
+        elif workstream_green_packet:
             workstream_status_text = (
                 "Status: Workstream Green - Seams 1 through 4 are implemented as public-safe "
                 "proof only; Hardening H1 remains pending USER decision.\n\n"
@@ -857,6 +877,9 @@ def _write_user_branch_plan_review(
             )
         )
         contract_status = (
+            "Complete for PR Readiness Stage 1 - Stage 2 PR creation remains pending USER approval."
+            if pr_stage2_packet
+            else
             "Complete - USER accepted the repaired branch-specific Workstream Entry contract for "
             "bounded Seam 1 implementation approval."
             if seam1_approval_packet
@@ -888,6 +911,9 @@ def _write_user_branch_plan_review(
             )
         )
         contract_version = (
+            "v7 - FAM-007 Breakpoint 2 PR Readiness Stage 1 packet."
+            if pr_stage2_packet
+            else
             "v6 - FAM-007 Breakpoint 2 Live Validation LV1 packet."
             if lv1_green_packet
             else
@@ -1359,13 +1385,129 @@ def _write_user_branch_plan_review(
                 "Seam 2 next candidate: private/public boundary and private remote safety proof.",
                 "No seam may execute the private/runtime action it is proving as gated.",
             ]
+        if pr_stage2_packet:
+            plain_english_summary = (
+                "This FAM-007 packet records that the Breakpoint 2 public-safe proof carrier has "
+                "completed Workstream, H1, LV1, and PR Readiness Stage 1 repair. It does not create "
+                "a PR by itself; it asks USER whether Stage 2 may create the PR and establish the "
+                "required watcher/review path."
+            )
+            end_state_vision = (
+                "After Stage 2 approval, the branch can be opened as a PR to main with the completed "
+                "public-safe action-gate proof, while merge, release, cleanup, private setup, provider/"
+                "model/runtime/cache/memory behavior, and v1.8.0 work remain separately gated."
+            )
+            what_user_sees = (
+                "USER will inspect the refreshed Stage 1 packet, branch plan, branch record, no-live-PR "
+                "posture, no-release-debt posture, merge-stable authority projection, and exact Stage 2 "
+                "PR creation approval text. USER will not see private repositories, private roots, "
+                "private remotes, backup/import execution, provider/model execution, runtime cache "
+                "behavior, memory behavior, voice/Core sync, shortcut/installer work, merge, release, "
+                "cleanup, FAM-006 or Governance mutation, AI Product Contract import, Private Dev ORIN "
+                "import, or v1.8.0 execution."
+            )
+            walkthrough = [
+                "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact Stage 2 PR creation decision.",
+                "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is PR Readiness Stage 1 Ready For Stage 2.",
+                "Open the branch record PR Readiness Stage 1 Analysis Packet and verify no live PR, Stage 2 pending, no-release-debt posture, selected-next default/defer posture, and merge-stable authority projection.",
+                "Open the branch plan PR Readiness Stage 1 Repair Receipt and confirm Stage 2 remains blocked until USER approval.",
+                "Confirm the refreshed ZIP matches the live Desktop packet before approving or revising Stage 2.",
+            ]
+            implementation_options = [
+                "Approve PR Readiness Stage 2 as recommended: create the PR, verify live PR state, provision/update watcher, request/monitor Codex bot review, and stop before merge unless later approval exists. Pros: moves the completed proof carrier into review; Cons: no merge/release yet; Risk: low when validation remains green.",
+                "Revise Stage 2 PR creation expectations before PR creation. Pros: lets USER tune PR body, watcher, or bot-review requirements; Cons: adds packet/source-truth repair; Risk: low.",
+                "Pause at Stage 1 Ready For Stage 2. Pros: preserves clean proof without creating a PR; Cons: delays review; Risk: low.",
+                "Reject PR creation and request a narrower closeout. Pros: maximum scope control; Cons: delays branch completion; Risk: low but slower.",
+            ]
+            design_ballot = [
+                "Approve PR Readiness Stage 2 as recommended.",
+                "Revise Stage 2 PR creation expectations.",
+                "Pause at Stage 1 Ready For Stage 2.",
+                "Reject and request a narrower closeout.",
+            ]
+            response_structure = [
+                "Decision: approve, revise, pause, or reject.",
+                "Required changes to PR body, watcher, or bot-review expectations, if any.",
+                "Must-have PR readiness proof.",
+                "Must-not-do boundaries.",
+                "General response.",
+            ]
+            digest_structure = [
+                "USER intent summary.",
+                "Stage 1 readiness acceptance or concerns.",
+                "Approved or revised Stage 2 PR creation scope.",
+                "Implementation constraints created from USER response.",
+                "Next USER decision needed.",
+            ]
+            recommended_direction = (
+                "Codex recommends approving PR Readiness Stage 2 only if USER agrees the completed "
+                "public-safe proof carrier should enter PR review now. Stage 2 may create and watch the "
+                "PR, but merge, release, cleanup, private setup, provider/model/runtime/cache/memory "
+                "behavior, and v1.8.0 work stay blocked."
+            )
+            current_scope = [
+                "Workstream Seams 1 through 4 complete as public-safe proof.",
+                "Hardening H1 proof comparison complete.",
+                "Live Validation LV1 no-visible-runtime proof complete.",
+                "PR Readiness Stage 1 repair complete with no live PR and Stage 2 pending.",
+                "Desktop packet and ZIP refreshed with current branch, HEAD, origin/main, counts, and Stage 2 next decision.",
+            ]
+            future_scope = [
+                "PR Readiness Stage 2 approval is limited to PR creation, live PR validation, watcher provisioning/update, Codex bot review request/monitoring, and in-scope Codex comment repair if needed.",
+                "Merge, release, cleanup, private Dev/Owner repo creation, private roots/remotes, backup/import execution, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain future-gated.",
+            ]
+            slc_package_plan = [
+                "Workstream, H1, LV1, and PR Readiness Stage 1 repair are complete as public-safe proof.",
+                "PR Readiness Stage 2 next: verify no live PR or bind to one if it appears, rerun validation, create PR, provision/update watcher, request/monitor Codex bot review, and stop before merge absent later approval.",
+                "No Stage 2 step may merge, release, clean up, or execute private/runtime actions.",
+            ]
+            implementation_constraints = [
+                "PR Readiness Stage 1 is green; Stage 2 PR creation remains blocked until USER approves or revises the PR creation scope.",
+                "Stage 2 is limited to PR creation, live PR validation, watcher provisioning/update, Codex bot review request/monitoring, in-scope Codex comment repair if needed, packet/source-truth repair if required, and validation.",
+                "No private Dev repo, private Owner repo, local-only private root, private remote, GitHub Desktop private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, merge, release, cleanup, FAM-006 mutation, Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by this packet.",
+                "Provider-visible data must remain none; sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, and runtime cache behavior not implemented.",
+            ]
+            rejected_deferred = [
+                "Deferred: merge, release, branch/worktree cleanup, and release artifact execution.",
+                "Deferred: private Dev repo creation, private Owner repo creation, local-only private root creation, GitHub Desktop private remote configuration, off-boot backup or recovery root implementation, and Public-to-Dev import implementation.",
+                "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
+            ]
+            source_truth_impact = [
+                "Branch plan and branch record preserve Breakpoint 2 as a completed FAM-007 product/workstream proof carrier ready for PR creation approval.",
+                "Branch record index projects no active non-standing branch authority on merged main; live operational state comes from Git, GitHub, helpers, and external state.",
+                "Review packet remains branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that Stage 2 approval covers PR creation only.",
+                "Source-truth fold-down records PR Readiness Stage 1 without executing gated private/runtime actions.",
+            ]
+            contract_change_log = [
+                "v1 - Stage 2 review packet generated with generic USER Branch Plan Review language.",
+                "v2 - Repaired into a branch-specific FAM-007 Breakpoint 2 engineering contract with Workstream Entry result, recommended Seam 1, proof expectations, pending gates, and exact approval text.",
+                "v3 - Seam 1 action-gate registry and exact USER decision proof implemented with direct validator fixture proof.",
+                "v4 - Seams 2 through 4 implemented as public-safe proof and Workstream Green candidate recorded.",
+                "v5 - Hardening H1 compared proof, repaired stale ledger wording, and routed the packet to Live Validation LV1.",
+                "v6 - Live Validation LV1 recorded no-visible-runtime proof, UTS waiver, and PR Readiness Stage 1 as the next gate.",
+                "v7 - PR Readiness Stage 1 repair recorded no live PR, pending Stage 2 approval, no-release-debt posture, selected-next default/defer posture, and merge-stable authority projection.",
+            ]
+            completion_checklist = [
+                "PR Readiness Stage 1 Analysis Packet is present in the branch record.",
+                "PR Readiness Stage 1 Repair Receipt is present in the branch plan.",
+                "Branch record index projects this branch as historical and keeps only standing Governance active authority.",
+                "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+                "Packet digest files agree that Stage 1 is ready for Stage 2 and PR creation remains pending USER approval.",
+                "No unresolved packet placeholders or packet count mismatches remain.",
+            ]
         user_decisions = [
             "Does USER accept or explicitly waive this repaired USER Branch Plan Review contract?",
             "Does USER approve Seam 1 implementation only: action-gate registry and exact USER decision proof?",
             "Does USER require any change to direct proof expectations before Seam 1 begins?",
             "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
         ]
-        if hardening_h1_packet:
+        if pr_stage2_packet:
+            user_decisions = [
+                "Does USER approve PR Readiness Stage 2 PR creation?",
+                "Does USER require any change to PR body, watcher, or Codex bot-review expectations before Stage 2 begins?",
+                "Does USER confirm merge, release, cleanup, and all private/runtime/provider/cache/memory gates remain pending?",
+            ]
+        elif hardening_h1_packet:
             user_decisions = [
                 "Does USER approve bounded Live Validation LV1/no-visible-runtime proof?",
                 "Does USER require any change to LV1 waiver or evidence expectations before it begins?",
@@ -1685,7 +1827,15 @@ def _write_workstream_entry_packet_digests(
         is_fam007_breakpoint_2
         and "approve bounded pr readiness stage 1" in exact_user_decision.casefold()
     )
+    pr_stage2_packet = (
+        is_fam007_breakpoint_2
+        and "approve pr readiness stage 2" in exact_user_decision.casefold()
+    )
     packet_status = (
+        "pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; "
+        "PR creation remains pending USER approval."
+        if pr_stage2_packet
+        else
         "workstream implementation approval - Seam 1 public-safe action-gate registry "
         "and exact USER decision proof is approved by this packet decision path."
         if seam1_approval_packet
@@ -1714,7 +1864,40 @@ def _write_workstream_entry_packet_digests(
             "remains pending USER approval."
         )
     )
-    if seam1_approval_packet:
+    if pr_stage2_packet:
+        analysis_status = (
+            "Analysis Status: PR Readiness Stage 1 Ready For Stage 2 for the "
+            "FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: Stage 1 recorded no live PR, no-release-debt posture, "
+            "merge-stable authority projection, and pending Stage 2 PR creation approval."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: PR Readiness Stage 2, PR creation and watcher/bot-review setup."
+        )
+        scan_result = (
+            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "prebeta roadmap, branch index, branch record, branch plan, worktree slots, "
+            "AI Runtime And Trust Architecture, FAM-007 family vision, AI Edition plan, "
+            "branch-plan README, phase governance, development rules, codex modes, "
+            "validation helper registry, and Stage 1 repair proof surfaces needed for "
+            "the Stage 2 PR creation decision."
+        )
+        checklist_status = (
+            "Checklist Status: PASS for PR Readiness Stage 1 repair review - branch identity, "
+            "source HEAD, origin/main, FAM-007 ownership, Breakpoint 2 product/workstream "
+            "posture, no-live-PR posture, no-release-debt posture, merge-stable authority "
+            "projection, backlog taxonomy, and private/runtime/provider/cache/memory exclusions "
+            "are represented for USER inspection."
+        )
+        digest_status = (
+            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "digest/checklist files, and copied source-truth files are loaded and digestible "
+            "for USER review; the contract records PR Readiness Stage 1 complete and "
+            "Stage 2 PR creation as the next USER decision."
+        )
+    elif seam1_approval_packet:
         analysis_status = (
             "Analysis Status: Workstream Entry Green; USER accepted the repaired "
             "branch contract for bounded Seam 1 implementation approval."
@@ -2051,6 +2234,15 @@ def _packet_text_status(text: str) -> str:
     if any(marker in normalized for marker in live_validation_review_markers):
         return DECISION_STATUS_LIVE_VALIDATION_REVIEW
 
+    pr_stage2_review_markers = (
+        "pr readiness stage2 review",
+        "pr readiness stage 1 ready for stage 2",
+        "pr readiness stage 2 pr creation",
+        "stage 2 pr creation remains pending user approval",
+    )
+    if any(marker in normalized for marker in pr_stage2_review_markers):
+        return DECISION_STATUS_PR_READINESS_STAGE2_REVIEW
+
     hardening_review_markers = (
         "hardening final decision review",
         "hardening h1 is green",
@@ -2225,7 +2417,15 @@ def build_bundle(
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded pr readiness stage 1" in exact_user_decision.casefold()
     )
+    pr_stage2_packet = (
+        source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+        and "approve pr readiness stage 2" in exact_user_decision.casefold()
+    )
     machine_readable_packet_status = (
+        "pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; "
+        "PR creation remains pending USER approval."
+        if pr_stage2_packet
+        else
         "workstream implementation approval - Seam 1 public-safe action-gate registry "
         "and exact USER decision proof is approved by this packet decision path."
         if seam1_approval_packet

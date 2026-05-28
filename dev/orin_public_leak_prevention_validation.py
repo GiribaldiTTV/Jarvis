@@ -192,7 +192,8 @@ REQUIRED_BREAKPOINT2_PLAN_PHRASES = (
     "User-Facing Shortcut Validation: `WAIVED`",
     "No-Visible-Runtime Proof: `PASS - changed surfaces are source-truth/fixture/validator/helper/packet/external-state only.`",
     "Next Legal Phase: `PR Readiness`",
-    "Exact Next USER Decision Needed: `Approve bounded PR Readiness Stage 1 analysis",
+    "Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`",
+    "Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
 )
 
@@ -218,7 +219,8 @@ REQUIRED_BREAKPOINT2_RECORD_PHRASES = (
     "User-Facing Shortcut Validation: `WAIVED`",
     "No-Visible-Runtime Proof: `PASS - changed surfaces are source-truth/fixture/validator/helper/packet/external-state only.`",
     "Next Legal Phase: `PR Readiness`",
-    "Exact Next USER Decision Needed: `Approve bounded PR Readiness Stage 1 analysis",
+    "Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`",
+    "Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
 )
 
@@ -243,6 +245,8 @@ BREAKPOINT2_STALE_WORKSTREAM_PHRASES = (
     "Approve bounded Hardening H1",
     "Next Legal Phase: `Hardening`",
     "Next Legal Phase: `Live Validation`",
+    "Approve bounded PR Readiness Stage 1 analysis",
+    "PR Readiness Stage 1 remains blocked",
 )
 
 REQUIRED_REGISTRY_PHRASES = (
@@ -1391,6 +1395,7 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
         "unresolved-template-placeholder",
         "packet-count-mismatch",
         "branch-correct-live-validation-review",
+        "branch-correct-pr-stage2-review",
     ):
         _require(required_case in seen_cases, failures, f"packet decision canaries missing {required_case}")
 

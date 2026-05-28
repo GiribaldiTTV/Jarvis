@@ -18319,6 +18319,7 @@ def _pre_pr_stage1_state_allows_missing_live_pr(
     no_pr_error = (
         "no pull requests found" in normalized_error
         or "no open pull request" in normalized_error
+        or "active branch record is missing `live pr` or `pr url`" in normalized_error
     )
     stage1_context_recorded = any(
         marker in normalized_record
@@ -18344,7 +18345,9 @@ def _pre_pr_stage1_state_allows_missing_live_pr(
         for marker in (
             "pr creation approval missing",
             "pr creation approval: pending",
+            "pr creation approval: `pending",
             "stage 2 pr creation: pending",
+            "stage 2 pr creation: `pending",
             "pr readiness execution user approval missing",
         )
     )
@@ -19223,6 +19226,22 @@ def _run_worktree_confinement_gate(require) -> None:
         active_branch_record_paths,
         branch_name,
     )
+    if not record_text:
+        historical_branch_record_paths = _collect_branch_record_paths(
+            branch_record_index_text,
+            "Historical Branch Authority Records",
+        )
+        historical_record_path, historical_record_text = _branch_record_for_branch(
+            historical_branch_record_paths,
+            branch_name,
+        )
+        if (
+            historical_record_text
+            and "pr readiness stage 1" in historical_record_text.casefold()
+            and "stage 1 ready for stage 2" in historical_record_text.casefold()
+        ):
+            record_path = historical_record_path
+            record_text = historical_record_text
 
     require(
         bool(branch_name),
@@ -19236,7 +19255,7 @@ def _run_worktree_confinement_gate(require) -> None:
         bool(record_text),
         (
             "Assigned Worktree Confinement gate requires the current branch to have an "
-            "active branch authority record"
+            "active branch authority record or a PR Readiness Stage 1 historical authority projection"
         ),
     )
     if not record_text:
