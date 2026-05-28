@@ -1,15 +1,14 @@
 # NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=GOV-SOURCE-TRUTH; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=user-review-bundle-helper; status=shared
-"""Create a USER-facing Desktop review bundle from selected repo files.
+"""Create a USER-facing local review bundle from selected repo files.
 
-This helper copies review files to a stable worktree-labeled folder on the
-user's Desktop so USER review does not depend on manually browsing the
+This helper copies review files to a stable worktree-labeled folder under
+``C:\\Nexus USER`` so USER review does not depend on manually browsing the
 worktree. It never edits repo files.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import os
 import re
 import shutil
@@ -24,7 +23,9 @@ from typing import Mapping
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_REVIEW_ROOT_NAME = "Nexus USER Review"
+WINDOWS_USER_HUB_ROOT_TEXT = r"C:\Nexus USER"
+DEFAULT_USER_HUB_ROOT = Path(WINDOWS_USER_HUB_ROOT_TEXT)
+DEFAULT_REVIEW_ROOT_NAME = ""
 CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
 PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "PASS - copied file list and START_HERE file-list metadata are repo-relative "
@@ -32,38 +33,12 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
     "source truth for USER inspection."
 )
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
-    "PASS - helper moved prior matching zip artifacts and the stable worktree "
-    "review folder to governed quarantine, confirmed the recreated folder was "
-    "empty before copying, wrote START_HERE for this Source HEAD, and atomically "
-    "replaced the stable review zip from that refreshed folder, then checked "
-    "active branch record/plan identity against START_HERE."
+    "PASS - helper cleared the stable worktree review folder, copied fresh "
+    "source-truth files, wrote START_HERE for this source-truth snapshot, and atomically "
+    "replaced the stable review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
-UPLOAD_THIS_ZIP_FILE = "UPLOAD_THIS_ZIP.md"
-FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH = (
-    "feature/fam-006-active-overlay-recording-runtime-implementation"
-)
-FAM006_ACTIVE_OVERLAY_RECORDING_FOUNDATION_BRANCH = (
-    "feature/fam-006-active-overlay-recording-runtime-foundation"
-)
-FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_PACKET_FILES = frozenset(
-    {
-        "Docs__branch_records__feature_fam_006_active_overlay_recording_runtime_implementation.md",
-        "Docs__branch_plans__feature_fam_006_active_overlay_recording_runtime_implementation.md",
-    }
-)
-
-ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES = (
-    "this branch is not the runtime implementation carrier",
-    "not the runtime implementation carrier",
-    "deferred to future user-approved implementation carrier",
-    "future runtime implementation carrier",
-    "future user-approved carrier",
-    "future user-approved implementation carrier",
-    "later runtime carrier",
-    "workstream is skipped",
-    "planning/governance branch",
-)
+USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -112,7 +87,6 @@ WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES: tuple[str, ...] = (
 
 WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
     "START_HERE.md",
-    USER_BRANCH_PLAN_REVIEW_FILE,
     "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
     "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
     "BRANCH_VISION_VALIDATION_CHECKLIST.md",
@@ -122,6 +96,7 @@ DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
 DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
 DECISION_STATUS_HARDENING_REVIEW = "hardening-final-review"
 DECISION_STATUS_LIVE_VALIDATION_REVIEW = "live-validation-final-review"
+DECISION_STATUS_PR_READINESS_STAGE1_REVIEW = "pr-readiness-stage1-review"
 DECISION_STATUS_PR_READINESS_STAGE2_REVIEW = "pr-readiness-stage2-review"
 DECISION_STATUS_REPAIR_REVALIDATION = "repair-revalidation"
 DECISION_STATUS_UNKNOWN = "unknown"
@@ -138,6 +113,55 @@ BUNDLE_COUNT_FIELDS: tuple[str, ...] = (
     "Expected File Count",
     "Copied File Count",
     "Extra Bundle File Count",
+)
+USER_FACING_GENERATED_FILES: tuple[str, ...] = (
+    "START_HERE.md",
+    USER_BRANCH_VISION_REVIEW_FILE,
+    USER_BRANCH_PLAN_REVIEW_FILE,
+    "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
+    "GOVERNANCE_REQUIRED_FILES_SCAN.md",
+    "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+    "BRANCH_VISION_VALIDATION_CHECKLIST.md",
+)
+USER_FACING_TECHNICAL_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("head-token", re.compile(r"\bHEAD\b", re.IGNORECASE)),
+    ("source-head", re.compile(r"\bSource HEAD\b", re.IGNORECASE)),
+    ("origin-main", re.compile(r"\borigin/main\b", re.IGNORECASE)),
+    ("merge-base", re.compile(r"\bmerge base\b|\bmerge-base\b", re.IGNORECASE)),
+    ("ahead-behind", re.compile(r"\bahead/behind\b|\bAhead/Behind\b", re.IGNORECASE)),
+    ("zip-hash", re.compile(r"\b(?:ZIP|packet|upload)\s+(?:SHA256|hash)\b", re.IGNORECASE)),
+    ("review-export-zip", re.compile(r"\bReview Export Zip\b", re.IGNORECASE)),
+    (
+        "desktop-onedrive-active-upload",
+        re.compile(
+            r"(?:\b(?:Desktop|OneDrive)\b[^\n]*(?:active\s+)?(?:upload|review)\s+"
+            r"(?:source|path|folder|bundle))|"
+            r"(?:(?:upload|review)\s+(?:source|path|folder|bundle)[^\n]*"
+            r"\b(?:Desktop|OneDrive)\b)",
+            re.IGNORECASE,
+        ),
+    ),
+    ("upstream-field", re.compile(r"^Upstream\s*:", re.IGNORECASE | re.MULTILINE)),
+    ("source-branch-field", re.compile(r"^Source Branch\s*:", re.IGNORECASE | re.MULTILINE)),
+    ("branch-status", re.compile(r"\bbranch status\b|\bCurrent Branch State\b", re.IGNORECASE)),
+    ("validation-status", re.compile(r"\bvalidation status\b|\bValidation Summary\b", re.IGNORECASE)),
+    ("pr-state", re.compile(r"\bPR state\b", re.IGNORECASE)),
+    ("worktree-status", re.compile(r"\bworktree status\b", re.IGNORECASE)),
+    ("sha-like-proof", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
+)
+USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "old-product-design-planning-gate",
+        re.compile(r"required user-facing product/design planning gate", re.IGNORECASE),
+    ),
+    (
+        "old-do-i-like-prompt",
+        re.compile(r"Do I actually like what Codex is about to build", re.IGNORECASE),
+    ),
+    (
+        "old-product-design-contract",
+        re.compile(r"USER Branch Plan Contract:\s*a required user-facing product/design", re.IGNORECASE),
+    ),
 )
 
 
@@ -158,6 +182,7 @@ class WorkstreamEntryPacketDecisionPathResult:
             DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW,
             DECISION_STATUS_HARDENING_REVIEW,
             DECISION_STATUS_LIVE_VALIDATION_REVIEW,
+            DECISION_STATUS_PR_READINESS_STAGE1_REVIEW,
             DECISION_STATUS_PR_READINESS_STAGE2_REVIEW,
             DECISION_STATUS_REPAIR_REVALIDATION,
             DECISION_STATUS_UNKNOWN,
@@ -165,11 +190,18 @@ class WorkstreamEntryPacketDecisionPathResult:
 
 
 def _desktop_path() -> Path:
-    home = Path.home()
-    onedrive_desktop = home / "OneDrive" / "Desktop"
-    if onedrive_desktop.is_dir():
-        return onedrive_desktop
-    return home / "Desktop"
+    if os.name != "nt":
+        raise RuntimeError(
+            "The local USER hub path is Windows-only: "
+            f"{WINDOWS_USER_HUB_ROOT_TEXT}. Run this helper from Windows so "
+            "review packets stay outside the repo worktree."
+        )
+    if not DEFAULT_USER_HUB_ROOT.is_absolute():
+        raise RuntimeError(
+            "The local USER hub root must be an absolute filesystem path: "
+            f"{WINDOWS_USER_HUB_ROOT_TEXT}"
+        )
+    return DEFAULT_USER_HUB_ROOT
 
 
 def _sanitize_folder_name(name: str) -> str:
@@ -187,13 +219,18 @@ def _worktree_label(explicit_label: str | None) -> str:
 
 
 def _safe_target(desktop: Path, review_root_name: str, worktree_label: str) -> tuple[Path, Path]:
-    review_root = (desktop / _sanitize_folder_name(review_root_name)).resolve()
+    if not desktop.is_absolute():
+        raise ValueError(f"Local USER hub root must be absolute: {desktop}")
+    if review_root_name:
+        review_root = (desktop / _sanitize_folder_name(review_root_name)).resolve()
+    else:
+        review_root = desktop.resolve()
     target = (review_root / _sanitize_folder_name(worktree_label)).resolve()
     desktop_resolved = desktop.resolve()
-    if review_root == desktop_resolved or desktop_resolved not in review_root.parents:
-        raise ValueError(f"Refusing to write review root outside Desktop: {review_root}")
+    if review_root != desktop_resolved and desktop_resolved not in review_root.parents:
+        raise ValueError(f"Refusing to write review root outside local USER hub: {review_root}")
     if target == review_root or review_root not in target.parents:
-        raise ValueError(f"Refusing to write outside Desktop: {target}")
+        raise ValueError(f"Refusing to write outside local USER hub: {target}")
     return review_root, target
 
 
@@ -202,62 +239,11 @@ def _clear_readonly(function, path: str, _exc_info) -> None:
     function(path)
 
 
-def _target_entry_count(target: Path) -> int:
-    if not target.exists():
-        return 0
-    return sum(1 for _path in target.rglob("*"))
-
-
-@dataclass(frozen=True)
-class QuarantineResult:
-    source: Path
-    destination: Path
-    entry_count: int
-
-
-def _quarantine_root(review_root: Path, label: str) -> Path:
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    return (
-        review_root
-        / "_stale_review_artifacts"
-        / _sanitize_folder_name(label)
-        / f"{timestamp}_{os.getpid()}"
-    ).resolve()
-
-
-def _move_to_quarantine(path: Path, quarantine_root: Path, review_root: Path) -> QuarantineResult:
-    resolved = path.resolve()
-    resolved_review_root = review_root.resolve()
-    if resolved != resolved_review_root and resolved_review_root not in resolved.parents:
-        raise ValueError(f"Refusing to quarantine review artifact outside review root: {resolved}")
-    destination = (quarantine_root / resolved.name).resolve()
-    if quarantine_root not in destination.parents:
-        raise ValueError(f"Refusing to quarantine outside quarantine root: {destination}")
-    if destination.exists():
-        raise ValueError(f"Refusing to overwrite quarantined review artifact: {destination}")
-    quarantine_root.mkdir(parents=True, exist_ok=True)
-    entry_count = _target_entry_count(resolved) if resolved.is_dir() else 1
-    shutil.move(str(resolved), str(destination))
-    if resolved.exists():
-        raise ValueError(f"Review artifact still exists after quarantine move: {resolved}")
-    return QuarantineResult(source=resolved, destination=destination, entry_count=entry_count)
-
-
-def _quarantine_target(target: Path, quarantine_root: Path, review_root: Path) -> QuarantineResult | None:
-    if not target.exists():
-        return None
-    return _move_to_quarantine(target, quarantine_root, review_root)
-
-
-def _assert_target_empty(target: Path) -> None:
-    existing = list(target.iterdir())
-    if existing:
-        preview = ", ".join(path.name for path in existing[:5])
-        raise ValueError(
-            "Review bundle folder pre-copy clean check failed: "
-            f"{target} still contains {len(existing)} entries"
-            + (f" ({preview})" if preview else "")
-        )
+def _clear_target(target: Path) -> None:
+    try:
+        shutil.rmtree(target, onexc=_clear_readonly)
+    except TypeError:
+        shutil.rmtree(target, onerror=_clear_readonly)
 
 
 def _flat_copy_name(relative_file: str) -> str:
@@ -305,29 +291,6 @@ def _git_output(*args: str) -> str:
         return "UNKNOWN"
 
 
-def _branch_slug(branch: str) -> str:
-    slug = re.sub(r"[^A-Za-z0-9]+", "_", branch).strip("_").lower()
-    if not slug:
-        raise ValueError("Cannot derive branch slug from empty source branch")
-    return slug
-
-
-def _active_branch_packet_names(source_branch: str) -> tuple[str, str]:
-    slug = _branch_slug(source_branch)
-    return (
-        f"Docs__branch_records__{slug}.md",
-        f"Docs__branch_plans__{slug}.md",
-    )
-
-
-def _active_branch_source_paths(source_branch: str) -> tuple[Path, Path]:
-    slug = _branch_slug(source_branch)
-    return (
-        ROOT / "Docs" / "branch_records" / f"{slug}.md",
-        ROOT / "Docs" / "branch_plans" / f"{slug}.md",
-    )
-
-
 def _markdown_lines(items: list[str]) -> list[str]:
     if not items:
         return ["- None recorded."]
@@ -360,99 +323,10 @@ def _export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
 
 
-def _ps_quote(value: Path | str) -> str:
-    return "'" + str(value).replace("'", "''") + "'"
-
-
-def _powershell_output(script: str) -> str:
-    return subprocess.check_output(
-        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", script],
-        text=True,
-        stderr=subprocess.PIPE,
-    ).strip()
-
-
-def _powershell_file_hash(path: Path) -> str:
-    return _powershell_output(
-        "$ErrorActionPreference = 'Stop'; "
-        f"(Get-FileHash -Algorithm SHA256 -LiteralPath {_ps_quote(path)}).Hash"
-    ).upper()
-
-
-def _powershell_matching_files(parent: Path, filter_pattern: str) -> list[Path]:
-    output = _powershell_output(
-        "$ErrorActionPreference = 'Stop'; "
-        f"Get-ChildItem -LiteralPath {_ps_quote(parent)} -Filter {_ps_quote(filter_pattern)} "
-        "-File -Force -ErrorAction SilentlyContinue | "
-        "ForEach-Object { $_.FullName }"
-    )
-    if not output:
-        return []
-    return [Path(line.strip()) for line in output.splitlines() if line.strip()]
-
-
-def _powershell_move_file_to_quarantine(
-    path: Path, quarantine_root: Path, review_root: Path
-) -> QuarantineResult:
-    resolved = path.resolve()
-    resolved_review_root = review_root.resolve()
-    if resolved != resolved_review_root and resolved_review_root not in resolved.parents:
-        raise ValueError(f"Refusing to quarantine review artifact outside review root: {resolved}")
-    destination = (quarantine_root / resolved.name).resolve()
-    if quarantine_root not in destination.parents:
-        raise ValueError(f"Refusing to quarantine outside quarantine root: {destination}")
-    quarantine_root.mkdir(parents=True, exist_ok=True)
-    _powershell_output(
-        "$ErrorActionPreference = 'Stop'; "
-        f"if (Test-Path -LiteralPath {_ps_quote(destination)}) "
-        "{ throw 'Refusing to overwrite quarantined review artifact' }; "
-        f"Move-Item -LiteralPath {_ps_quote(resolved)} -Destination {_ps_quote(destination)}; "
-        f"if (Test-Path -LiteralPath {_ps_quote(resolved)}) "
-        "{ throw 'Review artifact still exists after quarantine move' }"
-    )
-    return QuarantineResult(source=resolved, destination=destination, entry_count=1)
-
-
-def _quarantine_review_exports(
-    review_root: Path, label: str, quarantine_root: Path
-) -> list[QuarantineResult]:
-    """Move previous zip artifacts for this review label before regenerating."""
-    sanitized_label = _sanitize_folder_name(label)
-    quarantined: list[QuarantineResult] = []
-    paths = set(review_root.glob(f"{sanitized_label}*.zip*"))
-    if os.name == "nt":
-        paths.update(_powershell_matching_files(review_root, f"{sanitized_label}*.zip*"))
-    for path in sorted(paths, key=lambda candidate: str(candidate).casefold()):
-        resolved = path.resolve()
-        if resolved.parent != review_root.resolve():
-            raise ValueError(f"Refusing to quarantine review export outside review root: {resolved}")
-        if resolved.is_file():
-            quarantined.append(_move_to_quarantine(resolved, quarantine_root, review_root))
-        elif os.name == "nt":
-            quarantined.append(
-                _powershell_move_file_to_quarantine(resolved, quarantine_root, review_root)
-            )
-    return quarantined
-
-
 def _write_export_zip(target: Path, export_zip: Path) -> None:
     if target in export_zip.parents or export_zip == target:
         raise ValueError(f"Refusing to write review zip inside bundle folder: {export_zip}")
     export_zip.parent.mkdir(parents=True, exist_ok=True)
-    if os.name == "nt":
-        temp_zip = export_zip.with_name(f".{export_zip.name}.{os.getpid()}.tmp.zip")
-        _powershell_output(
-            "$ErrorActionPreference = 'Stop'; "
-            "Add-Type -AssemblyName System.IO.Compression.FileSystem; "
-            f"if (Test-Path -LiteralPath {_ps_quote(temp_zip)}) "
-            f"{{ Remove-Item -LiteralPath {_ps_quote(temp_zip)} -Force }}; "
-            f"[System.IO.Compression.ZipFile]::CreateFromDirectory({_ps_quote(target)}, {_ps_quote(temp_zip)}, "
-            "[System.IO.Compression.CompressionLevel]::Optimal, $false); "
-            f"Move-Item -LiteralPath {_ps_quote(temp_zip)} -Destination {_ps_quote(export_zip)} -Force; "
-            f"if (-not (Test-Path -LiteralPath {_ps_quote(export_zip)})) "
-            "{ throw 'Stable review zip was not created' }"
-        )
-        return
     temp_zip = export_zip.with_name(f".{export_zip.name}.{os.getpid()}.tmp")
     if temp_zip.exists():
         temp_zip.unlink()
@@ -467,25 +341,14 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
         raise
 
 
-def _sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest().upper()
-
-
 def _validate_export_zip(
     export_zip: Path,
     *,
     source_branch: str,
     source_head: str,
     origin_main: str,
-    merge_base: str,
     expected_entries: set[str],
 ) -> None:
-    active_record_name, active_plan_name = _active_branch_packet_names(source_branch)
-    active_record_source, active_plan_source = _active_branch_source_paths(source_branch)
     packet_files: dict[str, str] = {}
     with zipfile.ZipFile(export_zip, "r") as archive:
         entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
@@ -494,17 +357,17 @@ def _validate_export_zip(
         except KeyError as exc:
             raise ValueError(f"Review export zip is missing START_HERE.md: {export_zip}") from exc
         try:
+            user_vision = archive.read(USER_BRANCH_VISION_REVIEW_FILE).decode("utf-8")
+        except KeyError as exc:
+            raise ValueError(
+                f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
+            ) from exc
+        try:
             user_review = archive.read(USER_BRANCH_PLAN_REVIEW_FILE).decode("utf-8")
         except KeyError as exc:
             raise ValueError(
                 f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
             ) from exc
-        active_record = (
-            archive.read(active_record_name).decode("utf-8") if active_record_name in entries else None
-        )
-        active_plan = (
-            archive.read(active_plan_name).decode("utf-8") if active_plan_name in entries else None
-        )
         for entry in sorted(entries):
             try:
                 packet_files[entry] = archive.read(entry).decode("utf-8")
@@ -517,175 +380,66 @@ def _validate_export_zip(
             "Review export zip file-list guard failed: "
             f"missing={missing or 'none'} extra={extra or 'none'}"
         )
-    if UPLOAD_THIS_ZIP_FILE in entries:
-        raise ValueError(
-            "Review export zip simplified stable-model guard failed: "
-            f"{UPLOAD_THIS_ZIP_FILE} must be absent"
-        )
     artifact_failures = [
         *_unresolved_template_placeholder_failures(packet_files),
+        *_packet_identity_failures(
+            packet_files,
+            expected_branch=source_branch,
+            expected_head=source_head,
+            expected_origin_main=origin_main,
+        ),
         *_packet_count_consistency_failures(
             packet_files,
             actual_file_count=len(entries),
         ),
+        *_user_facing_technical_metadata_failures(packet_files),
+        *_user_branch_plan_stale_bp1_wording_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
             "Review export zip artifact validation failed:\n"
             + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
-    if f"Source Branch: `{source_branch}`" not in start_here:
-        raise ValueError(
-            "Review export zip branch guard failed: START_HERE Source Branch "
-            f"does not match {source_branch}"
-        )
-    if f"Source HEAD: `{source_head}`" not in start_here:
-        raise ValueError(
-            "Review export zip stale-head guard failed: START_HERE Source HEAD "
-            f"does not match {source_head}"
-        )
-    if f"origin/main: `{origin_main}`" not in start_here:
-        raise ValueError(
-            "Review export zip origin/main guard failed: START_HERE origin/main "
-            f"does not match {origin_main}"
-        )
-    if f"Merge Base: `{merge_base}`" not in start_here:
-        raise ValueError(
-            "Review export zip merge-base guard failed: START_HERE Merge Base "
-            f"does not match {merge_base}"
-        )
-    if f"Review Export Zip Source HEAD: `{source_head}`" not in start_here:
-        raise ValueError(
-            "Review export zip stale-head guard failed: Review Export Zip Source HEAD "
-            f"does not match {source_head}"
-        )
-    if "Review Folder Empty Before Copy: PASS" not in start_here:
-        raise ValueError(
-            "Review export zip folder freshness guard failed: START_HERE does not "
-            "prove the review folder was empty before copying fresh files"
-        )
-    if "Review Cleanup Mode: `Governed quarantine`" not in start_here:
-        raise ValueError(
-            "Review export zip cleanup guard failed: START_HERE does not prove "
-            "USER-visible governed quarantine cleanup"
-        )
-    if "Review Cleanup Quarantine Root:" not in start_here:
-        raise ValueError(
-            "Review export zip cleanup guard failed: START_HERE is missing the "
-            "cleanup quarantine root"
-        )
-    if "Review Folder Pre-Clean Removed Count:" not in start_here:
-        raise ValueError(
-            "Review export zip folder freshness guard failed: START_HERE is missing "
-            "folder pre-clean removed count"
-        )
-    if "Review Export Pre-Clean Removed Count:" not in start_here:
-        raise ValueError(
-            "Review export zip stale-export guard failed: START_HERE is missing "
-            "zip pre-clean removed count"
-        )
-    if active_record_source.is_file() and active_record_name not in entries:
-        raise ValueError(
-            "Review export zip active-authority guard failed: exported ZIP is missing "
-            f"the active branch record {active_record_name}"
-        )
-    if active_plan_source.is_file() and active_plan_name not in entries:
-        raise ValueError(
-            "Review export zip active-plan guard failed: exported ZIP is missing "
-            f"the active branch plan {active_plan_name}"
-        )
-    for file_name, text in (
-        (active_record_name, active_record),
-        (active_plan_name, active_plan),
-    ):
-        if text is None:
-            continue
-        if source_branch not in text:
-            raise ValueError(
-                "Review export zip active-carrier guard failed: "
-                f"{file_name} does not mention active source branch {source_branch}"
-            )
-        if "runtime_implementation" in file_name or "runtime implementation carrier" in text.casefold():
-            normalized_text = text.casefold()
-            stale_phrases = [
-                phrase
-                for phrase in ACTIVE_IMPLEMENTATION_CARRIER_STALE_PHRASES
-                if phrase in normalized_text
-            ]
-            if stale_phrases:
-                raise ValueError(
-                    "Review export zip active-carrier guard failed: "
-                    f"{file_name} contains stale carrier wording: {stale_phrases}"
-                )
-    if active_record:
-        last_reconciled_origin = _extract_marker_from_text(active_record, "Last Reconciled origin/main:")
-        if last_reconciled_origin and last_reconciled_origin != origin_main:
-            raise ValueError(
-                "Review export zip active-authority guard failed: "
-                "Last Reconciled origin/main in active branch record does not match START_HERE "
-                f"origin/main {origin_main}"
-            )
-        last_reconciled_merge_base = _extract_marker_from_text(
-            active_record, "Last Reconciled Merge Base:"
-        )
-        if last_reconciled_merge_base and last_reconciled_merge_base != merge_base:
-            raise ValueError(
-                "Review export zip active-authority guard failed: "
-                "Last Reconciled Merge Base in active branch record does not match START_HERE "
-                f"Merge Base {merge_base}"
-            )
-    if active_plan:
-        reconciliation_status = _extract_marker_from_text(
-            active_plan, "Current-Main Reconciliation Status:"
-        )
-        if (
-            reconciliation_status
-            and "reconciled" in reconciliation_status.casefold()
-            and origin_main not in reconciliation_status
-        ):
-            raise ValueError(
-                "Review export zip active-plan guard failed: "
-                "Current-Main Reconciliation Status in active branch plan does not match "
-                f"START_HERE origin/main {origin_main}"
-            )
-    if source_branch == FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH:
-        missing_impl_files = sorted(
-            FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_PACKET_FILES - entries
-        )
-        if missing_impl_files:
-            raise ValueError(
-                "Review export zip FAM-006 implementation-carrier guard failed: "
-                f"missing={missing_impl_files}"
-            )
-        stale_foundation_metadata = (
-            f"Source Branch: `{FAM006_ACTIVE_OVERLAY_RECORDING_FOUNDATION_BRANCH}`"
-            in start_here
-        )
-        if stale_foundation_metadata:
-            raise ValueError(
-                "Review export zip FAM-006 implementation-carrier guard failed: "
-                "START_HERE still presents the released foundation carrier as active metadata"
-            )
-    if "Review Export Zip Stale Guard: PASS" not in start_here:
-        raise ValueError("Review export zip is missing stale-guard proof in START_HERE.md")
-    if "USER Review Packet Finding: PASS" not in start_here:
-        raise ValueError("Review export zip is missing USER Review Packet Finding proof")
+    if "Review Purpose:" not in start_here:
+        raise ValueError("Review export zip is missing Review Purpose in START_HERE.md")
+    if "USER Decision This Packet Supports:" not in start_here:
+        raise ValueError("Review export zip is missing USER decision text in START_HERE.md")
     for required_heading in (
         "## Contract Status",
-        "## Contract Version / Revision",
+        "## Contract Revision",
+        "## Project Vision Context",
         "## Family Vision Context",
-        "## Feature Vision",
+        "## Feature Vision Context",
         "## Branch Goal",
         "## End-State Vision",
         "## What Will I Actually See, And Where Will I See It?",
         "## How It Will Function",
         "## User Experience Flow",
+        "## Surface Map",
+        "## Product Options / Design Paths",
+        "## Codex Recommendations",
+        "## USER Response",
+        "## Codex Digest",
+        "## Accepted Branch Vision",
+        "## Design Assumption Ledger",
+        "## Acceptance / Revision / Rejection / Waiver Decision",
+    ):
+        if required_heading not in user_vision:
+            raise ValueError(
+                f"Review export zip USER_BRANCH_VISION_REVIEW.md is missing {required_heading}"
+            )
+    for required_heading in (
+        "## Contract Status",
+        "## Contract Version / Revision",
+        "## Plain-English Branch Summary",
+        "## What Will I Actually See, And Where Will I See It?",
+        "## End-State Vision",
         "## Visual / Functional Walkthrough",
         "## Surface Map",
-        "## Implementation Options / Product Shapes",
+        "## Implementation Options",
         "## Recommended Direction",
         "## Why This Fits The Nexus Vision",
-        "## USER Design Direction Decision",
+        "## USER Plan Review Decision",
         "## USER Decisions Needed",
         "## USER Response",
         "## Codex Response Digest",
@@ -695,7 +449,6 @@ def _validate_export_zip(
         "## Contract Change Log",
         "## Current Branch Scope",
         "## Future-Gated Scope",
-        "## How Codex Would Build This After USER Accepts The Direction",
         "## Implementation Staging Notes",
         "## Workstream Entry Result",
         "## Contract Completion Checklist",
@@ -704,15 +457,6 @@ def _validate_export_zip(
             raise ValueError(
                 f"Review export zip USER_BRANCH_PLAN_REVIEW.md is missing {required_heading}"
             )
-    contract_failures = _validate_user_branch_plan_contract_text(
-        user_review,
-        source_name=f"{export_zip}!{USER_BRANCH_PLAN_REVIEW_FILE}",
-    )
-    if contract_failures:
-        raise ValueError(
-            "Review export zip USER_BRANCH_PLAN_REVIEW.md contract validation failed:\n"
-            + "\n".join(f"- {failure}" for failure in contract_failures)
-        )
     contract_status = _section(user_review, "Contract Status").strip().casefold()
     if not any(
         contract_status.startswith(prefix)
@@ -754,130 +498,6 @@ def _section(text: str, heading: str) -> str:
     if next_heading < 0:
         return text[start:].strip()
     return text[start:next_heading].strip()
-
-
-def _ordered_heading_failures(text: str, headings: tuple[str, ...]) -> list[str]:
-    failures: list[str] = []
-    last_index = -1
-    for heading in headings:
-        marker = f"## {heading}"
-        index = text.find(marker)
-        if index < 0:
-            failures.append(f"missing heading {marker}")
-            continue
-        if index < last_index:
-            failures.append(f"heading {marker} appears before an earlier required heading")
-        last_index = max(last_index, index)
-    return failures
-
-
-def _contract_status_blocks_implementation(contract_status: str) -> bool:
-    normalized = contract_status.strip().casefold()
-    return normalized.startswith(
-        (
-            "draft",
-            "pending user response",
-            "pending codex digest",
-            "pending user confirmation",
-        )
-    )
-
-
-def _validate_user_branch_plan_contract_text(
-    text: str,
-    *,
-    source_name: str,
-    require_implementation_ready: bool = False,
-) -> list[str]:
-    failures: list[str] = []
-    vision_first_headings = (
-        "Contract Status",
-        "Contract Version / Revision",
-        "Family Vision Context",
-        "Feature Vision",
-        "Branch Goal",
-        "End-State Vision",
-        "What Will I Actually See, And Where Will I See It?",
-        "How It Will Function",
-        "User Experience Flow",
-        "Visual / Functional Walkthrough",
-        "Surface Map",
-        "Implementation Options / Product Shapes",
-        "Recommended Direction",
-        "Why This Fits The Nexus Vision",
-        "USER Design Direction Decision",
-        "USER Decisions Needed",
-        "USER Response",
-        "Codex Response Digest",
-        "Implementation Constraints Created By USER Response",
-        "USER Rejected / Deferred Ideas",
-        "Vision Delta / Source-Truth Impact",
-        "Contract Change Log",
-        "Current Branch Scope",
-        "Future-Gated Scope",
-        "How Codex Would Build This After USER Accepts The Direction",
-        "Implementation Staging Notes",
-        "Workstream Entry Result",
-        "Contract Completion Checklist",
-    )
-    failures.extend(
-        f"{source_name}: USER Branch Plan Contract {failure}"
-        for failure in _ordered_heading_failures(text, vision_first_headings)
-    )
-    for heading in vision_first_headings:
-        value = _section(text, heading)
-        if not value:
-            continue
-        word_count = len(re.findall(r"\b[\w'-]+\b", value))
-        if word_count < 8:
-            failures.append(
-                f"{source_name}: USER Branch Plan Contract section ## {heading} is too shallow"
-            )
-
-    slc_index = text.find("SLC-")
-    branch_goal_index = text.find("## Branch Goal")
-    end_state_index = text.find("## End-State Vision")
-    if slc_index >= 0 and (
-        branch_goal_index < 0 or end_state_index < 0 or slc_index < branch_goal_index or slc_index < end_state_index
-    ):
-        failures.append(
-            f"{source_name}: USER Branch Plan Contract mentions SLCs before branch goal/end-state vision"
-        )
-
-    staging = _section(text, "Implementation Staging Notes").casefold()
-    build_after_accept = _section(
-        text, "How Codex Would Build This After USER Accepts The Direction"
-    ).casefold()
-    if "primary user decision surface" not in staging and "secondary" not in build_after_accept:
-        failures.append(
-            f"{source_name}: USER Branch Plan Contract must state SLC/seam details are secondary implementation staging"
-        )
-
-    contract_status = _section(text, "Contract Status")
-    if not contract_status:
-        failures.append(f"{source_name}: USER Branch Plan Contract is missing Contract Status")
-    blocking_contract = _contract_status_blocks_implementation(contract_status)
-    exact_decision = _section(text, "Exact USER Decision Supported").casefold()
-    workstream_result = _section(text, "Workstream Entry Result").casefold()
-    approval_terms = (
-        "approve bounded slc",
-        "approve workstream implementation",
-        "approve bounded workstream implementation",
-        "implementation approval",
-    )
-    if blocking_contract and any(term in exact_decision for term in approval_terms):
-        failures.append(
-            f"{source_name}: USER Branch Plan Contract returns implementation approval while Contract Status blocks implementation"
-        )
-    if require_implementation_ready and blocking_contract:
-        failures.append(
-            f"{source_name}: USER Branch Plan Contract is not Complete or Waived by USER"
-        )
-    if "contract" not in workstream_result and "complete" not in contract_status.casefold():
-        failures.append(
-            f"{source_name}: Workstream Entry Result must cite contract state or completion/waiver"
-        )
-    return failures
 
 
 def _field_int(text: str, field_name: str) -> int | None:
@@ -948,6 +568,146 @@ def _packet_count_consistency_failures(
     return failures
 
 
+def _user_facing_technical_metadata_failures(packet_files: Mapping[str, str]) -> list[str]:
+    failures: list[str] = []
+    for file_name in USER_FACING_GENERATED_FILES:
+        text = packet_files.get(file_name)
+        if text is None:
+            continue
+        for reason, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: USER-facing generated file contains technical metadata {reason}"
+                )
+    return failures
+
+
+def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]) -> list[str]:
+    text = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE)
+    if text is None:
+        return []
+    failures: list[str] = []
+    for reason, pattern in USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS:
+        if pattern.search(text):
+            failures.append(
+                f"{USER_BRANCH_PLAN_REVIEW_FILE}: BP2 review contains stale BP1/product-design wording {reason}"
+            )
+    return failures
+
+
+def _start_here_file_mappings(start_here: str) -> dict[str, str]:
+    mappings: dict[str, str] = {}
+    row_pattern = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|", re.MULTILINE)
+    for source_path, copied_path in row_pattern.findall(start_here):
+        mappings[source_path.replace("\\", "/")] = copied_path.replace("\\", "/")
+    return mappings
+
+
+def _git_file_text(ref: str, source_path: str) -> str | None:
+    try:
+        data = subprocess.check_output(
+            ["git", "show", f"{ref}:{source_path}"],
+            cwd=ROOT,
+            stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        return None
+    return data.decode("utf-8", errors="replace")
+
+
+def _normalized_packet_text(text: str) -> str:
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _packet_identity_failures(
+    packet_files: Mapping[str, str],
+    *,
+    expected_branch: str,
+    expected_head: str,
+    expected_origin_main: str,
+) -> list[str]:
+    failures: list[str] = []
+    current_branch = _git_output("rev-parse", "--abbrev-ref", "HEAD")
+    current_head = _git_output("rev-parse", "HEAD")
+    current_origin_main = _git_output("rev-parse", "origin/main")
+
+    if current_branch != expected_branch:
+        failures.append(
+            "Packet identity: expected branch "
+            f"{expected_branch!r} does not match current branch {current_branch!r}"
+        )
+    if current_head != expected_head:
+        failures.append(
+            "Packet identity: expected HEAD "
+            f"{expected_head!r} does not match current HEAD {current_head!r}"
+        )
+    if current_origin_main != expected_origin_main:
+        failures.append(
+            "Packet identity: expected origin/main "
+            f"{expected_origin_main!r} does not match current origin/main {current_origin_main!r}"
+        )
+
+    start_here = packet_files.get("START_HERE.md", "")
+    file_mappings = _start_here_file_mappings(start_here)
+    if not file_mappings:
+        failures.append("START_HERE.md: source/copy file mapping table is missing")
+        return failures
+
+    for source_path, copied_path in file_mappings.items():
+        packet_text = packet_files.get(copied_path)
+        if packet_text is None:
+            continue
+        expected_text = _git_file_text(expected_head, source_path)
+        if expected_text is None:
+            failures.append(
+                "Packet identity: copied source path is not present at expected HEAD: "
+                f"{source_path}"
+            )
+            continue
+        if _normalized_packet_text(packet_text) != _normalized_packet_text(expected_text):
+            failures.append(
+                "Packet identity: copied file does not match expected HEAD content: "
+                f"{copied_path} from {source_path}"
+            )
+    return failures
+
+
+def _user_facing_decision_text(exact_user_decision: str) -> str:
+    """Keep USER files decision-focused while chat/helper output carries byte proof."""
+
+    text = re.sub(
+        r"\b[0-9a-f]{40}\b",
+        "[current commit recorded in Codex chat digest]",
+        exact_user_decision,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"\bHEAD\b",
+        "current commit recorded in Codex chat digest",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"\borigin/main(?:@[A-Za-z0-9_.-]+)?\b",
+        "current main baseline recorded in Codex chat digest",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"\blive PR state\b|\bPR state\b",
+        "PR-readiness review posture",
+        text,
+        flags=re.IGNORECASE,
+    )
+    text = re.sub(
+        r"\bvalidation health\b|\bvalidation status\b",
+        "validation review expectations",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return text
+
+
 def _is_repo_relative_review_path(path: str) -> bool:
     if not isinstance(path, str) or not path:
         return False
@@ -974,6 +734,175 @@ def _public_review_bundle_file_list_failures(paths: list[str]) -> list[str]:
     return failures
 
 
+def _write_user_branch_vision_review(
+    *,
+    target: Path,
+    title: str,
+    review_purpose: str,
+    exact_user_decision: str,
+    pending_user_decisions: list[str],
+    copied: list[tuple[str, str]],
+) -> Path:
+    source_files = [f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]
+    pr_readiness_context_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+    review_status = (
+        "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
+        "it does not request a new Branch Vision decision."
+        if pr_readiness_context_packet
+        else "Needs USER Decision unless this packet records an explicit USER acceptance or waiver."
+    )
+    contract_status = (
+        "Complete - Branch Vision context is recorded for this PR Readiness review packet; "
+        "implementation remains outside this decision."
+        if pr_readiness_context_packet
+        else "Draft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch."
+    )
+    user_response = (
+        "No new BP1 response requested by this packet; PR Readiness Stage 1 analysis remains the next USER decision."
+        if pr_readiness_context_packet
+        else "Pending USER response or explicit waiver."
+    )
+    codex_digest = (
+        "Codex records this BP1 file as a context aid for the governance lifecycle reform packet. "
+        "Accepted outcomes must fold into durable source-truth owners or external operational state."
+        if pr_readiness_context_packet
+        else "Pending USER response digest."
+    )
+    accepted_vision = (
+        "Accepted context: Governance Phase Lifecycle Reform and local USER hub model are represented by the copied source-truth files."
+        if pr_readiness_context_packet
+        else "Pending USER acceptance or waiver."
+    )
+    lines = [
+        f"# {title} - USER Branch Vision Review",
+        "",
+        "USER Branch Vision Review: BP1",
+        "",
+        "## Review Status",
+        "",
+        review_status,
+        "",
+        "## Contract Status",
+        "",
+        contract_status,
+        "",
+        "## Contract Revision",
+        "",
+        "v1 - generated by the local USER hub helper.",
+        "",
+        "## Project Vision Context",
+        "",
+        "Review `Docs/nexus_vision.md` or the current project-wide vision owner before accepting this Branch Vision.",
+        "",
+        "## Family Vision Context",
+        "",
+        "Review the relevant `Docs/family_visions/` owner for the branch family before accepting this Branch Vision.",
+        "",
+        "## Feature Vision Context",
+        "",
+        "Review the active branch authority and branch planning owner for the feature or package context.",
+        "",
+        "## Codex Understanding",
+        "",
+        review_purpose,
+        "",
+        "## Branch Goal",
+        "",
+        "Confirm that this branch goal is the right product direction before engineering planning proceeds.",
+        "",
+        "## End-State Vision",
+        "",
+        "Describe the intended user-visible or source-truth end state for this branch. If no user-visible surface applies, describe the durable governance or runtime outcome USER will rely on.",
+        "",
+        "## What Will I Actually See, And Where Will I See It?",
+        "",
+        "The USER-facing review packet lives in the local USER hub. Runtime/user-facing surfaces, if any, must be described by the branch-specific packet or source truth copied into this folder.",
+        "",
+        "## How It Will Function",
+        "",
+        "BP1 captures what the branch should become. BP2 captures how Codex plans to build it. Workstream implementation remains blocked until BP1/BP2 are accepted or waived and BP3 is green.",
+        "",
+        "## User Experience Flow",
+        "",
+        "Review the copied branch-specific files and note any changes to product flow, decision flow, or inspection flow before accepting BP1.",
+        "",
+        "## Surface Map",
+        "",
+        *_markdown_lines(source_files),
+        "",
+        "## Product Options / Design Paths",
+        "",
+        "- Accept the proposed Branch Vision.",
+        "- Revise the Branch Vision before engineering planning.",
+        "- Waive BP1 for this branch with explicit USER text.",
+        "- Reject this branch direction and request a narrower or different carrier.",
+        "",
+        "## Codex Recommendations",
+        "",
+        "- Recommendation: Treat BP1 as the product/vision gate and keep SLCs as engineering route details.",
+        "  USER response:",
+        "- Recommendation: Use BP2 only after the accepted Branch Vision is clear.",
+        "  USER response:",
+        "",
+        "## Why This Fits The Nexus Vision",
+        "",
+        "This keeps project and family vision above branch planning while preventing implementation seams from becoming accidental product direction.",
+        "",
+        "## USER Design Questions",
+        "",
+        "- Does this Branch Vision match what the USER wants this branch to become?",
+        "- Are any surfaces, flows, boundaries, or future-gated ideas missing?",
+        "",
+        "## USER Response",
+        "",
+        user_response,
+        "",
+        "## Codex Digest",
+        "",
+        codex_digest,
+        "",
+        "## Accepted Branch Vision",
+        "",
+        accepted_vision,
+        "",
+        "## Family-Vision Versus Branch-Only Vision Impact",
+        "",
+        "Branch-only unless USER response creates a reusable family or project-wide standard that must fold into the proper durable owner.",
+        "",
+        "## Must-Have Behavior",
+        "",
+        "- BP1 must be accepted or explicitly waived before BP2/BP3 can authorize implementation.",
+        "- SLCs must trace to an accepted Branch Vision requirement.",
+        "",
+        "## Must-Not-Do / Regression-Risk Rules",
+        "",
+        "- Do not turn SLCs into automatic separate branches.",
+        "- Do not use Workstream for planning.",
+        "- Do not center mutable operational metadata as the USER-facing contract.",
+        "",
+        "## Deferred And Future-Gated Ideas",
+        "",
+        *_markdown_lines(pending_user_decisions),
+        "",
+        "## Vision Question Queue",
+        "",
+        "Pending USER review.",
+        "",
+        "## Design Assumption Ledger",
+        "",
+        "- Assumption: USER-facing Branch Vision acceptance is required unless explicitly waived.",
+        "- Assumption: accepted branch vision changes fold into durable source-truth owners only after USER-approved digest.",
+        "",
+        "## Acceptance / Revision / Rejection / Waiver Decision",
+        "",
+        exact_user_decision,
+        "",
+    ]
+    review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+    review_path.write_text("\n".join(lines), encoding="utf-8")
+    return review_path.resolve()
+
+
 def _write_user_branch_plan_review(
     *,
     target: Path,
@@ -989,11 +918,6 @@ def _write_user_branch_plan_review(
 ) -> Path:
     is_active_overlay_recording = any(
         "active_overlay_recording_runtime_foundation" in source_rel
-        or "active_overlay_recording_runtime_implementation" in source_rel
-        for source_rel, _copied_rel in copied
-    )
-    has_implementation_carrier_files = any(
-        "active_overlay_recording_runtime_implementation" in source_rel
         for source_rel, _copied_rel in copied
     )
     is_fam007_breakpoint_2 = (
@@ -1003,23 +927,16 @@ def _write_user_branch_plan_review(
             for source_rel, _copied_rel in copied
         )
     )
+    pr_readiness_stage1_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
-        if (
-            "active_overlay_recording_runtime_implementation" in source_rel
-            if has_implementation_carrier_files
-            else "active_overlay_recording_runtime_foundation" in source_rel
-        )
+        if "active_overlay_recording_runtime_foundation" in source_rel
     ]
     rollback_context_files = [
         copied_rel
         for source_rel, copied_rel in copied
         if "recording_profile_runtime_foundation" in source_rel
-        or (
-            has_implementation_carrier_files
-            and "active_overlay_recording_runtime_foundation" in source_rel
-        )
     ]
     source_truth_files = [
         copied_rel
@@ -1042,9 +959,6 @@ def _write_user_branch_plan_review(
                 source_rel
                 for source_rel, _copied_rel in copied
                 if source_rel.endswith(
-                    "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md"
-                )
-                or source_rel.endswith(
                     "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md"
                 )
             ),
@@ -1061,7 +975,7 @@ def _write_user_branch_plan_review(
         )
         contract_status = (
             _source_marker(active_plan_source, "Contract Status:") if active_plan_source else None
-        ) or "Pending USER Confirmation - Codex revised this review into the closed-loop USER Branch Plan Contract; USER must confirm the revised contract or explicitly waive it before implementation."
+        ) or "Pending USER Confirmation - Codex revised this review into the closed-loop BP2 Branch Plan Contract; USER must confirm the revised contract or explicitly waive it before implementation."
         contract_version = (
             _source_marker(active_plan_source, "Contract Version / Revision:") if active_plan_source else None
         ) or "v3 - USER recording product-model revision."
@@ -1073,34 +987,6 @@ def _write_user_branch_plan_review(
             "normal Windows/NDAI window for target summary and future controls/settings, with "
             "secondary settings windows when details would make the main control bulky. Native Log "
             "Loader: a separate future graph/log viewer, not the recording control surface."
-        )
-        family_vision_context = (
-            "FAM-006 owns Monitoring HUD, Dashboard, Overlay Profile, Overlay Display, Monitor "
-            "Group, Sensor Command Center, and active-overlay-driven recording planning. Recording "
-            "must feel connected to the overlay system rather than become a second profile system."
-        )
-        feature_vision = (
-            "The recording feature should derive its target from the currently active Overlay "
-            "Profile, make that target understandable in the HUD Overlay card, and later provide "
-            "a compact standalone Recording Control window while graph/log viewing remains a "
-            "separate future Native Log Loader concept."
-        )
-        branch_goal = (
-            "This branch's product goal is to implement the active-overlay-driven recording runtime "
-            "foundation safely: first prove what would be recorded, then expose the target and "
-            "control surfaces only after the branch vision and proof requirements are accepted."
-        )
-        how_it_functions = (
-            "The active Overlay Profile remains the source of recording target membership. Future "
-            "recording reads that active membership, preserves Monitor Group and Overlay Profile "
-            "ownership boundaries, keeps execution and file writing behind explicit approval, and "
-            "uses future output contracts that can feed graph/plot workflows."
-        )
-        user_experience_flow = (
-            "USER starts in the Dashboard HUD Overlay card, sees the active Overlay Profile and "
-            "recording target/status preview, opens the standalone Recording Control window when "
-            "that surface is admitted, and uses secondary settings/details windows only for bulky "
-            "configuration that should not crowd the compact control window."
         )
         why_nexus = (
             "This fits Nexus because it keeps recording intuitive, avoids a confusing second profile "
@@ -1153,14 +1039,14 @@ def _write_user_branch_plan_review(
         ]
         source_truth_impact = [
             "Family vision: record per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
-            "Active branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
+            "Active external branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
             "Backlog/roadmap: record planning-governance PR-readiness posture rather than runtime implementation posture.",
-            "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
+            "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or copied source-truth inputs change.",
             "Workstream seam order: target model remains future implementation staging, not current branch work.",
         ]
         contract_change_log = [
             "v1 - USER-facing Branch Plan Review packet introduced with end-state/options sections.",
-            "v2 - Hardened into USER Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
+            "v2 - Hardened into BP2 Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
             "v3 - Digested USER recording product-model feedback: HUD Overlay launcher/target preview, standalone Recording Control window, Native Log Loader separation, future per-overlay effective polling policy, and target-model-first SLC-051.",
             "v4 - USER accepted the plan and redirected this branch to planning/governance PR Readiness with Workstream skipped and runtime implementation deferred to a future USER-approved carrier.",
         ]
@@ -1172,7 +1058,7 @@ def _write_user_branch_plan_review(
             "Vision Delta / Source-Truth Impact is resolved.",
             "USER Rejected / Deferred Ideas are recorded.",
             "Contract Change Log is current.",
-            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+            "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
             "Workstream Entry Result is present only after response/digest or waiver.",
             "Exact implementation approval text cites completed or waived contract status.",
         ]
@@ -1224,13 +1110,6 @@ def _write_user_branch_plan_review(
             "recommends snapshot-at-recording-start by default unless USER revises it, while SLC-051 "
             "proves the live current active-overlay target because no recording is occurring yet."
         )
-        build_after_accept = (
-            "After USER accepts or waives the direction, Codex should translate the branch vision "
-            "into a whole-package Workstream plan, then sequence implementation through SLC-051 "
-            "to SLC-055 as secondary engineering route details. The SLC route must remain bound "
-            "to the accepted branch vision, user-facing surfaces, implementation constraints, and "
-            "future-gated boundaries."
-        )
         current_scope = [
             "Preserve the accepted active-overlay recording end-state as maintained source truth.",
             "Record that active Overlay Profile membership is the source of truth for future recording targets.",
@@ -1255,38 +1134,6 @@ def _write_user_branch_plan_review(
             "Does USER agree that the accepted active-overlay product contract is preserved for a future implementation carrier?",
             "Does USER want a revision before PR Readiness, or should PR Readiness inspect this no-runtime closeout?",
         ]
-        if source_branch == FAM006_ACTIVE_OVERLAY_RECORDING_IMPLEMENTATION_BRANCH:
-            implementation_constraints[0] = (
-                "This implementation carrier must not implement SLC-051 or any "
-                "runtime/user-facing recording work during Stage 2."
-            )
-            source_truth_impact = [
-                "Family vision: keep per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
-                "Active branch plan and branch record: record the accepted v4 planning contract as imported starting implementation truth for this fresh carrier.",
-                "Backlog/roadmap: record implementation-carrier Stage 2 setup and Workstream Entry pending posture.",
-                "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
-                "Workstream seam order: target model remains the first expected implementation seam, pending Workstream Entry analysis and USER implementation approval.",
-            ]
-            contract_change_log = [
-                "v1 - USER-facing Branch Plan Review packet introduced with end-state/options sections.",
-                "v2 - Hardened into USER Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
-                "v3 - Digested USER recording product-model feedback: HUD Overlay launcher/target preview, standalone Recording Control window, Native Log Loader separation, future per-overlay effective polling policy, and target-model-first SLC-051.",
-                "v4 - USER accepted the plan and redirected the released foundation carrier to planning/governance PR Readiness with Workstream skipped.",
-                "Implementation-carrier v1 - Imported the accepted v4 contract onto the fresh current-main runtime implementation branch.",
-            ]
-            current_scope = [
-                "Admit the fresh runtime implementation carrier and preserve the accepted active-overlay recording end-state as starting implementation truth.",
-                "Record that active Overlay Profile membership is the source of truth for future recording targets.",
-                "Keep SLC-051 target-model-first and avoid blocking future per-overlay effective polling policy.",
-                "Confirm Stage 2 does not change Dashboard, Manage Monitors, Sensor Command Center, Overlay Profile, Overlay Display, Monitor Group, or recording runtime behavior.",
-                "Proceed only to Workstream Entry analysis after USER approval; runtime implementation requires a later bounded implementation approval.",
-            ]
-            user_decisions = [
-                "Does USER approve Workstream Entry analysis for this implementation carrier?",
-                "Does USER agree that Stage 2 claims no runtime/user-facing recording work, SLC-051 implementation, Workstream implementation, H1, LV1, or UTS?",
-                "Does USER agree that the accepted active-overlay product contract is imported as starting implementation truth for this carrier?",
-                "Does USER want a revision before Workstream Entry, or should Workstream Entry inspect this carrier and return the first bounded implementation approval packet?",
-            ]
     elif is_fam007_breakpoint_2:
         seam1_approval_packet = "approve bounded workstream implementation" in exact_user_decision.casefold()
         seam1_completion_packet = "approve or revise seam 2" in exact_user_decision.casefold()
@@ -1417,7 +1264,7 @@ def _write_user_branch_plan_review(
         workstream_entry_result = (
             workstream_status_text
             + (
-            "Affected surfaces: active branch plan, active branch record, USER review packet, packet "
+            "Affected surfaces: active external branch plan, active branch record, USER review packet, packet "
             "bundle helper, validation helper registry when helper behavior changes, and any public-safe "
             "fixtures or validators needed to prove action-gate preservation.\n\n"
             "Validators and fixtures: branch governance, worktree confinement, release-readiness health, "
@@ -1427,7 +1274,7 @@ def _write_user_branch_plan_review(
             "USER-facing proof expectations: refreshed START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, "
             "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md, GOVERNANCE_REQUIRED_FILES_SCAN.md, "
             "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, BRANCH_VISION_VALIDATION_CHECKLIST.md, exported ZIP, "
-            "and validation summary must all agree on branch, HEAD, origin/main, decision path, and "
+            "and validation summary must all agree on decision path, decision path, and "
             "pending gates.\n\n"
             f"Exact implementation approval text: {exact_user_decision}"
             )
@@ -1547,9 +1394,9 @@ def _write_user_branch_plan_review(
             "Rejected for Seam 1: any hidden private setup, silent provider enablement, cache/memory runtime behavior, or action that would make a USER gate look already completed.",
         ]
         source_truth_impact = [
-            "Active branch plan and branch record should preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
+            "Active external branch plan and branch record should preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
             "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
-            "Review packet should remain branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that Seam 1 approval covers only public-safe action-gate proof.",
+            "Review packet should remain branch-specific, freshness-verified, count-consistent, placeholder-free, and explicit that Seam 1 approval covers only public-safe action-gate proof.",
             "Source-truth fold-down during Seam 1 should record proof of action-gate preservation without executing gated private/runtime actions.",
         ]
         contract_change_log = [
@@ -1562,7 +1409,7 @@ def _write_user_branch_plan_review(
             "USER response is present in chat, copied into the packet later, or explicitly waived.",
             "Exact implementation approval text names Seam 1 only.",
             "Implementation Constraints Created By USER Response preserve all private/runtime/provider/cache/memory gates.",
-            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+            "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
             "Packet digest files agree that Workstream Entry is green and Seam 1 approval is limited to public-safe action-gate proof.",
             "No unresolved packet placeholders or packet count mismatches remain.",
             "Validation results are green before Seam 1 starts.",
@@ -1596,7 +1443,7 @@ def _write_user_branch_plan_review(
             completion_checklist = [
                 "Seam 1 source-truth fold-down is present in the branch plan and branch record.",
                 "Direct validator fixture proof covers the action-gate registry and exact USER decision proof.",
-                "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+                "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
                 "Packet digest files agree that Seam 1 is complete and Seam 2 remains pending USER approval.",
                 "No unresolved packet placeholders or packet count mismatches remain.",
             ]
@@ -1613,16 +1460,16 @@ def _write_user_branch_plan_review(
             "future private setup decision without ambiguity."
         )
         walkthrough = [
-            "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact USER decision.",
+            "Open START_HERE.md first and review the plain-language file map and USER decision.",
             "Open USER_BRANCH_PLAN_REVIEW.md and review this contract, especially Seam 1, action-gate proof expectations, and pending gates.",
-            "Open the active branch plan to verify the product/workstream carrier posture and Breakpoint 2 scope.",
+            "Open the active external branch plan to verify the product/workstream carrier posture and Breakpoint 2 scope.",
             "Inspect the action-gate registry/proof surface once Seam 1 is implemented; each gated action should say pending, blocked, or USER-required rather than completed.",
             "Review validator or fixture outputs proving no private repo, private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, or PR/merge/release work occurred.",
-            "Confirm the refreshed ZIP matches the live Desktop packet before approving the next phase.",
+            "Upload the matching ZIP beside the local USER hub folder after reviewing the packet.",
         ]
         surface_map = [
-            "USER review packet: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, folder/file digest, governance scan, Workstream Entry digest, branch vision checklist, and ZIP export.",
-            "Branch plan: Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md.",
+            "USER review packet: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, USER_BRANCH_PLAN_REVIEW.md, folder/file digest, governance scan, Workstream Entry digest, branch vision checklist, and ZIP export.",
+            "Active external branch plan: C:\\Nexus Governance State\\branches\\feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness\\branch_plan.md.",
             "Branch record: Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md.",
             "Architecture owner: Docs/ai_runtime_and_trust_architecture.md.",
             "FAM-007 owners: Docs/family_visions/FAM-007_local_ai_and_capability_packs.md and Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md.",
@@ -1644,7 +1491,7 @@ def _write_user_branch_plan_review(
             "Branch-specific Workstream Entry contract repair.",
             "Completed Workstream Entry result recorded in the packet.",
             "Recommended first seam recorded as Seam 1, Action-gate registry and exact USER decision proof.",
-            "Desktop packet and ZIP refreshed with current branch, HEAD, origin/main, counts, and decision path.",
+            "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the decision path.",
             "Validation before any Seam 1 file mutation begins.",
         ]
         future_scope = [
@@ -1658,11 +1505,11 @@ def _write_user_branch_plan_review(
         ]
         if workstream_green_packet:
             walkthrough = [
-                "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact USER decision.",
+                "Open START_HERE.md first and review the plain-language file map and USER decision.",
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Workstream Green with Hardening H1 as the next decision.",
-                "Open the active branch plan and branch record to verify Seams 1 through 4 are recorded as public-safe proof only.",
+                "Open the active external branch plan and branch record to verify Seams 1 through 4 are recorded as public-safe proof only.",
                 "Review the fixture and validator proof showing all private/runtime/provider/cache/memory gates remain pending.",
-                "Confirm the refreshed ZIP matches the live Desktop packet before approving or revising Hardening H1.",
+                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising Hardening H1.",
             ]
             implementation_options = [
                 "Approve Hardening H1 as recommended: compare all public-safe Workstream proof against source truth, fixtures, validators, packet proof, and external-state boundaries. Pros: moves the branch into the required proof-comparison phase; Cons: no PR/merge/release yet; Risk: low.",
@@ -1699,7 +1546,7 @@ def _write_user_branch_plan_review(
             completion_checklist = [
                 "Seams 1 through 4 source-truth fold-down is present in the branch plan and branch record.",
                 "Direct validator fixture proof covers action gates, private/public boundary, backup/import planning gates, provider/runtime/cache/memory deferral, and Hardening handoff readiness.",
-                "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+                "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
                 "Packet digest files agree that Workstream is green and Hardening H1 remains pending USER approval.",
                 "No unresolved packet placeholders or packet count mismatches remain.",
             ]
@@ -1713,7 +1560,7 @@ def _write_user_branch_plan_review(
                 "Seam 2 private/public boundary and private remote safety proof implemented.",
                 "Seam 3 backup/recovery and Public-to-Dev import planning proof implemented.",
                 "Seam 4 provider/model/runtime/cache/memory deferral and local-only handoff proof implemented.",
-                "Desktop packet and ZIP refreshed with current branch, HEAD, origin/main, counts, and Hardening H1 next decision.",
+                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Hardening H1 next decision.",
             ]
             future_scope = [
                 "Hardening H1 approval is limited to proof comparison and pressure testing.",
@@ -1736,18 +1583,18 @@ def _write_user_branch_plan_review(
                 "Rejected for Hardening H1: executing the private/runtime action being pressure-tested as gated, silently enabling provider/cache/memory behavior, or turning proof comparison into PR/merge/release work.",
             ]
             source_truth_impact = [
-                "Active branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
+                "Active external branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
                 "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
-                "Review packet remains branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that Hardening H1 approval covers only proof comparison and H1-scoped repair.",
+                "Review packet remains branch-specific, freshness-verified, count-consistent, placeholder-free, and explicit that Hardening H1 approval covers only proof comparison and H1-scoped repair.",
                 "Source-truth fold-down records Seams 1 through 4 as public-safe proof without executing gated private/runtime actions.",
             ]
         if hardening_h1_packet:
             walkthrough = [
-                "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact USER decision.",
+                "Open START_HERE.md first and review the plain-language file map and USER decision.",
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Hardening H1 Green with Live Validation LV1 as the next decision.",
-                "Open the active branch plan and branch record to verify the H1 comparison receipt and stale-ledger repair.",
+                "Open the active external branch plan and branch record to verify the H1 comparison receipt and stale-ledger repair.",
                 "Review validator proof showing stale Workstream-pending phrases are rejected and all private/runtime/provider/cache/memory gates remain pending.",
-                "Confirm the refreshed ZIP matches the live Desktop packet before approving or revising LV1/no-visible-runtime proof.",
+                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising LV1/no-visible-runtime proof.",
             ]
             implementation_options = [
                 "Approve Live Validation LV1 as recommended: digest no-visible-runtime proof and UTS waiver evidence from source-truth, fixtures, validators, packet proof, and external-state boundaries. Pros: moves the branch toward PR Readiness without pretending runtime was exercised; Cons: no PR/merge/release yet; Risk: low.",
@@ -1785,7 +1632,7 @@ def _write_user_branch_plan_review(
             completion_checklist = [
                 "Hardening H1 comparison receipt is present in the branch plan and branch record.",
                 "Direct validator proof rejects stale Workstream-pending ledger phrases.",
-                "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+                "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
                 "Packet digest files agree that Hardening H1 is green and Live Validation LV1 remains pending USER approval.",
                 "No unresolved packet placeholders or packet count mismatches remain.",
             ]
@@ -1798,7 +1645,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Stale duplicate Workstream-pending ledger wording repaired.",
                 "Direct validator guard added for stale Breakpoint 2 Workstream-pending phrases.",
-                "Desktop packet and ZIP refreshed with current branch, HEAD, origin/main, counts, and Live Validation LV1 next decision.",
+                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Live Validation LV1 next decision.",
             ]
             future_scope = [
                 "Live Validation LV1 approval is limited to no-visible-runtime proof and UTS waiver digestion.",
@@ -1821,18 +1668,18 @@ def _write_user_branch_plan_review(
                 "Rejected for LV1: executing runtime/private/provider/cache/memory behavior just to prove it did not change.",
             ]
             source_truth_impact = [
-                "Active branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
+                "Active external branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
                 "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
-                "Review packet remains branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that LV1 approval covers only no-visible-runtime proof and UTS waiver digestion.",
+                "Review packet remains branch-specific, freshness-verified, count-consistent, placeholder-free, and explicit that LV1 approval covers only no-visible-runtime proof and UTS waiver digestion.",
                 "Source-truth fold-down records H1 Green without executing gated private/runtime actions.",
             ]
         if lv1_green_packet:
             walkthrough = [
-                "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact USER decision.",
+                "Open START_HERE.md first and review the plain-language file map and USER decision.",
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Live Validation LV1 Green with PR Readiness Stage 1 as the next decision.",
-                "Open the active branch plan and branch record to verify the LV1/no-visible-runtime proof receipt and UTS waiver.",
+                "Open the active external branch plan and branch record to verify the LV1/no-visible-runtime proof receipt and UTS waiver.",
                 "Review validator proof showing LV1 source-truth phrases are present and stale H1/LV1-pending phrases are rejected.",
-                "Confirm the refreshed ZIP matches the live Desktop packet before approving or revising PR Readiness Stage 1 analysis.",
+                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising PR Readiness Stage 1 analysis.",
             ]
             implementation_options = [
                 "Approve PR Readiness Stage 1 as recommended: analyze PR readiness for the completed public-safe Breakpoint 2 proof carrier. Pros: moves toward PR creation review; Cons: no PR/merge/release yet; Risk: low.",
@@ -1871,7 +1718,7 @@ def _write_user_branch_plan_review(
             completion_checklist = [
                 "Live Validation LV1 receipt is present in the branch plan and branch record.",
                 "Direct validator proof requires LV1 no-visible-runtime, UTS waiver, and PR Readiness Stage 1 routing phrases.",
-                "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+                "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
                 "Packet digest files agree that Live Validation LV1 is green and PR Readiness Stage 1 remains pending USER approval.",
                 "No unresolved packet placeholders or packet count mismatches remain.",
             ]
@@ -1885,7 +1732,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Live Validation LV1 no-visible-runtime proof complete.",
                 "UTS and user-facing shortcut validation waived because no visible runtime or shortcut surface changed.",
-                "Desktop packet and ZIP refreshed with current branch, HEAD, origin/main, counts, and PR Readiness Stage 1 next decision.",
+                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the PR Readiness Stage 1 next decision.",
             ]
             future_scope = [
                 "PR Readiness Stage 1 approval is limited to analysis only.",
@@ -1893,7 +1740,7 @@ def _write_user_branch_plan_review(
             ]
             slc_package_plan = [
                 "Workstream, H1, and LV1 are complete as public-safe proof.",
-                "PR Readiness Stage 1 next: inspect live PR state, source-truth fold-down, packet proof, validation health, external-state posture, and no-release-debt posture.",
+                "PR Readiness Stage 1 next: inspect source-truth fold-down, packet proof, external-state posture, no-release-debt posture, and PR-readiness review expectations.",
                 "No PR Readiness Stage 1 step may create a PR, merge, release, clean up, or execute private/runtime actions.",
             ]
             implementation_constraints = [
@@ -1908,9 +1755,9 @@ def _write_user_branch_plan_review(
                 "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
             ]
             source_truth_impact = [
-                "Active branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier completed through LV1.",
+                "Active external branch plan and branch record preserve Breakpoint 2 as a real FAM-007 product/workstream carrier completed through LV1.",
                 "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
-                "Review packet remains branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that PR Readiness Stage 1 approval covers analysis only.",
+                "Review packet remains branch-specific, placeholder-free, decision-path-consistent, and explicit that PR Readiness Stage 1 approval covers analysis only.",
                 "Source-truth fold-down records LV1 Green without executing gated private/runtime actions.",
             ]
         elif seam1_completion_packet:
@@ -1930,7 +1777,7 @@ def _write_user_branch_plan_review(
                 "Exact USER decision proof implemented.",
                 "Direct fixture and validator proof added.",
                 "Branch plan and branch record folded down for Seam 1.",
-                "Desktop packet and ZIP refreshed with current branch, HEAD, origin/main, counts, and next decision.",
+                "Local USER hub packet and ZIP refreshed with the current decision path, file list, and next decision.",
             ]
             future_scope = [
                 "Seam 2 approval is limited to private/public boundary and private remote safety proof.",
@@ -1963,14 +1810,14 @@ def _write_user_branch_plan_review(
                 "import, or v1.8.0 execution."
             )
             walkthrough = [
-                "Open START_HERE.md first and confirm branch, HEAD, origin/main, file counts, ZIP path, and exact Stage 2 PR creation decision.",
+                "Open START_HERE.md first and review the plain-language file map and Stage 2 PR creation decision.",
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is PR Readiness Stage 1 Ready For Stage 2.",
                 "Open the branch record PR Readiness Stage 1 Analysis Packet and verify no live PR, Stage 2 pending, no-release-debt posture, selected-next default/defer posture, and merge-stable authority projection.",
                 "Open the branch plan PR Readiness Stage 1 Repair Receipt and confirm Stage 2 remains blocked until USER approval.",
-                "Confirm the refreshed ZIP matches the live Desktop packet before approving or revising Stage 2.",
+                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising Stage 2.",
             ]
             implementation_options = [
-                "Approve PR Readiness Stage 2 as recommended: create the PR, verify live PR state, provision/update watcher, request/monitor Codex bot review, and stop before merge unless later approval exists. Pros: moves the completed proof carrier into review; Cons: no merge/release yet; Risk: low when validation remains green.",
+                "Approve PR Readiness Stage 2 as recommended: create the PR, verify PR creation and review posture, provision/update watcher, request/monitor Codex bot review, and stop before merge unless later approval exists. Pros: moves the completed proof carrier into review; Cons: no merge/release yet; Risk: low when validation remains green.",
                 "Revise Stage 2 PR creation expectations before PR creation. Pros: lets USER tune PR body, watcher, or bot-review requirements; Cons: adds packet/source-truth repair; Risk: low.",
                 "Pause at Stage 1 Ready For Stage 2. Pros: preserves clean proof without creating a PR; Cons: delays review; Risk: low.",
                 "Reject PR creation and request a narrower closeout. Pros: maximum scope control; Cons: delays branch completion; Risk: low but slower.",
@@ -2006,7 +1853,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Live Validation LV1 no-visible-runtime proof complete.",
                 "PR Readiness Stage 1 repair complete with no live PR and Stage 2 pending.",
-                "Desktop packet and ZIP refreshed with current branch, HEAD, origin/main, counts, and Stage 2 next decision.",
+                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Stage 2 next decision.",
             ]
             future_scope = [
                 "PR Readiness Stage 2 approval is limited to PR creation, live PR validation, watcher provisioning/update, Codex bot review request/monitoring, and in-scope Codex comment repair if needed.",
@@ -2031,7 +1878,7 @@ def _write_user_branch_plan_review(
             source_truth_impact = [
                 "Branch plan and branch record preserve Breakpoint 2 as a completed FAM-007 product/workstream proof carrier ready for PR creation approval.",
                 "Branch record index projects no active non-standing branch authority on merged main; live operational state comes from Git, GitHub, helpers, and external state.",
-                "Review packet remains branch-specific, HEAD-current, count-consistent, placeholder-free, and explicit that Stage 2 approval covers PR creation only.",
+                "Review packet remains branch-specific, placeholder-free, decision-path-consistent, and explicit that Stage 2 approval covers PR creation only.",
                 "Source-truth fold-down records PR Readiness Stage 1 without executing gated private/runtime actions.",
             ]
             contract_change_log = [
@@ -2047,7 +1894,7 @@ def _write_user_branch_plan_review(
                 "PR Readiness Stage 1 Analysis Packet is present in the branch record.",
                 "PR Readiness Stage 1 Repair Receipt is present in the branch plan.",
                 "Branch record index projects this branch as historical and keeps only standing Governance active authority.",
-                "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
+                "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
                 "Packet digest files agree that Stage 1 is ready for Stage 2 and PR creation remains pending USER approval.",
                 "No unresolved packet placeholders or packet count mismatches remain.",
             ]
@@ -2091,21 +1938,32 @@ def _write_user_branch_plan_review(
         accepted_user_response = None
         codex_response_digest = None
         workstream_entry_result = None
-        contract_status = "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
-        contract_version = "v1 - Generated USER Branch Plan Contract."
-        what_user_sees = "USER should see the feature's planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
-        family_vision_context = "The contract must cite the relevant family vision and explain how the branch fits that family before implementation route details appear."
-        feature_vision = "The contract must explain the feature vision, user-facing behavior, available product shapes, tradeoffs, and Codex recommendation before SLC details."
-        branch_goal = "The branch goal must state what finished feature outcome this branch should make possible and what USER decision the contract is asking for."
-        how_it_functions = "The contract must explain the intended runtime or workflow behavior, ownership boundaries, data/state flow, and future-gated behavior at user-understandable depth."
-        user_experience_flow = "The contract must describe the path USER will take through the feature, including entry point, visible states, decisions, and exit or review surfaces."
-        why_nexus = "The recommendation should explain how the branch aligns with the project vision, keeps scope bounded, and preserves user-facing clarity."
+        contract_status = (
+            "Complete - BP2 engineering plan context is recorded for this PR Readiness Stage 1 packet; "
+            "this packet does not request Workstream implementation approval."
+            if pr_readiness_stage1_packet
+            else "Pending USER Response - USER must accept, revise, reject, request more options, or waive this BP2 engineering plan before implementation."
+        )
+        contract_version = "v2 - Generated BP2 Branch Plan Review."
+        what_user_sees = (
+            "USER sees a local USER hub review packet containing the governance lifecycle context plan, "
+            "phase law, branch artifact rules, helper/validator ownership, branch authority routing, and "
+            "supporting source-truth files needed before PR Readiness Stage 1."
+            if pr_readiness_stage1_packet
+            else "USER should see the planned implementation surfaces, affected files, validators, proof requirements, and future-gated boundaries before implementation begins."
+        )
+        why_nexus = (
+            "This keeps Branch Vision, Branch Plan, Workstream, Hardening, Live Validation, PR Readiness, "
+            "and Release Readiness in separate governance layers while keeping USER review artifacts readable."
+            if pr_readiness_stage1_packet
+            else "The recommendation should explain how the branch builds the accepted Branch Vision, keeps scope bounded, and preserves user-facing clarity."
+        )
         design_ballot = [
-            "Accept Codex recommendation.",
-            "Accept with changes.",
-            "Choose another option.",
-            "Request hybrid option.",
-            "Reject and ask for more options.",
+            "Accept the BP2 engineering plan as written.",
+            "Accept with engineering-plan changes.",
+            "Route back to BP1 because the plan changes the accepted Branch Vision.",
+            "Explicitly waive remaining BP2 questions.",
+            "Reject and request a narrower branch or plan.",
             "Pause / unclear.",
         ]
         response_structure = [
@@ -2127,70 +1985,106 @@ def _write_user_branch_plan_review(
             "Contract Status after digest.",
             "Next USER decision needed.",
         ]
-        implementation_constraints = ["Pending USER response or explicit waiver."]
-        rejected_deferred = ["Pending USER response or explicit waiver."]
-        source_truth_impact = ["Pending USER response or explicit waiver."]
-        contract_change_log = ["v1 - Generated USER Branch Plan Contract."]
+        implementation_constraints = (
+            [
+                "PR Readiness Stage 1 is analysis-only.",
+                "PR creation, merge, release, cleanup, runtime implementation, provider/model/cache/memory/private actions, sidecar artifacts, unique ZIP naming, and separate Review/Upload taxonomy remain pending USER decisions.",
+                "Accepted outcomes from this packet must fold into durable repo owners or approved external operational state, not the temporary USER review folder.",
+            ]
+            if pr_readiness_stage1_packet
+            else ["Pending USER response or explicit waiver."]
+        )
+        rejected_deferred = (
+            [
+                "Sidecar artifact model remains pending USER decision.",
+                "Uniquely named ZIP artifact model remains pending USER decision.",
+                "Separate Review / Upload top-level folder taxonomy remains pending USER decision.",
+                "Cloud-backed mirrors remain convenience-only unless USER changes the artifact model.",
+            ]
+            if pr_readiness_stage1_packet
+            else ["Pending USER response or explicit waiver."]
+        )
+        source_truth_impact = (
+            [
+                "Lifecycle law remains owned by Docs/phase_governance.md.",
+                "Branch artifact rules remain owned by Docs/branch_plans/README.md.",
+                "USER hub helper enforcement remains owned by Docs/validation_helper_registry.md.",
+                "Active operational proof remains in Codex chat digest, helper output, validator output, or external governance state.",
+            ]
+            if pr_readiness_stage1_packet
+            else ["Pending USER response or explicit waiver."]
+        )
+        contract_change_log = ["v2 - Generated as BP2 engineering-plan review rather than BP1 product/design contract."]
         completion_checklist = [
             "Contract Status is Complete or Waived by USER.",
-            "USER response is present, attached, or explicitly waived.",
-            "Codex Response Digest is present.",
-            "Implementation Constraints Created By USER Response are present.",
-            "Vision Delta / Source-Truth Impact is resolved.",
-            "USER Rejected / Deferred Ideas are recorded.",
-            "Contract Change Log is current.",
-            "Packet metadata matches current branch, HEAD, origin/main, and ZIP source HEAD.",
-            "Workstream Entry Result is present only after response/digest or waiver.",
-            "Exact implementation approval text cites completed or waived contract status.",
+            "Accepted or waived BP1 trace is present or this packet is a later-phase context review.",
+            "Implementation package summary, seam/SLC plan, affected surfaces, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, and future-gated boundaries are represented.",
+            "Helper output verifies packet freshness while USER-facing files stay focused on context, plan, risks, proof expectations, and decisions.",
+            "BP3 / Workstream Entry may approve implementation only when BP1 and BP2 are accepted or explicitly waived.",
+            "PR Readiness Stage 1 approval remains analysis-only when this packet is a PR Readiness review packet.",
         ]
         plain_english_summary = (
-            "This branch-plan review summarizes the branch's intended product, "
-            "runtime, source-truth, and validation direction before Workstream "
-            "Entry performs deeper implementation planning."
+            "This BP2 Branch Plan Review summarizes how the accepted or waived Branch Vision "
+            "will be built, validated, hardened, live-validated, reviewed, and rolled back. "
+            "For this packet, it serves as engineering-plan context for PR Readiness Stage 1."
+            if pr_readiness_stage1_packet
+            else
+            "This BP2 Branch Plan Review summarizes how the accepted or waived Branch Vision "
+            "will be implemented, validated, hardened, live-validated, reviewed, and rolled back "
+            "before BP3 may authorize Workstream implementation."
         )
         end_state_vision = (
-            "When the branch is complete, USER should understand what visible/runtime behavior "
-            "will exist, which surfaces are affected, and which future-gated items remain outside "
-            "the branch before implementation begins."
+            "The completed governance repair leaves lifecycle law, BP1/BP2/BP3 artifact roles, "
+            "the local USER hub model, external-state split, helper/validator enforcement, and "
+            "pending artifact-model decisions in their proper owners."
+            if pr_readiness_stage1_packet
+            else
+            "When BP2 is accepted or waived, USER should understand which implementation surfaces "
+            "are affected, which validators prove them, which risks remain, and what stays future-gated."
         )
         walkthrough = [
-            "Review the active branch plan to understand the intended user-facing result.",
-            "Review the branch authority record to confirm identity and legal next phase.",
-            "Review copied source-truth files to confirm active/historical routing and future boundaries.",
+            "Review the copied context plan for the lifecycle and USER hub model.",
+            "Review phase governance, branch artifact rules, and helper registry for owner boundaries.",
+            "Review the copied branch authority record for standing Governance routing context.",
+            "Use this packet to decide whether PR Readiness Stage 1 analysis should begin.",
         ]
         surface_map = [
-            "Active branch plan and authority record.",
-            "Relevant family vision, backlog, roadmap, validators, and copied review files.",
+            "Docs/phase_governance.md: lifecycle law.",
+            "Docs/branch_plans/README.md: BP1/BP2/BP3 artifact rules.",
+            "Docs/validation_helper_registry.md: helper and validator enforcement.",
+            "Docs/branch_records/index.md and Governance branch record: branch routing law.",
+            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance.zip: temporary USER review aids.",
         ]
         implementation_options = [
-            "Option A - Accept Codex's recommended end-state and keep later implementation staging future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
-            "Option B - Revise the end-state before implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
-            "Option C - Waive unresolved end-state questions explicitly. Pros: unblocks implementation; Cons: records less USER design input; Risk: medium.",
+            "Option A - Approve PR Readiness Stage 1 analysis as recommended. Pros: moves the Governance reform toward PR creation review; Cons: no PR is created yet; Risk: low.",
+            "Option B - Revise the PR Readiness Stage 1 inspection criteria before analysis. Pros: lets USER tune the review; Cons: adds packet/source-truth repair; Risk: low.",
+            "Option C - Pause and request another governance hardening scan. Pros: maximum caution; Cons: delays PR readiness; Risk: low.",
         ]
         recommended_direction = (
-            "Codex recommends accepting the branch plan only when the user-facing outcome, "
-            "surface map, options, proof path, and pending boundaries are understandable enough "
-            "for USER to decide whether implementation should begin."
-        )
-        build_after_accept = (
-            "After USER accepts or waives the direction, Codex should turn the accepted branch "
-            "vision into the Workstream package, affected files, validators, proof path, and "
-            "first bounded seam. SLC/seam details are secondary engineering staging."
+            "Codex recommends approving PR Readiness Stage 1 only after the local USER hub packet, "
+            "source-truth owners, helper/validator rules, and technical-metadata boundaries read cleanly."
+            if pr_readiness_stage1_packet
+            else
+            "Codex recommends accepting BP2 only when the engineering plan clearly builds the accepted BP1 vision, "
+            "names its affected surfaces, validators, proof path, rollback plan, and pending boundaries."
         )
         current_scope = [
-            "Confirm the branch outcome and admitted package.",
-            "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
+            "Governance Phase Lifecycle Reform source-truth and helper hardening.",
+            "Local USER hub packet refresh under C:\\Nexus USER.",
+            "Technical proof metadata remains outside USER-facing review content.",
+            "PR Readiness Stage 1 remains pending USER approval.",
         ]
         future_scope = [
-            "Any item not explicitly admitted by the active branch plan remains future-gated.",
+            "PR creation, merge, release, cleanup, runtime work, FAM-006/FAM-007 mutation, private/provider/cache/memory actions, sidecars, unique ZIPs, and separate Review/Upload taxonomy remain pending USER decisions.",
         ]
         slc_package_plan = [
-            "Implementation staging must support the accepted end-state; seam/slice details are background execution scaffolding, not the primary USER decision surface.",
+            "SLCs remain engineering route details inside an accepted branch; they do not automatically become separate branches.",
+            "Workstream implementation is not part of this PR Readiness Stage 1 packet.",
         ]
         user_decisions = [
-            "Does USER accept the branch goal and end-state direction?",
-            "Does USER want to revise any user-facing behavior, layout, workflow, or future-gated boundary before implementation?",
-            "Does USER waive any unanswered design question, or should implementation remain blocked until it is answered?",
+            "Does USER approve PR Readiness Stage 1 analysis for this Governance branch?",
+            "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
+            "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
         ]
     lines = [
         f"# USER Branch Plan Review - {title}",
@@ -2203,39 +2097,96 @@ def _write_user_branch_plan_review(
         "",
         contract_version,
         "",
-        "## Family Vision Context",
-        "",
-        family_vision_context,
-        "",
-        "## Feature Vision",
-        "",
-        feature_vision,
-        "",
-        "## Branch Goal",
-        "",
-        branch_goal,
-        "",
         "## Plain-English Branch Summary",
         "",
         plain_english_summary,
         "",
-        "This file is a required user-facing product/design planning gate. It should help USER answer: Do I actually like what Codex is about to build?",
+        "This file is the BP2 engineering-plan review. It should help USER answer whether the plan correctly builds the accepted or waived BP1 Branch Vision, whether the proof path is sufficient, and whether anything must route back to BP1 before implementation.",
         "",
-        "## End-State Vision",
+        "## Accepted Branch Vision Summary",
         "",
-        end_state_vision,
+        accepted_user_response
+        or ("BP1 context is treated as already represented for this later-phase PR Readiness packet." if pr_readiness_stage1_packet else "Pending accepted or waived BP1 trace."),
+        "",
+        "## Implementation Package Summary",
+        "",
+        plain_english_summary,
+        "",
+        "## Branch Scope Size Test",
+        "",
+        "The branch package should be the largest coherent feature-focused implementation package that can be validated, hardened, live-validated, reviewed, and rolled back safely without mixing unrelated product areas.",
+        "",
+        "## SLC / Seam Plan",
+        "",
+        *_markdown_lines(slc_package_plan),
+        "",
+        "## Affected Surfaces",
+        "",
+        *_markdown_lines(surface_map),
+        "",
+        "## Likely Files",
+        "",
+        *_markdown_lines([f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]),
+        "",
+        "## Validators / Helpers",
+        "",
+        "- Reuse registered validators and helpers before creating new ones.",
+        "- USER review packet generation must use the local USER hub helper.",
+        "",
+        "## Proof Requirements",
+        "",
+        "- Direct validation must prove the accepted plan or admitted later-phase review boundary.",
+        "- USER-facing packet files must avoid mutable technical proof metadata.",
+        "",
+        "## Element-To-Phase Proof Matrix",
+        "",
+        "- BP1 owns branch vision acceptance or waiver.",
+        "- BP2 owns engineering plan acceptance or waiver.",
+        "- BP3 validates BP2 against BP1 before implementation approval.",
+        "- Workstream owns runtime/code implementation only.",
+        "- Hardening owns pressure-test and implementation-vs-plan verification.",
+        "- Live Validation owns user-facing proof and UTS handling.",
+        "",
+        "## H1 Expectations",
+        "",
+        "- H1 must compare implementation or source-truth changes against the accepted plan and repair defects only inside approved scope.",
+        "",
+        "## LV / UTS Expectations",
+        "",
+        "- Live Validation and UTS handling remain separate phase gates when applicable.",
+        "",
+        "## Rollback / Safety Plan",
+        "",
+        "- Keep changes bounded to approved source-truth/helper/validator/fixture surfaces.",
+        "- Preserve pending USER gates for PR creation, merge, release, cleanup, runtime/private actions, and artifact-model changes.",
+        "",
+        "## Open Engineering Risks",
+        "",
+        "- Stale review-packet wording can confuse BP1, BP2, BP3, and PR Readiness boundaries if not regenerated through the helper.",
+        "",
+        "## Future-Gated Boundaries",
+        "",
+        *_markdown_lines(future_scope),
+        "",
+        "## Line-Item USER Plan Review",
+        "",
+        *_markdown_lines(user_decisions),
+        "",
+        "## Plan Acceptance Checklist",
+        "",
+        *_markdown_lines(completion_checklist),
+        "",
+        "## Exact BP3 Approval Text When Ready",
+        "",
+        "BP3 approval text applies only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. This PR Readiness packet does not request BP3 implementation approval.",
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
         what_user_sees,
         "",
-        "## How It Will Function",
+        "## End-State Vision",
         "",
-        how_it_functions,
-        "",
-        "## User Experience Flow",
-        "",
-        user_experience_flow,
+        end_state_vision,
         "",
         "## Visual / Functional Walkthrough",
         "",
@@ -2245,7 +2196,7 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(surface_map),
         "",
-        "## Implementation Options / Product Shapes",
+        "## Implementation Options",
         "",
         *_markdown_lines(implementation_options),
         "",
@@ -2257,7 +2208,7 @@ def _write_user_branch_plan_review(
         "",
         why_nexus,
         "",
-        "## USER Design Direction Decision",
+        "## USER Plan Review Decision",
         "",
         "Choose one of these paths, then add any notes or changes you want:",
         "",
@@ -2311,21 +2262,14 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(future_scope),
         "",
-        "## How Codex Would Build This After USER Accepts The Direction",
-        "",
-        build_after_accept,
-        "",
         "## Implementation Staging Notes",
         "",
         *_markdown_lines(slc_package_plan),
         "",
-        "## Current Branch State",
+        "## Review Scope",
         "",
-        f"- Source Branch: `{source_branch}`",
-        f"- Source HEAD: `{source_head}`",
-        f"- Upstream: `{upstream}`",
-        f"- origin/main: `{origin_main}`",
-        f"- Source Repo: `{ROOT}`",
+        "- Review the copied source-truth files, Branch Vision, Branch Plan, decision options, risks, proof expectations, and pending USER gates.",
+        "- Technical freshness proof for the branch, commit, baseline, validation, and ZIP export stays in Codex chat digest, helper output, validator output, or external operational state.",
         "",
         "## Workstream Entry Result",
         "",
@@ -2338,13 +2282,13 @@ def _write_user_branch_plan_review(
         "",
         "## Codex Recommendations And Implementation Options",
         "",
-        "This compatibility section is retained for older packet validators. See Implementation Options / Product Shapes and Recommended Direction above.",
+        "This compatibility section is retained for older packet validators. See Implementation Options and Recommended Direction above.",
         "",
         *_markdown_lines(implementation_options),
         "",
-        "## USER Design Review Questions",
+        "## USER Plan Review Questions",
         "",
-        "This compatibility section is retained for older packet validators. See USER Decisions Needed above.",
+        "This section summarizes BP2 plan-review questions. See USER Decisions Needed above.",
         "",
         *_markdown_lines(user_decisions),
         "",
@@ -2352,7 +2296,7 @@ def _write_user_branch_plan_review(
         "",
         "Legacy compatibility sections are retained only for older validators and should not replace the contract sections above.",
         "",
-        "## Active Branch Plan Files",
+        "## Active External Branch Plan / Historical Branch Plan Files",
         "",
         *_markdown_lines(active_branch_files),
         "",
@@ -2421,7 +2365,14 @@ def _write_workstream_entry_packet_digests(
         is_fam007_breakpoint_2
         and "approve pr readiness stage 2" in exact_user_decision.casefold()
     )
+    pr_stage1_packet = (
+        "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+    )
     packet_status = (
+        "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
+        "remains pending USER approval; PR creation remains pending USER approval."
+        if pr_stage1_packet
+        else
         "pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; "
         "PR creation remains pending USER approval."
         if pr_stage2_packet
@@ -2454,9 +2405,41 @@ def _write_workstream_entry_packet_digests(
             "remains pending USER approval."
         )
     )
-    if pr_stage2_packet:
+    if pr_stage1_packet:
         analysis_status = (
-            "Analysis Status: PR Readiness Stage 1 Ready For Stage 2 for the "
+            "Analysis Summary: Governance Phase Lifecycle Reform packet is ready "
+            "for PR Readiness Stage 1 analysis approval."
+        )
+        implementation_posture = (
+            "Implementation Posture: this packet remains analysis-only; PR creation, "
+            "merge, release, cleanup, runtime, provider, private, sidecar, and upload "
+            "taxonomy actions remain pending USER approval."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: PR Readiness Stage 1 analysis for the "
+            "Governance Phase Lifecycle Reform branch."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the lifecycle reform context "
+            "plan, phase governance, execution mirrors, branch authority routing, "
+            "USER hub model, branch artifact rules, validation registry, and review "
+            "context needed for the PR Readiness Stage 1 decision."
+        )
+        checklist_status = (
+            "Checklist Focus: for Governance PR Readiness Stage 1 approval review - "
+            "lifecycle ownership, BP1/BP2/BP3 separation, local USER hub behavior, "
+            "external-state split, sidecar and unique-ZIP deferrals, and USER-facing "
+            "metadata boundaries are represented for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, "
+            "USER_BRANCH_PLAN_REVIEW.md, required digest/checklist files, and copied "
+            "source-truth files are loaded and digestible for USER review; PR "
+            "Readiness Stage 1 analysis remains pending USER approval."
+        )
+    elif pr_stage2_packet:
+        analysis_status = (
+            "Analysis Summary: PR Readiness Stage 1 Ready For Stage 2 for the "
             "FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness carrier."
         )
         implementation_posture = (
@@ -2467,7 +2450,7 @@ def _write_workstream_entry_packet_digests(
             "Recommended Next Phase: PR Readiness Stage 2, PR creation and watcher/bot-review setup."
         )
         scan_result = (
-            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
             "prebeta roadmap, branch index, branch record, branch plan, worktree slots, "
             "AI Runtime And Trust Architecture, FAM-007 family vision, AI Edition plan, "
             "branch-plan README, phase governance, development rules, codex modes, "
@@ -2475,21 +2458,21 @@ def _write_workstream_entry_packet_digests(
             "the Stage 2 PR creation decision."
         )
         checklist_status = (
-            "Checklist Status: PASS for PR Readiness Stage 1 repair review - branch identity, "
-            "source HEAD, origin/main, FAM-007 ownership, Breakpoint 2 product/workstream "
+            "Checklist Focus: for PR Readiness Stage 1 repair review - branch identity, "
+            "source-truth context, FAM-007 ownership, Breakpoint 2 product/workstream "
             "posture, no-live-PR posture, no-release-debt posture, merge-stable authority "
             "projection, backlog taxonomy, and private/runtime/provider/cache/memory exclusions "
             "are represented for USER inspection."
         )
         digest_status = (
-            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "digest/checklist files, and copied source-truth files are loaded and digestible "
             "for USER review; the contract records PR Readiness Stage 1 complete and "
             "Stage 2 PR creation as the next USER decision."
         )
     elif seam1_approval_packet:
         analysis_status = (
-            "Analysis Status: Workstream Entry Green; USER accepted the repaired "
+            "Analysis Summary: Workstream Entry Green; USER accepted the repaired "
             "branch contract for bounded Seam 1 implementation approval."
         )
         implementation_posture = (
@@ -2501,7 +2484,7 @@ def _write_workstream_entry_packet_digests(
             "decision proof."
         )
         scan_result = (
-            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
             "prebeta roadmap, active branch index, branch record, branch plan, "
             "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
             "vision, AI Edition plan, branch-plan README, phase governance, "
@@ -2509,22 +2492,22 @@ def _write_workstream_entry_packet_digests(
             "review surfaces needed for bounded Seam 1 approval."
         )
         checklist_status = (
-            "Checklist Status: PASS for Workstream Entry decision-path repair - "
-            "branch identity, source HEAD, origin/main, FAM-007 ownership, "
+            "Checklist Focus: for Workstream Entry decision-path repair - "
+            "branch context, source-truth context, FAM-007 ownership, "
             "Breakpoint 2 product/workstream posture, approved Seam 1 proof path, "
             "AI Runtime And Trust Architecture placement, backlog taxonomy, and "
             "private/runtime/provider/cache/memory exclusions are represented for "
             "USER inspection."
         )
         digest_status = (
-            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "Workstream Entry digest/checklist files, and copied source-truth files "
             "are loaded and digestible for USER review; the contract is branch-specific "
             "and records the bounded Seam 1 implementation approval boundary."
         )
     elif lv1_green_packet:
         analysis_status = (
-            "Analysis Status: Live Validation LV1 Green for the FAM-007 Breakpoint 2 "
+            "Analysis Summary: Live Validation LV1 Green for the FAM-007 Breakpoint 2 "
             "Dev/Owner skeleton action-gate readiness carrier."
         )
         implementation_posture = (
@@ -2536,7 +2519,7 @@ def _write_workstream_entry_packet_digests(
             "Recommended Next Phase: PR Readiness Stage 1 analysis."
         )
         scan_result = (
-            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
             "prebeta roadmap, active branch index, branch record, branch plan, "
             "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
             "vision, AI Edition plan, branch-plan README, phase governance, "
@@ -2544,21 +2527,21 @@ def _write_workstream_entry_packet_digests(
             "LV1 no-visible-runtime proof surfaces needed for the next USER decision."
         )
         checklist_status = (
-            "Checklist Status: PASS for Live Validation LV1 review - branch identity, "
-            "source HEAD, origin/main, FAM-007 ownership, Breakpoint 2 product/workstream "
+            "Checklist Focus: for Live Validation LV1 review - branch identity, "
+            "source-truth context, FAM-007 ownership, Breakpoint 2 product/workstream "
             "posture, LV1 waiver proof, AI Runtime And Trust Architecture placement, "
             "backlog taxonomy, and private/runtime/provider/cache/memory exclusions are "
             "represented for USER inspection."
         )
         digest_status = (
-            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "digest/checklist files, and copied source-truth files are loaded and digestible "
             "for USER review; the contract records the Live Validation LV1 boundary and PR "
             "Readiness Stage 1 next decision."
         )
     elif hardening_h1_packet:
         analysis_status = (
-            "Analysis Status: Hardening H1 Green for the FAM-007 Breakpoint 2 Dev/Owner "
+            "Analysis Summary: Hardening H1 Green for the FAM-007 Breakpoint 2 Dev/Owner "
             "skeleton action-gate readiness carrier."
         )
         implementation_posture = (
@@ -2569,7 +2552,7 @@ def _write_workstream_entry_packet_digests(
             "Recommended Next Phase: Live Validation LV1, no-visible-runtime proof and UTS waiver digestion."
         )
         scan_result = (
-            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
             "prebeta roadmap, active branch index, branch record, branch plan, "
             "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
             "vision, AI Edition plan, branch-plan README, phase governance, "
@@ -2577,21 +2560,21 @@ def _write_workstream_entry_packet_digests(
             "Hardening H1 proof surfaces needed for the next USER decision."
         )
         checklist_status = (
-            "Checklist Status: PASS for Hardening H1 review - branch identity, "
-            "source HEAD, origin/main, FAM-007 ownership, Breakpoint 2 product/workstream "
+            "Checklist Focus: for Hardening H1 review - branch identity, "
+            "source-truth context, FAM-007 ownership, Breakpoint 2 product/workstream "
             "posture, H1 comparison proof, AI Runtime And Trust Architecture placement, "
             "backlog taxonomy, and private/runtime/provider/cache/memory exclusions are "
             "represented for USER inspection."
         )
         digest_status = (
-            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "digest/checklist files, and copied source-truth files are loaded and digestible "
             "for USER review; the contract records the Hardening H1 boundary and Live "
             "Validation LV1 next decision."
         )
     elif workstream_green_packet:
         analysis_status = (
-            "Analysis Status: Workstream Green for the FAM-007 Breakpoint 2 Dev/Owner "
+            "Analysis Summary: Workstream Green for the FAM-007 Breakpoint 2 Dev/Owner "
             "skeleton action-gate readiness carrier."
         )
         implementation_posture = (
@@ -2602,7 +2585,7 @@ def _write_workstream_entry_packet_digests(
             "Recommended Next Phase: Hardening H1, Workstream proof comparison."
         )
         scan_result = (
-            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
             "prebeta roadmap, active branch index, branch record, branch plan, "
             "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
             "vision, AI Edition plan, branch-plan README, phase governance, "
@@ -2610,21 +2593,21 @@ def _write_workstream_entry_packet_digests(
             "Workstream Green proof surfaces needed for the next USER decision."
         )
         checklist_status = (
-            "Checklist Status: PASS for Workstream Green review - branch identity, "
-            "source HEAD, origin/main, FAM-007 ownership, Breakpoint 2 product/workstream "
+            "Checklist Focus: for Workstream Green review - branch identity, "
+            "source-truth context, FAM-007 ownership, Breakpoint 2 product/workstream "
             "posture, Seams 1 through 4 proof, AI Runtime And Trust Architecture placement, "
             "backlog taxonomy, and private/runtime/provider/cache/memory exclusions are "
             "represented for USER inspection."
         )
         digest_status = (
-            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "Workstream Entry digest/checklist files, and copied source-truth files "
             "are loaded and digestible for USER review; the contract records the "
             "Workstream Green boundary and Hardening H1 next decision."
         )
     elif seam1_completion_packet:
         analysis_status = (
-            "Analysis Status: Seam 1 complete for the FAM-007 Breakpoint 2 Dev/Owner "
+            "Analysis Summary: Seam 1 complete for the FAM-007 Breakpoint 2 Dev/Owner "
             "skeleton action-gate readiness carrier."
         )
         implementation_posture = (
@@ -2635,7 +2618,7 @@ def _write_workstream_entry_packet_digests(
             "Recommended Next Seam: Seam 2, Private/public boundary and private remote safety proof."
         )
         scan_result = (
-            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
             "prebeta roadmap, active branch index, branch record, branch plan, "
             "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
             "vision, AI Edition plan, branch-plan README, phase governance, "
@@ -2643,21 +2626,21 @@ def _write_workstream_entry_packet_digests(
             "Seam 1 proof surfaces needed for the next USER decision."
         )
         checklist_status = (
-            "Checklist Status: PASS for Seam 1 completion review - branch identity, "
-            "source HEAD, origin/main, FAM-007 ownership, Breakpoint 2 product/workstream "
+            "Checklist Focus: for Seam 1 completion review - branch identity, "
+            "source-truth context, FAM-007 ownership, Breakpoint 2 product/workstream "
             "posture, Seam 1 proof, AI Runtime And Trust Architecture placement, backlog "
             "taxonomy, and private/runtime/provider/cache/memory exclusions are represented "
             "for USER inspection."
         )
         digest_status = (
-            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "Workstream Entry digest/checklist files, copied source-truth files, branch "
             "plan, branch record, fixture proof, and validator proof are loaded and "
             "digestible for USER review; Seam 2 remains pending USER approval."
         )
     elif is_fam007_breakpoint_2:
         analysis_status = (
-            "Analysis Status: Workstream Entry analysis is complete/green for the "
+            "Analysis Summary: Workstream Entry analysis is complete/green for the "
             "FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness carrier."
         )
         implementation_posture = (
@@ -2671,7 +2654,7 @@ def _write_workstream_entry_packet_digests(
             "decision proof."
         )
         scan_result = (
-            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
             "prebeta roadmap, active branch index, branch record, branch plan, "
             "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
             "vision, AI Edition plan, branch-plan README, phase governance, "
@@ -2679,21 +2662,21 @@ def _write_workstream_entry_packet_digests(
             "review surfaces needed for Workstream Entry contract repair."
         )
         checklist_status = (
-            "Checklist Status: PASS for Workstream Entry packet repair - branch "
-            "identity, source HEAD, origin/main, FAM-007 ownership, Breakpoint 2 "
+            "Checklist Focus: for Workstream Entry packet repair - branch "
+            "source-truth context, FAM-007 ownership, Breakpoint 2 "
             "product/workstream posture, Seam 1 proof path, AI Runtime And Trust "
             "Architecture placement, backlog taxonomy, and private/runtime/provider/"
             "cache/memory exclusions are represented for USER inspection."
         )
         digest_status = (
-            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "Workstream Entry digest/checklist files, and copied source-truth files "
             "are loaded and digestible for USER review; the contract is branch-specific "
             "and records the recommended Seam 1 approval boundary."
         )
     else:
         analysis_status = (
-            "Analysis Status: Stage 2 setup is green; this packet supports "
+            "Analysis Summary: Stage 2 setup is green; this packet supports "
             "Workstream Entry final decision review only."
         )
         implementation_posture = (
@@ -2702,7 +2685,7 @@ def _write_workstream_entry_packet_digests(
         )
         recommended_seam = ""
         scan_result = (
-            "Scan Result: PASS - packet includes the Main router, feature backlog, "
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
             "prebeta roadmap, active branch index, branch record, branch plan, "
             "worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
             "vision, AI Edition plan, branch-plan README, phase governance, "
@@ -2710,36 +2693,29 @@ def _write_workstream_entry_packet_digests(
             "governance inventory review surfaces selected for Stage 2 inspection."
         )
         checklist_status = (
-            "Checklist Status: PASS for Stage 2 packet review - branch identity, "
-            "source HEAD, origin/main, FAM-007 ownership, AI Runtime And Trust "
+            "Checklist Focus: for Stage 2 packet review - branch identity, "
+            "source-truth context, FAM-007 ownership, AI Runtime And Trust "
             "Architecture placement, backlog taxonomy, product/workstream carrier "
             "posture, and private/runtime/provider/cache/memory exclusions are "
             "represented for USER inspection."
         )
         digest_status = (
-            "Digest Status: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "Workstream Entry digest/checklist files, and copied source-truth files "
             "are loaded and digestible for USER review."
         )
     copied_sources = "\n".join(f"- `{source_rel}` -> `{copied_rel}`" for source_rel, copied_rel in copied)
     pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
     common = (
-        f"Source Branch: `{source_branch}`\n"
-        f"Source HEAD: `{source_head}`\n"
-        f"origin/main: `{origin_main}`\n"
-        f"Packet Decision Status: {packet_status}\n"
-        f"Exact USER Decision: {exact_user_decision}\n"
+        f"Decision Path: {packet_status}\n"
+        f"USER Decision: {exact_user_decision}\n"
     )
     files: dict[str, str] = {
         "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": (
             "# USER Review Folder And File Digest\n\n"
             f"{common}"
             f"Folder: `{packet_folder}`\n"
-            f"Zip: `{export_zip}`\n"
-            f"Bundle File Count: {bundle_file_count}\n"
-            f"Expected File Count: {expected_count}\n"
-            f"Copied File Count: {copied_count}\n"
-            f"Extra Bundle File Count: {len(extra_bundle_files)}\n"
+            f"Upload ZIP: `{export_zip}`\n"
             f"{digest_status}\n\n"
             "## Copied Repo Files\n\n"
             f"{copied_sources}\n"
@@ -2824,6 +2800,14 @@ def _packet_text_status(text: str) -> str:
     if any(marker in normalized for marker in live_validation_review_markers):
         return DECISION_STATUS_LIVE_VALIDATION_REVIEW
 
+    pr_stage1_review_markers = (
+        "pr readiness stage1 approval review",
+        "pr readiness stage 1 analysis remains pending user approval",
+        "pr readiness stage 1 analysis approval",
+    )
+    if any(marker in normalized for marker in pr_stage1_review_markers):
+        return DECISION_STATUS_PR_READINESS_STAGE1_REVIEW
+
     pr_stage2_review_markers = (
         "pr readiness stage2 review",
         "pr readiness stage 1 ready for stage 2",
@@ -2856,46 +2840,37 @@ def _validate_workstream_entry_packet_decision_path(
     expected_head: str,
     expected_origin_main: str,
     require_implementation_ready: bool = False,
+    enforce_identity: bool = False,
     actual_file_count: int | None = None,
 ) -> WorkstreamEntryPacketDecisionPathResult:
     failures: list[str] = []
     failures.extend(_unresolved_template_placeholder_failures(packet_files))
+    if enforce_identity:
+        failures.extend(
+            _packet_identity_failures(
+                packet_files,
+                expected_branch=expected_branch,
+                expected_head=expected_head,
+                expected_origin_main=expected_origin_main,
+            )
+        )
     failures.extend(
         _packet_count_consistency_failures(
             packet_files,
             actual_file_count=actual_file_count,
         )
     )
+    failures.extend(_user_facing_technical_metadata_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if required_file not in packet_files:
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
 
-    for file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES:
-        text = packet_files.get(file_name)
-        if text is None:
-            continue
-        if expected_branch not in text:
-            failures.append(f"{file_name}: expected branch {expected_branch!r} not found")
-        if expected_head not in text:
-            failures.append(f"{file_name}: expected HEAD {expected_head!r} not found")
-        if expected_origin_main not in text:
-            failures.append(f"{file_name}: expected origin/main {expected_origin_main!r} not found")
-
     start_here = packet_files.get("START_HERE.md", "")
-    if not _field_present(start_here, "Exact USER Decision This Bundle Supports"):
-        failures.append("START_HERE.md: Exact USER Decision This Bundle Supports field is missing")
-    user_contract = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE, "")
-    if user_contract:
-        failures.extend(
-            _validate_user_branch_plan_contract_text(
-                user_contract,
-                source_name=USER_BRANCH_PLAN_REVIEW_FILE,
-                require_implementation_ready=require_implementation_ready,
-            )
-        )
+    if not _field_present(start_here, "USER Decision This Packet Supports"):
+        failures.append("START_HERE.md: USER Decision This Packet Supports field is missing")
     workstream_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
-    if "Exact USER Decision" not in workstream_digest:
-        failures.append("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: Exact USER Decision field is missing")
+    if "USER Decision" not in workstream_digest:
+        failures.append("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: USER Decision field is missing")
 
     file_statuses: dict[str, str] = {}
     for file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES:
@@ -2951,6 +2926,7 @@ def validate_workstream_entry_packet_folder(
         expected_head=expected_head,
         expected_origin_main=expected_origin_main,
         require_implementation_ready=require_implementation_ready,
+        enforce_identity=True,
         actual_file_count=len(all_files),
     )
 
@@ -2970,13 +2946,13 @@ def build_bundle(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     expected_file_count: int | None,
-) -> tuple[Path, Path, str]:
+) -> tuple[Path, Path]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
     if (custom_root or custom_label) and not allow_custom_review_path:
         raise ValueError(
             "Custom review paths are blocked by default. Use the stable "
-            "Nexus USER Review/<worktree-label> destination, or pass "
+            r"C:\Nexus USER\<worktree-label> destination, or pass "
             "--allow-custom-review-path with --custom-review-path-reason."
         )
     if allow_custom_review_path and not custom_review_path_reason:
@@ -2985,22 +2961,9 @@ def build_bundle(
     desktop = _desktop_path()
     label = _worktree_label(worktree_label)
     review_root, target = _safe_target(desktop, review_root_name, label)
-    review_root.mkdir(parents=True, exist_ok=True)
-    quarantine_root = _quarantine_root(review_root, label)
-    quarantined_exports = _quarantine_review_exports(review_root, label, quarantine_root)
-    quarantined_target = _quarantine_target(target, quarantine_root, review_root)
-    removed_folder_entries = quarantined_target.entry_count if quarantined_target else 0
-    folder_quarantine_path = (
-        str(quarantined_target.destination) if quarantined_target else "None - folder absent"
-    )
-    export_quarantine_paths = (
-        ", ".join(str(result.destination) for result in quarantined_exports)
-        if quarantined_exports
-        else "None - no prior matching zip artifacts"
-    )
+    if target.exists():
+        _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
-    _assert_target_empty(target)
-    folder_empty_before_copy = "PASS"
 
     copied = [
         _copy_file(file_name, target, copy_name)
@@ -3020,7 +2983,6 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    merge_base = _git_output("merge-base", "HEAD", "origin/main")
     export_zip = _export_zip_path(review_root, label)
     seam1_approval_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
@@ -3046,7 +3008,14 @@ def build_bundle(
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve pr readiness stage 2" in exact_user_decision.casefold()
     )
+    pr_stage1_packet = (
+        "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+    )
     machine_readable_packet_status = (
+        "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
+        "remains pending USER approval; PR creation remains pending USER approval."
+        if pr_stage1_packet
+        else
         "pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; "
         "PR creation remains pending USER approval."
         if pr_stage2_packet
@@ -3079,6 +3048,15 @@ def build_bundle(
             "remains pending USER approval."
         )
     )
+    user_facing_decision = _user_facing_decision_text(exact_user_decision)
+    user_vision_file = _write_user_branch_vision_review(
+        target=target,
+        title=title,
+        review_purpose=review_purpose,
+        exact_user_decision=user_facing_decision,
+        pending_user_decisions=pending_user_decisions,
+        copied=copied,
+    )
     user_review_file = _write_user_branch_plan_review(
         target=target,
         title=title,
@@ -3087,7 +3065,7 @@ def build_bundle(
         source_head=source_head,
         upstream=upstream,
         origin_main=origin_main,
-        exact_user_decision=exact_user_decision,
+        exact_user_decision=user_facing_decision,
         pending_user_decisions=pending_user_decisions,
         copied=copied,
     )
@@ -3098,10 +3076,12 @@ def build_bundle(
         custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
         custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
-    required_digest_paths = {
-        target / name for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES if name != "START_HERE.md"
-    }
-    actual_bundle_files = _bundle_files(target) | {start_here, user_review_file} | required_digest_paths
+    required_digest_paths = {target / name for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES if name != "START_HERE.md"}
+    actual_bundle_files = (
+        _bundle_files(target)
+        | {start_here, user_vision_file, user_review_file}
+        | required_digest_paths
+    )
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
@@ -3133,7 +3113,7 @@ def build_bundle(
         bundle_file_count=bundle_file_count,
         expected_count=expected_count,
         copied_count=copied_count,
-        exact_user_decision=exact_user_decision,
+        exact_user_decision=user_facing_decision,
         pending_user_decisions=pending_user_decisions,
     )
 
@@ -3143,43 +3123,14 @@ def build_bundle(
         "## Review Packet",
         "",
         f"Review Purpose: {review_purpose}",
-        f"Source Repo: `{ROOT}`",
-        f"Review Root: `{review_root}`",
-        f"Worktree Review Folder: `{target}`",
-        f"Worktree Label: `{label}`",
+        "Review Location: Open this folder in the local USER hub and upload the matching ZIP beside it.",
+        f"Local USER Hub Folder: `{target}`",
         f"Custom Review Path Waiver: {custom_review_path_waiver}",
         f"Custom Review Path Reason: {custom_review_path_reason_value}",
-        f"Source Branch: `{source_branch}`",
-        f"Source HEAD: `{source_head}`",
-        f"Upstream: `{upstream}`",
-        f"origin/main: `{origin_main}`",
-        f"Merge Base: `{merge_base}`",
-        f"Review Export Zip: `{export_zip}`",
-        f"Review Export Zip Source HEAD: `{source_head}`",
-        "Review Export Zip SHA256: `Reported by helper stdout after final stable zip replacement`",
-        "Review Cleanup Mode: `Governed quarantine`",
-        f"Review Cleanup Quarantine Root: `{quarantine_root}`",
-        f"Review Folder Quarantine Path: `{folder_quarantine_path}`",
-        f"Review Export Quarantine Paths: `{export_quarantine_paths}`",
-        f"Review Folder Pre-Clean Removed Count: {removed_folder_entries}",
-        f"Review Folder Empty Before Copy: {folder_empty_before_copy}",
-        f"Review Export Pre-Clean Removed Count: {len(quarantined_exports)}",
-        f"Review Export Zip Stale Guard: {REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS}",
-        (
-            "USER Review Packet Finding: PASS - helper generated and validated "
-            f"`START_HERE.md`, `{USER_BRANCH_PLAN_REVIEW_FILE}`, and exported zip "
-            f"`{export_zip}` from refreshed Desktop folder `{target}`; Source HEAD "
-            f"`{source_head}` and Review Export Zip Source HEAD `{source_head}` match "
-            "the current branch HEAD, and the packet is loaded/digestible for USER review."
-        ),
-        f"Bundle Created: {created_at}",
-        f"Bundle File Count: {bundle_file_count}",
-        f"Expected File Count: {expected_count}",
-        f"Copied File Count: {copied_count}",
-        f"Extra Bundle File Count: {len(extra_bundle_files)}",
-        f"Public Review Bundle Leak-Prevention: {PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS}",
-        f"Validation Summary: {validation_summary}",
-        f"Exact USER Decision This Bundle Supports: {exact_user_decision}",
+        "Review Safety Note: Copied files are selected repo source-truth and "
+        "review-context files for USER inspection; technical freshness proof "
+        "stays in Codex chat digest, helper output, validator output, or external state.",
+        f"USER Decision This Packet Supports: {user_facing_decision}",
         "",
         "## Pending USER Decisions",
         "",
@@ -3203,13 +3154,10 @@ def build_bundle(
     readme_lines.append("")
     readme_lines.extend(
         [
-            "## Machine-Readable Decision Path",
+            "## Decision Path",
             "",
-            f"Packet Decision Status: {machine_readable_packet_status}",
-            f"Source Branch: `{source_branch}`",
-            f"Source HEAD: `{source_head}`",
-            f"origin/main: `{origin_main}`",
-            f"Exact USER Decision: {exact_user_decision}",
+            f"Decision Path Summary: {machine_readable_packet_status}",
+            f"USER Decision: {user_facing_decision}",
             "",
         ]
     )
@@ -3227,6 +3175,8 @@ def build_bundle(
             packet_files,
             actual_file_count=len(bundle_paths),
         ),
+        *_user_facing_technical_metadata_failures(packet_files),
+        *_user_branch_plan_stale_bp1_wording_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -3240,17 +3190,9 @@ def build_bundle(
         source_branch=source_branch,
         source_head=source_head,
         origin_main=origin_main,
-        merge_base=merge_base,
         expected_entries=expected_zip_entries,
     )
-    final_zip_sha256 = _sha256_file(export_zip)
-    final_zip_sha256_verify = _sha256_file(export_zip)
-    if final_zip_sha256 != final_zip_sha256_verify:
-        raise ValueError(
-            "Review export zip SHA256 guard failed: repeated reads of the final "
-            "stable ZIP produced different hashes"
-        )
-    return target, export_zip, final_zip_sha256
+    return target, export_zip
 
 
 def main() -> int:
@@ -3258,7 +3200,7 @@ def main() -> int:
     parser.add_argument(
         "--review-root-name",
         default=DEFAULT_REVIEW_ROOT_NAME,
-        help="Stable Desktop review root folder name. Custom values require --allow-custom-review-path.",
+        help="Optional subfolder under C:\\Nexus USER. Custom values require --allow-custom-review-path.",
     )
     parser.add_argument(
         "--worktree-label",
@@ -3268,7 +3210,7 @@ def main() -> int:
         "--folder-name",
         help=(
             "Legacy alias for --worktree-label. New governance expects a stable "
-            "review root with an auto-derived worktree label. Requires "
+            "local USER hub with an auto-derived worktree label. Requires "
             "--allow-custom-review-path."
         ),
     )
@@ -3285,7 +3227,7 @@ def main() -> int:
     parser.add_argument(
         "--clear",
         action="store_true",
-        help="Legacy compatibility flag; the helper always clears the Desktop bundle folder before copying.",
+        help="Legacy compatibility flag; the helper always clears the local USER hub packet folder before copying.",
     )
     parser.add_argument("--review-purpose", help="Why USER is reviewing this bundle.")
     parser.add_argument("--validation-summary", help="Validation proof or status supporting the review bundle.")
@@ -3310,17 +3252,17 @@ def main() -> int:
     parser.add_argument(
         "--validate-workstream-entry-packet",
         type=Path,
-        help="Validate an existing Workstream Entry Desktop packet decision path.",
+        help="Validate an existing Branch Planning / Workstream Entry packet decision path.",
     )
     parser.add_argument("--expected-branch", help="Expected source branch for Workstream Entry packet validation.")
     parser.add_argument("--expected-head", help="Expected source HEAD for Workstream Entry packet validation.")
-    parser.add_argument("--expected-origin-main", help="Expected origin/main baseline for Workstream Entry packet validation.")
+    parser.add_argument("--expected-origin-main", help="Expected main baseline for Workstream Entry packet validation.")
     parser.add_argument(
         "--require-implementation-ready",
         action="store_true",
         help="Fail if the packet is branch-correct but still blocks Workstream implementation approval.",
     )
-    parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the Desktop review bundle.")
+    parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the local USER hub packet.")
     args = parser.parse_args()
 
     if args.validate_workstream_entry_packet:
@@ -3354,7 +3296,7 @@ def main() -> int:
     if not args.files:
         parser.error("at least one repo-relative file is required when building a review bundle")
 
-    target, export_zip, final_zip_sha256 = build_bundle(
+    target, export_zip = build_bundle(
         review_root_name=args.review_root_name,
         worktree_label=args.worktree_label or args.folder_name,
         allow_custom_review_path=args.allow_custom_review_path,
@@ -3371,16 +3313,10 @@ def main() -> int:
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
-    if final_zip_sha256 != _sha256_file(export_zip):
-        raise ValueError(
-            "Review export zip SHA256 guard failed: printed SHA would not match "
-            "the final stable ZIP bytes"
-        )
-    print(f"Review export zip SHA256: {final_zip_sha256}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
-        f"{USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
-        "validated against current Source HEAD."
+        f"{USER_BRANCH_VISION_REVIEW_FILE}, {USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
+        "validated against current source-truth snapshot."
     )
     return 0
 

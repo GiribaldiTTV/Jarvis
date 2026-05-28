@@ -259,6 +259,10 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING = "Branch Runtime Engineering Plan"
 BRANCH_RUNTIME_ENGINEERING_PLAN_POINTER_LABEL = "Branch Runtime Engineering Plan:"
 BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL = "Branch Runtime Engineering Plan Path:"
 BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = "Docs/branch_plans/"
+EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = (
+    "C:/Nexus Governance State/branches/"
+)
+EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_FILE = "branch_plan.md"
 BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS = 8
 BRANCH_RUNTIME_ENGINEERING_PLAN_STATUS_TERMS = (
     "required",
@@ -580,7 +584,7 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "Review Status:",
     "Contract Status:",
     "Contract Version / Revision:",
-    "Desktop Review Bundle:",
+    "USER Review Hub Packet:",
     "USER Review Packet Finding:",
     "Plain-Language Branch Goal:",
     "What Will I Actually See, And Where Will I See It?:",
@@ -594,12 +598,12 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "Hardening Plan:",
     "Live Validation / UTS Plan:",
     "Open USER Questions:",
-    "USER Design Review Questions:",
+    "USER Plan Review Questions:",
     "Codex Recommendations:",
     "Implementation Options:",
     "Recommended Direction:",
     "Why This Fits The Nexus Vision:",
-    "USER Design Direction Decision:",
+    "USER Plan Review Decision:",
     "Current Branch Scope:",
     "Future-Gated Scope:",
     "Implementation Staging Notes:",
@@ -619,6 +623,10 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "Exact USER Decision Needed:",
     "Implementation Approval:",
 )
+USER_BRANCH_PLAN_REVIEW_MARKER_ALIASES = {
+    "USER Plan Review Questions:": ("USER Design Review Questions:",),
+    "USER Plan Review Decision:": ("USER Design Direction Decision:",),
+}
 USER_BRANCH_PLAN_REVIEW_STATUS_PREFIXES = (
     "accepted by user",
     "revised by user",
@@ -3554,38 +3562,38 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
         "Main-First Loader Chain",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Context docs may explain",
     ),
     Path("Docs/development_rules.md"): (
         "Main is the first repo loader and routing index",
         "Nexus Vision",
         "family vision",
-        "active branch plan",
+        "active external branch plan",
     ),
     Path("Docs/codex_modes.md"): (
         "Main is the first repo loader and routing index",
         "Nexus Vision",
         "family vision",
-        "active branch plans",
+        "active external branch plans",
     ),
     Path("Docs/codex_user_guide.md"): (
         "Main is the first repo loader and source-truth router",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "active branch plan",
+        "active external branch plan",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Generated prompts must preserve the Main-first loader chain",
         "Docs/Main.md",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
     Path("Docs/orin_task_template.md"): (
         "Preserve the Main-first loader chain",
         "project/family vision",
-        "active branch plan",
+        "active external branch plan",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
     ),
@@ -3596,13 +3604,13 @@ MAIN_FIRST_LOADER_CHAIN_REQUIRED_PHRASES = {
     ),
     Path("Docs/branch_plans/README.md"): (
         "Main-first loader chain",
-        "active branch plan",
+        "external operational state",
         "branch-local engineering detail",
     ),
     Path("Docs/family_visions/README.md"): (
         "Main-first loader chain",
         "Docs/nexus_vision.md",
-        "active branch plan",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
     ),
 }
 
@@ -3635,12 +3643,12 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
         "Workstream Entry Whole-Package Analysis Missing",
     ),
     Path("Docs/development_rules.md"): (
-        "Runtime Workstream Entry with multiple admitted slices or seams",
+        "Runtime BP3 with multiple admitted slices or seams",
         "whole-package analysis before first-seam implementation",
         "Workstream Entry Whole-Package Analysis Missing",
     ),
     Path("Docs/codex_modes.md"): (
-        "Workstream Entry for a runtime branch with multiple admitted slices or seams",
+        "BP3 for a runtime branch with multiple admitted slices or seams",
         "all admitted slices/seams",
         "completion strategy",
         "Hardening H1 expectations",
@@ -3679,169 +3687,130 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
 
 USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Review Missing",
-        "USER Branch Plan Contract",
+        "BP3",
         "Contract Status",
         "Pending USER Confirmation",
-        "Implementation Constraints Created By USER Response",
-        "planned user-facing outcome",
+        "Accepted Branch Vision Summary",
         "End-State Vision",
-        "Visual / Functional Walkthrough",
         "USER response",
     ),
     Path("Docs/phase_governance.md"): (
+        "Branch Planning",
+        "BP1",
+        "BP2",
+        "BP3",
+        "USER Branch Vision Review Gate",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "Contract Status",
         "Pending USER Confirmation",
-        "Family Vision Context",
-        "Feature Vision",
-        "Branch Goal",
-        "Plain-Language Branch Goal",
-        "Planned User-Facing Outcome",
+        "Branch Planning Review Packet Missing",
+        "BP1 Branch Vision Review Missing",
+        "BP2 Branch Plan Review Missing",
+        "BP3 Orchestration Validation Missing",
         "End-State Vision",
-        "What Will I Actually See, And Where Will I See It?",
-        "How It Will Function",
-        "User Experience Flow",
-        "Visual / Functional Walkthrough",
-        "Surface Map",
-        "Implementation Options / Product Shapes",
-        "Recommended Direction",
-        "USER Design Review Questions",
         "USER Review Response",
         "Codex Response Digest",
-        "Implementation Constraints Created By USER Response",
-        "Vision Delta / Source-Truth Impact",
         "USER Review Packet Finding",
-        "Live Validation / UTS plan",
-        "USER Branch Plan Review Missing",
     ),
     Path("Docs/branch_plans/README.md"): (
+        "Branch Planning",
+        "USER Branch Vision Review Gate",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "Required review markers",
-        "Family Vision Context:",
-        "Feature Vision:",
-        "Branch Goal:",
         "Contract Status:",
-        "Contract Version / Revision:",
+        "Contract Revision:",
+        "Accepted Branch Vision Summary:",
+        "Branch Scope Size Test:",
+        "SLC / Seam Plan:",
         "USER Review Packet Finding:",
-        "Plain-Language Branch Goal:",
-        "What Will I Actually See, And Where Will I See It?:",
-        "How It Will Function:",
-        "User Experience Flow:",
-        "Planned User-Facing Outcome:",
         "End-State Vision:",
-        "Visual / Functional Walkthrough:",
         "Surface Map:",
-        "Implementation Options / Product Shapes:",
-        "Recommended Direction:",
-        "Why This Fits The Nexus Vision:",
-        "USER Design Direction Decision:",
-        "Current Branch Scope:",
-        "Future-Gated Scope:",
-        "How Codex Would Build This After USER Accepts The Direction:",
-        "Implementation Staging Notes:",
-        "USER Design Review Questions:",
+        "Exact BP3 Approval Text:",
         "USER Review Response:",
         "Codex Response Digest:",
-        "Implementation Constraints Created By USER Response:",
-        "Vision Delta / Source-Truth Impact:",
-        "Contract Completion Checklist:",
-        "Live Validation / UTS Plan:",
-        "USER Branch Plan Review Missing",
+        "BP2 Branch Plan Review Missing",
     ),
     Path("Docs/branch_records/index.md"): (
+        "Branch Planning",
+        "USER Branch Vision Review",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "Contract Status",
         "USER Review Packet Finding",
         "USER Review Response",
-        "End-State Vision",
-        "Live Validation / UTS plan",
-        "USER Branch Plan Review Missing",
+        "BP3 Orchestration Validation Missing",
     ),
     Path("Docs/development_rules.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
         "Pending USER Confirmation",
-        "Family Vision Context",
-        "Feature Vision",
-        "Branch Goal",
-        "Implementation Constraints Created By USER Response",
+        "BP3 Orchestration Validation Missing",
         "USER Review Response",
         "End-State Vision",
-        "How It Will Function",
-        "User Experience Flow",
-        "Live Validation / UTS plan",
-        "USER Branch Plan Review Missing",
     ),
     Path("Docs/codex_modes.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
         "Pending USER Confirmation",
-        "Family Vision Context",
-        "Feature Vision",
-        "Branch Goal",
         "USER Review Response",
-        "End-State Vision",
-        "How It Will Function",
-        "User Experience Flow",
-        "USER Branch Plan Review Missing",
+        "BP3",
     ),
     Path("Docs/orin_task_template.md"): (
+        "Branch Planning Review Packet:",
+        "USER Branch Vision Review:",
         "USER Branch Plan Review:",
-        "USER Branch Plan Review Summary:",
         "Live Validation / UTS plan",
     ),
     Path("Docs/nexus_startup_contract.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
         "USER Review Response",
-        "End-State Vision",
-        "USER Branch Plan Review Missing",
+        "BP3 Orchestration Validation Missing",
     ),
     Path("Docs/codex_user_guide.md"): (
+        "Branch Planning",
+        "USER Branch Vision Review",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
-        "Contract Status",
-        "Pending USER Confirmation",
-        "Live Validation / UTS plan",
-        "End-State Vision",
-        "How It Will Function",
-        "User Experience Flow",
-        "USER Review Response",
-        "USER Branch Plan Review Missing",
+        "C:\\Nexus USER\\<label>",
+        "BP3",
+        "USER Review Packet Stale",
     ),
     Path("Docs/governance_efficiency_operating_model.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
         "accepting, revising, deferring with waiver, rejecting",
         "USER response",
-        "End-State Vision",
-        "Feature Vision",
-        "Branch Goal",
-        "implementation options",
+        "local USER hub",
     ),
     Path("Docs/validation_helper_registry.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
-        "Family Vision Context",
-        "Feature Vision",
-        "Branch Goal",
-        "invalid missing user-facing outcome",
-        "invalid first-seam-only review packet",
+        "BP1 Branch Vision Contract",
+        "BP2 Branch Plan Contract",
         "USER Review Response",
-        "End-State Vision",
-        "How It Will Function",
-        "User Experience Flow",
-        "Visual / Functional Walkthrough",
     ),
 }
 
@@ -4898,28 +4867,28 @@ RUNTIME_ENGINEERING_CONTRACT_PHRASES = (
 BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "Branch Runtime Engineering Plan",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
         "PR Readiness fold-down",
     ),
     Path("Docs/phase_governance.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
-        "Workstream Entry Review Bundle Missing",
+        "Branch Planning Review Packet Missing",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/development_rules.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
-        "Docs/branch_plans/<branch_slug>.md",
+        "local USER hub packet",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
     ),
     Path("Docs/codex_modes.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
+        "local USER hub packet",
         "Branch Runtime Engineering Plan Path:",
         "Engineering Plan Status:",
         "PR Fold-Down Packet:",
@@ -4927,22 +4896,22 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/orin_task_template.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
-        "Workstream Entry Review Bundle",
+        "Branch Planning Review Packet",
         "Branch Runtime Engineering Plan Path:",
         "Engineering Plan Status:",
         "PR Fold-Down Packet:",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
-        "Docs/branch_plans/<branch_slug>.md",
+        "local USER hub packet",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
-        "Workstream Entry bundles",
-        "Docs/branch_plans/<branch_slug>.md",
+        "Branch Planning packets",
+        "active external branch plans",
         "invalid backlog planning sprawl",
     ),
     Path("Docs/branch_records/index.md"): (
@@ -4953,14 +4922,14 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     ),
     Path("Docs/workstreams/index.md"): (
         "Branch Runtime Engineering Plan",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "PR Readiness fold-down",
     ),
     Path("Docs/branch_plans/README.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
-        "Workstream Entry Review Bundle",
-        "Docs/branch_plans/<branch_slug>.md",
+        "Branch Planning Review Packet",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
         "Release Readiness Public-Scope Translation Checklist:",
@@ -4970,7 +4939,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
 USER_FEEDBACK_DISPOSITION_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
         "USER Feedback Disposition",
-        "Docs/branch_plans/<branch_slug>.md",
+        "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "compact UFD pointers",
     ),
     Path("Docs/phase_governance.md"): (
@@ -6898,6 +6867,21 @@ def _extract_colon_value(block: str, label: str) -> str:
 
 def _extract_colon_values(block: str, label: str) -> list[str]:
     return [match.strip() for match in re.findall(rf"^{re.escape(label)}:\s*(.+)$", block, flags=re.M)]
+
+
+def _is_external_branch_plan_path(path: str) -> bool:
+    normalized = path.replace("\\", "/").strip().strip("`")
+    return (
+        normalized.startswith(EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY)
+        and normalized.endswith(f"/{EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_FILE}")
+    )
+
+
+def _is_repo_branch_plan_path(path: str) -> bool:
+    normalized = path.replace("\\", "/").strip().strip("`")
+    return normalized.startswith(BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY) and normalized.endswith(
+        ".md"
+    )
 
 
 def _clean_release_value(value: str) -> str:
@@ -9335,7 +9319,7 @@ def _validate_element_to_phase_proof_matrix(
     require(
         has_matrix or not require_matrix,
         (
-            f"{source_path}: active branch planning is missing "
+            f"{source_path}: active external branch planning is missing "
             f"'## {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING}'"
         ),
     )
@@ -9373,10 +9357,14 @@ def _validate_element_to_phase_proof_matrix(
                 ),
             )
         if marker in ELEMENT_TO_PHASE_MATRIX_OWNER_MARKERS:
+            normalized_owner_path = value.replace("\\", "/")
             require(
                 (
                     value.startswith("Docs/")
                     or value.startswith("dev/")
+                    or _is_external_branch_plan_path(normalized_owner_path)
+                    or "external branch plan" in normalized_marker_value
+                    or "external operational state" in normalized_marker_value
                     or "source-truth owner" in normalized_marker_value
                     or "branch runtime engineering plan" in normalized_marker_value
                     or "branch engineering plan" in normalized_marker_value
@@ -9385,7 +9373,7 @@ def _validate_element_to_phase_proof_matrix(
                 (
                     f"{source_path}: {ELEMENT_TO_PHASE_PROOF_MATRIX_HEADING} "
                     f"marker '{marker}' must name a concrete source-truth owner "
-                    "or repo-relative owner path"
+                    "or external/repo-relative owner path"
                 ),
             )
 
@@ -9550,12 +9538,29 @@ def _validate_user_branch_plan_review_gate(
         return
 
     gate_section = _section(text, USER_BRANCH_PLAN_REVIEW_HEADING)
+
+    def extract_plan_marker(marker: str) -> str:
+        value = _extract_marker_value(gate_section, marker)
+        if value:
+            return value
+        for alias in USER_BRANCH_PLAN_REVIEW_MARKER_ALIASES.get(marker, ()):
+            value = _extract_marker_value(gate_section, alias)
+            if value:
+                return value
+        return ""
+
     for marker in USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS:
+        aliases = USER_BRANCH_PLAN_REVIEW_MARKER_ALIASES.get(marker, ())
+        marker_present = marker in gate_section or any(alias in gate_section for alias in aliases)
+        if marker == "USER Review Hub Packet:" and "Desktop Review Bundle:" in gate_section:
+            marker_present = True
         require(
-            marker in gate_section,
+            marker_present,
             f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} is missing '{marker}'",
         )
-        value = _extract_marker_value(gate_section, marker)
+        value = extract_plan_marker(marker)
+        if marker == "USER Review Hub Packet:" and not value:
+            value = _extract_marker_value(gate_section, "Desktop Review Bundle:")
         require(
             bool(value),
             (
@@ -9621,10 +9626,10 @@ def _validate_user_branch_plan_review_gate(
         "Implementation Options:",
         "Recommended Direction:",
         "Why This Fits The Nexus Vision:",
-        "USER Design Direction Decision:",
+        "USER Plan Review Decision:",
         "Implementation Staging Notes:",
         "Alternatives / Tradeoffs:",
-        "USER Design Review Questions:",
+        "USER Plan Review Questions:",
         "USER Decisions Needed:",
         "Implementation Constraints Created By USER Response:",
         "USER Rejected / Deferred Ideas:",
@@ -9634,7 +9639,7 @@ def _validate_user_branch_plan_review_gate(
         "Exact USER Decision Needed:",
         "Implementation Approval:",
     ):
-        value = _extract_marker_value(gate_section, marker)
+        value = extract_plan_marker(marker)
         require(
             _planning_word_count(value) >= BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS,
             (
@@ -9644,15 +9649,17 @@ def _validate_user_branch_plan_review_gate(
         )
 
     desktop_bundle = _normalized_planning_value(
-        _extract_marker_value(gate_section, "Desktop Review Bundle:")
+        _extract_marker_value(gate_section, "USER Review Hub Packet:")
+        or _extract_marker_value(gate_section, "Desktop Review Bundle:")
     )
     require(
-        "nexus user review" in desktop_bundle
+        "c:\\nexus user" in desktop_bundle
+        or "nexus user review" in desktop_bundle
         or "desktop" in desktop_bundle
         or "not required" in desktop_bundle,
         (
-            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Desktop Review "
-            "Bundle must name the stable Desktop review bundle or a not-required reason"
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} USER Review "
+            "Hub Packet must name the stable local USER hub packet or a not-required reason"
         ),
     )
     review_packet_finding = _extract_marker_value(gate_section, "USER Review Packet Finding:")
@@ -9710,7 +9717,7 @@ def _validate_user_branch_plan_review_gate(
         "Implementation Options:",
         "Recommended Direction:",
         "Why This Fits The Nexus Vision:",
-        "USER Design Direction Decision:",
+        "USER Plan Review Decision:",
         "Implementation Staging Notes:",
         "USER Decisions Needed:",
         "Implementation Constraints Created By USER Response:",
@@ -9718,12 +9725,12 @@ def _validate_user_branch_plan_review_gate(
         "Contract Completion Checklist:",
         "Workstream Entry Result:",
     ):
-        value = _normalized_planning_value(_extract_marker_value(gate_section, marker))
+        value = _normalized_planning_value(extract_plan_marker(marker))
         require(
             not any(term in value for term in ("tbd", "todo", "placeholder", "normal codex digest")),
             (
                 f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} marker "
-                f"'{marker}' must be a user-facing product/design plan, not a placeholder"
+                f"'{marker}' must be a user-facing engineering plan, not a placeholder"
             ),
         )
 
@@ -10196,11 +10203,12 @@ def _validate_user_feedback_disposition(
     ledger_owner = _extract_marker_value(ufd_section, "UFD Ledger Owner:").strip()
     normalized_ledger_owner = ledger_owner.replace("\\", "/")
     require(
-        normalized_ledger_owner.startswith("Docs/branch_plans/")
-        and normalized_ledger_owner.endswith(".md"),
+        _is_external_branch_plan_path(normalized_ledger_owner)
+        or _is_repo_branch_plan_path(normalized_ledger_owner),
         (
-            f"{source_path}: UFD Ledger Owner must point to the active "
-            "Docs/branch_plans/<branch_slug>.md branch plan"
+            f"{source_path}: UFD Ledger Owner must point to the active external "
+            "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md "
+            "branch plan or a repo branch-plan historical receipt"
         ),
     )
 
@@ -10508,17 +10516,21 @@ def _validate_branch_runtime_engineering_plan_pointer(
         bool(plan_path),
         f"{source_path}: accepted/present runtime plan pointer is missing '{BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL}'",
     )
-    plan_path_valid = normalized_path.startswith(
-        BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY
-    ) and normalized_path.endswith(".md")
+    plan_path_valid = _is_external_branch_plan_path(normalized_path) or _is_repo_branch_plan_path(
+        normalized_path
+    )
     require(
         plan_path_valid,
         (
             f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_PATH_LABEL} must point "
-            f"under {BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY}<branch_slug>.md"
+            "to C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md "
+            f"for active planning or under {BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY}<branch_slug>.md "
+            "for repo historical receipts"
         ),
     )
     if not (plan_path and plan_path_valid):
+        return
+    if _is_external_branch_plan_path(normalized_path):
         return
     plan_file = ROOT_DIR / normalized_path
     require(

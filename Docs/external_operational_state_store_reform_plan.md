@@ -33,7 +33,7 @@ This file is a planning reference, not an active external-state migration, helpe
 Approved now:
 
 - Stage 6E no-loss cleanup closure
-- scanner-backed decision that branch records and branch plans remain durable receipts or transition owners unless exact active-state leakage is named
+- scanner-backed decision that branch records and repo branch-plan files remain durable receipts, schema surfaces, or historical transition evidence unless exact active-state leakage is named
 - completion posture for the External Operational State Store transition
 - USER review bundle refresh for Stage 6E inspection
 - validation and PR Readiness Stage 1 analysis
@@ -137,7 +137,7 @@ Do you approve using the report-only migration map as the basis for a later acti
 Stage 4A non-includes unless separately approved:
 
 - creating branch/worktree/release-window state records from repo docs
-- moving active branch plans or branch records out of repo
+- moving active branch plans or active branch status out of repo
 - deleting, archiving, or renaming repo docs
 - transitioning repo validators into mandatory external-state checks
 - mutating FAM-006 or FAM-007 worktrees
@@ -165,7 +165,7 @@ Stage 4B evidence:
 Stage 4B deliverables:
 
 - a concrete migration planning matrix naming repo surface classes, target external records, preservation rules, and execution blockers
-- a migration wave plan that keeps branch records and branch plans legal repo owners until USER approves migration execution
+- a migration wave plan that keeps branch records and repo branch-plan files legal receipt owners while active branch status and active branch planning move external after USER-approved migration execution
 - lock, snapshot, schema, version, generated-index, acknowledgement, and no-loss promotion requirements for the future execution stage
 - exact USER decision text for the next stage
 
@@ -175,7 +175,7 @@ Stage 4B migration planning matrix:
 | --- | --- | --- | --- | --- |
 | Active branch authority index entries | `Docs/branch_records/index.md` | `C:\Nexus Governance State\central\active_branch_authority_state.md` plus generated `state_index.md` | Keep repo index as durable routing law and historical receipt index only | `External State Migration Premature` / `USER Decision Required` |
 | Active branch record operational fields | `Docs/branch_records/<branch>.md` | `C:\Nexus Governance State\branches\<branch_slug>\branch_state.md` | Keep durable approvals, decisions, PR/release receipts, and final fold-down history in repo | `External State Promotion Missing` |
-| Active branch plans | `Docs/branch_plans/<branch>.md` | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` | Keep templates/rules in repo and preserve retired plans only when USER approves durable receipt retention | `External State Promotion Missing` |
+| Active branch plans | Repo files must not own active branch-plan rows after transition | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` | Keep templates/rules in repo and preserve retired repo branch-plan receipts only when USER approves durable receipt retention | `External State Promotion Missing` |
 | Active UFD, Branch Change Intent, and Element-to-Phase proof ledgers | active branch plan | `C:\Nexus Governance State\branches\<branch_slug>\ufd_ledger.md`, `change_intent_ledger.md`, and `element_to_phase_matrix.md` | Keep compact folded outcomes in repo only after PR Readiness fold-down | `External State Promotion Missing` |
 | Worktree slot live assignment | `Docs/worktree_slots.md` while transition remains legal | `C:\Nexus Governance State\worktrees\<worktree_label>\worktree_state.md` | Keep stable slot definitions and durable assignment receipt schema in repo | `External State Promotion Missing` |
 | Selected-next operational posture | backlog/roadmap transition fields when still legal | `C:\Nexus Governance State\central\selected_next_state.md` or branch/family planning state | Keep durable product priority, family direction, and USER-approved future package references in repo | `External State Promotion Missing` |
@@ -256,7 +256,7 @@ Stage 4C target external record list:
 | `branches\<branch_slug>\element_to_phase_matrix.md` | active branch plan Element-to-Phase Proof Matrix | Active implementation/proof path matrix | Future USER-approved execution only |
 | `branches\<branch_slug>\pr_readiness_state.md` | Git/GitHub/helper PR evidence plus durable branch receipts | Optional PR readiness snapshot, not live GitHub truth | Future USER-approved execution only |
 | `release_windows\<release_slug>\release_window_state.md` | Release Readiness packet, Git/GitHub release/tag truth, and durable receipts | Current release-window assembly after migration | Future USER-approved execution only |
-| `review_bundles\<worktree_label>\manifest.md` | Desktop review bundle helper output and START_HERE metadata | Local-private USER review bundle manifest | Future USER-approved execution only |
+| `review_bundles\<worktree_label>\manifest.md` | local USER hub helper output and START_HERE metadata | Local-private USER review bundle manifest | Future USER-approved execution only |
 | `cross_worktree_lessons\<lesson_id>.md` | governance intake digests and worktree acknowledgement conflicts | No-loss cross-worktree lessons queue | Future USER-approved execution only |
 | `governance_candidates\<candidate_id>.md` | proposed rules from lessons, digests, or branch packets | Non-binding governance candidate queue | Future USER-approved execution only |
 | `promotion_packets\<packet_id>.md` | staged state proposal and conflict scan | State promotion packet from staging to central | Future USER-approved execution only |
@@ -397,7 +397,7 @@ Stage 6 cleanup execution preflight for a future stage:
 4. Reconcile or explicitly waive the external root Source Repo HEAD mismatch if the cleanup execution depends on post-Stage-4 repo state.
 5. For each proposed cleanup edit, name the replacement owner as repo durable truth, central external state, Git/GitHub/helper-derived live truth, or historical receipt.
 6. Preserve durable USER decisions, accepted branch vision, PR/merge/release evidence, validation proof, and public/product release interpretation.
-7. Create a Desktop review bundle with the exact files and before/after cleanup intent.
+7. Create a local USER hub review packet with the exact files and before/after cleanup intent.
 8. Stop on `Fold-Down Decision Missing`, `Repo Live-State Leakage`, `External State Missing`, `External State Version Conflict`, or `USER Decision Required` when ownership is unclear.
 
 Stage 6 cleanup lane matrix:
@@ -407,7 +407,7 @@ Stage 6 cleanup lane matrix:
 | Compact pointer surfaces | `Docs/feature_backlog.md`, `Docs/prebeta_roadmap.md`, `Docs/worktree_slots.md` | Repo keeps durable family/stage/slot definitions and pointers; live selected-next, release-window, active branch, and worktree assignment state belongs to Git/GitHub/helpers or `C:\Nexus Governance State` | First recommended cleanup execution lane because it should reduce release-loop drift without deleting receipts | Required before any wording rewrite |
 | Branch authority routing | `Docs/branch_records/index.md` | Repo keeps durable routing law, active standing Governance exception, historical receipt index, and pointer to external active operational state | Candidate for second cleanup lane after pointer surfaces | Required before active authority lists become pointer-only |
 | Historical branch records | `Docs/branch_records/*.md` | Repo keeps USER approvals, phase decisions, PR/merge/release receipts, validation proof, accepted vision, and final fold-down history; active operational state moves external | Planning says preserve first; do not bulk shrink or delete | Required per family/branch group before edits |
-| Branch plans | `Docs/branch_plans/*.md`, `Docs/branch_plans/retirement_index.md` | Active plans move external for future branches; retired plans remain durable receipts or become indexed historical references | Candidate for focused review after branch authority routing | Required before any retirement rewrite, archive, or deletion |
+| Branch plans | `Docs/branch_plans/*.md`, `Docs/branch_plans/retirement_index.md` | Active plans live external after transition; repo plans remain schema, transition evidence, durable receipts, or indexed historical references | Candidate for focused review after branch authority routing | Required before any retirement rewrite, archive, or deletion |
 | Workstream and family dossiers | `Docs/workstreams/*.md`, `Docs/family_visions/*.md` | Repo keeps durable package/slice/proof history and reusable family direction; live watcher, PR, selected-next, or release-window state should not appear as current truth | Review-only unless scanner identifies active live-state leakage | Required before edits |
 | Governance law and loader chain | `Docs/Main.md`, `Docs/phase_governance.md`, `Docs/governance_efficiency_operating_model.md`, `Docs/validation_helper_registry.md`, this plan | Repo keeps durable law, stage boundaries, helper registry, and source-truth routing | Keep as durable source truth; update only for stage transitions | Required for future stage changes |
 | Generated review/audit surfaces | `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md` | Generated review surfaces should be refreshed only by their generator when the cleanup execution changes source files | Regenerate only after approved cleanup execution | Required if generated outputs would change |
@@ -560,7 +560,7 @@ Stage 6D plans the next cleanup family. It does not edit branch detail records, 
 Stage 6D cleanup objectives:
 
 - Preserve branch records as durable authority receipts, phase history, USER approvals, release interpretation, PR/merge/release evidence, validation proof, accepted vision summaries, and final fold-down history.
-- Preserve active branch planning in external operational state after transition; repo branch plans remain transition-approved evidence or historical planning receipts, and after fold-down they retire behind `Docs/branch_plans/retirement_index.md`.
+- Preserve active branch planning in external operational state after transition; repo branch plans remain schema, transition evidence, or historical planning receipts, and after fold-down they retire behind `Docs/branch_plans/retirement_index.md`.
 - Remove or compress live operational fields only after a later execution lane proves external replacement owners, durable receipt retention, and no-loss auditability.
 - Keep detailed USER Feedback Disposition, Branch Change Intent Ledger, Element-to-Phase matrix, Workstream Entry review, Hardening plan, Live Validation plan, and PR readiness state external while active.
 - Keep repo branch records and branch plans readable from a clean clone as durable historical receipts even when active operational state lives outside the repo.
@@ -613,7 +613,7 @@ Source Branch: `feature/release-readiness-source-truth-intake`
 Source Worktree: `C:\Nexus Worktrees\Governance`
 Stage 6E Base: `origin/main@9fa9f4300e3be9cd51319cc62ec384a61cf0b456`
 
-Stage 6E closes the branch-detail-record / branch-plan cleanup family without broad rewriting. Stage 6D planned cleanup batches, then validation evidence showed that branch records and branch plans are not producing blocking repo live-state leakage. The safe execution is therefore a no-loss closure: keep these files as durable receipts or transition owners, and do not rewrite them just to reduce scanner counts.
+Stage 6E closes the branch-detail-record / branch-plan cleanup family without broad rewriting. Stage 6D planned cleanup batches, then validation evidence showed that branch records and branch plans are not producing blocking repo live-state leakage. The safe execution is therefore a no-loss closure: keep these files as durable receipts, schema surfaces, or historical transition evidence, and do not rewrite them just to reduce scanner counts.
 
 Stage 6E execution finding:
 
@@ -626,7 +626,7 @@ Stage 6E execution finding:
 
 Stage 6E closure rule:
 
-Branch records and branch plans remain in repo as durable receipts, transition owners, templates, or historical planning records unless a later validator reports blocking `Repo Live-State Leakage` or USER approves an exact no-loss cleanup lane for named files. Active operational ownership is external or derived by contract; durable receipt preservation wins over cosmetic shrinkage.
+Branch records and repo branch-plan files remain in repo as durable receipts, schema surfaces, transition evidence, templates, or historical planning records unless a later validator reports blocking `Repo Live-State Leakage` or USER approves an exact no-loss cleanup lane for named files. Active operational ownership and active branch planning are external or derived by contract; durable receipt preservation wins over cosmetic shrinkage.
 
 Stage 6E completed owner split:
 
@@ -636,7 +636,7 @@ Stage 6E completed owner split:
 | compact backlog / roadmap / worktree-slot posture | repo pointer surfaces cleaned in Stage 6A; live state external or derived |
 | branch-record index active list | standing Governance exception only after Stage 6C |
 | branch detail records | durable receipts, transition owners, historical evidence, and future exact cleanup candidates only when blocking leakage appears |
-| branch plans | external active planning owners after transition; repo copies are transition-approved evidence, historical planning receipts, or retirement-index entries |
+| branch plans | external active planning owners after transition; repo copies are schema, transition evidence, historical planning receipts, or retirement-index entries |
 | release debt | durable public release truth defects only; stale operational trackers classify as `Repo Live-State Leakage` or external operational state conflict |
 | local operational state | `C:\Nexus Governance State` with locks, schema, audit, snapshots, reports, and no-loss promotion posture |
 
@@ -653,7 +653,7 @@ Stage 6E remaining future work:
 Release Readiness keeps blocking on stale live operational state in repo-tracked Docs after branches merge. Recent examples include:
 
 - branch records remaining listed as active after PR merge
-- active branch plans remaining current after their owning branch merges
+- repo branch-plan files retaining active/current posture after their owning branch merges
 - roadmap or backlog text carrying selected-next or "no branch exists" posture after live Git truth changes
 - worktree slots describing a branch as active after it merges
 - release-window and post-release closure state dirtying repo Docs and forcing Governance repair PRs before releases
@@ -676,7 +676,7 @@ Repo durable source truth:
 External operational state:
 
 - active branch state
-- active branch plans
+- active external branch plans
 - Workstream Entry review packets
 - USER Feedback Disposition while active
 - Branch Change Intent Ledger while active
@@ -725,7 +725,7 @@ This matrix originated as the Stage 4B/Stage 4C review surface for preventing dr
 | `Docs/external_operational_state_store_reform_plan.md` | implementation plan and future-work ledger | stays repo planning/reference surface until migration completes | own matrix, annotations, sequencing | high if treated as active migration authority | label as plan, not root/state |
 | `Docs/validation_helper_registry.md` | helper inventory and future validation ownership | stays repo durable source truth | register future external-state helper family and drift-check hook | medium if validators are expected before approved | mark implementation as future |
 | `Docs/branch_records/index.md` | active/historical branch authority routing | mixed/split: durable routing stays repo; live active posture migrates external later | keep current until migration stage | high release-loop source | migrate active operational posture later |
-| `Docs/branch_records/*.md` | authority, approvals, phase history, receipts | mixed/split: durable receipts stay repo; active branch state migrates external later | current active owners remain legal until migration | high release-loop source | fold historical receipts, migrate active records by stage |
+| `Docs/branch_records/*.md` | durable branch identity, approvals, phase history, receipts | durable receipts stay repo; active branch state is external after transition | repo current active owners are drift after transition except the standing Governance intake exception | high release-loop source | fold historical receipts, route active records to external state |
 | `Docs/branch_plans/README.md` | branch-plan rules and templates | stays repo durable source truth | keep rules; external active plans later use same contract | medium | update only when plan ownership changes |
 | `Docs/branch_plans/*.md` | active engineering plans while branch is active | mixed/split: active plans migrate external; durable retired receipts stay repo if approved | current active plans remain legal until migration | high release-loop source | migrate after helper/bootstrap validation |
 | `Docs/worktree_slots.md` | stable slot registry and assignment receipts | mixed/split: durable slot definitions stay repo; live assignment migrates external | keep stable slots only | high if live assignment is copied | strip active assignment later |
@@ -733,7 +733,7 @@ This matrix originated as the Stage 4B/Stage 4C review surface for preventing dr
 | `Docs/prebeta_roadmap.md` | stage-breakpoint schedule outline | stays repo durable source truth | keep milestones/checkpoints only | high if release-window live state returns | avoid live release-window assembly |
 | `Docs/workstreams/` | durable package/slice/proof history | stays repo durable receipt/history | keep promoted historical truth | medium | no live PR/watcher state |
 | `Docs/family_visions/` | reusable family product direction | stays repo durable source truth | keep USER-accepted durable direction | low | do not absorb active plans |
-| USER review Desktop bundle | local review/export packet | external/local review-bundle state after helper stage | stable bundle remains helper output | medium if stale zip recurs | keep stale-guard proof |
+| USER review hub packet | local review/export packet | external/local review-bundle state after helper stage | stable bundle remains helper output | medium if stale zip recurs | keep stale-guard proof |
 | Git/GitHub/helper live facts | derived live truth | Git/GitHub/helpers | unchanged | high if copied into docs | derive on demand |
 
 ## Canonical Location Model
@@ -871,7 +871,7 @@ Required packet fields:
 - `Next Approved Step:`
 - `Remaining USER Decisions:`
 
-This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup, branch-authority routing planning, branch-authority routing cleanup, branch-detail-record / branch-plan cleanup planning, no-loss cleanup closure, or broader repo cleanup execution as interchangeable. Stage 6E means closure only: record the scanner-backed no-loss decision and completion posture. It must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, create worktree-local staging, rely on external state without no-loss preservation proof, or mutate FAM worktrees. Clean-clone repo validators must remain external-root independent.
+This gate exists so future Codex cannot treat the planning reference, helper scaffolds, root initialization, report-only scanner, active-state migration planning packet, active-state migration execution planning packet, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup, branch-authority routing planning, branch-authority routing cleanup, branch-detail-record / branch-plan cleanup planning, no-loss cleanup closure, or broader repo cleanup execution as interchangeable. Stage 6E means closure only: record the scanner-backed no-loss decision and completion posture. It must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, create worktree-local staging, rely on external state without no-loss preservation proof, mutate FAM worktrees, or let repo files resume active branch status / active branch-plan ownership. Clean-clone repo validators must remain external-root independent.
 
 Drift blockers:
 

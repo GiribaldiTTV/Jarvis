@@ -776,8 +776,9 @@ def main() -> int:
         "--branch-plan-path",
         default="",
         help=(
-            "Optional active Docs/branch_plans/<branch_slug>.md path to inspect "
-            "for Branch Change Intent Ledger evidence."
+            "Optional active external branch_plan.md or repo historical "
+            "Docs/branch_plans/<branch_slug>.md path to inspect for Branch "
+            "Change Intent Ledger evidence."
         ),
     )
     args = parser.parse_args()

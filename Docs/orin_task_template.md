@@ -28,7 +28,7 @@ If anything in the request conflicts with those docs, call it out explicitly bef
 ## Prompt Hygiene
 
 - Use `C:\Nexus Desktop AI\Docs\Main.md` as the routing index for selecting the correct authority baseline.
-- Preserve the Main-first loader chain: load Main first, then follow it to phase governance, execution posture docs, project/family vision, active branch plan, branch record, workstream record, helper registry, and task-specific owners.
+- Preserve the Main-first loader chain: load Main first, then follow it to phase governance, execution posture docs, project/family vision, active external branch plan, branch record, workstream record, helper registry, and task-specific owners.
 - The default prompt baseline is `development_rules.md`, `Main.md`, `phase_governance.md`, the directly relevant authority docs, and the evidence inputs needed to validate live truth; any narrower prompt baseline must state the source-truth reason.
 - If a canonical workstream, rebaseline, or consolidated design doc exists for the active question, prefer that authority doc over a stack of superseded slice docs.
 - Include prior closeout docs and older slice docs only when they are still materially relevant to the specific task.
@@ -42,7 +42,7 @@ When ChatGPT is generating a Codex prompt, treat this template as a construction
 Planning-loop prevention belongs in ChatGPT preflight analysis; once prompt generation is allowed, keep the prompt thin, neutral, and repo-aligned.
 Local ChatGPT custom instructions should stay compact while the repo loader/source-truth may hold longer ChatGPT-facing continuity rules and review memory.
 Do not paste `Docs/nexus_startup_contract.md` into Codex prompts; Codex prompts should load `Docs/Main.md` and owning canon for execution authority.
-Product, design, or vision prompts must route through `Docs/nexus_vision.md`, relevant `Docs/family_visions/`, and the active branch plan when applicable; proposed ideas remain proposed until USER decision records the durable owner.
+Product, design, or vision prompts must route through `Docs/nexus_vision.md`, relevant `Docs/family_visions/`, and the active external branch plan when applicable; proposed ideas remain proposed until USER decision records the durable owner.
 Prompt-generation review must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blockers, Element Coverage as non-identity, Branch/PR Readiness Stage 1 / Stage 2, Branch Readiness Stage 1 successor-selection ownership, real-carrier repair routing, no direct-main repair, no standalone cleanup branch by default, FAM-006 Monitoring and HUD selected-next truth only after explicit USER approval while branch creation and runtime package admission remain separately blocked, separate release-execution approval, and the Windows-first, modular, GPU-aware direction with optional heavy local AI capability packs and CPU fallback.
 PR Readiness Stage 1 is the Stage 2 readiness-lock gate. Stage 1 must analyze release-debt impact, release-debt handling status, required current-branch source-truth sync, Stage 2 sync plan, PR title/base/head/summary, watcher plan, blockers, and USER decisions before Stage 2 can begin. Branch Readiness Stage 1 owns the normal next runtime implementation pipeline selection, rooted in Nexus Vision, family vision, branch vision, current completed work, and the next implementation need. PR Readiness does not require selected-next truth or a waiver by default; it validates selected-next truth only when USER explicitly approves PR-time selected-next sync or selected-next truth already exists and would merge as durable repo truth. Allowed Stage 1 outcomes are `Stage 1 Ready For Stage 2`, `PR Readiness Stage 1 Repair Required`, `Current-Branch Branch Readiness Re-entry Required`, `New Carrier Branch Required`, and `Stage 1 USER Waiver Required`. Bounded Stage 1 repair/sync may mutate durable source truth only when the current branch is the legal carrier and the USER-approved current phase/seam authorizes that repair. Stage 2 begins only after `Stage 1 Ready For Stage 2` plus explicit USER approval and owns final PR execution only: final PR package sync, commit/push if needed, PR creation, watcher provisioning, bot-review handling, mergeability validation, and merge-watch.
 Stage 2 owns final PR execution only after the readiness-lock outcome is green. Stage 2 final handoff cannot be green until bot-review closeout is verified. Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active. Use the same-PR Codex bot-review repair loop for actionable bot comments, and remember that Watcher configuration is not runtime proof. Apply the PR Watcher Mode Contract from `Docs/pr_watcher_mode_contract.md`: `Silent Monitor`, `Verify Once`, `Repair Mode`, or `Blocked Mode`, with `Watcher Health Proof:` in Stage 2 final handoff.
@@ -75,10 +75,16 @@ Branch Runtime Engineering Plan:
 [Required / Proposed / Present / Accepted / Revised / Folded / Historical / not applicable]
 
 Branch Runtime Engineering Plan Path:
-[Docs/branch_plans/<branch_slug>.md / pending Stage 2 / not applicable]
+[C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md / pending Stage 2 / not applicable]
 
 Engineering Plan Status:
 [Proposed / Accepted / Revised / Folded / Historical / not applicable]
+
+USER Branch Vision Review:
+[USER_BRANCH_VISION_REVIEW.md status / accepted / waived / pending / not applicable]
+
+USER Branch Plan Review:
+[USER_BRANCH_PLAN_REVIEW.md status / accepted / waived / pending / not applicable]
 
 PR Fold-Down Packet:
 [Pending / Complete / not applicable]
@@ -90,7 +96,7 @@ UFD Ledger Status:
 [Open / Queued / Blocking / Closed / Folded Down / Deferred / Superseded / not applicable]
 
 UFD Ledger Owner:
-[Docs/branch_plans/<branch_slug>.md / not applicable]
+[C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md / not applicable]
 
 Open UFD Count:
 [0 / count / not applicable]
@@ -171,7 +177,7 @@ Overall Overlap Gate Result:
 [Not Applicable / PASS / WARN / BLOCKED]
 
 Branch Change Intent Ledger:
-[present at Docs/branch_plans/<branch_slug>.md / missing / not applicable]
+[present at C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md / missing / not applicable]
 
 Regression / Gating Impact:
 [None / Low / Medium / High / Unknown / not applicable]
@@ -392,16 +398,16 @@ Element-to-Phase Proof Matrix Status:
 [Required / Present / Accepted / Blocked / Folded / Historical / Not Required with reason]
 
 Element-to-Phase Proof Matrix Owner:
-[active Docs/branch_plans/<branch_slug>.md before implementation / folded branch record or workstream owner after PR Readiness fold-down / not applicable with reason]
+[active C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md before implementation / folded branch record, repo branch-plan historical receipt, or workstream owner after PR Readiness fold-down / not applicable with reason]
 
 Element-to-Phase Proof Matrix Summary:
 [planned/current elements mapped to Workstream implementation, Workstream proof, Hardening proof, Live Validation proof or waiver, UTS / USER acceptance path, future/deferred boundary, USER decision state, and source owner / ledger owner]
 
-Workstream Entry Review Bundle:
+Branch Planning Review Packet:
 [required / created at Desktop folder path / not required with reason / blocked]
 
-Workstream Entry Review Files:
-[branch vision, active branch plan, branch authority record, Nexus/family vision, matrix, UFD/change-intent, source-truth owner, validator/helper, fixture, or planning files copied for USER inspection]
+Branch Planning Review Files:
+[branch vision, active external branch plan or repo historical receipt, branch authority record, Nexus/family vision, matrix, UFD/change-intent, source-truth owner, validator/helper, fixture, or planning files copied for USER inspection]
 
 USER Branch Plan Review:
 [required / present / accepted by USER / revised by USER / deferred with waiver / rejected by USER / needs USER decision / not required with reason]
@@ -468,8 +474,8 @@ Branch Readiness Stage 1 - Analysis Gate is analysis-only and must output `## Br
 Branch Readiness Stage 1 also outputs `Carrier Lifecycle Decision` with `Carrier Lifecycle Classification:` exactly one of `Fresh current branch`, `Stale empty local branch`, `Stale branch with unique commits`, `Historical merged branch`, `Wrong carrier/worktree`, or `Active remote/open PR branch`, plus `Remote Branch State:`, `Unique Branch Diff:`, `Origin/Main Ancestry:`, `Origin/Main Advanced Since Branch Creation:`, `Open PR State:`, `Worktree Checkout State:`, `Recommended Stage 2 Carrier Action:`, `Stale Branch Cleanup Plan:`, `Branch Cleanup Execution Gate:`, `Recreate From Current origin/main:`, and `No Unique Commit Loss Proof:`.
 Branch Readiness Execution User Approval Missing blocks Branch Readiness Stage 2 - Execution Gate until explicit USER approval to enter Stage 2 is recorded.
 Branch Readiness Stage 1 must include FAM/package candidate, package-size review, multiple admitted-slice plan, single-slice drift check, Element Coverage review, validation plan, `Stale Branch Cleanup Plan:`, expected docs sync, blockers and waivers, rollback path, and the exact Stage 2 green-light decision needed. For broad implementation family packages, marker-only planning is insufficient; the packet must include non-empty, concrete `Project-Wide Vision Alignment:`, `Branch-Specific Vision Alignment:`, `System Concept Model:`, `Entity / Profile Model:`, `User Workflow Model:`, `Scale / Data Volume Model:`, `Configuration And State Model:`, `Expected User-Facing Outcomes:`, `Codex Additional Recommendations:`, `USER Critique Loop:`, `USER Decision Ledger:`, `Deferred Ideas / Future Package Ledger:`, `Planning Adequacy Review:`, `Rejected Shallow Plan:`, `Alternatives And Tradeoffs Reviewed:`, `Whole-System Interaction Map:`, `Minimum Viable vs Full System Boundary:`, and `Open Questions / USER Decision Points:` fields so the branch cannot enter Workstream, Hardening, Live Validation, or PR Readiness from a shallow/simple-system plan or Codex self-assessment. When USER input is needed, questions must include Codex recommendation, rationale, alternatives, tradeoffs, current-branch impact, future-package impact, safe default, waiver/defer posture, and exact response format. When USER needs a durable editable handoff, Stage 2 may generate or refresh a USER-facing `User Vision Input.txt` desktop artifact with accept/change/defer answer paths, while preserving that the artifact is not repo source truth until a later USER-approved digest pass records completed answers. For user-facing family/package branches, Stage 1 must also define the `Interface Release Boundary`, `Primary Interface Release Surface:`, `Interface Bundle User Approval:`, fallback point, interface acceptance criteria, and interface proof path; missing or multi-interface drift blocks on `Interface Release Boundary Missing`, `Primary Interface Undefined`, `Multiple Interface Release Drift`, `Fallback Point Missing`, `Interface Acceptance Missing`, or `Branch Readiness Interface Planning Incomplete`. Workstream, Hardening, Live Validation, or PR Readiness entry or continuation remains blocked while `Product Vision Input Missing`, `Project-Wide Vision Alignment Missing`, `Branch-Specific Vision Alignment Missing`, `USER Vision Question Packet Missing`, `USER Vision Recommendation Missing`, `USER Vision Questions Unanswered`, `USER Vision Input Pending`, `USER Vision Input File Missing`, `USER Vision Input Answers Pending`, `USER Vision Input Digest Pending`, `System Concept Model Missing`, `Entity / Profile Model Missing`, `User Workflow Model Missing`, `Scale / Data Volume Model Missing`, `Configuration And State Model Missing`, `Expected User-Facing Outcomes Missing`, `Codex Additional Recommendations Missing`, `USER Critique Loop Missing`, `USER Decision Ledger Missing`, `Deferred Ideas / Future Package Ledger Missing`, `Planning Adequacy Review Missing`, `Rejected Shallow Plan Missing`, `Alternatives And Tradeoffs Missing`, `Whole-System Interaction Map Missing`, `Minimum Viable vs Full System Boundary Missing`, `Open Questions / USER Decision Points Missing`, `Branch Reach Unproven`, `Feature Element Breakdown Missing`, `Acceptance Criteria Missing`, `User-Facing Proof Standard Missing`, `Current Branch vs Future Package Boundary Missing`, or `Branch Readiness Planning Incomplete` remains active unless explicit USER waiver text is recorded.
-New or re-entering runtime-focused branches must also plan or admit a Branch Runtime Engineering Plan under `Docs/branch_plans/<branch_slug>.md`; Branch Readiness Stage 1 reports the required plan shape, and Stage 2 creates/adopts it, links `Branch Runtime Engineering Plan Path:`, records `Engineering Plan Status:`, keeps `PR Fold-Down Packet:` pending, and keeps runtime implementation pending until separate USER approval. When the branch plans, creates, touches, affects, defers, or preserves product/runtime/UI/source-truth/helper/workflow elements, Stage 2 must also admit an `Element-to-Phase Proof Matrix` and Workstream Entry must return the matrix or a concrete summary for USER review before implementation begins or resumes.
-Workstream Entry is the pre-implementation review gate inside the `Workstream` phase. Before asking USER for Workstream green-light, Codex must create or refresh the active worktree's Desktop `USER Review Desktop Bundle` under the stable `Nexus USER Review\<worktree-label>` root with flat copied branch vision, active branch plan, branch authority record, relevant Nexus/family vision files, matrix/UFD/change-intent surfaces, and other source-truth owner files needed for inspection; the full non-compacted digest must include the review root, worktree folder path, copied files, source branch, source HEAD, validation summary, exact green-light decision, and pending USER decisions.
+New or re-entering runtime-focused branches must also plan or admit a Branch Runtime Engineering Plan under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`; Branch Readiness Stage 1 reports the required plan shape, and Stage 2 creates/adopts it, links `Branch Runtime Engineering Plan Path:`, records `Engineering Plan Status:`, keeps `PR Fold-Down Packet:` pending, and keeps runtime implementation pending until separate USER approval. When the branch plans, creates, touches, affects, defers, or preserves product/runtime/UI/source-truth/helper/workflow elements, Stage 2 must also admit an `Element-to-Phase Proof Matrix` and Workstream Entry must return the matrix or a concrete summary for USER review before implementation begins or resumes.
+Branch Planning is the pre-implementation phase between Branch Readiness and Workstream. Before asking USER for Workstream green-light, Codex must complete BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, and BP3 Workstream Entry / Orchestration Validation, and create or refresh the active worktree's local USER hub packet under `C:\Nexus USER\<worktree-label>` with matching upload ZIP at `C:\Nexus USER\<worktree-label>.zip`. The packet uses flat copied branch vision, active external branch plan or repo historical receipt, branch authority record, relevant Nexus/family vision files, matrix/UFD/change-intent surfaces, and other source-truth owner files needed for inspection; the full non-compacted digest must include the local USER hub folder path, copied files, validation summary, exact green-light decision, and pending USER decisions.
 Completed USER input digests may add package-specific planning blockers such as legacy product-name drift, telemetry provider selection, polling floor, warning modality, external telemetry privacy model, cross-family audio approval, and persona/model switching scope; Workstream must not resume until Branch Readiness revalidates, defers, or waives those blockers. When USER declares legacy product naming invalid for the current product, `Legacy Product Name Drift` blocks Workstream entry or continuation while that naming remains anywhere in tracked repo source, runtime artifact paths, validators, docs, generated-user surfaces, user-facing copy, or persona-facing copy. The only default preservation location is external GitHub release/tag history; tracked repo preservation requires explicit USER waiver or a USER-approved migration carrier. Product identity and persona identity must remain separate: ORIN may be the shipped/default persona, ARIA may be shown only as locked/coming soon planning copy when source truth allows it, and actual persona switching implementation requires later admission.
 Candidate-only family-package planning is incomplete. If scope, future-package deferrals, provider path, polling posture, warning modality, privacy model, naming/product-copy handling, acceptance criteria, or proof standards are still only candidate statements, route through Branch Readiness Stage 2 source-truth repair and then Stage 1 revalidation before Workstream implementation resumes unless USER explicitly waives the requirement.
 Element Coverage is a non-identity checklist only; coverage categories are user-facing surface, runtime/backend behavior, fail-safe/recovery, security/privacy, voice/audio, external integration, local AI/capability packs, packaging/install, monitoring/HUD, validation, and release impact.
@@ -845,7 +851,7 @@ If the artifact is not updated, the final output must explain why the update was
 
 For relevant desktop Live Validation Stage 1 runs, the execution pass must also export or refresh:
 
-- `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- `C:\Nexus USER\User Test Summary.txt`
 - `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\element_<label>_<state>.png`
 
 unless the final output explicitly explains why the desktop export was not relevant or was intentionally skipped.
