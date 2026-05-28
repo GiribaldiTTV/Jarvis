@@ -392,7 +392,7 @@ def _validate_export_zip(
         "## Implementation Options",
         "## Recommended Direction",
         "## Why This Fits The Nexus Vision",
-        "## USER Design Direction Decision",
+        "## USER Plan Review Decision",
         "## USER Decisions Needed",
         "## USER Response",
         "## Codex Response Digest",
@@ -606,7 +606,36 @@ def _write_user_branch_vision_review(
     pending_user_decisions: list[str],
     copied: list[tuple[str, str]],
 ) -> Path:
-    source_files = [f"- `{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]
+    source_files = [f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]
+    pr_readiness_context_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+    review_status = (
+        "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
+        "it does not request a new Branch Vision decision."
+        if pr_readiness_context_packet
+        else "Needs USER Decision unless this packet records an explicit USER acceptance or waiver."
+    )
+    contract_status = (
+        "Complete - Branch Vision context is recorded for this PR Readiness review packet; "
+        "implementation remains outside this decision."
+        if pr_readiness_context_packet
+        else "Draft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch."
+    )
+    user_response = (
+        "No new BP1 response requested by this packet; PR Readiness Stage 1 analysis remains the next USER decision."
+        if pr_readiness_context_packet
+        else "Pending USER response or explicit waiver."
+    )
+    codex_digest = (
+        "Codex records this BP1 file as a context aid for the governance lifecycle reform packet. "
+        "Accepted outcomes must fold into durable source-truth owners or external operational state."
+        if pr_readiness_context_packet
+        else "Pending USER response digest."
+    )
+    accepted_vision = (
+        "Accepted context: Governance Phase Lifecycle Reform and local USER hub model are represented by the copied source-truth files."
+        if pr_readiness_context_packet
+        else "Pending USER acceptance or waiver."
+    )
     lines = [
         f"# {title} - USER Branch Vision Review",
         "",
@@ -614,11 +643,11 @@ def _write_user_branch_vision_review(
         "",
         "## Review Status",
         "",
-        "Needs USER Decision unless this packet records an explicit USER acceptance or waiver.",
+        review_status,
         "",
         "## Contract Status",
         "",
-        "Draft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch.",
+        contract_status,
         "",
         "## Contract Revision",
         "",
@@ -689,15 +718,15 @@ def _write_user_branch_vision_review(
         "",
         "## USER Response",
         "",
-        "Pending USER response or explicit waiver.",
+        user_response,
         "",
         "## Codex Digest",
         "",
-        "Pending USER response digest.",
+        codex_digest,
         "",
         "## Accepted Branch Vision",
         "",
-        "Pending USER acceptance or waiver.",
+        accepted_vision,
         "",
         "## Family-Vision Versus Branch-Only Vision Impact",
         "",
@@ -761,6 +790,7 @@ def _write_user_branch_plan_review(
             for source_rel, _copied_rel in copied
         )
     )
+    pr_readiness_stage1_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
@@ -808,7 +838,7 @@ def _write_user_branch_plan_review(
         )
         contract_status = (
             _source_marker(active_plan_source, "Contract Status:") if active_plan_source else None
-        ) or "Pending USER Confirmation - Codex revised this review into the closed-loop USER Branch Plan Contract; USER must confirm the revised contract or explicitly waive it before implementation."
+        ) or "Pending USER Confirmation - Codex revised this review into the closed-loop BP2 Branch Plan Contract; USER must confirm the revised contract or explicitly waive it before implementation."
         contract_version = (
             _source_marker(active_plan_source, "Contract Version / Revision:") if active_plan_source else None
         ) or "v3 - USER recording product-model revision."
@@ -879,7 +909,7 @@ def _write_user_branch_plan_review(
         ]
         contract_change_log = [
             "v1 - USER-facing Branch Plan Review packet introduced with end-state/options sections.",
-            "v2 - Hardened into USER Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
+            "v2 - Hardened into BP2 Branch Plan Contract with closed-loop response/digest, implementation constraints, source-truth impact, confirmation loop, and waiver semantics.",
             "v3 - Digested USER recording product-model feedback: HUD Overlay launcher/target preview, standalone Recording Control window, Native Log Loader separation, future per-overlay effective polling policy, and target-model-first SLC-051.",
             "v4 - USER accepted the plan and redirected this branch to planning/governance PR Readiness with Workstream skipped and runtime implementation deferred to a future USER-approved carrier.",
         ]
@@ -1771,16 +1801,32 @@ def _write_user_branch_plan_review(
         accepted_user_response = None
         codex_response_digest = None
         workstream_entry_result = None
-        contract_status = "Pending USER Response - USER must accept, revise, reject, request more options, or waive this contract before implementation."
-        contract_version = "v1 - Generated USER Branch Plan Contract."
-        what_user_sees = "USER should see the feature's planned surfaces, behavior, options, boundaries, and proof path before implementation begins."
-        why_nexus = "The recommendation should explain how the branch aligns with the project vision, keeps scope bounded, and preserves user-facing clarity."
+        contract_status = (
+            "Complete - BP2 engineering plan context is recorded for this PR Readiness Stage 1 packet; "
+            "this packet does not request Workstream implementation approval."
+            if pr_readiness_stage1_packet
+            else "Pending USER Response - USER must accept, revise, reject, request more options, or waive this BP2 engineering plan before implementation."
+        )
+        contract_version = "v2 - Generated BP2 Branch Plan Review."
+        what_user_sees = (
+            "USER sees a local USER hub review packet containing the governance lifecycle context plan, "
+            "phase law, branch artifact rules, helper/validator ownership, branch authority routing, and "
+            "supporting source-truth files needed before PR Readiness Stage 1."
+            if pr_readiness_stage1_packet
+            else "USER should see the planned implementation surfaces, affected files, validators, proof requirements, and future-gated boundaries before implementation begins."
+        )
+        why_nexus = (
+            "This keeps Branch Vision, Branch Plan, Workstream, Hardening, Live Validation, PR Readiness, "
+            "and Release Readiness in separate governance layers while keeping USER review artifacts readable."
+            if pr_readiness_stage1_packet
+            else "The recommendation should explain how the branch builds the accepted Branch Vision, keeps scope bounded, and preserves user-facing clarity."
+        )
         design_ballot = [
-            "Accept Codex recommendation.",
-            "Accept with changes.",
-            "Choose another option.",
-            "Request hybrid option.",
-            "Reject and ask for more options.",
+            "Accept the BP2 engineering plan as written.",
+            "Accept with engineering-plan changes.",
+            "Route back to BP1 because the plan changes the accepted Branch Vision.",
+            "Explicitly waive remaining BP2 questions.",
+            "Reject and request a narrower branch or plan.",
             "Pause / unclear.",
         ]
         response_structure = [
@@ -1802,65 +1848,106 @@ def _write_user_branch_plan_review(
             "Contract Status after digest.",
             "Next USER decision needed.",
         ]
-        implementation_constraints = ["Pending USER response or explicit waiver."]
-        rejected_deferred = ["Pending USER response or explicit waiver."]
-        source_truth_impact = ["Pending USER response or explicit waiver."]
-        contract_change_log = ["v1 - Generated USER Branch Plan Contract."]
+        implementation_constraints = (
+            [
+                "PR Readiness Stage 1 is analysis-only.",
+                "PR creation, merge, release, cleanup, runtime implementation, provider/model/cache/memory/private actions, sidecar artifacts, unique ZIP naming, and separate Review/Upload taxonomy remain pending USER decisions.",
+                "Accepted outcomes from this packet must fold into durable repo owners or approved external operational state, not the temporary USER review folder.",
+            ]
+            if pr_readiness_stage1_packet
+            else ["Pending USER response or explicit waiver."]
+        )
+        rejected_deferred = (
+            [
+                "Sidecar artifact model remains pending USER decision.",
+                "Uniquely named ZIP artifact model remains pending USER decision.",
+                "Separate Review / Upload top-level folder taxonomy remains pending USER decision.",
+                "Desktop / OneDrive active upload source remains superseded by the local USER hub model.",
+            ]
+            if pr_readiness_stage1_packet
+            else ["Pending USER response or explicit waiver."]
+        )
+        source_truth_impact = (
+            [
+                "Lifecycle law remains owned by Docs/phase_governance.md.",
+                "Branch artifact rules remain owned by Docs/branch_plans/README.md.",
+                "USER hub helper enforcement remains owned by Docs/validation_helper_registry.md.",
+                "Active operational proof remains in Codex chat digest, helper output, validator output, or external governance state.",
+            ]
+            if pr_readiness_stage1_packet
+            else ["Pending USER response or explicit waiver."]
+        )
+        contract_change_log = ["v2 - Generated as BP2 engineering-plan review rather than BP1 product/design contract."]
         completion_checklist = [
             "Contract Status is Complete or Waived by USER.",
-            "USER response is present, attached, or explicitly waived.",
-            "Codex Response Digest is present.",
-            "Implementation Constraints Created By USER Response are present.",
-            "Vision Delta / Source-Truth Impact is resolved.",
-            "USER Rejected / Deferred Ideas are recorded.",
-            "Contract Change Log is current.",
-            "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
-            "Workstream Entry Result is present only after response/digest or waiver.",
-            "Exact implementation approval text cites completed or waived contract status.",
+            "Accepted or waived BP1 trace is present or this packet is a later-phase context review.",
+            "Implementation package summary, seam/SLC plan, affected surfaces, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, and future-gated boundaries are represented.",
+            "Helper output verifies packet freshness while USER-facing files stay focused on context, plan, risks, proof expectations, and decisions.",
+            "BP3 / Workstream Entry may approve implementation only when BP1 and BP2 are accepted or explicitly waived.",
+            "PR Readiness Stage 1 approval remains analysis-only when this packet is a PR Readiness review packet.",
         ]
         plain_english_summary = (
-            "This branch-plan review summarizes the branch's intended product, "
-            "runtime, source-truth, and validation direction before Workstream "
-            "Entry performs deeper implementation planning."
+            "This BP2 Branch Plan Review summarizes how the accepted or waived Branch Vision "
+            "will be built, validated, hardened, live-validated, reviewed, and rolled back. "
+            "For this packet, it serves as engineering-plan context for PR Readiness Stage 1."
+            if pr_readiness_stage1_packet
+            else
+            "This BP2 Branch Plan Review summarizes how the accepted or waived Branch Vision "
+            "will be implemented, validated, hardened, live-validated, reviewed, and rolled back "
+            "before BP3 may authorize Workstream implementation."
         )
         end_state_vision = (
-            "When the branch is complete, USER should understand what visible/runtime behavior "
-            "will exist, which surfaces are affected, and which future-gated items remain outside "
-            "the branch before implementation begins."
+            "The completed governance repair leaves lifecycle law, BP1/BP2/BP3 artifact roles, "
+            "the local USER hub model, external-state split, helper/validator enforcement, and "
+            "pending artifact-model decisions in their proper owners."
+            if pr_readiness_stage1_packet
+            else
+            "When BP2 is accepted or waived, USER should understand which implementation surfaces "
+            "are affected, which validators prove them, which risks remain, and what stays future-gated."
         )
         walkthrough = [
-            "Review the active external branch plan to understand the intended user-facing result.",
-            "Review the branch authority record to confirm identity and legal next phase.",
-            "Review copied source-truth files to confirm active/historical routing and future boundaries.",
+            "Review the copied context plan for the lifecycle and USER hub model.",
+            "Review phase governance, branch artifact rules, and helper registry for owner boundaries.",
+            "Review the copied branch authority record for standing Governance routing context.",
+            "Use this packet to decide whether PR Readiness Stage 1 analysis should begin.",
         ]
         surface_map = [
-            "Active external branch plan and authority record.",
-            "Relevant family vision, backlog, roadmap, validators, and copied review files.",
+            "Docs/phase_governance.md: lifecycle law.",
+            "Docs/branch_plans/README.md: BP1/BP2/BP3 artifact rules.",
+            "Docs/validation_helper_registry.md: helper and validator enforcement.",
+            "Docs/branch_records/index.md and Governance branch record: branch routing law.",
+            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance.zip: temporary USER review aids.",
         ]
         implementation_options = [
-            "Option A - Accept Codex's recommended end-state and keep later implementation staging future-gated. Pros: fastest bounded path; Cons: less redesign; Risk: low when source truth is coherent.",
-            "Option B - Revise the end-state before implementation. Pros: better USER fit; Cons: adds planning repair work; Risk: low to medium.",
-            "Option C - Waive unresolved end-state questions explicitly. Pros: unblocks implementation; Cons: records less USER design input; Risk: medium.",
+            "Option A - Approve PR Readiness Stage 1 analysis as recommended. Pros: moves the Governance reform toward PR creation review; Cons: no PR is created yet; Risk: low.",
+            "Option B - Revise the PR Readiness Stage 1 inspection criteria before analysis. Pros: lets USER tune the review; Cons: adds packet/source-truth repair; Risk: low.",
+            "Option C - Pause and request another governance hardening scan. Pros: maximum caution; Cons: delays PR readiness; Risk: low.",
         ]
         recommended_direction = (
-            "Codex recommends accepting the branch plan only when the user-facing outcome, "
-            "surface map, options, proof path, and pending boundaries are understandable enough "
-            "for USER to decide whether implementation should begin."
+            "Codex recommends approving PR Readiness Stage 1 only after the local USER hub packet, "
+            "source-truth owners, helper/validator rules, and technical-metadata boundaries read cleanly."
+            if pr_readiness_stage1_packet
+            else
+            "Codex recommends accepting BP2 only when the engineering plan clearly builds the accepted BP1 vision, "
+            "names its affected surfaces, validators, proof path, rollback plan, and pending boundaries."
         )
         current_scope = [
-            "Confirm the branch outcome and admitted package.",
-            "Confirm affected surfaces, validators, proof expectations, and next legal phase.",
+            "Governance Phase Lifecycle Reform source-truth and helper hardening.",
+            "Local USER hub packet refresh under C:\\Nexus USER.",
+            "Technical proof metadata remains outside USER-facing review content.",
+            "PR Readiness Stage 1 remains pending USER approval.",
         ]
         future_scope = [
-            "Any item not explicitly admitted by the active external branch plan remains future-gated.",
+            "PR creation, merge, release, cleanup, runtime work, FAM-006/FAM-007 mutation, private/provider/cache/memory actions, sidecars, unique ZIPs, and separate Review/Upload taxonomy remain pending USER decisions.",
         ]
         slc_package_plan = [
-            "Implementation staging must support the accepted end-state; seam/slice details are background execution scaffolding, not the primary USER decision surface.",
+            "SLCs remain engineering route details inside an accepted branch; they do not automatically become separate branches.",
+            "Workstream implementation is not part of this PR Readiness Stage 1 packet.",
         ]
         user_decisions = [
-            "Does USER accept the branch goal and end-state direction?",
-            "Does USER want to revise any user-facing behavior, layout, workflow, or future-gated boundary before implementation?",
-            "Does USER waive any unanswered design question, or should implementation remain blocked until it is answered?",
+            "Does USER approve PR Readiness Stage 1 analysis for this Governance branch?",
+            "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
+            "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
         ]
     lines = [
         f"# USER Branch Plan Review - {title}",
@@ -1877,7 +1964,84 @@ def _write_user_branch_plan_review(
         "",
         plain_english_summary,
         "",
-        "This file is a required user-facing product/design planning gate. It should help USER answer: Do I actually like what Codex is about to build?",
+        "This file is the BP2 engineering-plan review. It should help USER answer whether the plan correctly builds the accepted or waived BP1 Branch Vision, whether the proof path is sufficient, and whether anything must route back to BP1 before implementation.",
+        "",
+        "## Accepted Branch Vision Summary",
+        "",
+        accepted_user_response
+        or ("BP1 context is treated as already represented for this later-phase PR Readiness packet." if pr_readiness_stage1_packet else "Pending accepted or waived BP1 trace."),
+        "",
+        "## Implementation Package Summary",
+        "",
+        plain_english_summary,
+        "",
+        "## Branch Scope Size Test",
+        "",
+        "The branch package should be the largest coherent feature-focused implementation package that can be validated, hardened, live-validated, reviewed, and rolled back safely without mixing unrelated product areas.",
+        "",
+        "## SLC / Seam Plan",
+        "",
+        *_markdown_lines(slc_package_plan),
+        "",
+        "## Affected Surfaces",
+        "",
+        *_markdown_lines(surface_map),
+        "",
+        "## Likely Files",
+        "",
+        *_markdown_lines([f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]),
+        "",
+        "## Validators / Helpers",
+        "",
+        "- Reuse registered validators and helpers before creating new ones.",
+        "- USER review packet generation must use the local USER hub helper.",
+        "",
+        "## Proof Requirements",
+        "",
+        "- Direct validation must prove the accepted plan or admitted later-phase review boundary.",
+        "- USER-facing packet files must avoid mutable technical proof metadata.",
+        "",
+        "## Element-To-Phase Proof Matrix",
+        "",
+        "- BP1 owns branch vision acceptance or waiver.",
+        "- BP2 owns engineering plan acceptance or waiver.",
+        "- BP3 validates BP2 against BP1 before implementation approval.",
+        "- Workstream owns runtime/code implementation only.",
+        "- Hardening owns pressure-test and implementation-vs-plan verification.",
+        "- Live Validation owns user-facing proof and UTS handling.",
+        "",
+        "## H1 Expectations",
+        "",
+        "- H1 must compare implementation or source-truth changes against the accepted plan and repair defects only inside approved scope.",
+        "",
+        "## LV / UTS Expectations",
+        "",
+        "- Live Validation and UTS handling remain separate phase gates when applicable.",
+        "",
+        "## Rollback / Safety Plan",
+        "",
+        "- Keep changes bounded to approved source-truth/helper/validator/fixture surfaces.",
+        "- Preserve pending USER gates for PR creation, merge, release, cleanup, runtime/private actions, and artifact-model changes.",
+        "",
+        "## Open Engineering Risks",
+        "",
+        "- Stale review-packet wording can confuse BP1, BP2, BP3, and PR Readiness boundaries if not regenerated through the helper.",
+        "",
+        "## Future-Gated Boundaries",
+        "",
+        *_markdown_lines(future_scope),
+        "",
+        "## Line-Item USER Plan Review",
+        "",
+        *_markdown_lines(user_decisions),
+        "",
+        "## Plan Acceptance Checklist",
+        "",
+        *_markdown_lines(completion_checklist),
+        "",
+        "## Exact BP3 Approval Text When Ready",
+        "",
+        "BP3 approval text applies only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. This PR Readiness packet does not request BP3 implementation approval.",
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
@@ -1907,7 +2071,7 @@ def _write_user_branch_plan_review(
         "",
         why_nexus,
         "",
-        "## USER Design Direction Decision",
+        "## USER Plan Review Decision",
         "",
         "Choose one of these paths, then add any notes or changes you want:",
         "",
@@ -1985,9 +2149,9 @@ def _write_user_branch_plan_review(
         "",
         *_markdown_lines(implementation_options),
         "",
-        "## USER Design Review Questions",
+        "## USER Plan Review Questions",
         "",
-        "This compatibility section is retained for older packet validators. See USER Decisions Needed above.",
+        "This section summarizes BP2 plan-review questions. See USER Decisions Needed above.",
         "",
         *_markdown_lines(user_decisions),
         "",
@@ -2815,7 +2979,6 @@ def build_bundle(
         f"Local USER Hub Folder: `{target}`",
         f"Custom Review Path Waiver: {custom_review_path_waiver}",
         f"Custom Review Path Reason: {custom_review_path_reason_value}",
-        f"Bundle Created: {created_at}",
         "Review Safety Note: Copied files are selected repo source-truth and "
         "review-context files for USER inspection; technical freshness proof "
         "stays in Codex chat digest, helper output, validator output, or external state.",
