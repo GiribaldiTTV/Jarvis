@@ -1041,7 +1041,7 @@ def _write_user_branch_plan_review(
             "Family vision: record per-overlay effective polling policy as a future FAM-006 planning constraint and keep Native Log Loader as future graph/log viewer input only.",
             "Active external branch plan and branch record: record the accepted v3/v4 planning-governance posture, USER vision digest, implementation constraints, Workstream skip, and PR Readiness Stage 1 as the next legal phase.",
             "Backlog/roadmap: record planning-governance PR-readiness posture rather than runtime implementation posture.",
-            "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or HEAD changes.",
+            "Review packet: refresh whenever contract status, response, digest, constraints, source-truth impact, or copied source-truth inputs change.",
             "Workstream seam order: target model remains future implementation staging, not current branch work.",
         ]
         contract_change_log = [

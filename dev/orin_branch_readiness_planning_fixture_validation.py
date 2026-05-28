@@ -1003,6 +1003,41 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
     return failures
 
 
+def _validate_active_overlay_user_branch_plan_review_metadata_guard() -> list[str]:
+    source_path = "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md"
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_user_branch_plan_review(
+            target=target,
+            title="Active Overlay Recording Runtime Foundation",
+            review_purpose="Fixture packet metadata guard.",
+            source_branch="feature/fam-006-active-overlay-recording-runtime-foundation",
+            source_head=review_bundle._git_output("rev-parse", "HEAD"),
+            upstream="origin/feature/fam-006-active-overlay-recording-runtime-foundation",
+            origin_main=review_bundle._git_output("rev-parse", "origin/main"),
+            exact_user_decision="I approve PR Readiness Stage 1 analysis.",
+            pending_user_decisions=["Runtime implementation remains pending USER approval."],
+            copied=[(source_path, "feature_fam_006_active_overlay_recording_runtime_foundation.md")],
+        )
+        text = (target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE).read_text(encoding="utf-8")
+
+    metadata_failures = review_bundle._user_facing_technical_metadata_failures(
+        {review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: text}
+    )
+    if metadata_failures:
+        failures.append(
+            "Active Overlay USER Branch Plan Review fixture unexpectedly emitted "
+            "USER-facing technical metadata: "
+            + "; ".join(metadata_failures[:5])
+        )
+    if "HEAD changes" in text:
+        failures.append(
+            "Active Overlay USER Branch Plan Review fixture still contains stale HEAD-change wording"
+        )
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     for fixture in (
@@ -1622,6 +1657,7 @@ def validate() -> list[str]:
 
     failures.extend(_validate_user_review_bundle_identity_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
+    failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
 
     return failures
 
