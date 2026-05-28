@@ -121,7 +121,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
 | `FAM-006` | Monitoring and HUD | High | Open / Active Overlay Recording Runtime Implementation Branch Readiness Stage 2 setup | `PKG-006` active-overlay recording implementation carrier is admitted for setup; Workstream Entry and runtime recording implementation remain future-gated and USER-gated; released planning traceability remains preserved in `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md` |
-| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted | `PKG-007` remains admitted and not package-complete; durable planning pointers preserve FAM-007 Breakpoint 2 context while operational successor selection remains a Branch Readiness Stage 1 / external-state decision | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` |
+| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted | `PKG-007` remains admitted and not package-complete; durable planning pointers preserve FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness context while live operational state remains external/Git/GitHub/helper-derived | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 
 ### Folded Non-Family Concepts
@@ -248,10 +248,10 @@ Package Admission State: Admitted / detailed history is branch-record, branch-pl
 Admitted Slice Count: see `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
 Package Completion State: Open / not package-complete
 Single-Slice Package User Approval: Not required - package history is multi-slice; future scope still requires USER approval.
-Canonical Detail Owner: `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md`
+Canonical Detail Owner: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
 Family Vision Owner: `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
-Future Planning Evidence: FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision remains durable planning context for the existing FAM-007 backlog family.
-Branch Evidence Pointer: `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`
+Future Planning Evidence: FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision remains durable planning context for the existing FAM-007 backlog family; current branch-local setup proof is recorded by the Breakpoint 2 action-gate readiness branch record and plan.
+Branch Evidence Pointer: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
 Minimal Scope: FAM-007 runtime action-gate planning slice for Breakpoint 2 private Dev/Owner skeleton setup decision, preserving provider/model/runtime/cache/memory execution as later USER-gated work.
 Operational Selection Owner: `C:\Nexus Governance State` plus Git/GitHub/helper live checks own selected-next, branch creation, active/complete status, PR state, review state, watcher state, merge state, release-window posture, and worktree posture.
 Selection / Unblock Boundary: This compact backlog row may name durable family direction and branch evidence pointers, but it must not create a new backlog family, branch, private repo, private remote, provider/model execution path, runtime cache behavior, memory behavior, release action, or live lifecycle state.
