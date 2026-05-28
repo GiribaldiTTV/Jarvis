@@ -6,7 +6,7 @@ USER Branch Plan Review: Required - Workstream Entry presents the readable imple
 Review Status: Accepted by USER - USER accepted this branch plan review for implementation planning proof.
 Contract Status: Complete - USER accepted the final USER Branch Plan Contract and implementation may proceed only through a later bounded approval.
 Contract Version / Revision: v1 - Fixture contract with USER response and Codex digest complete.
-Desktop Review Bundle: C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 contains the copied review files and START_HERE map.
+USER Review Hub Packet: C:\Nexus USER\FAM-007 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-007.zip.
 USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
 Plain-Language Branch Goal: Build a user-visible provider setup foundation that explains consent state and safe setup boundaries.
 What Will I Actually See, And Where Will I See It?: USER sees the setup surface with consent/readiness status, disabled protected actions, and clear explanation inside the existing setup flow.
@@ -20,12 +20,12 @@ Element-to-Phase Proof Matrix: Matrix rows map setup copy, consent status, disab
 Hardening Plan: H1 compares implementation against source truth, branch plan, UI copy, disabled actions, and validator output.
 Live Validation / UTS Plan: LV1 and UTS prove visible status, disabled unsafe actions, screenshot evidence, and USER acceptance path.
 Open USER Questions: None - USER accepted the current branch goal and deferred unrelated provider execution questions.
-USER Design Review Questions: Accepted by USER - USER reviewed the design questions and confirmed the setup foundation remains bounded to consent status and safe setup boundaries.
+USER Plan Review Questions: Accepted by USER - USER reviewed the plan questions and confirmed the setup foundation remains bounded to consent status and safe setup boundaries.
 Codex Recommendations: Implement the consent-facing setup foundation first while keeping provider execution future-gated.
 Implementation Options: Accepted by USER - USER selected the bounded consent-status implementation option and deferred broader setup wizard behavior.
 Recommended Direction: Codex recommends bounded consent-status setup because it gives USER visible readiness information without admitting provider execution risk.
 Why This Fits The Nexus Vision: The plan keeps protected provider behavior explicit, safe, and user-controlled while avoiding hidden execution.
-USER Design Direction Decision: Accepted Codex recommendation - USER accepted the bounded consent-status setup direction.
+USER Plan Review Decision: Accepted Codex recommendation - USER accepted the bounded consent-status setup direction.
 Current Branch Scope: Current scope includes setup status copy, disabled unsafe actions, validation, screenshots, and UTS proof.
 Future-Gated Scope: Future provider execution, model downloads, memory, voice, shortcuts, installer, and private-edition work remain outside this branch.
 Implementation Staging Notes: The accepted package implements visible consent/readiness status first, proves disabled protected actions, then validates source truth and user-facing proof.

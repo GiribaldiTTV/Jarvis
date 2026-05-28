@@ -36,7 +36,7 @@ REQUIRED_MODEL_PHRASES = (
     "Vision-To-Plan Interaction Loop",
     "USER Feedback Disposition Model",
     "USER Review Integration Decisions",
-    "USER Review Desktop Bundle Rule",
+    "USER Review Hub Rule",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
     "Public Language Mapping",
@@ -52,7 +52,7 @@ POINTER_REQUIREMENTS = {
         "governance efficiency operating model",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "USER Review Desktop Bundle Rule",
+        "USER Review Hub Rule",
     ),
     Path("Docs/phase_governance.md"): (
         "Docs/governance_efficiency_operating_model.md",
@@ -223,19 +223,9 @@ EXPECTED_PENDING_FOLD_SOURCE_FILES = (
 
 USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
     "Review Purpose:",
-    "Source Branch:",
-    "Source HEAD:",
-    "origin/main:",
-    "Review Export Zip:",
-    "Review Export Zip Source HEAD:",
-    "Review Export Zip Stale Guard:",
-    "Bundle File Count:",
-    "Expected File Count:",
-    "Copied File Count:",
-    "Extra Bundle File Count:",
-    "Validation Summary:",
+    "Local USER Hub Folder:",
     "Review Order",
-    "Exact USER Decision This Bundle Supports:",
+    "USER Decision This Packet Supports:",
     "Pending USER Decisions",
 )
 
@@ -388,9 +378,10 @@ def _non_historical_stale_vision_refs() -> list[str]:
 def _branch_plan_requires_retirement_index_row(text: str) -> bool:
     """Return true only for plans that declare folded/historical posture.
 
-    Active branches are allowed to carry active branch plans before PR
-    Readiness fold-down; the retirement index should not force those plans to
-    become historical by inertia.
+    Active branches carry active planning in the External Operational State
+    Store after transition. Repo branch-plan files are schema/transition or
+    historical receipt surfaces; the retirement index should not force
+    transition evidence to become historical by inertia.
     """
 
     status_lines = [
@@ -436,12 +427,12 @@ def validate() -> list[str]:
                 failures.append(
                     f"{OPERATING_MODEL}: missing required section or phrase {phrase!r}"
                 )
-        desktop_bundle_section = _section(model_text, "## USER Review Desktop Bundle Rule")
+        desktop_bundle_section = _section(model_text, "## USER Review Hub Rule")
         for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
             if phrase not in desktop_bundle_section:
                 failures.append(
-                    f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
-                    f"required START_HERE metadata field {phrase!r}"
+                    f"{OPERATING_MODEL}: USER Review Hub Rule missing "
+                    f"required START_HERE review field {phrase!r}"
                 )
 
     bundle_helper_text = _read(USER_REVIEW_BUNDLE_HELPER)
@@ -451,7 +442,7 @@ def validate() -> list[str]:
         for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
             if phrase not in bundle_helper_text:
                 failures.append(
-                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE metadata field {phrase!r}"
+                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE review field {phrase!r}"
                 )
 
     for path, required_phrases in POINTER_REQUIREMENTS.items():

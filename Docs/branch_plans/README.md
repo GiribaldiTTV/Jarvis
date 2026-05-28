@@ -1,20 +1,47 @@
 # Branch Runtime Engineering Plans
 
-`Docs/branch_plans/<branch_slug>.md` defines the Branch Runtime Engineering Plan shape and preserves durable historical branch-plan receipts. After the External Operational State Store transition, active branch planning state lives in `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` or an approved worktree-local staging packet until it folds down as durable repo evidence.
+`Docs/branch_plans/<branch_slug>.md` defines the Branch Runtime Engineering Plan shape and preserves durable historical branch-plan receipts. After the External Operational State Store transition, active branch planning state lives in `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` until it folds down as durable repo evidence.
 
 Repo branch-plan files are not the long-term place to maintain active ledger rows. While active, detailed plan rows, UFD items, Branch Change Intent rows, Element-to-Phase rows, Workstream Entry review packets, Hardening plans, and Live Validation plans belong in the active external branch planning owner or in an explicitly USER-approved transition packet. Repo copies should reduce to plan shape, durable evidence pointers, fold-down receipts, and historical lookup paths.
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
 This layer sits under the branch authority model. It does not replace the branch authority record, backlog, roadmap, external operational state, or canonical workstream doc.
-Codex reaches this layer through the Main-first loader chain: load `Docs/Main.md`, then the governing phase/vision/branch authority owners, then the active branch plan from external operational state or an explicitly approved transition owner for branch-local engineering detail.
+Codex reaches this layer through the Main-first loader chain: load `Docs/Main.md`, then the governing phase/vision/branch authority owners, then the active branch plan from external operational state for branch-local engineering detail. Repo branch-plan files are historical or transition receipts only.
+
+## Branch Planning Artifact Lifecycle
+
+`Branch Planning` is the canonical phase between `Branch Readiness` and `Workstream`. It owns USER-facing planning review and orchestration validation before runtime/code implementation begins.
+
+The Branch Planning stages are:
+
+- BP1 - `USER Branch Vision Review`, artifact `USER_BRANCH_VISION_REVIEW.md`.
+- BP2 - `USER Branch Plan Review`, artifact `USER_BRANCH_PLAN_REVIEW.md`.
+- BP3 - `Workstream Entry / Orchestration Validation`, recorded in the Branch Planning packet, active external branch planning owner, and helper/validator output as required.
+
+Branch Vision and Branch Plan are separate contracts:
+
+- Branch Vision is what the branch is building and what it should become.
+- Branch Plan is how Codex will build the accepted or waived Branch Vision.
+- SLCs are the engineering route inside a branch after vision acceptance. They should not automatically become separate branches.
+
+BP1 becomes green only when USER accepts the Branch Vision or explicitly waives BP1. BP2 becomes green only when USER accepts the Branch Plan or explicitly waives BP2. BP3 may return first bounded Workstream implementation approval only when BP1 and BP2 are accepted or waived and orchestration validation is green.
+
+Every SLC must trace to a BP1 accepted Branch Vision requirement and a BP2 Branch Plan line item. If BP2 exposes a vision gap or changes the accepted Branch Vision, Codex must route back to BP1 instead of treating the engineering plan as a new vision owner.
+
+The active USER hub for Branch Planning packets is:
+
+- Readable packet: `C:\Nexus USER\<label>\`
+- Upload artifact: `C:\Nexus USER\<label>.zip`
+
+Cloud-backed Desktop or OneDrive locations are backup or convenience mirrors only. USER-facing packet files should focus on vision, plan, context, options, risks, proof expectations, and USER decisions. Active branch status, current HEAD, current origin/main, ahead/behind, upstream, worktree cleanliness, current validation state, current PR state, ZIP hash, and similar mutable technical proof belong in helper output, validator output, Codex chat digest, or external operational state.
 
 ## Ownership Model
 
 - Backlog entries remain compact registry, status, and pointer surfaces.
 - Roadmap entries remain compact stage-breakpoint schedule and milestone-checkpoint reference surfaces.
 - Branch authority records remain durable identity, approval, and historical receipt surfaces; non-standing active branch authority lives in external operational state or Git/GitHub/helper-derived truth.
-- Branch Runtime Engineering Plans define detailed runtime execution planning. Their active operational copy belongs in external operational state after transition; repo copies are standards, transition-approved plans, or historical receipts.
+- Branch Runtime Engineering Plans define detailed runtime execution planning. Their active operational copy belongs in external operational state after transition; repo copies are standards, transition evidence, retirement-index entries, or historical receipts.
 - Canonical workstream docs and family dossiers receive durable promoted lessons only after PR Readiness fold-down decides what should survive beyond the active branch.
 
 ## Required Runtime Plan Markers
@@ -66,7 +93,7 @@ Matrix markers:
 - Matrix Status: allowed values are `Required`, `Present`, `Accepted`, `Blocked`, `Folded`, `Historical`, or `Not Required with reason`
 - USER Review Status: allowed values are `Pending`, `Accepted`, `Revised`, `Waived`, or `Needs USER Decision`
 - Open Element Questions: allowed values are `None`, `Queued`, `Blocking`, or `Deferred With Waiver`
-- Element Coverage Owner: must name the active `Docs/branch_plans/<branch_slug>.md` owner before implementation, or a concrete folded source-truth owner after PR Readiness
+- Element Coverage Owner: must name the active `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` owner before implementation, or a concrete folded source-truth owner after PR Readiness
 - Element Validation Ledger Owner: must name the concrete Element Validation Ledger owner path or source-truth owner
 
 Required table shape:
@@ -78,14 +105,16 @@ Allowed `Element Classification` values are `Planned`, `Created`, `Touched`, `Af
 
 Every planned/current created/touched/affected user-facing, runtime, UI, provider, validation/helper, source-truth, or workflow element must name a Workstream implementation path, Workstream proof path, Hardening proof path, Live Validation proof or waiver path, and UTS / USER acceptance path before Workstream implementation begins or resumes. Future/deferred/dependency-only/non-gating elements must name the boundary that keeps them out of current release gating. Element IDs must be unique inside the matrix. Missing or incomplete matrix coverage blocks Workstream entry or continuation on `Element-to-Phase Proof Matrix Missing` or `Element-to-Phase Proof Path Missing`.
 
-## Workstream Entry Review Bundle
+## Branch Planning Review Packet
 
-`Workstream Entry` is the pre-implementation review gate inside the `Workstream` phase. It is not a separate canonical phase, but it must produce USER-reviewable evidence before implementation begins or resumes.
+BP3 `Workstream Entry / Orchestration Validation` is the pre-implementation review gate inside the `Branch Planning` phase. It must produce USER-reviewable evidence before implementation begins or resumes.
 
-Before USER can green-light Workstream implementation, Codex must return a full, non-compacted Workstream Entry Review Digest and create or refresh the active worktree's Desktop `USER Review Desktop Bundle` under the stable `Nexus USER Review\<worktree-label>` root.
+Before USER can green-light Workstream implementation, Codex must return a full, non-compacted Branch Planning / Workstream Entry Review Digest and create or refresh the active worktree's local USER hub packet under `C:\Nexus USER\<worktree-label>` with a matching upload ZIP at `C:\Nexus USER\<worktree-label>.zip`.
 
 The bundle should copy the branch vision and planning files the USER needs to inspect, including:
 
+- `USER_BRANCH_VISION_REVIEW.md` when BP1 applies
+- `USER_BRANCH_PLAN_REVIEW.md` when BP2 applies
 - active external Branch Runtime Engineering Plan or transition-approved Branch Engineering Plan
 - Branch Vision Contract Snapshot owner
 - Element-to-Phase Proof Matrix owner
@@ -93,11 +122,50 @@ The bundle should copy the branch vision and planning files the USER needs to in
 - relevant Nexus Vision and family vision files
 - relevant UFD, Branch Change Intent Ledger, source-truth owner, validator/helper, fixture, or planning files
 
-The bundle must use the active worktree label, copy the selected files flat into that worktree folder, and rely on `START_HERE.md` to map copied filenames back to repo-relative source paths. The digest must report the review folder path, copied files, source branch, source HEAD, validation summary, exact Workstream green-light decision requested, and pending USER decisions. Missing bundle proof blocks Workstream entry on `Workstream Entry Review Bundle Missing`.
+The packet must use the active worktree label, copy the selected files flat into that worktree folder, and rely on `START_HERE.md` to map copied filenames back to source-truth paths. The digest must report the local USER hub packet path, copied files, validation summary, exact Branch Planning or Workstream green-light decision requested, and pending USER decisions. Helper output may report branch/head/origin-main freshness, but USER-facing files should not center mutable technical proof metadata. Missing packet proof blocks Workstream entry on `Branch Planning Review Packet Missing`.
+
+## USER Branch Vision Review Gate
+
+`USER Branch Vision Review Gate` is the named BP1 USER-facing checkpoint. It defines the branch goal, end-state, product shape, user-facing behavior, surfaces, options, Codex recommendations, USER decisions, and acceptance status before engineering planning.
+
+Required BP1 markers:
+
+- USER Branch Vision Review:
+- Review Status:
+- Contract Status:
+- Contract Revision:
+- Project Vision Context:
+- Family Vision Context:
+- Feature Vision Context:
+- Codex Understanding:
+- Branch Goal:
+- End-State Vision:
+- What Will I Actually See, And Where Will I See It?:
+- How It Will Function:
+- User Experience Flow:
+- Surface Map:
+- Product Options / Design Paths:
+- Codex Recommendations:
+- Why This Fits The Nexus Vision:
+- USER Design Questions:
+- USER Response:
+- Codex Digest:
+- Accepted Branch Vision:
+- Family-Vision Versus Branch-Only Vision Impact:
+- Must-Have Behavior:
+- Must-Not-Do / Regression-Risk Rules:
+- Deferred And Future-Gated Ideas:
+- Vision Question Queue:
+- Design Assumption Ledger:
+- Acceptance / Revision / Rejection / Waiver Decision:
+
+Codex recommendations in BP1 must be line-item recommendations with enough detail for USER to visualize placement, behavior, flow, tradeoffs, risks, and Codex reasoning. Each recommendation should leave USER response space under that item.
+
+BP1 must not be SLC-centered. SLCs may be mentioned as later engineering route candidates only after the branch vision and product direction are understandable. BP1 must not center active branch technical metadata such as current HEAD, origin/main, ahead/behind, upstream, current validation state, or current PR state.
 
 ## USER Branch Plan Review Gate
 
-`USER Branch Plan Review Gate` is the named USER-facing Workstream Entry checkpoint. It wraps the active external branch plan or transition-approved branch plan, Branch Vision Contract Snapshot, Element-to-Phase Proof Matrix, Workstream Entry whole-package analysis, Hardening plan, Live Validation / UTS plan, UFD items, and Branch Change Intent Ledger when present into a plain-language product/design planning packet before Workstream implementation begins or resumes. The packet must help USER answer whether they actually like what Codex is about to build, not merely prove that governance markers exist.
+`USER Branch Plan Review Gate` is the named BP2 USER-facing engineering checkpoint. It wraps the accepted or waived BP1 result, active external branch plan or transition-approved branch plan, Element-to-Phase Proof Matrix, Hardening plan, Live Validation / UTS plan, UFD items, and Branch Change Intent Ledger when present into a plain-language engineering packet before BP3 orchestration validation. The packet must help USER answer whether the implementation plan correctly builds the accepted Branch Vision, not merely prove that governance markers exist.
 
 Required review markers:
 
@@ -105,7 +173,24 @@ Required review markers:
 - Review Status:
 - Contract Status:
 - Contract Version / Revision:
-- Desktop Review Bundle:
+- Accepted Branch Vision Summary:
+- Implementation Package Summary:
+- Branch Scope Size Test:
+- SLC / Seam Plan:
+- Affected Surfaces:
+- Likely Files:
+- Validators / Helpers:
+- Proof Requirements:
+- Element-to-Phase Proof Matrix:
+- H1 Expectations:
+- LV / UTS Expectations:
+- Rollback / Safety Plan:
+- Open Engineering Risks:
+- Future-Gated Boundaries:
+- Line-Item USER Plan Review:
+- Plan Acceptance Checklist:
+- Exact BP3 Approval Text:
+- USER Review Hub Packet:
 - USER Review Packet Finding:
 - Plain-Language Branch Goal:
 - What Will I Actually See, And Where Will I See It?:
@@ -119,12 +204,12 @@ Required review markers:
 - Hardening Plan:
 - Live Validation / UTS Plan:
 - Open USER Questions:
-- USER Design Review Questions:
+- USER Plan Review Questions:
 - Codex Recommendations:
 - Implementation Options:
 - Recommended Direction:
 - Why This Fits The Nexus Vision:
-- USER Design Direction Decision:
+- USER Plan Review Decision:
 - Current Branch Scope:
 - Future-Gated Scope:
 - Implementation Staging Notes:
@@ -144,19 +229,19 @@ Required review markers:
 - Exact USER Decision Needed:
 - Implementation Approval:
 
-`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop USER Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. The packet must give USER answer paths to accept the recommendation, accept with changes, choose another option, request a hybrid option, reject and ask for more options, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the USER Branch Plan Contract: a required user-facing product/design planning artifact, not a normal Codex status digest. It must present the branch summary, what USER will actually see and where, end-state vision, visual/functional walkthrough, surface map, implementation options with pros/cons/risk, Codex recommended direction, why the recommendation fits the Nexus vision, current branch scope, future-gated scope, plain-English Implementation Staging Notes, clear USER decisions, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, completion checklist, and Workstream Entry result area. The primary USER decision surface is the feature end-state and possibility space; SLC/slice/seam details may appear only as implementation staging notes after the end-state recommendation is clear.
+`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop BP2 Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. The packet must give USER answer paths to accept the engineering plan, accept with changes, route back to BP1 because the plan changes the accepted Branch Vision, explicitly waive remaining BP2 questions, reject and request a narrower branch or plan, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the BP2 USER Branch Plan Review: a required user-facing engineering-plan artifact derived from accepted or waived BP1, not the primary product/design vision contract and not a normal Codex status digest. It must present the accepted Branch Vision summary, implementation package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, open engineering risks, future-gated boundaries, line-item USER plan review, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, plan acceptance checklist, and exact BP3 approval text when ready. The primary BP2 decision surface is whether the engineering plan correctly builds the accepted BP1 vision and preserves future-gated boundaries; if the engineering plan changes product direction, user-facing behavior, surfaces, scope, or future-gated boundaries, it must route back to BP1 before implementation approval.
 
-The USER Branch Plan Contract lifecycle is closed loop: Codex proposes the product/design direction, USER responds, Codex digests the response, Codex converts that response into explicit implementation constraints, Codex identifies source-truth and review-packet impact, and any plan-changing digest returns `Contract Status:` to `Pending USER Confirmation`. Codex must update the branch record, branch plan, family vision, backlog, roadmap, validation helper registry, review packet, or other required source truth when USER feedback changes branch direction, feature shape, UI behavior, workflow, end-state vision, implementation scope, future-gated boundaries, or seam order. Codex then refreshes the Desktop review packet and exported ZIP. The cycle repeats until USER explicitly confirms the final contract as `Complete` or explicitly waives the gate. Bounded Workstream implementation may proceed only when `Contract Status:` is `Complete` or `Waived by USER`.
+The BP2 Branch Plan Contract lifecycle is closed loop: Codex proposes the engineering plan derived from BP1, USER responds, Codex digests the response, Codex converts that response into explicit implementation constraints, Codex identifies source-truth and review-packet impact, and any plan-changing digest returns `Contract Status:` to `Pending USER Confirmation`. Codex must update the branch record, branch plan, family vision, backlog, roadmap, validation helper registry, review packet, or other required source truth when USER feedback changes branch direction, feature shape, UI behavior, workflow, end-state vision, implementation scope, future-gated boundaries, or seam order. Codex then refreshes the local USER hub packet and exported ZIP. The cycle repeats until USER explicitly confirms the final contract as `Complete` or explicitly waives the gate. BP3 may proceed only when `Contract Status:` is `Complete` or `Waived by USER`.
 
 Waiver semantics are strict. A waiver must be explicit USER text naming the contract and branch; Codex must record it in the branch record, branch plan, and review packet, set `Contract Status:` to `Waived by USER`, preserve pending boundaries, and cite the waiver in exact implementation approval text. A stale packet is blocking when `START_HERE.md` branch or HEAD differs from the active branch/current HEAD, when ZIP Source HEAD differs from packet Source HEAD, when `USER_BRANCH_PLAN_REVIEW.md` Contract Status conflicts with branch plan or branch record, or when implementation approval text is returned while Contract Status is `Draft`, `Pending USER Response`, `Pending Codex Digest`, or `Pending USER Confirmation`.
 
-Missing or shallow branch goal, user-facing outcome, what-will-I-see walkthrough, end-state vision, visual/functional walkthrough, surface map, implementation options, recommended direction, Nexus-fit rationale, Implementation Staging Notes, USER decisions, USER response/digest or waiver, implementation constraints, source-truth impact, completion checklist, Hardening plan, Live Validation / UTS plan, Desktop review bundle proof, `USER Review Packet Finding:`, or exact USER decision blocks Workstream implementation on `USER Branch Plan Review Missing`. A Desktop USER Review Packet that is stale against current `HEAD`, not loaded, not digested, missing `START_HERE.md`, missing `USER_BRANCH_PLAN_REVIEW.md`, missing the exported zip when required, or not explicitly waived blocks on `USER Review Packet Stale` or `USER Review Packet Not Digested`. A first-seam-only packet cannot satisfy this gate when multiple slices or seams are admitted.
+Missing or shallow accepted BP1 trace, package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, matrix, H1/LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, USER plan review, USER response/digest or waiver, implementation constraints, source-truth impact, completion checklist, local USER hub packet proof, `USER Review Packet Finding:`, or exact USER decision blocks BP3 and Workstream implementation on `USER Branch Plan Review Missing`. A local USER hub packet that is stale against current helper/validator proof, not loaded, not digested, missing `START_HERE.md`, missing `USER_BRANCH_VISION_REVIEW.md` when BP1 applies, missing `USER_BRANCH_PLAN_REVIEW.md` when BP2 applies, missing the exported zip when required, or not explicitly waived blocks on `USER Review Packet Stale` or `USER Review Packet Not Digested`. A first-seam-only packet cannot satisfy BP3 when multiple slices or seams are admitted.
 
 ## Workstream Entry Whole-Package Analysis Gate
 
 Runtime-focused branch plans with multiple admitted slices or seams must support whole-package Workstream Entry analysis before implementation begins or resumes.
 
-The active branch planning owner must let the Workstream Entry packet identify:
+The active external branch planning owner must let the Workstream Entry packet identify:
 
 - all admitted slices/seams
 - completion strategy for the whole Workstream package
@@ -211,7 +296,7 @@ Only `Accepted by USER`, `Revised by USER`, or `Deferred With Waiver` design sta
 
 `USER Vision Green: Yes` means the branch may implement the accepted branch plan without repeatedly reopening broad design unless new repo truth triggers a Level 2 or Level 3 vision question.
 
-Vision update ownership follows the `Vision Update Decision Matrix` in `Docs/phase_governance.md`: branch-specific or unresolved ideas stay in the active branch planning owner, reusable USER-accepted family standards fold into family vision or family dossiers, and project-wide USER-accepted standards fold into `Docs/nexus_vision.md`. Codex must not promote proposed or unresolved ideas into durable vision owners by inference.
+Vision update ownership follows the `Vision Update Decision Matrix` in `Docs/phase_governance.md`: branch-specific or unresolved ideas stay in the active external branch planning owner, reusable USER-accepted family standards fold into family vision or family dossiers, and project-wide USER-accepted standards fold into `Docs/nexus_vision.md`. Codex must not promote proposed or unresolved ideas into durable vision owners by inference.
 
 Question severity:
 
@@ -252,7 +337,7 @@ Branch Plan Revision Packet fields:
 
 Meaningful feedback requires a UFD item when it affects branch scope, accepted vision, user-facing behavior, runtime behavior, validation proof, future work, reusable product standards, approval boundaries, or a USER decision.
 
-Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation may close with no durable UFD item only when Codex records the no-action reason in the active branch planning owner or return digest.
+Minor comments, acknowledgements, typo-level notes, duplicate remarks, or non-actionable conversation may close with no durable UFD item only when Codex records the no-action reason in the active external branch planning owner or return digest.
 
 Minimum UFD ledger markers:
 
@@ -328,7 +413,7 @@ Allowed UFD owner classes:
 - Governance Receipt
 - No Durable Owner Needed
 
-`No Durable Owner Needed` is valid only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with `No-Action Reason:` recorded in the active branch planning owner or return digest.
+`No Durable Owner Needed` is valid only when the item is closed as minor/no-action, duplicate, superseded, or non-actionable, with `No-Action Reason:` recorded in the active external branch planning owner or return digest.
 
 Pointer locations may carry UFD ID, short title, canonical owner, compact status, and fold-down status only. They must not carry full feedback text, full decision history, or live implementation state.
 
@@ -346,7 +431,7 @@ Branch records carry compact UFD status and pointers only. Backlog carries futur
 
 `Branch Change Intent Ledger` is required when `Pre-Rebaseline Impact Audit` reports non-empty `Rebaseline Overlap Files:` for the active branch/worktree. It preserves why the branch touched an overlapping file before Codex accepts incoming `origin/main` changes.
 
-Runtime branches keep this ledger inside the Branch Runtime Engineering Plan. Non-runtime branches with overlap must admit or update the smallest source-truth-supported Branch Engineering Plan under `Docs/branch_plans/<branch_slug>.md` before rebaseline mutation can proceed.
+Runtime branches keep this ledger inside the active external Branch Runtime Engineering Plan. Non-runtime branches with overlap must admit or update the smallest source-truth-supported external Branch Engineering Plan under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` before rebaseline mutation can proceed.
 
 Each overlapping file uses a repeatable block:
 
@@ -384,15 +469,15 @@ When overlap evidence is missing, weak, stale, or conflicting, Codex must run `R
 
 Branch Readiness Stage 1 proposes the plan requirements and returns the USER planning-review decision needed.
 
-Branch Readiness Stage 2 creates or admits `Docs/branch_plans/<branch_slug>.md`, links it from the branch authority record through `Branch Runtime Engineering Plan Path:`, records `Engineering Plan Status:`, and keeps `Runtime Implementation Approval:` pending until a later USER decision admits runtime work. Stage 2 closeout must explicitly tell USER that the plan is now the object of the next review gate and that USER may accept, change, waive, or reject the plan before implementation.
+Branch Readiness Stage 2 creates or admits `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`, links it from the branch authority record through `Branch Runtime Engineering Plan Path:`, records `Engineering Plan Status:`, and keeps `Runtime Implementation Approval:` pending until a later USER decision admits runtime work. Stage 2 closeout must explicitly tell USER that the active external plan is now the object of the next review gate and that USER may accept, change, waive, or reject the plan before implementation.
 
-Branch Readiness Stage 2 must also create or refresh a USER-reviewable Desktop branch-plan packet for the admitted plan under the stable `Nexus USER Review\<worktree-label>` root. The packet uses the same flat-file `USER Review Desktop Bundle` format as Workstream Entry, but its purpose is Stage 2 branch-plan review: it must include `START_HERE.md`, a standalone `USER_BRANCH_PLAN_REVIEW.md`, the active external branch plan or approved transition branch plan, branch authority evidence pointer, branch-record index, relevant family/Nexus vision or source-truth router files, and any compact backlog/roadmap/validator/helper files needed for USER review of the admitted plan before Workstream Entry analysis or implementation approval. `USER_BRANCH_PLAN_REVIEW.md` is not a Codex status digest: it must be a plain-language product/design pre-plan digest with branch summary, end-state vision, visual/functional walkthrough, surface map, implementation options with pros/cons/risk, Codex recommendation, current branch scope, future-gated scope, plain-English Implementation Staging Notes, USER decisions, USER response area, Codex response digest area, and Workstream Entry result area. Stage 2 closeout must report the review folder path, copied files, source branch, source HEAD, validation summary, exact next USER decision requested, and pending USER decisions. Workstream Entry must re-check this packet before implementation approval and include a `USER Review Packet Finding:` that names the packet files, exported zip, source branch, packet source HEAD, current branch HEAD, freshness result, digest status, and waiver/blocker status. Workstream implementation remains blocked until USER response is attached/inserted and Codex digests that response, or until USER grants an explicit waiver. Missing Stage 2 branch-plan packet proof, a missing/shallow `USER_BRANCH_PLAN_REVIEW.md`, a stale packet, a packet that was not loaded and digested, or a missing USER response/digest or waiver blocks the handoff on `Branch Readiness Stage 2 Review Bundle Missing`, `USER Branch Plan Review Missing`, `USER Review Packet Stale`, or `USER Review Packet Not Digested`.
+Branch Readiness Stage 2 may also create or refresh a USER-reviewable local hub packet for the admitted branch under `C:\Nexus USER\<worktree-label>` with a matching upload ZIP at `C:\Nexus USER\<worktree-label>.zip`. The packet uses the flat-file local USER hub format and prepares the branch for Branch Planning: it must include `START_HERE.md`, `USER_BRANCH_VISION_REVIEW.md` when BP1 applies, `USER_BRANCH_PLAN_REVIEW.md` when BP2 applies, the active external branch plan or approved transition branch plan, branch authority evidence pointer, branch-record index, relevant family/Nexus vision or source-truth router files, and any compact backlog/roadmap/validator/helper files needed for USER review before Workstream implementation approval. Stage 2 closeout must report the review folder path, copied files, validation summary, exact next USER decision requested, and pending USER decisions through helper output or Codex digest rather than making mutable branch status the focus of USER-facing files. Missing local USER hub packet proof, missing/shallow Branch Planning review files, stale packet, packet not loaded/digested, or missing USER response/digest/waiver blocks the handoff on `Branch Readiness Stage 2 Review Bundle Missing`, `BP1 Branch Vision Review Missing`, `BP2 Branch Plan Review Missing`, `USER Review Packet Stale`, or `USER Review Packet Not Digested`.
 
-Branch Readiness Stage 2 also creates or admits the `Element-to-Phase Proof Matrix` when the branch creates, touches, affects, defers, or preserves product/runtime/UI/source-truth elements. Workstream Entry must return that matrix, or a concrete summary of it, for USER review before implementation begins or resumes.
+Branch Readiness Stage 2 also creates or admits the `Element-to-Phase Proof Matrix` when the branch creates, touches, affects, defers, or preserves product/runtime/UI/source-truth elements. BP3 must return that matrix, or a concrete summary of it, for USER review before implementation begins or resumes.
 
-Workstream Entry must return the `USER Branch Plan Review Gate` packet before implementation begins or resumes for runtime/user-facing/source-truth work. The packet is the readable "what this branch intends to build" handoff, while the active branch planning owner remains source truth. The Workstream Entry digest must not omit the USER Review Packet: it must either record an explicit waiver or digest `START_HERE.md`, `USER_BRANCH_PLAN_REVIEW.md`, and the exported zip freshness as a named `USER Review Packet Finding:` before any implementation approval text is legal. It must also report `USER Review Response:` and `Codex Response Digest:` so the next implementation packet proves USER design input was accepted, revised, rejected, deferred with waiver, or is still blocking.
+BP1 must return the `USER Branch Vision Review Gate` before engineering plan acceptance. BP2 must return the `USER Branch Plan Review Gate` before BP3 orchestration validation. BP3 must return Workstream Entry / Orchestration Validation before implementation begins or resumes for runtime/user-facing/source-truth work. The packet is the readable "what this branch intends to build and how Codex will build it" handoff, while the active external branch planning owner remains source truth. The BP3 digest must not omit the USER Review Packet: it must either record an explicit waiver or digest `START_HERE.md`, applicable Branch Planning review files, and the exported zip as a named `USER Review Packet Finding:` before any implementation approval text is legal. It must also report `USER Review Response:` and `Codex Response Digest:` so the next implementation packet proves USER design input was accepted, revised, rejected, deferred with waiver, or is still blocking.
 
-Workstream Entry reads the plan and returns whole-package analysis plus the first-seam design packet before implementation. Each seam updates plan-to-implementation traceability with planned item, changed files, validator proof, user-facing proof, and future-gated decisions.
+BP3 reads the accepted/waived BP1 and BP2 plan and returns whole-package analysis plus the first-seam implementation approval packet before implementation. Each Workstream seam updates plan-to-implementation traceability with planned item, changed files, validator proof, user-facing proof, and future-gated decisions.
 
 Workstream seam closeout updates the matrix with implemented, skipped, deferred, or future-gated status. Hardening compares actual implementation against the matrix. Live Validation compares observed behavior, user-facing proof, UTS posture, and waiver posture against the matrix. PR Readiness folds durable matrix outcomes into the branch record, workstream doc, family dossier, or Element Validation Ledger owner.
 
@@ -436,4 +521,4 @@ Fold-down must preserve USER decisions, approval boundaries, future-gated items,
 
 ## Compact Pointer Rule
 
-The backlog and roadmap must not own detailed runtime plan narrative. They may point to the branch authority record, `Docs/branch_plans/<branch_slug>.md`, canonical workstream docs, or family dossiers. Detailed checklist fields such as `Per-Seam Implementation Checklist:`, `PR Readiness Fold-Down / Retention Checklist:`, and `Release Readiness Public-Scope Translation Checklist:` belong in this plan layer or the folded historical record, not in backlog or roadmap.
+The backlog and roadmap must not own detailed runtime plan narrative. They may point to the branch authority record, active external branch plan, repo branch-plan historical receipt, canonical workstream docs, or family dossiers. Detailed checklist fields such as `Per-Seam Implementation Checklist:`, `PR Readiness Fold-Down / Retention Checklist:`, and `Release Readiness Public-Scope Translation Checklist:` belong in the external plan layer or the folded historical record, not in backlog or roadmap.

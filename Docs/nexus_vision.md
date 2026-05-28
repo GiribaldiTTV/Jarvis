@@ -11,11 +11,11 @@ It does not own:
 - roadmap sequencing
 - phase governance, proof ownership, or validation stop-loss rules
 - family-specific implementation detail
-- active branch execution plans
+- active external branch execution plans
 
 Use it for product direction, experience intent, and release-stage meaning.
 
-Family-specific vision records live under `Docs/family_visions/` when a broad feature family needs durable USER-reviewed product direction. Active branch plans still own the Branch Vision Contract Snapshot and implementation checklist for the current branch only.
+Family-specific vision records live under `Docs/family_visions/` when a broad feature family needs durable USER-reviewed product direction. Active external branch plans under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` own the Branch Vision Contract Snapshot and implementation checklist for the current branch only; repo branch-plan files are historical receipts after fold-down.
 
 Edition-specific AI deployment planning lives in `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`. That plan records the public-safe Owner / Dev / Public edition capability model, private-repo separation, Public-to-Dev migration direction, GitHub Desktop setup guidance, and release breakpoints without authorizing runtime AI, provider/model execution, memory, packaging, licensing, or private repo implementation.
 

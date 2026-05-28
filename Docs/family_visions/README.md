@@ -2,8 +2,8 @@
 
 ## Purpose
 
-`Docs/family_visions/` owns durable product-direction records for broad Nexus feature families when the backlog needs more than a compact pointer but less than an active branch plan. During the AI-native taxonomy repair, the directory may temporarily retain source files whose filenames contain removed FAM labels while their content is being analyzed and folded into the correct existing owners. Those filenames are not active backlog identity and do not reserve future FAM numbers.
-Codex reaches family vision through the Main-first loader chain: `Docs/Main.md` routes to `Docs/nexus_vision.md` for project-wide vision, then to the relevant family vision record, then to the active branch plan for branch-local snapshots and implementation proof.
+`Docs/family_visions/` owns durable product-direction records for broad Nexus feature families when the backlog needs more than a compact pointer but less than an active external branch plan. During the AI-native taxonomy repair, the directory may temporarily retain source files whose filenames contain removed FAM labels while their content is being analyzed and folded into the correct existing owners. Those filenames are not active backlog identity and do not reserve future FAM numbers.
+Codex reaches family vision through the Main-first loader chain: `Docs/Main.md` routes to `Docs/nexus_vision.md` for project-wide vision, then to the relevant family vision record, then to the active external branch plan for branch-local snapshots and implementation proof.
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
@@ -17,7 +17,7 @@ Family vision records:
 Family vision records do not own:
 
 - active branch authority
-- active branch implementation plans
+- active external branch implementation plans
 - live Git, GitHub, release, PR, issue, worktree, or review state
 - package/slice execution ledgers
 - runtime implementation approval
@@ -29,7 +29,7 @@ Backlog family work stays local to its owning family/worktree. A family vision m
 
 - Project-wide vision: `Docs/nexus_vision.md`
 - Family-level vision: `Docs/family_visions/FAM-XXX_<slug>.md`
-- Active branch vision snapshot: `Docs/branch_plans/<branch_slug>.md`
+- Active branch vision snapshot: `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`
 - Durable implementation/proof history: `Docs/workstreams/` records or structured branch receipts
 - Compact family registry and pointers: `Docs/feature_backlog.md`
 
@@ -57,6 +57,6 @@ These records are source material for no-loss folding before any deletion, renam
 
 ## Fold-Down Rule
 
-PR Readiness may fold reusable branch vision updates into a family vision record only when the update is USER accepted, applies beyond the current branch, and does not duplicate branch-local implementation detail. Proposed or unresolved design ideas remain in the active branch plan as UFD items, question queue entries, or future-package candidates until USER decides their final owner.
+PR Readiness may fold reusable branch vision updates into a family vision record only when the update is USER accepted, applies beyond the current branch, and does not duplicate branch-local implementation detail. Proposed or unresolved design ideas remain in the active external branch plan as UFD items, question queue entries, or future-package candidates until USER decides their final owner.
 
 Use the `Vision Update Decision Matrix` in `Docs/phase_governance.md` before editing a family vision. Family vision records receive reusable USER-accepted family standards; they do not receive project-wide Nexus principles, branch-local implementation detail, proposed ideas, unresolved design questions, or live branch state.

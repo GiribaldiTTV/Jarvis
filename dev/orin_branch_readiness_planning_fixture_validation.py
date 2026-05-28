@@ -9,9 +9,12 @@ planning.
 
 from __future__ import annotations
 
+import tempfile
+import zipfile
 from pathlib import Path
 
 import orin_branch_governance_validation as governance
+import orin_user_review_bundle as review_bundle
 import orin_worktree_rebaseline_audit as rebaseline
 
 
@@ -114,6 +117,42 @@ INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE = (
 VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE = (
     FIXTURE_DIR / "valid_user_branch_plan_review_deferred_scope.md"
 )
+VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE = (
+    FIXTURE_DIR / "valid_bp1_branch_vision_review.md"
+)
+INVALID_BP1_MISSING_CONTEXT_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_missing_project_family_branch_context.md"
+)
+INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_shallow_recommendations.md"
+)
+INVALID_BP1_SLC_CENTERED_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_slc_centered_branch_vision_review.md"
+)
+INVALID_BP1_TECHNICAL_METADATA_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_technical_metadata.md"
+)
+INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp2_missing_accepted_bp1_trace.md"
+)
+INVALID_BP2_PRODUCT_DESIGN_WORDING_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp2_product_design_contract_wording.md"
+)
+INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp3_implementation_while_bp1_or_bp2_pending.md"
+)
+VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE = (
+    FIXTURE_DIR / "valid_bp3_accepted_bp1_bp2_slc_traceability_complete.md"
+)
+INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_packet_active_branch_metadata.md"
+)
+INVALID_USER_PACKET_ZIP_HASH_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_packet_zip_hash.md"
+)
+INVALID_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_packet_desktop_active_upload_path.md"
+)
 VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
     FIXTURE_DIR / "valid_merge_stable_source_truth_projection.md"
 )
@@ -186,6 +225,30 @@ EXPECTED_USER_BRANCH_PLAN_FIRST_SEAM_FAILURE_SNIPPET = (
 )
 EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET = (
     "USER Review Response:"
+)
+EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET = "Project Vision Context"
+EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
+    "Codex Recommendations are too shallow"
+)
+EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET = "BP1 cannot be SLC-centered"
+EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
+    "BP1 must not center active branch technical metadata"
+)
+EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET = "Accepted BP1 trace"
+EXPECTED_BP2_PRODUCT_DESIGN_WORDING_FAILURE_SNIPPET = (
+    "BP2 must be engineering-plan-first"
+)
+EXPECTED_BP3_PENDING_FAILURE_SNIPPET = (
+    "BP3 cannot approve implementation while BP1 or BP2 is pending"
+)
+EXPECTED_USER_PACKET_ACTIVE_METADATA_FAILURE_SNIPPET = (
+    "USER-facing packet file contains active technical metadata"
+)
+EXPECTED_USER_PACKET_ZIP_HASH_FAILURE_SNIPPET = (
+    "USER-facing packet file contains ZIP/hash technical metadata"
+)
+EXPECTED_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FAILURE_SNIPPET = (
+    "USER-facing packet file routes active upload/review to Desktop or OneDrive"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -350,6 +413,187 @@ def _validate_user_branch_plan_review_text(text: str) -> list[str]:
         text,
         require_gate=True,
     )
+    return failures
+
+
+def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+    required_markers = (
+        "USER Branch Vision Review:",
+        "Project Vision Context:",
+        "Family Vision Context:",
+        "Feature Vision Context:",
+        "Branch Goal:",
+        "End-State Vision:",
+        "What Will I Actually See, And Where Will I See It?:",
+        "How It Will Function:",
+        "User Experience Flow:",
+        "Surface Map:",
+        "Product Options / Design Paths:",
+        "Codex Recommendations:",
+        "USER Response:",
+        "Codex Digest:",
+        "Accepted Branch Vision:",
+        "Design Assumption Ledger:",
+        "Acceptance / Revision / Rejection / Waiver Decision:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"BP1 Branch Vision Review missing {marker}")
+    for marker in (
+        "Project Vision Context:",
+        "Family Vision Context:",
+        "Feature Vision Context:",
+        "Branch Goal:",
+    ):
+        value = governance._extract_marker_value(text, marker)
+        require(bool(value), f"BP1 Branch Vision Review missing {marker}")
+    recommendations = governance._extract_marker_value(text, "Codex Recommendations:")
+    require(
+        governance._planning_word_count(recommendations) >= 16
+        and "placement" in recommendations.casefold()
+        and "tradeoff" in recommendations.casefold(),
+        "Codex Recommendations are too shallow for BP1 Branch Vision Review",
+    )
+    require(
+        "bp1 center: slc" not in normalized and "slc-centered: yes" not in normalized,
+        "BP1 cannot be SLC-centered; SLCs are engineering route details after vision acceptance",
+    )
+    for metadata_marker in (
+        "Source HEAD:",
+        "origin/main:",
+        "Ahead/Behind:",
+        "Current PR State:",
+        "Worktree Cleanliness:",
+    ):
+        require(
+            metadata_marker not in text,
+            "BP1 must not center active branch technical metadata",
+        )
+    return failures
+
+
+def _validate_bp2_branch_plan_review_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    required_markers = (
+        "USER Branch Plan Review:",
+        "Accepted Branch Vision Summary:",
+        "Implementation Package Summary:",
+        "Branch Scope Size Test:",
+        "SLC / Seam Plan:",
+        "Affected Surfaces:",
+        "Likely Files:",
+        "Validators / Helpers:",
+        "Proof Requirements:",
+        "Element-to-Phase Proof Matrix:",
+        "H1 Expectations:",
+        "LV / UTS Expectations:",
+        "Rollback / Safety Plan:",
+        "Future-Gated Boundaries:",
+        "Plan Acceptance Checklist:",
+        "Exact BP3 Approval Text:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"BP2 Branch Plan Review missing {marker}")
+    accepted_trace = governance._extract_marker_value(text, "Accepted Branch Vision Summary:")
+    require(
+        "bp1 accepted" in accepted_trace.casefold()
+        or "bp1 waived" in accepted_trace.casefold(),
+        "Accepted BP1 trace is required before BP2 can be green",
+    )
+    stale_product_design_phrases = (
+        "required user-facing product/design planning gate",
+        "Do I actually like what Codex is about to build",
+        "USER Branch Plan Contract: a required user-facing product/design",
+    )
+    for phrase in stale_product_design_phrases:
+        require(
+            phrase.casefold() not in text.casefold(),
+            "BP2 must be engineering-plan-first and must not reuse BP1/product-design contract wording",
+        )
+    return failures
+
+
+def _validate_bp3_orchestration_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+    for marker in (
+        "BP1 Contract Status:",
+        "BP2 Contract Status:",
+        "Branch Plan Matches Accepted Branch Vision:",
+        "Branch Package Size:",
+        "SLC Traceability:",
+        "Future-Gated Boundaries:",
+        "First Bounded Workstream Seam:",
+        "Implementation Approval:",
+    ):
+        require(marker in text, f"BP3 Orchestration Validation missing {marker}")
+    bp1 = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "BP1 Contract Status:")
+    )
+    bp2 = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "BP2 Contract Status:")
+    )
+    implementation_approval = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Implementation Approval:")
+    )
+    if "approve" in implementation_approval or "approved" in implementation_approval:
+        require(
+            bp1.startswith(("complete", "waived by user"))
+            and bp2.startswith(("complete", "waived by user")),
+            "BP3 cannot approve implementation while BP1 or BP2 is pending",
+        )
+    require(
+        "slc traceability: complete" in normalized,
+        "BP3 requires complete SLC traceability to BP1 and BP2",
+    )
+    return failures
+
+
+def _validate_user_packet_metadata_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    active_metadata_markers = (
+        "HEAD",
+        "Source HEAD:",
+        "origin/main:",
+        "Merge Base:",
+        "Ahead/Behind:",
+        "Upstream:",
+        "Worktree Cleanliness:",
+        "Validation Status:",
+        "PR State:",
+        "Current Branch State:",
+    )
+    for marker in active_metadata_markers:
+        require(
+            marker not in text,
+            "USER-facing packet file contains active technical metadata",
+        )
+    hash_markers = (
+        "ZIP SHA",
+        "ZIP SHA256",
+        "ZIP hash",
+        "packet hash",
+        "upload hash",
+    )
+    for marker in hash_markers:
+        require(
+            marker.casefold() not in text.casefold(),
+            "USER-facing packet file contains ZIP/hash technical metadata",
+        )
+    active_upload_markers = (
+        "Desktop review bundle",
+        "USER Desktop review bundle",
+        "OneDrive active review path",
+        "Upload from C:\\Users\\anden\\OneDrive\\Desktop",
+        "Upload ZIP: C:\\Users\\anden\\OneDrive\\Desktop",
+        "Review Location: C:\\Users\\anden\\OneDrive\\Desktop",
+    )
+    for marker in active_upload_markers:
+        require(
+            marker.casefold() not in text.casefold(),
+            "USER-facing packet file routes active upload/review to Desktop or OneDrive",
+        )
     return failures
 
 
@@ -566,6 +810,234 @@ def _validate_missing_plan_pointer_text() -> list[str]:
     return failures
 
 
+def _validate_user_review_bundle_identity_guard() -> list[str]:
+    source_path = "Docs/Main.md"
+    copied_path = "Main.md"
+    current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
+    current_head = review_bundle._git_output("rev-parse", "HEAD")
+    current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
+    source_text = (ROOT / source_path).read_text(encoding="utf-8")
+    common = "Decision Path Summary: workstream implementation approval\nUSER Decision: approve workstream implementation\n"
+    packet_files = {
+        "START_HERE.md": (
+            "# Review\n\n"
+            "USER Decision This Packet Supports: approve workstream implementation\n\n"
+            "## Files\n\n"
+            "| Source path | Copied path |\n"
+            "| --- | --- |\n"
+            f"| `{source_path}` | `{copied_path}` |\n"
+        ),
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
+        copied_path: source_text,
+    }
+
+    valid_result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch=current_branch,
+        expected_head=current_head,
+        expected_origin_main=current_origin_main,
+        enforce_identity=True,
+    )
+    failures: list[str] = []
+    if valid_result.failures:
+        failures.append(
+            "Valid USER review bundle identity fixture unexpectedly failed: "
+            + "; ".join(valid_result.failures[:5])
+        )
+
+    wrong_result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="wrong-branch",
+        expected_head="0" * 40,
+        expected_origin_main="1" * 40,
+        enforce_identity=True,
+    )
+    wrong_failures = "\n".join(wrong_result.failures)
+    for expected in (
+        "expected branch",
+        "expected HEAD",
+        "expected origin/main",
+    ):
+        if expected not in wrong_failures:
+            failures.append(
+                "Invalid USER review bundle identity fixture did not reject "
+                f"{expected}"
+            )
+    return failures
+
+
+def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
+    source_path = "Docs/Main.md"
+    copied_path = "Main.md"
+    current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
+    current_head = review_bundle._git_output("rev-parse", "HEAD")
+    current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
+    source_text = (ROOT / source_path).read_text(encoding="utf-8")
+    common = (
+        "Decision Path Summary: workstream implementation approval\n"
+        "USER Decision: approve workstream implementation\n"
+    )
+    vision_headings = (
+        "Contract Status",
+        "Contract Revision",
+        "Project Vision Context",
+        "Family Vision Context",
+        "Feature Vision Context",
+        "Branch Goal",
+        "End-State Vision",
+        "What Will I Actually See, And Where Will I See It?",
+        "How It Will Function",
+        "User Experience Flow",
+        "Surface Map",
+        "Product Options / Design Paths",
+        "Codex Recommendations",
+        "USER Response",
+        "Codex Digest",
+        "Accepted Branch Vision",
+        "Design Assumption Ledger",
+        "Acceptance / Revision / Rejection / Waiver Decision",
+    )
+    plan_headings = (
+        "Contract Status",
+        "Contract Version / Revision",
+        "Plain-English Branch Summary",
+        "What Will I Actually See, And Where Will I See It?",
+        "End-State Vision",
+        "Visual / Functional Walkthrough",
+        "Surface Map",
+        "Implementation Options",
+        "Recommended Direction",
+        "Why This Fits The Nexus Vision",
+        "USER Plan Review Decision",
+        "USER Decisions Needed",
+        "USER Response",
+        "Codex Response Digest",
+        "Implementation Constraints Created By USER Response",
+        "USER Rejected / Deferred Ideas",
+        "Vision Delta / Source-Truth Impact",
+        "Contract Change Log",
+        "Current Branch Scope",
+        "Future-Gated Scope",
+        "Implementation Staging Notes",
+        "Workstream Entry Result",
+        "Contract Completion Checklist",
+        "Exact USER Decision Supported",
+    )
+    packet_files = {
+        "START_HERE.md": (
+            "# Review\n\n"
+            "Review Purpose: Fixture packet.\n"
+            "USER Decision This Packet Supports: approve workstream implementation\n"
+            "Bundle File Count: 8\n"
+            "Expected File Count: 1\n"
+            "Copied File Count: 1\n"
+            "Extra Bundle File Count: 6\n\n"
+            "| Source path | Copied path |\n"
+            "| --- | --- |\n"
+            f"| `{source_path}` | `{copied_path}` |\n"
+        ),
+        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: "\n".join(
+            f"## {heading}\nComplete.\n" for heading in vision_headings
+        ),
+        review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: "\n".join(
+            f"## {heading}\nComplete.\n" for heading in plan_headings
+        ).replace(
+            "## Exact USER Decision Supported\nComplete.\n",
+            "## Exact USER Decision Supported\nApprove bounded workstream implementation.\n",
+        ),
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
+        copied_path: source_text,
+    }
+
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        export_zip = Path(temp_dir) / "Governance.zip"
+        with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, text in packet_files.items():
+                archive.writestr(name, text)
+
+        try:
+            review_bundle._validate_export_zip(
+                export_zip,
+                source_branch=current_branch,
+                source_head=current_head,
+                origin_main=current_origin_main,
+                expected_entries=set(packet_files),
+            )
+        except ValueError as exc:
+            failures.append(
+                "Valid USER review export zip identity fixture unexpectedly failed: "
+                f"{exc}"
+            )
+
+        try:
+            review_bundle._validate_export_zip(
+                export_zip,
+                source_branch="wrong-branch",
+                source_head="0" * 40,
+                origin_main="1" * 40,
+                expected_entries=set(packet_files),
+            )
+        except ValueError as exc:
+            wrong_failures = str(exc)
+        else:
+            wrong_failures = ""
+            failures.append("Invalid USER review export zip identity fixture unexpectedly passed")
+
+    for expected in (
+        "expected branch",
+        "expected HEAD",
+        "expected origin/main",
+    ):
+        if expected not in wrong_failures:
+            failures.append(
+                "Invalid USER review export zip identity fixture did not reject "
+                f"{expected}"
+            )
+    return failures
+
+
+def _validate_active_overlay_user_branch_plan_review_metadata_guard() -> list[str]:
+    source_path = "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md"
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_user_branch_plan_review(
+            target=target,
+            title="Active Overlay Recording Runtime Foundation",
+            review_purpose="Fixture packet metadata guard.",
+            source_branch="feature/fam-006-active-overlay-recording-runtime-foundation",
+            source_head=review_bundle._git_output("rev-parse", "HEAD"),
+            upstream="origin/feature/fam-006-active-overlay-recording-runtime-foundation",
+            origin_main=review_bundle._git_output("rev-parse", "origin/main"),
+            exact_user_decision="I approve PR Readiness Stage 1 analysis.",
+            pending_user_decisions=["Runtime implementation remains pending USER approval."],
+            copied=[(source_path, "feature_fam_006_active_overlay_recording_runtime_foundation.md")],
+        )
+        text = (target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE).read_text(encoding="utf-8")
+
+    metadata_failures = review_bundle._user_facing_technical_metadata_failures(
+        {review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: text}
+    )
+    if metadata_failures:
+        failures.append(
+            "Active Overlay USER Branch Plan Review fixture unexpectedly emitted "
+            "USER-facing technical metadata: "
+            + "; ".join(metadata_failures[:5])
+        )
+    if "HEAD changes" in text:
+        failures.append(
+            "Active Overlay USER Branch Plan Review fixture still contains stale HEAD-change wording"
+        )
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     for fixture in (
@@ -604,6 +1076,14 @@ def validate() -> list[str]:
         INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE,
         VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE,
+        VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE,
+        INVALID_BP1_MISSING_CONTEXT_FIXTURE,
+        INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE,
+        INVALID_BP1_SLC_CENTERED_FIXTURE,
+        INVALID_BP1_TECHNICAL_METADATA_FIXTURE,
+        INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE,
+        INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE,
+        VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE,
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
     ):
@@ -1035,6 +1515,122 @@ def validate() -> list[str]:
             + "; ".join(deferred_review_failures[:5])
         )
 
+    valid_bp1_failures = _validate_bp1_branch_vision_review_text(
+        VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_bp1_failures:
+        failures.append(
+            "Valid BP1 Branch Vision Review fixture unexpectedly failed: "
+            + "; ".join(valid_bp1_failures[:5])
+        )
+
+    missing_context_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_MISSING_CONTEXT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET not in "\n".join(missing_context_failures):
+        failures.append(
+            "Invalid BP1 missing-context fixture did not reject missing Project/Family/Feature context"
+        )
+
+    shallow_recommendation_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET not in "\n".join(
+        shallow_recommendation_failures
+    ):
+        failures.append(
+            "Invalid BP1 shallow-recommendations fixture did not reject shallow recommendations"
+        )
+
+    slc_centered_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_SLC_CENTERED_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET not in "\n".join(
+        slc_centered_failures
+    ):
+        failures.append(
+            "Invalid BP1 SLC-centered fixture did not reject SLC-centered branch vision"
+        )
+
+    technical_metadata_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_TECHNICAL_METADATA_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET not in "\n".join(
+        technical_metadata_failures
+    ):
+        failures.append(
+            "Invalid BP1 technical-metadata fixture did not reject active branch metadata"
+        )
+
+    missing_bp1_trace_failures = _validate_bp2_branch_plan_review_text(
+        INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET not in "\n".join(
+        missing_bp1_trace_failures
+    ):
+        failures.append(
+            "Invalid BP2 missing-accepted-BP1 fixture did not reject missing accepted BP1 trace"
+        )
+
+    product_design_wording_failures = _validate_bp2_branch_plan_review_text(
+        INVALID_BP2_PRODUCT_DESIGN_WORDING_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP2_PRODUCT_DESIGN_WORDING_FAILURE_SNIPPET not in "\n".join(
+        product_design_wording_failures
+    ):
+        failures.append(
+            "Invalid BP2 product-design wording fixture did not reject stale BP1 contract wording"
+        )
+
+    bp3_pending_failures = _validate_bp3_orchestration_text(
+        INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_BP3_PENDING_FAILURE_SNIPPET not in "\n".join(bp3_pending_failures):
+        failures.append(
+            "Invalid BP3 pending-BP1/BP2 fixture did not reject implementation approval"
+        )
+
+    valid_bp3_failures = _validate_bp3_orchestration_text(
+        VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_bp3_failures:
+        failures.append(
+            "Valid BP3 accepted-BP1/BP2 fixture unexpectedly failed: "
+            + "; ".join(valid_bp3_failures[:5])
+        )
+
+    active_packet_metadata_failures = _validate_user_packet_metadata_text(
+        INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_PACKET_ACTIVE_METADATA_FAILURE_SNIPPET not in "\n".join(
+        active_packet_metadata_failures
+    ):
+        failures.append(
+            "Invalid USER packet active-metadata fixture did not reject branch metadata"
+        )
+
+    zip_hash_packet_failures = _validate_user_packet_metadata_text(
+        INVALID_USER_PACKET_ZIP_HASH_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_PACKET_ZIP_HASH_FAILURE_SNIPPET not in "\n".join(
+        zip_hash_packet_failures
+    ):
+        failures.append(
+            "Invalid USER packet ZIP-hash fixture did not reject hash metadata"
+        )
+
+    desktop_upload_packet_failures = _validate_user_packet_metadata_text(
+        INVALID_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FAILURE_SNIPPET not in "\n".join(
+        desktop_upload_packet_failures
+    ):
+        failures.append(
+            "Invalid USER packet Desktop/OneDrive upload fixture did not reject active upload path"
+        )
+
     valid_merge_stable_failures = _validate_merge_stable_projection_text(
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE.read_text(encoding="utf-8")
     )
@@ -1058,6 +1654,10 @@ def validate() -> list[str]:
     failures.extend(_validate_merge_stable_projection_helpers())
 
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
+
+    failures.extend(_validate_user_review_bundle_identity_guard())
+    failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
+    failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
 
     return failures
 
