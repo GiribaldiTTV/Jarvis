@@ -93,6 +93,7 @@ WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
 )
 
 DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
+DECISION_STATUS_BP1_BRANCH_VISION_REVIEW = "bp1-branch-vision-review"
 DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
 DECISION_STATUS_HARDENING_REVIEW = "hardening-final-review"
 DECISION_STATUS_LIVE_VALIDATION_REVIEW = "live-validation-final-review"
@@ -179,6 +180,7 @@ class WorkstreamEntryPacketDecisionPathResult:
     @property
     def blocks_implementation(self) -> bool:
         return self.status in {
+            DECISION_STATUS_BP1_BRANCH_VISION_REVIEW,
             DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW,
             DECISION_STATUS_HARDENING_REVIEW,
             DECISION_STATUS_LIVE_VALIDATION_REVIEW,
@@ -2368,7 +2370,15 @@ def _write_workstream_entry_packet_digests(
     pr_stage1_packet = (
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
+    bp1_packet = (
+        "bp1 branch vision" in exact_user_decision.casefold()
+        and "authorize bp2 user branch plan review only" in exact_user_decision.casefold()
+    )
     packet_status = (
+        "bp1 branch vision review - BP1 Branch Vision Review remains pending "
+        "USER acceptance, revision, waiver, rejection, or hold; BP2 remains pending."
+        if bp1_packet
+        else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
         if pr_stage1_packet
@@ -2405,7 +2415,41 @@ def _write_workstream_entry_packet_digests(
             "remains pending USER approval."
         )
     )
-    if pr_stage1_packet:
+    if bp1_packet:
+        analysis_status = (
+            "Analysis Summary: BP1 Branch Vision Review packet for the active "
+            "Branch Planning carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: BP2, BP3, Workstream implementation, "
+            "private setup, runtime/provider/cache/memory behavior, PR, merge, "
+            "release, cleanup, and sibling-worktree mutation remain pending "
+            "USER decisions."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: BP1 USER decision, then BP2 USER Branch "
+            "Plan Review only if USER accepts or explicitly waives BP1."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the project vision, FAM-007 "
+            "family vision, Public/Dev/Owner boundary plan, AI Runtime And Trust "
+            "Architecture, active branch authority record, branch artifact rules, "
+            "phase governance, execution rules, validation registry, backlog, and "
+            "roadmap context needed for the BP1 Branch Vision decision."
+        )
+        checklist_status = (
+            "Checklist Focus: BP1 Branch Vision Review - project, family, feature, "
+            "branch goal, end-state vision, user-facing review surfaces, options, "
+            "recommendations, future-gated decisions, and regression-risk controls "
+            "are represented for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, "
+            "USER_BRANCH_PLAN_REVIEW.md as BP2 preview only, required digest/"
+            "checklist files, and copied source-truth files are loaded and "
+            "digestible for USER review; BP1 remains pending USER decision."
+        )
+    elif pr_stage1_packet:
         analysis_status = (
             "Analysis Summary: Governance Phase Lifecycle Reform packet is ready "
             "for PR Readiness Stage 1 analysis approval."
@@ -2785,6 +2829,21 @@ def _packet_text_status(text: str) -> str:
     if any(marker in normalized for marker in repair_markers):
         return DECISION_STATUS_REPAIR_REVALIDATION
 
+    bp1_review_markers = (
+        "bp1 branch vision review",
+        "bp1 user branch vision review",
+        "bp1 review packet",
+    )
+    bp1_decision_markers = (
+        "authorize bp2 user branch plan review only",
+        "bp2 remains pending",
+        "bp2 user branch plan review remains pending",
+    )
+    if any(marker in normalized for marker in bp1_review_markers) and any(
+        marker in normalized for marker in bp1_decision_markers
+    ):
+        return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
+
     final_review_markers = (
         "workstream entry final decision review",
         "final workstream entry decision",
@@ -3011,7 +3070,15 @@ def build_bundle(
     pr_stage1_packet = (
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
+    bp1_packet = (
+        "bp1 branch vision" in exact_user_decision.casefold()
+        and "authorize bp2 user branch plan review only" in exact_user_decision.casefold()
+    )
     machine_readable_packet_status = (
+        "bp1 branch vision review - BP1 Branch Vision Review remains pending "
+        "USER acceptance, revision, waiver, rejection, or hold; BP2 remains pending."
+        if bp1_packet
+        else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
         if pr_stage1_packet
