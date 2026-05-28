@@ -23,7 +23,8 @@ from typing import Mapping
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_USER_HUB_ROOT = Path(r"C:\Nexus USER")
+WINDOWS_USER_HUB_ROOT_TEXT = r"C:\Nexus USER"
+DEFAULT_USER_HUB_ROOT = Path(WINDOWS_USER_HUB_ROOT_TEXT)
 DEFAULT_REVIEW_ROOT_NAME = ""
 CUSTOM_REVIEW_PATH_NONE = "None - stable review root enforced"
 PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
@@ -189,6 +190,17 @@ class WorkstreamEntryPacketDecisionPathResult:
 
 
 def _desktop_path() -> Path:
+    if os.name != "nt":
+        raise RuntimeError(
+            "The local USER hub path is Windows-only: "
+            f"{WINDOWS_USER_HUB_ROOT_TEXT}. Run this helper from Windows so "
+            "review packets stay outside the repo worktree."
+        )
+    if not DEFAULT_USER_HUB_ROOT.is_absolute():
+        raise RuntimeError(
+            "The local USER hub root must be an absolute filesystem path: "
+            f"{WINDOWS_USER_HUB_ROOT_TEXT}"
+        )
     return DEFAULT_USER_HUB_ROOT
 
 
@@ -207,6 +219,8 @@ def _worktree_label(explicit_label: str | None) -> str:
 
 
 def _safe_target(desktop: Path, review_root_name: str, worktree_label: str) -> tuple[Path, Path]:
+    if not desktop.is_absolute():
+        raise ValueError(f"Local USER hub root must be absolute: {desktop}")
     if review_root_name:
         review_root = (desktop / _sanitize_folder_name(review_root_name)).resolve()
     else:
@@ -571,6 +585,83 @@ def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]
         if pattern.search(text):
             failures.append(
                 f"{USER_BRANCH_PLAN_REVIEW_FILE}: BP2 review contains stale BP1/product-design wording {reason}"
+            )
+    return failures
+
+
+def _start_here_file_mappings(start_here: str) -> dict[str, str]:
+    mappings: dict[str, str] = {}
+    row_pattern = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|", re.MULTILINE)
+    for source_path, copied_path in row_pattern.findall(start_here):
+        mappings[source_path.replace("\\", "/")] = copied_path.replace("\\", "/")
+    return mappings
+
+
+def _git_file_text(ref: str, source_path: str) -> str | None:
+    try:
+        data = subprocess.check_output(
+            ["git", "show", f"{ref}:{source_path}"],
+            cwd=ROOT,
+            stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        return None
+    return data.decode("utf-8", errors="replace")
+
+
+def _normalized_packet_text(text: str) -> str:
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _packet_identity_failures(
+    packet_files: Mapping[str, str],
+    *,
+    expected_branch: str,
+    expected_head: str,
+    expected_origin_main: str,
+) -> list[str]:
+    failures: list[str] = []
+    current_branch = _git_output("rev-parse", "--abbrev-ref", "HEAD")
+    current_head = _git_output("rev-parse", "HEAD")
+    current_origin_main = _git_output("rev-parse", "origin/main")
+
+    if current_branch != expected_branch:
+        failures.append(
+            "Packet identity: expected branch "
+            f"{expected_branch!r} does not match current branch {current_branch!r}"
+        )
+    if current_head != expected_head:
+        failures.append(
+            "Packet identity: expected HEAD "
+            f"{expected_head!r} does not match current HEAD {current_head!r}"
+        )
+    if current_origin_main != expected_origin_main:
+        failures.append(
+            "Packet identity: expected origin/main "
+            f"{expected_origin_main!r} does not match current origin/main {current_origin_main!r}"
+        )
+
+    start_here = packet_files.get("START_HERE.md", "")
+    file_mappings = _start_here_file_mappings(start_here)
+    if not file_mappings:
+        failures.append("START_HERE.md: source/copy file mapping table is missing")
+        return failures
+
+    for source_path, copied_path in file_mappings.items():
+        packet_text = packet_files.get(copied_path)
+        if packet_text is None:
+            continue
+        expected_text = _git_file_text(expected_head, source_path)
+        if expected_text is None:
+            failures.append(
+                "Packet identity: copied source path is not present at expected HEAD: "
+                f"{source_path}"
+            )
+            continue
+        if _normalized_packet_text(packet_text) != _normalized_packet_text(expected_text):
+            failures.append(
+                "Packet identity: copied file does not match expected HEAD content: "
+                f"{copied_path} from {source_path}"
             )
     return failures
 
@@ -2743,10 +2834,20 @@ def _validate_workstream_entry_packet_decision_path(
     expected_head: str,
     expected_origin_main: str,
     require_implementation_ready: bool = False,
+    enforce_identity: bool = False,
     actual_file_count: int | None = None,
 ) -> WorkstreamEntryPacketDecisionPathResult:
     failures: list[str] = []
     failures.extend(_unresolved_template_placeholder_failures(packet_files))
+    if enforce_identity:
+        failures.extend(
+            _packet_identity_failures(
+                packet_files,
+                expected_branch=expected_branch,
+                expected_head=expected_head,
+                expected_origin_main=expected_origin_main,
+            )
+        )
     failures.extend(
         _packet_count_consistency_failures(
             packet_files,
@@ -2819,6 +2920,7 @@ def validate_workstream_entry_packet_folder(
         expected_head=expected_head,
         expected_origin_main=expected_origin_main,
         require_implementation_ready=require_implementation_ready,
+        enforce_identity=True,
         actual_file_count=len(all_files),
     )
 

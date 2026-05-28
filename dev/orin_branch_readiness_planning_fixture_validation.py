@@ -12,6 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import orin_branch_governance_validation as governance
+import orin_user_review_bundle as review_bundle
 import orin_worktree_rebaseline_audit as rebaseline
 
 
@@ -807,6 +808,65 @@ def _validate_missing_plan_pointer_text() -> list[str]:
     return failures
 
 
+def _validate_user_review_bundle_identity_guard() -> list[str]:
+    source_path = "Docs/Main.md"
+    copied_path = "Main.md"
+    current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
+    current_head = review_bundle._git_output("rev-parse", "HEAD")
+    current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
+    source_text = (ROOT / source_path).read_text(encoding="utf-8")
+    common = "Decision Path Summary: workstream implementation approval\nUSER Decision: approve workstream implementation\n"
+    packet_files = {
+        "START_HERE.md": (
+            "# Review\n\n"
+            "USER Decision This Packet Supports: approve workstream implementation\n\n"
+            "## Files\n\n"
+            "| Source path | Copied path |\n"
+            "| --- | --- |\n"
+            f"| `{source_path}` | `{copied_path}` |\n"
+        ),
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
+        copied_path: source_text,
+    }
+
+    valid_result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch=current_branch,
+        expected_head=current_head,
+        expected_origin_main=current_origin_main,
+        enforce_identity=True,
+    )
+    failures: list[str] = []
+    if valid_result.failures:
+        failures.append(
+            "Valid USER review bundle identity fixture unexpectedly failed: "
+            + "; ".join(valid_result.failures[:5])
+        )
+
+    wrong_result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="wrong-branch",
+        expected_head="0" * 40,
+        expected_origin_main="1" * 40,
+        enforce_identity=True,
+    )
+    wrong_failures = "\n".join(wrong_result.failures)
+    for expected in (
+        "expected branch",
+        "expected HEAD",
+        "expected origin/main",
+    ):
+        if expected not in wrong_failures:
+            failures.append(
+                "Invalid USER review bundle identity fixture did not reject "
+                f"{expected}"
+            )
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     for fixture in (
@@ -1423,6 +1483,8 @@ def validate() -> list[str]:
     failures.extend(_validate_merge_stable_projection_helpers())
 
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
+
+    failures.extend(_validate_user_review_bundle_identity_guard())
 
     return failures
 
