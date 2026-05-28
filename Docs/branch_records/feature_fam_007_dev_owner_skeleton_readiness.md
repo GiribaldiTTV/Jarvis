@@ -42,7 +42,7 @@ Seam: `Authority admission, active external-state plan setup, and Branch Plannin
 - Active Branch Authority Transition Waiver: Granted
 - Transition Waiver USER Decision: `USER approved Branch Readiness Stage 2 setup / authority admission for feature/fam-007-dev-owner-skeleton-readiness in C:\Nexus Worktrees\FAM-007 from origin/main@8d7ccd4c98fb2418e27ee3a96fd775c51cbcc718.`
 - External State Reconciliation Proof: `Active authority, selected-next posture, FAM-007 worktree assignment, branch state, and branch plan are recorded under C:\Nexus Governance State for this successor carrier.`
-- Stage 2 Setup Status: `In progress until validation, commit, and push are complete.`
+- Stage 2 Setup Status: `Complete as a durable BR2 setup receipt; BP1 USER Branch Vision Review remains the next pending gate.`
 - Branch Planning Status: `Pending BP1 USER Branch Vision Review.`
 - BP1 Status: `Pending USER approval after packet generation.`
 - BP2 Status: `Pending future USER approval after BP1 is accepted or waived.`
@@ -85,11 +85,11 @@ Sibling Worktree Candidate Exclusion: `FAM-006, Governance, neutral-main, privat
 ## Carrier Lifecycle Decision
 
 Carrier Lifecycle Classification: `Fresh current branch`
-Remote Branch State: `Absent before Stage 2 setup; expected to be created by final Stage 2 push after validation and commit.`
+Remote Branch State: `Absent before Stage 2 setup; created by final Stage 2 push after validation and commit.`
 Unique Branch Diff: `Stage 2 setup edits only until BP1 is approved.`
 Origin/Main Ancestry: `Created from origin/main@8d7ccd4c98fb2418e27ee3a96fd775c51cbcc718.`
 Origin/Main Advanced Since Branch Creation: `NO at Stage 2 setup start.`
-Open PR State: `No live PR exists and PR creation is not approved.`
+Open PR Evidence: `No live PR existed during BR2 setup evidence review, and PR creation remains not approved.`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-007.`
 Recommended Stage 2 Carrier Action: `Admit this successor branch, record external active authority and branch plan, validate, commit, push, then stop for BP1 USER Branch Vision Review approval.`
 Stale Branch Cleanup Plan: `No cleanup authorized; the prior Breakpoint 2 branch remains historical evidence only.`

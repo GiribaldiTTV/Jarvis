@@ -8,7 +8,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
 - Docs files covered: 194
-- Source branch: `feature/fam-007-dev-owner-skeleton-readiness`
+- Source branch: not stored in this docs review index; derive current branch from Git/helper output at review time.
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
 - Runtime/FAM/Compact-AI mutation: none.
@@ -47,7 +47,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 - USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.
 - This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.
-- Current execution model: this deferred-completion pass updates source truth and review artifacts on the USER-approved bounded governance/source-truth repair branch `feature/fam-007-dev-owner-skeleton-readiness` in `C:\Nexus Worktrees\Governance`; PR creation remains separately USER-gated.
+- Current execution model: this index describes the accepted staged Docs reform model. Current branch/worktree identity is intentionally derived from Git, helper output, or external operational state at review time; PR creation remains separately USER-gated.
 - PR Readiness remains held until validation is green and USER separately approves PR creation.
 
 ## USER Response Integration Summary
@@ -243,4 +243,4 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 ## Exact USER Decision This Index Supports
 
-`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/fam-007-dev-owner-skeleton-readiness as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
+`I accept the corrected USER-response integration model and approve the next repo-truth-selected Governance PR Readiness path after validation. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
