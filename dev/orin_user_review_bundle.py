@@ -164,6 +164,28 @@ USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], 
         re.compile(r"USER Branch Plan Contract:\s*a required user-facing product/design", re.IGNORECASE),
     ),
 )
+BP1_PACKET_STALE_LANGUAGE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "workstream-entry-final-decision-path",
+        re.compile(r"workstream entry final decision review", re.IGNORECASE),
+    ),
+    (
+        "bp1-compatibility-status",
+        re.compile(r"BP1 Branch Vision Review compatibility status", re.IGNORECASE),
+    ),
+    (
+        "compatibility-digest",
+        re.compile(r"compatibility digest", re.IGNORECASE),
+    ),
+    (
+        "must-not-do-heading",
+        re.compile(r"##\s*Must-Not-Do\s*/\s*Regression-Risk Rules", re.IGNORECASE),
+    ),
+    (
+        "command-wall-do-not-bullet",
+        re.compile(r"^\s*-\s*Do not\b", re.IGNORECASE | re.MULTILINE),
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -396,6 +418,7 @@ def _validate_export_zip(
         ),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
+        *_bp1_packet_phase_language_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -594,6 +617,26 @@ def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]
             failures.append(
                 f"{USER_BRANCH_PLAN_REVIEW_FILE}: BP2 review contains stale BP1/product-design wording {reason}"
             )
+    return failures
+
+
+def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list[str]:
+    combined = "\n".join(
+        packet_files.get(file_name, "") for file_name in USER_FACING_GENERATED_FILES
+    ).casefold()
+    if "bp1 branch vision" not in combined or "authorize bp2 user branch plan review only" not in combined:
+        return []
+
+    failures: list[str] = []
+    for file_name in USER_FACING_GENERATED_FILES:
+        text = packet_files.get(file_name)
+        if text is None:
+            continue
+        for reason, pattern in BP1_PACKET_STALE_LANGUAGE_PATTERNS:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: BP1 packet contains stale phase/boundary language {reason}"
+                )
     return failures
 
 
@@ -2920,6 +2963,7 @@ def _validate_workstream_entry_packet_decision_path(
         )
     )
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
+    failures.extend(_bp1_packet_phase_language_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if required_file not in packet_files:
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
@@ -3244,6 +3288,7 @@ def build_bundle(
         ),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
+        *_bp1_packet_phase_language_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
