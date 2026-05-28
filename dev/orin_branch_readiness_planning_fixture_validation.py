@@ -132,6 +132,9 @@ INVALID_BP1_TECHNICAL_METADATA_FIXTURE = (
 INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_bp2_missing_accepted_bp1_trace.md"
 )
+INVALID_BP2_PRODUCT_DESIGN_WORDING_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp2_product_design_contract_wording.md"
+)
 INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE = (
     FIXTURE_DIR / "invalid_bp3_implementation_while_bp1_or_bp2_pending.md"
 )
@@ -229,6 +232,9 @@ EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
     "BP1 must not center active branch technical metadata"
 )
 EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET = "Accepted BP1 trace"
+EXPECTED_BP2_PRODUCT_DESIGN_WORDING_FAILURE_SNIPPET = (
+    "BP2 must be engineering-plan-first"
+)
 EXPECTED_BP3_PENDING_FAILURE_SNIPPET = (
     "BP3 cannot approve implementation while BP1 or BP2 is pending"
 )
@@ -492,6 +498,16 @@ def _validate_bp2_branch_plan_review_text(text: str) -> list[str]:
         or "bp1 waived" in accepted_trace.casefold(),
         "Accepted BP1 trace is required before BP2 can be green",
     )
+    stale_product_design_phrases = (
+        "required user-facing product/design planning gate",
+        "Do I actually like what Codex is about to build",
+        "USER Branch Plan Contract: a required user-facing product/design",
+    )
+    for phrase in stale_product_design_phrases:
+        require(
+            phrase.casefold() not in text.casefold(),
+            "BP2 must be engineering-plan-first and must not reuse BP1/product-design contract wording",
+        )
     return failures
 
 
@@ -1323,6 +1339,16 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid BP2 missing-accepted-BP1 fixture did not reject missing accepted BP1 trace"
+        )
+
+    product_design_wording_failures = _validate_bp2_branch_plan_review_text(
+        INVALID_BP2_PRODUCT_DESIGN_WORDING_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP2_PRODUCT_DESIGN_WORDING_FAILURE_SNIPPET not in "\n".join(
+        product_design_wording_failures
+    ):
+        failures.append(
+            "Invalid BP2 product-design wording fixture did not reject stale BP1 contract wording"
         )
 
     bp3_pending_failures = _validate_bp3_orchestration_text(

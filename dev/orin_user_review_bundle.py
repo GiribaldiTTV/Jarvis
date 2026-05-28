@@ -148,6 +148,20 @@ USER_FACING_TECHNICAL_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...]
     ("worktree-status", re.compile(r"\bworktree status\b", re.IGNORECASE)),
     ("sha-like-proof", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
 )
+USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "old-product-design-planning-gate",
+        re.compile(r"required user-facing product/design planning gate", re.IGNORECASE),
+    ),
+    (
+        "old-do-i-like-prompt",
+        re.compile(r"Do I actually like what Codex is about to build", re.IGNORECASE),
+    ),
+    (
+        "old-product-design-contract",
+        re.compile(r"USER Branch Plan Contract:\s*a required user-facing product/design", re.IGNORECASE),
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -359,6 +373,7 @@ def _validate_export_zip(
             actual_file_count=len(entries),
         ),
         *_user_facing_technical_metadata_failures(packet_files),
+        *_user_branch_plan_stale_bp1_wording_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -544,6 +559,19 @@ def _user_facing_technical_metadata_failures(packet_files: Mapping[str, str]) ->
                 failures.append(
                     f"{file_name}: USER-facing generated file contains technical metadata {reason}"
                 )
+    return failures
+
+
+def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]) -> list[str]:
+    text = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE)
+    if text is None:
+        return []
+    failures: list[str] = []
+    for reason, pattern in USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS:
+        if pattern.search(text):
+            failures.append(
+                f"{USER_BRANCH_PLAN_REVIEW_FILE}: BP2 review contains stale BP1/product-design wording {reason}"
+            )
     return failures
 
 
@@ -3039,6 +3067,8 @@ def build_bundle(
             packet_files,
             actual_file_count=len(bundle_paths),
         ),
+        *_user_facing_technical_metadata_failures(packet_files),
+        *_user_branch_plan_stale_bp1_wording_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
