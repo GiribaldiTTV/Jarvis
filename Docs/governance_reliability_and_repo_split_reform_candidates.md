@@ -42,6 +42,49 @@ Current repo truth already provides the first-order rules that control these rec
 
 Because source truth says to run `Source-Truth Placement Preflight` and extend existing owners first, this file treats every proposed new file or registry as a candidate only. A later implementation pass must prove `No Existing Owner Fits` before creating new durable owners.
 
+## Current Branch Scope Correction - 2026-05-28
+
+Scope Classification:
+
+`RRI-20260528-001` currently contains the completed USER Review Gate semantics repair and the non-binding Governance Reliability / Repo Split Reform candidate plan. It is the first bounded repair cycle of the broader reliability reform. It is not the completed admitted Governance Reliability / Repo Split Reform implementation.
+
+PR Readiness Posture:
+
+PR Readiness Stage 1 is premature if the USER intent is for this same Governance PR to enact the full admitted Governance Reliability / Repo Split Reform scope. PR Readiness may proceed only if USER explicitly chooses the Limited PR path for the completed USER Review Gate semantics repair. If USER chooses the Full Reform Continuation path, this branch must stay in Governance reform work before PR Readiness.
+
+Legal Path Options:
+
+| Path | Meaning | Legal Next Phase | PR Readiness Status |
+| --- | --- | --- | --- |
+| Limited PR path | Land only the completed USER Review Gate semantics repair and keep the broader reform as future/pending | PR Readiness Stage 1 for limited repair only, after USER approval | Not premature for limited repair |
+| Full reform continuation path | Continue this Governance branch through the admitted reform cycles before one consolidated PR | Branch Readiness Stage 1 for Cycle 1 - Taxonomy / Owner Discipline | PR Readiness held until all admitted cycles and final integration hardening complete |
+
+USER Preference Captured:
+
+The USER currently prefers the Full reform continuation path if this Governance PR is intended to enact the Governance Reliability And Repo Split Reform plan. That preference does not by itself authorize the next cycle; it defines the recommended next decision text.
+
+Current Commit Completion Matrix:
+
+| Plan Section | Current Branch Status | Evidence / Notes |
+| --- | --- | --- |
+| Active Failure Class - USER Review Gate Bypass | Completed in current branch | Binding source truth, helper behavior, validator checks, fixtures, incident pattern, and USER review packet were updated. |
+| Worktree-Delta Reconciliation Findings | Completed for this cycle | Read-only audit of Main, Governance, FAM-006, and FAM-007 was recorded; product worktrees were not mutated. |
+| Governance Reliability / Repo Split Reform Planning File | Completed as planning evidence | This file exists as non-binding planning and candidate sequencing evidence. |
+| Cycle 1 - Taxonomy / Owner Discipline | Planned candidate / not executed | Requires BR1 admission before mutating binding backlog/taxonomy owner files. |
+| Cycle 2 - Architecture / Experience / Policy Impact Matrix | Planned candidate / not executed | Requires Cycle 1 vocabulary alignment and BR1 admission. |
+| Cycle 3 - Hypothesis-Driven Reliability | Planned candidate / not executed | Requires AI runtime/trust owner review and BR1 admission. |
+| Cycle 4 - PR / Review Drift Prevention | Partially completed | USER Review Gate false-green prevention is complete; PR body drift and review-packet readability QA remain pending cycle work. |
+| Cycle 5 - Main / Dev / Owner Boundary Planning | Planned candidate / not executed | Requires public-safe boundary admission; concrete FAM-007/private/runtime work remains separate. |
+| Governance Quickstart | Deferred / future candidate | Orientation-only artifact; not required before this reform can proceed unless USER admits it. |
+| Optional explicit registries | Deferred / future candidate | May be created only after `No Existing Owner Fits` is proven. |
+| Helper / validator implementation beyond current bypass checks | Requires separate USER decision unless admitted in a later cycle | Current branch changed helper/validator only for the USER Review Gate false-green prevention. |
+| Repo split execution, external-state migration, file movement, deletion, archival, private repo creation | Requires separate branch or later cycle | Not authorized and not performed. |
+| Final integration hardening | Missing / pending | Must run after all admitted cycles complete and before PR Readiness for the full reform. |
+
+Admitted Scope Rule:
+
+Before more mutation toward the full reform, the next USER decision must admit the next reform cycle, name the allowed owner files and write set, and preserve PR Readiness as held until all admitted cycles and final integration hardening are complete.
+
 ## Active Failure Class - USER Review Gate Bypass / Packet Validation Treated As USER Acceptance
 
 Failure Title:
@@ -898,12 +941,18 @@ Helper code, validator code, private/public leak scanners, architecture drift sc
 
 ## Recommended Next USER Decision
 
-If USER wants to proceed after reviewing this file, the next legal approval should be for a bounded source-truth contract patch, not helper code and not repo split execution.
+If USER wants the current Governance branch to enact the broader Governance Reliability / Repo Split Reform before PR Readiness, the next legal approval should be for Full reform continuation through Cycle 1, not PR Readiness. If USER instead wants a limited PR for only the completed USER Review Gate semantics repair, USER must explicitly choose the Limited PR path.
 
-Suggested exact decision shape:
+Suggested exact decision shape for the Full reform continuation path:
 
 ```text
-I approve bounded Governance reliability source-truth contract cycles on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake using Docs/governance_reliability_and_repo_split_reform_candidates.md as planning evidence. Each admitted cycle must run BR1 -> BP1/BP2/BP3 -> Workstream -> Hardening -> LV1 if applicable, then return to BR1 for the next admitted cycle. Scope: cycle-based docs/source-truth contract work for taxonomy/owner discipline, architecture/experience/policy impact classification, hypothesis-driven reliability, PR/review drift prevention, and public-safe Main/Dev/Owner boundary planning in the correct existing owner files. After all cycles, run final integration hardening before PR Readiness. Preserve source-truth placement preflight and do not create new registries unless No Existing Owner Fits is proven. PR Readiness, PR creation, merge, release, helper code, validator code, external-state mutation, repo split execution, private repo creation, runtime work, FAM worktree mutation, branch cleanup, file deletion, file archival, and file movement remain separate USER decisions.
+I approve Full reform continuation for the Governance Reliability / Repo Split Reform on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake, beginning with Cycle 1 - Taxonomy / Owner Discipline at Branch Readiness Stage 1. Use Docs/governance_reliability_and_repo_split_reform_candidates.md as planning evidence, confirm source-truth owner placement, define BP1/BP2/BP3 proof requirements, and return the Cycle 1 implementation approval packet before mutating binding taxonomy/source-truth owners. Preserve the cycle model BR1 -> BP1/BP2/BP3 -> Workstream -> Hardening -> LV1 if applicable, then return to BR1 for the next admitted cycle. PR Readiness, PR creation, merge, release, helper code, validator code, external-state mutation, repo split execution, private repo creation, runtime work, FAM worktree mutation, main mutation, issue mutation, branch cleanup, file deletion, file archival, and file movement remain separate USER decisions.
+```
+
+Suggested exact decision shape for the Limited PR path:
+
+```text
+I choose the Limited PR path for RRI-20260528-001. Proceed only to PR Readiness Stage 1 for the completed USER Review Gate semantics repair at 38568aa7f773281709f9e527ea48db2763eae355. The broader Governance Reliability / Repo Split Reform remains pending future work, and this PR must not imply that the full reform cycles or final integration hardening are complete.
 ```
 
 ## Final Recommendation
