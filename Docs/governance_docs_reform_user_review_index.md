@@ -7,8 +7,8 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 193
-- Source branch: `feature/release-readiness-source-truth-intake`
+- Docs files covered: 194
+- Source branch: `feature/fam-007-dev-owner-skeleton-readiness`
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
 - Runtime/FAM/Compact-AI mutation: none.
@@ -47,7 +47,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 
 - USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.
 - This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.
-- Current execution model: this deferred-completion pass updates source truth and review artifacts on the USER-approved bounded governance/source-truth repair branch `feature/release-readiness-source-truth-intake` in `C:\Nexus Worktrees\Governance`; PR creation remains separately USER-gated.
+- Current execution model: this deferred-completion pass updates source truth and review artifacts on the USER-approved bounded governance/source-truth repair branch `feature/fam-007-dev-owner-skeleton-readiness` in `C:\Nexus Worktrees\Governance`; PR creation remains separately USER-gated.
 - PR Readiness remains held until validation is green and USER separately approves PR creation.
 
 ## USER Response Integration Summary
@@ -100,7 +100,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
 | --- | ---: | --- | --- |
-| Ambiguous ownership/current-state wording | 148 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Ambiguous ownership/current-state wording | 149 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 39 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 29 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
@@ -243,4 +243,4 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 ## Exact USER Decision This Index Supports
 
-`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/release-readiness-source-truth-intake as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
+`I accept the corrected USER-response integration model and approve continuing the staged Docs source-truth reform on feature/fam-007-dev-owner-skeleton-readiness as one final Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor branch creation remain separate decisions.`
