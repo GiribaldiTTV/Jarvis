@@ -9,6 +9,8 @@ planning.
 
 from __future__ import annotations
 
+import tempfile
+import zipfile
 from pathlib import Path
 
 import orin_branch_governance_validation as governance
@@ -867,6 +869,140 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
     return failures
 
 
+def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
+    source_path = "Docs/Main.md"
+    copied_path = "Main.md"
+    current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
+    current_head = review_bundle._git_output("rev-parse", "HEAD")
+    current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
+    source_text = (ROOT / source_path).read_text(encoding="utf-8")
+    common = (
+        "Decision Path Summary: workstream implementation approval\n"
+        "USER Decision: approve workstream implementation\n"
+    )
+    vision_headings = (
+        "Contract Status",
+        "Contract Revision",
+        "Project Vision Context",
+        "Family Vision Context",
+        "Feature Vision Context",
+        "Branch Goal",
+        "End-State Vision",
+        "What Will I Actually See, And Where Will I See It?",
+        "How It Will Function",
+        "User Experience Flow",
+        "Surface Map",
+        "Product Options / Design Paths",
+        "Codex Recommendations",
+        "USER Response",
+        "Codex Digest",
+        "Accepted Branch Vision",
+        "Design Assumption Ledger",
+        "Acceptance / Revision / Rejection / Waiver Decision",
+    )
+    plan_headings = (
+        "Contract Status",
+        "Contract Version / Revision",
+        "Plain-English Branch Summary",
+        "What Will I Actually See, And Where Will I See It?",
+        "End-State Vision",
+        "Visual / Functional Walkthrough",
+        "Surface Map",
+        "Implementation Options",
+        "Recommended Direction",
+        "Why This Fits The Nexus Vision",
+        "USER Plan Review Decision",
+        "USER Decisions Needed",
+        "USER Response",
+        "Codex Response Digest",
+        "Implementation Constraints Created By USER Response",
+        "USER Rejected / Deferred Ideas",
+        "Vision Delta / Source-Truth Impact",
+        "Contract Change Log",
+        "Current Branch Scope",
+        "Future-Gated Scope",
+        "Implementation Staging Notes",
+        "Workstream Entry Result",
+        "Contract Completion Checklist",
+        "Exact USER Decision Supported",
+    )
+    packet_files = {
+        "START_HERE.md": (
+            "# Review\n\n"
+            "Review Purpose: Fixture packet.\n"
+            "USER Decision This Packet Supports: approve workstream implementation\n"
+            "Bundle File Count: 8\n"
+            "Expected File Count: 1\n"
+            "Copied File Count: 1\n"
+            "Extra Bundle File Count: 6\n\n"
+            "| Source path | Copied path |\n"
+            "| --- | --- |\n"
+            f"| `{source_path}` | `{copied_path}` |\n"
+        ),
+        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: "\n".join(
+            f"## {heading}\nComplete.\n" for heading in vision_headings
+        ),
+        review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: "\n".join(
+            f"## {heading}\nComplete.\n" for heading in plan_headings
+        ).replace(
+            "## Exact USER Decision Supported\nComplete.\n",
+            "## Exact USER Decision Supported\nApprove bounded workstream implementation.\n",
+        ),
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
+        copied_path: source_text,
+    }
+
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        export_zip = Path(temp_dir) / "Governance.zip"
+        with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, text in packet_files.items():
+                archive.writestr(name, text)
+
+        try:
+            review_bundle._validate_export_zip(
+                export_zip,
+                source_branch=current_branch,
+                source_head=current_head,
+                origin_main=current_origin_main,
+                expected_entries=set(packet_files),
+            )
+        except ValueError as exc:
+            failures.append(
+                "Valid USER review export zip identity fixture unexpectedly failed: "
+                f"{exc}"
+            )
+
+        try:
+            review_bundle._validate_export_zip(
+                export_zip,
+                source_branch="wrong-branch",
+                source_head="0" * 40,
+                origin_main="1" * 40,
+                expected_entries=set(packet_files),
+            )
+        except ValueError as exc:
+            wrong_failures = str(exc)
+        else:
+            wrong_failures = ""
+            failures.append("Invalid USER review export zip identity fixture unexpectedly passed")
+
+    for expected in (
+        "expected branch",
+        "expected HEAD",
+        "expected origin/main",
+    ):
+        if expected not in wrong_failures:
+            failures.append(
+                "Invalid USER review export zip identity fixture did not reject "
+                f"{expected}"
+            )
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     for fixture in (
@@ -1485,6 +1621,7 @@ def validate() -> list[str]:
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
 
     failures.extend(_validate_user_review_bundle_identity_guard())
+    failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
 
     return failures
 

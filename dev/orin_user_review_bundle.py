@@ -382,6 +382,12 @@ def _validate_export_zip(
         )
     artifact_failures = [
         *_unresolved_template_placeholder_failures(packet_files),
+        *_packet_identity_failures(
+            packet_files,
+            expected_branch=source_branch,
+            expected_head=source_head,
+            expected_origin_main=origin_main,
+        ),
         *_packet_count_consistency_failures(
             packet_files,
             actual_file_count=len(entries),
