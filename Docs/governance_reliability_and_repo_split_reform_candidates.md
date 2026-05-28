@@ -70,7 +70,7 @@ Current Commit Completion Matrix:
 | Active Failure Class - USER Review Gate Bypass | Completed in current branch | Binding source truth, helper behavior, validator checks, fixtures, incident pattern, and USER review packet were updated. |
 | Worktree-Delta Reconciliation Findings | Completed for this cycle | Read-only audit of Main, Governance, FAM-006, and FAM-007 was recorded; product worktrees were not mutated. |
 | Governance Reliability / Repo Split Reform Planning File | Completed as planning evidence | This file exists as non-binding planning and candidate sequencing evidence. |
-| Cycle 1 - Taxonomy / Owner Discipline | Planned candidate / not executed | Requires BR1 admission before mutating binding backlog/taxonomy owner files. |
+| Cycle 1 - Taxonomy / Owner Discipline | Admitted for BR2 / BP1 packet preparation | USER approved Cycle 1 BR2 admission on 2026-05-28. BP1 Branch Vision Review is the active USER gate; binding taxonomy/source-truth owner mutation remains pending later USER approval. |
 | Cycle 2 - Architecture / Experience / Policy Impact Matrix | Planned candidate / not executed | Requires Cycle 1 vocabulary alignment and BR1 admission. |
 | Cycle 3 - Hypothesis-Driven Reliability | Planned candidate / not executed | Requires AI runtime/trust owner review and BR1 admission. |
 | Cycle 4 - PR / Review Drift Prevention | Partially completed | USER Review Gate false-green prevention is complete; PR body drift and review-packet readability QA remain pending cycle work. |
@@ -83,7 +83,64 @@ Current Commit Completion Matrix:
 
 Admitted Scope Rule:
 
-Before more mutation toward the full reform, the next USER decision must admit the next reform cycle, name the allowed owner files and write set, and preserve PR Readiness as held until all admitted cycles and final integration hardening are complete.
+Before more mutation toward the full reform, the next USER decision must close the active cycle gate, name the allowed owner files and write set for the next gate or phase, and preserve PR Readiness as held until all admitted cycles and final integration hardening are complete.
+
+## Cycle 1 BR2 Admission - Taxonomy / Owner Discipline
+
+Admission Date: 2026-05-28
+
+Admission Status:
+
+Cycle 1 is admitted as a bounded Governance Reliability / Repo Split Reform cycle for Taxonomy / Owner Discipline.
+
+Current Gate:
+
+BP1 USER Branch Vision Review is the active USER review gate for Cycle 1. The BP1 packet may become reviewable, but BP1 is not accepted, waived, rejected, revised, or blocked until USER responds and Codex digests that response.
+
+Cycle 1 Packet State:
+
+- Packet Reviewability State: `Reviewable` after the refreshed `C:\Nexus USER\Governance` packet and matching ZIP are generated and validated.
+- USER Gate State: `Pending USER Review`.
+- BP2 Plan Review: `Pending later USER decision`.
+- BP3 Workstream Entry / Orchestration Validation: `Pending later USER decision`.
+- Workstream Implementation: `Blocked pending accepted or waived BP1, accepted or waived BP2, legal BP3 posture, and separate USER implementation approval`.
+- PR Readiness: `Held until all admitted reform cycles and final integration hardening complete, unless USER explicitly chooses a limited PR path later`.
+
+Cycle 1 Vision:
+
+Cycle 1 should make taxonomy and owner routing harder to misread. It should prevent Codex from turning architecture layers, policy owners, experience layers, runtime subsystems, capability-pack domains, packages, slices, seams, mirrors, indexes, receipts, or external operational state into backlog families or source-truth owners by inertia.
+
+Cycle 1 Owner Placement:
+
+- `Docs/feature_backlog.md` remains the primary owner for backlog family identity, backlog admission, and the taxonomy gate.
+- `Docs/governance_efficiency_operating_model.md` remains the primary owner for source-truth placement discipline, one-owner/mirror rules, compact pointer rules, and repo-docs-as-index/context boundaries.
+- `Docs/phase_governance.md` remains the primary owner for phase-gate requirements and Branch Readiness / Branch Planning enforcement.
+- `Docs/branch_plans/README.md` remains the primary owner for branch-planning packet structure and BP1/BP2/BP3 artifact expectations.
+- `Docs/workstreams/index.md` remains the primary owner for package/slice/seam traceability and workstream-layer identity boundaries.
+- `Docs/ai_runtime_and_trust_architecture.md` remains the primary owner for AI-native architecture, policy, reliability, provider, cache, capability-pack, and cross-family AI trust direction.
+- `Docs/nexus_vision.md` and `Docs/family_visions/*` remain product-vision owners and should be extended only when Cycle 1 proves a taxonomy/owner-discipline change belongs there.
+
+BP1 Review Questions:
+
+- Does USER accept the Cycle 1 vision that taxonomy/owner discipline is the foundation cycle before architecture/experience/policy impact matrices, reliability classes, PR/review drift prevention, and Main / Dev / Owner boundary planning?
+- Does USER agree that Cycle 1 should strengthen existing owners first rather than create new durable registries by default?
+- Does USER want Cycle 1 to treat `No Existing Owner Fits` as the required proof before creating any new FAM, source-truth owner, architecture registry, experience registry, or policy registry?
+- Does USER want any taxonomy class added, removed, renamed, or split before BP2 engineering/source-truth planning begins?
+
+Forecast Only - Later Gates:
+
+- Later plan gate: define exact owner-file edits, examples, blocker wording, validation expectations, and proof that no binding mutation has occurred by assumption.
+- Later orchestration gate: prove the accepted plan is ready for bounded source-truth implementation, with helper/validator code mutation still separate unless explicitly approved.
+- Later Workstream: implement only the approved taxonomy/owner-discipline source-truth edits.
+- Later Hardening: scan touched owners, mirrors, indexes, packets, and validation guidance for taxonomy drift, owner duplication, and accidental live-state or ledger material.
+- Later LV1: record USER-readable proof or `LV1 Applicability: Not Applicable with reason`.
+
+Cycle 1 Stop Conditions:
+
+- Stop if USER wants a new backlog family or durable source-truth owner before `No Existing Owner Fits` is proven.
+- Stop if the taxonomy change would mutate FAM-006, FAM-007, main, runtime/provider/model behavior, external operational state, private repo boundaries, file movement, deletion, archival, helper code, or validator code without separate USER approval.
+- Stop if packet reviewability is mistaken for BP1 acceptance.
+- Stop if BP2, BP3, Workstream, PR Readiness, PR creation, merge, or release is requested before the prior gates close legally.
 
 ## Active Failure Class - USER Review Gate Bypass / Packet Validation Treated As USER Acceptance
 
@@ -941,19 +998,22 @@ Helper code, validator code, private/public leak scanners, architecture drift sc
 
 ## Recommended Next USER Decision
 
-If USER wants the current Governance branch to enact the broader Governance Reliability / Repo Split Reform before PR Readiness, the next legal approval should be for Full reform continuation through Cycle 1, not PR Readiness. If USER instead wants a limited PR for only the completed USER Review Gate semantics repair, USER must explicitly choose the Limited PR path.
+Cycle 1 is now admitted at BR2. The next legal USER decision is BP1 USER Branch Vision Review disposition for Taxonomy / Owner Discipline, not PR Readiness.
 
-Suggested exact decision shape for the Full reform continuation path:
-
-```text
-I approve Full reform continuation for the Governance Reliability / Repo Split Reform on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake, beginning with Cycle 1 - Taxonomy / Owner Discipline at Branch Readiness Stage 1. Use Docs/governance_reliability_and_repo_split_reform_candidates.md as planning evidence, confirm source-truth owner placement, define BP1/BP2/BP3 proof requirements, and return the Cycle 1 implementation approval packet before mutating binding taxonomy/source-truth owners. Preserve the cycle model BR1 -> BP1/BP2/BP3 -> Workstream -> Hardening -> LV1 if applicable, then return to BR1 for the next admitted cycle. PR Readiness, PR creation, merge, release, helper code, validator code, external-state mutation, repo split execution, private repo creation, runtime work, FAM worktree mutation, main mutation, issue mutation, branch cleanup, file deletion, file archival, and file movement remain separate USER decisions.
-```
-
-Suggested exact decision shape for the Limited PR path:
+Suggested exact decision shape for accepting BP1 as written:
 
 ```text
-I choose the Limited PR path for RRI-20260528-001. Proceed only to PR Readiness Stage 1 for the completed USER Review Gate semantics repair at 38568aa7f773281709f9e527ea48db2763eae355. The broader Governance Reliability / Repo Split Reform remains pending future work, and this PR must not imply that the full reform cycles or final integration hardening are complete.
+I accept Cycle 1 BP1 USER Branch Vision Review for Taxonomy / Owner Discipline as written and approve Codex to proceed to Cycle 1 BP2 USER Branch Plan Review preparation on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake.
+
+BP2 is planning/review only and must return the exact implementation plan before any binding taxonomy/source-truth owner mutation. This does not approve BP2 acceptance, BP3, Workstream implementation, binding taxonomy/source-truth owner mutation, helper code mutation, validator code mutation, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, FAM-006/FAM-007/main mutation, runtime/provider/model/shortcut/installer work, PR creation, merge, release, issue mutation, cleanup, Private Dev ORIN import, or AI Product Contract import.
 ```
+
+Other legal USER responses:
+
+- Revise the Cycle 1 BP1 vision and ask Codex to digest the revision.
+- Request more taxonomy/owner-discipline options before BP2 preparation.
+- Reject or narrow Cycle 1.
+- Explicitly waive BP1 and approve BP2 preparation.
 
 ## Final Recommendation
 
