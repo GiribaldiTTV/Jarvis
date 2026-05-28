@@ -114,6 +114,30 @@ INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE = (
 VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE = (
     FIXTURE_DIR / "valid_user_branch_plan_review_deferred_scope.md"
 )
+VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE = (
+    FIXTURE_DIR / "valid_bp1_branch_vision_review.md"
+)
+INVALID_BP1_MISSING_CONTEXT_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_missing_project_family_branch_context.md"
+)
+INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_shallow_recommendations.md"
+)
+INVALID_BP1_SLC_CENTERED_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_slc_centered_branch_vision_review.md"
+)
+INVALID_BP1_TECHNICAL_METADATA_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_technical_metadata.md"
+)
+INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp2_missing_accepted_bp1_trace.md"
+)
+INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp3_implementation_while_bp1_or_bp2_pending.md"
+)
+VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE = (
+    FIXTURE_DIR / "valid_bp3_accepted_bp1_bp2_slc_traceability_complete.md"
+)
 VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
     FIXTURE_DIR / "valid_merge_stable_source_truth_projection.md"
 )
@@ -186,6 +210,18 @@ EXPECTED_USER_BRANCH_PLAN_FIRST_SEAM_FAILURE_SNIPPET = (
 )
 EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET = (
     "USER Review Response:"
+)
+EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET = "Project Vision Context"
+EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
+    "Codex Recommendations are too shallow"
+)
+EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET = "BP1 cannot be SLC-centered"
+EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
+    "BP1 must not center active branch technical metadata"
+)
+EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET = "Accepted BP1 trace"
+EXPECTED_BP3_PENDING_FAILURE_SNIPPET = (
+    "BP3 cannot approve implementation while BP1 or BP2 is pending"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -349,6 +385,130 @@ def _validate_user_branch_plan_review_text(text: str) -> list[str]:
         "<user-branch-plan-review-fixture>",
         text,
         require_gate=True,
+    )
+    return failures
+
+
+def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+    required_markers = (
+        "USER Branch Vision Review:",
+        "Project Vision Context:",
+        "Family Vision Context:",
+        "Feature Vision Context:",
+        "Branch Goal:",
+        "End-State Vision:",
+        "What Will I Actually See, And Where Will I See It?:",
+        "How It Will Function:",
+        "User Experience Flow:",
+        "Surface Map:",
+        "Product Options / Design Paths:",
+        "Codex Recommendations:",
+        "USER Response:",
+        "Codex Digest:",
+        "Accepted Branch Vision:",
+        "Design Assumption Ledger:",
+        "Acceptance / Revision / Rejection / Waiver Decision:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"BP1 Branch Vision Review missing {marker}")
+    for marker in (
+        "Project Vision Context:",
+        "Family Vision Context:",
+        "Feature Vision Context:",
+        "Branch Goal:",
+    ):
+        value = governance._extract_marker_value(text, marker)
+        require(bool(value), f"BP1 Branch Vision Review missing {marker}")
+    recommendations = governance._extract_marker_value(text, "Codex Recommendations:")
+    require(
+        governance._planning_word_count(recommendations) >= 16
+        and "placement" in recommendations.casefold()
+        and "tradeoff" in recommendations.casefold(),
+        "Codex Recommendations are too shallow for BP1 Branch Vision Review",
+    )
+    require(
+        "bp1 center: slc" not in normalized and "slc-centered: yes" not in normalized,
+        "BP1 cannot be SLC-centered; SLCs are engineering route details after vision acceptance",
+    )
+    for metadata_marker in (
+        "Source HEAD:",
+        "origin/main:",
+        "Ahead/Behind:",
+        "Current PR State:",
+        "Worktree Cleanliness:",
+    ):
+        require(
+            metadata_marker not in text,
+            "BP1 must not center active branch technical metadata",
+        )
+    return failures
+
+
+def _validate_bp2_branch_plan_review_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    required_markers = (
+        "USER Branch Plan Review:",
+        "Accepted Branch Vision Summary:",
+        "Implementation Package Summary:",
+        "Branch Scope Size Test:",
+        "SLC / Seam Plan:",
+        "Affected Surfaces:",
+        "Likely Files:",
+        "Validators / Helpers:",
+        "Proof Requirements:",
+        "Element-to-Phase Proof Matrix:",
+        "H1 Expectations:",
+        "LV / UTS Expectations:",
+        "Rollback / Safety Plan:",
+        "Future-Gated Boundaries:",
+        "Plan Acceptance Checklist:",
+        "Exact BP3 Approval Text:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"BP2 Branch Plan Review missing {marker}")
+    accepted_trace = governance._extract_marker_value(text, "Accepted Branch Vision Summary:")
+    require(
+        "bp1 accepted" in accepted_trace.casefold()
+        or "bp1 waived" in accepted_trace.casefold(),
+        "Accepted BP1 trace is required before BP2 can be green",
+    )
+    return failures
+
+
+def _validate_bp3_orchestration_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+    for marker in (
+        "BP1 Contract Status:",
+        "BP2 Contract Status:",
+        "Branch Plan Matches Accepted Branch Vision:",
+        "Branch Package Size:",
+        "SLC Traceability:",
+        "Future-Gated Boundaries:",
+        "First Bounded Workstream Seam:",
+        "Implementation Approval:",
+    ):
+        require(marker in text, f"BP3 Orchestration Validation missing {marker}")
+    bp1 = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "BP1 Contract Status:")
+    )
+    bp2 = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "BP2 Contract Status:")
+    )
+    implementation_approval = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Implementation Approval:")
+    )
+    if "approve" in implementation_approval or "approved" in implementation_approval:
+        require(
+            bp1.startswith(("complete", "waived by user"))
+            and bp2.startswith(("complete", "waived by user")),
+            "BP3 cannot approve implementation while BP1 or BP2 is pending",
+        )
+    require(
+        "slc traceability: complete" in normalized,
+        "BP3 requires complete SLC traceability to BP1 and BP2",
     )
     return failures
 
@@ -604,6 +764,14 @@ def validate() -> list[str]:
         INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE,
         VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE,
+        VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE,
+        INVALID_BP1_MISSING_CONTEXT_FIXTURE,
+        INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE,
+        INVALID_BP1_SLC_CENTERED_FIXTURE,
+        INVALID_BP1_TECHNICAL_METADATA_FIXTURE,
+        INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE,
+        INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE,
+        VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE,
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
     ):
@@ -1033,6 +1201,82 @@ def validate() -> list[str]:
         failures.append(
             "Valid deferred-scope USER Branch Plan Review fixture unexpectedly failed: "
             + "; ".join(deferred_review_failures[:5])
+        )
+
+    valid_bp1_failures = _validate_bp1_branch_vision_review_text(
+        VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_bp1_failures:
+        failures.append(
+            "Valid BP1 Branch Vision Review fixture unexpectedly failed: "
+            + "; ".join(valid_bp1_failures[:5])
+        )
+
+    missing_context_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_MISSING_CONTEXT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET not in "\n".join(missing_context_failures):
+        failures.append(
+            "Invalid BP1 missing-context fixture did not reject missing Project/Family/Feature context"
+        )
+
+    shallow_recommendation_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET not in "\n".join(
+        shallow_recommendation_failures
+    ):
+        failures.append(
+            "Invalid BP1 shallow-recommendations fixture did not reject shallow recommendations"
+        )
+
+    slc_centered_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_SLC_CENTERED_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET not in "\n".join(
+        slc_centered_failures
+    ):
+        failures.append(
+            "Invalid BP1 SLC-centered fixture did not reject SLC-centered branch vision"
+        )
+
+    technical_metadata_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_TECHNICAL_METADATA_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET not in "\n".join(
+        technical_metadata_failures
+    ):
+        failures.append(
+            "Invalid BP1 technical-metadata fixture did not reject active branch metadata"
+        )
+
+    missing_bp1_trace_failures = _validate_bp2_branch_plan_review_text(
+        INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET not in "\n".join(
+        missing_bp1_trace_failures
+    ):
+        failures.append(
+            "Invalid BP2 missing-accepted-BP1 fixture did not reject missing accepted BP1 trace"
+        )
+
+    bp3_pending_failures = _validate_bp3_orchestration_text(
+        INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_BP3_PENDING_FAILURE_SNIPPET not in "\n".join(bp3_pending_failures):
+        failures.append(
+            "Invalid BP3 pending-BP1/BP2 fixture did not reject implementation approval"
+        )
+
+    valid_bp3_failures = _validate_bp3_orchestration_text(
+        VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_bp3_failures:
+        failures.append(
+            "Valid BP3 accepted-BP1/BP2 fixture unexpectedly failed: "
+            + "; ".join(valid_bp3_failures[:5])
         )
 
     valid_merge_stable_failures = _validate_merge_stable_projection_text(

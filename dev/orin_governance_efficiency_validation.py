@@ -36,7 +36,7 @@ REQUIRED_MODEL_PHRASES = (
     "Vision-To-Plan Interaction Loop",
     "USER Feedback Disposition Model",
     "USER Review Integration Decisions",
-    "USER Review Desktop Bundle Rule",
+    "USER Review Hub Rule",
     "Standing Governance Ledger Compaction",
     "Release Ownership UX",
     "Public Language Mapping",
@@ -52,7 +52,7 @@ POINTER_REQUIREMENTS = {
         "governance efficiency operating model",
         "Docs/nexus_vision.md",
         "Docs/family_visions/",
-        "USER Review Desktop Bundle Rule",
+        "USER Review Hub Rule",
     ),
     Path("Docs/phase_governance.md"): (
         "Docs/governance_efficiency_operating_model.md",
@@ -223,12 +223,7 @@ EXPECTED_PENDING_FOLD_SOURCE_FILES = (
 
 USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
     "Review Purpose:",
-    "Source Branch:",
-    "Source HEAD:",
-    "origin/main:",
     "Review Export Zip:",
-    "Review Export Zip Source HEAD:",
-    "Review Export Zip Stale Guard:",
     "Bundle File Count:",
     "Expected File Count:",
     "Copied File Count:",
@@ -437,11 +432,11 @@ def validate() -> list[str]:
                 failures.append(
                     f"{OPERATING_MODEL}: missing required section or phrase {phrase!r}"
                 )
-        desktop_bundle_section = _section(model_text, "## USER Review Desktop Bundle Rule")
+        desktop_bundle_section = _section(model_text, "## USER Review Hub Rule")
         for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
             if phrase not in desktop_bundle_section:
                 failures.append(
-                    f"{OPERATING_MODEL}: USER Review Desktop Bundle Rule missing "
+                    f"{OPERATING_MODEL}: USER Review Hub Rule missing "
                     f"required START_HERE metadata field {phrase!r}"
                 )
 

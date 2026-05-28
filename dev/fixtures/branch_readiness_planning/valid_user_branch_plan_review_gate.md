@@ -6,7 +6,7 @@ USER Branch Plan Review: Required - Workstream Entry presents the readable imple
 Review Status: Accepted by USER - USER accepted this branch plan review for implementation planning proof.
 Contract Status: Complete - USER accepted the final USER Branch Plan Contract and implementation may proceed only through a later bounded approval.
 Contract Version / Revision: v1 - Fixture contract with USER response and Codex digest complete.
-Desktop Review Bundle: C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 contains the copied review files and START_HERE map.
+USER Review Hub Packet: C:\Nexus USER\FAM-007 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-007.zip.
 USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
 Plain-Language Branch Goal: Build a user-visible provider setup foundation that explains consent state and safe setup boundaries.
 What Will I Actually See, And Where Will I See It?: USER sees the setup surface with consent/readiness status, disabled protected actions, and clear explanation inside the existing setup flow.

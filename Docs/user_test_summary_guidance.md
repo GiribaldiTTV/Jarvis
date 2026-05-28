@@ -43,7 +43,7 @@ When a Workstream slice changes user-visible behavior or another operator-facing
 
 - include a detailed `User Test Summary Strategy` or Live Validation readiness plan in the response or output when manual validation will be relevant later
 - update the canonical repo-level UTS strategy for the active workstream in the same branch
-- defer the final `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt` handoff export until `Live Validation Stage 1`
+- defer the final `C:\Nexus USER\User Test Summary.txt` handoff export until `Live Validation Stage 1`
 
 Response-only UTS strategy text is not sufficient when the canonical repo artifact exists and the supporting docs for that workstream are in scope.
 The formal returned-results blocker must not be listed while the current phase is `Workstream`.
@@ -107,13 +107,13 @@ Make the expected outcome specific enough that the user can tell what passed or 
 
 A recap-style behavior summary is not sufficient when the user needs to run or verify anything manually.
 
-## Desktop File Rule
+## Local USER Hub File Rule
 
-When a durable desktop copy is needed during Live Validation Stage 1, use the rolling file:
+When a durable USER-facing copy is needed during Live Validation Stage 1, use the rolling file:
 
-- `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+- `C:\Nexus USER\User Test Summary.txt`
 
-That desktop file is the required user-facing exported copy for relevant desktop Live Validation Stage 1 runs.
+That local USER hub file is the required user-facing exported copy for relevant desktop Live Validation Stage 1 runs.
 It is not Workstream or Hardening evidence.
 
 Create or refresh that file by default when:
@@ -123,11 +123,11 @@ Create or refresh that file by default when:
 - the validation flow is long enough that a durable copy helps
 - Dev Toolkit launch metadata must be preserved exactly
 
-If the slice is not a relevant desktop manual-validation path, Codex may skip the desktop export only if it says so explicitly and explains why.
+If the slice is not a relevant desktop manual-validation path, Codex may skip the local USER hub export only if it says so explicitly and explains why.
 
-## Required Desktop File Sections
+## Required USER Hub File Sections
 
-When the desktop file is created or refreshed, prefer this structure:
+When the local USER hub file is created or refreshed, prefer this structure:
 
 - `Workstream`
 - `What This Test Is Checking`

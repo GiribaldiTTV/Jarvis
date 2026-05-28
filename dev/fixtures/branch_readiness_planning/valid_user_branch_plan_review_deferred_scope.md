@@ -6,7 +6,7 @@ USER Branch Plan Review: Required - Workstream Entry presents the readable imple
 Review Status: Deferred With Waiver - USER waived deferred provider execution while accepting current review boundaries.
 Contract Status: Waived by USER - USER explicitly waived private-provider setup questions for this contract while preserving current public-safe boundaries.
 Contract Version / Revision: v1 - Fixture contract with explicit deferred-scope waiver.
-Desktop Review Bundle: C:\Users\anden\OneDrive\Desktop\Nexus USER Review\FAM-007 contains the copied review files and START_HERE map.
+USER Review Hub Packet: C:\Nexus USER\FAM-007 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-007.zip.
 USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
 Plain-Language Branch Goal: Build a reviewable public-safe AI Edition boundary without activating private provider execution.
 What Will I Actually See, And Where Will I See It?: USER sees public-safe AI copy, protected private-provider actions absent or disabled, and proof that private setup does not appear on public surfaces.

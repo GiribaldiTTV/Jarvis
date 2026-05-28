@@ -584,7 +584,7 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "Review Status:",
     "Contract Status:",
     "Contract Version / Revision:",
-    "Desktop Review Bundle:",
+    "USER Review Hub Packet:",
     "USER Review Packet Finding:",
     "Plain-Language Branch Goal:",
     "What Will I Actually See, And Where Will I See It?:",
@@ -3639,12 +3639,12 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
         "Workstream Entry Whole-Package Analysis Missing",
     ),
     Path("Docs/development_rules.md"): (
-        "Runtime Workstream Entry with multiple admitted slices or seams",
+        "Runtime BP3 with multiple admitted slices or seams",
         "whole-package analysis before first-seam implementation",
         "Workstream Entry Whole-Package Analysis Missing",
     ),
     Path("Docs/codex_modes.md"): (
-        "Workstream Entry for a runtime branch with multiple admitted slices or seams",
+        "BP3 for a runtime branch with multiple admitted slices or seams",
         "all admitted slices/seams",
         "completion strategy",
         "Hardening H1 expectations",
@@ -3683,137 +3683,130 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
 
 USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
     Path("Docs/Main.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Review Missing",
-        "USER Branch Plan Contract",
+        "BP3",
         "Contract Status",
         "Pending USER Confirmation",
-        "Implementation Constraints Created By USER Response",
-        "planned user-facing outcome",
+        "Accepted Branch Vision Summary",
         "End-State Vision",
-        "Visual / Functional Walkthrough",
         "USER response",
     ),
     Path("Docs/phase_governance.md"): (
+        "Branch Planning",
+        "BP1",
+        "BP2",
+        "BP3",
+        "USER Branch Vision Review Gate",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "Contract Status",
         "Pending USER Confirmation",
-        "Plain-Language Branch Goal",
-        "Planned User-Facing Outcome",
+        "Branch Planning Review Packet Missing",
+        "BP1 Branch Vision Review Missing",
+        "BP2 Branch Plan Review Missing",
+        "BP3 Orchestration Validation Missing",
         "End-State Vision",
-        "Visual / Functional Walkthrough",
-        "Surface Map",
-        "Implementation Options",
-        "Recommended Direction",
-        "USER Design Review Questions",
         "USER Review Response",
         "Codex Response Digest",
-        "Implementation Constraints Created By USER Response",
-        "Vision Delta / Source-Truth Impact",
         "USER Review Packet Finding",
-        "Live Validation / UTS plan",
-        "USER Branch Plan Review Missing",
     ),
     Path("Docs/branch_plans/README.md"): (
+        "Branch Planning",
+        "USER Branch Vision Review Gate",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "Required review markers",
         "Contract Status:",
-        "Contract Version / Revision:",
+        "Contract Revision:",
+        "Accepted Branch Vision Summary:",
+        "Branch Scope Size Test:",
+        "SLC / Seam Plan:",
         "USER Review Packet Finding:",
-        "Plain-Language Branch Goal:",
-        "What Will I Actually See, And Where Will I See It?:",
-        "Planned User-Facing Outcome:",
         "End-State Vision:",
-        "Visual / Functional Walkthrough:",
         "Surface Map:",
-        "Recommended Direction:",
-        "Why This Fits The Nexus Vision:",
-        "USER Design Direction Decision:",
-        "Current Branch Scope:",
-        "Future-Gated Scope:",
-        "Implementation Staging Notes:",
-        "USER Design Review Questions:",
+        "Exact BP3 Approval Text:",
         "USER Review Response:",
         "Codex Response Digest:",
-        "Implementation Constraints Created By USER Response:",
-        "Vision Delta / Source-Truth Impact:",
-        "Contract Completion Checklist:",
-        "Live Validation / UTS Plan:",
-        "USER Branch Plan Review Missing",
+        "BP2 Branch Plan Review Missing",
     ),
     Path("Docs/branch_records/index.md"): (
+        "Branch Planning",
+        "USER Branch Vision Review",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "Contract Status",
         "USER Review Packet Finding",
         "USER Review Response",
-        "End-State Vision",
-        "Live Validation / UTS plan",
-        "USER Branch Plan Review Missing",
+        "BP3 Orchestration Validation Missing",
     ),
     Path("Docs/development_rules.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
         "Pending USER Confirmation",
-        "Implementation Constraints Created By USER Response",
+        "BP3 Orchestration Validation Missing",
         "USER Review Response",
         "End-State Vision",
-        "Live Validation / UTS plan",
-        "USER Branch Plan Review Missing",
     ),
     Path("Docs/codex_modes.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
         "Pending USER Confirmation",
         "USER Review Response",
-        "End-State Vision",
-        "USER Branch Plan Review Missing",
+        "BP3",
     ),
     Path("Docs/orin_task_template.md"): (
+        "Branch Planning Review Packet:",
+        "USER Branch Vision Review:",
         "USER Branch Plan Review:",
-        "USER Branch Plan Review Summary:",
         "Live Validation / UTS plan",
     ),
     Path("Docs/nexus_startup_contract.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
         "USER Review Response",
-        "End-State Vision",
-        "USER Branch Plan Review Missing",
+        "BP3 Orchestration Validation Missing",
     ),
     Path("Docs/codex_user_guide.md"): (
+        "Branch Planning",
+        "USER Branch Vision Review",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
-        "Contract Status",
-        "Pending USER Confirmation",
-        "Live Validation / UTS plan",
-        "End-State Vision",
-        "USER Review Response",
-        "USER Branch Plan Review Missing",
+        "C:\\Nexus USER\\<label>",
+        "BP3",
+        "USER Review Packet Stale",
     ),
     Path("Docs/governance_efficiency_operating_model.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
         "accepting, revising, deferring with waiver, rejecting",
         "USER response",
-        "End-State Vision",
-        "implementation options",
+        "local USER hub",
     ),
     Path("Docs/validation_helper_registry.md"): (
+        "Branch Planning",
+        "USER_BRANCH_VISION_REVIEW.md",
+        "USER_BRANCH_PLAN_REVIEW.md",
         "USER Branch Plan Review Gate",
-        "USER Branch Plan Contract",
         "Contract Status",
-        "invalid missing user-facing outcome",
-        "invalid first-seam-only review packet",
+        "BP1 Branch Vision Contract",
+        "BP2 Branch Plan Contract",
         "USER Review Response",
-        "End-State Vision",
-        "Visual / Functional Walkthrough",
     ),
 }
 
@@ -4877,21 +4870,21 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/phase_governance.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
-        "Workstream Entry Review Bundle Missing",
+        "Branch Planning Review Packet Missing",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/development_rules.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
+        "local USER hub packet",
         "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Branch Runtime Engineering Plan Path:",
         "PR Fold-Down Packet:",
     ),
     Path("Docs/codex_modes.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
+        "local USER hub packet",
         "Branch Runtime Engineering Plan Path:",
         "Engineering Plan Status:",
         "PR Fold-Down Packet:",
@@ -4899,21 +4892,21 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/orin_task_template.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
-        "Workstream Entry Review Bundle",
+        "Branch Planning Review Packet",
         "Branch Runtime Engineering Plan Path:",
         "Engineering Plan Status:",
         "PR Fold-Down Packet:",
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Branch Runtime Engineering Plan",
-        "USER Review Desktop Bundle",
+        "local USER hub packet",
         "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "backlog and roadmap remain compact pointer/status surfaces",
     ),
     Path("Docs/validation_helper_registry.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
-        "Workstream Entry bundles",
+        "Branch Planning packets",
         "active external branch plans",
         "invalid backlog planning sprawl",
     ),
@@ -4931,7 +4924,7 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_REQUIRED_PHRASES = {
     Path("Docs/branch_plans/README.md"): (
         "Branch Runtime Engineering Plan",
         "Element-to-Phase Proof Matrix",
-        "Workstream Entry Review Bundle",
+        "Branch Planning Review Packet",
         "C:\\Nexus Governance State\\branches\\<branch_slug>\\branch_plan.md",
         "Per-Seam Implementation Checklist:",
         "PR Readiness Fold-Down / Retention Checklist:",
@@ -9542,11 +9535,16 @@ def _validate_user_branch_plan_review_gate(
 
     gate_section = _section(text, USER_BRANCH_PLAN_REVIEW_HEADING)
     for marker in USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS:
+        marker_present = marker in gate_section
+        if marker == "USER Review Hub Packet:" and "Desktop Review Bundle:" in gate_section:
+            marker_present = True
         require(
-            marker in gate_section,
+            marker_present,
             f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} is missing '{marker}'",
         )
         value = _extract_marker_value(gate_section, marker)
+        if marker == "USER Review Hub Packet:" and not value:
+            value = _extract_marker_value(gate_section, "Desktop Review Bundle:")
         require(
             bool(value),
             (
@@ -9635,15 +9633,17 @@ def _validate_user_branch_plan_review_gate(
         )
 
     desktop_bundle = _normalized_planning_value(
-        _extract_marker_value(gate_section, "Desktop Review Bundle:")
+        _extract_marker_value(gate_section, "USER Review Hub Packet:")
+        or _extract_marker_value(gate_section, "Desktop Review Bundle:")
     )
     require(
-        "nexus user review" in desktop_bundle
+        "c:\\nexus user" in desktop_bundle
+        or "nexus user review" in desktop_bundle
         or "desktop" in desktop_bundle
         or "not required" in desktop_bundle,
         (
-            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Desktop Review "
-            "Bundle must name the stable Desktop review bundle or a not-required reason"
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} USER Review "
+            "Hub Packet must name the stable local USER hub packet or a not-required reason"
         ),
     )
     review_packet_finding = _extract_marker_value(gate_section, "USER Review Packet Finding:")

@@ -256,7 +256,7 @@ Stage 4C target external record list:
 | `branches\<branch_slug>\element_to_phase_matrix.md` | active branch plan Element-to-Phase Proof Matrix | Active implementation/proof path matrix | Future USER-approved execution only |
 | `branches\<branch_slug>\pr_readiness_state.md` | Git/GitHub/helper PR evidence plus durable branch receipts | Optional PR readiness snapshot, not live GitHub truth | Future USER-approved execution only |
 | `release_windows\<release_slug>\release_window_state.md` | Release Readiness packet, Git/GitHub release/tag truth, and durable receipts | Current release-window assembly after migration | Future USER-approved execution only |
-| `review_bundles\<worktree_label>\manifest.md` | Desktop review bundle helper output and START_HERE metadata | Local-private USER review bundle manifest | Future USER-approved execution only |
+| `review_bundles\<worktree_label>\manifest.md` | local USER hub helper output and START_HERE metadata | Local-private USER review bundle manifest | Future USER-approved execution only |
 | `cross_worktree_lessons\<lesson_id>.md` | governance intake digests and worktree acknowledgement conflicts | No-loss cross-worktree lessons queue | Future USER-approved execution only |
 | `governance_candidates\<candidate_id>.md` | proposed rules from lessons, digests, or branch packets | Non-binding governance candidate queue | Future USER-approved execution only |
 | `promotion_packets\<packet_id>.md` | staged state proposal and conflict scan | State promotion packet from staging to central | Future USER-approved execution only |
@@ -397,7 +397,7 @@ Stage 6 cleanup execution preflight for a future stage:
 4. Reconcile or explicitly waive the external root Source Repo HEAD mismatch if the cleanup execution depends on post-Stage-4 repo state.
 5. For each proposed cleanup edit, name the replacement owner as repo durable truth, central external state, Git/GitHub/helper-derived live truth, or historical receipt.
 6. Preserve durable USER decisions, accepted branch vision, PR/merge/release evidence, validation proof, and public/product release interpretation.
-7. Create a Desktop review bundle with the exact files and before/after cleanup intent.
+7. Create a local USER hub review packet with the exact files and before/after cleanup intent.
 8. Stop on `Fold-Down Decision Missing`, `Repo Live-State Leakage`, `External State Missing`, `External State Version Conflict`, or `USER Decision Required` when ownership is unclear.
 
 Stage 6 cleanup lane matrix:
@@ -733,7 +733,7 @@ This matrix originated as the Stage 4B/Stage 4C review surface for preventing dr
 | `Docs/prebeta_roadmap.md` | stage-breakpoint schedule outline | stays repo durable source truth | keep milestones/checkpoints only | high if release-window live state returns | avoid live release-window assembly |
 | `Docs/workstreams/` | durable package/slice/proof history | stays repo durable receipt/history | keep promoted historical truth | medium | no live PR/watcher state |
 | `Docs/family_visions/` | reusable family product direction | stays repo durable source truth | keep USER-accepted durable direction | low | do not absorb active plans |
-| USER review Desktop bundle | local review/export packet | external/local review-bundle state after helper stage | stable bundle remains helper output | medium if stale zip recurs | keep stale-guard proof |
+| USER review hub packet | local review/export packet | external/local review-bundle state after helper stage | stable bundle remains helper output | medium if stale zip recurs | keep stale-guard proof |
 | Git/GitHub/helper live facts | derived live truth | Git/GitHub/helpers | unchanged | high if copied into docs | derive on demand |
 
 ## Canonical Location Model

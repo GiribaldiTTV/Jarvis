@@ -873,7 +873,7 @@ def add_docs_organization_cleanup_pass(
     )
     add(
         "Source Review Surface: `Docs/governance_docs_full_inventory_reform_audit.md`, "
-        "`Docs/governance_docs_reform_user_review_index.md`, and the USER Desktop review bundle."
+        "`Docs/governance_docs_reform_user_review_index.md`, and the local USER hub review packet."
     )
     add(
         "Next USER Decision: choose one focused cleanup lane before any physical file or "
