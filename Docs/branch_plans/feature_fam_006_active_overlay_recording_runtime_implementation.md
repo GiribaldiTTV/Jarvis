@@ -445,6 +445,66 @@ Element Validation Ledger Owner: `Docs/branch_plans/feature_fam_006_active_overl
 - USER Decision / Waiver: `USER approved bounded overlap-intent repair for this helper before current-main reconciliation; no waiver authorizes stale ZIP output.`
 - Fold-Down Target: `Reusable helper remains shared; branch-specific proof is recorded in the review packet and PR Readiness closeout.`
 
+### Changed Surface: Docs/codex_modes.md
+
+- Surface Class: `prompt/template`
+- Change Intent: `Preserve incoming origin/main execution-mode guidance for Branch Planning BP1/BP2/BP3, local C:\Nexus USER review hub routing, and external operational-state placement while keeping FAM-006 active-overlay recording as the active implementation carrier.`
+- Why This File Was Touched: `The FAM-006 branch carries older mode-mirror wording from review-packet and Stage 2 governance repair work, while incoming origin/main now contains the Governance Phase Lifecycle Reform and USER Review Hub model that should become current repo authority during reconciliation.`
+- Owned Behavior / Fact Class: `Compact Codex execution-mode mirror for phase routing, review packet posture, and USER-facing planning handoff behavior.`
+- Canonical Owner / Source Owner: `Docs/codex_modes.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `Medium to High when incoming Branch Planning and USER Hub mode guidance overlaps older FAM-006 Workstream Entry / Desktop review packet wording.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `During current-main reconciliation, preserve incoming origin/main mode guidance for BP1, BP2, BP3, C:\Nexus USER, external operational-state routing, and USER-facing technical-metadata boundaries; retain FAM-006-specific active-overlay recording identity only in the FAM-006 branch record, branch plan, family vision, and refreshed USER review artifacts.`
+- Rebaseline Handling: `Accept current-main codex mode reforms as authority, then repair only any FAM-006 next-decision or review-packet wording needed to route this branch legally under the merged lifecycle. Do not reintroduce old Desktop/OneDrive active upload wording or BR2-to-Workstream shortcuts.`
+- Validation Proof: `Pre-reconciliation overlap audit must pass; branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, FAM-006 validators, runtime-fam006 validation suite, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
+- Fallback Evidence: `Docs/phase_governance.md owns canonical phase law; Docs/branch_plans/README.md owns BP1/BP2/BP3 artifact rules; Docs/governance_efficiency_operating_model.md owns the USER Hub and external operational-state model; this branch plan records why FAM-006 overlaps the compact mirror during reconciliation.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-rebaseline overlap-intent repair for this file; no approval is granted for Workstream implementation, BP3 approval, runtime mutation, FAM-007 mutation, PR creation, merge, release, or Governance worktree mutation.`
+- Fold-Down Target: `Docs/codex_modes.md remains a compact mirror of merged governance law; FAM-006 branch-specific planning proof remains in the FAM-006 branch record and active branch plan until the branch lifecycle closes.`
+
+### Changed Surface: Docs/codex_user_guide.md
+
+- Surface Class: `prompt/template`
+- Change Intent: `Preserve incoming origin/main USER-facing guidance that explains the Branch Planning lifecycle, local C:\Nexus USER hub, temporary USER review artifacts, and technical-metadata boundaries without weakening FAM-006 active-overlay recording branch identity.`
+- Why This File Was Touched: `The FAM-006 branch contains older user-guide context from review-packet repair history, while incoming origin/main carries updated user-facing governance guidance from the Governance Phase Lifecycle Reform and USER Review Hub repair.`
+- Owned Behavior / Fact Class: `USER-facing Codex workflow guidance and phase/review artifact explanation.`
+- Canonical Owner / Source Owner: `Docs/codex_user_guide.md`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `Medium`
+- Expected Conflict Risk: `Medium when incoming USER Hub / Branch Planning guidance overlaps older FAM-006 review-packet wording.`
+- Semantic Merge Risk: `Medium`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming origin/main user-guide explanations for the reformed lifecycle and local USER hub. Keep FAM-006 branch-specific next decisions and active-overlay recording details out of the shared guide except where repo-wide examples remain accurate.`
+- Rebaseline Handling: `During current-main reconciliation, accept current-main user-guide guidance as shared authority and repair any branch-local artifacts separately so the guide does not become a FAM-006-specific status ledger.`
+- Validation Proof: `Pre-reconciliation overlap audit must pass; branch governance validation, release-readiness health gate, branch readiness planning fixture validation, FAM-006 validators, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
+- Fallback Evidence: `Docs/Main.md separates durable docs from live operational truth; Docs/governance_efficiency_operating_model.md defines USER Hub review artifacts as temporary USER/ChatGPT context aids; Docs/phase_governance.md and Docs/branch_plans/README.md own the BP1/BP2/BP3 decision model.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-rebaseline overlap-intent repair for this file; no approval is granted to migrate local USER files, change sidecar/unique-ZIP policy, implement runtime work, or mutate unrelated family branches.`
+- Fold-Down Target: `Docs/codex_user_guide.md remains shared user guidance; FAM-006-specific accepted outcomes fold into durable FAM-006 source-truth owners after legal Branch Planning and implementation phases.`
+
+### Changed Surface: dev/orin_branch_readiness_planning_fixture_validation.py
+
+- Surface Class: `validator/helper`
+- Change Intent: `Preserve incoming origin/main fixture-validator coverage for Branch Planning BP1/BP2/BP3, USER-facing technical-metadata rejection, local C:\Nexus USER review packet rules, and rebaseline overlap-intent checks while retaining only compatible FAM-006 review-packet hardening semantics.`
+- Why This File Was Touched: `The FAM-006 branch carries older fixture-validator changes for USER Branch Plan Review and review-packet proof, while incoming origin/main now introduces broader Branch Planning and USER Hub regression fixtures that should govern future branches.`
+- Owned Behavior / Fact Class: `Reusable regression fixture validation for branch planning, USER review artifact structure, Branch Change Intent Ledger coverage, and review packet guardrails.`
+- Canonical Owner / Source Owner: `dev/orin_branch_readiness_planning_fixture_validation.py`
+- Resolution Owner: `Incoming/Folded Owner`
+- Shared Surface: `YES`
+- Overlap Risk: `High`
+- Expected Conflict Risk: `High when incoming BP1/BP2/BP3 fixture semantics overlap older FAM-006-specific USER Branch Plan Contract fixture names and review-packet checks.`
+- Semantic Merge Risk: `High`
+- Regression / Gating Impact: `High`
+- Conflict Resolution Rule: `Preserve incoming origin/main fixture-validator coverage and fixture names for Branch Planning reform, USER Hub metadata guards, and overlap-intent enforcement. Carry forward FAM-006-specific review-packet hardening only where it remains compatible with merged BP1/BP2/BP3 and C:\Nexus USER rules.`
+- Rebaseline Handling: `During current-main reconciliation, accept the incoming validator as the base, preserve new BP fixture coverage, remove obsolete FAM-006-only fixture expectations when they conflict with merged governance, and rerun branch-readiness planning fixture validation before claiming green.`
+- Validation Proof: `Pre-reconciliation overlap audit must pass; python dev\orin_branch_readiness_planning_fixture_validation.py must pass; branch governance validation, worktree-confinement gate, release-readiness health gate, FAM-006 validators, runtime-fam006 validation suite, source-owner marker validation, and compileall must pass before current-main reconciliation resumes.`
+- Fallback Evidence: `Incoming origin/main adds BP1/BP2/BP3 fixtures, technical-metadata fixtures, and Desktop active-upload rejection fixtures; Docs/validation_helper_registry.md owns helper/validator responsibilities; this active branch plan records the FAM-006 overlap intent needed before reconciliation.`
+- USER Decision / Waiver: `USER approved bounded FAM-006 pre-rebaseline overlap-intent repair for this validator; no approval is granted for Governance worktree mutation, fixture deletion outside reconciliation needs, runtime implementation, or PR creation.`
+- Fold-Down Target: `The fixture validator remains reusable governance infrastructure; FAM-006 branch-specific reconciliation proof folds into the FAM-006 branch plan/record and later PR Readiness packet.`
+
 ## USER Branch Plan Review Gate
 
 USER Branch Plan Review: Required - Stage 2 creates a USER branch-plan review packet and future Workstream Entry must present a full readable implementation plan before runtime work begins.
