@@ -39,6 +39,12 @@ FAM007_AI_RUNTIME_TRUST_BRANCH_PLAN = Path(
 FAM007_AI_RUNTIME_TRUST_BRANCH_RECORD = Path(
     "Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md"
 )
+FAM007_BREAKPOINT2_BRANCH_PLAN = Path(
+    "Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md"
+)
+FAM007_BREAKPOINT2_BRANCH_RECORD = Path(
+    "Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md"
+)
 VALIDATION_REGISTRY = Path("Docs/validation_helper_registry.md")
 REVIEW_BUNDLE_HELPER = Path("dev/orin_user_review_bundle.py")
 FIXTURE_DIR = ROOT / "dev" / "fixtures" / "fam007_public_leak_prevention"
@@ -167,6 +173,82 @@ REQUIRED_AI_RUNTIME_TRUST_RECORD_PHRASES = (
     "No provider SDK/model execution, runtime provider execution, runtime cache behavior, memory/learning/personalization, downloads, external calls, private repo creation, private remote configuration, backup/import implementation, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, or v1.8.0 work was performed.",
 )
 
+REQUIRED_BREAKPOINT2_PLAN_PHRASES = (
+    "Seam 1 Action-Gate Registry Implementation Receipt",
+    "Seam 1 Status: `Implemented - public-safe action-gate registry and exact USER decision proof only`",
+    "Action-Gate Registry Proof: `Implemented - every Breakpoint 2 gated action remains pending USER decision`",
+    "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2Seam1ActionGateRegistry`",
+    "Remaining Workstream Seam Group Implementation Receipt",
+    "Seam 2 Private/Public Boundary And Private Remote Safety Proof: `Implemented - public-safe metadata and private remote safety proof only`",
+    "Seam 3 Backup/Recovery And Public-To-Dev Import Planning Proof: `Implemented - planning-only gate proof`",
+    "Seam 4 Provider/Model/Runtime/Cache/Memory Deferral And Local-Only Handoff Proof: `Implemented - provider/runtime/cache/memory remains blocked`",
+    "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2RemainingWorkstreamReadiness`",
+    "Workstream Green Candidate: `YES - all admitted Breakpoint 2 seams have direct validator and fixture proof`",
+    "Hardening H1 Result: `Green - H1 compared Seams 1 through 4",
+    "H1 Drift Found: `YES - older duplicate ledger wording still described Seams 2 through 4 as planned or pending Workstream approval.`",
+    "H1 Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py rejects stale Breakpoint 2 Workstream-pending ledger phrases after H1.`",
+    "Live Validation LV1 Result: `Green - no visible runtime surface changed",
+    "User Test Summary Results: `WAIVED`",
+    "User-Facing Shortcut Validation: `WAIVED`",
+    "No-Visible-Runtime Proof: `PASS - changed surfaces are source-truth/fixture/validator/helper/packet/external-state only.`",
+    "Next Legal Phase: `PR Readiness`",
+    "Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`",
+    "Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation",
+    "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
+)
+
+REQUIRED_BREAKPOINT2_RECORD_PHRASES = (
+    "Seam 1 Action-Gate Registry Implementation Receipt",
+    "Seam 1 Status: `Implemented - public-safe action-gate registry and exact USER decision proof only`",
+    "Action-Gate Registry Proof: `Implemented - every Breakpoint 2 gated action remains pending USER decision`",
+    "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2Seam1ActionGateRegistry`",
+    "Remaining Workstream Seam Group Implementation Receipt",
+    "Seam 2 Private/Public Boundary And Private Remote Safety Proof: `Implemented - public-safe metadata and private remote safety proof only`",
+    "Seam 3 Backup/Recovery And Public-To-Dev Import Planning Proof: `Implemented - planning-only gate proof`",
+    "Seam 4 Provider/Model/Runtime/Cache/Memory Deferral And Local-Only Handoff Proof: `Implemented - provider/runtime/cache/memory remains blocked`",
+    "Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py validates breakpoint2RemainingWorkstreamReadiness`",
+    "Workstream Green Candidate: `YES - all admitted Breakpoint 2 seams have direct validator and fixture proof`",
+    "Backlog Completion State: Implemented Complete Except Future Dependency",
+    "Completion Status: Green",
+    "Continue Decision: Stop",
+    "Hardening H1 Result: `Green - H1 compared Seams 1 through 4",
+    "H1 Drift Found: `YES - older duplicate ledger wording still described Seams 2 through 4 as planned or pending Workstream approval.`",
+    "H1 Direct Validation Surface: `dev/orin_public_leak_prevention_validation.py rejects stale Breakpoint 2 Workstream-pending ledger phrases after H1.`",
+    "Live Validation LV1 Result: `Green - no visible runtime surface changed",
+    "User Test Summary Results: `WAIVED`",
+    "User-Facing Shortcut Validation: `WAIVED`",
+    "No-Visible-Runtime Proof: `PASS - changed surfaces are source-truth/fixture/validator/helper/packet/external-state only.`",
+    "Next Legal Phase: `PR Readiness`",
+    "Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`",
+    "Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation",
+    "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
+)
+
+BREAKPOINT2_STALE_WORKSTREAM_PHRASES = (
+    "Workstream implementation is pending",
+    "Pending Workstream approval",
+    "Seam 2 pending USER approval",
+    "Seam 2 and all private/runtime actions remain pending USER decision",
+    "USER reviews refreshed packet before Seam 2",
+    "Approve Workstream Entry analysis next",
+    "USER approved Branch Readiness Stage 2 setup only",
+    "Hardening H1 remains pending USER approval",
+    "Hardening H1 remains blocked pending exact USER approval",
+    "Hardening H1 remains blocked until USER approval",
+    "Hardening H1 approval is pending USER decision",
+    "Hardening H1 is blocked until USER approves",
+    "Live Validation LV1 remains pending USER approval",
+    "Live Validation LV1 remains blocked pending exact USER approval",
+    "Live Validation LV1 remains blocked until USER approval",
+    "Live Validation LV1 approval is pending USER decision",
+    "Approve bounded Live Validation LV1/no-visible-runtime proof",
+    "Approve bounded Hardening H1",
+    "Next Legal Phase: `Hardening`",
+    "Next Legal Phase: `Live Validation`",
+    "Approve bounded PR Readiness Stage 1 analysis",
+    "PR Readiness Stage 1 remains blocked",
+)
+
 REQUIRED_REGISTRY_PHRASES = (
     "dev/orin_public_leak_prevention_validation.py",
     "FAM-007 public leak-prevention validator",
@@ -184,6 +266,10 @@ REQUIRED_REGISTRY_PHRASES = (
     "AI runtime/trust-boundary readiness",
     "Options 1 through 4",
     "AI Operational Cache Governance readiness",
+    "Breakpoint 2 Seam 1 action-gate registry proof",
+    "Breakpoint 2 remaining Workstream readiness proof",
+    "private/public boundary and private remote safety proof",
+    "exact USER decision proof",
 )
 
 PROTECTED_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -350,6 +436,8 @@ def _validate_required_source_truth(failures: list[str]) -> None:
     dev_owner_record = _read(FAM007_DEV_OWNER_BRANCH_RECORD)
     runtime_trust_plan = _read(FAM007_AI_RUNTIME_TRUST_BRANCH_PLAN)
     runtime_trust_record = _read(FAM007_AI_RUNTIME_TRUST_BRANCH_RECORD)
+    breakpoint2_plan = _read(FAM007_BREAKPOINT2_BRANCH_PLAN)
+    breakpoint2_record = _read(FAM007_BREAKPOINT2_BRANCH_RECORD)
     registry = _read(VALIDATION_REGISTRY)
     helper = _read(REVIEW_BUNDLE_HELPER)
     for phrase in REQUIRED_AI_PLAN_PHRASES:
@@ -382,6 +470,29 @@ def _validate_required_source_truth(failures: list[str]) -> None:
             failures,
             f"{FAM007_AI_RUNTIME_TRUST_BRANCH_RECORD}: missing {phrase!r}",
         )
+    for phrase in REQUIRED_BREAKPOINT2_PLAN_PHRASES:
+        _require(
+            phrase in breakpoint2_plan,
+            failures,
+            f"{FAM007_BREAKPOINT2_BRANCH_PLAN}: missing {phrase!r}",
+        )
+    for phrase in REQUIRED_BREAKPOINT2_RECORD_PHRASES:
+        _require(
+            phrase in breakpoint2_record,
+            failures,
+            f"{FAM007_BREAKPOINT2_BRANCH_RECORD}: missing {phrase!r}",
+        )
+    for phrase in BREAKPOINT2_STALE_WORKSTREAM_PHRASES:
+        _require(
+            phrase not in breakpoint2_plan,
+            failures,
+            f"{FAM007_BREAKPOINT2_BRANCH_PLAN}: stale post-H1 Workstream phrase remains {phrase!r}",
+        )
+        _require(
+            phrase not in breakpoint2_record,
+            failures,
+            f"{FAM007_BREAKPOINT2_BRANCH_RECORD}: stale post-H1 Workstream phrase remains {phrase!r}",
+        )
     for phrase in REQUIRED_REGISTRY_PHRASES:
         _require(phrase in registry, failures, f"{VALIDATION_REGISTRY}: missing {phrase!r}")
     for phrase in (
@@ -391,6 +502,7 @@ def _validate_required_source_truth(failures: list[str]) -> None:
         "WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES",
         "_validate_workstream_entry_packet_decision_path",
         "validate_workstream_entry_packet_folder",
+        "DECISION_STATUS_LIVE_VALIDATION_REVIEW",
     ):
         _require(phrase in helper, failures, f"{REVIEW_BUNDLE_HELPER}: missing {phrase!r}")
 
@@ -953,6 +1065,256 @@ def _validate_ai_runtime_trust_boundary_readiness(fixture_set: dict[str, Any], f
         _require(forbidden.get(field) is False, failures, f"AI runtime/trust-boundary must set forbidden {field}=false")
 
 
+def _validate_breakpoint2_seam1_action_gate_registry(fixture_set: dict[str, Any], failures: list[str]) -> None:
+    registry = fixture_set.get("breakpoint2Seam1ActionGateRegistry", {})
+    _require(
+        registry.get("schema") == "fam007-breakpoint2-seam1-action-gate-registry-v1",
+        failures,
+        "Breakpoint 2 Seam 1 action-gate registry schema mismatch",
+    )
+    _require(
+        registry.get("branch") == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
+        failures,
+        "Breakpoint 2 Seam 1 registry branch mismatch",
+    )
+    _require(registry.get("seam") == "Seam 1", failures, "Breakpoint 2 Seam 1 registry seam mismatch")
+    _require(registry.get("planningOnly") is True, failures, "Breakpoint 2 Seam 1 registry must be planning-only")
+    _require(
+        registry.get("publicSafeProofOnly") is True,
+        failures,
+        "Breakpoint 2 Seam 1 registry must be public-safe proof only",
+    )
+    _require(
+        registry.get("directValidationRequired") is True,
+        failures,
+        "Breakpoint 2 Seam 1 registry must require direct validation",
+    )
+    _require(
+        registry.get("allGatesRemainPending") is True,
+        failures,
+        "Breakpoint 2 Seam 1 registry must keep all gates pending",
+    )
+
+    expected_gate_ids = {
+        "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+        "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+        "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP",
+        "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+        "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+        "USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION",
+        "USER-ACTION-FAM007-OWNER-VAULT-OR-PRIVATE-HOSTING",
+        "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+        "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+        "USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY",
+        "USER-GATE-FAM007-LOCAL-ONLY-PRIVATE-ROOT-CREATE",
+        "USER-GATE-FAM007-MODEL-DOWNLOADS",
+        "USER-GATE-FAM007-RUNTIME-PROVIDER-EXECUTION",
+        "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR",
+        "USER-GATE-FAM007-VOICE-CORE-SYNC",
+        "USER-GATE-FAM007-SHORTCUT-INSTALLER-WORK",
+        "USER-GATE-FAM007-PR-CREATION",
+        "USER-GATE-FAM007-MERGE",
+        "USER-GATE-FAM007-RELEASE-TAG-ARTIFACT",
+        "USER-GATE-FAM007-BRANCH-WORKTREE-CLEANUP",
+        "USER-GATE-FAM007-FAM006-GOVERNANCE-MUTATION",
+        "USER-GATE-FAM007-AI-PRODUCT-CONTRACT-IMPORT",
+        "USER-GATE-FAM007-PRIVATE-DEV-ORIN-IMPORT",
+        "USER-GATE-FAM007-V1-8-0-PREBETA",
+    }
+    gates = registry.get("pendingUserDecisionGates", [])
+    _require(isinstance(gates, list), failures, "Breakpoint 2 Seam 1 gates must be a list")
+    gates_by_id = {gate.get("id"): gate for gate in gates if isinstance(gate, dict)}
+    for gate_id in sorted(expected_gate_ids):
+        gate = gates_by_id.get(gate_id)
+        _require(gate is not None, failures, f"Breakpoint 2 Seam 1 registry missing gate {gate_id}")
+        if gate is None:
+            continue
+        _require(
+            gate.get("status") == "pending-user-decision",
+            failures,
+            f"Breakpoint 2 Seam 1 gate {gate_id} must remain pending-user-decision",
+        )
+        _require(gate.get("executed") is False, failures, f"Breakpoint 2 Seam 1 gate {gate_id} must set executed=false")
+        _require(
+            gate.get("authorizedBySeam1") is False,
+            failures,
+            f"Breakpoint 2 Seam 1 gate {gate_id} must set authorizedBySeam1=false",
+        )
+
+    public_safety = registry.get("publicSafetyProof", {})
+    expected_false_fields = (
+        "privateDevRepositoryCreated",
+        "privateOwnerRepositoryCreated",
+        "localOnlyPrivateRootCreated",
+        "githubDesktopPrivateRemoteConfigured",
+        "offBootBackupRootCreated",
+        "publicToDevImportImplemented",
+        "providerSdkIntegrated",
+        "modelDownloadsEnabled",
+        "runtimeProviderExecutionEnabled",
+        "runtimeCacheBehaviorEnabled",
+        "externalCallsEnabled",
+        "memoryLearningIndexingRetrievalPersonalizationEnabled",
+        "voiceCoreSyncEnabled",
+        "shortcutInstallerWorkPerformed",
+        "prCreated",
+        "merged",
+        "releaseTagArtifactExecuted",
+        "cleanupPerformed",
+        "fam006GovernanceMutationPerformed",
+        "aiProductContractImported",
+        "privateDevOrinImported",
+        "v180PrebetaExecuted",
+    )
+    for field in expected_false_fields:
+        _require(public_safety.get(field) is False, failures, f"Breakpoint 2 Seam 1 public safety must set {field}=false")
+
+    provider_boundary = registry.get("providerBoundary", {})
+    _require(provider_boundary.get("providerVisibleData") == "none", failures, "Breakpoint 2 Seam 1 providerVisibleData must be none")
+    for field in ("sentToProvider", "canAcceptPrompts"):
+        _require(provider_boundary.get(field) is False, failures, f"Breakpoint 2 Seam 1 provider boundary must set {field}=false")
+    for field, expected in {
+        "promptProviderModelExecution": "disabled",
+        "downloadsNetworkExternalCalls": "blocked",
+        "memoryLearningPersonalization": "inactive",
+        "voiceCoreSync": "gated",
+    }.items():
+        _require(provider_boundary.get(field) == expected, failures, f"Breakpoint 2 Seam 1 provider boundary {field} mismatch")
+
+    forbidden = registry.get("forbiddenMaterialPresence", {})
+    for field in (
+        "privateRemoteUrl",
+        "tokenOrCredential",
+        "ownerSecret",
+        "privatePath",
+        "modelArtifact",
+        "promptPayload",
+        "memoryPayload",
+        "privateAutomationContent",
+    ):
+        _require(forbidden.get(field) is False, failures, f"Breakpoint 2 Seam 1 must set forbidden {field}=false")
+
+    exact_decision = str(registry.get("exactUserDecisionProof", ""))
+    for phrase in (
+        "Seam 1",
+        "Action-gate registry and exact USER decision proof",
+        "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
+        "public-safe proof",
+    ):
+        _require(phrase in exact_decision, failures, f"Breakpoint 2 Seam 1 exact USER decision proof missing {phrase!r}")
+
+    next_decision = str(registry.get("exactNextUserDecision", ""))
+    for phrase in (
+        "Seam 2",
+        "Private/public boundary and private remote safety proof",
+        "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
+    ):
+        _require(phrase in next_decision, failures, f"Breakpoint 2 Seam 1 exact next USER decision missing {phrase!r}")
+
+
+def _validate_breakpoint2_remaining_workstream_readiness(fixture_set: dict[str, Any], failures: list[str]) -> None:
+    readiness = fixture_set.get("breakpoint2RemainingWorkstreamReadiness", {})
+    _require(
+        readiness.get("schema") == "fam007-breakpoint2-remaining-workstream-readiness-v1",
+        failures,
+        "Breakpoint 2 remaining Workstream readiness schema mismatch",
+    )
+    _require(
+        readiness.get("branch") == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
+        failures,
+        "Breakpoint 2 remaining Workstream branch mismatch",
+    )
+    _require(
+        readiness.get("seamGroup") == "Seams 2 through 4",
+        failures,
+        "Breakpoint 2 remaining Workstream seam group mismatch",
+    )
+    for field in ("planningOnly", "publicSafeProofOnly", "directValidationRequired", "workstreamGreenReady", "allFutureGatesRemainPending"):
+        _require(readiness.get(field) is True, failures, f"Breakpoint 2 remaining Workstream must set {field}=true")
+
+    implemented = readiness.get("implementedSeams", {})
+    seam2 = implemented.get("seam2", {})
+    _require(seam2.get("name") == "Private/public boundary and private remote safety proof", failures, "Breakpoint 2 Seam 2 name mismatch")
+    _require(seam2.get("status") == "implemented-public-safe-proof-only", failures, "Breakpoint 2 Seam 2 status mismatch")
+    _require(seam2.get("githubDesktopPrivateRemoteConfigured") is False, failures, "Breakpoint 2 Seam 2 must not configure GitHub Desktop private remote")
+    _require(seam2.get("privateRemoteConfigurationState") == "planning-only", failures, "Breakpoint 2 Seam 2 private remote state must be planning-only")
+    _require(seam2.get("publicRemoteName") == "public-upstream", failures, "Breakpoint 2 Seam 2 public remote name mismatch")
+    for field in ("privateRemoteUrlAllowed", "tokenOrCredentialAllowed", "ownerSecretAllowed", "privatePathAllowed", "modelArtifactAllowed", "promptPayloadAllowed", "memoryPayloadAllowed", "privateAutomationContentAllowed", "publicUpstreamPushAllowed", "publicRemoteAsOriginAllowed"):
+        _require(seam2.get(field) is False, failures, f"Breakpoint 2 Seam 2 must set {field}=false")
+
+    seam3 = implemented.get("seam3", {})
+    _require(seam3.get("name") == "Backup/recovery and Public-to-Dev import planning proof", failures, "Breakpoint 2 Seam 3 name mismatch")
+    _require(seam3.get("status") == "implemented-planning-proof-only", failures, "Breakpoint 2 Seam 3 status mismatch")
+    _require(seam3.get("backupRecoveryPlanningState") == "planning-only", failures, "Breakpoint 2 Seam 3 backup state must be planning-only")
+    _require(seam3.get("offBootRequired") is True, failures, "Breakpoint 2 Seam 3 must require off-boot planning")
+    _require(seam3.get("restoreProofRequiredBeforeImplementation") is True, failures, "Breakpoint 2 Seam 3 must require restore proof before implementation")
+    _require(seam3.get("privateMaterialRequiresEncryptionOrVaultPlan") is True, failures, "Breakpoint 2 Seam 3 must require encryption/vault planning")
+    for field in ("offBootBackupRootCreated", "backupRestoreImplemented", "publicToDevImportImplemented", "publicRepoBackupStorageAllowed", "secretsTokensImportedByDefault", "ownerPrivateDataImportedToDevOrPublic", "noExportDataImportedByDefault"):
+        _require(seam3.get(field) is False, failures, f"Breakpoint 2 Seam 3 must set {field}=false")
+
+    seam4 = implemented.get("seam4", {})
+    _require(seam4.get("name") == "Provider/model/runtime/cache/memory deferral and local-only handoff proof", failures, "Breakpoint 2 Seam 4 name mismatch")
+    _require(seam4.get("status") == "implemented-public-safe-deferral-proof-only", failures, "Breakpoint 2 Seam 4 status mismatch")
+    _require(seam4.get("providerVisibleData") == "none", failures, "Breakpoint 2 Seam 4 providerVisibleData must be none")
+    _require(seam4.get("promptProviderModelExecution") == "disabled", failures, "Breakpoint 2 Seam 4 prompt/provider/model execution must be disabled")
+    _require(seam4.get("downloadsNetworkExternalCalls") == "blocked", failures, "Breakpoint 2 Seam 4 downloads/network/external calls must be blocked")
+    _require(seam4.get("runtimeCacheState") == "inactive", failures, "Breakpoint 2 Seam 4 runtime cache must be inactive")
+    _require(seam4.get("memoryLearningPersonalization") == "inactive", failures, "Breakpoint 2 Seam 4 memory/learning/personalization must be inactive")
+    _require(seam4.get("voiceCoreSync") == "gated", failures, "Breakpoint 2 Seam 4 voice/Core sync must be gated")
+    _require(seam4.get("cacheIsNotMemory") is True, failures, "Breakpoint 2 Seam 4 must preserve cache-is-not-memory")
+    _require(seam4.get("localOnlyHandoffReady") is True, failures, "Breakpoint 2 Seam 4 must be ready for local-only handoff review")
+    for field in ("sentToProvider", "canAcceptPrompts", "providerSdkIntegrated", "modelExecutionEnabled", "modelDownloadsEnabled", "runtimeProviderExecutionEnabled", "runtimeCacheBehaviorEnabled", "externalCallsEnabled", "memoryLearningIndexingRetrievalPersonalizationEnabled", "trustJournalRuntimeImplemented", "telemetryEnabled"):
+        _require(seam4.get(field) is False, failures, f"Breakpoint 2 Seam 4 must set {field}=false")
+
+    gate_states = readiness.get("futureActionGateStates", {})
+    expected_gates = {
+        "privateDevRepo": "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+        "privateOwnerRepo": "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+        "githubDesktopPrivateRemote": "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP",
+        "backupRecovery": "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+        "publicToDevMigration": "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+        "privateToPublicSanitization": "USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION",
+        "providerModelExecution": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+        "memoryLearningPersonalization": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+        "runtimeCacheBehavior": "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR",
+    }
+    for field, expected in expected_gates.items():
+        gate = gate_states.get(field, {})
+        _require(gate.get("id") == expected, failures, f"Breakpoint 2 remaining gate {field} id mismatch")
+        _require(gate.get("status") == "pending-user-decision", failures, f"Breakpoint 2 remaining gate {field} must remain pending")
+        _require(gate.get("executed") is False, failures, f"Breakpoint 2 remaining gate {field} must set executed=false")
+        _require(gate.get("authorizedByWorkstream") is False, failures, f"Breakpoint 2 remaining gate {field} must set authorizedByWorkstream=false")
+
+    forbidden = readiness.get("forbiddenMaterialPresence", {})
+    for field in (
+        "privateRemoteUrl",
+        "tokenOrCredential",
+        "ownerSecret",
+        "privatePath",
+        "modelArtifact",
+        "promptPayload",
+        "memoryPayload",
+        "privateAutomationContent",
+        "privateHostingSecret",
+    ):
+        _require(forbidden.get(field) is False, failures, f"Breakpoint 2 remaining Workstream must set forbidden {field}=false")
+
+    handoff = readiness.get("hardeningHandoff", {})
+    _require(handoff.get("state") == "ready-for-hardening-review", failures, "Breakpoint 2 handoff must be ready for Hardening review")
+    _require(handoff.get("nextLegalPhase") == "Hardening H1", failures, "Breakpoint 2 handoff next legal phase must be Hardening H1")
+    _require(handoff.get("workstreamGreenCandidate") is True, failures, "Breakpoint 2 handoff must mark Workstream green candidate")
+    for field in ("privateRepoCreationAuthorized", "privateRemoteConfigurationAuthorized", "backupImplementationAuthorized", "publicToDevImportAuthorized", "providerModelExecutionAuthorized", "runtimeCacheBehaviorAuthorized", "memoryLearningPersonalizationAuthorized"):
+        _require(handoff.get(field) is False, failures, f"Breakpoint 2 handoff must set {field}=false")
+
+    next_decision = str(readiness.get("exactNextUserDecision", ""))
+    for phrase in (
+        "Hardening H1",
+        "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness",
+        "all admitted Workstream seams",
+    ):
+        _require(phrase in next_decision, failures, f"Breakpoint 2 remaining exact next USER decision missing {phrase!r}")
+
+
 def _validate_blocked_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:
     canaries = fixture_set.get("blockedCanaries", [])
     _require(len(canaries) >= 10, failures, "blocked canaries must cover all major private/leak classes")
@@ -1001,6 +1363,7 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
             expected_head=canary.get("expectedHead", ""),
             expected_origin_main=canary.get("expectedOriginMain", ""),
             require_implementation_ready=canary.get("requireImplementationReady", False),
+            actual_file_count=canary.get("actualFileCount"),
         )
         expected_valid = canary.get("expectedValid")
         expected_status = canary.get("expectedStatus")
@@ -1030,6 +1393,11 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
         "missing-required-digest-file",
         "conflicting-next-legal-phase",
         "chat-only-decision-missing-packet-evidence",
+        "unresolved-template-placeholder",
+        "packet-count-mismatch",
+        "packet-count-with-nontext-asset",
+        "branch-correct-live-validation-review",
+        "branch-correct-pr-stage2-review",
     ):
         _require(required_case in seen_cases, failures, f"packet decision canaries missing {required_case}")
 
@@ -1049,6 +1417,8 @@ def validate() -> list[str]:
     _validate_dev_owner_skeleton_readiness(fixture_set, failures)
     _validate_remaining_workstream_readiness(fixture_set, failures)
     _validate_ai_runtime_trust_boundary_readiness(fixture_set, failures)
+    _validate_breakpoint2_seam1_action_gate_registry(fixture_set, failures)
+    _validate_breakpoint2_remaining_workstream_readiness(fixture_set, failures)
     _validate_blocked_canaries(fixture_set, failures)
     _validate_provider_boundary(failures)
     _validate_workstream_entry_packet_decision_canaries(fixture_set, failures)

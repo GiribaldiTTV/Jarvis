@@ -145,6 +145,7 @@ This repo-tracked active list is intentionally narrow after External Operational
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
 - `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md`
 - `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`
 - `Docs/branch_records/feature_fam_007_v1_7_23_post_release_canon_closure.md`
