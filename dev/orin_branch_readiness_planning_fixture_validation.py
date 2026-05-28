@@ -1038,6 +1038,101 @@ def _validate_active_overlay_user_branch_plan_review_metadata_guard() -> list[st
     return failures
 
 
+def _validate_fam006_bp1_packet_drift_guard() -> list[str]:
+    failures: list[str] = []
+    stale_packet = {
+        "START_HERE.md": (
+            "USER Decision This Packet Supports: I accept the BP1 Branch Vision for "
+            "FAM-006 Active Overlay Recording Runtime Implementation and approve Codex "
+            "to prepare BP2 USER Branch Plan Review.\n"
+            "Decision Path Summary: workstream entry final decision review - Workstream "
+            "implementation remains pending USER approval.\n"
+        ),
+        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: (
+            "USER Branch Vision Review: BP1\n"
+            "FAM-006 Active Overlay Recording Runtime Implementation.\n"
+        ),
+        review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: (
+            "Does USER approve PR Readiness Stage 1 analysis for this Governance branch?\n"
+            "C:\\Nexus USER\\Governance\n"
+        ),
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": (
+            "FAM-006 BP1 packet loaded for USER review.\n"
+        ),
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": (
+            "AI Runtime And Trust Architecture and FAM-007 ownership are represented.\n"
+        ),
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": (
+            "Stage 2 setup is green; this packet supports Workstream Entry final decision review only.\n"
+        ),
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": (
+            "Checklist Focus: FAM-007 ownership and AI Runtime And Trust Architecture.\n"
+        ),
+    }
+    stale_failures = review_bundle._fam006_bp1_stale_packet_failures(stale_packet)
+    expected_fragments = (
+        "governance-branch",
+        "governance-user-hub-path",
+        "pr-readiness-stage-1",
+        "fam007-cross-family",
+        "ai-runtime-trust-architecture",
+        "workstream-entry-final-review",
+        "stage-2-setup-green",
+    )
+    joined = "\n".join(stale_failures)
+    for expected in expected_fragments:
+        if expected not in joined:
+            failures.append(
+                "FAM-006 BP1 stale-packet guard did not reject "
+                f"{expected}"
+            )
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        written = review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-006-active-overlay-recording-runtime-implementation",
+            source_head=review_bundle._git_output("rev-parse", "HEAD"),
+            origin_main=review_bundle._git_output("rev-parse", "origin/main"),
+            packet_folder=Path(r"C:\Nexus USER\FAM-006"),
+            export_zip=Path(r"C:\Nexus USER\FAM-006.zip"),
+            copied=[
+                (
+                    "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md",
+                    "Docs__branch_plans__feature_fam_006_active_overlay_recording_runtime_implementation.md",
+                )
+            ],
+            extra_bundle_files=[],
+            bundle_file_count=7,
+            expected_count=1,
+            copied_count=1,
+            exact_user_decision=(
+                "I accept the BP1 Branch Vision for FAM-006 Active Overlay Recording "
+                "Runtime Implementation and approve Codex to prepare BP2 USER Branch Plan Review."
+            ),
+            pending_user_decisions=[
+                "Workstream implementation remains pending USER approval."
+            ],
+        )
+        generated_packet = {
+            path.name: path.read_text(encoding="utf-8")
+            for path in written
+        }
+    generated_failures = review_bundle._fam006_bp1_stale_packet_failures(generated_packet)
+    if generated_failures:
+        failures.append(
+            "FAM-006 BP1 generated digest unexpectedly contained stale packet wording: "
+            + "; ".join(generated_failures[:5])
+        )
+    status_values = {
+        review_bundle._packet_text_status(text)
+        for text in generated_packet.values()
+    }
+    if review_bundle.DECISION_STATUS_BP1_BRANCH_VISION_REVIEW not in status_values:
+        failures.append("FAM-006 BP1 generated digest did not report BP1 packet status")
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     for fixture in (
@@ -1658,6 +1753,7 @@ def validate() -> list[str]:
     failures.extend(_validate_user_review_bundle_identity_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
+    failures.extend(_validate_fam006_bp1_packet_drift_guard())
 
     return failures
 
