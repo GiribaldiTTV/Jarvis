@@ -101,7 +101,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
 | --- | ---: | --- | --- |
 | Ambiguous ownership/current-state wording | 147 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
-| Structure and indexability risks | 38 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
+| Structure and indexability risks | 39 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 28 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
 | Low-risk reference consolidation | 17 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
@@ -158,7 +158,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | High | `volatile-current-wording=177`; `unclear-ownership-wording=257`; `soft-commitment-wording=32`; `state-ledger-wording=75` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | High | `volatile-current-wording=114`; `unclear-ownership-wording=174`; `soft-commitment-wording=11`; `state-ledger-wording=114` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_ai_runtime_trust_boundary_readiness.md` | High | `volatile-current-wording=27`; `unclear-ownership-wording=32`; `soft-commitment-wording=6`; `state-ledger-wording=46` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` | High | `volatile-current-wording=41`; `unclear-ownership-wording=40`; `soft-commitment-wording=4`; `state-ledger-wording=27` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` | High | `volatile-current-wording=59`; `unclear-ownership-wording=59`; `soft-commitment-wording=2`; `state-ledger-wording=41` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | High | `volatile-current-wording=46`; `unclear-ownership-wording=15`; `soft-commitment-wording=13`; `state-ledger-wording=98` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | High | `volatile-current-wording=59`; `unclear-ownership-wording=78`; `soft-commitment-wording=8`; `state-ledger-wording=137` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md` | High | `volatile-current-wording=70`; `unclear-ownership-wording=103`; `soft-commitment-wording=12`; `state-ledger-wording=119` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -184,10 +184,10 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_records/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_ai_runtime_trust_boundary_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
+| `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 
 ## High-Risk Review Queue
 
