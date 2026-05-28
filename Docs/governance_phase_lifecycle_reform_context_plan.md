@@ -115,6 +115,8 @@ USER-facing review files are temporary review aids. They should focus on context
 
 Active branch status, current HEAD, current origin/main, ahead/behind, upstream, worktree cleanliness, current validation state, current PR state, ZIP hash, and similar mutable technical proof belong in Codex chat digest, helper output, validator output, or external operational state.
 
+USER-facing review files should not carry ZIP SHA256, ZIP hash, packet hash, upload hash, active branch status, current commit, current baseline, merge base, validation status, PR state, worktree status, or similar byte-proof metadata as active packet content. Those values remain available through Codex chat digest, helper output, validator output, or external governance state.
+
 Repo-tracked files may contain durable source truth, accepted plans, accepted contracts, historical receipts, and fixed snapshots when clearly historical. Repo-tracked files should not carry mutable active branch operational state.
 
 ## External Operational State Split

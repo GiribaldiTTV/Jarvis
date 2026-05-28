@@ -99,11 +99,11 @@
       "expectedValid": true,
       "expectedStatus": "implementation-ready",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve bounded Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Legal Posture: approve Workstream implementation approval.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve bounded Workstream implementation for this Workstream.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: approve Workstream implementation approval."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.\nDecision Path Summary: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -115,11 +115,11 @@
       "expectedValid": true,
       "expectedStatus": "implementation-ready",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nHistorical Context: Branch Readiness Stage 2 created this carrier earlier.\nExact USER Decision This Bundle Supports: Approve bounded Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Historical context mentions Branch Readiness Stage 2, but Next Legal Posture is approve Workstream implementation approval.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve bounded Workstream implementation for this Workstream.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: approve Workstream implementation approval."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.\nDecision Path Summary: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nHistorical Context: Branch Readiness Stage 2 created this carrier earlier.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -131,11 +131,11 @@
       "expectedValid": true,
       "expectedStatus": "implementation-ready",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve bounded Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.\n\n## Pending USER Decisions\n\n- Merge.\n- Release.\n- Private Dev repo creation.\n- Private Owner repo creation.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Legal Posture is approve Workstream implementation approval. Pending USER Decisions include Merge and Release only.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve bounded Workstream implementation for this Workstream.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: approve Workstream implementation approval."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.\nDecision Path Summary: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\n\n## Pending USER Decisions\n\n- Merge.\n- Release.\n- Private Dev repo creation.\n- Private Owner repo creation.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -148,11 +148,11 @@
       "expectedStatus": "unknown",
       "expectedFailureContains": "blocks implementation approval",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: This packet does not approve Workstream implementation for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head from origin/main@synthetic-origin-main.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Legal Posture does not approve Workstream implementation.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation at synthetic-dev-owner-head and origin/main synthetic-origin-main. This scan does not approve bounded Workstream implementation.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Exact USER Decision Needed: This digest does not approve bounded Workstream implementation.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation source HEAD synthetic-dev-owner-head origin/main synthetic-origin-main. Next Decision: does not approve Workstream implementation."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: This packet does not approve Workstream implementation.\nDecision Path Summary: No implementation approval is granted by this packet.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: No implementation approval is granted by this packet.\nUSER Decision: This packet does not approve Workstream implementation.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: No implementation approval is granted by this packet.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: No implementation approval is granted by this packet.\nUSER Decision: This packet does not approve Workstream implementation.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: No implementation approval is granted by this packet.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -165,11 +165,11 @@
       "expectedStatus": "repair-revalidation",
       "expectedFailureContains": "blocks implementation approval",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Branch Readiness Stage 2 repair/revalidation before Workstream implementation.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Branch Readiness Stage 2 repair/revalidation.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve repair/revalidation before Workstream implementation.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Branch Readiness Stage 2 repair/revalidation."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Branch Readiness Stage 2 repair/revalidation before implementation planning continues.\nDecision Path Summary: repair/revalidation - repair before Workstream implementation.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: repair/revalidation - repair before Workstream implementation.\nUSER Decision: Approve Branch Readiness Stage 2 repair/revalidation before implementation planning continues.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: repair/revalidation - repair before Workstream implementation.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: repair/revalidation - repair before Workstream implementation.\nUSER Decision: Approve Branch Readiness Stage 2 repair/revalidation before implementation planning continues.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: repair/revalidation - repair before Workstream implementation.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -180,13 +180,13 @@
       "requireImplementationReady": false,
       "expectedValid": false,
       "expectedStatus": "workstream-entry-final-review",
-      "expectedFailureContains": "expected branch",
+      "expectedFailureContains": "technical metadata source-branch-field",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-public-leak-prevention-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-public-leak-prevention-foundation synthetic-dev-owner-head synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-public-leak-prevention-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Workstream Entry final decision review.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-public-leak-prevention-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`\nReview Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -199,10 +199,10 @@
       "expectedStatus": "workstream-entry-final-review",
       "expectedFailureContains": "required Workstream Entry packet file is missing",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Workstream Entry final decision review."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review."
       }
     },
     {
@@ -215,11 +215,11 @@
       "expectedStatus": "unknown",
       "expectedFailureContains": "decision-path conflict",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Branch Readiness Stage 2 repair/revalidation.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: repair/revalidation - repair before Workstream implementation.\nUSER Decision: Approve Branch Readiness Stage 2 repair/revalidation before implementation planning continues.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -230,13 +230,13 @@
       "requireImplementationReady": false,
       "expectedValid": false,
       "expectedStatus": "workstream-entry-final-review",
-      "expectedFailureContains": "Exact USER Decision",
+      "expectedFailureContains": "USER Decision This Packet Supports",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nNext Legal Posture: Workstream Entry final decision review.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -249,11 +249,11 @@
       "expectedStatus": "workstream-entry-final-review",
       "expectedFailureContains": "unresolved template placeholder",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source Branch: $branch\nSource HEAD: $head\norigin/main: $originMain\nFolder: $packet\nZip: $zip\nPacket Decision Status: workstream entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Workstream Entry final decision review.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Folder: $packet\nZip: $zip\nDecision Path: workstream entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -266,11 +266,11 @@
       "expectedStatus": "workstream-entry-final-review",
       "expectedFailureContains": "Bundle File Count",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nBundle File Count: 19\nExpected File Count: 5\nCopied File Count: 5\nExtra Bundle File Count: 4\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Workstream Entry final decision review.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.\n\nBundle File Count: 19\nExpected File Count: 5\nCopied File Count: 5\nExtra Bundle File Count: 4",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -283,11 +283,11 @@
       "expectedValid": true,
       "expectedStatus": "workstream-entry-final-review",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation`\nSource HEAD: `synthetic-dev-owner-head`\norigin/main: `synthetic-origin-main`\nBundle File Count: 6\nExpected File Count: 1\nCopied File Count: 1\nExtra Bundle File Count: 4\nExact USER Decision This Bundle Supports: Approve Workstream Entry final decision review.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Legal Posture: Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Exact USER Decision Needed: Approve Workstream Entry final decision review.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "feature/fam-007-ai-edition-dev-owner-skeleton-readiness-foundation synthetic-dev-owner-head synthetic-origin-main. Next Decision: Workstream Entry final decision review."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
       }
     },
     {
@@ -299,11 +299,11 @@
       "expectedValid": true,
       "expectedStatus": "live-validation-final-review",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness`\nSource HEAD: `synthetic-breakpoint2-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: Approve bounded PR Readiness Stage 1 analysis.\nPacket Decision Status: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness source HEAD synthetic-breakpoint2-head origin/main synthetic-origin-main. Packet Decision Status: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness synthetic-breakpoint2-head and origin/main synthetic-origin-main. Packet Decision Status: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness source HEAD synthetic-breakpoint2-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve bounded PR Readiness Stage 1 analysis. Analysis Status: Live Validation LV1 is green.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness source HEAD synthetic-breakpoint2-head origin/main synthetic-origin-main. Next Decision: PR Readiness Stage 1. Checklist Status: Live Validation LV1 is green."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve bounded PR Readiness Stage 1 analysis.\nDecision Path Summary: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nUSER Decision: Approve bounded PR Readiness Stage 1 analysis.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nUSER Decision: Approve bounded PR Readiness Stage 1 analysis.\nAnalysis Summary: Live Validation LV1 is green.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.\nChecklist Focus: Live Validation LV1 is green."
       }
     },
     {
@@ -315,11 +315,11 @@
       "expectedValid": true,
       "expectedStatus": "pr-readiness-stage2-review",
       "files": {
-        "START_HERE.md": "Source Branch: `feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness`\nSource HEAD: `synthetic-breakpoint2-head`\norigin/main: `synthetic-origin-main`\nExact USER Decision This Bundle Supports: I approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness at HEAD synthetic-breakpoint2-head and origin/main@synthetic-origin-main.\nPacket Decision Status: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Source branch feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness source HEAD synthetic-breakpoint2-head origin/main synthetic-origin-main. Packet Decision Status: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Required packet files are present for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness synthetic-breakpoint2-head and origin/main synthetic-origin-main. Packet Decision Status: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Source branch feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness source HEAD synthetic-breakpoint2-head origin/main synthetic-origin-main. Exact USER Decision Needed: Approve PR Readiness Stage 2 PR creation. Analysis Status: PR Readiness Stage 1 Ready For Stage 2.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Source branch feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness source HEAD synthetic-breakpoint2-head origin/main synthetic-origin-main. Next Decision: PR Readiness Stage 2 PR creation. Checklist Status: PR Readiness Stage 1 Ready For Stage 2."
+        "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: I approve PR Readiness Stage 2 / PR creation for the FAM-007 Breakpoint 2 carrier.\nDecision Path Summary: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nUSER Decision: I approve PR Readiness Stage 2 / PR creation for the FAM-007 Breakpoint 2 carrier.",
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nUSER Decision: I approve PR Readiness Stage 2 / PR creation for the FAM-007 Breakpoint 2 carrier.\nAnalysis Summary: PR Readiness Stage 1 Ready For Stage 2.",
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.\nChecklist Focus: PR Readiness Stage 2 PR creation."
       }
     }
   ],

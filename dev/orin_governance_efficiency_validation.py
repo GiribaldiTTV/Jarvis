@@ -223,14 +223,9 @@ EXPECTED_PENDING_FOLD_SOURCE_FILES = (
 
 USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
     "Review Purpose:",
-    "Review Export Zip:",
-    "Bundle File Count:",
-    "Expected File Count:",
-    "Copied File Count:",
-    "Extra Bundle File Count:",
-    "Validation Summary:",
+    "Local USER Hub Folder:",
     "Review Order",
-    "Exact USER Decision This Bundle Supports:",
+    "USER Decision This Packet Supports:",
     "Pending USER Decisions",
 )
 
@@ -437,7 +432,7 @@ def validate() -> list[str]:
             if phrase not in desktop_bundle_section:
                 failures.append(
                     f"{OPERATING_MODEL}: USER Review Hub Rule missing "
-                    f"required START_HERE metadata field {phrase!r}"
+                    f"required START_HERE review field {phrase!r}"
                 )
 
     bundle_helper_text = _read(USER_REVIEW_BUNDLE_HELPER)
@@ -447,7 +442,7 @@ def validate() -> list[str]:
         for phrase in USER_REVIEW_BUNDLE_REQUIRED_FIELDS:
             if phrase not in bundle_helper_text:
                 failures.append(
-                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE metadata field {phrase!r}"
+                    f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE review field {phrase!r}"
                 )
 
     for path, required_phrases in POINTER_REQUIREMENTS.items():
