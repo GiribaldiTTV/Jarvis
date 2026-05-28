@@ -187,6 +187,29 @@ FAM006_BP1_STALE_PACKET_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ),
     ("stage-2-setup-green", re.compile(r"\bStage 2 setup is green\b", re.IGNORECASE)),
 )
+FAM006_BP2_STALE_PACKET_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "bp1-pending",
+        re.compile(r"\bBP1 remains pending\b|\bBP1 is Draft\b|\bNeeds USER Decision\b", re.IGNORECASE),
+    ),
+    (
+        "bp2-placeholder",
+        re.compile(r"\bBP2 placeholder\b|placeholder generated during BP1", re.IGNORECASE),
+    ),
+    (
+        "bp1-current-state",
+        re.compile(
+            r"currently in BP1 Branch Vision Review|engineering plan must wait until USER "
+            r"accepts, revises, rejects, or explicitly waives BP1|loaded for BP1 review|"
+            r"BP1 Branch Vision Review packet is ready",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "workstream-entry-final-review",
+        re.compile(r"\bWorkstream Entry final decision review\b", re.IGNORECASE),
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -209,6 +232,7 @@ class WorkstreamEntryPacketDecisionPathResult:
             DECISION_STATUS_PR_READINESS_STAGE1_REVIEW,
             DECISION_STATUS_PR_READINESS_STAGE2_REVIEW,
             DECISION_STATUS_BP1_BRANCH_VISION_REVIEW,
+            DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW,
             DECISION_STATUS_REPAIR_REVALIDATION,
             DECISION_STATUS_UNKNOWN,
         }
@@ -420,6 +444,7 @@ def _validate_export_zip(
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_stale_packet_failures(packet_files),
+        *_fam006_bp2_stale_packet_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -651,6 +676,40 @@ def _fam006_bp1_stale_packet_failures(packet_files: Mapping[str, str]) -> list[s
     return failures
 
 
+def _fam006_bp2_stale_packet_failures(packet_files: Mapping[str, str]) -> list[str]:
+    exact_decision_text = "\n".join(
+        packet_files.get(file_name, "")
+        for file_name in (
+            "START_HERE.md",
+            USER_BRANCH_VISION_REVIEW_FILE,
+            USER_BRANCH_PLAN_REVIEW_FILE,
+            "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md",
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            "BRANCH_VISION_VALIDATION_CHECKLIST.md",
+            "GOVERNANCE_REQUIRED_FILES_SCAN.md",
+        )
+    ).casefold()
+    is_fam006_bp2_packet = (
+        "fam-006 active overlay recording runtime implementation" in exact_decision_text
+        and "bp2 branch plan review" in exact_decision_text
+        and "bp1 is accepted" in exact_decision_text
+    )
+    if not is_fam006_bp2_packet:
+        return []
+
+    failures: list[str] = []
+    for file_name in USER_FACING_GENERATED_FILES:
+        text = packet_files.get(file_name)
+        if not text:
+            continue
+        for reason, pattern in FAM006_BP2_STALE_PACKET_PATTERNS:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: FAM-006 BP2 packet contains stale {reason} wording"
+                )
+    return failures
+
+
 def _start_here_file_mappings(start_here: str) -> dict[str, str]:
     mappings: dict[str, str] = {}
     row_pattern = re.compile(r"^\|\s*`([^`]+)`\s*\|\s*`([^`]+)`\s*\|", re.MULTILINE)
@@ -801,30 +860,50 @@ def _write_user_branch_vision_review(
 ) -> Path:
     source_files = [f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]
     pr_readiness_context_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+    fam006_bp2_plan_packet = (
+        "fam-006 active overlay recording runtime implementation" in exact_user_decision.casefold()
+        and "bp2 branch plan" in exact_user_decision.casefold()
+        and "prepare bp3" in exact_user_decision.casefold()
+    )
     review_status = (
+        "Accepted Context - USER accepted BP1 Branch Vision; this packet is the active BP2 Branch Plan Review."
+        if fam006_bp2_plan_packet
+        else
         "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
         "it does not request a new Branch Vision decision."
         if pr_readiness_context_packet
         else "Needs USER Decision unless this packet records an explicit USER acceptance or waiver."
     )
     contract_status = (
+        "Complete - BP1 Branch Vision accepted by USER; this file is retained as accepted BP1 context for BP2."
+        if fam006_bp2_plan_packet
+        else
         "Complete - Branch Vision context is recorded for this PR Readiness review packet; "
         "implementation remains outside this decision."
         if pr_readiness_context_packet
         else "Draft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch."
     )
     user_response = (
+        "Accepted by USER - BP1 Branch Vision is accepted for FAM-006 Active Overlay Recording Runtime Implementation."
+        if fam006_bp2_plan_packet
+        else
         "No new BP1 response requested by this packet; PR Readiness Stage 1 analysis remains the next USER decision."
         if pr_readiness_context_packet
         else "Pending USER response or explicit waiver."
     )
     codex_digest = (
+        "Codex digested BP1 acceptance into the active FAM-006 branch record and branch plan; BP2 Branch Plan Review is now active."
+        if fam006_bp2_plan_packet
+        else
         "Codex records this BP1 file as a context aid for the governance lifecycle reform packet. "
         "Accepted outcomes must fold into durable source-truth owners or external operational state."
         if pr_readiness_context_packet
         else "Pending USER response digest."
     )
     accepted_vision = (
+        "Accepted Branch Vision: active Overlay Profile is the recording target source; HUD Overlay card is launcher and target/status preview; standalone Recording Control window is the compact future control surface; Native Log Loader is a separate future graph/log viewer; runtime execution and file writing remain future-gated."
+        if fam006_bp2_plan_packet
+        else
         "Accepted context: Governance Phase Lifecycle Reform and local USER hub model are represented by the copied source-truth files."
         if pr_readiness_context_packet
         else "Pending USER acceptance or waiver."
@@ -888,16 +967,16 @@ def _write_user_branch_vision_review(
         "",
         "## Product Options / Design Paths",
         "",
-        "- Accept the proposed Branch Vision.",
-        "- Revise the Branch Vision before engineering planning.",
-        "- Waive BP1 for this branch with explicit USER text.",
-        "- Reject this branch direction and request a narrower or different carrier.",
+        "- BP1 is already accepted for this BP2 packet.",
+        "- Review whether the BP2 engineering plan correctly builds the accepted Branch Vision.",
+        "- Route back to BP1 only if the BP2 plan changes the accepted Branch Vision.",
+        "- Keep runtime implementation blocked until BP2 is accepted or waived, BP3 is green, and USER separately approves implementation.",
         "",
         "## Codex Recommendations",
         "",
-        "- Recommendation: Treat BP1 as the product/vision gate and keep SLCs as engineering route details.",
+        "- Recommendation: Treat the accepted BP1 as the product/vision gate and keep SLCs as engineering route details.",
         "  USER response:",
-        "- Recommendation: Use BP2 only after the accepted Branch Vision is clear.",
+        "- Recommendation: Use BP2 to review how Codex plans to build the accepted Branch Vision.",
         "  USER response:",
         "",
         "## Why This Fits The Nexus Vision",
@@ -906,8 +985,8 @@ def _write_user_branch_vision_review(
         "",
         "## USER Design Questions",
         "",
-        "- Does this Branch Vision match what the USER wants this branch to become?",
-        "- Are any surfaces, flows, boundaries, or future-gated ideas missing?",
+        "- Does the BP2 engineering plan correctly build this accepted Branch Vision?",
+        "- Does any BP2 item require a route-back to BP1?",
         "",
         "## USER Response",
         "",
@@ -927,7 +1006,7 @@ def _write_user_branch_vision_review(
         "",
         "## Must-Have Behavior",
         "",
-        "- BP1 must be accepted or explicitly waived before BP2/BP3 can authorize implementation.",
+        "- BP1 is accepted; BP2 must be accepted or explicitly waived before BP3 can authorize implementation.",
         "- SLCs must trace to an accepted Branch Vision requirement.",
         "",
         "## Must-Not-Do / Regression-Risk Rules",
@@ -1236,7 +1315,7 @@ def _write_user_branch_plan_review(
             "Temporary USER review files remain review aids only; technical proof stays in helper output, validator output, Codex digest, or external operational state.",
         ]
         contract_change_log = [
-            "v1 - BP1 placeholder prevented stale Governance/FAM-007/Workstream Entry packet drift during BP1 review.",
+            "v1 - Branch Vision packet prevented stale Governance/FAM-007/Workstream Entry packet drift before BP1 acceptance.",
             "v2 - BP2 engineering-plan review generated after USER accepted BP1 Branch Vision.",
         ]
         completion_checklist = [
@@ -3316,6 +3395,7 @@ def _validate_workstream_entry_packet_decision_path(
     )
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_fam006_bp1_stale_packet_failures(packet_files))
+    failures.extend(_fam006_bp2_stale_packet_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if required_file not in packet_files:
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
