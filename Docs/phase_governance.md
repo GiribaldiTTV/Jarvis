@@ -168,6 +168,38 @@ Aliases such as `Plan Review`, `Build`, `User Proof`, or `Release Validation` ma
 
 `Workstream Entry` is BP3 inside `Branch Planning`; it is not inside `Workstream` and is not a standalone canonical phase. The `Workstream` phase begins only after BP1 and BP2 are accepted or explicitly waived, BP3 is green, and USER approves the first bounded implementation seam.
 
+### Branch Planning Review Gate State Model
+
+Rule Name: `Branch Planning Review Gate State Model`
+Owner: `Docs/phase_governance.md`
+Applies To: BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, local USER hub packets, branch planning digests, branch records, branch plans, helper output, and validator output.
+Required State: Branch Planning gate evidence must track two independent axes: `Packet Reviewability State` and `USER Gate State`.
+Allowed Values:
+
+- `Packet Reviewability State`: `Missing`, `Generated`, `Validation Failed`, `Reviewable`, `Stale`, `Superseded`
+- `USER Gate State`: `Pending USER Review`, `USER Revision Requested`, `USER Accepted`, `USER Approved`, `USER Waived`, `USER Rejected`, `USER Blocked`, `Superseded`
+
+Invalid Values: `Implementation-ready`, `validated`, `green`, `generated`, `reviewable`, helper `PASS`, validator `PASS`, Codex agreement, ChatGPT agreement, or packet file-count proof must not be used as USER acceptance, USER waiver, USER approval, or Workstream implementation authority.
+Blocking Condition: `Packet Validation Treated As USER Acceptance`, `Review Gate Bypass`, `USER Review Packet Phase-State Conflict`, `USER Review Packet Not Digested`, `Branch Planning Acceptance Receipt Missing`, `Helper False Green On Review Gate State`, or `Codex Digest Conflicts With USER Packet` blocks progression whenever the two axes conflict or when Codex asks for a later gate without accepted/waived prior USER gate proof.
+Repair Owner: The current branch/worktree owner repairs branch-local review packets; reusable failures route to the standing Governance intake lane and update `Docs/phase_governance.md`, `Docs/branch_plans/README.md`, `Docs/validation_helper_registry.md`, and helper/fixture owners when machine-checkable.
+Repair Path: regenerate or repair the USER packet until `Packet Reviewability State: Reviewable`, return the packet to USER, digest the USER response, record the receipt, then set `USER Gate State` to the legal USER disposition. Chat-only correction text cannot replace the packet receipt.
+USER Decision Required: Required for `USER Accepted`, `USER Approved`, `USER Waived`, `USER Rejected`, and any revision closure that changes branch vision, branch plan, Workstream orchestration, scope, or implementation authority.
+Validation Owner: `dev/orin_user_review_bundle.py`, `dev/orin_branch_governance_validation.py`, and `dev/orin_branch_readiness_planning_fixture_validation.py` validate reusable packet shape and false-green regressions; their output is evidence, not USER acceptance.
+Final Disposition: A Branch Planning gate exits only through a recorded USER disposition or a named blocker. A `Reviewable` packet starts USER review; it does not complete USER review.
+
+Transition Rule:
+
+- BP1.1 prepares and repairs `USER_BRANCH_VISION_REVIEW.md` until `Packet Reviewability State: Reviewable`.
+- BP1.2 is the USER Branch Vision Review Gate with `USER Gate State: Pending USER Review` until USER responds.
+- BP1.3 records `USER Accepted`, `USER Waived`, `USER Rejected`, `USER Revision Requested`, or `USER Blocked` before BP2 preparation.
+- BP2.1 prepares and repairs `USER_BRANCH_PLAN_REVIEW.md` only after BP1 is `USER Accepted` or `USER Waived`.
+- BP2.2 is the USER Branch Plan Review Gate with `USER Gate State: Pending USER Review` until USER responds.
+- BP2.3 records `USER Accepted`, `USER Waived`, `USER Rejected`, `USER Revision Requested`, or `USER Blocked` before BP3 preparation.
+- BP3.1 prepares and repairs Workstream Entry / Orchestration Validation only after BP1 and BP2 are `USER Accepted` or `USER Waived`.
+- BP3.2 is the USER Workstream Entry / Orchestration Review Gate with `USER Gate State: Pending USER Review` until USER responds.
+- BP3.3 records `USER Approved`, `USER Waived`, `USER Revision Requested`, or `USER Blocked` before first Workstream implementation approval may be requested.
+- Workstream implementation remains blocked until BP1 is `USER Accepted` or `USER Waived`, BP2 is `USER Accepted` or `USER Waived`, BP3 is `USER Approved` or `USER Waived`, and USER separately approves the bounded implementation seam or seam sequence.
+
 ## Cross-Phase Rules
 
 - repo canon is the detailed authority
