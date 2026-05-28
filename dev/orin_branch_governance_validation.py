@@ -598,12 +598,12 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "Hardening Plan:",
     "Live Validation / UTS Plan:",
     "Open USER Questions:",
-    "USER Design Review Questions:",
+    "USER Plan Review Questions:",
     "Codex Recommendations:",
     "Implementation Options:",
     "Recommended Direction:",
     "Why This Fits The Nexus Vision:",
-    "USER Design Direction Decision:",
+    "USER Plan Review Decision:",
     "Current Branch Scope:",
     "Future-Gated Scope:",
     "Implementation Staging Notes:",
@@ -623,6 +623,10 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "Exact USER Decision Needed:",
     "Implementation Approval:",
 )
+USER_BRANCH_PLAN_REVIEW_MARKER_ALIASES = {
+    "USER Plan Review Questions:": ("USER Design Review Questions:",),
+    "USER Plan Review Decision:": ("USER Design Direction Decision:",),
+}
 USER_BRANCH_PLAN_REVIEW_STATUS_PREFIXES = (
     "accepted by user",
     "revised by user",
@@ -9534,15 +9538,27 @@ def _validate_user_branch_plan_review_gate(
         return
 
     gate_section = _section(text, USER_BRANCH_PLAN_REVIEW_HEADING)
+
+    def extract_plan_marker(marker: str) -> str:
+        value = _extract_marker_value(gate_section, marker)
+        if value:
+            return value
+        for alias in USER_BRANCH_PLAN_REVIEW_MARKER_ALIASES.get(marker, ()):
+            value = _extract_marker_value(gate_section, alias)
+            if value:
+                return value
+        return ""
+
     for marker in USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS:
-        marker_present = marker in gate_section
+        aliases = USER_BRANCH_PLAN_REVIEW_MARKER_ALIASES.get(marker, ())
+        marker_present = marker in gate_section or any(alias in gate_section for alias in aliases)
         if marker == "USER Review Hub Packet:" and "Desktop Review Bundle:" in gate_section:
             marker_present = True
         require(
             marker_present,
             f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} is missing '{marker}'",
         )
-        value = _extract_marker_value(gate_section, marker)
+        value = extract_plan_marker(marker)
         if marker == "USER Review Hub Packet:" and not value:
             value = _extract_marker_value(gate_section, "Desktop Review Bundle:")
         require(
@@ -9610,10 +9626,10 @@ def _validate_user_branch_plan_review_gate(
         "Implementation Options:",
         "Recommended Direction:",
         "Why This Fits The Nexus Vision:",
-        "USER Design Direction Decision:",
+        "USER Plan Review Decision:",
         "Implementation Staging Notes:",
         "Alternatives / Tradeoffs:",
-        "USER Design Review Questions:",
+        "USER Plan Review Questions:",
         "USER Decisions Needed:",
         "Implementation Constraints Created By USER Response:",
         "USER Rejected / Deferred Ideas:",
@@ -9623,7 +9639,7 @@ def _validate_user_branch_plan_review_gate(
         "Exact USER Decision Needed:",
         "Implementation Approval:",
     ):
-        value = _extract_marker_value(gate_section, marker)
+        value = extract_plan_marker(marker)
         require(
             _planning_word_count(value) >= BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS,
             (
@@ -9701,7 +9717,7 @@ def _validate_user_branch_plan_review_gate(
         "Implementation Options:",
         "Recommended Direction:",
         "Why This Fits The Nexus Vision:",
-        "USER Design Direction Decision:",
+        "USER Plan Review Decision:",
         "Implementation Staging Notes:",
         "USER Decisions Needed:",
         "Implementation Constraints Created By USER Response:",
@@ -9709,12 +9725,12 @@ def _validate_user_branch_plan_review_gate(
         "Contract Completion Checklist:",
         "Workstream Entry Result:",
     ):
-        value = _normalized_planning_value(_extract_marker_value(gate_section, marker))
+        value = _normalized_planning_value(extract_plan_marker(marker))
         require(
             not any(term in value for term in ("tbd", "todo", "placeholder", "normal codex digest")),
             (
                 f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} marker "
-                f"'{marker}' must be a user-facing product/design plan, not a placeholder"
+                f"'{marker}' must be a user-facing engineering plan, not a placeholder"
             ),
         )
 

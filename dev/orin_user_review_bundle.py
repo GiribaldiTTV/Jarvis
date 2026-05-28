@@ -123,11 +123,23 @@ USER_FACING_GENERATED_FILES: tuple[str, ...] = (
     "BRANCH_VISION_VALIDATION_CHECKLIST.md",
 )
 USER_FACING_TECHNICAL_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("head-token", re.compile(r"\bHEAD\b", re.IGNORECASE)),
     ("source-head", re.compile(r"\bSource HEAD\b", re.IGNORECASE)),
     ("origin-main", re.compile(r"\borigin/main\b", re.IGNORECASE)),
     ("merge-base", re.compile(r"\bmerge base\b|\bmerge-base\b", re.IGNORECASE)),
+    ("ahead-behind", re.compile(r"\bahead/behind\b|\bAhead/Behind\b", re.IGNORECASE)),
     ("zip-hash", re.compile(r"\b(?:ZIP|packet|upload)\s+(?:SHA256|hash)\b", re.IGNORECASE)),
     ("review-export-zip", re.compile(r"\bReview Export Zip\b", re.IGNORECASE)),
+    (
+        "desktop-onedrive-active-upload",
+        re.compile(
+            r"(?:\b(?:Desktop|OneDrive)\b[^\n]*(?:active\s+)?(?:upload|review)\s+"
+            r"(?:source|path|folder|bundle))|"
+            r"(?:(?:upload|review)\s+(?:source|path|folder|bundle)[^\n]*"
+            r"\b(?:Desktop|OneDrive)\b)",
+            re.IGNORECASE,
+        ),
+    ),
     ("upstream-field", re.compile(r"^Upstream\s*:", re.IGNORECASE | re.MULTILINE)),
     ("source-branch-field", re.compile(r"^Source Branch\s*:", re.IGNORECASE | re.MULTILINE)),
     ("branch-status", re.compile(r"\bbranch status\b|\bCurrent Branch State\b", re.IGNORECASE)),
@@ -1862,7 +1874,7 @@ def _write_user_branch_plan_review(
                 "Sidecar artifact model remains pending USER decision.",
                 "Uniquely named ZIP artifact model remains pending USER decision.",
                 "Separate Review / Upload top-level folder taxonomy remains pending USER decision.",
-                "Desktop / OneDrive active upload source remains superseded by the local USER hub model.",
+                "Cloud-backed mirrors remain convenience-only unless USER changes the artifact model.",
             ]
             if pr_readiness_stage1_packet
             else ["Pending USER response or explicit waiver."]

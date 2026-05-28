@@ -20,12 +20,12 @@ Element-to-Phase Proof Matrix: Matrix rows map public-safe copy, protected-actio
 Hardening Plan: H1 compares public copy, protected asset exclusions, disabled controls, source truth, and validators.
 Live Validation / UTS Plan: LV1 and UTS prove public surface copy, no private leakage, screenshots, and explicit waiver posture.
 Open USER Questions: Deferred With Waiver - private provider setup questions move to a future admitted branch.
-USER Design Review Questions: Deferred With Waiver - USER reviewed the private-provider setup questions and waived them to a future branch.
+USER Plan Review Questions: Deferred With Waiver - USER reviewed the private-provider setup questions and waived them to a future branch.
 Codex Recommendations: Keep this branch public-safe only and route provider setup to a later USER-approved carrier.
 Implementation Options: Deferred With Waiver - USER selected public-safe boundary implementation and waived private-provider setup options.
 Recommended Direction: Codex recommends public-safe boundary implementation because it prevents private provider leakage while preserving future setup planning.
 Why This Fits The Nexus Vision: The plan preserves public safety and clear user boundaries while keeping private provider setup for a future explicit carrier.
-USER Design Direction Decision: Deferred With Waiver - USER accepted the current public-safe direction and waived private setup questions to a future branch.
+USER Plan Review Decision: Deferred With Waiver - USER accepted the current public-safe direction and waived private setup questions to a future branch.
 Current Branch Scope: Current scope includes public copy, protected-action suppression, validator proof, screenshots, and UTS proof.
 Future-Gated Scope: Private provider execution, model install, downloads, memory, voice, shortcut, and installer behavior remain future scope.
 Implementation Staging Notes: The accepted package preserves public-safe copy first, proves protected-action suppression, then validates leak-prevention and user-facing proof.

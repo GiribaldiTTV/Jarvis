@@ -14,7 +14,7 @@ Element-to-Phase Proof Matrix: Matrix rows map setup copy, consent status, disab
 Hardening Plan: H1 compares implementation against source truth, branch plan, UI copy, disabled actions, and validator output.
 Live Validation / UTS Plan: LV1 and UTS prove visible status, disabled unsafe actions, screenshot evidence, and USER acceptance path.
 Open USER Questions: USER must decide whether provider execution remains future-gated or enters this branch.
-USER Design Review Questions: USER must answer whether the setup shell should remain consent-only before implementation starts.
+USER Plan Review Questions: USER must answer whether the setup shell should remain consent-only before implementation starts.
 Codex Recommendations: Implement the consent-facing setup foundation first while keeping provider execution future-gated.
 Implementation Options: Option A is bounded consent-status work; Option B is a later branch-plan revision before implementation.
 Alternatives / Tradeoffs: Alternative is a broader setup wizard, but it increases scope and provider-boundary risk.

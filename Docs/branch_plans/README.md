@@ -204,12 +204,12 @@ Required review markers:
 - Hardening Plan:
 - Live Validation / UTS Plan:
 - Open USER Questions:
-- USER Design Review Questions:
+- USER Plan Review Questions:
 - Codex Recommendations:
 - Implementation Options:
 - Recommended Direction:
 - Why This Fits The Nexus Vision:
-- USER Design Direction Decision:
+- USER Plan Review Decision:
 - Current Branch Scope:
 - Future-Gated Scope:
 - Implementation Staging Notes:

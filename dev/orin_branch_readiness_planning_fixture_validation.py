@@ -138,6 +138,15 @@ INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE = (
 VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE = (
     FIXTURE_DIR / "valid_bp3_accepted_bp1_bp2_slc_traceability_complete.md"
 )
+INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_packet_active_branch_metadata.md"
+)
+INVALID_USER_PACKET_ZIP_HASH_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_packet_zip_hash.md"
+)
+INVALID_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FIXTURE = (
+    FIXTURE_DIR / "invalid_user_packet_desktop_active_upload_path.md"
+)
 VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
     FIXTURE_DIR / "valid_merge_stable_source_truth_projection.md"
 )
@@ -222,6 +231,15 @@ EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
 EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET = "Accepted BP1 trace"
 EXPECTED_BP3_PENDING_FAILURE_SNIPPET = (
     "BP3 cannot approve implementation while BP1 or BP2 is pending"
+)
+EXPECTED_USER_PACKET_ACTIVE_METADATA_FAILURE_SNIPPET = (
+    "USER-facing packet file contains active technical metadata"
+)
+EXPECTED_USER_PACKET_ZIP_HASH_FAILURE_SNIPPET = (
+    "USER-facing packet file contains ZIP/hash technical metadata"
+)
+EXPECTED_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FAILURE_SNIPPET = (
+    "USER-facing packet file routes active upload/review to Desktop or OneDrive"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -510,6 +528,53 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         "slc traceability: complete" in normalized,
         "BP3 requires complete SLC traceability to BP1 and BP2",
     )
+    return failures
+
+
+def _validate_user_packet_metadata_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    active_metadata_markers = (
+        "HEAD",
+        "Source HEAD:",
+        "origin/main:",
+        "Merge Base:",
+        "Ahead/Behind:",
+        "Upstream:",
+        "Worktree Cleanliness:",
+        "Validation Status:",
+        "PR State:",
+        "Current Branch State:",
+    )
+    for marker in active_metadata_markers:
+        require(
+            marker not in text,
+            "USER-facing packet file contains active technical metadata",
+        )
+    hash_markers = (
+        "ZIP SHA",
+        "ZIP SHA256",
+        "ZIP hash",
+        "packet hash",
+        "upload hash",
+    )
+    for marker in hash_markers:
+        require(
+            marker.casefold() not in text.casefold(),
+            "USER-facing packet file contains ZIP/hash technical metadata",
+        )
+    active_upload_markers = (
+        "Desktop review bundle",
+        "USER Desktop review bundle",
+        "OneDrive active review path",
+        "Upload from C:\\Users\\anden\\OneDrive\\Desktop",
+        "Upload ZIP: C:\\Users\\anden\\OneDrive\\Desktop",
+        "Review Location: C:\\Users\\anden\\OneDrive\\Desktop",
+    )
+    for marker in active_upload_markers:
+        require(
+            marker.casefold() not in text.casefold(),
+            "USER-facing packet file routes active upload/review to Desktop or OneDrive",
+        )
     return failures
 
 
@@ -1277,6 +1342,36 @@ def validate() -> list[str]:
         failures.append(
             "Valid BP3 accepted-BP1/BP2 fixture unexpectedly failed: "
             + "; ".join(valid_bp3_failures[:5])
+        )
+
+    active_packet_metadata_failures = _validate_user_packet_metadata_text(
+        INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_PACKET_ACTIVE_METADATA_FAILURE_SNIPPET not in "\n".join(
+        active_packet_metadata_failures
+    ):
+        failures.append(
+            "Invalid USER packet active-metadata fixture did not reject branch metadata"
+        )
+
+    zip_hash_packet_failures = _validate_user_packet_metadata_text(
+        INVALID_USER_PACKET_ZIP_HASH_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_PACKET_ZIP_HASH_FAILURE_SNIPPET not in "\n".join(
+        zip_hash_packet_failures
+    ):
+        failures.append(
+            "Invalid USER packet ZIP-hash fixture did not reject hash metadata"
+        )
+
+    desktop_upload_packet_failures = _validate_user_packet_metadata_text(
+        INVALID_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FAILURE_SNIPPET not in "\n".join(
+        desktop_upload_packet_failures
+    ):
+        failures.append(
+            "Invalid USER packet Desktop/OneDrive upload fixture did not reject active upload path"
         )
 
     valid_merge_stable_failures = _validate_merge_stable_projection_text(
