@@ -751,6 +751,8 @@ def _fam006_bp1_stale_packet_failures(packet_files: Mapping[str, str]) -> list[s
         "fam-006 active overlay recording runtime implementation" in exact_decision_text
         and "bp1 branch vision" in exact_decision_text
         and "bp2 branch plan review - bp1 is accepted" not in exact_decision_text
+        and "bp3 workstream entry / orchestration validation" not in exact_decision_text
+        and "implementation-ready" not in exact_decision_text
     )
     if not is_fam006_bp1_packet:
         return []
@@ -785,6 +787,8 @@ def _fam006_bp2_stale_packet_failures(packet_files: Mapping[str, str]) -> list[s
         "fam-006 active overlay recording runtime implementation" in exact_decision_text
         and "bp2 branch plan review" in exact_decision_text
         and "bp1 is accepted" in exact_decision_text
+        and "bp3 workstream entry / orchestration validation" not in exact_decision_text
+        and "implementation-ready" not in exact_decision_text
     )
     if not is_fam006_bp2_packet:
         return []
@@ -997,7 +1001,8 @@ def _write_user_branch_vision_review(
     )
     fam006_bp3_packet = (
         is_fam006_active_overlay_implementation
-        and "approve bounded workstream implementation" in exact_user_decision.casefold()
+        and "bp3 workstream entry / orchestration validation" in exact_user_decision.casefold()
+        and "bounded workstream implementation" in exact_user_decision.casefold()
         and "slc-051" in exact_user_decision.casefold()
     )
     review_status = (
@@ -1277,7 +1282,8 @@ def _write_user_branch_plan_review(
     )
     bp3_fam006_workstream_packet = (
         is_fam006_active_overlay_implementation
-        and "approve bounded workstream implementation" in decision_lower
+        and "bp3 workstream entry / orchestration validation" in decision_lower
+        and "bounded workstream implementation" in decision_lower
         and "slc-051" in decision_lower
     )
     active_branch_files = [
@@ -3154,7 +3160,8 @@ def _write_workstream_entry_packet_digests(
     )
     is_fam006_bp3_packet = (
         source_branch == "feature/fam-006-active-overlay-recording-runtime-implementation"
-        and "approve bounded workstream implementation" in decision_lower
+        and "bp3 workstream entry / orchestration validation" in decision_lower
+        and "bounded workstream implementation" in decision_lower
         and "slc-051" in decision_lower
     )
     is_fam007_breakpoint_2 = (
@@ -4168,7 +4175,8 @@ def build_bundle(
     )
     is_fam006_bp3_packet = (
         source_branch == "feature/fam-006-active-overlay-recording-runtime-implementation"
-        and "approve bounded workstream implementation" in exact_user_decision.casefold()
+        and "bp3 workstream entry / orchestration validation" in exact_user_decision.casefold()
+        and "bounded workstream implementation" in exact_user_decision.casefold()
         and "slc-051" in exact_user_decision.casefold()
     )
     machine_readable_packet_status = (
