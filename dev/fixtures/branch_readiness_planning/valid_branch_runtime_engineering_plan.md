@@ -53,6 +53,11 @@ Element Validation Ledger Owner: Docs/branch_records/feature_fam_000_runtime_pla
 USER Branch Plan Review: Required - Workstream Entry presents the readable implementation plan before runtime work begins.
 Review Status: Accepted by USER - USER accepted this branch plan review for implementation planning proof.
 Contract Status: Complete - USER accepted the final USER Branch Plan Contract and implementation may proceed only through a later bounded approval.
+Packet Reviewability State: Reviewable - helper and fixture checks prove the packet can be inspected.
+USER Gate State: USER Accepted - USER accepted the branch plan review before later BP3 preparation.
+USER Response Proof: Attached and accepted - USER response accepted the branch plan review.
+USER Response Digested: Digested - Codex converted USER response into implementation constraints.
+Acceptance / Waiver / Revision / Rejection Receipt: Acceptance receipt recorded in this fixture contract.
 Contract Version / Revision: v1 - Fixture contract with USER response and Codex digest complete.
 USER Review Hub Packet: C:\Nexus USER\FAM-000 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-000.zip.
 USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
