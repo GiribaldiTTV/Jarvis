@@ -735,9 +735,43 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
 
 
 def _validate_branch_planning_gate_state_packet_text(text: str) -> list[str]:
+    substantive_bp1_text = (
+        "# Fixture USER Branch Vision Review\n\n"
+        "USER Branch Vision Review: BP1\n\n"
+        "## Packet Reviewability State\nReviewable\n\n"
+        "## USER Gate State\nPending USER Review\n\n"
+        "## USER Response Proof\nPending USER response.\n\n"
+        "## USER Response Digested\nNo - pending USER response.\n\n"
+        "## Project Vision Context\n"
+        "This fixture keeps Nexus branch planning USER-readable before engineering work by proving packet reviewability and USER acceptance stay separate states.\n\n"
+        "## Family Vision Context\n"
+        "The fixture family context requires branch-specific review gates, clear owner routing, and no implementation authority before USER closes the gate.\n\n"
+        "## Feature Vision Context\n"
+        "This review-gate feature protects BP1, BP2, and BP3 packets from becoming false implementation approvals when only reviewability was proven.\n\n"
+        "## Branch Goal\n"
+        "Demonstrate that the branch planning packet can be reviewable while USER acceptance remains pending and Workstream implementation stays blocked.\n\n"
+        "## End-State Vision\n"
+        "USER receives a readable planning packet where reviewability, gate state, response proof, and implementation authority are each explicit and auditable.\n\n"
+        "## What Will I Actually See, And Where Will I See It?\n"
+        "USER sees the BP1 review file in the local USER review packet and can distinguish navigation context from the actual decision surface.\n\n"
+        "## How It Will Function\n"
+        "BP1 prepares the vision for review, BP2 waits for a legal USER response, and BP3 cannot request implementation while earlier gates remain open.\n\n"
+        "## User Experience Flow\n"
+        "USER opens START_HERE, reviews the branch vision, checks pending decisions, and responds before Codex can prepare the next planning gate.\n\n"
+        "## Surface Map\n"
+        "Review surface is USER_BRANCH_VISION_REVIEW.md; decision surface is the USER response; proof surface is the Codex digest; later BP2 and BP3 files trace to this gate state.\n\n"
+        "## Product Options / Design Paths\n"
+        "Option A keeps the packet reviewable with USER response pending until a clear receipt arrives. Option B revises the review packet before acceptance if the vision, decision surface, or proof path is unclear. Option C waives or rejects the gate with explicit USER text and keeps later stages bounded.\n\n"
+        "## Codex Recommendations\n"
+        "Recommendation one keeps reviewability and acceptance independent because packet hygiene can pass while USER intent remains undecided, with the tradeoff that later stages must wait for a clear receipt. Recommendation two keeps implementation language blocked because false green validation is the core risk this fixture protects against.\n\n"
+        "## Why This Fits The Nexus Vision\n"
+        "This supports Nexus by making governance decisions inspectable, USER-controlled, and resistant to Codex treating generated artifacts as permission.\n\n"
+        "## USER Design Questions\n"
+        "Should this review gate remain pending until USER gives explicit acceptance text? Which packet field should Codex cite as proof before preparing the next gate?\n"
+    )
     packet_files = {
         "START_HERE.md": text,
-        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: text,
+        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: substantive_bp1_text,
         review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: text,
         "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": text,
         "GOVERNANCE_REQUIRED_FILES_SCAN.md": text,
@@ -1069,6 +1103,62 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
                 "Invalid USER review bundle identity fixture did not reject "
                 f"{expected}"
             )
+    return failures
+
+
+def _validate_workstream_entry_packet_existing_bp1_substance_guard() -> list[str]:
+    source_path = "Docs/Main.md"
+    copied_path = f"{review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/Main.md"
+    current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
+    current_head = review_bundle._git_output("rev-parse", "HEAD")
+    current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
+    source_text = review_bundle._git_file_text(current_head, source_path) or ""
+    common = (
+        "# Existing Packet Fixture\n\n"
+        "USER Decision This Packet Supports: workstream entry final decision review\n"
+        "Decision Path Summary: workstream entry final decision review\n"
+        "USER Decision: Workstream Entry final decision review; implementation remains "
+        "blocked pending separate USER approval.\n"
+    )
+    packet_files = {
+        "START_HERE.md": (
+            "# Review\n\n"
+            "USER Decision This Packet Supports: workstream entry final decision review\n\n"
+            "## Files\n\n"
+            "| Source path | Copied path |\n"
+            "| --- | --- |\n"
+            f"| `{source_path}` | `{copied_path}` |\n"
+        ),
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/{review_bundle.USER_BRANCH_VISION_REVIEW_FILE}": (
+            INVALID_BP1_TEMPLATE_SHELL_FIXTURE.read_text(encoding="utf-8")
+        ),
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
+        copied_path: source_text,
+    }
+
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        packet_dir = Path(temp_dir)
+        for relative_path, text in packet_files.items():
+            path = packet_dir / relative_path
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+
+        result = review_bundle.validate_workstream_entry_packet_folder(
+            packet_dir,
+            expected_branch=current_branch,
+            expected_head=current_head,
+            expected_origin_main=current_origin_main,
+        )
+
+    if EXPECTED_BP1_TEMPLATE_SHELL_FAILURE_SNIPPET not in "\n".join(result.failures):
+        failures.append(
+            "Existing Workstream Entry packet folder validation did not reject "
+            "template-shell BP1 review content"
+        )
     return failures
 
 
@@ -2065,6 +2155,7 @@ def validate() -> list[str]:
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
 
     failures.extend(_validate_user_review_bundle_identity_guard())
+    failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
 

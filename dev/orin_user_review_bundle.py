@@ -3405,6 +3405,7 @@ def _validate_workstream_entry_packet_decision_path(
     )
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
+    failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if not _packet_file_present(packet_files, required_file):
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
