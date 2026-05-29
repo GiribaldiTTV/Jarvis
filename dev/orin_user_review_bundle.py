@@ -39,6 +39,9 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
+USER_REVIEW_DIR_NAME = "USER Review"
+REVIEW_AIDS_DIR_NAME = "Review Aids"
+SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -360,14 +363,21 @@ def _copy_names(files: list[str]) -> list[str]:
     return names
 
 
-def _copy_file(relative_file: str, target: Path, copy_name: str) -> tuple[str, str]:
+def _copy_file(
+    relative_file: str,
+    target: Path,
+    copy_name: str,
+    *,
+    subdir: str | None = None,
+) -> tuple[str, str]:
     source = (ROOT / relative_file).resolve()
     if not source.is_file():
         raise FileNotFoundError(f"Review source file not found: {relative_file}")
     if ROOT.resolve() not in source.parents:
         raise ValueError(f"Review source file is outside repo: {relative_file}")
 
-    destination = target / copy_name
+    destination = target / subdir / copy_name if subdir else target / copy_name
+    destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, destination)
     return source.relative_to(ROOT).as_posix(), destination.relative_to(target).as_posix()
 
@@ -412,6 +422,69 @@ def _bundle_files(target: Path) -> set[Path]:
     return {path for path in target.rglob("*") if path.is_file()}
 
 
+def _packet_file_basename(file_name: str) -> str:
+    return PurePosixPath(file_name.replace("\\", "/")).name
+
+
+def _packet_file_items(
+    packet_files: Mapping[str, str],
+    file_name: str,
+) -> list[tuple[str, str]]:
+    return [
+        (path, text)
+        for path, text in sorted(packet_files.items())
+        if _packet_file_basename(path) == file_name
+    ]
+
+
+def _packet_file_text(packet_files: Mapping[str, str], file_name: str) -> str:
+    if file_name in packet_files:
+        return packet_files[file_name]
+    matches = _packet_file_items(packet_files, file_name)
+    return matches[0][1] if matches else ""
+
+
+def _packet_file_path(packet_files: Mapping[str, str], file_name: str) -> str:
+    if file_name in packet_files:
+        return file_name
+    matches = _packet_file_items(packet_files, file_name)
+    return matches[0][0] if matches else file_name
+
+
+def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> bool:
+    return bool(_packet_file_text(packet_files, file_name))
+
+
+def _primary_user_review_file(exact_user_decision: str) -> str:
+    normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
+    if "bp1" in normalized or "branch vision" in normalized:
+        return USER_BRANCH_VISION_REVIEW_FILE
+    if "bp2" in normalized or "branch plan" in normalized:
+        return USER_BRANCH_PLAN_REVIEW_FILE
+    if "bp3" in normalized or "orchestration" in normalized or "workstream entry" in normalized:
+        return "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    return USER_BRANCH_PLAN_REVIEW_FILE
+
+
+def _move_primary_user_review_file(
+    *,
+    target: Path,
+    review_aids_dir: Path,
+    user_review_dir: Path,
+    primary_file_name: str,
+) -> Path:
+    source = review_aids_dir / primary_file_name
+    if not source.is_file():
+        source = target / primary_file_name
+    if not source.is_file():
+        raise FileNotFoundError(f"Primary USER review file was not generated: {primary_file_name}")
+    destination = user_review_dir / primary_file_name
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if source.resolve() != destination.resolve():
+        shutil.move(str(source), str(destination))
+    return destination.resolve()
+
+
 def _export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
 
@@ -449,23 +522,21 @@ def _validate_export_zip(
             start_here = archive.read("START_HERE.md").decode("utf-8")
         except KeyError as exc:
             raise ValueError(f"Review export zip is missing START_HERE.md: {export_zip}") from exc
-        try:
-            user_vision = archive.read(USER_BRANCH_VISION_REVIEW_FILE).decode("utf-8")
-        except KeyError as exc:
-            raise ValueError(
-                f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
-            ) from exc
-        try:
-            user_review = archive.read(USER_BRANCH_PLAN_REVIEW_FILE).decode("utf-8")
-        except KeyError as exc:
-            raise ValueError(
-                f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
-            ) from exc
         for entry in sorted(entries):
             try:
                 packet_files[entry] = archive.read(entry).decode("utf-8")
             except UnicodeDecodeError:
                 continue
+    user_vision = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    if not user_vision:
+        raise ValueError(
+            f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
+        )
+    user_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    if not user_review:
+        raise ValueError(
+            f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
+        )
     if entries != expected_entries:
         missing = sorted(expected_entries - entries)
         extra = sorted(entries - expected_entries)
@@ -683,26 +754,28 @@ def _packet_count_consistency_failures(
 def _user_facing_technical_metadata_failures(packet_files: Mapping[str, str]) -> list[str]:
     failures: list[str] = []
     for file_name in USER_FACING_GENERATED_FILES:
-        text = packet_files.get(file_name)
-        if text is None:
+        text = _packet_file_text(packet_files, file_name)
+        if not text:
             continue
+        display_name = _packet_file_path(packet_files, file_name)
         for reason, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
             if pattern.search(text):
                 failures.append(
-                    f"{file_name}: USER-facing generated file contains technical metadata {reason}"
+                    f"{display_name}: USER-facing generated file contains technical metadata {reason}"
                 )
     return failures
 
 
 def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]) -> list[str]:
-    text = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE)
-    if text is None:
+    text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    if not text:
         return []
     failures: list[str] = []
+    display_name = _packet_file_path(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
     for reason, pattern in USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS:
         if pattern.search(text):
             failures.append(
-                f"{USER_BRANCH_PLAN_REVIEW_FILE}: BP2 review contains stale BP1/product-design wording {reason}"
+                f"{display_name}: BP2 review contains stale BP1/product-design wording {reason}"
             )
     return failures
 
@@ -712,10 +785,11 @@ def _review_word_count(value: str) -> int:
 
 
 def _user_branch_vision_substantive_failures(packet_files: Mapping[str, str]) -> list[str]:
-    text = packet_files.get(USER_BRANCH_VISION_REVIEW_FILE)
+    text = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
     if not text:
         return []
     failures: list[str] = []
+    display_name = _packet_file_path(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
 
     for field_name in (
         "Packet Reviewability State",
@@ -725,20 +799,20 @@ def _user_branch_vision_substantive_failures(packet_files: Mapping[str, str]) ->
     ):
         if not _field_value(text, field_name) and not _section(text, field_name):
             failures.append(
-                f"{USER_BRANCH_VISION_REVIEW_FILE}: BP1 substantive review artifact missing {field_name}"
+                f"{display_name}: BP1 substantive review artifact missing {field_name}"
             )
 
     for section_name, minimum_words in USER_BRANCH_VISION_MINIMUM_SUBSTANTIVE_SECTIONS:
         value = _section(text, section_name)
         if _review_word_count(value) < minimum_words:
             failures.append(
-                f"{USER_BRANCH_VISION_REVIEW_FILE}: {section_name} is too shallow for BP1 substantive review"
+                f"{display_name}: {section_name} is too shallow for BP1 substantive review"
             )
 
     for reason, pattern in USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS:
         if pattern.search(text):
             failures.append(
-                f"{USER_BRANCH_VISION_REVIEW_FILE}: template-shell BP1 wording remains ({reason})"
+                f"{display_name}: template-shell BP1 wording remains ({reason})"
             )
 
     surface_map = _section(text, "Surface Map")
@@ -754,14 +828,14 @@ def _user_branch_vision_substantive_failures(packet_files: Mapping[str, str]) ->
         )
     ):
         failures.append(
-            f"{USER_BRANCH_VISION_REVIEW_FILE}: copied-file list cannot be the BP1 Surface Map"
+            f"{display_name}: copied-file list cannot be the BP1 Surface Map"
         )
 
     user_questions = _section(text, "USER Design Questions")
     question_count = user_questions.count("?")
     if question_count < 2:
         failures.append(
-            f"{USER_BRANCH_VISION_REVIEW_FILE}: USER Design Questions must ask branch-specific decision-driving questions"
+            f"{display_name}: USER Design Questions must ask branch-specific decision-driving questions"
         )
 
     recommendations = _section(text, "Codex Recommendations")
@@ -770,7 +844,7 @@ def _user_branch_vision_substantive_failures(packet_files: Mapping[str, str]) ->
         term in normalized_recommendations for term in ("tradeoff", "risk", "because")
     ):
         failures.append(
-            f"{USER_BRANCH_VISION_REVIEW_FILE}: Codex Recommendations must be branch-specific line-item recommendations with rationale and tradeoffs"
+            f"{display_name}: Codex Recommendations must be branch-specific line-item recommendations with rationale and tradeoffs"
         )
     return failures
 
@@ -3150,8 +3224,9 @@ def _exact_decision_text(packet_files: Mapping[str, str]) -> str:
     return "\n".join(
         text
         for file_name, text in sorted(packet_files.items())
-        if file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES
-        or file_name in {USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE}
+        if _packet_file_basename(file_name) in WORKSTREAM_ENTRY_PACKET_DECISION_FILES
+        or _packet_file_basename(file_name)
+        in {USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE}
     )
 
 
@@ -3162,7 +3237,7 @@ def _branch_planning_review_gate_state_failures(
     generated_files = {
         file_name: text
         for file_name, text in packet_files.items()
-        if file_name in USER_FACING_GENERATED_FILES
+        if _packet_file_basename(file_name) in USER_FACING_GENERATED_FILES
     }
     all_review_text = _exact_decision_text(packet_files)
     normalized_all_review_text = re.sub(r"\s+", " ", all_review_text).casefold()
@@ -3231,9 +3306,10 @@ def _branch_planning_review_gate_state_failures(
         )
 
     for file_name in (USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE):
-        text = packet_files.get(file_name, "")
+        text = _packet_file_text(packet_files, file_name)
         if not text:
             continue
+        display_name = _packet_file_path(packet_files, file_name)
         reviewability_state = _normalized_gate_value(
             _review_marker_or_section_value(text, "Packet Reviewability State:")
         )
@@ -3242,21 +3318,21 @@ def _branch_planning_review_gate_state_failures(
         )
         if reviewability_state and reviewability_state not in BRANCH_PLANNING_PACKET_REVIEWABILITY_VALUES:
             failures.append(
-                f"{file_name}: invalid Packet Reviewability State "
+                f"{display_name}: invalid Packet Reviewability State "
                 f"'{reviewability_state}'"
             )
         if user_gate_state and user_gate_state not in BRANCH_PLANNING_USER_GATE_VALUES:
-            failures.append(f"{file_name}: invalid USER Gate State '{user_gate_state}'")
+            failures.append(f"{display_name}: invalid USER Gate State '{user_gate_state}'")
         if (
             implementation_requested
             and user_gate_state in BRANCH_PLANNING_PENDING_USER_GATE_VALUES
         ):
             failures.append(
                 "Review Gate Bypass: implementation approval wording appears while "
-                f"{file_name} USER Gate State is '{user_gate_state}'"
+                f"{display_name} USER Gate State is '{user_gate_state}'"
             )
 
-    branch_plan_review = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE, "")
+    branch_plan_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
     if branch_plan_review:
         contract_status = _normalized_gate_value(
             _review_marker_or_section_value(branch_plan_review, "Contract Status:")
@@ -3308,25 +3384,26 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
-        if required_file not in packet_files:
+        if not _packet_file_present(packet_files, required_file):
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
 
     start_here = packet_files.get("START_HERE.md", "")
     if not _field_present(start_here, "USER Decision This Packet Supports"):
         failures.append("START_HERE.md: USER Decision This Packet Supports field is missing")
-    workstream_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
+    workstream_digest = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
     if "USER Decision" not in workstream_digest:
         failures.append("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: USER Decision field is missing")
 
     file_statuses: dict[str, str] = {}
     for file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES:
-        text = packet_files.get(file_name)
-        if text is None:
+        text = _packet_file_text(packet_files, file_name)
+        if not text:
             continue
+        display_name = _packet_file_path(packet_files, file_name)
         status = _packet_text_status(text)
-        file_statuses[file_name] = status
+        file_statuses[display_name] = status
         if status == DECISION_STATUS_UNKNOWN:
-            failures.append(f"{file_name}: next legal phase / implementation posture is not machine-readable")
+            failures.append(f"{display_name}: next legal phase / implementation posture is not machine-readable")
 
     distinct_statuses = {status for status in file_statuses.values() if status != DECISION_STATUS_UNKNOWN}
     if len(distinct_statuses) > 1:
@@ -3358,14 +3435,14 @@ def validate_workstream_entry_packet_folder(
 ) -> WorkstreamEntryPacketDecisionPathResult:
     packet_files: dict[str, str] = {}
     all_files = (
-        sorted(path for path in packet_dir.iterdir() if path.is_file())
+        sorted(path for path in packet_dir.rglob("*") if path.is_file())
         if packet_dir.exists()
         else []
     )
     for path in all_files:
         if path.suffix.lower() not in {".md", ".txt", ".json"}:
             continue
-        packet_files[path.name] = path.read_text(encoding="utf-8")
+        packet_files[path.relative_to(packet_dir).as_posix()] = path.read_text(encoding="utf-8")
     return _validate_workstream_entry_packet_decision_path(
         packet_files,
         expected_branch=expected_branch,
@@ -3410,9 +3487,15 @@ def build_bundle(
     if target.exists():
         _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
+    user_review_dir = target / USER_REVIEW_DIR_NAME
+    review_aids_dir = target / REVIEW_AIDS_DIR_NAME
+    source_context_dir = target / SOURCE_TRUTH_CONTEXT_DIR_NAME
+    user_review_dir.mkdir(parents=True, exist_ok=True)
+    review_aids_dir.mkdir(parents=True, exist_ok=True)
+    source_context_dir.mkdir(parents=True, exist_ok=True)
 
     copied = [
-        _copy_file(file_name, target, copy_name)
+        _copy_file(file_name, target, copy_name, subdir=SOURCE_TRUTH_CONTEXT_DIR_NAME)
         for file_name, copy_name in zip(files, _copy_names(files), strict=True)
     ]
     copied_count = len(copied)
@@ -3495,8 +3578,9 @@ def build_bundle(
         )
     )
     user_facing_decision = _user_facing_decision_text(exact_user_decision)
+    primary_user_review_file_name = _primary_user_review_file(exact_user_decision)
     user_vision_file = _write_user_branch_vision_review(
-        target=target,
+        target=review_aids_dir,
         title=title,
         review_purpose=review_purpose,
         exact_user_decision=user_facing_decision,
@@ -3504,7 +3588,7 @@ def build_bundle(
         copied=copied,
     )
     user_review_file = _write_user_branch_plan_review(
-        target=target,
+        target=review_aids_dir,
         title=title,
         review_purpose=review_purpose,
         source_branch=source_branch,
@@ -3522,12 +3606,18 @@ def build_bundle(
         custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
         custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
-    required_digest_paths = {target / name for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES if name != "START_HERE.md"}
-    actual_bundle_files = (
-        _bundle_files(target)
-        | {start_here, user_vision_file, user_review_file}
-        | required_digest_paths
-    )
+    digest_paths = {
+        (review_aids_dir / name).resolve()
+        for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES
+        if name != "START_HERE.md"
+    }
+    expected_generated_paths = {user_vision_file.resolve(), user_review_file.resolve(), *digest_paths}
+    primary_source_path = (review_aids_dir / primary_user_review_file_name).resolve()
+    primary_destination_path = (user_review_dir / primary_user_review_file_name).resolve()
+    if primary_source_path in expected_generated_paths:
+        expected_generated_paths.remove(primary_source_path)
+    expected_generated_paths.add(primary_destination_path)
+    actual_bundle_files = copied_targets | expected_generated_paths | {start_here}
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
@@ -3548,7 +3638,7 @@ def build_bundle(
         )
 
     _write_workstream_entry_packet_digests(
-        target=target,
+        target=review_aids_dir,
         source_branch=source_branch,
         source_head=source_head,
         origin_main=origin_main,
@@ -3561,6 +3651,12 @@ def build_bundle(
         copied_count=copied_count,
         exact_user_decision=user_facing_decision,
         pending_user_decisions=pending_user_decisions,
+    )
+    primary_user_review_file = _move_primary_user_review_file(
+        target=target,
+        review_aids_dir=review_aids_dir,
+        user_review_dir=user_review_dir,
+        primary_file_name=primary_user_review_file_name,
     )
 
     readme_lines: list[str] = [
@@ -3576,6 +3672,9 @@ def build_bundle(
         "Review Safety Note: Copied files are selected repo source-truth and "
         "review-context files for USER inspection; technical freshness proof "
         "stays in Codex chat digest, helper output, validator output, or external state.",
+        f"Primary USER Review File: `{primary_user_review_file.relative_to(target).as_posix()}`",
+        f"Source Truth Context Folder: `{SOURCE_TRUTH_CONTEXT_DIR_NAME}`",
+        f"Review Aids Folder: `{REVIEW_AIDS_DIR_NAME}`",
         f"USER Decision This Packet Supports: {user_facing_decision}",
         "",
         "## Pending USER Decisions",

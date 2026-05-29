@@ -126,6 +126,15 @@ INVALID_BRANCH_PLANNING_GATE_BYPASS_FIXTURE = (
 VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE = (
     FIXTURE_DIR / "valid_bp1_branch_vision_review.md"
 )
+VALID_BP1_FAM006_DOGFOOD_FIXTURE = (
+    FIXTURE_DIR / "valid_bp1_fam006_ui_runtime_dogfood_review.md"
+)
+VALID_BP1_FAM007_DOGFOOD_FIXTURE = (
+    FIXTURE_DIR / "valid_bp1_fam007_private_boundary_dogfood_review.md"
+)
+VALID_BP1_GOVERNANCE_DOGFOOD_FIXTURE = (
+    FIXTURE_DIR / "valid_bp1_governance_source_truth_dogfood_review.md"
+)
 INVALID_BP1_MISSING_CONTEXT_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_missing_project_family_branch_context.md"
 )
@@ -153,11 +162,23 @@ INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE = (
 INVALID_BP2_PRODUCT_DESIGN_WORDING_FIXTURE = (
     FIXTURE_DIR / "invalid_bp2_product_design_contract_wording.md"
 )
+VALID_BP2_FAM006_DOGFOOD_FIXTURE = (
+    FIXTURE_DIR / "valid_bp2_fam006_ui_runtime_dogfood_review.md"
+)
+VALID_BP2_FAM007_DOGFOOD_FIXTURE = (
+    FIXTURE_DIR / "valid_bp2_fam007_private_boundary_dogfood_review.md"
+)
 INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE = (
     FIXTURE_DIR / "invalid_bp3_implementation_while_bp1_or_bp2_pending.md"
 )
 VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE = (
     FIXTURE_DIR / "valid_bp3_accepted_bp1_bp2_slc_traceability_complete.md"
+)
+VALID_BP3_FAM006_DOGFOOD_FIXTURE = (
+    FIXTURE_DIR / "valid_bp3_fam006_ui_runtime_dogfood_review.md"
+)
+VALID_BP3_FAM007_DOGFOOD_FIXTURE = (
+    FIXTURE_DIR / "valid_bp3_fam007_private_boundary_dogfood_review.md"
 )
 INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE = (
     FIXTURE_DIR / "invalid_user_packet_active_branch_metadata.md"
@@ -600,6 +621,41 @@ def _validate_bp2_branch_plan_review_text(text: str) -> list[str]:
             phrase.casefold() not in text.casefold(),
             "BP2 must be engineering-plan-first and must not reuse BP1/product-design contract wording",
         )
+    substantive_markers = (
+        "Implementation Package Summary:",
+        "Branch Scope Size Test:",
+        "SLC / Seam Plan:",
+        "Affected Surfaces:",
+        "Likely Files:",
+        "Validators / Helpers:",
+        "Proof Requirements:",
+        "Element-to-Phase Proof Matrix:",
+        "H1 Expectations:",
+        "LV / UTS Expectations:",
+        "Rollback / Safety Plan:",
+        "Future-Gated Boundaries:",
+        "Plan Acceptance Checklist:",
+        "Exact BP3 Approval Text:",
+    )
+    for marker in substantive_markers:
+        value = governance._extract_marker_value(text, marker)
+        require(
+            governance._planning_word_count(value) >= 10,
+            f"{marker} is too shallow for BP2 substantive engineering-plan review",
+        )
+    normalized = governance._normalized_planning_value(text)
+    for phrase in (
+        "see copied files",
+        "see source files",
+        "implementation options: accept revise waive reject",
+        "generic implementation plan",
+        "tbd",
+        "placeholder",
+    ):
+        require(
+            phrase not in normalized,
+            "BP2 template-shell review artifact must not pass reviewability checks",
+        )
     return failures
 
 
@@ -655,6 +711,26 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         "slc traceability: complete" in normalized,
         "BP3 requires complete SLC traceability to BP1 and BP2",
     )
+    substantive_markers = (
+        "Branch Plan Matches Accepted Branch Vision:",
+        "Branch Package Size:",
+        "Future-Gated Boundaries:",
+        "First Bounded Workstream Seam:",
+        "Implementation Approval:",
+    )
+    for marker in substantive_markers:
+        value = governance._extract_marker_value(text, marker)
+        require(
+            governance._planning_word_count(value) >= 8,
+            f"{marker} is too shallow for BP3 substantive orchestration review",
+        )
+    if "approved" in implementation_approval or "approve" in implementation_approval:
+        require(
+            "only" in implementation_approval
+            or "separate user" in implementation_approval
+            or "bounded" in implementation_approval,
+            "BP3 implementation approval must stay bounded and cannot imply broad Workstream authority",
+        )
     return failures
 
 
@@ -939,7 +1015,7 @@ def _validate_missing_plan_pointer_text() -> list[str]:
 
 def _validate_user_review_bundle_identity_guard() -> list[str]:
     source_path = "Docs/Main.md"
-    copied_path = "Main.md"
+    copied_path = f"{review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/Main.md"
     current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
     current_head = review_bundle._git_output("rev-parse", "HEAD")
     current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
@@ -954,10 +1030,10 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
             "| --- | --- |\n"
             f"| `{source_path}` | `{copied_path}` |\n"
         ),
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
         copied_path: source_text,
     }
 
@@ -998,7 +1074,7 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
 
 def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
     source_path = "Docs/Main.md"
-    copied_path = "Main.md"
+    copied_path = f"{review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/Main.md"
     current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
     current_head = review_bundle._git_output("rev-parse", "HEAD")
     current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
@@ -1101,8 +1177,8 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
             "| --- | --- |\n"
             f"| `{source_path}` | `{copied_path}` |\n"
         ),
-        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: vision_review_text,
-        review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: "\n".join(
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/{review_bundle.USER_BRANCH_VISION_REVIEW_FILE}": vision_review_text,
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/{review_bundle.USER_BRANCH_PLAN_REVIEW_FILE}": "\n".join(
             f"## {heading}\nComplete.\n" for heading in plan_headings
         ).replace(
             "## Packet Reviewability State\nComplete.\n",
@@ -1114,10 +1190,10 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
             "## Exact USER Decision Supported\nComplete.\n",
             "## Exact USER Decision Supported\nApprove bounded workstream implementation.\n",
         ),
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
         copied_path: source_text,
     }
 
@@ -1245,6 +1321,9 @@ def validate() -> list[str]:
         VALID_BRANCH_PLANNING_GATE_STATE_FIXTURE,
         INVALID_BRANCH_PLANNING_GATE_BYPASS_FIXTURE,
         VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE,
+        VALID_BP1_FAM006_DOGFOOD_FIXTURE,
+        VALID_BP1_FAM007_DOGFOOD_FIXTURE,
+        VALID_BP1_GOVERNANCE_DOGFOOD_FIXTURE,
         INVALID_BP1_MISSING_CONTEXT_FIXTURE,
         INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE,
         INVALID_BP1_TEMPLATE_SHELL_FIXTURE,
@@ -1253,8 +1332,12 @@ def validate() -> list[str]:
         INVALID_BP1_SLC_CENTERED_FIXTURE,
         INVALID_BP1_TECHNICAL_METADATA_FIXTURE,
         INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE,
+        VALID_BP2_FAM006_DOGFOOD_FIXTURE,
+        VALID_BP2_FAM007_DOGFOOD_FIXTURE,
         INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE,
         VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE,
+        VALID_BP3_FAM006_DOGFOOD_FIXTURE,
+        VALID_BP3_FAM007_DOGFOOD_FIXTURE,
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
     ):
@@ -1715,6 +1798,20 @@ def validate() -> list[str]:
             + "; ".join(valid_bp1_failures[:5])
         )
 
+    for fixture, label in (
+        (VALID_BP1_FAM006_DOGFOOD_FIXTURE, "FAM-006 UI/runtime BP1 dogfood"),
+        (VALID_BP1_FAM007_DOGFOOD_FIXTURE, "FAM-007 private-boundary BP1 dogfood"),
+        (VALID_BP1_GOVERNANCE_DOGFOOD_FIXTURE, "Governance source-truth BP1 dogfood"),
+    ):
+        dogfood_failures = _validate_bp1_branch_vision_review_text(
+            fixture.read_text(encoding="utf-8")
+        )
+        if dogfood_failures:
+            failures.append(
+                f"Valid {label} fixture unexpectedly failed: "
+                + "; ".join(dogfood_failures[:5])
+            )
+
     missing_context_failures = _validate_bp1_branch_vision_review_text(
         INVALID_BP1_MISSING_CONTEXT_FIXTURE.read_text(encoding="utf-8")
     )
@@ -1803,6 +1900,19 @@ def validate() -> list[str]:
             "Invalid BP2 product-design wording fixture did not reject stale BP1 contract wording"
         )
 
+    for fixture, label in (
+        (VALID_BP2_FAM006_DOGFOOD_FIXTURE, "FAM-006 UI/runtime BP2 dogfood"),
+        (VALID_BP2_FAM007_DOGFOOD_FIXTURE, "FAM-007 private-boundary BP2 dogfood"),
+    ):
+        dogfood_failures = _validate_bp2_branch_plan_review_text(
+            fixture.read_text(encoding="utf-8")
+        )
+        if dogfood_failures:
+            failures.append(
+                f"Valid {label} fixture unexpectedly failed: "
+                + "; ".join(dogfood_failures[:5])
+            )
+
     bp3_pending_failures = _validate_bp3_orchestration_text(
         INVALID_BP3_IMPLEMENTATION_WITH_PENDING_BP1_BP2_FIXTURE.read_text(
             encoding="utf-8"
@@ -1821,6 +1931,19 @@ def validate() -> list[str]:
             "Valid BP3 accepted-BP1/BP2 fixture unexpectedly failed: "
             + "; ".join(valid_bp3_failures[:5])
         )
+
+    for fixture, label in (
+        (VALID_BP3_FAM006_DOGFOOD_FIXTURE, "FAM-006 UI/runtime BP3 dogfood"),
+        (VALID_BP3_FAM007_DOGFOOD_FIXTURE, "FAM-007 private-boundary BP3 dogfood"),
+    ):
+        dogfood_failures = _validate_bp3_orchestration_text(
+            fixture.read_text(encoding="utf-8")
+        )
+        if dogfood_failures:
+            failures.append(
+                f"Valid {label} fixture unexpectedly failed: "
+                + "; ".join(dogfood_failures[:5])
+            )
 
     active_packet_metadata_failures = _validate_user_packet_metadata_text(
         INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")

@@ -685,11 +685,11 @@ The USER review packet must:
 - live under one stable local hub root, `C:\Nexus USER`
 - use one child folder per active worktree label, derived from the current worktree root folder name when USER does not provide a label, such as `Governance`, `FAM-006`, or `FAM-007`
 - refresh the same worktree-labeled child folder instead of creating a new top-level folder for each review packet
-- copy the selected review files as flat files directly inside the worktree-labeled child folder, with traceable filenames when needed to avoid basename collisions, rather than creating constantly changing nested review folders
+- use stable subfolders inside the worktree-labeled child folder: `USER Review` for exactly one primary USER-facing decision file for the current gate, `Review Aids` for generated supporting digests/checklists, and `Source Truth Context` for copied repo context files with traceable filenames when needed to avoid basename collisions
 - block custom review roots, legacy one-off folder names, cloud-backed Desktop/OneDrive active upload roots, or manually supplied worktree labels unless USER grants an explicit custom review path waiver; when a waiver is used, `START_HERE.md` must record `Custom Review Path Waiver:` and `Custom Review Path Reason:`
 - include a `START_HERE.md` file with `Review Purpose:`, `Local USER Hub Folder:`, `Review Order`, `USER Decision This Packet Supports:`, `Pending USER Decisions`, and copied source paths; technical freshness proof such as branch/current commit/baseline, validation output, ZIP/hash proof, and file-count proof belongs in helper output, validator output, Codex chat digest, or external governance state
 - copy only the files relevant to the requested review, not the whole repo or unrelated artifacts
-- preserve source traceability in `START_HERE.md` so every flat copied file maps back to its repo-relative source path
+- preserve source traceability in `START_HERE.md` so every copied context file maps back to its repo-relative source path
 - be refreshed when the underlying review files change
 - never replace source-truth files, commit artifacts, validation proof, or branch authority records
 
