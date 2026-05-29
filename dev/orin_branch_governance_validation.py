@@ -583,6 +583,11 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_MARKERS = (
     "USER Branch Plan Review:",
     "Review Status:",
     "Contract Status:",
+    "Packet Reviewability State:",
+    "USER Gate State:",
+    "USER Response Proof:",
+    "USER Response Digested:",
+    "Acceptance / Waiver / Revision / Rejection Receipt:",
     "Contract Version / Revision:",
     "USER Review Hub Packet:",
     "USER Review Packet Finding:",
@@ -647,6 +652,30 @@ USER_BRANCH_PLAN_CONTRACT_BLOCKING_PREFIXES = (
     "pending user response",
     "pending codex digest",
     "pending user confirmation",
+)
+USER_BRANCH_PLAN_PACKET_REVIEWABILITY_PREFIXES = (
+    "missing",
+    "generated",
+    "validation failed",
+    "reviewable",
+    "stale",
+    "superseded",
+)
+USER_BRANCH_PLAN_USER_GATE_STATE_PREFIXES = (
+    "pending user review",
+    "user revision requested",
+    "user accepted",
+    "user approved",
+    "user waived",
+    "user rejected",
+    "user blocked",
+    "superseded",
+)
+USER_BRANCH_PLAN_USER_GATE_BLOCKING_PREFIXES = (
+    "pending user review",
+    "user revision requested",
+    "user rejected",
+    "user blocked",
 )
 USER_BRANCH_PLAN_REVIEW_SCOPE_MARKERS = (
     "Accepted Scope:",
@@ -3696,6 +3725,8 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "Accepted Branch Vision Summary",
         "End-State Vision",
         "USER response",
+        "Packet Reviewability State",
+        "USER Gate State",
     ),
     Path("Docs/phase_governance.md"): (
         "Branch Planning",
@@ -3716,6 +3747,9 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "USER Review Response",
         "Codex Response Digest",
         "USER Review Packet Finding",
+        "Packet Reviewability State",
+        "USER Gate State",
+        "Packet Validation Treated As USER Acceptance",
     ),
     Path("Docs/branch_plans/README.md"): (
         "Branch Planning",
@@ -3735,6 +3769,8 @@ USER_BRANCH_PLAN_REVIEW_REQUIRED_PHRASES = {
         "Exact BP3 Approval Text:",
         "USER Review Response:",
         "Codex Response Digest:",
+        "Packet Reviewability State:",
+        "USER Gate State:",
         "BP2 Branch Plan Review Missing",
     ),
     Path("Docs/branch_records/index.md"): (
@@ -9611,6 +9647,41 @@ def _validate_user_branch_plan_review_gate(
         ),
     )
 
+    packet_reviewability_state = _normalized_planning_value(
+        _extract_marker_value(gate_section, "Packet Reviewability State:")
+    )
+    require(
+        any(
+            packet_reviewability_state == prefix
+            or packet_reviewability_state.startswith(f"{prefix} ")
+            or packet_reviewability_state.startswith(f"{prefix} -")
+            for prefix in USER_BRANCH_PLAN_PACKET_REVIEWABILITY_PREFIXES
+        ),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} Packet "
+            "Reviewability State must be Missing, Generated, Validation Failed, "
+            "Reviewable, Stale, or Superseded"
+        ),
+    )
+
+    user_gate_state = _normalized_planning_value(
+        _extract_marker_value(gate_section, "USER Gate State:")
+    )
+    require(
+        any(
+            user_gate_state == prefix
+            or user_gate_state.startswith(f"{prefix} ")
+            or user_gate_state.startswith(f"{prefix} -")
+            for prefix in USER_BRANCH_PLAN_USER_GATE_STATE_PREFIXES
+        ),
+        (
+            f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} USER Gate "
+            "State must be Pending USER Review, USER Revision Requested, "
+            "USER Accepted, USER Approved, USER Waived, USER Rejected, "
+            "USER Blocked, or Superseded"
+        ),
+    )
+
     for marker in (
         "Plain-Language Branch Goal:",
         "What Will I Actually See, And Where Will I See It?:",
@@ -9775,14 +9846,28 @@ def _validate_user_branch_plan_review_gate(
         contract_status == prefix or contract_status.startswith(f"{prefix} ")
         for prefix in USER_BRANCH_PLAN_CONTRACT_BLOCKING_PREFIXES
     )
+    blocking_user_gate = any(
+        user_gate_state == prefix or user_gate_state.startswith(f"{prefix} ")
+        for prefix in USER_BRANCH_PLAN_USER_GATE_BLOCKING_PREFIXES
+    )
+    implementation_request = (
+        "approve bounded slc" in exact_user_decision
+        or "approve workstream implementation" in exact_user_decision
+        or "approve bounded workstream implementation" in exact_user_decision
+        or "implementation approval" in exact_user_decision
+    )
+    if packet_reviewability_state.startswith("reviewable") and blocking_user_gate:
+        require(
+            not implementation_request,
+            (
+                f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} cannot treat "
+                "Packet Reviewability State: Reviewable as USER acceptance while "
+                "USER Gate State remains pending, revision-requested, rejected, or blocked"
+            ),
+        )
     if blocking_contract:
         require(
-            not (
-                "approve bounded slc" in exact_user_decision
-                or "approve workstream implementation" in exact_user_decision
-                or "approve bounded workstream implementation" in exact_user_decision
-                or "implementation approval" in exact_user_decision
-            ),
+            not implementation_request,
             (
                 f"{source_path}: {USER_BRANCH_PLAN_REVIEW_HEADING} cannot return "
                 "implementation approval text while Contract Status is Draft, "

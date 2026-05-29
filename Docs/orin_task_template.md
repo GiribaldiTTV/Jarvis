@@ -406,6 +406,15 @@ Element-to-Phase Proof Matrix Summary:
 Branch Planning Review Packet:
 [required / created at Desktop folder path / not required with reason / blocked]
 
+Packet Reviewability State:
+[Missing / Generated / Validation Failed / Reviewable / Stale / Superseded]
+
+USER Gate State:
+[Pending USER Review / USER Revision Requested / USER Accepted / USER Approved / USER Waived / USER Rejected / USER Blocked / Superseded]
+
+USER Response Proof:
+[pending / attached / digested / waived by USER / rejected by USER / blocked with reason]
+
 Branch Planning Review Files:
 [branch vision, active external branch plan or repo historical receipt, branch authority record, Nexus/family vision, matrix, UFD/change-intent, source-truth owner, validator/helper, fixture, or planning files copied for USER inspection]
 
@@ -420,6 +429,9 @@ Workstream Entry Whole-Package Analysis:
 
 Workstream Entry Whole-Package Summary:
 [all admitted slices/seams, completion strategy, first-seam recommendation, seam dependency map, future-gated boundaries, preservation surfaces, validation plan, Hardening H1 expectations, Live Validation LV1 expectations, visual/user-facing proof requirements, UTS handoff criteria, and exact implementation approval text]
+
+Implementation Approval State:
+[Pending separate USER approval / Approved by USER with exact scope / Blocked / Waived by USER where source truth allows]
 
 Dev Toolkit Interface Review Mode Disposition:
 [callable in dev-only review mode / deferred to named repo-wide adoption branch-package / not-applicable with reason]

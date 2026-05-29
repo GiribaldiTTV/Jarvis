@@ -5,6 +5,11 @@
 USER Branch Plan Review: Required - Workstream Entry presents the readable implementation plan before runtime work begins.
 Review Status: Deferred With Waiver - USER waived deferred provider execution while accepting current review boundaries.
 Contract Status: Waived by USER - USER explicitly waived private-provider setup questions for this contract while preserving current public-safe boundaries.
+Packet Reviewability State: Reviewable - helper and fixture checks prove the packet can be inspected.
+USER Gate State: USER Waived - USER explicitly waived deferred provider setup questions while preserving current boundaries.
+USER Response Proof: Waived by USER - USER waiver is recorded for deferred private-provider setup questions.
+USER Response Digested: Digested - Codex converted the waiver into future-gated implementation constraints.
+Acceptance / Waiver / Revision / Rejection Receipt: Waiver receipt recorded in this fixture contract.
 Contract Version / Revision: v1 - Fixture contract with explicit deferred-scope waiver.
 USER Review Hub Packet: C:\Nexus USER\FAM-007 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-007.zip.
 USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
