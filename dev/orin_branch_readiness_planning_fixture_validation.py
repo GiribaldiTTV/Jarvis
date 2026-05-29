@@ -1280,6 +1280,46 @@ def _validate_active_overlay_user_branch_plan_review_metadata_guard() -> list[st
     return failures
 
 
+def _validate_primary_user_review_file_stage_priority() -> list[str]:
+    failures: list[str] = []
+    bp3_trace_decision = (
+        "I approve BP3 Workstream Entry / Orchestration Validation against "
+        "accepted BP1 vision and BP2 branch plan traceability."
+    )
+    if (
+        review_bundle._primary_user_review_file(bp3_trace_decision)
+        != "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ):
+        failures.append(
+            "BP3 primary USER review routing must prioritize Workstream Entry / "
+            "Orchestration over BP1/BP2 traceability wording"
+        )
+    bp2_trace_decision = (
+        "I approve BP2 Branch Plan Review after accepted BP1 branch vision proof."
+    )
+    if (
+        review_bundle._primary_user_review_file(bp2_trace_decision)
+        != review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+    ):
+        failures.append(
+            "BP2 primary USER review routing must remain USER_BRANCH_PLAN_REVIEW.md "
+            "when BP2 text mentions accepted BP1 proof"
+        )
+    bp1_preview_decision = (
+        "I approve BP1 Branch Vision Review before BP2 Branch Plan Review and "
+        "BP3 orchestration planning begin."
+    )
+    if (
+        review_bundle._primary_user_review_file(bp1_preview_decision)
+        != review_bundle.USER_BRANCH_VISION_REVIEW_FILE
+    ):
+        failures.append(
+            "BP1 primary USER review routing must remain USER_BRANCH_VISION_REVIEW.md "
+            "when BP1 text previews later BP2/BP3 gates"
+        )
+    return failures
+
+
 def validate() -> list[str]:
     failures: list[str] = []
     for fixture in (
@@ -1788,6 +1828,8 @@ def validate() -> list[str]:
             "Invalid Branch Planning review-gate fixture did not reject packet "
             "validation treated as USER acceptance"
         )
+
+    failures.extend(_validate_primary_user_review_file_stage_priority())
 
     valid_bp1_failures = _validate_bp1_branch_vision_review_text(
         VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE.read_text(encoding="utf-8")

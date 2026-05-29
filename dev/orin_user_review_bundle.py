@@ -457,12 +457,19 @@ def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> boo
 
 def _primary_user_review_file(exact_user_decision: str) -> str:
     normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
-    if "bp1" in normalized or "branch vision" in normalized:
-        return USER_BRANCH_VISION_REVIEW_FILE
-    if "bp2" in normalized or "branch plan" in normalized:
-        return USER_BRANCH_PLAN_REVIEW_FILE
-    if "bp3" in normalized or "orchestration" in normalized or "workstream entry" in normalized:
-        return "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    stage_patterns = (
+        ("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", 0, (r"\bbp3\b", r"\borchestration\b", r"\bworkstream entry\b")),
+        (USER_BRANCH_PLAN_REVIEW_FILE, 1, (r"\bbp2\b", r"\bbranch plan\b")),
+        (USER_BRANCH_VISION_REVIEW_FILE, 2, (r"\bbp1\b", r"\bbranch vision\b")),
+    )
+    matches: list[tuple[int, int, str]] = []
+    for file_name, priority, patterns in stage_patterns:
+        for pattern in patterns:
+            match = re.search(pattern, normalized)
+            if match:
+                matches.append((match.start(), priority, file_name))
+    if matches:
+        return sorted(matches)[0][2]
     return USER_BRANCH_PLAN_REVIEW_FILE
 
 
