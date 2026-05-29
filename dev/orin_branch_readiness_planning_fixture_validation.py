@@ -117,6 +117,12 @@ INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE = (
 VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE = (
     FIXTURE_DIR / "valid_user_branch_plan_review_deferred_scope.md"
 )
+VALID_BRANCH_PLANNING_GATE_STATE_FIXTURE = (
+    FIXTURE_DIR / "valid_branch_planning_review_gate_state.md"
+)
+INVALID_BRANCH_PLANNING_GATE_BYPASS_FIXTURE = (
+    FIXTURE_DIR / "invalid_packet_validation_treated_as_user_acceptance.md"
+)
 VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE = (
     FIXTURE_DIR / "valid_bp1_branch_vision_review.md"
 )
@@ -225,6 +231,9 @@ EXPECTED_USER_BRANCH_PLAN_FIRST_SEAM_FAILURE_SNIPPET = (
 )
 EXPECTED_USER_BRANCH_PLAN_MISSING_RESPONSE_DIGEST_FAILURE_SNIPPET = (
     "USER Review Response:"
+)
+EXPECTED_BRANCH_PLANNING_GATE_BYPASS_FAILURE_SNIPPET = (
+    "Packet Validation Treated As USER Acceptance"
 )
 EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET = "Project Vision Context"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
@@ -477,6 +486,10 @@ def _validate_bp2_branch_plan_review_text(text: str) -> list[str]:
     failures, require = _collect_failures()
     required_markers = (
         "USER Branch Plan Review:",
+        "Packet Reviewability State:",
+        "USER Gate State:",
+        "USER Response Proof:",
+        "USER Response Digested:",
         "Accepted Branch Vision Summary:",
         "Implementation Package Summary:",
         "Branch Scope Size Test:",
@@ -520,6 +533,10 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
     for marker in (
         "BP1 Contract Status:",
         "BP2 Contract Status:",
+        "BP1 USER Gate State:",
+        "BP2 USER Gate State:",
+        "BP3 Packet Reviewability State:",
+        "BP3 USER Gate State:",
         "Branch Plan Matches Accepted Branch Vision:",
         "Branch Package Size:",
         "SLC Traceability:",
@@ -534,6 +551,15 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
     bp2 = governance._normalized_planning_value(
         governance._extract_marker_value(text, "BP2 Contract Status:")
     )
+    bp1_gate = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "BP1 USER Gate State:")
+    )
+    bp2_gate = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "BP2 USER Gate State:")
+    )
+    bp3_gate = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "BP3 USER Gate State:")
+    )
     implementation_approval = governance._normalized_planning_value(
         governance._extract_marker_value(text, "Implementation Approval:")
     )
@@ -543,11 +569,36 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
             and bp2.startswith(("complete", "waived by user")),
             "BP3 cannot approve implementation while BP1 or BP2 is pending",
         )
+        require(
+            bp1_gate.startswith(("user accepted", "user waived"))
+            and bp2_gate.startswith(("user accepted", "user waived"))
+            and bp3_gate.startswith(("user approved", "user waived")),
+            "BP3 cannot approve implementation while a USER review gate is pending",
+        )
     require(
         "slc traceability: complete" in normalized,
         "BP3 requires complete SLC traceability to BP1 and BP2",
     )
     return failures
+
+
+def _validate_branch_planning_gate_state_packet_text(text: str) -> list[str]:
+    packet_files = {
+        "START_HERE.md": text,
+        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: text,
+        review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: text,
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": text,
+        "GOVERNANCE_REQUIRED_FILES_SCAN.md": text,
+        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": text,
+        "BRANCH_VISION_VALIDATION_CHECKLIST.md": text,
+    }
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="fixture-branch",
+        expected_head="0" * 40,
+        expected_origin_main="1" * 40,
+    )
+    return result.failures
 
 
 def _validate_user_packet_metadata_text(text: str) -> list[str]:
@@ -816,7 +867,7 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
     current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
     current_head = review_bundle._git_output("rev-parse", "HEAD")
     current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
-    source_text = (ROOT / source_path).read_text(encoding="utf-8")
+    source_text = review_bundle._git_file_text(current_head, source_path) or ""
     common = "Decision Path Summary: workstream implementation approval\nUSER Decision: approve workstream implementation\n"
     packet_files = {
         "START_HERE.md": (
@@ -875,7 +926,7 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
     current_branch = review_bundle._git_output("rev-parse", "--abbrev-ref", "HEAD")
     current_head = review_bundle._git_output("rev-parse", "HEAD")
     current_origin_main = review_bundle._git_output("rev-parse", "origin/main")
-    source_text = (ROOT / source_path).read_text(encoding="utf-8")
+    source_text = review_bundle._git_file_text(current_head, source_path) or ""
     common = (
         "Decision Path Summary: workstream implementation approval\n"
         "USER Decision: approve workstream implementation\n"
@@ -902,6 +953,11 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
     )
     plan_headings = (
         "Contract Status",
+        "Packet Reviewability State",
+        "USER Gate State",
+        "USER Response Proof",
+        "USER Response Digested",
+        "Acceptance / Waiver / Revision / Rejection Receipt",
         "Contract Version / Revision",
         "Plain-English Branch Summary",
         "What Will I Actually See, And Where Will I See It?",
@@ -944,6 +1000,12 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
         ),
         review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: "\n".join(
             f"## {heading}\nComplete.\n" for heading in plan_headings
+        ).replace(
+            "## Packet Reviewability State\nComplete.\n",
+            "## Packet Reviewability State\nReviewable.\n",
+        ).replace(
+            "## USER Gate State\nComplete.\n",
+            "## USER Gate State\nUSER Accepted.\n",
         ).replace(
             "## Exact USER Decision Supported\nComplete.\n",
             "## Exact USER Decision Supported\nApprove bounded workstream implementation.\n",
@@ -1076,6 +1138,8 @@ def validate() -> list[str]:
         INVALID_USER_BRANCH_PLAN_REVIEW_FIRST_SEAM_ONLY_FIXTURE,
         INVALID_USER_BRANCH_PLAN_REVIEW_MISSING_RESPONSE_DIGEST_FIXTURE,
         VALID_USER_BRANCH_PLAN_REVIEW_DEFERRED_SCOPE_FIXTURE,
+        VALID_BRANCH_PLANNING_GATE_STATE_FIXTURE,
+        INVALID_BRANCH_PLANNING_GATE_BYPASS_FIXTURE,
         VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE,
         INVALID_BP1_MISSING_CONTEXT_FIXTURE,
         INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE,
@@ -1513,6 +1577,26 @@ def validate() -> list[str]:
         failures.append(
             "Valid deferred-scope USER Branch Plan Review fixture unexpectedly failed: "
             + "; ".join(deferred_review_failures[:5])
+        )
+
+    valid_gate_state_failures = _validate_branch_planning_gate_state_packet_text(
+        VALID_BRANCH_PLANNING_GATE_STATE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_gate_state_failures:
+        failures.append(
+            "Valid Branch Planning review-gate state fixture unexpectedly failed: "
+            + "; ".join(valid_gate_state_failures[:5])
+        )
+
+    gate_bypass_failures = _validate_branch_planning_gate_state_packet_text(
+        INVALID_BRANCH_PLANNING_GATE_BYPASS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BRANCH_PLANNING_GATE_BYPASS_FAILURE_SNIPPET not in "\n".join(
+        gate_bypass_failures
+    ):
+        failures.append(
+            "Invalid Branch Planning review-gate fixture did not reject packet "
+            "validation treated as USER acceptance"
         )
 
     valid_bp1_failures = _validate_bp1_branch_vision_review_text(

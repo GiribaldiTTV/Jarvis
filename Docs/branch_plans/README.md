@@ -25,7 +25,14 @@ Branch Vision and Branch Plan are separate contracts:
 - Branch Plan is how Codex will build the accepted or waived Branch Vision.
 - SLCs are the engineering route inside a branch after vision acceptance. They should not automatically become separate branches.
 
-BP1 becomes green only when USER accepts the Branch Vision or explicitly waives BP1. BP2 becomes green only when USER accepts the Branch Plan or explicitly waives BP2. BP3 may return first bounded Workstream implementation approval only when BP1 and BP2 are accepted or waived and orchestration validation is green.
+BP1 becomes green only when USER accepts the Branch Vision or explicitly waives BP1. BP2 becomes green only when USER accepts the Branch Plan or explicitly waives BP2. BP3 may return first bounded Workstream implementation approval only when BP1 and BP2 are accepted or waived, BP3 is approved or waived by USER, and orchestration validation is green.
+
+Branch Planning uses two independent state axes:
+
+- `Packet Reviewability State`: `Missing`, `Generated`, `Validation Failed`, `Reviewable`, `Stale`, or `Superseded`.
+- `USER Gate State`: `Pending USER Review`, `USER Revision Requested`, `USER Accepted`, `USER Approved`, `USER Waived`, `USER Rejected`, `USER Blocked`, or `Superseded`.
+
+`Packet Reviewability State: Reviewable` means the packet is ready for USER inspection. It is not USER acceptance, waiver, approval, implementation authority, or next-gate authority. USER gate closure requires a USER response, Codex digest of that response, and an acceptance / waiver / revision / rejection receipt recorded in the review packet, branch plan owner, branch authority receipt, or external operational state. Missing proof blocks on `Branch Planning Acceptance Receipt Missing`, and any helper, validator, or Codex digest that treats packet validation as USER acceptance blocks on `Packet Validation Treated As USER Acceptance`.
 
 Every SLC must trace to a BP1 accepted Branch Vision requirement and a BP2 Branch Plan line item. If BP2 exposes a vision gap or changes the accepted Branch Vision, Codex must route back to BP1 instead of treating the engineering plan as a new vision owner.
 
@@ -124,6 +131,35 @@ The bundle should copy the branch vision and planning files the USER needs to in
 
 The packet must use the active worktree label, copy the selected files flat into that worktree folder, and rely on `START_HERE.md` to map copied filenames back to source-truth paths. The digest must report the local USER hub packet path, copied files, validation summary, exact Branch Planning or Workstream green-light decision requested, and pending USER decisions. Helper output may report branch/head/origin-main freshness, but USER-facing files should not center mutable technical proof metadata. Missing packet proof blocks Workstream entry on `Branch Planning Review Packet Missing`.
 
+## USER Review Packet Human-Readability QA
+
+USER-facing Branch Planning packets must be readable decision aids, not validator logs, metadata dumps, or Codex status digests.
+
+Every generated USER-facing packet must include:
+
+- plain-language purpose
+- exact USER decision requested
+- what USER will see, inspect, or approve
+- what will change
+- options, tradeoffs, and Codex recommendation
+- open USER questions
+- files to inspect
+- explicit pending/not-approved boundaries
+
+Technical freshness proof such as current branch head, origin/main, ahead/behind, live PR state, ZIP hash, and validation logs belongs in helper output, validator output, external operational state, or the Codex return digest unless a copied source-truth file already contains historical receipt text. `USER Review Packet Human-Readability Missing` blocks when the packet is structurally valid but not useful for USER review. `USER Review Packet Metadata Dump` blocks when mutable technical proof becomes the primary USER-facing content.
+
+## Architecture / Experience / Policy Impact Matrix
+
+When Branch Readiness or Branch Planning touches product, runtime, UI, provider, cache, AI-native, capability-pack, privacy, trust, or source-truth ownership work, the packet must include this matrix or an explicit `No Impact` finding:
+
+| Owner Class | Named Owner | Touches? | Impact Type | Current Branch Scope | Deferred / Future Scope | Proof / Validation Needed |
+| --- | --- | --- | --- | --- | --- | --- |
+| Architecture Layer | `<named architecture layer>` | Yes / No | No Impact / Consume Existing / Extend Existing / Change Existing / New Candidate / USER Decision Required | `<scope>` | `<boundary>` | `<proof>` |
+| Experience Layer | `<named experience layer>` | Yes / No | No Impact / Consume Existing / Extend Existing / Change Existing / New Candidate / USER Decision Required | `<scope>` | `<boundary>` | `<proof>` |
+| Cross-Family Policy Owner | `<named policy owner>` | Yes / No | No Impact / Consume Existing / Extend Existing / Change Existing / New Candidate / USER Decision Required | `<scope>` | `<boundary>` | `<proof>` |
+
+The matrix is a routing/proof surface, not a ledger and not implementation approval. `New Candidate` rows must cite the `Source-Truth Placement Preflight` and `No Existing Owner Fits` proof before a new owner can be proposed.
+
 ## USER Branch Vision Review Gate
 
 `USER Branch Vision Review Gate` is the named BP1 USER-facing checkpoint. It defines the branch goal, end-state, product shape, user-facing behavior, surfaces, options, Codex recommendations, USER decisions, and acceptance status before engineering planning.
@@ -133,6 +169,8 @@ Required BP1 markers:
 - USER Branch Vision Review:
 - Review Status:
 - Contract Status:
+- Packet Reviewability State:
+- USER Gate State:
 - Contract Revision:
 - Project Vision Context:
 - Family Vision Context:
@@ -150,6 +188,8 @@ Required BP1 markers:
 - USER Design Questions:
 - USER Response:
 - Codex Digest:
+- USER Response Proof:
+- USER Response Digested:
 - Accepted Branch Vision:
 - Family-Vision Versus Branch-Only Vision Impact:
 - Must-Have Behavior:
@@ -172,6 +212,11 @@ Required review markers:
 - USER Branch Plan Review:
 - Review Status:
 - Contract Status:
+- Packet Reviewability State:
+- USER Gate State:
+- USER Response Proof:
+- USER Response Digested:
+- Acceptance / Waiver / Revision / Rejection Receipt:
 - Contract Version / Revision:
 - Accepted Branch Vision Summary:
 - Implementation Package Summary:
@@ -229,13 +274,13 @@ Required review markers:
 - Exact USER Decision Needed:
 - Implementation Approval:
 
-`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop BP2 Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. The packet must give USER answer paths to accept the engineering plan, accept with changes, route back to BP1 because the plan changes the accepted Branch Vision, explicitly waive remaining BP2 questions, reject and request a narrower branch or plan, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the BP2 USER Branch Plan Review: a required user-facing engineering-plan artifact derived from accepted or waived BP1, not the primary product/design vision contract and not a normal Codex status digest. It must present the accepted Branch Vision summary, implementation package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, open engineering risks, future-gated boundaries, line-item USER plan review, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, plan acceptance checklist, and exact BP3 approval text when ready. The primary BP2 decision surface is whether the engineering plan correctly builds the accepted BP1 vision and preserves future-gated boundaries; if the engineering plan changes product direction, user-facing behavior, surfaces, scope, or future-gated boundaries, it must route back to BP1 before implementation approval.
+`Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop BP2 Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. `Packet Reviewability State:` must use `Missing`, `Generated`, `Validation Failed`, `Reviewable`, `Stale`, or `Superseded`. `USER Gate State:` must use `Pending USER Review`, `USER Revision Requested`, `USER Accepted`, `USER Approved`, `USER Waived`, `USER Rejected`, `USER Blocked`, or `Superseded`. A packet can be reviewable while the USER gate remains pending; helpers and validators must report those states separately. The packet must give USER answer paths to accept the engineering plan, accept with changes, route back to BP1 because the plan changes the accepted Branch Vision, explicitly waive remaining BP2 questions, reject and request a narrower branch or plan, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the BP2 USER Branch Plan Review: a required user-facing engineering-plan artifact derived from accepted or waived BP1, not the primary product/design vision contract and not a normal Codex status digest. It must present the accepted Branch Vision summary, implementation package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, open engineering risks, future-gated boundaries, line-item USER plan review, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, plan acceptance checklist, and exact BP3 approval text when ready. The primary BP2 decision surface is whether the engineering plan correctly builds the accepted BP1 vision and preserves future-gated boundaries; if the engineering plan changes product direction, user-facing behavior, surfaces, scope, or future-gated boundaries, it must route back to BP1 before implementation approval.
 
-The BP2 Branch Plan Contract lifecycle is closed loop: Codex proposes the engineering plan derived from BP1, USER responds, Codex digests the response, Codex converts that response into explicit implementation constraints, Codex identifies source-truth and review-packet impact, and any plan-changing digest returns `Contract Status:` to `Pending USER Confirmation`. Codex must update the branch record, branch plan, family vision, backlog, roadmap, validation helper registry, review packet, or other required source truth when USER feedback changes branch direction, feature shape, UI behavior, workflow, end-state vision, implementation scope, future-gated boundaries, or seam order. Codex then refreshes the local USER hub packet and exported ZIP. The cycle repeats until USER explicitly confirms the final contract as `Complete` or explicitly waives the gate. BP3 may proceed only when `Contract Status:` is `Complete` or `Waived by USER`.
+The BP2 Branch Plan Contract lifecycle is closed loop: Codex proposes the engineering plan derived from BP1, USER responds, Codex digests the response, Codex converts that response into explicit implementation constraints, Codex identifies source-truth and review-packet impact, and any plan-changing digest returns `Contract Status:` to `Pending USER Confirmation`. Codex must update the branch record, branch plan, family vision, backlog, roadmap, validation helper registry, review packet, or other required source truth when USER feedback changes branch direction, feature shape, UI behavior, workflow, end-state vision, implementation scope, future-gated boundaries, or seam order. Codex then refreshes the local USER hub packet and exported ZIP. The cycle repeats until USER explicitly confirms the final contract as `Complete` or explicitly waives the gate. BP3 preparation may proceed only when `Contract Status:` is `Complete` or `Waived by USER` and `USER Gate State:` is `USER Accepted` or `USER Waived`.
 
 Waiver semantics are strict. A waiver must be explicit USER text naming the contract and branch; Codex must record it in the branch record, branch plan, and review packet, set `Contract Status:` to `Waived by USER`, preserve pending boundaries, and cite the waiver in exact implementation approval text. A stale packet is blocking when `START_HERE.md` branch or HEAD differs from the active branch/current HEAD, when ZIP Source HEAD differs from packet Source HEAD, when `USER_BRANCH_PLAN_REVIEW.md` Contract Status conflicts with branch plan or branch record, or when implementation approval text is returned while Contract Status is `Draft`, `Pending USER Response`, `Pending Codex Digest`, or `Pending USER Confirmation`.
 
-Missing or shallow accepted BP1 trace, package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, matrix, H1/LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, USER plan review, USER response/digest or waiver, implementation constraints, source-truth impact, completion checklist, local USER hub packet proof, `USER Review Packet Finding:`, or exact USER decision blocks BP3 and Workstream implementation on `USER Branch Plan Review Missing`. A local USER hub packet that is stale against current helper/validator proof, not loaded, not digested, missing `START_HERE.md`, missing `USER_BRANCH_VISION_REVIEW.md` when BP1 applies, missing `USER_BRANCH_PLAN_REVIEW.md` when BP2 applies, missing the exported zip when required, or not explicitly waived blocks on `USER Review Packet Stale` or `USER Review Packet Not Digested`. A first-seam-only packet cannot satisfy BP3 when multiple slices or seams are admitted.
+Missing or shallow accepted BP1 trace, package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, matrix, H1/LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, USER plan review, USER response/digest or waiver, implementation constraints, source-truth impact, completion checklist, local USER hub packet proof, `USER Review Packet Finding:`, `Packet Reviewability State:`, `USER Gate State:`, USER acceptance/waiver/approval proof, or exact USER decision blocks BP3 and Workstream implementation on `USER Branch Plan Review Missing`, `BP2 Review Packet Ready But USER Response Pending`, or `BP2 USER Acceptance Proof Missing`. A local USER hub packet that is stale against current helper/validator proof, not loaded, not digested, missing `START_HERE.md`, missing `USER_BRANCH_VISION_REVIEW.md` when BP1 applies, missing `USER_BRANCH_PLAN_REVIEW.md` when BP2 applies, missing the exported zip when required, or not explicitly waived blocks on `USER Review Packet Stale` or `USER Review Packet Not Digested`. A first-seam-only packet cannot satisfy BP3 when multiple slices or seams are admitted.
 
 ## Workstream Entry Whole-Package Analysis Gate
 

@@ -49,6 +49,26 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: Packet Validation Must Not Become USER Acceptance
+
+- symptom:
+  BP1, BP2, or BP3 USER review packets validate cleanly while stale wrong-family, wrong-phase, placeholder, prior-gate-pending, or implementation-ready wording still appears in generated USER-facing review aids, and Codex then asks for the next Branch Planning gate or Workstream implementation before the USER response has been accepted, waived, revised, rejected, or blocked in source truth
+- layer:
+  Branch Planning, USER review hub packets, helper/validator interpretation, and Codex phase handoff digests
+- root-cause pattern:
+  packet generation, file-list validation, stale-zip checks, or helper `PASS` output was treated as if USER had accepted the Branch Vision, accepted the Branch Plan, approved BP3 orchestration, or authorized Workstream implementation. Reviewability and USER acceptance were not tracked as separate state axes.
+- fix pattern:
+  require every BP1/BP2/BP3 review packet to preserve `Packet Reviewability State` separately from `USER Gate State`. A `Reviewable` packet starts the USER Review Gate; it does not close it. BP2 preparation requires BP1 `USER Accepted` or `USER Waived`, BP3 preparation requires BP2 `USER Accepted` or `USER Waived`, and first Workstream implementation approval may be requested only after BP3 is `USER Approved` or `USER Waived` plus a separate USER implementation decision path exists. Generated USER-facing files and extra review aids must be stale-scanned separately from copied source-truth context files.
+- validation pattern:
+  run `python dev\orin_user_review_bundle.py` for packet validation when applicable, `python dev\orin_branch_readiness_planning_fixture_validation.py`, and `python dev\orin_branch_governance_validation.py`. The validators must reject `Packet Validation Treated As USER Acceptance`, `Review Gate Bypass`, `USER Review Packet Phase-State Conflict`, `USER Review Packet Not Digested`, `Branch Planning Acceptance Receipt Missing`, `Helper False Green On Review Gate State`, and `Codex Digest Conflicts With USER Packet`.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_user_review_bundle.py`
+  - `dev/orin_branch_readiness_planning_fixture_validation.py`
+  - `dev/orin_branch_governance_validation.py`
+
 ## Pattern: Release Readiness Green Must Require Explicit Release Target
 
 - symptom:

@@ -94,6 +94,8 @@ WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
 
 DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
 DECISION_STATUS_BP1_BRANCH_VISION_REVIEW = "bp1-branch-vision-review"
+DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW = "bp2-branch-plan-review"
+DECISION_STATUS_BP3_ORCHESTRATION_REVIEW = "bp3-orchestration-review"
 DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
 DECISION_STATUS_HARDENING_REVIEW = "hardening-final-review"
 DECISION_STATUS_LIVE_VALIDATION_REVIEW = "live-validation-final-review"
@@ -101,6 +103,45 @@ DECISION_STATUS_PR_READINESS_STAGE1_REVIEW = "pr-readiness-stage1-review"
 DECISION_STATUS_PR_READINESS_STAGE2_REVIEW = "pr-readiness-stage2-review"
 DECISION_STATUS_REPAIR_REVALIDATION = "repair-revalidation"
 DECISION_STATUS_UNKNOWN = "unknown"
+BRANCH_PLANNING_PACKET_REVIEWABILITY_VALUES = {
+    "missing",
+    "generated",
+    "validation failed",
+    "reviewable",
+    "stale",
+    "superseded",
+}
+BRANCH_PLANNING_USER_GATE_VALUES = {
+    "pending user review",
+    "user revision requested",
+    "user accepted",
+    "user approved",
+    "user waived",
+    "user rejected",
+    "user blocked",
+    "superseded",
+}
+BRANCH_PLANNING_PENDING_USER_GATE_VALUES = {
+    "pending user review",
+    "user revision requested",
+    "user rejected",
+    "user blocked",
+}
+BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS = (
+    "approve bounded workstream implementation",
+    "approve workstream implementation",
+    "workstream implementation approval",
+    "implementation approval",
+)
+BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS = (
+    "implementation remains blocked",
+    "implementation not yet authorized",
+    "pending separate user approval",
+    "pending user approval",
+    "implementation approval state: pending",
+    "does not authorize workstream implementation",
+    "workstream implementation remains pending",
+)
 UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("shell-variable-branch", re.compile(r"(?<![A-Za-z0-9_])\$branch\b")),
     ("shell-variable-head", re.compile(r"(?<![A-Za-z0-9_])\$head\b")),
@@ -203,6 +244,8 @@ class WorkstreamEntryPacketDecisionPathResult:
     def blocks_implementation(self) -> bool:
         return self.status in {
             DECISION_STATUS_BP1_BRANCH_VISION_REVIEW,
+            DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW,
+            DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
             DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW,
             DECISION_STATUS_HARDENING_REVIEW,
             DECISION_STATUS_LIVE_VALIDATION_REVIEW,
@@ -419,6 +462,7 @@ def _validate_export_zip(
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
+        *_branch_planning_review_gate_state_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(
@@ -455,6 +499,11 @@ def _validate_export_zip(
             )
     for required_heading in (
         "## Contract Status",
+        "## Packet Reviewability State",
+        "## USER Gate State",
+        "## USER Response Proof",
+        "## USER Response Digested",
+        "## Acceptance / Waiver / Revision / Rejection Receipt",
         "## Contract Version / Revision",
         "## Plain-English Branch Summary",
         "## What Will I Actually See, And Where Will I See It?",
@@ -919,11 +968,11 @@ def _write_user_branch_vision_review(
         "- BP1 must be accepted or explicitly waived before BP2/BP3 can authorize implementation.",
         "- SLCs must trace to an accepted Branch Vision requirement.",
         "",
-        "## Must-Not-Do / Regression-Risk Rules",
+        "## Future-Gated Decisions And Regression-Risk Controls",
         "",
-        "- Do not turn SLCs into automatic separate branches.",
-        "- Do not use Workstream for planning.",
-        "- Do not center mutable operational metadata as the USER-facing contract.",
+        "- Regression-risk control: SLCs remain engineering route details inside an accepted branch, not automatic separate branches.",
+        "- Regression-risk control: Workstream remains blocked until BP1 and BP2 are accepted or explicitly waived and BP3 is green.",
+        "- Regression-risk control: USER-facing review files stay focused on vision, plan context, options, risks, proof expectations, and USER decisions rather than mutable operational metadata.",
         "",
         "## Deferred And Future-Gated Ideas",
         "",
@@ -1052,7 +1101,7 @@ def _write_user_branch_plan_review(
             "Decision.",
             "Required changes.",
             "Must-have behavior.",
-            "Must-not-do boundaries.",
+            "Future-gated boundary controls.",
             "Future-gated ideas.",
             "General response.",
         ]
@@ -1397,7 +1446,7 @@ def _write_user_branch_plan_review(
             "Decision: accept, revise, waive, or reject.",
             "Required changes to Seam 1 proof expectations, if any.",
             "Must-have action-gate proof.",
-            "Must-not-do boundaries.",
+            "Future-gated boundary controls.",
             "Explicit waiver language, if USER wants to waive unresolved questions.",
             "General response.",
         ]
@@ -1470,7 +1519,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to Seam 2 proof expectations, if any.",
                 "Must-have private-boundary or remote-safety proof.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -1572,7 +1621,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to Hardening H1 proof expectations, if any.",
                 "Must-have proof-comparison or pressure-test criteria.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -1657,7 +1706,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to LV1/no-visible-runtime proof expectations, if any.",
                 "Must-have waiver or validation evidence.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -1742,7 +1791,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to PR Readiness Stage 1 inspection criteria, if any.",
                 "Must-have PR readiness proof.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -1877,7 +1926,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to PR body, watcher, or bot-review expectations, if any.",
                 "Must-have PR readiness proof.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -2015,7 +2064,7 @@ def _write_user_branch_plan_review(
             "Decision.",
             "Required changes.",
             "Must-have behavior.",
-            "Must-not-do boundaries.",
+            "Future-gated boundary controls.",
             "Future-gated ideas.",
             "General response.",
         ]
@@ -2131,12 +2180,46 @@ def _write_user_branch_plan_review(
             "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
             "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
         ]
+    normalized_contract_status = contract_status.casefold()
+    if normalized_contract_status.startswith("waived by user"):
+        user_gate_state = "USER Waived - explicit USER waiver recorded for this BP2 gate."
+        user_response_proof = "Waived by USER - BP2 gate has explicit USER waiver proof."
+        user_response_digested = "Digested - waiver preserved as implementation constraint."
+    elif normalized_contract_status.startswith("complete"):
+        user_gate_state = "USER Accepted - USER accepted the final BP2 Branch Plan Contract."
+        user_response_proof = "Accepted by USER - BP2 gate has USER acceptance proof."
+        user_response_digested = "Digested - USER response converted into implementation constraints."
+    else:
+        user_gate_state = "Pending USER Review - packet is reviewable but USER has not accepted or waived this gate."
+        user_response_proof = "Pending USER Response - BP2 gate remains open."
+        user_response_digested = "Pending USER Response - Codex has not digested a final USER disposition."
+
     lines = [
         f"# USER Branch Plan Review - {title}",
         "",
         "## Contract Status",
         "",
         contract_status,
+        "",
+        "## Packet Reviewability State",
+        "",
+        "Reviewable - helper generated this packet for USER inspection.",
+        "",
+        "## USER Gate State",
+        "",
+        user_gate_state,
+        "",
+        "## USER Response Proof",
+        "",
+        user_response_proof,
+        "",
+        "## USER Response Digested",
+        "",
+        user_response_digested,
+        "",
+        "## Acceptance / Waiver / Revision / Rejection Receipt",
+        "",
+        user_response_proof,
         "",
         "## Contract Version / Revision",
         "",
@@ -2837,6 +2920,46 @@ def _write_workstream_entry_packet_digests(
 
 def _packet_text_status(text: str) -> str:
     normalized = re.sub(r"\s+", " ", text).casefold()
+    bp1_markers = (
+        "bp1 branch vision review",
+        "user_branch_vision_review.md",
+        "user branch vision review gate",
+    )
+    bp2_markers = (
+        "bp2 branch plan review",
+        "user_branch_plan_review.md",
+        "user branch plan review gate",
+    )
+    bp3_markers = (
+        "bp3 orchestration",
+        "workstream entry / orchestration",
+        "workstream entry orchestration",
+    )
+    pending_gate_markers = (
+        "user gate state: pending user review",
+        "user gate state: user revision requested",
+        "user gate state: user rejected",
+        "user gate state: user blocked",
+    )
+    reviewable_without_closed_gate = (
+        "packet reviewability state: reviewable" in normalized
+        and not any(
+            marker in normalized
+            for marker in (
+                "user gate state: user accepted",
+                "user gate state: user approved",
+                "user gate state: user waived",
+            )
+        )
+    )
+    if any(marker in normalized for marker in pending_gate_markers) or reviewable_without_closed_gate:
+        if any(marker in normalized for marker in bp1_markers):
+            return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
+        if any(marker in normalized for marker in bp2_markers):
+            return DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW
+        if any(marker in normalized for marker in bp3_markers):
+            return DECISION_STATUS_BP3_ORCHESTRATION_REVIEW
+
     implementation_markers = (
         "approve bounded workstream implementation",
         "approve workstream implementation",
@@ -2935,6 +3058,159 @@ def _field_present(text: str, field_name: str) -> bool:
     return bool(pattern.search(text))
 
 
+def _field_value(text: str, field_name: str) -> str:
+    pattern = re.compile(
+        rf"^{re.escape(field_name)}\s*:\s*(.+?)\s*$",
+        re.IGNORECASE | re.MULTILINE,
+    )
+    match = pattern.search(text)
+    return match.group(1).strip() if match else ""
+
+
+def _review_marker_or_section_value(text: str, marker: str) -> str:
+    line_value = _field_value(text, marker)
+    if line_value:
+        return line_value
+    return _section(text, marker.removesuffix(":")).strip()
+
+
+def _normalized_gate_value(value: str) -> str:
+    normalized = re.sub(r"\s+", " ", value).strip().casefold()
+    return normalized.split(" - ", 1)[0].strip()
+
+
+def _exact_decision_text(packet_files: Mapping[str, str]) -> str:
+    return "\n".join(
+        text
+        for file_name, text in sorted(packet_files.items())
+        if file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES
+        or file_name in {USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE}
+    )
+
+
+def _branch_planning_review_gate_state_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    failures: list[str] = []
+    generated_files = {
+        file_name: text
+        for file_name, text in packet_files.items()
+        if file_name in USER_FACING_GENERATED_FILES
+    }
+    all_review_text = _exact_decision_text(packet_files)
+    normalized_all_review_text = re.sub(r"\s+", " ", all_review_text).casefold()
+    branch_planning_context = any(
+        marker in normalized_all_review_text
+        for marker in (
+            "bp1",
+            "bp2",
+            "bp3",
+            "user_branch_vision_review.md",
+            "user_branch_plan_review.md",
+            "user branch vision review",
+            "user branch plan review",
+            "workstream entry / orchestration",
+        )
+    )
+    if not branch_planning_context:
+        return failures
+
+    reviewability_values: list[tuple[str, str]] = []
+    user_gate_values: list[tuple[str, str]] = []
+    for file_name, text in sorted(generated_files.items()):
+        reviewability_value = _field_value(text, "Packet Reviewability State")
+        if reviewability_value:
+            normalized = _normalized_gate_value(reviewability_value)
+            reviewability_values.append((file_name, normalized))
+            if normalized not in BRANCH_PLANNING_PACKET_REVIEWABILITY_VALUES:
+                failures.append(
+                    f"{file_name}: invalid Packet Reviewability State '{reviewability_value}'"
+                )
+        user_gate_value = _field_value(text, "USER Gate State")
+        if user_gate_value:
+            normalized = _normalized_gate_value(user_gate_value)
+            user_gate_values.append((file_name, normalized))
+            if normalized not in BRANCH_PLANNING_USER_GATE_VALUES:
+                failures.append(f"{file_name}: invalid USER Gate State '{user_gate_value}'")
+
+    if reviewability_values and not user_gate_values:
+        failures.append(
+            "USER Review Packet Phase-State Conflict: Packet Reviewability State "
+            "appears without USER Gate State"
+        )
+    if user_gate_values and not reviewability_values:
+        failures.append(
+            "USER Review Packet Phase-State Conflict: USER Gate State appears "
+            "without Packet Reviewability State"
+        )
+
+    implementation_requested = any(
+        marker in normalized_all_review_text
+        for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+    ) and not any(
+        marker in normalized_all_review_text
+        for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+    )
+    pending_gate_files = [
+        file_name
+        for file_name, normalized in user_gate_values
+        if normalized in BRANCH_PLANNING_PENDING_USER_GATE_VALUES
+    ]
+    if pending_gate_files and implementation_requested:
+        failures.append(
+            "Packet Validation Treated As USER Acceptance: implementation approval "
+            "wording appears while USER Gate State is still pending, revision-requested, "
+            f"rejected, or blocked in {', '.join(pending_gate_files)}"
+        )
+
+    for file_name in (USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE):
+        text = packet_files.get(file_name, "")
+        if not text:
+            continue
+        reviewability_state = _normalized_gate_value(
+            _review_marker_or_section_value(text, "Packet Reviewability State:")
+        )
+        user_gate_state = _normalized_gate_value(
+            _review_marker_or_section_value(text, "USER Gate State:")
+        )
+        if reviewability_state and reviewability_state not in BRANCH_PLANNING_PACKET_REVIEWABILITY_VALUES:
+            failures.append(
+                f"{file_name}: invalid Packet Reviewability State "
+                f"'{reviewability_state}'"
+            )
+        if user_gate_state and user_gate_state not in BRANCH_PLANNING_USER_GATE_VALUES:
+            failures.append(f"{file_name}: invalid USER Gate State '{user_gate_state}'")
+        if (
+            implementation_requested
+            and user_gate_state in BRANCH_PLANNING_PENDING_USER_GATE_VALUES
+        ):
+            failures.append(
+                "Review Gate Bypass: implementation approval wording appears while "
+                f"{file_name} USER Gate State is '{user_gate_state}'"
+            )
+
+    branch_plan_review = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE, "")
+    if branch_plan_review:
+        contract_status = _normalized_gate_value(
+            _review_marker_or_section_value(branch_plan_review, "Contract Status:")
+        )
+        blocking_contract = contract_status.startswith(
+            (
+                "draft",
+                "pending user response",
+                "pending codex digest",
+                "pending user confirmation",
+            )
+        )
+        if blocking_contract and implementation_requested:
+            failures.append(
+                "Packet Validation Treated As USER Acceptance: implementation approval "
+                "wording appears while USER_BRANCH_PLAN_REVIEW.md Contract Status "
+                f"is '{contract_status}'"
+            )
+    return failures
+
+
 def _validate_workstream_entry_packet_decision_path(
     packet_files: Mapping[str, str],
     *,
@@ -2964,6 +3240,7 @@ def _validate_workstream_entry_packet_decision_path(
     )
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
+    failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
         if required_file not in packet_files:
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
@@ -3289,6 +3566,7 @@ def build_bundle(
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
+        *_branch_planning_review_gate_state_failures(packet_files),
     ]
     if artifact_failures:
         raise ValueError(

@@ -359,6 +359,36 @@ Nexus should separate:
 - inferred explanation
 - uncertain hypothesis
 
+AI-native responses should preserve the feel of intelligent inquiry without over-claiming certainty. Deterministic routing improves accuracy; it must not flatten ORIN into a rigid calculator for diagnostic, planning, exploratory, or creative work.
+
+Reliability classes:
+
+| Reliability Class | Meaning | Default Proof Requirement |
+| --- | --- | --- |
+| `Deterministic` | Exact fact, state, path, command result, release truth, or permission result is required | Tool-backed, source-derived, or live-check proof; no LLM-only truth |
+| `High Confidence` | Evidence-backed conclusion where deterministic proof may not cover every edge | cite evidence, confidence basis, and known uncertainty |
+| `Advisory` | Recommendation, planning guidance, or tradeoff analysis | explain basis, alternatives, risks, and safe default |
+| `Exploratory / Hypothesis` | Possible explanation, diagnostic reasoning, missing-context discovery, or evidence-gathering plan | label hypotheses, separate observations from inference, ask or propose next evidence |
+| `Creative` | Open-ended generation such as naming, copy, layout, or brainstorming | stay inside safety/source-truth boundaries and require USER acceptance before implementation |
+
+Observation / Hypothesis / Validation Loop:
+
+1. Notice the abnormality, user-stated goal, or uncertainty.
+2. Separate observed evidence, learned pattern, inferred explanation, hypothesis, and validated truth.
+3. Ask who/what/where/when/why/how questions when missing context controls the answer.
+4. Form hypotheses only when deterministic proof is unavailable or incomplete.
+5. Seek evidence before recommending meaningful action.
+6. Communicate uncertainty calmly and without ego-like certainty.
+7. Refine, reject, or validate hypotheses as evidence arrives.
+
+Invalid reliability behavior:
+
+- treating learned patterns or experience as unquestionable reality
+- presenting hypotheses as facts
+- using deterministic class to suppress useful exploratory reasoning
+- using creative or advisory phrasing to bypass proof for objective facts
+- recommending risky action before seeking available evidence
+
 Confidence labels should include:
 
 - `High confidence`
