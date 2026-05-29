@@ -42,6 +42,12 @@ USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
+FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH = (
+    "feature/fam-006-active-overlay-recording-runtime-implementation"
+)
+FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_SLUG = (
+    "feature_fam_006_active_overlay_recording_runtime_implementation"
+)
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -206,6 +212,27 @@ USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], 
     (
         "old-product-design-contract",
         re.compile(r"USER Branch Plan Contract:\s*a required user-facing product/design", re.IGNORECASE),
+    ),
+)
+FAM006_BP1_GENERATED_STALE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("governance-user-hub-path", re.compile(r"C:\\Nexus USER\\Governance", re.IGNORECASE)),
+    ("governance-branch", re.compile(r"\bGovernance branch\b", re.IGNORECASE)),
+    ("pr-readiness-stage-1", re.compile(r"\bPR Readiness Stage 1\b", re.IGNORECASE)),
+    (
+        "workstream-entry-final-review",
+        re.compile(r"\bWorkstream Entry final decision review\b", re.IGNORECASE),
+    ),
+    (
+        "stage-2-setup-green",
+        re.compile(r"\bStage 2 setup is green\b", re.IGNORECASE),
+    ),
+    (
+        "fam007-ownership",
+        re.compile(r"\bFAM-007\b[^\n]*(?:ownership|AI Edition|Breakpoint|Dev/Owner)", re.IGNORECASE),
+    ),
+    (
+        "ai-runtime-trust-architecture",
+        re.compile(r"\bAI Runtime And Trust Architecture\b", re.IGNORECASE),
     ),
 )
 USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -590,6 +617,7 @@ def _validate_export_zip(
         ),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
+        *_fam006_bp1_generated_stale_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
@@ -809,6 +837,35 @@ def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]
             failures.append(
                 f"{display_name}: BP2 review contains stale BP1/product-design wording {reason}"
             )
+    return failures
+
+
+def _fam006_bp1_generated_stale_failures(packet_files: Mapping[str, str]) -> list[str]:
+    generated_text = "\n".join(
+        _packet_file_text(packet_files, file_name)
+        for file_name in USER_FACING_GENERATED_FILES
+    )
+    normalized = generated_text.casefold()
+    is_fam006_bp1_packet = (
+        "fam-006 active overlay recording runtime implementation" in normalized
+        and "bp1" in normalized
+        and "bp2 user branch plan review remains pending" in normalized
+        and "packet reviewability is not user acceptance" in normalized
+    )
+    if not is_fam006_bp1_packet:
+        return []
+
+    failures: list[str] = []
+    for file_name in USER_FACING_GENERATED_FILES:
+        text = _packet_file_text(packet_files, file_name)
+        if not text:
+            continue
+        display_name = _packet_file_path(packet_files, file_name)
+        for reason, pattern in FAM006_BP1_GENERATED_STALE_PATTERNS:
+            if pattern.search(text):
+                failures.append(
+                    f"{display_name}: FAM-006 BP1 generated review file contains stale {reason} wording"
+                )
     return failures
 
 
@@ -1244,6 +1301,13 @@ def _write_user_branch_plan_review(
         "active_overlay_recording_runtime_foundation" in source_rel
         for source_rel, _copied_rel in copied
     )
+    is_fam006_active_overlay_implementation = (
+        source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
+        or any(
+            FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_SLUG in source_rel
+            for source_rel, _copied_rel in copied
+        )
+    )
     is_fam007_breakpoint_2 = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         or any(
@@ -1277,6 +1341,177 @@ def _write_user_branch_plan_review(
             "Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md",
         }
     ]
+    if is_fam006_active_overlay_implementation:
+        lines = [
+            "# USER Branch Plan Review - BP2 Pending Context",
+            "",
+            f"Title: {title}",
+            f"Review Purpose: {review_purpose}",
+            "",
+            "## Contract Status",
+            "",
+            "Draft - BP2 is pending context only until BP1 is accepted or waived.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - supporting context only for BP1; this file is not the current USER decision file.",
+            "",
+            "## USER Gate State",
+            "",
+            "Pending USER Review - BP1 must close before BP2 can become active.",
+            "",
+            "## USER Response Proof",
+            "",
+            "Pending - active BP1 USER response has not been accepted, revised, rejected, waived, or blocked.",
+            "",
+            "## USER Response Digested",
+            "",
+            "Pending - Codex has not digested an active BP1 USER response into BP2.",
+            "",
+            "## Acceptance / Waiver / Revision / Rejection Receipt",
+            "",
+            "Pending - no active BP2 receipt exists because BP1 remains the current gate.",
+            "",
+            "## Contract Version / Revision",
+            "",
+            "BP2 pending-context v1 for the post-governance-repair FAM-006 BP1 packet.",
+            "",
+            "## Current Gate",
+            "",
+            "The active current gate is BP1 USER Branch Vision Review for FAM-006 Active Overlay Recording Runtime Implementation.",
+            "The primary current-gate USER decision file is under `USER Review/USER_BRANCH_VISION_REVIEW.md`.",
+            "",
+            "## Why This BP2 File Exists",
+            "",
+            "This file is retained under Review Aids as later-gate context so USER can see what BP2 will need after BP1 closes. It is not an accepted Branch Plan and it does not authorize BP3 or Workstream implementation.",
+            "",
+            "## Future BP2 Plan Requirements",
+            "",
+            "- Derive the engineering plan from the accepted or waived BP1 Branch Vision.",
+            "- Preserve active-overlay-driven recording as the branch identity.",
+            "- Keep the active Overlay Profile as the future recording target source.",
+            "- Keep the HUD Overlay card as launcher and target/status preview.",
+            "- Keep the standalone Recording Control window as the compact future control surface.",
+            "- Keep Native Log Loader as a separate future graph/log viewer unless USER later changes source truth.",
+            "- Treat SLC-051 through SLC-055 as the engineering route inside this branch after BP1 closes.",
+            "- Keep runtime implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, FAM-007 mutation, PR creation, merge, release, issue mutation, cleanup, and Governance mutation blocked unless separately approved.",
+            "",
+            "## Plain-English Branch Summary",
+            "",
+            "FAM-006 is preparing an active-overlay-driven recording runtime branch where the active Overlay Profile supplies the future recording target. BP1 decides whether that product direction is right before BP2 turns it into an engineering plan.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "After later approvals and implementation, USER should see recording target/status in the HUD Overlay card and use a compact standalone Recording Control window. This BP1/BP2 planning packet itself changes no runtime UI.",
+            "",
+            "## End-State Vision",
+            "",
+            "The desired end state is recording that feels connected to the overlay USER already selected: active Overlay Profile membership defines the future target, the HUD Overlay card previews and launches recording control, and Native Log Loader remains a separate future graph/log viewer.",
+            "",
+            "## Visual / Functional Walkthrough",
+            "",
+            "- USER reviews the active Overlay Profile target concept in BP1.",
+            "- After BP1 acceptance or waiver, BP2 maps that vision to SLC-051 through SLC-055.",
+            "- After BP2 acceptance or waiver, BP3 validates orchestration before any Workstream implementation approval.",
+            "",
+            "## Surface Map",
+            "",
+            "- HUD Overlay card: future launcher and target/status preview.",
+            "- Recording Control window: future compact standalone control surface.",
+            "- Overlay Profile: future recording target source.",
+            "- Monitor Group and Sensor Command Center: preserved source organization surfaces.",
+            "- Native Log Loader: separate future graph/log viewer.",
+            "",
+            "## Implementation Options",
+            "",
+            "- Option A - target model proof first after BP3 and implementation approval.",
+            "- Option B - HUD target preview after target model proof.",
+            "- Option C - standalone Recording Control window shell after the target concept is stable.",
+            "- Option D - live Start/Stop and file writing only after explicit runtime execution approval.",
+            "",
+            "## Recommended Direction",
+            "",
+            "Codex recommends preserving target-model-first implementation planning, then HUD preview, then standalone Recording Control, then output/proof work after BP1, BP2, BP3, and separate implementation approval legally close.",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "This keeps recording lightweight, visible, and user-controllable without creating a second Recording Profile system or hiding target selection from USER.",
+            "",
+            "## USER Plan Review Decision",
+            "",
+            "No BP2 decision is requested by this BP1 packet. USER should respond to BP1 first.",
+            "",
+            "## USER Decisions Needed",
+            "",
+            "The active decision is BP1 acceptance, revision, rejection, request for more options, or waiver.",
+            "",
+            "## USER Response",
+            "",
+            "Pending USER Response - active BP1 has not closed.",
+            "",
+            "## Codex Response Digest",
+            "",
+            "Pending USER Response - Codex cannot digest BP2 until BP1 closes.",
+            "",
+            "## Implementation Constraints Created By USER Response",
+            "",
+            "- Runtime implementation remains blocked.",
+            "- SLC-051 through SLC-055 remain planning route candidates only.",
+            "- Recording execution and file writing remain blocked.",
+            "",
+            "## USER Rejected / Deferred Ideas",
+            "",
+            "- Separate Recording Profile selection remains rejected unless USER later re-approves it.",
+            "- Tray controls, export/share, provider/model work, FAM-007 mutation, and Native Log Loader implementation remain deferred.",
+            "",
+            "## Vision Delta / Source-Truth Impact",
+            "",
+            "Accepted BP1 feedback must fold into the FAM-006 branch record, branch plan, family vision where reusable, and later BP2 review artifact. This BP2 context file does not itself close any gate.",
+            "",
+            "## Contract Change Log",
+            "",
+            "v1 - Pending-context BP2 Review Aid generated during active BP1 packet preparation.",
+            "",
+            "## Current Branch Scope",
+            "",
+            "Current branch scope is FAM-006 active-overlay recording planning and later runtime implementation only after legal BP gate closure and separate implementation approval.",
+            "",
+            "## Future-Gated Scope",
+            "",
+            "BP2, BP3, Workstream implementation, SLC-051 implementation, runtime mutation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, FAM-007 mutation, PR creation, merge, release, issue mutation, cleanup, and Governance mutation remain pending.",
+            "",
+            "## Implementation Staging Notes",
+            "",
+            "SLC-051 through SLC-055 remain the likely engineering route inside this branch after BP1 closes and BP2 is prepared, reviewed, and accepted or waived.",
+            "",
+            "## BP2 Cannot Start Yet",
+            "",
+            "BP2 preparation requires accepted or waived BP1 proof. Packet reviewability is not USER acceptance.",
+            "",
+            "## Workstream Entry Result",
+            "",
+            "Not active - BP3 is blocked until BP1 and BP2 close legally.",
+            "",
+            "## Contract Completion Checklist",
+            "",
+            "- BP1 accepted or waived.",
+            "- BP2 prepared from accepted or waived BP1.",
+            "- BP2 reviewed by USER.",
+            "- BP2 accepted, revised, rejected, blocked, or waived by USER.",
+            "- BP3 remains pending until BP2 closes.",
+            "",
+            "## Exact USER Decision Supported By The Current Packet",
+            "",
+            exact_user_decision,
+            "",
+            "## Pending USER Decisions",
+            "",
+            *_markdown_lines(pending_user_decisions),
+            "",
+        ]
+        review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     if is_active_overlay_recording:
         active_plan_source = next(
             (
@@ -2699,6 +2934,9 @@ def _write_workstream_entry_packet_digests(
     is_fam007_breakpoint_2 = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
     )
+    is_fam006_active_overlay_implementation = (
+        source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
+    )
     seam1_approval_packet = (
         is_fam007_breakpoint_2
         and "approve bounded workstream implementation" in exact_user_decision.casefold()
@@ -2727,6 +2965,10 @@ def _write_workstream_entry_packet_digests(
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
     packet_status = (
+        "bp1 branch vision review - packet is reviewable for USER BP1 review; "
+        "BP1 USER acceptance, BP2, BP3, and Workstream implementation remain pending USER decisions."
+        if is_fam006_active_overlay_implementation
+        else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
         if pr_stage1_packet
@@ -2763,7 +3005,40 @@ def _write_workstream_entry_packet_digests(
             "remains pending USER approval."
         )
     )
-    if pr_stage1_packet:
+    if is_fam006_active_overlay_implementation:
+        analysis_status = (
+            "Analysis Summary: FAM-006 BP1 USER Branch Vision Review packet is reviewable; "
+            "reviewability is not USER acceptance."
+        )
+        implementation_posture = (
+            "Implementation Posture: runtime implementation, SLC-051, recording execution, "
+            "file writing, Start/Stop controls, tray controls, export/share, provider/model work, "
+            "FAM-007 mutation, PR creation, merge, release, issue mutation, cleanup, and Governance "
+            "mutation remain blocked pending later USER decisions."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: BP1 USER response for the FAM-006 Active Overlay Recording "
+            "Runtime Implementation branch vision."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, phase governance, branch-plan "
+            "artifact rules, execution mirrors, governance efficiency model, validation helper registry, "
+            "incident patterns, FAM-006 family vision, active FAM-006 branch record and plan, backlog, "
+            "roadmap, and worktree routing needed for BP1 review."
+        )
+        checklist_status = (
+            "Checklist Focus: for FAM-006 BP1 review - active-overlay-driven recording identity, "
+            "active Overlay Profile target source, HUD Overlay launcher/target preview, compact "
+            "standalone Recording Control window direction, Native Log Loader future boundary, "
+            "per-overlay polling-policy future constraint, BP1/BP2/BP3 separation, and runtime "
+            "implementation blockers are represented for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER Review/USER_BRANCH_VISION_REVIEW.md, Review Aids, "
+            "and Source Truth Context files are loaded for BP1 USER Branch Vision Review. BP1 USER "
+            "Gate State remains Pending USER Review."
+        )
+    elif pr_stage1_packet:
         analysis_status = (
             "Analysis Summary: Governance Phase Lifecycle Reform packet is ready "
             "for PR Readiness Stage 1 analysis approval."
@@ -3573,7 +3848,12 @@ def build_bundle(
     pr_stage1_packet = (
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
+    fam006_bp1_packet = source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
     machine_readable_packet_status = (
+        "bp1 branch vision review - packet is reviewable for USER BP1 review; "
+        "BP1 USER acceptance, BP2, BP3, and Workstream implementation remain pending USER decisions."
+        if fam006_bp1_packet
+        else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
         if pr_stage1_packet
@@ -3755,6 +4035,7 @@ def build_bundle(
         ),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
+        *_fam006_bp1_generated_stale_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
