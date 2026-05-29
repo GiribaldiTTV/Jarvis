@@ -39,6 +39,9 @@ REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
+USER_REVIEW_DIR_NAME = "USER Review"
+REVIEW_AIDS_DIR_NAME = "Review Aids"
+SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -227,6 +230,54 @@ BP1_PACKET_STALE_LANGUAGE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         re.compile(r"^\s*-\s*Do not\b", re.IGNORECASE | re.MULTILINE),
     ),
 )
+USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "project-context-instruction",
+        re.compile(r"Review `Docs/nexus_vision\.md`.*before accepting this Branch Vision", re.IGNORECASE),
+    ),
+    (
+        "family-context-instruction",
+        re.compile(r"Review the relevant `Docs/family_visions/` owner", re.IGNORECASE),
+    ),
+    (
+        "generic-branch-goal-instruction",
+        re.compile(r"Confirm that this branch goal is the right product direction", re.IGNORECASE),
+    ),
+    (
+        "generic-end-state-instruction",
+        re.compile(r"Describe the intended user-visible or source-truth end state", re.IGNORECASE),
+    ),
+    (
+        "generic-copied-file-flow",
+        re.compile(r"Review the copied branch-specific files and note any changes", re.IGNORECASE),
+    ),
+    (
+        "generic-accept-revise-waive-reject-options",
+        re.compile(
+            r"Accept the proposed Branch Vision.*Revise the Branch Vision.*Waive BP1.*Reject this branch direction",
+            re.IGNORECASE | re.DOTALL,
+        ),
+    ),
+    (
+        "generic-design-question",
+        re.compile(r"Does this Branch Vision match what the USER wants this branch to become", re.IGNORECASE),
+    ),
+)
+USER_BRANCH_VISION_MINIMUM_SUBSTANTIVE_SECTIONS: tuple[tuple[str, int], ...] = (
+    ("Project Vision Context", 18),
+    ("Family Vision Context", 18),
+    ("Feature Vision Context", 18),
+    ("Branch Goal", 18),
+    ("End-State Vision", 20),
+    ("What Will I Actually See, And Where Will I See It?", 18),
+    ("How It Will Function", 20),
+    ("User Experience Flow", 18),
+    ("Surface Map", 24),
+    ("Product Options / Design Paths", 30),
+    ("Codex Recommendations", 36),
+    ("Why This Fits The Nexus Vision", 18),
+    ("USER Design Questions", 24),
+)
 
 
 @dataclass(frozen=True)
@@ -334,14 +385,21 @@ def _copy_names(files: list[str]) -> list[str]:
     return names
 
 
-def _copy_file(relative_file: str, target: Path, copy_name: str) -> tuple[str, str]:
+def _copy_file(
+    relative_file: str,
+    target: Path,
+    copy_name: str,
+    *,
+    subdir: str | None = None,
+) -> tuple[str, str]:
     source = (ROOT / relative_file).resolve()
     if not source.is_file():
         raise FileNotFoundError(f"Review source file not found: {relative_file}")
     if ROOT.resolve() not in source.parents:
         raise ValueError(f"Review source file is outside repo: {relative_file}")
 
-    destination = target / copy_name
+    destination = target / subdir / copy_name if subdir else target / copy_name
+    destination.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, destination)
     return source.relative_to(ROOT).as_posix(), destination.relative_to(target).as_posix()
 
@@ -386,6 +444,101 @@ def _bundle_files(target: Path) -> set[Path]:
     return {path for path in target.rglob("*") if path.is_file()}
 
 
+def _packet_file_basename(file_name: str) -> str:
+    return PurePosixPath(file_name.replace("\\", "/")).name
+
+
+def _packet_file_items(
+    packet_files: Mapping[str, str],
+    file_name: str,
+) -> list[tuple[str, str]]:
+    return [
+        (path, text)
+        for path, text in sorted(packet_files.items())
+        if _packet_file_basename(path) == file_name
+    ]
+
+
+def _packet_file_text(packet_files: Mapping[str, str], file_name: str) -> str:
+    if file_name in packet_files:
+        return packet_files[file_name]
+    matches = _packet_file_items(packet_files, file_name)
+    return matches[0][1] if matches else ""
+
+
+def _packet_file_path(packet_files: Mapping[str, str], file_name: str) -> str:
+    if file_name in packet_files:
+        return file_name
+    matches = _packet_file_items(packet_files, file_name)
+    return matches[0][0] if matches else file_name
+
+
+def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> bool:
+    return bool(_packet_file_text(packet_files, file_name))
+
+
+def _primary_user_review_file(exact_user_decision: str) -> str:
+    normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
+    stage_patterns = (
+        (
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            0,
+            (
+                r"\bbp3\b",
+                r"\borchestration\b",
+                r"\bworkstream entry\b",
+                r"\bworkstream implementation\b",
+                r"\bimplementation approval\b",
+            ),
+        ),
+        (USER_BRANCH_PLAN_REVIEW_FILE, 1, (r"\bbp2\b", r"\bbranch plan\b")),
+        (USER_BRANCH_VISION_REVIEW_FILE, 2, (r"\bbp1\b", r"\bbranch vision\b")),
+    )
+    action_match = re.search(
+        r"\b(?:approve|approves|approved|approval|green-light|greenlight)\b",
+        normalized,
+    )
+    if action_match:
+        action_text = normalized[action_match.start() :]
+        requested_matches: list[tuple[int, int, str]] = []
+        for file_name, priority, patterns in stage_patterns:
+            for pattern in patterns:
+                match = re.search(pattern, action_text)
+                if match:
+                    requested_matches.append((match.start(), priority, file_name))
+        if requested_matches:
+            return sorted(requested_matches)[0][2]
+
+    matches: list[tuple[int, int, str]] = []
+    for file_name, priority, patterns in stage_patterns:
+        for pattern in patterns:
+            match = re.search(pattern, normalized)
+            if match:
+                matches.append((match.start(), priority, file_name))
+    if matches:
+        return sorted(matches)[0][2]
+    return USER_BRANCH_PLAN_REVIEW_FILE
+
+
+def _move_primary_user_review_file(
+    *,
+    target: Path,
+    review_aids_dir: Path,
+    user_review_dir: Path,
+    primary_file_name: str,
+) -> Path:
+    source = review_aids_dir / primary_file_name
+    if not source.is_file():
+        source = target / primary_file_name
+    if not source.is_file():
+        raise FileNotFoundError(f"Primary USER review file was not generated: {primary_file_name}")
+    destination = user_review_dir / primary_file_name
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if source.resolve() != destination.resolve():
+        shutil.move(str(source), str(destination))
+    return destination.resolve()
+
+
 def _export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
 
@@ -423,23 +576,21 @@ def _validate_export_zip(
             start_here = archive.read("START_HERE.md").decode("utf-8")
         except KeyError as exc:
             raise ValueError(f"Review export zip is missing START_HERE.md: {export_zip}") from exc
-        try:
-            user_vision = archive.read(USER_BRANCH_VISION_REVIEW_FILE).decode("utf-8")
-        except KeyError as exc:
-            raise ValueError(
-                f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
-            ) from exc
-        try:
-            user_review = archive.read(USER_BRANCH_PLAN_REVIEW_FILE).decode("utf-8")
-        except KeyError as exc:
-            raise ValueError(
-                f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
-            ) from exc
         for entry in sorted(entries):
             try:
                 packet_files[entry] = archive.read(entry).decode("utf-8")
             except UnicodeDecodeError:
                 continue
+    user_vision = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    if not user_vision:
+        raise ValueError(
+            f"Review export zip is missing {USER_BRANCH_VISION_REVIEW_FILE}: {export_zip}"
+        )
+    user_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    if not user_review:
+        raise ValueError(
+            f"Review export zip is missing {USER_BRANCH_PLAN_REVIEW_FILE}: {export_zip}"
+        )
     if entries != expected_entries:
         missing = sorted(expected_entries - entries)
         extra = sorted(entries - expected_entries)
@@ -462,6 +613,7 @@ def _validate_export_zip(
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
+        *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
     if artifact_failures:
@@ -474,7 +626,10 @@ def _validate_export_zip(
     if "USER Decision This Packet Supports:" not in start_here:
         raise ValueError("Review export zip is missing USER decision text in START_HERE.md")
     for required_heading in (
+        "## Review Status",
         "## Contract Status",
+        "## Packet Reviewability State",
+        "## USER Gate State",
         "## Contract Revision",
         "## Project Vision Context",
         "## Family Vision Context",
@@ -487,9 +642,18 @@ def _validate_export_zip(
         "## Surface Map",
         "## Product Options / Design Paths",
         "## Codex Recommendations",
+        "## Why This Fits The Nexus Vision",
+        "## USER Design Questions",
         "## USER Response",
         "## Codex Digest",
+        "## USER Response Proof",
+        "## USER Response Digested",
         "## Accepted Branch Vision",
+        "## Family-Vision Versus Branch-Only Vision Impact",
+        "## Must-Have Behavior",
+        "## Future-Gated Decisions And Regression-Risk Controls",
+        "## Deferred And Future-Gated Ideas",
+        "## Vision Question Queue",
         "## Design Assumption Ledger",
         "## Acceptance / Revision / Rejection / Waiver Decision",
     ):
@@ -645,29 +809,30 @@ def _packet_count_consistency_failures(
 def _user_facing_technical_metadata_failures(packet_files: Mapping[str, str]) -> list[str]:
     failures: list[str] = []
     for file_name in USER_FACING_GENERATED_FILES:
-        text = packet_files.get(file_name)
-        if text is None:
+        text = _packet_file_text(packet_files, file_name)
+        if not text:
             continue
+        display_name = _packet_file_path(packet_files, file_name)
         for reason, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
             if pattern.search(text):
                 failures.append(
-                    f"{file_name}: USER-facing generated file contains technical metadata {reason}"
+                    f"{display_name}: USER-facing generated file contains technical metadata {reason}"
                 )
     return failures
 
 
 def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]) -> list[str]:
-    text = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE)
-    if text is None:
+    text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    if not text:
         return []
     failures: list[str] = []
+    display_name = _packet_file_path(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
     for reason, pattern in USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS:
         if pattern.search(text):
             failures.append(
-                f"{USER_BRANCH_PLAN_REVIEW_FILE}: BP2 review contains stale BP1/product-design wording {reason}"
+                f"{display_name}: BP2 review contains stale BP1/product-design wording {reason}"
             )
     return failures
-
 
 def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list[str]:
     combined = "\n".join(
@@ -686,6 +851,75 @@ def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list
                 failures.append(
                     f"{file_name}: BP1 packet contains stale phase/boundary language {reason}"
                 )
+    return failures
+
+
+def _review_word_count(value: str) -> int:
+    return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'-]*", value))
+
+
+def _user_branch_vision_substantive_failures(packet_files: Mapping[str, str]) -> list[str]:
+    text = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    if not text:
+        return []
+    failures: list[str] = []
+    display_name = _packet_file_path(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+
+    for field_name in (
+        "Packet Reviewability State",
+        "USER Gate State",
+        "USER Response Proof",
+        "USER Response Digested",
+    ):
+        if not _field_value(text, field_name) and not _section(text, field_name):
+            failures.append(
+                f"{display_name}: BP1 substantive review artifact missing {field_name}"
+            )
+
+    for section_name, minimum_words in USER_BRANCH_VISION_MINIMUM_SUBSTANTIVE_SECTIONS:
+        value = _section(text, section_name)
+        if _review_word_count(value) < minimum_words:
+            failures.append(
+                f"{display_name}: {section_name} is too shallow for BP1 substantive review"
+            )
+
+    for reason, pattern in USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS:
+        if pattern.search(text):
+            failures.append(
+                f"{display_name}: template-shell BP1 wording remains ({reason})"
+            )
+
+    surface_map = _section(text, "Surface Map")
+    normalized_surface_map = re.sub(r"\s+", " ", surface_map).casefold()
+    if " copied as " in normalized_surface_map and not any(
+        term in normalized_surface_map
+        for term in (
+            "decision surface",
+            "experience surface",
+            "review surface",
+            "user will see",
+            "owner",
+        )
+    ):
+        failures.append(
+            f"{display_name}: copied-file list cannot be the BP1 Surface Map"
+        )
+
+    user_questions = _section(text, "USER Design Questions")
+    question_count = user_questions.count("?")
+    if question_count < 2:
+        failures.append(
+            f"{display_name}: USER Design Questions must ask branch-specific decision-driving questions"
+        )
+
+    recommendations = _section(text, "Codex Recommendations")
+    normalized_recommendations = recommendations.casefold()
+    if "recommendation" not in normalized_recommendations or not any(
+        term in normalized_recommendations for term in ("tradeoff", "risk", "because")
+    ):
+        failures.append(
+            f"{display_name}: Codex Recommendations must be branch-specific line-item recommendations with rationale and tradeoffs"
+        )
     return failures
 
 
@@ -837,7 +1071,12 @@ def _write_user_branch_vision_review(
     pending_user_decisions: list[str],
     copied: list[tuple[str, str]],
 ) -> Path:
-    source_files = [f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]
+    source_file_names = [source_rel for source_rel, _copied_rel in copied]
+    copied_context = ", ".join(f"`{source_rel}`" for source_rel in source_file_names[:5])
+    if len(source_file_names) > 5:
+        copied_context += f", plus {len(source_file_names) - 5} more source-truth files"
+    if not copied_context:
+        copied_context = "the selected source-truth files"
     pr_readiness_context_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     review_status = (
         "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
@@ -855,6 +1094,16 @@ def _write_user_branch_vision_review(
         "No new BP1 response requested by this packet; PR Readiness Stage 1 analysis remains the next USER decision."
         if pr_readiness_context_packet
         else "Pending USER response or explicit waiver."
+    )
+    packet_reviewability_state = (
+        "Reviewable - context packet for later-phase review; no new BP1 decision is requested by this helper output."
+        if pr_readiness_context_packet
+        else "Reviewable - BP1 packet is ready for USER Branch Vision Review, but acceptance is not recorded."
+    )
+    user_gate_state = (
+        "Superseded - context-only BP1 copy for later-phase review; rely on the accepted branch record or external state for the original BP1 receipt."
+        if pr_readiness_context_packet
+        else "Pending USER Review - USER must accept, revise, waive, reject, or block BP1 before BP2 preparation can be green."
     )
     codex_digest = (
         "Codex records this BP1 file as a context aid for the governance lifecycle reform packet. "
@@ -880,21 +1129,29 @@ def _write_user_branch_vision_review(
         "",
         contract_status,
         "",
+        "## Packet Reviewability State",
+        "",
+        packet_reviewability_state,
+        "",
+        "## USER Gate State",
+        "",
+        user_gate_state,
+        "",
         "## Contract Revision",
         "",
-        "v1 - generated by the local USER hub helper.",
+        "v2 - generated by the local USER hub helper with substantive BP1 review sections.",
         "",
         "## Project Vision Context",
         "",
-        "Review `Docs/nexus_vision.md` or the current project-wide vision owner before accepting this Branch Vision.",
+        f"`{title}` must explain how this branch supports Nexus as a USER-controlled, inspectable desktop AI system before engineering planning begins. The copied context ({copied_context}) is evidence for that fit; the USER should judge whether the branch direction belongs in the project vision rather than treating a clean packet as approval.",
         "",
         "## Family Vision Context",
         "",
-        "Review the relevant `Docs/family_visions/` owner for the branch family before accepting this Branch Vision.",
+        f"This BP1 review asks whether `{title}` fits the owning family or governance lane represented by the copied source-truth files. If the branch changes reusable family direction, the USER response must name that family impact so Codex can route it to the proper durable owner before BP2.",
         "",
         "## Feature Vision Context",
         "",
-        "Review the active branch authority and branch planning owner for the feature or package context.",
+        f"The selected packet context is `{review_purpose}`. BP1 should settle the feature or governance outcome USER expects from this branch, the boundaries that stay future-gated, and which copied owners are context only rather than active operational ledgers.",
         "",
         "## Codex Understanding",
         "",
@@ -902,50 +1159,55 @@ def _write_user_branch_vision_review(
         "",
         "## Branch Goal",
         "",
-        "Confirm that this branch goal is the right product direction before engineering planning proceeds.",
+        f"Create an accepted USER-facing branch vision for `{title}` before engineering planning. The goal is to turn `{review_purpose}` into a clear decision surface: what the branch is meant to accomplish, what USER will inspect, and what must remain blocked until BP2/BP3 and separate implementation approval.",
         "",
         "## End-State Vision",
         "",
-        "Describe the intended user-visible or source-truth end state for this branch. If no user-visible surface applies, describe the durable governance or runtime outcome USER will rely on.",
+        f"When BP1 closes, USER should be able to say exactly what `{title}` is allowed to become, what future USER-visible or governance behavior should be true, and which outcomes are deliberately deferred. A later green BP2/BP3 must trace to this accepted end-state instead of inventing product direction during implementation.",
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
-        "The USER-facing review packet lives in the local USER hub. Runtime/user-facing surfaces, if any, must be described by the branch-specific packet or source truth copied into this folder.",
+        f"USER sees this Branch Vision review in the stable local USER hub packet beside the copied context files named in `START_HERE.md`. The visible review surface is not the raw file list; it is this applied explanation of `{title}`, the decision options, the recommendation rationale, and the questions USER can answer before BP2.",
         "",
         "## How It Will Function",
         "",
-        "BP1 captures what the branch should become. BP2 captures how Codex plans to build it. Workstream implementation remains blocked until BP1/BP2 are accepted or waived and BP3 is green.",
+        f"BP1 captures the intended outcome for `{title}`. BP2 must translate only the accepted or waived BP1 vision into an engineering plan, BP3 must validate orchestration against both accepted gates, and Workstream implementation remains blocked until those gates are green plus the USER gives a separate implementation decision.",
         "",
         "## User Experience Flow",
         "",
-        "Review the copied branch-specific files and note any changes to product flow, decision flow, or inspection flow before accepting BP1.",
+        f"USER starts at `START_HERE.md`, reads this vision review, checks the source-truth context only as supporting evidence, then responds to the options and design questions below. Codex must digest that response into accepted, revised, waived, rejected, or blocked BP1 state before preparing BP2.",
         "",
         "## Surface Map",
         "",
-        *_markdown_lines(source_files),
+        f"- Review surface: `USER_BRANCH_VISION_REVIEW.md` explains the `{title}` branch vision in plain language for USER decision-making.",
+        f"- Context surface: `START_HERE.md` maps copied files such as {copied_context} back to repo source truth without making the copy list the vision.",
+        "- Decision surface: `USER Response`, `Codex Digest`, and `Acceptance / Revision / Rejection / Waiver Decision` record whether BP1 closes or returns for revision.",
+        "- Future proof surface: BP2 and BP3 may use this accepted vision for traceability, but they cannot replace it with engineering convenience or implementation readiness.",
         "",
         "## Product Options / Design Paths",
         "",
-        "- Accept the proposed Branch Vision.",
-        "- Revise the Branch Vision before engineering planning.",
-        "- Waive BP1 for this branch with explicit USER text.",
-        "- Reject this branch direction and request a narrower or different carrier.",
+        f"- Option A - accept the `{title}` vision as the right direction: lowest planning churn, but only safe if USER can already visualize the outcome and boundaries.",
+        "- Option B - revise the vision before BP2: best when the branch goal is directionally right but USER wants different surfaces, experience flow, proof expectations, or future-gated boundaries.",
+        "- Option C - waive or reject BP1: waiver should be rare and explicit; rejection is safer when the branch belongs to another family, architecture owner, policy owner, or later branch.",
         "",
         "## Codex Recommendations",
         "",
-        "- Recommendation: Treat BP1 as the product/vision gate and keep SLCs as engineering route details.",
+        f"- Recommendation: Use this packet to decide the `{title}` branch vision before any BP2 engineering plan is treated as valid, because the main risk is Codex building from a technically clean but weak product direction. Tradeoff: this adds one deliberate review pause, but it prevents expensive Workstream rework.",
         "  USER response:",
-        "- Recommendation: Use BP2 only after the accepted Branch Vision is clear.",
+        f"- Recommendation: Require any revision to name the expected USER-visible, governance, or source-truth outcome for `{title}` rather than only saying the packet should be clearer. Tradeoff: stricter response digestion takes more care, but it gives BP2 a real contract to build from.",
+        "  USER response:",
+        "- Recommendation: Treat copied files as context evidence, not as the Branch Vision itself. Tradeoff: USER may inspect fewer raw lines first, but the decision becomes easier to reason about and harder for a template shell to pass.",
         "  USER response:",
         "",
         "## Why This Fits The Nexus Vision",
         "",
-        "This keeps project and family vision above branch planning while preventing implementation seams from becoming accidental product direction.",
+        f"This BP1 structure protects the Nexus pattern of USER-controlled, inspectable, local-first planning by making `{title}` explain its purpose before implementation. It keeps project and family vision above seams, helpers, and validators, while still giving Codex enough branch-specific direction to plan the next gate.",
         "",
         "## USER Design Questions",
         "",
-        "- Does this Branch Vision match what the USER wants this branch to become?",
-        "- Are any surfaces, flows, boundaries, or future-gated ideas missing?",
+        f"- For `{title}`, what exact outcome should USER expect to see, inspect, or rely on when this branch is complete?",
+        "- Which option above best matches the desired direction, and what specific change would make the branch vision feel correct before BP2?",
+        "- Are there family-level, architecture-level, policy-level, experience-level, or future-gated boundaries that Codex must preserve instead of folding into this branch?",
         "",
         "## USER Response",
         "",
@@ -954,6 +1216,16 @@ def _write_user_branch_vision_review(
         "## Codex Digest",
         "",
         codex_digest,
+        "",
+        "## USER Response Proof",
+        "",
+        user_response,
+        "",
+        "## USER Response Digested",
+        "",
+        "No - BP1 remains open until Codex digests an explicit USER response or waiver."
+        if not pr_readiness_context_packet
+        else "Not applicable - this is a later-phase context copy, not a new BP1 gate.",
         "",
         "## Accepted Branch Vision",
         "",
@@ -1368,7 +1640,7 @@ def _write_user_branch_plan_review(
             "USER-facing proof expectations: refreshed START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, "
             "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md, GOVERNANCE_REQUIRED_FILES_SCAN.md, "
             "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, BRANCH_VISION_VALIDATION_CHECKLIST.md, exported ZIP, "
-            "and validation summary must all agree on decision path, decision path, and "
+            "and review evidence digest must all agree on decision path, USER decision, and "
             "pending gates.\n\n"
             f"Exact implementation approval text: {exact_user_decision}"
             )
@@ -3083,8 +3355,9 @@ def _exact_decision_text(packet_files: Mapping[str, str]) -> str:
     return "\n".join(
         text
         for file_name, text in sorted(packet_files.items())
-        if file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES
-        or file_name in {USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE}
+        if _packet_file_basename(file_name) in WORKSTREAM_ENTRY_PACKET_DECISION_FILES
+        or _packet_file_basename(file_name)
+        in {USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE}
     )
 
 
@@ -3095,7 +3368,7 @@ def _branch_planning_review_gate_state_failures(
     generated_files = {
         file_name: text
         for file_name, text in packet_files.items()
-        if file_name in USER_FACING_GENERATED_FILES
+        if _packet_file_basename(file_name) in USER_FACING_GENERATED_FILES
     }
     all_review_text = _exact_decision_text(packet_files)
     normalized_all_review_text = re.sub(r"\s+", " ", all_review_text).casefold()
@@ -3164,9 +3437,10 @@ def _branch_planning_review_gate_state_failures(
         )
 
     for file_name in (USER_BRANCH_VISION_REVIEW_FILE, USER_BRANCH_PLAN_REVIEW_FILE):
-        text = packet_files.get(file_name, "")
+        text = _packet_file_text(packet_files, file_name)
         if not text:
             continue
+        display_name = _packet_file_path(packet_files, file_name)
         reviewability_state = _normalized_gate_value(
             _review_marker_or_section_value(text, "Packet Reviewability State:")
         )
@@ -3175,21 +3449,21 @@ def _branch_planning_review_gate_state_failures(
         )
         if reviewability_state and reviewability_state not in BRANCH_PLANNING_PACKET_REVIEWABILITY_VALUES:
             failures.append(
-                f"{file_name}: invalid Packet Reviewability State "
+                f"{display_name}: invalid Packet Reviewability State "
                 f"'{reviewability_state}'"
             )
         if user_gate_state and user_gate_state not in BRANCH_PLANNING_USER_GATE_VALUES:
-            failures.append(f"{file_name}: invalid USER Gate State '{user_gate_state}'")
+            failures.append(f"{display_name}: invalid USER Gate State '{user_gate_state}'")
         if (
             implementation_requested
             and user_gate_state in BRANCH_PLANNING_PENDING_USER_GATE_VALUES
         ):
             failures.append(
                 "Review Gate Bypass: implementation approval wording appears while "
-                f"{file_name} USER Gate State is '{user_gate_state}'"
+                f"{display_name} USER Gate State is '{user_gate_state}'"
             )
 
-    branch_plan_review = packet_files.get(USER_BRANCH_PLAN_REVIEW_FILE, "")
+    branch_plan_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
     if branch_plan_review:
         contract_status = _normalized_gate_value(
             _review_marker_or_section_value(branch_plan_review, "Contract Status:")
@@ -3241,26 +3515,28 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
+    failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
-        if required_file not in packet_files:
+        if not _packet_file_present(packet_files, required_file):
             failures.append(f"{required_file}: required Workstream Entry packet file is missing")
 
     start_here = packet_files.get("START_HERE.md", "")
     if not _field_present(start_here, "USER Decision This Packet Supports"):
         failures.append("START_HERE.md: USER Decision This Packet Supports field is missing")
-    workstream_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
+    workstream_digest = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
     if "USER Decision" not in workstream_digest:
         failures.append("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: USER Decision field is missing")
 
     file_statuses: dict[str, str] = {}
     for file_name in WORKSTREAM_ENTRY_PACKET_DECISION_FILES:
-        text = packet_files.get(file_name)
-        if text is None:
+        text = _packet_file_text(packet_files, file_name)
+        if not text:
             continue
+        display_name = _packet_file_path(packet_files, file_name)
         status = _packet_text_status(text)
-        file_statuses[file_name] = status
+        file_statuses[display_name] = status
         if status == DECISION_STATUS_UNKNOWN:
-            failures.append(f"{file_name}: next legal phase / implementation posture is not machine-readable")
+            failures.append(f"{display_name}: next legal phase / implementation posture is not machine-readable")
 
     distinct_statuses = {status for status in file_statuses.values() if status != DECISION_STATUS_UNKNOWN}
     if len(distinct_statuses) > 1:
@@ -3292,14 +3568,14 @@ def validate_workstream_entry_packet_folder(
 ) -> WorkstreamEntryPacketDecisionPathResult:
     packet_files: dict[str, str] = {}
     all_files = (
-        sorted(path for path in packet_dir.iterdir() if path.is_file())
+        sorted(path for path in packet_dir.rglob("*") if path.is_file())
         if packet_dir.exists()
         else []
     )
     for path in all_files:
         if path.suffix.lower() not in {".md", ".txt", ".json"}:
             continue
-        packet_files[path.name] = path.read_text(encoding="utf-8")
+        packet_files[path.relative_to(packet_dir).as_posix()] = path.read_text(encoding="utf-8")
     return _validate_workstream_entry_packet_decision_path(
         packet_files,
         expected_branch=expected_branch,
@@ -3344,9 +3620,15 @@ def build_bundle(
     if target.exists():
         _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
+    user_review_dir = target / USER_REVIEW_DIR_NAME
+    review_aids_dir = target / REVIEW_AIDS_DIR_NAME
+    source_context_dir = target / SOURCE_TRUTH_CONTEXT_DIR_NAME
+    user_review_dir.mkdir(parents=True, exist_ok=True)
+    review_aids_dir.mkdir(parents=True, exist_ok=True)
+    source_context_dir.mkdir(parents=True, exist_ok=True)
 
     copied = [
-        _copy_file(file_name, target, copy_name)
+        _copy_file(file_name, target, copy_name, subdir=SOURCE_TRUTH_CONTEXT_DIR_NAME)
         for file_name, copy_name in zip(files, _copy_names(files), strict=True)
     ]
     copied_count = len(copied)
@@ -3437,8 +3719,9 @@ def build_bundle(
         )
     )
     user_facing_decision = _user_facing_decision_text(exact_user_decision)
+    primary_user_review_file_name = _primary_user_review_file(exact_user_decision)
     user_vision_file = _write_user_branch_vision_review(
-        target=target,
+        target=review_aids_dir,
         title=title,
         review_purpose=review_purpose,
         exact_user_decision=user_facing_decision,
@@ -3446,7 +3729,7 @@ def build_bundle(
         copied=copied,
     )
     user_review_file = _write_user_branch_plan_review(
-        target=target,
+        target=review_aids_dir,
         title=title,
         review_purpose=review_purpose,
         source_branch=source_branch,
@@ -3464,12 +3747,18 @@ def build_bundle(
         custom_review_path_waiver = CUSTOM_REVIEW_PATH_NONE
         custom_review_path_reason_value = "Not applicable"
     start_here = (target / "START_HERE.md").resolve()
-    required_digest_paths = {target / name for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES if name != "START_HERE.md"}
-    actual_bundle_files = (
-        _bundle_files(target)
-        | {start_here, user_vision_file, user_review_file}
-        | required_digest_paths
-    )
+    digest_paths = {
+        (review_aids_dir / name).resolve()
+        for name in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES
+        if name != "START_HERE.md"
+    }
+    expected_generated_paths = {user_vision_file.resolve(), user_review_file.resolve(), *digest_paths}
+    primary_source_path = (review_aids_dir / primary_user_review_file_name).resolve()
+    primary_destination_path = (user_review_dir / primary_user_review_file_name).resolve()
+    if primary_source_path in expected_generated_paths:
+        expected_generated_paths.remove(primary_source_path)
+    expected_generated_paths.add(primary_destination_path)
+    actual_bundle_files = copied_targets | expected_generated_paths | {start_here}
     extra_bundle_files = sorted(
         path.relative_to(target).as_posix()
         for path in actual_bundle_files
@@ -3490,7 +3779,7 @@ def build_bundle(
         )
 
     _write_workstream_entry_packet_digests(
-        target=target,
+        target=review_aids_dir,
         source_branch=source_branch,
         source_head=source_head,
         origin_main=origin_main,
@@ -3503,6 +3792,12 @@ def build_bundle(
         copied_count=copied_count,
         exact_user_decision=user_facing_decision,
         pending_user_decisions=pending_user_decisions,
+    )
+    primary_user_review_file = _move_primary_user_review_file(
+        target=target,
+        review_aids_dir=review_aids_dir,
+        user_review_dir=user_review_dir,
+        primary_file_name=primary_user_review_file_name,
     )
 
     readme_lines: list[str] = [
@@ -3518,6 +3813,9 @@ def build_bundle(
         "Review Safety Note: Copied files are selected repo source-truth and "
         "review-context files for USER inspection; technical freshness proof "
         "stays in Codex chat digest, helper output, validator output, or external state.",
+        f"Primary USER Review File: `{primary_user_review_file.relative_to(target).as_posix()}`",
+        f"Source Truth Context Folder: `{SOURCE_TRUTH_CONTEXT_DIR_NAME}`",
+        f"Review Aids Folder: `{REVIEW_AIDS_DIR_NAME}`",
         f"USER Decision This Packet Supports: {user_facing_decision}",
         "",
         "## Pending USER Decisions",
@@ -3566,6 +3864,7 @@ def build_bundle(
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
+        *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
     if artifact_failures:
