@@ -1370,6 +1370,55 @@ def _validate_active_overlay_user_branch_plan_review_metadata_guard() -> list[st
     return failures
 
 
+def _validate_fam007_workstream_approval_packet_metadata_guard() -> list[str]:
+    source_path = (
+        "Docs/branch_plans/"
+        "feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md"
+    )
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_user_branch_plan_review(
+            target=target,
+            title="FAM-007 Breakpoint 2 Dev Owner Skeleton Action Gate Readiness",
+            review_purpose="Fixture packet metadata guard.",
+            source_branch=(
+                "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+            ),
+            source_head=review_bundle._git_output("rev-parse", "HEAD"),
+            upstream=(
+                "origin/feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
+            ),
+            origin_main=review_bundle._git_output("rev-parse", "origin/main"),
+            exact_user_decision="Approve bounded workstream implementation.",
+            pending_user_decisions=[
+                "Private/runtime/provider/model/cache/memory behavior remains pending USER approval."
+            ],
+            copied=[
+                (
+                    source_path,
+                    "feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md",
+                )
+            ],
+        )
+        text = (target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE).read_text(encoding="utf-8")
+
+    metadata_failures = review_bundle._user_facing_technical_metadata_failures(
+        {review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: text}
+    )
+    if metadata_failures:
+        failures.append(
+            "FAM-007 workstream approval USER Branch Plan Review fixture unexpectedly "
+            "emitted USER-facing technical metadata: "
+            + "; ".join(metadata_failures[:5])
+        )
+    if "validation summary" in text.casefold():
+        failures.append(
+            "FAM-007 workstream approval packet still emits forbidden validation-summary wording"
+        )
+    return failures
+
+
 def _validate_primary_user_review_file_stage_priority() -> list[str]:
     failures: list[str] = []
     bp3_trace_decision = (
@@ -2167,6 +2216,7 @@ def validate() -> list[str]:
     failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
+    failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
 
     return failures
 

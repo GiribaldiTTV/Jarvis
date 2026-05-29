@@ -1598,7 +1598,7 @@ def _write_user_branch_plan_review(
             "USER-facing proof expectations: refreshed START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, "
             "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md, GOVERNANCE_REQUIRED_FILES_SCAN.md, "
             "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, BRANCH_VISION_VALIDATION_CHECKLIST.md, exported ZIP, "
-            "and validation summary must all agree on decision path, decision path, and "
+            "and review evidence digest must all agree on decision path, USER decision, and "
             "pending gates.\n\n"
             f"Exact implementation approval text: {exact_user_decision}"
             )
