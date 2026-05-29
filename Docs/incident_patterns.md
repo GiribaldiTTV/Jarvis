@@ -69,6 +69,25 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `dev/orin_branch_readiness_planning_fixture_validation.py`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: Template-Shell USER Review Artifact Passed Reviewability
+
+- symptom:
+  BP1, BP2, or BP3 USER review artifacts are structurally valid, stale-language-clean, and ZIP-consistent, but the USER-facing content remains template-like: sections tell Codex or USER what a heading should contain, list copied files instead of mapping decision or experience surfaces, use generic accept/revise/waive/reject options, provide generic Codex recommendations, or ask broad non-decision-driving USER questions. The packet is reviewable as a file, but it is not useful as a branch vision, engineering plan, or orchestration-readiness contract.
+- layer:
+  Branch Planning, USER review hub packets, `dev/orin_user_review_bundle.py`, Branch Readiness planning fixtures, and future branch/worktree review packets across all families.
+- root-cause pattern:
+  helper/template output and validator fixtures checked marker presence, stale wording, and metadata hygiene without requiring applied branch-specific substance. The system treated "packet generated and valid" as enough even when USER could not inspect actual branch vision, engineering plan, options, tradeoffs, recommendations, or design questions.
+- fix pattern:
+  BP1 must be a substantive branch vision contract, BP2 must be a substantive engineering plan contract derived from accepted or waived BP1, and BP3 must be a substantive orchestration-readiness contract against accepted or waived BP1/BP2. `Reviewable` remains separate from `USER Accepted`, `USER Waived`, `USER Approved`, or implementation authority. Copied source-truth files are context, not a substitute for the review artifact.
+- validation pattern:
+  run `python dev\orin_user_review_bundle.py` packet validation when applicable and `python dev\orin_branch_readiness_planning_fixture_validation.py`. Fixtures must prove that template-shell BP1 content, copied-file-list-only surface maps, generic USER questions, shallow recommendations, and implementation approval while BP1/BP2 are pending fail reviewability checks.
+- source references:
+  - `Docs/branch_plans/README.md`
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_user_review_bundle.py`
+  - `dev/orin_branch_readiness_planning_fixture_validation.py`
+
 ## Pattern: Release Readiness Green Must Require Explicit Release Target
 
 - symptom:
