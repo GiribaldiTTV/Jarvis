@@ -1294,6 +1294,18 @@ def _validate_primary_user_review_file_stage_priority() -> list[str]:
             "BP3 primary USER review routing must prioritize Workstream Entry / "
             "Orchestration over BP1/BP2 traceability wording"
         )
+    bp3_prerequisite_first_decision = (
+        "BP1 and BP2 are accepted; approve BP3 orchestration validation for "
+        "Workstream Entry."
+    )
+    if (
+        review_bundle._primary_user_review_file(bp3_prerequisite_first_decision)
+        != "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ):
+        failures.append(
+            "BP3 primary USER review routing must prefer the requested BP3 gate "
+            "over prerequisite BP1/BP2 mentions"
+        )
     bp2_trace_decision = (
         "I approve BP2 Branch Plan Review after accepted BP1 branch vision proof."
     )
@@ -1304,6 +1316,17 @@ def _validate_primary_user_review_file_stage_priority() -> list[str]:
         failures.append(
             "BP2 primary USER review routing must remain USER_BRANCH_PLAN_REVIEW.md "
             "when BP2 text mentions accepted BP1 proof"
+        )
+    bp2_prerequisite_first_decision = (
+        "BP1 is accepted; approve BP2 Branch Plan Review for engineering planning."
+    )
+    if (
+        review_bundle._primary_user_review_file(bp2_prerequisite_first_decision)
+        != review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+    ):
+        failures.append(
+            "BP2 primary USER review routing must prefer the requested BP2 gate "
+            "over prerequisite BP1 mentions"
         )
     bp1_preview_decision = (
         "I approve BP1 Branch Vision Review before BP2 Branch Plan Review and "

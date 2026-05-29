@@ -462,6 +462,21 @@ def _primary_user_review_file(exact_user_decision: str) -> str:
         (USER_BRANCH_PLAN_REVIEW_FILE, 1, (r"\bbp2\b", r"\bbranch plan\b")),
         (USER_BRANCH_VISION_REVIEW_FILE, 2, (r"\bbp1\b", r"\bbranch vision\b")),
     )
+    action_match = re.search(
+        r"\b(?:approve|approves|approved|approval|green-light|greenlight)\b",
+        normalized,
+    )
+    if action_match:
+        action_text = normalized[action_match.start() :]
+        requested_matches: list[tuple[int, int, str]] = []
+        for file_name, priority, patterns in stage_patterns:
+            for pattern in patterns:
+                match = re.search(pattern, action_text)
+                if match:
+                    requested_matches.append((match.start(), priority, file_name))
+        if requested_matches:
+            return sorted(requested_matches)[0][2]
+
     matches: list[tuple[int, int, str]] = []
     for file_name, priority, patterns in stage_patterns:
         for pattern in patterns:
