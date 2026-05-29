@@ -2415,9 +2415,9 @@ Purpose:
 
 Branch Planning uses three internal stage gates without changing the canonical phase enum:
 
-- `BP1 - USER Branch Vision Review`: uses `USER_BRANCH_VISION_REVIEW.md` to present Project Vision Context, Family Vision Context, Feature Vision Context, Branch Goal, End-State Vision, user-facing behavior, surface map, design options, Codex recommendations, USER response, Codex digest, accepted Branch Vision, deferred/future-gated ideas, question queue, design assumption ledger, and acceptance/revision/rejection/waiver status.
-- `BP2 - USER Branch Plan Review`: uses `USER_BRANCH_PLAN_REVIEW.md` to present the engineering plan derived from accepted or waived BP1, including package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, and exact BP3 approval text.
-- `BP3 - Workstream Entry / Orchestration Validation`: proves BP2 correctly implements BP1, proves package size and SLC traceability, verifies affected files, validators, helper updates, H1/LV/UTS/rollback/proof paths, preserves future-gated boundaries, and returns first bounded Workstream implementation approval only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green.
+- `BP1 - USER Branch Vision Review`: uses `USER_BRANCH_VISION_REVIEW.md` to present Project Vision Context, Family Vision Context, Feature Vision Context, Branch Goal, End-State Vision, user-facing behavior, surface map, design options, Codex recommendations, USER response, Codex digest, accepted Branch Vision, deferred/future-gated ideas, question queue, design assumption ledger, and acceptance/revision/rejection/waiver status. The BP1 artifact must be substantive and branch-specific: it digests source-truth context into an applied branch vision, explains what USER will see/review/decide/rely on, names real design options and tradeoffs, asks decision-driving questions, and cannot pass as a template shell, copied-file list, generic options list, or marker-only packet.
+- `BP2 - USER Branch Plan Review`: uses `USER_BRANCH_PLAN_REVIEW.md` to present the engineering plan derived from accepted or waived BP1, including package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, and exact BP3 approval text. The BP2 artifact must translate the accepted BP1 vision into a branch-specific engineering contract with scope, seams, proof outputs, risk controls, rollback/reversibility posture, options, tradeoffs, and Codex recommendation; it cannot merely repeat BP1, list markers, or point USER at copied files.
+- `BP3 - Workstream Entry / Orchestration Validation`: proves BP2 correctly implements BP1, proves package size and SLC traceability, verifies affected files, validators, helper updates, H1/LV/UTS/rollback/proof paths, preserves future-gated boundaries, and returns first bounded Workstream implementation approval only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. The BP3 artifact must be a substantive orchestration-readiness contract with scope, implementation order, validation/proof plan, rollback posture, drift controls, unresolved USER decisions, blockers, and a go/repair/blocked recommendation; it cannot rely on helper-green hygiene or first-seam-only readiness.
 
 Allowed:
 
@@ -2433,6 +2433,7 @@ Forbidden:
 - treating SLCs as automatic separate branches
 - using Workstream for planning, Hardening planning execution, Live Validation execution, PR creation, merge, release execution, private/provider/runtime/cache/memory setup, or branch cleanup
 - approving implementation while BP1 or BP2 is pending, stale, missing, rejected, or unwaived
+- treating BP1, BP2, or BP3 packet generation, stale-language hygiene, marker validation, copied-file lists, helper PASS output, or ZIP consistency as substantive USER review content or USER gate acceptance
 
 Required evidence:
 
@@ -2442,6 +2443,7 @@ Required evidence:
 - SLC traceability from BP1 accepted branch vision requirements to BP2 branch plan line items
 - local USER hub packet at `C:\Nexus USER\<worktree-label>` with matching upload ZIP at `C:\Nexus USER\<worktree-label>.zip` when USER review is required
 - packet decision-path consistency and unresolved-placeholder absence
+- substantive BP1/BP2/BP3 USER review artifacts that contain applied branch-specific vision, plan, or orchestration content rather than template instructions, copied-file manifests, generic recommendations, or broad non-decision-driving USER questions
 
 Exit:
 

@@ -132,6 +132,15 @@ INVALID_BP1_MISSING_CONTEXT_FIXTURE = (
 INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_shallow_recommendations.md"
 )
+INVALID_BP1_TEMPLATE_SHELL_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_template_shell_review.md"
+)
+INVALID_BP1_COPIED_FILE_SURFACE_ONLY_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_copied_file_surface_map_only.md"
+)
+INVALID_BP1_GENERIC_USER_QUESTIONS_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_generic_user_questions.md"
+)
 INVALID_BP1_SLC_CENTERED_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_slc_centered_branch_vision_review.md"
 )
@@ -238,6 +247,11 @@ EXPECTED_BRANCH_PLANNING_GATE_BYPASS_FAILURE_SNIPPET = (
 EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET = "Project Vision Context"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
+)
+EXPECTED_BP1_TEMPLATE_SHELL_FAILURE_SNIPPET = "template-shell BP1 wording"
+EXPECTED_BP1_COPIED_SURFACE_FAILURE_SNIPPET = "copied-file list cannot be the BP1 Surface Map"
+EXPECTED_BP1_GENERIC_QUESTIONS_FAILURE_SNIPPET = (
+    "USER Design Questions must ask branch-specific decision-driving questions"
 )
 EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET = "BP1 cannot be SLC-centered"
 EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
@@ -430,6 +444,12 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
     normalized = governance._normalized_planning_value(text)
     required_markers = (
         "USER Branch Vision Review:",
+        "Review Status:",
+        "Contract Status:",
+        "Packet Reviewability State:",
+        "USER Gate State:",
+        "USER Response Proof:",
+        "USER Response Digested:",
         "Project Vision Context:",
         "Family Vision Context:",
         "Feature Vision Context:",
@@ -441,6 +461,8 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
         "Surface Map:",
         "Product Options / Design Paths:",
         "Codex Recommendations:",
+        "Why This Fits The Nexus Vision:",
+        "USER Design Questions:",
         "USER Response:",
         "Codex Digest:",
         "Accepted Branch Vision:",
@@ -463,6 +485,60 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
         and "placement" in recommendations.casefold()
         and "tradeoff" in recommendations.casefold(),
         "Codex Recommendations are too shallow for BP1 Branch Vision Review",
+    )
+    substantive_markers = (
+        "Project Vision Context:",
+        "Family Vision Context:",
+        "Feature Vision Context:",
+        "Branch Goal:",
+        "End-State Vision:",
+        "What Will I Actually See, And Where Will I See It?:",
+        "How It Will Function:",
+        "User Experience Flow:",
+        "Surface Map:",
+        "Product Options / Design Paths:",
+        "USER Design Questions:",
+    )
+    for marker in substantive_markers:
+        value = governance._extract_marker_value(text, marker)
+        require(
+            governance._planning_word_count(value) >= 10,
+            f"{marker} is too shallow for BP1 substantive review",
+        )
+    template_shell_phrases = (
+        "review `docs/nexus_vision.md`",
+        "review the relevant `docs/family_visions/` owner",
+        "confirm that this branch goal is the right product direction",
+        "describe the intended user-visible or source-truth end state",
+        "review the copied branch-specific files and note any changes",
+        "does this branch vision match what the user wants this branch to become",
+    )
+    for phrase in template_shell_phrases:
+        require(
+            phrase not in normalized,
+            "template-shell BP1 wording must not pass reviewability checks",
+        )
+    surface_map = governance._extract_marker_value(text, "Surface Map:")
+    normalized_surface_map = governance._normalized_planning_value(surface_map)
+    require(
+        " copied as " not in normalized_surface_map
+        or any(
+            term in normalized_surface_map
+            for term in (
+                "decision surface",
+                "experience surface",
+                "review surface",
+                "user will see",
+                "owner",
+            )
+        ),
+        "copied-file list cannot be the BP1 Surface Map",
+    )
+    user_questions = governance._extract_marker_value(text, "USER Design Questions:")
+    require(
+        user_questions.count("?") >= 2
+        and "does this branch vision match what the user wants" not in user_questions.casefold(),
+        "USER Design Questions must ask branch-specific decision-driving questions",
     )
     require(
         "bp1 center: slc" not in normalized and "slc-centered: yes" not in normalized,
@@ -931,26 +1007,6 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
         "Decision Path Summary: workstream implementation approval\n"
         "USER Decision: approve workstream implementation\n"
     )
-    vision_headings = (
-        "Contract Status",
-        "Contract Revision",
-        "Project Vision Context",
-        "Family Vision Context",
-        "Feature Vision Context",
-        "Branch Goal",
-        "End-State Vision",
-        "What Will I Actually See, And Where Will I See It?",
-        "How It Will Function",
-        "User Experience Flow",
-        "Surface Map",
-        "Product Options / Design Paths",
-        "Codex Recommendations",
-        "USER Response",
-        "Codex Digest",
-        "Accepted Branch Vision",
-        "Design Assumption Ledger",
-        "Acceptance / Revision / Rejection / Waiver Decision",
-    )
     plan_headings = (
         "Contract Status",
         "Packet Reviewability State",
@@ -982,6 +1038,56 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
         "Contract Completion Checklist",
         "Exact USER Decision Supported",
     )
+    vision_review_text = (
+        "# Fixture USER Branch Vision Review\n\n"
+        "USER Branch Vision Review: BP1\n\n"
+        "## Review Status\nAccepted by USER for this fixture identity guard.\n\n"
+        "## Contract Status\nComplete - fixture USER acceptance is recorded for implementation-ready validation.\n\n"
+        "## Packet Reviewability State\nReviewable\n\n"
+        "## USER Gate State\nUSER Accepted\n\n"
+        "## Contract Revision\nv2 - substantive fixture packet.\n\n"
+        "## Project Vision Context\n"
+        "This fixture branch supports Nexus by requiring a readable USER vision review before engineering planning. "
+        "It protects local-first, inspectable planning and prevents validators from treating a marker-only packet as product direction.\n\n"
+        "## Family Vision Context\n"
+        "The fixture family context requires branch-specific outcomes, boundaries, and USER decisions before BP2. "
+        "Family direction remains the durable owner when the response changes reusable behavior.\n\n"
+        "## Feature Vision Context\n"
+        "The feature context is a governance review packet that must explain what the branch is trying to prove, "
+        "which review surfaces matter, and which implementation behavior remains future-gated.\n\n"
+        "## Branch Goal\n"
+        "Create a substantive BP1 branch vision that USER can accept, revise, reject, or waive before Codex creates a BP2 engineering plan from it.\n\n"
+        "## End-State Vision\n"
+        "USER has a concrete accepted or revised branch vision, and later BP2/BP3 proof can trace engineering seams back to that accepted direction.\n\n"
+        "## What Will I Actually See, And Where Will I See It?\n"
+        "USER sees a decision-focused BP1 review in the local USER hub, with START_HERE used only to navigate supporting source context.\n\n"
+        "## How It Will Function\n"
+        "BP1 establishes product or governance direction, BP2 converts that accepted direction into implementation planning, and BP3 verifies orchestration before implementation approval.\n\n"
+        "## User Experience Flow\n"
+        "USER reads START_HERE, reviews the BP1 branch vision, chooses an option or revision, answers design questions, and waits for Codex to digest the response.\n\n"
+        "## Surface Map\n"
+        "Review surface is USER_BRANCH_VISION_REVIEW.md; context surface is START_HERE; decision surface is USER Response plus Codex Digest; proof surface is later BP2/BP3 traceability.\n\n"
+        "## Product Options / Design Paths\n"
+        "Option A accepts the fixture vision as scoped and lets BP2 begin from a clear branch-specific outcome. Option B revises review surfaces, experience flow, or branch boundaries before BP2. Option C waives or rejects BP1 and keeps implementation blocked until USER gives a safer direction.\n\n"
+        "## Codex Recommendations\n"
+        "Recommendation one keeps packet placement in the local USER hub, names BP1/BP2/BP3 behavior, explains tradeoffs around review time, and cites risk from shallow branch vision because marker-only packet validation can otherwise bypass USER intent. Recommendation two keeps copied files as context instead of the vision so USER can decide from applied branch-specific substance.\n\n"
+        "## Why This Fits The Nexus Vision\n"
+        "This keeps Nexus planning USER-controlled and inspectable because Codex must explain the branch outcome before engineering seams become the default direction.\n\n"
+        "## USER Design Questions\n"
+        "What exact fixture outcome should USER inspect before BP2 turns this into engineering seams? Which review surface, experience flow, or branch boundary must remain future-gated if this BP1 review is revised?\n\n"
+        "## USER Response\nFixture USER accepted the branch vision for zip identity validation.\n\n"
+        "## Codex Digest\nFixture Codex digest records BP1 accepted for this implementation-ready packet identity guard.\n\n"
+        "## USER Response Proof\nAccepted by fixture USER.\n\n"
+        "## USER Response Digested\nYes - fixture acceptance was digested.\n\n"
+        "## Accepted Branch Vision\nFixture accepted Branch Vision requires substantive review packets before implementation-ready validation can pass.\n\n"
+        "## Family-Vision Versus Branch-Only Vision Impact\nBranch-only unless USER response creates a reusable family standard.\n\n"
+        "## Must-Have Behavior\nBP1 remains a USER gate before BP2.\n\n"
+        "## Must-Not-Do / Regression-Risk Rules\nDo not treat packet validation as USER acceptance.\n\n"
+        "## Deferred And Future-Gated Ideas\nImplementation remains future-gated.\n\n"
+        "## Vision Question Queue\nPending USER review.\n\n"
+        "## Design Assumption Ledger\nUSER Branch Vision acceptance is required unless explicitly waived.\n\n"
+        "## Acceptance / Revision / Rejection / Waiver Decision\nAccepted by fixture USER.\n"
+    )
     packet_files = {
         "START_HERE.md": (
             "# Review\n\n"
@@ -995,17 +1101,15 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
             "| --- | --- |\n"
             f"| `{source_path}` | `{copied_path}` |\n"
         ),
-        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: "\n".join(
-            f"## {heading}\nComplete.\n" for heading in vision_headings
-        ),
+        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: vision_review_text,
         review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: "\n".join(
             f"## {heading}\nComplete.\n" for heading in plan_headings
         ).replace(
             "## Packet Reviewability State\nComplete.\n",
-            "## Packet Reviewability State\nReviewable.\n",
+            "## Packet Reviewability State\nReviewable\n",
         ).replace(
             "## USER Gate State\nComplete.\n",
-            "## USER Gate State\nUSER Accepted.\n",
+            "## USER Gate State\nUSER Accepted\n",
         ).replace(
             "## Exact USER Decision Supported\nComplete.\n",
             "## Exact USER Decision Supported\nApprove bounded workstream implementation.\n",
@@ -1143,6 +1247,9 @@ def validate() -> list[str]:
         VALID_BP1_BRANCH_VISION_REVIEW_FIXTURE,
         INVALID_BP1_MISSING_CONTEXT_FIXTURE,
         INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE,
+        INVALID_BP1_TEMPLATE_SHELL_FIXTURE,
+        INVALID_BP1_COPIED_FILE_SURFACE_ONLY_FIXTURE,
+        INVALID_BP1_GENERIC_USER_QUESTIONS_FIXTURE,
         INVALID_BP1_SLC_CENTERED_FIXTURE,
         INVALID_BP1_TECHNICAL_METADATA_FIXTURE,
         INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE,
@@ -1624,6 +1731,36 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid BP1 shallow-recommendations fixture did not reject shallow recommendations"
+        )
+
+    template_shell_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_TEMPLATE_SHELL_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_TEMPLATE_SHELL_FAILURE_SNIPPET not in "\n".join(
+        template_shell_failures
+    ):
+        failures.append(
+            "Invalid BP1 template-shell fixture did not reject instructional placeholder content"
+        )
+
+    copied_surface_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_COPIED_FILE_SURFACE_ONLY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_COPIED_SURFACE_FAILURE_SNIPPET not in "\n".join(
+        copied_surface_failures
+    ):
+        failures.append(
+            "Invalid BP1 copied-file surface fixture did not reject copied-file-list-only surface map"
+        )
+
+    generic_questions_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_GENERIC_USER_QUESTIONS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_GENERIC_QUESTIONS_FAILURE_SNIPPET not in "\n".join(
+        generic_questions_failures
+    ):
+        failures.append(
+            "Invalid BP1 generic-questions fixture did not reject non-decision-driving USER questions"
         )
 
     slc_centered_failures = _validate_bp1_branch_vision_review_text(

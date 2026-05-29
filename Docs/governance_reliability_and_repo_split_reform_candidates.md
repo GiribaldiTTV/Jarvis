@@ -252,10 +252,17 @@ Required Fixtures:
 - valid BP1/BP2/BP3 gate packet where packet is reviewable but USER gate is pending and implementation remains blocked
 - valid accepted/waived gate packet where USER response proof is digested
 - invalid stale wrong-family / wrong-phase generated USER-facing review aid
+- invalid BP1 template-shell review artifact that tells USER what sections should contain instead of applying branch-specific vision
+- invalid BP1 copied-file-list-only `Surface Map`
+- invalid BP1 generic USER questions that do not drive branch-specific decisions
+- invalid shallow or generic Codex recommendations
 - invalid BP1-pending packet used as BP2/BP3 proof
 - invalid BP2-placeholder or BP2-pending packet misclassified as BP3
 - invalid BP3 packet misclassified as implementation-ready before BP3 USER approval
 - invalid Codex digest that conflicts with uploaded USER packet state
+
+Substantive Artifact Standard:
+BP1, BP2, and BP3 reviewability requires more than clean headings, stale-language hygiene, copied-file freshness, and ZIP consistency. BP1 must be an applied branch vision contract; BP2 must be an applied engineering plan contract derived from accepted or waived BP1; BP3 must be an applied orchestration-readiness contract against accepted or waived BP1/BP2. Copied source-truth files are context and navigation evidence only. Helper output, validators, and fixtures must reject template-shell prose, generic options, generic recommendations, broad questions, and copied-file manifests when they are used as substitutes for USER-facing vision, plan, or orchestration content. This standard applies globally to every branch and worktree packet, including FAM-006, FAM-007, Governance, and future families after they rebaseline to the merged governance.
 
 Required Validation Commands:
 
