@@ -12729,6 +12729,27 @@ def _collect_merge_stable_detail_record_paths(*texts: str) -> set[str]:
     return paths
 
 
+def _family_id_from_text(value: str) -> str:
+    match = re.search(r"fam[-_](\d{3})", value.casefold())
+    return f"FAM-{match.group(1)}" if match else ""
+
+
+def _is_outside_current_family_lane(record_path: str, record_text: str, current_branch: str) -> bool:
+    if not current_branch or current_branch == "main":
+        return False
+    if _is_standing_governance_intake_branch(current_branch):
+        return False
+    current_family = _family_id_from_text(current_branch)
+    if not current_family:
+        return False
+    record_family = (
+        _family_id_from_text(record_path)
+        or _family_id_from_text(_extract_branch_identity_branch(record_text))
+        or _family_id_from_text(record_text)
+    )
+    return bool(record_family and record_family != current_family)
+
+
 def _stale_pre_pr_lines(text: str) -> list[tuple[int, str]]:
     stale_lines: list[tuple[int, str]] = []
     for index, line in enumerate(text.splitlines(), start=1):
@@ -12748,6 +12769,8 @@ def _run_merge_stable_source_truth_projection_gate(
     roadmap_text: str,
     worktree_slots_text: str,
     branch_record_index_text: str,
+    current_branch: str,
+    outside_lane_findings: list[str],
 ) -> None:
     pointer_docs = (
         ("Docs/feature_backlog.md", backlog_text),
@@ -12780,6 +12803,22 @@ def _run_merge_stable_source_truth_projection_gate(
         merged_record = "merged-unreleased" in record_text.casefold() or "Merge PR:" in record_text
         if not merged_record:
             continue
+        outside_current_lane = _is_outside_current_family_lane(
+            record_path,
+            record_text,
+            current_branch,
+        )
+
+        def require_or_classify(condition: bool, message: str) -> None:
+            if condition:
+                require(True, message)
+                return
+            if outside_current_lane:
+                outside_lane_findings.append(message)
+                require(True, f"Outside-lane merge-stable finding classified for {record_path}")
+                return
+            require(False, message)
+
         summary_text = "\n".join(
             section
             for section in (
@@ -12793,7 +12832,7 @@ def _run_merge_stable_source_truth_projection_gate(
             if section
         )
         stale_lines = _stale_pre_pr_lines(summary_text)
-        require(
+        require_or_classify(
             not stale_lines,
             (
                 f"{record_path}: Merge-Stable Source Truth Projection Missing; "
@@ -12802,7 +12841,7 @@ def _run_merge_stable_source_truth_projection_gate(
                 + "; ".join(f"line {line_no}: {line}" for line_no, line in stale_lines[:5])
             ),
         )
-        require(
+        require_or_classify(
             "Merge PR:" in record_text or re.search(r"\bPR #\d+\b", record_text),
             (
                 f"{record_path}: merged-unreleased branch record must name the "
@@ -12815,7 +12854,7 @@ def _run_merge_stable_source_truth_projection_gate(
             plan = Path(plan_path)
             if not (ROOT_DIR / plan).exists():
                 continue
-            require(
+            require_or_classify(
                 plan_path in retirement_index_text,
                 (
                     f"{record_path}: merged-unreleased canonical branch record points to "
@@ -19948,6 +19987,9 @@ def main() -> int:
         if not condition:
             errors.append(message)
 
+    current_git_branch = _git_current_branch()
+    outside_lane_merge_stable_findings: list[str] = []
+
     for occurrence in _tracked_repo_legacy_product_name_occurrences():
         require(False, f"Tracked repo sterilization: {occurrence}")
 
@@ -19957,6 +19999,8 @@ def main() -> int:
         roadmap_text=roadmap_text,
         worktree_slots_text=worktree_slots_text,
         branch_record_index_text=branch_record_index_text,
+        current_branch=current_git_branch,
+        outside_lane_findings=outside_lane_merge_stable_findings,
     )
     _run_post_merge_fold_down_drift_gate(
         require,
@@ -21086,7 +21130,6 @@ def main() -> int:
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
     active_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
     historical_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Historical Branch Authority Records")
-    current_git_branch = _git_current_branch()
     active_non_standing_branch_record_paths = [
         path
         for path in active_branch_record_paths
@@ -23002,6 +23045,15 @@ def main() -> int:
                     "active PR-readiness or open-PR narration"
                 ),
             )
+
+    if outside_lane_merge_stable_findings:
+        print(
+            "INFO: branch governance validation classified "
+            f"{len(outside_lane_merge_stable_findings)} outside-lane merge-stable finding(s) "
+            f"for current branch `{current_git_branch}`."
+        )
+        for finding in outside_lane_merge_stable_findings:
+            print(f"- OUTSIDE-LANE: {finding}")
 
     if errors:
         print(f"FAIL: branch governance validation found {len(errors)} issue(s).")

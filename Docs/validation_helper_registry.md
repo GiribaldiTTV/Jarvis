@@ -32,6 +32,8 @@ USER Decision Required: required when fixing the reported issue would expand sco
 Validation Owner: the helper/validator that produced the result plus the source-truth owner named by the phase packet.
 Final Disposition: every return packet that relies on validation must state that Codex reviewed the validation rather than delegated judgment to it, summarize why the validation is adequate, name what was independently checked, name whether any helper/validator limitation remains, and classify the result as `Green`, `Repair`, `Blocked`, or `USER Decision Required`.
 
+Outside-lane validation classification: when a family-scoped branch validates its own bounded Branch Readiness / Branch Planning / Workstream repair, `dev/orin_branch_governance_validation.py` (`Helper Status: Reusable`) may classify merged-unreleased historical source-truth findings from a different family as `OUTSIDE-LANE` evidence instead of forcing the active family branch to mutate unrelated family records. This classification does not clear or waive the reported source-truth defect. It preserves the finding for the owning family, standing Governance intake, current-main repair carrier, or other USER-approved legal carrier while allowing the current family branch to continue only when its own source truth and approved scope are otherwise green. The classification must not apply on `main`, on the standing Governance intake branch, or on the owning family branch.
+
 ## Helper Status Values
 
 Every durable helper or validator under root `dev/` must fit one of these statuses:
