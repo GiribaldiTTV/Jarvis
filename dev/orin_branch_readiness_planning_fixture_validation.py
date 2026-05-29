@@ -1396,6 +1396,15 @@ def _validate_primary_user_review_file_stage_priority() -> list[str]:
             "BP3 primary USER review routing must prefer the requested BP3 gate "
             "over prerequisite BP1/BP2 mentions"
         )
+    workstream_implementation_decision = "Approve bounded workstream implementation."
+    if (
+        review_bundle._primary_user_review_file(workstream_implementation_decision)
+        != "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+    ):
+        failures.append(
+            "Workstream implementation approval packets must route the primary "
+            "USER review file to WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"
+        )
     bp2_trace_decision = (
         "I approve BP2 Branch Plan Review after accepted BP1 branch vision proof."
     )

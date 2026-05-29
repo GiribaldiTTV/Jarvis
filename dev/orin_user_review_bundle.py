@@ -458,7 +458,17 @@ def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> boo
 def _primary_user_review_file(exact_user_decision: str) -> str:
     normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
     stage_patterns = (
-        ("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", 0, (r"\bbp3\b", r"\borchestration\b", r"\bworkstream entry\b")),
+        (
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            0,
+            (
+                r"\bbp3\b",
+                r"\borchestration\b",
+                r"\bworkstream entry\b",
+                r"\bworkstream implementation\b",
+                r"\bimplementation approval\b",
+            ),
+        ),
         (USER_BRANCH_PLAN_REVIEW_FILE, 1, (r"\bbp2\b", r"\bbranch plan\b")),
         (USER_BRANCH_VISION_REVIEW_FILE, 2, (r"\bbp1\b", r"\bbranch vision\b")),
     )
