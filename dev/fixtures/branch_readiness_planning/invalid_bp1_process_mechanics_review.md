@@ -7,8 +7,8 @@ Packet Reviewability State: Reviewable.
 USER Gate State: Pending USER Review.
 USER Response Proof: Pending USER response.
 USER Response Digested: No.
-Project Vision Context: Nexus needs a branch vision review that explains how this branch supports USER-controlled, inspectable local-first planning before engineering planning begins.
-Family Vision Context: FAM-007 owns local AI, capability packs, provider readiness, consent posture, Dev and Owner trust boundaries, execution gates, and memory boundaries.
+Project Vision Context: This packet says BP1 must explain how this branch supports USER-controlled, inspectable local-first planning before engineering planning begins.
+Family Vision Context: This BP1 review asks whether FAM-007 local AI, capability packs, provider readiness, consent posture, Dev and Owner trust boundaries, execution gates, and memory boundaries are represented.
 Feature Vision Context: This fixture pretends to review FAM-007 Dev and Owner skeleton readiness while using process mechanics instead of an applied branch vision.
 Branch Goal: Create an accepted USER-facing branch vision for FAM-007 Dev/Owner Skeleton Readiness before engineering planning so Codex has a clear decision surface.
 End-State Vision: When BP1 closes, USER should be able to say what this branch is allowed to become and what future behavior should be true.
