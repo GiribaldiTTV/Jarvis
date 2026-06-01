@@ -9,6 +9,7 @@ worktree. It never edits repo files.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import shutil
@@ -707,6 +708,34 @@ def _move_primary_user_review_file(
 
 def _export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
+
+
+def _timestamped_export_zip_path(review_root: Path, label: str, created_at: datetime) -> Path:
+    stamp = created_at.strftime("%Y%m%d-%H%M%S")
+    return (review_root / f"{_sanitize_folder_name(label)}__{stamp}.zip").resolve()
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest().upper()
+
+
+def _copy_timestamped_upload_zip(export_zip: Path, upload_zip: Path) -> None:
+    if export_zip == upload_zip:
+        raise ValueError("Timestamped upload zip must be distinct from stable export zip")
+    if export_zip.parent != upload_zip.parent:
+        raise ValueError("Timestamped upload zip must stay beside the stable export zip")
+    shutil.copy2(export_zip, upload_zip)
+    stable_hash = _sha256_file(export_zip)
+    upload_hash = _sha256_file(upload_zip)
+    if stable_hash != upload_hash:
+        raise ValueError(
+            "Timestamped upload zip hash mismatch: "
+            f"stable={stable_hash} timestamped={upload_hash}"
+        )
 
 
 def _write_export_zip(target: Path, export_zip: Path) -> None:
@@ -4738,7 +4767,8 @@ def build_bundle(
     exact_user_decision: str,
     pending_user_decisions: list[str],
     expected_file_count: int | None,
-) -> tuple[Path, Path]:
+    timestamped_upload_zip: bool = True,
+) -> tuple[Path, Path, Path | None]:
     custom_root = review_root_name != DEFAULT_REVIEW_ROOT_NAME
     custom_label = worktree_label is not None
     if (custom_root or custom_label) and not allow_custom_review_path:
@@ -4775,7 +4805,8 @@ def build_bundle(
             "Review bundle file count mismatch: "
             f"expected {expected_count} repo files, copied {copied_count}"
         )
-    created_at = datetime.now().isoformat(timespec="seconds")
+    created_at_dt = datetime.now()
+    created_at = created_at_dt.isoformat(timespec="seconds")
 
     source_branch = _git_output("branch", "--show-current")
     source_head = _git_output("rev-parse", "HEAD")
@@ -5036,7 +5067,18 @@ def build_bundle(
         origin_main=origin_main,
         expected_entries=expected_zip_entries,
     )
-    return target, export_zip
+    timestamped_zip = None
+    if timestamped_upload_zip:
+        timestamped_zip = _timestamped_export_zip_path(review_root, label, created_at_dt)
+        _copy_timestamped_upload_zip(export_zip, timestamped_zip)
+        _validate_export_zip(
+            timestamped_zip,
+            source_branch=source_branch,
+            source_head=source_head,
+            origin_main=origin_main,
+            expected_entries=expected_zip_entries,
+        )
+    return target, export_zip, timestamped_zip
 
 
 def main() -> int:
@@ -5094,6 +5136,16 @@ def main() -> int:
         help="Expected count of repo files copied into the review bundle.",
     )
     parser.add_argument(
+        "--timestamped-upload-zip",
+        action="store_true",
+        help=(
+            "Deprecated compatibility flag. The helper always creates a timestamped "
+            "upload copy beside the stable ZIP, using "
+            "<worktree-label>__YYYYMMDD-HHMMSS.zip for USER-approved upload "
+            "collision avoidance. The stable <worktree-label>.zip is still refreshed."
+        ),
+    )
+    parser.add_argument(
         "--validate-workstream-entry-packet",
         type=Path,
         help="Validate an existing Branch Planning / Workstream Entry packet decision path.",
@@ -5140,7 +5192,7 @@ def main() -> int:
     if not args.files:
         parser.error("at least one repo-relative file is required when building a review bundle")
 
-    target, export_zip = build_bundle(
+    target, export_zip, timestamped_zip = build_bundle(
         review_root_name=args.review_root_name,
         worktree_label=args.worktree_label or args.folder_name,
         allow_custom_review_path=args.allow_custom_review_path,
@@ -5154,9 +5206,14 @@ def main() -> int:
         exact_user_decision=args.exact_user_decision,
         pending_user_decisions=args.pending_user_decision,
         expected_file_count=args.expected_file_count,
+        timestamped_upload_zip=True,
     )
     print(f"Review bundle: {target}")
     print(f"Review export zip: {export_zip}")
+    print(f"Review export zip SHA256: {_sha256_file(export_zip)}")
+    if timestamped_zip is not None:
+        print(f"Timestamped upload zip: {timestamped_zip}")
+        print(f"Timestamped upload zip SHA256: {_sha256_file(timestamped_zip)}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_VISION_REVIEW_FILE}, {USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
