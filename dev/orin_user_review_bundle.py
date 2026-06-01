@@ -36,7 +36,7 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "PASS - helper cleared the stable worktree review folder, copied fresh "
     "source-truth files, wrote START_HERE for this source-truth snapshot, and atomically "
-    "replaced the stable review zip from that refreshed folder."
+    "created the timestamped review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
@@ -725,16 +725,16 @@ def _sha256_file(path: Path) -> str:
 
 def _copy_timestamped_upload_zip(export_zip: Path, upload_zip: Path) -> None:
     if export_zip == upload_zip:
-        raise ValueError("Timestamped upload zip must be distinct from stable export zip")
+        raise ValueError("Timestamped upload zip source and destination must be distinct")
     if export_zip.parent != upload_zip.parent:
-        raise ValueError("Timestamped upload zip must stay beside the stable export zip")
+        raise ValueError("Timestamped upload zip must stay beside the generated export zip")
     shutil.copy2(export_zip, upload_zip)
     stable_hash = _sha256_file(export_zip)
     upload_hash = _sha256_file(upload_zip)
     if stable_hash != upload_hash:
         raise ValueError(
             "Timestamped upload zip hash mismatch: "
-            f"stable={stable_hash} timestamped={upload_hash}"
+            f"source={stable_hash} timestamped={upload_hash}"
         )
 
 
@@ -754,6 +754,17 @@ def _write_export_zip(target: Path, export_zip: Path) -> None:
         if temp_zip.exists():
             temp_zip.unlink()
         raise
+
+
+def _clear_matching_export_zips(review_root: Path, label: str) -> None:
+    root = review_root.resolve()
+    safe_label = _sanitize_folder_name(label)
+    for candidate in sorted(root.glob(f"{safe_label}*.zip")):
+        resolved = candidate.resolve()
+        if root not in resolved.parents:
+            raise ValueError(f"Refusing to remove review zip outside USER hub: {resolved}")
+        if candidate.is_file():
+            candidate.unlink()
 
 
 def _validate_export_zip(
@@ -3737,7 +3748,7 @@ def _write_user_branch_plan_review(
             "Docs/branch_plans/README.md: BP1/BP2/BP3 artifact rules.",
             "Docs/validation_helper_registry.md: helper and validator enforcement.",
             "Docs/branch_records/index.md and Governance branch record: branch routing law.",
-            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance.zip: temporary USER review aids.",
+            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance__YYYYMMDD-HHMMSS.zip: temporary USER review aids.",
         ]
         implementation_options = [
             "Option A - Approve PR Readiness Stage 1 analysis as recommended. Pros: moves the Governance reform toward PR creation review; Cons: no PR is created yet; Risk: low.",
@@ -5054,6 +5065,7 @@ def build_bundle(
     desktop = _desktop_path()
     label = _worktree_label(worktree_label)
     review_root, target = _safe_target(desktop, review_root_name, label)
+    _clear_matching_export_zips(review_root, label)
     if target.exists():
         _clear_target(target)
     target.mkdir(parents=True, exist_ok=True)
@@ -5083,7 +5095,7 @@ def build_bundle(
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    export_zip = _export_zip_path(review_root, label)
+    export_zip = _timestamped_export_zip_path(review_root, label, created_at_dt)
     seam1_approval_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded workstream implementation" in exact_user_decision.casefold()
@@ -5357,17 +5369,7 @@ def build_bundle(
         origin_main=origin_main,
         expected_entries=expected_zip_entries,
     )
-    timestamped_zip = None
-    if timestamped_upload_zip:
-        timestamped_zip = _timestamped_export_zip_path(review_root, label, created_at_dt)
-        _copy_timestamped_upload_zip(export_zip, timestamped_zip)
-        _validate_export_zip(
-            timestamped_zip,
-            source_branch=source_branch,
-            source_head=source_head,
-            origin_main=origin_main,
-            expected_entries=expected_zip_entries,
-        )
+    timestamped_zip = export_zip if timestamped_upload_zip else None
     return target, export_zip, timestamped_zip
 
 
@@ -5429,10 +5431,9 @@ def main() -> int:
         "--timestamped-upload-zip",
         action="store_true",
         help=(
-            "Deprecated compatibility flag. The helper always creates a timestamped "
-            "upload copy beside the stable ZIP, using "
-            "<worktree-label>__YYYYMMDD-HHMMSS.zip for USER-approved upload "
-            "collision avoidance. The stable <worktree-label>.zip is still refreshed."
+            "Deprecated compatibility flag. The helper always creates a single "
+            "timestamped upload ZIP named <worktree-label>__YYYYMMDD-HHMMSS.zip "
+            "for USER-approved upload collision avoidance."
         ),
     )
     parser.add_argument(
@@ -5499,11 +5500,9 @@ def main() -> int:
         timestamped_upload_zip=True,
     )
     print(f"Review bundle: {target}")
-    print(f"Review export zip: {export_zip}")
-    print(f"Review export zip SHA256: {_sha256_file(export_zip)}")
-    if timestamped_zip is not None:
-        print(f"Timestamped upload zip: {timestamped_zip}")
-        print(f"Timestamped upload zip SHA256: {_sha256_file(timestamped_zip)}")
+    upload_zip = timestamped_zip or export_zip
+    print(f"Timestamped upload zip: {upload_zip}")
+    print(f"Timestamped upload zip SHA256: {_sha256_file(upload_zip)}")
     print(
         "USER Review Packet Finding: PASS - START_HERE.md, "
         f"{USER_BRANCH_VISION_REVIEW_FILE}, {USER_BRANCH_PLAN_REVIEW_FILE}, and exported zip were generated and "
