@@ -1345,6 +1345,38 @@ FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
 )
+FAM006_ACTIVE_OVERLAY_H1_HEADING = (
+    "Hardening H1 Active Overlay Recording Runtime Implementation"
+)
+FAM006_ACTIVE_OVERLAY_H1_NEXT_SEAM = (
+    "Live Validation LV1 - FAM-006 Active Overlay Recording Runtime Implementation"
+)
+FAM006_ACTIVE_OVERLAY_H1_REQUIRED_PHRASES = (
+    "H1 Admission:",
+    "PASS - USER explicitly admitted Hardening H1",
+    "H1 Result:",
+    "Green - SLC-051 through SLC-055 implementation matches accepted BP1/BP2/BP3",
+    "Accepted BP Trace:",
+    "PASS - BP1 Branch Vision, BP2 Branch Plan, and BP3 Workstream Entry / Orchestration Validation are accepted or approved",
+    "SLC-051 Pressure-Test:",
+    "active Overlay Profile target/session truth markers",
+    "SLC-052 Pressure-Test:",
+    "HUD Overlay launcher and target preview markers",
+    "SLC-053 Pressure-Test:",
+    "standalone Recording Control window foundation markers",
+    "SLC-054 Pressure-Test:",
+    "output contract schema/readback and blocked execution markers",
+    "SLC-055 Pressure-Test:",
+    "Workstream Green proof and H1/LV1/UTS routing markers",
+    "Future-Gated Boundary Check:",
+    "recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, Native Log Loader implementation, and FAM-007 mutation remain blocked",
+    "UTS Phase Boundary:",
+    "Formal User Test Summary export is exclusive to Live Validation Stage 1",
+    "Helper Proof:",
+    "python dev\\orin_fam006_hardening_h1.py",
+    "Next Active Seam:",
+    FAM006_ACTIVE_OVERLAY_H1_NEXT_SEAM,
+)
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
     "Future-Package Scope Final:",
@@ -12062,6 +12094,71 @@ def _validate_fam006_stage2_r6_plan(
             ),
         )
     elif current_phase == "Hardening":
+        if (
+            "FAM-006 Active Overlay Recording Runtime Implementation" in text
+            and "active-overlay recording runtime implementation carrier" in text
+        ):
+            h1_section = _section(text, FAM006_ACTIVE_OVERLAY_H1_HEADING)
+            require(
+                bool(h1_section),
+                (
+                    f"{source_path}: FAM-006 active-overlay Hardening state is missing "
+                    f"'## {FAM006_ACTIVE_OVERLAY_H1_HEADING}'"
+                ),
+            )
+            for phrase in FAM006_ACTIVE_OVERLAY_H1_REQUIRED_PHRASES:
+                require(
+                    phrase in h1_section,
+                    f"{source_path}: {FAM006_ACTIVE_OVERLAY_H1_HEADING} is missing '{phrase}'",
+                )
+            require(
+                "Active seam: `Phase Boundary Stop - Await USER Live Validation Admission`"
+                in text,
+                (
+                    f"{source_path}: active-overlay H1 completion must stop at the "
+                    "phase boundary and await explicit USER Live Validation admission"
+                ),
+            )
+            require(
+                f"Next Active Seam: {FAM006_ACTIVE_OVERLAY_H1_NEXT_SEAM}" in text,
+                (
+                    f"{source_path}: active-overlay H1 completion must set Seam "
+                    "Continuation Decision next active seam to Live Validation LV1"
+                ),
+            )
+            require(
+                "Remaining Implementable Work: `None`"
+                in text,
+                (
+                    f"{source_path}: active-overlay H1 completion must close current "
+                    "Workstream and Hardening proof work before Live Validation handoff"
+                ),
+            )
+            require(
+                "Continuation Execution Latch: Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit Live Validation LV1."
+                in text,
+                f"{source_path}: active-overlay H1 completion must keep the Live Validation phase-boundary latch inactive",
+            )
+            require(
+                "Formal User Test Summary export is exclusive to Live Validation Stage 1"
+                in text,
+                f"{source_path}: active-overlay H1 completion must preserve the Live Validation Stage 1 UTS boundary",
+            )
+            require(
+                _parse_uts_result_state(text) == "",
+                (
+                    f"{source_path}: Hardening may keep User Test Summary strategy current, "
+                    f"but must not declare '{UTS_RESULT_LABEL}' before Live Validation"
+                ),
+            )
+            require(
+                UTS_RESULTS_BLOCKER not in blockers,
+                (
+                    f"{source_path}: {UTS_RESULTS_BLOCKER} is a Live Validation / PR Readiness "
+                    "final-green blocker, not a Hardening stop condition"
+                ),
+            )
+            return
         h1_section = _section(text, FAM006_H1_HEADING)
         require(
             bool(h1_section),
