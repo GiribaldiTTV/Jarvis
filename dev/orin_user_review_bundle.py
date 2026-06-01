@@ -1858,6 +1858,9 @@ def _write_user_branch_plan_review(
     ]
     extra_plan_sections: list[str] = []
     user_response_text: str | None = None
+    likely_files_lines = [
+        f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
+    ]
     if is_active_overlay_recording:
         active_plan_source = next(
             (
@@ -3119,14 +3122,20 @@ def _write_user_branch_plan_review(
             "Pending USER Response - USER must accept, revise, reject, request more "
             "options, hold, or explicitly waive this BP2 engineering plan before BP3."
         )
-        contract_version = "v4 - Generated BP2 Branch Plan Review from accepted BP1 Option A vision."
+        contract_version = (
+            "v5 - USER/ChatGPT BP2 review conditions digested into the integrated "
+            "Dev/Owner readiness engineering plan."
+        )
         plain_english_summary = (
-            "This BP2 plan turns the accepted FAM-007 Dev/Owner Skeleton Readiness "
-            "vision into a public-safe engineering route. It plans decision and proof "
-            "surfaces for future Dev and Owner skeleton setup without creating private "
-            "repos, private roots, private remotes, backup/import behavior, provider "
-            "or model execution, cache behavior, memory behavior, PRs, merges, releases, "
-            "or cleanup."
+            "This BP2 plan keeps the selected route as integrated Dev/Owner Skeleton "
+            "Readiness and turns the accepted BP1 vision into a public-safe engineering "
+            "route. Dev continues toward future private-repo readiness after approval. "
+            "Owner defaults to local Git/version history plus local/private/encrypted "
+            "rollback, with an Owner private remote only as a future evaluated option. "
+            "The branch plans decision and proof surfaces without creating private repos, "
+            "private roots, private remotes, GitHub Desktop private binding, backup/import "
+            "execution, provider or model execution, cache behavior, memory behavior, PRs, "
+            "merges, releases, or cleanup."
         )
         end_state_vision = (
             "When the BP2 plan is accepted and later implemented through approved phases, "
@@ -3138,10 +3147,11 @@ def _write_user_branch_plan_review(
         )
         what_user_sees = (
             "USER will inspect one primary BP2 decision file under the local USER hub. "
-            "It describes the implementation package, seam plan, likely source-truth, "
-            "helper, fixture, validator, and review-packet surfaces, proof expectations, "
-            "rollback plan, risks, options, and exact BP3 approval text. It is not a "
-            "private setup script and not a Workstream implementation approval."
+            "It describes the integrated Dev/Owner implementation package, seam plan, "
+            "likely future edit/proof surfaces, named validator lanes, backup/import "
+            "planning by lane, watermark/identity propagation, rollback plan, risks, "
+            "options, and exact BP3 approval text. It is not a private setup script, "
+            "not backup/import execution, and not a Workstream implementation approval."
         )
         why_nexus = (
             "This fits Nexus because Dev/Owner AI-edition readiness is a trust-boundary "
@@ -3152,18 +3162,31 @@ def _write_user_branch_plan_review(
         )
         slc_package_plan = [
             "Seam 1 - action-gate registry and exact USER decision proof: record every future private/runtime action gate and make the BP2/BP3 approval text machine-checkable.",
-            "Seam 2 - Dev/Owner readiness matrices: encode Dev private-repo direction after approval, Owner local-private baseline, and public-safe lane boundaries.",
-            "Seam 3 - private root/remote and GitHub Desktop safety proof: plan public-upstream, private origin, remote identity proof, fetch/reconcile posture, and public push-prevention checks without configuring remotes.",
-            "Seam 4 - backup/import and provider/runtime deferral proof: plan User/Public settings backup posture, Dev recovery posture, Owner private rollback posture, and provider-visible-data/cache/memory inactivity proof.",
+            "Seam 2 - Dev/Owner readiness matrices: encode Dev private-repo readiness after approval, Owner local Git/version history plus local/private/encrypted rollback as the default baseline, Owner private remote evaluation as optional future work, and public-safe lane boundaries.",
+            "Seam 3 - private root/remote and GitHub Desktop safety proof: plan public-upstream, private origin, remote identity proof, fetch/reconcile posture, and public push-prevention checks without configuring remotes or binding GitHub Desktop to a private repo.",
+            "Seam 4 - backup/import and provider/runtime deferral proof: plan User/Public settings/preferences/config backup scope, Dev private development recovery, Owner local/private/encrypted backup and rollback, restore proof, and provider-visible-data/cache/memory inactivity proof.",
             "Seam 5 - packet, fixture, validator, and fold-down proof: refresh USER review packet evidence, add direct fixtures where needed, and update source-truth owners only inside approved public-safe scope.",
         ]
         surface_map = [
-            "Branch record and external branch plan: branch-specific authority, accepted BP1 trace, BP2 planning status, seam map, proof expectations, and future gates.",
-            "FAM-007 family visions: local AI, capability-pack, and Public/Dev/Owner trust-boundary context.",
-            "AI runtime/trust architecture: provider-visible data, prompt acceptance, provider execution, downloads, cache, memory, learning, and personalization boundaries.",
-            "Review bundle helper: local USER hub packet generation, timestamped ZIP policy, primary BP2 decision-file routing, placeholder scan, packet count checks, and USER-facing metadata exclusion.",
-            "Provider-state and public leak-prevention validators: direct proof that no private path, remote, token, secret, prompt, memory, model artifact, provider call, cache activation, private automation, or private artifact enters the public branch.",
-            "Branch-readiness planning fixtures: regression proof for accepted BP1 trace, BP2 engineering-plan substance, BP3 blocking while BP2 remains pending, and review-packet false-green prevention.",
+            "Active FAM-007 branch record: durable branch authority and historical receipt context; update only if BP2 acceptance changes durable branch authority or future-gate wording.",
+            "Active FAM-007 branch plan/receipt and external FAM-007 branch plan/state: active BP2 planning posture, accepted BP1 trace, review-gate state, seam map, proof expectations, and future gates.",
+            "USER review bundle helper: packet layout, primary BP2 decision-file routing, support-file phase state, timestamped ZIP creation, placeholder scans, packet count checks, and USER-facing metadata exclusion when packet behavior changes.",
+            "Validation helper registry and branch-readiness planning fixtures: reusable proof lanes and false-green prevention when validator coverage changes.",
+            "Provider-state, public leak-prevention, external-state, source-owner, USER review packet, and branch-governance validators: named proof lanes for BP3 and later Workstream decisions.",
+            "AI runtime/trust architecture: durable trust-boundary wording only if USER changes provider-visible data, prompt acceptance, provider execution, downloads, cache, memory, learning, or personalization policy.",
+            "FAM-007 family vision files: family-level direction only if USER changes Public/Dev/Owner edition strategy, capability-pack policy, private/public promotion, or lane identity standards.",
+        ]
+        likely_files_lines = [
+            "Active FAM-007 branch record if durable authority, accepted-gate, or future-gate wording changes.",
+            "Active FAM-007 external branch plan and branch state for BP2 review posture, accepted BP1 trace, USER response digestion, and next-gate routing.",
+            "Review bundle helper if packet behavior, timestamped ZIP generation, support-file phase state, or primary BP2 routing changes.",
+            "Validation helper registry if reusable validator/helper coverage changes.",
+            "Branch-readiness planning fixtures for accepted BP1 trace, BP2 engineering-plan substance, BP3 blocking while BP2 remains pending, and future root/remote/GitHub Desktop matrix false-green coverage if needed.",
+            "Provider-state and public leak-prevention validators/fixtures for no provider execution, no private artifacts, no private paths, and no private remotes.",
+            "External-state validation for active branch plan/state consistency.",
+            "Source-owner marker validation for any durable source-truth owner touched by later implementation.",
+            "AI runtime/trust architecture only if durable provider/cache/memory trust-boundary policy changes.",
+            "FAM-007 family vision files only if USER changes family-level edition, private/public, capability-pack, or lane identity direction.",
         ]
         walkthrough = [
             "Open the primary BP2 file and confirm the accepted BP1 Option A trace matches the integrated Dev/Owner readiness direction.",
@@ -3181,10 +3204,14 @@ def _write_user_branch_plan_review(
             "Option F - hold for more examples or proof models. Pros: improves confidence; Cons: delays implementation; Risk: low.",
         ]
         recommended_direction = (
-            "Codex recommends Option A with room for line-item revisions: accept one "
-            "integrated Dev/Owner readiness package, require the matrices below before "
-            "BP3, and keep actual private setup, provider/model work, backup/import "
-            "execution, cache, memory, PR, merge, release, and cleanup under later gates."
+            "Codex recommends accepting the integrated Dev/Owner readiness route after "
+            "reviewing the strengthened proof lanes: keep Dev private-repo readiness as "
+            "the future direction, keep Owner local Git/version history plus "
+            "local/private/encrypted rollback as the default baseline, treat Owner remote "
+            "as future evaluated only, require named validator/fixture proof before BP3, "
+            "and keep actual private setup, GitHub Desktop private binding, provider/model "
+            "work, backup/import execution, cache, memory, PR, merge, release, and cleanup "
+            "under later gates."
         )
         current_scope = [
             "Public-safe source-truth, helper, fixture, validator, packet, and proof planning only.",
@@ -3199,6 +3226,7 @@ def _write_user_branch_plan_review(
         implementation_constraints = [
             "BP2 may plan public-safe source-truth, helper, fixture, validator, packet, H1, LV/UTS, rollback, and proof surfaces.",
             "BP2 may not execute the private/runtime actions it describes as future gates.",
+            "BP2 may not create private repos, private roots, private remotes, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, or Dev launcher/assets migration execution.",
             "Provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution remains disabled; downloads/network/external calls remain blocked; runtime cache behavior remains inactive; memory/learning/personalization remains inactive.",
             "Any USER change that alters edition boundaries, public-to-private promotion, provider/cache/memory policy, or reusable lane identity must fold into the proper durable source-truth owner before BP3 relies on it.",
         ]
@@ -3219,6 +3247,7 @@ def _write_user_branch_plan_review(
             "v2 - BP1 packet generated as Branch Vision Review.",
             "v3 - BP1 repaired into applied integrated Dev/Owner Option A vision.",
             "v4 - USER accepted BP1; BP2 generated as engineering-plan-first review with required matrices and future-gated boundaries.",
+            "v5 - USER/ChatGPT BP2 review conditions digested: strengthened future edit/proof surfaces, named validator lanes, backup/import lane details, Owner rollback baseline, Owner remote evaluation boundary, and watermark/identity propagation.",
         ]
         completion_checklist = [
             "Accepted BP1 Option A trace is present.",
@@ -3228,11 +3257,12 @@ def _write_user_branch_plan_review(
             "BP3 and Workstream implementation remain blocked until BP2 is accepted or explicitly waived and later gates are green and approved.",
         ]
         user_decisions = [
-            "Does USER accept the BP2 engineering plan as written?",
-            "Which matrix or seam needs revision before BP3?",
-            "Should any engineering plan item route back to BP1 because it changes the accepted Branch Vision?",
-            "Does USER explicitly waive any remaining BP2 detail and accept the risk before BP3?",
-            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+            "Does USER accept the updated integrated Dev/Owner BP2 engineering plan as written?",
+            "Does any listed future implementation/edit surface need to be added, removed, or narrowed before BP3?",
+            "Are the named proof lanes sufficient for BP3: provider-state, public leak-prevention, external-state, branch-readiness planning fixtures, USER review packet validation, source-owner marker validation, and future root/remote/GitHub Desktop false-green fixture coverage if needed?",
+            "Does USER accept Owner local Git/version history plus local/private/encrypted rollback as the default baseline, with Owner private remote only as a future evaluated option?",
+            "Does USER accept the backup/import lane split and watermark/identity propagation requirements as BP2 planning constraints?",
+            "Does USER confirm all private/runtime/provider/cache/memory/backup-import-execution/PR/merge/release gates remain pending?",
         ]
         design_ballot = [
             "Accept BP2 as written and authorize BP3 Workstream Entry / Orchestration Validation only.",
@@ -3311,11 +3341,11 @@ def _write_user_branch_plan_review(
             "",
             "## Backup / Import Matrix",
             "",
-            "| Lane | BP2 plan | Current scope | Future gate |",
-            "| --- | --- | --- | --- |",
-            "| User/Public | Settings/preferences/config backup posture only. | Plan and proof. | Backup/import implementation. |",
-            "| Dev | Private development recovery tied to future private Dev repo. | Plan and proof. | Dev recovery implementation or Public-to-Dev import. |",
-            "| Owner | Local/private/encrypted recovery and rollback baseline. | Plan and proof. | Owner backup/recovery root execution. |",
+            "| Lane | BP2 plan | Current scope | Future gate | Restore / exclusion proof |",
+            "| --- | --- | --- | --- | --- |",
+            "| User/Public | Settings/preferences/config backup posture and product-safe export/import scope. | Plan and proof only. | Backup/import implementation. | Restore proof must use public-safe settings/config fixtures and exclude private Dev/Owner material. |",
+            "| Dev | Private development recovery posture tied to the future private Dev repo relationship. | Plan and proof only. | Dev recovery implementation or Public-to-Dev import. | Dev backup material and private test fixtures must remain outside User/Public output and public review packets. |",
+            "| Owner | Local/private/encrypted backup baseline plus local Git rollback expectation. | Plan and proof only. | Owner backup/recovery root execution or future remote evaluation. | Restore proof must preserve Owner-only privacy, stay outside User/Public and Dev, and define criteria before any Owner remote is evaluated. |",
             "",
             "## Provider / Runtime / Cache / Memory Deferral Matrix",
             "",
@@ -3329,11 +3359,16 @@ def _write_user_branch_plan_review(
             "",
             "## Watermark / Identity Matrix",
             "",
-            "| Artifact / surface | User/Public label | Dev label | Owner label |",
-            "| --- | --- | --- | --- |",
-            "| UI and launchers | Nexus Desktop AI / Pre-Beta | Nexus Desktop AI - DEV PRIVATE | Nexus Owner - Local Private |",
-            "| Diagnostics/logs/manifests | Public-safe label | Dev-private label after approval | Owner-local label after approval |",
-            "| Review packets/screenshots/proof | Public-safe review context | Dev proof only after future approval | Owner proof only after future approval |",
+            "| Artifact / surface | User/Public label | Dev label | Owner label | Propagation proof |",
+            "| --- | --- | --- | --- | --- |",
+            "| UI/window title | Nexus Desktop AI / Pre-Beta | Nexus Desktop AI - DEV PRIVATE after approval | Nexus Owner - Local Private after approval | UI proof or manifest row before any private lane UI exists. |",
+            "| Launcher identity | Public launcher identity | Dev launcher identity after future setup | Owner local launcher identity after future setup | Launcher/shortcut manifest proof; no launcher migration execution in BP2. |",
+            "| Diagnostics | Public-safe diagnostic labels | Dev-private diagnostic labels after approval | Owner-local diagnostic labels after approval | Diagnostic sample/fixture excludes private paths and secrets. |",
+            "| Logs | Public-safe log labels | Dev-private log labels after approval | Owner-local log labels after approval | Log proof excludes private prompts, memory, tokens, and private paths. |",
+            "| Screenshots/proof | Public-safe proof context | Dev proof only after future approval | Owner proof only after future approval | Review-proof labels show lane without exposing private artifacts. |",
+            "| Review packets | Public FAM-007 packet labels | Dev packet labels only after future private approval | Owner packet labels only after future private approval | USER packet validation rejects private artifacts in public branch. |",
+            "| Backup/export packages | Public-safe export label | Dev-private export label after approval | Owner-local/private export label after approval | Export manifest proof preserves lane and excludes cross-lane leakage. |",
+            "| Generated manifests | Public-safe manifest owner | Dev-private manifest owner after approval | Owner-local manifest owner after approval | Manifest fixtures prove lane identity and future-gate state. |",
             "",
             "## Proof / Validation Matrix",
             "",
@@ -3343,6 +3378,9 @@ def _write_user_branch_plan_review(
             "| Private-boundary safety | No private path, token, remote URL, prompt, memory, model artifact, private automation, or private artifact in public branch. | dev/orin_public_leak_prevention_validation.py |",
             "| Provider deferral | Provider-visible data none, prompt/model execution disabled, downloads blocked, cache/memory inactive. | dev/orin_ai_provider_state_validation.py |",
             "| Planning gate proof | BP2 requires accepted BP1 trace; BP3 blocks while BP2 pending. | dev/orin_branch_readiness_planning_fixture_validation.py |",
+            "| External-state consistency | External branch plan/state records BP2 reviewability and pending USER gate without making repo files live ledgers. | dev/orin_external_state_validation.py |",
+            "| Source owner integrity | Any touched durable source-truth owner keeps valid ownership markers. | dev/orin_source_owner_marker_validation.py |",
+            "| Future root/remote/GitHub Desktop matrix | Add false-green fixture coverage if BP3 or later implementation introduces root, remote, or GitHub Desktop proof rows. | dev/orin_branch_readiness_planning_fixture_validation.py |",
             "",
             "## Future USER Gate Matrix",
             "",
@@ -3436,7 +3474,7 @@ def _write_user_branch_plan_review(
         "",
         "## Likely Files",
         "",
-        *_markdown_lines([f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]),
+        *_markdown_lines(likely_files_lines),
         "",
         "## Validators / Helpers",
         "",
