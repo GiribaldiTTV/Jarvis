@@ -821,6 +821,7 @@ def _validate_export_zip(
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_generated_stale_failures(packet_files),
         *_bp2_accepted_bp1_support_file_failures(packet_files),
+        *_fam006_bp3_support_file_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
@@ -1112,6 +1113,90 @@ def _bp2_accepted_bp1_support_file_failures(packet_files: Mapping[str, str]) -> 
             failures.append(
                 f"{display_name}: BP2 packet accepted-BP1 support file contains stale {reason} wording"
             )
+    return failures
+
+
+def _fam006_bp3_support_file_failures(packet_files: Mapping[str, str]) -> list[str]:
+    start_here = _packet_file_text(packet_files, "START_HERE.md")
+    primary = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
+    plan_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    if not (start_here and primary and plan_review):
+        return []
+    normalized_packet = re.sub(r"\s+", " ", f"{start_here}\n{primary}").casefold()
+    is_fam006_bp3_packet = (
+        "fam-006 active overlay recording runtime implementation" in normalized_packet
+        and "bp3" in normalized_packet
+        and "workstream_entry_analysis_digest.md" in normalized_packet
+    )
+    if not is_fam006_bp3_packet:
+        return []
+
+    failures: list[str] = []
+    display_name = _packet_file_path(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    plan_gate_state = _normalized_gate_value(
+        _review_marker_or_section_value(plan_review, "USER Gate State:")
+    )
+    plan_contract_status = _normalized_gate_value(
+        _review_marker_or_section_value(plan_review, "Contract Status:")
+    )
+    if plan_gate_state not in {"user accepted", "user approved", "user waived"}:
+        failures.append(
+            f"{display_name}: BP3 packet BP2 support file must carry accepted/waived "
+            f"BP2 USER Gate State, found '{plan_gate_state or 'missing'}'"
+        )
+    if plan_contract_status.startswith(("draft", "pending")) or not plan_contract_status:
+        failures.append(
+            f"{display_name}: BP3 packet BP2 support file must not present BP2 as "
+            f"draft or pending, found Contract Status '{plan_contract_status or 'missing'}'"
+        )
+    stale_patterns: tuple[tuple[str, re.Pattern[str]], ...] = (
+        (
+            "active BP1 gate",
+            re.compile(r"\bactive current gate is BP1\b|\bcurrent gate is BP1\b", re.IGNORECASE),
+        ),
+        (
+            "BP2 pending context",
+            re.compile(r"\bBP2\b[^\n]{0,100}\bpending context\b|\bBP2 pending-context\b", re.IGNORECASE),
+        ),
+        (
+            "BP1 must close before BP2",
+            re.compile(
+                r"\bBP1\b[^\n]{0,120}\b(?:before|until)\b[^\n]{0,80}\bBP2\b|"
+                r"\bBP2\b[^\n]{0,120}\b(?:waits?|cannot|blocked|pending|requires closure)\b[^\n]{0,80}\bBP1\b",
+                re.IGNORECASE,
+            ),
+        ),
+        (
+            "missing BP2 receipt",
+            re.compile(r"\bno active BP2 receipt exists\b", re.IGNORECASE),
+        ),
+        (
+            "wrong primary file",
+            re.compile(r"USER Review/USER_BRANCH_VISION_REVIEW\.md", re.IGNORECASE),
+        ),
+        (
+            "BP3 blocked until BP1/BP2 close",
+            re.compile(r"\bBP3\b[^\n]{0,120}\bblocked\b[^\n]{0,120}\bBP1\b[^\n]{0,80}\bBP2\b", re.IGNORECASE),
+        ),
+    )
+    for reason, pattern in stale_patterns:
+        if pattern.search(plan_review):
+            failures.append(
+                f"{display_name}: BP3 packet BP2 support file contains stale {reason} wording"
+            )
+    if "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md" not in plan_review:
+        failures.append(
+            f"{display_name}: BP3 packet BP2 support file must name "
+            "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md as the primary current-gate file"
+        )
+    if "BP3 remains Pending USER Review" not in plan_review:
+        failures.append(
+            f"{display_name}: BP3 packet BP2 support file must state BP3 remains Pending USER Review"
+        )
+    if "Workstream implementation remains blocked" not in plan_review:
+        failures.append(
+            f"{display_name}: BP3 packet BP2 support file must state Workstream implementation remains blocked"
+        )
     return failures
 
 
@@ -2173,6 +2258,176 @@ def _write_user_branch_plan_review(
             "Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md",
         }
     ]
+    if is_fam006_active_overlay_implementation and fam006_bp3_packet:
+        accepted_bp2_guardrails = [
+            "BP2 is USER accepted and is included here only as Review Aid evidence for active BP3.",
+            "BP2 derives the engineering route from accepted BP1 active-overlay recording vision.",
+            "SLC-051 Active Overlay recording target foundation remains the default first bounded Workstream seam.",
+            "SLC-052 minimal HUD preview may pair only if BP3 proves target proof and minimal preview are inseparable and still safe.",
+            "Recording Control window work remains later unless USER separately approves it after BP3.",
+            "Durable output contract work remains later; SLC-054 is output-contract planning only until file writing is separately approved.",
+            "Recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, FAM-007 mutation, PR creation, merge, release, issue mutation, cleanup, and Governance mutation remain blocked.",
+        ]
+        lines = [
+            "# USER Branch Plan Review - Accepted BP2 Context For BP3",
+            "",
+            f"Title: {title}",
+            f"Review Purpose: {review_purpose}",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - USER accepted the BP2 Branch Plan and approved BP3 preparation.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - this Review Aid preserves accepted BP2 context for active BP3 Workstream Entry / Orchestration Validation.",
+            "",
+            "## USER Gate State",
+            "",
+            "USER Accepted - BP2 is accepted. The active current USER gate is BP3, which remains Pending USER Review.",
+            "",
+            "## USER Response Proof",
+            "",
+            "Accepted by USER - USER accepted the FAM-006 BP2 Branch Plan and approved Codex to prepare BP3 Workstream Entry / Orchestration Validation.",
+            "",
+            "## USER Response Digested",
+            "",
+            "Digested - accepted BP2 guardrails are carried into BP3 reviewability, including actual file ownership verification, SLC-051 as default first seam, SLC-052 pairing limits, runtime/file-writing boundaries, rollback, H1, LV, and UTS expectations.",
+            "",
+            "## Acceptance / Waiver / Revision / Rejection Receipt",
+            "",
+            "Accepted - BP2 closure allows BP3 review preparation only. It does not approve BP3, Workstream implementation, SLC-051 implementation, runtime mutation, recording execution, or file writing.",
+            "",
+            "## Contract Version / Revision",
+            "",
+            "v4 - Accepted BP2 support context regenerated for active BP3 so Review Aids no longer contradict the active gate.",
+            "",
+            "## Current Gate",
+            "",
+            "The active current gate is BP3 Workstream Entry / Orchestration Validation for FAM-006 Active Overlay Recording Runtime Implementation.",
+            "The primary current-gate USER decision file is under `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`.",
+            "BP3 remains Pending USER Review. Workstream implementation remains blocked.",
+            "",
+            "## Plain-English Branch Summary",
+            "",
+            "FAM-006 will build recording around the active Overlay Profile the USER already uses. The accepted BP2 plan keeps the active Overlay Profile as the future target source, keeps snapshot-at-start as the target model, keeps the HUD Overlay card small and quick-access, and keeps Recording Control as the richer future surface.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "After later BP3 acceptance and separate implementation approval, USER should see concise target/status information and an Open Recording Control path in the HUD Overlay card, then richer target/readiness/status/control detail in a compact standalone Recording Control window. This BP3 packet itself changes no runtime UI.",
+            "",
+            "## End-State Vision",
+            "",
+            "The accepted BP2 end state is a recording foundation that feels connected to the overlay USER already chose: active Overlay Profile membership defines the future target, Start later locks a snapshot of that target, the HUD card gives quick access without clutter, Recording Control explains richer target/readiness/status detail, and completed logs can later feed a separate Native Log Loader.",
+            "",
+            "## Visual / Functional Walkthrough",
+            "",
+            "- USER has or selects an active Overlay Profile.",
+            "- HUD Overlay card previews concise recording target/status without redundant current-overlay / recording-overlay detail when the values are intentionally identical.",
+            "- USER opens Recording Control for richer target/readiness/status detail after that later surface is approved.",
+            "- When recording execution is later admitted, Start snapshots the target membership at that moment.",
+            "- Sensors added during an active recording wait for the next session.",
+            "- Completed logs are designed for future graphing by Native Log Loader, but the loader remains separate and future-gated.",
+            "",
+            "## Surface Map",
+            "",
+            "- Active Overlay Profile: accepted recording target source.",
+            "- HUD Overlay recording card: quick launcher and concise target/status preview.",
+            "- Standalone Recording Control window: richer future target/readiness/status/control surface.",
+            "- Recording output contract: future deterministic graph/plot-ready output planning, not file writing approval.",
+            "- Native Log Loader: separate future graph/log viewer.",
+            "- USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: active BP3 decision surface.",
+            "",
+            "## Implementation Options",
+            "",
+            "- Option A - SLC-051 target proof first. Recommended because every later surface depends on trustworthy target truth.",
+            "- Option B - combine target proof with minimal HUD preview only if BP3 proves inseparability and safety.",
+            "- Option C - keep Recording Control shell later so SLC-051 stays bounded.",
+            "- Option D - keep output/file-writing work later unless USER separately approves that boundary.",
+            "",
+            "## Recommended Direction",
+            "",
+            "Codex recommends BP3 validate SLC-051 Active Overlay recording target foundation as the first bounded Workstream seam. The tradeoff is a slower path to visible recording controls, but it prevents hidden-target, stale-owner, and file-writing drift before target truth is proven.",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "The accepted BP2 plan keeps recording local, visible, user-controllable, and truthful. USER can inspect what will be recorded before recording behavior or file writing is approved.",
+            "",
+            "## USER Plan Review Decision",
+            "",
+            "BP2 is already accepted. No new BP2 decision is requested by this Review Aid. The active decision is BP3 acceptance, revision, rejection, hold, request for more options, or waiver in `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`.",
+            "",
+            "## USER Decisions Needed",
+            "",
+            "- BP3 Workstream Entry / Orchestration Validation acceptance, revision, rejection, hold, or waiver.",
+            "- Workstream implementation and SLC-051 implementation.",
+            "- Runtime mutation, recording execution, file writing, real Start/Stop controls, tray controls, export/share behavior, provider/model work, FAM-007 mutation, PR creation, merge, release, issue mutation, branch cleanup, and Governance worktree mutation.",
+            "",
+            "## USER Response",
+            "",
+            "BP2 USER response is accepted and digested. Active USER response is now needed for BP3 in `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`.",
+            "",
+            "## Codex Response Digest",
+            "",
+            "Codex digested BP2 acceptance into the FAM-006 branch record, branch plan, and active BP3 packet. This file is accepted BP2 context only.",
+            "",
+            "## Implementation Constraints Created By USER Response",
+            "",
+            *_markdown_lines(accepted_bp2_guardrails),
+            "",
+            "## USER Rejected / Deferred Ideas",
+            "",
+            "- Rejected: hidden recording target state.",
+            "- Rejected unless USER later reopens: separate Recording Profile system.",
+            "- Deferred: Recording Control implementation, durable output/file writing, Native Log Loader implementation, per-overlay effective polling policy implementation, tray controls, export/share, provider/model work, FAM-007 mutation, PR creation, merge, release, and cleanup.",
+            "",
+            "## Vision Delta / Source-Truth Impact",
+            "",
+            "BP2 acceptance is recorded in the FAM-006 branch record and branch plan. BP3 must validate accepted BP2 against accepted BP1 before recommending a first bounded implementation seam.",
+            "",
+            "## Contract Change Log",
+            "",
+            "- v1 - Generated as active BP2 after USER accepted the FAM-006 BP1 Branch Vision.",
+            "- v4 - Regenerated as accepted BP2 context for active BP3.",
+            "",
+            "## Current Branch Scope",
+            "",
+            "- Active-overlay-driven FAM-006 recording runtime foundation planning.",
+            "- SLC-051 through SLC-055 as the whole-package engineering route after BP3 closes.",
+            "- BP3 reviewability only; no implementation authority.",
+            "",
+            "## Future-Gated Scope",
+            "",
+            "BP3 acceptance, Workstream implementation, SLC-051 implementation, runtime mutation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, FAM-007 mutation, PR creation, merge, release, issue mutation, cleanup, and Governance mutation remain pending.",
+            "",
+            "## Implementation Staging Notes",
+            "",
+            *_markdown_lines(accepted_bp2_guardrails),
+            "",
+            "## Workstream Entry Result",
+            "",
+            "Active - BP3 is the current USER Review Gate and remains Pending USER Review. This packet may recommend SLC-051 as the first bounded seam, but implementation remains blocked until BP3 is accepted or waived and USER separately approves implementation.",
+            "",
+            "## Contract Completion Checklist",
+            "",
+            "- BP1 accepted: complete.",
+            "- BP2 accepted: complete.",
+            "- BP3 primary review file present: `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`.",
+            "- BP3 USER response: pending.",
+            "- Workstream implementation: blocked pending separate USER approval.",
+            "",
+            "## Exact USER Decision Supported By The Current Packet",
+            "",
+            exact_user_decision,
+            "",
+            "## Pending USER Decisions",
+            "",
+            *_markdown_lines(pending_user_decisions),
+            "",
+        ]
+        review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     if is_fam006_active_overlay_implementation and fam006_bp2_packet:
         accepted_bp1_decisions = [
             "BP1 is accepted for the active-overlay-driven recording branch vision.",
@@ -4191,6 +4446,33 @@ def _write_workstream_entry_packet_digests(
             "Recommend SLC-051 Active Overlay recording target foundation as the first bounded Workstream seam after USER approves BP3 and then separately approves implementation. The first seam should prove target/session truth only: active Overlay Profile ID/name, membership snapshot candidate, null/empty/stale/deleted/missing profile behavior, high-volume membership behavior, and no hidden recording target state.\n\n"
             "## SLC-052 Pairing Assessment\n\n"
             "Do not pair SLC-052 by default. Pair only a minimal read-only HUD target preview with SLC-051 if implementation preflight proves the target proof cannot be inspected without a small HUD preview and the combined change still avoids Start/Stop, file writing, tray controls, export/share, Recording Control window work, and recording execution.\n\n"
+            "## Implementation Order For SLC-051\n\n"
+            "1. Verify the current owner for active Overlay Profile ID/name, membership, deleted/stale fallback, empty membership behavior, and monitor membership normalization.\n"
+            "2. Add or adapt the smallest target/session model surface needed to represent the future recording target without starting recording execution.\n"
+            "3. Prove snapshot-at-start candidate state, null/empty/stale/deleted/high-volume target states, and no hidden recording target state.\n"
+            "4. Add only the minimum read-only HUD preview if BP3 and implementation approval agree it is inseparable from target proof.\n"
+            "5. Stop before Recording Control window work, durable output/file-writing, real Start/Stop controls, tray controls, export/share, and recording execution unless USER separately approves those later seams.\n\n"
+            "## BP3 Preflight Checks Before Implementation\n\n"
+            "- Confirm BP1 and BP2 accepted receipts are present in the FAM-006 branch record and branch plan.\n"
+            "- Confirm `desktop/ui/dashboard_hud_panel.py` is not treated as a current file owner.\n"
+            "- Confirm the exact current owner for active Overlay Profile state before any SLC-051 code change.\n"
+            "- Confirm the implementation approval prompt names the first seam and keeps runtime/file-writing boundaries blocked.\n"
+            "- Confirm validators cover packet gate state, target/session state, HUD source truth, internal sandbox proof, rollback, H1, LV, and UTS expectations.\n\n"
+            "## Proof Plan For SLC-051\n\n"
+            "- Source-truth proof: accepted BP1/BP2 trace, owner-file verification, and branch-plan implementation constraints.\n"
+            "- Runtime proof after separate implementation approval: active Overlay Profile ID/name, membership snapshot candidate, null/empty/stale/deleted/missing target behavior, high-volume membership behavior, and no hidden target state.\n"
+            "- UI proof only if admitted: concise HUD target/status preview that avoids redundant current-overlay / recording-overlay text when intentionally identical.\n"
+            "- Regression proof: Overlay Profile, Overlay Display, Monitor Groups, Sensor Command Center, Dashboard, and existing HUD behavior remain intact.\n\n"
+            "## Drift Controls And Stop Conditions\n\n"
+            "- Stop if implementation needs file writing, recording execution, Start/Stop controls, tray controls, export/share, provider/model work, Native Log Loader implementation, FAM-007 mutation, PR creation, merge, release, issue mutation, cleanup, or Governance mutation.\n"
+            "- Stop if the target model starts to become a separate Recording Profile system or hidden target state.\n"
+            "- Stop if actual file ownership contradicts this BP3 packet and route back to BP2/BP3 repair before implementation.\n"
+            "- Stop if SLC-052 pairing would make the seam too broad or user-visible behavior too hard to prove.\n\n"
+            "## Rollback, H1, Live Validation, And UTS Expectations\n\n"
+            "- Rollback: disable or remove recording-specific target/session/HUD preview changes without corrupting Overlay Profile membership, Dashboard, Manage Monitors, Sensor Command Center, or existing overlay display behavior.\n"
+            "- H1: pressure-test target states, stale/deleted/missing profiles, empty and high-volume memberships, compact HUD preview if admitted, and future-gated boundaries.\n"
+            "- Live Validation: prove visible surfaces with real user-level interaction only after visible implementation exists.\n"
+            "- UTS: ask USER to confirm target visibility, snapshot-at-start explanation, no hidden target state, no separate Recording Profile requirement, compact control usability when implemented, rollback posture, and any implemented output behavior.\n\n"
             "## Runtime And File-Writing Boundary\n\n"
             "Recording execution, file writing, real Start/Stop controls, tray controls, export/share, Native Log Loader implementation, provider/model work, and SLC-054 output-file creation remain blocked. SLC-054 may stay as output-contract planning only unless USER separately approves file writing or recording execution."
         )
@@ -4961,6 +5243,7 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_structured_user_review_packet_layout_failures(packet_files))
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_bp2_accepted_bp1_support_file_failures(packet_files))
+    failures.extend(_fam006_bp3_support_file_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
@@ -5352,6 +5635,7 @@ def build_bundle(
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_generated_stale_failures(packet_files),
         *_bp2_accepted_bp1_support_file_failures(packet_files),
+        *_fam006_bp3_support_file_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
