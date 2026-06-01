@@ -770,13 +770,15 @@ def _validate_branch_planning_gate_state_packet_text(text: str) -> list[str]:
         "Should this review gate remain pending until USER gives explicit acceptance text? Which packet field should Codex cite as proof before preparing the next gate?\n"
     )
     packet_files = {
-        "START_HERE.md": text,
-        review_bundle.USER_BRANCH_VISION_REVIEW_FILE: substantive_bp1_text,
-        review_bundle.USER_BRANCH_PLAN_REVIEW_FILE: text,
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": text,
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": text,
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": text,
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": text,
+        "START_HERE.md": text
+        + "\nPrimary USER Review File: `USER Review/USER_BRANCH_PLAN_REVIEW.md`\n",
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/{review_bundle.USER_BRANCH_VISION_REVIEW_FILE}": substantive_bp1_text,
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/{review_bundle.USER_BRANCH_PLAN_REVIEW_FILE}": text,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": text,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/GOVERNANCE_REQUIRED_FILES_SCAN.md": text,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": text,
+        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/BRANCH_VISION_VALIDATION_CHECKLIST.md": text,
+        f"{review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME}/Main.md": text,
     }
     result = review_bundle._validate_workstream_entry_packet_decision_path(
         packet_files,
@@ -1059,6 +1061,7 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         "START_HERE.md": (
             "# Review\n\n"
             "USER Decision This Packet Supports: approve workstream implementation\n\n"
+            "Primary USER Review File: `USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md`\n\n"
             "## Files\n\n"
             "| Source path | Copied path |\n"
             "| --- | --- |\n"
@@ -1066,7 +1069,7 @@ def _validate_user_review_bundle_identity_guard() -> list[str]:
         ),
         f"{review_bundle.REVIEW_AIDS_DIR_NAME}/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": common,
         f"{review_bundle.REVIEW_AIDS_DIR_NAME}/GOVERNANCE_REQUIRED_FILES_SCAN.md": common,
-        f"{review_bundle.REVIEW_AIDS_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
+        f"{review_bundle.USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": common,
         f"{review_bundle.REVIEW_AIDS_DIR_NAME}/BRANCH_VISION_VALIDATION_CHECKLIST.md": common,
         copied_path: source_text,
     }

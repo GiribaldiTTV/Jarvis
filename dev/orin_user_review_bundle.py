@@ -100,6 +100,11 @@ WORKSTREAM_ENTRY_PACKET_DECISION_FILES: tuple[str, ...] = (
     "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
     "BRANCH_VISION_VALIDATION_CHECKLIST.md",
 )
+USER_REVIEW_PRIMARY_DECISION_FILES: tuple[str, ...] = (
+    USER_BRANCH_VISION_REVIEW_FILE,
+    USER_BRANCH_PLAN_REVIEW_FILE,
+    "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+)
 
 DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
 DECISION_STATUS_BP1_BRANCH_VISION_REVIEW = "bp1-branch-vision-review"
@@ -482,6 +487,84 @@ def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> boo
     return bool(_packet_file_text(packet_files, file_name))
 
 
+def _structured_user_review_packet_layout_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    failures: list[str] = []
+    paths = set(packet_files)
+    if "START_HERE.md" not in paths:
+        failures.append("START_HERE.md: required packet root index is missing")
+    required_dirs = (USER_REVIEW_DIR_NAME, REVIEW_AIDS_DIR_NAME, SOURCE_TRUTH_CONTEXT_DIR_NAME)
+    for directory in required_dirs:
+        prefix = f"{directory}/"
+        if not any(path.startswith(prefix) for path in paths):
+            failures.append(f"{directory}: required structured packet folder is missing or empty")
+
+    for file_name in USER_REVIEW_PRIMARY_DECISION_FILES:
+        if file_name in paths:
+            failures.append(
+                f"{file_name}: USER review decision files must not be at packet root"
+            )
+
+    primary_paths = [
+        path
+        for path in paths
+        if path.startswith(f"{USER_REVIEW_DIR_NAME}/")
+        and _packet_file_basename(path) in USER_REVIEW_PRIMARY_DECISION_FILES
+    ]
+    if len(primary_paths) != 1:
+        failures.append(
+            "USER Review: exactly one primary current-gate USER decision file is required; "
+            f"found {sorted(primary_paths) or 'none'}"
+        )
+
+    for file_name in USER_REVIEW_PRIMARY_DECISION_FILES:
+        matches = [path for path in paths if _packet_file_basename(path) == file_name]
+        if len(matches) > 1:
+            failures.append(
+                f"{file_name}: duplicate USER review decision file copies are not allowed; "
+                f"found {sorted(matches)}"
+            )
+
+    start_here_raw = packet_files.get("START_HERE.md", "")
+    start_here = start_here_raw.casefold()
+    decision_path_match = re.search(
+        r"^Decision Path Summary:\s*(.+)$",
+        start_here_raw,
+        re.IGNORECASE | re.MULTILINE,
+    )
+    decision_path_summary = decision_path_match.group(1).casefold() if decision_path_match else start_here
+    primary = primary_paths[0] if len(primary_paths) == 1 else ""
+    phase_primary_expectations = (
+        ("bp1 branch vision review", f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_VISION_REVIEW_FILE}"),
+        ("bp2 branch plan review", f"{USER_REVIEW_DIR_NAME}/{USER_BRANCH_PLAN_REVIEW_FILE}"),
+        (
+            "bp3 orchestration",
+            f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        ),
+        (
+            "workstream entry / orchestration",
+            f"{USER_REVIEW_DIR_NAME}/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+        ),
+    )
+    for marker, expected_path in phase_primary_expectations:
+        if marker in decision_path_summary and primary and primary != expected_path:
+            failures.append(
+                "USER Review primary file does not match packet phase: "
+                f"expected {expected_path}, found {primary}"
+            )
+    if (
+        "primary user review file:" in start_here
+        and primary
+        and f"`{primary.casefold()}`" not in start_here
+    ):
+        failures.append(
+            "START_HERE.md: reported Primary USER Review File does not match actual "
+            f"structured primary file {primary}"
+        )
+    return failures
+
+
 def _primary_user_review_file(exact_user_decision: str) -> str:
     normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
     stage_patterns = (
@@ -615,6 +698,7 @@ def _validate_export_zip(
             packet_files,
             actual_file_count=len(entries),
         ),
+        *_structured_user_review_packet_layout_failures(packet_files),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_generated_stale_failures(packet_files),
@@ -1179,22 +1263,23 @@ def _write_user_branch_vision_review(
             "",
             "## Branch Goal",
             "",
-            "Create the branch vision for active-overlay recording before engineering planning begins. The branch should prepare a future runtime where recording target selection, launch affordance, control surface, proof expectations, and rollback posture all trace to an accepted USER-visible product direction.",
+            "Build the FAM-006 recording foundation around the active Overlay Profile so the USER has one visible place to define what is monitored and what recording targets. The product goal is a recording experience where target choice, launch affordance, control surface, proof expectations, and rollback posture are all clear before any recording writes files.",
             "",
             "## End-State Vision",
             "",
-            "When this branch is complete after later approved implementation phases, USER can understand which Overlay Profile is active, see that profile as the recording target, open a compact Recording Control surface, and rely on proof that recording behavior matches the accepted plan. Recording execution, file writing, tray behavior, export/share, and Native Log Loader integration remain future-gated until their legal implementation approvals.",
+            "The completed branch should leave behind a concrete, source-truth-backed runtime direction: active Overlay Profile membership is the recording target model, the HUD Overlay card previews that target and launches control, the Recording Control window owns compact recording state and controls, and validation/UTS proof can show the target model behaved as accepted. Recording execution, file writing, tray behavior, export/share, and Native Log Loader integration remain future-gated until their legal implementation approvals.",
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
-            "- In this BP1 packet, USER sees the proposed product direction and chooses whether it is right before BP2 planning.",
-            "- In the future runtime, the Dashboard HUD Overlay card remains the visible launcher and target/status preview for the active Overlay Profile.",
-            "- The future standalone Recording Control window is the compact place for recording state, Start/Stop controls after approval, target summary, and proof-oriented status.",
+            "- In the future runtime, the Dashboard HUD Overlay card is the first visible signal: it shows the active overlay target/status preview and opens recording control.",
+            "- The standalone Recording Control window is the compact place for recording state, target summary, approved Start/Stop controls, and proof-oriented status.",
+            "- The active Overlay Profile remains the USER-facing source for what is in the recording target; the branch should not ask USER to manage a separate Recording Profile unless BP1 is revised.",
             "- Native Log Loader remains a separate future graph/log viewer, not part of this branch's durable implementation unless USER later admits it.",
+            "- In this BP1 packet, USER is deciding whether that future experience is the right product direction before BP2 planning.",
             "",
             "## How It Will Function",
             "",
-            "The future implementation should read the active Overlay Profile as the recording target source, use overlay membership to determine what is recorded, and surface that target clearly before any recording action. BP2 must convert this accepted vision into an engineering plan, BP3 must validate orchestration, and Workstream implementation remains blocked until USER separately approves implementation.",
+            "The future implementation should treat the active Overlay Profile as the recording target source. Overlay membership defines the target set, the HUD Overlay card previews that set, and the Recording Control window reflects the target and recording state before any recording action. BP2 must decide snapshot-versus-live-follow behavior for changes to the active profile; BP3 must validate orchestration; Workstream implementation remains blocked until USER separately approves implementation.",
             "",
             "## User Experience Flow",
             "",
@@ -1215,10 +1300,10 @@ def _write_user_branch_vision_review(
             "",
             "## Product Options / Design Paths",
             "",
-            "- Option A - Active Overlay Profile is the recording target source. This is Codex's recommendation because it keeps one USER-facing model for overlay membership and recording target selection. Tradeoff: BP2 must be careful about snapshot-versus-live-follow behavior.",
-            "- Option B - Add a separate Recording Profile system. This may seem explicit, but it creates another profile concept for USER to manage and should stay rejected unless USER wants recording to diverge from overlays.",
-            "- Option C - Start with a read-only target preview before live Start/Stop. This reduces runtime risk and lets H1/LV1 prove target clarity before recording writes files. Tradeoff: it delays the full control experience.",
-            "- Option D - Build the full Start/Stop and file-writing path first. This is faster to visible runtime behavior, but riskier because product direction and proof expectations would be harder to repair after implementation starts.",
+            "- Option A - Active Overlay Profile as recording target source. Recommended: it keeps overlay membership and recording target selection in one USER-facing model. Tradeoff: BP2 must define whether recording snapshots the active profile at start or follows later profile changes.",
+            "- Option B - Separate Recording Profile system. Not recommended unless USER wants recording to diverge from overlays; it adds another profile concept and raises drift risk between what USER monitors and what USER records.",
+            "- Option C - Target preview and Recording Control shell before file-writing. Recommended as the first implementation direction after BP3 because it proves target clarity and control layout before recording writes files. Tradeoff: full recording output arrives later.",
+            "- Option D - Full Start/Stop and file-writing first. Faster to visible recording output, but not recommended for the first seam because target semantics, proof expectations, and rollback behavior would be harder to repair after runtime work begins.",
             "",
             "## Codex Recommendations",
             "",
@@ -1233,11 +1318,12 @@ def _write_user_branch_vision_review(
             "",
             "## USER Design Questions",
             "",
-            "- Should recording follow the active Overlay Profile as the target source, or do you want a separate Recording Profile concept despite the added complexity?",
-            "- Should the first implementation seam prove target preview and Recording Control shell before enabling real Start/Stop and file writing?",
-            "- When an active Overlay Profile changes during a future recording, should recording snapshot the target at start or live-follow the active profile? BP2 can plan this once BP1 direction is accepted.",
-            "- What must the HUD Overlay card show so you trust that Codex is recording the right target?",
-            "- What proof would make Live Validation and the USER Test Summary convincing for this branch?",
+            "- Do you accept active Overlay Profile membership as the recording target source for this branch?",
+            "- Do you reject a separate Recording Profile system for this branch, or do you want that option reopened before BP2?",
+            "- Should the first implementation seam after BP3 prove target preview and Recording Control shell before enabling real Start/Stop and file writing?",
+            "- Should BP2 plan snapshot-at-start or live-follow behavior when the active Overlay Profile changes during a future recording?",
+            "- What exact target/status details must the HUD Overlay card show before you trust the selected recording target?",
+            "- What proof would make Live Validation and the USER Test Summary convincing: target preview screenshots, control-window screenshots, output-file checks, rollback proof, or another proof path?",
             "",
             "## USER Response",
             "",
@@ -1293,6 +1379,12 @@ def _write_user_branch_vision_review(
             "- Assumption: per-overlay effective polling policy remains future FAM-006 architecture planning input.",
             "",
             "## Acceptance / Revision / Rejection / Waiver Decision",
+            "",
+            "- Accept: USER accepts this active-overlay recording Branch Vision and authorizes BP2 preparation only.",
+            "- Revise: USER requests specific changes to the target model, surfaces, options, proof expectations, or future-gated boundaries before BP2.",
+            "- Hold / More Options: USER wants additional product options or examples before accepting or rejecting BP1.",
+            "- Reject: USER rejects this branch vision or routes the work to a different product direction.",
+            "- Waive: USER explicitly waives BP1 and accepts the risk of planning without a fully accepted Branch Vision.",
             "",
             exact_user_decision,
             "",
@@ -3864,6 +3956,7 @@ def _validate_workstream_entry_packet_decision_path(
             actual_file_count=actual_file_count,
         )
     )
+    failures.extend(_structured_user_review_packet_layout_failures(packet_files))
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
@@ -4217,6 +4310,7 @@ def build_bundle(
             packet_files,
             actual_file_count=len(bundle_paths),
         ),
+        *_structured_user_review_packet_layout_failures(packet_files),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_generated_stale_failures(packet_files),
