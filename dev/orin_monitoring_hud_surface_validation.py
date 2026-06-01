@@ -1237,6 +1237,33 @@ def validate() -> list[str]:
         _require_contains(js, needle, "SLC-051 active Overlay recording target JS proof", failures)
 
     for needle in (
+        'id="monitoring-hud-recording-target-preview"',
+        'data-recording-target-preview="slc-052-hud-overlay-launcher-target-preview"',
+        'data-active-monitor-transparency="slc-052-visible-count-and-names"',
+        'id="monitoring-hud-recording-control-launcher"',
+        'data-recording-control-window-state="future-gated"',
+        'data-recording-execution-state="blocked"',
+    ):
+        _require_contains(html, needle, "SLC-052 HUD Overlay recording target preview HTML", failures)
+
+    for needle in (
+        "monitoringHudRenderActiveOverlayRecordingTargetPreview",
+        "runMonitoringHudRecordingTargetPreviewProof",
+        "recordingTargetPreviewProof",
+        "slc-052-hud-overlay-launcher-target-preview",
+        "slc-052-visible-count-and-names",
+        "Recording Control Future-Gated",
+        "trayRecordingControlState",
+    ):
+        _require_contains(js, needle, "SLC-052 HUD Overlay recording target preview JS proof", failures)
+
+    for needle in (
+        "monitoring-hud__recording-target-preview",
+        "monitoring-hud__recording-target-actions",
+    ):
+        _require_contains(css, needle, "SLC-052 HUD Overlay recording target preview CSS", failures)
+
+    for needle in (
         'data-package="PKG-006"',
         'data-slice="SLC-016"',
         'data-placement-slice="SLC-026"',

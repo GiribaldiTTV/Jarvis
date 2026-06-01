@@ -1110,6 +1110,26 @@ body.desktop-mode #monitoring-hud > * {
   background: var(--monitoring-hud-divider-glow);
 }
 
+.monitoring-hud__recording-target-preview {
+  display: grid;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid rgba(117, 228, 255, 0.20);
+  background: rgba(8, 24, 30, 0.50);
+}
+
+.monitoring-hud__recording-target-preview .monitoring-hud__state-row {
+  min-height: 30px;
+}
+
+.monitoring-hud__recording-target-preview small {
+  color: rgba(180, 211, 220, 0.82);
+}
+
+.monitoring-hud__recording-target-actions {
+  padding-top: 2px;
+}
+
 .monitoring-hud__overlay-profile-heading {
   display: grid;
   grid-template-columns: max-content minmax(300px, 1fr);
