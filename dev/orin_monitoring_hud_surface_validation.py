@@ -69,6 +69,7 @@ def validate() -> list[str]:
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
     output_contract = _read("desktop/recording_output_contract.py")
+    workstream_readiness = _read("dev/orin_fam006_workstream_readiness.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
     hud_state = _read("desktop/monitoring_hud_state.py")
@@ -1295,6 +1296,30 @@ def validate() -> list[str]:
         '"nativeLogLoaderState": "future-separate-viewer"',
     ):
         _require_contains(output_contract, needle, "SLC-054 durable recording output contract", failures)
+
+    for needle in (
+        "WORKSTREAM_READINESS_ID",
+        "slc-055-fam006-validation-live-proof-readiness",
+        "WORKSTREAM_PACKAGE_ID",
+        "pkg-006-active-overlay-recording-runtime-foundation",
+        "build_fam006_workstream_readiness_proof",
+        '"workstreamGreenCandidate"',
+        '"packageSlicesComplete"',
+        '"hardeningH1State"',
+        "pending-after-workstream-green",
+        '"liveValidationLV1State"',
+        "pending-after-h1",
+        '"utsState"',
+        "pending-after-lv1",
+        "real user-level mouse and keyboard proof",
+        "focused screenshots or photo comparison",
+        "no UTS is exported until Live Validation authority is active or waived",
+        "recording execution",
+        "file writing",
+        "real Start/Stop controls",
+        "Native Log Loader implementation",
+    ):
+        _require_contains(workstream_readiness, needle, "SLC-055 validation/live proof readiness", failures)
 
     for needle in (
         "monitoring-hud__recording-target-preview",

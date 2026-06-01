@@ -38,6 +38,7 @@ from desktop.monitoring_hud_state import (
 )
 from desktop.monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
 from desktop.recording_output_contract import validate_recording_output_contract
+from dev.orin_fam006_workstream_readiness import build_fam006_workstream_readiness_proof
 
 
 LOG_ROOT = ROOT / "dev" / "logs" / "fam_006_monitoring_hud_internal_sandbox"
@@ -1869,6 +1870,7 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         event_route_present=True,
     ).as_dict()
     output_contract = validate_recording_output_contract()
+    workstream_readiness = build_fam006_workstream_readiness_proof()
 
     cards = second.get("sensorCards") or []
     sensors = {
@@ -1911,6 +1913,13 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(output_contract.get("parseReadback") is True, "SLC-054 output contract must parse/read back in memory", failures)
     _require(output_contract.get("fileWritingBlocked") is True, "SLC-054 output contract must not admit file writing", failures)
     _require(output_contract.get("recordingExecutionBlocked") is True, "SLC-054 output contract must not admit recording execution", failures)
+    _require(workstream_readiness.get("workstreamGreen") is True, "SLC-055 Workstream readiness proof must be green", failures)
+    _require(workstream_readiness.get("packageSlicesComplete") is True, "SLC-055 must prove all five admitted slices are complete", failures)
+    _require(workstream_readiness.get("hardeningH1State") == "pending-after-workstream-green", "SLC-055 must route H1 after Workstream Green", failures)
+    _require(workstream_readiness.get("liveValidationLV1State") == "pending-after-h1", "SLC-055 must keep LV1 after H1", failures)
+    _require(workstream_readiness.get("utsState") == "pending-after-lv1", "SLC-055 must keep UTS after LV1", failures)
+    _require(workstream_readiness.get("fileWritingBlocked") is True, "SLC-055 must keep file writing blocked", failures)
+    _require(workstream_readiness.get("recordingExecutionBlocked") is True, "SLC-055 must keep recording execution blocked", failures)
 
     persisted_state = {}
     previous_state_path = os.environ.get(MONITORING_HUD_STATE_ENV)
@@ -2173,6 +2182,7 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         "controls": controls,
         "status": status,
         "recordingOutputContract": output_contract,
+        "workstreamReadiness": workstream_readiness,
         "persistedState": persisted_state,
     }
 
