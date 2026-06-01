@@ -107,7 +107,7 @@ USER workflow:
 2. Read the label folder.
 3. Upload the matching timestamped ZIP beside it.
 
-The folder and timestamped ZIP are one matched pair. Before regenerating a matched pair, Codex clears the old readable folder, removes any legacy same-name upload ZIP, creates a fresh `YYYYMMDD-HHMMSS` timestamped ZIP, and proves the folder/ZIP contents match. Cloud-backed Desktop or OneDrive locations are backup or convenience mirrors only.
+The folder and timestamped ZIP are one matched pair. Before regenerating a matched pair, Codex clears the old readable folder, removes any legacy same-name upload ZIP and previous same-label timestamped upload ZIPs, creates a fresh `YYYYMMDD-HHMMSS` timestamped ZIP, and proves the folder/ZIP contents match. Cloud-backed Desktop or OneDrive locations are backup or convenience mirrors only.
 
 ## Technical Metadata Placement
 

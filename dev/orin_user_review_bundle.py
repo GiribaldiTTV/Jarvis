@@ -4,7 +4,8 @@
 This helper copies review files to a stable worktree-labeled folder under
 ``C:\\Nexus USER`` and creates a timestamped upload ZIP beside that folder so
 each ChatGPT upload has a unique artifact name. Legacy same-name upload ZIPs
-are removed during generation. It never edits repo files.
+and previous same-label timestamped upload ZIPs are removed during generation.
+It never edits repo files.
 """
 
 from __future__ import annotations
@@ -36,7 +37,8 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "PASS - helper cleared the stable worktree review folder, copied fresh "
     "source-truth files, wrote START_HERE for this source-truth snapshot, and atomically "
-    "created a timestamped review zip from that refreshed folder."
+    "created a timestamped review zip from that refreshed folder after removing previous "
+    "same-label upload zips."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
@@ -600,6 +602,24 @@ def _export_zip_path(review_root: Path, label: str, created_at: datetime) -> Pat
 
 def _legacy_stable_export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
+
+
+def _remove_stale_same_label_export_zips(review_root: Path, label: str, export_zip: Path) -> None:
+    safe_label = _sanitize_folder_name(label)
+    timestamped_name = re.compile(rf"^{re.escape(safe_label)}-\d{{8}}-\d{{6}}\.zip$")
+    candidates = [_legacy_stable_export_zip_path(review_root, label)]
+    candidates.extend(
+        path.resolve()
+        for path in review_root.glob(f"{safe_label}-*.zip")
+        if timestamped_name.fullmatch(path.name)
+    )
+    for candidate in sorted(set(candidates)):
+        if candidate == export_zip:
+            continue
+        if candidate.exists():
+            if not candidate.is_file():
+                raise ValueError(f"Refusing to remove non-file stale review zip path: {candidate}")
+            candidate.unlink()
 
 
 def _remove_legacy_stable_export_zip(review_root: Path, label: str) -> None:
@@ -1321,15 +1341,23 @@ def _write_user_branch_vision_review(
         "bp2 user branch plan review" in decision_text
         or "bp2 branch plan review" in decision_text
     )
+    bp3_context_packet = (
+        "bp3" in decision_text
+        or "workstream entry / orchestration" in decision_text
+        or "orchestration validation" in decision_text
+    )
+    bp2_or_later_context_packet = bp2_context_packet or bp3_context_packet
+    active_planning_gate = "BP3" if bp3_context_packet else "BP2"
     review_status = (
         "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
         "it does not request a new Branch Vision decision."
         if pr_readiness_context_packet
         else (
-            "Accepted by USER - this packet uses the accepted BP1 Branch Vision as supporting "
-            "context for BP2; it does not request a new BP1 decision."
+            "Accepted by USER - this packet uses the accepted BP1 Branch Vision as "
+            f"supporting context for {active_planning_gate}; it does not request "
+            "a new BP1 decision."
         )
-        if bp2_context_packet
+        if bp2_or_later_context_packet
         else "Needs USER Decision unless this packet records an explicit USER acceptance or waiver."
     )
     contract_status = (
@@ -1337,37 +1365,37 @@ def _write_user_branch_vision_review(
         "implementation remains outside this decision."
         if pr_readiness_context_packet
         else (
-            "Complete - BP1 Branch Vision accepted by USER and used as the planning basis "
-            "for this BP2 Branch Plan Review."
+            "Complete - BP1 Branch Vision accepted by USER and used as accepted "
+            f"context for this {active_planning_gate} packet."
         )
-        if bp2_context_packet
+        if bp2_or_later_context_packet
         else "Draft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch."
     )
     user_response = (
         "No new BP1 response requested by this packet; PR Readiness Stage 1 analysis remains the next USER decision."
         if pr_readiness_context_packet
         else (
-            "BP1 accepted by USER; BP2 is the active USER decision in this packet."
+            f"BP1 accepted by USER; {active_planning_gate} is the active USER decision in this packet."
         )
-        if bp2_context_packet
+        if bp2_or_later_context_packet
         else "Pending USER response or explicit waiver."
     )
     packet_reviewability_state = (
         "Reviewable - context packet for later-phase review; no new BP1 decision is requested by this helper output."
         if pr_readiness_context_packet
         else (
-            "Reviewable - supporting accepted BP1 context for the active BP2 packet."
+            f"Reviewable - supporting accepted BP1 context for the active {active_planning_gate} packet."
         )
-        if bp2_context_packet
+        if bp2_or_later_context_packet
         else "Reviewable - BP1 packet is ready for USER Branch Vision Review, but acceptance is not recorded."
     )
     user_gate_state = (
         "Superseded - context-only BP1 copy for later-phase review; rely on the accepted branch record or external state for the original BP1 receipt."
         if pr_readiness_context_packet
         else (
-            "USER Accepted - BP1 Branch Vision accepted by USER; BP2 is the active gate."
+            f"USER Accepted - BP1 Branch Vision accepted by USER; {active_planning_gate} is the active gate."
         )
-        if bp2_context_packet
+        if bp2_or_later_context_packet
         else "Pending USER Review - USER must accept, revise, waive, reject, or block BP1 before BP2 preparation can be green."
     )
     codex_digest = (
@@ -1380,7 +1408,7 @@ def _write_user_branch_vision_review(
             "Owner local-private baseline, GitHub Desktop safety, backup/import lane posture, "
             "provider/runtime/cache/memory deferral, proof expectations, and lane identity labels."
         )
-        if bp2_context_packet
+        if bp2_or_later_context_packet
         else "Pending USER response digest."
     )
     accepted_vision = (
@@ -1393,7 +1421,7 @@ def _write_user_branch_vision_review(
             "GitHub Desktop/public-upstream safety, backup/import posture, provider/runtime/cache/memory "
             "deferral, proof expectations, and lane identity labels are BP2 planning requirements."
         )
-        if bp2_context_packet
+        if bp2_or_later_context_packet
         else "Pending USER acceptance or waiver."
     )
     profile_text = " ".join(
@@ -1432,10 +1460,10 @@ def _write_user_branch_vision_review(
             "## Contract Revision",
             "",
             (
-                "v7 - Accepted BP1 Branch Vision context for BP2: integrated Dev/Owner readiness, "
+                f"v8 - Accepted BP1 Branch Vision context for {active_planning_gate}: integrated Dev/Owner readiness, "
                 "Dev private repo future direction, Owner local-private baseline, GitHub Desktop safety, "
                 "backup/import lane posture, provider/runtime/cache/memory deferral, and identity labeling."
-                if bp2_context_packet
+                if bp2_or_later_context_packet
                 else "v6 - USER/ChatGPT BP1 review direction digested: integrated Dev/Owner readiness, Dev private repo future direction, Owner local-private baseline, GitHub Desktop safety, backup/import lane posture, and identity labeling."
             ),
             "",
@@ -1486,12 +1514,14 @@ def _write_user_branch_vision_review(
             "2. USER confirms whether BP2 should plan the integrated Option A matrix with Dev private repo direction, Owner local-private baseline, GitHub Desktop posture, backup/import lane posture, and identity/watermark propagation.",
             "3. USER names the private root, private remote, public-upstream, GitHub Desktop, backup/import, provider/cache/memory, launcher/assets, and artifact identity proof expectations that BP2 must make concrete.",
             (
-                "4. USER has accepted this BP1 Branch Vision as the basis for the active BP2 engineering plan."
-                if bp2_context_packet
+                f"4. USER has accepted this BP1 Branch Vision as the basis for the active {active_planning_gate} review."
+                if bp2_or_later_context_packet
                 else "4. USER accepts, revises, holds for more options, rejects, or explicitly waives this BP1 Branch Vision."
             ),
             (
-                "5. BP2 now turns the accepted vision into an engineering plan, and BP3 later validates orchestration before any Workstream implementation can be requested."
+                "5. BP2 is accepted; BP3 now validates orchestration before any Workstream implementation can be requested."
+                if bp3_context_packet
+                else "5. BP2 now turns the accepted vision into an engineering plan, and BP3 later validates orchestration before any Workstream implementation can be requested."
                 if bp2_context_packet
                 else "5. BP2 later turns only the accepted or waived vision into an engineering plan, and BP3 later validates orchestration before any Workstream implementation can be requested."
             ),
@@ -1556,31 +1586,31 @@ def _write_user_branch_vision_review(
             "",
             (
                 "USER accepted the updated Option A BP1 Branch Vision: Dev and Owner skeleton readiness stay planned together as one public-safe trust-boundary package; future Dev is private-repo-oriented after approval; dev-related launchers/assets/tools should leave the normal User/Public lane long-term; Owner remains private and controlled with local Git/version history as the baseline; GitHub Desktop safety, public-upstream posture, backup/import lane posture, proof expectations, and lane identity labels must be planned by BP2."
-                if bp2_context_packet
+                if bp2_or_later_context_packet
                 else "Revision direction received from USER/ChatGPT review: Option A is the selected BP1 direction; Dev should eventually have a private repo; dev-related launchers/assets/tools should leave the normal User/Public lane long-term; Owner should remain private and controlled with local Git/version history as the baseline; GitHub Desktop safety, public-upstream posture, backup/import lane posture, proof expectations, and lane identity labels must be planned by BP2. Final BP1 acceptance remains pending."
             ),
             "",
             "## Codex Digest",
             "",
             (
-                "Codex records this file as accepted BP1 context for the active BP2 packet. The accepted vision is one integrated Dev/Owner readiness package with future private Dev repo planning, Dev asset inventory/migration planning, Owner local-private version-control safety, explicit GitHub Desktop binding rules, public-upstream push-prevention proof, backup/import posture for User/Public, Dev, and Owner lanes, provider/runtime/cache/memory deferral proof, and visible lane identity labels."
-                if bp2_context_packet
+                f"Codex records this file as accepted BP1 context for the active {active_planning_gate} packet. The accepted vision is one integrated Dev/Owner readiness package with future private Dev repo planning, Dev asset inventory/migration planning, Owner local-private version-control safety, explicit GitHub Desktop binding rules, public-upstream push-prevention proof, backup/import posture for User/Public, Dev, and Owner lanes, provider/runtime/cache/memory deferral proof, and visible lane identity labels."
+                if bp2_or_later_context_packet
                 else "Codex digested the USER/ChatGPT BP1 review direction into this v6 Branch Vision. The updated vision recommends one integrated Dev/Owner readiness package, future private Dev repo planning, Dev asset inventory/migration planning, Owner local-private version-control safety, explicit GitHub Desktop binding rules, public-upstream push-prevention proof, backup/import posture for User/Public, Dev, and Owner lanes, provider/runtime/cache/memory deferral proof, and visible lane identity labels. This digest is a revision update, not final BP1 acceptance."
             ),
             "",
             "## USER Response Proof",
             "",
             (
-                "Accepted by USER - BP1 Branch Vision acceptance is recorded in external branch planning state and used by this BP2 packet as supporting context."
-                if bp2_context_packet
+                f"Accepted by USER - BP1 Branch Vision acceptance is recorded in external branch planning state and used by this {active_planning_gate} packet as supporting context."
+                if bp2_or_later_context_packet
                 else "USER/ChatGPT BP1 review direction is recorded in this v6 packet. Final BP1 acceptance, revision, waiver, rejection, or hold remains pending USER decision."
             ),
             "",
             "## USER Response Digested",
             "",
             (
-                "Digested - accepted BP1 direction is converted into BP2 planning requirements."
-                if bp2_context_packet
+                f"Digested - accepted BP1 direction is preserved as required {active_planning_gate} traceability context."
+                if bp2_or_later_context_packet
                 else "Partially - USER/ChatGPT revision direction has been digested into v6, but BP1 remains open until USER explicitly accepts, revises, waives, rejects, or holds the updated Branch Vision."
             ),
             "",
@@ -1595,8 +1625,8 @@ def _write_user_branch_vision_review(
             "## Must-Have Behavior",
             "",
             (
-                "- BP1 acceptance is recorded; BP2 must keep tracing the engineering plan to this accepted Dev/Owner skeleton readiness vision and integrated Option A direction."
-                if bp2_context_packet
+                f"- BP1 acceptance is recorded; {active_planning_gate} must keep tracing to this accepted Dev/Owner skeleton readiness vision and integrated Option A direction."
+                if bp2_or_later_context_packet
                 else "- BP1 acceptance or explicit waiver is required before BP2 can claim the engineering plan is valid."
             ),
             "- BP2 must trace every seam or SLC to this accepted Dev/Owner skeleton readiness vision and its integrated Option A direction.",
@@ -1840,8 +1870,14 @@ def _write_user_branch_plan_review(
         "bp1 branch vision" in normalized_decision
         and "authorize bp2 user branch plan review only" in normalized_decision
     )
+    bp3_orchestration_packet = (
+        "bp3" in normalized_decision
+        or "workstream entry / orchestration" in normalized_decision
+        or "orchestration validation" in normalized_decision
+    )
     bp2_branch_plan_packet = (
         not bp1_branch_vision_packet
+        and not bp3_orchestration_packet
         and (
             "bp2 user branch plan review" in normalized_decision
             or "bp2 branch plan review" in normalized_decision
@@ -3114,7 +3150,11 @@ def _write_user_branch_plan_review(
             "Which private root, private remote, GitHub Desktop, backup/import, provider/cache/memory, and public-to-private promotion decisions must BP2 prove?",
             "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
         ]
-    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2 and bp2_branch_plan_packet:
+    if (
+        is_fam007_dev_owner_skeleton
+        and not is_fam007_breakpoint_2
+        and (bp2_branch_plan_packet or bp3_orchestration_packet)
+    ):
         accepted_user_response = (
             "BP1 accepted - USER accepted the updated FAM-007 Dev/Owner Skeleton "
             "Readiness Branch Vision as the integrated Option A direction. BP2 may "
@@ -3427,6 +3467,113 @@ def _write_user_branch_plan_review(
             "| PR / merge / release / cleanup | Separate phase approvals after implementation, H1, and LV gates. |",
             "",
         ]
+    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2 and bp3_orchestration_packet:
+        accepted_user_response = (
+            "BP2 accepted - USER accepted the cleaned FAM-007 Dev/Owner Skeleton "
+            "Readiness engineering plan. The accepted plan keeps Dev and Owner "
+            "readiness together, points Dev toward future private-repo readiness "
+            "after approval, keeps Owner local-private by default, evaluates any "
+            "Owner private remote only as future work, and preserves every "
+            "private/runtime/provider/cache/memory gate."
+        )
+        user_response_text = (
+            "Status: Accepted by USER - this BP2 support file is closed as the "
+            "accepted engineering-plan context for the active BP3 Workstream Entry / "
+            "Orchestration Validation packet."
+        )
+        codex_response_digest = (
+            "Codex digested USER BP2 acceptance into BP3 readiness context. BP3 "
+            "must verify that the accepted BP2 plan implements the accepted BP1 "
+            "vision, that seams/SLCs trace to both contracts, and that Workstream "
+            "implementation remains blocked until USER later approves a bounded seam."
+        )
+        workstream_entry_result = (
+            "BP3 active - Workstream Entry / Orchestration Validation is the "
+            "current review gate. BP3 may recommend the first bounded Workstream "
+            "seam, but this packet does not authorize Workstream implementation."
+        )
+        contract_status = (
+            "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is the "
+            "active Workstream Entry / Orchestration Validation gate."
+        )
+        contract_version = (
+            "v6 - BP2 acceptance digested into BP3 orchestration-readiness support context."
+        )
+        plain_english_summary = (
+            "This support file records the accepted BP2 engineering plan for the "
+            "FAM-007 Dev/Owner Skeleton Readiness carrier. The active packet is BP3: "
+            "it checks whether the accepted vision and accepted plan are ready to "
+            "become a bounded Workstream implementation request later."
+        )
+        what_user_sees = (
+            "The primary BP3 decision file lives under USER Review. This BP2 file "
+            "is supporting context under Review Aids: it shows the accepted plan "
+            "that BP3 must trace, including Dev/Owner readiness matrices, root/remote "
+            "gates, GitHub Desktop safety, backup/import deferral, provider/runtime/"
+            "cache/memory deferral, proof expectations, H1/LV/UTS expectations, and "
+            "rollback posture."
+        )
+        current_scope = [
+            "BP3 Workstream Entry / Orchestration Validation packet generation and reviewability.",
+            "Accepted BP1 and accepted BP2 traceability proof.",
+            "Whole-package Workstream orchestration review only; no Workstream implementation.",
+        ]
+        future_scope = [
+            "Workstream implementation remains pending a later explicit USER decision after BP3 review.",
+            "Private Dev/Owner setup, private roots/remotes, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, PR, merge, release, cleanup, sibling mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain future-gated.",
+        ]
+        user_decisions = [
+            "Does USER approve, revise, waive, reject, or hold BP3 Workstream Entry / Orchestration Validation?",
+            "Does USER agree the accepted BP2 plan implements the accepted BP1 vision without changing the Dev/Owner direction?",
+            "Does USER agree Seam 1 should be the first bounded implementation seam only after separate Workstream approval?",
+            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+        ]
+        completion_checklist = [
+            "BP1 Contract Status is Complete or Waived by USER.",
+            "BP2 Contract Status is Complete or Waived by USER.",
+            "BP3 packet reviewability is Reviewable while BP3 USER approval remains pending.",
+            "Seam/SLC traceability to BP1 and BP2 is present.",
+            "Workstream implementation remains pending separate USER approval.",
+        ]
+        implementation_options = [
+            "Approve BP3 as reviewable and green, then request the separate first bounded Workstream implementation approval packet.",
+            "Revise BP3 orchestration order, proof expectations, or first-seam recommendation before implementation approval is considered.",
+            "Waive unresolved BP3 questions and proceed to a separate bounded Workstream approval packet.",
+            "Reject or hold BP3 and keep the branch in Branch Planning.",
+        ]
+        recommended_direction = (
+            "Codex recommends BP3 approval only if USER agrees the accepted BP2 plan "
+            "faithfully implements BP1, the first Workstream seam starts with "
+            "public-safe action-gate registry and exact USER decision proof, and all "
+            "private/runtime/provider/cache/memory actions remain future-gated."
+        )
+        user_decisions_intro = (
+            "USER is reviewing BP3 now. This support file confirms BP2 is accepted; "
+            "the active decision is whether BP3 orchestration is correct before any "
+            "later bounded Workstream approval is requested."
+        )
+        design_ballot = [
+            "Approve BP3 as recommended.",
+            "Approve BP3 with changes.",
+            "Revise BP3 and regenerate the packet.",
+            "Waive unresolved BP3 questions.",
+            "Reject or hold BP3.",
+        ]
+        response_structure = [
+            "Decision: approve, revise, waive, reject, or hold BP3.",
+            "Required orchestration or proof changes, if any.",
+            "First-seam preference or constraints.",
+            "Future-gated boundary controls.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER BP3 disposition.",
+            "Accepted or revised orchestration order.",
+            "First bounded Workstream seam approved for a later packet, if any.",
+            "Implementation constraints created by USER response.",
+            "Source-truth or packet updates required.",
+            "Next USER decision needed.",
+        ]
     normalized_contract_status = contract_status.casefold()
     if normalized_contract_status.startswith("waived by user"):
         user_gate_state = "USER Waived - explicit USER waiver recorded for this BP2 gate."
@@ -3443,6 +3590,12 @@ def _write_user_branch_plan_review(
     bp3_approval_text = (
         "BP3 approval text applies only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. This PR Readiness packet does not request BP3 implementation approval."
         if pr_readiness_stage1_packet
+        else (
+            "BP3 is the active Workstream Entry / Orchestration Validation packet. "
+            "BP3 may recommend a first bounded Workstream seam for a later USER "
+            "decision, but this packet does not authorize Workstream implementation."
+        )
+        if bp3_orchestration_packet
         else (
             "BP3 may begin only after USER accepts or explicitly waives this BP2 engineering plan. This BP2 packet does not start BP3 and does not authorize Workstream implementation."
         )
@@ -3722,6 +3875,7 @@ def _write_workstream_entry_packet_digests(
     exact_user_decision: str,
     pending_user_decisions: list[str],
 ) -> list[Path]:
+    normalized_decision = exact_user_decision.casefold()
     is_fam007_breakpoint_2 = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
     )
@@ -3750,17 +3904,26 @@ def _write_workstream_entry_packet_digests(
         and "approve pr readiness stage 2" in exact_user_decision.casefold()
     )
     pr_stage1_packet = (
-        "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+        "pr readiness stage 1 analysis" in normalized_decision
+    )
+    bp3_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry / orchestration" in normalized_decision
+            or "orchestration validation" in normalized_decision
+        )
     )
     bp1_packet = (
-        "bp1 branch vision" in exact_user_decision.casefold()
-        and "authorize bp2 user branch plan review only" in exact_user_decision.casefold()
+        "bp1 branch vision" in normalized_decision
+        and "authorize bp2 user branch plan review only" in normalized_decision
     )
     bp2_packet = (
         not bp1_packet
+        and not bp3_packet
         and (
-            "bp2 user branch plan review" in exact_user_decision.casefold()
-            or "bp2 branch plan review" in exact_user_decision.casefold()
+            "bp2 user branch plan review" in normalized_decision
+            or "bp2 branch plan review" in normalized_decision
         )
     )
     packet_status = (
@@ -3772,6 +3935,13 @@ def _write_workstream_entry_packet_digests(
         "BP2 USER Branch Plan Review packet is Reviewable; USER acceptance, revision, "
         "waiver, rejection, or hold remains pending; BP3 remains pending."
         if bp2_packet
+        else
+        "bp3 orchestration review - accepted BP1 Branch Vision and accepted BP2 "
+        "Branch Plan are the traceability basis; BP3 Workstream Entry / "
+        "Orchestration Validation packet is Reviewable; USER BP3 approval, "
+        "revision, waiver, rejection, or hold remains pending; Workstream "
+        "implementation remains pending separate USER approval."
+        if bp3_packet
         else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
@@ -3878,6 +4048,74 @@ def _write_workstream_entry_packet_digests(
             "vision context, required digest/checklist files, and copied source-truth "
             "files are loaded and digestible for USER review; BP2 remains pending USER "
             "acceptance, revision, waiver, rejection, or hold."
+        )
+    elif bp3_packet:
+        analysis_status = (
+            "Analysis Summary: BP3 Workstream Entry / Orchestration Validation "
+            "packet for the active Branch Planning carrier.\n"
+            "BP1 Contract Status: Complete - USER accepted the integrated FAM-007 "
+            "Dev/Owner Skeleton Readiness Branch Vision.\n"
+            "BP2 Contract Status: Complete - USER accepted the cleaned FAM-007 "
+            "Dev/Owner Skeleton Readiness engineering plan.\n"
+            "BP1 USER Gate State: USER Accepted\n"
+            "BP2 USER Gate State: USER Accepted\n"
+            "BP3 Packet Reviewability State: Reviewable\n"
+            "BP3 USER Gate State: Pending USER Review\n"
+            "Branch Plan Matches Accepted Branch Vision: PASS - BP2 keeps Dev "
+            "and Owner skeleton readiness integrated, preserves Dev private-repo "
+            "future direction, Owner local-private baseline, GitHub Desktop safety, "
+            "backup/import posture, provider/runtime/cache/memory deferral, and "
+            "lane identity proof without changing the accepted BP1 direction.\n"
+            "Branch Package Size: PASS - one FAM-007 branch remains the largest "
+            "safe coherent package because Dev readiness, Owner readiness, private "
+            "root/remote safety, backup/import posture, provider-state deferral, "
+            "packet proof, and validation proof share the same trust boundary.\n"
+            "SLC Traceability: Complete\n"
+            "Future-Gated Boundaries: PASS - private Dev/Owner setup, private "
+            "repos/roots/remotes, GitHub Desktop private binding, backup/import "
+            "execution, provider/model/runtime/cache/memory behavior, PR, merge, "
+            "release, cleanup, AI Product Contract import, Private Dev ORIN import, "
+            "and v1.8.0 remain pending USER decisions.\n"
+            "First Bounded Workstream Seam: Seam 1 should create public-safe "
+            "action-gate registry and exact USER decision proof before later "
+            "Dev/Owner matrices, private root/remote safety, backup/import, "
+            "provider deferral, packet, fixture, validator, and fold-down proof.\n"
+            "Implementation Approval: Pending separate USER approval after BP3 "
+            "review; this packet does not authorize Workstream implementation."
+        )
+        implementation_posture = (
+            "Implementation Posture: BP3 is reviewable but USER BP3 approval is "
+            "pending; Workstream implementation, private setup, runtime/provider/"
+            "cache/memory behavior, PR, merge, release, cleanup, and sibling-worktree "
+            "mutation remain pending USER decisions."
+        )
+        recommended_seam = (
+            "Recommended First Bounded Workstream Seam: Seam 1, action-gate "
+            "registry and exact USER decision proof, to be considered only after "
+            "USER approves or waives BP3 and separately approves Workstream implementation."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes accepted BP1 Branch Vision "
+            "context, accepted BP2 Branch Plan context, FAM-007 family vision, "
+            "Public/Dev/Owner boundary plan, AI Runtime And Trust Architecture, "
+            "active branch authority record, external branch plan/state context, "
+            "branch artifact rules, phase governance, execution rules, validation "
+            "registry, backlog, roadmap, and worktree-slot context needed for BP3."
+        )
+        checklist_status = (
+            "Checklist Focus: BP3 Workstream Entry / Orchestration Validation - "
+            "accepted BP1/BP2 traceability, whole-package seam order, first-seam "
+            "recommendation, proof plan, H1/LV/UTS expectations, rollback posture, "
+            "drift controls, and future-gated private/runtime decisions are represented "
+            "for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md "
+            "as the primary BP3 decision file, USER_BRANCH_VISION_REVIEW.md and "
+            "USER_BRANCH_PLAN_REVIEW.md as supporting accepted BP1/BP2 context, "
+            "required digest/checklist files, and copied source-truth files are "
+            "loaded and digestible for USER review; BP3 remains pending USER "
+            "approval, revision, waiver, rejection, or hold."
         )
     elif pr_stage1_packet:
         analysis_status = (
@@ -4184,6 +4422,11 @@ def _write_workstream_entry_packet_digests(
         f"Decision Path: {packet_status}\n"
         f"USER Decision: {exact_user_decision}\n"
     )
+    if bp3_packet:
+        common += (
+            "BP3 Packet Reviewability State: Reviewable\n"
+            "BP3 USER Gate State: Pending USER Review\n"
+        )
     files: dict[str, str] = {
         "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": (
             "# USER Review Folder And File Digest\n\n"
@@ -4257,12 +4500,12 @@ def _packet_text_status(text: str) -> str:
         )
     )
     if any(marker in normalized for marker in pending_gate_markers) or reviewable_without_closed_gate:
-        if any(marker in normalized for marker in bp1_markers):
-            return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
-        if any(marker in normalized for marker in bp2_markers):
-            return DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW
         if any(marker in normalized for marker in bp3_markers):
             return DECISION_STATUS_BP3_ORCHESTRATION_REVIEW
+        if any(marker in normalized for marker in bp2_markers):
+            return DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW
+        if any(marker in normalized for marker in bp1_markers):
+            return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
 
     implementation_markers = (
         "approve bounded workstream implementation",
@@ -4725,12 +4968,21 @@ def build_bundle(
     pr_stage1_packet = (
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
+    bp3_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and (
+            "bp3" in exact_user_decision.casefold()
+            or "workstream entry / orchestration" in exact_user_decision.casefold()
+            or "orchestration validation" in exact_user_decision.casefold()
+        )
+    )
     bp1_packet = (
         "bp1 branch vision" in exact_user_decision.casefold()
         and "authorize bp2 user branch plan review only" in exact_user_decision.casefold()
     )
     bp2_packet = (
         not bp1_packet
+        and not bp3_packet
         and (
             "bp2 user branch plan review" in exact_user_decision.casefold()
             or "bp2 branch plan review" in exact_user_decision.casefold()
@@ -4745,6 +4997,13 @@ def build_bundle(
         "BP2 USER Branch Plan Review packet is Reviewable; USER acceptance, revision, "
         "waiver, rejection, or hold remains pending; BP3 remains pending."
         if bp2_packet
+        else
+        "bp3 orchestration review - accepted BP1 Branch Vision and accepted BP2 "
+        "Branch Plan are the traceability basis; BP3 Workstream Entry / "
+        "Orchestration Validation packet is Reviewable; USER BP3 approval, "
+        "revision, waiver, rejection, or hold remains pending; Workstream "
+        "implementation remains pending separate USER approval."
+        if bp3_packet
         else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
@@ -4908,9 +5167,17 @@ def build_bundle(
             "",
             f"Decision Path Summary: {machine_readable_packet_status}",
             f"USER Decision: {user_facing_decision}",
-            "",
+        "",
         ]
     )
+    if bp3_packet:
+        readme_lines.extend(
+            [
+                "BP3 Packet Reviewability State: Reviewable",
+                "BP3 USER Gate State: Pending USER Review",
+                "",
+            ]
+        )
 
     (target / "START_HERE.md").write_text("\n".join(readme_lines), encoding="utf-8")
     bundle_paths = _bundle_files(target)
@@ -4939,7 +5206,7 @@ def build_bundle(
             + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
     expected_zip_entries = {path.relative_to(target).as_posix() for path in bundle_paths}
-    _remove_legacy_stable_export_zip(review_root, label)
+    _remove_stale_same_label_export_zips(review_root, label, export_zip)
     _write_export_zip(target, export_zip)
     _validate_export_zip(
         export_zip,

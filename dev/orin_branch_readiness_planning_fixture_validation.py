@@ -1373,6 +1373,44 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
     return failures
 
 
+def _validate_user_review_bundle_export_zip_cleanup_guard() -> list[str]:
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        legacy_zip = review_root / "FAM-007.zip"
+        stale_timestamped_zip = review_root / "FAM-007-20260601-111111.zip"
+        other_label_zip = review_root / "FAM-006-20260601-111111.zip"
+        malformed_same_label_zip = review_root / "FAM-007-not-a-timestamp.zip"
+        export_zip = review_root / "FAM-007-20260601-222222.zip"
+        for path in (
+            legacy_zip,
+            stale_timestamped_zip,
+            other_label_zip,
+            malformed_same_label_zip,
+        ):
+            path.write_text("fixture", encoding="utf-8")
+
+        review_bundle._remove_stale_same_label_export_zips(
+            review_root,
+            "FAM-007",
+            export_zip,
+        )
+
+        if legacy_zip.exists():
+            failures.append("USER review zip cleanup left legacy same-name FAM-007.zip")
+        if stale_timestamped_zip.exists():
+            failures.append(
+                "USER review zip cleanup left previous same-label timestamped FAM-007 zip"
+            )
+        if not other_label_zip.exists():
+            failures.append("USER review zip cleanup removed a different worktree-label zip")
+        if not malformed_same_label_zip.exists():
+            failures.append(
+                "USER review zip cleanup removed a non-timestamped same-prefix file"
+            )
+    return failures
+
+
 def _validate_active_overlay_user_branch_plan_review_metadata_guard() -> list[str]:
     source_path = "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md"
     failures: list[str] = []
@@ -1453,6 +1491,71 @@ def _validate_fam007_workstream_approval_packet_metadata_guard() -> list[str]:
     if "validation summary" in text.casefold():
         failures.append(
             "FAM-007 workstream approval packet still emits forbidden validation-summary wording"
+        )
+    return failures
+
+
+def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
+    failures: list[str] = []
+    exact_decision = (
+        "I approve BP3 Workstream Entry / Orchestration Validation for the "
+        "FAM-007 Dev/Owner Skeleton Readiness packet review; Workstream "
+        "implementation remains pending separate USER approval."
+    )
+    copied = [
+        (
+            "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
+            "feature_fam_007_dev_owner_skeleton_readiness.md",
+        )
+    ]
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-007-dev-owner-skeleton-readiness",
+            source_head="fixture-head",
+            origin_main="fixture-origin-main",
+            packet_folder=target,
+            export_zip=target / "FAM-007-20260601-120000.zip",
+            copied=copied,
+            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            bundle_file_count=6,
+            expected_count=len(copied),
+            copied_count=len(copied),
+            exact_user_decision=exact_decision,
+            pending_user_decisions=["Workstream implementation remains pending USER approval."],
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "USER Decision This Packet Supports: "
+                f"{exact_decision}\n"
+                "Decision Path Summary: bp3 orchestration review\n"
+                "BP3 Packet Reviewability State: Reviewable\n"
+                "BP3 USER Gate State: Pending USER Review\n"
+            )
+        }
+        for path in target.glob("*.md"):
+            packet_files[path.name] = path.read_text(encoding="utf-8")
+
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="feature/fam-007-dev-owner-skeleton-readiness",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+    )
+    if result.status != review_bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
+        failures.append(
+            "FAM-007 BP3 generated packet did not classify as bp3-orchestration-review: "
+            f"{result.status}; {result.failures[:3]}"
+        )
+    combined = "\n".join(packet_files.values()).casefold()
+    if "workstream entry final decision review" in combined:
+        failures.append(
+            "FAM-007 BP3 generated packet still emits stale Workstream Entry final-decision wording"
+        )
+    if "implementation approval: approved" in combined:
+        failures.append(
+            "FAM-007 BP3 generated packet incorrectly approves implementation"
         )
     return failures
 
@@ -2264,8 +2367,10 @@ def validate() -> list[str]:
     failures.extend(_validate_user_review_bundle_identity_guard())
     failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
+    failures.extend(_validate_user_review_bundle_export_zip_cleanup_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
+    failures.extend(_validate_fam007_bp3_packet_generation_guard())
 
     return failures
 
