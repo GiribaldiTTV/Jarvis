@@ -14,7 +14,7 @@ Transition Waiver USER Decision: `USER approved governed current-main reconcilia
 External State Reconciliation Proof: `Live active operational truth for this branch is derived from Git, upstream, worktree identity, helper validation, and external operational state when admitted. USER-facing review files must not carry active branch status, current HEAD, current origin/main, or ZIP hash as their content focus. This repo record remains listed during the approved transition only to satisfy assigned-worktree confinement and branch-local authority routing; it must fold to historical/no-active posture before merge-stable PR readiness unless governance records a newer waiver.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 Branch Runtime Engineering Plan: `Present - active FAM-006 runtime implementation carrier remains active-overlay-driven, but pre-PR #248 BP1/BP2/BP3 packet receipts are superseded for active decision purposes because they lack the current Packet Reviewability State / USER Gate State proof model.`
-Engineering Plan Status: `BP1 USER Branch Vision accepted by USER; BP2 USER Branch Plan accepted by USER; BP3 Workstream Entry / Orchestration Validation approved by USER under the post-PR #248 two-axis review-gate model. Workstream implementation, SLC-051 implementation, and runtime mutation remain pending separate USER decisions.`
+Engineering Plan Status: `BP1 USER Branch Vision accepted by USER; BP2 USER Branch Plan accepted by USER; BP3 Workstream Entry / Orchestration Validation approved by USER under the post-PR #248 two-axis review-gate model. Bounded SLC-051 Workstream implementation is complete as target/session truth only. SLC-052 through SLC-055 remain queued as same-branch Workstream continuation; recording execution, file writing, and runtime recording controls remain outside SLC-051.`
 
 ## Branch Identity
 
@@ -24,11 +24,11 @@ Engineering Plan Status: `BP1 USER Branch Vision accepted by USER; BP2 USER Bran
 
 ## Record State
 
-Record State: `Active Branch Readiness Stage 2 setup receipt`
+Record State: `Active Workstream receipt`
 
 ## Status
 
-Status: `Active Branch Planning receipt for the FAM-006 active-overlay recording runtime implementation carrier. This record admits branch authority, imports the active-overlay recording direction as accepted BP1 Branch Vision, preserves the foundation branch as historical traceability, records USER acceptance of BP2, and records USER approval of BP3 Workstream Entry / Orchestration Validation under the post-PR #248 Packet Reviewability State / USER Gate State model. Pre-PR #248 BP1/BP2/BP3 packets are superseded legacy review evidence for active decision purposes. This record does not authorize Workstream implementation, SLC-051 implementation, recording execution, file writing, Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, Governance mutation, issue mutation, PR creation, merge, release execution, branch/worktree cleanup, or sibling-worktree mutation.`
+Status: `Active Workstream receipt for the FAM-006 active-overlay recording runtime implementation carrier. This record admits branch authority, imports the active-overlay recording direction as accepted BP1 Branch Vision, preserves the foundation branch as historical traceability, records USER acceptance of BP2, records USER approval of BP3 Workstream Entry / Orchestration Validation under the post-PR #248 Packet Reviewability State / USER Gate State model, and records bounded SLC-051 implementation as target/session truth only. Pre-PR #248 BP1/BP2/BP3 packets are superseded legacy review evidence for active decision purposes. This record queues SLC-052 through SLC-055 as same-branch continuation and keeps recording execution, file writing, Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, Governance mutation, issue mutation, PR creation, merge, release execution, branch/worktree cleanup, and sibling-worktree mutation outside SLC-051.`
 
 ## Canonical Branch
 
@@ -36,24 +36,24 @@ Canonical Branch: `feature/fam-006-active-overlay-recording-runtime-implementati
 
 ## Current Phase
 
-Phase: `Branch Readiness`
-Phase Detail: `Branch Readiness Stage 2 setup for the fresh active-overlay recording runtime implementation carrier created from origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9.`
+Phase: `Workstream`
+Phase Detail: `Bounded SLC-051 Active Overlay recording target foundation implementation for the active-overlay recording runtime implementation carrier.`
 
 ## Phase Status
 
 Phase Status: `Active Branch`
 Historical Branch Detail: `Released foundation traceability remains in Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md after PR #222 and v1.7.25-prebeta; this implementation carrier is fresh from origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9.`
 Authority State: `Active branch authority receipt for the FAM-006 Active Overlay Recording Runtime Implementation carrier`
-Bounded State: `Active runtime implementation carrier after Branch Readiness Stage 2 setup and post-PR #248 reconciliation: preserve active-overlay-driven recording as the branch identity, record BP1 acceptance, record BP2 acceptance and guardrails, and record BP3 approval. Runtime mutation, SLC-051 implementation, Workstream implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, and Governance worktree mutation remain pending USER decisions.`
+Bounded State: `Active runtime implementation carrier after post-PR #248 reconciliation and BP3 approval: preserve active-overlay-driven recording as the branch identity, record BP1 acceptance, record BP2 acceptance and guardrails, record BP3 approval, and complete SLC-051 as target/session truth only. SLC-052 through SLC-055 remain queued as same-branch Workstream continuation. Recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, and Governance worktree mutation remain outside SLC-051.`
 
 ## Branch Class
 
 Branch Class: `implementation`
 Primary Package: `PKG-006 - Active Overlay Recording Runtime Foundation planning contract`
-Slice Admission: `SLC-051 through SLC-055 are preserved as future implementation planning only; no runtime slice is admitted for implementation on this branch.`
-Interface Release Boundary: `No recording runtime interface is released by Stage 2. Future interfaces remain gated by Workstream Entry and separate USER implementation approval.`
-Primary Interface Release Surface: `No runtime interface; maintained FAM-006 planning contract only`
-Interface Bundle User Approval: `Not granted for runtime implementation`
+Slice Admission: `SLC-051 through SLC-055 are preserved as the accepted implementation route. SLC-051 is implemented as target/session truth only; SLC-052 through SLC-055 remain queued as same-branch Workstream continuation.`
+Interface Release Boundary: `No recording runtime control interface is released by SLC-051. Future launcher, Recording Control, Start/Stop, output-file, tray, and export/share interfaces belong to later admitted seams or future-gated scope.`
+Primary Interface Release Surface: `No recording control interface; read-only target/session truth in current HUD / Overlay Profile owners`
+Interface Bundle User Approval: `Granted only for bounded SLC-051 target/session truth; not granted for recording execution or visible recording controls`
 
 ## Entry Basis
 
@@ -75,25 +75,25 @@ User-Facing Goal: `Future users should understand from the HUD Overlay card what
 Project-Wide Vision Alignment: `Nexus should expose truthful, lightweight, user-controllable monitoring workflows without fake recording behavior or hidden profile-selection requirements.`
 Branch-Specific Vision Alignment: `This branch supersedes the profile-loaded Recording Profile carrier and prepares a corrected active Overlay Profile membership recording path.`
 USER Vision Questions: `USER accepted the released planning contract and approved this fresh implementation carrier. Workstream Entry must use this accepted contract to identify first bounded seam, output file contract proposal, Recording Control / settings-window fields, permanent HUD Overlay card arrangement, live-follow versus snapshot-at-recording-start behavior for actual execution, and how future per-overlay effective polling policy stays unblocked.`
-USER/ChatGPT Review Checkpoint: `BP1 USER Branch Vision and BP2 USER Branch Plan are accepted for this implementation carrier, and BP3 Workstream Entry / Orchestration Validation is approved by USER. The next USER-facing decision is separate bounded Workstream implementation approval for SLC-051; no runtime mutation may occur from BP3 approval alone.`
+USER/ChatGPT Review Checkpoint: `BP1 USER Branch Vision and BP2 USER Branch Plan are accepted for this implementation carrier, BP3 Workstream Entry / Orchestration Validation is approved by USER, and bounded SLC-051 Workstream implementation is complete as target/session truth only. The next USER-facing decision is whether to approve the next bounded Workstream seam, SLC-052 HUD Overlay recording launcher and active-monitor transparency, or route to H1 if source truth requires hardening before continuing.`
 Codex Product Interpretation: `Recording should target the current Overlay Profile display membership, while Overlay Profiles continue to own display membership and Monitor Groups continue to own sensor organization.`
-Codex Implementation Recommendation: `Do not implement SLC-051 through SLC-055 until USER separately approves bounded Workstream implementation. Preserve active-overlay recording as branch identity. SLC-051 is the default first bounded seam and must prove target/session truth only: active Overlay Profile ID/name, membership snapshot candidate, null/empty/stale/deleted/missing profile behavior, high-volume membership behavior, and no hidden recording target state. Treat desktop/ui/dashboard_hud_panel.py as not-current owner; verify current owners such as desktop/desktop_renderer.py, desktop/monitoring_hud_state.py, desktop/monitoring_hud_controls.py, and supporting status/placement/telemetry surfaces. SLC-052 minimal HUD preview may pair only if target proof cannot be inspected without it and the combined seam remains bounded and safe.`
+Codex Implementation Recommendation: `Treat SLC-051 as complete only for target/session truth: active Overlay Profile ID/name, membership snapshot candidate, null/empty/stale/deleted/missing profile behavior, high-volume membership behavior, and no hidden recording target state. Preserve active-overlay recording as branch identity. Treat desktop/ui/dashboard_hud_panel.py as not-current owner; current owners are desktop/monitoring_hud_state.py, nexus_visual/monitoring_hud.js, and supporting FAM-006 HUD validators. Continue only through admitted SLC-052 through SLC-055 same-branch Workstream seams; keep Recording Control, output files, Start/Stop, tray controls, export/share, and provider/model work outside SLC-051 until their admitted seam owns them.`
 Full Feature Element Breakdown: `HUD Overlay card recording launcher and target/status preview; active Overlay Profile target; active monitored monitor transparency; standalone compact Recording Control window; future folder/path/open-folder settings; secondary advanced/settings windows when the main control would become bulky; durable graph/plot-ready output-file contract; future Native Log Loader graph/log viewer; validation/live proof; future-gated tray, export/share, provider/model, and theme work.`
 System Concept Model: `Monitor Groups organize reusable sensors/sources; Overlay Profiles decide displayed membership and future effective runtime policy; active-overlay recording derives targets from currently active Overlay Profile membership; the Recording Control window controls future recording workflow without becoming a profile selector; Native Log Loader reads completed logs later and is not the control surface.`
 Entity / Profile Model: `Use active Overlay Profile membership as the recording target. Do not reintroduce separate Recording Profile membership/profile loading unless USER explicitly re-approves it.`
 User Workflow Model: `A future user picks or uses an active Overlay Profile, sees target/status preview in the HUD Overlay card, opens the standalone Recording Control window from that card, keeps it open/movable/minimized independently of the Dashboard, and later uses Start/Stop only after recording execution and file writing are admitted.`
 Scale / Data Volume Model: `Future proof must cover null states, high-volume monitor/profile/source stress, compact/default window sizes, output-file determinism, no clipping, and real user-level input for visible controls.`
-Configuration And State Model: `Stage 2 adds no runtime state. Future active-overlay recording state should derive recording target from activeOverlayProfileId / active Overlay Profile membership, keep recording destination/control settings separate from display membership and Monitor Group organization, and avoid blocking future per-overlay effective polling policy where the same Monitor Group can be used by multiple Overlay Profiles at different effective polling intervals.`
-Expected User-Facing Outcomes: `No runtime/user-facing change in this branch. The user-facing outcome is a durable accepted FAM-006 recording product plan available for future implementation work.`
-Current Branch vs Future Package Boundaries: `Current branch is the runtime implementation carrier, but Stage 2 setup is source-truth and packet setup only. Workstream Entry, SLC-051 implementation, actual recording execution, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, and artifacts/raw evidence handling remain future-gated.`
+Configuration And State Model: `SLC-051 adds read-only target/session truth derived from activeOverlayProfileId / active Overlay Profile membership, keeps recording destination/control settings separate from display membership and Monitor Group organization, and avoids blocking future per-overlay effective polling policy where the same Monitor Group can be used by multiple Overlay Profiles at different effective polling intervals.`
+Expected User-Facing Outcomes: `No visible recording control is added by SLC-051. The user-facing outcome remains future-gated until a later approved visible seam, while state/proof now knows which active Overlay Profile membership would be recorded.`
+Current Branch vs Future Package Boundaries: `Current branch is the runtime implementation carrier. SLC-051 target/session truth is implemented; actual recording execution, HUD launcher/preview, Recording Control, output files, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, and artifacts/raw evidence handling remain future-gated.`
 Affected Surfaces: `Branch records, branch plans, branch authority router, backlog, roadmap, FAM-006 family vision pointers, future Dashboard HUD Overlay card, future standalone Recording Control window, future secondary settings windows, future output-file proof, and FAM-006 validators.`
 Data/Control Model: `Future control flow should route from Dashboard/HUD Overlay active Overlay Profile state to recording target preview, then to the standalone Recording Control window for future control/settings. For SLC-051 the model proves the live current active-overlay target only; for later actual recording execution, snapshot-at-recording-start is the recommended default unless USER revises it, because stable log schemas serve future Native Log Loader and graphing better than live target mutation mid-recording.`
 Branch Reach / Package-Size Review: `The package is large enough for Workstream Entry because active recording target, HUD quick access, standalone settings, output contract, and validation/live proof are coupled user-facing recording foundations.`
 Why Branch Is Large Enough: `Separating these concerns before Workstream analysis would risk repeating the profile-loaded drift where state, UI, output, and proof concepts disagree.`
 Why Not Split Into Tiny Branches: `Tiny planning branches would create source-truth fragmentation across active Overlay Profile target, visible controls, settings window, output contract, and LV/UTS proof.`
-Codex Additional Recommendations: `Recommendation A: ask USER for separate bounded Workstream implementation approval for SLC-051. Recommendation B: keep SLC-051 as the default first bounded implementation seam and allow SLC-052 pairing only if target proof and minimal HUD preview are inseparable and safe. Alternative: route back to BP3 revision only if the implementation preflight proves accepted BP3 no longer matches actual repo ownership or requires broader implementation than accepted.`
-USER Critique Loop: `USER accepted BP1 for the active-overlay recording direction after PR #248, accepted BP2 with guardrails for BP3, and approved BP3 Workstream Entry / Orchestration Validation. Material feedback during separate SLC-051 implementation approval must update this branch record/plan or return a revised approval packet before runtime mutation. Pre-PR #248 BP receipts remain superseded legacy evidence for active decision purposes.`
-USER Decision Ledger: `USER approved Stage 2 setup for this branch from current origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9, preserving the released planning foundation as traceability and importing active-overlay recording direction as starting branch-vision context. USER later approved governed current-main reconciliation through origin/main@9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7 using a non-rewrite merge path, preserving incoming current-main Branch Planning / USER Hub governance without mutating FAM-007 source truth. Pre-PR #248 FAM-006 BP1/BP2/BP3 packets and receipts are superseded legacy review evidence for active decision purposes because the new two-axis Packet Reviewability State / USER Gate State model must be satisfied. USER then accepted the current BP1 Branch Vision for FAM-006 Active Overlay Recording Runtime Implementation, including active Overlay Profile membership as recording target source, snapshot-at-start default target semantics, minimal HUD card role, richer standalone Recording Control role, hidden-target rejection, separate Recording Profile rejection, Native Log Loader future boundary, and per-overlay effective polling policy as future architecture planning. USER then accepted the BP2 Branch Plan and approved BP3 preparation with guardrails requiring actual file ownership verification, `desktop/ui/dashboard_hud_panel.py` verification, active Overlay Profile state owner verification, SLC-051 as default first seam, SLC-052 pairing only if inseparable and safe, Recording Control/output/file-writing/Start-Stop/tray/export execution boundaries, snapshot-at-start preservation, low-redundancy HUD card preservation, no-hidden-target preservation, and SLC-054 output-contract-planning-only posture. USER then approved BP3 Workstream Entry / Orchestration Validation with guardrails that SLC-051 is the default first seam, proves target/session truth only, does not use `desktop/ui/dashboard_hud_panel.py` as current owner, verifies actual current owners, permits a future `desktop/recording_target_model.py` or equivalent only inside approved SLC-051 scope, and allows SLC-052 minimal HUD preview pairing only if target proof cannot be inspected without it and the combined seam remains bounded and safe. Pending USER decisions include bounded SLC-051 Workstream implementation approval, SLC-051 implementation execution, runtime implementation, recording execution, tray controls, export/share, provider/model work, artifacts/raw evidence handling beyond approved USER review materials, sibling-worktree mutation, old branch cleanup/deletion, FAM-007 work, PR creation, merge, release, issue mutation, and Governance mutation.`
+Codex Additional Recommendations: `Recommendation A: treat SLC-051 as the completed first bounded implementation seam. Recommendation B: continue to SLC-052 only as an admitted same-branch Workstream seam and keep recording execution/file writing outside that seam unless later source truth admits it. Alternative: route back to BP3 revision only if the implementation preflight proves accepted BP3 no longer matches actual repo ownership or requires broader implementation than accepted.`
+USER Critique Loop: `USER accepted BP1 for the active-overlay recording direction after PR #248, accepted BP2 with guardrails for BP3, approved BP3 Workstream Entry / Orchestration Validation, and approved bounded SLC-051 implementation. Material feedback during later seam approval must update this branch record/plan or return a revised approval packet before runtime expansion. Pre-PR #248 BP receipts remain superseded legacy evidence for active decision purposes.`
+USER Decision Ledger: `USER approved Stage 2 setup for this branch from current origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9, preserving the released planning foundation as traceability and importing active-overlay recording direction as starting branch-vision context. USER later approved governed current-main reconciliation through origin/main@9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7 using a non-rewrite merge path, preserving incoming current-main Branch Planning / USER Hub governance without mutating FAM-007 source truth. Pre-PR #248 FAM-006 BP1/BP2/BP3 packets and receipts are superseded legacy review evidence for active decision purposes because the new two-axis Packet Reviewability State / USER Gate State model must be satisfied. USER then accepted the current BP1 Branch Vision for FAM-006 Active Overlay Recording Runtime Implementation, including active Overlay Profile membership as recording target source, snapshot-at-start default target semantics, minimal HUD card role, richer standalone Recording Control role, hidden-target rejection, separate Recording Profile rejection, Native Log Loader future boundary, and per-overlay effective polling policy as future architecture planning. USER then accepted the BP2 Branch Plan and approved BP3 preparation with guardrails requiring actual file ownership verification, `desktop/ui/dashboard_hud_panel.py` verification, active Overlay Profile state owner verification, SLC-051 as default first seam, SLC-052 pairing only if inseparable and safe, Recording Control/output/file-writing/Start-Stop/tray/export execution boundaries, snapshot-at-start preservation, low-redundancy HUD card preservation, no-hidden-target preservation, and SLC-054 output-contract-planning-only posture. USER then approved BP3 Workstream Entry / Orchestration Validation with guardrails that SLC-051 is the default first seam, proves target/session truth only, does not use `desktop/ui/dashboard_hud_panel.py` as current owner, verifies actual current owners, permits a future `desktop/recording_target_model.py` or equivalent only inside approved SLC-051 scope, and allows SLC-052 minimal HUD preview pairing only if target proof cannot be inspected without it and the combined seam remains bounded and safe. USER then approved bounded SLC-051 Workstream implementation. SLC-051 is implemented as target/session truth only. Pending USER decisions include SLC-052 Workstream implementation, SLC-053 through SLC-055, runtime recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, artifacts/raw evidence handling beyond approved USER review materials, sibling-worktree mutation, old branch cleanup/deletion, FAM-007 work, PR creation, merge, release, issue mutation, and Governance mutation.`
 Deferred Ideas / Future Package Ledger: `Tray recording controls, recording execution beyond approved seams, export/share/import, provider/model integration, broad theme/skin work, advanced/bulky Recording Control settings, graph/plot UI, Native Log Loader implementation, per-overlay effective polling policy implementation, FAM-007 work, and Governance mutation remain future-gated.`
 Planning Adequacy Review: `Adequate for Stage 2 because it records the corrected carrier, package slices, element proof matrix, old-carrier fold-down, changed-source ledger, review packet requirement, validation plan, and exact Workstream Entry decision.`
 Rejected Shallow Plan: `Rejected: restarting recording work with a vague Start/Stop label or a separate profile-loaded Recording Profile model without active Overlay Profile target, settings, output, and proof planning.`
@@ -104,34 +104,34 @@ Open Questions / USER Decision Points: `Pending USER decisions/questions: approv
 Acceptance Criteria: `Stage 2 is accepted when this branch is created/rebound, old Recording Profile authority is historical/rollback receipt only, this authority and plan are admitted, the Stage 2 USER review packet exists, validation is green, commit is created, and branch is pushed.`
 Validation Proof Requirements: `git diff checks, branch governance validation, worktree-confinement gate, release-readiness health gate, branch readiness planning fixture validation, FAM-006 HUD validators, runtime-fam006 validation suite, release body validation, AI provider state validation, source-owner marker validation, and compileall.`
 Screenshot / Live / User Test Summary Proof Requirements: `Not required for Stage 2 because no runtime/UI mutation occurs. Future user-facing seams require H1/LV1/UTS according to FAM-006 visual governance.`
-Implementation Sequence Proposal: `Active sequence after BP1 acceptance, BP2 acceptance, and BP3 approval is separate USER approval for bounded SLC-051 Workstream implementation. SLC-051 must prove active-overlay target/session truth only before later seams expand into HUD preview, Recording Control, output contract, or proof surfaces.`
+Implementation Sequence Proposal: `Active sequence after BP1 acceptance, BP2 acceptance, and BP3 approval begins with SLC-051 target/session truth, then continues seam-by-seam through SLC-052 HUD preview, SLC-053 Recording Control foundation, SLC-054 output contract, and SLC-055 proof readiness unless Workstream Green, a named blocker, or USER waiver is recorded.`
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
-User Test Summary Strategy: `No UTS is required for Branch Readiness Stage 2 setup because no runtime/user-facing implementation occurred yet on this active implementation carrier. Future user-facing active-overlay-driven recording seams require LV1 real user-facing launcher proof, per-element screenshots, compact/default comparison, output-file proof where applicable, and a USER Test Summary handoff unless explicitly waived by governance.`
-Planning Blockers: `Bounded Workstream implementation approval for SLC-051, SLC-051 implementation execution, recording execution, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, artifacts/raw evidence handling beyond approved review packet, sibling-worktree mutation, old branch cleanup/deletion, PR creation, merge, release, issue mutation, and Governance mutation remain pending USER decisions.`
-USER Decisions Needed: `The next USER decision is bounded Workstream implementation approval for SLC-051 Active Overlay recording target foundation. Recording execution, file writing, real Start/Stop behavior, tray controls, export/share, provider/model work, and later SLC-052 through SLC-055 implementation remain blocked unless separately admitted.`
+User Test Summary Strategy: `No UTS is required for SLC-051 because no visible recording control or file-writing behavior shipped. Future user-facing active-overlay-driven recording seams require LV1 real user-facing launcher proof, per-element screenshots, compact/default comparison, output-file proof where applicable, and a USER Test Summary handoff unless explicitly waived by governance.`
+Planning Blockers: `No same-branch Workstream blocker is recorded after SLC-051. H1, LV1/UTS, recording execution, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, artifacts/raw evidence handling beyond approved review packet, sibling-worktree mutation, old branch cleanup/deletion, PR creation, merge, release, issue mutation, and Governance mutation remain outside SLC-051.`
+USER Decisions Needed: `No USER decision is encoded here as a same-branch Workstream stop. The next Workstream action is SLC-052 HUD Overlay recording launcher and active-monitor transparency unless a named blocker, Workstream Green, or USER waiver is recorded.`
 Planning Completion Waiver: `Not required`
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: `Accepted for Branch Readiness Stage 2 setup`
+Engineering Contract Status: `Accepted`
 USER Engineering Planning Review: `Accepted active-overlay recording contract imported from the released planning receipt; USER review packet refreshed for this new carrier.`
-Runtime Implementation Approval: `Pending - this branch is the active runtime implementation carrier, BP1 and BP2 are accepted, and BP3 is approved. Runtime mutation remains blocked until USER separately approves bounded Workstream implementation for SLC-051 under current source truth.`
+Runtime Implementation Approval: `SLC-051 approved and implemented as target/session truth only. This branch is the active runtime implementation carrier, BP1 and BP2 are accepted, and BP3 is approved. SLC-052 through SLC-055 and recording execution/file writing remain blocked until USER separately approves them under current source truth.`
 Branch Purpose: `Admit the active-overlay-driven recording runtime carrier after rollback of the profile-loaded Recording Profile route.`
-Current Runtime Baseline: `FAM-006 Overlay Profile Runtime Foundation and Overlay Display Acceptance Foundation are released historical evidence; no active recording runtime is implemented.`
-Planned Runtime Delta: `No runtime state, config, schema, UI, or user-facing copy delta during Stage 2. This branch carries the starting implementation plan for Workstream Entry on the active runtime implementation carrier.`
-User-Facing Runtime Delta: `None in Stage 2. Future user-facing HUD Overlay card, Recording Control window, secondary settings, output-file, and Native Log Loader changes require Workstream Entry and separate USER implementation approval on this carrier.`
-State / Config / Schema Delta: `None during Stage 2. Future state must be active Overlay Profile membership driven and must not reintroduce profile-loaded Recording Profile membership without USER approval.`
-Validator / Helper Delta: `No runtime helper mutation during Stage 2 unless required by source-truth validation; future validators must prove active-overlay recording boundaries, compact/default visual usability, and output-file contract after runtime seams land.`
-Expected Changed Files / Surfaces: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md.`
-Approval-Boundary Audit: `Stage 2 does not authorize runtime implementation. The prior Recording Profile Workstream rollback is receipt-complete and preserved.`
+Current Runtime Baseline: `FAM-006 Overlay Profile Runtime Foundation and Overlay Display Acceptance Foundation are released historical evidence; SLC-051 now adds active-overlay recording target/session truth only.`
+Planned Runtime Delta: `SLC-051 implements read-only target/session truth for active Overlay Profile recording target selection. Future user-facing HUD Overlay card, Recording Control window, secondary settings, output-file, and Native Log Loader changes belong to later admitted seams.`
+User-Facing Runtime Delta: `None for visible recording controls. SLC-051 adds proof/data state only; future user-facing HUD Overlay card, Recording Control window, secondary settings, output-file, and Native Log Loader changes belong to later admitted seams.`
+State / Config / Schema Delta: `SLC-051 adds activeOverlayRecordingTarget and activeOverlayRecordingTargetProof state fields / metadata derived from active Overlay Profile membership and does not reintroduce profile-loaded Recording Profile membership.`
+Validator / Helper Delta: `SLC-051 extends FAM-006 HUD validators to prove active-overlay recording target/session boundaries, null/empty/stale/deleted/missing profile behavior, high-volume membership behavior, no hidden target state, and blocked recording execution/file writing.`
+Expected Changed Files / Surfaces: `desktop/monitoring_hud_state.py; nexus_visual/monitoring_hud.js; dev/orin_monitoring_hud_surface_validation.py; dev/orin_monitoring_hud_internal_sandbox_validation.py; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md.`
+Approval-Boundary Audit: `SLC-051 authorizes target/session truth only. The prior Recording Profile Workstream rollback is receipt-complete and preserved. Recording execution, file writing, visible controls, tray/export/provider/model work, and later seams remain blocked.`
 Future-Gated Items: `Tray recording controls; recording execution; export/share/import; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007 work; Governance mutation; issue mutation; PR creation; merge; release; artifacts/raw evidence handling.`
-Workstream Seam Map: `SLC-051 through SLC-055 are preserved as the accepted implementation route. SLC-051 Active Overlay recording target foundation is the recommended first bounded Workstream seam, pending separate USER implementation approval.`
+Workstream Seam Map: `SLC-051 through SLC-055 are preserved as the accepted implementation route. SLC-051 Active Overlay recording target foundation is implemented; SLC-052 HUD Overlay recording launcher and active-monitor transparency is the next queued same-branch seam.`
 Proof Expectations: `Future proof must include active Overlay Profile membership target proof, HUD Overlay card launcher/target-preview transparency, standalone Recording Control window proof, secondary settings proof if admitted, output-file contract proof when implemented, null/stress state, concept separation, real user-level input for visible controls, compact/default screenshots, and pessimistic Codex photo review.`
 Risk Forecast: `Primary risks are stale Recording Profile concept bleed-through, accidental recording execution before approval, output-file format ambiguity, child-window/window-management drift, active Overlay Profile membership ambiguity, compact UI clipping, and validator false-green.`
-Recommendations And Alternatives: `Recommend separate bounded Workstream implementation approval for SLC-051 before any runtime mutation. Route back to BP3 revision only if implementation preflight proves the accepted BP3 guardrails are stale or unsafe.`
+Recommendations And Alternatives: `Recommend continuing to bounded SLC-052 before any visible launcher/preview runtime mutation beyond that seam. Route back to BP3 revision only if implementation preflight proves the accepted BP3 guardrails are stale or unsafe.`
 Plan Version / Revision Status: `v1 implementation-carrier import of the released v4 active-overlay recording contract.`
-Plan-To-Implementation Traceability: `This branch has no runtime implementation yet. Future Workstream and PR Readiness on this implementation carrier must compare planned deltas against actual implementation by listing each SLC-051 through SLC-055 planned delta, files changed, actual runtime/UI/state/config/schema behavior, validators/helpers run, H1 findings, LV1 screenshots/videos, UTS disposition, deferred boundaries, and commit evidence before claiming package completion.`
+Plan-To-Implementation Traceability: `SLC-051 target/session truth is implemented and traced to HUD state, HUD JavaScript, and FAM-006 validators. Future Workstream and PR Readiness on this implementation carrier must compare planned deltas against actual implementation by listing SLC-052 through SLC-055 planned deltas, files changed, actual runtime/UI/state/config/schema behavior, validators/helpers run, H1 findings, LV1 screenshots/videos, UTS disposition, deferred boundaries, and commit evidence before claiming package completion.`
 
 ## Slice Continuation Policy
 
@@ -141,28 +141,78 @@ Backlog-Split Reason: `None`
 
 ## Planning-Loop Guardrail
 
-Implementation Delta Class: `docs-only`
-Docs-Only Workstream: `Yes`
-Docs-Only Bypass Detail: `Not applicable - this implementation carrier has not entered Workstream yet.`
-Planning-Loop Bypass User Approval: `APPROVED`
-Planning-Loop Bypass Reason: `Not applicable during Stage 2 setup. Runtime implementation remains blocked until Workstream Entry and separate USER implementation approval.`
+Implementation Delta Class: `backend/runtime, developer-tooling`
+Docs-Only Workstream: `No`
+Docs-Only Bypass Detail: `Not applicable - SLC-051 implemented target/session truth in HUD state/JS owners and validators.`
+Planning-Loop Bypass User Approval: `None`
+Planning-Loop Bypass Reason: `None`
 
 ## Package And Slice Admission
 
 Family: `FAM-006 - Monitoring and HUD`
 Package: `PKG-006 - Active Overlay Recording Runtime Foundation`
-Package Admission State: `Implementation carrier admitted / BP3 approved / runtime implementation pending separate bounded USER approval`
+Package Admission State: `Implementation carrier admitted / BP3 approved / SLC-051 target/session truth implemented / SLC-052 through SLC-055 queued same-branch Workstream continuation`
 Admitted Slice Count: `5`
-Package Completion State: `Planning complete / implementation not started and intentionally deferred`
+Package Completion State: `In Workstream / SLC-051 complete / SLC-052 through SLC-055 pending`
 Single-Slice Package User Approval: `Not required - five concrete planned slices are admitted.`
 
 | Slice | Admission State | Purpose | Current Status |
 | --- | --- | --- | --- |
-| `SLC-051` Active Overlay recording target foundation | First bounded Workstream seam / pending USER implementation approval | Define the active Overlay Profile membership as the recording target and preserve Overlay Profile / Monitor Group separation. | Pending separate USER implementation approval on this carrier |
-| `SLC-052` HUD Overlay recording launcher and active-monitor transparency | Planned / pending Workstream Entry | Plan HUD Overlay card launcher, target/status preview, and active monitored monitor visibility without real Start/Stop, tray/export/provider scope, or recording execution. | Pending Workstream Entry and USER implementation approval on this carrier |
-| `SLC-053` standalone Recording Control window foundation | Planned / pending Workstream Entry | Plan compact OS-level Recording Control window behavior, target/status summary, independent lifetime from Dashboard, minimization/taskbar restore, and secondary settings-window routing without recording execution. | Pending Workstream Entry and USER implementation approval on this carrier |
-| `SLC-054` durable recording output contract | Planned / pending Workstream Entry | Propose and prove a durable graph/plot-ready output-file contract before or alongside any approved recording execution seam. | Pending Workstream Entry and USER implementation approval on this carrier |
-| `SLC-055` validation/live proof readiness | Planned / pending Workstream Entry | Plan validators, H1, LV1, screenshot/photo comparison, UTS handoff, null/stress coverage, and future-gated boundary proof. | Pending Workstream Entry and USER implementation approval on this carrier |
+| `SLC-051` Active Overlay recording target foundation | Workstream implemented / pending H1 and later proof | Define the active Overlay Profile membership as the recording target and preserve Overlay Profile / Monitor Group separation. | Implemented as target/session truth only; recording execution and file writing remain blocked |
+| `SLC-052` HUD Overlay recording launcher and active-monitor transparency | Queued same-branch Workstream continuation | Plan HUD Overlay card launcher, target/status preview, and active monitored monitor visibility without real Start/Stop, tray/export/provider scope, or recording execution. | Next active seam |
+| `SLC-053` standalone Recording Control window foundation | Queued same-branch Workstream continuation | Plan compact OS-level Recording Control window behavior, target/status summary, independent lifetime from Dashboard, minimization/taskbar restore, and secondary settings-window routing without recording execution. | Queued after SLC-052 |
+| `SLC-054` durable recording output contract | Queued same-branch Workstream continuation | Propose and prove a durable graph/plot-ready output-file contract before or alongside any approved recording execution seam. | Queued after SLC-053 |
+| `SLC-055` validation/live proof readiness | Queued same-branch Workstream continuation | Plan validators, H1, LV1, screenshot/photo comparison, UTS handoff, null/stress coverage, and future-gated boundary proof. | Queued after SLC-054 |
+
+## Admitted Implementation Slice
+
+- Slice ID: `SLC-051`
+- Goal: `Define and prove active Overlay Profile membership as the active-overlay recording target/session truth without adding recording execution.`
+- Runtime/User-Facing Delta: `Backend/runtime target-session state fields and JavaScript proof data markers only; no visible recording control, file writing, or Start/Stop behavior.`
+- Exact Affected Paths: `desktop/monitoring_hud_state.py`; `nexus_visual/monitoring_hud.js`; `dev/orin_monitoring_hud_surface_validation.py`; `dev/orin_monitoring_hud_internal_sandbox_validation.py`; `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md`; `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md`; `Docs/feature_backlog.md`; `Docs/prebeta_roadmap.md`.
+- Carried Issues: `None newly created or closed by this seam; SLC-051 is branch-local Workstream implementation proof.`
+- Non-Includes: `SLC-052 through SLC-055; recording execution; file writing; real Start/Stop controls; tray controls; export/share; Native Log Loader implementation; provider/model work; FAM-007 mutation; Governance mutation; PR creation; merge; release; issue mutation; cleanup.`
+- Implementation Admission Status: `USER-approved for bounded SLC-051 target/session truth only.`
+
+## Backlog Completion Status
+
+Backlog Completion State: `In Progress`
+
+Remaining Implementable Work: `Remaining bounded seams in this same branch: SLC-052 HUD Overlay recording launcher and active-monitor transparency; SLC-053 standalone Recording Control window foundation; SLC-054 durable recording output contract; SLC-055 validation/live proof readiness. Later gates remain H1; LV1/UTS where visible seams require it; PR Readiness after Workstream and later proof gates.`
+
+Future-Dependent Blockers: `None for same-branch SLC-052, SLC-053, SLC-054, and SLC-055 Workstream continuation. Recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, FAM-007 work, Governance mutation, PR creation, merge, release, issue mutation, old branch cleanup/deletion, and artifacts/raw evidence handling beyond approved review materials are future-gated boundaries, not stop-authorizing blockers for the admitted target-to-proof package.`
+
+Completion Status: `In Progress`
+
+## Seam Continuation Decision
+
+Seam Status: `In Progress`
+
+Slice Status: `In Progress`
+
+Completion Status: `In Progress`
+
+Waiver Status: `None`
+
+Continue Decision: `Continue`
+
+Continuation Execution Latch: `Active - final response is prohibited while this same bounded Workstream run can legally continue, and the next seam must execute in the same bounded Workstream run unless a named blocker or USER waiver is recorded.`
+
+Stop Basis: `None`
+
+Next Active Seam: `SLC-052 HUD Overlay recording launcher and active-monitor transparency`
+
+Stop Condition: `None - SLC-051 is green and the same-branch package remains open through SLC-052, SLC-053, SLC-054, and SLC-055.`
+
+Continuation Action: `Continue to SLC-052 in the same bounded Workstream run after this SLC-051 receipt validates; do not return Workstream Green, PR Readiness, or release posture from SLC-051 alone.`
+
+Single-Seam Workstream Waiver: `None`
+
+Single-Seam Or Single-Slice Waiver Authority: `USER only - Codex cannot infer single-seam or single-slice Workstream authority from a bounded seam, green validation, helper output, prompt wording, or a narrow implementation pass.`
+
+Single-Seam Or Single-Slice Workstream Blocker: `One seam or one slice visible in a Workstream is a blocker unless USER waiver text explicitly waives it; not active because this branch keeps SLC-052, SLC-053, SLC-054, and SLC-055 visible as remaining same-branch Workstream seams.`
+
+Bounded Seam Default: `Bounded means one active seam at a time; bounded is not one-seam Workstream authority, and SLC-051 completion is not terminal Workstream authority or automatic SLC-052 implementation authority.`
 
 ## Assigned Worktree Confinement
 
@@ -170,7 +220,7 @@ Assigned Worktree Confinement: `Active`
 Active Thread Owner: `FAM-006 assigned Codex thread`
 Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
-Intended Write Set: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
+Intended Write Set: `desktop/monitoring_hud_state.py; nexus_visual/monitoring_hud.js; dev/orin_monitoring_hud_surface_validation.py; dev/orin_monitoring_hud_internal_sandbox_validation.py; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree is assigned this branch.`
 Dirty Worktree Collision Check: `PASS - current owner is feature/fam-006-active-overlay-recording-runtime-implementation in C:\Nexus Worktrees\FAM-006; dirty tracked files are the USER-approved Stage 2 source-truth setup edits for this active owner.`
 Dirty Worktree Recovery Packet: `Not required - dirty files are current USER-approved implementation-carrier source-truth edits owned by this branch and will be validated before commit.`
@@ -188,12 +238,12 @@ Worktree Escape User Waiver Missing: `Not applicable - no off-worktree mutation 
 
 Carrier Lifecycle Classification: `Successor branch from rollback receipt carrier`
 Remote Branch State: `Pushed and tracking origin/feature/fam-006-active-overlay-recording-runtime-implementation`
-Unique Branch Diff: `Stage 2 source-truth setup edits only`
+Unique Branch Diff: `Stage 2 source-truth setup edits plus bounded SLC-051 target/session truth implementation and validator proof`
 Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose creation-time origin/main baseline was 98c82037e85940e630b727c8362bc9771ffd05e3; last reconciled origin/main is 9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7 after governed current-main reconciliation. Helper output, validator output, Codex digest, or external operational state records live origin/main at review time.`
 Origin/Main Advanced Since Branch Creation: `YES - last reconciled origin/main 9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7 is newer than the creation-time baseline and the branch has been reconciled to that baseline. Later origin/main movement is handled by prompt-entry freshness and current-main reconciliation analysis.`
 Open PR State: `No PR has been created for this active implementation carrier. PR creation remains a pending USER decision after Workstream, Hardening, Live Validation / UTS, and PR Readiness gates.`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
-Recommended Stage 2 Carrier Action: `Keep this implementation carrier active for separate bounded SLC-051 Workstream implementation approval after BP3 approval under the post-PR #248 two-axis gate model; runtime mutation still requires that separate bounded USER approval.`
+Recommended Stage 2 Carrier Action: `Keep this implementation carrier active for SLC-052 Workstream continuation or H1 routing after SLC-051 target/session truth implementation.`
 Stale Branch Cleanup Plan: `Do not delete the old Recording Profile branch during Stage 2. Fold it to historical/rollback receipt posture in source truth; old branch cleanup/deletion remains a pending USER decision.`
 Branch Cleanup Execution Gate: `Closed for source-truth fold-down only; no local/remote branch deletion is authorized.`
 Stable Worktree Path: `C:\Nexus Worktrees\FAM-006`
@@ -202,26 +252,26 @@ No Unique Commit Loss Proof: `Old branch is preserved as rollback receipt source
 
 ## Branch Objective
 
-Branch Objective: `Active implementation-carrier receipt preserving the corrected FAM-006 active-overlay-driven recording plan as maintained source truth before Workstream Entry and bounded runtime implementation approval.`
+Branch Objective: `Active implementation-carrier receipt preserving the corrected FAM-006 active-overlay-driven recording plan and SLC-051 target/session truth implementation.`
 
 ## Target End-State
 
-Target End-State: `Active implementation source truth aligned after current-main reconciliation, released foundation branch preserved as historical traceability, old Recording Profile branch folded to historical/rollback receipt posture, accepted v3/v4 USER Branch Plan Contract preserved, and runtime mutation deferred until this carrier completes Workstream Entry and receives separate bounded implementation approval.`
+Target End-State: `Active implementation source truth aligned after current-main reconciliation, released foundation branch preserved as historical traceability, old Recording Profile branch folded to historical/rollback receipt posture, accepted v3/v4 USER Branch Plan Contract preserved, SLC-051 target/session truth implemented, and later runtime controls handled by their admitted Workstream seams.`
 
 ## Backlog Completion Strategy
 
-Branch Completion Goal: `Prepare the active implementation carrier so FAM-006 runtime work can start from maintained active-overlay source truth after Workstream Entry and separate bounded implementation approval.`
+Branch Completion Goal: `Implement the accepted active-overlay recording package across admitted seams, starting with SLC-051 target/session truth and continuing seam-by-seam through SLC-052 through SLC-055 unless Workstream Green, named blocker, or USER waiver is recorded.`
 Known Future-Dependent Blockers: `Tray recording controls, recording execution, export/share, provider/model work, broad theme/skin work, FAM-007, Governance mutation, issue mutation, release execution, artifacts/raw evidence handling, old branch cleanup/deletion, and future successor branch creation remain pending USER decisions.`
 Branch Closure Rule: `This implementation carrier is not package-complete until the approved Workstream, Hardening, Live Validation / UTS, PR, merge, and release gates complete or are explicitly waived. Do not claim runtime package-complete from Stage 2 setup or source-truth repair alone.`
 
 ## Blockers
 
-Active Blockers: `No current-main reconciliation blocker remains after reconciliation to origin/main@9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7. BP1 USER Gate State is USER Accepted for this active branch vision. BP2 USER Gate State is USER Accepted for this active branch plan. BP3 USER Gate State is USER Approved under the post-PR #248 two-axis model. Bounded SLC-051 implementation approval, release execution beyond already published v1.7.25-prebeta, issue mutation, artifacts/raw evidence handling beyond approved USER review materials, sibling-worktree mutation, old branch cleanup/deletion, runtime implementation execution, Workstream implementation execution, tray recording controls, recording execution, file writing, real Start/Stop controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, durable Native Log Loader implementation/source-truth mutation beyond future planning, per-overlay effective polling policy implementation, and Governance worktree mutation remain pending separate USER decisions.`
-PR Readiness Blocker: `PR Readiness is not reached for this active implementation carrier. Workstream, H1, LV1, and UTS remain future gates for any approved runtime/user-facing implementation.`
+Active Blockers: None. No current-main reconciliation blocker remains after reconciliation to origin/main@9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7. BP1 USER Gate State is USER Accepted for this active branch vision. BP2 USER Gate State is USER Accepted for this active branch plan. BP3 USER Gate State is USER Approved under the post-PR #248 two-axis model. SLC-051 target/session truth is implemented, and SLC-052 through SLC-055 remain queued same-branch Workstream continuation.
+PR Readiness Boundary: PR Readiness is not reached for this active implementation carrier. Workstream, H1, LV1, and UTS remain future gates for any approved runtime/user-facing implementation. H1, LV1/UTS, release execution beyond already published v1.7.25-prebeta, issue mutation, artifacts/raw evidence handling beyond approved USER review materials, sibling-worktree mutation, old branch cleanup/deletion, tray recording controls, recording execution, file writing, real Start/Stop controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, durable Native Log Loader implementation/source-truth mutation beyond future planning, per-overlay effective polling policy implementation, and Governance worktree mutation remain outside SLC-051.
 
 ## Exit Criteria
 
-Exit Criteria: `Current-main reconciliation through PR #248 is met: source truth records the active-overlay branch identity, the released foundation branch remains historical traceability, incoming governance reform is preserved as current authority, BP1 USER Branch Vision is accepted, BP2 USER Branch Plan is accepted, and BP3 Workstream Entry / Orchestration Validation is approved. Workstream execution, H1, LV1, and UTS are not met or skipped for the implementation package; they remain future gates for approved runtime seams on this carrier.`
+Exit Criteria: `Current-main reconciliation through PR #248 is met: source truth records the active-overlay branch identity, the released foundation branch remains historical traceability, incoming governance reform is preserved as current authority, BP1 USER Branch Vision is accepted, BP2 USER Branch Plan is accepted, BP3 Workstream Entry / Orchestration Validation is approved, and SLC-051 target/session truth is implemented. H1, LV1, UTS, and later seams are not met or skipped for the implementation package; they remain future gates for approved runtime seams on this carrier.`
 
 ## Rollback Target
 
@@ -230,7 +280,7 @@ Rollback Target: `Branch Readiness`
 ## Next Legal Phase
 
 Next Legal Phase: `Workstream`
-Next Legal Phase Detail: `Current-main reconciliation to origin/main@9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7 keeps this branch in the canonical Branch Readiness / Branch Planning posture. BP1 USER Branch Vision and BP2 USER Branch Plan are accepted under current-main governance, and BP3 Workstream Entry / Orchestration Validation is approved. Pre-PR #248 BP1/BP2/BP3 packets are superseded legacy evidence for active decisions. The next USER decision is separate bounded SLC-051 Workstream implementation approval. No FAM-007 mutation is authorized here.`
+Next Legal Phase Detail: `SLC-051 target/session truth implementation is complete inside Workstream. The next legal action is same-branch Workstream continuation to SLC-052 unless a named blocker, Workstream Green, or USER waiver is recorded. No FAM-007 mutation is authorized here.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -238,23 +288,23 @@ Expected Seam Families And Risk Classes: `Active Overlay Profile recording targe
 
 ## User Test Summary Strategy
 
-User Test Summary Strategy: `No UTS is required for this branch because no runtime/user-facing implementation occurred. Future user-facing active-overlay-driven recording seams require LV1 real user-facing launcher proof, per-element screenshots, compact/default comparison, output-file proof where applicable, and a USER Test Summary handoff unless explicitly waived by governance.`
+User Test Summary Strategy: `No UTS is required for SLC-051 because no visible recording control or file-writing behavior shipped. Future user-facing active-overlay-driven recording seams require LV1 real user-facing launcher proof, per-element screenshots, compact/default comparison, output-file proof where applicable, and a USER Test Summary handoff unless explicitly waived by governance.`
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `Branch Planning - BP3 approved`
+Current Phase: `Workstream - SLC-051 implemented`
 Next Legal Phase: `Workstream`
-Why This Phase Is Next: `FAM-006 current-main reconciliation to origin/main@9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7 is complete and incoming Branch Planning / USER Hub governance is current authority inside the canonical Branch Readiness / Branch Planning posture. BP1 USER Branch Vision and BP2 USER Branch Plan are accepted for the active-overlay recording direction, and BP3 USER Gate State is USER Approved.`
-Approval Required: `USER approval is required before bounded SLC-051 Workstream implementation can begin; cleanup, issue mutation, release execution beyond already published v1.7.25-prebeta, or runtime/provider/model work remain separate decisions.`
-Exact USER Approval Text: `I approve bounded Workstream implementation of SLC-051 Active Overlay recording target foundation for FAM-006 Active Overlay Recording Runtime Implementation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-implementation. Scope is target/session truth only: active Overlay Profile ID/name, membership snapshot candidate, null/empty/stale/deleted/missing profile behavior, high-volume membership behavior, no hidden recording target state, and actual owner verification using current FAM-006 HUD/Overlay Profile owners. SLC-052 minimal HUD preview may pair only if implementation preflight proves it is inseparable and still bounded/safe. Recording execution, file writing, real Start/Stop controls, tray controls, export/share, Native Log Loader implementation, provider/model work, FAM-007 mutation, Governance mutation, PR creation, merge, release, issue mutation, and cleanup remain excluded.`
-Allowed Scope: `Decision packet and, if USER approves next, bounded SLC-051 Workstream implementation only.`
-Explicit Exclusions: `Runtime implementation; SLC-051 implementation; Workstream implementation; recording execution; file writing; real Start/Stop controls; tray recording controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; future branch creation; future PR creation; future merge; release execution beyond already published v1.7.25-prebeta; issue mutation; artifacts/raw evidence handling beyond approved review materials; sibling-worktree mutation; old branch cleanup/deletion; Governance worktree mutation.`
+Why This Phase Is Next: `FAM-006 current-main reconciliation to origin/main@9b64ac1b4faf4d29033e3a8f299a1293eb26f2d7 is complete, BP1/BP2 are accepted, BP3 is USER Approved, and SLC-051 target/session truth is implemented. The same package remains open for SLC-052 through SLC-055 or H1 routing.`
+Approval Required: `Same-branch Workstream continuation proceeds seam-by-seam under the admitted package unless a named blocker, Workstream Green, or USER waiver is recorded. Cleanup, issue mutation, release execution beyond already published v1.7.25-prebeta, recording execution, file writing, Start/Stop, tray/export/provider/model work remain outside SLC-051.`
+Exact USER Approval Text: `I approve bounded Workstream implementation of SLC-052 HUD Overlay recording launcher and active-monitor transparency for FAM-006 Active Overlay Recording Runtime Implementation in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-implementation. Scope is launcher/target-preview planning-to-runtime only if it remains bounded and does not add recording execution, file writing, real Start/Stop controls, tray controls, export/share, Native Log Loader implementation, provider/model work, FAM-007 mutation, Governance mutation, PR creation, merge, release, issue mutation, or cleanup.`
+Allowed Scope: `Decision packet and, if USER approves next, bounded SLC-052 Workstream implementation only, or H1 routing if source truth requires hardening before continuing.`
+Explicit Exclusions: `Recording execution; file writing; real Start/Stop controls; tray recording controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; future branch creation; future PR creation; future merge; release execution beyond already published v1.7.25-prebeta; issue mutation; artifacts/raw evidence handling beyond approved review materials; sibling-worktree mutation; old branch cleanup/deletion; Governance worktree mutation.`
 Validation Required: `Identity, source truth, branch governance, worktree confinement, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and focused FAM-006 validators as applicable.`
 Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, missing package/slice proof, stale active-authority drift, or need for runtime implementation.`
-USER Plan Review Gate: `BP3 is closed as USER Approved. Packet Reviewability State was Reviewable before USER review, and USER Gate State is USER Approved. Implementation remains blocked until separate bounded SLC-051 Workstream implementation approval.`
+USER Plan Review Gate: `BP3 is closed as USER Approved. Packet Reviewability State was Reviewable before USER review, and USER Gate State is USER Approved. SLC-051 implementation is complete as target/session truth only; later seams remain queued same-branch Workstream continuation.`
 USER Inspection Files: `C:\Nexus USER\FAM-006 when generated; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/family_visions/FAM-006_monitoring_and_hud.md; Docs/nexus_vision.md`
 Review Required Because: `Active-overlay-driven recording is a user-facing FAM-006 runtime foundation and must remain distinct from Overlay Profile editing, Monitor Group organization, tray controls, export/share, provider/model work, and broad theme/skin work.`
-Implementation Blocker: `Runtime implementation is not approved by Stage 2 setup, current-main reconciliation, BP1 acceptance, BP2 acceptance, BP3 packet reviewability, or BP3 approval. Runtime mutation on this active carrier requires separate bounded SLC-051 Workstream implementation approval.`
+Implementation Blocker: `SLC-051 implementation is complete as target/session truth only. No SLC-052 through SLC-055 blocker is recorded; recording execution, file writing, real Start/Stop controls, tray/export/provider/model work, PR, merge, release, issue mutation, and cleanup remain outside SLC-051.`
 Review Waiver Reason: `Not applicable - BP1 and BP2 were accepted, not waived; BP3 was approved, not waived.`
 
 ## Later-Phase Expectations
@@ -265,7 +315,7 @@ Later-Phase Expectations: `This implementation carrier must analyze the complete
 
 Seam 1: `SLC-051 Active Overlay recording target foundation`
 Goal: `Define and prove the active Overlay Profile membership as the recording target without implementing unauthorized recording execution.`
-Scope: `Analyze and later implement only the target/state foundation if USER approves Workstream implementation; preserve Overlay Profile display ownership and Monitor Group organization.`
+Scope: `Implemented target/state foundation only; preserve Overlay Profile display ownership and Monitor Group organization.`
 Non-Includes: `Tray controls, actual recording execution unless separately admitted, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, old branch cleanup/deletion, and artifacts/raw evidence handling beyond approved review bundles.`
 
 Seam 2: `SLC-052 HUD Overlay recording launcher and active-monitor transparency`
@@ -275,4 +325,4 @@ Seam 5: `SLC-055 validation/live proof readiness`
 
 ## Active Seam
 
-Active seam: `None - BP3 is approved, but no runtime Workstream seam is active until USER separately approves bounded SLC-051 Workstream implementation.`
+Active seam: `SLC-051 complete as target/session truth only. Next seam is not active until USER separately approves bounded SLC-052 Workstream implementation or source truth routes to H1.`

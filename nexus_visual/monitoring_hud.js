@@ -234,6 +234,7 @@ function monitoringHudSafeCardsObject(cards) {
 
 const monitoringHudOverlayProfileSchemaVersion = 1;
 const monitoringHudDefaultOverlayProfileId = "default-overlay-profile";
+const monitoringHudActiveOverlayRecordingTargetSchemaVersion = 1;
 
 function monitoringHudSafeOverlayProfilesObject(overlayProfiles) {
   if (!overlayProfiles || typeof overlayProfiles !== "object" || Array.isArray(overlayProfiles)) return {};
@@ -275,6 +276,78 @@ function monitoringHudDefaultOverlayProfile(cards, previousProfile = {}) {
   };
 }
 
+function monitoringHudBuildActiveOverlayRecordingTargetSnapshot(targetState, requestedActiveProfileId = "") {
+  const safeState = targetState || monitoringHudControlState;
+  const profiles = monitoringHudSafeOverlayProfilesObject(safeState.overlayProfiles);
+  const activeProfileId = String(safeState.activeOverlayProfileId || "").trim();
+  const requestedProfileId = String(requestedActiveProfileId || "").trim();
+  const activeProfile = activeProfileId && profiles[activeProfileId] ? profiles[activeProfileId] : null;
+  const monitorIds = activeProfile
+    ? monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, safeState.cards || {})
+    : [];
+  const fallbackUsed = Boolean(requestedProfileId && requestedProfileId !== activeProfileId);
+  let targetStateLabel = "no-overlay-profiles";
+  if (activeProfile && monitorIds.length >= 100) {
+    targetStateLabel = "high-volume-membership";
+  } else if (activeProfile && monitorIds.length > 0) {
+    targetStateLabel = "ready";
+  } else if (activeProfile) {
+    targetStateLabel = "empty-membership";
+  } else if (safeState.overlayProfileDefaultDeletedByUser && Object.keys(profiles).length === 0) {
+    targetStateLabel = "deleted-default-empty";
+  } else if (Object.keys(profiles).length > 0) {
+    targetStateLabel = "missing-active-profile";
+  }
+  return {
+    schemaVersion: monitoringHudActiveOverlayRecordingTargetSchemaVersion,
+    kind: "active-overlay-recording-target",
+    scope: "target-session-truth-only",
+    source: "active-overlay-profile-membership",
+    activeOverlayProfileId: activeProfileId,
+    requestedActiveOverlayProfileId: requestedProfileId,
+    activeOverlayProfileName: activeProfile ? monitoringHudCleanOverlayProfileName(activeProfile.name, "Overlay Profile") : "",
+    targetState: targetStateLabel,
+    fallbackUsed: fallbackUsed,
+    membershipSnapshotCandidate: monitorIds.slice(),
+    membershipSnapshotCandidateCount: monitorIds.length,
+    emptyMembership: monitorIds.length === 0,
+    highVolumeMembership: monitorIds.length >= 100,
+    snapshotAtStartModel: "future-snapshot-at-recording-start-target-candidate",
+    hiddenRecordingTargetState: "absent",
+    noHiddenRecordingTargetState: true,
+    recordingExecutionState: "blocked",
+    fileWritingState: "blocked",
+    separateRecordingProfileState: "not-created",
+    recordingProfileBoundary: "recording-profile-state-absent-future-gated",
+    monitorGroupBoundary: "monitor-groups-organize-configuration-only",
+    profileCount: Object.keys(profiles).length
+  };
+}
+
+function monitoringHudApplyActiveOverlayRecordingTargetProof(targetState, requestedActiveProfileId = "") {
+  const snapshot = monitoringHudBuildActiveOverlayRecordingTargetSnapshot(targetState, requestedActiveProfileId);
+  targetState.activeOverlayRecordingTarget = snapshot;
+  targetState.activeOverlayRecordingTargetProof = {
+    schemaVersion: monitoringHudActiveOverlayRecordingTargetSchemaVersion,
+    slice: "SLC-051",
+    source: snapshot.source,
+    scope: snapshot.scope,
+    targetState: snapshot.targetState,
+    activeOverlayProfileId: snapshot.activeOverlayProfileId,
+    membershipSnapshotCandidateCount: snapshot.membershipSnapshotCandidateCount,
+    snapshotAtStartModel: snapshot.snapshotAtStartModel,
+    nullActiveProfileHandled: ["deleted-default-empty", "no-overlay-profiles", "missing-active-profile"].includes(snapshot.targetState),
+    emptyMembershipHandled: snapshot.emptyMembership,
+    staleDeletedMissingActiveProfileHandled: snapshot.fallbackUsed || ["deleted-default-empty", "missing-active-profile", "no-overlay-profiles"].includes(snapshot.targetState),
+    highVolumeMembership: snapshot.highVolumeMembership,
+    noHiddenRecordingTargetState: true,
+    recordingExecutionState: "blocked",
+    fileWritingState: "blocked",
+    recordingProfileBoundary: "recording-profile-state-absent-future-gated"
+  };
+  return snapshot;
+}
+
 function monitoringHudNormalizeOverlayProfileState(state) {
   const targetState = state || monitoringHudControlState;
   const cards = monitoringHudSafeCardsObject(targetState.cards || {});
@@ -301,7 +374,8 @@ function monitoringHudNormalizeOverlayProfileState(state) {
     };
   });
 
-  const activeProfileId = String(targetState.activeOverlayProfileId || "").trim();
+  const requestedActiveProfileId = String(targetState.activeOverlayProfileId || "").trim();
+  const activeProfileId = requestedActiveProfileId;
   const shouldEnsureDefaultProfile = migratedLegacyCards
     || (!defaultProfileDeletedByUser && Object.keys(profiles).length === 0)
     || (!defaultProfileDeletedByUser && activeProfileId === monitoringHudDefaultOverlayProfileId)
@@ -335,6 +409,7 @@ function monitoringHudNormalizeOverlayProfileState(state) {
     recordingProfileBoundary: "recording-profile-state-absent-future-gated",
     visibleEditorUi: "slc-039-membership-editor"
   };
+  monitoringHudApplyActiveOverlayRecordingTargetProof(targetState, requestedActiveProfileId);
   return targetState;
 }
 
@@ -3604,6 +3679,8 @@ function monitoringHudRenderOverlayDisplay() {
   const cards = monitoringHudControlState.cards || {};
   const activeProfile = monitoringHudActiveOverlayProfile() || {};
   const activeMonitorIds = monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, cards);
+  const activeRecordingTarget = monitoringHudControlState.activeOverlayRecordingTarget
+    || monitoringHudBuildActiveOverlayRecordingTargetSnapshot(monitoringHudControlState);
   const activeMonitorIdSet = new Set(activeMonitorIds);
   const overlayDeferred = monitoringHudControlState.overlayDeferred !== false;
   monitoringHudOverlayDisplay.dataset.anchorState = monitoringHudControlState.anchored ? "anchored" : "unanchored";
@@ -3640,6 +3717,16 @@ function monitoringHudRenderOverlayDisplay() {
   monitoringHudOverlayDisplay.dataset.overlayProfileEditor = "slc-039-membership-editor";
   monitoringHudOverlayDisplay.dataset.overlayProfileMembership = "editable-slc-039-mapping";
   monitoringHudOverlayDisplay.dataset.recordingProfileState = "recording-profile-state-absent-future-gated";
+  monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTarget = "slc-051-active-overlay-profile-membership-target";
+  monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTargetProof = monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTargetProof || "pending";
+  monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTargetState = activeRecordingTarget.targetState || "no-overlay-profiles";
+  monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTargetSource = activeRecordingTarget.source || "active-overlay-profile-membership";
+  monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTargetScope = activeRecordingTarget.scope || "target-session-truth-only";
+  monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTargetMonitorCount = String(activeRecordingTarget.membershipSnapshotCandidateCount || 0);
+  monitoringHudOverlayDisplay.dataset.snapshotAtStartModel = activeRecordingTarget.snapshotAtStartModel || "future-snapshot-at-recording-start-target-candidate";
+  monitoringHudOverlayDisplay.dataset.hiddenRecordingTargetState = activeRecordingTarget.hiddenRecordingTargetState || "absent";
+  monitoringHudOverlayDisplay.dataset.recordingExecutionState = activeRecordingTarget.recordingExecutionState || "blocked";
+  monitoringHudOverlayDisplay.dataset.recordingFileWritingState = activeRecordingTarget.fileWritingState || "blocked";
   if (monitoringHudOverlayProfileDisplayStatus) {
     monitoringHudOverlayProfileDisplayStatus.dataset.overlayProfileDisplayStatus = "slc-043-active-profile-display";
     monitoringHudOverlayProfileDisplayStatus.dataset.activeOverlayProfileId = String(monitoringHudControlState.activeOverlayProfileId || "");
@@ -3821,6 +3908,18 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.manageOverlayProfileContext = "clickable-assigned-overlay-status-window";
   monitoringHud.dataset.sourceSettingsIa = "source-list-settings-entry-points";
   monitoringHud.dataset.recordingProfileState = "recording-profile-state-absent-future-gated";
+  const activeRecordingTarget = monitoringHudControlState.activeOverlayRecordingTarget
+    || monitoringHudBuildActiveOverlayRecordingTargetSnapshot(monitoringHudControlState);
+  monitoringHud.dataset.activeOverlayRecordingTarget = "slc-051-active-overlay-profile-membership-target";
+  monitoringHud.dataset.activeOverlayRecordingTargetProof = monitoringHud.dataset.activeOverlayRecordingTargetProof || "pending";
+  monitoringHud.dataset.activeOverlayRecordingTargetState = activeRecordingTarget.targetState || "no-overlay-profiles";
+  monitoringHud.dataset.activeOverlayRecordingTargetSource = activeRecordingTarget.source || "active-overlay-profile-membership";
+  monitoringHud.dataset.activeOverlayRecordingTargetScope = activeRecordingTarget.scope || "target-session-truth-only";
+  monitoringHud.dataset.activeOverlayRecordingTargetMonitorCount = String(activeRecordingTarget.membershipSnapshotCandidateCount || 0);
+  monitoringHud.dataset.snapshotAtStartModel = activeRecordingTarget.snapshotAtStartModel || "future-snapshot-at-recording-start-target-candidate";
+  monitoringHud.dataset.hiddenRecordingTargetState = activeRecordingTarget.hiddenRecordingTargetState || "absent";
+  monitoringHud.dataset.recordingExecutionState = activeRecordingTarget.recordingExecutionState || "blocked";
+  monitoringHud.dataset.recordingFileWritingState = activeRecordingTarget.fileWritingState || "blocked";
   monitoringHud.dataset.warningControlPosture = monitoringHudControlState.warningNotificationsMuted
     ? "global-muted"
     : "visual-notifications-enabled";
@@ -4671,6 +4770,153 @@ window.runMonitoringHudOverlayProfileStateProof = function() {
   if (monitoringHudOverlayDisplay) {
     monitoringHudOverlayDisplay.dataset.overlayProfileStateProof = proof.passed ? "pass" : "fail";
     monitoringHudOverlayDisplay.dataset.overlayProfileEditor = proof.visibleProfileEditorUi;
+  }
+  return proof;
+};
+
+window.runMonitoringHudActiveOverlayRecordingTargetProof = function() {
+  const previousState = JSON.stringify(monitoringHudControlState);
+  let proof = {
+    passed: false,
+    package: "PKG-006",
+    slice: "SLC-051",
+    seam: "Active Overlay recording target foundation",
+    activeOverlayProfileMembershipIsSource: false,
+    snapshotAtStartTargetCandidate: false,
+    nullActiveProfileHandled: false,
+    emptyMembershipHandled: false,
+    staleMissingActiveProfileHandled: false,
+    deletedDefaultHandled: false,
+    highVolumeMembershipHandled: false,
+    noHiddenRecordingTargetState: false,
+    recordingExecutionBlocked: false,
+    fileWritingBlocked: false,
+    recordingProfileBoundary: true,
+    monitorGroupBoundary: true
+  };
+  try {
+    const fixtureCards = {};
+    for (let index = 1; index <= 130; index += 1) {
+      const cardId = `slc051-monitor-${String(index).padStart(3, "0")}`;
+      fixtureCards[cardId] = Object.assign(monitoringHudCardDefaults(cardId), {
+        id: cardId,
+        title: `SLC-051 Monitor ${String(index).padStart(3, "0")}`,
+        enabled: true,
+        sensors: index % 2 === 0 ? ["cpu-load"] : [],
+        pollingRateMs: 1000
+      });
+    }
+
+    monitoringHudControlState.cards = fixtureCards;
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = false;
+    monitoringHudControlState.overlayProfiles = {
+      "slc051-target": {
+        id: "slc051-target",
+        name: "SLC-051 Target Profile",
+        monitorIds: ["slc051-monitor-003", "slc051-monitor-001", "missing-monitor", "slc051-monitor-003"],
+        displayMode: "monitor-cards",
+        monitorGroupId: "must-not-survive",
+        recordingProfileId: "must-not-survive"
+      }
+    };
+    monitoringHudControlState.activeOverlayProfileId = "slc051-target";
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    monitoringHudRenderOverlayDisplay();
+    const targetSnapshot = monitoringHudControlState.activeOverlayRecordingTarget || {};
+    const targetProfile = monitoringHudControlState.overlayProfiles["slc051-target"] || {};
+    proof.activeOverlayProfileMembershipIsSource = targetSnapshot.source === "active-overlay-profile-membership"
+      && JSON.stringify(targetSnapshot.membershipSnapshotCandidate || []) === JSON.stringify(["slc051-monitor-003", "slc051-monitor-001"])
+      && monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTargetSource === "active-overlay-profile-membership";
+    proof.snapshotAtStartTargetCandidate = targetSnapshot.snapshotAtStartModel === "future-snapshot-at-recording-start-target-candidate"
+      && monitoringHudOverlayDisplay.dataset.snapshotAtStartModel === "future-snapshot-at-recording-start-target-candidate";
+    proof.noHiddenRecordingTargetState = targetSnapshot.hiddenRecordingTargetState === "absent"
+      && targetSnapshot.noHiddenRecordingTargetState === true
+      && monitoringHudOverlayDisplay.dataset.hiddenRecordingTargetState === "absent";
+    proof.recordingExecutionBlocked = targetSnapshot.recordingExecutionState === "blocked"
+      && monitoringHudOverlayDisplay.dataset.recordingExecutionState === "blocked";
+    proof.fileWritingBlocked = targetSnapshot.fileWritingState === "blocked"
+      && monitoringHudOverlayDisplay.dataset.recordingFileWritingState === "blocked";
+    proof.recordingProfileBoundary = !Object.prototype.hasOwnProperty.call(targetProfile, "recordingProfileId")
+      && targetSnapshot.recordingProfileBoundary === "recording-profile-state-absent-future-gated";
+    proof.monitorGroupBoundary = !Object.prototype.hasOwnProperty.call(targetProfile, "monitorGroupId")
+      && targetSnapshot.monitorGroupBoundary === "monitor-groups-organize-configuration-only";
+
+    monitoringHudControlState.overlayProfiles = {
+      "slc051-empty": {
+        id: "slc051-empty",
+        name: "SLC-051 Empty Target",
+        monitorIds: [],
+        displayMode: "monitor-cards"
+      }
+    };
+    monitoringHudControlState.activeOverlayProfileId = "slc051-empty";
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    proof.emptyMembershipHandled = monitoringHudControlState.activeOverlayRecordingTarget.targetState === "empty-membership"
+      && monitoringHudControlState.activeOverlayRecordingTarget.membershipSnapshotCandidateCount === 0;
+
+    monitoringHudControlState.overlayProfiles = {
+      "slc051-fallback": {
+        id: "slc051-fallback",
+        name: "SLC-051 Fallback Target",
+        monitorIds: ["slc051-monitor-004"],
+        displayMode: "monitor-cards"
+      }
+    };
+    monitoringHudControlState.activeOverlayProfileId = "missing-profile";
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    proof.staleMissingActiveProfileHandled = monitoringHudControlState.activeOverlayProfileId === "slc051-fallback"
+      && monitoringHudControlState.activeOverlayRecordingTarget.fallbackUsed === true
+      && JSON.stringify(monitoringHudControlState.activeOverlayRecordingTarget.membershipSnapshotCandidate || []) === JSON.stringify(["slc051-monitor-004"]);
+
+    monitoringHudControlState.overlayProfiles = {};
+    monitoringHudControlState.activeOverlayProfileId = "";
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = true;
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    proof.nullActiveProfileHandled = monitoringHudControlState.activeOverlayRecordingTarget.targetState === "deleted-default-empty";
+    proof.deletedDefaultHandled = monitoringHudControlState.activeOverlayRecordingTarget.profileCount === 0
+      && monitoringHudControlState.activeOverlayRecordingTarget.membershipSnapshotCandidateCount === 0;
+
+    const highVolumeIds = Object.keys(fixtureCards).slice(0, 125);
+    monitoringHudControlState.overlayProfileDefaultDeletedByUser = false;
+    monitoringHudControlState.overlayProfiles = {
+      "slc051-high-volume": {
+        id: "slc051-high-volume",
+        name: "SLC-051 High Volume Target",
+        monitorIds: highVolumeIds.concat(["missing-monitor", highVolumeIds[0]]),
+        displayMode: "monitor-cards"
+      }
+    };
+    monitoringHudControlState.activeOverlayProfileId = "slc051-high-volume";
+    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+    proof.highVolumeMembershipHandled = monitoringHudControlState.activeOverlayRecordingTarget.targetState === "high-volume-membership"
+      && monitoringHudControlState.activeOverlayRecordingTarget.membershipSnapshotCandidateCount === 125
+      && !(monitoringHudControlState.activeOverlayRecordingTarget.membershipSnapshotCandidate || []).includes("missing-monitor");
+
+    proof.passed = proof.activeOverlayProfileMembershipIsSource
+      && proof.snapshotAtStartTargetCandidate
+      && proof.nullActiveProfileHandled
+      && proof.emptyMembershipHandled
+      && proof.staleMissingActiveProfileHandled
+      && proof.deletedDefaultHandled
+      && proof.highVolumeMembershipHandled
+      && proof.noHiddenRecordingTargetState
+      && proof.recordingExecutionBlocked
+      && proof.fileWritingBlocked
+      && proof.recordingProfileBoundary
+      && proof.monitorGroupBoundary;
+  } finally {
+    try {
+      monitoringHudControlState = JSON.parse(previousState);
+      monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+      monitoringHudRenderControls();
+    } catch (_err) {}
+  }
+  monitoringHudControlState.activeOverlayRecordingTargetProof = proof;
+  if (monitoringHud) {
+    monitoringHud.dataset.activeOverlayRecordingTargetProof = proof.passed ? "pass" : "fail";
+  }
+  if (monitoringHudOverlayDisplay) {
+    monitoringHudOverlayDisplay.dataset.activeOverlayRecordingTargetProof = proof.passed ? "pass" : "fail";
   }
   return proof;
 };
@@ -5952,6 +6198,8 @@ window.getMonitoringHudControlState = function() {
     overlayProfileDefaultDeletedByUser: Boolean(monitoringHudControlState.overlayProfileDefaultDeletedByUser),
     overlayProfileSchemaVersion: monitoringHudOverlayProfileSchemaVersion,
     overlayProfileStateProof: Object.assign({}, monitoringHudControlState.overlayProfileStateProof || {}),
+    activeOverlayRecordingTarget: Object.assign({}, monitoringHudControlState.activeOverlayRecordingTarget || {}),
+    activeOverlayRecordingTargetProof: Object.assign({}, monitoringHudControlState.activeOverlayRecordingTargetProof || {}),
     overlayDisplayAcceptanceProof: Object.assign({}, monitoringHudControlState.overlayDisplayAcceptanceProof || {}),
     activeOverlayProfileDisplayProof: Object.assign({}, monitoringHudControlState.activeOverlayProfileDisplayProof || {}),
     dashboardOverlayIndependenceProof: Object.assign({}, monitoringHudControlState.dashboardOverlayIndependenceProof || {}),

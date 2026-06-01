@@ -28,8 +28,10 @@ from desktop.monitoring_hud_controls import build_monitoring_hud_controls_visibi
 from desktop.monitoring_hud_placement import build_monitoring_hud_placement_contract
 from desktop.monitoring_hud_status import build_monitoring_hud_status_snapshot
 from desktop.monitoring_hud_state import (
+    ACTIVE_OVERLAY_RECORDING_TARGET_KIND,
     DEFAULT_OVERLAY_PROFILE_ID,
     MONITORING_HUD_STATE_ENV,
+    build_active_overlay_recording_target_snapshot,
     load_monitoring_hud_state,
     normalize_monitoring_hud_overlay_profiles,
     save_monitoring_hud_state,
@@ -1959,6 +1961,39 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 "Overlay Profile state must stay distinct from Recording Profile and Monitor Group fields",
                 failures,
             )
+            persisted_target = persisted_state.get("activeOverlayRecordingTarget", {})
+            _require(
+                persisted_target.get("kind") == ACTIVE_OVERLAY_RECORDING_TARGET_KIND,
+                "SLC-051 active Overlay recording target snapshot must be present in persisted HUD state",
+                failures,
+            )
+            _require(
+                persisted_target.get("source") == "active-overlay-profile-membership",
+                "SLC-051 recording target must derive from active Overlay Profile membership",
+                failures,
+            )
+            _require(
+                persisted_target.get("scope") == "target-session-truth-only",
+                "SLC-051 recording target must stay target/session truth only",
+                failures,
+            )
+            _require(
+                persisted_target.get("membershipSnapshotCandidate") == ["cpu", "gpu"],
+                "SLC-051 fallback target must expose the normalized active Overlay Profile membership snapshot candidate",
+                failures,
+            )
+            _require(
+                persisted_target.get("snapshotAtStartModel") == "future-snapshot-at-recording-start-target-candidate",
+                "SLC-051 recording target must preserve future snapshot-at-start semantics",
+                failures,
+            )
+            _require(
+                persisted_target.get("hiddenRecordingTargetState") == "absent"
+                and persisted_target.get("recordingExecutionState") == "blocked"
+                and persisted_target.get("fileWritingState") == "blocked",
+                "SLC-051 target proof must block hidden target state, recording execution, and file writing",
+                failures,
+            )
             normalized_legacy = normalize_monitoring_hud_overlay_profiles({}, ["cpu", "gpu"])
             _require(
                 normalized_legacy.get("overlayProfiles", {}).get(DEFAULT_OVERLAY_PROFILE_ID, {}).get("monitorIds") == ["cpu", "gpu"],
@@ -1987,6 +2022,76 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
             _require(
                 normalized_deleted_default.get("overlayProfileDefaultDeletedByUser") is True,
                 "Persisted empty Overlay Profile set must keep the default-deleted marker",
+                failures,
+            )
+            _require(
+                normalized_deleted_default.get("activeOverlayRecordingTarget", {}).get("targetState") == "deleted-default-empty",
+                "SLC-051 target proof must classify deleted default / null active profile state",
+                failures,
+            )
+            normalized_empty_membership = normalize_monitoring_hud_overlay_profiles(
+                {
+                    "monitorIds": ["cpu", "gpu"],
+                    "overlayProfiles": {
+                        "empty-target": {
+                            "id": "empty-target",
+                            "name": "Empty Target",
+                            "monitorIds": [],
+                        }
+                    },
+                    "activeOverlayProfileId": "empty-target",
+                },
+                ["cpu", "gpu"],
+            )
+            _require(
+                normalized_empty_membership.get("activeOverlayRecordingTarget", {}).get("targetState") == "empty-membership",
+                "SLC-051 target proof must classify empty active Overlay Profile membership",
+                failures,
+            )
+            normalized_high_volume = normalize_monitoring_hud_overlay_profiles(
+                {
+                    "monitorIds": [f"monitor-{index:03d}" for index in range(125)],
+                    "overlayProfiles": {
+                        "high-volume-target": {
+                            "id": "high-volume-target",
+                            "name": "High Volume Target",
+                            "monitorIds": [f"monitor-{index:03d}" for index in range(125)]
+                            + ["missing-monitor", "monitor-000"],
+                            "recordingProfileId": "must-not-survive",
+                        }
+                    },
+                    "activeOverlayProfileId": "high-volume-target",
+                },
+            )
+            high_volume_target = normalized_high_volume.get("activeOverlayRecordingTarget", {})
+            high_volume_profile = (normalized_high_volume.get("overlayProfiles") or {}).get("high-volume-target", {})
+            _require(
+                high_volume_target.get("targetState") == "high-volume-membership"
+                and high_volume_target.get("membershipSnapshotCandidateCount") == 125
+                and "missing-monitor" not in high_volume_target.get("membershipSnapshotCandidate", []),
+                "SLC-051 target proof must normalize high-volume active Overlay Profile membership",
+                failures,
+            )
+            _require(
+                "recordingProfileId" not in high_volume_profile,
+                "SLC-051 target proof must not preserve hidden Recording Profile state",
+                failures,
+            )
+            direct_target = build_active_overlay_recording_target_snapshot(
+                active_profile_id="direct-target",
+                requested_active_profile_id="direct-target",
+                profiles={
+                    "direct-target": {
+                        "id": "direct-target",
+                        "name": "Direct Target",
+                        "monitorIds": ["gpu"],
+                    }
+                },
+            )
+            _require(
+                direct_target.get("membershipSnapshotCandidate") == ["gpu"]
+                and direct_target.get("separateRecordingProfileState") == "not-created",
+                "SLC-051 direct target helper must expose target/session truth without a separate Recording Profile",
                 failures,
             )
             saved_deleted_default = save_monitoring_hud_state(

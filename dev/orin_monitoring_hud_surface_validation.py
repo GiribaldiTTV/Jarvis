@@ -1208,6 +1208,35 @@ def validate() -> list[str]:
         _require_contains(html, needle, "SLC-039 Overlay Profile visible membership editor UI", failures)
 
     for needle in (
+        "ACTIVE_OVERLAY_RECORDING_TARGET_KIND",
+        "build_active_overlay_recording_target_snapshot",
+        "active-overlay-recording-target",
+        "target-session-truth-only",
+        "active-overlay-profile-membership",
+        "future-snapshot-at-recording-start-target-candidate",
+        "hiddenRecordingTargetState",
+        "recordingExecutionState",
+        "fileWritingState",
+        "separateRecordingProfileState",
+        "recording-profile-state-absent-future-gated",
+    ):
+        _require_contains(hud_state, needle, "SLC-051 active Overlay recording target state foundation", failures)
+
+    for needle in (
+        "monitoringHudBuildActiveOverlayRecordingTargetSnapshot",
+        "monitoringHudApplyActiveOverlayRecordingTargetProof",
+        "runMonitoringHudActiveOverlayRecordingTargetProof",
+        "slc-051-active-overlay-profile-membership-target",
+        "activeOverlayRecordingTargetProof",
+        "activeOverlayRecordingTargetSource",
+        "activeOverlayRecordingTargetScope",
+        "activeOverlayRecordingTargetMonitorCount",
+        "snapshotAtStartModel",
+        "recordingFileWritingState",
+    ):
+        _require_contains(js, needle, "SLC-051 active Overlay recording target JS proof", failures)
+
+    for needle in (
         'data-package="PKG-006"',
         'data-slice="SLC-016"',
         'data-placement-slice="SLC-026"',
