@@ -1241,21 +1241,37 @@ def validate() -> list[str]:
         'data-recording-target-preview="slc-052-hud-overlay-launcher-target-preview"',
         'data-active-monitor-transparency="slc-052-visible-count-and-names"',
         'id="monitoring-hud-recording-control-launcher"',
-        'data-recording-control-window-state="future-gated"',
+        'data-recording-control-window-state="request-native-window"',
+        'data-native-window-contract="standalone-normal-os-window"',
         'data-recording-execution-state="blocked"',
     ):
         _require_contains(html, needle, "SLC-052 HUD Overlay recording target preview HTML", failures)
 
     for needle in (
         "monitoringHudRenderActiveOverlayRecordingTargetPreview",
+        "monitoringHudRequestRecordingControlWindow",
         "runMonitoringHudRecordingTargetPreviewProof",
         "recordingTargetPreviewProof",
         "slc-052-hud-overlay-launcher-target-preview",
         "slc-052-visible-count-and-names",
-        "Recording Control Future-Gated",
+        "Open Recording Control",
+        "slc-053-standalone-normal-os-window",
         "trayRecordingControlState",
     ):
         _require_contains(js, needle, "SLC-052 HUD Overlay recording target preview JS proof", failures)
+
+    for needle in (
+        "class MonitoringHudRecordingControlWindow",
+        'self.setWindowTitle("Nexus Recording Control")',
+        "MONITORING_HUD_RECORDING_CONTROL_WINDOW_READY",
+        'slice="SLC-053"',
+        '"surface": "standalone_recording_control_window"',
+        '"taskbarRestorable": True',
+        '"recordingExecutionState": "blocked"',
+        '"recordingFileWritingState": "blocked"',
+        '"startStopState": "future-gated"',
+    ):
+        _require_contains(renderer, needle, "SLC-053 native Recording Control window foundation", failures)
 
     for needle in (
         "monitoring-hud__recording-target-preview",

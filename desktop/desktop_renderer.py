@@ -5704,6 +5704,156 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
+class MonitoringHudRecordingControlWindow(QWidget):
+    def __init__(self, screen, event_logger=None):
+        super().__init__(None)
+        self.screen_ref = screen
+        self.event_logger = event_logger
+        self._request_id = 0
+        self.setObjectName("monitoringHudRecordingControlWindow")
+        self.setWindowTitle("Nexus Recording Control")
+        self.setWindowFlags(Qt.Window)
+        self.setMinimumSize(380, 260)
+        self.resize(440, 300)
+        self.setStyleSheet(
+            """
+            QWidget#monitoringHudRecordingControlWindow {
+                background: #061827;
+                color: #dffbff;
+                font-family: Bahnschrift, Segoe UI, sans-serif;
+            }
+            QLabel {
+                color: #dffbff;
+                background: transparent;
+            }
+            QLabel[role="eyebrow"] {
+                color: rgba(125, 235, 255, 0.72);
+                font-size: 10px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+            QLabel[role="title"] {
+                color: #f5ffff;
+                font-size: 17px;
+                font-weight: 700;
+            }
+            QLabel[role="state"] {
+                color: #a5f8dc;
+                font-size: 12px;
+            }
+            QLabel[role="warning"] {
+                color: #ffe3a6;
+                font-size: 11px;
+            }
+            QPushButton {
+                min-height: 30px;
+                padding: 4px 12px;
+                border: 1px solid rgba(116, 239, 255, 0.26);
+                border-radius: 8px;
+                background: rgba(5, 22, 38, 0.72);
+                color: #dffbff;
+                font-weight: 700;
+            }
+            QPushButton:disabled {
+                color: rgba(198, 224, 232, 0.58);
+                border-color: rgba(116, 239, 255, 0.12);
+                background: rgba(8, 20, 34, 0.58);
+            }
+            """
+        )
+        root = QVBoxLayout(self)
+        root.setContentsMargins(18, 16, 18, 16)
+        root.setSpacing(10)
+        eyebrow = QLabel("Active Overlay Recording", self)
+        eyebrow.setProperty("role", "eyebrow")
+        self._title = QLabel("Recording Control", self)
+        self._title.setProperty("role", "title")
+        self._target = QLabel("Target: No active overlay profile", self)
+        self._target.setProperty("role", "state")
+        self._summary = QLabel("Recording execution and file writing are not enabled.", self)
+        self._summary.setWordWrap(True)
+        self._summary.setProperty("role", "state")
+        self._boundary = QLabel(
+            "Start/Stop, output files, tray controls, export/share, and provider/model work remain future-gated.",
+            self,
+        )
+        self._boundary.setWordWrap(True)
+        self._boundary.setProperty("role", "warning")
+        actions = QHBoxLayout()
+        self._start = QPushButton("Start Future-Gated", self)
+        self._start.setEnabled(False)
+        self._stop = QPushButton("Stop Future-Gated", self)
+        self._stop.setEnabled(False)
+        self._minimize = QPushButton("Minimize", self)
+        self._close = QPushButton("Close", self)
+        self._minimize.clicked.connect(self.showMinimized)
+        self._close.clicked.connect(self.close)
+        for button in (self._start, self._stop, self._minimize, self._close):
+            actions.addWidget(button)
+        root.addWidget(eyebrow)
+        root.addWidget(self._title)
+        root.addWidget(self._target)
+        root.addWidget(self._summary)
+        root.addWidget(self._boundary)
+        root.addLayout(actions)
+        self.setGeometry(self._initial_geometry())
+
+    def _initial_geometry(self) -> QRect:
+        available = self.screen_ref.availableGeometry()
+        width = 440
+        height = 300
+        return QRect(
+            available.x() + max(24, available.width() - width - 80),
+            available.y() + max(24, available.height() - height - 110),
+            width,
+            height,
+        )
+
+    def update_product_state(
+        self,
+        *,
+        request_id: int,
+        active_profile_name: str,
+        target_count: int,
+        target_names: str,
+        target_state: str,
+    ) -> None:
+        self._request_id = max(self._request_id, int(request_id or 0))
+        profile = active_profile_name.strip() or "No active overlay profile"
+        count = max(0, int(target_count or 0))
+        self._target.setText(f"Target: {profile} / {count} monitor{'s' if count != 1 else ''}")
+        self._summary.setText(
+            f"{target_state or 'Target pending'}: {target_names or 'No active monitor targets'}. "
+            "Recording execution and file writing are not enabled."
+        )
+        if not self.isVisible():
+            self.setGeometry(self._initial_geometry())
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+    def proof_state(self) -> dict[str, object]:
+        geometry = self.geometry()
+        return {
+            "owner": "MonitoringHudRecordingControlWindow",
+            "surface": "standalone_recording_control_window",
+            "standaloneTopLevel": self.parent() is None,
+            "windowFlag": "normal_window",
+            "taskbarRestorable": True,
+            "minimizeControl": True,
+            "closeControl": True,
+            "recordingExecutionState": "blocked",
+            "recordingFileWritingState": "blocked",
+            "startStopState": "future-gated",
+            "visible": self.isVisible(),
+            "requestId": self._request_id,
+            "x": geometry.x(),
+            "y": geometry.y(),
+            "w": geometry.width(),
+            "h": geometry.height(),
+        }
+
+
 class DesktopRuntimeWindow(QWidget):
     core_visualization_ready = Signal()
     core_visualization_visible = Signal()
@@ -5802,6 +5952,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_active_overlay_profile_display_signature = None
         self._monitoring_hud_dashboard_overlay_independence_signature = None
         self._monitoring_hud_overlay_display_workstream_readiness_signature = None
+        self._monitoring_hud_recording_control_signature = None
         self._monitoring_hud_overlay_profiles = {}
         self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
         self._monitoring_hud_overlay_profile_default_deleted_by_user = False
@@ -5894,6 +6045,11 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_tray_menu_guard_active = False
         self._monitoring_hud_minimal_native_overlay = (
             MonitoringHudOverlayDisplayWindow(screen, event_logger)
+            if self.surface_role == "hud"
+            else None
+        )
+        self._monitoring_hud_recording_control_window = (
+            MonitoringHudRecordingControlWindow(screen, event_logger)
             if self.surface_role == "hud"
             else None
         )
@@ -15118,6 +15274,53 @@ class DesktopRuntimeWindow(QWidget):
                     non_theme_scope=bool(overlay_display_workstream_readiness_proof.get("nonThemeScope")),
                 )
                 overlay_display_workstream_readiness_changed = True
+        recording_control_summary = state.get("recordingControlWindowTargetSummary")
+        recording_control_requested = bool(state.get("recordingControlWindowRequested"))
+        recording_control_request_id = int(state.get("recordingControlWindowRequestId") or 0)
+        recording_control_signature = (
+            recording_control_requested,
+            recording_control_request_id,
+            json.dumps(
+                recording_control_summary if isinstance(recording_control_summary, dict) else {},
+                sort_keys=True,
+            ),
+        )
+        if (
+            recording_control_requested
+            and self._monitoring_hud_recording_control_window is not None
+            and recording_control_signature != self._monitoring_hud_recording_control_signature
+        ):
+            self._monitoring_hud_recording_control_signature = recording_control_signature
+            summary = recording_control_summary if isinstance(recording_control_summary, dict) else {}
+            self._monitoring_hud_recording_control_window.update_product_state(
+                request_id=recording_control_request_id,
+                active_profile_name=str(summary.get("activeOverlayProfileName") or ""),
+                target_count=int(summary.get("targetCount") or 0),
+                target_names=str(summary.get("targetNames") or ""),
+                target_state=str(summary.get("targetState") or ""),
+            )
+            proof = self._monitoring_hud_recording_control_window.proof_state()
+            self._emit_runtime_signal(
+                "MONITORING_HUD_RECORDING_CONTROL_WINDOW_READY",
+                package="PKG-006",
+                slice="SLC-053",
+                seam="Workstream",
+                surface=proof.get("surface"),
+                owner=proof.get("owner"),
+                standalone=proof.get("standaloneTopLevel"),
+                window_flag=proof.get("windowFlag"),
+                taskbar_restorable=proof.get("taskbarRestorable"),
+                minimize_control=proof.get("minimizeControl"),
+                close_control=proof.get("closeControl"),
+                recording_execution_state=proof.get("recordingExecutionState"),
+                recording_file_writing_state=proof.get("recordingFileWritingState"),
+                start_stop_state=proof.get("startStopState"),
+                visible=proof.get("visible"),
+                x=proof.get("x"),
+                y=proof.get("y"),
+                w=proof.get("w"),
+                h=proof.get("h"),
+            )
         monitor_signature_parts = []
         enabled_count = 0
         for card_id in sorted(str(key) for key in cards.keys()):
@@ -17377,6 +17580,8 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.hide()
         if self._monitoring_hud_minimal_native_overlay is not None:
             self._monitoring_hud_minimal_native_overlay.request_shutdown()
+        if self._monitoring_hud_recording_control_window is not None:
+            self._monitoring_hud_recording_control_window.close()
         self.webview.stop()
         self.hide()
         self.close()
