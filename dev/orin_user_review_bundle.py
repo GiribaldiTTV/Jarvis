@@ -134,7 +134,10 @@ BRANCH_PLANNING_PENDING_USER_GATE_VALUES = {
     "user blocked",
 }
 BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS = (
+    "approve bounded workstream package implementation",
     "approve bounded workstream implementation",
+    "bounded workstream package implementation",
+    "workstream package implementation approval",
     "approve workstream implementation",
     "workstream implementation approval",
     "implementation approval",
@@ -539,6 +542,8 @@ def _primary_user_review_file(exact_user_decision: str) -> str:
                 r"\bbp3\b",
                 r"\borchestration\b",
                 r"\bworkstream entry\b",
+                r"\bworkstream package implementation\b",
+                r"\bbounded workstream package\b",
                 r"\bworkstream implementation\b",
                 r"\bimplementation approval\b",
             ),
@@ -1865,6 +1870,13 @@ def _write_user_branch_plan_review(
         )
     )
     normalized_decision = exact_user_decision.casefold()
+    workstream_package_approval_packet = any(
+        marker in normalized_decision
+        for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+    ) and not any(
+        marker in normalized_decision
+        for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+    )
     pr_readiness_stage1_packet = "pr readiness stage 1 analysis" in normalized_decision
     bp1_branch_vision_packet = (
         "bp1 branch vision" in normalized_decision
@@ -1874,6 +1886,7 @@ def _write_user_branch_plan_review(
         "bp3" in normalized_decision
         or "workstream entry / orchestration" in normalized_decision
         or "orchestration validation" in normalized_decision
+        or (is_fam007_dev_owner_skeleton and workstream_package_approval_packet)
     )
     bp2_branch_plan_packet = (
         not bp1_branch_vision_packet
@@ -3919,6 +3932,17 @@ def _write_workstream_entry_packet_digests(
             or "orchestration validation" in normalized_decision
         )
     )
+    workstream_package_approval_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+        )
+        and not any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
     bp1_packet = (
         "bp1 branch vision" in normalized_decision
         and "authorize bp2 user branch plan review only" in normalized_decision
@@ -3940,6 +3964,12 @@ def _write_workstream_entry_packet_digests(
         "BP2 USER Branch Plan Review packet is Reviewable; USER acceptance, revision, "
         "waiver, rejection, or hold remains pending; BP3 remains pending."
         if bp2_packet
+        else
+        "implementation-ready - BP1, BP2, and BP3 are accepted; bounded Workstream "
+        "package implementation is approved by this packet with Seam 1 as the entry "
+        "checkpoint and continuation governed until Workstream Green, a real blocker, "
+        "or explicit USER waiver."
+        if workstream_package_approval_packet
         else
         "bp3 orchestration review - accepted BP1 Branch Vision and accepted BP2 "
         "Branch Plan are the traceability basis; BP3 Workstream Entry / "
@@ -4356,6 +4386,41 @@ def _write_workstream_entry_packet_digests(
             "for USER review; the contract records PR Readiness Stage 1 complete and "
             "Stage 2 PR creation as the next USER decision."
         )
+    elif workstream_package_approval_packet:
+        analysis_status = (
+            "Analysis Summary: BP3 is accepted; USER is approving bounded Workstream "
+            "package implementation for the admitted same-branch package."
+        )
+        implementation_posture = (
+            "Implementation Posture: bounded Workstream package implementation is approved "
+            "by this packet decision path with Seam 1 as the entry checkpoint. Continuation "
+            "must proceed one active same-branch seam at a time until Workstream Green, a "
+            "real named blocker, or explicit USER waiver."
+        )
+        recommended_seam = (
+            "Entry Checkpoint: Seam 1, public-safe action-gate registry and exact USER "
+            "decision proof."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
+            "prebeta roadmap, active branch index, branch record, active branch plan "
+            "context, worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
+            "vision, AI Edition plan, branch-plan README, phase governance, development "
+            "rules, codex modes, validation helper registry, and review surfaces needed "
+            "for bounded Workstream package approval."
+        )
+        checklist_status = (
+            "Checklist Focus: Workstream package approval - accepted BP1/BP2/BP3 posture, "
+            "entry seam proof, continuation latch, future-gated private/runtime/provider/"
+            "cache/memory boundaries, and next lawful phase boundary to Hardening only "
+            "after Workstream Green."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, "
+            "supporting BP1/BP2 review files, required digest/checklist files, and copied "
+            "source-truth files are loaded and digestible for USER review; packet wording "
+            "treats Seam 1 as entry checkpoint, not terminal Workstream authority."
+        )
     elif seam1_approval_packet:
         analysis_status = (
             "Analysis Summary: Workstream Entry Green; USER accepted the repaired "
@@ -4683,7 +4748,10 @@ def _packet_text_status(text: str) -> str:
             return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
 
     implementation_markers = (
+        "approve bounded workstream package implementation",
         "approve bounded workstream implementation",
+        "bounded workstream package implementation",
+        "workstream package implementation approval",
         "approve workstream implementation",
         "workstream implementation approval",
     )
@@ -5116,9 +5184,21 @@ def build_bundle(
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
     export_zip = _export_zip_path(review_root, label, created_at_dt)
+    normalized_decision = exact_user_decision.casefold()
+    workstream_package_approval_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+        )
+        and not any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
     seam1_approval_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
-        and "approve bounded workstream implementation" in exact_user_decision.casefold()
+        and "approve bounded workstream implementation" in normalized_decision
     )
     seam1_completion_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
@@ -5179,6 +5259,12 @@ def build_bundle(
         "revision, waiver, rejection, or hold remains pending; Workstream "
         "implementation remains pending separate USER approval."
         if bp3_packet
+        else
+        "implementation-ready - BP1, BP2, and BP3 are accepted; bounded Workstream "
+        "package implementation is approved by this packet with Seam 1 as the entry "
+        "checkpoint and continuation governed until Workstream Green, a real blocker, "
+        "or explicit USER waiver."
+        if workstream_package_approval_packet
         else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
