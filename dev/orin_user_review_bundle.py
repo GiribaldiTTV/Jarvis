@@ -958,10 +958,26 @@ def _fam007_bp2_plan_substantive_failures(packet_files: Mapping[str, str]) -> li
             "cannot-green-while-bp1-pending",
             re.compile(r"cannot become green while BP1 is pending", re.IGNORECASE),
         ),
+        (
+            "generic-product-feedback-prompt",
+            re.compile(
+                r"visual direction,\s*workflow changes,\s*window behavior,\s*"
+                r"output-file expectations",
+                re.IGNORECASE,
+            ),
+        ),
     )
     for reason, pattern in forbidden_patterns:
         if pattern.search(text):
             failures.append(f"{display_name}: FAM-007 BP2 packet contains stale preview wording {reason}")
+
+    external_plan_section = _section(
+        text, "Active External Branch Plan / Historical Branch Plan Files"
+    ).casefold()
+    if "none recorded" in external_plan_section:
+        failures.append(
+            f"{display_name}: FAM-007 BP2 packet must name active external branch plan/state context"
+        )
 
     required_headings = (
         "## Integrated Dev/Owner Readiness Matrix",
@@ -1861,6 +1877,12 @@ def _write_user_branch_plan_review(
     likely_files_lines = [
         f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
     ]
+    user_decisions_intro = (
+        "USER may answer in order or respond generally. Useful feedback includes visual "
+        "direction, workflow changes, window behavior, output-file expectations, "
+        "deferred scope, or anything that would make the branch plan feel wrong before "
+        "implementation planning begins."
+    )
     if is_active_overlay_recording:
         active_plan_source = next(
             (
@@ -3188,6 +3210,18 @@ def _write_user_branch_plan_review(
             "AI runtime/trust architecture only if durable provider/cache/memory trust-boundary policy changes.",
             "FAM-007 family vision files only if USER changes family-level edition, private/public, capability-pack, or lane identity direction.",
         ]
+        active_branch_files = [
+            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns active BP2 planning posture, accepted BP1 trace, review-gate state, seam map, proof expectations, and future gates outside the USER-facing packet.",
+            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture and packet pointer outside repo-tracked source truth.",
+            "Historical repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+        ]
+        user_decisions_intro = (
+            "USER may answer in order or respond generally. Useful BP2 feedback includes "
+            "Dev/Owner matrix changes, private root or remote posture, GitHub Desktop "
+            "binding assumptions, backup/import lane split, watermark/identity "
+            "propagation, named proof lanes, future-gated actions, or anything that "
+            "would make this FAM-007 Dev/Owner engineering plan wrong before BP3."
+        )
         walkthrough = [
             "Open the primary BP2 file and confirm the accepted BP1 Option A trace matches the integrated Dev/Owner readiness direction.",
             "Review the seam plan from action-gate registry through matrix proof, root/remote safety, backup/import deferral, provider/runtime deferral, and packet/validator proof.",
@@ -3565,7 +3599,7 @@ def _write_user_branch_plan_review(
         "",
         "## USER Decisions Needed",
         "",
-        "USER may answer in order or respond generally. Useful feedback includes visual direction, workflow changes, window behavior, output-file expectations, deferred scope, or anything that would make the branch plan feel wrong before implementation planning begins.",
+        user_decisions_intro,
         "",
         *_markdown_lines(user_decisions),
         "",
