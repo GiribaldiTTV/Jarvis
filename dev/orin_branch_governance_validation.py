@@ -3673,7 +3673,7 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
     ),
     Path("Docs/development_rules.md"): (
         "Runtime BP3 with multiple admitted slices or seams",
-        "whole-package analysis before first-seam implementation",
+        "whole-package analysis before entry-seam implementation",
         "Workstream Entry Whole-Package Analysis Missing",
     ),
     Path("Docs/codex_modes.md"): (
@@ -3696,11 +3696,11 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Workstream Entry whole-package analysis",
-        "first-seam implementation",
+        "entry-seam implementation",
         "Workstream Entry Whole-Package Analysis Missing",
     ),
     Path("Docs/codex_user_guide.md"): (
-        "whole-package analysis before first-seam implementation approval",
+        "whole-package analysis before entry-seam implementation approval",
         "first-seam-only handoff is not enough",
     ),
     Path("Docs/governance_efficiency_operating_model.md"): (

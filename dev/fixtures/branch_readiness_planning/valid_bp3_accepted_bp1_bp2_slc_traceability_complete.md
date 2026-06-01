@@ -10,5 +10,5 @@ Branch Plan Matches Accepted Branch Vision: PASS - BP2 builds the accepted BP1 v
 Branch Package Size: PASS - largest safe coherent feature-focused implementation package with all admitted slices reviewed together before Workstream.
 SLC Traceability: Complete
 Future-Gated Boundaries: PASS - private runtime, provider execution, cache implementation, memory behavior, release work, and branch cleanup remain pending USER decisions outside this BP3 approval.
-First Bounded Workstream Seam: Seam 1 starts with action-gate registry proof before later validation and source-truth hardening seams.
-Implementation Approval: Approved for first bounded Workstream seam only; broader Workstream continuation remains constrained by the accepted BP2 plan.
+Workstream Entry Seam: Seam 1 starts with action-gate registry proof before later validation and source-truth hardening seams.
+Implementation Approval: Approved for the admitted same-branch Workstream package with Seam 1 as the entry checkpoint; bounded continuation remains constrained by the accepted BP2 plan until Workstream Green, a real blocker, or an explicit USER waiver.

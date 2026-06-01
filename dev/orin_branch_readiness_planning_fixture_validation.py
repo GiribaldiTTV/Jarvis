@@ -434,7 +434,7 @@ def _validate_workstream_entry_whole_package_text(text: str) -> list[str]:
     required_summary_phrases = (
         "all admitted slices/seams",
         "completion strategy",
-        "first-seam recommendation",
+        "entry-seam recommendation",
         "seam dependency map",
         "future-gated",
         "preservation surfaces",
@@ -687,7 +687,7 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         "Branch Package Size:",
         "SLC Traceability:",
         "Future-Gated Boundaries:",
-        "First Bounded Workstream Seam:",
+        "Workstream Entry Seam:",
         "Implementation Approval:",
     ):
         require(marker in text, f"BP3 Orchestration Validation missing {marker}")
@@ -729,7 +729,7 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         "Branch Plan Matches Accepted Branch Vision:",
         "Branch Package Size:",
         "Future-Gated Boundaries:",
-        "First Bounded Workstream Seam:",
+        "Workstream Entry Seam:",
         "Implementation Approval:",
     )
     for marker in substantive_markers:
@@ -740,10 +740,13 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         )
     if "approved" in implementation_approval or "approve" in implementation_approval:
         require(
-            "only" in implementation_approval
-            or "separate user" in implementation_approval
-            or "bounded" in implementation_approval,
-            "BP3 implementation approval must stay bounded and cannot imply broad Workstream authority",
+            (
+                "admitted same-branch workstream package" in implementation_approval
+                or "bounded workstream package" in implementation_approval
+            )
+            and "entry checkpoint" in implementation_approval
+            and "workstream green" in implementation_approval,
+            "BP3 implementation approval must name bounded Workstream package execution, entry checkpoint, and Workstream Green continuation",
         )
     return failures
 
@@ -1492,6 +1495,10 @@ def _validate_fam007_workstream_approval_packet_metadata_guard() -> list[str]:
         failures.append(
             "FAM-007 workstream approval packet still emits forbidden validation-summary wording"
         )
+    if "seam 1 only" in text.casefold() or "first bounded workstream seam only" in text.casefold():
+        failures.append(
+            "FAM-007 workstream approval packet must not treat the entry seam as terminal Workstream authority"
+        )
     return failures
 
 
@@ -1556,6 +1563,10 @@ def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
     if "implementation approval: approved" in combined:
         failures.append(
             "FAM-007 BP3 generated packet incorrectly approves implementation"
+        )
+    if "seam 1 only" in combined or "first bounded workstream seam only" in combined:
+        failures.append(
+            "FAM-007 BP3 generated packet must not emit first-seam-only Workstream approval wording"
         )
     primary_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
     required_primary_sections = [

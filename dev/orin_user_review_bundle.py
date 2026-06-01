@@ -2344,25 +2344,29 @@ def _write_user_branch_plan_review(
                 )
                 if workstream_green_packet
                 else (
-                    "Seam 1 is complete; Seam 2 remains blocked until USER approves or revises the "
-                    "private/public boundary and private remote safety proof seam."
+                    "Seam 1 is complete; if the same-branch Workstream package remains in progress, "
+                    "continuation must move to Seam 2 unless a real blocker, explicit waiver, or "
+                    "backlog split is recorded."
                 )
                 if seam1_completion_packet
-                else "Until USER accepts or waives this contract, Seam 1 implementation remains blocked."
+                else (
+                    "Until USER accepts or waives this contract and approves bounded Workstream "
+                    "implementation, the entry seam and later same-branch seams remain blocked."
+                )
             ),
-            "Seam 1 work is limited to public-safe action-gate registry/proof, deterministic fixtures or validators, source-truth fold-down, packet refresh, and validation.",
+            "The Workstream entry seam is public-safe action-gate registry/proof, deterministic fixtures or validators, source-truth fold-down, packet refresh, and validation; later admitted same-branch seams continue under Workstream governance until Workstream Green, a real blocker, or an explicit USER waiver.",
             "No private Dev repo, private Owner repo, local-only private root, private remote, GitHub Desktop private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006 mutation, Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by this packet.",
             "Provider-visible data must remain none; sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, and runtime cache behavior not implemented.",
         ]
         rejected_deferred = [
             "Deferred: private Dev repo creation, private Owner repo creation, local-only private root creation, GitHub Desktop private remote configuration, off-boot backup or recovery root implementation, and Public-to-Dev import implementation.",
             "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release, cleanup, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
-            "Rejected for Seam 1: any hidden private setup, silent provider enablement, cache/memory runtime behavior, or action that would make a USER gate look already completed.",
+            "Rejected for the Workstream entry seam: any hidden private setup, silent provider enablement, cache/memory runtime behavior, or action that would make a USER gate look already completed.",
         ]
         source_truth_impact = [
             "Active external branch plan and branch record should preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
             "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
-            "Review packet should remain branch-specific, freshness-verified, count-consistent, placeholder-free, and explicit that Seam 1 approval covers only public-safe action-gate proof.",
+            "Review packet should remain branch-specific, freshness-verified, count-consistent, placeholder-free, and explicit that Workstream approval covers the admitted same-branch package with Seam 1 as the entry proof checkpoint, not a one-seam stop.",
             "Source-truth fold-down during Seam 1 should record proof of action-gate preservation without executing gated private/runtime actions.",
         ]
         contract_change_log = [
@@ -2373,10 +2377,10 @@ def _write_user_branch_plan_review(
             "Contract Status is Complete or Waived by USER.",
             "Workstream Entry Result records green analysis and recommended Seam 1.",
             "USER response is present in chat, copied into the packet later, or explicitly waived.",
-            "Exact implementation approval text names Seam 1 only.",
+            "Exact implementation approval text names bounded Workstream package execution with Seam 1 as the entry checkpoint.",
             "Implementation Constraints Created By USER Response preserve all private/runtime/provider/cache/memory gates.",
             "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
-            "Packet digest files agree that Workstream Entry is green and Seam 1 approval is limited to public-safe action-gate proof.",
+            "Packet digest files agree that Workstream Entry is green and Workstream approval covers the admitted same-branch package with Seam 1 as the entry proof checkpoint.",
             "No unresolved packet placeholders or packet count mismatches remain.",
             "Validation results are green before Seam 1 starts.",
         ]
@@ -2443,15 +2447,16 @@ def _write_user_branch_plan_review(
             "External operational state: records branch authority and packet posture outside the repo when current governance requires it.",
         ]
         implementation_options = [
-            "Accept Seam 1 as recommended: implement public-safe action-gate registry and exact USER decision proof first. Pros: clearest readiness foundation; Cons: no private setup yet; Risk: low.",
-            "Revise Seam 1 proof expectations before implementation. Pros: lets USER tune proof wording or validator expectations; Cons: adds packet/source-truth repair; Risk: low.",
-            "Waive unresolved review questions and approve Seam 1. Pros: unblocks bounded proof work; Cons: records less design feedback; Risk: medium if important proof expectations are not named.",
+            "Approve the bounded Workstream package with Seam 1 as the entry checkpoint: implement public-safe action-gate registry and exact USER decision proof first, then continue through admitted same-branch seams until Workstream Green, a real blocker, or an explicit USER waiver. Pros: clearest readiness foundation; Cons: no private setup yet; Risk: low.",
+            "Revise Workstream proof expectations before implementation. Pros: lets USER tune proof wording, validator expectations, or seam order; Cons: adds packet/source-truth repair; Risk: low.",
+            "Waive unresolved review questions and approve bounded Workstream package execution. Pros: unblocks bounded proof work; Cons: records less design feedback; Risk: medium if important proof expectations are not named.",
             "Reject this branch contract and request a narrower carrier. Pros: maximum scope control; Cons: delays Breakpoint 2 readiness; Risk: low but slower.",
         ]
         recommended_direction = (
-            "Codex recommends accepting the repaired branch contract and approving Seam 1 only when USER "
-            "agrees that the public-safe proof path is correct. Seam 1 should prove the action gates and "
-            "decision text before any later private Dev/Owner skeleton setup decision is considered."
+            "Codex recommends accepting the repaired branch contract and approving bounded Workstream "
+            "package execution when USER agrees that the public-safe proof path is correct. Seam 1 is "
+            "the entry checkpoint for action-gate and decision-text proof; it is not stop authority "
+            "while admitted same-branch Workstream work remains."
         )
         current_scope = [
             "Branch-specific Workstream Entry contract repair.",
@@ -3294,7 +3299,7 @@ def _write_user_branch_plan_review(
         ]
         future_scope = [
             "BP3 Workstream Entry / Orchestration Validation after BP2 acceptance or waiver.",
-            "Workstream implementation only after BP1 and BP2 are accepted or waived, BP3 is green or waived, and USER separately approves a bounded implementation seam.",
+            "Workstream implementation only after BP1 and BP2 are accepted or waived, BP3 is green or waived, and USER separately approves bounded Workstream execution for the admitted same-branch package or explicitly named initial seam sequence.",
             "Private Dev skeleton setup, Owner skeleton setup, private repos, private roots, private remotes, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, issue mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain later USER decisions.",
         ]
         implementation_constraints = [
@@ -3525,7 +3530,7 @@ def _write_user_branch_plan_review(
         user_decisions = [
             "Does USER approve, revise, waive, reject, or hold BP3 Workstream Entry / Orchestration Validation?",
             "Does USER agree the accepted BP2 plan implements the accepted BP1 vision without changing the Dev/Owner direction?",
-            "Does USER agree Seam 1 should be the first bounded implementation seam only after separate Workstream approval?",
+            "Does USER agree Seam 1 should be the entry implementation checkpoint for the bounded Workstream package after separate Workstream approval?",
             "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
         ]
         completion_checklist = [
@@ -3536,7 +3541,7 @@ def _write_user_branch_plan_review(
             "Workstream implementation remains pending separate USER approval.",
         ]
         implementation_options = [
-            "Approve BP3 as reviewable and green, then request the separate first bounded Workstream implementation approval packet.",
+            "Approve BP3 as reviewable and green, then request the separate bounded Workstream package implementation approval packet with the entry seam named.",
             "Revise BP3 orchestration order, proof expectations, or first-seam recommendation before implementation approval is considered.",
             "Waive unresolved BP3 questions and proceed to a separate bounded Workstream approval packet.",
             "Reject or hold BP3 and keep the branch in Branch Planning.",
@@ -3592,7 +3597,7 @@ def _write_user_branch_plan_review(
         if pr_readiness_stage1_packet
         else (
             "BP3 is the active Workstream Entry / Orchestration Validation packet. "
-            "BP3 may recommend a first bounded Workstream seam for a later USER "
+            "BP3 may recommend an entry Workstream seam for a later USER "
             "decision, but this packet does not authorize Workstream implementation."
         )
         if bp3_orchestration_packet
@@ -4517,7 +4522,7 @@ def _write_workstream_entry_packet_digests(
             "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "Workstream Entry digest/checklist files, copied source-truth files, branch "
             "plan, branch record, fixture proof, and validator proof are loaded and "
-            "digestible for USER review; Seam 2 remains pending USER approval."
+            "digestible for USER review; Seam 2 remains governed by Workstream continuation, not a new per-seam approval, unless a real blocker, explicit waiver, or backlog split is recorded."
         )
     elif is_fam007_breakpoint_2:
         analysis_status = (
@@ -4525,10 +4530,10 @@ def _write_workstream_entry_packet_digests(
             "FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness carrier."
         )
         implementation_posture = (
-            "Implementation Posture: Seam 1 implementation remains pending USER "
+            "Implementation Posture: Workstream implementation remains pending USER "
             "approval and is not authorized by this packet until USER accepts or "
             "waives the repaired USER_BRANCH_PLAN_REVIEW.md contract and approves "
-            "Seam 1 only."
+            "bounded Workstream package execution with Seam 1 as the entry checkpoint."
         )
         recommended_seam = (
             "Recommended First Seam: Seam 1, Action-gate registry and exact USER "

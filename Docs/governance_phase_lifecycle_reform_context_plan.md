@@ -70,7 +70,7 @@ BP3 is Workstream Entry / Orchestration Validation.
 
 BP3 loads accepted or waived BP1 and BP2 outputs and proves that the Branch Plan correctly implements the accepted Branch Vision, that the branch package is the largest safe feature-focused package, that SLCs are an engineering route inside one branch, and that affected files, validators, helper updates, Hardening, Live Validation, UTS, rollback, proof paths, and future-gated boundaries are ready.
 
-BP3 may return the first bounded Workstream implementation approval only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green.
+BP3 may return bounded Workstream implementation approval for the admitted same-branch package, naming the entry seam or initial seam sequence, only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green.
 
 ## Branch-Size Law
 

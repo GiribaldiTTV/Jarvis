@@ -90,7 +90,7 @@ Implementation Constraints Created By USER Response: Provider execution remains 
 USER Rejected / Deferred Ideas: Broader provider setup, provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
 Vision Delta / Source-Truth Impact: No further source-truth mutation is required because the fixture contract is complete and aligned with the branch plan.
 Contract Change Log: v1 created the accepted USER Branch Plan Contract for the runtime engineering fixture.
-Workstream Entry Result: Workstream Entry may return the first implementation seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text.
+Workstream Entry Result: Workstream Entry may return bounded Workstream package implementation approval text with the entry seam, affected files, validators, proof requirements, USER-facing proof, and continuation posture.
 Contract Completion Checklist: Complete - USER response is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact implementation approval text must cite the complete contract.
 Accepted Scope: Accepted scope includes consent status, safe setup copy, disabled actions, validation, screenshots, and UTS proof.
 Deferred Scope: Future provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
