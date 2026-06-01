@@ -266,6 +266,9 @@ A prompt `Return:` block is an output shape only; it cannot override governed co
 A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
 Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
 Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+Before any final response during `Workstream`, Codex must run a `Post-Seam Continuation Self-Audit` against the governed markers it just wrote or validated.
+If `Completion Status: In Progress` and `Continue Decision: Continue`, the self-audit result must be `Continue Same Workstream` and Codex must start the next active Workstream seam in the same bounded run.
+If Codex cannot start the next seam after that self-audit, it must record `Completion Status: Red` with the exact named blocker or USER waiver needed; it must not return a green seam closeout as terminal.
 If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.
 If `Completion Status` is `Red`, `Continuation Action` must explicitly state the blocker-clearing action or waiver-clearing action needed before bounded `Workstream` continuation may resume.
 Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.

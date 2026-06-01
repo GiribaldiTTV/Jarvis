@@ -292,6 +292,9 @@ Rules:
 - A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.
 - Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.
 - Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.
+- Before any final response during `Workstream`, Codex must run a `Post-Seam Continuation Self-Audit` against the governed markers it just wrote or validated.
+- If `Completion Status: In Progress` and `Continue Decision: Continue`, the self-audit result must be `Continue Same Workstream` and Codex must start the next active Workstream seam in the same bounded run.
+- If Codex cannot start the next seam after that self-audit, it must record `Completion Status: Red` with the exact named blocker or USER waiver needed; it must not return a green seam closeout as terminal.
 - `Continuation Execution Latch` remains active whenever `Continue Decision: Continue`, `Stop Basis: None`, and a same-phase `Next Active Seam` are recorded; Codex must execute the next seam in the same bounded Workstream run instead of returning a terminal report.
 - user-facing family/package branches must declare an `Interface Release Boundary` in Branch Readiness before Workstream begins or resumes
 - the default is one primary user-facing interface release surface per branch, recorded as `Primary Interface Release Surface:` with fallback point, acceptance criteria, and proof path
