@@ -865,7 +865,7 @@ When that strategy exists and supporting docs are in scope on the active branch,
 For bounded multi-seam Workstream execution, User Test Summary strategy handling is incremental plus final Live Validation preparation:
 
 - update the canonical workstream User Test Summary strategy as user-visible or operator-facing seams land
-- when the Workstream seam chain is complete, preserve the handoff needs for later Live Validation Stage 1; do not create/refresh the formal desktop UTS export and do not use returned UTS results as a Workstream stop condition
+- when the Workstream seam chain is complete, preserve the handoff needs for later Live Validation Stage 1; do not create/refresh the formal local USER hub UTS export and do not use returned UTS results as a Workstream stop condition
 - before User Test Summary handoff in Live Validation, run the `User-Facing Shortcut Live Validation Gate` for relevant desktop user-facing workstreams and record `User-Facing Shortcut Path:` plus `User-Facing Shortcut Validation: PENDING`, `PASS`, `FAIL`, or `WAIVED`
 - before User Test Summary handoff in Live Validation, run the `Codex Live Client Self-QA Gate` for relevant desktop user-facing workstreams and record `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:`
 - before User Test Summary handoff in desktop UI Live Validation, run `Codex Visual Adjudication:` and record artifact-by-artifact PASS / REPAIR / STOP / WAIVED_WITH_REASON verdicts against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision, and package UI/UX intent
@@ -909,7 +909,7 @@ For desktop user-facing slices, Codex must also export or refresh the convenienc
 
 - `C:\Nexus USER\User Test Summary.txt`
 
-unless it explicitly explains why the desktop export is not relevant or is being intentionally skipped.
+unless it explicitly explains why the local USER hub export is not relevant or is being intentionally skipped.
 
 The ownership hierarchy is:
 

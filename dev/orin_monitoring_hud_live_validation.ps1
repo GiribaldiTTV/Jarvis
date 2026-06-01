@@ -151,7 +151,7 @@ function New-Paths {
         ShortVideoFrameRoot = Join-Path $ArtifactRoot "short_video_frames"
         ShortVideo = Join-Path $ArtifactRoot "monitoring_hud_lv1_short_video.mp4"
         ShortVideoEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_lv1_short_video.mp4"
-        UserTestSummary = Join-Path $env:USERPROFILE "OneDrive\Desktop\User Test Summary.txt"
+        UserTestSummary = "C:\Nexus USER\User Test Summary.txt"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
     }
 }
@@ -842,11 +842,11 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $visualScreenshotPrecheck = "Codex Precheck: PASS as supporting focused screenshot evidence only - detailed per-element screenshots are exported to the USER-inspectable OneDrive screenshot folder and full-desktop screenshots are context only. USER visual confirmation is still required."
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
 
-    # Keep the desktop UTS as a short USER questionnaire focused on the
+    # Keep the local USER hub UTS as a short USER questionnaire focused on the
     # returned issue loop; detailed ledger/proof evidence stays in manifests.
     $content = @"
 Nexus Desktop AI - User Test Summary
-Workstream: FAM-006 Overlay Display Acceptance Foundation
+Workstream: FAM-006 Active Overlay Recording Runtime Implementation
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch
 Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss zzz")

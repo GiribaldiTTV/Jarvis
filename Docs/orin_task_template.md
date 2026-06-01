@@ -861,7 +861,7 @@ If a canonical repo-level `UTS` strategy exists for the active desktop workstrea
 By default, that artifact is the `## User Test Summary` section in the relevant canonical workstream doc unless that doc explicitly declares a different repo path.
 
 For bounded multi-seam Workstream execution, update the canonical workstream `UTS` strategy incrementally as user-visible seams land.
-When the Workstream seam chain is complete, do not refresh the formal desktop export; preserve the need for Live Validation Stage 1 instead.
+When the Workstream seam chain is complete, do not refresh the formal local USER hub export; preserve the need for Live Validation Stage 1 instead.
 
 If the artifact is not updated, the final output must explain why the update was skipped.
 
@@ -870,9 +870,9 @@ For relevant desktop Live Validation Stage 1 runs, the execution pass must also 
 - `C:\Nexus USER\User Test Summary.txt`
 - `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\element_<label>_<state>.png`
 
-unless the final output explicitly explains why the desktop export was not relevant or was intentionally skipped.
+unless the final output explicitly explains why the local USER hub export was not relevant or was intentionally skipped.
 
-Response-level `## User Test Summary` text alone is not sufficient during Live Validation Stage 1 when either the canonical repo artifact or the desktop export should exist.
+Response-level `## User Test Summary` text alone is not sufficient during Live Validation Stage 1 when either the canonical repo artifact or the local USER hub export should exist.
 
 Returned User Test Summary results are a hard phase gate. While results are pending, output the state as:
 

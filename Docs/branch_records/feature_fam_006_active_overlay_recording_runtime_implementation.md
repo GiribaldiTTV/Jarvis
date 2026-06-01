@@ -304,7 +304,7 @@ Real-Input Repair Root Cause: `The first LV1 attempt failed because one real mou
 UTS Fail-Closed Repair: `The first LV1 attempt also exposed that dev\orin_monitoring_hud_live_validation.ps1 could export the UTS handoff after a FAIL manifest. The helper now records UTS export as refreshed only when the LV1 manifest is PASS and blocks UTS export on FAIL.`
 Focused Screenshot Proof: `PASS - focused per-element screenshots were copied to C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260601_131655_350\focused_element_screenshots.`
 Short Video Proof: `PASS - mandatory LV1 short video proof was generated at dev\logs\fam_006_monitoring_hud_live_validation\20260601_131655_350\monitoring_hud_lv1_short_video.mp4 and copied to the USER-inspectable screenshot evidence root.`
-Formal UTS Handoff: `PASS - C:\Users\anden\OneDrive\Desktop\User Test Summary.txt was refreshed after LV1 PASS only.`
+Formal UTS Handoff: `PASS - C:\Nexus USER\User Test Summary.txt was refreshed after LV1 PASS only.`
 Future-Gated Boundary Check: `PASS - recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, Native Log Loader implementation, FAM-007 mutation, Governance mutation, PR creation, merge, release, issue mutation, and cleanup remain pending USER decisions.`
 Validation Status: `Green pending final required validation rerun for this LV1 source-truth/helper repair commit.`
 Package Status: `Workstream Green, Hardening H1 Green, and Live Validation LV1 proof/handoff Green; User Test Summary Results remain PENDING.`
@@ -313,7 +313,7 @@ Next Active Seam: User Test Summary returned-result digestion - FAM-006 Active O
 ## User Test Summary
 
 User Test Summary Results: `PENDING`
-User Test Summary Handoff Path: `C:\Users\anden\OneDrive\Desktop\User Test Summary.txt`
+User Test Summary Handoff Path: `C:\Nexus USER\User Test Summary.txt`
 User Test Summary Handoff Status: `Generated after LV1 PASS only`
 User Test Summary Returned Results: `Pending USER response`
 User-Facing Shortcut Validation: `PASS`

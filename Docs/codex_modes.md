@@ -250,7 +250,7 @@ Default Workflow mode return packets include:
 - whether closeout-grade proof came from the helper's documented default budget profile or only from exploratory overrides
 - a detailed `## User Test Summary` manual checklist when the slice changes user-visible behavior, runtime interaction, UX flow, prompts, startup behavior, voice behavior, or another operator-facing path
 - the updated canonical repo-level `UTS` artifact when the active workstream owns one and the slice makes that artifact relevant
-- the exported or refreshed desktop `User Test Summary.txt` copy when the slice is a relevant desktop user-facing path, or an explicit explanation of why that export was skipped
+- the exported or refreshed local USER hub `User Test Summary.txt` copy when the slice is a relevant desktop user-facing path, or an explicit explanation of why that export was skipped
 - for relevant desktop user-facing Live Validation, the `User-Facing Shortcut Live Validation Gate` / `desktop-shortcut` result with `User-Facing Shortcut Path:` and `User-Facing Shortcut Validation:` recorded before User Test Summary handoff
 - for relevant desktop user-facing Live Validation, the `Codex Live Client Self-QA Gate` result with `Codex Live Client Self-QA:`, `Visual Quality:`, `Live Interaction Evidence:`, `Usability Check:`, and `Platform Uniformity Check:` recorded before User Test Summary handoff
 - when the user-facing change is interactive, Codex must exercise the same visible live-client interactions it would ask the USER to test; screenshot-only, marker-only, or launched-but-not-driven proof cannot clear the self-QA gate

@@ -1477,7 +1477,7 @@ PR Readiness may verify the previously digested Live Validation UTS state, but i
 Live Validation green requires an exact `## User Test Summary` state before final green.
 Every Live Validation digest must include an exact `## User Test Summary` section. If User Test Summary is waived, that digest section must still declare `User Test Summary Results: WAIVED` and `User Test Summary Waiver Reason:`; validation summaries, blocker summaries, and source-truth references do not replace the digest section.
 This is a `Live Validation Stage 1` gate, not a Workstream, Hardening, or PR Readiness completion substitute.
-Workstream and Hardening may maintain UTS strategy or readiness notes, but they must not create/refresh the formal desktop UTS export, create a UTS results seam, digest UTS results, or stop on `User Test Summary Results Pending`.
+Workstream and Hardening may maintain UTS strategy or readiness notes, but they must not create/refresh the formal local USER hub UTS export, create a UTS results seam, digest UTS results, or stop on `User Test Summary Results Pending`.
 
 Named blocker:
 
