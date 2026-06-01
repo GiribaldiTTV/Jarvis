@@ -12,9 +12,9 @@ Family Vision Context: FAM-007 owns local AI, capability packs, provider readine
 Feature Vision Context: This fixture pretends to review FAM-007 Dev and Owner skeleton readiness while using process mechanics instead of an applied branch vision.
 Branch Goal: Create an accepted USER-facing branch vision for FAM-007 Dev/Owner Skeleton Readiness before engineering planning so Codex has a clear decision surface.
 End-State Vision: When BP1 closes, USER should be able to say what this branch is allowed to become and what future behavior should be true.
-What Will I Actually See, And Where Will I See It?: USER sees this Branch Vision review in the stable local USER hub packet beside copied context files and decision options.
-How It Will Function: BP1 captures the intended outcome for the branch; BP2 creates the plan; BP3 validates orchestration before implementation.
-User Experience Flow: USER starts at START_HERE, reads this vision review, checks source-truth context, and answers the options and questions before BP2.
+What Will I Actually See, And Where Will I See It?: USER will see a local USER hub packet for FAM-007 beside copied context files and decision options.
+How It Will Function: The accepted BP1 vision will become the target for BP2, and BP2 can then plan exact surfaces before BP3 validates orchestration.
+User Experience Flow: USER reads the FAM-007 packet, checks source-truth context, and answers the options and questions before BP2.
 Surface Map: Review surface is USER_BRANCH_VISION_REVIEW.md; context surface is START_HERE; decision surface is USER Response and Codex Digest; future proof surface is BP2 and BP3.
 Product Options / Design Paths: Option A accepts the vision, option B revises it, option C waives the gate, and option D rejects this branch direction before BP2.
 Codex Recommendations: Recommendation one is to use this packet to decide the branch vision before BP2 because the placement and behavior need USER review; tradeoff is an extra pause, but it prevents rework.

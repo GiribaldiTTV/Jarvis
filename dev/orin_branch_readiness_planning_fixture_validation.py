@@ -541,6 +541,9 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
         "bp1 captures the intended outcome",
         "use this packet to decide",
         "what exact outcome should user expect to see",
+        "user will see a local user hub packet",
+        "the accepted bp1 vision will become the target for bp2",
+        "user reads the fam-007 packet",
     )
     for phrase in template_shell_phrases:
         require(
