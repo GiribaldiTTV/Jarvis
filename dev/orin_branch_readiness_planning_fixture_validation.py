@@ -1557,6 +1557,53 @@ def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
         failures.append(
             "FAM-007 BP3 generated packet incorrectly approves implementation"
         )
+    primary_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
+    required_primary_sections = [
+        "## Plain-Language BP3 Readiness Summary",
+        "## Accepted BP1 Vision Traceability",
+        "## Accepted BP2 Plan Traceability",
+        "## Proposed Workstream Implementation Order",
+        "## Seam / SLC Readiness Assessment",
+        "## Expected Files / Helpers / Validators / Fixtures / Review Artifacts",
+        "## Direct Proof Plan",
+        "## Rollback And Reversibility Posture",
+        "## Drift Controls",
+        "## Unresolved Blockers And Pending USER Decisions",
+        "## Codex Readiness Recommendation",
+        "## Specific USER Readiness Questions",
+        "## Exact BP3 USER Decision Options",
+    ]
+    missing_sections = [
+        section for section in required_primary_sections if section not in primary_digest
+    ]
+    if missing_sections:
+        failures.append(
+            "FAM-007 BP3 primary digest is missing readiness-contract sections: "
+            + "; ".join(missing_sections)
+        )
+    required_primary_proof_terms = [
+        "No-private-action proof",
+        "Public-leak prevention",
+        "Provider-state inactivity",
+        "Runtime/cache/memory deferral",
+        "GitHub Desktop binding absence",
+        "Backup/import deferral",
+        "Artifact identity proof",
+        "External-state proof",
+    ]
+    missing_proof_terms = [
+        term for term in required_primary_proof_terms if term not in primary_digest
+    ]
+    if missing_proof_terms:
+        failures.append(
+            "FAM-007 BP3 primary digest is missing direct-proof topics: "
+            + "; ".join(missing_proof_terms)
+        )
+    if "Seam 5 - Packet, fixture, validator, and fold-down proof" not in primary_digest:
+        failures.append(
+            "FAM-007 BP3 primary digest must cover the full accepted seam route, "
+            "not only the first Workstream seam"
+        )
     return failures
 
 
