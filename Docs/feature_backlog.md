@@ -124,7 +124,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-003` | Interaction and Actions | High | Open / aggregation-held | `PKG-003` released baseline / open | `Docs/family_visions/FAM-003_interaction_and_actions.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` |
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
-| `FAM-006` | Monitoring and HUD | High | Open / Active Overlay Recording Runtime Implementation BP3 review | `PKG-006` active-overlay recording implementation carrier is admitted for setup; BP1 USER Branch Vision and BP2 USER Branch Plan are accepted under the post-PR #248 two-axis gate model; BP3 Workstream Entry / Orchestration Validation is active; Workstream implementation and runtime recording implementation remain future-gated and USER-gated; released planning traceability remains preserved in `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md` |
+| `FAM-006` | Monitoring and HUD | High | Open / Active Overlay Recording Runtime Implementation pending SLC-051 approval | `PKG-006` active-overlay recording implementation carrier is admitted for setup; BP1 USER Branch Vision and BP2 USER Branch Plan are accepted under the post-PR #248 two-axis gate model; BP3 Workstream Entry / Orchestration Validation is USER Approved; Workstream implementation and runtime recording implementation remain future-gated and USER-gated until separate bounded SLC-051 approval; released planning traceability remains preserved in `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md` |
 | `FAM-007` | Local AI and Capability Packs | High | Open / package admitted | `PKG-007` remains admitted and not package-complete; durable planning pointers preserve FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness context while live operational state remains external/Git/GitHub/helper-derived | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 
@@ -224,16 +224,16 @@ Historical Trace Coverage: `FB-039`, Stream Deck and external trigger planning g
 
 ### [ID: FAM-006] Monitoring and HUD
 
-Status: Open / Active Overlay Recording Runtime Implementation BP3 review
+Status: Open / Active Overlay Recording Runtime Implementation pending SLC-051 approval
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
 Family Scope: Monitoring HUD, Dashboard, Sensor Command Center, Sensor Library, monitor configuration, Overlay Profile, Recording Profile, local telemetry presentation, and user-facing performance/health surfaces.
-Package Summary: `PKG-006` active-overlay recording implementation carrier is admitted for Branch Readiness Stage 2 setup. Active-overlay-driven recording, HUD Overlay launcher/target preview, compact Recording Control window, Native Log Loader boundary, and per-overlay effective polling policy remain governed by the family vision and active branch plan; released planning traceability remains preserved in `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`, and runtime recording implementation remains future-gated until BP3 and separate USER implementation approval.
-Package Admission State: Branch Readiness Stage 2 setup / BP1 accepted / BP2 accepted / BP3 Workstream Entry active / runtime implementation pending BP3 and USER implementation approval
+Package Summary: `PKG-006` active-overlay recording implementation carrier is admitted for Branch Readiness Stage 2 setup. Active-overlay-driven recording, HUD Overlay launcher/target preview, compact Recording Control window, Native Log Loader boundary, and per-overlay effective polling policy remain governed by the family vision and active branch plan; released planning traceability remains preserved in `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`, BP3 is approved, and runtime recording implementation remains future-gated until separate bounded SLC-051 USER implementation approval.
+Package Admission State: Branch Readiness Stage 2 setup / BP1 accepted / BP2 accepted / BP3 approved / runtime implementation pending separate bounded SLC-051 USER implementation approval
 Admitted Slice Count: 5 planned slices in `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md`
-Package Completion State: Not started / BP1 USER Branch Vision Review pending
+Package Completion State: Not started / implementation pending separate USER approval
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 Family Vision Owner: `Docs/family_visions/FAM-006_monitoring_and_hud.md`
