@@ -68,6 +68,7 @@ def validate() -> list[str]:
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
+    output_contract = _read("desktop/recording_output_contract.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
     hud_state = _read("desktop/monitoring_hud_state.py")
@@ -1272,6 +1273,28 @@ def validate() -> list[str]:
         '"startStopState": "future-gated"',
     ):
         _require_contains(renderer, needle, "SLC-053 native Recording Control window foundation", failures)
+
+    for needle in (
+        "RECORDING_OUTPUT_CONTRACT_ID",
+        "slc-054-active-overlay-recording-output-contract",
+        "RECORDING_OUTPUT_FORMAT",
+        "csv-with-json-metadata-manifest",
+        "RECORDING_OUTPUT_HEADERS",
+        "timestamp_utc",
+        "elapsed_ms",
+        "overlay_profile_id",
+        "monitor_id",
+        "sensor_id",
+        "value",
+        "quality",
+        "render_recording_output_csv",
+        "parse_recording_output_csv",
+        "validate_recording_output_contract",
+        '"fileWritingState": "blocked"',
+        '"recordingExecutionState": "blocked"',
+        '"nativeLogLoaderState": "future-separate-viewer"',
+    ):
+        _require_contains(output_contract, needle, "SLC-054 durable recording output contract", failures)
 
     for needle in (
         "monitoring-hud__recording-target-preview",

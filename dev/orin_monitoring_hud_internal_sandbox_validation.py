@@ -37,6 +37,7 @@ from desktop.monitoring_hud_state import (
     save_monitoring_hud_state,
 )
 from desktop.monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
+from desktop.recording_output_contract import validate_recording_output_contract
 
 
 LOG_ROOT = ROOT / "dev" / "logs" / "fam_006_monitoring_hud_internal_sandbox"
@@ -1867,6 +1868,7 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         desktop_mode=True,
         event_route_present=True,
     ).as_dict()
+    output_contract = validate_recording_output_contract()
 
     cards = second.get("sensorCards") or []
     sensors = {
@@ -1905,6 +1907,10 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         failures,
     )
     _require(status.get("warningPosture") == "Visual badge, color state, and text label only", "status contract must preserve visual warning posture", failures)
+    _require(output_contract.get("passed") is True, "SLC-054 recording output contract proof must pass", failures)
+    _require(output_contract.get("parseReadback") is True, "SLC-054 output contract must parse/read back in memory", failures)
+    _require(output_contract.get("fileWritingBlocked") is True, "SLC-054 output contract must not admit file writing", failures)
+    _require(output_contract.get("recordingExecutionBlocked") is True, "SLC-054 output contract must not admit recording execution", failures)
 
     persisted_state = {}
     previous_state_path = os.environ.get(MONITORING_HUD_STATE_ENV)
@@ -2166,6 +2172,7 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         "placement": placement,
         "controls": controls,
         "status": status,
+        "recordingOutputContract": output_contract,
         "persistedState": persisted_state,
     }
 
