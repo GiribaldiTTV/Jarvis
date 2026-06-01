@@ -1093,6 +1093,10 @@ def _write_user_branch_vision_review(
     if not copied_context:
         copied_context = "the selected source-truth files"
     pr_readiness_context_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+    is_fam006_active_overlay_implementation = any(
+        FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_SLUG in source_rel
+        for source_rel, _copied_rel in copied
+    )
     review_status = (
         "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
         "it does not request a new Branch Vision decision."
@@ -1131,6 +1135,171 @@ def _write_user_branch_vision_review(
         if pr_readiness_context_packet
         else "Pending USER acceptance or waiver."
     )
+    if is_fam006_active_overlay_implementation and not pr_readiness_context_packet:
+        lines = [
+            f"# {title} - USER Branch Vision Review",
+            "",
+            "USER Branch Vision Review: BP1",
+            "",
+            "## Review Status",
+            "",
+            "Needs USER Decision unless this packet records an explicit USER acceptance or waiver.",
+            "",
+            "## Contract Status",
+            "",
+            "Draft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - BP1 packet is ready for USER Branch Vision Review, but acceptance is not recorded.",
+            "",
+            "## USER Gate State",
+            "",
+            "Pending USER Review - USER must accept, revise, waive, reject, request more options, or block BP1 before BP2 preparation can be green.",
+            "",
+            "## Contract Revision",
+            "",
+            "v3 - FAM-006-specific BP1 vision generated after the Governance substantive artifact repair.",
+            "",
+            "## Project Vision Context",
+            "",
+            "Nexus should remain a USER-controlled, inspectable desktop AI system. FAM-006 supports that by making monitoring and recording behavior visible, reviewable, and controlled through local desktop surfaces rather than hidden automation.",
+            "",
+            "## Family Vision Context",
+            "",
+            "FAM-006 owns Monitoring and HUD behavior. This branch keeps recording inside that family by treating the active Overlay Profile as the future recording target source, keeping the HUD Overlay card as launcher and target/status preview, and keeping the standalone Recording Control window as the compact control surface.",
+            "",
+            "## Feature Vision Context",
+            "",
+            "This branch is the active-overlay-driven recording runtime implementation carrier. It replaces the idea of a separate Recording Profile system with a simpler model: the USER chooses or edits the active Overlay Profile, then recording uses that active overlay membership as its target unless USER later approves a different model.",
+            "",
+            "## Codex Understanding",
+            "",
+            "The accepted BP1 vision should decide whether FAM-006 recording should be built around the active Overlay Profile, what the USER should see before recording starts, and which controls must stay future-gated until BP2, BP3, and separate Workstream implementation approval.",
+            "",
+            "## Branch Goal",
+            "",
+            "Create the branch vision for active-overlay recording before engineering planning begins. The branch should prepare a future runtime where recording target selection, launch affordance, control surface, proof expectations, and rollback posture all trace to an accepted USER-visible product direction.",
+            "",
+            "## End-State Vision",
+            "",
+            "When this branch is complete after later approved implementation phases, USER can understand which Overlay Profile is active, see that profile as the recording target, open a compact Recording Control surface, and rely on proof that recording behavior matches the accepted plan. Recording execution, file writing, tray behavior, export/share, and Native Log Loader integration remain future-gated until their legal implementation approvals.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "- In this BP1 packet, USER sees the proposed product direction and chooses whether it is right before BP2 planning.",
+            "- In the future runtime, the Dashboard HUD Overlay card remains the visible launcher and target/status preview for the active Overlay Profile.",
+            "- The future standalone Recording Control window is the compact place for recording state, Start/Stop controls after approval, target summary, and proof-oriented status.",
+            "- Native Log Loader remains a separate future graph/log viewer, not part of this branch's durable implementation unless USER later admits it.",
+            "",
+            "## How It Will Function",
+            "",
+            "The future implementation should read the active Overlay Profile as the recording target source, use overlay membership to determine what is recorded, and surface that target clearly before any recording action. BP2 must convert this accepted vision into an engineering plan, BP3 must validate orchestration, and Workstream implementation remains blocked until USER separately approves implementation.",
+            "",
+            "## User Experience Flow",
+            "",
+            "1. USER reviews or selects the active Overlay Profile.",
+            "2. USER sees the HUD Overlay card preview the active recording target and open the Recording Control window.",
+            "3. USER reviews target/status details in the compact Recording Control window.",
+            "4. Later approved implementation may add Start/Stop, output-file proof, tray controls, and export/share behavior.",
+            "5. Later Live Validation and UTS proof must show the accepted target model and user-visible controls behave as planned.",
+            "",
+            "## Surface Map",
+            "",
+            "- Active Overlay Profile: source of truth for the future recording target.",
+            "- Dashboard HUD Overlay card: launcher, target preview, and status preview surface.",
+            "- Standalone Recording Control window: compact future control surface for recording state and controls.",
+            "- Output/proof surfaces: future validation and UTS evidence for recorded files, status, and rollback behavior.",
+            "- Native Log Loader: future separate graph/log viewer, preserved as context only.",
+            "- Per-overlay effective polling policy: future FAM-006 architecture planning input, not implementation authority in BP1.",
+            "",
+            "## Product Options / Design Paths",
+            "",
+            "- Option A - Active Overlay Profile is the recording target source. This is Codex's recommendation because it keeps one USER-facing model for overlay membership and recording target selection. Tradeoff: BP2 must be careful about snapshot-versus-live-follow behavior.",
+            "- Option B - Add a separate Recording Profile system. This may seem explicit, but it creates another profile concept for USER to manage and should stay rejected unless USER wants recording to diverge from overlays.",
+            "- Option C - Start with a read-only target preview before live Start/Stop. This reduces runtime risk and lets H1/LV1 prove target clarity before recording writes files. Tradeoff: it delays the full control experience.",
+            "- Option D - Build the full Start/Stop and file-writing path first. This is faster to visible runtime behavior, but riskier because product direction and proof expectations would be harder to repair after implementation starts.",
+            "",
+            "## Codex Recommendations",
+            "",
+            "- Recommendation: Accept Option A as the BP1 product direction because recording should use the active Overlay Profile as its target source, with no separate Recording Profile system in this branch. Tradeoff: BP2 must be precise about snapshot-versus-live-follow behavior. USER response:",
+            "- Recommendation: Require BP2 to decide snapshot-versus-live-follow semantics for active overlay membership before any runtime recording code is approved because target drift would be hard to diagnose after recording starts. Tradeoff: this defers one runtime detail into BP2 instead of deciding it inside BP1. USER response:",
+            "- Recommendation: Keep the first Workstream seam focused on target model, HUD preview/launcher, and Recording Control shell readiness before file-writing or tray/export behavior because USER trust starts with knowing what will be recorded. Tradeoff: visible recording output arrives after the target/control proof is stable. USER response:",
+            "- Recommendation: Keep Native Log Loader and per-overlay effective polling policy as future planning inputs unless USER explicitly admits them into this branch because they can widen FAM-006 beyond active-overlay recording. Tradeoff: BP2 may need to name integration placeholders without implementing those systems. USER response:",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "This vision keeps Nexus local, visible, and USER-controlled: the USER can inspect the selected target, understand the recording path, and approve proof expectations before runtime work begins. It avoids hidden recording behavior and avoids multiplying profile systems without USER approval.",
+            "",
+            "## USER Design Questions",
+            "",
+            "- Should recording follow the active Overlay Profile as the target source, or do you want a separate Recording Profile concept despite the added complexity?",
+            "- Should the first implementation seam prove target preview and Recording Control shell before enabling real Start/Stop and file writing?",
+            "- When an active Overlay Profile changes during a future recording, should recording snapshot the target at start or live-follow the active profile? BP2 can plan this once BP1 direction is accepted.",
+            "- What must the HUD Overlay card show so you trust that Codex is recording the right target?",
+            "- What proof would make Live Validation and the USER Test Summary convincing for this branch?",
+            "",
+            "## USER Response",
+            "",
+            "Pending USER response or explicit waiver.",
+            "",
+            "## Codex Digest",
+            "",
+            "Pending USER response digest.",
+            "",
+            "## USER Response Proof",
+            "",
+            "Pending USER response or explicit waiver.",
+            "",
+            "## USER Response Digested",
+            "",
+            "No - BP1 remains open until Codex digests an explicit USER response or waiver.",
+            "",
+            "## Accepted Branch Vision",
+            "",
+            "Pending USER acceptance or waiver.",
+            "",
+            "## Family-Vision Versus Branch-Only Vision Impact",
+            "",
+            "Branch-only unless USER response creates reusable FAM-006 guidance that must fold into `Docs/family_visions/FAM-006_monitoring_and_hud.md` or another durable owner.",
+            "",
+            "## Must-Have Behavior",
+            "",
+            "- BP1 must close through USER acceptance or explicit waiver before BP2 becomes active.",
+            "- BP2 must derive the engineering route from this accepted active-overlay recording vision.",
+            "- BP3 must validate the BP2 plan against accepted BP1 before any Workstream implementation approval is legal.",
+            "- Future runtime proof must show the active Overlay Profile target model clearly enough for USER to verify.",
+            "",
+            "## Must-Not-Do / Regression-Risk Rules",
+            "",
+            "- Do not create a separate Recording Profile system unless USER explicitly revises BP1 in that direction.",
+            "- Do not implement recording execution, file writing, Start/Stop controls, tray controls, export/share, provider/model work, or Native Log Loader as part of BP1.",
+            "- Do not use Workstream for planning or treat this reviewable packet as USER acceptance.",
+            "- Do not let copied source-truth files replace the applied FAM-006 branch vision.",
+            "",
+            "## Deferred And Future-Gated Ideas",
+            "",
+            *_markdown_lines(pending_user_decisions),
+            "",
+            "## Vision Question Queue",
+            "",
+            "Pending USER review of the design questions above.",
+            "",
+            "## Design Assumption Ledger",
+            "",
+            "- Assumption: active Overlay Profile is the preferred recording target source unless USER revises BP1.",
+            "- Assumption: HUD Overlay card and Recording Control window are the primary future user-facing surfaces.",
+            "- Assumption: Native Log Loader remains future separate graph/log viewer context.",
+            "- Assumption: per-overlay effective polling policy remains future FAM-006 architecture planning input.",
+            "",
+            "## Acceptance / Revision / Rejection / Waiver Decision",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     lines = [
         f"# {title} - USER Branch Vision Review",
         "",
@@ -3339,8 +3508,15 @@ def _write_workstream_entry_packet_digests(
         )
     copied_sources = "\n".join(f"- `{source_rel}` -> `{copied_rel}`" for source_rel, copied_rel in copied)
     pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+    gate_state_context = (
+        "Packet Reviewability State: Reviewable\n"
+        "USER Gate State: Pending USER Review\n"
+        if is_fam006_active_overlay_implementation
+        else ""
+    )
     common = (
         f"Decision Path: {packet_status}\n"
+        f"{gate_state_context}"
         f"USER Decision: {exact_user_decision}\n"
     )
     files: dict[str, str] = {
@@ -3989,6 +4165,14 @@ def build_bundle(
         f"Source Truth Context Folder: `{SOURCE_TRUTH_CONTEXT_DIR_NAME}`",
         f"Review Aids Folder: `{REVIEW_AIDS_DIR_NAME}`",
         f"USER Decision This Packet Supports: {user_facing_decision}",
+        *(
+            [
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Review",
+            ]
+            if fam006_bp1_packet
+            else []
+        ),
         "",
         "## Pending USER Decisions",
         "",
