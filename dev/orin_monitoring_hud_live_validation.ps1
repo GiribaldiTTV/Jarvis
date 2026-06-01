@@ -612,6 +612,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             $manifestSeam = "Dashboard-specific active-client proof - no UTS export"
         }
     }
+    $userTestSummaryExportRefreshed = [bool]($PrepareLiveValidationUserTestSummary -and $script:ManifestStatus -eq "PASS")
     $manifest = [pscustomobject]@{
         status = $script:ManifestStatus
         package = "PKG-006"
@@ -634,8 +635,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         dashboardSpecificStaticLiveProofReady = $true
         elementValidationLedger = "Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md"
         elementLedgerAlignedUserTestSummary = [bool]$PrepareLiveValidationUserTestSummary
-        dashboardUserTestSummaryExportRefreshed = [bool]$PrepareLiveValidationUserTestSummary
-        dashboardUserTestSummaryExportPath = if ($PrepareLiveValidationUserTestSummary) { $Paths.UserTestSummary } else { "" }
+        dashboardUserTestSummaryExportRefreshed = $userTestSummaryExportRefreshed
+        dashboardUserTestSummaryExportPath = if ($userTestSummaryExportRefreshed) { $Paths.UserTestSummary } else { "" }
         dashboardUserTestSummaryReturnedResults = "live-validation-stage-1-only"
         overlayProfileValidationProof = [pscustomobject]@{
             seam = "SLC-041 Overlay Profile validation and live desktop proof"
@@ -676,7 +677,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             dashboardStateModelReady = [bool]$dashboardStateModelReady
             dashboardWarningControlsReady = [bool]$dashboardWarningControlsReady
             noFakeTelemetryPosture = $observedMarkers -contains "MONITORING_HUD_STATUS_BEHAVIOR_READY"
-            userTestSummaryExportRefreshed = [bool]$PrepareLiveValidationUserTestSummary
+            userTestSummaryExportRefreshed = $userTestSummaryExportRefreshed
             userTestSummaryPhaseBoundary = "live-validation-stage-1-only"
             returnedUserTestSummaryDigestReserved = $true
         }
@@ -1138,8 +1139,11 @@ finally {
         }
     }
     Save-Manifest $paths $pythonExe
-    if ($PrepareLiveValidationUserTestSummary) {
+    if ($PrepareLiveValidationUserTestSummary -and $script:ManifestStatus -eq "PASS") {
         Save-UserTestSummaryHandoff $paths
+    }
+    elseif ($PrepareLiveValidationUserTestSummary) {
+        Step $paths "blocked User Test Summary export: LV1 manifest status is $script:ManifestStatus; repair Codex-visible defects before UTS handoff"
     }
     else {
         Step $paths "skipped User Test Summary export: UTS is Live Validation Stage 1 only"

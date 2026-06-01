@@ -10471,30 +10471,118 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(150), step_manage_monitors_scroll)
 
         def step_manage_monitors_scroll():
+            max_attempts = 6
             point = (
                 int(live_window_origin["x"]) + 470,
                 int(live_window_origin["y"]) + 420,
             )
-            scrolled = self._monitoring_hud_send_mouse_wheel(-5, point)
-            add_step(
-                "real OS mouse wheel scrolls Dashboard to Manage Monitors control",
-                bool(scrolled),
-                {
-                    "ok": bool(scrolled),
-                    "screenPoint": point,
-                    "wheelNotches": -5,
-                    "inputProof": "real-os-mouse-cursor-move-wheel",
-                    "realOsInputProof": bool(scrolled),
-                    "directJsScrollUsed": False,
-                    "directJsClickUsed": False,
-                    "syntheticDomEventUsed": False,
-                    "qtestMouseUsed": False,
-                },
-            )
-            if not scrolled:
-                finish("FAIL", "real OS mouse wheel scroll to Manage Monitors failed")
-                return
-            QTimer.singleShot(delay(150), lambda: os_click("#monitoring-hud-edit-monitor-action", "real OS click opens Manage Monitors", step_manage_assert))
+
+            def inspect_click_target(attempt: int):
+                script = f"""
+                (function() {{
+                    const selector = "#monitoring-hud-edit-monitor-action";
+                    const element = document.querySelector(selector);
+                    const rect = element ? element.getBoundingClientRect() : null;
+                    const centerX = rect ? rect.left + (rect.width / 2) : 0;
+                    const centerY = rect ? rect.top + (rect.height / 2) : 0;
+                    const inViewport = Boolean(rect && centerX >= 0 && centerY >= 0 && centerX <= window.innerWidth && centerY <= window.innerHeight);
+                    const hitTarget = inViewport ? document.elementFromPoint(centerX, centerY) : null;
+                    const hitControl = hitTarget && hitTarget.closest ? hitTarget.closest(selector) : null;
+                    return JSON.stringify({{
+                        ok: Boolean(element && rect && rect.width > 0 && rect.height > 0 && !element.disabled && hitControl === element),
+                        selector,
+                        attempt: {attempt},
+                        text: element ? String(element.textContent || "").trim() : "",
+                        inViewport,
+                        viewport: {{ width: window.innerWidth, height: window.innerHeight }},
+                        hitTargetTag: hitTarget ? String(hitTarget.tagName || "") : "",
+                        hitTargetId: hitTarget ? String(hitTarget.id || "") : "",
+                        hitTargetText: hitTarget ? String(hitTarget.textContent || "").trim().slice(0, 80) : "",
+                        hitTargetMatchesSelector: Boolean(hitControl === element),
+                        hidden: element ? Boolean(element.hidden) : true,
+                        disabled: element ? Boolean(element.disabled) : true,
+                        rect: rect ? {{
+                            left: rect.left,
+                            top: rect.top,
+                            right: rect.right,
+                            bottom: rect.bottom,
+                            width: rect.width,
+                            height: rect.height,
+                            centerX: rect.left + (rect.width / 2),
+                            centerY: rect.top + (rect.height / 2)
+                        }} : null
+                    }});
+                }})();
+                """
+                self._run_javascript_with_result(script, lambda result: handle_inspection_result(attempt, result))
+
+            def handle_inspection_result(attempt: int, result):
+                try:
+                    parsed = json.loads(result) if isinstance(result, str) else result
+                except Exception:
+                    parsed = {"ok": False, "raw": str(result)}
+                if not isinstance(parsed, dict):
+                    parsed = {"ok": False, "raw": str(parsed)}
+                if parsed.get("ok"):
+                    add_step(
+                        "real OS mouse wheel scroll makes Dashboard Manage Monitors control clickable",
+                        True,
+                        {
+                            **parsed,
+                            "screenPoint": point,
+                            "wheelNotchesPerAttempt": -5,
+                            "inputProof": "real-os-mouse-cursor-move-wheel-until-hit-testable",
+                            "realOsInputProof": True,
+                            "directJsScrollUsed": False,
+                            "directJsClickUsed": False,
+                            "syntheticDomEventUsed": False,
+                            "qtestMouseUsed": False,
+                        },
+                    )
+                    QTimer.singleShot(delay(150), lambda: os_click("#monitoring-hud-edit-monitor-action", "real OS click opens Manage Monitors", step_manage_assert))
+                    return
+                if attempt >= max_attempts:
+                    add_step(
+                        "real OS mouse wheel scroll makes Dashboard Manage Monitors control clickable",
+                        False,
+                        {
+                            **parsed,
+                            "screenPoint": point,
+                            "wheelNotchesPerAttempt": -5,
+                            "attempts": attempt,
+                            "inputProof": "real-os-mouse-cursor-move-wheel-until-hit-testable",
+                            "realOsInputProof": False,
+                            "directJsScrollUsed": False,
+                            "directJsClickUsed": False,
+                            "syntheticDomEventUsed": False,
+                            "qtestMouseUsed": False,
+                        },
+                    )
+                    finish("FAIL", "real OS mouse wheel scroll to Manage Monitors did not make target clickable")
+                    return
+                scrolled = self._monitoring_hud_send_mouse_wheel(-5, point)
+                add_step(
+                    "real OS mouse wheel scrolls Dashboard to Manage Monitors control",
+                    bool(scrolled),
+                    {
+                        "ok": bool(scrolled),
+                        "attempt": attempt,
+                        "screenPoint": point,
+                        "wheelNotches": -5,
+                        "inputProof": "real-os-mouse-cursor-move-wheel",
+                        "realOsInputProof": bool(scrolled),
+                        "directJsScrollUsed": False,
+                        "directJsClickUsed": False,
+                        "syntheticDomEventUsed": False,
+                        "qtestMouseUsed": False,
+                    },
+                )
+                if not scrolled:
+                    finish("FAIL", "real OS mouse wheel scroll to Manage Monitors failed")
+                    return
+                QTimer.singleShot(delay(150), lambda: inspect_click_target(attempt + 1))
+
+            inspect_click_target(1)
 
         def step_manage_assert():
             assert_state(
