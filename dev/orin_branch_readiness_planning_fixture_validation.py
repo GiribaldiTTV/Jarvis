@@ -507,6 +507,10 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
         and "tradeoff" in recommendations.casefold(),
         "Codex Recommendations are too shallow for BP1 Branch Vision Review",
     )
+    require(
+        "user response" in recommendations.casefold(),
+        "Codex Recommendations must leave USER response space for BP1 review",
+    )
     substantive_markers = (
         "Project Vision Context:",
         "Family Vision Context:",
@@ -554,6 +558,21 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
             )
         ),
         "copied-file list cannot be the BP1 Surface Map",
+    )
+    require(
+        "review surface" in normalized_surface_map
+        and "decision surface" in normalized_surface_map,
+        "Surface Map must distinguish review and decision surfaces",
+    )
+    options = governance._extract_marker_value(text, "Product Options / Design Paths:")
+    require(
+        "option" in options.casefold()
+        and (
+            "tradeoff" in options.casefold()
+            or "risk" in options.casefold()
+            or "defer" in options.casefold()
+        ),
+        "Product Options / Design Paths must include real options and tradeoffs",
     )
     user_questions = governance._extract_marker_value(text, "USER Design Questions:")
     require(
@@ -761,9 +780,9 @@ def _validate_branch_planning_gate_state_packet_text(text: str) -> list[str]:
         "## Surface Map\n"
         "Review surface is USER_BRANCH_VISION_REVIEW.md; decision surface is the USER response; proof surface is the Codex digest; later BP2 and BP3 files trace to this gate state.\n\n"
         "## Product Options / Design Paths\n"
-        "Option A keeps the packet reviewable with USER response pending until a clear receipt arrives. Option B revises the review packet before acceptance if the vision, decision surface, or proof path is unclear. Option C waives or rejects the gate with explicit USER text and keeps later stages bounded.\n\n"
+        "Option A keeps the packet reviewable with USER response pending until a clear receipt arrives, with the tradeoff that later stages wait. Option B revises the review packet before acceptance if the vision, decision surface, or proof path is unclear, reducing risk before BP2. Option C waives or rejects the gate with explicit USER text and keeps later stages bounded or deferred.\n\n"
         "## Codex Recommendations\n"
-        "Recommendation one keeps reviewability and acceptance independent because packet hygiene can pass while USER intent remains undecided, with the tradeoff that later stages must wait for a clear receipt. Recommendation two keeps implementation language blocked because false green validation is the core risk this fixture protects against.\n\n"
+        "Recommendation one keeps reviewability and acceptance independent because packet hygiene can pass while USER intent remains undecided, with the tradeoff that later stages must wait for a clear receipt. USER response: pending. Recommendation two keeps implementation language blocked because false green validation is the core risk this fixture protects against. USER response: pending.\n\n"
         "## Why This Fits The Nexus Vision\n"
         "This supports Nexus by making governance decisions inspectable, USER-controlled, and resistant to Codex treating generated artifacts as permission.\n\n"
         "## USER Design Questions\n"
@@ -1237,9 +1256,9 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
         "## Surface Map\n"
         "Review surface is USER_BRANCH_VISION_REVIEW.md; context surface is START_HERE; decision surface is USER Response plus Codex Digest; proof surface is later BP2/BP3 traceability.\n\n"
         "## Product Options / Design Paths\n"
-        "Option A accepts the fixture vision as scoped and lets BP2 begin from a clear branch-specific outcome. Option B revises review surfaces, experience flow, or branch boundaries before BP2. Option C waives or rejects BP1 and keeps implementation blocked until USER gives a safer direction.\n\n"
+        "Option A accepts the fixture vision as scoped and lets BP2 begin from a clear branch-specific outcome, with the tradeoff of one deliberate review pause. Option B revises review surfaces, experience flow, or branch boundaries before BP2 to reduce implementation risk. Option C waives or rejects BP1 and keeps implementation blocked or deferred until USER gives a safer direction.\n\n"
         "## Codex Recommendations\n"
-        "Recommendation one keeps packet placement in the local USER hub, names BP1/BP2/BP3 behavior, explains tradeoffs around review time, and cites risk from shallow branch vision because marker-only packet validation can otherwise bypass USER intent. Recommendation two keeps copied files as context instead of the vision so USER can decide from applied branch-specific substance.\n\n"
+        "Recommendation one keeps packet placement in the local USER hub, names BP1/BP2/BP3 behavior, explains tradeoffs around review time, and cites risk from shallow branch vision because marker-only packet validation can otherwise bypass USER intent. USER response: accepted for fixture. Recommendation two keeps copied files as context instead of the vision so USER can decide from applied branch-specific substance. USER response: accepted for fixture.\n\n"
         "## Why This Fits The Nexus Vision\n"
         "This keeps Nexus planning USER-controlled and inspectable because Codex must explain the branch outcome before engineering seams become the default direction.\n\n"
         "## USER Design Questions\n"

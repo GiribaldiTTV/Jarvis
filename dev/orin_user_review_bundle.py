@@ -288,6 +288,51 @@ USER_BRANCH_VISION_MINIMUM_SUBSTANTIVE_SECTIONS: tuple[tuple[str, int], ...] = (
     ("Why This Fits The Nexus Vision", 18),
     ("USER Design Questions", 24),
 )
+USER_BRANCH_VISION_DECISION_AID_PATTERNS: tuple[tuple[str, str, re.Pattern[str]], ...] = (
+    (
+        "Product Options / Design Paths",
+        "real option labels",
+        re.compile(r"\bOption\s+[A-Z]\b", re.IGNORECASE),
+    ),
+    (
+        "Product Options / Design Paths",
+        "tradeoff language",
+        re.compile(r"\btradeoff\b|\brisk\b|\bdefer", re.IGNORECASE),
+    ),
+    (
+        "Codex Recommendations",
+        "line-item recommendation",
+        re.compile(r"\brecommendation\b", re.IGNORECASE),
+    ),
+    (
+        "Codex Recommendations",
+        "tradeoff language",
+        re.compile(r"\btradeoff\b|\brisk\b|\bbecause\b", re.IGNORECASE),
+    ),
+    (
+        "Codex Recommendations",
+        "USER response space",
+        re.compile(r"\bUSER response\b", re.IGNORECASE),
+    ),
+    (
+        "Surface Map",
+        "review surface",
+        re.compile(r"\breview surface\b|\bUSER_BRANCH_VISION_REVIEW\.md\b|\bsurface\b", re.IGNORECASE),
+    ),
+    (
+        "Surface Map",
+        "decision surface",
+        re.compile(r"\bdecision surface\b|\bUSER response\b|\bproof surface\b|\bstatus preview surface\b", re.IGNORECASE),
+    ),
+    (
+        "What Will I Actually See, And Where Will I See It?",
+        "visible USER outcome",
+        re.compile(
+            r"\bUSER (?:sees|will see|reviews|opens|inspects|is deciding)\b|\bUSER-facing\b|\bvisible\b",
+            re.IGNORECASE,
+        ),
+    ),
+)
 
 
 @dataclass(frozen=True)
@@ -980,6 +1025,13 @@ def _user_branch_vision_substantive_failures(packet_files: Mapping[str, str]) ->
         if _review_word_count(value) < minimum_words:
             failures.append(
                 f"{display_name}: {section_name} is too shallow for BP1 substantive review"
+            )
+
+    for section_name, reason, pattern in USER_BRANCH_VISION_DECISION_AID_PATTERNS:
+        value = _section(text, section_name)
+        if value and not pattern.search(value):
+            failures.append(
+                f"{display_name}: {section_name} lacks BP1 decision-aid {reason}"
             )
 
     for reason, pattern in USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS:
