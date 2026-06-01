@@ -144,6 +144,9 @@ INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE = (
 INVALID_BP1_TEMPLATE_SHELL_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_template_shell_review.md"
 )
+INVALID_BP1_PROCESS_MECHANICS_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_process_mechanics_review.md"
+)
 INVALID_BP1_COPIED_FILE_SURFACE_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_copied_file_surface_map_only.md"
 )
@@ -533,6 +536,11 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
         "describe the intended user-visible or source-truth end state",
         "review the copied branch-specific files and note any changes",
         "does this branch vision match what the user wants this branch to become",
+        "create an accepted user-facing branch vision",
+        "when bp1 closes, user should be able to say",
+        "bp1 captures the intended outcome",
+        "use this packet to decide",
+        "what exact outcome should user expect to see",
     )
     for phrase in template_shell_phrases:
         require(
@@ -1538,6 +1546,7 @@ def validate() -> list[str]:
         INVALID_BP1_MISSING_CONTEXT_FIXTURE,
         INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE,
         INVALID_BP1_TEMPLATE_SHELL_FIXTURE,
+        INVALID_BP1_PROCESS_MECHANICS_FIXTURE,
         INVALID_BP1_COPIED_FILE_SURFACE_ONLY_FIXTURE,
         INVALID_BP1_GENERIC_USER_QUESTIONS_FIXTURE,
         INVALID_BP1_SLC_CENTERED_FIXTURE,
@@ -2051,6 +2060,16 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid BP1 template-shell fixture did not reject instructional placeholder content"
+        )
+
+    process_mechanics_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_PROCESS_MECHANICS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_TEMPLATE_SHELL_FAILURE_SNIPPET not in "\n".join(
+        process_mechanics_failures
+    ):
+        failures.append(
+            "Invalid BP1 process-mechanics fixture did not reject process-only BP1 review content"
         )
 
     copied_surface_failures = _validate_bp1_branch_vision_review_text(

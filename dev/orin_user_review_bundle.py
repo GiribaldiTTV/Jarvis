@@ -262,6 +262,26 @@ USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], .
         "generic-design-question",
         re.compile(r"Does this Branch Vision match what the USER wants this branch to become", re.IGNORECASE),
     ),
+    (
+        "process-only-accepted-vision-goal",
+        re.compile(r"Create an accepted USER-facing branch vision", re.IGNORECASE),
+    ),
+    (
+        "process-only-bp1-closeout",
+        re.compile(r"When BP1 closes, USER should be able to say", re.IGNORECASE),
+    ),
+    (
+        "process-only-bp1-mechanics",
+        re.compile(r"BP1 captures the intended outcome", re.IGNORECASE),
+    ),
+    (
+        "process-only-packet-decision",
+        re.compile(r"Use this packet to decide", re.IGNORECASE),
+    ),
+    (
+        "generic-outcome-question",
+        re.compile(r"what exact outcome should USER expect to see", re.IGNORECASE),
+    ),
 )
 USER_BRANCH_VISION_MINIMUM_SUBSTANTIVE_SECTIONS: tuple[tuple[str, int], ...] = (
     ("Project Vision Context", 18),
@@ -1116,6 +1136,176 @@ def _write_user_branch_vision_review(
         if pr_readiness_context_packet
         else "Pending USER acceptance or waiver."
     )
+    profile_text = " ".join(
+        [title, review_purpose, exact_user_decision, *source_file_names]
+    ).casefold().replace("_", "-")
+    fam007_dev_owner_bp1_packet = (
+        "fam-007" in profile_text
+        and (
+            "dev-owner-skeleton-readiness" in profile_text
+            or "dev/owner skeleton readiness" in profile_text
+        )
+        and not pr_readiness_context_packet
+    )
+    if fam007_dev_owner_bp1_packet:
+        lines = [
+            f"# {title} - USER Branch Vision Review",
+            "",
+            "USER Branch Vision Review: BP1",
+            "",
+            "## Review Status",
+            "",
+            review_status,
+            "",
+            "## Contract Status",
+            "",
+            contract_status,
+            "",
+            "## Packet Reviewability State",
+            "",
+            packet_reviewability_state,
+            "",
+            "## USER Gate State",
+            "",
+            user_gate_state,
+            "",
+            "## Contract Revision",
+            "",
+            "v3 - FAM-007 Dev/Owner Skeleton Readiness applied BP1 vision profile.",
+            "",
+            "## Project Vision Context",
+            "",
+            "Nexus is meant to stay local-first, inspectable, and USER-controlled even as AI capability grows. This branch vision should make the next FAM-007 decision visible before engineering planning: how a public-safe repo can prepare Dev and Owner skeleton readiness without quietly creating private roots, remotes, provider behavior, cache behavior, memory, or automation.",
+            "",
+            "## Family Vision Context",
+            "",
+            "FAM-007 owns local AI, capability packs, provider readiness, consent posture, Dev and Owner trust boundaries, provider-visible data, execution gates, and memory or future learning boundaries. The branch should turn those family rules into a reviewable Dev/Owner readiness direction while keeping the base public product useful and safe without local LLM or provider execution.",
+            "",
+            "## Feature Vision Context",
+            "",
+            "This successor carrier follows the merged Breakpoint 2 action-gate proof. Its feature vision is not private setup; it is the public-safe readiness layer that lets USER decide what Dev skeleton readiness, Owner skeleton readiness, private root and remote choices, backup/import timing, provider/model deferral, runtime cache deferral, and memory deferral should look like before later gates authorize any implementation.",
+            "",
+            "## Codex Understanding",
+            "",
+            "Codex understands this BP1 as a product and trust-boundary vision review for the FAM-007 Dev/Owner Skeleton Readiness carrier. The branch should prepare a decision-ready public package for future Dev and Owner skeleton setup, preserve every private/runtime action gate, and give BP2 a concrete accepted vision to translate into an engineering plan.",
+            "",
+            "## Branch Goal",
+            "",
+            "Define a public-safe Dev/Owner skeleton readiness and decision layer. The branch should make future Dev and Owner setup choices understandable before private repositories, local-only roots, private remotes, backup/import behavior, provider or model execution, runtime cache behavior, memory, learning, personalization, or release work exists.",
+            "",
+            "## End-State Vision",
+            "",
+            "When this branch is complete, USER should have a readable source-truth and review package that names the Dev readiness path, Owner readiness path, public-to-private boundary, private root and remote decision points, GitHub Desktop safety posture, backup/import deferral, provider/model/cache/memory deferral, proof expectations, validators, and later USER action gates. It should be obvious what is ready to plan next and what still needs separate approval.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "USER will see a local USER hub packet for FAM-007 with this Branch Vision as the current decision file. The visible review should describe the Dev/Owner skeleton readiness outcome in plain language, explain which future setup decisions it prepares, map the public-safe proof and source-truth surfaces, and leave private or runtime actions plainly pending rather than implied.",
+            "",
+            "## How It Will Function",
+            "",
+            "The accepted BP1 vision will become the target for BP2. BP2 can then plan exact surfaces such as the action-gate registry, Dev and Owner skeleton readiness proof, private root and remote decision matrix, public-upstream safety proof, backup/import deferral proof, provider-state proof, packet proof, and validator coverage. BP3 may later verify orchestration, but implementation remains blocked until BP1 and BP2 are accepted or waived, BP3 is green, and USER separately approves Workstream implementation.",
+            "",
+            "## User Experience Flow",
+            "",
+            "USER reads the FAM-007 packet, decides whether one public-safe readiness branch should cover Dev and Owner skeleton preparation, answers which private setup choices need to be visible before BP2, and marks any required revisions. Codex then digests that response before BP2; it cannot convert this reviewable packet into acceptance or implementation authority by itself.",
+            "",
+            "## Surface Map",
+            "",
+            "- USER decision surface: `USER_BRANCH_VISION_REVIEW.md` in the local FAM-007 packet asks whether the Dev/Owner skeleton readiness direction is right.",
+            "- Source-truth surface: the FAM-007 branch record, external branch plan, family vision files, and AI runtime/trust architecture define the public-safe boundary and future-gated private/runtime actions.",
+            "- Future BP2 planning surface: a later `USER_BRANCH_PLAN_REVIEW.md` should translate the accepted vision into seams, likely files, validators, proof outputs, H1/LV/UTS expectations, and rollback or safety controls.",
+            "- Proof surface: later validators and packet checks should prove no private repo, private root, private remote, backup/import behavior, provider/model execution, runtime cache behavior, memory behavior, token, secret, prompt, model artifact, or private automation enters the public branch.",
+            "",
+            "## Product Options / Design Paths",
+            "",
+            "- Option A - one public-safe readiness carrier for both Dev and Owner skeletons. This is Codex's recommended direction because the Dev skeleton, Owner skeleton, private remotes, public-upstream safety, backup/import, provider/model deferral, cache deferral, and memory deferral all share the same trust boundary. Tradeoff: BP2 is broader, but the gates stay consistent.",
+            "- Option B - split Dev readiness and Owner readiness into later separate carriers. This can reduce packet size, but it risks duplicated or inconsistent private/public gates unless USER wants different timelines for Dev and Owner.",
+            "- Option C - define only the action-gate vocabulary now and defer skeleton details. This is safest if USER wants a smaller branch, but it would postpone the useful Dev/Owner readiness plan BP2 is meant to produce.",
+            "- Option D - keep one branch but require BP2 to include a decision matrix for private roots, private remotes, GitHub Desktop posture, backup/import timing, provider/model behavior, runtime cache behavior, memory behavior, and public-to-private promotion.",
+            "- Option E - add visual or walkthrough proof expectations for later phases before private setup. This gives USER stronger confidence, but it should stay in BP2/H1/LV planning until implementation is approved.",
+            "",
+            "## Codex Recommendations",
+            "",
+            "- Recommendation 1: accept a single public-safe readiness carrier for Dev and Owner skeleton preparation. Placement should stay in the public FAM-007 branch and local USER packet, behavior should stay planning/proof only, and the tradeoff is a wider BP2 that prevents fragmented private-action gates. USER response:",
+            "- Recommendation 2: keep actual private Dev repo, Owner repo, private roots, private remotes, GitHub Desktop private binding, backup/import, provider/model execution, cache runtime behavior, and memory behavior outside this branch vision unless USER later grants a named gate. This slows private setup, but it protects Main and keeps provider-visible data at none. USER response:",
+            "- Recommendation 3: require BP2 to show a concrete decision matrix, affected surfaces, likely files, validators/helpers, proof requirements, H1/LV/UTS expectations, and rollback or safety plan for every Dev/Owner skeleton gate. This gives Codex a buildable route after acceptance, with the tradeoff that BP2 must be more detailed than a normal status digest. USER response:",
+            "- Recommendation 4: require direct proof that the public branch remains public-safe before any later private setup is considered. The proof should cover no private paths, remotes, tokens, secrets, prompts, memory, model artifacts, provider calls, downloads, cache activation, private automation, PR, merge, release, or cleanup. USER response:",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "The branch fits Nexus because it makes powerful AI-edition work deliberate instead of ambient. It keeps the public app local-first and inspection-friendly, preserves the FAM-007 family rule that provider/model/cache/memory behavior needs explicit gates, and gives USER a clear way to choose future Dev/Owner boundaries before any sensitive setup exists.",
+            "",
+            "## USER Design Questions",
+            "",
+            "- Should Dev and Owner skeleton readiness stay in one public-safe branch through BP2 and BP3, or should either side split into a later carrier?",
+            "- Which future private setup choices must BP2 make explicit: private repo, local-only root, private remote, GitHub Desktop binding, backup/import sequence, public-to-private promotion, or all of them?",
+            "- What proof would make USER comfortable before any later private setup: decision matrix, validator fixture, no-leak scan, provider-state proof, packet walkthrough, visual walkthrough, or a combination?",
+            "- Should provider/model execution, runtime cache behavior, memory, learning, personalization, and capability-pack runtime work remain completely deferred until the private/public skeleton boundary is accepted?",
+            "- What should count as a successful public-safe readiness package if no runtime UI changes are produced?",
+            "",
+            "## USER Response",
+            "",
+            user_response,
+            "",
+            "## Codex Digest",
+            "",
+            codex_digest,
+            "",
+            "## USER Response Proof",
+            "",
+            user_response,
+            "",
+            "## USER Response Digested",
+            "",
+            "No - BP1 remains open until Codex digests an explicit USER response or waiver.",
+            "",
+            "## Accepted Branch Vision",
+            "",
+            accepted_vision,
+            "",
+            "## Family-Vision Versus Branch-Only Vision Impact",
+            "",
+            "Branch-only by default: this carrier applies existing FAM-007 and AI runtime/trust architecture to Dev/Owner skeleton readiness. If USER changes edition boundaries, provider/cache/memory policy, or public/private promotion rules, Codex must route that change to the proper durable family or architecture owner before BP2 relies on it.",
+            "",
+            "## Must-Have Behavior",
+            "",
+            "- BP1 acceptance or explicit waiver is required before BP2 can claim the engineering plan is valid.",
+            "- BP2 must trace every seam or SLC to this accepted Dev/Owner skeleton readiness vision.",
+            "- The branch must preserve public-safe proof and avoid creating or activating private/runtime/provider/cache/memory behavior.",
+            "- USER-facing review files must stay decision-focused while technical proof remains in helper output, validator output, Codex digest, or external operational state.",
+            "",
+            "## Future-Gated Decisions And Regression-Risk Controls",
+            "",
+            "- Future-gated decision: private Dev skeleton setup, private Owner skeleton setup, private repos, local-only roots, private remotes, and GitHub Desktop private binding.",
+            "- Future-gated decision: backup/import behavior, public-to-private import, provider SDKs, model downloads, provider/model execution, runtime provider execution, cache behavior, memory, learning, indexing, retrieval, and personalization.",
+            "- Future-gated decision: voice/Core sync, shortcut or installer work, PR creation, merge, release, cleanup, issue mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work.",
+            "- Regression-risk control: reviewability is not USER acceptance, and packet validation cannot approve BP2, BP3, or Workstream implementation.",
+            "- Regression-risk control: any future private or provider-facing proof must be public-safe, synthetic where needed, and free of private paths, secrets, tokens, prompts, memory, model artifacts, and private automation.",
+            "",
+            "## Deferred And Future-Gated Ideas",
+            "",
+            *_markdown_lines(pending_user_decisions),
+            "",
+            "## Vision Question Queue",
+            "",
+            "- Decide whether the readiness package covers Dev and Owner together or splits later.",
+            "- Decide which private root, private remote, GitHub Desktop, backup/import, provider/cache/memory, and public-to-private promotion questions BP2 must answer.",
+            "- Decide what proof format USER wants before any future private setup can be considered.",
+            "",
+            "## Design Assumption Ledger",
+            "",
+            "- Assumption: the public branch may define readiness, decisions, fixtures, validators, and review proof, but it may not contain private Dev or Owner assets.",
+            "- Assumption: provider-visible data remains none, sentToProvider remains false, canAcceptPrompts remains false, downloads/network/external calls remain blocked, memory and cache runtime behavior remain inactive, and voice/Core sync remains gated until later USER approval.",
+            "- Assumption: accepted BP1 changes that alter family, architecture, or edition-boundary policy must fold into the durable source-truth owner before BP2 treats them as implementation scope.",
+            "",
+            "## Acceptance / Revision / Rejection / Waiver Decision",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     lines = [
         f"# {title} - USER Branch Vision Review",
         "",
@@ -1159,11 +1349,11 @@ def _write_user_branch_vision_review(
         "",
         "## Branch Goal",
         "",
-        f"Create an accepted USER-facing branch vision for `{title}` before engineering planning. The goal is to turn `{review_purpose}` into a clear decision surface: what the branch is meant to accomplish, what USER will inspect, and what must remain blocked until BP2/BP3 and separate implementation approval.",
+        f"Define the USER-facing branch vision for `{title}` before engineering planning. The goal is to translate `{review_purpose}` into a clear decision surface: what the branch is meant to accomplish, what USER will inspect, and what remains blocked until BP2/BP3 plus separate implementation approval.",
         "",
         "## End-State Vision",
         "",
-        f"When BP1 closes, USER should be able to say exactly what `{title}` is allowed to become, what future USER-visible or governance behavior should be true, and which outcomes are deliberately deferred. A later green BP2/BP3 must trace to this accepted end-state instead of inventing product direction during implementation.",
+        f"A complete BP1 decision should let USER identify exactly what `{title}` is allowed to become, what future USER-visible or governance behavior should be true, and which outcomes are deliberately deferred. A later green BP2/BP3 must trace to this accepted end-state instead of inventing product direction during implementation.",
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
@@ -1171,7 +1361,7 @@ def _write_user_branch_vision_review(
         "",
         "## How It Will Function",
         "",
-        f"BP1 captures the intended outcome for `{title}`. BP2 must translate only the accepted or waived BP1 vision into an engineering plan, BP3 must validate orchestration against both accepted gates, and Workstream implementation remains blocked until those gates are green plus the USER gives a separate implementation decision.",
+        f"This review defines the intended outcome for `{title}`. BP2 must translate only the accepted or waived BP1 vision into an engineering plan, BP3 must validate orchestration against both accepted gates, and Workstream implementation remains blocked until those gates are green plus the USER gives a separate implementation decision.",
         "",
         "## User Experience Flow",
         "",
@@ -1192,7 +1382,7 @@ def _write_user_branch_vision_review(
         "",
         "## Codex Recommendations",
         "",
-        f"- Recommendation: Use this packet to decide the `{title}` branch vision before any BP2 engineering plan is treated as valid, because the main risk is Codex building from a technically clean but weak product direction. Tradeoff: this adds one deliberate review pause, but it prevents expensive Workstream rework.",
+        f"- Recommendation: Decide the `{title}` branch vision before any BP2 engineering plan is treated as valid, because the main risk is Codex building from a technically clean but weak product direction. Tradeoff: this adds one deliberate review pause, but it prevents expensive Workstream rework.",
         "  USER response:",
         f"- Recommendation: Require any revision to name the expected USER-visible, governance, or source-truth outcome for `{title}` rather than only saying the packet should be clearer. Tradeoff: stricter response digestion takes more care, but it gives BP2 a real contract to build from.",
         "  USER response:",
@@ -1205,7 +1395,7 @@ def _write_user_branch_vision_review(
         "",
         "## USER Design Questions",
         "",
-        f"- For `{title}`, what exact outcome should USER expect to see, inspect, or rely on when this branch is complete?",
+        f"- For `{title}`, which concrete outcome should USER expect to see, inspect, or rely on when this branch is complete?",
         "- Which option above best matches the desired direction, and what specific change would make the branch vision feel correct before BP2?",
         "- Are there family-level, architecture-level, policy-level, experience-level, or future-gated boundaries that Codex must preserve instead of folding into this branch?",
         "",
@@ -1290,6 +1480,13 @@ def _write_user_branch_plan_review(
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         or any(
             "feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness" in source_rel
+            for source_rel, _copied_rel in copied
+        )
+    )
+    is_fam007_dev_owner_skeleton = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        or any(
+            "feature_fam_007_dev_owner_skeleton_readiness" in source_rel
             for source_rel, _copied_rel in copied
         )
     )
@@ -2451,6 +2648,104 @@ def _write_user_branch_plan_review(
             "Does USER approve PR Readiness Stage 1 analysis for this Governance branch?",
             "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
             "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
+        ]
+    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2:
+        plain_english_summary = (
+            "This BP2 preview is future-gated until USER accepts or explicitly waives BP1. "
+            "If BP1 is accepted, BP2 should plan the public-safe Dev/Owner skeleton readiness "
+            "package: Dev readiness, Owner readiness, private root and remote decisions, "
+            "public-upstream safety, backup/import deferral, provider/model/runtime/cache/memory "
+            "deferral, review-packet proof, and direct validator coverage."
+        )
+        end_state_vision = (
+            "When BP2 is later accepted or waived, USER should understand which public-safe "
+            "source-truth, helper, fixture, validator, packet, H1, LV/UTS, rollback, and proof "
+            "surfaces will prepare future Dev/Owner skeleton setup while every private/runtime "
+            "action remains separately gated."
+        )
+        what_user_sees = (
+            "USER should see a branch-specific engineering plan derived from the accepted BP1 "
+            "Dev/Owner skeleton readiness vision, not a Governance PR Readiness plan and not "
+            "private setup. The BP2 packet should name the exact future readiness seams and the "
+            "proof expected before implementation."
+        )
+        why_nexus = (
+            "This fits Nexus because it keeps AI-edition growth local-first, visible, and "
+            "permission-gated. The public branch plans decision and proof surfaces while private "
+            "Dev/Owner roots, provider/model behavior, cache behavior, memory, and promotion back "
+            "to Main stay under explicit USER control."
+        )
+        implementation_constraints = [
+            "BP2 is pending until BP1 is accepted or explicitly waived.",
+            "BP2 may plan public-safe source-truth, fixture, validator, helper, packet, and proof surfaces only.",
+            "Private Dev repo creation, Owner repo creation, local-only roots, private remotes, GitHub Desktop private binding, backup/import behavior, provider/model execution, runtime cache behavior, memory behavior, PR, merge, release, cleanup, and v1.8.0 work remain future USER decisions.",
+            "Provider-visible data must remain none; sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, and runtime cache behavior inactive.",
+        ]
+        rejected_deferred = [
+            "Deferred: actual private Dev skeleton setup and Owner skeleton setup.",
+            "Deferred: private repo/root/remote creation, GitHub Desktop private binding, backup/import execution, and Public-to-Dev import.",
+            "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work.",
+        ]
+        source_truth_impact = [
+            "FAM-007 family vision and AI runtime/trust architecture remain the durable policy context.",
+            "The FAM-007 branch record and external branch plan remain the branch-specific planning owners.",
+            "BP2 must fold any USER revision that changes edition boundaries, private/public promotion, provider/cache/memory policy, or proof expectations into the proper source-truth owner before BP3.",
+        ]
+        contract_change_log = [
+            "v1 - BR2 admitted the FAM-007 Dev/Owner Skeleton Readiness carrier.",
+            "v2 - BP1 packet generated as Branch Vision Review with BP2 remaining future-gated.",
+            "v3 - BP1 primary vision file repaired into applied FAM-007 Dev/Owner readiness content.",
+        ]
+        completion_checklist = [
+            "BP1 is accepted or explicitly waived before BP2 is treated as a plan gate.",
+            "Accepted BP1 trace is present.",
+            "Implementation package summary names Dev readiness, Owner readiness, private root/remote gates, public-upstream safety, backup/import deferral, provider/model/runtime/cache/memory deferral, validation proof, packet proof, H1, LV/UTS, and rollback/safety expectations.",
+            "All private/runtime/provider/cache/memory/PR/merge/release/cleanup boundaries remain pending USER decisions.",
+            "BP3 / Workstream Entry remains blocked until BP2 is accepted or explicitly waived and orchestration validation is green.",
+        ]
+        walkthrough = [
+            "Review accepted BP1 first; this BP2 preview cannot become green while BP1 is pending.",
+            "Confirm whether BP2 should keep Dev and Owner skeleton readiness in one public-safe branch.",
+            "Confirm which private root, private remote, GitHub Desktop, backup/import, provider/cache/memory, and public-to-private promotion decisions need matrix proof.",
+            "Confirm the required no-leak, provider-state, packet, fixture, validator, H1, and LV/UTS proof before implementation.",
+        ]
+        surface_map = [
+            "USER packet: BP1 primary vision file now; future BP2 engineering plan only after BP1 acceptance or waiver.",
+            "Branch record and external branch plan: branch-specific FAM-007 readiness authority and planning owners.",
+            "FAM-007 family vision and AI runtime/trust architecture: provider, model, cache, memory, permission, and public/private boundary owners.",
+            "Validation surfaces: public leak-prevention, provider-state, branch-planning fixture validation, packet validation, and branch governance validation.",
+            "Future proof surfaces: H1 implementation-vs-plan comparison, Live Validation or UTS waiver/proof, and PR Readiness only after later approvals.",
+        ]
+        implementation_options = [
+            "Option A - Plan one public-safe Dev/Owner readiness package in BP2. Pros: keeps coupled trust-boundary gates consistent; Cons: broader BP2; Risk: low when all private/runtime actions stay gated.",
+            "Option B - Split Dev and Owner readiness after BP1. Pros: smaller future packets; Cons: higher risk of inconsistent private/public gates; Risk: medium unless USER wants different timelines.",
+            "Option C - Plan only an action-gate registry first. Pros: narrowest engineering scope; Cons: delays Dev/Owner skeleton readiness detail; Risk: low but less useful.",
+            "Option D - Require BP2 to include a full decision matrix and proof map. Pros: strongest USER clarity; Cons: more planning detail before Workstream; Risk: low.",
+        ]
+        recommended_direction = (
+            "Codex recommends Option A with the Option D decision matrix: keep Dev and Owner "
+            "readiness together for BP2, require explicit proof for each private/runtime gate, and "
+            "leave actual setup or execution for later USER-approved phases."
+        )
+        current_scope = [
+            "BP1 Branch Vision Review is the current USER decision.",
+            "BP2 content in this packet is preview/context only and cannot close the BP2 gate.",
+            "The branch remains public-safe and does not create private roots, remotes, provider behavior, cache behavior, memory, or runtime work.",
+        ]
+        future_scope = [
+            "BP2 should plan Dev readiness, Owner readiness, private root/remote gates, public-upstream safety, backup/import deferral, provider/model/runtime/cache/memory deferral, proof requirements, H1, LV/UTS, and rollback/safety.",
+            "BP3, Workstream implementation, private setup, provider/model/runtime/cache/memory behavior, PR, merge, release, cleanup, and v1.8.0 remain pending USER decisions.",
+        ]
+        slc_package_plan = [
+            "SLCs remain future engineering route details inside the accepted branch vision.",
+            "Candidate future seam families: Dev skeleton readiness, Owner skeleton readiness, private remote/public-upstream safety, backup/import deferral, and provider/model/runtime/cache/memory deferral.",
+            "No future seam may execute the private/runtime action it is proving as gated without a separate USER approval.",
+        ]
+        user_decisions = [
+            "Does USER accept, revise, waive, reject, or hold the BP1 Dev/Owner skeleton readiness Branch Vision?",
+            "If BP1 is accepted or waived, should BP2 plan one combined Dev/Owner readiness package or split Dev and Owner later?",
+            "Which private root, private remote, GitHub Desktop, backup/import, provider/cache/memory, and public-to-private promotion decisions must BP2 prove?",
+            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
         ]
     normalized_contract_status = contract_status.casefold()
     if normalized_contract_status.startswith("waived by user"):
