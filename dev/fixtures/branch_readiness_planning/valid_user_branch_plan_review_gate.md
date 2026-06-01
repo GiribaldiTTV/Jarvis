@@ -11,7 +11,7 @@ USER Response Proof: Attached and accepted - USER response accepted the branch p
 USER Response Digested: Digested - Codex converted USER response into implementation constraints.
 Acceptance / Waiver / Revision / Rejection Receipt: Acceptance receipt recorded in this fixture contract.
 Contract Version / Revision: v1 - Fixture contract with USER response and Codex digest complete.
-USER Review Hub Packet: C:\Nexus USER\FAM-007 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-007.zip.
+USER Review Hub Packet: C:\Nexus USER\FAM-007 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-007-YYYYMMDD-HHMMSS.zip.
 USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
 Plain-Language Branch Goal: Build a user-visible provider setup foundation that explains consent state and safe setup boundaries.
 What Will I Actually See, And Where Will I See It?: USER sees the setup surface with consent/readiness status, disabled protected actions, and clear explanation inside the existing setup flow.

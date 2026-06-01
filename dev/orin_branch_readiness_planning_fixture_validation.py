@@ -1303,7 +1303,7 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
 
     failures: list[str] = []
     with tempfile.TemporaryDirectory() as temp_dir:
-        export_zip = Path(temp_dir) / "Governance.zip"
+        export_zip = Path(temp_dir) / "Governance-20260601-120000.zip"
         with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
             for name, text in packet_files.items():
                 archive.writestr(name, text)
@@ -1314,6 +1314,7 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
                 source_branch=current_branch,
                 source_head=current_head,
                 origin_main=current_origin_main,
+                expected_label="Governance",
                 expected_entries=set(packet_files),
             )
         except ValueError as exc:
@@ -1328,6 +1329,7 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
                 source_branch="wrong-branch",
                 source_head="0" * 40,
                 origin_main="1" * 40,
+                expected_label="Governance",
                 expected_entries=set(packet_files),
             )
         except ValueError as exc:
@@ -1336,6 +1338,28 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
             wrong_failures = ""
             failures.append("Invalid USER review export zip identity fixture unexpectedly passed")
 
+        stable_zip = Path(temp_dir) / "Governance.zip"
+        with zipfile.ZipFile(stable_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, text in packet_files.items():
+                archive.writestr(name, text)
+        try:
+            review_bundle._validate_export_zip(
+                stable_zip,
+                source_branch=current_branch,
+                source_head=current_head,
+                origin_main=current_origin_main,
+                expected_label="Governance",
+                expected_entries=set(packet_files),
+            )
+        except ValueError as exc:
+            stale_name_failures = str(exc)
+        else:
+            stale_name_failures = ""
+            failures.append("Invalid stable-name USER review export zip unexpectedly passed")
+        if "creation timestamp" not in stale_name_failures:
+            failures.append(
+                "Invalid stable-name USER review export zip did not reject missing timestamp"
+            )
     for expected in (
         "expected branch",
         "expected HEAD",

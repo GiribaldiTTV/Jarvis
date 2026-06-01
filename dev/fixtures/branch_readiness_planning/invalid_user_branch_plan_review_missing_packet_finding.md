@@ -4,7 +4,7 @@
 
 USER Branch Plan Review: Required - Workstream Entry presents the readable implementation plan before runtime work begins.
 Review Status: Accepted by USER - USER accepted this branch plan review for implementation planning proof.
-USER Review Hub Packet: C:\Nexus USER\FAM-007 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-007.zip.
+USER Review Hub Packet: C:\Nexus USER\FAM-007 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-007-YYYYMMDD-HHMMSS.zip.
 Plain-Language Branch Goal: Build a user-visible provider setup foundation that explains consent state and safe setup boundaries.
 Planned User-Facing Outcome: USER sees a clear setup path with local-provider consent status and no private-provider execution.
 Visual / Behavioral Description: The setup screen shows consent status, disabled protected actions, and calm explanatory text.

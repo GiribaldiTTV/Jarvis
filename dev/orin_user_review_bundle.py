@@ -2,8 +2,9 @@
 """Create a USER-facing local review bundle from selected repo files.
 
 This helper copies review files to a stable worktree-labeled folder under
-``C:\\Nexus USER`` so USER review does not depend on manually browsing the
-worktree. It never edits repo files.
+``C:\\Nexus USER`` and creates a timestamped upload ZIP beside that folder so
+each ChatGPT upload has a unique artifact name. Legacy same-name upload ZIPs
+are removed during generation. It never edits repo files.
 """
 
 from __future__ import annotations
@@ -35,7 +36,7 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "PASS - helper cleared the stable worktree review folder, copied fresh "
     "source-truth files, wrote START_HERE for this source-truth snapshot, and atomically "
-    "replaced the stable review zip from that refreshed folder."
+    "created a timestamped review zip from that refreshed folder."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
@@ -586,8 +587,37 @@ def _move_primary_user_review_file(
     return destination.resolve()
 
 
-def _export_zip_path(review_root: Path, label: str) -> Path:
+def _timestamped_zip_stamp(created_at: datetime) -> str:
+    return created_at.strftime("%Y%m%d-%H%M%S")
+
+
+def _export_zip_path(review_root: Path, label: str, created_at: datetime) -> Path:
+    stamp = _timestamped_zip_stamp(created_at)
+    return (review_root / f"{_sanitize_folder_name(label)}-{stamp}.zip").resolve()
+
+
+def _legacy_stable_export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
+
+
+def _remove_legacy_stable_export_zip(review_root: Path, label: str) -> None:
+    legacy_zip = _legacy_stable_export_zip_path(review_root, label)
+    if legacy_zip.exists():
+        if not legacy_zip.is_file():
+            raise ValueError(f"Refusing to remove non-file legacy review zip path: {legacy_zip}")
+        legacy_zip.unlink()
+
+
+def _timestamped_export_zip_name_failures(export_zip: Path, expected_label: str) -> list[str]:
+    safe_label = re.escape(_sanitize_folder_name(expected_label))
+    pattern = re.compile(rf"^{safe_label}-\d{{8}}-\d{{6}}\.zip$")
+    if pattern.fullmatch(export_zip.name):
+        return []
+    return [
+        "Review export zip filename must include the creation timestamp: "
+        f"expected {_sanitize_folder_name(expected_label)}-YYYYMMDD-HHMMSS.zip, "
+        f"got {export_zip.name}"
+    ]
 
 
 def _write_export_zip(target: Path, export_zip: Path) -> None:
@@ -614,8 +644,15 @@ def _validate_export_zip(
     source_branch: str,
     source_head: str,
     origin_main: str,
+    expected_label: str,
     expected_entries: set[str],
 ) -> None:
+    name_failures = _timestamped_export_zip_name_failures(export_zip, expected_label)
+    if name_failures:
+        raise ValueError(
+            "Review export zip filename validation failed:\n"
+            + "\n".join(f"- {failure}" for failure in name_failures)
+        )
     packet_files: dict[str, str] = {}
     with zipfile.ZipFile(export_zip, "r") as archive:
         entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
@@ -2101,7 +2138,7 @@ def _write_user_branch_plan_review(
             "Open the active external branch plan to verify the product/workstream carrier posture and Breakpoint 2 scope.",
             "Inspect the action-gate registry/proof surface once Seam 1 is implemented; each gated action should say pending, blocked, or USER-required rather than completed.",
             "Review validator or fixture outputs proving no private repo, private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, or PR/merge/release work occurred.",
-            "Upload the matching ZIP beside the local USER hub folder after reviewing the packet.",
+            "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing the packet.",
         ]
         surface_map = [
             "USER review packet: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, USER_BRANCH_PLAN_REVIEW.md, folder/file digest, governance scan, Workstream Entry digest, branch vision checklist, and ZIP export.",
@@ -2127,7 +2164,7 @@ def _write_user_branch_plan_review(
             "Branch-specific Workstream Entry contract repair.",
             "Completed Workstream Entry result recorded in the packet.",
             "Recommended first seam recorded as Seam 1, Action-gate registry and exact USER decision proof.",
-            "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the decision path.",
+            "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the decision path.",
             "Validation before any Seam 1 file mutation begins.",
         ]
         future_scope = [
@@ -2145,7 +2182,7 @@ def _write_user_branch_plan_review(
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Workstream Green with Hardening H1 as the next decision.",
                 "Open the active external branch plan and branch record to verify Seams 1 through 4 are recorded as public-safe proof only.",
                 "Review the fixture and validator proof showing all private/runtime/provider/cache/memory gates remain pending.",
-                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising Hardening H1.",
+                "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing or revising Hardening H1.",
             ]
             implementation_options = [
                 "Approve Hardening H1 as recommended: compare all public-safe Workstream proof against source truth, fixtures, validators, packet proof, and external-state boundaries. Pros: moves the branch into the required proof-comparison phase; Cons: no PR/merge/release yet; Risk: low.",
@@ -2196,7 +2233,7 @@ def _write_user_branch_plan_review(
                 "Seam 2 private/public boundary and private remote safety proof implemented.",
                 "Seam 3 backup/recovery and Public-to-Dev import planning proof implemented.",
                 "Seam 4 provider/model/runtime/cache/memory deferral and local-only handoff proof implemented.",
-                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Hardening H1 next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Hardening H1 next decision.",
             ]
             future_scope = [
                 "Hardening H1 approval is limited to proof comparison and pressure testing.",
@@ -2230,7 +2267,7 @@ def _write_user_branch_plan_review(
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Hardening H1 Green with Live Validation LV1 as the next decision.",
                 "Open the active external branch plan and branch record to verify the H1 comparison receipt and stale-ledger repair.",
                 "Review validator proof showing stale Workstream-pending phrases are rejected and all private/runtime/provider/cache/memory gates remain pending.",
-                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising LV1/no-visible-runtime proof.",
+                "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing or revising LV1/no-visible-runtime proof.",
             ]
             implementation_options = [
                 "Approve Live Validation LV1 as recommended: digest no-visible-runtime proof and UTS waiver evidence from source-truth, fixtures, validators, packet proof, and external-state boundaries. Pros: moves the branch toward PR Readiness without pretending runtime was exercised; Cons: no PR/merge/release yet; Risk: low.",
@@ -2281,7 +2318,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Stale duplicate Workstream-pending ledger wording repaired.",
                 "Direct validator guard added for stale Breakpoint 2 Workstream-pending phrases.",
-                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Live Validation LV1 next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Live Validation LV1 next decision.",
             ]
             future_scope = [
                 "Live Validation LV1 approval is limited to no-visible-runtime proof and UTS waiver digestion.",
@@ -2315,7 +2352,7 @@ def _write_user_branch_plan_review(
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Live Validation LV1 Green with PR Readiness Stage 1 as the next decision.",
                 "Open the active external branch plan and branch record to verify the LV1/no-visible-runtime proof receipt and UTS waiver.",
                 "Review validator proof showing LV1 source-truth phrases are present and stale H1/LV1-pending phrases are rejected.",
-                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising PR Readiness Stage 1 analysis.",
+                "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing or revising PR Readiness Stage 1 analysis.",
             ]
             implementation_options = [
                 "Approve PR Readiness Stage 1 as recommended: analyze PR readiness for the completed public-safe Breakpoint 2 proof carrier. Pros: moves toward PR creation review; Cons: no PR/merge/release yet; Risk: low.",
@@ -2368,7 +2405,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Live Validation LV1 no-visible-runtime proof complete.",
                 "UTS and user-facing shortcut validation waived because no visible runtime or shortcut surface changed.",
-                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the PR Readiness Stage 1 next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the PR Readiness Stage 1 next decision.",
             ]
             future_scope = [
                 "PR Readiness Stage 1 approval is limited to analysis only.",
@@ -2413,7 +2450,7 @@ def _write_user_branch_plan_review(
                 "Exact USER decision proof implemented.",
                 "Direct fixture and validator proof added.",
                 "Branch plan and branch record folded down for Seam 1.",
-                "Local USER hub packet and ZIP refreshed with the current decision path, file list, and next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed with the current decision path, file list, and next decision.",
             ]
             future_scope = [
                 "Seam 2 approval is limited to private/public boundary and private remote safety proof.",
@@ -2450,7 +2487,7 @@ def _write_user_branch_plan_review(
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is PR Readiness Stage 1 Ready For Stage 2.",
                 "Open the branch record PR Readiness Stage 1 Analysis Packet and verify no live PR, Stage 2 pending, no-release-debt posture, selected-next default/defer posture, and merge-stable authority projection.",
                 "Open the branch plan PR Readiness Stage 1 Repair Receipt and confirm Stage 2 remains blocked until USER approval.",
-                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising Stage 2.",
+                "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing or revising Stage 2.",
             ]
             implementation_options = [
                 "Approve PR Readiness Stage 2 as recommended: create the PR, verify PR creation and review posture, provision/update watcher, request/monitor Codex bot review, and stop before merge unless later approval exists. Pros: moves the completed proof carrier into review; Cons: no merge/release yet; Risk: low when validation remains green.",
@@ -2489,7 +2526,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Live Validation LV1 no-visible-runtime proof complete.",
                 "PR Readiness Stage 1 repair complete with no live PR and Stage 2 pending.",
-                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Stage 2 next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Stage 2 next decision.",
             ]
             future_scope = [
                 "PR Readiness Stage 2 approval is limited to PR creation, live PR validation, watcher provisioning/update, Codex bot review request/monitoring, and in-scope Codex comment repair if needed.",
@@ -2624,7 +2661,7 @@ def _write_user_branch_plan_review(
         implementation_constraints = (
             [
                 "PR Readiness Stage 1 is analysis-only.",
-                "PR creation, merge, release, cleanup, runtime implementation, provider/model/cache/memory/private actions, sidecar artifacts, unique ZIP naming, and separate Review/Upload taxonomy remain pending USER decisions.",
+                "PR creation, merge, release, cleanup, runtime implementation, provider/model/cache/memory/private actions, sidecar artifacts, and separate Review/Upload taxonomy remain pending USER decisions; timestamped ZIP naming is mandatory active policy.",
                 "Accepted outcomes from this packet must fold into durable repo owners or approved external operational state, not the temporary USER review folder.",
             ]
             if pr_readiness_stage1_packet
@@ -2689,7 +2726,7 @@ def _write_user_branch_plan_review(
             "Docs/branch_plans/README.md: BP1/BP2/BP3 artifact rules.",
             "Docs/validation_helper_registry.md: helper and validator enforcement.",
             "Docs/branch_records/index.md and Governance branch record: branch routing law.",
-            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance.zip: temporary USER review aids.",
+            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance-YYYYMMDD-HHMMSS.zip: temporary USER review aids.",
         ]
         implementation_options = [
             "Option A - Approve PR Readiness Stage 1 analysis as recommended. Pros: moves the Governance reform toward PR creation review; Cons: no PR is created yet; Risk: low.",
@@ -2711,7 +2748,7 @@ def _write_user_branch_plan_review(
             "PR Readiness Stage 1 remains pending USER approval.",
         ]
         future_scope = [
-            "PR creation, merge, release, cleanup, runtime work, FAM-006/FAM-007 mutation, private/provider/cache/memory actions, sidecars, unique ZIPs, and separate Review/Upload taxonomy remain pending USER decisions.",
+            "PR creation, merge, release, cleanup, runtime work, FAM-006/FAM-007 mutation, private/provider/cache/memory actions, sidecars, and separate Review/Upload taxonomy remain pending USER decisions; timestamped ZIP naming is mandatory active policy.",
         ]
         slc_package_plan = [
             "SLCs remain engineering route details inside an accepted branch; they do not automatically become separate branches.",
@@ -3238,7 +3275,7 @@ def _write_workstream_entry_packet_digests(
         checklist_status = (
             "Checklist Focus: for Governance PR Readiness Stage 1 approval review - "
             "lifecycle ownership, BP1/BP2/BP3 separation, local USER hub behavior, "
-            "external-state split, sidecar and unique-ZIP deferrals, and USER-facing "
+            "external-state split, mandatory timestamped ZIP uploads, sidecar deferral, and USER-facing "
             "metadata boundaries are represented for USER inspection."
         )
         digest_status = (
@@ -4007,13 +4044,14 @@ def build_bundle(
             "Review bundle file count mismatch: "
             f"expected {expected_count} repo files, copied {copied_count}"
         )
-    created_at = datetime.now().isoformat(timespec="seconds")
+    created_at_dt = datetime.now()
+    created_at = created_at_dt.isoformat(timespec="seconds")
 
     source_branch = _git_output("branch", "--show-current")
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    export_zip = _export_zip_path(review_root, label)
+    export_zip = _export_zip_path(review_root, label, created_at_dt)
     seam1_approval_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded workstream implementation" in exact_user_decision.casefold()
@@ -4174,7 +4212,7 @@ def build_bundle(
         "## Review Packet",
         "",
         f"Review Purpose: {review_purpose}",
-        "Review Location: Open this folder in the local USER hub and upload the matching ZIP beside it.",
+        "Review Location: Open this folder in the local USER hub and upload the matching timestamped ZIP beside it.",
         f"Local USER Hub Folder: `{target}`",
         f"Custom Review Path Waiver: {custom_review_path_waiver}",
         f"Custom Review Path Reason: {custom_review_path_reason_value}",
@@ -4241,12 +4279,14 @@ def build_bundle(
             + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
     expected_zip_entries = {path.relative_to(target).as_posix() for path in bundle_paths}
+    _remove_legacy_stable_export_zip(review_root, label)
     _write_export_zip(target, export_zip)
     _validate_export_zip(
         export_zip,
         source_branch=source_branch,
         source_head=source_head,
         origin_main=origin_main,
+        expected_label=label,
         expected_entries=expected_zip_entries,
     )
     return target, export_zip
