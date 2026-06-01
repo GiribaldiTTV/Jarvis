@@ -1340,10 +1340,19 @@ def _write_user_branch_vision_review(
         for source_rel, _copied_rel in copied
     )
     normalized_decision = exact_user_decision.casefold()
+    fam006_bp3_packet = (
+        is_fam006_active_overlay_implementation
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry" in normalized_decision
+            or "orchestration validation" in normalized_decision
+        )
+    )
     fam006_bp2_packet = (
         is_fam006_active_overlay_implementation
         and ("bp2" in normalized_decision or "branch plan review" in normalized_decision)
         and "bp1" not in normalized_decision
+        and not fam006_bp3_packet
     )
     review_status = (
         "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
@@ -1383,6 +1392,72 @@ def _write_user_branch_vision_review(
         if pr_readiness_context_packet
         else "Pending USER acceptance or waiver."
     )
+    if is_fam006_active_overlay_implementation and fam006_bp3_packet:
+        lines = [
+            "# USER Branch Plan Review - Accepted BP2 Context",
+            "",
+            f"Title: {title}",
+            f"Review Purpose: {review_purpose}",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - USER accepted the BP2 Branch Plan and approved BP3 preparation.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - retained as accepted BP2 context for the active BP3 packet.",
+            "",
+            "## USER Gate State",
+            "",
+            "USER Accepted - BP2 is accepted for BP3 preparation only; implementation remains pending.",
+            "",
+            "## USER Response Proof",
+            "",
+            "Accepted by USER - USER accepted the FAM-006 BP2 Branch Plan and approved Codex to prepare BP3 Workstream Entry / Orchestration Validation.",
+            "",
+            "## USER Response Digested",
+            "",
+            "Digested - BP3 must verify file ownership before recommending implementation, treat SLC-051 as the default first seam, preserve snapshot-at-start, preserve low-redundancy HUD card behavior, preserve Recording Control as the richer surface, reject hidden recording target state, and keep SLC-054 to output-contract planning unless USER separately approves file writing or recording execution.",
+            "",
+            "## Acceptance / Waiver / Revision / Rejection Receipt",
+            "",
+            "Accepted - BP2 closure allows BP3 preparation, not Workstream implementation.",
+            "",
+            "## Contract Version / Revision",
+            "",
+            "v3 - BP2 accepted and retained as supporting context for BP3.",
+            "",
+            "## Accepted Branch Vision Summary",
+            "",
+            "- Active Overlay Profile membership is the recording target source.",
+            "- Snapshot-at-start is the accepted future recording target model.",
+            "- The HUD Overlay recording card stays low-redundancy, small, quick-access, and clear.",
+            "- The standalone Recording Control window carries richer target, readiness, status, and future control detail.",
+            "- Hidden recording target state and a separate Recording Profile system remain rejected unless USER later reopens them.",
+            "- Native Log Loader and per-overlay effective polling policy remain future-gated planning context.",
+            "",
+            "## Accepted BP2 Guardrails For BP3",
+            "",
+            "- BP3 must verify actual repo file ownership for every claimed or likely implementation file.",
+            "- `desktop/ui/dashboard_hud_panel.py` must be treated as an unverified/stale path unless BP3 proves it exists.",
+            "- BP3 must verify the active Overlay Profile ID/name, membership, stale/deleted profile behavior, empty membership behavior, and target/session model owner before SLC-051 approval.",
+            "- SLC-051 Active Overlay recording target foundation is the default first bounded Workstream seam.",
+            "- SLC-052 minimal HUD preview may pair with SLC-051 only if BP3 proves target proof and minimal preview are inseparable and safe.",
+            "- Recording Control window work, durable output contract work, file writing, real Start/Stop controls, tray controls, export/share, and real recording execution remain out of the first recommendation unless BP3 justifies them and USER separately approves.",
+            "- SLC-054 is output contract planning only unless USER separately approves file writing or recording execution.",
+            "",
+            "## Exact USER Decision Supported By The Current Packet",
+            "",
+            exact_user_decision,
+            "",
+            "## Pending USER Decisions",
+            "",
+            *_markdown_lines(pending_user_decisions),
+            "",
+        ]
+        review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     if is_fam006_active_overlay_implementation and fam006_bp2_packet:
         accepted_bp1_lines = [
             "Active Overlay Profile membership is the recording target source.",
@@ -1923,10 +1998,19 @@ def _write_user_branch_plan_review(
         )
     )
     normalized_decision = exact_user_decision.casefold()
+    fam006_bp3_packet = (
+        is_fam006_active_overlay_implementation
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry" in normalized_decision
+            or "orchestration validation" in normalized_decision
+        )
+    )
     fam006_bp2_packet = (
         is_fam006_active_overlay_implementation
         and ("bp2" in normalized_decision or "branch plan review" in normalized_decision)
         and "bp1" not in normalized_decision
+        and not fam006_bp3_packet
     )
     is_fam007_breakpoint_2 = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
@@ -3888,15 +3972,30 @@ def _write_workstream_entry_packet_digests(
     pr_stage1_packet = (
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
+    normalized_decision = exact_user_decision.casefold()
+    fam006_bp3_packet = (
+        is_fam006_active_overlay_implementation
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry" in normalized_decision
+            or "orchestration validation" in normalized_decision
+        )
+    )
     fam006_bp2_packet = (
         is_fam006_active_overlay_implementation
         and (
-            "bp2 user branch plan review" in exact_user_decision.casefold()
-            or "bp2 branch plan" in exact_user_decision.casefold()
-            or "accept the bp2" in exact_user_decision.casefold()
+            "bp2 user branch plan review" in normalized_decision
+            or "bp2 branch plan" in normalized_decision
+            or "accept the bp2" in normalized_decision
         )
+        and not fam006_bp3_packet
     )
     packet_status = (
+        "bp3 orchestration review - packet is reviewable for USER BP3 Workstream Entry / "
+        "Orchestration Validation; BP3 USER acceptance, Workstream implementation, SLC-051, "
+        "runtime mutation, recording execution, and file writing remain pending USER decisions."
+        if fam006_bp3_packet
+        else
         "bp2 branch plan review - packet is reviewable for USER BP2 plan review; "
         "BP2 USER acceptance, BP3, and Workstream implementation remain pending USER decisions."
         if fam006_bp2_packet
@@ -3941,7 +4040,62 @@ def _write_workstream_entry_packet_digests(
             "remains pending USER approval."
         )
     )
-    if fam006_bp2_packet:
+    if fam006_bp3_packet:
+        analysis_status = (
+            "Analysis Summary: FAM-006 BP3 Workstream Entry / Orchestration Validation packet "
+            "is reviewable; reviewability is not USER BP3 acceptance.\n\n"
+            "## Accepted BP1 To Accepted BP2 Trace\n\n"
+            "- PASS - accepted BP1 says active Overlay Profile membership is the recording target source.\n"
+            "- PASS - accepted BP2 keeps snapshot-at-start as the future recording target model.\n"
+            "- PASS - accepted BP2 keeps the HUD Overlay recording card low-redundancy and quick-access.\n"
+            "- PASS - accepted BP2 keeps Recording Control as the richer target/readiness/status/control surface.\n"
+            "- PASS - accepted BP2 rejects hidden recording target state and a separate Recording Profile system.\n\n"
+            "## File Ownership Verification\n\n"
+            "- `desktop/ui/dashboard_hud_panel.py`: NOT A CURRENT FILE - treat as stale/proposed path, not an implementation owner.\n"
+            "- `desktop/desktop_renderer.py`: current Dashboard/HUD/Overlay Profile runtime owner; contains active Overlay Profile ID/name, membership signatures, HUD card/window runtime signals, and existing Overlay Profile proof chains.\n"
+            "- `desktop/monitoring_hud_state.py`: current persisted/normalized Monitoring HUD state owner; owns `activeOverlayProfileId`, `overlayProfiles`, `monitorIds`, empty/default/deleted/stale active profile fallback, and monitor membership normalization.\n"
+            "- `desktop/monitoring_hud_controls.py`: current HUD feature/dashboard control contract owner; useful for preserving Dashboard/HUD control boundaries.\n"
+            "- `desktop/monitoring_hud_status.py`, `desktop/monitoring_hud_placement.py`, and `desktop/monitoring_hud_telemetry.py`: supporting FAM-006 HUD status, placement, and telemetry/source-truth surfaces that BP3 should keep bounded.\n"
+            "- `dev/orin_monitoring_hud_surface_validation.py` and `dev/orin_monitoring_hud_internal_sandbox_validation.py`: current FAM-006 validation owners for HUD/Dashboard source truth and internal sandbox/state-boundary proof.\n"
+            "- Proposed only after implementation approval: a future `desktop/recording_target_model.py` or equivalent target/session helper may be cleaner than adding recording-session state directly into the Dashboard renderer; Workstream must choose this inside approved scope.\n"
+            "- Proposed only after later approval: `desktop/recording_control_window.py` for the standalone Recording Control surface.\n\n"
+            "## SLC-051 First-Seam Recommendation\n\n"
+            "Recommend SLC-051 Active Overlay recording target foundation as the first bounded Workstream seam after USER approves BP3 and then separately approves implementation. The first seam should prove target/session truth only: active Overlay Profile ID/name, membership snapshot candidate, null/empty/stale/deleted/missing profile behavior, high-volume membership behavior, and no hidden recording target state.\n\n"
+            "## SLC-052 Pairing Assessment\n\n"
+            "Do not pair SLC-052 by default. Pair only a minimal read-only HUD target preview with SLC-051 if implementation preflight proves the target proof cannot be inspected without a small HUD preview and the combined change still avoids Start/Stop, file writing, tray controls, export/share, Recording Control window work, and recording execution.\n\n"
+            "## Runtime And File-Writing Boundary\n\n"
+            "Recording execution, file writing, real Start/Stop controls, tray controls, export/share, Native Log Loader implementation, provider/model work, and SLC-054 output-file creation remain blocked. SLC-054 may stay as output-contract planning only unless USER separately approves file writing or recording execution."
+        )
+        implementation_posture = (
+            "Implementation Posture: BP3 can recommend a first Workstream seam, but this packet "
+            "does not approve Workstream implementation, SLC-051 execution, runtime mutation, "
+            "recording execution, file writing, Start/Stop controls, tray controls, export/share, "
+            "provider/model work, FAM-007 mutation, PR creation, merge, release, issue mutation, "
+            "cleanup, or Governance mutation."
+        )
+        recommended_seam = (
+            "Recommended First Bounded Workstream Seam: SLC-051 Active Overlay recording target "
+            "foundation only, with SLC-052 minimal HUD preview excluded unless inseparability is "
+            "proved during the separate implementation approval path."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, phase governance, branch-plan "
+            "artifact rules, execution mirrors, governance efficiency model, validation helper registry, "
+            "incident patterns, FAM-006 family vision, active FAM-006 branch record and plan, backlog, "
+            "roadmap, worktree routing, and current HUD/Overlay Profile owner evidence needed for BP3 review."
+        )
+        checklist_status = (
+            "Checklist Focus: for FAM-006 BP3 review - accepted BP1/BP2 trace, actual file ownership, "
+            "SLC-051 first-seam recommendation, SLC-052 pairing restraint, snapshot-at-start, "
+            "low-redundancy HUD card rule, richer Recording Control boundary, no-hidden-target rule, "
+            "SLC-054 output-contract-only boundary, validators, rollback, H1, LV, and UTS expectations."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, "
+            "accepted BP1/BP2 context in Review Aids, and Source Truth Context files are loaded for "
+            "BP3 Workstream Entry / Orchestration Validation. BP3 USER Gate State remains Pending USER Review."
+        )
+    elif fam006_bp2_packet:
         analysis_status = (
             "Analysis Summary: FAM-006 BP2 USER Branch Plan Review packet is reviewable; "
             "reviewability is not USER acceptance."
@@ -4840,16 +4994,35 @@ def build_bundle(
     pr_stage1_packet = (
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
-    fam006_bp1_packet = source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
+    normalized_decision = exact_user_decision.casefold()
+    fam006_bp3_packet = (
+        source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry" in normalized_decision
+            or "orchestration validation" in normalized_decision
+        )
+    )
     fam006_bp2_packet = (
         source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
         and (
-            "bp2 user branch plan review" in exact_user_decision.casefold()
-            or "bp2 branch plan" in exact_user_decision.casefold()
-            or "accept the bp2" in exact_user_decision.casefold()
+            "bp2 user branch plan review" in normalized_decision
+            or "bp2 branch plan" in normalized_decision
+            or "accept the bp2" in normalized_decision
         )
+        and not fam006_bp3_packet
+    )
+    fam006_bp1_packet = (
+        source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
+        and not fam006_bp2_packet
+        and not fam006_bp3_packet
     )
     machine_readable_packet_status = (
+        "bp3 orchestration review - packet is reviewable for USER BP3 Workstream Entry / "
+        "Orchestration Validation; BP3 USER acceptance, Workstream implementation, SLC-051, "
+        "runtime mutation, recording execution, and file writing remain pending USER decisions."
+        if fam006_bp3_packet
+        else
         "bp2 branch plan review - packet is reviewable for USER BP2 plan review; "
         "BP2 USER acceptance, BP3, and Workstream implementation remain pending USER decisions."
         if fam006_bp2_packet
@@ -4998,7 +5171,7 @@ def build_bundle(
                 "Packet Reviewability State: Reviewable",
                 "USER Gate State: Pending USER Review",
             ]
-            if fam006_bp1_packet
+            if source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
             else []
         ),
         "",
