@@ -240,6 +240,39 @@ FAM006_BP1_GENERATED_STALE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         re.compile(r"\bAI Runtime And Trust Architecture\b", re.IGNORECASE),
     ),
 )
+BP2_ACCEPTED_BP1_SUPPORT_STALE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "BP1 pending review",
+        re.compile(r"\bBP1\b[^\n]{0,80}\bPending USER Review\b", re.IGNORECASE),
+    ),
+    (
+        "BP1 pending acceptance",
+        re.compile(
+            r"\bBP1 acceptance remains pending\b|\bPending USER acceptance or waiver\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "BP1 must close before BP2",
+        re.compile(
+            r"\bBP1\b[^\n]{0,120}\b(?:before|until)\b[^\n]{0,80}\bBP2\b|"
+            r"\bBP2\b[^\n]{0,120}\b(?:wait|requires|after)\b[^\n]{0,80}\bBP1\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "BP2 placeholder",
+        re.compile(r"\bBP2\b[^\n]{0,80}\bplaceholder\b", re.IGNORECASE),
+    ),
+    (
+        "active BP1 decision prompt",
+        re.compile(
+            r"\bactive decision\b[^\n]{0,80}\bBP1\b|"
+            r"\baccept(?:s|ed|ance)?\s+or\s+waive(?:s|d|r)?\s+BP1\b",
+            re.IGNORECASE,
+        ),
+    ),
+)
 USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "project-context-instruction",
@@ -747,6 +780,7 @@ def _validate_export_zip(
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_generated_stale_failures(packet_files),
+        *_bp2_accepted_bp1_support_file_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
@@ -998,6 +1032,49 @@ def _fam006_bp1_generated_stale_failures(packet_files: Mapping[str, str]) -> lis
     return failures
 
 
+def _bp2_accepted_bp1_support_file_failures(packet_files: Mapping[str, str]) -> list[str]:
+    start_here = _packet_file_text(packet_files, "START_HERE.md")
+    plan_review = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    support_review = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    if not (start_here and plan_review and support_review):
+        return []
+    normalized_packet = re.sub(r"\s+", " ", f"{start_here}\n{plan_review}").casefold()
+    is_bp2_packet = (
+        "bp2 branch plan review" in normalized_packet
+        or "user_branch_plan_review.md" in normalized_packet
+    )
+    is_fam006_packet = (
+        "fam-006 active overlay recording runtime implementation" in normalized_packet
+    )
+    if not (is_bp2_packet and is_fam006_packet):
+        return []
+
+    failures: list[str] = []
+    display_name = _packet_file_path(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    support_gate_state = _normalized_gate_value(
+        _review_marker_or_section_value(support_review, "USER Gate State:")
+    )
+    support_contract_status = _normalized_gate_value(
+        _review_marker_or_section_value(support_review, "Contract Status:")
+    )
+    if support_gate_state not in {"user accepted", "user approved", "user waived"}:
+        failures.append(
+            f"{display_name}: BP2 packet support file must carry accepted/waived BP1 "
+            f"USER Gate State, found '{support_gate_state or 'missing'}'"
+        )
+    if support_contract_status.startswith(("draft", "pending")) or not support_contract_status:
+        failures.append(
+            f"{display_name}: BP2 packet support file must not present BP1 as draft or "
+            f"pending, found Contract Status '{support_contract_status or 'missing'}'"
+        )
+    for reason, pattern in BP2_ACCEPTED_BP1_SUPPORT_STALE_PATTERNS:
+        if pattern.search(support_review):
+            failures.append(
+                f"{display_name}: BP2 packet accepted-BP1 support file contains stale {reason} wording"
+            )
+    return failures
+
+
 def _review_word_count(value: str) -> int:
     return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'-]*", value))
 
@@ -1233,6 +1310,12 @@ def _write_user_branch_vision_review(
         FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_SLUG in source_rel
         for source_rel, _copied_rel in copied
     )
+    normalized_decision = exact_user_decision.casefold()
+    fam006_bp2_packet = (
+        is_fam006_active_overlay_implementation
+        and ("bp2" in normalized_decision or "branch plan review" in normalized_decision)
+        and "bp1" not in normalized_decision
+    )
     review_status = (
         "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
         "it does not request a new Branch Vision decision."
@@ -1271,6 +1354,185 @@ def _write_user_branch_vision_review(
         if pr_readiness_context_packet
         else "Pending USER acceptance or waiver."
     )
+    if is_fam006_active_overlay_implementation and fam006_bp2_packet:
+        accepted_bp1_lines = [
+            "Active Overlay Profile membership is the recording target source.",
+            "Snapshot-at-start is the accepted target model: a recording session uses the sensors and membership active when recording starts.",
+            "Sensors added during an active recording become eligible for the next recording session.",
+            "The HUD Overlay recording card remains small, quick-access, low-clutter, and easy to understand.",
+            "The standalone Recording Control window carries richer target, readiness, status, and future control detail.",
+            "Hidden recording target state is rejected.",
+            "A separate Recording Profile system remains outside this branch unless USER explicitly reopens it later.",
+            "Native Log Loader remains a future separate graph/log viewer.",
+            "Per-overlay effective polling policy remains future FAM-006 architecture planning unless separately admitted.",
+        ]
+        lines = [
+            f"# {title} - Accepted BP1 Branch Vision Context",
+            "",
+            "USER Branch Vision Review: BP1 accepted context for active BP2",
+            "",
+            "## Review Status",
+            "",
+            "Accepted Context - BP1 is closed as USER Accepted for this branch; this file is a Review Aid supporting the active BP2 USER Branch Plan Review.",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - USER accepted the BP1 Branch Vision; active decision-making has moved to BP2.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - accepted BP1 context is included to let USER verify the BP2 plan traces to the accepted vision.",
+            "",
+            "## USER Gate State",
+            "",
+            "USER Accepted - BP1 is accepted. The primary BP2 file carries the separate active USER response state for the branch plan.",
+            "",
+            "## Contract Revision",
+            "",
+            "v5 - Accepted BP1 context regenerated during BP2 support-file contradiction repair.",
+            "",
+            "## Project Vision Context",
+            "",
+            "Nexus should remain a USER-controlled, inspectable desktop AI system. FAM-006 supports that by making monitoring and recording behavior visible, reviewable, and controlled through local desktop surfaces rather than hidden automation.",
+            "",
+            "## Family Vision Context",
+            "",
+            "FAM-006 owns Monitoring and HUD behavior. This branch keeps recording inside that family by treating the active Overlay Profile as the future recording target source, keeping the HUD Overlay card as launcher and target/status preview, and keeping the standalone Recording Control window as the compact control surface.",
+            "",
+            "## Feature Vision Context",
+            "",
+            "This branch is the active-overlay-driven recording runtime implementation carrier. It rejects a separate Recording Profile system for the active plan and uses the active Overlay Profile as the target source for future recording sessions.",
+            "",
+            "## Codex Understanding",
+            "",
+            "USER accepted the BP1 direction: snapshot-at-start target semantics, small HUD card, richer Recording Control detail, explicit target visibility, and no hidden recording target state. BP2 must translate that accepted direction into an engineering plan; this support file does not request a new BP1 decision.",
+            "",
+            "## Branch Goal",
+            "",
+            "Build the FAM-006 recording foundation around the active Overlay Profile with a snapshot-at-start recording target and a visible, user-verifiable path from HUD card to Recording Control before any file-writing or recording execution is approved.",
+            "",
+            "## End-State Vision",
+            "",
+            "The completed branch should leave behind a concrete runtime direction: active Overlay Profile membership is snapshotted at recording start, sensors added during active recording wait for the next session, the HUD recording card stays small and quick-access, Recording Control owns richer detail, and future proof shows the target model behaved as accepted.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "- USER will see the future HUD Overlay card as a small recording launcher and concise target/status preview.",
+            "- USER will open the future Recording Control window for richer target, snapshot, readiness, status, and approved control detail.",
+            "- USER will inspect Overlay Profile membership as the source of target membership before recording starts.",
+            "- USER will treat Native Log Loader as a separate future graph/log viewer, not part of the active BP2 implementation plan unless later admitted.",
+            "",
+            "## How It Will Function",
+            "",
+            "The future implementation should derive the recording target from active Overlay Profile membership and use snapshot-at-start semantics. BP2 plans how to prove target preview, Recording Control behavior, target-state behavior, stale/missing-target handling, rollback, H1, LV, and UTS expectations before BP3 validates orchestration.",
+            "",
+            "## User Experience Flow",
+            "",
+            "1. USER reviews or selects the active Overlay Profile.",
+            "2. USER sees concise recording target/status information in the HUD Overlay card after later implementation approval.",
+            "3. USER opens Recording Control for richer target/readiness/status detail.",
+            "4. A later approved recording session snapshots target membership at Start.",
+            "5. Sensors added during recording become eligible for the next session.",
+            "",
+            "## Surface Map",
+            "",
+            "- Active Overlay Profile surface: target source before recording starts.",
+            "- Snapshot-at-start target state proof surface: future locked session target evidence.",
+            "- HUD Overlay recording card status preview surface: quick-access preview and launcher.",
+            "- Recording Control window decision surface: richer status, readiness, target, and control review.",
+            "- USER_BRANCH_VISION_REVIEW.md review surface: accepted BP1 context only.",
+            "- Output/proof surfaces: future BP2/H1/LV/UTS evidence.",
+            "- Native Log Loader and per-overlay effective polling policy: future-gated context.",
+            "",
+            "## Product Options / Design Paths",
+            "",
+            "- Option A - accepted path: active Overlay Profile with snapshot-at-start target model; tradeoff is that sensors added mid-recording wait for the next session.",
+            "- Option B - rejected unless later reopened: separate Recording Profile system; risk is duplicate setup and hidden disagreement with Overlay Profile membership.",
+            "- Option C - accepted surface split: small HUD card plus richer Recording Control window; tradeoff is two surfaces, but each stays clearer.",
+            "- Option D - rejected risk path: hidden target state or file-writing-first implementation; this would make USER proof weaker.",
+            "",
+            "## Codex Recommendations",
+            "",
+            "- Recommendation 1: preserve snapshot-at-start as the BP2 plan's default target model because it makes target proof concrete; tradeoff is delayed inclusion for sensors added mid-session.",
+            "- Recommendation 2: keep HUD recording card minimal and place richer detail in Recording Control because USER needs fast access without clutter; risk is under-informing the HUD if Recording Control is not easy to open.",
+            "- Recommendation 3: require target preview, Recording Control, target-state, stale/missing-target, rollback, H1, LV, and UTS proof planning before BP3 because implementation should not outrun accepted evidence expectations.",
+            "- Recommendation 4: keep Native Log Loader and per-overlay effective polling implementation future-gated unless USER separately admits them; USER response should focus on whether BP2 preserves that boundary.",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "The accepted BP1 vision keeps recording local, visible, user-controlled, and truthful. USER can inspect what will be recorded before recording behavior or file writing is approved.",
+            "",
+            "## USER Design Questions",
+            "",
+            "- Does the BP2 plan preserve the accepted active Overlay Profile target model without creating a separate Recording Profile system?",
+            "- Does the BP2 plan keep the HUD card small enough while giving Recording Control enough detail for USER to understand target and readiness?",
+            "- Does the BP2 plan leave hidden target state, Native Log Loader, per-overlay polling policy, and file-writing-first behavior outside the active branch route?",
+            "- If BP2 changes the accepted product direction, route back to BP1 instead of advancing to BP3.",
+            "",
+            "## USER Response",
+            "",
+            "USER accepted BP1 through the BP1 Acceptance And BP2 Preparation approval. Active USER response is now needed for BP2 in `USER Review/USER_BRANCH_PLAN_REVIEW.md`.",
+            "",
+            "## Codex Digest",
+            "",
+            "Codex digested BP1 acceptance into the FAM-006 branch record, branch plan, and BP2 packet. This file is accepted BP1 context only.",
+            "",
+            "## USER Response Proof",
+            "",
+            "Accepted by USER - BP1 Branch Vision acceptance is recorded in the FAM-006 branch record and branch plan.",
+            "",
+            "## USER Response Digested",
+            "",
+            "Yes - BP1 acceptance has been digested into BP2 planning constraints.",
+            "",
+            "## Accepted Branch Vision",
+            "",
+            *_markdown_lines(accepted_bp1_lines),
+            "",
+            "## Family-Vision Versus Branch-Only Vision Impact",
+            "",
+            "Branch-specific implementation details stay with the FAM-006 branch record and branch plan. Reusable family-level direction may fold into the FAM-006 family vision during later PR readiness only if durable value remains.",
+            "",
+            "## Must-Have Behavior",
+            "",
+            "- BP2 must derive its engineering route from accepted BP1.",
+            "- BP3 must validate BP2 against accepted BP1 before any Workstream implementation approval is legal.",
+            "- Future runtime proof must show the accepted target model clearly enough for USER to verify.",
+            "- USER must be able to inspect what will be recorded before recording behavior is approved.",
+            "",
+            "## Must-Not-Do / Regression-Risk Rules",
+            "",
+            "- Do not create a separate Recording Profile system unless USER explicitly reopens that model.",
+            "- Do not hide recording target state from USER review.",
+            "- Do not clutter the HUD card with detail that belongs in Recording Control.",
+            "- Do not implement recording execution, file writing, Start/Stop controls, tray controls, export/share, provider/model work, or Native Log Loader as part of BP2 review.",
+            "- Do not treat this accepted-context Review Aid as BP2 acceptance or implementation approval.",
+            "",
+            "## Deferred And Future-Gated Ideas",
+            "",
+            *_markdown_lines(pending_user_decisions),
+            "",
+            "## Vision Question Queue",
+            "",
+            "Closed for BP1. New vision questions discovered during BP2 must route back to BP1 before BP3.",
+            "",
+            "## Design Assumption Ledger",
+            "",
+            "- Accepted: active Overlay Profile snapshot-at-start target model.",
+            "- Accepted: HUD card remains minimal while Recording Control carries richer detail.",
+            "- Accepted future boundary: Native Log Loader remains separate.",
+            "- Accepted future boundary: per-overlay effective polling policy remains future FAM-006 architecture planning input.",
+            "",
+            "## Acceptance / Revision / Rejection / Waiver Decision",
+            "",
+            "BP1 is accepted. The active decision is BP2 acceptance, revision, rejection, hold, request for more options, or waiver in the primary BP2 file.",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     if is_fam006_active_overlay_implementation and not pr_readiness_context_packet:
         lines = [
             f"# {title} - USER Branch Vision Review",
@@ -4373,6 +4635,7 @@ def _validate_workstream_entry_packet_decision_path(
     )
     failures.extend(_structured_user_review_packet_layout_failures(packet_files))
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
+    failures.extend(_bp2_accepted_bp1_support_file_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
@@ -4741,6 +5004,7 @@ def build_bundle(
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
         *_fam006_bp1_generated_stale_failures(packet_files),
+        *_bp2_accepted_bp1_support_file_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
