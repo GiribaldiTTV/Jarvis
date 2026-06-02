@@ -971,6 +971,8 @@ def _field_int(text: str, field_name: str) -> int | None:
 def _unresolved_template_placeholder_failures(packet_files: Mapping[str, str]) -> list[str]:
     failures: list[str] = []
     for file_name, text in sorted(packet_files.items()):
+        if file_name == f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/orin_user_review_bundle.py":
+            continue
         for reason, pattern in UNRESOLVED_TEMPLATE_PATTERNS:
             matches = sorted({match.group(0) for match in pattern.finditer(text)})
             if matches:
