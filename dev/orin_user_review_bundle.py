@@ -507,11 +507,26 @@ def _packet_file_items(
     packet_files: Mapping[str, str],
     file_name: str,
 ) -> list[tuple[str, str]]:
-    return [
+    matches = [
         (path, text)
         for path, text in sorted(packet_files.items())
         if _packet_file_basename(path) == file_name
     ]
+    preferred_paths = (
+        file_name,
+        f"USER Review/{file_name}",
+        f"{REVIEW_AIDS_DIR_NAME}/{file_name}",
+    )
+
+    def sort_key(item: tuple[str, str]) -> tuple[int, str]:
+        path = item[0].replace("\\", "/")
+        if path in preferred_paths:
+            return (preferred_paths.index(path), path)
+        if path.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+            return (10, path)
+        return (5, path)
+
+    return sorted(matches, key=sort_key)
 
 
 def _packet_file_text(packet_files: Mapping[str, str], file_name: str) -> str:
@@ -723,6 +738,7 @@ def _validate_export_zip(
         ),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
+        *_fam007_dev_owner_lv1_substantive_failures(packet_files),
         *_fam007_bp2_plan_substantive_failures(packet_files),
         *_fam007_bp2_support_bp1_context_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
@@ -948,6 +964,66 @@ def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]
     return failures
 
 
+def _fam007_dev_owner_lv1_packet_detected(packet_files: Mapping[str, str]) -> bool:
+    combined = "\n".join(
+        (
+            packet_files.get("START_HERE.md", ""),
+            _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE),
+            _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"),
+            _packet_file_text(packet_files, "BRANCH_VISION_VALIDATION_CHECKLIST.md"),
+        )
+    ).casefold()
+    return (
+        "fam-007 dev/owner skeleton readiness" in combined
+        and "live validation lv1 is green" in combined
+        and "pr readiness stage 1 remains pending user approval" in combined
+    )
+
+
+def _fam007_dev_owner_lv1_substantive_failures(packet_files: Mapping[str, str]) -> list[str]:
+    if not _fam007_dev_owner_lv1_packet_detected(packet_files):
+        return []
+
+    text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    combined = "\n".join(
+        _packet_file_text(packet_files, file_name)
+        for file_name in USER_FACING_GENERATED_FILES
+    ).casefold()
+    display_name = _packet_file_path(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    failures: list[str] = []
+    required_headings = (
+        "## Live Validation LV1 No-Visible-Runtime Proof",
+        "## UTS Waiver Evidence",
+        "## PR Readiness Stage 1 Preview",
+        "## Future USER Gate Matrix",
+    )
+    for heading in required_headings:
+        if heading not in text:
+            failures.append(f"{display_name}: FAM-007 LV1 packet is missing {heading}")
+
+    required_markers = (
+        "no visible surface changed",
+        "uts is waived",
+        "stage 1 must not create a pr",
+        "provider/model/runtime/cache/memory",
+        "private dev/owner setup",
+    )
+    for marker in required_markers:
+        if marker not in combined:
+            failures.append(f"{display_name}: FAM-007 LV1 packet is missing marker '{marker}'")
+
+    forbidden_markers = (
+        "live validation lv1 remains pending",
+        "approve bounded live validation lv1",
+        "hardening final decision review",
+        "workstream entry final decision review",
+    )
+    for marker in forbidden_markers:
+        if marker in combined:
+            failures.append(f"{display_name}: FAM-007 LV1 packet contains stale marker '{marker}'")
+    return failures
+
+
 def _fam007_bp2_plan_substantive_failures(packet_files: Mapping[str, str]) -> list[str]:
     """Block FAM-007 BP2-primary packets that still read like BP2 previews."""
 
@@ -958,6 +1034,8 @@ def _fam007_bp2_plan_substantive_failures(packet_files: Mapping[str, str]) -> li
     text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
     combined = f"{start_here}\n{text}".casefold()
     if "fam-007 dev/owner skeleton readiness" not in combined:
+        return []
+    if _fam007_dev_owner_lv1_packet_detected(packet_files):
         return []
 
     failures: list[str] = []
@@ -1039,6 +1117,8 @@ def _fam007_bp2_support_bp1_context_failures(packet_files: Mapping[str, str]) ->
     primary = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
     combined = f"{start_here}\n{primary}".casefold()
     if "fam-007 dev/owner skeleton readiness" not in combined:
+        return []
+    if _fam007_dev_owner_lv1_packet_detected(packet_files):
         return []
 
     support = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
@@ -4732,14 +4812,6 @@ def _write_workstream_entry_packet_digests(
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
         and "approve bounded pr readiness stage 1" in normalized_decision
     )
-    dev_owner_live_validation_lv1_packet = (
-        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
-        and "approve bounded pr readiness stage 1" in normalized_decision
-    )
-    dev_owner_live_validation_lv1_packet = (
-        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
-        and "approve bounded pr readiness stage 1" in normalized_decision
-    )
     bp1_packet = (
         "bp1 branch vision" in normalized_decision
         and "authorize bp2 user branch plan review only" in normalized_decision
@@ -5959,6 +6031,7 @@ def _validate_workstream_entry_packet_decision_path(
     )
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
     failures.extend(_user_branch_plan_stale_bp1_wording_failures(packet_files))
+    failures.extend(_fam007_dev_owner_lv1_substantive_failures(packet_files))
     failures.extend(_fam007_bp2_plan_substantive_failures(packet_files))
     failures.extend(_fam007_bp2_support_bp1_context_failures(packet_files))
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
