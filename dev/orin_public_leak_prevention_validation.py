@@ -831,6 +831,213 @@ def _validate_remaining_workstream_readiness(fixture_set: dict[str, Any], failur
         _require(forbidden.get(field) is False, failures, f"remaining Workstream must set forbidden {field}=false")
 
 
+def _validate_dev_owner_skeleton_workstream_completion(
+    fixture_set: dict[str, Any], failures: list[str]
+) -> None:
+    completion = fixture_set.get("devOwnerSkeletonWorkstreamCompletion", {})
+    _require(
+        completion.get("schema") == "fam007-dev-owner-skeleton-workstream-completion-v1",
+        failures,
+        "Dev/Owner skeleton Workstream completion schema mismatch",
+    )
+    _require(
+        completion.get("branch") == "feature/fam-007-dev-owner-skeleton-readiness",
+        failures,
+        "Dev/Owner skeleton Workstream completion branch mismatch",
+    )
+    _require(
+        completion.get("completionStatus") == "Workstream Green",
+        failures,
+        "Dev/Owner skeleton Workstream completion must be Workstream Green",
+    )
+    for field in (
+        "planningOnly",
+        "publicSafeProofOnly",
+        "directValidationRequired",
+        "allAdmittedSeamsComplete",
+        "allFutureGatesRemainPending",
+        "workstreamGreenReady",
+    ):
+        _require(completion.get(field) is True, failures, f"Dev/Owner Workstream completion must set {field}=true")
+    _require(completion.get("nextLegalPhase") == "Hardening H1", failures, "Dev/Owner Workstream must hand off to Hardening H1")
+
+    implemented = completion.get("implementedSeams", {})
+    expected_seams = {
+        "seam1": "Action-gate registry and exact USER decision proof",
+        "seam2": "Dev/Owner readiness matrices",
+        "seam3": "Private root/remote and GitHub Desktop safety proof",
+        "seam4": "Backup/import and provider/runtime/cache/memory deferral proof",
+        "seam5": "Packet, fixture, validator, and source-truth fold-down proof",
+    }
+    for seam_id, seam_name in expected_seams.items():
+        seam = implemented.get(seam_id, {})
+        _require(seam.get("name") == seam_name, failures, f"Dev/Owner {seam_id} name mismatch")
+        _require(
+            str(seam.get("status", "")).startswith("implemented-public-safe"),
+            failures,
+            f"Dev/Owner {seam_id} must be implemented as public-safe proof",
+        )
+    seam3 = implemented.get("seam3", {})
+    _require(seam3.get("githubDesktopPrivateRemoteConfigured") is False, failures, "Dev/Owner Seam 3 must not configure GitHub Desktop private remote")
+    _require(seam3.get("privateRemoteConfigurationState") == "planning-only", failures, "Dev/Owner Seam 3 private remote state must remain planning-only")
+    _require(seam3.get("publicRemoteName") == "public-upstream", failures, "Dev/Owner Seam 3 public remote name mismatch")
+    for field in ("privateOriginRequired",):
+        _require(seam3.get(field) is True, failures, f"Dev/Owner Seam 3 must set {field}=true")
+    for field in ("publicUpstreamPushAllowed", "publicRemoteAsOriginAllowed"):
+        _require(seam3.get(field) is False, failures, f"Dev/Owner Seam 3 must set {field}=false")
+
+    seam4 = implemented.get("seam4", {})
+    _require(seam4.get("backupRecoveryPlanningState") == "planning-only", failures, "Dev/Owner Seam 4 backup state must remain planning-only")
+    _require(seam4.get("providerVisibleData") == "none", failures, "Dev/Owner Seam 4 providerVisibleData must be none")
+    for field in ("sentToProvider", "canAcceptPrompts"):
+        _require(seam4.get(field) is False, failures, f"Dev/Owner Seam 4 must set {field}=false")
+    for field, expected in {
+        "promptProviderModelExecution": "disabled",
+        "downloadsNetworkExternalCalls": "blocked",
+        "runtimeCacheState": "inactive",
+        "memoryLearningPersonalization": "inactive",
+        "voiceCoreSync": "gated",
+    }.items():
+        _require(seam4.get(field) == expected, failures, f"Dev/Owner Seam 4 {field} mismatch")
+    _require(seam4.get("cacheIsNotMemory") is True, failures, "Dev/Owner Seam 4 must preserve cache-is-not-memory")
+
+    matrix = completion.get("devOwnerReadinessMatrix", {})
+    dev = matrix.get("dev", {})
+    _require(
+        dev.get("privateRepoDirection") == "future-private-repo-after-user-approval",
+        failures,
+        "Dev matrix must keep private repo direction future-gated",
+    )
+    _require(dev.get("trustedButNotOwnerPrivate") is True, failures, "Dev matrix must remain trusted but not Owner-private")
+    _require(dev.get("ownerPrivateInheritanceAllowed") is False, failures, "Dev matrix must block Owner-private inheritance")
+    _require(dev.get("privateSetupState") == "pending-user-decision", failures, "Dev matrix setup must remain pending USER decision")
+    _require(dev.get("publicSourceScope") == "readiness-proof-only", failures, "Dev matrix public source scope mismatch")
+    owner = matrix.get("owner", {})
+    _require(owner.get("editionName") == "Nexus Desktop AI Owner", failures, "Owner matrix must preserve accepted edition name")
+    _require(owner.get("ownerOnly") is True, failures, "Owner matrix must remain Owner-only")
+    _require(owner.get("localPrivateDefault") is True, failures, "Owner matrix must preserve local-private default")
+    _require(owner.get("localGitVersionHistoryBaseline") is True, failures, "Owner matrix must preserve local Git/version baseline")
+    _require(owner.get("ownerPrivateRemoteDefault") is False, failures, "Owner matrix must not default to private remote")
+    _require(owner.get("ownerPrivateRemoteEvaluation") == "future-user-decision", failures, "Owner private remote evaluation must be future-gated")
+    _require(owner.get("devPublicInheritanceAllowed") is False, failures, "Owner matrix must block Dev/Public inheritance")
+    _require(owner.get("privateSetupState") == "pending-user-decision", failures, "Owner matrix setup must remain pending USER decision")
+
+    expected_gate_ids = {
+        "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+        "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+        "USER-GATE-FAM007-LOCAL-ONLY-PRIVATE-ROOT-CREATE",
+        "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP",
+        "USER-ACTION-FAM007-AI-DATA-BACKUP-RECOVERY",
+        "USER-ACTION-FAM007-PUBLIC-TO-DEV-MIGRATION-CONSENT",
+        "USER-ACTION-FAM007-PRIVATE-TO-PUBLIC-SANITIZATION",
+        "USER-ACTION-FAM007-OWNER-VAULT-OR-PRIVATE-HOSTING",
+        "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+        "USER-GATE-FAM007-MODEL-DOWNLOADS",
+        "USER-GATE-FAM007-RUNTIME-PROVIDER-EXECUTION",
+        "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR",
+        "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+        "USER-GATE-FAM007-VOICE-CORE-SYNC",
+        "USER-GATE-FAM007-SHORTCUT-INSTALLER-WORK",
+        "USER-GATE-FAM007-PR-CREATION",
+        "USER-GATE-FAM007-MERGE",
+        "USER-GATE-FAM007-RELEASE-TAG-ARTIFACT",
+        "USER-GATE-FAM007-BRANCH-WORKTREE-CLEANUP",
+        "USER-GATE-FAM007-FAM006-GOVERNANCE-MUTATION",
+        "USER-GATE-FAM007-AI-PRODUCT-CONTRACT-IMPORT",
+        "USER-GATE-FAM007-PRIVATE-DEV-ORIN-IMPORT",
+        "USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY",
+        "USER-GATE-FAM007-V1-8-0-PREBETA",
+    }
+    gates = completion.get("pendingUserDecisionGates", [])
+    _require(isinstance(gates, list), failures, "Dev/Owner Workstream gates must be a list")
+    gates_by_id = {gate.get("id"): gate for gate in gates if isinstance(gate, dict)}
+    for gate_id in sorted(expected_gate_ids):
+        gate = gates_by_id.get(gate_id)
+        _require(gate is not None, failures, f"Dev/Owner Workstream completion missing gate {gate_id}")
+        if gate is None:
+            continue
+        _require(gate.get("status") == "pending-user-decision", failures, f"Dev/Owner gate {gate_id} must remain pending")
+        _require(gate.get("executed") is False, failures, f"Dev/Owner gate {gate_id} must set executed=false")
+        _require(gate.get("authorizedByWorkstream") is False, failures, f"Dev/Owner gate {gate_id} must set authorizedByWorkstream=false")
+
+    public_safety = completion.get("publicSafetyProof", {})
+    for field in (
+        "privateDevRepositoryCreated",
+        "privateOwnerRepositoryCreated",
+        "localOnlyPrivateRootCreated",
+        "githubDesktopPrivateRemoteConfigured",
+        "offBootBackupRootCreated",
+        "backupRestoreImplemented",
+        "publicToDevImportImplemented",
+        "privateToPublicSanitizationExecuted",
+        "providerSdkIntegrated",
+        "modelExecutionEnabled",
+        "modelDownloadsEnabled",
+        "runtimeProviderExecutionEnabled",
+        "runtimeCacheBehaviorEnabled",
+        "externalCallsEnabled",
+        "memoryLearningIndexingRetrievalPersonalizationEnabled",
+        "voiceCoreSyncEnabled",
+        "shortcutInstallerWorkPerformed",
+        "prCreated",
+        "merged",
+        "releaseTagArtifactExecuted",
+        "cleanupPerformed",
+        "fam006GovernanceMutationPerformed",
+        "aiProductContractImported",
+        "privateDevOrinImported",
+        "v180PrebetaExecuted",
+    ):
+        _require(public_safety.get(field) is False, failures, f"Dev/Owner public safety must set {field}=false")
+
+    provider_boundary = completion.get("providerBoundary", {})
+    _require(provider_boundary.get("providerVisibleData") == "none", failures, "Dev/Owner providerVisibleData must be none")
+    for field in ("sentToProvider", "canAcceptPrompts"):
+        _require(provider_boundary.get(field) is False, failures, f"Dev/Owner provider boundary must set {field}=false")
+    for field, expected in {
+        "promptProviderModelExecution": "disabled",
+        "downloadsNetworkExternalCalls": "blocked",
+        "memoryLearningPersonalization": "inactive",
+        "runtimeCacheState": "inactive",
+        "voiceCoreSync": "gated",
+    }.items():
+        _require(provider_boundary.get(field) == expected, failures, f"Dev/Owner provider boundary {field} mismatch")
+
+    forbidden = completion.get("forbiddenMaterialPresence", {})
+    for field in (
+        "privateRemoteUrl",
+        "tokenOrCredential",
+        "ownerSecret",
+        "privatePath",
+        "modelArtifact",
+        "promptPayload",
+        "memoryPayload",
+        "privateAutomationContent",
+        "privateHostingSecret",
+        "capabilityPackAsset",
+    ):
+        _require(forbidden.get(field) is False, failures, f"Dev/Owner Workstream must set forbidden {field}=false")
+
+    handoff = completion.get("hardeningHandoff", {})
+    _require(handoff.get("state") == "ready-for-hardening-review", failures, "Dev/Owner handoff must be ready for Hardening review")
+    _require(handoff.get("nextLegalPhase") == "Hardening H1", failures, "Dev/Owner handoff next legal phase must be Hardening H1")
+    _require(handoff.get("workstreamGreenCandidate") is True, failures, "Dev/Owner handoff must mark Workstream green candidate")
+    for field in (
+        "privateRepoCreationAuthorized",
+        "privateRemoteConfigurationAuthorized",
+        "backupImplementationAuthorized",
+        "publicToDevImportAuthorized",
+        "providerModelExecutionAuthorized",
+        "runtimeCacheBehaviorAuthorized",
+        "memoryLearningPersonalizationAuthorized",
+    ):
+        _require(handoff.get(field) is False, failures, f"Dev/Owner handoff must set {field}=false")
+
+    next_decision = str(completion.get("exactNextUserDecision", ""))
+    for phrase in ("Hardening H1", "feature/fam-007-dev-owner-skeleton-readiness", "Workstream Green"):
+        _require(phrase in next_decision, failures, f"Dev/Owner exact next USER decision missing {phrase!r}")
+
+
 def _validate_ai_runtime_trust_boundary_readiness(fixture_set: dict[str, Any], failures: list[str]) -> None:
     readiness = fixture_set.get("aiRuntimeTrustBoundaryReadiness", {})
     _require(
@@ -1396,6 +1603,7 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
         "unresolved-template-placeholder",
         "packet-count-mismatch",
         "packet-count-with-nontext-asset",
+        "branch-correct-dev-owner-workstream-green",
         "branch-correct-live-validation-review",
         "branch-correct-pr-stage2-review",
     ):
@@ -1416,6 +1624,7 @@ def validate() -> list[str]:
     _validate_public_build_audit(failures=failures, fixture_set=fixture_set)
     _validate_dev_owner_skeleton_readiness(fixture_set, failures)
     _validate_remaining_workstream_readiness(fixture_set, failures)
+    _validate_dev_owner_skeleton_workstream_completion(fixture_set, failures)
     _validate_ai_runtime_trust_boundary_readiness(fixture_set, failures)
     _validate_breakpoint2_seam1_action_gate_registry(fixture_set, failures)
     _validate_breakpoint2_remaining_workstream_readiness(fixture_set, failures)
