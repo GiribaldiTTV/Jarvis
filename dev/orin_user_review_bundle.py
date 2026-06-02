@@ -1452,8 +1452,20 @@ def _write_user_branch_vision_review(
         for source_rel, _copied_rel in copied
     )
     normalized_decision = exact_user_decision.casefold()
+    fam006_bp2_marker = (
+        "bp2 user branch plan review" in normalized_decision
+        or "bp2 branch plan" in normalized_decision
+        or "accept the bp2" in normalized_decision
+    )
+    fam006_bp3_marker = (
+        "bp3" in normalized_decision
+        or "workstream entry" in normalized_decision
+        or "orchestration validation" in normalized_decision
+    )
     fam006_bp1_amendment_packet = (
         is_fam006_active_overlay_implementation
+        and not fam006_bp2_marker
+        and not fam006_bp3_marker
         and "bp1" in normalized_decision
         and (
             "branch vision amendment" in normalized_decision
@@ -1464,16 +1476,12 @@ def _write_user_branch_vision_review(
     fam006_bp3_packet = (
         is_fam006_active_overlay_implementation
         and not fam006_bp1_amendment_packet
-        and (
-            "bp3" in normalized_decision
-            or "workstream entry" in normalized_decision
-            or "orchestration validation" in normalized_decision
-        )
+        and not fam006_bp2_marker
+        and fam006_bp3_marker
     )
     fam006_bp2_packet = (
         is_fam006_active_overlay_implementation
-        and ("bp2" in normalized_decision or "branch plan review" in normalized_decision)
-        and "bp1" not in normalized_decision
+        and fam006_bp2_marker
         and not fam006_bp1_amendment_packet
         and not fam006_bp3_packet
     )
@@ -1521,7 +1529,7 @@ def _write_user_branch_vision_review(
             "Snapshot-at-start is the accepted target model: a recording session uses the sensors and membership active when recording starts.",
             "Sensors added during an active recording become eligible for the next recording session.",
             "The Dashboard Recording card remains small, low-clutter, and easy to understand while the HUD Overlay card remains overlay-focused.",
-            "The standalone Recording Control window carries richer target, readiness, status, and future control detail.",
+            "Any standalone Recording Control window or secondary detail surface remains future/secondary unless BP2 and BP3 re-admit it after the Dashboard Recording card route.",
             "Hidden recording target state is rejected.",
             "A separate Recording Profile system remains outside this branch unless USER explicitly reopens it later.",
             "Native Log Loader remains a future separate graph/log viewer.",
@@ -1749,15 +1757,15 @@ def _write_user_branch_vision_review(
             "",
             "## Codex Understanding",
             "",
-            "USER accepted the BP1 direction: snapshot-at-start target semantics, small HUD card, richer Recording Control detail, explicit target visibility, and no hidden recording target state. BP2 must translate that accepted direction into an engineering plan; this support file does not request a new BP1 decision.",
+            "USER accepted the BP1 amendment: snapshot-at-start target semantics, a dedicated Dashboard Recording card for target/status and future recording-specific controls, HUD Overlay card preservation, explicit target visibility, and no hidden recording target state. BP2 must translate that accepted direction into an engineering plan; this support file does not request a new BP1 decision.",
             "",
             "## Branch Goal",
             "",
-            "Build the FAM-006 recording foundation around the active Overlay Profile with a snapshot-at-start recording target and a visible, user-verifiable path from HUD card to Recording Control before any file-writing or recording execution is approved.",
+            "Build the FAM-006 recording foundation around the active Overlay Profile with a snapshot-at-start recording target and a visible, user-verifiable path through a dedicated Dashboard Recording card before any file-writing or recording execution is approved.",
             "",
             "## End-State Vision",
             "",
-            "The completed branch should leave behind a concrete runtime direction: active Overlay Profile membership is snapshotted at recording start, sensors added during active recording wait for the next session, the HUD recording card stays small and quick-access, Recording Control owns richer detail, and future proof shows the target model behaved as accepted.",
+            "The completed branch should leave behind a concrete runtime direction: active Overlay Profile membership is snapshotted at recording start, sensors added during active recording wait for the next session, the Dashboard Recording card owns target/status and future recording-specific controls, the HUD Overlay card remains overlay-focused, and future proof shows the target model behaved as accepted.",
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
@@ -5440,8 +5448,20 @@ def build_bundle(
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
     normalized_decision = exact_user_decision.casefold()
+    fam006_bp2_marker = (
+        "bp2 user branch plan review" in normalized_decision
+        or "bp2 branch plan" in normalized_decision
+        or "accept the bp2" in normalized_decision
+    )
+    fam006_bp3_marker = (
+        "bp3" in normalized_decision
+        or "workstream entry" in normalized_decision
+        or "orchestration validation" in normalized_decision
+    )
     fam006_bp1_amendment_packet = (
         source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
+        and not fam006_bp2_marker
+        and not fam006_bp3_marker
         and "bp1" in normalized_decision
         and (
             "branch vision amendment" in normalized_decision
@@ -5452,19 +5472,12 @@ def build_bundle(
     fam006_bp3_packet = (
         source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
         and not fam006_bp1_amendment_packet
-        and (
-            "bp3" in normalized_decision
-            or "workstream entry" in normalized_decision
-            or "orchestration validation" in normalized_decision
-        )
+        and not fam006_bp2_marker
+        and fam006_bp3_marker
     )
     fam006_bp2_packet = (
         source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
-        and (
-            "bp2 user branch plan review" in normalized_decision
-            or "bp2 branch plan" in normalized_decision
-            or "accept the bp2" in normalized_decision
-        )
+        and fam006_bp2_marker
         and not fam006_bp1_amendment_packet
         and not fam006_bp3_packet
     )
