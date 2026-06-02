@@ -240,6 +240,22 @@ FAM006_BP1_GENERATED_STALE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         "ai-runtime-trust-architecture",
         re.compile(r"\bAI Runtime And Trust Architecture\b", re.IGNORECASE),
     ),
+    (
+        "superseded-hud-recording-card-route",
+        re.compile(
+            r"\bHUD Overlay recording card\b|\bHUD card gives quick access\b|"
+            r"\bHUD Overlay card as launcher\b|\bHUD Overlay card previews and launches recording control\b",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "superseded-recording-control-primary-route",
+        re.compile(
+            r"\bRecording Control window (?:owns|as) (?:the )?(?:richer|compact).*surface\b|"
+            r"\bstandalone Recording Control window as the compact control surface\b",
+            re.IGNORECASE,
+        ),
+    ),
 )
 BP2_ACCEPTED_BP1_SUPPORT_STALE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
@@ -1081,8 +1097,8 @@ def _bp2_accepted_bp1_support_file_failures(packet_files: Mapping[str, str]) -> 
         return []
     normalized_packet = re.sub(r"\s+", " ", f"{start_here}\n{plan_review}").casefold()
     is_bp2_packet = (
-        "bp2 branch plan review" in normalized_packet
-        or "user_branch_plan_review.md" in normalized_packet
+        "primary user review file: `user review/user_branch_plan_review.md`"
+        in start_here.casefold()
     )
     is_fam006_packet = (
         "fam-006 active overlay recording runtime implementation" in normalized_packet
@@ -1436,8 +1452,18 @@ def _write_user_branch_vision_review(
         for source_rel, _copied_rel in copied
     )
     normalized_decision = exact_user_decision.casefold()
+    fam006_bp1_amendment_packet = (
+        is_fam006_active_overlay_implementation
+        and "bp1" in normalized_decision
+        and (
+            "branch vision amendment" in normalized_decision
+            or "branch vision review" in normalized_decision
+            or "dashboard recording card" in normalized_decision
+        )
+    )
     fam006_bp3_packet = (
         is_fam006_active_overlay_implementation
+        and not fam006_bp1_amendment_packet
         and (
             "bp3" in normalized_decision
             or "workstream entry" in normalized_decision
@@ -1448,6 +1474,7 @@ def _write_user_branch_vision_review(
         is_fam006_active_overlay_implementation
         and ("bp2" in normalized_decision or "branch plan review" in normalized_decision)
         and "bp1" not in normalized_decision
+        and not fam006_bp1_amendment_packet
         and not fam006_bp3_packet
     )
     review_status = (
@@ -1493,7 +1520,7 @@ def _write_user_branch_vision_review(
             "Active Overlay Profile membership is the recording target source.",
             "Snapshot-at-start is the accepted target model: a recording session uses the sensors and membership active when recording starts.",
             "Sensors added during an active recording become eligible for the next recording session.",
-            "The HUD Overlay recording card remains small, quick-access, low-clutter, and easy to understand.",
+            "The Dashboard Recording card remains small, low-clutter, and easy to understand while the HUD Overlay card remains overlay-focused.",
             "The standalone Recording Control window carries richer target, readiness, status, and future control detail.",
             "Hidden recording target state is rejected.",
             "A separate Recording Profile system remains outside this branch unless USER explicitly reopens it later.",
@@ -1534,7 +1561,7 @@ def _write_user_branch_vision_review(
             "",
             "## Family Vision Context",
             "",
-            "FAM-006 owns Monitoring and HUD behavior. This branch keeps recording inside that family by treating the active Overlay Profile as the future recording target source, keeping the HUD Overlay card as launcher and target/status preview, and keeping the standalone Recording Control window as the compact control surface.",
+            "FAM-006 owns Monitoring and HUD behavior. This branch keeps recording inside that family by treating the active Overlay Profile as the future recording target source, placing recording target/status and future controls in a dedicated Dashboard Recording card, and keeping the HUD Overlay card overlay-focused.",
             "",
             "## Feature Vision Context",
             "",
@@ -1575,7 +1602,7 @@ def _write_user_branch_vision_review(
             "",
             "- Active Overlay Profile surface: target source before recording starts.",
             "- Snapshot-at-start target state proof surface: future locked session target evidence.",
-            "- HUD Overlay recording card status preview surface: quick-access preview and launcher.",
+            "- Dashboard Recording card status preview surface: dedicated recording target/status preview and future recording-specific controls.",
             "- Recording Control window decision surface: richer status, readiness, target, and control review.",
             "- USER_BRANCH_VISION_REVIEW.md review surface: accepted BP1 context only.",
             "- Output/proof surfaces: future BP3/H1/LV/UTS evidence.",
@@ -1676,7 +1703,7 @@ def _write_user_branch_vision_review(
             "Active Overlay Profile membership is the recording target source.",
             "Snapshot-at-start is the accepted target model: a recording session uses the sensors and membership active when recording starts.",
             "Sensors added during an active recording become eligible for the next recording session.",
-            "The HUD Overlay recording card remains small, quick-access, low-clutter, and easy to understand.",
+            "The Dashboard Recording card remains small, low-clutter, and easy to understand while the HUD Overlay card remains overlay-focused.",
             "The standalone Recording Control window carries richer target, readiness, status, and future control detail.",
             "Hidden recording target state is rejected.",
             "A separate Recording Profile system remains outside this branch unless USER explicitly reopens it later.",
@@ -1714,7 +1741,7 @@ def _write_user_branch_vision_review(
             "",
             "## Family Vision Context",
             "",
-            "FAM-006 owns Monitoring and HUD behavior. This branch keeps recording inside that family by treating the active Overlay Profile as the future recording target source, keeping the HUD Overlay card as launcher and target/status preview, and keeping the standalone Recording Control window as the compact control surface.",
+            "FAM-006 owns Monitoring and HUD behavior. This branch keeps recording inside that family by treating the active Overlay Profile as the future recording target source, placing recording target/status and future controls in a dedicated Dashboard Recording card, and keeping the HUD Overlay card overlay-focused.",
             "",
             "## Feature Vision Context",
             "",
@@ -1755,7 +1782,7 @@ def _write_user_branch_vision_review(
             "",
             "- Active Overlay Profile surface: target source before recording starts.",
             "- Snapshot-at-start target state proof surface: future locked session target evidence.",
-            "- HUD Overlay recording card status preview surface: quick-access preview and launcher.",
+            "- Dashboard Recording card status preview surface: dedicated recording target/status preview and future recording-specific controls.",
             "- Recording Control window decision surface: richer status, readiness, target, and control review.",
             "- USER_BRANCH_VISION_REVIEW.md review surface: accepted BP1 context only.",
             "- Output/proof surfaces: future BP2/H1/LV/UTS evidence.",
@@ -1874,7 +1901,7 @@ def _write_user_branch_vision_review(
             "",
             "## Contract Revision",
             "",
-            "v4 - FAM-006-specific BP1 vision revised with USER snapshot-at-start, HUD card, Recording Control window, proof, and hidden-target feedback; BP1 acceptance remains pending USER decision.",
+            "v5 - FAM-006-specific BP1 amendment revised after returned Live Validation feedback: recording moves to a dedicated Dashboard Recording card, the HUD Overlay card remains overlay-focused, and BP1 acceptance remains pending USER decision.",
             "",
             "## Project Vision Context",
             "",
@@ -1882,7 +1909,7 @@ def _write_user_branch_vision_review(
             "",
             "## Family Vision Context",
             "",
-            "FAM-006 owns Monitoring and HUD behavior. This branch keeps recording inside that family by treating the active Overlay Profile as the future recording target source, keeping the HUD Overlay card as launcher and target/status preview, and keeping the standalone Recording Control window as the compact control surface.",
+            "FAM-006 owns Monitoring, Dashboard, HUD Overlay, Overlay Profile, Monitor Group, Sensor Command Center, and active-overlay-driven recording behavior. This branch keeps recording inside that family by treating the active Overlay Profile as the future recording target source while moving recording target/status and future recording-specific controls to a dedicated Dashboard Recording card. The HUD Overlay card remains overlay-focused.",
             "",
             "## Feature Vision Context",
             "",
@@ -1890,20 +1917,21 @@ def _write_user_branch_vision_review(
             "",
             "## Codex Understanding",
             "",
-            "USER feedback has been incorporated for review: snapshot-at-start is the gold-standard target model for this branch; the HUD Overlay recording card should stay small and quick-access; the Recording Control window should carry richer target/status/control detail; proof expectations should be planned in BP2; and hidden recording target state is rejected. BP1 acceptance remains pending USER decision.",
+            "USER feedback has been incorporated for review: recording should live in its own small Dashboard Recording card, not inside the HUD Overlay card. Snapshot-at-start remains the recommended target model for future execution; proof expectations should be replanned in BP2; and hidden recording target state remains rejected. BP1 acceptance remains pending USER decision.",
             "",
             "## Branch Goal",
             "",
-            "Build the FAM-006 recording foundation around the active Overlay Profile with a snapshot-at-start recording target. The product goal is a recording experience where the USER can inspect what will be recorded before recording behavior is approved, where the HUD card gives quick access without clutter, where the Recording Control window owns richer target/status detail, and where proof expectations and rollback posture are clear before any recording writes files.",
+            "Build the FAM-006 recording foundation around the active Overlay Profile with a snapshot-at-start recording target. The product goal is a recording experience where the USER can inspect what will be recorded before recording behavior is approved, where a dedicated Dashboard Recording card owns recording target/status and future recording-specific controls, where the HUD Overlay card stays focused on overlay identity and overlay-specific actions, and where proof expectations and rollback posture are clear before any recording writes files.",
             "",
             "## End-State Vision",
             "",
-            "The completed branch should leave behind a concrete, source-truth-backed runtime direction: active Overlay Profile membership is snapshotted at recording start as the recording target, sensors added during an active recording become eligible for the next recording session, the HUD Overlay card stays a small quick-access recording affordance, the Recording Control window owns richer target/status/readiness/control detail, and validation/UTS proof can show the target model behaved as accepted. Recording execution, file writing, tray behavior, export/share, and Native Log Loader integration remain future-gated until their legal implementation approvals.",
+            "The completed branch should leave behind a concrete, source-truth-backed runtime direction: active Overlay Profile membership is snapshotted at recording start as the recording target, sensors added during an active recording become eligible for the next recording session, the Dashboard Recording card owns recording target/status and future recording-specific controls, the HUD Overlay card stays overlay-focused, and validation/UTS proof can show the target model behaved as accepted. Recording execution, file writing, tray behavior, export/share, and Native Log Loader integration remain future-gated until their legal implementation approvals.",
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
-            "- In the future runtime, the Dashboard HUD Overlay recording card stays small, quick-access, and easy to understand. It should avoid redundant detail such as showing both current overlay and recording overlay when those values are the same by design.",
-            "- The standalone Recording Control window is the richer place for selected recording target, locked snapshot target, readiness state, recording status, approved future Start/Stop controls, and proof-oriented detail.",
+            "- In the future runtime, the Dashboard should show a small, clear, dedicated Recording card for recording target/status and future recording-specific controls.",
+            "- The HUD Overlay card should remain focused on overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions rather than recording controls.",
+            "- Any standalone Recording Control window, expanded settings window, or secondary recording-detail surface is future/secondary until BP2 and BP3 admit it under the revised Dashboard Recording card direction.",
             "- The active Overlay Profile remains the USER-facing source for what is eligible to be recorded; when recording starts, the session locks a snapshot of the then-active overlay membership.",
             "- Sensors added to the active Overlay Profile during an active recording do not join the current recording session; they become eligible for the next recording after a new recording starts.",
             "- Hidden recording target state is rejected as a product direction. USER should be able to inspect what will be recorded before recording behavior is approved.",
@@ -1913,13 +1941,13 @@ def _write_user_branch_vision_review(
             "",
             "## How It Will Function",
             "",
-            "The future implementation should treat the active Overlay Profile as the recording target source and use snapshot-at-start semantics. A recording session records the sensors and membership active on the Overlay Profile at the moment recording starts. Later Overlay Profile additions become eligible for the next recording session, not the current active one. The HUD Overlay recording card provides quick access and simple action visibility, while the Recording Control window reflects selected target, locked snapshot target, readiness state, recording status, and future control details. BP2 must plan this target model and proof path; BP3 must validate orchestration; Workstream implementation remains blocked until USER separately approves implementation.",
+            "The future implementation should treat the active Overlay Profile as the recording target source and use snapshot-at-start semantics. A recording session records the sensors and membership active on the Overlay Profile at the moment recording starts. Later Overlay Profile additions become eligible for the next recording session, not the current active one. The Dashboard Recording card provides recording target/status and future recording-specific controls, while the HUD Overlay card remains overlay-focused. BP2 must plan this revised target model and proof path; BP3 must validate orchestration; Workstream implementation remains blocked until USER separately approves implementation.",
             "",
             "## User Experience Flow",
             "",
             "1. USER reviews or selects the active Overlay Profile before recording.",
-            "2. USER sees a small HUD Overlay recording card for quick access and simple recording action visibility.",
-            "3. USER opens the Recording Control window for richer target/status/readiness detail, including the selected target and future locked snapshot target.",
+            "2. USER sees a small Dashboard Recording card for recording target/status and future recording-specific controls.",
+            "3. USER keeps the HUD Overlay card focused on overlay/Profile/Status behavior, without recording controls mixed into that card.",
             "4. A future approved recording session snapshots the active Overlay Profile membership at Start; sensors added during that session wait for the next recording.",
             "5. Later approved implementation may add real Start/Stop, output-file proof, tray controls, and export/share behavior.",
             "6. Later Live Validation and UTS proof must show the accepted target model, stale/missing-target behavior, rollback posture, and user-visible controls behave as planned.",
@@ -1928,10 +1956,11 @@ def _write_user_branch_vision_review(
             "",
             "- Active Overlay Profile: source of truth for target eligibility before recording starts.",
             "- Snapshot-at-start target state: future locked session target derived from active Overlay Profile membership at Start.",
-            "- Dashboard HUD Overlay recording card: minimal quick-access and simple action visibility surface, not the rich detail panel.",
-            "- Standalone Recording Control window: richer future detail/status/control surface for selected target, locked snapshot target, readiness, recording status, and approved controls.",
-            "- Decision surface: USER response to this BP1 packet decides whether snapshot-at-start, minimal HUD card, richer Recording Control detail, and hidden-target rejection are accepted for BP2 planning.",
-            "- Output/proof surfaces: future BP2/H1/LV/UTS evidence for target preview, Recording Control window, target-state behavior, stale/missing-target behavior, rollback, and recorded files when file writing is later approved.",
+            "- Dashboard Recording card: primary future surface for recording target/status and future recording-specific controls.",
+            "- HUD Overlay card: overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions only.",
+            "- Secondary recording detail surface: future optional surface only if BP2/BP3 admit it after the Dashboard Recording card becomes primary.",
+            "- Decision surface: USER response to this BP1 packet decides whether Dashboard Recording card placement, snapshot-at-start target semantics, and hidden-target rejection are accepted for BP2 planning.",
+            "- Output/proof surfaces: future BP2/H1/LV/UTS evidence for Dashboard Recording card target/status, HUD Overlay non-regression, target-state behavior, stale/missing-target behavior, rollback, and recorded files when file writing is later approved.",
             "- Native Log Loader: future separate graph/log viewer, preserved as context only.",
             "- Per-overlay effective polling policy: future FAM-006 architecture planning input, not implementation authority in BP1.",
             "",
@@ -1939,29 +1968,29 @@ def _write_user_branch_vision_review(
             "",
             "- Option A - Active Overlay Profile with snapshot-at-start target model. Accepted as the gold-standard direction for review: it keeps target selection visible and stable during a recording session. Tradeoff: BP2 must define clear stale/missing-target and next-session behavior.",
             "- Option B - Separate Recording Profile system. Rejected for this branch unless USER later reopens it; it adds another profile concept and raises drift risk between what USER monitors and what USER records.",
-            "- Option C - Small HUD card plus richer Recording Control window. Recommended: HUD stays quick-access and low-clutter, while Recording Control carries target, snapshot, readiness, status, and future control detail. Tradeoff: BP2 must be precise about which details live in each surface.",
+            "- Option C - Dedicated Dashboard Recording card. Recommended: recording gets its own scan-friendly Dashboard home, while the HUD Overlay card stays overlay-focused. Tradeoff: BP2 must define the card fields tightly so the card stays small and understandable.",
             "- Option D - Hidden target state or file-writing-first implementation. Rejected as current product direction because USER trust depends on inspecting the recording target before recording behavior is approved.",
             "",
             "## Codex Recommendations",
             "",
             "- Recommendation: Carry snapshot-at-start into BP2 as the accepted direction for review: a recording records the sensors active when Start happens, and sensors added later become eligible for the next recording. Tradeoff: BP2 must define how the UI explains the locked snapshot and next-session eligibility. USER response:",
-            "- Recommendation: Keep the HUD Overlay recording card small and quick-access, with future Start/Stop affordance only after separate implementation approval. Tradeoff: richer status detail moves into Recording Control instead of being visible directly on the HUD card. USER response:",
-            "- Recommendation: Make the Recording Control window the richer target/status/readiness/control surface because it can explain selected target, locked snapshot target, stale/missing-target behavior, and recording status without cluttering the HUD. Tradeoff: USER may need one extra click for full detail. USER response:",
-            "- Recommendation: Require BP2 to plan target preview proof, Recording Control window proof, target-state proof, stale/missing-target behavior proof, rollback proof, and Live Validation / UTS expectations before BP3. Tradeoff: planning takes longer, but hidden target drift is less likely to survive into runtime. USER response:",
+            "- Recommendation: Make the Dashboard Recording card the primary recording target/status and future-control surface. Tradeoff: BP2 must keep it small and avoid turning the Dashboard into a proof/debug panel. USER response:",
+            "- Recommendation: Keep the HUD Overlay card overlay-focused and free of recording-specific controls. Tradeoff: recording is no longer launched from the Overlay card, but the UI becomes easier to understand. USER response:",
+            "- Recommendation: Require BP2 to plan Dashboard Recording card proof, HUD Overlay non-regression proof, target-state proof, stale/missing-target behavior proof, rollback proof, and Live Validation / UTS expectations before BP3. Tradeoff: planning takes longer, but stale card-placement drift is less likely to survive into runtime. USER response:",
             "- Recommendation: Reject hidden recording target state and keep the separate Recording Profile system outside this branch unless USER explicitly reopens it. Tradeoff: this limits flexibility, but it keeps recording understandable and aligned with the active Overlay Profile model. USER response:",
             "- Recommendation: Keep Native Log Loader and per-overlay effective polling policy as future planning inputs unless USER explicitly admits them into this branch because they can widen FAM-006 beyond active-overlay recording. Tradeoff: BP2 may need to name integration placeholders without implementing those systems. USER response:",
             "",
             "## Why This Fits The Nexus Vision",
             "",
-            "This vision keeps Nexus local, visible, and USER-controlled: the USER can inspect the selected target, understand the snapshot-at-start recording path, and approve proof expectations before runtime work begins. It avoids hidden recording target state, avoids multiplying profile systems without USER approval, and keeps richer status detail in a dedicated local desktop control surface.",
+            "This vision keeps Nexus local, visible, and USER-controlled: the USER can inspect the selected target, understand the snapshot-at-start recording path, and approve proof expectations before runtime work begins. It avoids hidden recording target state, avoids multiplying profile systems without USER approval, and gives recording a dedicated Dashboard home instead of mixing recording controls into the Overlay card.",
             "",
             "## USER Design Questions",
             "",
             "- Do you accept snapshot-at-start as the final BP1 target model, with added sensors joining the next recording rather than the active one?",
-            "- Do you accept the HUD Overlay recording card as a minimal quick-access surface rather than a rich detail/status surface?",
-            "- Do you accept the Recording Control window as the richer detail surface for selected target, locked snapshot target, readiness, recording status, and future controls?",
+            "- Do you accept a dedicated Dashboard Recording card as the primary future recording target/status and control surface?",
+            "- Do you accept keeping the HUD Overlay card overlay-focused, with recording-specific controls excluded from that card?",
             "- Do you reject hidden recording target state and keep a separate Recording Profile system outside this branch unless later reopened?",
-            "- Should BP2 treat target preview proof, Recording Control proof, target-state proof, stale/missing-target proof, rollback proof, and LV/UTS expectations as required plan lines?",
+            "- Should BP2 treat Dashboard Recording card proof, HUD Overlay non-regression proof, target-state proof, stale/missing-target proof, rollback proof, and LV/UTS expectations as required plan lines?",
             "",
             "## USER Response",
             "",
@@ -1985,7 +2014,7 @@ def _write_user_branch_vision_review(
             "",
             "## Family-Vision Versus Branch-Only Vision Impact",
             "",
-            "Branch-only for this BP1 packet until USER accepts or revises the vision. If accepted, the snapshot-at-start target model, minimal HUD card role, richer Recording Control window role, and hidden-target rejection may need to fold into the FAM-006 family vision or active branch plan during BP2.",
+            "Branch-only for this BP1 packet until USER accepts or revises the vision. If accepted, the snapshot-at-start target model, Dashboard Recording card role, HUD Overlay preservation rule, optional secondary recording-detail posture, and hidden-target rejection may need to fold into the FAM-006 family vision or active branch plan during BP2.",
             "",
             "## Must-Have Behavior",
             "",
@@ -1999,7 +2028,7 @@ def _write_user_branch_vision_review(
             "",
             "- Do not create a separate Recording Profile system unless USER explicitly revises BP1 in that direction.",
             "- Do not hide recording target state from USER review.",
-            "- Do not clutter the HUD card with redundant current-overlay/recording-overlay detail when those values are the same by design.",
+            "- Do not put recording-specific controls back into the HUD Overlay card unless USER later accepts a BP1/BP2/BP3 revision in that direction.",
             "- Do not implement recording execution, file writing, Start/Stop controls, tray controls, export/share, provider/model work, or Native Log Loader as part of BP1.",
             "- Do not use Workstream for planning or treat this reviewable packet as USER acceptance.",
             "- Do not let copied source-truth files replace the applied FAM-006 branch vision.",
@@ -2015,7 +2044,7 @@ def _write_user_branch_vision_review(
             "## Design Assumption Ledger",
             "",
             "- Assumption: active Overlay Profile snapshot-at-start is the preferred recording target model unless USER revises BP1.",
-            "- Assumption: HUD Overlay recording card stays minimal while Recording Control carries richer target/status/readiness/control detail.",
+            "- Assumption: the Dashboard Recording card becomes the primary target/status and future-control surface while HUD Overlay remains overlay-focused.",
             "- Assumption: Native Log Loader remains future separate graph/log viewer context.",
             "- Assumption: per-overlay effective polling policy remains future FAM-006 architecture planning input.",
             "",
@@ -2310,21 +2339,21 @@ def _write_user_branch_plan_review(
             "",
             "## Plain-English Branch Summary",
             "",
-            "FAM-006 will build recording around the active Overlay Profile the USER already uses. The accepted BP2 plan keeps the active Overlay Profile as the future target source, keeps snapshot-at-start as the target model, keeps the HUD Overlay card small and quick-access, and keeps Recording Control as the richer future surface.",
+            "FAM-006 will build recording around the active Overlay Profile the USER already uses. The revised BP2 plan must keep the active Overlay Profile as the future target source, keep snapshot-at-start as the target model, move recording target/status and future controls to a dedicated Dashboard Recording card, and keep the HUD Overlay card overlay-focused.",
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
-            "After later BP3 acceptance and separate implementation approval, USER should see concise target/status information and an Open Recording Control path in the HUD Overlay card, then richer target/readiness/status/control detail in a compact standalone Recording Control window. This BP3 packet itself changes no runtime UI.",
+            "After later BP3 acceptance and separate implementation approval, USER should see concise target/status information in a dedicated Dashboard Recording card, while the HUD Overlay card remains focused on overlay/Profile/Status behavior. This BP3 packet itself changes no runtime UI.",
             "",
             "## End-State Vision",
             "",
-            "The accepted BP2 end state is a recording foundation that feels connected to the overlay USER already chose: active Overlay Profile membership defines the future target, Start later locks a snapshot of that target, the HUD card gives quick access without clutter, Recording Control explains richer target/readiness/status detail, and completed logs can later feed a separate Native Log Loader.",
+            "The revised BP2 end state must become a recording foundation that feels connected to the overlay USER already chose: active Overlay Profile membership defines the future target, Start later locks a snapshot of that target, the Dashboard Recording card explains target/readiness/status and future controls, the HUD Overlay card remains overlay-focused, and completed logs can later feed a separate Native Log Loader.",
             "",
             "## Visual / Functional Walkthrough",
             "",
             "- USER has or selects an active Overlay Profile.",
-            "- HUD Overlay card previews concise recording target/status without redundant current-overlay / recording-overlay detail when the values are intentionally identical.",
-            "- USER opens Recording Control for richer target/readiness/status detail after that later surface is approved.",
+            "- Dashboard Recording card previews concise recording target/status without cluttering the Overlay card.",
+            "- USER keeps the HUD Overlay card focused on overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions.",
             "- When recording execution is later admitted, Start snapshots the target membership at that moment.",
             "- Sensors added during an active recording wait for the next session.",
             "- Completed logs are designed for future graphing by Native Log Loader, but the loader remains separate and future-gated.",
@@ -2332,8 +2361,9 @@ def _write_user_branch_plan_review(
             "## Surface Map",
             "",
             "- Active Overlay Profile: accepted recording target source.",
-            "- HUD Overlay recording card: quick launcher and concise target/status preview.",
-            "- Standalone Recording Control window: richer future target/readiness/status/control surface.",
+            "- Dashboard Recording card: dedicated recording target/status preview and future recording-specific controls.",
+            "- HUD Overlay card: overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions.",
+            "- Standalone Recording Control window or secondary recording-detail surface: future/secondary only if BP2/BP3 admit it.",
             "- Recording output contract: future deterministic graph/plot-ready output planning, not file writing approval.",
             "- Native Log Loader: separate future graph/log viewer.",
             "- USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md: active BP3 decision surface.",
@@ -2434,36 +2464,37 @@ def _write_user_branch_plan_review(
             "Active Overlay Profile membership is the recording target source.",
             "Snapshot-at-start is the accepted default target model: a recording session uses the sensors and membership active when recording starts.",
             "Sensors added to the active Overlay Profile during a recording become eligible for the next recording session, not the current one.",
-            "The HUD Overlay recording card stays small, quick-access, low-clutter, and easy to understand.",
-            "The HUD Overlay card should avoid redundant current-overlay / recording-overlay detail when both are intentionally the same.",
-            "The standalone Recording Control window carries richer target, readiness, status, and future control detail.",
+            "The Dashboard Recording card stays small, low-clutter, and easy to understand.",
+            "The HUD Overlay card should stay focused on overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions.",
+            "Any standalone Recording Control window or secondary recording-detail surface is future/secondary unless BP2/BP3 re-admit it.",
             "Hidden recording target state is rejected.",
             "A separate Recording Profile system remains outside this branch unless USER explicitly reopens it later.",
             "Native Log Loader remains a future separate graph/log viewer.",
             "Per-overlay effective polling policy remains future FAM-006 architecture planning unless separately admitted.",
         ]
         surface_map = [
-            "HUD Overlay recording card: quick launcher, concise target/status preview, and later Start/Stop affordance only after real controls are separately approved.",
-            "Standalone Recording Control window: compact normal OS/NDAI window for richer target/readiness/status/control detail, independent from Dashboard lifetime.",
+            "Dashboard Recording card: concise target/status preview and later recording-specific controls only after real controls are separately approved.",
+            "HUD Overlay card: overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions; not the recording-control surface.",
+            "Standalone Recording Control window or secondary recording detail surface: future/secondary only if BP2/BP3 admit it after Dashboard Recording card placement is accepted.",
             "Overlay Profile: source of active recording target membership and snapshot-at-start membership.",
             "Monitor Groups / Sensor Command Center: reusable sensor organization surfaces; not mutated into a recording-specific chooser by BP2.",
             "Recording output contract: future graph/plot-ready file contract planned before or alongside admitted recording execution.",
             "Native Log Loader: future separate graph/log viewer, not the recording control surface in this branch.",
         ]
         likely_files = [
-            "Confirmed existing owner - `desktop/ui/dashboard_hud_panel.py`: Dashboard/HUD surface owner for future low-redundancy recording card preview and launcher work.",
+            "Confirmed existing owner - current Dashboard/HUD renderer surfaces: likely owners for a future dedicated Dashboard Recording card and HUD Overlay non-regression proof.",
             "Confirmed existing owner - `dev/orin_monitoring_hud_surface_validation.py`: FAM-006 HUD/Dashboard source-truth and surface validator.",
             "Confirmed existing owner - `dev/orin_monitoring_hud_internal_sandbox_validation.py`: FAM-006 internal sandbox/state-boundary validator.",
             "Confirmed existing owner - `dev/orin_validation_suite.py`: broader FAM-006 runtime validation recommendation owner.",
-            "Probable new file - `desktop/ui/recording_control_window.py`: standalone compact Recording Control window if BP3 verifies this is the clean UI owner and USER later approves implementation.",
+            "Probable future/secondary file - `desktop/ui/recording_control_window.py` or equivalent only if BP3 verifies a secondary Recording Control surface is still needed after Dashboard Recording card placement and USER later approves implementation.",
             "Uncertain owner for BP3 verification - active Overlay Profile state source: BP3 must identify the exact current owner for active Overlay Profile ID/name, membership, stale/deleted profile state, and empty membership behavior before SLC-051 implementation can be approved.",
             "Uncertain owner for BP3 verification - recording target/session model: BP3 must decide whether this belongs in an existing state/model module or a new recording-target planning module before implementation.",
             "Blocked until later implementation approval - recording runtime, file-writing, output-file creation, Start/Stop execution, tray control, export/share, and Native Log Loader implementation owners are not admitted by BP2 and must not be treated as confirmed files.",
         ]
         slc_package_plan = [
             "SLC-051 - Active Overlay recording target foundation: recommended first bounded Workstream seam after BP3 and separate implementation approval. It must prove active Overlay Profile ID/name, target membership snapshot at recording start, immutable session target summary, null/empty/stale/deleted/high-volume target states, and next-session eligibility for sensors added after recording starts before visible controls depend on it.",
-            "SLC-052 - HUD Overlay recording launcher and active-monitor transparency: may pair with SLC-051 only if BP3 proves target proof and minimal HUD preview are inseparable and still safe. The HUD card must stay small, quick-access, low-clutter, and avoid redundant current-overlay / recording-overlay text when both values are intentionally the same.",
-            "SLC-053 - standalone Recording Control window foundation: create the compact independent control surface and route bulky settings to secondary surfaces when approved.",
+            "SLC-052 - Dashboard Recording card target/status placement: may pair with SLC-051 only if BP3 proves target proof and the dedicated Dashboard Recording card are inseparable and still safe. The card must stay small, low-clutter, and clear while the HUD Overlay card remains overlay-focused.",
+            "SLC-053 - secondary Recording Control/detail surface decision: create or retain a compact independent control surface only if BP2/BP3 prove it remains necessary after the Dashboard Recording card becomes primary.",
             "SLC-054 - durable recording output contract: may define a deterministic graph/plot-ready output contract and readback expectations, but BP2 does not approve recording file writing, output-file creation, output-file proof, export/share, or recording execution.",
             "SLC-055 - validation/live proof readiness: wire H1, LV, screenshot/photo comparison, UTS, stale-target, rollback, and future-gated boundary proof.",
         ]
@@ -2516,11 +2547,11 @@ def _write_user_branch_plan_review(
             "",
             "## Contract Version / Revision",
             "",
-            "v2 - FAM-006 BP2 engineering plan revised after USER/ChatGPT review to tighten file ownership, SLC-054 boundaries, HUD low-redundancy behavior, snapshot-at-start proof concepts, and first-seam recommendation while keeping BP2 pending USER review.",
+            "v3 - FAM-006 BP2 engineering plan must be revised after returned Live Validation feedback to move recording target/status into a dedicated Dashboard Recording card, preserve HUD Overlay focus, tighten file ownership, SLC-054 boundaries, snapshot-at-start proof concepts, and first-seam recommendation while keeping BP2 pending USER review.",
             "",
             "## Plain-English Branch Summary",
             "",
-            "FAM-006 will build recording around the active Overlay Profile the USER already uses. The accepted vision is not a separate Recording Profile chooser: the active Overlay Profile supplies the target, the HUD Overlay card stays small and clear, and the standalone Recording Control window carries richer target/status/control detail after later implementation approval.",
+            "FAM-006 will build recording around the active Overlay Profile the USER already uses. The accepted vision is not a separate Recording Profile chooser: the active Overlay Profile supplies the target, a dedicated Dashboard Recording card owns recording target/status and future controls, and the HUD Overlay card stays overlay-focused after later implementation approval.",
             "",
             "## Accepted Branch Vision Summary",
             "",
@@ -2528,7 +2559,7 @@ def _write_user_branch_plan_review(
             "",
             "## Implementation Package Summary",
             "",
-            "The branch should remain one coherent active-overlay recording package because target state, HUD visibility, Recording Control behavior, output contract, and validation proof all depend on each other. BP2 plans that package; BP3 must still validate orchestration before any implementation approval can be offered.",
+            "The branch should remain one coherent active-overlay recording package because target state, Dashboard Recording card visibility, HUD Overlay preservation, optional secondary detail behavior, output contract, and validation proof all depend on each other. BP2 plans that package; BP3 must still validate orchestration before any implementation approval can be offered.",
             "",
             "## Branch Scope Size Test",
             "",
@@ -2570,7 +2601,7 @@ def _write_user_branch_plan_review(
             "",
             "## Element-To-Phase Proof Matrix",
             "",
-            "- BP1 accepted vision: active Overlay Profile target source, snapshot-at-start default, minimal HUD card, richer Recording Control window, hidden target rejection, rejected separate Recording Profile.",
+            "- BP1 accepted vision: active Overlay Profile target source, snapshot-at-start default, dedicated Dashboard Recording card, HUD Overlay preservation, hidden target rejection, rejected separate Recording Profile.",
             "- BP2 plan: this file maps those accepted vision lines into SLC-051 through SLC-055, affected surfaces, validators, proof outputs, risks, and rollback posture.",
             "- BP3 orchestration: must verify that BP2 traces to BP1 and can recommend the first bounded implementation seam without granting implementation by itself.",
             "- Workstream: runtime/code implementation only after BP3 and a separate USER implementation approval.",
@@ -2579,7 +2610,7 @@ def _write_user_branch_plan_review(
             "",
             "## H1 Expectations",
             "",
-            "- H1 must stress active target states, compact HUD/Recording Control layout, stale/missing target behavior, Dashboard/Overlay Profile/Overlay Display/Monitor Group regressions, output contract determinism if admitted, and future-gated boundary preservation.",
+            "- H1 must stress active target states, compact Dashboard Recording card layout, HUD Overlay non-regression, stale/missing target behavior, Dashboard/Overlay Profile/Overlay Display/Monitor Group regressions, output contract determinism if admitted, and future-gated boundary preservation.",
             "",
             "## LV / UTS Expectations",
             "",
@@ -2597,8 +2628,8 @@ def _write_user_branch_plan_review(
             "",
             "- The exact runtime owner files for active Overlay Profile state, target/session model state, and future recording output must be confirmed during BP3 before implementation.",
             "- Snapshot-at-start must be explained clearly enough that USER understands sensors added mid-recording are next-session eligible.",
-            "- A small HUD card may become cluttered if it repeats current-overlay / recording-overlay labels that are intentionally the same or tries to show details that belong in Recording Control.",
-            "- Recording Control can become bulky unless secondary settings/details surfaces are used for advanced fields.",
+            "- A small Dashboard Recording card may become cluttered if it tries to show debug/proof detail instead of concise target/status and future controls.",
+            "- Secondary recording-detail surfaces can become bulky unless BP2/BP3 keep advanced fields explicitly future-gated.",
             "- File-writing must not be admitted through target-preview or UI-shell work by accident.",
             "",
             "## Future-Gated Boundaries",
@@ -2618,7 +2649,7 @@ def _write_user_branch_plan_review(
             "- SLC-051 through SLC-055 remain the engineering route inside this branch, not automatic separate branches.",
             "- Runtime implementation remains blocked until BP3 is green and USER separately approves implementation.",
             "- The plan preserves active-overlay-driven recording and rejects hidden target state and separate Recording Profile drift.",
-            "- Proof covers target preview, Recording Control window, target-state, stale/missing-target, rollback, H1, LV, and UTS expectations.",
+            "- Proof covers Dashboard Recording card target/status, HUD Overlay non-regression, target-state, stale/missing-target, rollback, H1, LV, and UTS expectations.",
             "",
             "## Exact BP3 Approval Text When Ready",
             "",
@@ -2626,17 +2657,17 @@ def _write_user_branch_plan_review(
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
-            "After later BP3 and implementation approval, USER should see concise target/status information and an Open Recording Control path in the HUD Overlay card, then richer target/readiness/status/control detail in a compact standalone Recording Control window. This BP2 packet itself changes no runtime UI.",
+            "After later BP3 and implementation approval, USER should see concise target/status information in a dedicated Dashboard Recording card while the HUD Overlay card remains overlay-focused. This BP2 packet itself changes no runtime UI.",
             "",
             "## End-State Vision",
             "",
-            "The accepted end state is a recording foundation that feels connected to the overlay USER already chose: active Overlay Profile membership defines the future target, Start later locks a snapshot of that target, the HUD card gives quick access without clutter, Recording Control explains richer target/readiness/status detail, and completed logs can later feed a separate Native Log Loader.",
+            "The revised end state is a recording foundation that feels connected to the overlay USER already chose: active Overlay Profile membership defines the future target, Start later locks a snapshot of that target, the Dashboard Recording card explains target/readiness/status and future controls, the HUD Overlay card remains overlay-focused, and completed logs can later feed a separate Native Log Loader.",
             "",
             "## Visual / Functional Walkthrough",
             "",
             "- USER has or selects an active Overlay Profile.",
-            "- HUD Overlay card previews concise recording target/status without redundant current-overlay / recording-overlay detail when the values are intentionally identical.",
-            "- USER opens Recording Control for richer target/readiness/status detail.",
+            "- Dashboard Recording card previews concise recording target/status without cluttering the Overlay card.",
+            "- USER keeps the HUD Overlay card focused on overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions.",
             "- When recording execution is later admitted, Start snapshots the target membership at that moment.",
             "- Sensors added during an active recording wait for the next session.",
             "- Completed logs are designed for future graphing by Native Log Loader, but the loader remains separate/future.",
@@ -2654,7 +2685,7 @@ def _write_user_branch_plan_review(
             "",
             "## Recommended Direction",
             "",
-            "Codex recommends BP3 validate SLC-051 Active Overlay recording target foundation as the first bounded Workstream seam. SLC-052 minimal HUD preview may be paired only if BP3 proves target proof and minimal preview are inseparable and still safe. Recording Control window, SLC-054 output contract, file writing, Start/Stop controls, tray controls, and export/share should remain later seams unless separately justified and approved. The tradeoff is slower path to real recording, but it sharply reduces hidden-target and file-writing drift.",
+            "Codex recommends BP3 validate SLC-051 Active Overlay recording target foundation as the first bounded Workstream seam. SLC-052 Dashboard Recording card target/status may be paired only if BP3 proves target proof and the dedicated card are inseparable and still safe. Any secondary Recording Control surface, SLC-054 output contract, file writing, Start/Stop controls, tray controls, and export/share should remain later seams unless separately justified and approved. The tradeoff is slower path to real recording, but it sharply reduces hidden-target and file-writing drift.",
             "",
             "## Why This Fits The Nexus Vision",
             "",
@@ -2781,8 +2812,9 @@ def _write_user_branch_plan_review(
             "- Derive the engineering plan from the accepted or waived BP1 Branch Vision.",
             "- Preserve active-overlay-driven recording as the branch identity.",
             "- Keep the active Overlay Profile as the future recording target source.",
-            "- Keep the HUD Overlay card as launcher and target/status preview.",
-            "- Keep the standalone Recording Control window as the compact future control surface.",
+            "- Move recording target/status and future recording-specific controls to a dedicated Dashboard Recording card.",
+            "- Keep the HUD Overlay card focused on overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions.",
+            "- Treat any standalone Recording Control window or secondary recording-detail surface as future/secondary until BP2/BP3 admit it.",
             "- Keep Native Log Loader as a separate future graph/log viewer unless USER later changes source truth.",
             "- Treat SLC-051 through SLC-055 as the engineering route inside this branch after BP1 closes.",
             "- Keep runtime implementation, recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, FAM-007 mutation, PR creation, merge, release, issue mutation, cleanup, and Governance mutation blocked unless separately approved.",
@@ -2793,11 +2825,11 @@ def _write_user_branch_plan_review(
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
-            "After later approvals and implementation, USER should see recording target/status in the HUD Overlay card and use a compact standalone Recording Control window. This BP1/BP2 planning packet itself changes no runtime UI.",
+            "After later approvals and implementation, USER should see recording target/status in a dedicated Dashboard Recording card. The HUD Overlay card should remain overlay-focused. This BP1/BP2 planning packet itself changes no runtime UI.",
             "",
             "## End-State Vision",
             "",
-            "The desired end state is recording that feels connected to the overlay USER already selected: active Overlay Profile membership defines the future target, the HUD Overlay card previews and launches recording control, and Native Log Loader remains a separate future graph/log viewer.",
+            "The desired end state is recording that feels connected to the overlay USER already selected: active Overlay Profile membership defines the future target, a small Dashboard Recording card previews recording target/status and later owns recording-specific controls, the HUD Overlay card remains overlay-focused, and Native Log Loader remains a separate future graph/log viewer.",
             "",
             "## Visual / Functional Walkthrough",
             "",
@@ -2807,8 +2839,9 @@ def _write_user_branch_plan_review(
             "",
             "## Surface Map",
             "",
-            "- HUD Overlay card: future launcher and target/status preview.",
-            "- Recording Control window: future compact standalone control surface.",
+            "- Dashboard Recording card: future recording target/status and recording-specific control surface.",
+            "- HUD Overlay card: overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions.",
+            "- Recording Control window or secondary recording detail surface: future/secondary only if BP2/BP3 admit it.",
             "- Overlay Profile: future recording target source.",
             "- Monitor Group and Sensor Command Center: preserved source organization surfaces.",
             "- Native Log Loader: separate future graph/log viewer.",
@@ -2816,13 +2849,13 @@ def _write_user_branch_plan_review(
             "## Implementation Options",
             "",
             "- Option A - target model proof first after BP3 and implementation approval.",
-            "- Option B - HUD target preview after target model proof.",
-            "- Option C - standalone Recording Control window shell after the target concept is stable.",
+            "- Option B - Dashboard Recording card target/status after target model proof.",
+            "- Option C - secondary Recording Control/detail surface only after Dashboard Recording card placement is accepted and planned.",
             "- Option D - live Start/Stop and file writing only after explicit runtime execution approval.",
             "",
             "## Recommended Direction",
             "",
-            "Codex recommends preserving target-model-first implementation planning, then HUD preview, then standalone Recording Control, then output/proof work after BP1, BP2, BP3, and separate implementation approval legally close.",
+            "Codex recommends preserving target-model-first implementation planning, then Dashboard Recording card placement and HUD Overlay non-regression proof, then any secondary recording-detail surface only if BP2/BP3 admit it, then output/proof work after BP1, BP2, BP3, and separate implementation approval legally close.",
             "",
             "## Why This Fits The Nexus Vision",
             "",
@@ -3016,29 +3049,29 @@ def _write_user_branch_plan_review(
             "This branch is setting up the corrected FAM-006 recording direction: "
             "recording should be driven by the currently active Overlay Profile, "
             "not by loading a separate Recording Profile. The intended future "
-            "feature uses the HUD Overlay card as the launcher and target/status "
-            "preview, a compact standalone Recording Control window as the control "
-            "surface, and a separate future Native Log Loader for graph/log viewing."
+            "feature uses a dedicated Dashboard Recording card for target/status "
+            "preview and future controls, keeps the HUD Overlay card overlay-focused, "
+            "and keeps a separate future Native Log Loader for graph/log viewing."
         )
         end_state_vision = (
-            "When this branch's admitted package is complete, the HUD Overlay card should make "
+            "When this branch's admitted package is complete, the Dashboard Recording card should make "
             "recording feel tied to the overlay the user already chose. The user should understand "
-            "which active Overlay Profile members are the intended recording target, launch a compact "
-            "standalone Recording Control window from the HUD Overlay card, and keep graph/log viewing "
-            "separate in a future Native Log Loader. Actual file writing and real Start/Stop remain "
-            "separately approved."
+            "which active Overlay Profile members are the intended recording target, keep the HUD Overlay "
+            "card focused on overlay behavior, and keep graph/log viewing separate in a future Native "
+            "Log Loader. Actual file writing and real Start/Stop remain separately approved."
         )
         walkthrough = [
-            "Dashboard / HUD Overlay card: the recording area should sit inside the existing HUD Overlay card as launcher and target/status preview before Start/Stop execution is admitted.",
+            "Dashboard Recording card: the recording area should live in its own small Dashboard card as target/status preview before Start/Stop execution is admitted.",
             "Active Overlay Profile membership: the selected overlay's active members become the future recording target; no separate Recording Profile selector is introduced.",
             "Target visibility: SLC-051 should prove null, empty, selected, switched, deleted/stale, duplicate/stale-ID, and high-volume target states before visible controls depend on that model.",
-            "Recording Control window: later seams plan a small independent NDAI/Windows window that can be moved, minimized, taskbar-restored, and kept open outside Dashboard child-window lifetime.",
+            "Secondary recording detail surface: later seams may plan a small independent NDAI/Windows window only if BP2/BP3 prove the Dashboard Recording card should not carry those details.",
             "Secondary settings/details windows: bulky or advanced settings should open outside the compact control surface when USER later approves them.",
             "Output contract and Native Log Loader: later seams plan graph/plot-ready files, while Native Log Loader remains a separate future viewer unless USER separately admits it.",
         ]
         surface_map = [
-            "HUD Overlay card: launcher and active target/status preview surface.",
-            "Recording Control window: compact standalone control surface for future target summary, Start/Stop, and path/status controls after approval.",
+            "Dashboard Recording card: active target/status preview surface and future recording-specific controls after approval.",
+            "HUD Overlay card: overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions.",
+            "Secondary recording detail surface: compact standalone surface only if BP2/BP3 admit it after Dashboard Recording card placement is accepted.",
             "Dashboard: hosts the HUD Overlay card and must not regress existing Dashboard behavior.",
             "Manage Monitors / Sensor Command Center: remain monitor/source management owners; recording target proof must not mutate their state.",
             "Overlay Profile / Overlay Display: remain display and membership owners; recording reads active membership without taking ownership.",
@@ -3049,13 +3082,13 @@ def _write_user_branch_plan_review(
         ]
         implementation_options = [
             "Option A - Target model proof first: prove the active-overlay recording target model before visible controls depend on it. Pros: safest foundation; Cons: least visible at first; Risk: low. Codex recommends this first.",
-            "Option B - Target preview in HUD card: show active target/status preview in the HUD Overlay card after or alongside safe target proof. Pros: strong user clarity; Cons: needs visual proof; Risk: low to medium.",
-            "Option C - Standalone Recording Control window shell first: build the compact OS-level window before target proof is complete. Pros: validates window feel early; Cons: weaker target-model foundation; Risk: medium.",
+            "Option B - Dashboard Recording card target/status: show active target/status preview in a dedicated Dashboard card after or alongside safe target proof. Pros: strong user clarity; Cons: needs visual proof; Risk: low to medium.",
+            "Option C - Secondary Recording Control/detail shell later: build the compact OS-level window only if Dashboard card proof shows a secondary surface is still needed. Pros: keeps advanced detail out of the small card; Cons: weaker first-pass simplicity; Risk: medium.",
             "Option D - Live Start/Stop planning later: plan real controls only after recording execution and file writing are admitted. Pros: avoids fake execution; Cons: later visible payoff; Risk: low when deferred.",
         ]
         recommended_direction = (
             "Codex recommends Option A first: establish the active Overlay Profile target model, "
-            "then use later seams for HUD target preview, the standalone Recording Control window, "
+            "then use later seams for Dashboard Recording card target/status, HUD Overlay non-regression, any admitted secondary recording detail surface, "
             "output-file contract, and live/user proof. For future recording execution, Codex "
             "recommends snapshot-at-recording-start by default unless USER revises it, while SLC-051 "
             "proves the live current active-overlay target because no recording is occurring yet."
@@ -3076,7 +3109,7 @@ def _write_user_branch_plan_review(
         slc_package_plan = [
             "Implementation staging note, not the USER decision surface: Codex uses SLC-051 through SLC-055 internally to sequence the accepted end-state safely.",
             "Target model comes first because every later UI/control/output behavior depends on knowing what would be recorded.",
-            "HUD target preview, Recording Control window, output contract, and validation/live proof follow as staged implementation only after the end-state and boundaries are accepted.",
+            "Dashboard Recording card target/status, HUD Overlay non-regression, optional secondary recording detail surface, output contract, and validation/live proof follow as staged implementation only after the end-state and boundaries are accepted.",
         ]
         user_decisions = [
             "Does USER approve PR Readiness Stage 1 analysis for this planning/governance branch?",
@@ -4430,8 +4463,8 @@ def _write_workstream_entry_packet_digests(
             "## Accepted BP1 To Accepted BP2 Trace\n\n"
             "- PASS - accepted BP1 says active Overlay Profile membership is the recording target source.\n"
             "- PASS - accepted BP2 keeps snapshot-at-start as the future recording target model.\n"
-            "- PASS - accepted BP2 keeps the HUD Overlay recording card low-redundancy and quick-access.\n"
-            "- PASS - accepted BP2 keeps Recording Control as the richer target/readiness/status/control surface.\n"
+            "- PENDING REVISION - BP2 must be revised so the Dashboard Recording card owns recording target/status and future recording controls.\n"
+            "- PENDING REVISION - BP2 must preserve the HUD Overlay card as overlay-focused and classify any Recording Control window as future/secondary unless re-admitted.\n"
             "- PASS - accepted BP2 rejects hidden recording target state and a separate Recording Profile system.\n\n"
             "## File Ownership Verification\n\n"
             "- `desktop/ui/dashboard_hud_panel.py`: NOT A CURRENT FILE - treat as stale/proposed path, not an implementation owner.\n"
@@ -4445,7 +4478,7 @@ def _write_workstream_entry_packet_digests(
             "## SLC-051 First-Seam Recommendation\n\n"
             "Recommend SLC-051 Active Overlay recording target foundation as the first bounded Workstream seam after USER approves BP3 and then separately approves implementation. The first seam should prove target/session truth only: active Overlay Profile ID/name, membership snapshot candidate, null/empty/stale/deleted/missing profile behavior, high-volume membership behavior, and no hidden recording target state.\n\n"
             "## SLC-052 Pairing Assessment\n\n"
-            "Do not pair SLC-052 by default. Pair only a minimal read-only HUD target preview with SLC-051 if implementation preflight proves the target proof cannot be inspected without a small HUD preview and the combined change still avoids Start/Stop, file writing, tray controls, export/share, Recording Control window work, and recording execution.\n\n"
+            "Do not pair SLC-052 by default. Pair only a minimal read-only Dashboard Recording card target/status surface with SLC-051 if implementation preflight proves the target proof cannot be inspected without a small dedicated card and the combined change still avoids Start/Stop, file writing, tray controls, export/share, secondary Recording Control work, and recording execution.\n\n"
             "## Implementation Order For SLC-051\n\n"
             "1. Verify the current owner for active Overlay Profile ID/name, membership, deleted/stale fallback, empty membership behavior, and monitor membership normalization.\n"
             "2. Add or adapt the smallest target/session model surface needed to represent the future recording target without starting recording execution.\n"
@@ -4497,7 +4530,7 @@ def _write_workstream_entry_packet_digests(
         checklist_status = (
             "Checklist Focus: for FAM-006 BP3 review - accepted BP1/BP2 trace, actual file ownership, "
             "SLC-051 first-seam recommendation, SLC-052 pairing restraint, snapshot-at-start, "
-            "low-redundancy HUD card rule, richer Recording Control boundary, no-hidden-target rule, "
+            "Dashboard Recording card rule, HUD Overlay preservation, secondary Recording Control boundary, no-hidden-target rule, "
             "SLC-054 output-contract-only boundary, validators, rollback, H1, LV, and UTS expectations."
         )
         digest_status = (
@@ -4528,8 +4561,8 @@ def _write_workstream_entry_packet_digests(
         )
         checklist_status = (
             "Checklist Focus: for FAM-006 BP2 review - accepted BP1 trace, active-overlay-driven "
-            "recording identity, snapshot-at-start target model, HUD Overlay launcher/target preview, "
-            "compact standalone Recording Control window plan, SLC-051 through SLC-055 route, H1/LV/UTS "
+            "recording identity, snapshot-at-start target model, Dashboard Recording card target/status, "
+            "HUD Overlay preservation, secondary Recording Control boundary, SLC-051 through SLC-055 route, H1/LV/UTS "
             "proof expectations, BP2/BP3 separation, and runtime implementation blockers are represented "
             "for USER inspection."
         )
@@ -4561,8 +4594,8 @@ def _write_workstream_entry_packet_digests(
         )
         checklist_status = (
             "Checklist Focus: for FAM-006 BP1 review - active-overlay-driven recording identity, "
-            "active Overlay Profile target source, HUD Overlay launcher/target preview, compact "
-            "standalone Recording Control window direction, Native Log Loader future boundary, "
+            "active Overlay Profile target source, Dashboard Recording card target/status, "
+            "HUD Overlay preservation, optional secondary Recording Control boundary, Native Log Loader future boundary, "
             "per-overlay polling-policy future constraint, BP1/BP2/BP3 separation, and runtime "
             "implementation blockers are represented for USER inspection."
         )
@@ -5407,8 +5440,18 @@ def build_bundle(
         "pr readiness stage 1 analysis" in exact_user_decision.casefold()
     )
     normalized_decision = exact_user_decision.casefold()
+    fam006_bp1_amendment_packet = (
+        source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
+        and "bp1" in normalized_decision
+        and (
+            "branch vision amendment" in normalized_decision
+            or "branch vision review" in normalized_decision
+            or "dashboard recording card" in normalized_decision
+        )
+    )
     fam006_bp3_packet = (
         source_branch == FAM006_ACTIVE_OVERLAY_IMPLEMENTATION_BRANCH
+        and not fam006_bp1_amendment_packet
         and (
             "bp3" in normalized_decision
             or "workstream entry" in normalized_decision
@@ -5422,6 +5465,7 @@ def build_bundle(
             or "bp2 branch plan" in normalized_decision
             or "accept the bp2" in normalized_decision
         )
+        and not fam006_bp1_amendment_packet
         and not fam006_bp3_packet
     )
     fam006_bp1_packet = (
