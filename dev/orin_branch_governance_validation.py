@@ -25,6 +25,7 @@ _GITHUB_API_TOKEN_LOADED = False
 
 PHASES = (
     "Branch Readiness",
+    "Branch Planning",
     "Workstream",
     "Hardening",
     "Live Validation",
@@ -156,6 +157,7 @@ USER_VISION_INPUT_HANDOFF_HEADING = "USER Vision Input Handoff"
 USER_VISION_INPUT_ARTIFACT_PATH = Path(r"C:\Users\anden\OneDrive\Desktop\User Vision Input.txt")
 PRODUCT_PLANNING_ENFORCED_PHASES = {
     "Branch Readiness",
+    "Branch Planning",
     "Workstream",
     "Hardening",
     "Live Validation",

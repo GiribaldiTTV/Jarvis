@@ -100,10 +100,11 @@
       "expectedStatus": "implementation-ready",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.\nDecision Path Summary: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
       }
     },
     {
@@ -116,10 +117,11 @@
       "expectedStatus": "implementation-ready",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.\nDecision Path Summary: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nHistorical Context: Branch Readiness Stage 2 created this carrier earlier.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
       }
     },
     {
@@ -132,10 +134,11 @@
       "expectedStatus": "implementation-ready",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.\nDecision Path Summary: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\n\n## Pending USER Decisions\n\n- Merge.\n- Release.\n- Private Dev repo creation.\n- Private Owner repo creation.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nUSER Decision: Approve bounded Workstream implementation for the FAM-007 Dev/Owner skeleton readiness foundation.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream implementation approval - bounded Workstream implementation is approved by this packet decision path.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
       }
     },
     {
@@ -183,10 +186,11 @@
       "expectedFailureContains": "technical metadata source-branch-field",
       "files": {
         "START_HERE.md": "Source Branch: `feature/fam-007-ai-edition-public-leak-prevention-foundation`\nReview Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
       }
     },
     {
@@ -233,10 +237,11 @@
       "expectedFailureContains": "USER Decision This Packet Supports",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
       }
     },
     {
@@ -284,10 +289,11 @@
       "expectedStatus": "workstream-entry-final-review",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
       }
     },
     {
@@ -300,10 +306,11 @@
       "expectedStatus": "live-validation-final-review",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve bounded PR Readiness Stage 1 analysis.\nDecision Path Summary: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nUSER Decision: Approve bounded PR Readiness Stage 1 analysis.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nUSER Decision: Approve bounded PR Readiness Stage 1 analysis.\nAnalysis Summary: Live Validation LV1 is green.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.\nChecklist Focus: Live Validation LV1 is green."
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nUSER Decision: Approve bounded PR Readiness Stage 1 analysis.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nUSER Decision: Approve bounded PR Readiness Stage 1 analysis.\nAnalysis Summary: Live Validation LV1 is green.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: live validation final decision review - Live Validation LV1 is green; PR Readiness Stage 1 remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.\nChecklist Focus: Live Validation LV1 is green.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
       }
     },
     {
@@ -316,10 +323,11 @@
       "expectedStatus": "pr-readiness-stage2-review",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: I approve PR Readiness Stage 2 / PR creation for the FAM-007 Breakpoint 2 carrier.\nDecision Path Summary: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nUSER Decision: I approve PR Readiness Stage 2 / PR creation for the FAM-007 Breakpoint 2 carrier.",
-        "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
-        "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nUSER Decision: I approve PR Readiness Stage 2 / PR creation for the FAM-007 Breakpoint 2 carrier.\nAnalysis Summary: PR Readiness Stage 1 Ready For Stage 2.",
-        "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.\nChecklist Focus: PR Readiness Stage 2 PR creation."
+        "Review Aids/USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nUSER Decision: I approve PR Readiness Stage 2 / PR creation for the FAM-007 Breakpoint 2 carrier.",
+        "Review Aids/GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
+        "USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nUSER Decision: I approve PR Readiness Stage 2 / PR creation for the FAM-007 Breakpoint 2 carrier.\nAnalysis Summary: PR Readiness Stage 1 Ready For Stage 2.",
+        "Review Aids/BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: pr readiness stage2 review - PR Readiness Stage 1 Ready For Stage 2; PR creation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented.\nChecklist Focus: PR Readiness Stage 2 PR creation.",
+        "Source Truth Context/README.md": "Synthetic source truth context for structured packet canary."
       }
     }
   ],
