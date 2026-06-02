@@ -28,6 +28,8 @@ const monitoringHudOverlayProfileLabel = document.getElementById("monitoring-hud
 const monitoringHudOverlayProfileMenu = document.getElementById("monitoring-hud-overlay-profile-menu");
 const monitoringHudOverlayProfileMonitorCount = document.getElementById("monitoring-hud-overlay-profile-monitor-count");
 const monitoringHudOverlayProfileDisplayMode = document.getElementById("monitoring-hud-overlay-profile-display-mode");
+const monitoringHudRecordingCard = document.querySelector('[data-dashboard-hub-card="recording"]');
+const monitoringHudRecordingCardSummary = document.getElementById("monitoring-hud-recording-card-summary");
 const monitoringHudRecordingTargetPreview = document.getElementById("monitoring-hud-recording-target-preview");
 const monitoringHudRecordingTargetProfile = document.getElementById("monitoring-hud-recording-target-profile");
 const monitoringHudRecordingTargetCount = document.getElementById("monitoring-hud-recording-target-count");
@@ -387,17 +389,33 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
   const targetLabel = monitoringHudActiveOverlayRecordingTargetLabel(target);
   const targetNames = monitoringHudActiveOverlayRecordingTargetNames(target, monitoringHudControlState.cards || {});
   const recordingControlRequested = Boolean(monitoringHudControlState.recordingControlWindowRequested);
+  if (monitoringHudRecordingCard) {
+    monitoringHudRecordingCard.dataset.recordingCardPlacement = "dashboard-recording-card-primary";
+    monitoringHudRecordingCard.dataset.recordingSurfaceOwner = "dashboard-card-not-hud-overlay";
+    monitoringHudRecordingCard.dataset.activeOverlayProfileId = String(target.activeOverlayProfileId || "");
+    monitoringHudRecordingCard.dataset.activeOverlayRecordingTargetState = String(target.targetState || "no-overlay-profiles");
+    monitoringHudRecordingCard.dataset.activeOverlayRecordingTargetCount = String(count);
+    monitoringHudRecordingCard.dataset.recordingExecutionState = "blocked";
+    monitoringHudRecordingCard.dataset.recordingFileWritingState = "blocked";
+    monitoringHudRecordingCard.dataset.recordingControlSurfaceState = "future-gated";
+    monitoringHudRecordingCard.dataset.hudOverlayRecordingBoundary = "hud-overlay-overlay-focused";
+  }
   if (monitoringHudRecordingTargetPreview) {
-    monitoringHudRecordingTargetPreview.dataset.recordingTargetPreview = "slc-052-hud-overlay-launcher-target-preview";
+    monitoringHudRecordingTargetPreview.dataset.recordingTargetPreview = "slc-052-dashboard-recording-card-target-status";
     monitoringHudRecordingTargetPreview.dataset.activeOverlayProfileId = String(target.activeOverlayProfileId || "");
     monitoringHudRecordingTargetPreview.dataset.activeOverlayRecordingTargetState = String(target.targetState || "no-overlay-profiles");
     monitoringHudRecordingTargetPreview.dataset.activeOverlayRecordingTargetCount = String(count);
-    monitoringHudRecordingTargetPreview.dataset.activeMonitorTransparency = "slc-052-visible-count-and-names";
+    monitoringHudRecordingTargetPreview.dataset.activeMonitorTransparency = "slc-052-dashboard-visible-count-and-names";
+    monitoringHudRecordingTargetPreview.dataset.recordingCardPlacement = "dashboard-recording-card-primary";
+    monitoringHudRecordingTargetPreview.dataset.hudOverlayRecordingBoundary = "hud-overlay-overlay-focused";
     monitoringHudRecordingTargetPreview.dataset.recordingExecutionState = "blocked";
     monitoringHudRecordingTargetPreview.dataset.recordingFileWritingState = "blocked";
-    monitoringHudRecordingTargetPreview.dataset.recordingControlWindowState = recordingControlRequested ? "native-window-requested" : "ready-to-open-native-window";
-    monitoringHudRecordingTargetPreview.dataset.recordingControlWindowContract = "slc-053-standalone-normal-os-window";
+    monitoringHudRecordingTargetPreview.dataset.recordingControlWindowState = "future-secondary";
+    monitoringHudRecordingTargetPreview.dataset.recordingControlWindowContract = "future-secondary-surface";
     monitoringHudRecordingTargetPreview.dataset.trayRecordingControlState = "not-created";
+  }
+  if (monitoringHudRecordingCardSummary) {
+    monitoringHudRecordingCardSummary.textContent = "Recording target/status follows the active Overlay Profile. Recording execution, file writing, and Start/Stop controls remain future-gated.";
   }
   if (monitoringHudRecordingTargetProfile) {
     monitoringHudRecordingTargetProfile.textContent = activeProfileName;
@@ -409,14 +427,14 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingTargetSummary.textContent = `${targetLabel}: ${targetNames}. Recording execution and file writing are not enabled.`;
   }
   if (monitoringHudRecordingControlLauncher) {
-    monitoringHudRecordingControlLauncher.disabled = false;
-    monitoringHudRecordingControlLauncher.removeAttribute("aria-disabled");
-    monitoringHudRecordingControlLauncher.dataset.recordingControlWindowState = recordingControlRequested ? "native-window-requested" : "request-native-window";
-    monitoringHudRecordingControlLauncher.dataset.recordingControlWindowContract = "slc-053-standalone-normal-os-window";
-    monitoringHudRecordingControlLauncher.dataset.nativeWindowContract = "standalone-normal-os-window";
+    monitoringHudRecordingControlLauncher.disabled = true;
+    monitoringHudRecordingControlLauncher.setAttribute("aria-disabled", "true");
+    monitoringHudRecordingControlLauncher.dataset.recordingControlWindowState = "future-secondary";
+    monitoringHudRecordingControlLauncher.dataset.recordingControlWindowContract = "future-secondary-surface";
+    monitoringHudRecordingControlLauncher.dataset.nativeWindowContract = "future-secondary-surface";
     monitoringHudRecordingControlLauncher.dataset.recordingExecutionState = "blocked";
     monitoringHudRecordingControlLauncher.dataset.recordingFileWritingState = "blocked";
-    monitoringHudRecordingControlLauncher.textContent = recordingControlRequested ? "Recording Control Requested" : "Open Recording Control";
+    monitoringHudRecordingControlLauncher.textContent = "Recording Controls Future";
   }
   return {
     activeProfileName,
@@ -425,7 +443,8 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     targetNames,
     recordingExecutionState: "blocked",
     fileWritingState: "blocked",
-    recordingControlWindowState: recordingControlRequested ? "native-window-requested" : "ready-to-open-native-window",
+    recordingCardPlacement: "dashboard-recording-card-primary",
+    recordingControlWindowState: "future-secondary",
   };
 }
 
@@ -433,10 +452,10 @@ function monitoringHudRequestRecordingControlWindow() {
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   const target = monitoringHudControlState.activeOverlayRecordingTarget
     || monitoringHudBuildActiveOverlayRecordingTargetSnapshot(monitoringHudControlState);
-  monitoringHudControlState.recordingControlWindowRequested = true;
+  monitoringHudControlState.recordingControlWindowRequested = false;
   monitoringHudControlState.recordingControlWindowRequestId = Date.now();
-  monitoringHudControlState.recordingControlWindowContract = "slc-053-standalone-normal-os-window";
-  monitoringHudControlState.recordingControlWindowState = "native-window-requested";
+  monitoringHudControlState.recordingControlWindowContract = "future-secondary-surface";
+  monitoringHudControlState.recordingControlWindowState = "future-secondary";
   monitoringHudControlState.recordingControlWindowTargetSummary = {
     activeOverlayProfileId: target.activeOverlayProfileId || "",
     activeOverlayProfileName: target.activeOverlayProfileName || "",
@@ -449,7 +468,7 @@ function monitoringHudRequestRecordingControlWindow() {
   };
   monitoringHudRenderControls();
   monitoringHudMarkChanged();
-  return true;
+  return false;
 }
 
 function monitoringHudNormalizeOverlayProfileState(state) {
@@ -1077,8 +1096,8 @@ let monitoringHudControlState = {
   overlayProfiles: {},
   recordingControlWindowRequested: false,
   recordingControlWindowRequestId: 0,
-  recordingControlWindowContract: "slc-053-standalone-normal-os-window",
-  recordingControlWindowState: "closed",
+  recordingControlWindowContract: "future-secondary-surface",
+  recordingControlWindowState: "future-secondary",
   recordingControlWindowTargetSummary: null,
   changedAt: Date.now()
 };
@@ -3685,7 +3704,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
     monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
     monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
-    monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness";
+    monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness";
     monitoringHud.dataset.dashboardSettingsAffordance = "dashboard-ia-card-settings-button";
     monitoringHud.dataset.dashboardSettingsPanel = "settings-panel-child-window";
     monitoringHud.dataset.dashboardSettingsProof = "visible-open-close-control-hit-target";
@@ -3927,7 +3946,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
     monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
     monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
-    monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness";
+    monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness";
     monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment";
     monitoringHud.dataset.dashboardMonitorCardPolicy = "overlay-display-owns-visual-rendering";
     monitoringHud.dataset.dashboardOverlayIndependence = "slc-044-dashboard-overlay-independent";
@@ -4029,10 +4048,12 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.hiddenRecordingTargetState = activeRecordingTarget.hiddenRecordingTargetState || "absent";
   monitoringHud.dataset.recordingExecutionState = activeRecordingTarget.recordingExecutionState || "blocked";
   monitoringHud.dataset.recordingFileWritingState = activeRecordingTarget.fileWritingState || "blocked";
-  monitoringHud.dataset.recordingTargetPreview = "slc-052-hud-overlay-launcher-target-preview";
-  monitoringHud.dataset.recordingControlWindowState = monitoringHudControlState.recordingControlWindowRequested ? "native-window-requested" : "ready-to-open-native-window";
-  monitoringHud.dataset.recordingControlWindowContract = "slc-053-standalone-normal-os-window";
-  monitoringHud.dataset.activeMonitorTransparency = "slc-052-visible-count-and-names";
+  monitoringHud.dataset.recordingTargetPreview = "slc-052-dashboard-recording-card-target-status";
+  monitoringHud.dataset.recordingCardPlacement = "dashboard-recording-card-primary";
+  monitoringHud.dataset.hudOverlayRecordingBoundary = "hud-overlay-overlay-focused";
+  monitoringHud.dataset.recordingControlWindowState = "future-secondary";
+  monitoringHud.dataset.recordingControlWindowContract = "future-secondary-surface";
+  monitoringHud.dataset.activeMonitorTransparency = "slc-052-dashboard-visible-count-and-names";
   monitoringHudRenderActiveOverlayRecordingTargetPreview();
   monitoringHud.dataset.warningControlPosture = monitoringHudControlState.warningNotificationsMuted
     ? "global-muted"
@@ -4305,7 +4326,12 @@ function monitoringHudWireControls() {
     });
   }
   if (monitoringHudRecordingControlLauncher) {
-    monitoringHudWireReliableControl(monitoringHudRecordingControlLauncher, "recording-control:open-native-window", monitoringHudRequestRecordingControlWindow);
+    monitoringHudWireReliableControl(monitoringHudRecordingControlLauncher, "recording-control:future-secondary-blocked", () => {
+      monitoringHudControlState.recordingControlWindowRequested = false;
+      monitoringHudControlState.recordingControlWindowState = "future-secondary";
+      monitoringHudControlState.recordingControlWindowContract = "future-secondary-surface";
+      monitoringHudRenderControls();
+    });
   }
   if (monitoringHudCreateMonitorConfirm) {
     monitoringHudWireReliableControl(monitoringHudCreateMonitorConfirm, "create-window:confirm", monitoringHudCreateMonitorGroupFromWindow);
@@ -5044,13 +5070,14 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
     passed: false,
     package: "PKG-006",
     slice: "SLC-052",
-    seam: "HUD Overlay recording launcher and active-monitor transparency",
-    hudPreviewPresent: false,
+    seam: "Dashboard Recording card target/status and active-monitor transparency",
+    dashboardRecordingCardPresent: false,
+    hudOverlayBoundaryPreserved: false,
     activeProfileNameVisible: false,
     activeMonitorCountVisible: false,
     activeMonitorNamesVisible: false,
-    launcherPresentAndFutureGated: false,
-    launcherRequestsNativeWindow: false,
+    controlSurfaceFutureGated: false,
+    nativeWindowNotRequested: false,
     recordingExecutionBlocked: false,
     fileWritingBlocked: false,
     trayControlsAbsent: false,
@@ -5092,8 +5119,13 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
     const summaryText = monitoringHudRecordingTargetSummary
       ? String(monitoringHudRecordingTargetSummary.textContent || "")
       : "";
-    proof.hudPreviewPresent = Boolean(monitoringHudRecordingTargetPreview)
-      && monitoringHudRecordingTargetPreview.dataset.recordingTargetPreview === "slc-052-hud-overlay-launcher-target-preview";
+    proof.dashboardRecordingCardPresent = Boolean(monitoringHudRecordingCard)
+      && monitoringHudRecordingCard.dataset.recordingCardPlacement === "dashboard-recording-card-primary"
+      && Boolean(monitoringHudRecordingTargetPreview)
+      && monitoringHudRecordingTargetPreview.dataset.recordingTargetPreview === "slc-052-dashboard-recording-card-target-status";
+    proof.hudOverlayBoundaryPreserved = Boolean(monitoringHudRecordingTargetPreview)
+      && monitoringHudRecordingTargetPreview.dataset.hudOverlayRecordingBoundary === "hud-overlay-overlay-focused"
+      && !document.querySelector('[data-dashboard-hub-card="hud-overlay"] [data-recording-target-preview]');
     proof.activeProfileNameVisible = Boolean(monitoringHudRecordingTargetProfile)
       && monitoringHudRecordingTargetProfile.textContent === "Recording Target Overlay";
     proof.activeMonitorCountVisible = Boolean(monitoringHudRecordingTargetCount)
@@ -5101,12 +5133,12 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
     proof.activeMonitorNamesVisible = summaryText.includes("CPU Runtime")
       && summaryText.includes("GPU Runtime")
       && !summaryText.includes("missing-monitor");
-    proof.launcherPresentAndFutureGated = Boolean(monitoringHudRecordingControlLauncher)
-      && monitoringHudRecordingControlLauncher.disabled === false
-      && monitoringHudRecordingControlLauncher.dataset.recordingControlWindowContract === "slc-053-standalone-normal-os-window";
-    proof.launcherRequestsNativeWindow = monitoringHudRequestRecordingControlWindow() === true
-      && monitoringHudControlState.recordingControlWindowRequested === true
-      && monitoringHudControlState.recordingControlWindowState === "native-window-requested";
+    proof.controlSurfaceFutureGated = Boolean(monitoringHudRecordingControlLauncher)
+      && monitoringHudRecordingControlLauncher.disabled === true
+      && monitoringHudRecordingControlLauncher.dataset.recordingControlWindowContract === "future-secondary-surface"
+      && monitoringHudRecordingControlLauncher.dataset.recordingControlWindowState === "future-secondary";
+    proof.nativeWindowNotRequested = monitoringHudControlState.recordingControlWindowRequested !== true
+      && monitoringHudControlState.recordingControlWindowState !== "native-window-requested";
     proof.recordingExecutionBlocked = Boolean(monitoringHudRecordingTargetPreview)
       && monitoringHudRecordingTargetPreview.dataset.recordingExecutionState === "blocked"
       && monitoringHudRecordingControlLauncher.dataset.recordingExecutionState === "blocked";
@@ -5115,12 +5147,13 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
       && monitoringHudRecordingControlLauncher.dataset.recordingFileWritingState === "blocked";
     proof.trayControlsAbsent = !document.querySelector("[data-control='tray-recording-control']");
     proof.noRecordingControlWindowCreated = !document.querySelector("[data-child-window='recording-control']");
-    proof.passed = proof.hudPreviewPresent
+    proof.passed = proof.dashboardRecordingCardPresent
+      && proof.hudOverlayBoundaryPreserved
       && proof.activeProfileNameVisible
       && proof.activeMonitorCountVisible
       && proof.activeMonitorNamesVisible
-      && proof.launcherPresentAndFutureGated
-      && proof.launcherRequestsNativeWindow
+      && proof.controlSurfaceFutureGated
+      && proof.nativeWindowNotRequested
       && proof.recordingExecutionBlocked
       && proof.fileWritingBlocked
       && proof.trayControlsAbsent
@@ -7382,6 +7415,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
     inspectTarget("dashboard-chrome-background", ".monitoring-hud__chrome", { requireFocus: false });
     inspectTarget("dashboard-control-hub-scrollbar", ".monitoring-hud__control-hub", { requireFocus: false });
     inspectTarget("dashboard-hud-overlay-card", '[data-dashboard-hub-card="hud-overlay"]', { requireFocus: false });
+    inspectTarget("dashboard-recording-card", '[data-dashboard-hub-card="recording"]', { requireFocus: false });
     inspectTarget("dashboard-monitor-groups-card", '[data-dashboard-hub-card="monitor-groups"]', { requireFocus: false });
     inspectTarget("dashboard-data-sources-card", '[data-dashboard-hub-card="data-sources"]', { requireFocus: false });
     inspectTarget("dashboard-readiness-card", '[data-dashboard-hub-card="readiness"]', { requireFocus: false });
@@ -7517,7 +7551,7 @@ window.runMonitoringHudVisualInspectionMatrixProof = function() {
   }));
   const issueFormCoverageMatrix = {
     "UTS-HUD-001": ["defaultButtonGlowUniformity", "buttonRoleColorUniformity"],
-    "UTS-HUD-002": ["backgroundBleedClippingInspection", "dashboard-hud-overlay-card", "dashboard-monitor-groups-card"],
+    "UTS-HUD-002": ["backgroundBleedClippingInspection", "dashboard-hud-overlay-card", "dashboard-recording-card", "dashboard-monitor-groups-card"],
     "UTS-HUD-003": ["buttonTextDeadSpacePass", "defaultButtonGlowUniformity"],
     "UTS-HUD-004": ["semanticHoverColorPreserved", "buttonRoleColorUniformity"],
     "UTS-HUD-005": ["buttonTextDeadSpacePass"],

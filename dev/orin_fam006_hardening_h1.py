@@ -72,13 +72,16 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
             "result": _contains_all(
                 hud_html + hud_js,
                 (
-                    "recording-control",
-                    "Active Overlay recording target preview",
+                    'data-dashboard-hub-card="recording"',
+                    "Dashboard Recording",
+                    "slc-052-dashboard-recording-card-target-status",
+                    "dashboard-recording-card-primary",
+                    "hud-overlay-overlay-focused",
+                    "future-secondary-surface",
                     "monitoringHudRequestRecordingControlWindow",
-                    "slc-052-hud-overlay-launcher-target-preview",
                 ),
             ),
-            "hardeningCheck": "HUD Overlay launcher and target preview markers",
+            "hardeningCheck": "Dashboard Recording card target/status and future-secondary control markers",
         },
         {
             "slice": "SLC-053",

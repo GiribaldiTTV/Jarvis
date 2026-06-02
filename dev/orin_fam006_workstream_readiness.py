@@ -22,8 +22,8 @@ WORKSTREAM_READINESS_ID = "slc-055-fam006-validation-live-proof-readiness"
 WORKSTREAM_PACKAGE_ID = "pkg-006-active-overlay-recording-runtime-foundation"
 WORKSTREAM_SEAMS = (
     "SLC-051 target-session-truth",
-    "SLC-052 hud-overlay-target-preview",
-    "SLC-053 recording-control-window-foundation",
+    "SLC-052 dashboard-recording-card-target-status",
+    "SLC-053 future-secondary-recording-control-boundary",
     "SLC-054 output-contract-schema-readback",
     "SLC-055 validation-live-proof-readiness",
 )
@@ -41,14 +41,14 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         {
             "slice": "SLC-052",
             "status": "complete",
-            "proof": "HUD Overlay target preview and launcher transparency validator coverage",
+            "proof": "Dashboard Recording card target/status and active-monitor transparency validator coverage",
             "futureGate": "real Start/Stop, tray, export/share, and provider/model work blocked",
         },
         {
             "slice": "SLC-053",
             "status": "complete",
-            "proof": "standalone Recording Control window foundation validator coverage",
-            "futureGate": "Start/Stop controls disabled and future-gated",
+            "proof": "Recording Control remains future-secondary; no standalone/native control surface is active",
+            "futureGate": "Start/Stop controls, native window activation, and file writing disabled and future-gated",
         },
         {
             "slice": "SLC-054",
@@ -93,13 +93,13 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         ],
         "liveValidationLV1State": "pending-after-h1",
         "liveValidationLV1Expectations": [
-            "real user-level mouse and keyboard proof for HUD Overlay launcher and Recording Control window surfaces",
-            "focused screenshots or photo comparison for default and compact layouts",
+            "real user-level mouse and keyboard proof for Dashboard Recording card target/status surface",
+            "focused screenshots or photo comparison for default and compact Dashboard Recording card layouts",
             "explicit waiver or blocker if real input proof cannot be produced",
         ],
         "utsState": "pending-after-lv1",
         "utsExpectations": [
-            "USER-facing summary covers HUD target preview, Recording Control window, blocked execution, and future-gated file writing",
+            "USER-facing summary covers Dashboard Recording card target/status, blocked execution, future-secondary Recording Control boundary, and future-gated file writing",
             "no UTS is exported until Live Validation authority is active or waived",
         ],
         "futureGatedBoundaries": [

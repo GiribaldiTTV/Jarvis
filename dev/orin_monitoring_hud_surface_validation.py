@@ -518,7 +518,7 @@ def validate() -> list[str]:
         'data-dashboard-quick-access="warning-notifications-only"',
         'data-dashboard-global-feature-control="tray-owned"',
         'data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"',
-        'data-dashboard-card-order="hud-overlay-monitor-groups-data-sources-readiness"',
+        'data-dashboard-card-order="hud-overlay-recording-monitor-groups-data-sources-readiness"',
         'data-dashboard-settings-affordance="dashboard-ia-card-settings-button"',
         'data-dashboard-settings-panel="settings-panel-child-window"',
         'data-dashboard-settings-panel-state="closed"',
@@ -1240,27 +1240,34 @@ def validate() -> list[str]:
 
     for needle in (
         'id="monitoring-hud-recording-target-preview"',
-        'data-recording-target-preview="slc-052-hud-overlay-launcher-target-preview"',
-        'data-active-monitor-transparency="slc-052-visible-count-and-names"',
+        'data-dashboard-hub-card="recording"',
+        'data-recording-card-placement="dashboard-recording-card-primary"',
+        'data-recording-surface-owner="dashboard-card-not-hud-overlay"',
+        'data-recording-target-preview="slc-052-dashboard-recording-card-target-status"',
+        'data-active-monitor-transparency="slc-052-dashboard-visible-count-and-names"',
+        'data-hud-overlay-recording-boundary="hud-overlay-overlay-focused"',
         'id="monitoring-hud-recording-control-launcher"',
-        'data-recording-control-window-state="request-native-window"',
-        'data-native-window-contract="standalone-normal-os-window"',
+        'data-recording-control-window-state="future-secondary"',
+        'data-native-window-contract="future-secondary-surface"',
         'data-recording-execution-state="blocked"',
+        'data-recording-file-writing-state="blocked"',
     ):
-        _require_contains(html, needle, "SLC-052 HUD Overlay recording target preview HTML", failures)
+        _require_contains(html, needle, "SLC-052 Dashboard Recording card target/status HTML", failures)
 
     for needle in (
         "monitoringHudRenderActiveOverlayRecordingTargetPreview",
         "monitoringHudRequestRecordingControlWindow",
         "runMonitoringHudRecordingTargetPreviewProof",
         "recordingTargetPreviewProof",
-        "slc-052-hud-overlay-launcher-target-preview",
-        "slc-052-visible-count-and-names",
-        "Open Recording Control",
-        "slc-053-standalone-normal-os-window",
+        "slc-052-dashboard-recording-card-target-status",
+        "slc-052-dashboard-visible-count-and-names",
+        "dashboard-recording-card-primary",
+        "hud-overlay-overlay-focused",
+        "Recording Controls Future",
+        "future-secondary-surface",
         "trayRecordingControlState",
     ):
-        _require_contains(js, needle, "SLC-052 HUD Overlay recording target preview JS proof", failures)
+        _require_contains(js, needle, "SLC-052 Dashboard Recording card target/status JS proof", failures)
 
     for needle in (
         "class MonitoringHudRecordingControlWindow",
@@ -1325,7 +1332,7 @@ def validate() -> list[str]:
         "monitoring-hud__recording-target-preview",
         "monitoring-hud__recording-target-actions",
     ):
-        _require_contains(css, needle, "SLC-052 HUD Overlay recording target preview CSS", failures)
+        _require_contains(css, needle, "SLC-052 Dashboard Recording card target/status CSS", failures)
 
     for needle in (
         'data-package="PKG-006"',
@@ -1658,7 +1665,7 @@ def validate() -> list[str]:
         'monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only"',
         'monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned"',
         'monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable"',
-        'monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness"',
+        'monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness"',
         'monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment"',
         'monitoringHud.dataset.monitorManagementScale = "split-layout-search-filter-large-fixtures"',
         'monitoringHud.dataset.monitorManagementLayout = "compact-list-right-detail-command-center"',

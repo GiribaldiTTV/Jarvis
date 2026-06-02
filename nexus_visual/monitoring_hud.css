@@ -1118,6 +1118,21 @@ body.desktop-mode #monitoring-hud > * {
   background: rgba(8, 24, 30, 0.50);
 }
 
+.monitoring-hud__hub-card--recording {
+  border-color: rgba(157, 246, 218, 0.22);
+}
+
+.monitoring-hud__hub-card--recording .monitoring-hud__hub-card-topline span {
+  border-color: rgba(157, 246, 218, 0.22);
+  background: rgba(16, 54, 48, 0.62);
+  color: rgba(168, 250, 218, 0.92);
+}
+
+.monitoring-hud__hub-card--recording .monitoring-hud__recording-target-preview {
+  border-color: rgba(157, 246, 218, 0.24);
+  background: rgba(10, 33, 31, 0.54);
+}
+
 .monitoring-hud__recording-target-preview .monitoring-hud__state-row {
   min-height: 30px;
 }
