@@ -6127,6 +6127,10 @@ def build_bundle(
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
         and "approve bounded live validation lv1" in normalized_decision
     )
+    dev_owner_live_validation_lv1_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded pr readiness stage 1" in normalized_decision
+    )
     hardening_h1_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded live validation lv1" in exact_user_decision.casefold()
