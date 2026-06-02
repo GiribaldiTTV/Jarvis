@@ -1038,6 +1038,113 @@ def _validate_dev_owner_skeleton_workstream_completion(
         _require(phrase in next_decision, failures, f"Dev/Owner exact next USER decision missing {phrase!r}")
 
 
+def _validate_dev_owner_skeleton_hardening_h1_comparison(
+    fixture_set: dict[str, Any], failures: list[str]
+) -> None:
+    h1 = fixture_set.get("devOwnerSkeletonHardeningH1Comparison", {})
+    _require(
+        h1.get("schema") == "fam007-dev-owner-skeleton-hardening-h1-comparison-v1",
+        failures,
+        "Dev/Owner Hardening H1 comparison schema mismatch",
+    )
+    _require(
+        h1.get("branch") == "feature/fam-007-dev-owner-skeleton-readiness",
+        failures,
+        "Dev/Owner Hardening H1 comparison branch mismatch",
+    )
+    _require(h1.get("phase") == "Hardening", failures, "Dev/Owner H1 phase must be Hardening")
+    _require(h1.get("stage") == "H1 Green", failures, "Dev/Owner H1 stage must be H1 Green")
+    _require(h1.get("comparisonStatus") == "Green", failures, "Dev/Owner H1 comparison must be Green")
+    _require(h1.get("publicSafeProofOnly") is True, failures, "Dev/Owner H1 must remain public-safe proof only")
+    _require(h1.get("noVisibleRuntimeSurfaceChanged") is True, failures, "Dev/Owner H1 must record no visible runtime surface changed")
+    _require(h1.get("nextLegalPhase") == "Live Validation LV1", failures, "Dev/Owner H1 must hand off to Live Validation LV1")
+
+    compared = h1.get("comparedAgainst", {})
+    for field in (
+        "acceptedBP1",
+        "acceptedBP2",
+        "acceptedBP3",
+        "branchRecord",
+        "externalBranchPlan",
+        "externalBranchState",
+        "publicLeakPreventionFixture",
+        "publicLeakPreventionValidator",
+        "userReviewPacket",
+        "aiRuntimeTrustArchitecture",
+        "fam007FamilyVision",
+    ):
+        _require(compared.get(field) is True, failures, f"Dev/Owner H1 comparedAgainst must set {field}=true")
+
+    proof_lanes = h1.get("proofLanes", {})
+    for field in (
+        "actionGateRegistry",
+        "exactUserDecisionProof",
+        "devOwnerReadinessMatrices",
+        "privateRootRemoteGithubDesktopSafety",
+        "backupImportDeferral",
+        "providerRuntimeCacheMemoryDeferral",
+        "packetFixtureValidatorSourceTruthFoldDown",
+        "externalStateProof",
+    ):
+        _require(
+            proof_lanes.get(field) == "matched-accepted-plan",
+            failures,
+            f"Dev/Owner H1 proof lane {field} must match accepted plan",
+        )
+
+    defects = h1.get("defectClassification", {})
+    for field in ("productDefects", "harnessDefects", "environmentIssues", "canonOrContractDrift"):
+        _require(defects.get(field) == [], failures, f"Dev/Owner H1 {field} must be empty")
+
+    boundaries = h1.get("boundariesPreserved", {})
+    false_fields = (
+        "privateDevRepositoryCreated",
+        "privateOwnerRepositoryCreated",
+        "localOnlyPrivateRootCreated",
+        "githubDesktopPrivateRemoteConfigured",
+        "backupImportExecuted",
+        "providerModelExecutionEnabled",
+        "modelDownloadsEnabled",
+        "runtimeProviderExecutionEnabled",
+        "runtimeCacheBehaviorEnabled",
+        "memoryLearningPersonalizationEnabled",
+        "voiceCoreSyncEnabled",
+        "shortcutInstallerWorkPerformed",
+        "prCreated",
+        "merged",
+        "releaseTagArtifactExecuted",
+        "cleanupPerformed",
+        "fam006GovernanceSiblingMutationPerformed",
+        "aiProductContractImported",
+        "privateDevOrinImported",
+        "v180PrebetaExecuted",
+        "sentToProvider",
+        "canAcceptPrompts",
+    )
+    for field in false_fields:
+        _require(boundaries.get(field) is False, failures, f"Dev/Owner H1 boundary must set {field}=false")
+    for field, expected in {
+        "providerVisibleData": "none",
+        "promptProviderModelExecution": "disabled",
+        "downloadsNetworkExternalCalls": "blocked",
+        "runtimeCacheState": "inactive",
+        "memoryLearningPersonalization": "inactive",
+    }.items():
+        _require(boundaries.get(field) == expected, failures, f"Dev/Owner H1 boundary {field} mismatch")
+
+    handoff = h1.get("liveValidationHandoff", {})
+    _require(handoff.get("state") == "ready-for-live-validation-lv1", failures, "Dev/Owner H1 handoff must be ready for LV1")
+    _require(handoff.get("nextLegalPhase") == "Live Validation LV1", failures, "Dev/Owner H1 handoff next phase must be LV1")
+    _require(handoff.get("noVisibleRuntimeProofRequired") is True, failures, "Dev/Owner H1 handoff must require no-visible-runtime proof")
+    _require(handoff.get("utsWaiverCandidate") is True, failures, "Dev/Owner H1 handoff must allow UTS waiver candidate")
+    for field in ("privateRuntimeActionsAuthorized", "prMergeReleaseCleanupAuthorized"):
+        _require(handoff.get(field) is False, failures, f"Dev/Owner H1 handoff must set {field}=false")
+
+    next_decision = str(h1.get("exactNextUserDecision", ""))
+    for phrase in ("Live Validation LV1", "feature/fam-007-dev-owner-skeleton-readiness", "Hardening H1 Green"):
+        _require(phrase in next_decision, failures, f"Dev/Owner H1 exact next USER decision missing {phrase!r}")
+
+
 def _validate_ai_runtime_trust_boundary_readiness(fixture_set: dict[str, Any], failures: list[str]) -> None:
     readiness = fixture_set.get("aiRuntimeTrustBoundaryReadiness", {})
     _require(
@@ -1604,6 +1711,7 @@ def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, A
         "packet-count-mismatch",
         "packet-count-with-nontext-asset",
         "branch-correct-dev-owner-workstream-green",
+        "branch-correct-dev-owner-hardening-h1-review",
         "branch-correct-live-validation-review",
         "branch-correct-pr-stage2-review",
     ):
@@ -1625,6 +1733,7 @@ def validate() -> list[str]:
     _validate_dev_owner_skeleton_readiness(fixture_set, failures)
     _validate_remaining_workstream_readiness(fixture_set, failures)
     _validate_dev_owner_skeleton_workstream_completion(fixture_set, failures)
+    _validate_dev_owner_skeleton_hardening_h1_comparison(fixture_set, failures)
     _validate_ai_runtime_trust_boundary_readiness(fixture_set, failures)
     _validate_breakpoint2_seam1_action_gate_registry(fixture_set, failures)
     _validate_breakpoint2_remaining_workstream_readiness(fixture_set, failures)
