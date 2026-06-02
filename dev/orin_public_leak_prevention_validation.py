@@ -1145,6 +1145,115 @@ def _validate_dev_owner_skeleton_hardening_h1_comparison(
         _require(phrase in next_decision, failures, f"Dev/Owner H1 exact next USER decision missing {phrase!r}")
 
 
+def _validate_dev_owner_skeleton_live_validation_lv1_completion(
+    fixture_set: dict[str, Any], failures: list[str]
+) -> None:
+    lv1 = fixture_set.get("devOwnerSkeletonLiveValidationLV1Completion", {})
+    _require(
+        lv1.get("schema") == "fam007-dev-owner-skeleton-live-validation-lv1-completion-v1",
+        failures,
+        "Dev/Owner LV1 completion schema mismatch",
+    )
+    _require(
+        lv1.get("branch") == "feature/fam-007-dev-owner-skeleton-readiness",
+        failures,
+        "Dev/Owner LV1 completion branch mismatch",
+    )
+    _require(lv1.get("phase") == "Live Validation", failures, "Dev/Owner LV1 phase must be Live Validation")
+    _require(lv1.get("stage") == "LV1 Green", failures, "Dev/Owner LV1 stage must be LV1 Green")
+    _require(lv1.get("validationStatus") == "Green", failures, "Dev/Owner LV1 validation status must be Green")
+    _require(lv1.get("publicSafeProofOnly") is True, failures, "Dev/Owner LV1 must remain public-safe proof only")
+    _require(lv1.get("noVisibleRuntimeSurfaceChanged") is True, failures, "Dev/Owner LV1 must record no visible runtime surface changed")
+    _require(lv1.get("utsWaiverRecorded") is True, failures, "Dev/Owner LV1 must record UTS waiver")
+    _require(lv1.get("nextLegalPhase") == "PR Readiness Stage 1", failures, "Dev/Owner LV1 must hand off to PR Readiness Stage 1")
+
+    proof_sources = lv1.get("proofSources", {})
+    for field in (
+        "acceptedBP1",
+        "acceptedBP2",
+        "acceptedBP3",
+        "workstreamProof",
+        "hardeningH1Comparison",
+        "branchRecord",
+        "externalBranchPlan",
+        "externalBranchState",
+        "publicLeakPreventionFixture",
+        "publicLeakPreventionValidator",
+        "userReviewPacket",
+        "aiRuntimeTrustArchitecture",
+        "fam007FamilyVision",
+    ):
+        _require(proof_sources.get(field) is True, failures, f"Dev/Owner LV1 proofSources must set {field}=true")
+
+    no_visible = lv1.get("noVisibleRuntimeProof", {})
+    for field in (
+        "appUiRuntimeSurfaceChanged",
+        "providerPromptSurfaceChanged",
+        "shortcutInstallerSurfaceChanged",
+        "privateRootRemoteSurfaceChanged",
+        "backupImportWorkflowChanged",
+        "cacheBehaviorChanged",
+        "memoryBehaviorChanged",
+        "runtimeExecutionSurfaceChanged",
+        "manualUserTestRequired",
+    ):
+        _require(no_visible.get(field) is False, failures, f"Dev/Owner LV1 no-visible proof must set {field}=false")
+    waiver_reason = str(no_visible.get("utsWaiverReason", ""))
+    for phrase in ("No visible runtime", "proof-only branch"):
+        _require(phrase in waiver_reason, failures, f"Dev/Owner LV1 UTS waiver reason missing {phrase!r}")
+
+    boundaries = lv1.get("boundariesPreserved", {})
+    false_fields = (
+        "privateDevRepositoryCreated",
+        "privateOwnerRepositoryCreated",
+        "localOnlyPrivateRootCreated",
+        "githubDesktopPrivateRemoteConfigured",
+        "backupImportExecuted",
+        "providerModelExecutionEnabled",
+        "modelDownloadsEnabled",
+        "runtimeProviderExecutionEnabled",
+        "runtimeCacheBehaviorEnabled",
+        "memoryLearningPersonalizationEnabled",
+        "voiceCoreSyncEnabled",
+        "shortcutInstallerWorkPerformed",
+        "prCreated",
+        "merged",
+        "releaseTagArtifactExecuted",
+        "cleanupPerformed",
+        "fam006GovernanceSiblingMutationPerformed",
+        "aiProductContractImported",
+        "privateDevOrinImported",
+        "v180PrebetaExecuted",
+        "sentToProvider",
+        "canAcceptPrompts",
+    )
+    for field in false_fields:
+        _require(boundaries.get(field) is False, failures, f"Dev/Owner LV1 boundary must set {field}=false")
+    for field, expected in {
+        "providerVisibleData": "none",
+        "promptProviderModelExecution": "disabled",
+        "downloadsNetworkExternalCalls": "blocked",
+        "runtimeCacheState": "inactive",
+        "memoryLearningPersonalization": "inactive",
+    }.items():
+        _require(boundaries.get(field) == expected, failures, f"Dev/Owner LV1 boundary {field} mismatch")
+
+    handoff = lv1.get("prReadinessHandoff", {})
+    _require(handoff.get("state") == "ready-for-pr-readiness-stage-1", failures, "Dev/Owner LV1 handoff must be ready for PR Readiness Stage 1")
+    _require(handoff.get("nextLegalPhase") == "PR Readiness Stage 1", failures, "Dev/Owner LV1 handoff next phase must be PR Readiness Stage 1")
+    _require(handoff.get("analysisOnly") is True, failures, "Dev/Owner LV1 handoff must keep PR Readiness Stage 1 analysis-only")
+    for field in ("prCreationAuthorized", "mergeReleaseCleanupAuthorized", "privateRuntimeActionsAuthorized"):
+        _require(handoff.get(field) is False, failures, f"Dev/Owner LV1 handoff must set {field}=false")
+
+    next_decision = str(lv1.get("exactNextUserDecision", ""))
+    for phrase in (
+        "PR Readiness Stage 1",
+        "feature/fam-007-dev-owner-skeleton-readiness",
+        "Live Validation LV1 Green",
+    ):
+        _require(phrase in next_decision, failures, f"Dev/Owner LV1 exact next USER decision missing {phrase!r}")
+
+
 def _validate_ai_runtime_trust_boundary_readiness(fixture_set: dict[str, Any], failures: list[str]) -> None:
     readiness = fixture_set.get("aiRuntimeTrustBoundaryReadiness", {})
     _require(
@@ -1734,6 +1843,7 @@ def validate() -> list[str]:
     _validate_remaining_workstream_readiness(fixture_set, failures)
     _validate_dev_owner_skeleton_workstream_completion(fixture_set, failures)
     _validate_dev_owner_skeleton_hardening_h1_comparison(fixture_set, failures)
+    _validate_dev_owner_skeleton_live_validation_lv1_completion(fixture_set, failures)
     _validate_ai_runtime_trust_boundary_readiness(fixture_set, failures)
     _validate_breakpoint2_seam1_action_gate_registry(fixture_set, failures)
     _validate_breakpoint2_remaining_workstream_readiness(fixture_set, failures)

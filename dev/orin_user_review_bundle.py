@@ -1921,7 +1921,15 @@ def _write_user_branch_plan_review(
         and not is_fam007_breakpoint_2
         and "approve bounded live validation lv1" in normalized_decision
     )
-    pr_readiness_stage1_packet = "pr readiness stage 1 analysis" in normalized_decision
+    dev_owner_live_validation_lv1_packet = (
+        is_fam007_dev_owner_skeleton
+        and not is_fam007_breakpoint_2
+        and "approve bounded pr readiness stage 1" in normalized_decision
+    )
+    pr_readiness_stage1_packet = (
+        "pr readiness stage 1 analysis" in normalized_decision
+        and not dev_owner_live_validation_lv1_packet
+    )
     bp1_branch_vision_packet = (
         "bp1 branch vision" in normalized_decision
         and "authorize bp2 user branch plan review only" in normalized_decision
@@ -4162,6 +4170,196 @@ def _write_user_branch_plan_review(
             "| Provider/model/runtime/cache/memory behavior | Pending USER approval. |",
             "| PR, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, v1.8.0 | Pending USER approval. |",
         ]
+    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2 and dev_owner_live_validation_lv1_packet:
+        accepted_user_response = (
+            "BP1, BP2, BP3, Workstream, and Hardening H1 are complete for the "
+            "FAM-007 Dev/Owner Skeleton Readiness public-safe proof package. "
+            "Live Validation LV1 recorded no-visible-runtime proof and UTS waiver "
+            "evidence because no app UI, shortcut, provider, model, runtime, cache, "
+            "memory, private root, private remote, backup/import, or installer "
+            "surface changed."
+        )
+        user_response_text = (
+            "Status: Live Validation LV1 Green - this packet asks USER to approve, "
+            "revise, pause, or reject bounded PR Readiness Stage 1 analysis only."
+        )
+        codex_response_digest = (
+            "Codex completed bounded Live Validation LV1/no-visible-runtime proof "
+            "for FAM-007 Dev/Owner Skeleton Readiness. LV1 records that the branch "
+            "has no user-visible runtime surface to exercise, that UTS is waived "
+            "for this proof-only phase, and that all private/runtime/provider/cache/"
+            "memory gates remain pending USER decisions. Codex recommends bounded "
+            "PR Readiness Stage 1 analysis next."
+        )
+        workstream_entry_result = (
+            "Live Validation LV1 Green - no-visible-runtime proof and UTS waiver "
+            "evidence are complete; PR Readiness Stage 1 remains pending USER approval."
+        )
+        contract_status = (
+            "Complete - Live Validation LV1 no-visible-runtime proof is green for "
+            "the FAM-007 Dev/Owner Skeleton Readiness public-safe proof package; "
+            "PR Readiness Stage 1 analysis is the next legal USER decision."
+        )
+        contract_version = "v9 - Live Validation LV1 completed and routed to PR Readiness Stage 1."
+        plain_english_summary = (
+            "This branch has completed the user-proof phase without launching or "
+            "changing runtime surfaces. LV1 confirms the proof package is intentionally "
+            "source-truth, fixture, validator, packet, and external-state only; there "
+            "is nothing visible for USER to click or screenshot yet."
+        )
+        what_user_sees = (
+            "USER sees an LV1 closeout packet. It is not a PR creation packet, merge "
+            "packet, release packet, private setup packet, runtime test, shortcut test, "
+            "or provider/cache/memory execution packet."
+        )
+        why_nexus = (
+            "This fits Nexus because no-visible-runtime proof keeps the Dev/Owner "
+            "skeleton boundary honest: visible/manual validation is not faked when "
+            "the approved branch only created public-safe proof and preserved gates."
+        )
+        slc_package_plan = [
+            "Workstream complete: all admitted public-safe proof seams are implemented.",
+            "Hardening H1 complete: implementation-vs-plan proof comparison is green.",
+            "Live Validation LV1 complete: no-visible-runtime proof and UTS waiver evidence are recorded.",
+            "Next phase is PR Readiness Stage 1 analysis after USER approval.",
+        ]
+        surface_map = [
+            "Branch record: durable LV1 receipt and PR Readiness Stage 1 handoff.",
+            "External branch plan/state: active operational posture updated to LV1 Green with PR Readiness Stage 1 pending.",
+            "Public leak-prevention fixture and validator: direct proof that no private/runtime/provider/cache/memory gate was executed.",
+            "USER review bundle helper: current packet status and timestamped ZIP generation for the PR Readiness Stage 1 decision.",
+        ]
+        likely_files_lines = [
+            "dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json",
+            "dev/orin_public_leak_prevention_validation.py",
+            "dev/orin_user_review_bundle.py",
+            "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
+            "C:\\Nexus USER\\FAM-007 and matching timestamped ZIP",
+        ]
+        active_branch_files = [
+            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns LV1 Green posture, no-visible-runtime proof, UTS waiver evidence, and future gates outside repo-tracked source truth.",
+            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, LV1 Green disposition, and PR Readiness Stage 1 pending USER decision outside repo-tracked source truth.",
+            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+        ]
+        implementation_constraints = [
+            "Live Validation LV1 is green; PR Readiness Stage 1 remains blocked until USER approves or revises the analysis scope.",
+            "PR Readiness Stage 1 is limited to analysis, validation review, source-truth inspection, packet proof, and decision packet generation.",
+            "No private Dev repo, private Owner repo, local-only private root, private remote, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR creation, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by this packet.",
+            "Provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution disabled; downloads/network/external calls blocked; runtime cache inactive; memory/learning/personalization inactive.",
+        ]
+        rejected_deferred = [
+            "Deferred: PR creation, merge, release, branch/worktree cleanup, and release artifact execution.",
+            "Deferred: private Dev repo creation, private Owner repo creation, local-only private root creation, GitHub Desktop private remote configuration, off-boot backup or recovery root implementation, and Public-to-Dev import implementation.",
+            "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
+        ]
+        source_truth_impact = [
+            "Active external branch plan and state route the branch from H1 Green into LV1 Green and PR Readiness Stage 1 pending USER approval.",
+            "Repo branch record carries a durable LV1 no-visible-runtime receipt without becoming a live operational ledger.",
+            "Review packet remains branch-specific, timestamped, placeholder-free, and explicit that PR Readiness Stage 1 approval covers analysis only.",
+            "Source-truth fold-down records LV1 Green without executing gated private/runtime actions.",
+        ]
+        completion_checklist = [
+            "Live Validation LV1 receipt is present in the branch plan and branch record.",
+            "No-visible-runtime proof records that no app UI, provider prompt surface, shortcut, installer, private root, private remote, backup/import workflow, cache behavior, memory behavior, or runtime execution surface changed.",
+            "UTS waiver evidence records that manual USER test execution is not applicable for this proof-only LV1.",
+            "Direct public leak-prevention validator proof covers LV1 no-visible-runtime and all private/runtime/provider/cache/memory gates.",
+            "Packet digest files agree that Live Validation LV1 is green and PR Readiness Stage 1 remains pending USER approval.",
+        ]
+        walkthrough = [
+            "Open START_HERE.md first and review the plain-language file map and USER decision.",
+            "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract says Live Validation LV1 Green with PR Readiness Stage 1 next.",
+            "Open the LV1 digest to confirm no-visible-runtime proof and UTS waiver evidence.",
+            "Review validator proof showing all private/runtime/provider/cache/memory gates remain pending.",
+            "Approve or revise PR Readiness Stage 1 only after reviewing this LV1 handoff.",
+        ]
+        implementation_options = [
+            "Approve PR Readiness Stage 1 as recommended: analyze PR readiness for the completed public-safe Dev/Owner Skeleton Readiness carrier. Pros: moves toward PR creation review; Cons: no PR/merge/release yet; Risk: low.",
+            "Revise PR Readiness Stage 1 inspection criteria before analysis. Pros: lets USER tune PR readiness proof; Cons: adds packet/source-truth repair; Risk: low.",
+            "Pause at Live Validation LV1 Green and keep the branch open. Pros: preserves the LV1 proof without expanding scope; Cons: delays PR readiness; Risk: low.",
+            "Reject PR Readiness and request a narrower LV1 closeout repair. Pros: maximum scope control; Cons: may leave PR path incomplete; Risk: low but slower.",
+        ]
+        recommended_direction = (
+            "Codex recommends approving bounded PR Readiness Stage 1 only if USER agrees "
+            "the next step should analyze readiness without creating a PR, merging, "
+            "releasing, cleaning up, or executing any private/runtime/provider/cache/"
+            "memory action."
+        )
+        current_scope = [
+            "FAM-007 Dev/Owner Skeleton Readiness Workstream is green.",
+            "Hardening H1 proof comparison is green.",
+            "Live Validation LV1 no-visible-runtime proof and UTS waiver evidence are green.",
+            "Local USER hub packet and timestamped ZIP refreshed with PR Readiness Stage 1 as the next decision.",
+        ]
+        future_scope = [
+            "PR Readiness Stage 1 approval is limited to analysis only.",
+            "PR creation, merge, release, cleanup, private setup, provider/model/runtime/cache/memory behavior, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain later USER decisions.",
+        ]
+        user_decisions = [
+            "Does USER approve bounded PR Readiness Stage 1 analysis for the FAM-007 Dev/Owner Skeleton Readiness LV1 Green package?",
+            "Does USER require any change to PR readiness inspection criteria before analysis begins?",
+            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+        ]
+        user_decisions_intro = (
+            "USER is reviewing the LV1 handoff now. Useful feedback names PR Readiness "
+            "Stage 1 inspection changes, future-gated boundary controls, or a pause/"
+            "rejection reason before PR Readiness begins."
+        )
+        design_ballot = [
+            "Approve PR Readiness Stage 1 as recommended.",
+            "Revise PR Readiness Stage 1 inspection criteria before analysis.",
+            "Pause at Live Validation LV1 Green.",
+            "Reject and request a narrower LV1 closeout repair.",
+        ]
+        response_structure = [
+            "Decision: approve, revise, pause, or reject.",
+            "Required changes to PR Readiness Stage 1 inspection criteria, if any.",
+            "Must-have PR readiness proof.",
+            "Future-gated boundary controls.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER intent summary.",
+            "LV1 Green acceptance or concerns.",
+            "Approved or revised PR Readiness Stage 1 scope.",
+            "Implementation constraints created from USER response.",
+            "Next USER decision needed.",
+        ]
+        extra_plan_sections = [
+            "## Live Validation LV1 No-Visible-Runtime Proof",
+            "",
+            "| Surface | LV1 result | Evidence basis |",
+            "| --- | --- | --- |",
+            "| App UI / runtime surface | No visible surface changed. | Workstream and H1 changed source-truth, fixture, validator, helper, packet, and external-state proof only. |",
+            "| Provider prompt / model execution | Not executed. | providerVisibleData none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution disabled. |",
+            "| Cache / memory behavior | Not executed. | runtime cache inactive; memory/learning/personalization inactive. |",
+            "| Private roots / remotes / GitHub Desktop binding | Not created or configured. | Public-safe proof keeps all private setup gates pending. |",
+            "| Backup / import / recovery | Not executed. | Backup/import remains a future USER decision. |",
+            "",
+            "## UTS Waiver Evidence",
+            "",
+            "- Formal USER Test Summary execution is waived for LV1 because the approved branch has no visible runtime surface, shortcut, installer, provider, cache, memory, private root, private remote, or backup/import behavior for USER to exercise.",
+            "- The waiver is limited to this no-visible-runtime LV1 proof. Future runtime, UI, shortcut, installer, provider, cache, memory, private setup, or backup/import work will require its own Live Validation proof or USER waiver.",
+            "",
+            "## PR Readiness Stage 1 Preview",
+            "",
+            "- PR Readiness Stage 1 should analyze readiness only.",
+            "- Stage 1 must inspect source-truth fold-down, release-debt posture, current-main freshness, merge-stable projection needs, packet proof, validation proof, and remaining private/runtime gates.",
+            "- Stage 1 must not create a PR, merge, release, clean up, or execute private/runtime actions.",
+            "",
+            "## Future USER Gate Matrix",
+            "",
+            "| Gate | LV1 status |",
+            "| --- | --- |",
+            "| PR Readiness Stage 1 | Pending USER approval. |",
+            "| PR creation / Stage 2 | Pending USER approval. |",
+            "| Merge / release / cleanup | Pending USER approval. |",
+            "| Private Dev/Owner setup | Pending USER approval. |",
+            "| Private roots/remotes and GitHub Desktop binding | Pending USER approval. |",
+            "| Backup/import execution | Pending USER approval. |",
+            "| Provider/model/runtime/cache/memory behavior | Pending USER approval. |",
+        ]
     normalized_contract_status = contract_status.casefold()
     if normalized_contract_status.startswith("waived by user"):
         user_gate_state = "USER Waived - explicit USER waiver recorded for this BP2 gate."
@@ -4176,6 +4374,9 @@ def _write_user_branch_plan_review(
         user_response_proof = "Pending USER Response - BP2 gate remains open."
         user_response_digested = "Pending USER Response - Codex has not digested a final USER disposition."
     bp3_approval_text = (
+        "Live Validation LV1 is green for the admitted FAM-007 Dev/Owner Skeleton Readiness package. The next decision is bounded PR Readiness Stage 1 analysis only; this packet does not authorize PR creation, private/runtime/provider/cache/memory behavior, merge, release, or cleanup."
+        if dev_owner_live_validation_lv1_packet
+        else
         "Workstream is green for the admitted FAM-007 Dev/Owner Skeleton Readiness package. The next decision is bounded Hardening H1 proof comparison only; this packet does not authorize private/runtime/provider/cache/memory behavior, PR, merge, release, or cleanup."
         if dev_owner_workstream_green_packet
         else
@@ -4527,6 +4728,14 @@ def _write_workstream_entry_packet_digests(
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
         and "approve bounded live validation lv1" in normalized_decision
     )
+    dev_owner_live_validation_lv1_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded pr readiness stage 1" in normalized_decision
+    )
+    dev_owner_live_validation_lv1_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded pr readiness stage 1" in normalized_decision
+    )
     bp1_packet = (
         "bp1 branch vision" in normalized_decision
         and "authorize bp2 user branch plan review only" in normalized_decision
@@ -4563,6 +4772,10 @@ def _write_workstream_entry_packet_digests(
         "hardening final decision review - Hardening H1 is green; Live Validation LV1 "
         "remains pending USER approval."
         if dev_owner_hardening_h1_packet
+        else
+        "live validation final decision review - Live Validation LV1 is green; "
+        "PR Readiness Stage 1 remains pending USER approval."
+        if dev_owner_live_validation_lv1_packet
         else
         "bp3 orchestration review - accepted BP1 Branch Vision and accepted BP2 "
         "Branch Plan are the traceability basis; BP3 Workstream Entry / "
@@ -5115,6 +5328,40 @@ def _write_workstream_entry_packet_digests(
             "digest/checklist files, and copied source-truth files are loaded and digestible "
             "for USER review; the contract records the Live Validation LV1 boundary and PR "
             "Readiness Stage 1 next decision."
+        )
+    elif dev_owner_live_validation_lv1_packet:
+        analysis_status = (
+            "Analysis Summary: Live Validation LV1 Green for the FAM-007 Dev/Owner "
+            "Skeleton Readiness carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: LV1 recorded no-visible-runtime proof and UTS "
+            "waiver evidence for a proof-only branch; PR Readiness Stage 1 remains "
+            "pending USER approval."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: PR Readiness Stage 1 analysis."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
+            "prebeta roadmap, active branch index, branch record, worktree slots, AI "
+            "Runtime And Trust Architecture, FAM-007 family vision, AI Edition plan, "
+            "branch-plan README, phase governance, development rules, codex modes, "
+            "validation helper registry, public leak-prevention validator, and LV1 "
+            "no-visible-runtime proof surfaces needed for the next USER decision."
+        )
+        checklist_status = (
+            "Checklist Focus: Live Validation LV1 review - no-visible-runtime proof, "
+            "UTS waiver evidence, action gates, Dev/Owner matrices, private root/remote "
+            "safety, backup/import deferral, provider/runtime/cache/memory deferral, "
+            "packet/fixture/validator/source-truth fold-down, external state proof, and "
+            "PR Readiness Stage 1 analysis-only boundary are represented."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "digest/checklist files, and copied source-truth files are loaded and "
+            "digestible for USER review; the contract records the Live Validation LV1 "
+            "boundary and PR Readiness Stage 1 next decision."
         )
     elif dev_owner_hardening_h1_packet:
         analysis_status = (
@@ -5936,6 +6183,10 @@ def build_bundle(
         "hardening final decision review - Hardening H1 is green; Live Validation LV1 "
         "remains pending USER approval."
         if dev_owner_hardening_h1_packet
+        else
+        "live validation final decision review - Live Validation LV1 is green; "
+        "PR Readiness Stage 1 remains pending USER approval."
+        if dev_owner_live_validation_lv1_packet
         else
         "implementation-ready - BP1, BP2, and BP3 are accepted; bounded Workstream "
         "package implementation is approved by this packet with Seam 1 as the entry "
