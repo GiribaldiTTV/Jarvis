@@ -4736,6 +4736,10 @@ def _write_workstream_entry_packet_digests(
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
         and "approve bounded pr readiness stage 1" in normalized_decision
     )
+    dev_owner_live_validation_lv1_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded pr readiness stage 1" in normalized_decision
+    )
     bp1_packet = (
         "bp1 branch vision" in normalized_decision
         and "authorize bp2 user branch plan review only" in normalized_decision
@@ -6136,7 +6140,8 @@ def build_bundle(
         and "approve pr readiness stage 2" in exact_user_decision.casefold()
     )
     pr_stage1_packet = (
-        "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+        "pr readiness stage 1 analysis" in normalized_decision
+        and not dev_owner_live_validation_lv1_packet
     )
     bp3_packet = (
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
