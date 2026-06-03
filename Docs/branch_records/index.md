@@ -142,7 +142,6 @@ Do not use this layer to replace:
 This repo-tracked active list is intentionally narrow after External Operational State Store Stage 6C. It preserves the single standing Governance intake routing exception only; that exception is durable governance routing law, not a general live operations ledger. No non-standing runtime, implementation, release-packaging, repair, selected-next, PR, watcher, release-window, worktree, temporary handoff active state, or active branch-plan row may be tracked as repo source truth. Repo records and repo branch-plan files may keep durable branch/document pointers and historical receipts, but live lifecycle posture and active branch planning must be read from `C:\Nexus Governance State\central\active_branch_authority_state.md`, `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`, branch-specific external records, and Git/GitHub/helper live checks.
 
 - `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- `Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md`
 
 ## Historical Branch Authority Records
 

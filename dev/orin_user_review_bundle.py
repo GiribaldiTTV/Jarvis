@@ -245,7 +245,7 @@ USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], .
     ),
     (
         "family-context-process-shell",
-        re.compile(r"asks whether", re.IGNORECASE),
+        re.compile(r"Family Vision Context:\s*This BP1 review asks whether\b", re.IGNORECASE),
     ),
     (
         "project-context-instruction",

@@ -8,7 +8,7 @@ USER Gate State: Pending USER Review.
 USER Response Proof: Pending USER response.
 USER Response Digested: No - pending USER response.
 Project Vision Context: Nexus governance should make the project easier to operate, not more ceremonial, so governance-only branches also need USER-readable intent before source-truth rules change.
-Family Vision Context: No product family owns this example; it uses the standing Governance lane to repair reusable phase, helper, validator, and review-packet behavior that affects every future worktree.
+Family Vision Context: No product family owns this example; it uses the standing Governance lane to repair reusable phase, helper, validator, and review-packet behavior that affects every future worktree. This branch asks whether the global review gate can stay readable while still enforcing BP1 before planning.
 Feature Vision Context: This example branch vision targets a source-truth repair that prevents helper-green packets from bypassing USER review gates across Branch Planning.
 Branch Goal: Define the governance repair outcome in plain language so USER understands what rule changes will apply globally, which helpers or fixtures may change, and which product work remains untouched.
 End-State Vision: USER sees a governance packet that explains the recurring failure class, the global rule to add, the evidence to validate, and the future product-branch reconciliation path after merge.

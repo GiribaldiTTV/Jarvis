@@ -533,7 +533,7 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
         "review `docs/nexus_vision.md`",
         "review the relevant `docs/family_visions/` owner",
         "must explain how this branch supports",
-        "asks whether",
+        "family vision context: this bp1 review asks whether",
         "confirm that this branch goal is the right product direction",
         "describe the intended user-visible or source-truth end state",
         "review the copied branch-specific files and note any changes",
