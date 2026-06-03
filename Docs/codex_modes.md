@@ -735,6 +735,8 @@ Codex must also:
 When meaningful desktop UI changed, Codex should also:
 
 - treat the live launched-process UI audit as a post-green closeout check rather than a per-seam screenshot requirement
+- build the Live Validation visual proof set from a deterministic branch-delta inventory: every new, touched, plausibly affected, or USER-feedback-specific element needs focused proof; previous elements need repeated focused proof only when the current branch affected their source, parent layout, shared style, shared state, interaction route, clipping/z-order/focus boundary, persistence path, helper/validator proof route, or another dependency that could change their behavior or appearance
+- classify unchanged previous surfaces as `Historical Unaffected` or `Preservation Smoke` instead of re-screenshotting them by inertia; context screenshots, smoke proof, or source-truth rationale may preserve those surfaces, but they cannot satisfy proof for new or affected branch elements
 - preserve the audit manifest and key captured windows in the final evidence package when closeout or readiness is being claimed
 - when the user wants those screenshots to render inside the Codex client, preserve the original files on disk but default the in-chat preview path to one small inline PNG `data:` image at a time instead of local-path Markdown embeds
 
