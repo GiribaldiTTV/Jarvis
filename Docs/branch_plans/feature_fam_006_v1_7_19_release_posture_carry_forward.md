@@ -170,4 +170,4 @@ Branch Cleanup Receipt: `Local and remote FAM-006 carry-forward branch refs were
 ## Next Legal Phase
 
 Next Legal Phase: `Historical Traceability`
-Exact USER Decision Needed: `None for this retired plan.`
+Historical USER Decision Receipt: `None for this retired plan.`

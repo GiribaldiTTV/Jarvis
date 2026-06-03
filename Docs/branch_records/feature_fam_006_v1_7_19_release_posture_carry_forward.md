@@ -236,7 +236,7 @@ Current Phase: `Historical Traceability`
 Next Legal Phase: `Branch Readiness`
 Why This Phase Is Next: `This carry-forward branch is merged and deleted. The next active FAM-006 carrier is feature/fam-006-recording-profile-runtime-foundation.`
 Approval Required: `None for this historical record.`
-Exact USER Approval Text: `None for this historical record.`
+Historical USER Approval Text Receipt: `None for this historical record.`
 Allowed Scope: `Historical traceability only.`
 Explicit Exclusions: `Runtime implementation; PR creation; merge; release; issue mutation; stale branch cleanup execution; artifacts/raw evidence handling; sibling-worktree mutation; FAM-007 work; Governance worktree mutation.`
 Validation Required: `Historical record only; active validation belongs to the current FAM-006 branch.`

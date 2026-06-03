@@ -434,7 +434,7 @@ Next Legal Phase Detail: `No active phase for this released carrier; the active 
 Next Active Seam: `None for this historical branch record.`
 Why This Phase Is Next: `PR #215 is released in v1.7.22-prebeta; this record now serves as historical released evidence rather than an active PR carrier.`
 Approval Required: `USER approval is required before release execution; this historical receipt does not authorize tags, artifacts, GitHub Release publication, provider/model execution, private Dev/Owner work, cleanup, or v1.8.0-prebeta.`
-Exact USER Approval Text: `No approval for this historical released carrier; approve the active successor branch's next legal phase instead.`
+Historical USER Approval Text Receipt: `No approval for this historical released carrier; approve the active successor branch's next legal phase instead.`
 Allowed Scope: `Historical release-window interpretation and validation only.`
 Explicit Exclusions: `No release execution, tag, artifacts, provider SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, private Dev/Owner repo creation, off-boot backup/recovery implementation, Public-to-Dev import implementation, cleanup, sibling mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `Release Readiness Stage 1 must rerun branch governance validation, release-readiness health gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixtures, AI provider state validation, public leak-prevention validation, validation-suite recommendations, rebaseline audit, compileall, and diff checks from updated main before any release execution.`

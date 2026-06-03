@@ -4647,7 +4647,7 @@ BRANCH_RECORD_LIVE_STATE_LEAKAGE_PATTERNS = (
     ),
     (
         "active exact user approval text",
-        r"^\s*(?:-\s*)?(?:Exact USER Approval Text|Exact USER Decision Needed|Exact Next USER Decision Needed):\s*`?(?:I approve|Approve)[^`\r\n]*(?:\bPR Readiness Stage 2\b|create the PR|Stage 2 execution)\b",
+        r"^\s*(?:-\s*)?(?:Exact USER Approval Text|Exact USER Decision Needed|Exact Next USER Decision Needed):",
     ),
     ("pre-pr live state", r"^\s*(?:-\s*)?Pre-PR Live State:\s*`?No live PR\b"),
     (
