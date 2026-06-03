@@ -4,6 +4,10 @@
 
 Record State: `Historical merged branch receipt`
 
+## Status
+
+Status: `Released historical receipt`
+
 ## Current Phase
 
 Phase: `Historical Traceability`

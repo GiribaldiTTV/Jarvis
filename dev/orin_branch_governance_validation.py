@@ -12781,6 +12781,7 @@ def _branch_record_live_state_scan_text(text: str) -> str:
         section
         for section in (
             _section(text, "Record State"),
+            _section(text, "Status"),
             _section(text, "Current Phase"),
             _section(text, "Phase Status"),
             _section(text, "Current Summary"),

@@ -2,16 +2,19 @@
 
 ## Record State
 
-Record State: `Live Validation LV1 receipt / PR Readiness Stage 1 handoff`
+Record State: `Historical merged branch receipt`
+
+## Status
+
+Status: `PR Readiness Stage 1 pending USER approval`
 
 ## Current Phase
 
-Phase: `Live Validation`
+Phase: `Historical Traceability`
 
-Stage: `LV1 Green - PR Readiness Stage 1 pending USER approval`
+Stage: `Historical PR #999 merged receipt`
 
 ## Phase Status
 
-- Branch Authority Marker: `Active Branch`
-- Active Branch Authority Transition Waiver: Granted
-- Live PR State: `open`
+- Branch Authority Marker: `Historical Branch`
+- Merge Receipt: `PR #999 merged before this receipt was written.`
