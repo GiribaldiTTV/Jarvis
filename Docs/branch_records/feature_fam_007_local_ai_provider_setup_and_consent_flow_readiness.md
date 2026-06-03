@@ -248,7 +248,7 @@ Implementation Slice Non-Includes: `Provider setup implementation, consent colle
 
 ## Workstream Completion
 
-Workstream Completion State: `Green - bounded multi-seam setup and consent flow readiness implementation complete; H1 Green, LV1 Green, PR Readiness Stage 1 Ready For Stage 2, and PR creation pending USER approval.`
+Workstream Completion State: `Green - bounded multi-seam setup and consent flow readiness implementation complete; H1 Green, LV1 Green, PR Readiness Stage 1 Ready For Stage 2, and historical Stage 2 PR-creation gate recorded before PR execution.`
 
 Seam Family 1 - Setup Flow Readiness Contract: `Green - desktop/ai_provider_state.py publishes setup flow readiness state, eligibility, blockers, reason codes, provenance, schema/config versioning, approval status, and future setup handoff posture.`
 
@@ -494,7 +494,7 @@ Stop Basis: Workstream Green / H1 Green / LV1 Green / PR Readiness Stage 1 Ready
 
 Next Active Seam: PR Readiness Stage 2 / PR creation
 
-Stop Condition: PR Readiness Stage 1 green; PR Readiness Stage 2 / PR creation pending USER approval.
+Stop Condition: Historical receipt - PR Readiness Stage 1 was green before Stage 2 PR creation.
 
 Continuation Action: Stop at phase boundary until USER admits the next phase; return PR Readiness Stage 1 closeout packet and await USER approval for PR Readiness Stage 2 / PR creation.
 

@@ -688,7 +688,7 @@ Compact-AI Preservation Posture: `Preserved as historical released/salvaged evid
 
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 Live Validation LV1`
 
-Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-007 was assigned while this branch was active`
 
 Worktree Ownership Ledger: `This branch record and Docs/worktree_slots.md runtime-active-1 receipt`
 

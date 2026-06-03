@@ -150,9 +150,9 @@ Backlog-Split Reason: `None`
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active`
+Assigned Worktree Confinement: `Historical receipt only`
 Active Thread Owner: `FAM-006 assigned Codex thread`
-Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-006 was assigned while this branch was active`
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
 Intended Write Set: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/branch_records/index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - branch created in the FAM-006 worktree from current origin/main; no sibling worktree is assigned this branch.`
@@ -196,7 +196,7 @@ PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2`
 Pre-PR Live State: `No live PR`
 PR Creation Approval: `Granted by USER for PR Readiness Stage 2 execution.`
 Stage 2 PR Creation: `Historical - PR #207 was created at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/207 and later merged.`
-Live PR State: `OPEN / ready for review; base main; head feature/fam-006-overlay-display-acceptance-foundation; mergeability reported MERGEABLE at Stage 2 validation.`
+Historical PR State Receipt: `PR #207 was opened from feature/fam-006-overlay-display-acceptance-foundation to main; mergeability was reported MERGEABLE during Stage 2 validation before merge.`
 Origin/Main Freshness Check: `PASS - current origin/main is a909f8e92c1fb1abd06e54e1301f12459e647b45; merge base is a909f8e92c1fb1abd06e54e1301f12459e647b45; branch is 40 ahead / 0 behind origin/main at Stage 2 PR creation.`
 Reconciliation Required: `NO - current-main reconciliation is complete.`
 Reconciliation File List: `None for current Stage 1; prior reconciliation preserved incoming PR #206 / FAM-007 consent UX context and FAM-006 branch-local authority.`

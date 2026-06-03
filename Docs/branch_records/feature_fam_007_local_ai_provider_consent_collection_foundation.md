@@ -387,7 +387,7 @@ Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_a
 
 Branch Runtime Engineering Plan: `Accepted - required plan file created during Stage 2 setup`
 
-Engineering Plan Status: Accepted - Workstream Green after bounded consent collection foundation implementation; H1 Green after plan-vs-implementation and proof review; LV1 Green after disabled/status-only validation; PR Readiness Stage 1 source-truth repair complete; PR Readiness Stage 2 / PR creation pending USER approval.
+Engineering Plan Status: Accepted - Workstream Green after bounded consent collection foundation implementation; H1 Green after plan-vs-implementation and proof review; LV1 Green after disabled/status-only validation; PR Readiness Stage 1 source-truth repair complete; historical Stage 2 PR-creation gate recorded before PR execution.
 
 PR Fold-Down Packet: `Stage 1 complete - selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, branch-authority historical projection, and Stage 2 approval boundary are recorded. Live PR metadata belongs to PR Readiness Stage 2 after USER approves PR creation.`
 

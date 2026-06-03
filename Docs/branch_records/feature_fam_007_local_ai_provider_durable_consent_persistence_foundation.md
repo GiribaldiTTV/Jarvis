@@ -288,7 +288,7 @@ Drift Prevention: `If a sibling lane appears active, cleaner, or farther along, 
 
 Assigned Worktree Confinement: `Required`
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 durable consent persistence Workstream`
-Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-007 was assigned while this branch was active`
 Worktree Ownership Ledger: `FAM-007 owns this branch, this branch record, this branch plan, compact FAM-007 source-truth pointers, validation helper registry FAM-007 row, and bounded confinement repair carried by this branch.`
 Intended Write Set: `FAM-007 branch authority, branch plan, backlog/roadmap/worktree-slot pointers, validation helper registry, phase/index confinement rule, branch governance validator, generated docs inventory if required by validation.`
 Same Worktree / Same Branch Collision Check: `PASS - this branch is checked out in C:\Nexus Worktrees\FAM-007 and no same-branch collision is known.`

@@ -4623,6 +4623,7 @@ BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR = Path(
 
 BRANCH_RECORD_LIVE_STATE_LEAKAGE_PATTERNS = (
     ("active branch authority marker", r"Branch Authority Marker:\s*`?Active Branch`?"),
+    ("active branch authority state", r"Branch Authority State:\s*`?Active\b"),
     ("active transition waiver", r"Active Branch Authority Transition Waiver:\s*Granted"),
     (
         "active record state",
@@ -4638,6 +4639,15 @@ BRANCH_RECORD_LIVE_STATE_LEAKAGE_PATTERNS = (
     ),
     ("live open PR state", r"\bLive PR State:\s*`?open\b"),
     ("current PR readiness seam", r"\bCurrent PR Readiness Seam:\b"),
+    ("active worktree confinement", r"Assigned Worktree Confinement:\s*`?Active\b"),
+    (
+        "active thread assignment",
+        r"Thread Assignment Status:\s*`?(?:Assigned and active|Active)\b",
+    ),
+    (
+        "active branch plan owner",
+        r"(?:Branch Runtime Engineering Plan|Engineering Plan Status|Active Branch Plan|Branch Plan Status):\s*`?Active\b",
+    ),
     ("release window current owner", r"\bRelease Window(?: Audit)?:\s*`?(?:TBD|Unknown|Unresolved|Pending)\b"),
 )
 
@@ -12768,27 +12778,18 @@ def _collect_branch_record_paths(text: str, heading_prefix: str) -> set[str]:
 
 
 def _all_branch_record_detail_paths() -> set[str]:
-    branch_records_dir = ROOT_DIR / "Docs" / "branch_records"
     return {
-        path.relative_to(ROOT_DIR).as_posix()
-        for path in branch_records_dir.glob("*.md")
-        if path.name != "index.md"
+        normalized_path
+        for path in _git_tracked_files()
+        for normalized_path in (path.as_posix(),)
+        if normalized_path.startswith("Docs/branch_records/")
+        and normalized_path.endswith(".md")
+        and normalized_path != "Docs/branch_records/index.md"
     }
 
 
 def _branch_record_live_state_scan_text(text: str) -> str:
-    return "\n".join(
-        section
-        for section in (
-            _section(text, "Record State"),
-            _section(text, "Status"),
-            _section(text, "Current Phase"),
-            _section(text, "Phase Status"),
-            _section(text, "Current Summary"),
-            _section(text, "Active Seam"),
-        )
-        if section
-    )
+    return text
 
 
 def _branch_record_live_state_leakage_findings(
@@ -12813,29 +12814,33 @@ def _branch_record_live_state_leakage_findings(
 
 
 def _run_branch_record_live_state_leakage_fixtures(require) -> None:
-    invalid_fixture = (
-        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
-        / "invalid_unindexed_branch_record_live_state.md"
+    invalid_fixtures = sorted(
+        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR.glob("invalid_*.md")
     )
     valid_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
         / "valid_historical_branch_record_receipt.md"
     )
-    invalid_text = _read_text(invalid_fixture)
     valid_text = _read_text(valid_fixture)
     require(
-        bool(
-            _branch_record_live_state_leakage_findings(
-                Path("Docs/branch_records/invalid_unindexed_branch_record_live_state.md"),
-                invalid_text,
-                set(),
-            )
-        ),
-        (
-            f"{invalid_fixture}: branch-record live-state leakage fixture must fail; "
-            "unindexed live branch records cannot pass as durable receipts"
-        ),
+        bool(invalid_fixtures),
+        f"{BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR}: missing invalid branch-record leakage fixtures",
     )
+    for invalid_fixture in invalid_fixtures:
+        invalid_text = _read_text(invalid_fixture)
+        require(
+            bool(
+                _branch_record_live_state_leakage_findings(
+                    Path("Docs/branch_records") / invalid_fixture.name,
+                    invalid_text,
+                    set(),
+                )
+            ),
+            (
+                f"{invalid_fixture}: branch-record live-state leakage fixture must fail; "
+                "unindexed live branch records cannot pass as durable receipts"
+            ),
+        )
     require(
         not _branch_record_live_state_leakage_findings(
             Path("Docs/branch_records/valid_historical_branch_record_receipt.md"),

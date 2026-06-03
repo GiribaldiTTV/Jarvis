@@ -53,9 +53,9 @@ Branch Class: `implementation`
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active for this FAM-007 Workstream carrier`
+Assigned Worktree Confinement: `Historical receipt for this FAM-007 Workstream carrier`
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Workstream implementation`
-Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-007 was assigned while this branch was active`
 Worktree Ownership Ledger: `This branch authority record plus Docs/worktree_slots.md runtime-active-1 receipt`
 Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, provider-state source, Core/Desktop/ORIN status surfaces, validation-produced source truth, and FAM-007 provider-state validator updates required for the approved Workstream`
 Same Worktree / Same Branch Collision Check: `PASS - no second writer assigned to this FAM-007 worktree or branch`

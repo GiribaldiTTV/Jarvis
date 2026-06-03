@@ -63,9 +63,9 @@ Bounded State: `Live Validation LV1 public-safe no-visible-runtime proof only. T
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active for this FAM-007 Breakpoint 2 carrier`
+Assigned Worktree Confinement: `Historical receipt for this FAM-007 Breakpoint 2 carrier`
 Active Thread Owner: `Current Codex thread assigned by USER to C:\Nexus Worktrees\FAM-007`
-Thread Assignment Status: `Assigned to FAM-007 PR Readiness Stage 1 repair only`
+Thread Assignment Status: `Historical assignment receipt - FAM-007 was assigned for the PR Readiness Stage 1 repair while this branch was active`
 Worktree Ownership Ledger: `This branch record plus C:\Nexus Governance State\branches\feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness\branch_state.md`
 Intended Write Set: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md; Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md; external operational state records under C:\Nexus Governance State for this branch; Desktop USER review bundle output when refreshed.`
 Same Worktree / Same Branch Collision Check: `PASS - target branch was absent locally and remotely before Stage 2 setup; current thread owns this branch in C:\Nexus Worktrees\FAM-007.`

@@ -32,7 +32,7 @@ This active record preserves the planning, selected-next reconciliation, PR #134
 - Active Branch: `feature/fam-007-provider-boundary-no-provider-shell`
 - Branch Authority Marker: `Historical Branch`
 - Selected-Next Decision: `Granted for this thread/worktree - FAM-007 provider-boundary / no-provider shell is selected; PR #129 release-support remains separate unless USER later selects it`
-- Branch Authority State: `Active Runtime Carrier` - PR #135 repaired merged-main closure, and USER directed the current FAM-007 branch back into runtime-branch planning instead of a repair/governance loop
+- Branch Authority State: `Historical runtime carrier receipt` - PR #135 repaired merged-main closure, and USER directed the then-current FAM-007 branch back into runtime-branch planning instead of a repair/governance loop
 - Current Runtime Branch: `feature/fam-007-provider-boundary-no-provider-shell` - USER-approved FAM-007 Workstream carrier preserved as PR #134 merged-unreleased proof and selected again as the active branch-local carrier for the next bounded FAM-007 runtime seam
 - Post-Merge Successor Selection: `Same-branch current carrier selected by USER; no additional successor branch is selected by this reconcile`
 - PR #134 Historical Merge Proof: `Merged - PR #134 merged repaired head c1b47a6b53f4286c2f60ebf5d74d9afe38dadb52 into main at 2c0b2ce6f602651cf85682e0fbfce3c3367cb509`

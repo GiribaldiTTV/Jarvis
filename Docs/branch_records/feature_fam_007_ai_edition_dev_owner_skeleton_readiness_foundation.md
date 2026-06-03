@@ -79,9 +79,9 @@ Branch Class: `implementation`
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Historical for this FAM-007 Branch Readiness Stage 2 carrier; active mutation is now owned by feature/fam-007-v1-7-23-post-release-canon-closure`
+Assigned Worktree Confinement: `Historical for this FAM-007 Branch Readiness Stage 2 carrier; later mutation moved to feature/fam-007-v1-7-23-post-release-canon-closure`
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation setup`
-Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-007 was assigned while this branch was active`
 Worktree Ownership Ledger: `This branch authority record plus Docs/worktree_slots.md runtime-active-1 receipt`
 Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, AI Edition plan, validation helper registry, public leak-prevention validator and fixture, Desktop USER review packet, and validation proof required for Workstream Green`
 Same Worktree / Same Branch Collision Check: `PASS - no second writer is assigned to this FAM-007 worktree or branch by source truth`

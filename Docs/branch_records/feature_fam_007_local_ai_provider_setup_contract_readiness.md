@@ -94,7 +94,7 @@ Next Legal Phase Detail: `v1.7.11-prebeta` release execution is complete for PR 
 ## Assigned Worktree Confinement
 
 - Active Thread Owner: Codex in `C:\Nexus Worktrees\FAM-007`.
-- Thread Assignment Status: Active for this Stage 2 setup only.
+- Thread Assignment Status: Historical assignment receipt for this Stage 2 setup.
 - Worktree Ownership Ledger: FAM-007 stable runtime worktree.
 - Intended Write Set: FAM-007 branch authority and source-truth setup files on `feature/fam-007-local-ai-provider-setup-contract-readiness`.
 - Same Worktree / Same Branch Collision Check: target branch was absent before creation; no same-branch collision recorded.

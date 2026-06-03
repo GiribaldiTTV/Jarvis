@@ -61,9 +61,9 @@ Branch Class: `implementation`
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active for this FAM-007 Workstream carrier`
+Assigned Worktree Confinement: `Historical receipt for this FAM-007 Workstream carrier`
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 AI Edition Public Leak-Prevention Foundation Workstream implementation`
-Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-007 was assigned while this branch was active`
 Worktree Ownership Ledger: `This branch authority record plus Docs/worktree_slots.md runtime-active-1 receipt`
 Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, worktree slot receipt, public leak-prevention validator, synthetic fixtures, review-bundle helper safety guard, validation registry, and source-truth fold-down required for Workstream Green`
 Same Worktree / Same Branch Collision Check: `PASS - no second writer is assigned to this FAM-007 worktree or branch by source truth`

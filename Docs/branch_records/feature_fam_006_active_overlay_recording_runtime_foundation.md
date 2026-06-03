@@ -163,9 +163,9 @@ Single-Slice Package User Approval: `Not required - five concrete planned slices
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active`
+Assigned Worktree Confinement: `Historical receipt only`
 Active Thread Owner: `FAM-006 assigned Codex thread`
-Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-006 was assigned while this branch was active`
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
 Intended Write Set: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree is assigned this branch.`

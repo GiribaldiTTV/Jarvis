@@ -423,7 +423,7 @@ User Test Summary Strategy: `Stage 2 setup uses source-truth and static validato
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: `Accepted for bounded Workstream implementation; H1 Green; LV1 Green; PR Readiness Stage 1 complete; PR Readiness Stage 2 / PR creation pending USER approval.`
+Engineering Contract Status: `Accepted for bounded Workstream implementation; H1 Green; LV1 Green; PR Readiness Stage 1 complete; historical Stage 2 PR-creation gate recorded before PR execution.`
 
 USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup, Workstream Entry, and bounded Workstream implementation after USER chose the detailed FAM-007 setup implementation foundation carrier.`
 
@@ -497,7 +497,7 @@ Backlog-Split Reason: `None`
 
 Slice ID: `FAM007-SETUP-FOUNDATION`
 
-Slice Status: `LV1 Green for local setup implementation foundation; PR Readiness Stage 1 complete; PR Readiness Stage 2 / PR creation pending USER approval`
+Slice Status: `LV1 Green for local setup implementation foundation; PR Readiness Stage 1 complete; historical Stage 2 PR-creation gate recorded before PR execution`
 
 Slice Scope: `Local provider setup entry, profile/config write-path foundation, validation, status proof, consent boundary handoff, and continuation criteria.`
 
