@@ -14,7 +14,7 @@ Transition Waiver USER Decision: `USER approved governed current-main reconcilia
 External State Reconciliation Proof: `Live active operational truth for this branch is derived from Git, upstream, worktree identity, helper validation, and external operational state when admitted. USER-facing review files must not carry active branch status, current HEAD, current origin/main, or ZIP hash as their content focus. This repo record remains listed during the approved transition only to satisfy assigned-worktree confinement and branch-local authority routing; it must fold to historical/no-active posture before merge-stable PR readiness unless governance records a newer waiver.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 Branch Runtime Engineering Plan: `Present - active FAM-006 runtime implementation carrier remains active-overlay-driven, but pre-PR #248 BP1/BP2/BP3 packet receipts are superseded for active decision purposes because they lack the current Packet Reviewability State / USER Gate State proof model.`
-Engineering Plan Status: `BP1 Branch Vision amendment and BP2 Branch Plan revision are USER Accepted for the Dashboard Recording card direction. BP3 Workstream Entry / Orchestration Validation is USER Approved for the accepted revised engineering route. Bounded Workstream implementation, renewed Hardening H1, and renewed Live Validation LV1 are complete for the first Dashboard Recording card repair seam. USER reports the listed UTS items passed, but UFD-FAM006-20260603-002 blocks PR Readiness until returned regression repairs are validated and USER confirms final disposition.`
+Engineering Plan Status: `BP1 Branch Vision amendment and BP2 Branch Plan revision are USER Accepted for the Dashboard Recording card direction. BP3 Workstream Entry / Orchestration Validation is USER Approved for the accepted revised engineering route. Bounded Workstream implementation, renewed Hardening H1, renewed Live Validation LV1, returned regression repair validation, and USER confirmation are complete for the Dashboard Recording card repair seam. PR Readiness Stage 1 analysis is the next legal decision; PR creation, merge, release, recording execution, file writing, real Start/Stop controls, tray/export/provider/FAM-007/Governance/cleanup remain pending separate USER decisions.`
 
 ## Branch Identity
 
@@ -28,7 +28,7 @@ Record State: `Active Live Validation LV1 receipt`
 
 ## Status
 
-Status: `Active Live Validation regression-repair receipt for the FAM-006 active-overlay recording runtime implementation carrier. This record admits branch authority, preserves prior SLC-051 through SLC-055 Workstream/H1/LV1 proof as durable evidence for the superseded HUD Overlay card route, records USER acceptance of the BP1 Dashboard Recording card amendment, BP2 Dashboard Recording card branch plan, BP3 Workstream Entry / Orchestration Validation, bounded Workstream implementation of the Dashboard Recording card repair seam, renewed H1 proof, renewed LV1 proof, USER report that listed UTS items passed, and UFD-FAM006-20260603-002 blocking until card-holder inset, Active Overlay Profile switching, and Recording card wording regressions are repaired, validated, and confirmed. Recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, Governance mutation, issue mutation, PR creation, merge, release execution, branch/worktree cleanup, and sibling-worktree mutation remain outside this LV1 repair pass.`
+Status: `Active Live Validation regression-repair receipt for the FAM-006 active-overlay recording runtime implementation carrier. This record admits branch authority, preserves prior SLC-051 through SLC-055 Workstream/H1/LV1 proof as durable evidence for the superseded HUD Overlay card route, records USER acceptance of the BP1 Dashboard Recording card amendment, BP2 Dashboard Recording card branch plan, BP3 Workstream Entry / Orchestration Validation, bounded Workstream implementation of the Dashboard Recording card repair seam, renewed H1 proof, renewed LV1 proof, USER report that listed UTS items passed, and UFD-FAM006-20260603-002 repaired, validated, and USER-confirmed for card-holder inset parity, Active Overlay Profile switching, and Recording card wording. Recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, Governance mutation, issue mutation, PR creation, merge, release execution, branch/worktree cleanup, and sibling-worktree mutation remain outside this LV1 repair pass.`
 
 ## Canonical Branch
 
@@ -37,7 +37,7 @@ Canonical Branch: `feature/fam-006-active-overlay-recording-runtime-implementati
 ## Current Phase
 
 Phase: `Live Validation`
-Phase Detail: `Live Validation LV1 proof/handoff remains durable evidence for the prior accepted route. USER reports the listed UTS items passed, but returned regression issues require bounded repair and renewed validation before PR Readiness.`
+Phase Detail: `Live Validation LV1 proof/handoff remains durable evidence for the accepted Dashboard Recording card route. USER reports the listed UTS items passed, and returned regression issues under UFD-FAM006-20260603-002 are repaired, renewed-validation green, and USER-confirmed. PR Readiness Stage 1 analysis is the next legal phase gate.`
 
 ## Phase Status
 
@@ -75,7 +75,7 @@ User-Facing Goal: `Future users should see a small Dashboard Recording card that
 Project-Wide Vision Alignment: `Nexus should expose truthful, lightweight, user-controllable monitoring workflows without fake recording behavior or hidden profile-selection requirements.`
 Branch-Specific Vision Alignment: `This branch supersedes the profile-loaded Recording Profile carrier and prepares a corrected active Overlay Profile membership recording path.`
 USER Vision Questions: `USER accepted the prior active-overlay recording contract, then revised the user-facing surface during Live Validation: recording should move to its own Dashboard card. USER has now accepted this BP1 Dashboard Recording card vision, accepted the BP2 engineering plan, approved BP3 orchestration, approved bounded Workstream implementation, approved renewed H1, and approved renewed LV1. The next USER decision is returned User Test Summary PASS, FAIL/repair feedback, or explicit waiver.`
-USER/ChatGPT Review Checkpoint: `The returned USER feedback is meaningful and blocks direct PR Readiness. BP1 amendment acceptance, BP2 plan acceptance, BP3 orchestration approval, bounded Workstream implementation, renewed H1, renewed LV1, and USER report that listed UTS items passed are recorded; the active next USER decision is confirmation or further feedback for UFD-FAM006-20260603-002 regression repair. PR Readiness, recording execution, file writing, real Start/Stop, tray/export/provider work, and release remain future-gated.`
+USER/ChatGPT Review Checkpoint: `The returned USER feedback was meaningful and blocked direct PR Readiness until repaired. BP1 amendment acceptance, BP2 plan acceptance, BP3 orchestration approval, bounded Workstream implementation, renewed H1, renewed LV1, USER report that listed UTS items passed, and USER confirmation of UFD-FAM006-20260603-002 regression repair are recorded. The active next USER decision is PR Readiness Stage 1 analysis. PR creation, recording execution, file writing, real Start/Stop, tray/export/provider work, merge, and release remain future-gated.`
 Codex Product Interpretation: `Recording should target the current Overlay Profile display membership, while Overlay Profiles continue to own display membership and Monitor Groups continue to own sensor organization.`
 Codex Implementation Recommendation: `Treat SLC-051 as durable accepted target/session truth evidence. Treat old SLC-052 HUD Overlay target preview/launcher transparency and old SLC-053 standalone Recording Control window foundation as superseded-route evidence after returned USER feedback moved recording to a dedicated Dashboard Recording card. Preserve active-overlay recording as branch identity. Treat desktop/ui/dashboard_hud_panel.py as not-current owner; current owners are desktop/monitoring_hud_state.py, nexus_visual/monitoring_hud.js, desktop/desktop_renderer.py, desktop/recording_output_contract.py, dev/orin_fam006_workstream_readiness.py, dev/orin_monitoring_hud_live_validation.ps1, and supporting FAM-006 HUD validators. Route next to renewed Hardening H1 for the implemented Dashboard Recording card repair seam; keep PR Readiness, recording execution, file writing, real Start/Stop, tray controls, export/share, and provider/model work outside this Workstream repair.`
 Full Feature Element Breakdown: `Dashboard Recording card target/status preview and future recording controls; active Overlay Profile target source; active monitored monitor transparency in the Recording card; HUD Overlay card kept overlay-focused; possible future standalone/secondary recording detail surface only after revised BP1/BP2/BP3; durable graph/plot-ready output-file contract; future Native Log Loader graph/log viewer; validation/live proof; future-gated tray, export/share, provider/model, and theme work.`
@@ -93,7 +93,7 @@ Why Branch Is Large Enough: `Separating these concerns before Workstream analysi
 Why Not Split Into Tiny Branches: `Tiny planning branches would create source-truth fragmentation across active Overlay Profile target, visible controls, settings window, output contract, and LV/UTS proof.`
 Codex Additional Recommendations: `Recommendation A: preserve SLC-051 as useful target/session truth evidence. Recommendation B: run renewed Hardening H1 for the implemented Dashboard Recording card repair seam before renewed Live Validation. Alternative: USER may revise, defer, or hold H1 if the implemented seam needs repair first.`
 USER Critique Loop: `USER accepted BP1 for the active-overlay recording direction after PR #248, accepted BP2 with guardrails for BP3, and approved BP3 Workstream Entry / Orchestration Validation for the Dashboard Recording card repair route. Prior BP3, Workstream, H1, and LV1 approvals are preserved as superseded-route evidence for the old HUD Overlay card route, not active authority for the Dashboard Recording card repair. Material feedback during later seam approval must update this branch record/plan or return a revised approval packet before runtime expansion. Pre-PR #248 BP receipts remain superseded legacy evidence for active decision purposes.`
-USER Decision Ledger: `USER approved Stage 2 setup, current-main reconciliation, BP1 acceptance, BP2 acceptance, BP3 approval, bounded SLC-051 through SLC-055 implementation, Hardening H1, and Live Validation LV1 for the prior active-overlay recording route. USER returned Live Validation feedback on 2026-06-02 revising the active recording surface direction: recording should move to a dedicated Dashboard Recording card and should not live inside the HUD Overlay card. USER then accepted the BP1 Branch Vision amendment, accepted the BP2 Branch Plan revision, approved BP3 Workstream Entry / Orchestration Validation, approved bounded Workstream implementation, approved renewed H1, and approved renewed LV1 for that Dashboard Recording card direction. USER reports the listed UTS items passed and returned separate regression issues now tracked as UFD-FAM006-20260603-002. Pending USER decisions now include regression repair confirmation or further feedback, runtime recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, artifacts/raw evidence handling beyond approved USER review materials, sibling-worktree mutation, old branch cleanup/deletion, FAM-007 work, PR creation, merge, release, issue mutation, and Governance mutation.`
+USER Decision Ledger: `USER approved Stage 2 setup, current-main reconciliation, BP1 acceptance, BP2 acceptance, BP3 approval, bounded SLC-051 through SLC-055 implementation, Hardening H1, and Live Validation LV1 for the prior active-overlay recording route. USER returned Live Validation feedback on 2026-06-02 revising the active recording surface direction: recording should move to a dedicated Dashboard Recording card and should not live inside the HUD Overlay card. USER then accepted the BP1 Branch Vision amendment, accepted the BP2 Branch Plan revision, approved BP3 Workstream Entry / Orchestration Validation, approved bounded Workstream implementation, approved renewed H1, and approved renewed LV1 for that Dashboard Recording card direction. USER reports the listed UTS items passed, returned separate regression issues tracked as UFD-FAM006-20260603-002, and then approved the focused live evidence confirming those regressions are repaired. Pending USER decisions now include PR Readiness Stage 1 analysis, runtime recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, artifacts/raw evidence handling beyond approved USER review materials, sibling-worktree mutation, old branch cleanup/deletion, FAM-007 work, PR creation, merge, release, issue mutation, and Governance mutation.`
 
 
 Deferred Ideas / Future Package Ledger: `Tray recording controls, recording execution beyond approved seams, export/share/import, provider/model integration, broad theme/skin work, advanced/bulky Recording Control settings, graph/plot UI, Native Log Loader implementation, per-overlay effective polling policy implementation, FAM-007 work, and Governance mutation remain future-gated.`
@@ -110,17 +110,17 @@ Implementation Sequence Proposal: `Active sequence after USER feedback begins wi
 Planning Packet Status: `Complete`
 Planning Revalidation Status: `PASS`
 User Test Summary Strategy: `Returned USER feedback is now a BP1/BP2/BP3 design revision input. Future repaired user-facing Recording card seams require LV1 real user-facing proof, per-element screenshots, compact/default comparison, output-file proof where applicable, and a USER Test Summary handoff unless explicitly waived by governance.`
-Planning Blockers: `UFD-FAM006-20260603-002 blocks PR Readiness because USER returned regressions after reporting listed UTS items passed: card-holder left/right inset parity, Active Overlay Profile selector switching after multiple profiles, and Recording card copy/active-monitor wording require repair and renewed validation. Recording execution, file writing, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, artifacts/raw evidence handling beyond approved review packet, sibling-worktree mutation, old branch cleanup/deletion, merge, release, issue mutation, or Governance mutation remain pending decisions.`
+Planning Blockers: `None for PR Readiness Stage 1 after UFD-FAM006-20260603-002 repair validation and USER confirmation. Recording execution, file writing, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, artifacts/raw evidence handling beyond approved review packet, sibling-worktree mutation, old branch cleanup/deletion, PR creation, merge, release, issue mutation, or Governance mutation remain pending decisions.`
 USER Decisions Needed: `Approve, revise, defer, or hold the first bounded Workstream implementation repair for the accepted Dashboard Recording card plan.`
 Planning Completion Waiver: `Not required`
 ## USER Feedback Disposition
 
-USER Feedback Disposition Required: Yes - returned USER Live Validation feedback and returned regression issues change proof and phase routing before PR Readiness.
-UFD Ledger Status: Blocking
+USER Feedback Disposition Required: Yes - returned USER Live Validation feedback and returned regression issues changed proof and phase routing before PR Readiness; all active UFD items are now closed for PR Readiness Stage 1 analysis.
+UFD Ledger Status: Closed
 UFD Ledger Owner: Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md
-Open UFD Count: 1
-Blocking UFD Count: 1
-Fold-Down Status: Pending
+Open UFD Count: 0
+Blocking UFD Count: 0
+Fold-Down Status: Complete for PR Readiness Stage 1 entry; PR Readiness must preserve this receipt.
 
 ### UFD Item: UFD-FAM006-20260602-001
 Feedback ID: UFD-FAM006-20260602-001
@@ -135,22 +135,22 @@ Workstream Severity: Level 3 - blocking branch vision and branch plan revision
 Status: Closed
 Fold-Down Target: BP1 amendment and BP2 revision accepted, BP3 revision approved, then runtime repair only after separate USER implementation approval.
 Pointer Locations: Active branch record, active branch plan, family vision, and USER review packet.
-No-Action Reason: Resolved - successor regression item UFD-FAM006-20260603-002 owns remaining returned issues.
+No-Action Reason: Resolved - successor regression item UFD-FAM006-20260603-002 closed the remaining returned issues.
 
 ### UFD Item: UFD-FAM006-20260603-002
 Feedback ID: UFD-FAM006-20260603-002
-Feedback Summary: USER reports all listed UTS items passed, but card-holder inset parity, Active Overlay Profile switching, and Recording card copy/active-monitor wording regressions block PR Readiness.
+Feedback Summary: USER reported all listed UTS items passed, then card-holder inset parity, Active Overlay Profile switching, and Recording card copy/active-monitor wording regressions blocked PR Readiness until repaired, revalidated, and USER-confirmed.
 Feedback Source: Returned USER regression feedback after UTS handoff
 Feedback Phase: Live Validation
 Disposition Type: Current Branch Requirement
-USER Decision State: Needs USER Decision
+USER Decision State: Accepted by USER
 Owner Class: Branch Plan
 Canonical Owner File: Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md
-Workstream Severity: Level 2 - blocking PR Readiness until repaired and revalidated
-Status: Blocking
-Fold-Down Target: Bounded regression repair, renewed validation, and USER confirmation before PR Readiness.
+Workstream Severity: Level 2 - blocked PR Readiness until repaired, revalidated, and USER-confirmed
+Status: Closed
+Fold-Down Target: Bounded regression repair, renewed validation, and USER confirmation are complete; PR Readiness Stage 1 must fold this receipt into the branch review packet.
 Pointer Locations: Active branch record, active branch plan, HUD UI, FAM-006 validators, and live validation helper.
-No-Action Reason: Not Applicable - regression repair is required before PR Readiness.
+No-Action Reason: Resolved - focused live validation passed and USER approved the repair evidence.
 
 ## Runtime Branch Engineering Contract
 
@@ -164,7 +164,7 @@ User-Facing Runtime Delta: `BP1 amendment accepted; BP2 plan accepted; BP3 appro
 State / Config / Schema Delta: `SLC-051 adds activeOverlayRecordingTarget and activeOverlayRecordingTargetProof state fields / metadata derived from active Overlay Profile membership and does not reintroduce profile-loaded Recording Profile membership. SLC-054 adds the in-memory recording output contract schema, manifest, deterministic CSV render/parse helpers, and readback proof without writing files.`
 Validator / Helper Delta: `SLC-051 extends FAM-006 HUD validators to prove active-overlay recording target/session boundaries, null/empty/stale/deleted/missing profile behavior, high-volume membership behavior, no hidden target state, and blocked recording execution/file writing. SLC-054 extends FAM-006 validators to prove deterministic output contract headers/rows, manifest shape, null/no-data handling, parse/readback, graph/plot readiness, and blocked recording execution/file writing. SLC-055 extends FAM-006 validators to prove Workstream Green readiness, H1/LV1/UTS routing, complete SLC-051 through SLC-055 seam coverage, and blocked execution/file-writing boundaries.`
 Expected Changed Files / Surfaces: `desktop/monitoring_hud_state.py; desktop/desktop_renderer.py; desktop/recording_output_contract.py; nexus_visual/monitoring_hud.html; nexus_visual/monitoring_hud.css; nexus_visual/monitoring_hud.js; dev/orin_monitoring_hud_surface_validation.py; dev/orin_monitoring_hud_internal_sandbox_validation.py; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md.`
-Approval-Boundary Audit: `This feedback-routing pass authorizes source-truth disposition only. The prior Recording Profile Workstream rollback is receipt-complete and preserved. Recording execution, file writing, real Start/Stop controls, tray/export/provider/model work, code repair, renewed H1, renewed LV, UTS pass/waiver, and PR Readiness remain blocked until their legal phase owns them.`
+Approval-Boundary Audit: `This digest pass authorizes source-truth disposition only. The prior Recording Profile Workstream rollback is receipt-complete and preserved. Recording execution, file writing, real Start/Stop controls, tray/export/provider/model work, PR creation, merge, release, cleanup, and new runtime expansion remain blocked until their legal phase owns them. PR Readiness Stage 1 analysis is the next legal USER decision.`
 Future-Gated Items: `Tray recording controls; recording execution; export/share/import; provider/model/memory/shortcut/installer work; broad theme/skin work; FAM-007 work; Governance mutation; issue mutation; PR creation; merge; release; artifacts/raw evidence handling.`
 Workstream Seam Map: `Prior seams preserved as evidence: SLC-051 target/session truth, SLC-052 old HUD Overlay target preview, SLC-053 old Recording Control foundation, SLC-054 output contract proof, and SLC-055 validation/live proof readiness. Revised continuation checkpoints: BP1 Dashboard Recording card amendment accepted, BP2 revised engineering plan accepted, BP3 orchestration approved, bounded Workstream repair, renewed H1, renewed LV, and UTS disposition.`
 Proof Expectations: `Future proof must include active Overlay Profile membership target proof, Dashboard Recording card target/status proof, HUD Overlay card preservation proof, secondary settings proof if admitted, output-file contract proof when implemented, null/stress state, concept separation, real user-level input for visible controls, compact/default screenshots, and pessimistic Codex photo review.`
@@ -191,15 +191,15 @@ Planning-Loop Bypass Reason: `None`
 
 Family: `FAM-006 - Monitoring and HUD`
 Package: `PKG-006 - Active Overlay Recording Runtime Foundation`
-Package Admission State: `Implementation carrier admitted / UFD-FAM006-20260603-002 blocking PR Readiness pending regression repair validation and USER confirmation / BP1 amendment accepted / BP2 plan accepted / BP3 approved / bounded Workstream repair implemented / renewed H1 green / renewed LV1 green / USER reports listed UTS items passed / prior SLC-051 through SLC-055, H1, and LV1 proof preserved as superseded-route evidence`
+Package Admission State: `Implementation carrier admitted / UFD-FAM006-20260603-002 repaired, validation green, and USER-confirmed / BP1 amendment accepted / BP2 plan accepted / BP3 approved / bounded Workstream repair implemented / renewed H1 green / renewed LV1 green / USER reports listed UTS items passed / prior SLC-051 through SLC-055, H1, and LV1 proof preserved as superseded-route evidence`
 Admitted Slice Count: `5`
-Package Completion State: `Blocked for active advancement by UFD-FAM006-20260603-002 regression repair validation and USER confirmation / BP1 amendment accepted / BP2 plan accepted / BP3 approved / Workstream repair implemented / renewed H1 green / renewed LV1 green / USER reports listed UTS items passed`
+Package Completion State: `Ready for PR Readiness Stage 1 analysis / UFD-FAM006-20260603-002 repaired, validation green, and USER-confirmed / BP1 amendment accepted / BP2 plan accepted / BP3 approved / Workstream repair implemented / renewed H1 green / renewed LV1 green / USER reports listed UTS items passed`
 Single-Slice Package User Approval: `Not required - five concrete planned slices are admitted.`
 
 | Slice | Admission State | Purpose | Current Status |
 | --- | --- | --- | --- |
 | `SLC-051` Active Overlay recording target foundation | Workstream implemented / pending H1 and later proof | Define the active Overlay Profile membership as the recording target and preserve Overlay Profile / Monitor Group separation. | Implemented as target/session truth only; recording execution and file writing remain blocked |
-| `SLC-052` Dashboard Recording card placement revision | Implemented and H1 green | Prior HUD Overlay card preview/launcher is superseded as active placement; accepted BP2 and approved BP3 remap target/status and future controls to the Dashboard Recording card. | Complete pending renewed LV proof |
+| `SLC-052` Dashboard Recording card placement revision | Implemented, H1 green, LV1 green, USER-confirmed after returned regression repair | Prior HUD Overlay card preview/launcher is superseded as active placement; accepted BP2 and approved BP3 remap target/status and future controls to the Dashboard Recording card. | Complete for PR Readiness Stage 1 analysis |
 | `SLC-053` Recording Control / secondary surface decision | Future-gated / secondary | Prior standalone Recording Control foundation is durable evidence only; accepted BP2 and approved BP3 keep any standalone or secondary surface future/secondary unless later admitted. | Boundary preserved / future-gated |
 | `SLC-054` durable recording output contract | Implemented | Durable graph/plot-ready output contract schema, manifest, deterministic CSV render/parse helpers, null/no-data handling, and readback proof are implemented without recording execution or file writing. | Complete |
 | `SLC-055` validation/live proof readiness | Implemented | Validator/helper proof, H1 route, LV1 route, screenshot/photo comparison expectations, UTS handoff strategy, null/stress coverage, and future-gated boundary proof are recorded without running later phases. | Complete |
@@ -216,35 +216,35 @@ Single-Slice Package User Approval: `Not required - five concrete planned slices
 
 ## Backlog Completion Status
 
-Backlog Completion State: `In Progress`
+Backlog Completion State: `Implemented Complete Except Future Dependency`
 
-Remaining Implementable Work: `None inside the approved bounded Workstream repair; future implementation requires separate USER approval after renewed H1/LV path identifies any repair`
+Remaining Implementable Work: `None`
 
-Future-Dependent Blockers: `UFD-FAM006-20260603-002`
+Future-Dependent Blockers: `None for PR Readiness Stage 1; future implementation requires separate USER approval after PR Readiness, PR creation/merge/release, or later source truth admits a new implementation seam. Runtime recording execution, file writing, real Start/Stop, tray/export/provider/FAM-007/Governance/cleanup remain pending separate decisions.`
 
-Completion Status: `Blocked pending returned regression repair validation and USER confirmation`
+Completion Status: `Ready for PR Readiness Stage 1 analysis after returned regression repair validation and USER confirmation`
 
 ## Seam Continuation Decision
 
-Seam Status: `Implemented / H1 green / LV pending`
+Seam Status: `Implemented / H1 green / LV1 green / returned regression repair validation green / USER-confirmed`
 
-Slice Status: `Implemented / H1 green / LV pending`
+Slice Status: `Implemented / H1 green / LV1 green / returned regression repair validation green / USER-confirmed`
 
-Completion Status: `Blocked pending returned regression repair validation and USER confirmation`
+Completion Status: `Ready for PR Readiness Stage 1 analysis`
 
 Waiver Status: `None`
 
-Continue Decision: `Stop`
+Continue Decision: `Stop before PR Readiness until USER approves PR Readiness Stage 1 analysis`
 
-Continuation Execution Latch: `Inactive - bounded Workstream repair is implemented, renewed H1 is green, renewed LV1 is green, and USER reports listed UTS items passed; returned regression repair validation and USER confirmation are required before PR Readiness.`
+Continuation Execution Latch: `Inactive - bounded Workstream repair is implemented, renewed H1 is green, renewed LV1 is green, USER reports listed UTS items passed, and returned regression repair validation is USER-confirmed. PR Readiness Stage 1 requires separate USER approval.`
 
-Stop Basis: `UFD-FAM006-20260603-002 / returned regression repair validation and USER confirmation required`
+Stop Basis: `PR Readiness Stage 1 requires separate USER approval`
 
-Next Active Seam: Live Validation LV1 - returned regression repair validation and USER confirmation
+Next Active Seam: PR Readiness Stage 1 analysis
 
-Stop Condition: `Met - returned USER design feedback blocks active advancement until renewed LV/UTS disposition.`
+Stop Condition: `Met - active advancement stops before PR Readiness Stage 1 until USER grants that phase approval.`
 
-Continuation Action: `Stop at returned regression repair gate; do not enter PR Readiness, release posture, runtime recording execution, or cleanup before repair validation is green and USER confirms final UTS disposition for the Dashboard Recording card repair seam.`
+Continuation Action: `Stop at PR Readiness Stage 1 approval gate; do not enter PR Readiness, PR creation, release posture, runtime recording execution, or cleanup without separate USER approval.`
 
 Single-Seam Workstream Waiver: `None`
 
@@ -306,8 +306,8 @@ Branch Closure Rule: `This implementation carrier is not package-complete until 
 
 ## Blockers
 
-Active Blockers: `UFD-FAM006-20260603-002 - returned regression repair validation and USER confirmation required for card-holder equal insets, Active Overlay Profile switching, and Recording card copy/active-monitor wording after USER reported the listed UTS items passed.` No current-main reconciliation blocker remains after reconciliation to origin/main@c44f2a0b39a26802d29ecf0a7ef87b32aeb697e6. Prior SLC-051 target/session truth, SLC-052 HUD Overlay target preview, SLC-053 standalone Recording Control window foundation, SLC-054 durable output contract schema/readback proof, SLC-055 validation/live proof readiness, H1, and LV1 proof/handoff remain durable evidence for the superseded accepted route. PR Readiness remains blocked until USER confirms the returned regression repair or returns further feedback.
-PR Readiness Boundary: PR Readiness is not reached for this active implementation carrier. Returned User Test Summary disposition, PR Readiness, release execution beyond already published v1.7.25-prebeta, issue mutation, artifacts/raw evidence handling beyond approved USER review materials, sibling-worktree mutation, old branch cleanup/deletion, tray recording controls, recording execution, file writing, real Start/Stop controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, durable Native Log Loader implementation/source-truth mutation beyond future planning, per-overlay effective polling policy implementation, and Governance worktree mutation remain outside this LV1 pass.
+Active Blockers: `None for PR Readiness Stage 1 after UFD-FAM006-20260603-002 repair validation and USER confirmation.` No current-main reconciliation blocker remains after reconciliation to origin/main@c44f2a0b39a26802d29ecf0a7ef87b32aeb697e6. Prior SLC-051 target/session truth, SLC-052 HUD Overlay target preview, SLC-053 standalone Recording Control window foundation, SLC-054 durable output contract schema/readback proof, SLC-055 validation/live proof readiness, H1, and LV1 proof/handoff remain durable evidence for the superseded accepted route.
+PR Readiness Boundary: PR Readiness Stage 1 analysis is the next legal USER decision. PR creation, release execution beyond already published v1.7.25-prebeta, issue mutation, artifacts/raw evidence handling beyond approved USER review materials, sibling-worktree mutation, old branch cleanup/deletion, tray recording controls, recording execution, file writing, real Start/Stop controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, durable Native Log Loader implementation/source-truth mutation beyond future planning, per-overlay effective polling policy implementation, and Governance worktree mutation remain outside this LV1 pass.
 
 ## Exit Criteria
 
@@ -331,15 +331,15 @@ Future-Gated Boundary Check: `PASS - recording execution, file writing, real Sta
 UTS Phase Boundary: `PASS - Formal User Test Summary export is exclusive to Live Validation Stage 1; H1 did not refresh, digest, or export UTS.`
 Helper Proof: `PASS - python dev\orin_fam006_hardening_h1.py.`
 Validation Status: `Green - required H1/source-truth/FAM-006 validations passed before commit.`
-Package Status: `Prior Workstream/H1/LV1 proof preserved as superseded-route evidence; UFD-FAM006-20260603-002 requires regression repair validation and USER confirmation after USER reported the listed UTS items passed.`
-Next Active Seam: Live Validation LV1 - returned regression repair validation and USER confirmation
+Package Status: `Prior Workstream/H1/LV1 proof preserved as superseded-route evidence; UFD-FAM006-20260603-002 is repaired, validation green, and USER-confirmed after USER reported the listed UTS items passed.`
+Next Active Seam: PR Readiness Stage 1 analysis
 
 ## Live Validation LV1 Active Overlay Recording Runtime Implementation
 
 LV1 Admission: `PASS - USER explicitly admitted Live Validation LV1 for the FAM-006 Active Overlay Recording Runtime Implementation package in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-implementation.`
-LV1 Result: `Green as prior proof evidence - renewed LV1 for the Dashboard Recording card repair seam passed after USER admission. USER reports the listed UTS items passed, but active advancement remains blocked by UFD-FAM006-20260603-002 pending regression repair validation and USER confirmation.`
+LV1 Result: `Green - renewed LV1 for the Dashboard Recording card repair seam passed after USER admission, USER reports the listed UTS items passed, and UFD-FAM006-20260603-002 returned regression repair is validation-green and USER-confirmed.`
 Human-Client Precheck: `PASS - dev\orin_monitoring_hud_human_client_validation.ps1 launched through C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk, verified the shortcut target and working directory resolve to C:\Nexus Worktrees\FAM-006, exercised tray/Dashboard lifecycle, Dashboard settings, move/resize/right-edge recovery, and shutdown controls, generated short-video proof, and did not refresh the formal UTS. Manifest: dev\logs\fam_006_human_client_validation\20260602_162121_890\human_client_manifest.json.`
-Live Client Self-QA: `PASS - dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -RunInteractionSelfQA -PrepareLiveValidationUserTestSummary produced the active replacement PASS manifest at dev\logs\fam_006_monitoring_hud_live_validation\20260603_081159_761\manifest.json and PASS interaction manifest at dev\logs\fam_006_monitoring_hud_live_validation\20260603_081159_761\monitoring_hud_live_client_interaction_manifest.json. Prior LV1 proof at 20260602_171034_264 remains historical evidence only because it did not require focused screenshots of the newly created Dashboard Recording card target/status elements; 20260603_051504_541 remains superseded evidence because it proved presence but not standardized Dashboard card visual-system inheritance.`
+Live Client Self-QA: `PASS - dev\orin_monitoring_hud_live_validation.ps1 -ActiveUserFacingClient -RunInteractionSelfQA -PrepareLiveValidationUserTestSummary produced the active replacement PASS manifest at dev\logs\fam_006_monitoring_hud_live_validation\20260603_081159_761\manifest.json and PASS interaction manifest at dev\logs\fam_006_monitoring_hud_live_validation\20260603_081159_761\monitoring_hud_live_client_interaction_manifest.json. Returned regression repair proof then passed at dev\logs\fam_006_monitoring_hud_live_validation\20260603_093530_346\monitoring_hud_live_client_interaction_manifest.json, including real OS click open/select on the HUD Overlay card Active Overlay Profile selector and Recording card mirror proof for LV1 Real OS Profile 001. Prior LV1 proof at 20260602_171034_264 remains historical evidence only because it did not require focused screenshots of the newly created Dashboard Recording card target/status elements; 20260603_051504_541 remains superseded evidence because it proved presence but not standardized Dashboard card visual-system inheritance.`
 Real-Input Repair Root Cause: `The previous LV1 proof was governance-insufficient for the branch-created Recording card because it focused existing Dashboard/Overlay Profile/Manage Monitors elements and did not fail when new Recording-card target/status rows were visually broken. A second USER screenshot review showed the contained-row repair still created a Recording-only visual grammar instead of the standardized Dashboard card format. The family vision now requires new FAM-006 UI to sample existing UI color, shape, spacing, typography, effects, interaction states, and layout density; the helper now requires mandatory focused screenshots for 02_recording_card_target_status_visual_contract, 02_recording_card_target_preview_standard_state_rows, and 02_recording_card_future_controls_disabled_boundary, and the desktop renderer validates those geometries plus the visual-system inheritance markers before later child-window proof.`
 Recording Target Mirror Repair: `PASS - creating a new Overlay Profile now marks the unsaved draft as the live session active Overlay Profile target and immediately mirrors it into the Dashboard Recording card target/status preview while persistence still waits for Save. The Recording target mirror proof must pass during live interaction before LV1 can green.`
 UTS Fail-Closed Repair: `The first LV1 attempt also exposed that dev\orin_monitoring_hud_live_validation.ps1 could export the UTS handoff after a FAIL manifest. The helper now records UTS export as refreshed only when the LV1 manifest is PASS and blocks UTS export on FAIL.`
@@ -348,16 +348,16 @@ Short Video Proof: `PASS - mandatory LV1 short video proof was generated at dev\
 Formal UTS Handoff: `PASS - C:\Nexus USER\UTS - FAM-006.txt was refreshed after LV1 PASS only and now has SHA256 A9A80834EA756A7B0F64D648EE57969E33DFD7D5846424941F9FCD40959F7E73. C:\Nexus USER\User Test Summary.txt is template-only and not active returned-results evidence.`
 UTS Handoff Mismatch Repair: `PASS - USER caught that earlier UTS exports could refresh timestamp/proof-root metadata while retaining stale issue-body content. The corrected UTS handoff now names FAM006-LV1-REC-001 Dashboard Recording Card Visual-System Inheritance, FAM006-LV1-REC-002 Recording Target Mirrors Active Overlay Profile, FAM006-LV1-REC-003 Future-Gated Recording Controls Stay Blocked, and FAM006-LV1-REC-004 Dashboard Card Holder Equal Insets; dev\orin_monitoring_hud_live_validation.ps1 and dev\orin_monitoring_hud_surface_validation.py now require that seam-specific UTS body so helper PASS cannot mask stale USER questionnaire content.`
 Future-Gated Boundary Check: `PASS - recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, Native Log Loader implementation, FAM-007 mutation, Governance mutation, PR creation, merge, release, issue mutation, and cleanup remain pending USER decisions.`
-Validation Status: `Green pending final required validation rerun for this returned regression repair commit.`
-Package Status: `Prior Workstream/H1/LV1 proof preserved as superseded-route evidence; UFD-FAM006-20260603-002 requires regression repair validation and USER confirmation after USER reported the listed UTS items passed.`
-Next Active Seam: Live Validation LV1 - returned regression repair validation and USER confirmation
+Validation Status: `Green - required validation reran after the returned regression repair commit and focused live client proof passed at dev\logs\fam_006_monitoring_hud_live_validation\20260603_093530_346.`
+Package Status: `Prior Workstream/H1/LV1 proof preserved as superseded-route evidence; UFD-FAM006-20260603-002 is repaired, validation green, and USER-confirmed after USER reported the listed UTS items passed.`
+Next Active Seam: PR Readiness Stage 1 analysis
 
 ## User Test Summary
 
-User Test Summary Results: `LISTED UTS ITEMS PASSED / REGRESSION REPAIR PENDING`
+User Test Summary Results: `PASS / REGRESSION REPAIR VALIDATED AND USER-CONFIRMED`
 User Test Summary Handoff Path: `C:\Nexus USER\UTS - FAM-006.txt`
 User Test Summary Handoff Status: `Generated after LV1 PASS only`
-User Test Summary Returned Results: `USER returned that all listed UTS items passed. Separate regression issues are recorded under UFD-FAM006-20260603-002: card-holder left/right inset parity, Active Overlay Profile selector switching after multiple profiles, and Recording card Target Overlay Profile / active monitor wording.`
+User Test Summary Returned Results: `USER returned that all listed UTS items passed. Separate regression issues recorded under UFD-FAM006-20260603-002 - card-holder left/right inset parity, Active Overlay Profile selector switching after multiple profiles, and Recording card Target Overlay Profile / active monitor wording - were repaired, renewed-validation green, and USER-confirmed.`
 User-Facing Shortcut Validation: `PASS`
 User-Facing Shortcut Path: `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk`
 Shortcut Active Worktree Proof: `PASS - target path C:\Nexus Worktrees\FAM-006\launch_orin_desktop.vbs and working directory C:\Nexus Worktrees\FAM-006`
@@ -368,9 +368,9 @@ Codex Live Client Self-QA: `PASS`
 Live Client Entry Path: `C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk plus active user-facing client helper`
 Evidence Screenshot: `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\fam_006_monitoring_hud_live_validation\20260603_081159_761`
 Visual Quality: `PASS - focused screenshots and short video proof generated for the current Dashboard/HUD/Overlay Profile/Manage Monitors visual surfaces, with new mandatory Recording card target/status focused evidence.`
-Interaction Manifest: `dev\logs\fam_006_monitoring_hud_live_validation\20260603_081159_761\monitoring_hud_live_client_interaction_manifest.json`
-Interaction Evidence Root: `dev\logs\fam_006_monitoring_hud_live_validation\20260603_081159_761\live_client_interaction`
-Live Interaction Evidence: `PASS - real OS clicks, wheel scrolling, hover/focus, dirty-guard, Manage Monitors, Overlay Profile, Dashboard movement/clipping, and Recording Control proof all passed without synthetic DOM click or QTest mouse proof.`
+Interaction Manifest: `dev\logs\fam_006_monitoring_hud_live_validation\20260603_093530_346\monitoring_hud_live_client_interaction_manifest.json`
+Interaction Evidence Root: `dev\logs\fam_006_monitoring_hud_live_validation\20260603_093530_346\live_client_interaction`
+Live Interaction Evidence: `PASS - real OS clicks, wheel scrolling, hover/focus, dirty-guard, Manage Monitors, Overlay Profile, Dashboard movement/clipping, Recording Control proof, HUD Overlay card Active Overlay Profile open/select, and Recording card mirror proof all passed without synthetic DOM click or QTest mouse proof.`
 Usability Check: `PASS - controls remain user-reachable at default and compact proof sizes; Manage Monitors click readiness was repaired to require hit-test proof before real input.`
 Interaction Check: `PASS - interaction manifest status PASS.`
 Platform Uniformity Check: `PASS - actual desktop shortcut and active user-facing client paths resolve to the FAM-006 worktree.`
@@ -388,12 +388,12 @@ Product Vision Alignment: `PASS - active-overlay-driven recording remains target
 Per-Element Visual Verdicts: `PASS - no Codex-visible REPAIR or STOP findings remain in the LV1 proof handoff.`
 Helper Marker Limitation: `Satisfied - helper markers, screenshots, and video proof are evidence; the branch record preserves the source-truth boundary and does not treat helper output as USER acceptance.`
 Unacceptable UI Findings: `None recorded after the corrected LV1 rerun.`
-LV1 Handoff Disposition: `USER reports listed UTS items passed; UFD-FAM006-20260603-002 regression repair validation and USER confirmation are required before any PR Readiness decision.`
+LV1 Handoff Disposition: `USER reports listed UTS items passed; UFD-FAM006-20260603-002 regression repair validation is green and USER-confirmed. PR Readiness Stage 1 analysis is the next legal USER decision.`
 
 ## Next Legal Phase
 
-Next Legal Phase: `Live Validation`
-Next Legal Phase Detail: `Returned USER Live Validation feedback changed the accepted user-facing recording placement from HUD Overlay card to a dedicated Dashboard Recording card. USER accepted the BP1 Branch Vision amendment, accepted the BP2 Branch Plan revision, approved BP3 Workstream Entry / Orchestration Validation, approved bounded Workstream implementation, approved renewed H1, and admitted renewed LV1. USER reports the listed UTS items passed, but UFD-FAM006-20260603-002 regression repair validation and USER confirmation are required before PR Readiness. No PR Readiness, FAM-007 mutation, runtime recording execution, file writing, release, merge, issue mutation, or cleanup is authorized by LV1 proof alone.`
+Next Legal Phase: `PR Readiness`
+Next Legal Phase Detail: `Returned USER Live Validation feedback changed the accepted user-facing recording placement from HUD Overlay card to a dedicated Dashboard Recording card. USER accepted the BP1 Branch Vision amendment, accepted the BP2 Branch Plan revision, approved BP3 Workstream Entry / Orchestration Validation, approved bounded Workstream implementation, approved renewed H1, admitted renewed LV1, reported the listed UTS items passed, and confirmed UFD-FAM006-20260603-002 after focused live regression repair validation passed. PR Readiness Stage 1 analysis is now the next legal decision. FAM-007 mutation, runtime recording execution, file writing, release, merge, issue mutation, cleanup, and PR creation remain separate USER decisions.`
 
 ## Expected Seam Families And Risk Classes
 
@@ -406,23 +406,23 @@ User Test Summary Strategy: `Returned USER feedback is now a BP1/BP2/BP3 design 
 ## Formal Next Legal Phase Digest
 
 Current Phase: `Live Validation`
-Next Legal Phase: `Live Validation`
-Why This Phase Is Next: `Returned USER Live Validation feedback changed the accepted BP1 surface model and BP2/BP3 proof route: recording should move to its own Dashboard Recording card instead of living inside the HUD Overlay card. USER accepted the BP1 amendment, accepted the BP2 plan, approved BP3 orchestration, bounded Workstream implementation is complete, renewed H1 is green, renewed LV1 is green, and USER reports listed UTS items passed. The next legal step is UFD-FAM006-20260603-002 regression repair validation and USER confirmation.`
-Approval Required: `USER must confirm the returned regression repair is resolved or return further repair feedback before PR Readiness. Cleanup, issue mutation, release execution beyond already published v1.7.25-prebeta, recording execution, file writing, Start/Stop, tray/export/provider/model work remain outside this LV1 pass.`
-Exact USER Approval Text: `I confirm the FAM-006 returned regression repair is resolved for card-holder spacing, Active Overlay Profile switching, and Recording card Target Overlay Profile / active monitor wording. Runtime recording execution, file writing, real Start/Stop controls, tray/export/provider/FAM-007/Governance/PR/merge/release/cleanup remain pending separate USER decisions.`
-Allowed Scope: `Renewed LV1 only; no PR Readiness, release, recording execution, file writing, Start/Stop, tray/export/provider/model, FAM-007, Governance, or cleanup mutation without separate authority.`
+Next Legal Phase: `PR Readiness`
+Why This Phase Is Next: `Returned USER Live Validation feedback changed the accepted BP1 surface model and BP2/BP3 proof route: recording should move to its own Dashboard Recording card instead of living inside the HUD Overlay card. USER accepted the BP1 amendment, accepted the BP2 plan, approved BP3 orchestration, bounded Workstream implementation is complete, renewed H1 is green, renewed LV1 is green, USER reports listed UTS items passed, and UFD-FAM006-20260603-002 is repaired, validation-green, and USER-confirmed.`
+Approval Required: `USER must approve PR Readiness Stage 1 analysis before Codex analyzes PR readiness. Cleanup, issue mutation, release execution beyond already published v1.7.25-prebeta, recording execution, file writing, Start/Stop, tray/export/provider/model work remain outside this LV1 pass.`
+Exact USER Approval Text: `I approve PR Readiness Stage 1 analysis for FAM-006 Active Overlay Recording Runtime Implementation on feature/fam-006-active-overlay-recording-runtime-implementation in C:\Nexus Worktrees\FAM-006. PR creation, merge, release execution, runtime recording execution, file writing, real Start/Stop controls, tray/export/provider/FAM-007/Governance/cleanup remain pending separate USER decisions.`
+Allowed Scope: `PR Readiness Stage 1 analysis only after USER approval; no PR creation, release, recording execution, file writing, Start/Stop, tray/export/provider/model, FAM-007, Governance, or cleanup mutation without separate authority.`
 Explicit Exclusions: `Recording execution; file writing; real Start/Stop controls; tray recording controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; future branch creation; future PR creation; future merge; release execution beyond already published v1.7.25-prebeta; issue mutation; artifacts/raw evidence handling beyond approved review materials; sibling-worktree mutation; old branch cleanup/deletion; Governance worktree mutation.`
 Validation Required: `Identity, source truth, branch governance, worktree confinement, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, focused FAM-006 validators, FAM-006 H1 helper, and compileall as applicable.`
 Stop Conditions: `Dirty worktree, origin/main advancement requiring pre-rebaseline audit, source-truth routing conflict, missing package/slice proof, stale active-authority drift, or need for runtime implementation.`
 USER Plan Review Gate: `BP1 amendment is USER Accepted. BP2 Branch Plan revision is USER Accepted. BP3 Workstream Entry / Orchestration Validation is USER Approved for the Dashboard Recording card revision. Prior BP3 approval for the old HUD Overlay card route remains superseded-route evidence only.`
 USER Inspection Files: `C:\Nexus USER\FAM-006 when generated; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/family_visions/FAM-006_monitoring_and_hud.md; Docs/nexus_vision.md`
 Review Required Because: `Active-overlay-driven recording is a user-facing FAM-006 runtime foundation and must remain distinct from Overlay Profile editing, Monitor Group organization, tray controls, export/share, provider/model work, and broad theme/skin work.`
-Implementation Blocker: `UFD-FAM006-20260603-002 blocks phase advancement until returned regression repairs are validated and USER confirms final disposition. The prior SLC-051 through SLC-055, H1, and LV1 proof/handoff remain durable evidence for the superseded route; USER reports listed UTS items passed, but PR Readiness remains blocked until the regression repair is confirmed. Recording execution, file writing, real Start/Stop controls, tray/export/provider/model work, PR, merge, release, issue mutation, and cleanup remain outside this LV1 pass.`
+Implementation Blocker: `None for PR Readiness Stage 1 after UFD-FAM006-20260603-002 repair validation and USER confirmation. The prior SLC-051 through SLC-055, H1, and LV1 proof/handoff remain durable evidence for the superseded route. Recording execution, file writing, real Start/Stop controls, tray/export/provider/model work, PR creation, merge, release, issue mutation, and cleanup remain outside this LV1 pass.`
 Review Waiver Reason: `Not applicable - BP1 and BP2 were accepted, not waived; BP3 was approved, not waived.`
 
 ## Later-Phase Expectations
 
-Later-Phase Expectations: `This implementation carrier has completed the BP1/BP2/BP3 revision path, bounded Workstream implementation, renewed H1, renewed LV1, and USER reports listed UTS items passed for the Dashboard Recording card repair. It must still validate and receive USER confirmation for UFD-FAM006-20260603-002 before PR Readiness approval. PR Readiness must analyze the revised accepted scope, repair implementation, H1 proof, LV proof, UTS disposition, deferred boundaries, and source-truth repair before PR creation.`
+Later-Phase Expectations: `This implementation carrier has completed the BP1/BP2/BP3 revision path, bounded Workstream implementation, renewed H1, renewed LV1, USER report that listed UTS items passed, and USER-confirmed UFD-FAM006-20260603-002 regression repair for the Dashboard Recording card route. PR Readiness Stage 1 must analyze the revised accepted scope, repair implementation, H1 proof, LV proof, UTS disposition, deferred boundaries, and source-truth repair before any separate PR creation decision.`
 
 ## Initial Workstream Seam Sequence
 
