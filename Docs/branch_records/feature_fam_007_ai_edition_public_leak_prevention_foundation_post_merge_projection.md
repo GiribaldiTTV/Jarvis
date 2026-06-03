@@ -8,7 +8,7 @@ Record State: `Historical Branch Authority Projection`
 
 ## Status
 
-Status: `PR Readiness Stage 1 Complete - merge-stable projection for FAM-007 AI Edition Public Leak-Prevention Foundation. This receipt proves the post-merge source-truth posture before PR opening, while the active branch authority remains in Docs/branch_records/feature_fam_007_ai_edition_public_leak_prevention_foundation.md until the PR is created and merged.`
+Status: `Historical projection receipt - PR Readiness Stage 1 evidence for FAM-007 AI Edition Public Leak-Prevention Foundation is preserved as completed historical context. This receipt proves the post-merge source-truth posture before PR opening; it does not own current PR, branch, or active authority state.`
 
 ## Branch Identity
 

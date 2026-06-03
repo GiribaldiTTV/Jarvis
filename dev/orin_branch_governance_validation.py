@@ -4626,12 +4626,12 @@ BRANCH_RECORD_LIVE_STATE_LEAKAGE_PATTERNS = (
     ("active branch authority state", r"Branch Authority State:\s*`?Active\b"),
     ("active transition waiver", r"Active Branch Authority Transition Waiver:\s*Granted"),
     (
-        "active record state",
-        r"Record State:\s*`?(?:Branch Readiness|Workstream|Hardening|Live Validation|PR Readiness|Release Readiness)\b",
+        "active lifecycle state field",
+        r"^\s*(?:-\s*)?(?:Record State|Status):\s*`?(?:Branch Readiness|Branch Planning|Workstream|Hardening|Live Validation|PR Readiness|Release Readiness)\b",
     ),
     (
         "active current phase",
-        r"^\s*(?:-\s*)?(?:Current Phase|Phase):\s*`?(?:Branch Readiness|Workstream|Hardening|Live Validation|PR Readiness|Release Readiness)`?",
+        r"^\s*(?:-\s*)?(?:Current Phase|Phase):\s*`?(?:Branch Readiness|Branch Planning|Workstream|Hardening|Live Validation|PR Readiness|Release Readiness)`?",
     ),
     (
         "active review/PR pending gate",
