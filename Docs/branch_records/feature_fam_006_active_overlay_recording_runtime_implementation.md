@@ -6,12 +6,11 @@ Branch Creation Base: `feature/fam-006-recording-profile-runtime-foundation` at 
 Branch Creation origin/main Baseline: `98c82037e85940e630b727c8362bc9771ffd05e3`
 Branch Creation Baseline Meaning: `Historical creation-time baseline only; do not treat this field as current live origin/main. Live origin/main must be derived from Git, helper output, validator output, Codex digest, or external operational state, not USER-facing review files.`
 Current Reviewed HEAD Source: `Derived from Git and the refreshed START_HERE.md packet metadata at review-bundle generation time; this tracked branch record must not hard-code its own latest commit SHA because every authority-record repair commit changes HEAD.`
-Last Reconciled origin/main: `c44f2a0b39a26802d29ecf0a7ef87b32aeb697e6`
-Last Reconciled Merge Base: `c44f2a0b39a26802d29ecf0a7ef87b32aeb697e6`
-Origin/Main Advanced Since Branch Creation: `YES - origin/main advanced after branch creation; governed current-main reconciliation was completed through origin/main@c44f2a0b39a26802d29ecf0a7ef87b32aeb697e6. Live packet metadata must come from Git/helper output at review time, not USER-facing review files.`
-Active Branch Authority Transition Waiver: Granted
-Transition Waiver USER Decision: `USER approved governed current-main reconciliation for FAM-006 in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-implementation through origin/main@c44f2a0b39a26802d29ecf0a7ef87b32aeb697e6 using a non-rewrite merge path while preserving the FAM-006 implementation carrier, treating prior Branch Planning packet receipts as governed evidence, and preserving incoming governance/helper/validator updates as current-main authority.`
-External State Reconciliation Proof: `Live active operational truth for this branch is derived from Git, upstream, worktree identity, helper validation, and external operational state when admitted. USER-facing review files must not carry active branch status, current HEAD, current origin/main, or ZIP hash as their content focus. This repo record remains listed during the approved transition only to satisfy assigned-worktree confinement and branch-local authority routing; it must fold to historical/no-active posture before merge-stable PR readiness unless governance records a newer waiver.`
+Last Reconciled origin/main: `327ebd938714bed41d8ba9e3eb17bfa0fca424ab`
+Last Reconciled Merge Base: `327ebd938714bed41d8ba9e3eb17bfa0fca424ab`
+Origin/Main Advanced Since Branch Creation: `YES - origin/main advanced after branch creation; governed current-main reconciliation was completed through origin/main@327ebd938714bed41d8ba9e3eb17bfa0fca424ab. Live packet metadata must come from Git/helper output at review time, not USER-facing review files.`
+Historical Transition Receipt: `USER approved governed current-main reconciliation for FAM-006 in C:\Nexus Worktrees\FAM-006 on feature/fam-006-active-overlay-recording-runtime-implementation through origin/main@327ebd938714bed41d8ba9e3eb17bfa0fca424ab using a non-rewrite merge path while preserving the FAM-006 implementation carrier, treating prior Branch Planning packet receipts as governed evidence, and preserving incoming governance/helper/validator updates as current-main authority.`
+External State Reconciliation Proof: `Live active operational truth for this branch is derived from Git, upstream, worktree identity, helper validation, and external operational state when admitted. USER-facing review files must not carry active branch status, current HEAD, current origin/main, or ZIP hash as their content focus. This repo record is a durable receipt and branch/document pointer only after the governance hardening from PR #251; it does not own current phase, worktree assignment, live PR state, or active branch-plan posture.`
 Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 Branch Runtime Engineering Plan: `Present - active FAM-006 runtime implementation carrier remains active-overlay-driven, but pre-PR #248 BP1/BP2/BP3 packet receipts are superseded for active decision purposes because they lack the current Packet Reviewability State / USER Gate State proof model.`
 Engineering Plan Status: `BP1 Branch Vision amendment and BP2 Branch Plan revision are USER Accepted for the Dashboard Recording card direction. BP3 Workstream Entry / Orchestration Validation is USER Approved for the accepted revised engineering route. Bounded Workstream implementation, renewed Hardening H1, renewed Live Validation LV1, returned regression repair validation, and USER confirmation are complete for the Dashboard Recording card repair seam. PR Readiness Stage 1 analysis is the next legal decision; PR creation, merge, release, recording execution, file writing, real Start/Stop controls, tray/export/provider/FAM-007/Governance/cleanup remain pending separate USER decisions.`
@@ -24,11 +23,11 @@ Engineering Plan Status: `BP1 Branch Vision amendment and BP2 Branch Plan revisi
 
 ## Record State
 
-Record State: `Active Live Validation LV1 receipt`
+Record State: `Historical Traceability`
 
 ## Status
 
-Status: `Active Live Validation regression-repair receipt for the FAM-006 active-overlay recording runtime implementation carrier. This record admits branch authority, preserves prior SLC-051 through SLC-055 Workstream/H1/LV1 proof as durable evidence for the superseded HUD Overlay card route, records USER acceptance of the BP1 Dashboard Recording card amendment, BP2 Dashboard Recording card branch plan, BP3 Workstream Entry / Orchestration Validation, bounded Workstream implementation of the Dashboard Recording card repair seam, renewed H1 proof, renewed LV1 proof, USER report that listed UTS items passed, and UFD-FAM006-20260603-002 repaired, validated, and USER-confirmed for card-holder inset parity, Active Overlay Profile switching, and Recording card wording. Recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, Governance mutation, issue mutation, PR creation, merge, release execution, branch/worktree cleanup, and sibling-worktree mutation remain outside this LV1 repair pass.`
+Status: `Historical traceability receipt for the FAM-006 active-overlay recording runtime implementation carrier. This record preserves prior SLC-051 through SLC-055 Workstream/H1/LV1 proof as durable evidence for the superseded HUD Overlay card route, records USER acceptance of the BP1 Dashboard Recording card amendment, BP2 Dashboard Recording card branch plan, BP3 Workstream Entry / Orchestration Validation, bounded Workstream implementation of the Dashboard Recording card repair seam, renewed H1 proof, renewed LV1 proof, USER report that listed UTS items passed, and UFD-FAM006-20260603-002 repaired, validated, and USER-confirmed for card-holder inset parity, Active Overlay Profile switching, and Recording card wording. Current operational state for the checked-out branch is derived from Git, GitHub, helper output, or external operational state instead of this repo receipt.`
 
 ## Canonical Branch
 
@@ -36,15 +35,15 @@ Canonical Branch: `feature/fam-006-active-overlay-recording-runtime-implementati
 
 ## Current Phase
 
-Phase: `Live Validation`
-Phase Detail: `Live Validation LV1 proof/handoff remains durable evidence for the accepted Dashboard Recording card route. USER reports the listed UTS items passed, and returned regression issues under UFD-FAM006-20260603-002 are repaired, renewed-validation green, and USER-confirmed. PR Readiness Stage 1 analysis is the next legal phase gate.`
+Phase: `Historical Traceability`
+Phase Detail: `Live Validation LV1 proof/handoff remains durable evidence for the accepted Dashboard Recording card route. USER reports the listed UTS items passed, and returned regression issues under UFD-FAM006-20260603-002 are repaired, renewed-validation green, and USER-confirmed. The active checked-out branch may proceed only by Git/helper/external-state-derived truth and separate USER approval, not by this repo receipt acting as a live phase ledger.`
 
 ## Phase Status
 
-Phase Status: `Active Branch`
+Phase Status: `Historical receipt / branch-document pointer`
 Historical Branch Detail: `Released foundation traceability remains in Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md after PR #222 and v1.7.25-prebeta; this implementation carrier is fresh from origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9.`
-Authority State: `Active branch authority receipt for the FAM-006 Active Overlay Recording Runtime Implementation carrier`
-Bounded State: `Active runtime implementation carrier after returned USER Live Validation design feedback: preserve active-overlay-driven recording as the branch identity, preserve prior SLC-051 through SLC-055 Workstream/H1/LV1 proof as superseded-route evidence, record BP1 amendment acceptance, BP2 plan acceptance, BP3 orchestration approval, and bounded Workstream implementation of the Dashboard Recording card direction. Recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, and Governance worktree mutation remain outside this Workstream repair.`
+Authority State: `Historical receipt for the FAM-006 Active Overlay Recording Runtime Implementation carrier`
+Bounded State Receipt: `Preserves the bounded runtime implementation carrier history after returned USER Live Validation design feedback: active-overlay-driven recording remained the branch identity, prior SLC-051 through SLC-055 Workstream/H1/LV1 proof became superseded-route evidence, and BP1 amendment acceptance, BP2 plan acceptance, BP3 orchestration approval, and bounded Workstream implementation of the Dashboard Recording card direction were recorded. Recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, old branch cleanup/deletion, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review materials, sibling-worktree mutation, and Governance worktree mutation remained outside that Workstream repair.`
 
 ## Branch Class
 
@@ -256,14 +255,14 @@ Bounded Seam Default: `Bounded means one active seam at a time; bounded is not o
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active`
-Active Thread Owner: `FAM-006 assigned Codex thread`
-Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
-Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
+Assigned Worktree Confinement: `Historical receipt`
+Active Thread Owner: `Historical FAM-006 assigned Codex thread receipt`
+Thread Assignment Status: `Historical assignment receipt for C:\Nexus Worktrees\FAM-006 only`
+Worktree Ownership Ledger: `Historical receipt that C:\Nexus Worktrees\FAM-006 was the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
 Intended Write Set: `desktop/monitoring_hud_state.py; nexus_visual/monitoring_hud.js; dev/orin_monitoring_hud_surface_validation.py; dev/orin_monitoring_hud_internal_sandbox_validation.py; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree is assigned this branch.`
-Dirty Worktree Collision Check: `PASS - current owner is feature/fam-006-active-overlay-recording-runtime-implementation in C:\Nexus Worktrees\FAM-006; dirty tracked files are the USER-approved Stage 2 source-truth setup edits for this active owner.`
-Dirty Worktree Recovery Packet: `Not required - dirty files are current USER-approved implementation-carrier source-truth edits owned by this branch and will be validated before commit.`
+Dirty Worktree Collision Check: `PASS - current owner claimed for this reconciliation validation pass is feature/fam-006-active-overlay-recording-runtime-implementation in C:\Nexus Worktrees\FAM-006; dirty tracked files are USER-approved current-main reconciliation edits for that owner.`
+Dirty Worktree Recovery Packet: `Historical not required - dirty files were USER-approved implementation-carrier source-truth edits owned by this branch and validated before commit.`
 Off-Worktree Work Routing: `Any FAM-007, Governance, neutral-main, Compact-AI, or unrelated work must route to its owning worktree and separate USER approval.`
 Governance Routing Barrier: `No Governance worktree mutation is authorized.`
 New Worktree Decision Gate: `Complete - USER approved rebinding the stable C:\Nexus Worktrees\FAM-006 worktree from the rollback receipt branch to feature/fam-006-active-overlay-recording-runtime-implementation.`
@@ -274,13 +273,15 @@ GitHub Desktop-bound worktree: `PASS - stable FAM-006 path is rebound to feature
 Worktree Escape User Waiver: `Not granted`
 Worktree Escape User Waiver Missing: `Not applicable - no off-worktree mutation is required or attempted.`
 
+PR Readiness Stage 1 Historical Authority Projection: `Stage 1 Ready For Stage 2 is an allowed Stage 1 outcome only after PR Readiness Stage 1 analysis runs. This historical projection preserves the FAM-006 receipt and worktree-confinement evidence for that analysis; it does not grant PR creation, Stage 2 execution, merge, release, runtime recording execution, file writing, real Start/Stop controls, tray/export/provider/FAM-007/Governance/cleanup, or any active repo-ledger authority.`
+
 ## Carrier Lifecycle Decision
 
 Carrier Lifecycle Classification: `Successor branch from rollback receipt carrier`
 Remote Branch State: `Pushed and tracking origin/feature/fam-006-active-overlay-recording-runtime-implementation`
 Unique Branch Diff: `Stage 2 source-truth setup edits plus bounded SLC-051 target/session truth implementation and validator proof`
-Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose creation-time origin/main baseline was 98c82037e85940e630b727c8362bc9771ffd05e3; last reconciled origin/main is c44f2a0b39a26802d29ecf0a7ef87b32aeb697e6 after governed current-main reconciliation. Helper output, validator output, Codex digest, or external operational state records live origin/main at review time.`
-Origin/Main Advanced Since Branch Creation: `YES - last reconciled origin/main c44f2a0b39a26802d29ecf0a7ef87b32aeb697e6 is newer than the creation-time baseline and the branch has been reconciled to that baseline. Later origin/main movement is handled by prompt-entry freshness and current-main reconciliation analysis.`
+Origin/Main Ancestry: `Created from FAM-006 rollback receipt HEAD 1f399003d2e6d13b34b567cd7f7900a709254bc9 whose creation-time origin/main baseline was 98c82037e85940e630b727c8362bc9771ffd05e3; last reconciled origin/main is 327ebd938714bed41d8ba9e3eb17bfa0fca424ab after governed current-main reconciliation. Helper output, validator output, Codex digest, or external operational state records live origin/main at review time.`
+Origin/Main Advanced Since Branch Creation: `YES - last reconciled origin/main 327ebd938714bed41d8ba9e3eb17bfa0fca424ab is newer than the creation-time baseline and the branch has been reconciled to that baseline. Later origin/main movement is handled by prompt-entry freshness and current-main reconciliation analysis.`
 Open PR State: `No PR has been created for this active implementation carrier. PR creation remains a pending USER decision after Workstream, Hardening, Live Validation / UTS, and PR Readiness gates.`
 Worktree Checkout State: `Checked out at C:\Nexus Worktrees\FAM-006`
 Recommended Stage 2 Carrier Action: `Route this implementation carrier through renewed Hardening H1 for the Dashboard Recording card direction; do not enter PR Readiness or release posture before the revised route is hardened, live-validated, and digested or explicitly waived.`
@@ -403,13 +404,13 @@ Expected Seam Families And Risk Classes: `Active Overlay Profile recording targe
 
 User Test Summary Strategy: `Returned USER feedback is now a BP1/BP2/BP3 design revision input. Future repaired user-facing Recording card seams require LV1 real user-facing proof, per-element screenshots, compact/default comparison, output-file proof where applicable, and a USER Test Summary handoff unless explicitly waived by governance.`
 
-## Formal Next Legal Phase Digest
+## Historical Next Legal Phase Receipt
 
-Current Phase: `Live Validation`
-Next Legal Phase: `PR Readiness`
+Historical Phase Receipt: `Live Validation`
+Historical Next Legal Phase Receipt: `PR Readiness`
 Why This Phase Is Next: `Returned USER Live Validation feedback changed the accepted BP1 surface model and BP2/BP3 proof route: recording should move to its own Dashboard Recording card instead of living inside the HUD Overlay card. USER accepted the BP1 amendment, accepted the BP2 plan, approved BP3 orchestration, bounded Workstream implementation is complete, renewed H1 is green, renewed LV1 is green, USER reports listed UTS items passed, and UFD-FAM006-20260603-002 is repaired, validation-green, and USER-confirmed.`
 Approval Required: `USER must approve PR Readiness Stage 1 analysis before Codex analyzes PR readiness. Cleanup, issue mutation, release execution beyond already published v1.7.25-prebeta, recording execution, file writing, Start/Stop, tray/export/provider/model work remain outside this LV1 pass.`
-Exact USER Approval Text: `I approve PR Readiness Stage 1 analysis for FAM-006 Active Overlay Recording Runtime Implementation on feature/fam-006-active-overlay-recording-runtime-implementation in C:\Nexus Worktrees\FAM-006. PR creation, merge, release execution, runtime recording execution, file writing, real Start/Stop controls, tray/export/provider/FAM-007/Governance/cleanup remain pending separate USER decisions.`
+Historical USER Approval Receipt: `USER approval for PR Readiness Stage 1 analysis was required before Codex could analyze PR readiness. PR creation, merge, release execution, runtime recording execution, file writing, real Start/Stop controls, tray/export/provider/FAM-007/Governance/cleanup remained pending separate USER decisions.`
 Allowed Scope: `PR Readiness Stage 1 analysis only after USER approval; no PR creation, release, recording execution, file writing, Start/Stop, tray/export/provider/model, FAM-007, Governance, or cleanup mutation without separate authority.`
 Explicit Exclusions: `Recording execution; file writing; real Start/Stop controls; tray recording controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; future branch creation; future PR creation; future merge; release execution beyond already published v1.7.25-prebeta; issue mutation; artifacts/raw evidence handling beyond approved review materials; sibling-worktree mutation; old branch cleanup/deletion; Governance worktree mutation.`
 Validation Required: `Identity, source truth, branch governance, worktree confinement, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, focused FAM-006 validators, FAM-006 H1 helper, and compileall as applicable.`
