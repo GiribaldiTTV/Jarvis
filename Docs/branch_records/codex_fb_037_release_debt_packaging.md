@@ -28,7 +28,7 @@ This branch exists to prepare the public prerelease, release-state canon transit
 
 ## Current Phase
 
-- Phase: `Release Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

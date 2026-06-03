@@ -407,7 +407,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 
 ## PR Readiness Stage 2-R1 Bot Review and Watcher Runtime Proof Repair
 
-- Phase: `PR Readiness`
+- Historical Phase Receipt: `PR Readiness at branch closeout`
 - Recorded Seam: `PR Readiness Stage 2-R1 - Bot Review and Watcher Runtime Proof Repair`
 - Trigger: `USER reported PR release-quality process drift: Codex bot review must be awaited and repaired before green handoff, and watcher configuration was not producing same-thread runtime proof`
 - Codex Bot Review Finding: `ACTIONABLE - review thread PRRT_kwDORwnWIs5_uWrU / comment PRRC_kwDORwnWIs6-JlbJ reported that historical branch records listed under Historical Branch Authority Records could retain active PR-readiness markers when their Phase Status was mistakenly left in a non-historical phase`

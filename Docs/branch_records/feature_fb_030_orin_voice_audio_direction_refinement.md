@@ -14,7 +14,7 @@ It kept FB-030 selected-only / `Registry-only` while the blocker-clearing canon 
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

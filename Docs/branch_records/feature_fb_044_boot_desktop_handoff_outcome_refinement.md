@@ -30,7 +30,7 @@ This pass closes FB-043 post-release canon, rebases current-state truth onto liv
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

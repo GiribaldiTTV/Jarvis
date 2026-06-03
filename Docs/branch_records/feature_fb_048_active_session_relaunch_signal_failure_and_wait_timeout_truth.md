@@ -30,7 +30,7 @@ Historical traceability note: `feature/fb-046-post-merge-canon-sync` was a bound
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

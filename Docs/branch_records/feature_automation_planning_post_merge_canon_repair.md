@@ -14,7 +14,7 @@ It did not reopen automation implementation, admit Release Readiness on the dele
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

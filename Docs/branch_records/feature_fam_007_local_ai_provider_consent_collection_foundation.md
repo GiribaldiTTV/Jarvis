@@ -651,7 +651,7 @@ Next Legal Phase Detail: PR Readiness Stage 2 should create the PR only after US
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `PR Readiness Stage 1`
+Historical Phase Receipt: `PR Readiness Stage 1 at branch closeout`
 
 Next Legal Phase: `PR Readiness`
 

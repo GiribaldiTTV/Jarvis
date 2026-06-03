@@ -87,7 +87,7 @@ It is not the standing Governance Intake Branch. The standing branch remains `fe
 
 ## Formal Next Legal Phase Digest
 
-- Current Phase: `Hardening`
+- Historical Phase Receipt: `Hardening at branch closeout`
 - Next Legal Phase: `PR Readiness`
 - Why This Phase Is Next: `The governance/source-truth hardening pass must finish validation, Desktop review-bundle proof, branch-authority routing, and merge-stability review before USER can decide whether PR Readiness Stage 2 / PR creation is legal.`
 - Approval Required: `USER approval required before PR creation; current approval covers source-truth/validator/fixture hardening, validation, commit, push, and refreshed review bundle only.`

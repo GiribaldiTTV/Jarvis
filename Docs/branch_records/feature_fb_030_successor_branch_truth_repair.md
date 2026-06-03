@@ -16,7 +16,7 @@ This record is now preserved as historical traceability after PR #79 merged; mer
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
