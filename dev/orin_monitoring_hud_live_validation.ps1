@@ -846,7 +846,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
 
     # Keep the local USER hub UTS as a short USER questionnaire focused on the
-    # returned issue loop; detailed ledger/proof evidence stays in manifests.
+    # active Live Validation seam; detailed ledger/proof evidence stays in manifests.
     $content = @"
 Nexus Desktop AI - User Test Summary
 Workstream: FAM-006 Active Overlay Recording Runtime Implementation
@@ -857,8 +857,8 @@ Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
 How To Use This File
 - Launch and test from the red FAM-006 desktop shortcut.
-- This pass is focused on the returned failed issue IDs only.
-- Confirmed items from the previous returned UTS are treated as closed unless they visibly regress during this pass.
+- This pass is focused on the Dashboard Recording card visual-system repair seam.
+- Confirmed items from previous returned UTS passes are treated as closed unless they visibly regress during this pass.
 - For each active issue below, write PASS, FAIL, or WAIVED plus a short note.
 - If an active issue FAILS, describe exactly what you saw and attach/screenshot separately if useful.
 - Return this file to Codex when complete. Codex will digest the results into source truth.
@@ -870,29 +870,33 @@ Codex Precheck Summary
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
 - USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
-- Screenshot rule: review the detailed `element_<label>_<state>.png` screenshots and the returned issue-form coverage matrix; full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed focused element screenshots, especially the Recording card target/status visual contract, standard state-row target preview, and future-control boundary. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
 
 Brief Issue List
-- Closed by USER confirmation: UTS-HUD-006, UTS-HUD-008, UTS-HUD-011, UTS-HUD-012, and UTS-HUD-016 from returned passes, plus all earlier confirmed IDs unless regression appears.
+- Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.
 - Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
-- Active failed issues repaired in this pass and requiring focused USER retest: UTS-HUD-014 and UTS-HUD-021.
+- Active repaired seam requiring focused USER retest: Dashboard Recording card visual-system inheritance and active Overlay Profile target mirroring.
 
 Active Issues To Test
 
-UTS-HUD-014 - Overlay Profiles Selector, Draft Creation, Dirty Guard, And Delete
-Expected: Overlay Profiles opens fully on-screen and remains usable at normal and compact legal sizes. The separate Edit Profile button is removed. The dropdown button itself says `Profile to Edit:` and keeps the same rounded shape and size as the Create Profile button. Selecting an existing profile directly loads it for editing. Creating an Overlay Profile creates a draft only, starts with no monitor groups selected, requires Save before persistence, triggers the dirty-change guard on Close or navigation, and Discard leaves no persisted draft. Delete is a red danger action with confirmation and remains separated from Discard to reduce accidents.
+FAM006-LV1-REC-001 - Dashboard Recording Card Visual-System Inheritance
+Expected: The Recording card appears as its own Dashboard card, separate from HUD Overlay. It must visually match the established Dashboard card system: same dark card chrome, badge style, row/divider treatment, typography scale, spacing, button style, disabled/future-gated affordance, glow/hover/focus behavior, and layout density. The Recording card must not look like a custom green boxed table or a separate visual system.
 USER Result / Notes:
 
-UTS-HUD-021 - HUD Sizing And Overlay Profiles Scaling
-Expected: Overlay Profiles no longer forces an awkward stacked layout at compact-but-legal sizes. The manager `Profile to Edit:` dropdown and Create Profile button remain on the same row, use equal button footprints, remain readable/clickable at default and compact legal window sizes, and open an unclipped NDAI-styled menu. Compact proof must show the window can complete the real user workflow: select profile, create draft, close dirty guard, save, discard, delete confirmation, dropdown open/select/close, null profile state, and 100+ profile stress state.
+FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile
+Expected: The Recording card target source follows the active Overlay Profile. When the default profile is active, the Recording card shows Default Overlay Profile and its active monitor count. When a new Overlay Profile draft is created, the Recording card immediately mirrors that unsaved draft as the current recording target/session state with 0 target monitors, while persistence still waits for Save.
+USER Result / Notes:
+
+FAM006-LV1-REC-003 - Future-Gated Recording Controls Stay Blocked
+Expected: Recording execution, file writing, real Start/Stop controls, tray controls, export/share, and provider/model behavior are still not enabled. The Recording card may show target/status and a disabled/future-gated controls affordance only.
 USER Result / Notes:
 
 Issue Regression Checks, If Any
-- Spot-check checked-source hover, same-row dirty guard, and divider underglow only if retesting Overlay Profiles reveals an obvious regression in those previously closed areas.
+- Spot-check Overlay Profiles selector/create/dirty guard/delete only if testing the Recording target mirror reveals an obvious regression in those previously closed areas.
   USER Result / Notes:
-- Spot-check Dashboard button alignment and Manage Data Sources deferred state only if retesting compact Dashboard sizing in UTS-HUD-021.
+- Spot-check Dashboard button alignment and compact Dashboard sizing only if the Recording card appears to disturb the surrounding Dashboard layout.
   USER Result / Notes:
 - Spot-check Monitor Group / Overlay Profile / Recording Profile concept separation only if Overlay Profile deletion or creation appears to mix those concepts.
   USER Result / Notes:
