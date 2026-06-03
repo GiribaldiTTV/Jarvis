@@ -10449,7 +10449,7 @@ class DesktopRuntimeWindow(QWidget):
                         && recordingProfile
                         && recordingProfileText === mirrorActiveProfileName
                         && recordingCount
-                        && recordingCountText === "0 target monitors"
+                        && recordingCountText === "0 active monitors"
                         && mirrorProof.passed === true
                     );
                     return JSON.stringify({

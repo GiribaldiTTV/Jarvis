@@ -373,7 +373,7 @@ function monitoringHudActiveOverlayRecordingTargetNames(target, cards) {
     const layout = Object.assign(monitoringHudCardDefaults(cardId), safeCards[cardId] || {});
     return layout.title || cardId;
   });
-  if (!ids.length) return "No active target monitors";
+  if (!ids.length) return "No active monitors";
   if (ids.length > names.length) return `${names.join(", ")} +${ids.length - names.length} more`;
   return names.join(", ");
 }
@@ -425,7 +425,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingTargetProfile.textContent = activeProfileName;
   }
   if (monitoringHudRecordingTargetCount) {
-    monitoringHudRecordingTargetCount.textContent = `${count} target monitor${count === 1 ? "" : "s"}`;
+    monitoringHudRecordingTargetCount.textContent = `${count} active monitor${count === 1 ? "" : "s"}`;
   }
   if (monitoringHudRecordingTargetSummary) {
     monitoringHudRecordingTargetSummary.textContent = `${targetLabel}: ${targetNames}. Recording execution and file writing are not enabled.`;
@@ -5143,6 +5143,7 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
     trayControlsAbsent: false,
     noRecordingControlWindowCreated: false,
     activeProfileCreateMirrorsRecordingTarget: false,
+    savedActiveProfileSelectorSwitchesRecordingTarget: false,
     recordingTargetOverlayProfileMirrorProof: false
   };
   try {
@@ -5191,7 +5192,7 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
     proof.activeProfileNameVisible = Boolean(monitoringHudRecordingTargetProfile)
       && monitoringHudRecordingTargetProfile.textContent === "Recording Target Overlay";
     proof.activeMonitorCountVisible = Boolean(monitoringHudRecordingTargetCount)
-      && monitoringHudRecordingTargetCount.textContent === "2 target monitors";
+      && monitoringHudRecordingTargetCount.textContent === "2 active monitors";
     proof.activeMonitorNamesVisible = summaryText.includes("CPU Runtime")
       && summaryText.includes("GPU Runtime")
       && !summaryText.includes("missing-monitor");
@@ -5220,7 +5221,30 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
       && monitoringHudRecordingTargetProfile
       && monitoringHudRecordingTargetProfile.textContent === monitoringHudCleanOverlayProfileName(createdProfile.name, "Overlay Profile")
       && monitoringHudRecordingTargetCount
-      && monitoringHudRecordingTargetCount.textContent === "0 target monitors"
+      && monitoringHudRecordingTargetCount.textContent === "0 active monitors"
+    );
+    monitoringHudSaveOverlayProfileDraft();
+    const savedFirstId = createdId;
+    monitoringHudCreateOverlayProfile();
+    const secondProfile = monitoringHudOverlayProfilePendingCreate || {};
+    const secondId = String(secondProfile.id || "");
+    if (monitoringHudOverlayProfileNameInput) {
+      monitoringHudOverlayProfileNameInput.value = "Recording Target Switch Overlay";
+    }
+    monitoringHudSaveOverlayProfileDraft();
+    const switchedBack = monitoringHudSelectOverlayProfile(savedFirstId);
+    const firstProfile = (monitoringHudControlState.overlayProfiles || {})[savedFirstId] || {};
+    proof.savedActiveProfileSelectorSwitchesRecordingTarget = Boolean(
+      savedFirstId
+      && secondId
+      && switchedBack
+      && monitoringHudControlState.activeOverlayProfileId === savedFirstId
+      && monitoringHudControlState.activeOverlayRecordingTarget
+      && monitoringHudControlState.activeOverlayRecordingTarget.activeOverlayProfileId === savedFirstId
+      && monitoringHudRecordingTargetProfile
+      && monitoringHudRecordingTargetProfile.textContent === monitoringHudCleanOverlayProfileName(firstProfile.name, "Overlay Profile")
+      && monitoringHudRecordingTargetCount
+      && monitoringHudRecordingTargetCount.textContent === "0 active monitors"
     );
     proof.recordingTargetOverlayProfileMirrorProof = Boolean(
       monitoringHudControlState.recordingTargetOverlayProfileMirrorProof
@@ -5239,6 +5263,7 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
       && proof.trayControlsAbsent
       && proof.noRecordingControlWindowCreated
       && proof.activeProfileCreateMirrorsRecordingTarget
+      && proof.savedActiveProfileSelectorSwitchesRecordingTarget
       && proof.recordingTargetOverlayProfileMirrorProof;
   } finally {
     try {

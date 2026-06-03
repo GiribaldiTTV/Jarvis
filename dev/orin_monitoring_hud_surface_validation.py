@@ -850,7 +850,7 @@ def validate() -> list[str]:
         and "min-width: min(300px, 100%)" in css
         and "max-width: min(450px, 100%)" in css
         and ".monitoring-hud__overlay-profile-dropdown .monitoring-hud__bounded-dropdown-menu" in css
-        and "<span>Overlay Profile</span>" in html
+        and "<span>Active Overlay Profile</span>" in html
         and 'id="monitoring-hud-overlay-profile-active-name"' not in html
         and ".monitoring-hud__overlay-profile-actions" in css
         and ".monitoring-hud__overlay-profile-window-actions" in css
@@ -1252,6 +1252,8 @@ def validate() -> list[str]:
         'data-native-window-contract="future-secondary-surface"',
         'data-recording-execution-state="blocked"',
         'data-recording-file-writing-state="blocked"',
+        '<span>Target overlay profile</span>',
+        'id="monitoring-hud-recording-target-count">2 active monitors</strong>',
     ):
         _require_contains(html, needle, "SLC-052 Dashboard Recording card target/status HTML", failures)
 
@@ -1263,6 +1265,7 @@ def validate() -> list[str]:
         "monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile",
         "recordingTargetOverlayProfileMirrorProof",
         "activeProfileCreateMirrorsRecordingTarget",
+        "savedActiveProfileSelectorSwitchesRecordingTarget",
         "slc-052-dashboard-recording-card-target-status",
         "slc-052-dashboard-visible-count-and-names",
         "dashboard-recording-card-primary",
@@ -1532,6 +1535,9 @@ def validate() -> list[str]:
         ".monitoring-hud__title-group",
         "position: sticky;",
         "scrollbar-gutter: stable;",
+        "scrollbar-gutter: stable both-edges;",
+        "--dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;",
+        ".monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open=\"true\"])",
         ".monitoring-hud--validation-fault",
         "@media (max-width: 760px), (max-height: 620px)",
         "@keyframes monitoringHudSettle",
@@ -2500,8 +2506,11 @@ def validate() -> list[str]:
         "FAM006-LV1-REC-001 - Dashboard Recording Card Visual-System Inheritance",
         "FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile",
         "FAM006-LV1-REC-003 - Future-Gated Recording Controls Stay Blocked",
+        "FAM006-LV1-REC-004 - Dashboard Card Holder Equal Insets",
         "The Recording card must not look like a custom green boxed table or a separate visual system.",
-        "The Recording card target source follows the active Overlay Profile.",
+        "The Recording card target overlay profile follows the active Overlay Profile.",
+        "switching the Active Overlay Profile must update the Recording card target overlay profile",
+        "The scrollbar gutter must not make the cards look offset",
         "Recording execution, file writing, real Start/Stop controls, tray controls, export/share, and provider/model behavior are still not enabled.",
         "Step 7 - #137 Dashboard Rounded Corners On Light Background",
         "no black rectangular native corner extends beyond the visible rounded Dashboard chrome",

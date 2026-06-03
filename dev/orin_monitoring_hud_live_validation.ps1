@@ -887,11 +887,15 @@ Expected: The Recording card appears as its own Dashboard card, separate from HU
 USER Result / Notes:
 
 FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile
-Expected: The Recording card target source follows the active Overlay Profile. When the default profile is active, the Recording card shows Default Overlay Profile and its active monitor count. When a new Overlay Profile draft is created, the Recording card immediately mirrors that unsaved draft as the current recording target/session state with 0 target monitors, while persistence still waits for Save.
+Expected: The Recording card target overlay profile follows the active Overlay Profile. When the default profile is active, the Recording card shows Default Overlay Profile and its active monitor count. When a new Overlay Profile draft is created, the Recording card immediately mirrors that unsaved draft as the current recording target/session state with 0 active monitors, while persistence still waits for Save. After multiple profiles are saved, switching the Active Overlay Profile must update the Recording card target overlay profile and active monitor count.
 USER Result / Notes:
 
 FAM006-LV1-REC-003 - Future-Gated Recording Controls Stay Blocked
 Expected: Recording execution, file writing, real Start/Stop controls, tray controls, export/share, and provider/model behavior are still not enabled. The Recording card may show target/status and a disabled/future-gated controls affordance only.
+USER Result / Notes:
+
+FAM006-LV1-REC-004 - Dashboard Card Holder Equal Insets
+Expected: The Dashboard card holder gives each card equal left and right visual inset inside the holder. The scrollbar gutter must not make the cards look offset or leave a wider right-side gap than the left-side gap.
 USER Result / Notes:
 
 Issue Regression Checks, If Any

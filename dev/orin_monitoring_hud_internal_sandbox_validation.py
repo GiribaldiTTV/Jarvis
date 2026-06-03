@@ -863,7 +863,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "min-width: min(300px, 100%)" in css
         and "max-width: min(450px, 100%)" in css
         and ".monitoring-hud__overlay-profile-dropdown .monitoring-hud__bounded-dropdown-menu" in css
-        and "<span>Overlay Profile</span>" in html
+        and "<span>Active Overlay Profile</span>" in html
         and 'id="monitoring-hud-overlay-profile-active-name"' not in html
         and ".monitoring-hud__overlay-profile-actions" in css
         and ".monitoring-hud__overlay-profile-window-actions" in css
@@ -1270,6 +1270,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         "margin: 10px 0 14px;",
         'body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"]',
         "scrollbar-gutter: stable;",
+        "scrollbar-gutter: stable both-edges;",
+        "--dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;",
+        ".monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open=\"true\"])",
         ".monitoring-hud__child-actions--guard",
         "justify-self: stretch;",
     ):
