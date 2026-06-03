@@ -229,6 +229,12 @@ USER_REVIEW_BUNDLE_REQUIRED_FIELDS = (
     "Pending USER Decisions",
 )
 
+USER_REVIEW_HUB_TIMESTAMPED_ZIP_REQUIRED_PHRASES = (
+    "timestamped",
+    "YYYYMMDD-HHMMSS",
+    "legacy same-name",
+)
+
 WORKSTREAM_INDEX_REQUIRED = (
     "workstreams and family dossiers own durable package trace, slice trace",
     "workstreams and family dossiers must not mirror live Git/GitHub state",
@@ -434,6 +440,12 @@ def validate() -> list[str]:
                     f"{OPERATING_MODEL}: USER Review Hub Rule missing "
                     f"required START_HERE review field {phrase!r}"
                 )
+        for phrase in USER_REVIEW_HUB_TIMESTAMPED_ZIP_REQUIRED_PHRASES:
+            if phrase.casefold() not in desktop_bundle_section.casefold():
+                failures.append(
+                    f"{OPERATING_MODEL}: USER Review Hub Rule missing "
+                    f"timestamped ZIP policy phrase {phrase!r}"
+                )
 
     bundle_helper_text = _read(USER_REVIEW_BUNDLE_HELPER)
     if not bundle_helper_text:
@@ -443,6 +455,11 @@ def validate() -> list[str]:
             if phrase not in bundle_helper_text:
                 failures.append(
                     f"{USER_REVIEW_BUNDLE_HELPER}: missing required START_HERE review field {phrase!r}"
+                )
+        for phrase in USER_REVIEW_HUB_TIMESTAMPED_ZIP_REQUIRED_PHRASES:
+            if phrase.casefold() not in bundle_helper_text.casefold():
+                failures.append(
+                    f"{USER_REVIEW_BUNDLE_HELPER}: missing timestamped ZIP policy phrase {phrase!r}"
                 )
 
     for path, required_phrases in POINTER_REQUIREMENTS.items():
@@ -579,6 +596,15 @@ def validate() -> list[str]:
             failures.append(
                 f"{DOCS_INVENTORY_AUDIT}: missing user review index pointer"
             )
+        audit_identity = _section(audit_text, "## Audit Identity")
+        if re.search(r"(?m)^-\s*Audit Branch:\s*`[^`]+`", audit_identity):
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: Audit Identity must not store a live branch name"
+            )
+        if re.search(r"(?m)^-\s*Audit Workspace:\s*`[A-Za-z]:\\", audit_identity):
+            failures.append(
+                f"{DOCS_INVENTORY_AUDIT}: Audit Identity must not store a live worktree path"
+            )
 
     index_text = _read(DOCS_REFORM_REVIEW_INDEX)
     if not index_text:
@@ -600,6 +626,19 @@ def validate() -> list[str]:
             failures.append(
                 f"{DOCS_REFORM_REVIEW_INDEX}: Docs files covered {index_count} "
                 f"does not match filesystem Docs file count {docs_count}"
+            )
+        if re.search(r"(?m)^-\s*Source branch:\s*`[^`]+`", index_text):
+            failures.append(
+                f"{DOCS_REFORM_REVIEW_INDEX}: must not store a live source branch"
+            )
+        if re.search(r"Current execution model:.*`[^`]*(?:feature/|codex/|\bmain\b)[^`]*`", index_text):
+            failures.append(
+                f"{DOCS_REFORM_REVIEW_INDEX}: current execution model must not store a live branch"
+            )
+        exact_decision = _section(index_text, "## Exact USER Decision This Index Supports")
+        if re.search(r"`[^`]*(?:feature/|codex/|\bmain\b)[^`]*`", exact_decision):
+            failures.append(
+                f"{DOCS_REFORM_REVIEW_INDEX}: exact decision must not pin a live branch"
             )
 
     for path in (Path("Docs/feature_backlog.md"), Path("Docs/prebeta_roadmap.md")):

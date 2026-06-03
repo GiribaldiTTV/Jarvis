@@ -2,8 +2,10 @@
 """Create a USER-facing local review bundle from selected repo files.
 
 This helper copies review files to a stable worktree-labeled folder under
-``C:\\Nexus USER`` so USER review does not depend on manually browsing the
-worktree. It never edits repo files.
+``C:\\Nexus USER`` and creates a timestamped upload ZIP beside that folder so
+each ChatGPT upload has a unique artifact name. Legacy same-name upload ZIPs
+and previous same-label timestamped upload ZIPs are removed during generation.
+It never edits repo files.
 """
 
 from __future__ import annotations
@@ -35,7 +37,8 @@ PUBLIC_REVIEW_BUNDLE_LEAK_PREVENTION_STATUS = (
 REVIEW_EXPORT_ZIP_STALE_GUARD_STATUS = (
     "PASS - helper cleared the stable worktree review folder, copied fresh "
     "source-truth files, wrote START_HERE for this source-truth snapshot, and atomically "
-    "replaced the stable review zip from that refreshed folder."
+    "created a timestamped review zip from that refreshed folder after removing previous "
+    "same-label upload zips."
 )
 USER_BRANCH_PLAN_REVIEW_FILE = "USER_BRANCH_PLAN_REVIEW.md"
 USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
@@ -131,7 +134,10 @@ BRANCH_PLANNING_PENDING_USER_GATE_VALUES = {
     "user blocked",
 }
 BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS = (
+    "approve bounded workstream package implementation",
     "approve bounded workstream implementation",
+    "bounded workstream package implementation",
+    "workstream package implementation approval",
     "approve workstream implementation",
     "workstream implementation approval",
     "implementation approval",
@@ -143,6 +149,8 @@ BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS = (
     "pending user approval",
     "implementation approval state: pending",
     "does not authorize workstream implementation",
+    "does not request bp3 implementation approval",
+    "not a workstream implementation approval",
     "workstream implementation remains pending",
 )
 UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -208,7 +216,37 @@ USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], 
         re.compile(r"USER Branch Plan Contract:\s*a required user-facing product/design", re.IGNORECASE),
     ),
 )
+BP1_PACKET_STALE_LANGUAGE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "workstream-entry-final-decision-path",
+        re.compile(r"workstream entry final decision review", re.IGNORECASE),
+    ),
+    (
+        "bp1-compatibility-status",
+        re.compile(r"BP1 Branch Vision Review compatibility status", re.IGNORECASE),
+    ),
+    (
+        "compatibility-digest",
+        re.compile(r"compatibility digest", re.IGNORECASE),
+    ),
+    (
+        "must-not-do-heading",
+        re.compile(r"##\s*Must-Not-Do\s*/\s*Regression-Risk Rules", re.IGNORECASE),
+    ),
+    (
+        "command-wall-do-not-bullet",
+        re.compile(r"^\s*-\s*Do not\b", re.IGNORECASE | re.MULTILINE),
+    ),
+)
 USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "project-context-process-shell",
+        re.compile(r"must explain how this branch supports", re.IGNORECASE),
+    ),
+    (
+        "family-context-process-shell",
+        re.compile(r"Family Vision Context:\s*This BP1 review asks whether\b", re.IGNORECASE),
+    ),
     (
         "project-context-instruction",
         re.compile(r"Review `Docs/nexus_vision\.md`.*before accepting this Branch Vision", re.IGNORECASE),
@@ -239,6 +277,45 @@ USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], .
     (
         "generic-design-question",
         re.compile(r"Does this Branch Vision match what the USER wants this branch to become", re.IGNORECASE),
+    ),
+    (
+        "process-only-accepted-vision-goal",
+        re.compile(r"Create an accepted USER-facing branch vision", re.IGNORECASE),
+    ),
+    (
+        "process-only-bp1-closeout",
+        re.compile(r"When BP1 closes", re.IGNORECASE),
+    ),
+    (
+        "process-only-bp1-mechanics",
+        re.compile(r"BP1 captures", re.IGNORECASE),
+    ),
+    (
+        "process-only-product-options",
+        re.compile(
+            r"Option A accepts the vision.*option B revises it.*option C waives",
+            re.IGNORECASE | re.DOTALL,
+        ),
+    ),
+    (
+        "process-only-packet-decision",
+        re.compile(r"Use this packet to decide", re.IGNORECASE),
+    ),
+    (
+        "generic-outcome-question",
+        re.compile(r"what exact outcome should USER expect to see", re.IGNORECASE),
+    ),
+    (
+        "process-centered-user-hub-packet",
+        re.compile(r"USER will see a local USER hub packet", re.IGNORECASE),
+    ),
+    (
+        "process-centered-accepted-bp1-target",
+        re.compile(r"The accepted BP1 vision will become the target for BP2", re.IGNORECASE),
+    ),
+    (
+        "process-centered-user-reads-packet",
+        re.compile(r"USER reads the FAM-007 packet", re.IGNORECASE),
     ),
 )
 USER_BRANCH_VISION_MINIMUM_SUBSTANTIVE_SECTIONS: tuple[tuple[str, int], ...] = (
@@ -430,11 +507,26 @@ def _packet_file_items(
     packet_files: Mapping[str, str],
     file_name: str,
 ) -> list[tuple[str, str]]:
-    return [
+    matches = [
         (path, text)
         for path, text in sorted(packet_files.items())
         if _packet_file_basename(path) == file_name
     ]
+    preferred_paths = (
+        file_name,
+        f"USER Review/{file_name}",
+        f"{REVIEW_AIDS_DIR_NAME}/{file_name}",
+    )
+
+    def sort_key(item: tuple[str, str]) -> tuple[int, str]:
+        path = item[0].replace("\\", "/")
+        if path in preferred_paths:
+            return (preferred_paths.index(path), path)
+        if path.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+            return (10, path)
+        return (5, path)
+
+    return sorted(matches, key=sort_key)
 
 
 def _packet_file_text(packet_files: Mapping[str, str], file_name: str) -> str:
@@ -465,6 +557,8 @@ def _primary_user_review_file(exact_user_decision: str) -> str:
                 r"\bbp3\b",
                 r"\borchestration\b",
                 r"\bworkstream entry\b",
+                r"\bworkstream package implementation\b",
+                r"\bbounded workstream package\b",
                 r"\bworkstream implementation\b",
                 r"\bimplementation approval\b",
             ),
@@ -517,8 +611,55 @@ def _move_primary_user_review_file(
     return destination.resolve()
 
 
-def _export_zip_path(review_root: Path, label: str) -> Path:
+def _timestamped_zip_stamp(created_at: datetime) -> str:
+    return created_at.strftime("%Y%m%d-%H%M%S")
+
+
+def _export_zip_path(review_root: Path, label: str, created_at: datetime) -> Path:
+    stamp = _timestamped_zip_stamp(created_at)
+    return (review_root / f"{_sanitize_folder_name(label)}-{stamp}.zip").resolve()
+
+
+def _legacy_stable_export_zip_path(review_root: Path, label: str) -> Path:
     return (review_root / f"{_sanitize_folder_name(label)}.zip").resolve()
+
+
+def _remove_stale_same_label_export_zips(review_root: Path, label: str, export_zip: Path) -> None:
+    safe_label = _sanitize_folder_name(label)
+    timestamped_name = re.compile(rf"^{re.escape(safe_label)}-\d{{8}}-\d{{6}}\.zip$")
+    candidates = [_legacy_stable_export_zip_path(review_root, label)]
+    candidates.extend(
+        path.resolve()
+        for path in review_root.glob("*.zip")
+        if timestamped_name.fullmatch(path.name)
+    )
+    for candidate in sorted(set(candidates)):
+        if candidate == export_zip:
+            continue
+        if candidate.exists():
+            if not candidate.is_file():
+                raise ValueError(f"Refusing to remove non-file stale review zip path: {candidate}")
+            candidate.unlink()
+
+
+def _remove_legacy_stable_export_zip(review_root: Path, label: str) -> None:
+    legacy_zip = _legacy_stable_export_zip_path(review_root, label)
+    if legacy_zip.exists():
+        if not legacy_zip.is_file():
+            raise ValueError(f"Refusing to remove non-file legacy review zip path: {legacy_zip}")
+        legacy_zip.unlink()
+
+
+def _timestamped_export_zip_name_failures(export_zip: Path, expected_label: str) -> list[str]:
+    safe_label = re.escape(_sanitize_folder_name(expected_label))
+    pattern = re.compile(rf"^{safe_label}-\d{{8}}-\d{{6}}\.zip$")
+    if pattern.fullmatch(export_zip.name):
+        return []
+    return [
+        "Review export zip filename must include the creation timestamp: "
+        f"expected {_sanitize_folder_name(expected_label)}-YYYYMMDD-HHMMSS.zip, "
+        f"got {export_zip.name}"
+    ]
 
 
 def _write_export_zip(target: Path, export_zip: Path) -> None:
@@ -545,8 +686,15 @@ def _validate_export_zip(
     source_branch: str,
     source_head: str,
     origin_main: str,
+    expected_label: str,
     expected_entries: set[str],
 ) -> None:
+    name_failures = _timestamped_export_zip_name_failures(export_zip, expected_label)
+    if name_failures:
+        raise ValueError(
+            "Review export zip filename validation failed:\n"
+            + "\n".join(f"- {failure}" for failure in name_failures)
+        )
     packet_files: dict[str, str] = {}
     with zipfile.ZipFile(export_zip, "r") as archive:
         entries = {entry.filename for entry in archive.infolist() if not entry.is_dir()}
@@ -590,6 +738,10 @@ def _validate_export_zip(
         ),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
+        *_fam007_dev_owner_lv1_substantive_failures(packet_files),
+        *_fam007_bp2_plan_substantive_failures(packet_files),
+        *_fam007_bp2_support_bp1_context_failures(packet_files),
+        *_bp1_packet_phase_language_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
@@ -628,7 +780,7 @@ def _validate_export_zip(
         "## Accepted Branch Vision",
         "## Family-Vision Versus Branch-Only Vision Impact",
         "## Must-Have Behavior",
-        "## Must-Not-Do / Regression-Risk Rules",
+        "## Future-Gated Decisions And Regression-Risk Controls",
         "## Deferred And Future-Gated Ideas",
         "## Vision Question Queue",
         "## Design Assumption Ledger",
@@ -809,6 +961,240 @@ def _user_branch_plan_stale_bp1_wording_failures(packet_files: Mapping[str, str]
             failures.append(
                 f"{display_name}: BP2 review contains stale BP1/product-design wording {reason}"
             )
+    return failures
+
+
+def _fam007_dev_owner_lv1_packet_detected(packet_files: Mapping[str, str]) -> bool:
+    combined = "\n".join(
+        (
+            packet_files.get("START_HERE.md", ""),
+            _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE),
+            _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"),
+            _packet_file_text(packet_files, "BRANCH_VISION_VALIDATION_CHECKLIST.md"),
+        )
+    ).casefold()
+    return (
+        "fam-007 dev/owner skeleton readiness" in combined
+        and "live validation lv1 is green" in combined
+        and "pr readiness stage 1 remains pending user approval" in combined
+    )
+
+
+def _fam007_dev_owner_lv1_substantive_failures(packet_files: Mapping[str, str]) -> list[str]:
+    if not _fam007_dev_owner_lv1_packet_detected(packet_files):
+        return []
+
+    text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    combined = "\n".join(
+        _packet_file_text(packet_files, file_name)
+        for file_name in USER_FACING_GENERATED_FILES
+    ).casefold()
+    display_name = _packet_file_path(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    failures: list[str] = []
+    required_headings = (
+        "## Live Validation LV1 No-Visible-Runtime Proof",
+        "## UTS Waiver Evidence",
+        "## PR Readiness Stage 1 Preview",
+        "## Future USER Gate Matrix",
+    )
+    for heading in required_headings:
+        if heading not in text:
+            failures.append(f"{display_name}: FAM-007 LV1 packet is missing {heading}")
+
+    required_markers = (
+        "no visible surface changed",
+        "uts is waived",
+        "stage 1 must not create a pr",
+        "provider/model/runtime/cache/memory",
+        "private dev/owner setup",
+    )
+    for marker in required_markers:
+        if marker not in combined:
+            failures.append(f"{display_name}: FAM-007 LV1 packet is missing marker '{marker}'")
+
+    forbidden_markers = (
+        "live validation lv1 remains pending",
+        "approve bounded live validation lv1",
+        "hardening final decision review",
+        "workstream entry final decision review",
+    )
+    for marker in forbidden_markers:
+        if marker in combined:
+            failures.append(f"{display_name}: FAM-007 LV1 packet contains stale marker '{marker}'")
+    return failures
+
+
+def _fam007_bp2_plan_substantive_failures(packet_files: Mapping[str, str]) -> list[str]:
+    """Block FAM-007 BP2-primary packets that still read like BP2 previews."""
+
+    start_here = packet_files.get("START_HERE.md", "")
+    if "USER Review/USER_BRANCH_PLAN_REVIEW.md" not in start_here:
+        return []
+
+    text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    combined = f"{start_here}\n{text}".casefold()
+    if "fam-007 dev/owner skeleton readiness" not in combined:
+        return []
+    if _fam007_dev_owner_lv1_packet_detected(packet_files):
+        return []
+
+    failures: list[str] = []
+    display_name = _packet_file_path(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    forbidden_patterns: tuple[tuple[str, re.Pattern[str]], ...] = (
+        (
+            "bp2-preview-future-gated",
+            re.compile(r"\bBP2 preview\b.*\bfuture-gated\b", re.IGNORECASE | re.DOTALL),
+        ),
+        (
+            "review-accepted-bp1-first-preview",
+            re.compile(r"Review accepted BP1 first; this BP2 preview", re.IGNORECASE),
+        ),
+        (
+            "pending-accepted-or-waived-bp1-trace",
+            re.compile(r"Pending accepted or waived BP1 trace", re.IGNORECASE),
+        ),
+        (
+            "bp2-pending-until-bp1",
+            re.compile(r"BP2 is pending until BP1 is accepted", re.IGNORECASE),
+        ),
+        (
+            "cannot-green-while-bp1-pending",
+            re.compile(r"cannot become green while BP1 is pending", re.IGNORECASE),
+        ),
+        (
+            "generic-product-feedback-prompt",
+            re.compile(
+                r"visual direction,\s*workflow changes,\s*window behavior,\s*"
+                r"output-file expectations",
+                re.IGNORECASE,
+            ),
+        ),
+    )
+    for reason, pattern in forbidden_patterns:
+        if pattern.search(text):
+            failures.append(f"{display_name}: FAM-007 BP2 packet contains stale preview wording {reason}")
+
+    external_plan_section = _section(
+        text, "Active External Branch Plan / Historical Branch Plan Files"
+    ).casefold()
+    if "none recorded" in external_plan_section:
+        failures.append(
+            f"{display_name}: FAM-007 BP2 packet must name active external branch plan/state context"
+        )
+
+    required_headings = (
+        "## Integrated Dev/Owner Readiness Matrix",
+        "## Edition / Lane Matrix",
+        "## Dev Readiness Matrix",
+        "## Owner Readiness Matrix",
+        "## Private Root / Remote Matrix",
+        "## GitHub Desktop Binding Matrix",
+        "## Backup / Import Matrix",
+        "## Provider / Runtime / Cache / Memory Deferral Matrix",
+        "## Watermark / Identity Matrix",
+        "## Proof / Validation Matrix",
+        "## Future USER Gate Matrix",
+    )
+    for heading in required_headings:
+        if heading not in text:
+            failures.append(f"{display_name}: FAM-007 BP2 packet is missing {heading}")
+
+    accepted_trace = _section(text, "Accepted Branch Vision Summary").casefold()
+    if "bp1 accepted" not in accepted_trace or "option a" not in accepted_trace:
+        failures.append(
+            f"{display_name}: FAM-007 BP2 packet missing accepted BP1 Option A trace"
+        )
+    return failures
+
+
+def _fam007_bp2_support_bp1_context_failures(packet_files: Mapping[str, str]) -> list[str]:
+    """Block BP2 packets whose supporting BP1 file still reads as pending BP1."""
+
+    start_here = packet_files.get("START_HERE.md", "")
+    if "USER Review/USER_BRANCH_PLAN_REVIEW.md" not in start_here:
+        return []
+
+    primary = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    combined = f"{start_here}\n{primary}".casefold()
+    if "fam-007 dev/owner skeleton readiness" not in combined:
+        return []
+    if _fam007_dev_owner_lv1_packet_detected(packet_files):
+        return []
+
+    support = _packet_file_text(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    display_name = _packet_file_path(packet_files, USER_BRANCH_VISION_REVIEW_FILE)
+    if not support:
+        return [f"{display_name}: BP2 packet is missing supporting accepted BP1 context"]
+
+    failures: list[str] = []
+    contract_status = _section(support, "Contract Status").casefold()
+    user_gate_state = _section(support, "USER Gate State").casefold()
+    accepted_vision = _section(support, "Accepted Branch Vision").casefold()
+    if not contract_status.startswith(("complete", "waived by user")):
+        failures.append(
+            f"{display_name}: supporting BP1 context Contract Status must be Complete or Waived by USER for a BP2-primary packet"
+        )
+    if not user_gate_state.startswith(("user accepted", "user waived")):
+        failures.append(
+            f"{display_name}: supporting BP1 context USER Gate State must record USER Accepted or USER Waived for a BP2-primary packet"
+        )
+    if "accepted by user" not in accepted_vision and "waived by user" not in accepted_vision:
+        failures.append(
+            f"{display_name}: supporting BP1 context Accepted Branch Vision must record accepted or waived BP1 context"
+        )
+
+    forbidden_patterns: tuple[tuple[str, re.Pattern[str]], ...] = (
+        (
+            "draft-contract-status",
+            re.compile(r"Draft - update to Complete or Waived by USER", re.IGNORECASE),
+        ),
+        (
+            "pending-bp1-user-gate",
+            re.compile(r"Pending USER Review - USER must accept, revise, waive, reject, or block BP1", re.IGNORECASE),
+        ),
+        (
+            "final-bp1-acceptance-pending",
+            re.compile(r"Final BP1 acceptance remains pending", re.IGNORECASE),
+        ),
+        (
+            "bp1-remains-open",
+            re.compile(r"BP1 remains open", re.IGNORECASE),
+        ),
+        (
+            "pending-user-acceptance-or-waiver",
+            re.compile(r"Pending USER acceptance or waiver", re.IGNORECASE),
+        ),
+        (
+            "not-final-bp1-acceptance",
+            re.compile(r"not final BP1 acceptance", re.IGNORECASE),
+        ),
+    )
+    for reason, pattern in forbidden_patterns:
+        if pattern.search(support):
+            failures.append(
+                f"{display_name}: supporting BP1 context contains stale pending-BP1 wording {reason}"
+            )
+    return failures
+
+
+def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list[str]:
+    combined = "\n".join(
+        _packet_file_text(packet_files, file_name)
+        for file_name in USER_FACING_GENERATED_FILES
+    ).casefold()
+    if "bp1 branch vision" not in combined or "authorize bp2 user branch plan review only" not in combined:
+        return []
+
+    failures: list[str] = []
+    for file_name in USER_FACING_GENERATED_FILES:
+        text = _packet_file_text(packet_files, file_name)
+        if not text:
+            continue
+        for reason, pattern in BP1_PACKET_STALE_LANGUAGE_PATTERNS:
+            if pattern.search(text):
+                failures.append(
+                    f"{_packet_file_path(packet_files, file_name)}: BP1 packet contains stale phase/boundary language {reason}"
+                )
     return failures
 
 
@@ -1035,45 +1421,385 @@ def _write_user_branch_vision_review(
         copied_context += f", plus {len(source_file_names) - 5} more source-truth files"
     if not copied_context:
         copied_context = "the selected source-truth files"
-    pr_readiness_context_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+    decision_text = exact_user_decision.casefold()
+    pr_readiness_context_packet = "pr readiness stage 1 analysis" in decision_text
+    bp2_context_packet = (
+        "bp2 user branch plan review" in decision_text
+        or "bp2 branch plan review" in decision_text
+    )
+    bp3_context_packet = (
+        "bp3" in decision_text
+        or "workstream entry / orchestration" in decision_text
+        or "orchestration validation" in decision_text
+    )
+    hardening_h1_context_packet = (
+        "approve bounded hardening h1" in decision_text
+        and (
+            "feature/fam-007-dev-owner-skeleton-readiness" in decision_text
+            or "dev/owner skeleton readiness" in decision_text
+        )
+    )
+    live_validation_context_packet = (
+        "approve bounded live validation lv1" in decision_text
+        and (
+            "feature/fam-007-dev-owner-skeleton-readiness" in decision_text
+            or "dev/owner skeleton readiness" in decision_text
+        )
+    )
+    bp2_or_later_context_packet = (
+        bp2_context_packet
+        or bp3_context_packet
+        or hardening_h1_context_packet
+        or live_validation_context_packet
+    )
+    active_planning_gate = (
+        "Live Validation LV1"
+        if live_validation_context_packet
+        else
+        "Hardening H1"
+        if hardening_h1_context_packet
+        else "BP3"
+        if bp3_context_packet
+        else "BP2"
+    )
     review_status = (
         "Context Complete - this packet uses BP1 as review context for PR Readiness Stage 1; "
         "it does not request a new Branch Vision decision."
         if pr_readiness_context_packet
+        else (
+            "Accepted by USER - this packet uses the accepted BP1 Branch Vision as "
+            f"supporting context for {active_planning_gate}; it does not request "
+            "a new BP1 decision."
+        )
+        if bp2_or_later_context_packet
         else "Needs USER Decision unless this packet records an explicit USER acceptance or waiver."
     )
     contract_status = (
         "Complete - Branch Vision context is recorded for this PR Readiness review packet; "
         "implementation remains outside this decision."
         if pr_readiness_context_packet
+        else (
+            "Complete - BP1 Branch Vision accepted by USER and used as accepted "
+            f"context for this {active_planning_gate} packet."
+        )
+        if bp2_or_later_context_packet
         else "Draft - update to Complete or Waived by USER only after USER accepts or waives BP1 for this branch."
     )
     user_response = (
         "No new BP1 response requested by this packet; PR Readiness Stage 1 analysis remains the next USER decision."
         if pr_readiness_context_packet
+        else (
+            f"BP1 accepted by USER; {active_planning_gate} is the active USER decision in this packet."
+        )
+        if bp2_or_later_context_packet
         else "Pending USER response or explicit waiver."
     )
     packet_reviewability_state = (
         "Reviewable - context packet for later-phase review; no new BP1 decision is requested by this helper output."
         if pr_readiness_context_packet
+        else (
+            f"Reviewable - supporting accepted BP1 context for the active {active_planning_gate} packet."
+        )
+        if bp2_or_later_context_packet
         else "Reviewable - BP1 packet is ready for USER Branch Vision Review, but acceptance is not recorded."
     )
     user_gate_state = (
         "Superseded - context-only BP1 copy for later-phase review; rely on the accepted branch record or external state for the original BP1 receipt."
         if pr_readiness_context_packet
+        else (
+            f"USER Accepted - BP1 Branch Vision accepted by USER; {active_planning_gate} is the active gate."
+        )
+        if bp2_or_later_context_packet
         else "Pending USER Review - USER must accept, revise, waive, reject, or block BP1 before BP2 preparation can be green."
     )
     codex_digest = (
         "Codex records this BP1 file as a context aid for the governance lifecycle reform packet. "
         "Accepted outcomes must fold into durable source-truth owners or external operational state."
         if pr_readiness_context_packet
+        else (
+            "Codex records the accepted BP1 Option A direction as the planning basis for BP2: "
+            "integrated Dev/Owner readiness, future private Dev repo direction after approval, "
+            "Owner local-private baseline, GitHub Desktop safety, backup/import lane posture, "
+            "provider/runtime/cache/memory deferral, proof expectations, and lane identity labels."
+        )
+        if bp2_or_later_context_packet
         else "Pending USER response digest."
     )
     accepted_vision = (
         "Accepted context: Governance Phase Lifecycle Reform and local USER hub model are represented by the copied source-truth files."
         if pr_readiness_context_packet
+        else (
+            "Accepted by USER - integrated Option A Dev/Owner Skeleton Readiness Branch Vision. "
+            "Dev and Owner readiness stay planned together in one public-safe trust-boundary package; "
+            "future Dev is private-repo-oriented after approval; Owner remains local-private by default; "
+            "GitHub Desktop/public-upstream safety, backup/import posture, provider/runtime/cache/memory "
+            "deferral, proof expectations, and lane identity labels are BP2 planning requirements."
+        )
+        if bp2_or_later_context_packet
         else "Pending USER acceptance or waiver."
     )
+    profile_text = " ".join(
+        [title, review_purpose, exact_user_decision, *source_file_names]
+    ).casefold().replace("_", "-")
+    fam007_dev_owner_bp1_packet = (
+        "fam-007" in profile_text
+        and (
+            "dev-owner-skeleton-readiness" in profile_text
+            or "dev/owner skeleton readiness" in profile_text
+        )
+        and not pr_readiness_context_packet
+    )
+    if fam007_dev_owner_bp1_packet:
+        lines = [
+            f"# {title} - USER Branch Vision Review",
+            "",
+            "USER Branch Vision Review: BP1",
+            "",
+            "## Review Status",
+            "",
+            review_status,
+            "",
+            "## Contract Status",
+            "",
+            contract_status,
+            "",
+            "## Packet Reviewability State",
+            "",
+            packet_reviewability_state,
+            "",
+            "## USER Gate State",
+            "",
+            user_gate_state,
+            "",
+            "## Contract Revision",
+            "",
+            (
+                f"v8 - Accepted BP1 Branch Vision context for {active_planning_gate}: integrated Dev/Owner readiness, "
+                "Dev private repo future direction, Owner local-private baseline, GitHub Desktop safety, "
+                "backup/import lane posture, provider/runtime/cache/memory deferral, and identity labeling."
+                if bp2_or_later_context_packet
+                else "v6 - USER/ChatGPT BP1 review direction digested: integrated Dev/Owner readiness, Dev private repo future direction, Owner local-private baseline, GitHub Desktop safety, backup/import lane posture, and identity labeling."
+            ),
+            "",
+            "## Project Vision Context",
+            "",
+            "Nexus is meant to stay Windows-first, local-first, modular, inspectable, privacy-aware, and USER-controlled even as AI capability grows. This Branch Vision keeps the public repo as the place where future Dev and Owner skeleton setup is made understandable before any private roots, remotes, provider behavior, cache behavior, memory, or automation exists.",
+            "",
+            "## Family Vision Context",
+            "",
+            "FAM-007 owns local AI, capability packs, Public/Dev/Owner separation, public/private trust boundaries, provider readiness, consent posture, provider-visible data, execution gates, and memory or future learning boundaries. The branch should turn those family rules into a concrete Dev/Owner readiness direction while keeping the base public product useful and safe without local LLM or provider execution.",
+            "",
+            "## Feature Vision Context",
+            "",
+            "This successor carrier follows the merged Breakpoint 2 action-gate proof and the Governance USER Review Gate repair. USER selected the integrated Option A direction: Dev and Owner skeleton readiness should be planned together as one public-safe trust-boundary package. The feature vision is not private setup; it is the public-safe readiness layer that lets USER decide how Dev private repo readiness, Owner local-private control, GitHub Desktop posture, backup/import timing, provider/model deferral, runtime cache deferral, memory deferral, and lane identity should be represented before later gates authorize any implementation.",
+            "",
+            "## Codex Understanding",
+            "",
+            "Codex understands this BP1 as a product and trust-boundary vision review for the FAM-007 Dev/Owner Skeleton Readiness carrier. The branch should prepare a decision-ready public package for future Dev and Owner skeleton setup, preserve every private/runtime action gate, and give BP2 a concrete accepted vision to translate into an engineering plan. The updated direction keeps Dev and Owner together for planning, treats future Dev as likely private-repo backed after approval, treats Owner as local-private and controlled by default, and requires BP2 to make GitHub Desktop, public-upstream, backup/import, proof, and identity propagation explicit.",
+            "",
+            "## Branch Goal",
+            "",
+            "Define a public-safe Dev/Owner skeleton readiness and decision layer around one integrated trust-boundary package. The branch should make future Dev and Owner setup choices understandable before private repositories, local-only roots, private remotes, backup/import behavior, provider or model execution, runtime cache behavior, memory, learning, personalization, or release work exists. BP2 should plan the route toward a future private Dev repo, Owner local Git/version-history safety, optional later Owner remote evaluation, public-upstream safety, and lane identity labels without creating any of those private/runtime surfaces.",
+            "",
+            "## End-State Vision",
+            "",
+            "When this branch is complete, USER should have durable source truth, decision matrices, future-gate definitions, proof expectations, validation gates, and review artifacts that name the Dev readiness path, Owner readiness path, public-to-private boundary, private root and remote decision points, GitHub Desktop safety posture, backup/import timing choices, provider/model/cache/memory deferral, lane watermark/identity labels, artifact identity propagation, and later USER action gates. It should be obvious what BP2 is allowed to plan next, what belongs only in a future private Dev repo, what stays Owner-local by default, and what still needs separate approval.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "- An integrated Dev/Owner readiness matrix that treats Dev and Owner as one public-safe trust-boundary package for BP2 planning.",
+            "- A Dev readiness matrix that names future private Dev repo direction, local-root staging choices, public-upstream relationship, private-origin expectation, contributor-only boundaries, and future GitHub Desktop private binding after approval.",
+            "- A Dev asset inventory posture that asks BP2 to plan how dev-related launchers, assets, and tools are inventoried, classified, transferred, recreated, or removed from the normal User/Public lane over time.",
+            "- An Owner readiness matrix that keeps Owner private and controlled, defaults to local Git/version history and no remote, and evaluates a private Owner remote only as a future option if BP2 proves it safer and USER later approves it.",
+            "- A private root and remote decision matrix for User/Public, Dev, and Owner lanes covering local-only roots, private hosting, GitHub Desktop binding, private `origin`, fetch-only `public-upstream`, remote identity proof, and public push prevention.",
+            "- A backup/import timing choice set for User/Public settings/preferences/config backup, Dev private development recovery tied to the future private Dev repo, and Owner local/private/encrypted recovery with rollback as the safest baseline.",
+            "- A provider/runtime/cache/memory deferral proof surface showing provider-visible data remains none, prompt acceptance remains disabled, downloads stay blocked, runtime cache stays inactive, and memory or personalization stays inactive.",
+            "- A watermark and identity posture: User/Public should present as `Nexus Desktop AI` or `Nexus Desktop AI · Pre-Beta`, Dev as `Nexus Desktop AI · DEV PRIVATE`, and Owner as `Nexus Owner · Local Private` unless a later approved Owner remote model changes that wording.",
+            "- Identity propagation requirements for UI, launchers, diagnostics, logs, review packets, screenshots/proof, backup/export packages, and generated manifests so Dev and Owner proof artifacts are visibly marked where appropriate.",
+            "- These surfaces are review and proof targets only; this BP1 vision creates no private repos, roots, remotes, provider calls, cache behavior, memory, runtime UI, GitHub Desktop binding, backup/import execution, or launcher migration.",
+            "",
+            "## How It Will Function",
+            "",
+            "The readiness layer should prevent premature private/runtime work while preparing a clear future setup path. It should define action gates, public-safe proof surfaces, decision matrices, and validator expectations that show each private, provider-facing, backup/import, GitHub Desktop, identity-propagation, or launcher/assets action is still pending, with no activation path until later USER approval.",
+            "",
+            "## User Experience Flow",
+            "",
+            "1. USER reviews Dev readiness and Owner readiness together as one public-safe trust-boundary package.",
+            "2. USER confirms whether BP2 should plan the integrated Option A matrix with Dev private repo direction, Owner local-private baseline, GitHub Desktop posture, backup/import lane posture, and identity/watermark propagation.",
+            "3. USER names the private root, private remote, public-upstream, GitHub Desktop, backup/import, provider/cache/memory, launcher/assets, and artifact identity proof expectations that BP2 must make concrete.",
+            (
+                f"4. USER has accepted this BP1 Branch Vision as the basis for the active {active_planning_gate} review."
+                if bp2_or_later_context_packet
+                else "4. USER accepts, revises, holds for more options, rejects, or explicitly waives this BP1 Branch Vision."
+            ),
+            (
+                "5. BP2 and BP3 are accepted, Workstream proof is complete, Hardening H1 is green, and Live Validation LV1 is the active no-visible-runtime proof decision."
+                if live_validation_context_packet
+                else
+                "5. BP2 and BP3 are accepted, Workstream proof is complete, and Hardening H1 is the active proof-comparison decision."
+                if hardening_h1_context_packet
+                else
+                "5. BP2 is accepted; BP3 now validates orchestration before any Workstream implementation can be requested."
+                if bp3_context_packet
+                else "5. BP2 now turns the accepted vision into an engineering plan, and BP3 later validates orchestration before any Workstream implementation can be requested."
+                if bp2_context_packet
+                else "5. BP2 later turns only the accepted or waived vision into an engineering plan, and BP3 later validates orchestration before any Workstream implementation can be requested."
+            ),
+            "",
+            "## Surface Map",
+            "",
+            "- Edition/Lane Matrix: User/Public remains normal `Nexus Desktop AI` or `Nexus Desktop AI · Pre-Beta`; Dev is visibly private; Owner is visibly local-private unless later changed by approved remote policy.",
+            "- Dev/Owner Readiness Matrix: Dev and Owner stay together as the accepted planning direction, while their actual private setup remains separately gated.",
+            "- Dev readiness surface: a future BP2 matrix should state future private Dev repo direction, local-root staging choices, public-upstream relationship, private-origin expectation, contributor-only boundaries, and dev launcher/assets/tool inventory or migration posture.",
+            "- Owner readiness surface: a future BP2 matrix should state Owner local Git/version-history baseline, no default public exposure path, no default remote path, no default GitHub Desktop private remote binding, and the future conditions under which a private Owner remote could be evaluated.",
+            "- Private Root / Remote Matrix: public root, future Dev private repo/root, future Owner local/private root, private `origin`, fetch-only `public-upstream`, remote identity proof, and push-prevention need explicit later decisions.",
+            "- GitHub Desktop Binding Matrix: User/Public binding stays normal public repo posture; future Dev may use GitHub Desktop with a private Dev repo after approval; Owner defaults to local Git/no remote unless BP2 proves a safer private remote model and USER later approves it.",
+            "- Backup / Import Matrix: User/Public should stay product-safe settings/preferences/config backup only; Dev should plan private development recovery that can integrate with the future private Dev repo; Owner should plan local/private/encrypted recovery and rollback as the safest baseline.",
+            "- Provider / Runtime / Cache / Memory Deferral Matrix: provider-visible data none, sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, runtime cache inactive, and memory/learning/personalization inactive.",
+            "- Watermark / Identity Matrix: UI, launchers, diagnostics, logs, review packets, screenshots/proof, backup/export packages, and generated manifests should carry the right lane identity when BP2 later plans proof.",
+            "- Proof and Validation Matrix: later validators and packet checks should prove no private repo, private root, private remote, GitHub Desktop private binding, backup/import execution, provider/model execution, runtime cache behavior, memory behavior, token, secret, prompt, model artifact, private automation, or private artifact enters the public branch.",
+            "- Future USER Gate Matrix: BP2, BP3, Workstream implementation, private Dev/Owner setup, backup/import execution, provider/runtime/cache/memory behavior, PR, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain separate future decisions.",
+            "",
+            "## Product Options / Design Paths",
+            "",
+            "- Option A - selected direction: integrated Dev and Owner readiness matrix. This keeps Dev private repo direction, Owner local-private control, public-upstream safety, GitHub Desktop posture, backup/import posture, provider/model deferral, cache deferral, memory deferral, and identity propagation in one public-safe trust-boundary package. Tradeoff: BP2 is broader, but the gates stay consistent.",
+            "- Option B - Dev-private-repo-first planning inside the same package. This emphasizes future private Dev repo, Dev GitHub Desktop posture, and dev launcher/assets migration first. Tradeoff: Owner version-control and no-public-exposure rules could lag unless BP2 keeps the shared matrix.",
+            "- Option C - Owner-local-private-first planning inside the same package. This emphasizes local Git/version history, local/private/encrypted recovery, no default remote, no public exposure, and Owner identity first. Tradeoff: Dev private repo and launcher/assets migration could lag.",
+            "- Option D - root/remote/GitHub Desktop safety package first. This focuses on public-upstream, private `origin`, remote identity proof, push prevention, and binding proof across User/Public, Dev, and Owner lanes. Tradeoff: backup/import and identity propagation still need matrix detail.",
+            "- Option E - backup/import and identity package first. This prioritizes User/Public settings backup, Dev private development recovery, Owner encrypted rollback, lane labels, and artifact identity propagation. Tradeoff: private repo topology and provider/runtime deferral still need expansion.",
+            "- Option F - provider/runtime deferral-first package. This proves provider-visible data none, sentToProvider=false, canAcceptPrompts=false, downloads/network blocked, cache inactive, and memory inactive before private setup. Tradeoff: it may under-answer private repo/root topology until BP2 expands it.",
+            "",
+            "## Codex Recommendations",
+            "",
+            "- Recommendation 1: keep the USER-selected Option A direction and make BP2 plan Dev plus Owner readiness in one integrated matrix. Placement should stay in the public FAM-007 carrier because the shared trust boundary is the product problem; behavior should stay planning/proof only; tradeoff is a wider BP2, but the risk of inconsistent private gates is lower.",
+            "  USER response:",
+            "- Recommendation 2: record future Dev as private-repo-oriented after approval and ask BP2 to inventory dev-related launchers, assets, and tools that should not remain in the normal User/Public version long-term. BP2 should plan classification, transfer, recreation, or removal paths without moving files or creating private repos in BP1.",
+            "  USER response:",
+            "- Recommendation 3: set Owner's default safety model to local Git/version history, local/private/encrypted recovery, no public exposure path, no default remote path, and no default GitHub Desktop private remote binding. A private Owner remote should stay a future option only if BP2 proves it is safer and USER later approves it.",
+            "  USER response:",
+            "- Recommendation 4: require BP2 to produce Edition/Lane, Dev/Owner Readiness, Private Root/Remote, GitHub Desktop Binding, Backup/Import, Provider/Runtime/Cache/Memory Deferral, Watermark/Identity, Proof and Validation, and Future USER Gate matrices before BP3 can ask for implementation.",
+            "  USER response:",
+            "- Recommendation 5: keep backup/import execution, provider SDKs, model downloads, provider/model execution, runtime cache behavior, memory, learning, personalization, voice/Core sync, shortcut/installer work, PR, merge, release, and cleanup deferred until named future gates. This protects Main and keeps provider-visible data at none; tradeoff is slower private setup.",
+            "  USER response:",
+            "- Recommendation 6: require public-safe proof and fixture/validator checks before any later private setup is considered. The proof should cover no private paths, remotes, tokens, secrets, prompts, memory, model artifacts, provider calls, downloads, cache activation, backup/import execution, GitHub Desktop private binding, private automation, or private artifacts in public review output.",
+            "  USER response:",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "The branch fits Nexus because it makes powerful AI-edition work deliberate instead of ambient. It keeps the public app local-first and inspection-friendly, preserves the FAM-007 family rule that provider/model/cache/memory behavior needs explicit gates, and gives USER a clear way to choose future Dev/Owner boundaries before any sensitive setup exists.",
+            "",
+            "## USER Design Questions",
+            "",
+            "- Does USER confirm Option A as the BP1 vision direction: Dev and Owner skeleton readiness planned together as one integrated public-safe trust-boundary package?",
+            "- For the Dev side, should BP2 treat a future private Dev repo as the preferred long-term path while repo creation and GitHub Desktop private binding remain future-gated?",
+            "- Which existing or future dev launchers, assets, tools, diagnostics, logs, manifests, or proof artifacts should BP2 inventory as candidates for transfer, recreation, or removal from the normal User/Public lane?",
+            "- For the Owner side, does USER accept local Git/version history, no default remote, no public exposure path, and no default GitHub Desktop private remote binding as the baseline?",
+            "- What criteria would make a future private Owner remote safer than local-only Owner version history?",
+            "- What exact public-upstream, private-origin, remote naming, remote identity proof, fetch/reconcile posture, and push-prevention expectations should BP2 make visible for GitHub Desktop?",
+            "- Should backup/import readiness be planned before private roots exist, after private roots exist, or only after Dev/Owner skeleton setup is separately approved?",
+            "- What is enough proof for User/Public settings backup, Dev private development recovery, and Owner local/private/encrypted rollback?",
+            "- What evidence should prove provider/model execution, downloads, runtime cache behavior, and memory/personalization remain inactive?",
+            "- Are the proposed identity labels acceptable: `Nexus Desktop AI` or `Nexus Desktop AI · Pre-Beta` for User/Public, `Nexus Desktop AI · DEV PRIVATE` for Dev, and `Nexus Owner · Local Private` for Owner?",
+            "- What proof bar should be required before any later private setup: matrix only, validator fixtures, no-leak scan, provider-state proof, packet walkthrough, visual walkthrough, artifact identity proof, or a combination?",
+            "",
+            "## USER Response",
+            "",
+            (
+                "USER accepted the updated Option A BP1 Branch Vision: Dev and Owner skeleton readiness stay planned together as one public-safe trust-boundary package; future Dev is private-repo-oriented after approval; dev-related launchers/assets/tools should leave the normal User/Public lane long-term; Owner remains private and controlled with local Git/version history as the baseline; GitHub Desktop safety, public-upstream posture, backup/import lane posture, proof expectations, and lane identity labels must be planned by BP2."
+                if bp2_or_later_context_packet
+                else "Revision direction received from USER/ChatGPT review: Option A is the selected BP1 direction; Dev should eventually have a private repo; dev-related launchers/assets/tools should leave the normal User/Public lane long-term; Owner should remain private and controlled with local Git/version history as the baseline; GitHub Desktop safety, public-upstream posture, backup/import lane posture, proof expectations, and lane identity labels must be planned by BP2. Final BP1 acceptance remains pending."
+            ),
+            "",
+            "## Codex Digest",
+            "",
+            (
+                f"Codex records this file as accepted BP1 context for the active {active_planning_gate} packet. The accepted vision is one integrated Dev/Owner readiness package with future private Dev repo planning, Dev asset inventory/migration planning, Owner local-private version-control safety, explicit GitHub Desktop binding rules, public-upstream push-prevention proof, backup/import posture for User/Public, Dev, and Owner lanes, provider/runtime/cache/memory deferral proof, and visible lane identity labels."
+                if bp2_or_later_context_packet
+                else "Codex digested the USER/ChatGPT BP1 review direction into this v6 Branch Vision. The updated vision recommends one integrated Dev/Owner readiness package, future private Dev repo planning, Dev asset inventory/migration planning, Owner local-private version-control safety, explicit GitHub Desktop binding rules, public-upstream push-prevention proof, backup/import posture for User/Public, Dev, and Owner lanes, provider/runtime/cache/memory deferral proof, and visible lane identity labels. This digest is a revision update, not final BP1 acceptance."
+            ),
+            "",
+            "## USER Response Proof",
+            "",
+            (
+                f"Accepted by USER - BP1 Branch Vision acceptance is recorded in external branch planning state and used by this {active_planning_gate} packet as supporting context."
+                if bp2_or_later_context_packet
+                else "USER/ChatGPT BP1 review direction is recorded in this v6 packet. Final BP1 acceptance, revision, waiver, rejection, or hold remains pending USER decision."
+            ),
+            "",
+            "## USER Response Digested",
+            "",
+            (
+                f"Digested - accepted BP1 direction is preserved as required {active_planning_gate} traceability context."
+                if bp2_or_later_context_packet
+                else "Partially - USER/ChatGPT revision direction has been digested into v6, but BP1 remains open until USER explicitly accepts, revises, waives, rejects, or holds the updated Branch Vision."
+            ),
+            "",
+            "## Accepted Branch Vision",
+            "",
+            accepted_vision,
+            "",
+            "## Family-Vision Versus Branch-Only Vision Impact",
+            "",
+            "Branch-only by default: this carrier applies existing FAM-007 and AI runtime/trust architecture to Dev/Owner skeleton readiness. The v6 direction may affect future edition identity, Dev asset placement, Owner version-control posture, GitHub Desktop safety, backup/import posture, and proof expectations. If USER changes edition boundaries, provider/cache/memory policy, public/private promotion rules, or the durable Public/Dev/Owner naming model, Codex must route that change to the proper durable family or architecture owner before BP2 relies on it.",
+            "",
+            "## Must-Have Behavior",
+            "",
+            (
+                f"- BP1 acceptance is recorded; {active_planning_gate} must keep tracing to this accepted Dev/Owner skeleton readiness vision and integrated Option A direction."
+                if bp2_or_later_context_packet
+                else "- BP1 acceptance or explicit waiver is required before BP2 can claim the engineering plan is valid."
+            ),
+            "- BP2 must trace every seam or SLC to this accepted Dev/Owner skeleton readiness vision and its integrated Option A direction.",
+            "- BP2 must include Edition/Lane, Dev/Owner Readiness, Private Root/Remote, GitHub Desktop Binding, Backup/Import, Provider/Runtime/Cache/Memory Deferral, Watermark/Identity, Proof and Validation, and Future USER Gate matrices.",
+            "- The branch must preserve public-safe proof and avoid creating or activating private/runtime/provider/cache/memory behavior, private GitHub Desktop binding, backup/import execution, or dev asset migration.",
+            "- USER-facing review files must stay decision-focused while technical proof remains in helper output, validator output, Codex digest, or external operational state.",
+            "",
+            "## Future-Gated Decisions And Regression-Risk Controls",
+            "",
+            "- Future-gated decision: private Dev skeleton setup, private Owner skeleton setup, private Dev repo creation, private Owner repo or remote creation, local-only private roots, private remotes, and GitHub Desktop private binding.",
+            "- Future-gated decision: dev launcher/assets/tool inventory execution, transfer, recreation, removal from the User/Public lane, or import into a private Dev path.",
+            "- Future-gated decision: backup/import behavior, public-to-private import, User/Public backup implementation, Dev recovery implementation, Owner encrypted recovery or rollback implementation, provider SDKs, model downloads, provider/model execution, runtime provider execution, cache behavior, memory, learning, indexing, retrieval, and personalization.",
+            "- Future-gated decision: voice/Core sync, shortcut or installer work, PR creation, merge, release, cleanup, issue mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work.",
+            "- Regression-risk control: reviewability is not USER acceptance, and packet validation cannot approve BP2, BP3, or Workstream implementation.",
+            "- Regression-risk control: any future private, GitHub Desktop, backup/import, identity, or provider-facing proof must be public-safe, synthetic where needed, and free of private paths, secrets, tokens, prompts, memory, model artifacts, private automation, private repository URLs, and private artifacts.",
+            "",
+            "## Deferred And Future-Gated Ideas",
+            "",
+            *_markdown_lines(pending_user_decisions),
+            "",
+            "## Vision Question Queue",
+            "",
+            (
+                "- Use integrated Dev/Owner readiness as the accepted BP1 direction while reviewing whether the BP2 engineering plan faithfully builds it."
+                if bp2_context_packet
+                else "- Confirm integrated Dev/Owner readiness as the accepted BP1 direction or revise it before BP2."
+            ),
+            "- Decide the future Dev private repo posture and the dev launcher/assets/tool inventory or migration questions BP2 must answer.",
+            "- Decide whether Owner stays local Git/no remote by default and what criteria would justify evaluating a private Owner remote later.",
+            "- Decide which public-upstream, private origin, GitHub Desktop binding, backup/import, provider/cache/memory, identity/watermark, artifact-propagation, and public-to-private promotion questions BP2 must answer.",
+            "- Decide what proof format USER wants before any future private setup, backup/import execution, GitHub Desktop private binding, provider/runtime behavior, cache behavior, or memory behavior can be considered.",
+            "",
+            "## Design Assumption Ledger",
+            "",
+            "- Assumption: the public branch may define readiness, decisions, fixtures, validators, and review proof, but it may not contain private Dev or Owner assets, private repo URLs, private root paths, real private screenshots, private prompts, or private automation.",
+            "- Assumption: User/Public remains normal Nexus branding, while Dev and Owner artifacts should be visibly marked where appropriate once BP2 plans identity propagation.",
+            "- Assumption: provider-visible data remains none, sentToProvider remains false, canAcceptPrompts remains false, downloads/network/external calls remain blocked, memory and cache runtime behavior remain inactive, and voice/Core sync remains gated until later USER approval.",
+            "- Assumption: accepted BP1 changes that alter family, architecture, or edition-boundary policy must fold into the durable source-truth owner before BP2 treats them as implementation scope.",
+            "",
+            "## Acceptance / Revision / Rejection / Waiver Decision",
+            "",
+            "- Accept: USER accepts this FAM-007 Dev/Owner Skeleton Readiness Branch Vision and authorizes BP2 preparation only.",
+            "- Revise: USER requests specific changes to readiness surfaces, options, proof expectations, private-boundary wording, or future-gated decisions before BP2.",
+            "- Hold / More Options: USER wants additional product options, examples, or proof models before accepting or rejecting BP1.",
+            "- Reject: USER rejects this branch vision or routes FAM-007 to a different successor candidate.",
+            "- Waive: USER explicitly waives BP1 and accepts the risk of planning without a fully accepted Branch Vision.",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     lines = [
         f"# {title} - USER Branch Vision Review",
         "",
@@ -1097,15 +1823,15 @@ def _write_user_branch_vision_review(
         "",
         "## Contract Revision",
         "",
-        "v2 - generated by the local USER hub helper with substantive BP1 review sections.",
+        "v3 - generated by the local USER hub helper with applied BP1 review sections.",
         "",
         "## Project Vision Context",
         "",
-        f"`{title}` must explain how this branch supports Nexus as a USER-controlled, inspectable desktop AI system before engineering planning begins. The copied context ({copied_context}) is evidence for that fit; the USER should judge whether the branch direction belongs in the project vision rather than treating a clean packet as approval.",
+        f"`{title}` should keep Nexus USER-controlled, inspectable, and local-first by naming the branch outcome in plain language before engineering planning begins. The copied context ({copied_context}) supports that outcome, but the branch vision must stand on its own as a readable USER decision aid.",
         "",
         "## Family Vision Context",
         "",
-        f"This BP1 review asks whether `{title}` fits the owning family or governance lane represented by the copied source-truth files. If the branch changes reusable family direction, the USER response must name that family impact so Codex can route it to the proper durable owner before BP2.",
+        f"`{title}` belongs to the family or governance lane represented by the copied source-truth files. If the USER chooses a direction that changes reusable family behavior, Codex must route that accepted change to the durable owner before BP2 relies on it.",
         "",
         "## Feature Vision Context",
         "",
@@ -1117,23 +1843,23 @@ def _write_user_branch_vision_review(
         "",
         "## Branch Goal",
         "",
-        f"Create an accepted USER-facing branch vision for `{title}` before engineering planning. The goal is to turn `{review_purpose}` into a clear decision surface: what the branch is meant to accomplish, what USER will inspect, and what must remain blocked until BP2/BP3 and separate implementation approval.",
+        f"Name the concrete branch outcome for `{title}` before engineering planning. The goal is to translate `{review_purpose}` into a clear branch direction: what the branch is meant to accomplish, what USER will inspect, and what remains blocked until later approved gates.",
         "",
         "## End-State Vision",
         "",
-        f"When BP1 closes, USER should be able to say exactly what `{title}` is allowed to become, what future USER-visible or governance behavior should be true, and which outcomes are deliberately deferred. A later green BP2/BP3 must trace to this accepted end-state instead of inventing product direction during implementation.",
+        f"When this branch reaches its intended end state, USER should be able to point to the accepted outcome for `{title}`, the surfaces or governance behaviors that should exist, the proof expectations that make the outcome trustworthy, and the deferred outcomes that still require later approval.",
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
-        f"USER sees this Branch Vision review in the stable local USER hub packet beside the copied context files named in `START_HERE.md`. The visible review surface is not the raw file list; it is this applied explanation of `{title}`, the decision options, the recommendation rationale, and the questions USER can answer before BP2.",
+        f"USER should see an applied explanation of `{title}`, a concrete outcome description, named review surfaces, real decision paths, branch-specific recommendations, and design questions that can change BP2. The copied context files remain supporting evidence rather than the vision itself.",
         "",
         "## How It Will Function",
         "",
-        f"BP1 captures the intended outcome for `{title}`. BP2 must translate only the accepted or waived BP1 vision into an engineering plan, BP3 must validate orchestration against both accepted gates, and Workstream implementation remains blocked until those gates are green plus the USER gives a separate implementation decision.",
+        f"The branch vision functions as the product and governance target for `{title}`. It names the expected outcome, the surfaces USER will inspect, the boundaries that remain future-gated, and the proof expectations that later planning must preserve.",
         "",
         "## User Experience Flow",
         "",
-        f"USER starts at `START_HERE.md`, reads this vision review, checks the source-truth context only as supporting evidence, then responds to the options and design questions below. Codex must digest that response into accepted, revised, waived, rejected, or blocked BP1 state before preparing BP2.",
+        f"1. USER reads the branch outcome and the surfaces affected by `{title}`.\n2. USER compares the design paths and tradeoffs.\n3. USER answers the branch-specific questions that control future planning.\n4. Codex digests the response before any later engineering plan treats the vision as accepted.",
         "",
         "## Surface Map",
         "",
@@ -1144,15 +1870,15 @@ def _write_user_branch_vision_review(
         "",
         "## Product Options / Design Paths",
         "",
-        f"- Option A - accept the `{title}` vision as the right direction: lowest planning churn, but only safe if USER can already visualize the outcome and boundaries.",
-        "- Option B - revise the vision before BP2: best when the branch goal is directionally right but USER wants different surfaces, experience flow, proof expectations, or future-gated boundaries.",
-        "- Option C - waive or reject BP1: waiver should be rare and explicit; rejection is safer when the branch belongs to another family, architecture owner, policy owner, or later branch.",
+        f"- Option A - strongest implied `{title}` outcome: keep the branch focused on the most concrete product, governance, or source-truth result described by the review purpose. Tradeoff: fastest route to BP2, but only safe when USER can clearly visualize the outcome.",
+        "- Option B - narrower surface path: reduce the branch to the subset of surfaces USER can confidently approve now. Tradeoff: less risk of overreach, but later branches may need to reconnect deferred surfaces.",
+        "- Option C - broader owner/family impact path: treat the branch as changing reusable family or project direction. Tradeoff: stronger long-term alignment, but it may require source-truth fold-down before BP2.",
         "",
         "## Codex Recommendations",
         "",
-        f"- Recommendation: Use this packet to decide the `{title}` branch vision before any BP2 engineering plan is treated as valid, because the main risk is Codex building from a technically clean but weak product direction. Tradeoff: this adds one deliberate review pause, but it prevents expensive Workstream rework.",
+        f"- Recommendation: Choose the most concrete `{title}` outcome USER can visualize and make that outcome the BP2 target. Tradeoff: this keeps planning grounded, but it may require revising vague branch language before engineering starts.",
         "  USER response:",
-        f"- Recommendation: Require any revision to name the expected USER-visible, governance, or source-truth outcome for `{title}` rather than only saying the packet should be clearer. Tradeoff: stricter response digestion takes more care, but it gives BP2 a real contract to build from.",
+        f"- Recommendation: Require any revision to name the expected USER-visible, governance, or source-truth surface for `{title}`. Tradeoff: stricter response digestion takes more care, but it gives BP2 a real contract to build from.",
         "  USER response:",
         "- Recommendation: Treat copied files as context evidence, not as the Branch Vision itself. Tradeoff: USER may inspect fewer raw lines first, but the decision becomes easier to reason about and harder for a template shell to pass.",
         "  USER response:",
@@ -1163,7 +1889,7 @@ def _write_user_branch_vision_review(
         "",
         "## USER Design Questions",
         "",
-        f"- For `{title}`, what exact outcome should USER expect to see, inspect, or rely on when this branch is complete?",
+        f"- For `{title}`, which concrete outcome should USER expect to see, inspect, or rely on when this branch is complete?",
         "- Which option above best matches the desired direction, and what specific change would make the branch vision feel correct before BP2?",
         "- Are there family-level, architecture-level, policy-level, experience-level, or future-gated boundaries that Codex must preserve instead of folding into this branch?",
         "",
@@ -1198,11 +1924,11 @@ def _write_user_branch_vision_review(
         "- BP1 must be accepted or explicitly waived before BP2/BP3 can authorize implementation.",
         "- SLCs must trace to an accepted Branch Vision requirement.",
         "",
-        "## Must-Not-Do / Regression-Risk Rules",
+        "## Future-Gated Decisions And Regression-Risk Controls",
         "",
-        "- Do not turn SLCs into automatic separate branches.",
-        "- Do not use Workstream for planning.",
-        "- Do not center mutable operational metadata as the USER-facing contract.",
+        "- Regression-risk control: SLCs remain engineering route details inside an accepted branch, not automatic separate branches.",
+        "- Regression-risk control: Workstream remains blocked until BP1 and BP2 are accepted or explicitly waived and BP3 is green.",
+        "- Regression-risk control: USER-facing review files stay focused on vision, plan context, options, risks, proof expectations, and USER decisions rather than mutable operational metadata.",
         "",
         "## Deferred And Future-Gated Ideas",
         "",
@@ -1251,7 +1977,60 @@ def _write_user_branch_plan_review(
             for source_rel, _copied_rel in copied
         )
     )
-    pr_readiness_stage1_packet = "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+    is_fam007_dev_owner_skeleton = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        or any(
+            "feature_fam_007_dev_owner_skeleton_readiness" in source_rel
+            for source_rel, _copied_rel in copied
+        )
+    )
+    normalized_decision = exact_user_decision.casefold()
+    workstream_package_approval_packet = any(
+        marker in normalized_decision
+        for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+    ) and not any(
+        marker in normalized_decision
+        for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+    )
+    dev_owner_workstream_green_packet = (
+        is_fam007_dev_owner_skeleton
+        and not is_fam007_breakpoint_2
+        and "approve bounded hardening h1" in normalized_decision
+    )
+    dev_owner_hardening_h1_packet = (
+        is_fam007_dev_owner_skeleton
+        and not is_fam007_breakpoint_2
+        and "approve bounded live validation lv1" in normalized_decision
+    )
+    dev_owner_live_validation_lv1_packet = (
+        is_fam007_dev_owner_skeleton
+        and not is_fam007_breakpoint_2
+        and "approve bounded pr readiness stage 1" in normalized_decision
+    )
+    pr_readiness_stage1_packet = (
+        "pr readiness stage 1 analysis" in normalized_decision
+        and not dev_owner_live_validation_lv1_packet
+    )
+    bp1_branch_vision_packet = (
+        "bp1 branch vision" in normalized_decision
+        and "authorize bp2 user branch plan review only" in normalized_decision
+    )
+    bp3_orchestration_packet = (
+        not workstream_package_approval_packet
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry / orchestration" in normalized_decision
+            or "orchestration validation" in normalized_decision
+        )
+    )
+    bp2_branch_plan_packet = (
+        not bp1_branch_vision_packet
+        and not bp3_orchestration_packet
+        and (
+            "bp2 user branch plan review" in normalized_decision
+            or "bp2 branch plan review" in normalized_decision
+        )
+    )
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
@@ -1277,6 +2056,17 @@ def _write_user_branch_plan_review(
             "Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md",
         }
     ]
+    extra_plan_sections: list[str] = []
+    user_response_text: str | None = None
+    likely_files_lines = [
+        f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
+    ]
+    user_decisions_intro = (
+        "USER may answer in order or respond generally. Useful feedback includes visual "
+        "direction, workflow changes, window behavior, output-file expectations, "
+        "deferred scope, or anything that would make the branch plan feel wrong before "
+        "implementation planning begins."
+    )
     if is_active_overlay_recording:
         active_plan_source = next(
             (
@@ -1331,7 +2121,7 @@ def _write_user_branch_plan_review(
             "Decision.",
             "Required changes.",
             "Must-have behavior.",
-            "Must-not-do boundaries.",
+            "Future-gated boundary controls.",
             "Future-gated ideas.",
             "General response.",
         ]
@@ -1676,7 +2466,7 @@ def _write_user_branch_plan_review(
             "Decision: accept, revise, waive, or reject.",
             "Required changes to Seam 1 proof expectations, if any.",
             "Must-have action-gate proof.",
-            "Must-not-do boundaries.",
+            "Future-gated boundary controls.",
             "Explicit waiver language, if USER wants to waive unresolved questions.",
             "General response.",
         ]
@@ -1702,25 +2492,29 @@ def _write_user_branch_plan_review(
                 )
                 if workstream_green_packet
                 else (
-                    "Seam 1 is complete; Seam 2 remains blocked until USER approves or revises the "
-                    "private/public boundary and private remote safety proof seam."
+                    "Seam 1 is complete; if the same-branch Workstream package remains in progress, "
+                    "continuation must move to Seam 2 unless a real blocker, explicit waiver, or "
+                    "backlog split is recorded."
                 )
                 if seam1_completion_packet
-                else "Until USER accepts or waives this contract, Seam 1 implementation remains blocked."
+                else (
+                    "Until USER accepts or waives this contract and approves bounded Workstream "
+                    "implementation, the entry seam and later same-branch seams remain blocked."
+                )
             ),
-            "Seam 1 work is limited to public-safe action-gate registry/proof, deterministic fixtures or validators, source-truth fold-down, packet refresh, and validation.",
+            "The Workstream entry seam is public-safe action-gate registry/proof, deterministic fixtures or validators, source-truth fold-down, packet refresh, and validation; later admitted same-branch seams continue under Workstream governance until Workstream Green, a real blocker, or an explicit USER waiver.",
             "No private Dev repo, private Owner repo, local-only private root, private remote, GitHub Desktop private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006 mutation, Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by this packet.",
             "Provider-visible data must remain none; sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, and runtime cache behavior not implemented.",
         ]
         rejected_deferred = [
             "Deferred: private Dev repo creation, private Owner repo creation, local-only private root creation, GitHub Desktop private remote configuration, off-boot backup or recovery root implementation, and Public-to-Dev import implementation.",
             "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release, cleanup, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
-            "Rejected for Seam 1: any hidden private setup, silent provider enablement, cache/memory runtime behavior, or action that would make a USER gate look already completed.",
+            "Rejected for the Workstream entry seam: any hidden private setup, silent provider enablement, cache/memory runtime behavior, or action that would make a USER gate look already completed.",
         ]
         source_truth_impact = [
             "Active external branch plan and branch record should preserve Breakpoint 2 as a real FAM-007 product/workstream carrier.",
             "AI Runtime And Trust Architecture remains the cross-family owner for provider boundaries, permission-state, deterministic routing, Trust Journal, AI Operational Cache Governance, local-only proof, and capability-pack readiness.",
-            "Review packet should remain branch-specific, freshness-verified, count-consistent, placeholder-free, and explicit that Seam 1 approval covers only public-safe action-gate proof.",
+            "Review packet should remain branch-specific, freshness-verified, count-consistent, placeholder-free, and explicit that Workstream approval covers the admitted same-branch package with Seam 1 as the entry proof checkpoint, not a one-seam stop.",
             "Source-truth fold-down during Seam 1 should record proof of action-gate preservation without executing gated private/runtime actions.",
         ]
         contract_change_log = [
@@ -1731,10 +2525,10 @@ def _write_user_branch_plan_review(
             "Contract Status is Complete or Waived by USER.",
             "Workstream Entry Result records green analysis and recommended Seam 1.",
             "USER response is present in chat, copied into the packet later, or explicitly waived.",
-            "Exact implementation approval text names Seam 1 only.",
+            "Exact implementation approval text names bounded Workstream package execution with Seam 1 as the entry checkpoint.",
             "Implementation Constraints Created By USER Response preserve all private/runtime/provider/cache/memory gates.",
             "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
-            "Packet digest files agree that Workstream Entry is green and Seam 1 approval is limited to public-safe action-gate proof.",
+            "Packet digest files agree that Workstream Entry is green and Workstream approval covers the admitted same-branch package with Seam 1 as the entry proof checkpoint.",
             "No unresolved packet placeholders or packet count mismatches remain.",
             "Validation results are green before Seam 1 starts.",
         ]
@@ -1749,7 +2543,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to Seam 2 proof expectations, if any.",
                 "Must-have private-boundary or remote-safety proof.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -1789,7 +2583,7 @@ def _write_user_branch_plan_review(
             "Open the active external branch plan to verify the product/workstream carrier posture and Breakpoint 2 scope.",
             "Inspect the action-gate registry/proof surface once Seam 1 is implemented; each gated action should say pending, blocked, or USER-required rather than completed.",
             "Review validator or fixture outputs proving no private repo, private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, or PR/merge/release work occurred.",
-            "Upload the matching ZIP beside the local USER hub folder after reviewing the packet.",
+            "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing the packet.",
         ]
         surface_map = [
             "USER review packet: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, USER_BRANCH_PLAN_REVIEW.md, folder/file digest, governance scan, Workstream Entry digest, branch vision checklist, and ZIP export.",
@@ -1801,21 +2595,22 @@ def _write_user_branch_plan_review(
             "External operational state: records branch authority and packet posture outside the repo when current governance requires it.",
         ]
         implementation_options = [
-            "Accept Seam 1 as recommended: implement public-safe action-gate registry and exact USER decision proof first. Pros: clearest readiness foundation; Cons: no private setup yet; Risk: low.",
-            "Revise Seam 1 proof expectations before implementation. Pros: lets USER tune proof wording or validator expectations; Cons: adds packet/source-truth repair; Risk: low.",
-            "Waive unresolved review questions and approve Seam 1. Pros: unblocks bounded proof work; Cons: records less design feedback; Risk: medium if important proof expectations are not named.",
+            "Approve the bounded Workstream package with Seam 1 as the entry checkpoint: implement public-safe action-gate registry and exact USER decision proof first, then continue through admitted same-branch seams until Workstream Green, a real blocker, or an explicit USER waiver. Pros: clearest readiness foundation; Cons: no private setup yet; Risk: low.",
+            "Revise Workstream proof expectations before implementation. Pros: lets USER tune proof wording, validator expectations, or seam order; Cons: adds packet/source-truth repair; Risk: low.",
+            "Waive unresolved review questions and approve bounded Workstream package execution. Pros: unblocks bounded proof work; Cons: records less design feedback; Risk: medium if important proof expectations are not named.",
             "Reject this branch contract and request a narrower carrier. Pros: maximum scope control; Cons: delays Breakpoint 2 readiness; Risk: low but slower.",
         ]
         recommended_direction = (
-            "Codex recommends accepting the repaired branch contract and approving Seam 1 only when USER "
-            "agrees that the public-safe proof path is correct. Seam 1 should prove the action gates and "
-            "decision text before any later private Dev/Owner skeleton setup decision is considered."
+            "Codex recommends accepting the repaired branch contract and approving bounded Workstream "
+            "package execution when USER agrees that the public-safe proof path is correct. Seam 1 is "
+            "the entry checkpoint for action-gate and decision-text proof; it is not stop authority "
+            "while admitted same-branch Workstream work remains."
         )
         current_scope = [
             "Branch-specific Workstream Entry contract repair.",
             "Completed Workstream Entry result recorded in the packet.",
             "Recommended first seam recorded as Seam 1, Action-gate registry and exact USER decision proof.",
-            "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the decision path.",
+            "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the decision path.",
             "Validation before any Seam 1 file mutation begins.",
         ]
         future_scope = [
@@ -1833,7 +2628,7 @@ def _write_user_branch_plan_review(
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Workstream Green with Hardening H1 as the next decision.",
                 "Open the active external branch plan and branch record to verify Seams 1 through 4 are recorded as public-safe proof only.",
                 "Review the fixture and validator proof showing all private/runtime/provider/cache/memory gates remain pending.",
-                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising Hardening H1.",
+                "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing or revising Hardening H1.",
             ]
             implementation_options = [
                 "Approve Hardening H1 as recommended: compare all public-safe Workstream proof against source truth, fixtures, validators, packet proof, and external-state boundaries. Pros: moves the branch into the required proof-comparison phase; Cons: no PR/merge/release yet; Risk: low.",
@@ -1851,7 +2646,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to Hardening H1 proof expectations, if any.",
                 "Must-have proof-comparison or pressure-test criteria.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -1884,7 +2679,7 @@ def _write_user_branch_plan_review(
                 "Seam 2 private/public boundary and private remote safety proof implemented.",
                 "Seam 3 backup/recovery and Public-to-Dev import planning proof implemented.",
                 "Seam 4 provider/model/runtime/cache/memory deferral and local-only handoff proof implemented.",
-                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Hardening H1 next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Hardening H1 next decision.",
             ]
             future_scope = [
                 "Hardening H1 approval is limited to proof comparison and pressure testing.",
@@ -1918,7 +2713,7 @@ def _write_user_branch_plan_review(
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Hardening H1 Green with Live Validation LV1 as the next decision.",
                 "Open the active external branch plan and branch record to verify the H1 comparison receipt and stale-ledger repair.",
                 "Review validator proof showing stale Workstream-pending phrases are rejected and all private/runtime/provider/cache/memory gates remain pending.",
-                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising LV1/no-visible-runtime proof.",
+                "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing or revising LV1/no-visible-runtime proof.",
             ]
             implementation_options = [
                 "Approve Live Validation LV1 as recommended: digest no-visible-runtime proof and UTS waiver evidence from source-truth, fixtures, validators, packet proof, and external-state boundaries. Pros: moves the branch toward PR Readiness without pretending runtime was exercised; Cons: no PR/merge/release yet; Risk: low.",
@@ -1936,7 +2731,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to LV1/no-visible-runtime proof expectations, if any.",
                 "Must-have waiver or validation evidence.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -1969,7 +2764,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Stale duplicate Workstream-pending ledger wording repaired.",
                 "Direct validator guard added for stale Breakpoint 2 Workstream-pending phrases.",
-                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Live Validation LV1 next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Live Validation LV1 next decision.",
             ]
             future_scope = [
                 "Live Validation LV1 approval is limited to no-visible-runtime proof and UTS waiver digestion.",
@@ -2003,7 +2798,7 @@ def _write_user_branch_plan_review(
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is Live Validation LV1 Green with PR Readiness Stage 1 as the next decision.",
                 "Open the active external branch plan and branch record to verify the LV1/no-visible-runtime proof receipt and UTS waiver.",
                 "Review validator proof showing LV1 source-truth phrases are present and stale H1/LV1-pending phrases are rejected.",
-                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising PR Readiness Stage 1 analysis.",
+                "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing or revising PR Readiness Stage 1 analysis.",
             ]
             implementation_options = [
                 "Approve PR Readiness Stage 1 as recommended: analyze PR readiness for the completed public-safe Breakpoint 2 proof carrier. Pros: moves toward PR creation review; Cons: no PR/merge/release yet; Risk: low.",
@@ -2021,7 +2816,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to PR Readiness Stage 1 inspection criteria, if any.",
                 "Must-have PR readiness proof.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -2056,7 +2851,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Live Validation LV1 no-visible-runtime proof complete.",
                 "UTS and user-facing shortcut validation waived because no visible runtime or shortcut surface changed.",
-                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the PR Readiness Stage 1 next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the PR Readiness Stage 1 next decision.",
             ]
             future_scope = [
                 "PR Readiness Stage 1 approval is limited to analysis only.",
@@ -2101,7 +2896,7 @@ def _write_user_branch_plan_review(
                 "Exact USER decision proof implemented.",
                 "Direct fixture and validator proof added.",
                 "Branch plan and branch record folded down for Seam 1.",
-                "Local USER hub packet and ZIP refreshed with the current decision path, file list, and next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed with the current decision path, file list, and next decision.",
             ]
             future_scope = [
                 "Seam 2 approval is limited to private/public boundary and private remote safety proof.",
@@ -2138,7 +2933,7 @@ def _write_user_branch_plan_review(
                 "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract is PR Readiness Stage 1 Ready For Stage 2.",
                 "Open the branch record PR Readiness Stage 1 Analysis Packet and verify no live PR, Stage 2 pending, no-release-debt posture, selected-next default/defer posture, and merge-stable authority projection.",
                 "Open the branch plan PR Readiness Stage 1 Repair Receipt and confirm Stage 2 remains blocked until USER approval.",
-                "Upload the matching ZIP beside the local USER hub folder after reviewing or revising Stage 2.",
+                "Upload the matching timestamped ZIP beside the local USER hub folder after reviewing or revising Stage 2.",
             ]
             implementation_options = [
                 "Approve PR Readiness Stage 2 as recommended: create the PR, verify PR creation and review posture, provision/update watcher, request/monitor Codex bot review, and stop before merge unless later approval exists. Pros: moves the completed proof carrier into review; Cons: no merge/release yet; Risk: low when validation remains green.",
@@ -2156,7 +2951,7 @@ def _write_user_branch_plan_review(
                 "Decision: approve, revise, pause, or reject.",
                 "Required changes to PR body, watcher, or bot-review expectations, if any.",
                 "Must-have PR readiness proof.",
-                "Must-not-do boundaries.",
+                "Future-gated boundary controls.",
                 "General response.",
             ]
             digest_structure = [
@@ -2177,7 +2972,7 @@ def _write_user_branch_plan_review(
                 "Hardening H1 proof comparison complete.",
                 "Live Validation LV1 no-visible-runtime proof complete.",
                 "PR Readiness Stage 1 repair complete with no live PR and Stage 2 pending.",
-                "Local USER hub packet and ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Stage 2 next decision.",
+                "Local USER hub packet and timestamped ZIP refreshed; helper output carries technical freshness proof and USER-facing files carry the Stage 2 next decision.",
             ]
             future_scope = [
                 "PR Readiness Stage 2 approval is limited to PR creation, live PR validation, watcher provisioning/update, Codex bot review request/monitoring, and in-scope Codex comment repair if needed.",
@@ -2294,7 +3089,7 @@ def _write_user_branch_plan_review(
             "Decision.",
             "Required changes.",
             "Must-have behavior.",
-            "Must-not-do boundaries.",
+            "Future-gated boundary controls.",
             "Future-gated ideas.",
             "General response.",
         ]
@@ -2312,7 +3107,7 @@ def _write_user_branch_plan_review(
         implementation_constraints = (
             [
                 "PR Readiness Stage 1 is analysis-only.",
-                "PR creation, merge, release, cleanup, runtime implementation, provider/model/cache/memory/private actions, sidecar artifacts, unique ZIP naming, and separate Review/Upload taxonomy remain pending USER decisions.",
+                "PR creation, merge, release, cleanup, runtime implementation, provider/model/cache/memory/private actions, sidecar artifacts, and separate Review/Upload taxonomy remain pending USER decisions; timestamped ZIP naming is mandatory active policy.",
                 "Accepted outcomes from this packet must fold into durable repo owners or approved external operational state, not the temporary USER review folder.",
             ]
             if pr_readiness_stage1_packet
@@ -2377,7 +3172,7 @@ def _write_user_branch_plan_review(
             "Docs/branch_plans/README.md: BP1/BP2/BP3 artifact rules.",
             "Docs/validation_helper_registry.md: helper and validator enforcement.",
             "Docs/branch_records/index.md and Governance branch record: branch routing law.",
-            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance.zip: temporary USER review aids.",
+            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance-YYYYMMDD-HHMMSS.zip: temporary USER review aids.",
         ]
         implementation_options = [
             "Option A - Approve PR Readiness Stage 1 analysis as recommended. Pros: moves the Governance reform toward PR creation review; Cons: no PR is created yet; Risk: low.",
@@ -2399,7 +3194,7 @@ def _write_user_branch_plan_review(
             "PR Readiness Stage 1 remains pending USER approval.",
         ]
         future_scope = [
-            "PR creation, merge, release, cleanup, runtime work, FAM-006/FAM-007 mutation, private/provider/cache/memory actions, sidecars, unique ZIPs, and separate Review/Upload taxonomy remain pending USER decisions.",
+            "PR creation, merge, release, cleanup, runtime work, FAM-006/FAM-007 mutation, private/provider/cache/memory actions, sidecars, and separate Review/Upload taxonomy remain pending USER decisions; timestamped ZIP naming is mandatory active policy.",
         ]
         slc_package_plan = [
             "SLCs remain engineering route details inside an accepted branch; they do not automatically become separate branches.",
@@ -2409,6 +3204,1381 @@ def _write_user_branch_plan_review(
             "Does USER approve PR Readiness Stage 1 analysis for this Governance branch?",
             "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
             "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
+        ]
+    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2:
+        plain_english_summary = (
+            "This BP2 preview is future-gated until USER accepts or explicitly waives BP1. "
+            "If BP1 is accepted, BP2 should plan the public-safe Dev/Owner skeleton readiness "
+            "package: Dev readiness, Owner readiness, private root and remote decisions, "
+            "public-upstream safety, backup/import deferral, provider/model/runtime/cache/memory "
+            "deferral, review-packet proof, and direct validator coverage."
+        )
+        end_state_vision = (
+            "When BP2 is later accepted or waived, USER should understand which public-safe "
+            "source-truth, helper, fixture, validator, packet, H1, LV/UTS, rollback, and proof "
+            "surfaces will prepare future Dev/Owner skeleton setup while every private/runtime "
+            "action remains separately gated."
+        )
+        what_user_sees = (
+            "USER should see a branch-specific engineering plan derived from the accepted BP1 "
+            "Dev/Owner skeleton readiness vision, not a Governance PR Readiness plan and not "
+            "private setup. The BP2 packet should name the exact future readiness seams and the "
+            "proof expected before implementation."
+        )
+        why_nexus = (
+            "This fits Nexus because it keeps AI-edition growth local-first, visible, and "
+            "permission-gated. The public branch plans decision and proof surfaces while private "
+            "Dev/Owner roots, provider/model behavior, cache behavior, memory, and promotion back "
+            "to Main stay under explicit USER control."
+        )
+        implementation_constraints = [
+            "BP2 is pending until BP1 is accepted or explicitly waived.",
+            "BP2 may plan public-safe source-truth, fixture, validator, helper, packet, and proof surfaces only.",
+            "Private Dev repo creation, Owner repo creation, local-only roots, private remotes, GitHub Desktop private binding, backup/import behavior, provider/model execution, runtime cache behavior, memory behavior, PR, merge, release, cleanup, and v1.8.0 work remain future USER decisions.",
+            "Provider-visible data must remain none; sentToProvider=false, canAcceptPrompts=false, prompt/provider/model execution disabled, downloads/network/external calls blocked, memory/learning/personalization inactive, and runtime cache behavior inactive.",
+        ]
+        rejected_deferred = [
+            "Deferred: actual private Dev skeleton setup and Owner skeleton setup.",
+            "Deferred: private repo/root/remote creation, GitHub Desktop private binding, backup/import execution, and Public-to-Dev import.",
+            "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work.",
+        ]
+        source_truth_impact = [
+            "FAM-007 family vision and AI runtime/trust architecture remain the durable policy context.",
+            "The FAM-007 branch record and external branch plan remain the branch-specific planning owners.",
+            "BP2 must fold any USER revision that changes edition boundaries, private/public promotion, provider/cache/memory policy, or proof expectations into the proper source-truth owner before BP3.",
+        ]
+        contract_change_log = [
+            "v1 - BR2 admitted the FAM-007 Dev/Owner Skeleton Readiness carrier.",
+            "v2 - BP1 packet generated as Branch Vision Review with BP2 remaining future-gated.",
+            "v3 - BP1 primary vision file repaired into applied FAM-007 Dev/Owner readiness content.",
+        ]
+        completion_checklist = [
+            "BP1 is accepted or explicitly waived before BP2 is treated as a plan gate.",
+            "Accepted BP1 trace is present.",
+            "Implementation package summary names Dev readiness, Owner readiness, private root/remote gates, public-upstream safety, backup/import deferral, provider/model/runtime/cache/memory deferral, validation proof, packet proof, H1, LV/UTS, and rollback/safety expectations.",
+            "All private/runtime/provider/cache/memory/PR/merge/release/cleanup boundaries remain pending USER decisions.",
+            "BP3 / Workstream Entry remains blocked until BP2 is accepted or explicitly waived and orchestration validation is green.",
+        ]
+        walkthrough = [
+            "Review accepted BP1 first; this BP2 preview cannot become green while BP1 is pending.",
+            "Confirm whether BP2 should keep Dev and Owner skeleton readiness in one public-safe branch.",
+            "Confirm which private root, private remote, GitHub Desktop, backup/import, provider/cache/memory, and public-to-private promotion decisions need matrix proof.",
+            "Confirm the required no-leak, provider-state, packet, fixture, validator, H1, and LV/UTS proof before implementation.",
+        ]
+        surface_map = [
+            "USER packet: BP1 primary vision file now; future BP2 engineering plan only after BP1 acceptance or waiver.",
+            "Branch record and external branch plan: branch-specific FAM-007 readiness authority and planning owners.",
+            "FAM-007 family vision and AI runtime/trust architecture: provider, model, cache, memory, permission, and public/private boundary owners.",
+            "Validation surfaces: public leak-prevention, provider-state, branch-planning fixture validation, packet validation, and branch governance validation.",
+            "Future proof surfaces: H1 implementation-vs-plan comparison, Live Validation or UTS waiver/proof, and PR Readiness only after later approvals.",
+        ]
+        implementation_options = [
+            "Option A - Plan one public-safe Dev/Owner readiness package in BP2. Pros: keeps coupled trust-boundary gates consistent; Cons: broader BP2; Risk: low when all private/runtime actions stay gated.",
+            "Option B - Split Dev and Owner readiness after BP1. Pros: smaller future packets; Cons: higher risk of inconsistent private/public gates; Risk: medium unless USER wants different timelines.",
+            "Option C - Plan only an action-gate registry first. Pros: narrowest engineering scope; Cons: delays Dev/Owner skeleton readiness detail; Risk: low but less useful.",
+            "Option D - Require BP2 to include a full decision matrix and proof map. Pros: strongest USER clarity; Cons: more planning detail before Workstream; Risk: low.",
+        ]
+        recommended_direction = (
+            "Codex recommends Option A with the Option D decision matrix: keep Dev and Owner "
+            "readiness together for BP2, require explicit proof for each private/runtime gate, and "
+            "leave actual setup or execution for later USER-approved phases."
+        )
+        current_scope = [
+            "BP1 Branch Vision Review is the current USER decision.",
+            "BP2 content in this packet is preview/context only and cannot close the BP2 gate.",
+            "The branch remains public-safe and does not create private roots, remotes, provider behavior, cache behavior, memory, or runtime work.",
+        ]
+        future_scope = [
+            "BP2 should plan Dev readiness, Owner readiness, private root/remote gates, public-upstream safety, backup/import deferral, provider/model/runtime/cache/memory deferral, proof requirements, H1, LV/UTS, and rollback/safety.",
+            "BP3, Workstream implementation, private setup, provider/model/runtime/cache/memory behavior, PR, merge, release, cleanup, and v1.8.0 remain pending USER decisions.",
+        ]
+        slc_package_plan = [
+            "SLCs remain future engineering route details inside the accepted branch vision.",
+            "Candidate future seam families: Dev skeleton readiness, Owner skeleton readiness, private remote/public-upstream safety, backup/import deferral, and provider/model/runtime/cache/memory deferral.",
+            "No future seam may execute the private/runtime action it is proving as gated without a separate USER approval.",
+        ]
+        user_decisions = [
+            "Does USER accept, revise, waive, reject, or hold the BP1 Dev/Owner skeleton readiness Branch Vision?",
+            "If BP1 is accepted or waived, should BP2 plan one combined Dev/Owner readiness package or split Dev and Owner later?",
+            "Which private root, private remote, GitHub Desktop, backup/import, provider/cache/memory, and public-to-private promotion decisions must BP2 prove?",
+            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+        ]
+    if (
+        is_fam007_dev_owner_skeleton
+        and not is_fam007_breakpoint_2
+        and (bp2_branch_plan_packet or bp3_orchestration_packet)
+    ):
+        accepted_user_response = (
+            "BP1 accepted - USER accepted the updated FAM-007 Dev/Owner Skeleton "
+            "Readiness Branch Vision as the integrated Option A direction. BP2 may "
+            "plan Dev and Owner readiness together, with future Dev oriented toward "
+            "a private repo after approval, Owner kept local-private by default, "
+            "GitHub Desktop/public-upstream safety made explicit, backup/import "
+            "timing planned, provider/runtime/cache/memory behavior deferred, and "
+            "lane identity labels carried into proof expectations."
+        )
+        user_response_text = (
+            "Status: Pending USER Response - this BP2 engineering plan is ready for "
+            "USER to accept, revise, hold for more options, reject, or explicitly "
+            "waive. BP3 and Workstream implementation remain blocked until that "
+            "USER disposition is recorded and digested."
+        )
+        codex_response_digest = (
+            "Codex digested the accepted BP1 vision into a BP2 engineering plan. "
+            "The plan keeps Dev and Owner skeleton readiness in one public-safe "
+            "package, names matrix proof for each private/runtime gate, and keeps "
+            "all setup or execution work future-gated until later USER approval."
+        )
+        workstream_entry_result = (
+            "BP3 not started - Workstream Entry / Orchestration Validation remains "
+            "pending until USER accepts or explicitly waives this BP2 plan."
+        )
+        contract_status = (
+            "Pending USER Response - USER must accept, revise, reject, request more "
+            "options, hold, or explicitly waive this BP2 engineering plan before BP3."
+        )
+        contract_version = (
+            "v5 - USER/ChatGPT BP2 review conditions digested into the integrated "
+            "Dev/Owner readiness engineering plan."
+        )
+        plain_english_summary = (
+            "This BP2 plan keeps the selected route as integrated Dev/Owner Skeleton "
+            "Readiness and turns the accepted BP1 vision into a public-safe engineering "
+            "route. Dev continues toward future private-repo readiness after approval. "
+            "Owner defaults to local Git/version history plus local/private/encrypted "
+            "rollback, with an Owner private remote only as a future evaluated option. "
+            "The branch plans decision and proof surfaces without creating private repos, "
+            "private roots, private remotes, GitHub Desktop private binding, backup/import "
+            "execution, provider or model execution, cache behavior, memory behavior, PRs, "
+            "merges, releases, or cleanup."
+        )
+        end_state_vision = (
+            "When the BP2 plan is accepted and later implemented through approved phases, "
+            "USER should have durable source truth, direct validators, fixtures, packet "
+            "proof, and no-leak evidence that make future Dev and Owner skeleton setup "
+            "decision-ready. The public branch should say which lane owns each decision, "
+            "which files or validators prove it, how rollback works, and which future "
+            "USER gate is required before any private or runtime action starts."
+        )
+        what_user_sees = (
+            "USER will inspect one primary BP2 decision file under the local USER hub. "
+            "It describes the integrated Dev/Owner implementation package, seam plan, "
+            "likely future edit/proof surfaces, named validator lanes, backup/import "
+            "planning by lane, watermark/identity propagation, rollback plan, risks, "
+            "options, and exact BP3 approval text. It is not a private setup script, "
+            "not backup/import execution, and not a Workstream implementation approval."
+        )
+        why_nexus = (
+            "This fits Nexus because Dev/Owner AI-edition readiness is a trust-boundary "
+            "problem. Planning Dev, Owner, remotes, backups, provider deferral, cache "
+            "deferral, memory deferral, and lane identity together keeps the public repo "
+            "local-first, inspectable, and USER-controlled while preventing accidental "
+            "private or provider-facing activation."
+        )
+        slc_package_plan = [
+            "Seam 1 - action-gate registry and exact USER decision proof: record every future private/runtime action gate and make the BP2/BP3 approval text machine-checkable.",
+            "Seam 2 - Dev/Owner readiness matrices: encode Dev private-repo readiness after approval, Owner local Git/version history plus local/private/encrypted rollback as the default baseline, Owner private remote evaluation as optional future work, and public-safe lane boundaries.",
+            "Seam 3 - private root/remote and GitHub Desktop safety proof: plan public-upstream, private origin, remote identity proof, fetch/reconcile posture, and public push-prevention checks without configuring remotes or binding GitHub Desktop to a private repo.",
+            "Seam 4 - backup/import and provider/runtime deferral proof: plan User/Public settings/preferences/config backup scope, Dev private development recovery, Owner local/private/encrypted backup and rollback, restore proof, and provider-visible-data/cache/memory inactivity proof.",
+            "Seam 5 - packet, fixture, validator, and fold-down proof: refresh USER review packet evidence, add direct fixtures where needed, and update source-truth owners only inside approved public-safe scope.",
+        ]
+        surface_map = [
+            "Active FAM-007 branch record: durable branch authority and historical receipt context; update only if BP2 acceptance changes durable branch authority or future-gate wording.",
+            "Active FAM-007 branch plan/receipt and external FAM-007 branch plan/state: active BP2 planning posture, accepted BP1 trace, review-gate state, seam map, proof expectations, and future gates.",
+            "USER review bundle helper: packet layout, primary BP2 decision-file routing, support-file phase state, timestamped ZIP creation, placeholder scans, packet count checks, and USER-facing metadata exclusion when packet behavior changes.",
+            "Validation helper registry and branch-readiness planning fixtures: reusable proof lanes and false-green prevention when validator coverage changes.",
+            "Provider-state, public leak-prevention, external-state, source-owner, USER review packet, and branch-governance validators: named proof lanes for BP3 and later Workstream decisions.",
+            "AI runtime/trust architecture: durable trust-boundary wording only if USER changes provider-visible data, prompt acceptance, provider execution, downloads, cache, memory, learning, or personalization policy.",
+            "FAM-007 family vision files: family-level direction only if USER changes Public/Dev/Owner edition strategy, capability-pack policy, private/public promotion, or lane identity standards.",
+        ]
+        likely_files_lines = [
+            "Active FAM-007 branch record if durable authority, accepted-gate, or future-gate wording changes.",
+            "Active FAM-007 external branch plan and branch state for BP2 review posture, accepted BP1 trace, USER response digestion, and next-gate routing.",
+            "Review bundle helper if packet behavior, timestamped ZIP generation, support-file phase state, or primary BP2 routing changes.",
+            "Validation helper registry if reusable validator/helper coverage changes.",
+            "Branch-readiness planning fixtures for accepted BP1 trace, BP2 engineering-plan substance, BP3 blocking while BP2 remains pending, and future root/remote/GitHub Desktop matrix false-green coverage if needed.",
+            "Provider-state and public leak-prevention validators/fixtures for no provider execution, no private artifacts, no private paths, and no private remotes.",
+            "External-state validation for active branch plan/state consistency.",
+            "Source-owner marker validation for any durable source-truth owner touched by later implementation.",
+            "AI runtime/trust architecture only if durable provider/cache/memory trust-boundary policy changes.",
+            "FAM-007 family vision files only if USER changes family-level edition, private/public, capability-pack, or lane identity direction.",
+        ]
+        active_branch_files = [
+            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns active BP2 planning posture, accepted BP1 trace, review-gate state, seam map, proof expectations, and future gates outside the USER-facing packet.",
+            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture and packet pointer outside repo-tracked source truth.",
+            "Historical repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+        ]
+        user_decisions_intro = (
+            "USER may answer in order or respond generally. Useful BP2 feedback includes "
+            "Dev/Owner matrix changes, private root or remote posture, GitHub Desktop "
+            "binding assumptions, backup/import lane split, watermark/identity "
+            "propagation, named proof lanes, future-gated actions, or anything that "
+            "would make this FAM-007 Dev/Owner engineering plan wrong before BP3."
+        )
+        walkthrough = [
+            "Open the primary BP2 file and confirm the accepted BP1 Option A trace matches the integrated Dev/Owner readiness direction.",
+            "Review the seam plan from action-gate registry through matrix proof, root/remote safety, backup/import deferral, provider/runtime deferral, and packet/validator proof.",
+            "Review each matrix and mark any lane, future gate, proof expectation, or rollback rule that needs revision before BP3.",
+            "Confirm that the plan stays public-safe and prepares proof only; any private setup or runtime action remains a later USER gate.",
+            "Choose accept, revise, route back to BP1, waive, reject, or hold for more examples before BP3.",
+        ]
+        implementation_options = [
+            "Option A - accept the integrated Dev/Owner BP2 plan as written. Pros: keeps coupled private/public trust decisions in one branch; Cons: broader BP2 and BP3 review; Risk: low when all private/runtime actions stay gated.",
+            "Option B - accept with changes to a specific matrix or seam. Pros: tunes the plan before BP3; Cons: requires packet/source-truth refresh; Risk: low.",
+            "Option C - route back to BP1. Pros: safest if the engineering plan changes the accepted vision; Cons: delays BP3; Risk: low.",
+            "Option D - split Dev and Owner into separate future branches. Pros: smaller packages; Cons: higher risk of inconsistent remote, backup, provider, and identity gates; Risk: medium.",
+            "Option E - explicitly waive BP2 details and proceed to BP3. Pros: faster; Cons: accepts less planning detail; Risk: medium to high for private-boundary work.",
+            "Option F - hold for more examples or proof models. Pros: improves confidence; Cons: delays implementation; Risk: low.",
+        ]
+        recommended_direction = (
+            "Codex recommends accepting the integrated Dev/Owner readiness route after "
+            "reviewing the strengthened proof lanes: keep Dev private-repo readiness as "
+            "the future direction, keep Owner local Git/version history plus "
+            "local/private/encrypted rollback as the default baseline, treat Owner remote "
+            "as future evaluated only, require named validator/fixture proof before BP3, "
+            "and keep actual private setup, GitHub Desktop private binding, provider/model "
+            "work, backup/import execution, cache, memory, PR, merge, release, and cleanup "
+            "under later gates."
+        )
+        current_scope = [
+            "Public-safe source-truth, helper, fixture, validator, packet, and proof planning only.",
+            "Accepted BP1 trace, BP2 engineering package, seam/SLC route, affected surfaces, proof expectations, H1/LV/UTS expectations, rollback, risks, and exact BP3 approval text.",
+            "No private repo, private root, private remote, GitHub Desktop private binding, backup/import execution, provider/model execution, cache behavior, memory behavior, PR, merge, release, cleanup, or sibling-worktree mutation.",
+        ]
+        future_scope = [
+            "BP3 Workstream Entry / Orchestration Validation after BP2 acceptance or waiver.",
+            "Workstream implementation only after BP1 and BP2 are accepted or waived, BP3 is green or waived, and USER separately approves bounded Workstream execution for the admitted same-branch package or explicitly named initial seam sequence.",
+            "Private Dev skeleton setup, Owner skeleton setup, private repos, private roots, private remotes, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, issue mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain later USER decisions.",
+        ]
+        implementation_constraints = [
+            "BP2 may plan public-safe source-truth, helper, fixture, validator, packet, H1, LV/UTS, rollback, and proof surfaces.",
+            "BP2 may not execute the private/runtime actions it describes as future gates.",
+            "BP2 may not create private repos, private roots, private remotes, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, or Dev launcher/assets migration execution.",
+            "Provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution remains disabled; downloads/network/external calls remain blocked; runtime cache behavior remains inactive; memory/learning/personalization remains inactive.",
+            "Any USER change that alters edition boundaries, public-to-private promotion, provider/cache/memory policy, or reusable lane identity must fold into the proper durable source-truth owner before BP3 relies on it.",
+        ]
+        rejected_deferred = [
+            "Deferred: private Dev skeleton setup, private Owner skeleton setup, private Dev repo creation, private Owner repo or remote creation, local-only private roots, private remotes, and GitHub Desktop private binding.",
+            "Deferred: dev launcher/assets/tool transfer, recreation, removal from User/Public, or import into a private Dev path.",
+            "Deferred: backup/import execution, public-to-private import, User/Public backup implementation, Dev recovery implementation, Owner encrypted recovery or rollback implementation.",
+            "Deferred: provider SDKs, model downloads, provider/model execution, runtime provider execution, cache behavior, memory, learning, indexing, retrieval, personalization, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, issue mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work.",
+        ]
+        source_truth_impact = [
+            "External branch plan should record BP1 accepted and BP2 pending review as active planning posture.",
+            "Branch record remains durable authority/history and should not become a mutable live ledger.",
+            "FAM-007 family vision and AI runtime/trust architecture remain reusable policy owners; accepted reusable changes route there only if USER changes family-level policy.",
+            "Review packet is a temporary USER review aid; accepted BP2 outcomes later fold into durable repo owners or approved external operational state.",
+        ]
+        contract_change_log = [
+            "v1 - BR2 admitted the FAM-007 Dev/Owner Skeleton Readiness carrier.",
+            "v2 - BP1 packet generated as Branch Vision Review.",
+            "v3 - BP1 repaired into applied integrated Dev/Owner Option A vision.",
+            "v4 - USER accepted BP1; BP2 generated as engineering-plan-first review with required matrices and future-gated boundaries.",
+            "v5 - USER/ChatGPT BP2 review conditions digested: strengthened future edit/proof surfaces, named validator lanes, backup/import lane details, Owner rollback baseline, Owner remote evaluation boundary, and watermark/identity propagation.",
+        ]
+        completion_checklist = [
+            "Accepted BP1 Option A trace is present.",
+            "BP2 implementation package summary, branch scope size test, seams/SLCs, affected surfaces, likely files, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, future gates, and exact BP3 approval text are present.",
+            "Edition/Lane, Dev Readiness, Owner Readiness, Private Root/Remote, GitHub Desktop, Backup/Import, Provider/Runtime/Cache/Memory, Watermark/Identity, Proof/Validation, and Future USER Gate matrices are present.",
+            "USER-facing files avoid live operational ledgers, raw commit values, upload byte-proof values, mutable validator run state, live pull-request posture, and command-wall boundary wording.",
+            "BP3 and Workstream implementation remain blocked until BP2 is accepted or explicitly waived and later gates are green and approved.",
+        ]
+        user_decisions = [
+            "Does USER accept the updated integrated Dev/Owner BP2 engineering plan as written?",
+            "Does any listed future implementation/edit surface need to be added, removed, or narrowed before BP3?",
+            "Are the named proof lanes sufficient for BP3: provider-state, public leak-prevention, external-state, branch-readiness planning fixtures, USER review packet validation, source-owner marker validation, and future root/remote/GitHub Desktop false-green fixture coverage if needed?",
+            "Does USER accept Owner local Git/version history plus local/private/encrypted rollback as the default baseline, with Owner private remote only as a future evaluated option?",
+            "Does USER accept the backup/import lane split and watermark/identity propagation requirements as BP2 planning constraints?",
+            "Does USER confirm all private/runtime/provider/cache/memory/backup-import-execution/PR/merge/release gates remain pending?",
+        ]
+        design_ballot = [
+            "Accept BP2 as written and authorize BP3 Workstream Entry / Orchestration Validation only.",
+            "Accept BP2 with listed changes, then regenerate the BP2 packet for confirmation.",
+            "Route back to BP1 because the plan changes the accepted vision.",
+            "Explicitly waive remaining BP2 questions and authorize BP3 only.",
+            "Reject this branch plan and request a narrower or different carrier.",
+            "Hold for more examples, risks, or proof models.",
+        ]
+        response_structure = [
+            "Decision: accept, revise, route back to BP1, waive, reject, or hold.",
+            "Matrix or seam changes requested.",
+            "Must-have proof requirements.",
+            "Future-gated boundary controls.",
+            "Questions before BP3.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER BP2 disposition.",
+            "Accepted BP2 line items.",
+            "Revised BP2 line items.",
+            "Rejected or deferred ideas.",
+            "Implementation constraints created from USER response.",
+            "Source-truth updates required.",
+            "Review packet updates required.",
+            "Whether BP3 may begin.",
+            "Next USER decision needed.",
+        ]
+        extra_plan_sections = [
+            "## Integrated Dev/Owner Readiness Matrix",
+            "",
+            "| Lane | BP2 planned outcome | Current branch scope | Future USER gate | Proof needed |",
+            "| --- | --- | --- | --- | --- |",
+            "| Dev | Future private-repo-oriented readiness with public-upstream safety and dev asset inventory planning. | Public-safe plan, fixtures, validators, and review proof only. | Private Dev repo/root/remote creation and GitHub Desktop binding. | Action-gate registry, no-leak scan, public-upstream push-prevention plan, and fixture coverage. |",
+            "| Owner | Local-private baseline with local Git/version history, no public exposure, and no default remote. | Public-safe plan and proof of gated Owner choices only. | Owner private root/remote choice, encrypted recovery, and any remote evaluation. | Matrix proof, no private path/remote/token leakage, rollback plan, and future-gate wording. |",
+            "",
+            "## Edition / Lane Matrix",
+            "",
+            "| Edition / Lane | Identity posture | Source control posture | Public branch role | Future boundary |",
+            "| --- | --- | --- | --- | --- |",
+            "| User/Public | Nexus Desktop AI or Nexus Desktop AI - Pre-Beta. | Normal public repo posture. | Keep public-safe product and proof context. | No private assets or provider execution. |",
+            "| Dev | Nexus Desktop AI - DEV PRIVATE after approval. | Future private Dev repo with fetch-only public-upstream plan. | Plan readiness and gates only. | Repo/root/remote creation remains future-gated. |",
+            "| Owner | Nexus Owner - Local Private unless later revised. | Local Git/version-history baseline; no default remote. | Plan Owner privacy gates only. | Remote or shared backup model remains future-gated. |",
+            "",
+            "## Dev Readiness Matrix",
+            "",
+            "| Dev item | BP2 plan | Likely proof | Future USER decision |",
+            "| --- | --- | --- | --- |",
+            "| Private Dev repo direction | Treat as preferred future path after approval. | Branch plan row and gate registry. | Create private Dev repo/root/remote. |",
+            "| Dev launcher/assets/tools inventory | Classify transfer, recreation, removal, or future import candidates. | Public-safe inventory schema or fixture; no private paths. | Execute transfer/import/removal. |",
+            "| Public-upstream relationship | Plan fetch/reconcile from public Main and public push prevention. | Validator fixture and packet proof. | Configure private remotes or GitHub Desktop binding. |",
+            "",
+            "## Owner Readiness Matrix",
+            "",
+            "| Owner item | BP2 plan | Likely proof | Future USER decision |",
+            "| --- | --- | --- | --- |",
+            "| Local Git/version history | Baseline Owner safety model. | Branch plan and H1 comparison. | Create Owner root or repo. |",
+            "| No public exposure path | Preserve Owner-private boundary. | Public leak-prevention and no private artifact checks. | Any Owner remote or sharing path. |",
+            "| Optional private Owner remote | Evaluate only if BP2/BP3 prove it safer than local-only. | Risk matrix and explicit future gate. | Configure Owner private remote. |",
+            "",
+            "## Private Root / Remote Matrix",
+            "",
+            "| Surface | Current branch scope | Future gate | Proof / validation |",
+            "| --- | --- | --- | --- |",
+            "| Private roots | Plan labels and constraints only. | Local-only private root creation. | No private path leakage and gate registry row. |",
+            "| Private origin | Plan naming and safety posture only. | Private remote configuration. | Remote identity proof plan and public push-prevention fixture. |",
+            "| Public-upstream | Plan fetch-only relationship. | Actual private repo configuration. | Public/upstream terminology checks and no private URL output. |",
+            "",
+            "## GitHub Desktop Binding Matrix",
+            "",
+            "| Lane | Default posture | BP2 plan | Future gate |",
+            "| --- | --- | --- | --- |",
+            "| User/Public | Public repo binding. | Preserve normal binding. | None in BP2. |",
+            "| Dev | No binding yet. | Plan private Dev binding proof and safeguards. | GitHub Desktop private remote configuration. |",
+            "| Owner | Local Git/no remote baseline. | Evaluate private remote only as future option. | Owner private binding approval. |",
+            "",
+            "## Backup / Import Matrix",
+            "",
+            "| Lane | BP2 plan | Current scope | Future gate | Restore / exclusion proof |",
+            "| --- | --- | --- | --- | --- |",
+            "| User/Public | Settings/preferences/config backup posture and product-safe export/import scope. | Plan and proof only. | Backup/import implementation. | Restore proof must use public-safe settings/config fixtures and exclude private Dev/Owner material. |",
+            "| Dev | Private development recovery posture tied to the future private Dev repo relationship. | Plan and proof only. | Dev recovery implementation or Public-to-Dev import. | Dev backup material and private test fixtures must remain outside User/Public output and public review packets. |",
+            "| Owner | Local/private/encrypted backup baseline plus local Git rollback expectation. | Plan and proof only. | Owner backup/recovery root execution or future remote evaluation. | Restore proof must preserve Owner-only privacy, stay outside User/Public and Dev, and define criteria before any Owner remote is evaluated. |",
+            "",
+            "## Provider / Runtime / Cache / Memory Deferral Matrix",
+            "",
+            "| Boundary | Required BP2 state | Proof |",
+            "| --- | --- | --- |",
+            "| Provider-visible data | none | Provider-state validator fixture. |",
+            "| Prompt acceptance | canAcceptPrompts=false | Provider-state validator fixture. |",
+            "| Provider/model execution | disabled | Provider-state and no network/download assertions. |",
+            "| Runtime cache | inactive | Source-truth and fixture proof. |",
+            "| Memory/learning/personalization | inactive | Memory/private artifact leak-prevention proof. |",
+            "",
+            "## Watermark / Identity Matrix",
+            "",
+            "| Artifact / surface | User/Public label | Dev label | Owner label | Propagation proof |",
+            "| --- | --- | --- | --- | --- |",
+            "| UI/window title | Nexus Desktop AI / Pre-Beta | Nexus Desktop AI - DEV PRIVATE after approval | Nexus Owner - Local Private after approval | UI proof or manifest row before any private lane UI exists. |",
+            "| Launcher identity | Public launcher identity | Dev launcher identity after future setup | Owner local launcher identity after future setup | Launcher/shortcut manifest proof; no launcher migration execution in BP2. |",
+            "| Diagnostics | Public-safe diagnostic labels | Dev-private diagnostic labels after approval | Owner-local diagnostic labels after approval | Diagnostic sample/fixture excludes private paths and secrets. |",
+            "| Logs | Public-safe log labels | Dev-private log labels after approval | Owner-local log labels after approval | Log proof excludes private prompts, memory, tokens, and private paths. |",
+            "| Screenshots/proof | Public-safe proof context | Dev proof only after future approval | Owner proof only after future approval | Review-proof labels show lane without exposing private artifacts. |",
+            "| Review packets | Public FAM-007 packet labels | Dev packet labels only after future private approval | Owner packet labels only after future private approval | USER packet validation rejects private artifacts in public branch. |",
+            "| Backup/export packages | Public-safe export label | Dev-private export label after approval | Owner-local/private export label after approval | Export manifest proof preserves lane and excludes cross-lane leakage. |",
+            "| Generated manifests | Public-safe manifest owner | Dev-private manifest owner after approval | Owner-local manifest owner after approval | Manifest fixtures prove lane identity and future-gate state. |",
+            "",
+            "## Proof / Validation Matrix",
+            "",
+            "| Proof class | Required proof | Candidate validator/helper |",
+            "| --- | --- | --- |",
+            "| Branch planning packet | Primary BP2 file, timestamped ZIP, no stale preview text, no metadata drift. | dev/orin_user_review_bundle.py |",
+            "| Private-boundary safety | No private path, token, remote URL, prompt, memory, model artifact, private automation, or private artifact in public branch. | dev/orin_public_leak_prevention_validation.py |",
+            "| Provider deferral | Provider-visible data none, prompt/model execution disabled, downloads blocked, cache/memory inactive. | dev/orin_ai_provider_state_validation.py |",
+            "| Planning gate proof | BP2 requires accepted BP1 trace; BP3 blocks while BP2 pending. | dev/orin_branch_readiness_planning_fixture_validation.py |",
+            "| External-state consistency | External branch plan/state records BP2 reviewability and pending USER gate without making repo files live ledgers. | dev/orin_external_state_validation.py |",
+            "| Source owner integrity | Any touched durable source-truth owner keeps valid ownership markers. | dev/orin_source_owner_marker_validation.py |",
+            "| Future root/remote/GitHub Desktop matrix | Add false-green fixture coverage if BP3 or later implementation introduces root, remote, or GitHub Desktop proof rows. | dev/orin_branch_readiness_planning_fixture_validation.py |",
+            "",
+            "## Future USER Gate Matrix",
+            "",
+            "| Future gate | Required before action |",
+            "| --- | --- |",
+            "| BP3 | USER accepts, revises into confirmation, or explicitly waives BP2. |",
+            "| Workstream implementation | BP1 and BP2 accepted or waived, BP3 green or waived, and separate bounded implementation approval. |",
+            "| Private Dev / Owner setup | Separate USER approval naming root/repo/remote scope. |",
+            "| Provider/model/cache/memory behavior | Separate USER approval plus provider-state proof. |",
+            "| PR / merge / release / cleanup | Separate phase approvals after implementation, H1, and LV gates. |",
+            "",
+        ]
+    if (
+        is_fam007_dev_owner_skeleton
+        and not is_fam007_breakpoint_2
+        and (bp3_orchestration_packet or workstream_package_approval_packet)
+    ):
+        accepted_user_response = (
+            "BP2 accepted - USER accepted the cleaned FAM-007 Dev/Owner Skeleton "
+            "Readiness engineering plan. The accepted plan keeps Dev and Owner "
+            "readiness together, points Dev toward future private-repo readiness "
+            "after approval, keeps Owner local-private by default, evaluates any "
+            "Owner private remote only as future work, and preserves every "
+            "private/runtime/provider/cache/memory gate."
+        )
+        user_response_text = (
+            "Status: Accepted by USER - this BP2 support file is closed as accepted "
+            "engineering-plan context for the implementation-ready Workstream package "
+            "approval packet."
+            if workstream_package_approval_packet
+            else
+            "Status: Accepted by USER - this BP2 support file is closed as the "
+            "accepted engineering-plan context for the active BP3 Workstream Entry / "
+            "Orchestration Validation packet."
+        )
+        codex_response_digest = (
+            "Codex digested USER BP2 acceptance through BP3 acceptance into Workstream "
+            "package approval context. The accepted BP2 plan remains the engineering "
+            "basis for the bounded same-branch Workstream package, with Seam 1 as "
+            "the entry checkpoint and continuation governed until Workstream Green."
+            if workstream_package_approval_packet
+            else
+            "Codex digested USER BP2 acceptance into BP3 readiness context. BP3 "
+            "must verify that the accepted BP2 plan implements the accepted BP1 "
+            "vision, that seams/SLCs trace to both contracts, and that Workstream "
+            "implementation remains blocked until USER later approves a bounded seam."
+        )
+        workstream_entry_result = (
+            "Implementation-ready - BP1, BP2, and BP3 are accepted; bounded "
+            "Workstream package implementation is approved by this packet with "
+            "Seam 1 as the entry checkpoint and continuation governed until "
+            "Workstream Green, a real blocker, or explicit USER waiver."
+            if workstream_package_approval_packet
+            else
+            "BP3 active - Workstream Entry / Orchestration Validation is the "
+            "current review gate. BP3 may recommend the first bounded Workstream "
+            "seam, but this packet does not authorize Workstream implementation."
+        )
+        contract_status = (
+            "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is accepted "
+            "and this packet records bounded Workstream package implementation approval."
+            if workstream_package_approval_packet
+            else
+            "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is the "
+            "active Workstream Entry / Orchestration Validation gate."
+        )
+        contract_version = (
+            "v7 - BP2 acceptance digested through BP3 acceptance into Workstream "
+            "implementation-ready support context."
+            if workstream_package_approval_packet
+            else
+            "v6 - BP2 acceptance digested into BP3 orchestration-readiness support context."
+        )
+        plain_english_summary = (
+            "This support file records the accepted BP2 engineering plan for the "
+            "FAM-007 Dev/Owner Skeleton Readiness carrier. The active packet is "
+            "implementation-ready: BP3 has been accepted and USER is approving the "
+            "bounded same-branch Workstream package with Seam 1 as the entry checkpoint."
+            if workstream_package_approval_packet
+            else
+            "This support file records the accepted BP2 engineering plan for the "
+            "FAM-007 Dev/Owner Skeleton Readiness carrier. The active packet is BP3: "
+            "it checks whether the accepted vision and accepted plan are ready to "
+            "become a bounded Workstream implementation request later."
+        )
+        what_user_sees = (
+            "The primary Workstream approval decision file lives under USER Review. "
+            "This BP2 file is supporting context under Review Aids: it shows the "
+            "accepted plan that the approved Workstream package must follow, including "
+            "Dev/Owner readiness matrices, root/remote gates, GitHub Desktop safety, "
+            "backup/import deferral, provider/runtime/cache/memory deferral, proof "
+            "expectations, H1/LV/UTS expectations, and rollback posture."
+            if workstream_package_approval_packet
+            else
+            "The primary BP3 decision file lives under USER Review. This BP2 file "
+            "is supporting context under Review Aids: it shows the accepted plan "
+            "that BP3 must trace, including Dev/Owner readiness matrices, root/remote "
+            "gates, GitHub Desktop safety, backup/import deferral, provider/runtime/"
+            "cache/memory deferral, proof expectations, H1/LV/UTS expectations, and "
+            "rollback posture."
+        )
+        current_scope = [
+            (
+                "Bounded same-branch Workstream package implementation approval with "
+                "Seam 1 as the entry checkpoint."
+                if workstream_package_approval_packet
+                else
+                "BP3 Workstream Entry / Orchestration Validation packet generation and reviewability."
+            ),
+            "Accepted BP1 and accepted BP2 traceability proof.",
+            (
+                "Workstream continuation must proceed one active same-branch seam at a "
+                "time until Workstream Green, a real blocker, or explicit USER waiver."
+                if workstream_package_approval_packet
+                else
+                "Whole-package Workstream orchestration review only; no Workstream implementation."
+            ),
+        ]
+        future_scope = [
+            (
+                "Hardening, Live Validation, PR, merge, release, cleanup, and any "
+                "post-Workstream phase remain future USER-gated phases."
+                if workstream_package_approval_packet
+                else
+                "Workstream implementation remains pending a later explicit USER decision after BP3 review."
+            ),
+            "Private Dev/Owner setup, private roots/remotes, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, PR, merge, release, cleanup, sibling mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain future-gated.",
+        ]
+        user_decisions = [
+            (
+                "Does USER approve bounded Workstream package implementation with Seam 1 "
+                "as the entry checkpoint and continuation until Workstream Green?"
+                if workstream_package_approval_packet
+                else
+                "Does USER approve, revise, waive, reject, or hold BP3 Workstream Entry / Orchestration Validation?"
+            ),
+            "Does USER agree the accepted BP2 plan implements the accepted BP1 vision without changing the Dev/Owner direction?",
+            (
+                "Does USER agree Seam 1 starts the approved Workstream package rather "
+                "than limiting the package to Seam 1 only?"
+                if workstream_package_approval_packet
+                else
+                "Does USER agree Seam 1 should be the entry implementation checkpoint for the bounded Workstream package after separate Workstream approval?"
+            ),
+            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+        ]
+        completion_checklist = [
+            "BP1 Contract Status is Complete or Waived by USER.",
+            "BP2 Contract Status is Complete or Waived by USER.",
+            (
+                "BP3 is accepted or waived and Workstream package approval is recorded "
+                "separately from BP3 reviewability."
+                if workstream_package_approval_packet
+                else
+                "BP3 packet reviewability is Reviewable while BP3 USER approval remains pending."
+            ),
+            "Seam/SLC traceability to BP1 and BP2 is present.",
+            (
+                "Bounded Workstream package implementation is approved with Seam 1 as "
+                "the entry checkpoint."
+                if workstream_package_approval_packet
+                else
+                "Workstream implementation remains pending separate USER approval."
+            ),
+        ]
+        implementation_options = [
+            *(
+                [
+                    "Approve bounded Workstream package implementation as recommended.",
+                    "Revise the entry checkpoint, seam order, or proof expectations before Workstream execution continues.",
+                    "Waive unresolved Workstream approval questions and proceed under the accepted same-branch package constraints.",
+                    "Reject or hold Workstream approval and keep the branch before implementation.",
+                ]
+                if workstream_package_approval_packet
+                else
+                [
+                    "Approve BP3 as reviewable and green, then request the separate bounded Workstream package implementation approval packet with the entry seam named.",
+                    "Revise BP3 orchestration order, proof expectations, or first-seam recommendation before implementation approval is considered.",
+                    "Waive unresolved BP3 questions and proceed to a separate bounded Workstream approval packet.",
+                    "Reject or hold BP3 and keep the branch in Branch Planning.",
+                ]
+            ),
+        ]
+        recommended_direction = (
+            "Codex recommends approving the bounded Workstream package only if USER "
+            "agrees BP3 is accepted, Seam 1 is the entry checkpoint rather than a "
+            "terminal slice, and all private/runtime/provider/cache/memory actions "
+            "remain future-gated."
+            if workstream_package_approval_packet
+            else
+            "Codex recommends BP3 approval only if USER agrees the accepted BP2 plan "
+            "faithfully implements BP1, the first Workstream seam starts with "
+            "public-safe action-gate registry and exact USER decision proof, and all "
+            "private/runtime/provider/cache/memory actions remain future-gated."
+        )
+        user_decisions_intro = (
+            "USER is reviewing bounded Workstream package approval now. This support "
+            "file confirms BP2 is accepted and BP3 is accepted; the active decision "
+            "is whether Codex may execute the admitted same-branch Workstream package "
+            "starting at Seam 1."
+            if workstream_package_approval_packet
+            else
+            "USER is reviewing BP3 now. This support file confirms BP2 is accepted; "
+            "the active decision is whether BP3 orchestration is correct before any "
+            "later bounded Workstream approval is requested."
+        )
+        design_ballot = [
+            *(
+                [
+                    "Approve bounded Workstream package implementation as recommended.",
+                    "Approve Workstream package implementation with changes.",
+                    "Revise the Workstream approval packet.",
+                    "Waive unresolved Workstream approval questions.",
+                    "Reject or hold Workstream approval.",
+                ]
+                if workstream_package_approval_packet
+                else
+                [
+                    "Approve BP3 as recommended.",
+                    "Approve BP3 with changes.",
+                    "Revise BP3 and regenerate the packet.",
+                    "Waive unresolved BP3 questions.",
+                    "Reject or hold BP3.",
+                ]
+            ),
+        ]
+        response_structure = [
+            (
+                "Decision: approve, revise, waive, reject, or hold bounded Workstream package implementation."
+                if workstream_package_approval_packet
+                else
+                "Decision: approve, revise, waive, reject, or hold BP3."
+            ),
+            "Required orchestration, seam, or proof changes, if any.",
+            "First-seam preference or constraints.",
+            "Future-gated boundary controls.",
+            "General response.",
+        ]
+        digest_structure = [
+            (
+                "USER Workstream package approval disposition."
+                if workstream_package_approval_packet
+                else
+                "USER BP3 disposition."
+            ),
+            "Accepted or revised orchestration and seam order.",
+            (
+                "Approved entry checkpoint and continuation constraints."
+                if workstream_package_approval_packet
+                else
+                "First bounded Workstream seam approved for a later packet, if any."
+            ),
+            "Implementation constraints created by USER response.",
+            "Source-truth or packet updates required.",
+            "Next USER decision needed.",
+        ]
+    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2 and dev_owner_workstream_green_packet:
+        accepted_user_response = (
+            "BP1 accepted Option A for FAM-007 Dev/Owner Skeleton Readiness: Dev and "
+            "Owner readiness stay planned together in one public-safe trust-boundary "
+            "package, future Dev is private-repo-oriented after approval, Owner remains "
+            "local-private by default, and GitHub Desktop/public-upstream safety, "
+            "backup/import posture, provider/runtime/cache/memory deferral, proof "
+            "expectations, and lane identity labels are required planning context. "
+            "Workstream Green - USER approved the bounded Workstream package, and Codex "
+            "completed the admitted public-safe proof seams without executing private "
+            "setup or runtime behavior."
+        )
+        user_response_text = (
+            "Status: Workstream Green - this packet asks USER to approve, revise, "
+            "pause, or reject bounded Hardening H1 proof comparison only."
+        )
+        codex_response_digest = (
+            "Codex implemented the public-safe FAM-007 Dev/Owner Skeleton Readiness "
+            "Workstream proof package: action-gate registry and exact USER decision "
+            "proof, Dev/Owner readiness matrices, private root/remote and GitHub "
+            "Desktop safety proof, backup/import and provider/runtime/cache/memory "
+            "deferral proof, plus packet, fixture, validator, and source-truth "
+            "fold-down. All private/runtime/provider/cache/memory gates remain "
+            "pending USER decisions. Codex recommends bounded Hardening H1 next."
+        )
+        workstream_entry_result = (
+            "Workstream Green - all admitted public-safe same-branch proof seams "
+            "are complete; Hardening H1 remains pending USER approval."
+        )
+        contract_status = (
+            "Complete - Workstream Green for the FAM-007 Dev/Owner Skeleton "
+            "Readiness public-safe proof package; Hardening H1 is the next legal "
+            "USER decision."
+        )
+        contract_version = "v7 - Workstream implementation proof completed and routed to Hardening H1 approval."
+        plain_english_summary = (
+            "This branch has now completed the public-safe Workstream part of the "
+            "Dev/Owner Skeleton Readiness plan. It proves that future Dev and Owner "
+            "setup decisions are named, gated, and validator-backed, while private "
+            "repos, private roots/remotes, backup/import execution, provider/model/"
+            "runtime/cache/memory behavior, PR, merge, release, cleanup, and "
+            "v1.8.0 remain blocked until later USER decisions."
+        )
+        what_user_sees = (
+            "USER sees a Workstream Green handoff packet. It is not a private setup "
+            "packet and not runtime proof; it is the public-safe proof package that "
+            "makes Hardening H1 comparison possible."
+        )
+        why_nexus = (
+            "This fits Nexus because Dev/Owner AI-edition readiness must be decision-ready "
+            "and leak-safe before private roots, remotes, provider behavior, cache behavior, "
+            "memory, backup/import, or release work can be trusted."
+        )
+        slc_package_plan = [
+            "Seam 1 complete: action-gate registry and exact USER decision proof.",
+            "Seam 2 complete: Dev/Owner readiness matrices.",
+            "Seam 3 complete: private root/remote and GitHub Desktop safety proof.",
+            "Seam 4 complete: backup/import and provider/runtime/cache/memory deferral proof.",
+            "Seam 5 complete: packet, fixture, validator, and source-truth fold-down proof.",
+            "Next phase is Hardening H1, limited to proof comparison and pressure testing after USER approval.",
+        ]
+        surface_map = [
+            "Public leak-prevention fixture and validator: direct proof that all private/runtime gates remain pending and no protected material is present.",
+            "FAM-007 branch record: durable Workstream completion receipt and Hardening H1 handoff.",
+            "External branch plan/state: active operational posture updated to Workstream Green with Hardening H1 pending.",
+            "USER review bundle helper: current packet status and timestamped ZIP generation.",
+            "AI runtime/trust architecture and FAM-007 family vision: unchanged policy context for provider, cache, memory, and private/public boundaries.",
+        ]
+        likely_files_lines = [
+            "dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json",
+            "dev/orin_public_leak_prevention_validation.py",
+            "dev/orin_user_review_bundle.py",
+            "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
+            "C:\\Nexus USER\\FAM-007 and matching timestamped ZIP",
+        ]
+        active_branch_files = [
+            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns Workstream Green posture, accepted BP1/BP2/BP3 traceability, completed proof seams, proof expectations, and future gates outside repo-tracked source truth.",
+            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, Workstream Green disposition, and Hardening H1 pending USER decision outside repo-tracked source truth.",
+            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+        ]
+        implementation_constraints = [
+            "Workstream is green; Hardening H1 remains blocked until USER approves or revises the proof-comparison seam.",
+            "Hardening H1 is limited to comparing implementation proof against BP1, BP2, BP3, fixtures, validators, packet proof, branch record, and external-state boundaries.",
+            "No private Dev repo, private Owner repo, local-only private root, private remote, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by this packet.",
+            "Provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution disabled; downloads/network/external calls blocked; runtime cache inactive; memory/learning/personalization inactive.",
+        ]
+        rejected_deferred = [
+            "Deferred: private Dev repo creation, private Owner repo creation, local-only private root creation, GitHub Desktop private remote configuration, off-boot backup or recovery root implementation, and Public-to-Dev import implementation.",
+            "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release, cleanup, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
+            "Rejected for Hardening H1: executing the private/runtime action being pressure-tested as gated, silently enabling provider/cache/memory behavior, or turning proof comparison into PR/merge/release work.",
+        ]
+        source_truth_impact = [
+            "Active external branch plan and state now route the branch from accepted BP3 into Workstream Green and Hardening H1 pending USER approval.",
+            "Repo branch record carries a durable Workstream completion receipt without becoming a live operational ledger.",
+            "Review packet remains branch-specific, timestamped, placeholder-free, and explicit that Hardening H1 approval covers proof comparison only.",
+            "Source-truth fold-down records all admitted public-safe proof seams complete without executing gated private/runtime actions.",
+        ]
+        completion_checklist = [
+            "All admitted same-branch Workstream proof seams are recorded complete.",
+            "Direct public leak-prevention validator proof covers action gates, Dev/Owner matrices, private root/remote safety, backup/import deferral, provider/runtime/cache/memory deferral, and Hardening H1 handoff readiness.",
+            "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
+            "Packet digest files agree that Workstream is green and Hardening H1 remains pending USER approval.",
+            "No unresolved packet placeholders or packet count mismatches remain.",
+        ]
+        walkthrough = [
+            "Open START_HERE.md first and review the plain-language file map and USER decision.",
+            "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract says Workstream Green with Hardening H1 next.",
+            "Open the Workstream digest to confirm all public-safe proof seams are complete.",
+            "Review the fixture and validator proof showing all private/runtime/provider/cache/memory gates remain pending.",
+            "Approve or revise Hardening H1 only after reviewing this Workstream Green handoff.",
+        ]
+        implementation_options = [
+            "Approve Hardening H1 as recommended: compare the completed public-safe Workstream proof against source truth, fixtures, validators, packet proof, and external-state boundaries. Pros: moves the branch into the required pressure-test phase; Cons: no PR/merge/release yet; Risk: low.",
+            "Revise Hardening H1 proof expectations before implementation. Pros: lets USER tune comparison criteria; Cons: adds packet/source-truth repair; Risk: low.",
+            "Pause at Workstream Green and keep the branch open. Pros: preserves the proof without expanding scope; Cons: delays closeout; Risk: low.",
+            "Reject Hardening and request a narrower Workstream closeout repair. Pros: maximum scope control; Cons: may leave proof comparison incomplete; Risk: low but slower.",
+        ]
+        recommended_direction = (
+            "Codex recommends approving bounded Hardening H1 only if USER agrees the next proof should compare "
+            "the completed public-safe Workstream package without executing private, runtime, provider, cache, "
+            "memory, PR, merge, release, cleanup, or v1.8.0 actions."
+        )
+        current_scope = [
+            "FAM-007 Dev/Owner Skeleton Readiness Workstream proof is green.",
+            "All admitted public-safe proof seams are complete.",
+            "Local USER hub packet and timestamped ZIP refreshed with Hardening H1 as the next decision.",
+        ]
+        future_scope = [
+            "Hardening H1 approval is limited to proof comparison and pressure testing.",
+            "Live Validation, PR Readiness, PR creation, merge, release, cleanup, private setup, provider/model/runtime/cache/memory behavior, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain later USER decisions.",
+        ]
+        user_decisions = [
+            "Does USER approve bounded Hardening H1 proof comparison for the FAM-007 Dev/Owner Skeleton Readiness Workstream Green package?",
+            "Does USER require any change to Hardening H1 pressure-test expectations before it begins?",
+            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+        ]
+        user_decisions_intro = (
+            "USER is reviewing the Workstream Green handoff now. Useful feedback names "
+            "Hardening H1 proof-comparison changes, pressure-test criteria, future-gated "
+            "boundary controls, or a pause/rejection reason before Hardening begins."
+        )
+        design_ballot = [
+            "Approve Hardening H1 as recommended.",
+            "Revise Hardening H1 proof expectations before implementation.",
+            "Pause at Workstream Green.",
+            "Reject and request a narrower closeout repair.",
+        ]
+        response_structure = [
+            "Decision: approve, revise, pause, or reject.",
+            "Required changes to Hardening H1 proof expectations, if any.",
+            "Must-have proof-comparison or pressure-test criteria.",
+            "Future-gated boundary controls.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER intent summary.",
+            "Workstream Green acceptance or concerns.",
+            "Approved or revised Hardening H1 scope.",
+            "Implementation constraints created from USER response.",
+            "Next USER decision needed.",
+        ]
+        extra_plan_sections = [
+            "## Integrated Dev/Owner Readiness Matrix",
+            "",
+            "| Lane | Accepted BP1/BP2 basis | Workstream proof completed | Future USER gate |",
+            "| --- | --- | --- | --- |",
+            "| Dev | Future private-repo-oriented readiness after approval, with public-upstream safety. | Action-gate proof and Dev readiness matrix recorded; no private Dev setup executed. | Private Dev repo/root/remote creation and GitHub Desktop binding. |",
+            "| Owner | Local-private baseline with local Git/version history, no public exposure, and no default remote. | Owner readiness matrix recorded; no Owner private root or remote created. | Owner private root/remote choice, encrypted recovery, and any remote evaluation. |",
+            "",
+            "## Edition / Lane Matrix",
+            "",
+            "| Edition / Lane | Identity posture | Workstream proof | Future boundary |",
+            "| --- | --- | --- | --- |",
+            "| User/Public | Nexus Desktop AI or Nexus Desktop AI - Pre-Beta. | Public branch remains source-truth and proof-only. | No private assets or provider execution. |",
+            "| Dev | Nexus Desktop AI - DEV PRIVATE after approval. | Future private Dev path is named and gated. | Repo/root/remote creation remains future-gated. |",
+            "| Owner | Nexus Owner - Local Private unless later revised. | Owner local-private default is named and gated. | Remote or shared backup model remains future-gated. |",
+            "",
+            "## Dev Readiness Matrix",
+            "",
+            "| Dev item | Workstream proof | Future USER decision |",
+            "| --- | --- | --- |",
+            "| Private Dev repo direction | Preferred future path after approval is recorded as proof-only. | Create private Dev repo/root/remote. |",
+            "| Public-upstream relationship | Public-upstream safety and push-prevention expectations are recorded. | Configure private remotes or GitHub Desktop binding. |",
+            "| Dev launcher/assets/tools inventory | Inventory/migration remains future-gated and unexecuted. | Execute transfer/import/removal. |",
+            "",
+            "## Owner Readiness Matrix",
+            "",
+            "| Owner item | Workstream proof | Future USER decision |",
+            "| --- | --- | --- |",
+            "| Local-private baseline | Local Git/version-history and no default remote are recorded. | Create Owner private root or remote. |",
+            "| Remote evaluation | Owner remote remains future-evaluated only. | Approve any Owner remote model. |",
+            "| Recovery posture | Local/private/encrypted recovery and rollback remain planned only. | Implement backup/import/recovery. |",
+            "",
+            "## Private Root / Remote Matrix",
+            "",
+            "| Surface | Workstream proof | Future USER gate |",
+            "| --- | --- | --- |",
+            "| Public root | Remains the current public branch/worktree. | None for private setup. |",
+            "| Dev private root/remote | Named as future-gated; not created. | Private Dev setup approval. |",
+            "| Owner private root/remote | Named as future-gated; not created. | Owner setup approval. |",
+            "",
+            "## GitHub Desktop Binding Matrix",
+            "",
+            "| Lane | Workstream proof | Future USER gate |",
+            "| --- | --- | --- |",
+            "| User/Public | Normal public repo posture remains unchanged. | None. |",
+            "| Dev | Private binding remains pending and requires private remote proof. | GitHub Desktop private remote configuration. |",
+            "| Owner | Local Git/no remote remains default; private remote evaluation is future-gated. | Owner remote approval. |",
+            "",
+            "## Backup / Import Matrix",
+            "",
+            "| Lane | Workstream proof | Future USER gate |",
+            "| --- | --- | --- |",
+            "| User/Public | Product-safe backup remains a future proof target only. | Backup/import implementation. |",
+            "| Dev | Private development recovery is named but not executed. | Public-to-Dev import and recovery approval. |",
+            "| Owner | Local/private/encrypted rollback is named but not executed. | Owner backup/recovery approval. |",
+            "",
+            "## Provider / Runtime / Cache / Memory Deferral Matrix",
+            "",
+            "| Boundary | Workstream proof | Required value |",
+            "| --- | --- | --- |",
+            "| Provider-visible data | Recorded as none. | none |",
+            "| sentToProvider | Recorded as false. | false |",
+            "| canAcceptPrompts | Recorded as false. | false |",
+            "| Provider/model execution | Recorded as disabled. | disabled |",
+            "| Downloads/network/external calls | Recorded as blocked. | blocked |",
+            "| Runtime cache behavior | Recorded as inactive. | inactive |",
+            "| Memory/learning/personalization | Recorded as inactive. | inactive |",
+            "",
+            "## Watermark / Identity Matrix",
+            "",
+            "| Lane | Accepted identity posture | Workstream proof |",
+            "| --- | --- | --- |",
+            "| User/Public | Nexus Desktop AI or Nexus Desktop AI - Pre-Beta. | Public identity stays unchanged. |",
+            "| Dev | Nexus Desktop AI - DEV PRIVATE after approval. | Future identity is named and gated. |",
+            "| Owner | Nexus Owner - Local Private unless later revised. | Future identity is named and gated. |",
+            "",
+            "## Proof / Validation Matrix",
+            "",
+            "| Proof lane | Workstream surface | Hardening H1 comparison target |",
+            "| --- | --- | --- |",
+            "| Action gates | FAM-007 public leak-prevention fixture. | All pending USER gates remain present and unexecuted. |",
+            "| Validator proof | dev/orin_public_leak_prevention_validation.py. | Direct assertions fail on missing gate or unsafe field. |",
+            "| Packet proof | dev/orin_user_review_bundle.py and C:\\Nexus USER\\FAM-007. | Packet routes to Hardening H1 only. |",
+            "| Source truth | Branch record and external state. | Workstream Green fold-down matches accepted planning. |",
+            "",
+            "## Future USER Gate Matrix",
+            "",
+            "| Gate | Workstream status |",
+            "| --- | --- |",
+            "| Hardening H1 | Pending USER approval. |",
+            "| Private Dev/Owner setup | Pending USER approval. |",
+            "| Private roots/remotes and GitHub Desktop binding | Pending USER approval. |",
+            "| Backup/import execution | Pending USER approval. |",
+            "| Provider/model/runtime/cache/memory behavior | Pending USER approval. |",
+            "| PR, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, v1.8.0 | Pending USER approval. |",
+        ]
+    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2 and dev_owner_hardening_h1_packet:
+        accepted_user_response = (
+            "BP1 accepted Option A for FAM-007 Dev/Owner Skeleton Readiness, BP2 and BP3 "
+            "were accepted, and Workstream completed the admitted public-safe proof package. "
+            "Hardening H1 compared that implementation against accepted planning, fixture "
+            "proof, validator proof, packet proof, branch record, and external-state "
+            "boundaries without executing private setup or runtime behavior."
+        )
+        user_response_text = (
+            "Status: Hardening H1 Green - this packet asks USER to approve, revise, "
+            "pause, or reject bounded Live Validation LV1/no-visible-runtime proof only."
+        )
+        codex_response_digest = (
+            "Codex completed the bounded H1 proof comparison for FAM-007 Dev/Owner "
+            "Skeleton Readiness. The completed Workstream proof matches accepted BP1, "
+            "BP2, BP3, branch record, external branch plan/state, fixture, validator, "
+            "and packet boundaries. No private Dev/Owner setup, private root/remote, "
+            "backup/import execution, provider/model/runtime/cache/memory behavior, "
+            "PR, merge, release, cleanup, AI Product Contract import, Private Dev ORIN "
+            "import, or v1.8.0 work was executed. Codex recommends bounded LV1 next."
+        )
+        workstream_entry_result = (
+            "Hardening H1 Green - implementation-vs-plan proof comparison is complete; "
+            "Live Validation LV1 remains pending USER approval."
+        )
+        contract_status = (
+            "Complete - Hardening H1 proof comparison is green for the FAM-007 Dev/Owner "
+            "Skeleton Readiness public-safe proof package; Live Validation LV1 is the "
+            "next legal USER decision."
+        )
+        contract_version = "v8 - Hardening H1 proof comparison completed and routed to Live Validation LV1."
+        plain_english_summary = (
+            "This branch has completed the H1 pressure-test of the public-safe Dev/Owner "
+            "Skeleton Readiness proof. H1 confirmed the proof package still matches the "
+            "accepted BP1 vision, BP2 engineering plan, BP3 orchestration, branch record, "
+            "external state, fixture, validator, and packet expectations while all private "
+            "and runtime actions remain blocked."
+        )
+        what_user_sees = (
+            "USER sees a Hardening H1 handoff packet. It is not a private setup packet, "
+            "runtime test, PR packet, merge packet, or release packet; it prepares the "
+            "branch for LV1 no-visible-runtime proof and UTS waiver review."
+        )
+        why_nexus = (
+            "This fits Nexus because the Dev/Owner AI-edition boundary must be pressure-tested "
+            "before USER is asked to validate or waive the lack of visible runtime behavior."
+        )
+        slc_package_plan = [
+            "Workstream complete: all admitted public-safe proof seams are implemented.",
+            "Hardening H1 complete: branch record, external state, fixture, validator, packet, and source-truth proof were compared against accepted BP1/BP2/BP3.",
+            "Next phase is Live Validation LV1, limited to no-visible-runtime proof and UTS waiver digestion after USER approval.",
+        ]
+        surface_map = [
+            "Public leak-prevention fixture and validator: direct proof that all private/runtime gates remain pending and no protected material is present.",
+            "FAM-007 branch record: durable H1 comparison receipt and Live Validation LV1 handoff.",
+            "External branch plan/state: active operational posture updated to H1 Green with LV1 pending.",
+            "USER review bundle helper: current packet status and timestamped ZIP generation for the LV1 decision.",
+            "AI runtime/trust architecture and FAM-007 family vision: unchanged policy context for provider, cache, memory, and private/public boundaries.",
+        ]
+        likely_files_lines = [
+            "dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json",
+            "dev/orin_public_leak_prevention_validation.py",
+            "dev/orin_user_review_bundle.py",
+            "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
+            "C:\\Nexus USER\\FAM-007 and matching timestamped ZIP",
+        ]
+        active_branch_files = [
+            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns H1 Green posture, accepted BP1/BP2/BP3 traceability, completed proof seams, proof expectations, and future gates outside repo-tracked source truth.",
+            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, H1 Green disposition, and Live Validation LV1 pending USER decision outside repo-tracked source truth.",
+            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+        ]
+        implementation_constraints = [
+            "Hardening H1 is green; Live Validation LV1 remains blocked until USER approves or revises the no-visible-runtime proof seam.",
+            "LV1 is limited to no-visible-runtime proof, UTS waiver digestion, validation, and LV1-scoped source-truth/validator/packet repairs if required.",
+            "No private Dev repo, private Owner repo, local-only private root, private remote, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by this packet.",
+            "Provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution disabled; downloads/network/external calls blocked; runtime cache inactive; memory/learning/personalization inactive.",
+        ]
+        rejected_deferred = [
+            "Deferred: private Dev repo creation, private Owner repo creation, local-only private root creation, GitHub Desktop private remote configuration, off-boot backup or recovery root implementation, and Public-to-Dev import implementation.",
+            "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release, cleanup, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
+            "Rejected for LV1: executing runtime/private/provider/cache/memory behavior just to prove it did not change.",
+        ]
+        source_truth_impact = [
+            "Active external branch plan and state now route the branch from Workstream Green into Hardening H1 Green and Live Validation LV1 pending USER approval.",
+            "Repo branch record carries a durable H1 comparison receipt without becoming a live operational ledger.",
+            "Review packet remains branch-specific, timestamped, placeholder-free, and explicit that LV1 approval covers no-visible-runtime proof and UTS waiver digestion only.",
+            "Source-truth fold-down records H1 Green without executing gated private/runtime actions.",
+        ]
+        completion_checklist = [
+            "Hardening H1 comparison receipt is present in the branch plan and branch record.",
+            "Direct public leak-prevention validator proof covers the H1 comparison receipt and all private/runtime/provider/cache/memory gates.",
+            "Helper output verifies packet freshness; USER-facing files stay focused on the plan and decision.",
+            "Packet digest files agree that Hardening H1 is green and Live Validation LV1 remains pending USER approval.",
+            "No unresolved packet placeholders or packet count mismatches remain.",
+        ]
+        walkthrough = [
+            "Open START_HERE.md first and review the plain-language file map and USER decision.",
+            "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract says Hardening H1 Green with Live Validation LV1 next.",
+            "Open the H1 digest to confirm the public-safe Workstream proof was compared against accepted BP1/BP2/BP3.",
+            "Review the validator proof showing all private/runtime/provider/cache/memory gates remain pending.",
+            "Approve or revise LV1 only after reviewing this H1 handoff.",
+        ]
+        implementation_options = [
+            "Approve Live Validation LV1 as recommended: digest no-visible-runtime proof and UTS waiver evidence from source truth, fixtures, validators, packet proof, and external-state boundaries. Pros: moves the branch toward PR Readiness without pretending runtime was exercised; Cons: no PR/merge/release yet; Risk: low.",
+            "Revise LV1 proof expectations before validation. Pros: lets USER tune waiver/evidence criteria; Cons: adds packet/source-truth repair; Risk: low.",
+            "Pause at Hardening H1 Green and keep the branch open. Pros: preserves the H1 proof without expanding scope; Cons: delays closeout; Risk: low.",
+            "Reject LV1 and request a narrower H1 closeout repair. Pros: maximum scope control; Cons: may leave Live Validation evidence incomplete; Risk: low but slower.",
+        ]
+        recommended_direction = (
+            "Codex recommends approving bounded Live Validation LV1 only if USER agrees the next proof "
+            "should digest no-visible-runtime and UTS waiver evidence without executing private, runtime, "
+            "provider, cache, memory, PR, merge, release, cleanup, or v1.8.0 actions."
+        )
+        current_scope = [
+            "FAM-007 Dev/Owner Skeleton Readiness Hardening H1 proof comparison is green.",
+            "All admitted public-safe proof seams remain complete and matched to accepted planning.",
+            "Local USER hub packet and timestamped ZIP refreshed with Live Validation LV1 as the next decision.",
+        ]
+        future_scope = [
+            "Live Validation LV1 approval is limited to no-visible-runtime proof and UTS waiver digestion.",
+            "PR Readiness, PR creation, merge, release, cleanup, private setup, provider/model/runtime/cache/memory behavior, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain later USER decisions.",
+        ]
+        user_decisions = [
+            "Does USER approve bounded Live Validation LV1/no-visible-runtime proof for the FAM-007 Dev/Owner Skeleton Readiness H1 Green package?",
+            "Does USER require any change to LV1 waiver or evidence expectations before it begins?",
+            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+        ]
+        user_decisions_intro = (
+            "USER is reviewing the Hardening H1 handoff now. Useful feedback names "
+            "LV1 no-visible-runtime proof changes, UTS waiver criteria, future-gated "
+            "boundary controls, or a pause/rejection reason before LV1 begins."
+        )
+        design_ballot = [
+            "Approve Live Validation LV1 as recommended.",
+            "Revise LV1/no-visible-runtime proof expectations before validation.",
+            "Pause at Hardening H1 Green.",
+            "Reject and request a narrower H1 closeout repair.",
+        ]
+        response_structure = [
+            "Decision: approve, revise, pause, or reject.",
+            "Required changes to LV1/no-visible-runtime proof expectations, if any.",
+            "Must-have waiver or validation evidence.",
+            "Future-gated boundary controls.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER intent summary.",
+            "Hardening H1 acceptance or concerns.",
+            "Approved or revised LV1/no-visible-runtime scope.",
+            "Implementation constraints created from USER response.",
+            "Next USER decision needed.",
+        ]
+        extra_plan_sections = [
+            "## Integrated Dev/Owner Readiness Matrix",
+            "",
+            "| Lane | Accepted basis | H1 result | Future USER gate |",
+            "| --- | --- | --- | --- |",
+            "| Dev | Future private-repo-oriented readiness after approval, with public-upstream safety. | PASS - public-safe proof only; no private Dev setup. | Private Dev repo/root/remote creation and GitHub Desktop binding. |",
+            "| Owner | Local-private baseline with local Git/version history, no public exposure, and no default remote. | PASS - public-safe proof only; no Owner private root or remote. | Owner private root/remote choice, encrypted recovery, and any remote evaluation. |",
+            "",
+            "## Edition / Lane Matrix",
+            "",
+            "| Edition / Lane | Identity posture | H1 result |",
+            "| --- | --- | --- |",
+            "| User/Public | Nexus Desktop AI or Nexus Desktop AI - Pre-Beta. | PASS - public identity unchanged. |",
+            "| Dev | Nexus Desktop AI - DEV PRIVATE after approval. | PASS - future identity named and gated. |",
+            "| Owner | Nexus Owner - Local Private unless later revised. | PASS - future identity named and gated. |",
+            "",
+            "## Dev Readiness Matrix",
+            "",
+            "| Dev item | H1 result | Future USER decision |",
+            "| --- | --- | --- |",
+            "| Private Dev repo direction | PASS - preferred future path remains proof-only. | Create private Dev repo/root/remote. |",
+            "| Public-upstream relationship | PASS - safety and push-prevention expectations remain recorded. | Configure private remotes or GitHub Desktop binding. |",
+            "| Dev launcher/assets/tools inventory | PASS - inventory/migration remains future-gated and unexecuted. | Execute transfer/import/removal. |",
+            "",
+            "## Owner Readiness Matrix",
+            "",
+            "| Owner item | H1 result | Future USER decision |",
+            "| --- | --- | --- |",
+            "| Local-private baseline | PASS - local Git/version-history and no default remote remain recorded. | Create Owner private root or remote. |",
+            "| Remote evaluation | PASS - Owner remote remains future-evaluated only. | Approve any Owner remote model. |",
+            "| Recovery posture | PASS - local/private/encrypted recovery and rollback remain planned only. | Implement backup/import/recovery. |",
+            "",
+            "## Private Root / Remote Matrix",
+            "",
+            "| Surface | H1 result | Future USER gate |",
+            "| --- | --- | --- |",
+            "| Public root | PASS - remains current public branch/worktree. | None for private setup. |",
+            "| Dev private root/remote | PASS - named as future-gated; not created. | Private Dev setup approval. |",
+            "| Owner private root/remote | PASS - named as future-gated; not created. | Owner setup approval. |",
+            "",
+            "## GitHub Desktop Binding Matrix",
+            "",
+            "| Lane | H1 result | Future USER gate |",
+            "| --- | --- | --- |",
+            "| User/Public | PASS - normal public repo posture unchanged. | None. |",
+            "| Dev | PASS - private binding remains pending. | GitHub Desktop private remote configuration. |",
+            "| Owner | PASS - local Git/no remote remains default. | Owner remote approval. |",
+            "",
+            "## Backup / Import Matrix",
+            "",
+            "| Lane | H1 result | Future USER gate |",
+            "| --- | --- | --- |",
+            "| User/Public | PASS - product-safe backup remains future proof target only. | Backup/import implementation. |",
+            "| Dev | PASS - private development recovery named but not executed. | Public-to-Dev import and recovery approval. |",
+            "| Owner | PASS - local/private/encrypted rollback named but not executed. | Owner backup/recovery approval. |",
+            "",
+            "## Provider / Runtime / Cache / Memory Deferral Matrix",
+            "",
+            "| Boundary | H1 result | Required value |",
+            "| --- | --- | --- |",
+            "| Provider-visible data | PASS | none |",
+            "| sentToProvider | PASS | false |",
+            "| canAcceptPrompts | PASS | false |",
+            "| Provider/model execution | PASS | disabled |",
+            "| Downloads/network/external calls | PASS | blocked |",
+            "| Runtime cache behavior | PASS | inactive |",
+            "| Memory/learning/personalization | PASS | inactive |",
+            "",
+            "## Watermark / Identity Matrix",
+            "",
+            "| Lane | Accepted identity posture | H1 result |",
+            "| --- | --- | --- |",
+            "| User/Public | Nexus Desktop AI or Nexus Desktop AI - Pre-Beta. | PASS - public identity unchanged. |",
+            "| Dev | Nexus Desktop AI - DEV PRIVATE after approval. | PASS - future identity gated. |",
+            "| Owner | Nexus Owner - Local Private unless later revised. | PASS - future identity gated. |",
+            "",
+            "## Proof / Validation Matrix",
+            "",
+            "| Proof lane | H1 comparison target | H1 result |",
+            "| --- | --- | --- |",
+            "| Action gates | All pending USER gates present and unexecuted. | PASS |",
+            "| Validator proof | Direct assertions fail on missing gate or unsafe field. | PASS |",
+            "| Packet proof | Packet routes to LV1 only. | PASS |",
+            "| Source truth | H1 fold-down matches accepted planning. | PASS |",
+            "",
+            "## H1 Proof Comparison Matrix",
+            "",
+            "| Proof lane | Accepted plan target | H1 comparison result |",
+            "| --- | --- | --- |",
+            "| Action gates | Every private/runtime/provider/cache/memory action remains pending USER decision. | PASS - fixture and branch record preserve pending gate state. |",
+            "| Dev/Owner matrices | Dev is future private-repo-oriented; Owner remains local-private by default. | PASS - matrices match accepted BP1/BP2/BP3. |",
+            "| Private root / remote safety | No private root, private remote, or GitHub Desktop private binding exists. | PASS - public-safe proof only. |",
+            "| Backup / import deferral | Backup/import and Public-to-Dev migration remain future-gated. | PASS - no execution occurred. |",
+            "| Provider/runtime/cache/memory deferral | providerVisibleData none; sentToProvider=false; canAcceptPrompts=false; execution disabled; cache/memory inactive. | PASS - validator asserts required values. |",
+            "| Packet/source truth | Packet routes only to LV1 and source-truth fold-down matches H1. | PASS - helper/validator and direct packet checks support this route. |",
+            "",
+            "## Live Validation LV1 Preview",
+            "",
+            "- LV1 should prove or waive visible/runtime validation for this proof-only branch.",
+            "- Expected LV1 path is no-visible-runtime proof plus UTS waiver digestion unless USER revises the LV1 expectations.",
+            "- LV1 must not execute private setup, provider/model/runtime/cache/memory behavior, PR, merge, release, or cleanup.",
+            "",
+            "## Future USER Gate Matrix",
+            "",
+            "| Gate | H1 status |",
+            "| --- | --- |",
+            "| Live Validation LV1 | Pending USER approval. |",
+            "| Private Dev/Owner setup | Pending USER approval. |",
+            "| Private roots/remotes and GitHub Desktop binding | Pending USER approval. |",
+            "| Backup/import execution | Pending USER approval. |",
+            "| Provider/model/runtime/cache/memory behavior | Pending USER approval. |",
+            "| PR, merge, release, cleanup, AI Product Contract import, Private Dev ORIN import, v1.8.0 | Pending USER approval. |",
+        ]
+    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2 and dev_owner_live_validation_lv1_packet:
+        accepted_user_response = (
+            "BP1, BP2, BP3, Workstream, and Hardening H1 are complete for the "
+            "FAM-007 Dev/Owner Skeleton Readiness public-safe proof package. "
+            "Live Validation LV1 recorded no-visible-runtime proof and UTS waiver "
+            "evidence because no app UI, shortcut, provider, model, runtime, cache, "
+            "memory, private root, private remote, backup/import, or installer "
+            "surface changed."
+        )
+        user_response_text = (
+            "Status: Live Validation LV1 Green - this packet asks USER to approve, "
+            "revise, pause, or reject bounded PR Readiness Stage 1 analysis only."
+        )
+        codex_response_digest = (
+            "Codex completed bounded Live Validation LV1/no-visible-runtime proof "
+            "for FAM-007 Dev/Owner Skeleton Readiness. LV1 records that the branch "
+            "has no user-visible runtime surface to exercise, that UTS is waived "
+            "for this proof-only phase, and that all private/runtime/provider/cache/"
+            "memory gates remain pending USER decisions. Codex recommends bounded "
+            "PR Readiness Stage 1 analysis next."
+        )
+        workstream_entry_result = (
+            "Live Validation LV1 Green - no-visible-runtime proof and UTS waiver "
+            "evidence are complete; PR Readiness Stage 1 remains pending USER approval."
+        )
+        contract_status = (
+            "Complete - Live Validation LV1 no-visible-runtime proof is green for "
+            "the FAM-007 Dev/Owner Skeleton Readiness public-safe proof package; "
+            "PR Readiness Stage 1 analysis is the next legal USER decision."
+        )
+        contract_version = "v9 - Live Validation LV1 completed and routed to PR Readiness Stage 1."
+        plain_english_summary = (
+            "This branch has completed the user-proof phase without launching or "
+            "changing runtime surfaces. LV1 confirms the proof package is intentionally "
+            "source-truth, fixture, validator, packet, and external-state only; there "
+            "is nothing visible for USER to click or screenshot yet."
+        )
+        what_user_sees = (
+            "USER sees an LV1 closeout packet. It is not a PR creation packet, merge "
+            "packet, release packet, private setup packet, runtime test, shortcut test, "
+            "or provider/cache/memory execution packet."
+        )
+        why_nexus = (
+            "This fits Nexus because no-visible-runtime proof keeps the Dev/Owner "
+            "skeleton boundary honest: visible/manual validation is not faked when "
+            "the approved branch only created public-safe proof and preserved gates."
+        )
+        slc_package_plan = [
+            "Workstream complete: all admitted public-safe proof seams are implemented.",
+            "Hardening H1 complete: implementation-vs-plan proof comparison is green.",
+            "Live Validation LV1 complete: no-visible-runtime proof and UTS waiver evidence are recorded.",
+            "Next phase is PR Readiness Stage 1 analysis after USER approval.",
+        ]
+        surface_map = [
+            "Branch record: durable LV1 receipt and PR Readiness Stage 1 handoff.",
+            "External branch plan/state: active operational posture updated to LV1 Green with PR Readiness Stage 1 pending.",
+            "Public leak-prevention fixture and validator: direct proof that no private/runtime/provider/cache/memory gate was executed.",
+            "USER review bundle helper: current packet status and timestamped ZIP generation for the PR Readiness Stage 1 decision.",
+        ]
+        likely_files_lines = [
+            "dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json",
+            "dev/orin_public_leak_prevention_validation.py",
+            "dev/orin_user_review_bundle.py",
+            "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md",
+            "C:\\Nexus USER\\FAM-007 and matching timestamped ZIP",
+        ]
+        active_branch_files = [
+            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns LV1 Green posture, no-visible-runtime proof, UTS waiver evidence, and future gates outside repo-tracked source truth.",
+            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, LV1 Green disposition, and PR Readiness Stage 1 pending USER decision outside repo-tracked source truth.",
+            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+        ]
+        implementation_constraints = [
+            "Live Validation LV1 is green; PR Readiness Stage 1 remains blocked until USER approves or revises the analysis scope.",
+            "PR Readiness Stage 1 is limited to analysis, validation review, source-truth inspection, packet proof, and decision packet generation.",
+            "No private Dev repo, private Owner repo, local-only private root, private remote, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR creation, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is authorized by this packet.",
+            "Provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution disabled; downloads/network/external calls blocked; runtime cache inactive; memory/learning/personalization inactive.",
+        ]
+        rejected_deferred = [
+            "Deferred: PR creation, merge, release, branch/worktree cleanup, and release artifact execution.",
+            "Deferred: private Dev repo creation, private Owner repo creation, local-only private root creation, GitHub Desktop private remote configuration, off-boot backup or recovery root implementation, and Public-to-Dev import implementation.",
+            "Deferred: provider SDK/model execution, model downloads, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, voice/Core sync, shortcut/installer work, FAM-006/Governance/sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0-prebeta execution.",
+        ]
+        source_truth_impact = [
+            "Active external branch plan and state route the branch from H1 Green into LV1 Green and PR Readiness Stage 1 pending USER approval.",
+            "Repo branch record carries a durable LV1 no-visible-runtime receipt without becoming a live operational ledger.",
+            "Review packet remains branch-specific, timestamped, placeholder-free, and explicit that PR Readiness Stage 1 approval covers analysis only.",
+            "Source-truth fold-down records LV1 Green without executing gated private/runtime actions.",
+        ]
+        completion_checklist = [
+            "Live Validation LV1 receipt is present in the branch plan and branch record.",
+            "No-visible-runtime proof records that no app UI, provider prompt surface, shortcut, installer, private root, private remote, backup/import workflow, cache behavior, memory behavior, or runtime execution surface changed.",
+            "UTS waiver evidence records that manual USER test execution is not applicable for this proof-only LV1.",
+            "Direct public leak-prevention validator proof covers LV1 no-visible-runtime and all private/runtime/provider/cache/memory gates.",
+            "Packet digest files agree that Live Validation LV1 is green and PR Readiness Stage 1 remains pending USER approval.",
+        ]
+        walkthrough = [
+            "Open START_HERE.md first and review the plain-language file map and USER decision.",
+            "Open USER_BRANCH_PLAN_REVIEW.md and confirm the contract says Live Validation LV1 Green with PR Readiness Stage 1 next.",
+            "Open the LV1 digest to confirm no-visible-runtime proof and UTS waiver evidence.",
+            "Review validator proof showing all private/runtime/provider/cache/memory gates remain pending.",
+            "Approve or revise PR Readiness Stage 1 only after reviewing this LV1 handoff.",
+        ]
+        implementation_options = [
+            "Approve PR Readiness Stage 1 as recommended: analyze PR readiness for the completed public-safe Dev/Owner Skeleton Readiness carrier. Pros: moves toward PR creation review; Cons: no PR/merge/release yet; Risk: low.",
+            "Revise PR Readiness Stage 1 inspection criteria before analysis. Pros: lets USER tune PR readiness proof; Cons: adds packet/source-truth repair; Risk: low.",
+            "Pause at Live Validation LV1 Green and keep the branch open. Pros: preserves the LV1 proof without expanding scope; Cons: delays PR readiness; Risk: low.",
+            "Reject PR Readiness and request a narrower LV1 closeout repair. Pros: maximum scope control; Cons: may leave PR path incomplete; Risk: low but slower.",
+        ]
+        recommended_direction = (
+            "Codex recommends approving bounded PR Readiness Stage 1 only if USER agrees "
+            "the next step should analyze readiness without creating a PR, merging, "
+            "releasing, cleaning up, or executing any private/runtime/provider/cache/"
+            "memory action."
+        )
+        current_scope = [
+            "FAM-007 Dev/Owner Skeleton Readiness Workstream is green.",
+            "Hardening H1 proof comparison is green.",
+            "Live Validation LV1 no-visible-runtime proof and UTS waiver evidence are green.",
+            "Local USER hub packet and timestamped ZIP refreshed with PR Readiness Stage 1 as the next decision.",
+        ]
+        future_scope = [
+            "PR Readiness Stage 1 approval is limited to analysis only.",
+            "PR creation, merge, release, cleanup, private setup, provider/model/runtime/cache/memory behavior, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain later USER decisions.",
+        ]
+        user_decisions = [
+            "Does USER approve bounded PR Readiness Stage 1 analysis for the FAM-007 Dev/Owner Skeleton Readiness LV1 Green package?",
+            "Does USER require any change to PR readiness inspection criteria before analysis begins?",
+            "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+        ]
+        user_decisions_intro = (
+            "USER is reviewing the LV1 handoff now. Useful feedback names PR Readiness "
+            "Stage 1 inspection changes, future-gated boundary controls, or a pause/"
+            "rejection reason before PR Readiness begins."
+        )
+        design_ballot = [
+            "Approve PR Readiness Stage 1 as recommended.",
+            "Revise PR Readiness Stage 1 inspection criteria before analysis.",
+            "Pause at Live Validation LV1 Green.",
+            "Reject and request a narrower LV1 closeout repair.",
+        ]
+        response_structure = [
+            "Decision: approve, revise, pause, or reject.",
+            "Required changes to PR Readiness Stage 1 inspection criteria, if any.",
+            "Must-have PR readiness proof.",
+            "Future-gated boundary controls.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER intent summary.",
+            "LV1 Green acceptance or concerns.",
+            "Approved or revised PR Readiness Stage 1 scope.",
+            "Implementation constraints created from USER response.",
+            "Next USER decision needed.",
+        ]
+        extra_plan_sections = [
+            "## Live Validation LV1 No-Visible-Runtime Proof",
+            "",
+            "| Surface | LV1 result | Evidence basis |",
+            "| --- | --- | --- |",
+            "| App UI / runtime surface | No visible surface changed. | Workstream and H1 changed source-truth, fixture, validator, helper, packet, and external-state proof only. |",
+            "| Provider prompt / model execution | Not executed. | providerVisibleData none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution disabled. |",
+            "| Cache / memory behavior | Not executed. | runtime cache inactive; memory/learning/personalization inactive. |",
+            "| Private roots / remotes / GitHub Desktop binding | Not created or configured. | Public-safe proof keeps all private setup gates pending. |",
+            "| Backup / import / recovery | Not executed. | Backup/import remains a future USER decision. |",
+            "",
+            "## UTS Waiver Evidence",
+            "",
+            "- Formal USER Test Summary execution is waived for LV1 because the approved branch has no visible runtime surface, shortcut, installer, provider, cache, memory, private root, private remote, or backup/import behavior for USER to exercise.",
+            "- The waiver is limited to this no-visible-runtime LV1 proof. Future runtime, UI, shortcut, installer, provider, cache, memory, private setup, or backup/import work will require its own Live Validation proof or USER waiver.",
+            "",
+            "## PR Readiness Stage 1 Preview",
+            "",
+            "- PR Readiness Stage 1 should analyze readiness only.",
+            "- Stage 1 must inspect source-truth fold-down, release-debt posture, current-main freshness, merge-stable projection needs, packet proof, validation proof, and remaining private/runtime gates.",
+            "- Stage 1 must not create a PR, merge, release, clean up, or execute private/runtime actions.",
+            "",
+            "## Future USER Gate Matrix",
+            "",
+            "| Gate | LV1 status |",
+            "| --- | --- |",
+            "| PR Readiness Stage 1 | Pending USER approval. |",
+            "| PR creation / Stage 2 | Pending USER approval. |",
+            "| Merge / release / cleanup | Pending USER approval. |",
+            "| Private Dev/Owner setup | Pending USER approval. |",
+            "| Private roots/remotes and GitHub Desktop binding | Pending USER approval. |",
+            "| Backup/import execution | Pending USER approval. |",
+            "| Provider/model/runtime/cache/memory behavior | Pending USER approval. |",
         ]
     normalized_contract_status = contract_status.casefold()
     if normalized_contract_status.startswith("waived by user"):
@@ -2423,6 +4593,28 @@ def _write_user_branch_plan_review(
         user_gate_state = "Pending USER Review - packet is reviewable but USER has not accepted or waived this gate."
         user_response_proof = "Pending USER Response - BP2 gate remains open."
         user_response_digested = "Pending USER Response - Codex has not digested a final USER disposition."
+    bp3_approval_text = (
+        "Live Validation LV1 is green for the admitted FAM-007 Dev/Owner Skeleton Readiness package. The next decision is bounded PR Readiness Stage 1 analysis only; this packet does not authorize PR creation, private/runtime/provider/cache/memory behavior, merge, release, or cleanup."
+        if dev_owner_live_validation_lv1_packet
+        else
+        "Workstream is green for the admitted FAM-007 Dev/Owner Skeleton Readiness package. The next decision is bounded Hardening H1 proof comparison only; this packet does not authorize private/runtime/provider/cache/memory behavior, PR, merge, release, or cleanup."
+        if dev_owner_workstream_green_packet
+        else
+        "Hardening H1 is green for the admitted FAM-007 Dev/Owner Skeleton Readiness package. The next decision is bounded Live Validation LV1/no-visible-runtime proof only; this packet does not authorize private/runtime/provider/cache/memory behavior, PR, merge, release, or cleanup."
+        if dev_owner_hardening_h1_packet
+        else
+        "BP3 approval text applies only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. This PR Readiness packet does not request BP3 implementation approval."
+        if pr_readiness_stage1_packet
+        else (
+            "BP3 is the active Workstream Entry / Orchestration Validation packet. "
+            "BP3 may recommend an entry Workstream seam for a later USER "
+            "decision, but this packet does not authorize Workstream implementation."
+        )
+        if bp3_orchestration_packet
+        else (
+            "BP3 may begin only after USER accepts or explicitly waives this BP2 engineering plan. This BP2 packet does not start BP3 and does not authorize Workstream implementation."
+        )
+    )
 
     lines = [
         f"# USER Branch Plan Review - {title}",
@@ -2484,7 +4676,7 @@ def _write_user_branch_plan_review(
         "",
         "## Likely Files",
         "",
-        *_markdown_lines([f"`{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied]),
+        *_markdown_lines(likely_files_lines),
         "",
         "## Validators / Helpers",
         "",
@@ -2505,6 +4697,7 @@ def _write_user_branch_plan_review(
         "- Hardening owns pressure-test and implementation-vs-plan verification.",
         "- Live Validation owns user-facing proof and UTS handling.",
         "",
+        *extra_plan_sections,
         "## H1 Expectations",
         "",
         "- H1 must compare implementation or source-truth changes against the accepted plan and repair defects only inside approved scope.",
@@ -2536,7 +4729,7 @@ def _write_user_branch_plan_review(
         "",
         "## Exact BP3 Approval Text When Ready",
         "",
-        "BP3 approval text applies only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. This PR Readiness packet does not request BP3 implementation approval.",
+        bp3_approval_text,
         "",
         "## What Will I Actually See, And Where Will I See It?",
         "",
@@ -2574,13 +4767,14 @@ def _write_user_branch_plan_review(
         "",
         "## USER Decisions Needed",
         "",
-        "USER may answer in order or respond generally. Useful feedback includes visual direction, workflow changes, window behavior, output-file expectations, deferred scope, or anything that would make the branch plan feel wrong before implementation planning begins.",
+        user_decisions_intro,
         "",
         *_markdown_lines(user_decisions),
         "",
         "## USER Response",
         "",
-        accepted_user_response
+        user_response_text
+        or accepted_user_response
         or "Status: Pending USER Response - Workstream implementation remains blocked until USER answers, revises, rejects, accepts, or explicitly waives this contract.",
         "",
         "Required USER Response structure:",
@@ -2696,6 +4890,7 @@ def _write_workstream_entry_packet_digests(
     exact_user_decision: str,
     pending_user_decisions: list[str],
 ) -> list[Path]:
+    normalized_decision = exact_user_decision.casefold()
     is_fam007_breakpoint_2 = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
     )
@@ -2724,9 +4919,88 @@ def _write_workstream_entry_packet_digests(
         and "approve pr readiness stage 2" in exact_user_decision.casefold()
     )
     pr_stage1_packet = (
-        "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+        "pr readiness stage 1 analysis" in normalized_decision
+    )
+    workstream_package_approval_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+        )
+        and not any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
+    bp3_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and not workstream_package_approval_packet
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry / orchestration" in normalized_decision
+            or "orchestration validation" in normalized_decision
+        )
+    )
+    dev_owner_workstream_green_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded hardening h1" in normalized_decision
+    )
+    dev_owner_hardening_h1_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded live validation lv1" in normalized_decision
+    )
+    dev_owner_live_validation_lv1_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded pr readiness stage 1" in normalized_decision
+    )
+    bp1_packet = (
+        "bp1 branch vision" in normalized_decision
+        and "authorize bp2 user branch plan review only" in normalized_decision
+    )
+    bp2_packet = (
+        not bp1_packet
+        and not bp3_packet
+        and (
+            "bp2 user branch plan review" in normalized_decision
+            or "bp2 branch plan review" in normalized_decision
+        )
     )
     packet_status = (
+        "bp1 branch vision review - BP1 Branch Vision Review remains pending "
+        "USER acceptance, revision, waiver, rejection, or hold; BP2 remains pending."
+        if bp1_packet
+        else
+        "bp2 branch plan review - accepted BP1 Branch Vision is the planning basis; "
+        "BP2 USER Branch Plan Review packet is Reviewable; USER acceptance, revision, "
+        "waiver, rejection, or hold remains pending; BP3 remains pending."
+        if bp2_packet
+        else
+        "implementation-ready - BP1, BP2, and BP3 are accepted; bounded Workstream "
+        "package implementation is approved by this packet with Seam 1 as the entry "
+        "checkpoint and continuation governed until Workstream Green, a real blocker, "
+        "or explicit USER waiver."
+        if workstream_package_approval_packet
+        else
+        "workstream entry final decision review - Workstream Green review; admitted "
+        "FAM-007 Dev/Owner proof seams are complete and Hardening H1 remains pending "
+        "USER approval."
+        if dev_owner_workstream_green_packet
+        else
+        "hardening final decision review - Hardening H1 is green; Live Validation LV1 "
+        "remains pending USER approval."
+        if dev_owner_hardening_h1_packet
+        else
+        "live validation final decision review - Live Validation LV1 is green; "
+        "PR Readiness Stage 1 remains pending USER approval."
+        if dev_owner_live_validation_lv1_packet
+        else
+        "bp3 orchestration review - accepted BP1 Branch Vision and accepted BP2 "
+        "Branch Plan are the traceability basis; BP3 Workstream Entry / "
+        "Orchestration Validation packet is Reviewable; USER BP3 approval, "
+        "revision, waiver, rejection, or hold remains pending; Workstream "
+        "implementation remains pending separate USER approval."
+        if bp3_packet
+        else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
         if pr_stage1_packet
@@ -2763,7 +5037,314 @@ def _write_workstream_entry_packet_digests(
             "remains pending USER approval."
         )
     )
-    if pr_stage1_packet:
+    bp3_readiness_contract = ""
+    if bp1_packet:
+        analysis_status = (
+            "Analysis Summary: BP1 Branch Vision Review packet for the active "
+            "Branch Planning carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: BP2, BP3, Workstream implementation, "
+            "private setup, runtime/provider/cache/memory behavior, PR, merge, "
+            "release, cleanup, and sibling-worktree mutation remain pending "
+            "USER decisions."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: BP1 USER decision, then BP2 USER Branch "
+            "Plan Review only if USER accepts or explicitly waives BP1."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the project vision, FAM-007 "
+            "family vision, Public/Dev/Owner boundary plan, AI Runtime And Trust "
+            "Architecture, active branch authority record, branch artifact rules, "
+            "phase governance, execution rules, validation registry, backlog, and "
+            "roadmap context needed for the BP1 Branch Vision decision."
+        )
+        checklist_status = (
+            "Checklist Focus: BP1 Branch Vision Review - project, family, feature, "
+            "branch goal, end-state vision, user-facing review surfaces, options, "
+            "recommendations, future-gated decisions, and regression-risk controls "
+            "are represented for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, "
+            "USER_BRANCH_PLAN_REVIEW.md as BP2 preview only, required digest/"
+            "checklist files, and copied source-truth files are loaded and "
+            "digestible for USER review; BP1 remains pending USER decision."
+        )
+    elif bp2_packet:
+        analysis_status = (
+            "Analysis Summary: BP2 USER Branch Plan Review packet for the active "
+            "Branch Planning carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: BP2 is reviewable but not accepted; BP3, "
+            "Workstream implementation, private setup, runtime/provider/cache/memory "
+            "behavior, PR, merge, release, cleanup, and sibling-worktree mutation "
+            "remain pending USER decisions."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: BP2 USER decision; BP3 Workstream Entry / "
+            "Orchestration Validation may be prepared only if USER accepts or "
+            "explicitly waives BP2."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes accepted BP1 Branch Vision context, "
+            "FAM-007 family vision, Public/Dev/Owner boundary plan, AI Runtime And "
+            "Trust Architecture, active branch authority record, branch artifact rules, "
+            "phase governance, execution rules, validation registry, backlog, roadmap, "
+            "and worktree-slot context needed for the BP2 engineering-plan decision."
+        )
+        checklist_status = (
+            "Checklist Focus: BP2 Branch Plan Review - accepted BP1 trace, branch "
+            "scope size, seam/SLC route, affected surfaces, likely files, validators, "
+            "proof requirements, H1/LV/UTS expectations, rollback, risks, future-gated "
+            "decisions, and exact BP3 approval text are represented for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md as the primary "
+            "BP2 decision file, USER_BRANCH_VISION_REVIEW.md as supporting accepted "
+            "vision context, required digest/checklist files, and copied source-truth "
+            "files are loaded and digestible for USER review; BP2 remains pending USER "
+            "acceptance, revision, waiver, rejection, or hold."
+        )
+    elif bp3_packet:
+        bp3_readiness_contract = (
+            "\n## Plain-Language BP3 Readiness Summary\n\n"
+            "BP3 is the final Branch Planning readiness check before a later "
+            "Workstream implementation approval can be considered. This packet "
+            "confirms that the accepted BP1 Branch Vision and accepted BP2 Branch "
+            "Plan give Codex enough public-safe direction to prepare a Workstream "
+            "route, while Workstream implementation itself remains a separate "
+            "future USER decision.\n\n"
+            "The branch vision and plan stay focused on FAM-007 Dev/Owner Skeleton "
+            "Readiness: public-safe proof that future Dev and Owner skeleton setup "
+            "can be made decision-ready without creating private repos, private "
+            "roots, private remotes, provider execution, runtime cache behavior, "
+            "memory behavior, backup/import execution, PR work, merge work, release "
+            "work, cleanup, or sibling-worktree mutation during BP3.\n\n"
+            "## Accepted BP1 Vision Traceability\n\n"
+            "- BP1 established the product direction: make Dev/Owner skeleton "
+            "readiness understandable, reviewable, and gated before any private "
+            "setup occurs.\n"
+            "- BP1 kept the public repo as the place for public-safe readiness "
+            "contracts, proof expectations, and USER decisions.\n"
+            "- BP1 preserved future-gated boundaries for Dev private repo setup, "
+            "Owner local-private setup, private remotes, backup/import behavior, "
+            "provider/model/runtime/cache/memory behavior, voice/Core sync, "
+            "shortcuts/installers, PR, merge, release, cleanup, AI Product "
+            "Contract import, Private Dev ORIN import, and v1.8.0 work.\n\n"
+            "## Accepted BP2 Plan Traceability\n\n"
+            "- BP2 converted the accepted vision into an engineering route: one "
+            "coherent FAM-007 branch with sequenced seams instead of separate "
+            "single-control branches.\n"
+            "- BP2 identified the source-truth fold-down, helper, validator, "
+            "fixture, packet, and external-state proof surfaces needed before "
+            "implementation can be requested.\n"
+            "- BP2 kept Workstream scope public-safe: proof artifacts and validators "
+            "may be prepared, while actual private setup, runtime activation, "
+            "provider calls, cache/memory behavior, backup/import execution, and "
+            "release actions stay future-gated.\n\n"
+            "## Proposed Workstream Implementation Order\n\n"
+            "1. Seam 1 - Action-gate registry and exact USER decision proof: create "
+            "the public-safe registry that lists every gated Dev, Owner, private, "
+            "runtime, provider, backup/import, PR, merge, release, cleanup, and "
+            "sibling-worktree action with its pending USER decision.\n"
+            "2. Seam 2 - Dev/Owner readiness matrices: add public-safe matrices that "
+            "show what future Dev and Owner skeleton readiness will require, "
+            "without creating private repos, roots, remotes, or runtime behavior.\n"
+            "3. Seam 3 - Private root/remote and GitHub Desktop safety proof: prove "
+            "that private roots, private remotes, GitHub Desktop private binding, "
+            "and related credentials remain absent until USER explicitly approves "
+            "that future setup.\n"
+            "4. Seam 4 - Backup/import and provider/runtime/cache/memory deferral "
+            "proof: prove backup/import, provider/model execution, downloads, "
+            "runtime execution, cache behavior, memory, learning, indexing, "
+            "retrieval, personalization, and voice/Core sync remain inactive.\n"
+            "5. Seam 5 - Packet, fixture, validator, and fold-down proof: fold the "
+            "accepted constraints into durable owners, add deterministic validation, "
+            "and refresh the USER packet without turning review files into live "
+            "operational ledgers.\n\n"
+            "## Seam / SLC Readiness Assessment\n\n"
+            "- Seam 1 readiness: ready to request after BP3 acceptance because it is "
+            "public-safe, decision-proof centered, and reversible.\n"
+            "- Seam 2 readiness: depends on Seam 1 registry names and exact pending "
+            "decision wording so the matrices trace to accepted gates.\n"
+            "- Seam 3 readiness: depends on registry and matrix proof so absence of "
+            "private roots/remotes and GitHub Desktop private binding can be checked "
+            "directly.\n"
+            "- Seam 4 readiness: depends on prior gate proof so backup/import and "
+            "provider/runtime/cache/memory deferral can be asserted without runtime "
+            "activation.\n"
+            "- Seam 5 readiness: depends on completed proof surfaces so fixtures, "
+            "validators, packet refresh, and source-truth fold-down can check the "
+            "whole accepted route.\n\n"
+            "## Expected Files / Helpers / Validators / Fixtures / Review Artifacts\n\n"
+            "- Source-truth surfaces: FAM-007 family vision, AI runtime and trust "
+            "architecture, phase governance, branch artifact rules, validation "
+            "registry, active branch authority, external branch plan, and external "
+            "branch state.\n"
+            "- Helper surfaces: USER review bundle generation and packet decision-path "
+            "checks for BP1, BP2, BP3, Workstream, Hardening, Live Validation, PR "
+            "Readiness, and Release Readiness separation.\n"
+            "- Validator and fixture surfaces: branch-readiness planning fixtures, "
+            "public leak prevention, provider-state inactivity, external-state "
+            "validation, governance efficiency checks, source-owner markers, release "
+            "body checks, and branch governance checks.\n"
+            "- USER review artifacts: START_HERE.md as the plain-language index, this "
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md as the primary BP3 decision file, "
+            "accepted BP1/BP2 review aids, source-truth context copies, and the "
+            "timestamped upload ZIP generated from the local USER hub.\n\n"
+            "## Direct Proof Plan\n\n"
+            "- No-private-action proof: every private Dev/Owner repo, root, remote, "
+            "credential, private artifact, and GitHub Desktop private binding remains "
+            "future-gated.\n"
+            "- Public-leak prevention: proof artifacts contain public-safe descriptions "
+            "only and exclude private URLs, tokens, secrets, private paths, prompt "
+            "payloads, model artifacts, memory content, and private automation data.\n"
+            "- Provider-state inactivity: provider-visible data remains none, "
+            "sentToProvider remains false, canAcceptPrompts remains false, and "
+            "prompt/provider/model execution remains disabled until a future USER "
+            "decision changes that gate.\n"
+            "- Runtime/cache/memory deferral: downloads, network/external calls, runtime "
+            "provider execution, cache behavior, memory, learning, indexing, retrieval, "
+            "and personalization remain inactive.\n"
+            "- GitHub Desktop binding absence: private remote setup and GitHub Desktop "
+            "private binding remain pending USER decisions, with proof based on "
+            "absence of created private remotes or configured private roots.\n"
+            "- Backup/import deferral: off-boot backup roots, recovery roots, and "
+            "public-to-private import execution remain pending USER decisions.\n"
+            "- Artifact identity proof: packet folder and timestamped ZIP are generated "
+            "as a matched pair from the local USER hub without sidecars or reused ZIP "
+            "names.\n"
+            "- External-state proof: mutable active posture remains in external state, "
+            "helper output, validator output, or Codex digest rather than durable repo "
+            "docs.\n\n"
+            "## Rollback And Reversibility Posture\n\n"
+            "The proposed Workstream route is reversible because the first seams create "
+            "public-safe source-truth, helper, fixture, validator, packet, and external "
+            "state proof only. If a seam introduces drift, Codex can revert the focused "
+            "commit, regenerate the local USER packet, and restore the prior external "
+            "state receipt without undoing private setup or runtime behavior because "
+            "those actions are outside this route.\n\n"
+            "## Drift Controls\n\n"
+            "- User/Public lane: keep USER review files readable and decision-focused; "
+            "technical proof stays in helper output, validator output, Codex digest, or "
+            "external state.\n"
+            "- Dev lane: keep Dev private repo, private root, private remote, provider "
+            "SDK/model execution, downloads, and runtime activation behind explicit "
+            "future USER gates.\n"
+            "- Owner lane: keep Owner local-private setup, backup/recovery roots, "
+            "public-to-private import behavior, memory behavior, voice/Core sync, and "
+            "installer/shortcut behavior behind explicit future USER gates.\n"
+            "- Governance lane: keep BP1 as vision, BP2 as engineering plan, BP3 as "
+            "orchestration validation, Workstream as implementation, Hardening as "
+            "pressure-testing, Live Validation as USER proof, and PR/Release as "
+            "separate approval boundaries.\n\n"
+            "## Unresolved Blockers And Pending USER Decisions\n\n"
+            "No BP3 file repair authorizes implementation. USER still decides whether "
+            "to accept, revise, waive, reject, or hold BP3. Workstream implementation "
+            "requires a separate later approval after BP3 is accepted or waived. Every "
+            "private setup, provider/runtime/cache/memory action, backup/import action, "
+            "PR, merge, release, cleanup, sibling mutation, AI Product Contract import, "
+            "Private Dev ORIN import, and v1.8.0 action remains future-gated.\n\n"
+            "## Codex Readiness Recommendation\n\n"
+            "Codex recommends accepting BP3 as a Branch Planning readiness contract "
+            "only if USER agrees that the accepted BP1 vision and accepted BP2 plan "
+            "are still the right traceability basis and that Seam 1 should be the "
+            "first future Workstream request. This recommendation is not Workstream "
+            "implementation approval.\n\n"
+            "## Specific USER Readiness Questions\n\n"
+            "- Does the accepted BP1 vision still describe the FAM-007 Dev/Owner "
+            "Skeleton Readiness end-state USER wants?\n"
+            "- Does the accepted BP2 plan still describe the correct public-safe "
+            "engineering route for that vision?\n"
+            "- Is Seam 1 the right first future Workstream seam, or should another "
+            "proof surface come first?\n"
+            "- Are the Dev, Owner, private, provider, runtime, cache, memory, backup, "
+            "import, PR, merge, release, and cleanup gates preserved clearly enough?\n"
+            "- Is there any extra proof USER wants before later Workstream approval?\n\n"
+            "## Exact BP3 USER Decision Options\n\n"
+            "- Accept BP3: confirm BP3 is the accepted Workstream Entry / Orchestration "
+            "Validation contract and allow Codex to return a separate bounded "
+            "Workstream implementation approval packet next.\n"
+            "- Revise BP3: identify the readiness question, seam order, proof plan, "
+            "rollback posture, drift control, or pending gate that needs correction.\n"
+            "- Waive BP3: explicitly waive remaining BP3 concerns and allow Codex to "
+            "return a separate bounded Workstream implementation approval packet next.\n"
+            "- Reject BP3: stop this carrier route and request a different FAM-007 "
+            "successor path.\n"
+            "- Hold BP3: keep the branch in BP3 USER review while USER or ChatGPT "
+            "continues packet inspection.\n"
+        )
+        analysis_status = (
+            "Analysis Summary: BP3 Workstream Entry / Orchestration Validation "
+            "packet for the active Branch Planning carrier.\n"
+            "BP1 Contract Status: Complete - USER accepted the integrated FAM-007 "
+            "Dev/Owner Skeleton Readiness Branch Vision.\n"
+            "BP2 Contract Status: Complete - USER accepted the cleaned FAM-007 "
+            "Dev/Owner Skeleton Readiness engineering plan.\n"
+            "BP1 USER Gate State: USER Accepted\n"
+            "BP2 USER Gate State: USER Accepted\n"
+            "BP3 Packet Reviewability State: Reviewable\n"
+            "BP3 USER Gate State: Pending USER Review\n"
+            "Branch Plan Matches Accepted Branch Vision: PASS - BP2 keeps Dev "
+            "and Owner skeleton readiness integrated, preserves Dev private-repo "
+            "future direction, Owner local-private baseline, GitHub Desktop safety, "
+            "backup/import posture, provider/runtime/cache/memory deferral, and "
+            "lane identity proof without changing the accepted BP1 direction.\n"
+            "Branch Package Size: PASS - one FAM-007 branch remains the largest "
+            "safe coherent package because Dev readiness, Owner readiness, private "
+            "root/remote safety, backup/import posture, provider-state deferral, "
+            "packet proof, and validation proof share the same trust boundary.\n"
+            "SLC Traceability: Complete\n"
+            "Future-Gated Boundaries: PASS - private Dev/Owner setup, private "
+            "repos/roots/remotes, GitHub Desktop private binding, backup/import "
+            "execution, provider/model/runtime/cache/memory behavior, PR, merge, "
+            "release, cleanup, AI Product Contract import, Private Dev ORIN import, "
+            "and v1.8.0 remain pending USER decisions.\n"
+            "First Bounded Workstream Seam: Seam 1 should create public-safe "
+            "action-gate registry and exact USER decision proof before later "
+            "Dev/Owner matrices, private root/remote safety, backup/import, "
+            "provider deferral, packet, fixture, validator, and fold-down proof.\n"
+            "Implementation Approval: Pending separate USER approval after BP3 "
+            "review; this packet does not authorize Workstream implementation."
+        )
+        implementation_posture = (
+            "Implementation Posture: BP3 is reviewable but USER BP3 approval is "
+            "pending; Workstream implementation, private setup, runtime/provider/"
+            "cache/memory behavior, PR, merge, release, cleanup, and sibling-worktree "
+            "mutation remain pending USER decisions."
+        )
+        recommended_seam = (
+            "Recommended First Bounded Workstream Seam: Seam 1, action-gate "
+            "registry and exact USER decision proof, to be considered only after "
+            "USER approves or waives BP3 and separately approves Workstream implementation."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes accepted BP1 Branch Vision "
+            "context, accepted BP2 Branch Plan context, FAM-007 family vision, "
+            "Public/Dev/Owner boundary plan, AI Runtime And Trust Architecture, "
+            "active branch authority record, external branch plan/state context, "
+            "branch artifact rules, phase governance, execution rules, validation "
+            "registry, backlog, roadmap, and worktree-slot context needed for BP3."
+        )
+        checklist_status = (
+            "Checklist Focus: BP3 Workstream Entry / Orchestration Validation - "
+            "accepted BP1/BP2 traceability, whole-package seam order, first-seam "
+            "recommendation, proof plan, H1/LV/UTS expectations, rollback posture, "
+            "drift controls, and future-gated private/runtime decisions are represented "
+            "for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md "
+            "as the primary BP3 decision file, USER_BRANCH_VISION_REVIEW.md and "
+            "USER_BRANCH_PLAN_REVIEW.md as supporting accepted BP1/BP2 context, "
+            "required digest/checklist files, and copied source-truth files are "
+            "loaded and digestible for USER review; BP3 remains pending USER "
+            "approval, revision, waiver, rejection, or hold."
+        )
+    elif pr_stage1_packet:
         analysis_status = (
             "Analysis Summary: Governance Phase Lifecycle Reform packet is ready "
             "for PR Readiness Stage 1 analysis approval."
@@ -2786,7 +5367,7 @@ def _write_workstream_entry_packet_digests(
         checklist_status = (
             "Checklist Focus: for Governance PR Readiness Stage 1 approval review - "
             "lifecycle ownership, BP1/BP2/BP3 separation, local USER hub behavior, "
-            "external-state split, sidecar and unique-ZIP deferrals, and USER-facing "
+            "external-state split, mandatory timestamped ZIP uploads, sidecar deferral, and USER-facing "
             "metadata boundaries are represented for USER inspection."
         )
         digest_status = (
@@ -2827,6 +5408,74 @@ def _write_workstream_entry_packet_digests(
             "digest/checklist files, and copied source-truth files are loaded and digestible "
             "for USER review; the contract records PR Readiness Stage 1 complete and "
             "Stage 2 PR creation as the next USER decision."
+        )
+    elif workstream_package_approval_packet:
+        analysis_status = (
+            "Analysis Summary: BP3 is accepted; USER is approving bounded Workstream "
+            "package implementation for the admitted same-branch package."
+        )
+        implementation_posture = (
+            "Implementation Posture: bounded Workstream package implementation is approved "
+            "by this packet decision path with Seam 1 as the entry checkpoint. Continuation "
+            "must proceed one active same-branch seam at a time until Workstream Green, a "
+            "real named blocker, or explicit USER waiver."
+        )
+        recommended_seam = (
+            "Entry Checkpoint: Seam 1, public-safe action-gate registry and exact USER "
+            "decision proof."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
+            "prebeta roadmap, active branch index, branch record, active branch plan "
+            "context, worktree slots, AI Runtime And Trust Architecture, FAM-007 family "
+            "vision, AI Edition plan, branch-plan README, phase governance, development "
+            "rules, codex modes, validation helper registry, and review surfaces needed "
+            "for bounded Workstream package approval."
+        )
+        checklist_status = (
+            "Checklist Focus: Workstream package approval - accepted BP1/BP2/BP3 posture, "
+            "entry seam proof, continuation latch, future-gated private/runtime/provider/"
+            "cache/memory boundaries, and next lawful phase boundary to Hardening only "
+            "after Workstream Green."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, "
+            "supporting BP1/BP2 review files, required digest/checklist files, and copied "
+            "source-truth files are loaded and digestible for USER review; packet wording "
+            "treats Seam 1 as entry checkpoint, not terminal Workstream authority."
+        )
+    elif dev_owner_workstream_green_packet:
+        analysis_status = (
+            "Analysis Summary: Workstream Green for the FAM-007 Dev/Owner Skeleton "
+            "Readiness carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: all admitted public-safe Workstream proof seams "
+            "are complete; Hardening H1 remains pending USER approval."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: Hardening H1, proof comparison and pressure testing."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
+            "prebeta roadmap, active branch index, branch record, active external branch "
+            "plan context, worktree slots, AI Runtime And Trust Architecture, FAM-007 "
+            "family vision, AI Edition plan, branch-plan README, phase governance, "
+            "development rules, codex modes, validation helper registry, and Workstream "
+            "Green proof surfaces needed for the Hardening H1 decision."
+        )
+        checklist_status = (
+            "Checklist Focus: Workstream Green review - action-gate registry, Dev/Owner "
+            "readiness matrices, private root/remote safety, GitHub Desktop safety, "
+            "backup/import deferral, provider/runtime/cache/memory deferral, packet/"
+            "fixture/validator fold-down, and Hardening H1 boundary."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, "
+            "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, supporting BP1/BP2 review files, "
+            "required digest/checklist files, and copied source-truth files are loaded "
+            "and digestible for USER review; the contract records Workstream Green and "
+            "routes only to Hardening H1 approval."
         )
     elif seam1_approval_packet:
         analysis_status = (
@@ -2896,6 +5545,74 @@ def _write_workstream_entry_packet_digests(
             "digest/checklist files, and copied source-truth files are loaded and digestible "
             "for USER review; the contract records the Live Validation LV1 boundary and PR "
             "Readiness Stage 1 next decision."
+        )
+    elif dev_owner_live_validation_lv1_packet:
+        analysis_status = (
+            "Analysis Summary: Live Validation LV1 Green for the FAM-007 Dev/Owner "
+            "Skeleton Readiness carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: LV1 recorded no-visible-runtime proof and UTS "
+            "waiver evidence for a proof-only branch; PR Readiness Stage 1 remains "
+            "pending USER approval."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: PR Readiness Stage 1 analysis."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
+            "prebeta roadmap, active branch index, branch record, worktree slots, AI "
+            "Runtime And Trust Architecture, FAM-007 family vision, AI Edition plan, "
+            "branch-plan README, phase governance, development rules, codex modes, "
+            "validation helper registry, public leak-prevention validator, and LV1 "
+            "no-visible-runtime proof surfaces needed for the next USER decision."
+        )
+        checklist_status = (
+            "Checklist Focus: Live Validation LV1 review - no-visible-runtime proof, "
+            "UTS waiver evidence, action gates, Dev/Owner matrices, private root/remote "
+            "safety, backup/import deferral, provider/runtime/cache/memory deferral, "
+            "packet/fixture/validator/source-truth fold-down, external state proof, and "
+            "PR Readiness Stage 1 analysis-only boundary are represented."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "digest/checklist files, and copied source-truth files are loaded and "
+            "digestible for USER review; the contract records the Live Validation LV1 "
+            "boundary and PR Readiness Stage 1 next decision."
+        )
+    elif dev_owner_hardening_h1_packet:
+        analysis_status = (
+            "Analysis Summary: Hardening H1 Green for the FAM-007 Dev/Owner "
+            "Skeleton Readiness carrier."
+        )
+        implementation_posture = (
+            "Implementation Posture: Hardening H1 compared the completed public-safe "
+            "Workstream proof against accepted BP1, BP2, BP3, fixture, validator, "
+            "packet, branch-record, and external-state boundaries; Live Validation "
+            "LV1 remains pending USER approval."
+        )
+        recommended_seam = (
+            "Recommended Next Phase: Live Validation LV1, no-visible-runtime proof and UTS waiver digestion."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, feature backlog, "
+            "prebeta roadmap, active branch index, branch record, worktree slots, AI "
+            "Runtime And Trust Architecture, FAM-007 family vision, AI Edition plan, "
+            "branch-plan README, phase governance, development rules, codex modes, "
+            "validation helper registry, public leak-prevention validator, and H1 "
+            "proof surfaces needed for the next USER decision."
+        )
+        checklist_status = (
+            "Checklist Focus: Hardening H1 review - action gates, Dev/Owner matrices, "
+            "private root/remote safety, backup/import deferral, provider/runtime/cache/"
+            "memory deferral, packet/fixture/validator/source-truth fold-down, external "
+            "state proof, and LV1 no-visible-runtime boundary are represented."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
+            "digest/checklist files, and copied source-truth files are loaded and "
+            "digestible for USER review; the contract records the Hardening H1 boundary "
+            "and Live Validation LV1 next decision."
         )
     elif hardening_h1_packet:
         analysis_status = (
@@ -2994,7 +5711,7 @@ def _write_workstream_entry_packet_digests(
             "Review Summary: START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, required "
             "Workstream Entry digest/checklist files, copied source-truth files, branch "
             "plan, branch record, fixture proof, and validator proof are loaded and "
-            "digestible for USER review; Seam 2 remains pending USER approval."
+            "digestible for USER review; Seam 2 remains governed by Workstream continuation, not a new per-seam approval, unless a real blocker, explicit waiver, or backlog split is recorded."
         )
     elif is_fam007_breakpoint_2:
         analysis_status = (
@@ -3002,10 +5719,10 @@ def _write_workstream_entry_packet_digests(
             "FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness carrier."
         )
         implementation_posture = (
-            "Implementation Posture: Seam 1 implementation remains pending USER "
+            "Implementation Posture: Workstream implementation remains pending USER "
             "approval and is not authorized by this packet until USER accepts or "
             "waives the repaired USER_BRANCH_PLAN_REVIEW.md contract and approves "
-            "Seam 1 only."
+            "bounded Workstream package execution with Seam 1 as the entry checkpoint."
         )
         recommended_seam = (
             "Recommended First Seam: Seam 1, Action-gate registry and exact USER "
@@ -3068,6 +5785,11 @@ def _write_workstream_entry_packet_digests(
         f"Decision Path: {packet_status}\n"
         f"USER Decision: {exact_user_decision}\n"
     )
+    if bp3_packet:
+        common += (
+            "BP3 Packet Reviewability State: Reviewable\n"
+            "BP3 USER Gate State: Pending USER Review\n"
+        )
     files: dict[str, str] = {
         "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": (
             "# USER Review Folder And File Digest\n\n"
@@ -3088,7 +5810,8 @@ def _write_workstream_entry_packet_digests(
             f"{common}"
             f"{analysis_status}\n"
             f"{implementation_posture}\n"
-            f"{recommended_seam}\n\n"
+            f"{recommended_seam}"
+            f"{bp3_readiness_contract}\n\n"
             "## Pending Gates\n\n"
             f"{pending}\n"
         ),
@@ -3141,15 +5864,18 @@ def _packet_text_status(text: str) -> str:
         )
     )
     if any(marker in normalized for marker in pending_gate_markers) or reviewable_without_closed_gate:
-        if any(marker in normalized for marker in bp1_markers):
-            return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
-        if any(marker in normalized for marker in bp2_markers):
-            return DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW
         if any(marker in normalized for marker in bp3_markers):
             return DECISION_STATUS_BP3_ORCHESTRATION_REVIEW
+        if any(marker in normalized for marker in bp2_markers):
+            return DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW
+        if any(marker in normalized for marker in bp1_markers):
+            return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
 
     implementation_markers = (
+        "approve bounded workstream package implementation",
         "approve bounded workstream implementation",
+        "bounded workstream package implementation",
+        "workstream package implementation approval",
         "approve workstream implementation",
         "workstream implementation approval",
     )
@@ -3182,6 +5908,37 @@ def _packet_text_status(text: str) -> str:
     )
     if any(marker in normalized for marker in repair_markers):
         return DECISION_STATUS_REPAIR_REVALIDATION
+
+    bp1_review_markers = (
+        "bp1 branch vision review",
+        "bp1 user branch vision review",
+        "bp1 review packet",
+    )
+    bp1_decision_markers = (
+        "authorize bp2 user branch plan review only",
+        "bp2 remains pending",
+        "bp2 user branch plan review remains pending",
+    )
+    if any(marker in normalized for marker in bp1_review_markers) and any(
+        marker in normalized for marker in bp1_decision_markers
+    ):
+        return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
+
+    bp2_review_markers = (
+        "bp2 branch plan review",
+        "bp2 user branch plan review",
+        "user_branch_plan_review.md as the primary bp2 decision file",
+    )
+    bp2_decision_markers = (
+        "accepted bp1 branch vision is the planning basis",
+        "bp2 user branch plan review packet is reviewable",
+        "bp2 remains pending user acceptance",
+        "bp3 remains pending",
+    )
+    if any(marker in normalized for marker in bp2_review_markers) and any(
+        marker in normalized for marker in bp2_decision_markers
+    ):
+        return DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW
 
     final_review_markers = (
         "workstream entry final decision review",
@@ -3414,6 +6171,11 @@ def _validate_workstream_entry_packet_decision_path(
         )
     )
     failures.extend(_user_facing_technical_metadata_failures(packet_files))
+    failures.extend(_user_branch_plan_stale_bp1_wording_failures(packet_files))
+    failures.extend(_fam007_dev_owner_lv1_substantive_failures(packet_files))
+    failures.extend(_fam007_bp2_plan_substantive_failures(packet_files))
+    failures.extend(_fam007_bp2_support_bp1_context_failures(packet_files))
+    failures.extend(_bp1_packet_phase_language_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
@@ -3539,16 +6301,29 @@ def build_bundle(
             "Review bundle file count mismatch: "
             f"expected {expected_count} repo files, copied {copied_count}"
         )
-    created_at = datetime.now().isoformat(timespec="seconds")
+    created_at_dt = datetime.now()
+    created_at = created_at_dt.isoformat(timespec="seconds")
 
     source_branch = _git_output("branch", "--show-current")
     source_head = _git_output("rev-parse", "HEAD")
     upstream = _git_output("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
     origin_main = _git_output("rev-parse", "origin/main")
-    export_zip = _export_zip_path(review_root, label)
+    export_zip = _export_zip_path(review_root, label, created_at_dt)
+    normalized_decision = exact_user_decision.casefold()
+    workstream_package_approval_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
+        )
+        and not any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
     seam1_approval_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
-        and "approve bounded workstream implementation" in exact_user_decision.casefold()
+        and "approve bounded workstream implementation" in normalized_decision
     )
     seam1_completion_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
@@ -3557,6 +6332,18 @@ def build_bundle(
     workstream_green_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded hardening h1" in exact_user_decision.casefold()
+    )
+    dev_owner_workstream_green_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded hardening h1" in normalized_decision
+    )
+    dev_owner_hardening_h1_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded live validation lv1" in normalized_decision
+    )
+    dev_owner_live_validation_lv1_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and "approve bounded pr readiness stage 1" in normalized_decision
     )
     hardening_h1_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
@@ -3571,9 +6358,66 @@ def build_bundle(
         and "approve pr readiness stage 2" in exact_user_decision.casefold()
     )
     pr_stage1_packet = (
-        "pr readiness stage 1 analysis" in exact_user_decision.casefold()
+        "pr readiness stage 1 analysis" in normalized_decision
+        and not dev_owner_live_validation_lv1_packet
+    )
+    bp3_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and not workstream_package_approval_packet
+        and (
+            "bp3" in exact_user_decision.casefold()
+            or "workstream entry / orchestration" in exact_user_decision.casefold()
+            or "orchestration validation" in exact_user_decision.casefold()
+        )
+    )
+    bp1_packet = (
+        "bp1 branch vision" in exact_user_decision.casefold()
+        and "authorize bp2 user branch plan review only" in exact_user_decision.casefold()
+    )
+    bp2_packet = (
+        not bp1_packet
+        and not bp3_packet
+        and (
+            "bp2 user branch plan review" in exact_user_decision.casefold()
+            or "bp2 branch plan review" in exact_user_decision.casefold()
+        )
     )
     machine_readable_packet_status = (
+        "bp1 branch vision review - BP1 Branch Vision Review remains pending "
+        "USER acceptance, revision, waiver, rejection, or hold; BP2 remains pending."
+        if bp1_packet
+        else
+        "bp2 branch plan review - accepted BP1 Branch Vision is the planning basis; "
+        "BP2 USER Branch Plan Review packet is Reviewable; USER acceptance, revision, "
+        "waiver, rejection, or hold remains pending; BP3 remains pending."
+        if bp2_packet
+        else
+        "bp3 orchestration review - accepted BP1 Branch Vision and accepted BP2 "
+        "Branch Plan are the traceability basis; BP3 Workstream Entry / "
+        "Orchestration Validation packet is Reviewable; USER BP3 approval, "
+        "revision, waiver, rejection, or hold remains pending; Workstream "
+        "implementation remains pending separate USER approval."
+        if bp3_packet
+        else
+        "workstream entry final decision review - Workstream Green review; admitted "
+        "FAM-007 Dev/Owner proof seams are complete and Hardening H1 remains pending "
+        "USER approval."
+        if dev_owner_workstream_green_packet
+        else
+        "hardening final decision review - Hardening H1 is green; Live Validation LV1 "
+        "remains pending USER approval."
+        if dev_owner_hardening_h1_packet
+        else
+        "live validation final decision review - Live Validation LV1 is green; "
+        "PR Readiness Stage 1 remains pending USER approval."
+        if dev_owner_live_validation_lv1_packet
+        else
+        "implementation-ready - BP1, BP2, and BP3 are accepted; bounded Workstream "
+        "package implementation is approved by this packet with Seam 1 as the entry "
+        "checkpoint and continuation governed until Workstream Green, a real blocker, "
+        "or explicit USER waiver."
+        if workstream_package_approval_packet
+        else
         "pr readiness stage1 approval review - PR Readiness Stage 1 analysis "
         "remains pending USER approval; PR creation remains pending USER approval."
         if pr_stage1_packet
@@ -3698,7 +6542,7 @@ def build_bundle(
         "## Review Packet",
         "",
         f"Review Purpose: {review_purpose}",
-        "Review Location: Open this folder in the local USER hub and upload the matching ZIP beside it.",
+        "Review Location: Open this folder in the local USER hub and upload the matching timestamped ZIP beside it.",
         f"Local USER Hub Folder: `{target}`",
         f"Custom Review Path Waiver: {custom_review_path_waiver}",
         f"Custom Review Path Reason: {custom_review_path_reason_value}",
@@ -3736,9 +6580,17 @@ def build_bundle(
             "",
             f"Decision Path Summary: {machine_readable_packet_status}",
             f"USER Decision: {user_facing_decision}",
-            "",
+        "",
         ]
     )
+    if bp3_packet:
+        readme_lines.extend(
+            [
+                "BP3 Packet Reviewability State: Reviewable",
+                "BP3 USER Gate State: Pending USER Review",
+                "",
+            ]
+        )
 
     (target / "START_HERE.md").write_text("\n".join(readme_lines), encoding="utf-8")
     bundle_paths = _bundle_files(target)
@@ -3755,6 +6607,9 @@ def build_bundle(
         ),
         *_user_facing_technical_metadata_failures(packet_files),
         *_user_branch_plan_stale_bp1_wording_failures(packet_files),
+        *_fam007_bp2_plan_substantive_failures(packet_files),
+        *_fam007_bp2_support_bp1_context_failures(packet_files),
+        *_bp1_packet_phase_language_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
@@ -3764,12 +6619,14 @@ def build_bundle(
             + "\n".join(f"- {failure}" for failure in artifact_failures)
         )
     expected_zip_entries = {path.relative_to(target).as_posix() for path in bundle_paths}
+    _remove_stale_same_label_export_zips(review_root, label, export_zip)
     _write_export_zip(target, export_zip)
     _validate_export_zip(
         export_zip,
         source_branch=source_branch,
         source_head=source_head,
         origin_main=origin_main,
+        expected_label=label,
         expected_entries=expected_zip_entries,
     )
     return target, export_zip
