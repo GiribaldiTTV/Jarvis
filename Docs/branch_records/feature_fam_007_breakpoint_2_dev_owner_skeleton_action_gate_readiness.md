@@ -4,11 +4,11 @@ NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-
 
 ## Record State
 
-Record State: `PR Readiness Stage 1 ready for Stage 2 with merge-stable historical/no-active projection`
+Record State: `Historical merged branch receipt`
 
 ## Status
 
-Status: `FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness carrier is complete through Live Validation LV1 and PR Readiness Stage 1 repair. Seams 1 through 4 implement public-safe action-gate registry, private/public boundary, backup/import planning, provider/runtime/cache/memory deferral, local-only handoff, and exact USER decision proof with direct fixture validation. This record is merge-stable historical/merged-unreleased evidence for the completed public-safe proof carrier and does not create private repositories, private roots, private remotes, provider/model execution, runtime cache behavior, memory, backup/import behavior, PR, merge, release, cleanup, or v1.8.0 execution.`
+Status: `PR #246 merged the FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness carrier into main on 2026-05-28 at merge commit e546f55b64014e84fa5f893878c155328a37b732. Seams 1 through 4 preserved public-safe action-gate registry, private/public boundary, backup/import planning, provider/runtime/cache/memory deferral, local-only handoff, and exact USER decision proof with direct fixture validation. This record is historical merged evidence only and does not own current PR state, PR creation posture, active branch authority, selected-next state, release-window state, private repositories, private roots, private remotes, provider/model execution, runtime cache behavior, memory, backup/import behavior, cleanup, or v1.8.0 execution.`
 
 ## Branch Identity
 
@@ -32,17 +32,16 @@ Status: `FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness carrier i
 
 Phase: `Historical Traceability`
 
-Stage: `PR Readiness Stage 1 - Analysis Gate`
+Stage: `Historical PR #246 merged receipt`
 
-Seam: `Stage 1 repair complete; Stage 2 PR creation pending USER approval`
+Seam: `Not active - this file is durable receipt evidence only`
 
 ## Phase Status
 
 - Branch Authority Marker: `Historical Branch`
-- Branch Authority State: `Folded down during PR Readiness Stage 1 repair so merged main projects No Active Branch for this carrier; live branch operations are derived from Git, GitHub, helper truth, and external operational state until PR merge verification.`
-- Active Branch Authority Transition Waiver: Granted
-- Transition Waiver USER Decision: `USER approved Branch Readiness Stage 2 setup for this FAM-007 carrier, including creating or updating active branch authority and reconciling external operational state.`
-- External State Reconciliation Proof: `Live operational state is recorded under C:\Nexus Governance State; repo docs keep durable branch identity and transition-approved plan proof only.`
+- Branch Authority State: `Historical merged receipt only; live branch operations are derived from Git, GitHub, helper truth, and external operational state.`
+- Historical Transition Waiver Receipt: `USER approved Branch Readiness Stage 2 setup for this FAM-007 carrier while active operational state was reconciled externally. That waiver is historical evidence only and does not authorize repo live-state ownership.`
+- External State Reconciliation Proof: `Live operational state was recorded under C:\Nexus Governance State while the branch was active; repo docs keep durable branch identity and transition-approved plan proof only.`
 - Stage 2 Setup Status: `Green - branch setup, packet repair, and packet decision-path repair completed before Seam 1.`
 - Workstream Entry Status: `Green - USER accepted the repaired branch contract and approved Seam 1.`
 - Workstream Seam 1 Status: `Implemented - public-safe action-gate registry and exact USER decision proof only.`
@@ -51,8 +50,8 @@ Seam: `Stage 1 repair complete; Stage 2 PR creation pending USER approval`
 - Workstream Seam 4 Status: `Implemented - provider/model/runtime/cache/memory deferral and local-only handoff proof only.`
 - Hardening H1 Status: `Green - compared Workstream proof against source truth, validators, fixtures, packet proof, external-state boundaries, and no-private/no-runtime action gates.`
 - Live Validation LV1 Status: `Green - no visible runtime surface changed; UTS and user-facing shortcut validation are waived.`
-- PR Readiness Stage 1 Status: `Stage 1 Ready For Stage 2 - pre-PR live state, pending PR creation approval, merge-stable authority projection, no-release-debt posture, selected-next default/defer posture, packet refresh, and validation expectations are recorded.`
-- Runtime / Private Action State: `Blocked - private Dev repo creation, private Owner repo creation, local-only private roots, private remotes, backup/import execution, provider SDK/model execution, downloads, runtime provider execution, runtime cache behavior, memory/indexing/learning/personalization, voice/Core sync, shortcuts/installers, PR creation, merge, release, cleanup, FAM-006 mutation, Governance worktree mutation, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 execution remain pending USER decisions.`
+- PR Readiness Receipt: `Historical - PR Readiness prepared PR #246 before merge. This record no longer owns PR creation, open PR, review-thread, mergeability, or watcher state.`
+- Runtime / Private Action Receipt: `Historical boundary evidence only - the merged branch did not create private Dev/Owner repos, private roots/remotes, backup/import execution, provider SDK/model execution, downloads, runtime provider execution, runtime cache behavior, memory/indexing/learning/personalization, voice/Core sync, shortcuts/installers, FAM-006 mutation, Governance worktree mutation, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 execution.`
 
 ## Branch Class
 

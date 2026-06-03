@@ -387,7 +387,7 @@ Non-Includes: `Recording Profile runtime, tray recording controls, local recordi
 
 ## Active Seam
 
-Active seam: `PR Readiness Stage 1 pending USER approval - final refreshed LV1 technical proof, Codex Visual Adjudication, bounded returned-UTS issue repair, refreshed LV1, and returned USER UTS are PASS/Green.`
+Active seam: `None - historical receipt only; final refreshed LV1 technical proof, Codex Visual Adjudication, bounded returned-UTS issue repair, refreshed LV1, and returned USER UTS are preserved as historical PASS/Green evidence.`
 
 ## Workstream Implementation - SLC-037 Overlay Profile Data/State Foundation
 

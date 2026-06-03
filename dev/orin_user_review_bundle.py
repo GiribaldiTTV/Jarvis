@@ -3383,7 +3383,7 @@ def _write_user_branch_plan_review(
             "Seam 5 - packet, fixture, validator, and fold-down proof: refresh USER review packet evidence, add direct fixtures where needed, and update source-truth owners only inside approved public-safe scope.",
         ]
         surface_map = [
-            "Active FAM-007 branch record: durable branch authority and historical receipt context; update only if BP2 acceptance changes durable branch authority or future-gate wording.",
+            "FAM-007 repo branch record receipt: durable branch identity and historical context only; active BP2 posture and future-gate tracking live in external operational state.",
             "Active FAM-007 branch plan/receipt and external FAM-007 branch plan/state: active BP2 planning posture, accepted BP1 trace, review-gate state, seam map, proof expectations, and future gates.",
             "USER review bundle helper: packet layout, primary BP2 decision-file routing, support-file phase state, timestamped ZIP creation, placeholder scans, packet count checks, and USER-facing metadata exclusion when packet behavior changes.",
             "Validation helper registry and branch-readiness planning fixtures: reusable proof lanes and false-green prevention when validator coverage changes.",
@@ -3392,7 +3392,7 @@ def _write_user_branch_plan_review(
             "FAM-007 family vision files: family-level direction only if USER changes Public/Dev/Owner edition strategy, capability-pack policy, private/public promotion, or lane identity standards.",
         ]
         likely_files_lines = [
-            "Active FAM-007 branch record if durable authority, accepted-gate, or future-gate wording changes.",
+            "FAM-007 repo branch record receipt only if durable historical context or accepted-gate receipt wording changes.",
             "Active FAM-007 external branch plan and branch state for BP2 review posture, accepted BP1 trace, USER response digestion, and next-gate routing.",
             "Review bundle helper if packet behavior, timestamped ZIP generation, support-file phase state, or primary BP2 routing changes.",
             "Validation helper registry if reusable validator/helper coverage changes.",
@@ -3406,7 +3406,7 @@ def _write_user_branch_plan_review(
         active_branch_files = [
             "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns active BP2 planning posture, accepted BP1 trace, review-gate state, seam map, proof expectations, and future gates outside the USER-facing packet.",
             "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture and packet pointer outside repo-tracked source truth.",
-            "Historical repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+            "Historical repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable receipt/context and not active authority or a mutable live-state ledger.",
         ]
         user_decisions_intro = (
             "USER may answer in order or respond generally. Useful BP2 feedback includes "
@@ -3944,7 +3944,7 @@ def _write_user_branch_plan_review(
         active_branch_files = [
             "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns Workstream Green posture, accepted BP1/BP2/BP3 traceability, completed proof seams, proof expectations, and future gates outside repo-tracked source truth.",
             "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, Workstream Green disposition, and Hardening H1 pending USER decision outside repo-tracked source truth.",
-            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md as durable receipt/context only; it is not active authority or a mutable live-state ledger.",
         ]
         implementation_constraints = [
             "Workstream is green; Hardening H1 remains blocked until USER approves or revises the proof-comparison seam.",
@@ -4194,7 +4194,7 @@ def _write_user_branch_plan_review(
         active_branch_files = [
             "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns H1 Green posture, accepted BP1/BP2/BP3 traceability, completed proof seams, proof expectations, and future gates outside repo-tracked source truth.",
             "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, H1 Green disposition, and Live Validation LV1 pending USER decision outside repo-tracked source truth.",
-            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md as durable receipt/context only; it is not active authority or a mutable live-state ledger.",
         ]
         implementation_constraints = [
             "Hardening H1 is green; Live Validation LV1 remains blocked until USER approves or revises the no-visible-runtime proof seam.",
@@ -4461,7 +4461,7 @@ def _write_user_branch_plan_review(
         active_branch_files = [
             "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_plan.md; it owns LV1 Green posture, no-visible-runtime proof, UTS waiver evidence, and future gates outside repo-tracked source truth.",
             "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_dev_owner_skeleton_readiness\\branch_state.md; it records the current carrier posture, LV1 Green disposition, and PR Readiness Stage 1 pending USER decision outside repo-tracked source truth.",
-            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md; it is durable authority/context and not a mutable live-state ledger.",
+            "Repo branch record remains Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md as durable receipt/context only; it is not active authority or a mutable live-state ledger.",
         ]
         implementation_constraints = [
             "Live Validation LV1 is green; PR Readiness Stage 1 remains blocked until USER approves or revises the analysis scope.",
