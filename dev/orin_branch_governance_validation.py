@@ -19536,6 +19536,25 @@ def _is_historical_worktree_receipt(record_text: str) -> bool:
     )
 
 
+def _validate_historical_worktree_receipt_confinement(
+    require,
+    record_path: str | Path,
+    record_text: str,
+) -> None:
+    identity = _section(record_text, "Branch Identity")
+    require(
+        bool(_extract_exact_marker_value(identity, "Worktree Receipt")),
+        f"{record_path}: historical worktree receipt fallback requires a `Worktree Receipt:` marker",
+    )
+    require(
+        not _extract_exact_marker_value(identity, "Worktree"),
+        (
+            f"{record_path}: historical branch receipt must not declare an active "
+            "`Worktree:` assignment marker"
+        ),
+    )
+
+
 def _run_worktree_confinement_regression_fixtures(require) -> None:
     fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
@@ -19555,6 +19574,12 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _is_historical_worktree_receipt(fixture_text),
         f"{fixture}: fixture must classify as a historical worktree receipt",
     )
+    require(
+        "pr readiness stage 1" not in fixture_text.casefold()
+        and "stage 1 ready for stage 2" not in fixture_text.casefold(),
+        f"{fixture}: broad historical receipt fixture must not rely on PR Readiness fallback wording",
+    )
+    _validate_historical_worktree_receipt_confinement(require, fixture, fixture_text)
     require(
         not _extract_exact_marker_value(identity, "Worktree"),
         f"{fixture}: `Worktree Receipt:` must not be parsed as active `Worktree:` assignment",
@@ -19605,6 +19630,15 @@ def _run_worktree_confinement_gate(require) -> None:
             historical_branch_record_paths,
             branch_name,
         )
+        if historical_record_text and _is_historical_worktree_receipt(historical_record_text):
+            record_path = historical_record_path
+            record_text = historical_record_text
+            _validate_historical_worktree_receipt_confinement(
+                require,
+                record_path,
+                record_text,
+            )
+            return
         if (
             historical_record_text
             and "pr readiness stage 1" in historical_record_text.casefold()
@@ -19612,20 +19646,6 @@ def _run_worktree_confinement_gate(require) -> None:
         ):
             record_path = historical_record_path
             record_text = historical_record_text
-            if _is_historical_worktree_receipt(record_text):
-                identity = _section(record_text, "Branch Identity")
-                require(
-                    bool(_extract_exact_marker_value(identity, "Worktree Receipt")),
-                    f"{record_path}: historical worktree receipt fallback requires a `Worktree Receipt:` marker",
-                )
-                require(
-                    not _extract_exact_marker_value(identity, "Worktree"),
-                    (
-                        f"{record_path}: historical branch receipt must not declare an active "
-                        "`Worktree:` assignment marker"
-                    ),
-                )
-                return
 
     require(
         bool(branch_name),
