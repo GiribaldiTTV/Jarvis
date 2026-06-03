@@ -7805,16 +7805,9 @@ def _previous_known_prebeta_tag(release_tag: str) -> str:
     return previous_tags[-1] if previous_tags else ""
 
 
-def _published_release_window_scope(release_tag: str) -> tuple[set[str], set[str]]:
-    """Return line identifiers and branch-file stems included in a published release window."""
-
-    previous_tag = _previous_known_prebeta_tag(release_tag)
-    release_ref = _git_prebeta_tag_commit(release_tag)
-    previous_ref = _git_prebeta_tag_commit(previous_tag) if previous_tag else ""
+def _git_release_window_scope(previous_ref: str, release_ref: str) -> tuple[set[str], set[str]]:
     if not release_ref:
         return set(), set()
-    if previous_tag and not previous_ref:
-        return _github_published_release_window_scope(previous_tag, release_tag)
 
     rev_range = f"{previous_ref}..{release_ref}" if previous_ref else release_ref
     completed = subprocess.run(
@@ -7826,7 +7819,7 @@ def _published_release_window_scope(release_tag: str) -> tuple[set[str], set[str
         check=False,
     )
     if completed.returncode != 0:
-        return _github_published_release_window_scope(previous_tag, release_tag)
+        return set(), set()
 
     identifiers: set[str] = set()
     branch_file_stems: set[str] = set()
@@ -7835,6 +7828,23 @@ def _published_release_window_scope(release_tag: str) -> tuple[set[str], set[str
         _add_release_window_entry(identifiers, branch_file_stems, sha, subject)
 
     return identifiers, branch_file_stems
+
+
+def _published_release_window_scope(release_tag: str) -> tuple[set[str], set[str]]:
+    """Return line identifiers and branch-file stems included in a published release window."""
+
+    previous_tag = _previous_known_prebeta_tag(release_tag)
+    release_ref = _git_prebeta_tag_commit(release_tag)
+    previous_ref = _git_prebeta_tag_commit(previous_tag) if previous_tag else ""
+    if not release_ref:
+        return set(), set()
+    if previous_tag and not previous_ref:
+        return _github_published_release_window_scope(previous_tag, release_tag)
+
+    release_window = _git_release_window_scope(previous_ref, release_ref)
+    if not any(release_window):
+        return _github_published_release_window_scope(previous_tag, release_tag)
+    return release_window
 
 
 def _path_matches_published_release_window_branch(
@@ -7878,12 +7888,20 @@ def _published_release_closure_scan_paths() -> list[Path]:
     return sorted(paths, key=lambda path: path.as_posix())
 
 
-def _validate_published_release_canon_closure(require, release_tag: str) -> None:
-    if not release_tag:
+def _validate_release_canon_closure(
+    require,
+    release_label: str,
+    release_window_identifiers: set[str],
+    branch_file_stems: set[str],
+    *,
+    published: bool,
+) -> None:
+    if not release_label:
         return
 
-    release_tag_lower = release_tag.casefold()
-    release_window_identifiers, branch_file_stems = _published_release_window_scope(release_tag)
+    release_label_lower = release_label.casefold()
+    blocker_name = "Post-Release Canon Closure Drift" if published else "Pre-Publish Canon Closure Drift"
+    release_state = "is published" if published else "is the simulated release candidate"
     for relative_path in _published_release_closure_scan_paths():
         path = ROOT_DIR / relative_path
         if not path.is_file():
@@ -7899,7 +7917,7 @@ def _validate_published_release_canon_closure(require, release_tag: str) -> None
                 continue
             if _is_allowed_published_release_merged_unreleased_line(line_lower):
                 continue
-            line_matches_release = release_tag_lower in line_lower
+            line_matches_release = release_label_lower in line_lower
             line_matches_window = any(
                 identifier in line_lower
                 for identifier in release_window_identifiers
@@ -7909,12 +7927,54 @@ def _validate_published_release_canon_closure(require, release_tag: str) -> None
             require(
                 False,
                 (
-                    f"{relative_path}:{line_number}: Post-Release Canon Closure Drift; "
-                    f"{release_tag} is published, so source truth must not keep included "
+                    f"{relative_path}:{line_number}: {blocker_name}; "
+                    f"{release_label} {release_state}, so source truth must not keep included "
                     "release-window scope as current merged-unreleased posture. Fold the scope "
                     "to released/closed posture or label it as historical pre-release snapshot evidence."
                 ),
             )
+
+
+def _validate_published_release_canon_closure(require, release_tag: str) -> None:
+    if not release_tag:
+        return
+
+    release_window_identifiers, branch_file_stems = _published_release_window_scope(release_tag)
+    _validate_release_canon_closure(
+        require,
+        release_tag,
+        release_window_identifiers,
+        branch_file_stems,
+        published=True,
+    )
+
+
+def _validate_pre_publish_release_canon_closure_simulation(
+    require,
+    latest_public_prerelease: str,
+) -> None:
+    if not latest_public_prerelease or not _head_matches_origin_main():
+        return
+
+    latest_release_ref = _git_prebeta_tag_commit(latest_public_prerelease)
+    target_ref = _git_head_sha()
+    if not latest_release_ref or not target_ref or latest_release_ref == target_ref:
+        return
+
+    release_window_identifiers, branch_file_stems = _git_release_window_scope(
+        latest_release_ref,
+        target_ref,
+    )
+    if not release_window_identifiers and not branch_file_stems:
+        return
+
+    _validate_release_canon_closure(
+        require,
+        f"candidate after {latest_public_prerelease}",
+        release_window_identifiers,
+        branch_file_stems,
+        published=False,
+    )
 
 
 def _workstream_target_version(workstream_text: str) -> str:
@@ -16352,6 +16412,12 @@ def _is_merged_main_snapshot() -> bool:
     return bool(head_sha and origin_main_sha and head_sha == origin_main_sha)
 
 
+def _head_matches_origin_main() -> bool:
+    head_sha = _git_head_sha()
+    origin_main_sha = _git_ref_sha("refs/remotes/origin/main")
+    return bool(head_sha and origin_main_sha and head_sha == origin_main_sha)
+
+
 def _git_head_commit_time() -> datetime | None:
     completed = subprocess.run(
         ("git", "show", "-s", "--format=%cI", "HEAD"),
@@ -21666,6 +21732,10 @@ def main() -> int:
         )
     if highest_known_prebeta_tag:
         _validate_published_release_canon_closure(require, highest_known_prebeta_tag)
+        _validate_pre_publish_release_canon_closure_simulation(
+            require,
+            highest_known_prebeta_tag,
+        )
 
     fb038_entry = _entry_by_id(backlog_entries, "FB-038")
     require(
