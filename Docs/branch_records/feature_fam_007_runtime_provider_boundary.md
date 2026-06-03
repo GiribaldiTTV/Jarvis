@@ -100,7 +100,7 @@ Rollback Path: abandon `feature/fam-007-runtime-provider-boundary` before PR if 
 
 - `Branch Readiness`
 
-Next Legal Phase Gate: PR #131 is merged and this branch is historical traceability. USER must separately decide whether to approve FAM-007 runtime Workstream entry, AI Product Contract import, GitHub issue creation, any successor PR creation, or any runtime/provider/model/memory/shortcut/installer work. PR #129 release-support remains separate unless USER later selects it.
+Historical Next Legal Phase Gate Receipt: PR #131 is merged and this branch is historical traceability. USER must separately decide whether to approve FAM-007 runtime Workstream entry, AI Product Contract import, GitHub issue creation, any successor PR creation, or any runtime/provider/model/memory/shortcut/installer work. PR #129 release-support remains separate unless USER later selects it.
 
 ## Branch Objective
 

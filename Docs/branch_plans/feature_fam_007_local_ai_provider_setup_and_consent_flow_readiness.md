@@ -78,4 +78,4 @@ Desktop AI-Owned Readiness Display Suppression: `Implemented - #ai-provider-stat
 
 Next Legal Phase: `PR Readiness Stage 2 / PR creation`
 
-Exact USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
+Historical USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`

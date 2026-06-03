@@ -83,7 +83,7 @@ Rollback Path: abandon branch `codex/fam-007-branch-readiness` before merge; for
 
 Next Legal Seam: `PR Readiness Stage 2 - FAM-007 Governance/Canon Repair PR Execution`
 
-Next Legal Phase Gate: `PR Readiness Stage 2 owns PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch preparation while merge, release execution, issue creation, FAM-007 implementation, and FAM-007 package admission remain blocked without later USER approval.`
+Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 2 owns PR creation, watcher provisioning, live PR validation, bot-review handling if needed, and merge-watch preparation while merge, release execution, issue creation, FAM-007 implementation, and FAM-007 package admission remain blocked without later USER approval.`
 
 ## Post-Merge State
 

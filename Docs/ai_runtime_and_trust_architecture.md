@@ -173,6 +173,22 @@ Provider/API behavior must preserve:
 
 Provider recommendation is allowed when local capability is insufficient, but provider execution remains permission-gated.
 
+## OpenAI Docs / Developer Tool Boundary
+
+Official OpenAI Docs lookups, Codex connector output, and AI-development plugin evidence may support source-truth review, architecture review, and provider-boundary planning. They are evidence until Codex digests them into the owning repo source-truth file through a USER-approved update.
+
+OpenAI Developers tooling, API-key creation, provider setup, model/runtime setup, billing/quota state, account connection state, and provider-visible data routing are sensitive setup or implementation concerns. They must not be recorded in repo docs as current state, must not expose plaintext secrets, and must not imply provider/model execution approval.
+
+When a future branch uses OpenAI or other provider tooling, it must separate:
+
+- official documentation evidence from durable rule changes
+- API key or credential setup from repo source truth
+- provider-visible data proof from implementation approval
+- provider/model execution from architecture planning
+- private Dev/Owner setup from public repo evidence
+
+`Sensitive Connector Setup In Repo`, `Plugin Evidence Treated As Source Truth`, `Provider Execution Approval Missing`, and `Private Reference Leak` block when this boundary is unclear.
+
 ## Capability Registry And Capability-Pack System
 
 Capability packs are modular capability domains, not automatic model-weight bundles and not automatic FAMs.

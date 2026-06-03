@@ -139,9 +139,9 @@ Plan-To-Implementation Traceability: `Stage 2 edits record v1.7.19-prebeta relea
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active`
+Assigned Worktree Confinement: `Historical receipt only`
 Active Thread Owner: `FAM-006 assigned Codex thread`
-Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-006 was assigned while this branch was active`
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
 Intended Write Set: `Docs/branch_records/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_plans/feature_fam_006_v1_7_19_release_posture_carry_forward.md; Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree is assigned this branch.`
@@ -236,7 +236,7 @@ Current Phase: `Historical Traceability`
 Next Legal Phase: `Branch Readiness`
 Why This Phase Is Next: `This carry-forward branch is merged and deleted. The next active FAM-006 carrier is feature/fam-006-recording-profile-runtime-foundation.`
 Approval Required: `None for this historical record.`
-Exact USER Approval Text: `None for this historical record.`
+Historical USER Approval Text Receipt: `None for this historical record.`
 Allowed Scope: `Historical traceability only.`
 Explicit Exclusions: `Runtime implementation; PR creation; merge; release; issue mutation; stale branch cleanup execution; artifacts/raw evidence handling; sibling-worktree mutation; FAM-007 work; Governance worktree mutation.`
 Validation Required: `Historical record only; active validation belongs to the current FAM-006 branch.`

@@ -21,6 +21,7 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 - Deterministic routing, reliability tiers, capability self-awareness, provider orchestration, and cache replay safety must follow `Docs/ai_runtime_and_trust_architecture.md` before implementation-specific FAM-007 slices can claim readiness.
 - Capability packs should declare what they can do, what they cannot do, what sources they contain, what hardware/storage/provider state they require, what cache/index state they own, and whether they are local-only or provider-assisted.
 - Provider recommendation is allowed when local capability is insufficient, but execution remains permission-gated and provider-visible data must be explicit before anything leaves the machine.
+- OpenAI Docs or other provider documentation lookups are planning evidence only until digested into the owning repo source truth. OpenAI Developers tooling, API key creation, provider account setup, connector authentication, billing/quota state, model/runtime setup, and provider-visible data routing remain sensitive setup or implementation concerns and require separate USER approval before execution or durable source-truth claims.
 
 ## Implementation Boundaries
 

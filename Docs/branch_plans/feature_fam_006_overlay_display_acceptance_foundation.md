@@ -296,4 +296,4 @@ Future Workstream Validation: `Use validation-suite recommendations plus FAM-006
 
 Exit Criteria: `Branch record, branch plan, compact backlog/roadmap pointers, worktree binding proof, validation, commit, and push are complete.`
 Next Legal Phase: `Historical Traceability`
-Exact USER Decision Needed: `None for this historical plan; future FAM-006 runtime work requires a new USER-approved Branch Readiness lane.`
+Historical USER Decision Receipt: `None for this historical plan; future FAM-006 runtime work requires a new USER-approved Branch Readiness lane.`

@@ -256,7 +256,7 @@ Why This Phase Is Next: `PR #185 merged and the branch/worktree cleanup is compl
 
 Approval Required: `USER approval for Release Readiness if USER wants to evaluate merged-unreleased PR #184/#185 for release`
 
-Exact USER Approval Text: `Approve Release Readiness Stage 1 analysis for merged-unreleased PR #184 and PR #185 from updated origin/main. This is analysis only; release execution, tag/GitHub Release/artifact work, issue mutation, branch/worktree creation or cleanup, FAM-006 mutation, FAM-007 mutation, Compact-AI mutation, provider/model/memory/voice/Core/shortcut/installer work, Dev Toolkit runtime, and future marker expansion remain separate USER decisions.`
+Historical USER Approval Text Receipt: `Approve Release Readiness Stage 1 analysis for merged-unreleased PR #184 and PR #185 from updated origin/main. This is analysis only; release execution, tag/GitHub Release/artifact work, issue mutation, branch/worktree creation or cleanup, FAM-006 mutation, FAM-007 mutation, Compact-AI mutation, provider/model/memory/voice/Core/shortcut/installer work, Dev Toolkit runtime, and future marker expansion remain separate USER decisions.`
 
 Allowed Scope: `PR Readiness Stage 1 analysis and source-truth repair for PR scope, fold-down planning, merge-stability, validation posture, and proof posture only.`
 

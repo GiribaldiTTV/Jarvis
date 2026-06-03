@@ -108,7 +108,7 @@ Rollback Path: abandon `feature/fam-007-stage-2-readiness-admission` before PR i
 
 - `PR Readiness`
 
-Next Legal Phase Gate: PR Readiness Stage 2 is approved only to validate durable source truth, push any bounded PR-readiness sync, create the PR targeting `main`, and report live PR state. After merge, repo-level truth returns to `No Active Branch` with PR #129 release debt still active; release execution, runtime implementation, shortcut work, provider/model installation, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and successor branch creation remain separate USER approval gates.
+Historical Next Legal Phase Gate Receipt: PR Readiness Stage 2 is approved only to validate durable source truth, push any bounded PR-readiness sync, create the PR targeting `main`, and report live PR state. After merge, repo-level truth returns to `No Active Branch` with PR #129 release debt still active; release execution, runtime implementation, shortcut work, provider/model installation, full AI Product Contract import, private Dev ORIN import, GitHub issue creation, and successor branch creation remain separate USER approval gates.
 
 ## Post-Merge State
 

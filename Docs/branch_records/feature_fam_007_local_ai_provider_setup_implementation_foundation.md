@@ -8,7 +8,7 @@ Record State: `Historical Branch Authority Projection`
 
 ## Status
 
-Status: `PR Readiness Stage 1 Complete - FAM-007 setup implementation foundation validated as disabled/status-only local setup foundation telemetry with static Core/Desktop/ORIN and provider-state validator proof; selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit are recorded; PR Readiness Stage 2 / PR creation remains pending USER approval`
+Status: `Historical projection receipt - FAM-007 setup implementation foundation PR Readiness evidence is preserved as completed historical context, including disabled/status-only local setup foundation telemetry, static Core/Desktop/ORIN and provider-state validator proof, selected-next defer/waiver evidence, pre-PR live-state evidence, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit. This record does not own current PR, branch, selected-next, or approval state.`
 
 ## Canonical Branch
 
@@ -137,11 +137,11 @@ Planned PR Base: `main`
 
 Planned PR Head: `feature/fam-007-local-ai-provider-setup-implementation-foundation`
 
-Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+Historical Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
 
-PR Creation Approval: Pending USER approval
+Historical PR Creation Approval Receipt: Pending USER approval
 
-Stage 2 PR Creation: Pending USER approval
+Historical Stage 2 PR Creation Receipt: Pending USER approval
 
 Workstream Completion State: `Green - Workstream implementation, Hardening H1, Live Validation LV1, setup implementation foundation proof, desktop readiness display suppression continuity, PR Readiness Stage 1 source-truth repair, and Stage 2 approval boundary are recorded.`
 
@@ -423,7 +423,7 @@ User Test Summary Strategy: `Stage 2 setup uses source-truth and static validato
 
 ## Runtime Branch Engineering Contract
 
-Engineering Contract Status: `Accepted for bounded Workstream implementation; H1 Green; LV1 Green; PR Readiness Stage 1 complete; PR Readiness Stage 2 / PR creation pending USER approval.`
+Engineering Contract Status: `Accepted for bounded Workstream implementation; H1 Green; LV1 Green; PR Readiness Stage 1 complete; historical Stage 2 PR-creation gate recorded before PR execution.`
 
 USER Engineering Planning Review: `Accepted for Branch Readiness Stage 2 setup, Workstream Entry, and bounded Workstream implementation after USER chose the detailed FAM-007 setup implementation foundation carrier.`
 
@@ -497,7 +497,7 @@ Backlog-Split Reason: `None`
 
 Slice ID: `FAM007-SETUP-FOUNDATION`
 
-Slice Status: `LV1 Green for local setup implementation foundation; PR Readiness Stage 1 complete; PR Readiness Stage 2 / PR creation pending USER approval`
+Slice Status: `LV1 Green for local setup implementation foundation; PR Readiness Stage 1 complete; historical Stage 2 PR-creation gate recorded before PR execution`
 
 Slice Scope: `Local provider setup entry, profile/config write-path foundation, validation, status proof, consent boundary handoff, and continuation criteria.`
 

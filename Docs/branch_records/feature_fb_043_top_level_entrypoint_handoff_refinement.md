@@ -32,7 +32,7 @@ The older `feature/fb-043-release-debt-marker-repair` branch remains historical 
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

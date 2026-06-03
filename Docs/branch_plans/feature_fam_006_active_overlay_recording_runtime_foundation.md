@@ -466,7 +466,7 @@ Contract Completion Checklist: Complete for planning/governance closeout - USER 
 Accepted Scope: Accepted scope is Branch Readiness Stage 2 setup, source-truth admission, old carrier fold-down, Stage 2 review packet creation, accepted planning/governance contract preservation, Workstream skip on this branch, validation, commit, push, and PR Readiness Stage 1 analysis after USER approval.
 Deferred Scope: Deferred scope is runtime implementation, Workstream Entry, Workstream implementation, recording execution, tray controls, export/share, provider/model work, broad theme/skin work, FAM-007 work, PR creation, merge, release, issue mutation, artifacts/raw evidence handling beyond approved review packet, sibling-worktree mutation, old branch cleanup/deletion, and Governance mutation.
 Rejected Scope: Requiring users to load a separate Recording Profile before recording sensors is rejected for this future recording path unless USER explicitly re-approves it.
-Exact USER Decision Needed: USER may approve a future FAM-006 Branch Readiness Stage 1 analysis on a separate carrier if runtime implementation should begin; runtime implementation remains blocked and deferred on this historical receipt.
+Historical USER Decision Receipt: USER may approve a future FAM-006 Branch Readiness Stage 1 analysis on a separate carrier if runtime implementation should begin; runtime implementation remains blocked and deferred on this historical receipt.
 Implementation Approval: Blocked - no runtime mutation is approved or performed by this branch.
 
 ## Future Workstream Entry Whole-Package Analysis Requirements
@@ -490,4 +490,4 @@ Required Workstream Entry outputs:
 ## Next Legal Phase
 
 Next Legal Phase: `Branch Readiness`
-Exact USER Decision Needed: `Approve a future FAM-006 Branch Readiness Stage 1 analysis on a separate USER-approved carrier if active-overlay recording runtime implementation should begin; this historical released planning receipt authorizes no runtime mutation.`
+Historical USER Decision Receipt: `Approve a future FAM-006 Branch Readiness Stage 1 analysis on a separate USER-approved carrier if active-overlay recording runtime implementation should begin; this historical released planning receipt authorizes no runtime mutation.`

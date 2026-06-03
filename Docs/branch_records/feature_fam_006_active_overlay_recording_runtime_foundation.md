@@ -163,9 +163,9 @@ Single-Slice Package User Approval: `Not required - five concrete planned slices
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active`
+Assigned Worktree Confinement: `Historical receipt only`
 Active Thread Owner: `FAM-006 assigned Codex thread`
-Thread Assignment Status: `Assigned to C:\Nexus Worktrees\FAM-006 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-006 was assigned while this branch was active`
 Worktree Ownership Ledger: `C:\Nexus Worktrees\FAM-006 is the stable GitHub Desktop-bound FAM-006 worktree for this branch.`
 Intended Write Set: `Docs/branch_records/index.md; Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md; Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md; Docs/branch_records/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/feature_fam_006_recording_profile_runtime_foundation.md; Docs/branch_plans/retirement_index.md; Docs/feature_backlog.md; Docs/prebeta_roadmap.md`
 Same Worktree / Same Branch Collision Check: `PASS - no other worktree is assigned this branch.`
@@ -243,7 +243,7 @@ Current Phase: `Historical Released Traceability`
 Next Legal Phase: `Branch Readiness`
 Why This Phase Is Next: `PR #222 merged this planning/governance carrier, PR #223 folded it down, and v1.7.25-prebeta published the release window that included PR #222, PR #223, and PR #224. This record has no active branch phase; future FAM-006 runtime implementation requires a separate USER-approved Branch Readiness carrier.`
 Approval Required: `USER approval is required before successor Branch Readiness, Workstream implementation, cleanup, issue mutation, release execution beyond already published v1.7.25-prebeta, or runtime/provider/model work.`
-Exact USER Approval Text: `Approve a future FAM-006 Branch Readiness Stage 1 analysis from updated source truth if USER wants to begin active-overlay recording runtime implementation; do not create branches, clean worktrees, mutate FAM-006/FAM-007 runtime worktrees, or execute runtime/provider/model/recording work unless separately approved.`
+Historical USER Approval Text Receipt: `Approve a future FAM-006 Branch Readiness Stage 1 analysis from updated source truth if USER wants to begin active-overlay recording runtime implementation; do not create branches, clean worktrees, mutate FAM-006/FAM-007 runtime worktrees, or execute runtime/provider/model/recording work unless separately approved.`
 Allowed Scope: `Historical traceability only; no active branch mutation is authorized by this record.`
 Explicit Exclusions: `Runtime implementation; SLC-051 implementation; Workstream implementation; recording execution; file writing; real Start/Stop controls; tray recording controls; export/share; provider/model work; broad theme/skin work; FAM-007 work; future branch creation; future PR creation; future merge; release execution beyond already published v1.7.25-prebeta; issue mutation; artifacts/raw evidence handling beyond approved review materials; sibling-worktree mutation; old branch cleanup/deletion; Governance worktree mutation.`
 Validation Required: `Identity, source truth, branch governance, worktree confinement, branch readiness planning fixture validation, release body validation, AI provider state validation, source-owner marker validation, and focused FAM-006 validators as applicable.`

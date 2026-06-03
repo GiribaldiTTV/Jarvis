@@ -192,8 +192,8 @@ REQUIRED_BREAKPOINT2_PLAN_PHRASES = (
     "User-Facing Shortcut Validation: `WAIVED`",
     "No-Visible-Runtime Proof: `PASS - changed surfaces are source-truth/fixture/validator/helper/packet/external-state only.`",
     "Next Legal Phase: `PR Readiness`",
-    "Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`",
-    "Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation",
+    "Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 2 - Execution Gate`",
+    "Historical Next USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
 )
 
@@ -219,8 +219,8 @@ REQUIRED_BREAKPOINT2_RECORD_PHRASES = (
     "User-Facing Shortcut Validation: `WAIVED`",
     "No-Visible-Runtime Proof: `PASS - changed surfaces are source-truth/fixture/validator/helper/packet/external-state only.`",
     "Next Legal Phase: `PR Readiness`",
-    "Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`",
-    "Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation",
+    "Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 2 - Execution Gate`",
+    "Historical Next USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation",
     "No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.",
 )
 

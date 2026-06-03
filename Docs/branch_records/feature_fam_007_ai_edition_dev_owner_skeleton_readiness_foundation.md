@@ -79,9 +79,9 @@ Branch Class: `implementation`
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Historical for this FAM-007 Branch Readiness Stage 2 carrier; active mutation is now owned by feature/fam-007-v1-7-23-post-release-canon-closure`
+Assigned Worktree Confinement: `Historical for this FAM-007 Branch Readiness Stage 2 carrier; later mutation moved to feature/fam-007-v1-7-23-post-release-canon-closure`
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 AI Edition Dev/Owner Skeleton Readiness Foundation setup`
-Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-007 was assigned while this branch was active`
 Worktree Ownership Ledger: `This branch authority record plus Docs/worktree_slots.md runtime-active-1 receipt`
 Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, AI Edition plan, validation helper registry, public leak-prevention validator and fixture, Desktop USER review packet, and validation proof required for Workstream Green`
 Same Worktree / Same Branch Collision Check: `PASS - no second writer is assigned to this FAM-007 worktree or branch by source truth`
@@ -821,7 +821,7 @@ Next Legal Phase Detail: `Review the post-release canon-closure carrier in PR Re
 Next Active Seam: `None - historical evidence only`
 Why This Phase Is Next: `PR #218 merged and this record is now historical released release-window evidence; v1.7.23-prebeta has been published and the current canon-closure carrier owns the remaining source-truth fold-down.`
 Approval Required: `USER approval is required before any release execution, tag, GitHub Release, artifact work, cleanup, private/runtime work, or successor Branch Readiness execution.`
-Exact USER Approval Text: `USER may approve PR Readiness Stage 1 for feature/fam-007-v1-7-23-post-release-canon-closure after Stage 2 commits and pushes the v1.7.23 post-release canon closure.`
+Historical USER Approval Text Receipt: `USER may approve PR Readiness Stage 1 for feature/fam-007-v1-7-23-post-release-canon-closure after Stage 2 commits and pushes the v1.7.23 post-release canon closure.`
 Allowed Scope: `Release Readiness analysis only after governance merge/rebaseline; no release execution, cleanup, private/runtime work, or successor branch mutation is authorized by this historical record.`
 Explicit Exclusions: `No private Dev repo creation, private Owner repo creation, GitHub Desktop private remote configuration, off-boot backup/recovery implementation, Public-to-Dev import implementation, provider SDK/model execution, model downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, PR creation, merge, release/tag/artifacts, branch/worktree cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --worktree-confinement-gate; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python dev\orin_public_leak_prevention_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_validation_suite.py --phase branch-readiness; python -m compileall -q dev desktop Audio main.py; python dev\orin_worktree_rebaseline_audit.py --target-ref origin/main --cwd "C:\Nexus Worktrees\FAM-007" --branch-plan-path Docs\branch_plans\feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md.`

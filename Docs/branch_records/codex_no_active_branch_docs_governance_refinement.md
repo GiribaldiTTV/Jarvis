@@ -13,7 +13,7 @@ This branch also closes the remaining governance gap for non-backlog branches by
 
 ## Current Phase
 
-- Phase: `PR Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

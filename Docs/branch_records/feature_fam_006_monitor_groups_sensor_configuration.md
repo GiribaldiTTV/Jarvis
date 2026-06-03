@@ -989,7 +989,7 @@ Why This Phase Is Next: `The bounded runtime/helper/source-truth repair for retu
 
 Approval Required: `Release Readiness analysis may inspect; release execution, issue mutation, artifacts, raw evidence handling, branch cleanup, successor branch creation, and future runtime work require later explicit USER approval.`
 
-Exact USER Approval Text: `Approve Release Readiness inspection for the v1.7.9-prebeta candidate window from updated origin/main, including PR #179 and PR #180 as merged-unreleased scope. Do not execute release, mutate issues, upload artifacts, clean branches/worktrees, create successor branches, or perform new runtime work without separate approval.`
+Historical USER Approval Text Receipt: `Approve Release Readiness inspection for the v1.7.9-prebeta candidate window from updated origin/main, including PR #179 and PR #180 as merged-unreleased scope. Do not execute release, mutate issues, upload artifacts, clean branches/worktrees, create successor branches, or perform new runtime work without separate approval.`
 
 Allowed Scope: `FAM-006 Dashboard and Manage Monitors interactive-control visual affordance, first-click reliability, click-interception diagnostics, Polling Rate copy/dropdown repair, Polling Rate toggle-only hitbox repair, lower detail action-row placement, Source Picker immediate-checkmark responsiveness proof, dirty-guard Save/Discard no-Cancel layout, delete-confirmation Cancel illumination, Delete Monitor copy, and directly supporting validators/helpers/UTS/source-truth updates only.`
 

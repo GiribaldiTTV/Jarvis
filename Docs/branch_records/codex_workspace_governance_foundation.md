@@ -79,7 +79,7 @@ Rollback Path: abandon branch `codex/workspace-governance-foundation` before mer
 
 Next Legal Seam: `PR Readiness Stage 2 - Workspace Governance Foundation PR Execution`
 
-Next Legal Phase Gate: `PR Readiness Stage 2 owns final PR package sync, merge-target authority projection, validation, commit/push if needed, and PR creation only. Merge, release work, issue creation, FAM-006 UTS digest work, FAM-007 Branch Readiness, FAM-007 implementation, FAM-007 package admission, and AI Product Contract import remain blocked until separately approved.`
+Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 2 owns final PR package sync, merge-target authority projection, validation, commit/push if needed, and PR creation only. Merge, release work, issue creation, FAM-006 UTS digest work, FAM-007 Branch Readiness, FAM-007 implementation, FAM-007 package admission, and AI Product Contract import remain blocked until separately approved.`
 
 ## Post-Merge State
 

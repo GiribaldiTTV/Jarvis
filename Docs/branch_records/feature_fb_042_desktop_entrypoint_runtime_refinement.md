@@ -14,7 +14,7 @@ Live execution authority moved to `Docs/workstreams/FB-042_desktop_entrypoint_ru
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 
