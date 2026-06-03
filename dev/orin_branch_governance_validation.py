@@ -19199,6 +19199,7 @@ def _standing_governance_intake_file_allowed(path: str) -> bool:
     return (
         normalized.startswith("Docs/")
         or normalized.startswith("dev/fixtures/branch_readiness_planning/")
+        or normalized.startswith("dev/fixtures/branch_record_live_state_leakage/")
         or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
     )
 
