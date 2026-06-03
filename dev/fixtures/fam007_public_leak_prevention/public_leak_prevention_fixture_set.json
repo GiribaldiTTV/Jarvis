@@ -250,7 +250,7 @@
       "expectedFailureContains": "unresolved template placeholder",
       "files": {
         "START_HERE.md": "Review Purpose: synthetic packet decision canary.\nLocal USER Hub Folder: `C:\\Nexus USER\\FAM-007`\nUSER Decision This Packet Supports: Approve Workstream Entry final decision review.\nDecision Path Summary: workstream entry final decision review - Workstream implementation remains pending USER approval.",
-        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Folder: $packet\nZip: $zip\nDecision Path: workstream entry final decision review.",
+        "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": "Folder: \u0024packet\nZip: \u0024zip\nDecision Path: workstream entry final decision review.",
         "GOVERNANCE_REQUIRED_FILES_SCAN.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nSource-Truth Coverage: required packet files are represented for USER inspection.",
         "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nUSER Decision: Approve Workstream Entry final decision review.",
         "BRANCH_VISION_VALIDATION_CHECKLIST.md": "Decision Path: workstream entry final decision review - Workstream implementation remains pending USER approval.\nChecklist Focus: decision path and USER-facing metadata boundary are represented."
