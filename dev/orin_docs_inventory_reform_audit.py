@@ -970,7 +970,10 @@ def build_user_review_index(
     add("")
     add("- Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`")
     add(f"- Docs files covered: {docs_count}")
-    add(f"- Source branch: `{branch}`")
+    add(
+        "- Source branch: not stored in this docs review index; derive current "
+        "branch from Git/helper output at review time."
+    )
     add("- Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.")
     add("- Generated hash fields: intentionally not maintained in this docs review index.")
     add("- Runtime/FAM/Compact-AI mutation: none.")
@@ -1013,9 +1016,10 @@ def build_user_review_index(
     add("- USER review responses are recorded in `Docs/governance_process_efficiency_reform_plan.md` under the 2026-05-21 review intake.")
     add("- This generated index stays pointer-based so audit regeneration does not strand raw USER notes in a generated file.")
     add(
-        "- Current execution model: this deferred-completion pass updates source truth and "
-        f"review artifacts on the USER-approved bounded governance/source-truth repair branch "
-        f"`{branch}` in `C:\\Nexus Worktrees\\Governance`; PR creation remains separately USER-gated."
+        "- Current execution model: this index describes the accepted staged Docs reform "
+        "model. Current branch/worktree identity is intentionally derived from Git, "
+        "helper output, or external operational state at review time; PR creation "
+        "remains separately USER-gated."
     )
     add("- PR Readiness remains held until validation is green and USER separately approves PR creation.")
     add("")
@@ -1097,9 +1101,9 @@ def build_user_review_index(
     add("## Exact USER Decision This Index Supports")
     add("")
     add(
-        "`I accept the corrected USER-response integration model and approve continuing the staged "
-        f"Docs source-truth reform on {branch} as one final "
-        "Governance PR path. PR creation, merge, release work, runtime work, FAM-006/FAM-007/"
+        "`I accept the corrected USER-response integration model and approve the next "
+        "repo-truth-selected Governance PR Readiness path after validation. PR creation, "
+        "merge, release work, runtime work, FAM-006/FAM-007/"
         "Compact-AI mutation, issue work, branch cleanup, historical branch deletion, and successor "
         "branch creation remain separate decisions.`"
     )
@@ -1531,8 +1535,8 @@ def generate() -> None:
     add("## Audit Identity")
     add("")
     add("- Audit Type: Full `Docs/` source-truth inventory, cleanup, and restructuring dossier.")
-    add("- Audit Workspace: `C:\\Nexus Worktrees\\Governance`")
-    add(f"- Audit Branch: `{branch}`")
+    add("- Audit Workspace: derive from assigned worktree/Git helper output at review time.")
+    add("- Audit Branch: not stored in this audit dossier; derive from Git/helper output at review time.")
     add("- Audit Git Proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.")
     add("- Audit Hash Policy: exact live Git hashes are intentionally not maintained in this docs review surface.")
     add(f"- Audit File Count: {len(file_rows)} files under `Docs/`")

@@ -10,5 +10,5 @@ Branch Plan Matches Accepted Branch Vision: PASS - the plan implements public-sa
 Branch Package Size: PASS - the package is the largest safe coherent trust-boundary readiness slice because source truth, fixtures, and review evidence must move together while runtime/provider work remains excluded.
 SLC Traceability: Complete
 Future-Gated Boundaries: PASS - private repo creation, private remotes, provider SDK execution, model downloads, backup/import behavior, memory, runtime cache, voice/Core sync, shortcut, installer, and v1.8.0 work remain pending USER decisions.
-First Bounded Workstream Seam: Seam 1 updates public-safe source truth and action-gate proof before provider-state, public-leak, and review-packet evidence are hardened.
-Implementation Approval: Approved for first bounded Workstream seam only; implementation must preserve no private-state mutation, no provider execution, and no private path leakage.
+Workstream Entry Seam: Seam 1 updates public-safe source truth and action-gate proof before provider-state, public-leak, and review-packet evidence are hardened.
+Implementation Approval: Approved for the admitted same-branch Workstream package with Seam 1 as the entry checkpoint; implementation must preserve no private-state mutation, no provider execution, and no private path leakage while continuation proceeds until Workstream Green, a real blocker, or an explicit USER waiver.

@@ -70,7 +70,7 @@ BP3 is Workstream Entry / Orchestration Validation.
 
 BP3 loads accepted or waived BP1 and BP2 outputs and proves that the Branch Plan correctly implements the accepted Branch Vision, that the branch package is the largest safe feature-focused package, that SLCs are an engineering route inside one branch, and that affected files, validators, helper updates, Hardening, Live Validation, UTS, rollback, proof paths, and future-gated boundaries are ready.
 
-BP3 may return the first bounded Workstream implementation approval only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green.
+BP3 may return bounded Workstream implementation approval for the admitted same-branch package, naming the entry seam or initial seam sequence, only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green.
 
 ## Branch-Size Law
 
@@ -92,14 +92,14 @@ Readable packets use:
 
 Upload artifacts use:
 
-`C:\Nexus USER\<label>__YYYYMMDD-HHMMSS.zip`
+`C:\Nexus USER\<label>-YYYYMMDD-HHMMSS.zip`
 
 Examples:
 
 - `C:\Nexus USER\Governance\`
-- `C:\Nexus USER\Governance__YYYYMMDD-HHMMSS.zip`
+- `C:\Nexus USER\Governance-YYYYMMDD-HHMMSS.zip`
 - `C:\Nexus USER\FAM-006\`
-- `C:\Nexus USER\FAM-006__YYYYMMDD-HHMMSS.zip`
+- `C:\Nexus USER\FAM-006-YYYYMMDD-HHMMSS.zip`
 
 USER workflow:
 
@@ -107,7 +107,7 @@ USER workflow:
 2. Read the label folder.
 3. Upload the matching timestamped ZIP beside it.
 
-The folder and timestamped ZIP are one matched review pair. Before regenerating a packet, Codex should clear or quarantine the old folder, remove old matching ZIP artifacts for the label, create exactly one timestamped ZIP, and prove the folder and upload artifact are current. Cloud-backed Desktop or OneDrive locations are backup or convenience mirrors only.
+The folder and timestamped ZIP are one matched pair. Before regenerating a matched pair, Codex clears the old readable folder, removes any legacy same-name upload ZIP and previous same-label timestamped upload ZIPs, creates a fresh `YYYYMMDD-HHMMSS` timestamped ZIP, and proves the folder/ZIP contents match. Cloud-backed Desktop or OneDrive locations are backup or convenience mirrors only.
 
 ## Technical Metadata Placement
 
@@ -129,14 +129,13 @@ Repo files should not become the live branch-status system. Accepted USER decisi
 
 Current active law:
 
-- Use the flat local USER hub: readable folder `C:\Nexus USER\<label>\` and timestamped upload artifact `C:\Nexus USER\<label>__YYYYMMDD-HHMMSS.zip`.
+- Use the flat local USER hub: `C:\Nexus USER\<label>\` and `C:\Nexus USER\<label>-YYYYMMDD-HHMMSS.zip`.
 - Cloud-backed Desktop / OneDrive copies are optional backup or convenience mirrors only.
 - USER-facing review files are temporary USER / ChatGPT review aids, not canon or posterity archives.
 
 Pending USER decisions:
 
 - sidecar artifact model
-- non-timestamp unique ZIP artifact model
 - separate Review / Upload top-level folder taxonomy
 - cloud-backed Desktop / OneDrive as active upload source
 - external-state migration beyond the approved repair

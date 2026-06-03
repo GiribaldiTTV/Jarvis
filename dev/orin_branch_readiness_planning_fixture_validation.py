@@ -144,6 +144,9 @@ INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE = (
 INVALID_BP1_TEMPLATE_SHELL_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_template_shell_review.md"
 )
+INVALID_BP1_PROCESS_MECHANICS_FIXTURE = (
+    FIXTURE_DIR / "invalid_bp1_process_mechanics_review.md"
+)
 INVALID_BP1_COPIED_FILE_SURFACE_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_copied_file_surface_map_only.md"
 )
@@ -431,7 +434,7 @@ def _validate_workstream_entry_whole_package_text(text: str) -> list[str]:
     required_summary_phrases = (
         "all admitted slices/seams",
         "completion strategy",
-        "first-seam recommendation",
+        "entry-seam recommendation",
         "seam dependency map",
         "future-gated",
         "preservation surfaces",
@@ -533,10 +536,21 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
     template_shell_phrases = (
         "review `docs/nexus_vision.md`",
         "review the relevant `docs/family_visions/` owner",
+        "must explain how this branch supports",
+        "family vision context: this bp1 review asks whether",
         "confirm that this branch goal is the right product direction",
         "describe the intended user-visible or source-truth end state",
         "review the copied branch-specific files and note any changes",
         "does this branch vision match what the user wants this branch to become",
+        "create an accepted user-facing branch vision",
+        "when bp1 closes",
+        "bp1 captures",
+        "option a accepts the vision, option b revises it, option c waives",
+        "use this packet to decide",
+        "what exact outcome should user expect to see",
+        "user will see a local user hub packet",
+        "the accepted bp1 vision will become the target for bp2",
+        "user reads the fam-007 packet",
     )
     for phrase in template_shell_phrases:
         require(
@@ -692,7 +706,7 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         "Branch Package Size:",
         "SLC Traceability:",
         "Future-Gated Boundaries:",
-        "First Bounded Workstream Seam:",
+        "Workstream Entry Seam:",
         "Implementation Approval:",
     ):
         require(marker in text, f"BP3 Orchestration Validation missing {marker}")
@@ -734,7 +748,7 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         "Branch Plan Matches Accepted Branch Vision:",
         "Branch Package Size:",
         "Future-Gated Boundaries:",
-        "First Bounded Workstream Seam:",
+        "Workstream Entry Seam:",
         "Implementation Approval:",
     )
     for marker in substantive_markers:
@@ -745,10 +759,13 @@ def _validate_bp3_orchestration_text(text: str) -> list[str]:
         )
     if "approved" in implementation_approval or "approve" in implementation_approval:
         require(
-            "only" in implementation_approval
-            or "separate user" in implementation_approval
-            or "bounded" in implementation_approval,
-            "BP3 implementation approval must stay bounded and cannot imply broad Workstream authority",
+            (
+                "admitted same-branch workstream package" in implementation_approval
+                or "bounded workstream package" in implementation_approval
+            )
+            and "entry checkpoint" in implementation_approval
+            and "workstream green" in implementation_approval,
+            "BP3 implementation approval must name bounded Workstream package execution, entry checkpoint, and Workstream Green continuation",
         )
     return failures
 
@@ -1270,7 +1287,7 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
         "## Accepted Branch Vision\nFixture accepted Branch Vision requires substantive review packets before implementation-ready validation can pass.\n\n"
         "## Family-Vision Versus Branch-Only Vision Impact\nBranch-only unless USER response creates a reusable family standard.\n\n"
         "## Must-Have Behavior\nBP1 remains a USER gate before BP2.\n\n"
-        "## Must-Not-Do / Regression-Risk Rules\nDo not treat packet validation as USER acceptance.\n\n"
+        "## Future-Gated Decisions And Regression-Risk Controls\nRegression-risk control: packet validation is reviewability evidence, not USER acceptance.\n\n"
         "## Deferred And Future-Gated Ideas\nImplementation remains future-gated.\n\n"
         "## Vision Question Queue\nPending USER review.\n\n"
         "## Design Assumption Ledger\nUSER Branch Vision acceptance is required unless explicitly waived.\n\n"
@@ -1311,7 +1328,7 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
 
     failures: list[str] = []
     with tempfile.TemporaryDirectory() as temp_dir:
-        export_zip = Path(temp_dir) / "Governance.zip"
+        export_zip = Path(temp_dir) / "Governance-20260601-120000.zip"
         with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
             for name, text in packet_files.items():
                 archive.writestr(name, text)
@@ -1322,6 +1339,7 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
                 source_branch=current_branch,
                 source_head=current_head,
                 origin_main=current_origin_main,
+                expected_label="Governance",
                 expected_entries=set(packet_files),
             )
         except ValueError as exc:
@@ -1336,6 +1354,7 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
                 source_branch="wrong-branch",
                 source_head="0" * 40,
                 origin_main="1" * 40,
+                expected_label="Governance",
                 expected_entries=set(packet_files),
             )
         except ValueError as exc:
@@ -1344,6 +1363,28 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
             wrong_failures = ""
             failures.append("Invalid USER review export zip identity fixture unexpectedly passed")
 
+        stable_zip = Path(temp_dir) / "Governance.zip"
+        with zipfile.ZipFile(stable_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, text in packet_files.items():
+                archive.writestr(name, text)
+        try:
+            review_bundle._validate_export_zip(
+                stable_zip,
+                source_branch=current_branch,
+                source_head=current_head,
+                origin_main=current_origin_main,
+                expected_label="Governance",
+                expected_entries=set(packet_files),
+            )
+        except ValueError as exc:
+            stale_name_failures = str(exc)
+        else:
+            stale_name_failures = ""
+            failures.append("Invalid stable-name USER review export zip unexpectedly passed")
+        if "creation timestamp" not in stale_name_failures:
+            failures.append(
+                "Invalid stable-name USER review export zip did not reject missing timestamp"
+            )
     for expected in (
         "expected branch",
         "expected HEAD",
@@ -1353,6 +1394,44 @@ def _validate_user_review_bundle_export_zip_identity_guard() -> list[str]:
             failures.append(
                 "Invalid USER review export zip identity fixture did not reject "
                 f"{expected}"
+            )
+    return failures
+
+
+def _validate_user_review_bundle_export_zip_cleanup_guard() -> list[str]:
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        legacy_zip = review_root / "FAM-007.zip"
+        stale_timestamped_zip = review_root / "FAM-007-20260601-111111.zip"
+        other_label_zip = review_root / "FAM-006-20260601-111111.zip"
+        malformed_same_label_zip = review_root / "FAM-007-not-a-timestamp.zip"
+        export_zip = review_root / "FAM-007-20260601-222222.zip"
+        for path in (
+            legacy_zip,
+            stale_timestamped_zip,
+            other_label_zip,
+            malformed_same_label_zip,
+        ):
+            path.write_text("fixture", encoding="utf-8")
+
+        review_bundle._remove_stale_same_label_export_zips(
+            review_root,
+            "FAM-007",
+            export_zip,
+        )
+
+        if legacy_zip.exists():
+            failures.append("USER review zip cleanup left legacy same-name FAM-007.zip")
+        if stale_timestamped_zip.exists():
+            failures.append(
+                "USER review zip cleanup left previous same-label timestamped FAM-007 zip"
+            )
+        if not other_label_zip.exists():
+            failures.append("USER review zip cleanup removed a different worktree-label zip")
+        if not malformed_same_label_zip.exists():
+            failures.append(
+                "USER review zip cleanup removed a non-timestamped same-prefix file"
             )
     return failures
 
@@ -1437,6 +1516,266 @@ def _validate_fam007_workstream_approval_packet_metadata_guard() -> list[str]:
     if "validation summary" in text.casefold():
         failures.append(
             "FAM-007 workstream approval packet still emits forbidden validation-summary wording"
+        )
+    if "seam 1 only" in text.casefold() or "first bounded workstream seam only" in text.casefold():
+        failures.append(
+            "FAM-007 workstream approval packet must not treat the entry seam as terminal Workstream authority"
+        )
+    return failures
+
+
+def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
+    failures: list[str] = []
+    exact_decision = (
+        "I approve BP3 Workstream Entry / Orchestration Validation for the "
+        "FAM-007 Dev/Owner Skeleton Readiness packet review; Workstream "
+        "implementation remains pending separate USER approval."
+    )
+    copied = [
+        (
+            "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
+            "feature_fam_007_dev_owner_skeleton_readiness.md",
+        )
+    ]
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-007-dev-owner-skeleton-readiness",
+            source_head="fixture-head",
+            origin_main="fixture-origin-main",
+            packet_folder=target,
+            export_zip=target / "FAM-007-20260601-120000.zip",
+            copied=copied,
+            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            bundle_file_count=6,
+            expected_count=len(copied),
+            copied_count=len(copied),
+            exact_user_decision=exact_decision,
+            pending_user_decisions=["Workstream implementation remains pending USER approval."],
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "USER Decision This Packet Supports: "
+                f"{exact_decision}\n"
+                "Decision Path Summary: bp3 orchestration review\n"
+                "BP3 Packet Reviewability State: Reviewable\n"
+                "BP3 USER Gate State: Pending USER Review\n"
+            )
+        }
+        for path in target.glob("*.md"):
+            packet_files[path.name] = path.read_text(encoding="utf-8")
+
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="feature/fam-007-dev-owner-skeleton-readiness",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+    )
+    if result.status != review_bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
+        failures.append(
+            "FAM-007 BP3 generated packet did not classify as bp3-orchestration-review: "
+            f"{result.status}; {result.failures[:3]}"
+        )
+    combined = "\n".join(packet_files.values()).casefold()
+    if "workstream entry final decision review" in combined:
+        failures.append(
+            "FAM-007 BP3 generated packet still emits stale Workstream Entry final-decision wording"
+        )
+    if "implementation approval: approved" in combined:
+        failures.append(
+            "FAM-007 BP3 generated packet incorrectly approves implementation"
+        )
+    if "seam 1 only" in combined or "first bounded workstream seam only" in combined:
+        failures.append(
+            "FAM-007 BP3 generated packet must not emit first-seam-only Workstream approval wording"
+        )
+    primary_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
+    required_primary_sections = [
+        "## Plain-Language BP3 Readiness Summary",
+        "## Accepted BP1 Vision Traceability",
+        "## Accepted BP2 Plan Traceability",
+        "## Proposed Workstream Implementation Order",
+        "## Seam / SLC Readiness Assessment",
+        "## Expected Files / Helpers / Validators / Fixtures / Review Artifacts",
+        "## Direct Proof Plan",
+        "## Rollback And Reversibility Posture",
+        "## Drift Controls",
+        "## Unresolved Blockers And Pending USER Decisions",
+        "## Codex Readiness Recommendation",
+        "## Specific USER Readiness Questions",
+        "## Exact BP3 USER Decision Options",
+    ]
+    missing_sections = [
+        section for section in required_primary_sections if section not in primary_digest
+    ]
+    if missing_sections:
+        failures.append(
+            "FAM-007 BP3 primary digest is missing readiness-contract sections: "
+            + "; ".join(missing_sections)
+        )
+    required_primary_proof_terms = [
+        "No-private-action proof",
+        "Public-leak prevention",
+        "Provider-state inactivity",
+        "Runtime/cache/memory deferral",
+        "GitHub Desktop binding absence",
+        "Backup/import deferral",
+        "Artifact identity proof",
+        "External-state proof",
+    ]
+    missing_proof_terms = [
+        term for term in required_primary_proof_terms if term not in primary_digest
+    ]
+    if missing_proof_terms:
+        failures.append(
+            "FAM-007 BP3 primary digest is missing direct-proof topics: "
+            + "; ".join(missing_proof_terms)
+        )
+    if "Seam 5 - Packet, fixture, validator, and fold-down proof" not in primary_digest:
+        failures.append(
+            "FAM-007 BP3 primary digest must cover the full accepted seam route, "
+            "not only the first Workstream seam"
+        )
+    return failures
+
+
+def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[str]:
+    failures: list[str] = []
+    exact_decision = (
+        "BP1, BP2, and BP3 are accepted; approve bounded Workstream package "
+        "implementation for the FAM-007 Dev/Owner Skeleton Readiness same-branch "
+        "package with Seam 1 as the entry checkpoint and continuation until "
+        "Workstream Green."
+    )
+    copied = [
+        (
+            "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
+            "feature_fam_007_dev_owner_skeleton_readiness.md",
+        )
+    ]
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-007-dev-owner-skeleton-readiness",
+            source_head="fixture-head",
+            origin_main="fixture-origin-main",
+            packet_folder=target,
+            export_zip=target / "FAM-007-20260601-120000.zip",
+            copied=copied,
+            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            bundle_file_count=6,
+            expected_count=len(copied),
+            copied_count=len(copied),
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Hardening, Live Validation, PR, merge, release, private setup, "
+                "provider/runtime/cache/memory behavior, and cleanup remain future "
+                "USER decisions."
+            ],
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "USER Decision This Packet Supports: "
+                f"{exact_decision}\n"
+                "Decision Path Summary: implementation-ready - BP1, BP2, and BP3 "
+                "are accepted; bounded Workstream package implementation is "
+                "approved by this packet with Seam 1 as the entry checkpoint.\n"
+            )
+        }
+        for path in target.glob("*.md"):
+            packet_files[path.name] = path.read_text(encoding="utf-8")
+        review_bundle._write_user_branch_plan_review(
+            target=target,
+            title="FAM-007 Dev/Owner Skeleton Readiness",
+            review_purpose="Fixture Workstream implementation approval support file.",
+            source_branch="feature/fam-007-dev-owner-skeleton-readiness",
+            source_head="fixture-head",
+            upstream="origin/feature/fam-007-dev-owner-skeleton-readiness",
+            origin_main="fixture-origin-main",
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Hardening, Live Validation, PR, merge, release, private setup, "
+                "provider/runtime/cache/memory behavior, and cleanup remain future "
+                "USER decisions."
+            ],
+            copied=copied,
+        )
+        branch_plan_review = (
+            target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+        ).read_text(encoding="utf-8")
+        packet_files[review_bundle.USER_BRANCH_PLAN_REVIEW_FILE] = branch_plan_review
+
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="feature/fam-007-dev-owner-skeleton-readiness",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+        require_implementation_ready=True,
+    )
+    if result.status != review_bundle.DECISION_STATUS_IMPLEMENTATION_READY:
+        failures.append(
+            "FAM-007 Workstream implementation approval packet did not classify "
+            f"as implementation-ready: {result.status}; {result.failures[:3]}"
+        )
+    combined = "\n".join(packet_files.values()).casefold()
+    forbidden_bp3_review_terms = [
+        "bp3 packet reviewability state: reviewable",
+        "bp3 user gate state: pending user review",
+        "workstream implementation itself remains a separate future user decision",
+        "exact bp3 user decision options",
+    ]
+    emitted_forbidden_terms = [
+        term for term in forbidden_bp3_review_terms if term in combined
+    ]
+    if emitted_forbidden_terms:
+        failures.append(
+            "FAM-007 Workstream implementation approval packet emitted BP3 review "
+            "or pending-gate wording despite implementation approval: "
+            + "; ".join(emitted_forbidden_terms)
+        )
+    support_file_forbidden_terms = [
+        "pending user response",
+        "bp3 active - workstream entry / orchestration validation",
+        "workstream implementation remains pending separate user approval",
+        "this packet does not authorize workstream implementation",
+    ]
+    emitted_support_file_terms = [
+        term for term in support_file_forbidden_terms
+        if term in branch_plan_review.casefold()
+    ]
+    if emitted_support_file_terms:
+        failures.append(
+            "FAM-007 Workstream implementation approval support BP2 file emitted "
+            "pending or BP3-only wording: "
+            + "; ".join(emitted_support_file_terms)
+        )
+    support_file_required_terms = [
+        "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is accepted",
+        "Status: Accepted by USER - this BP2 support file is closed as accepted engineering-plan context",
+        "Implementation-ready - BP1, BP2, and BP3 are accepted",
+    ]
+    missing_support_terms = [
+        term for term in support_file_required_terms if term not in branch_plan_review
+    ]
+    if missing_support_terms:
+        failures.append(
+            "FAM-007 Workstream implementation approval support BP2 file is missing "
+            "accepted implementation-ready context: "
+            + "; ".join(missing_support_terms)
+        )
+    required_terms = [
+        "bounded Workstream package implementation is approved",
+        "Seam 1 as the entry checkpoint",
+        "Continuation must proceed one active same-branch seam at a time until Workstream Green",
+    ]
+    missing_required_terms = [term for term in required_terms if term not in "\n".join(packet_files.values())]
+    if missing_required_terms:
+        failures.append(
+            "FAM-007 Workstream implementation approval packet is missing "
+            "implementation-ready terms: "
+            + "; ".join(missing_required_terms)
         )
     return failures
 
@@ -1560,6 +1899,7 @@ def validate() -> list[str]:
         INVALID_BP1_MISSING_CONTEXT_FIXTURE,
         INVALID_BP1_SHALLOW_RECOMMENDATIONS_FIXTURE,
         INVALID_BP1_TEMPLATE_SHELL_FIXTURE,
+        INVALID_BP1_PROCESS_MECHANICS_FIXTURE,
         INVALID_BP1_COPIED_FILE_SURFACE_ONLY_FIXTURE,
         INVALID_BP1_GENERIC_USER_QUESTIONS_FIXTURE,
         INVALID_BP1_SLC_CENTERED_FIXTURE,
@@ -2075,6 +2415,16 @@ def validate() -> list[str]:
             "Invalid BP1 template-shell fixture did not reject instructional placeholder content"
         )
 
+    process_mechanics_failures = _validate_bp1_branch_vision_review_text(
+        INVALID_BP1_PROCESS_MECHANICS_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_BP1_TEMPLATE_SHELL_FAILURE_SNIPPET not in "\n".join(
+        process_mechanics_failures
+    ):
+        failures.append(
+            "Invalid BP1 process-mechanics fixture did not reject process-only BP1 review content"
+        )
+
     copied_surface_failures = _validate_bp1_branch_vision_review_text(
         INVALID_BP1_COPIED_FILE_SURFACE_ONLY_FIXTURE.read_text(encoding="utf-8")
     )
@@ -2237,8 +2587,11 @@ def validate() -> list[str]:
     failures.extend(_validate_user_review_bundle_identity_guard())
     failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
+    failures.extend(_validate_user_review_bundle_export_zip_cleanup_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
+    failures.extend(_validate_fam007_bp3_packet_generation_guard())
+    failures.extend(_validate_fam007_workstream_implementation_packet_priority_guard())
 
     return failures
 

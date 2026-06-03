@@ -265,6 +265,7 @@ EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY = (
     "C:/Nexus Governance State/branches/"
 )
 EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_FILE = "branch_plan.md"
+EXTERNAL_BRANCH_OPERATIONAL_STATE_FILE = "branch_state.md"
 BRANCH_RUNTIME_ENGINEERING_PLAN_MIN_WORDS = 8
 BRANCH_RUNTIME_ENGINEERING_PLAN_STATUS_TERMS = (
     "required",
@@ -3719,7 +3720,7 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
     ),
     Path("Docs/development_rules.md"): (
         "Runtime BP3 with multiple admitted slices or seams",
-        "whole-package analysis before first-seam implementation",
+        "whole-package analysis before entry-seam implementation",
         "Workstream Entry Whole-Package Analysis Missing",
     ),
     Path("Docs/codex_modes.md"): (
@@ -3742,11 +3743,11 @@ WORKSTREAM_ENTRY_WHOLE_PACKAGE_REQUIRED_PHRASES = {
     ),
     Path("Docs/nexus_startup_contract.md"): (
         "Workstream Entry whole-package analysis",
-        "first-seam implementation",
+        "entry-seam implementation",
         "Workstream Entry Whole-Package Analysis Missing",
     ),
     Path("Docs/codex_user_guide.md"): (
-        "whole-package analysis before first-seam implementation approval",
+        "whole-package analysis before entry-seam implementation approval",
         "first-seam-only handoff is not enough",
     ),
     Path("Docs/governance_efficiency_operating_model.md"): (
@@ -8155,6 +8156,42 @@ def _branch_record_for_branch(
         if _extract_branch_identity_branch(record_text) == branch_name:
             return branch_record_path, record_text
     return "", ""
+
+
+def _external_branch_state_record_for_branch(
+    branch_name: str,
+    actual_root: str,
+) -> tuple[str, str]:
+    if not branch_name:
+        return "", ""
+    state_path = (
+        Path(EXTERNAL_BRANCH_RUNTIME_ENGINEERING_PLAN_DIRECTORY)
+        / _branch_ref_file_stem(branch_name)
+        / EXTERNAL_BRANCH_OPERATIONAL_STATE_FILE
+    )
+    if not state_path.exists():
+        return "", ""
+    state_text = _read_text(state_path)
+    state_branch = _extract_marker_value(state_text, "Branch")
+    if state_branch != branch_name:
+        return "", ""
+    state_worktree = _extract_marker_value(state_text, "Worktree")
+    if (
+        actual_root
+        and state_worktree
+        and _normalized_local_path(state_worktree) != _normalized_local_path(actual_root)
+    ):
+        return "", ""
+    record_pointer = _extract_marker_value(state_text, "Repo Branch Record Pointer")
+    if not record_pointer:
+        return "", ""
+    record_path = ROOT_DIR / Path(record_pointer)
+    if not record_path.is_file():
+        return "", ""
+    record_text = _read_text(Path(record_pointer))
+    if _extract_branch_identity_branch(record_text) != branch_name:
+        return "", ""
+    return record_pointer, record_text
 
 
 def _user_test_summary_section(text: str) -> str:
@@ -19506,6 +19543,11 @@ def _run_worktree_confinement_gate(require) -> None:
         branch_name,
     )
     if not record_text:
+        record_path, record_text = _external_branch_state_record_for_branch(
+            branch_name,
+            actual_root,
+        )
+    if not record_text:
         historical_branch_record_paths = _collect_branch_record_paths(
             branch_record_index_text,
             "Historical Branch Authority Records",
@@ -19534,7 +19576,8 @@ def _run_worktree_confinement_gate(require) -> None:
         bool(record_text),
         (
             "Assigned Worktree Confinement gate requires the current branch to have an "
-            "active branch authority record or a PR Readiness Stage 1 historical authority projection"
+            "active branch authority record, matching external branch-state record, "
+            "or a PR Readiness Stage 1 historical authority projection"
         ),
     )
     if not record_text:
