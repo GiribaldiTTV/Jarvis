@@ -1664,6 +1664,26 @@ def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[s
         }
         for path in target.glob("*.md"):
             packet_files[path.name] = path.read_text(encoding="utf-8")
+        review_bundle._write_user_branch_plan_review(
+            target=target,
+            title="FAM-007 Dev/Owner Skeleton Readiness",
+            review_purpose="Fixture Workstream implementation approval support file.",
+            source_branch="feature/fam-007-dev-owner-skeleton-readiness",
+            source_head="fixture-head",
+            upstream="origin/feature/fam-007-dev-owner-skeleton-readiness",
+            origin_main="fixture-origin-main",
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Hardening, Live Validation, PR, merge, release, private setup, "
+                "provider/runtime/cache/memory behavior, and cleanup remain future "
+                "USER decisions."
+            ],
+            copied=copied,
+        )
+        branch_plan_review = (
+            target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+        ).read_text(encoding="utf-8")
+        packet_files[review_bundle.USER_BRANCH_PLAN_REVIEW_FILE] = branch_plan_review
 
     result = review_bundle._validate_workstream_entry_packet_decision_path(
         packet_files,
@@ -1692,6 +1712,36 @@ def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[s
             "FAM-007 Workstream implementation approval packet emitted BP3 review "
             "or pending-gate wording despite implementation approval: "
             + "; ".join(emitted_forbidden_terms)
+        )
+    support_file_forbidden_terms = [
+        "pending user response",
+        "bp3 active - workstream entry / orchestration validation",
+        "workstream implementation remains pending separate user approval",
+        "this packet does not authorize workstream implementation",
+    ]
+    emitted_support_file_terms = [
+        term for term in support_file_forbidden_terms
+        if term in branch_plan_review.casefold()
+    ]
+    if emitted_support_file_terms:
+        failures.append(
+            "FAM-007 Workstream implementation approval support BP2 file emitted "
+            "pending or BP3-only wording: "
+            + "; ".join(emitted_support_file_terms)
+        )
+    support_file_required_terms = [
+        "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is accepted",
+        "Status: Accepted by USER - this BP2 support file is closed as accepted engineering-plan context",
+        "Implementation-ready - BP1, BP2, and BP3 are accepted",
+    ]
+    missing_support_terms = [
+        term for term in support_file_required_terms if term not in branch_plan_review
+    ]
+    if missing_support_terms:
+        failures.append(
+            "FAM-007 Workstream implementation approval support BP2 file is missing "
+            "accepted implementation-ready context: "
+            + "; ".join(missing_support_terms)
         )
     required_terms = [
         "bounded Workstream package implementation is approved",

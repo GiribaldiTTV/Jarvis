@@ -3620,7 +3620,11 @@ def _write_user_branch_plan_review(
             "| PR / merge / release / cleanup | Separate phase approvals after implementation, H1, and LV gates. |",
             "",
         ]
-    if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2 and bp3_orchestration_packet:
+    if (
+        is_fam007_dev_owner_skeleton
+        and not is_fam007_breakpoint_2
+        and (bp3_orchestration_packet or workstream_package_approval_packet)
+    ):
         accepted_user_response = (
             "BP2 accepted - USER accepted the cleaned FAM-007 Dev/Owner Skeleton "
             "Readiness engineering plan. The accepted plan keeps Dev and Owner "
@@ -3630,35 +3634,74 @@ def _write_user_branch_plan_review(
             "private/runtime/provider/cache/memory gate."
         )
         user_response_text = (
+            "Status: Accepted by USER - this BP2 support file is closed as accepted "
+            "engineering-plan context for the implementation-ready Workstream package "
+            "approval packet."
+            if workstream_package_approval_packet
+            else
             "Status: Accepted by USER - this BP2 support file is closed as the "
             "accepted engineering-plan context for the active BP3 Workstream Entry / "
             "Orchestration Validation packet."
         )
         codex_response_digest = (
+            "Codex digested USER BP2 acceptance through BP3 acceptance into Workstream "
+            "package approval context. The accepted BP2 plan remains the engineering "
+            "basis for the bounded same-branch Workstream package, with Seam 1 as "
+            "the entry checkpoint and continuation governed until Workstream Green."
+            if workstream_package_approval_packet
+            else
             "Codex digested USER BP2 acceptance into BP3 readiness context. BP3 "
             "must verify that the accepted BP2 plan implements the accepted BP1 "
             "vision, that seams/SLCs trace to both contracts, and that Workstream "
             "implementation remains blocked until USER later approves a bounded seam."
         )
         workstream_entry_result = (
+            "Implementation-ready - BP1, BP2, and BP3 are accepted; bounded "
+            "Workstream package implementation is approved by this packet with "
+            "Seam 1 as the entry checkpoint and continuation governed until "
+            "Workstream Green, a real blocker, or explicit USER waiver."
+            if workstream_package_approval_packet
+            else
             "BP3 active - Workstream Entry / Orchestration Validation is the "
             "current review gate. BP3 may recommend the first bounded Workstream "
             "seam, but this packet does not authorize Workstream implementation."
         )
         contract_status = (
+            "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is accepted "
+            "and this packet records bounded Workstream package implementation approval."
+            if workstream_package_approval_packet
+            else
             "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is the "
             "active Workstream Entry / Orchestration Validation gate."
         )
         contract_version = (
+            "v7 - BP2 acceptance digested through BP3 acceptance into Workstream "
+            "implementation-ready support context."
+            if workstream_package_approval_packet
+            else
             "v6 - BP2 acceptance digested into BP3 orchestration-readiness support context."
         )
         plain_english_summary = (
+            "This support file records the accepted BP2 engineering plan for the "
+            "FAM-007 Dev/Owner Skeleton Readiness carrier. The active packet is "
+            "implementation-ready: BP3 has been accepted and USER is approving the "
+            "bounded same-branch Workstream package with Seam 1 as the entry checkpoint."
+            if workstream_package_approval_packet
+            else
             "This support file records the accepted BP2 engineering plan for the "
             "FAM-007 Dev/Owner Skeleton Readiness carrier. The active packet is BP3: "
             "it checks whether the accepted vision and accepted plan are ready to "
             "become a bounded Workstream implementation request later."
         )
         what_user_sees = (
+            "The primary Workstream approval decision file lives under USER Review. "
+            "This BP2 file is supporting context under Review Aids: it shows the "
+            "accepted plan that the approved Workstream package must follow, including "
+            "Dev/Owner readiness matrices, root/remote gates, GitHub Desktop safety, "
+            "backup/import deferral, provider/runtime/cache/memory deferral, proof "
+            "expectations, H1/LV/UTS expectations, and rollback posture."
+            if workstream_package_approval_packet
+            else
             "The primary BP3 decision file lives under USER Review. This BP2 file "
             "is supporting context under Review Aids: it shows the accepted plan "
             "that BP3 must trace, including Dev/Owner readiness matrices, root/remote "
@@ -3667,62 +3710,156 @@ def _write_user_branch_plan_review(
             "rollback posture."
         )
         current_scope = [
-            "BP3 Workstream Entry / Orchestration Validation packet generation and reviewability.",
+            (
+                "Bounded same-branch Workstream package implementation approval with "
+                "Seam 1 as the entry checkpoint."
+                if workstream_package_approval_packet
+                else
+                "BP3 Workstream Entry / Orchestration Validation packet generation and reviewability."
+            ),
             "Accepted BP1 and accepted BP2 traceability proof.",
-            "Whole-package Workstream orchestration review only; no Workstream implementation.",
+            (
+                "Workstream continuation must proceed one active same-branch seam at a "
+                "time until Workstream Green, a real blocker, or explicit USER waiver."
+                if workstream_package_approval_packet
+                else
+                "Whole-package Workstream orchestration review only; no Workstream implementation."
+            ),
         ]
         future_scope = [
-            "Workstream implementation remains pending a later explicit USER decision after BP3 review.",
+            (
+                "Hardening, Live Validation, PR, merge, release, cleanup, and any "
+                "post-Workstream phase remain future USER-gated phases."
+                if workstream_package_approval_packet
+                else
+                "Workstream implementation remains pending a later explicit USER decision after BP3 review."
+            ),
             "Private Dev/Owner setup, private roots/remotes, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, PR, merge, release, cleanup, sibling mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain future-gated.",
         ]
         user_decisions = [
-            "Does USER approve, revise, waive, reject, or hold BP3 Workstream Entry / Orchestration Validation?",
+            (
+                "Does USER approve bounded Workstream package implementation with Seam 1 "
+                "as the entry checkpoint and continuation until Workstream Green?"
+                if workstream_package_approval_packet
+                else
+                "Does USER approve, revise, waive, reject, or hold BP3 Workstream Entry / Orchestration Validation?"
+            ),
             "Does USER agree the accepted BP2 plan implements the accepted BP1 vision without changing the Dev/Owner direction?",
-            "Does USER agree Seam 1 should be the entry implementation checkpoint for the bounded Workstream package after separate Workstream approval?",
+            (
+                "Does USER agree Seam 1 starts the approved Workstream package rather "
+                "than limiting the package to Seam 1 only?"
+                if workstream_package_approval_packet
+                else
+                "Does USER agree Seam 1 should be the entry implementation checkpoint for the bounded Workstream package after separate Workstream approval?"
+            ),
             "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
         ]
         completion_checklist = [
             "BP1 Contract Status is Complete or Waived by USER.",
             "BP2 Contract Status is Complete or Waived by USER.",
-            "BP3 packet reviewability is Reviewable while BP3 USER approval remains pending.",
+            (
+                "BP3 is accepted or waived and Workstream package approval is recorded "
+                "separately from BP3 reviewability."
+                if workstream_package_approval_packet
+                else
+                "BP3 packet reviewability is Reviewable while BP3 USER approval remains pending."
+            ),
             "Seam/SLC traceability to BP1 and BP2 is present.",
-            "Workstream implementation remains pending separate USER approval.",
+            (
+                "Bounded Workstream package implementation is approved with Seam 1 as "
+                "the entry checkpoint."
+                if workstream_package_approval_packet
+                else
+                "Workstream implementation remains pending separate USER approval."
+            ),
         ]
         implementation_options = [
-            "Approve BP3 as reviewable and green, then request the separate bounded Workstream package implementation approval packet with the entry seam named.",
-            "Revise BP3 orchestration order, proof expectations, or first-seam recommendation before implementation approval is considered.",
-            "Waive unresolved BP3 questions and proceed to a separate bounded Workstream approval packet.",
-            "Reject or hold BP3 and keep the branch in Branch Planning.",
+            *(
+                [
+                    "Approve bounded Workstream package implementation as recommended.",
+                    "Revise the entry checkpoint, seam order, or proof expectations before Workstream execution continues.",
+                    "Waive unresolved Workstream approval questions and proceed under the accepted same-branch package constraints.",
+                    "Reject or hold Workstream approval and keep the branch before implementation.",
+                ]
+                if workstream_package_approval_packet
+                else
+                [
+                    "Approve BP3 as reviewable and green, then request the separate bounded Workstream package implementation approval packet with the entry seam named.",
+                    "Revise BP3 orchestration order, proof expectations, or first-seam recommendation before implementation approval is considered.",
+                    "Waive unresolved BP3 questions and proceed to a separate bounded Workstream approval packet.",
+                    "Reject or hold BP3 and keep the branch in Branch Planning.",
+                ]
+            ),
         ]
         recommended_direction = (
+            "Codex recommends approving the bounded Workstream package only if USER "
+            "agrees BP3 is accepted, Seam 1 is the entry checkpoint rather than a "
+            "terminal slice, and all private/runtime/provider/cache/memory actions "
+            "remain future-gated."
+            if workstream_package_approval_packet
+            else
             "Codex recommends BP3 approval only if USER agrees the accepted BP2 plan "
             "faithfully implements BP1, the first Workstream seam starts with "
             "public-safe action-gate registry and exact USER decision proof, and all "
             "private/runtime/provider/cache/memory actions remain future-gated."
         )
         user_decisions_intro = (
+            "USER is reviewing bounded Workstream package approval now. This support "
+            "file confirms BP2 is accepted and BP3 is accepted; the active decision "
+            "is whether Codex may execute the admitted same-branch Workstream package "
+            "starting at Seam 1."
+            if workstream_package_approval_packet
+            else
             "USER is reviewing BP3 now. This support file confirms BP2 is accepted; "
             "the active decision is whether BP3 orchestration is correct before any "
             "later bounded Workstream approval is requested."
         )
         design_ballot = [
-            "Approve BP3 as recommended.",
-            "Approve BP3 with changes.",
-            "Revise BP3 and regenerate the packet.",
-            "Waive unresolved BP3 questions.",
-            "Reject or hold BP3.",
+            *(
+                [
+                    "Approve bounded Workstream package implementation as recommended.",
+                    "Approve Workstream package implementation with changes.",
+                    "Revise the Workstream approval packet.",
+                    "Waive unresolved Workstream approval questions.",
+                    "Reject or hold Workstream approval.",
+                ]
+                if workstream_package_approval_packet
+                else
+                [
+                    "Approve BP3 as recommended.",
+                    "Approve BP3 with changes.",
+                    "Revise BP3 and regenerate the packet.",
+                    "Waive unresolved BP3 questions.",
+                    "Reject or hold BP3.",
+                ]
+            ),
         ]
         response_structure = [
-            "Decision: approve, revise, waive, reject, or hold BP3.",
-            "Required orchestration or proof changes, if any.",
+            (
+                "Decision: approve, revise, waive, reject, or hold bounded Workstream package implementation."
+                if workstream_package_approval_packet
+                else
+                "Decision: approve, revise, waive, reject, or hold BP3."
+            ),
+            "Required orchestration, seam, or proof changes, if any.",
             "First-seam preference or constraints.",
             "Future-gated boundary controls.",
             "General response.",
         ]
         digest_structure = [
-            "USER BP3 disposition.",
-            "Accepted or revised orchestration order.",
-            "First bounded Workstream seam approved for a later packet, if any.",
+            (
+                "USER Workstream package approval disposition."
+                if workstream_package_approval_packet
+                else
+                "USER BP3 disposition."
+            ),
+            "Accepted or revised orchestration and seam order.",
+            (
+                "Approved entry checkpoint and continuation constraints."
+                if workstream_package_approval_packet
+                else
+                "First bounded Workstream seam approved for a later packet, if any."
+            ),
             "Implementation constraints created by USER response.",
             "Source-truth or packet updates required.",
             "Next USER decision needed.",
