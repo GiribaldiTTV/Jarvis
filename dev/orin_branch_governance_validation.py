@@ -12814,8 +12814,9 @@ def _branch_record_live_state_leakage_findings(
 
 
 def _run_branch_record_live_state_leakage_fixtures(require) -> None:
+    fixture_root = ROOT_DIR / BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
     invalid_fixtures = sorted(
-        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR.glob("invalid_*.md")
+        fixture_root.glob("invalid_*.md")
     )
     valid_fixture = (
         BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
@@ -12827,7 +12828,8 @@ def _run_branch_record_live_state_leakage_fixtures(require) -> None:
         f"{BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR}: missing invalid branch-record leakage fixtures",
     )
     for invalid_fixture in invalid_fixtures:
-        invalid_text = _read_text(invalid_fixture)
+        invalid_fixture_relative = invalid_fixture.relative_to(ROOT_DIR)
+        invalid_text = _read_text(invalid_fixture_relative)
         require(
             bool(
                 _branch_record_live_state_leakage_findings(
@@ -12837,7 +12839,7 @@ def _run_branch_record_live_state_leakage_fixtures(require) -> None:
                 )
             ),
             (
-                f"{invalid_fixture}: branch-record live-state leakage fixture must fail; "
+                f"{invalid_fixture_relative}: branch-record live-state leakage fixture must fail; "
                 "unindexed live branch records cannot pass as durable receipts"
             ),
         )
