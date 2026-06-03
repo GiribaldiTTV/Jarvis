@@ -630,7 +630,7 @@ def _remove_stale_same_label_export_zips(review_root: Path, label: str, export_z
     candidates = [_legacy_stable_export_zip_path(review_root, label)]
     candidates.extend(
         path.resolve()
-        for path in review_root.glob(f"{safe_label}-*.zip")
+        for path in review_root.glob("*.zip")
         if timestamped_name.fullmatch(path.name)
     )
     for candidate in sorted(set(candidates)):
