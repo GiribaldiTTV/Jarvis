@@ -68,6 +68,7 @@ def validate() -> list[str]:
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
+    family_vision = _read("Docs/family_visions/FAM-006_monitoring_and_hud.md")
     output_contract = _read("desktop/recording_output_contract.py")
     workstream_readiness = _read("dev/orin_fam006_workstream_readiness.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -1334,10 +1335,41 @@ def validate() -> list[str]:
     for needle in (
         "monitoring-hud__recording-target-preview",
         "monitoring-hud__recording-target-actions",
-        "--recording-card-live-visual-proof: focused-target-preview-required",
-        "--recording-card-row-visual-contract: contained-row-no-sliced-divider",
+        "--recording-card-live-visual-proof: dashboard-card-system-sampled",
+        "--recording-card-row-visual-contract: inherits-dashboard-state-row",
     ):
         _require_contains(css, needle, "SLC-052 Dashboard Recording card target/status CSS", failures)
+
+    for needle in (
+        'data-recording-card-visual-system="dashboard-hub-card-sampled"',
+        'data-recording-card-sampled-elements="hud-overlay-monitor-groups-data-sources-readiness"',
+    ):
+        _require_contains(html, needle, "SLC-052 Dashboard Recording card visual-system inheritance markers", failures)
+
+    for needle in (
+        'recordingCardVisualSystem = "dashboard-hub-card-sampled"',
+        'recordingCardSampledElements = "hud-overlay-monitor-groups-data-sources-readiness"',
+    ):
+        _require_contains(js, needle, "SLC-052 Dashboard Recording card active visual-system mirror", failures)
+
+    for forbidden in (
+        "--recording-card-live-visual-proof: focused-target-preview-required",
+        "--recording-card-row-visual-contract: contained-row-no-sliced-divider",
+        ".monitoring-hud__hub-card--recording {\n  border-color:",
+        ".monitoring-hud__hub-card--recording .monitoring-hud__hub-card-topline span",
+    ):
+        _require(
+            forbidden not in css,
+            "SLC-052 Recording card must sample the Dashboard card visual system instead of carrying custom Recording-only chrome",
+            failures,
+        )
+
+    for needle in (
+        "New Dashboard, HUD, Overlay Profile, Monitor Group, Recording, Sensor Command Center, or child-window UI must sample from the existing FAM-006 visual system",
+        "The Dashboard Recording card must look and behave like an existing Dashboard hub card",
+        "Implementation must hold itself to this vision contract",
+    ):
+        _require_contains(family_vision, needle, "FAM-006 family visual-system inheritance contract", failures)
 
     for needle in (
         "recordingCard: rectFor('[data-dashboard-hub-card=\"recording\"]')",
@@ -1345,6 +1377,13 @@ def validate() -> list[str]:
         'recordingControlLauncher: rectFor("#monitoring-hud-recording-control-launcher")',
     ):
         _require_contains(js, needle, "SLC-052 Dashboard Recording card live geometry proof", failures)
+
+    for needle in (
+        "dashboard-card-system-sampled",
+        "inherits-dashboard-state-row",
+        "02_recording_card_target_preview_standard_state_rows",
+    ):
+        _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
 
     for needle in (
         'data-package="PKG-006"',

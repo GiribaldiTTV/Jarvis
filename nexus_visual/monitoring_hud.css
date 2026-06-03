@@ -1112,49 +1112,22 @@ body.desktop-mode #monitoring-hud > * {
 
 .monitoring-hud__recording-target-preview {
   display: grid;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid rgba(117, 228, 255, 0.20);
-  border-radius: 8px;
-  background: rgba(8, 24, 30, 0.50);
-}
-
-.monitoring-hud__hub-card--recording {
-  border-color: rgba(157, 246, 218, 0.22);
-}
-
-.monitoring-hud__hub-card--recording .monitoring-hud__hub-card-topline span {
-  border-color: rgba(157, 246, 218, 0.22);
-  background: rgba(16, 54, 48, 0.62);
-  color: rgba(168, 250, 218, 0.92);
-}
-
-.monitoring-hud__hub-card--recording .monitoring-hud__recording-target-preview {
-  border-color: rgba(157, 246, 218, 0.24);
-  background: linear-gradient(180deg, rgba(11, 38, 36, 0.62), rgba(7, 24, 28, 0.68));
-  --recording-card-live-visual-proof: focused-target-preview-required;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  --recording-card-live-visual-proof: dashboard-card-system-sampled;
 }
 
 .monitoring-hud__recording-target-preview .monitoring-hud__state-row {
-  grid-template-columns: minmax(124px, 0.34fr) minmax(0, 1fr);
   min-height: 30px;
-  padding: 9px 10px;
-  border: 1px solid rgba(117, 228, 255, 0.16);
-  border-radius: 6px;
-  box-shadow: inset 0 0 0 1px rgba(157, 246, 218, 0.04);
-  background: rgba(4, 21, 24, 0.48);
-  background-image: none;
-  --recording-card-row-visual-contract: contained-row-no-sliced-divider;
-}
-
-.monitoring-hud__recording-target-preview .monitoring-hud__state-row > span {
-  padding-left: 0;
-  border-left: 0;
+  --recording-card-row-visual-contract: inherits-dashboard-state-row;
 }
 
 .monitoring-hud__recording-target-preview small {
   color: rgba(180, 211, 220, 0.82);
-  padding: 1px 2px;
+  padding: 1px 0;
 }
 
 .monitoring-hud__recording-target-actions {

@@ -392,6 +392,8 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
   if (monitoringHudRecordingCard) {
     monitoringHudRecordingCard.dataset.recordingCardPlacement = "dashboard-recording-card-primary";
     monitoringHudRecordingCard.dataset.recordingSurfaceOwner = "dashboard-card-not-hud-overlay";
+    monitoringHudRecordingCard.dataset.recordingCardVisualSystem = "dashboard-hub-card-sampled";
+    monitoringHudRecordingCard.dataset.recordingCardSampledElements = "hud-overlay-monitor-groups-data-sources-readiness";
     monitoringHudRecordingCard.dataset.activeOverlayProfileId = String(target.activeOverlayProfileId || "");
     monitoringHudRecordingCard.dataset.activeOverlayRecordingTargetState = String(target.targetState || "no-overlay-profiles");
     monitoringHudRecordingCard.dataset.activeOverlayRecordingTargetCount = String(count);
@@ -402,6 +404,8 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
   }
   if (monitoringHudRecordingTargetPreview) {
     monitoringHudRecordingTargetPreview.dataset.recordingTargetPreview = "slc-052-dashboard-recording-card-target-status";
+    monitoringHudRecordingTargetPreview.dataset.recordingCardVisualSystem = "dashboard-hub-card-sampled";
+    monitoringHudRecordingTargetPreview.dataset.recordingCardSampledElements = "hud-overlay-monitor-groups-data-sources-readiness";
     monitoringHudRecordingTargetPreview.dataset.activeOverlayProfileId = String(target.activeOverlayProfileId || "");
     monitoringHudRecordingTargetPreview.dataset.activeOverlayRecordingTargetState = String(target.targetState || "no-overlay-profiles");
     monitoringHudRecordingTargetPreview.dataset.activeOverlayRecordingTargetCount = String(count);
@@ -922,6 +926,7 @@ function monitoringHudCreateOverlayProfile() {
   monitoringHudPendingDeleteOverlayProfileId = "";
   monitoringHudSetOverlayProfileDraftFromProfile(monitoringHudOverlayProfilePendingCreate);
   monitoringHudClearOverlayProfileMembershipList();
+  monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
   monitoringHudRenderControls();
   monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
   setTimeout(() => {
@@ -2319,21 +2324,25 @@ function monitoringHudWireReliableControl(element, key, handler, options = {}) {
     monitoringHudApplyPressedState(element, false);
     if (!monitoringHudReliableActivationAllowed(activationKey)) return;
     const result = handler(event);
-    if (result !== false && options.activateOnPointerUp) {
+    if (result !== false && (options.activateOnPointerUp || options.activateOnPointerDown)) {
       element.dataset.reliablePointerActivatedAt = String(Date.now());
     }
     monitoringHudRecordReliableActivation(element, phase, result !== false);
   };
-  element.addEventListener("pointerdown", () => {
+  element.addEventListener("pointerdown", (event) => {
     monitoringHudApplyPressedState(element, true);
-    monitoringHudRecordReliableActivation(element, "pointerdown", true);
+    if (options.activateOnPointerDown) {
+      activate(event, "pointerdown");
+    } else {
+      monitoringHudRecordReliableActivation(element, "pointerdown", true);
+    }
   });
   if (options.activateOnPointerUp) {
     element.addEventListener("pointerup", (event) => activate(event, "pointerup"));
   }
   element.addEventListener("pointerleave", () => monitoringHudApplyPressedState(element, false));
   element.addEventListener("click", (event) => {
-    if (options.activateOnPointerUp) {
+    if (options.activateOnPointerUp || options.activateOnPointerDown) {
       const pointerActivatedAt = Number(element.dataset.reliablePointerActivatedAt || 0);
       if (pointerActivatedAt && Date.now() - pointerActivatedAt < 700) {
         if (event && typeof event.preventDefault === "function") event.preventDefault();
@@ -4645,7 +4654,7 @@ function monitoringHudWireControls() {
     });
   }
   if (monitoringHudOverlayProfileCreate) {
-    monitoringHudWireReliableControl(monitoringHudOverlayProfileCreate, "overlay-profile:create", monitoringHudCreateOverlayProfile, { activateOnPointerUp: true });
+    monitoringHudWireReliableControl(monitoringHudOverlayProfileCreate, "overlay-profile:create", monitoringHudCreateOverlayProfile, { activateOnPointerDown: true });
   }
   if (monitoringHudOverlayProfileSave) {
     monitoringHudWireReliableControl(monitoringHudOverlayProfileSave, "overlay-profile:save", () => {

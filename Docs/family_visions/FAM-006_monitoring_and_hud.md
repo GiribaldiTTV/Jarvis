@@ -11,10 +11,12 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 ## Accepted Direction
 
 - Dashboard should act as the polished control hub, not a debug/proof panel.
+- New Dashboard, HUD, Overlay Profile, Monitor Group, Recording, Sensor Command Center, or child-window UI must sample from the existing FAM-006 visual system before introducing any new visual grammar.
 - Provider, telemetry, no-data, degraded, disabled, and warning states must be truthful.
 - Overlay Profile and Monitor Group concepts should remain distinct and reviewable.
 - Recording should be active-overlay-driven, not a separately loaded Recording Profile. The active Overlay Profile determines what is recorded.
 - Visual proof must include focused per-element review for user-facing changes.
+- Visual proof must also prove visual-system inheritance: new cards, rows, controls, dividers, empty/deferred states, status fields, and child-window surfaces must match established FAM-006 color tokens, shape/radius, spacing, typography, row/divider treatment, button effects, hover/focus/disabled states, shadows/glows, scrollbar treatment, and layout density unless BP1/BP2/BP3 explicitly accepts a new visual grammar.
 - Deferred actions should be disabled, removed, or clearly labeled; they must not look broken.
 - Monitoring, HUD, telemetry, screenshots, recordings, logs, and support evidence must preserve local file hygiene, clear evidence roots, privacy-safe review posture, and no fake or hidden data collection.
 - Sensitive telemetry, recording, overlay, process, or performance surfaces must make provider/external telemetry boundaries explicit before any external data path is admitted.
@@ -25,6 +27,8 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Recording should not require a separate Recording Profile, duplicate monitor groups, or a recording-specific sensor chooser. The active Overlay Profile and its active membership define the recording target.
 - USER Live Validation feedback on 2026-06-02 changes the active recording surface direction: recording should live in its own small Dashboard Recording card, separate from the HUD Overlay card.
 - The Dashboard Recording card should own recording target/status presentation and future recording-specific controls after later approvals. It may read the active Overlay Profile as the target source, but it should not turn the Overlay card into a recording-control surface.
+- The Dashboard Recording card must look and behave like an existing Dashboard hub card. It should reuse the standard Dashboard card chrome, badge treatment, state-row/divider grammar, copy scale, action-button style, disabled/future-gated affordance, hover/focus effects, spacing, and density from the HUD Overlay, Monitor Groups, Data Sources, and Readiness cards unless USER accepts a later branch vision that changes the whole Dashboard visual system.
+- Recording-specific styling must not introduce a unique card color family, nested boxed table, custom row shape, custom glow, or separate visual hierarchy that makes the Recording card feel detached from the standardized Dashboard card format.
 - The HUD Overlay card should stay focused on overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions. It should not host recording-specific controls or be the primary recording launcher after this vision revision.
 - Any future standalone Recording Control window, expanded settings window, or secondary recording-detail surface now requires revised BP1/BP2/BP3 approval because the active design direction centers recording in its own Dashboard card first.
 - Future recording output should use a valid, durable, graph/plot-ready format. CSV-like output is a likely first candidate, but file-format options should be proposed before output/file writing is admitted.
@@ -51,6 +55,7 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - This vision does not admit hidden monitoring, external telemetry, provider-visible telemetry, support-bundle export, backup/export, or cleanup/deletion behavior by itself.
 - The historical `Recording Profile Runtime Foundation` branch introduced Recording Profile state/UI foundation before this active-overlay-driven recording vision correction. Future FAM-006 planning must reconcile or retire that profile-loaded direction before implementing actual recording runtime.
 - Active FAM-006 branches must use Branch Runtime Engineering Plans, UFD disposition, and visual proof gates before implementation and Live Validation handoff.
+- Implementation must hold itself to this vision contract: any branch that creates or changes FAM-006 user-facing UI must state the existing element(s) it sampled, preserve or intentionally justify differences in color, shape, spacing, typography, effects, interaction states, and layout density, then prove those matches in Workstream, Hardening, and Live Validation. Validator/helper green is not enough when the visible result diverges from this family visual system.
 
 ## Canonical Pointers
 

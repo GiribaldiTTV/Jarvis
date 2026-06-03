@@ -290,7 +290,7 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         "manage_monitors_create_after_delete_reuses_monitor_group_number",
         "manage_monitors_recreated_monitor_group_3_dirty_draft",
         "02_recording_card_target_status_visual_contract",
-        "02_recording_card_target_preview_contained_rows",
+        "02_recording_card_target_preview_standard_state_rows",
         "02_recording_card_future_controls_disabled_boundary"
     )
     $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
