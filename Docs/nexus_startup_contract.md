@@ -14,6 +14,7 @@ Do not paste this loader doc into Codex prompts. Codex prompts should load `Docs
 Generated prompts must preserve the Main-first loader chain: load `Docs/Main.md` first, then the directly relevant owner docs, including `Docs/nexus_vision.md`, `Docs/family_visions/`, `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` for active branch planning, and `Docs/branch_plans/<branch_slug>.md` only when historical repo branch-plan receipts are in scope.
 Seam workflow logic is intentionally out of scope for this contract.
 When seam behavior matters, route to `Docs/phase_governance.md`, `Docs/codex_modes.md`, and the active workstream record.
+When prompt generation recommends Codex plugins or connectors, route plugin/connector authority through `Docs/governance_efficiency_operating_model.md`, `Docs/phase_governance.md`, and `Docs/validation_helper_registry.md`. Generated prompts should ask for a `Plugin / Connector Use Plan:` when tool evidence affects phase advancement, PR/release decisions, source-truth repair, provider/API setup, private/public boundary work, or USER review proof. The prompt must not ask Codex to persist live connector auth/session state, API key state, current PR reactions, current review-thread state, temporary plugin output, or raw docs lookup text as repo source truth.
 
 ## Owning Canon
 

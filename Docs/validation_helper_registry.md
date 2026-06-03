@@ -32,6 +32,21 @@ USER Decision Required: required when fixing the reported issue would expand sco
 Validation Owner: the helper/validator that produced the result plus the source-truth owner named by the phase packet.
 Final Disposition: every return packet that relies on validation must state that Codex reviewed the validation rather than delegated judgment to it, summarize why the validation is adequate, name what was independently checked, name whether any helper/validator limitation remains, and classify the result as `Green`, `Repair`, `Blocked`, or `USER Decision Required`.
 
+## Plugin / Connector Evidence Interpretation Rule
+
+Rule Name: `Plugin / Connector Evidence Interpretation Rule`
+Owner: `Docs/validation_helper_registry.md` for evidence interpretation; `Docs/governance_efficiency_operating_model.md` for repo/external-state split compatibility; `Docs/phase_governance.md` for phase-gate use.
+Applies To: Codex app plugins, Codex connectors, GitHub connector reads/writes, Browser / Chrome / Computer Use evidence, OpenAI Docs lookups, OpenAI Developers tooling, Documents / Spreadsheets / Presentations artifacts, and any helper or validator that consumes plugin/connector output.
+Required State: plugin and connector output is evidence. It must be reviewed against source truth, live fact owners, changed files, privacy boundaries, USER-approved scope, and phase requirements before Codex claims green, repair, blocked, implementation-ready, PR-ready, release-ready, or safe-to-merge posture.
+Allowed Values: `Evidence Supports Green`, `Evidence Supports Repair`, `Evidence Supports Blocked`, `Tool / Connector Unavailable`, `Tool / Connector Drift`, `Sensitive Setup Blocked`, `USER Decision Required`.
+Invalid Values: `Green Because Connector Said So`, `Docs Lookup Is Source Truth`, `Plugin Output Is Authority`, `Connector Auth State In Repo`, `API Key State In Repo`, `Live PR Reaction Ledger In Repo`, `Temporary Artifact Treated As Durable`.
+Blocking Condition: `Plugin Evidence Treated As Source Truth`, `Plugin Live-State Ledger In Repo`, `Sensitive Connector Setup In Repo`, or `Plugin / Connector Use Plan Missing` blocks when plugin/connector output is used without interpretation, when live state is committed as repo truth, or when a sensitive setup path is smuggled into tracked files.
+Repair Owner: current branch owner for branch-local misuse; `Docs/validation_helper_registry.md` and the consuming helper/validator for proven tool interpretation defects; `Docs/governance_efficiency_operating_model.md` for split compatibility drift; USER for sensitive setup or waiver decisions.
+Repair Path: classify the plugin/connector use, identify the true live or durable owner, remove live operational ledger text from repo docs, move raw evidence to the Codex digest, USER review packet, helper output, live tool surface, or approved external state, and add machine-checkable fixture coverage only after a concrete false-green or false-red defect is proven.
+USER Decision Required: required for plugin/connector execution that mutates source, external state, credentials, provider/API setup, private/Owner/Dev setup, or durable source truth.
+Validation Owner: current phase validators plus the helper/validator that consumes the tool result.
+Final Disposition: tool evidence can support a recommendation, but Codex must still state what it independently verified and whether the plugin/connector evidence is durable, live, sensitive, or review-only.
+
 ## Helper Status Values
 
 Every durable helper or validator under root `dev/` must fit one of these statuses:
