@@ -1179,20 +1179,21 @@ def _fam007_bp2_support_bp1_context_failures(packet_files: Mapping[str, str]) ->
 
 def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list[str]:
     combined = "\n".join(
-        packet_files.get(file_name, "") for file_name in USER_FACING_GENERATED_FILES
+        _packet_file_text(packet_files, file_name)
+        for file_name in USER_FACING_GENERATED_FILES
     ).casefold()
     if "bp1 branch vision" not in combined or "authorize bp2 user branch plan review only" not in combined:
         return []
 
     failures: list[str] = []
     for file_name in USER_FACING_GENERATED_FILES:
-        text = packet_files.get(file_name)
-        if text is None:
+        text = _packet_file_text(packet_files, file_name)
+        if not text:
             continue
         for reason, pattern in BP1_PACKET_STALE_LANGUAGE_PATTERNS:
             if pattern.search(text):
                 failures.append(
-                    f"{file_name}: BP1 packet contains stale phase/boundary language {reason}"
+                    f"{_packet_file_path(packet_files, file_name)}: BP1 packet contains stale phase/boundary language {reason}"
                 )
     return failures
 
