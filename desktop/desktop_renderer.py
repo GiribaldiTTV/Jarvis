@@ -9843,7 +9843,60 @@ class DesktopRuntimeWindow(QWidget):
                 })();
                 """
             )
-            QTimer.singleShot(delay(250), step_open_overlay_profiles)
+            QTimer.singleShot(delay(250), step_recording_card_visual_contract)
+
+        def step_recording_card_visual_contract():
+            assert_state(
+                "Dashboard Recording card target/status visual contract is focused before child windows",
+                """
+                (function() {
+                    const card = document.querySelector('[data-dashboard-hub-card="recording"]');
+                    const preview = document.getElementById("monitoring-hud-recording-target-preview");
+                    const targetProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                    const targetCount = document.getElementById("monitoring-hud-recording-target-count");
+                    const summary = document.getElementById("monitoring-hud-recording-target-summary");
+                    const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                    const previewStyle = preview ? window.getComputedStyle(preview) : null;
+                    const row = preview ? preview.querySelector(".monitoring-hud__state-row") : null;
+                    const rowStyle = row ? window.getComputedStyle(row) : null;
+                    return JSON.stringify({
+                        ok: Boolean(
+                            card
+                            && preview
+                            && targetProfile
+                            && targetCount
+                            && summary
+                            && launcher
+                            && launcher.disabled
+                            && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
+                            && preview.dataset.recordingTargetPreview === "slc-052-dashboard-recording-card-target-status"
+                            && previewStyle
+                            && rowStyle
+                            && previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() === "focused-target-preview-required"
+                            && rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() === "contained-row-no-sliced-divider"
+                        ),
+                        activeProfileName: targetProfile ? targetProfile.textContent : "",
+                        activeMonitorCount: targetCount ? targetCount.textContent : "",
+                        futureControlDisabled: Boolean(launcher && launcher.disabled),
+                        visualProofMarker: previewStyle ? previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() : "",
+                        rowVisualContract: rowStyle ? rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_card_visual_captures,
+            )
+
+        def step_recording_card_visual_captures():
+            labels = [
+                "02_recording_card_target_status_visual_contract",
+                "02_recording_card_target_preview_contained_rows",
+                "02_recording_card_future_controls_disabled_boundary",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_open_overlay_profiles)
 
         def step_open_overlay_profiles():
             capture("dashboard_window_card_button_glow_grid_background_normal_state")
@@ -10077,8 +10130,34 @@ class DesktopRuntimeWindow(QWidget):
                     const rows = Array.from(document.querySelectorAll("[data-overlay-profile-membership-row] input:checked"));
                     const hud = document.getElementById("monitoring-hud");
                     const create = document.getElementById("monitoring-hud-overlay-profile-create");
+                    const pendingId = typeof monitoringHudOverlayProfilePendingCreate !== "undefined" && monitoringHudOverlayProfilePendingCreate ? monitoringHudOverlayProfilePendingCreate.id : "";
+                    const pendingName = typeof monitoringHudOverlayProfilePendingCreate !== "undefined" && monitoringHudOverlayProfilePendingCreate ? monitoringHudOverlayProfilePendingCreate.name : "";
+                    const recordingProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                    const recordingCount = document.getElementById("monitoring-hud-recording-target-count");
+                    if (typeof monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile === "function") {
+                        monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+                    }
+                    const mirrorProof = monitoringHudControlState && monitoringHudControlState.recordingTargetOverlayProfileMirrorProof
+                        ? monitoringHudControlState.recordingTargetOverlayProfileMirrorProof
+                        : {};
+                    const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
+                        ? monitoringHudControlState.activeOverlayRecordingTarget
+                        : {};
+                    const targetActiveProfileId = String(target.activeOverlayProfileId || "");
+                    const mirrorActiveProfileName = String(mirrorProof.activeOverlayProfileName || "").trim();
+                    const recordingProfileText = recordingProfile ? String(recordingProfile.textContent || "").trim() : "";
+                    const recordingCountText = recordingCount ? String(recordingCount.textContent || "").trim() : "";
+                    const recordingMirrorsPendingCreate = Boolean(
+                        pendingId
+                        && targetActiveProfileId === String(pendingId)
+                        && recordingProfile
+                        && recordingProfileText === mirrorActiveProfileName
+                        && recordingCount
+                        && recordingCountText === "0 target monitors"
+                        && mirrorProof.passed === true
+                    );
                     return JSON.stringify({
-                        ok: Boolean(input && save && !save.disabled && rows.length === 0),
+                        ok: Boolean(input && save && !save.disabled && rows.length === 0 && recordingMirrorsPendingCreate),
                         checkedMembershipRows: rows.length,
                         saveEnabled: save ? !save.disabled : false,
                         createRect: create ? create.getBoundingClientRect().toJSON ? create.getBoundingClientRect().toJSON() : {
@@ -10092,8 +10171,14 @@ class DesktopRuntimeWindow(QWidget):
                         lastInteractiveControl: hud ? String(hud.dataset.lastInteractiveControl || "") : "",
                         lastInteractiveControlPhase: hud ? String(hud.dataset.lastInteractiveControlPhase || "") : "",
                         clickInterceptionDiagnostics: hud ? String(hud.dataset.clickInterceptionDiagnostics || "") : "",
-                        pendingCreate: typeof monitoringHudOverlayProfilePendingCreate !== "undefined" && monitoringHudOverlayProfilePendingCreate ? monitoringHudOverlayProfilePendingCreate.id : "",
+                        pendingCreate: pendingId,
                         selectedId: typeof monitoringHudOverlayProfileWindowSelectedId !== "undefined" ? String(monitoringHudOverlayProfileWindowSelectedId || "") : "",
+                        targetActiveProfileId,
+                        recordingMirrorsPendingCreate,
+                        mirrorActiveProfileName,
+                        recordingTargetProfileText: recordingProfileText,
+                        recordingTargetCountText: recordingCountText,
+                        recordingMirrorProof: mirrorProof,
                         detailOpen: typeof monitoringHudOverlayProfileDetailOpen !== "undefined" ? Boolean(monitoringHudOverlayProfileDetailOpen) : false,
                         dirtyGuardEligible: true,
                         realOsInputProof: true,
@@ -13338,6 +13423,9 @@ class DesktopRuntimeWindow(QWidget):
                     source_filter_result = visual_result_map.get("04_source_filter_dropdown_open_hover_reset", {})
                     polling_rate_result = visual_result_map.get("04_polling_rate_dropdown_open_hover_reset", {})
                     required_visual_labels = {
+                        "02_recording_card_target_status_visual_contract",
+                        "02_recording_card_target_preview_contained_rows",
+                        "02_recording_card_future_controls_disabled_boundary",
                         "03_manage_monitors_open_state",
                         "03_manage_monitors_close_hover_hitbox",
                         "04_source_filter_dropdown_open_hover_reset",
@@ -13818,7 +13906,79 @@ class DesktopRuntimeWindow(QWidget):
                         ),
                     )
 
+                def visual_recording_card() -> None:
+                    run_visual(
+                        "02_recording_card_target_status_visual_contract",
+                        """
+                        (function() {
+                            try {
+                                if (typeof monitoringHudCloseChildWindows === "function") {
+                                    monitoringHudCloseChildWindows();
+                                }
+                                const card = document.querySelector('[data-dashboard-hub-card="recording"]');
+                                const preview = document.getElementById("monitoring-hud-recording-target-preview");
+                                const targetProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                                const targetCount = document.getElementById("monitoring-hud-recording-target-count");
+                                const summary = document.getElementById("monitoring-hud-recording-target-summary");
+                                const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                                const previewStyle = preview ? window.getComputedStyle(preview) : null;
+                                const row = preview ? preview.querySelector(".monitoring-hud__state-row") : null;
+                                const rowStyle = row ? window.getComputedStyle(row) : null;
+                                return JSON.stringify({
+                                    ok: Boolean(
+                                        card
+                                        && preview
+                                        && targetProfile
+                                        && targetCount
+                                        && summary
+                                        && launcher
+                                        && launcher.disabled
+                                        && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
+                                        && preview.dataset.recordingTargetPreview === "slc-052-dashboard-recording-card-target-status"
+                                        && previewStyle
+                                        && rowStyle
+                                        && previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() === "focused-target-preview-required"
+                                        && rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() === "contained-row-no-sliced-divider"
+                                    ),
+                                    recordingSurfaceOwner: card ? card.dataset.recordingSurfaceOwner : "missing",
+                                    targetPreviewProof: preview ? preview.dataset.recordingTargetPreview : "missing",
+                                    targetProfileText: targetProfile ? targetProfile.textContent : "",
+                                    targetCountText: targetCount ? targetCount.textContent : "",
+                                    launcherDisabled: Boolean(launcher && launcher.disabled),
+                                    visualProofMarker: previewStyle ? previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() : "",
+                                    rowVisualContract: rowStyle ? rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() : ""
+                                });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda: (
+                            record_visual("02_recording_card_target_status_visual_contract"),
+                            record_visual("02_recording_card_target_preview_contained_rows"),
+                            record_visual("02_recording_card_future_controls_disabled_boundary"),
+                            visual_manage_open(),
+                        ),
+                    )
+
                 def visual_manage_open() -> None:
+                    self._run_javascript_with_result(
+                        """
+                        (function() {
+                            try {
+                                if (typeof monitoringHudOpenChildWindow === "function") {
+                                    monitoringHudOpenChildWindow("monitor-group-edit");
+                                }
+                                return JSON.stringify({ ok: true });
+                            } catch (err) {
+                                return JSON.stringify({ ok: false, error: String(err && err.message ? err.message : err) });
+                            }
+                        })();
+                        """,
+                        lambda _result: QTimer.singleShot(delay(300), visual_manage_open_captures),
+                    )
+
+                def visual_manage_open_captures() -> None:
                     record_visual("03_manage_monitors_open_state")
                     record_visual("14_manage_monitors_assigned_overlay_row")
                     record_visual("14_manage_monitors_source_row_hover_checked")
@@ -13856,8 +14016,8 @@ class DesktopRuntimeWindow(QWidget):
                                 ? window.getMonitoringHudControlState()
                                 : null;
                             if (window.clearMonitoringHudLargeFixtureMode) window.clearMonitoringHudLargeFixtureMode();
-                            if (typeof monitoringHudOpenChildWindow === "function") {
-                                monitoringHudOpenChildWindow("monitor-group-edit");
+                            if (typeof monitoringHudCloseChildWindows === "function") {
+                                monitoringHudCloseChildWindows();
                             }
                             return JSON.stringify({ ok: true });
                         } catch (err) {
@@ -13865,7 +14025,7 @@ class DesktopRuntimeWindow(QWidget):
                         }
                     })();
                     """,
-                    lambda _result: QTimer.singleShot(delay(300), visual_manage_open),
+                    lambda _result: QTimer.singleShot(delay(300), visual_recording_card),
                 )
 
             self._run_javascript_with_result(

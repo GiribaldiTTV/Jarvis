@@ -1259,6 +1259,9 @@ def validate() -> list[str]:
         "monitoringHudRequestRecordingControlWindow",
         "runMonitoringHudRecordingTargetPreviewProof",
         "recordingTargetPreviewProof",
+        "monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile",
+        "recordingTargetOverlayProfileMirrorProof",
+        "activeProfileCreateMirrorsRecordingTarget",
         "slc-052-dashboard-recording-card-target-status",
         "slc-052-dashboard-visible-count-and-names",
         "dashboard-recording-card-primary",
@@ -1331,8 +1334,17 @@ def validate() -> list[str]:
     for needle in (
         "monitoring-hud__recording-target-preview",
         "monitoring-hud__recording-target-actions",
+        "--recording-card-live-visual-proof: focused-target-preview-required",
+        "--recording-card-row-visual-contract: contained-row-no-sliced-divider",
     ):
         _require_contains(css, needle, "SLC-052 Dashboard Recording card target/status CSS", failures)
+
+    for needle in (
+        "recordingCard: rectFor('[data-dashboard-hub-card=\"recording\"]')",
+        'recordingTargetPreview: rectFor("#monitoring-hud-recording-target-preview")',
+        'recordingControlLauncher: rectFor("#monitoring-hud-recording-control-launcher")',
+    ):
+        _require_contains(js, needle, "SLC-052 Dashboard Recording card live geometry proof", failures)
 
     for needle in (
         'data-package="PKG-006"',

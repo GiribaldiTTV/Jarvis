@@ -181,15 +181,15 @@ function Get-HudIssueIdsForElementLabel {
         "UTS-HUD-010" = @("source_settings", "display_mode", "warning_checkbox")
         "UTS-HUD-011" = @("dashboard", "data_sources", "manage_monitors")
         "UTS-HUD-012" = @("unsaved", "guard", "discard", "save")
-        "UTS-HUD-013" = @("dashboard", "overlay", "manage", "source", "scrollbar", "divider", "button")
+        "UTS-HUD-013" = @("dashboard", "overlay", "manage", "source", "scrollbar", "divider", "button", "recording")
         "UTS-HUD-014" = @("overlay_profile", "clean", "selector", "choice_panel", "create", "dirty", "guard", "save", "discard", "delete", "profile_to_edit")
         "UTS-HUD-015" = @("scrollbar")
         "UTS-HUD-016" = @("divider", "page_break")
-        "UTS-HUD-017" = @("button", "glow", "color", "uniform")
+        "UTS-HUD-017" = @("button", "glow", "color", "uniform", "recording")
         "UTS-HUD-018" = @("row_title", "row-title", "page_break", "divider", "tab")
         "UTS-HUD-019" = @("state_stability", "surface_stability", "group_switch", "responsive_window", "window_contract", "open_state", "window_create_clean", "window_display_mode_buttons")
         "UTS-HUD-020" = @("source_settings", "shift", "focus", "gold", "warning")
-        "UTS-HUD-021" = @("scalability", "window_size", "minimum", "responsive", "scale", "compact", "normal", "overlay_profile")
+        "UTS-HUD-021" = @("scalability", "window_size", "minimum", "responsive", "scale", "compact", "normal", "overlay_profile", "recording")
     }
     foreach ($issueId in $issueRules.Keys) {
         foreach ($keyword in $issueRules[$issueId]) {
@@ -288,7 +288,10 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         "manage_monitors_dirty_guard_background_blur_blocking",
         "manage_monitors_dirty_guard_close_button_functionality",
         "manage_monitors_create_after_delete_reuses_monitor_group_number",
-        "manage_monitors_recreated_monitor_group_3_dirty_draft"
+        "manage_monitors_recreated_monitor_group_3_dirty_draft",
+        "02_recording_card_target_status_visual_contract",
+        "02_recording_card_target_preview_contained_rows",
+        "02_recording_card_future_controls_disabled_boundary"
     )
     $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
     $missingRequiredElementLabels = @($requiredElementLabels | Where-Object { $availableElementLabels -notcontains $_ })

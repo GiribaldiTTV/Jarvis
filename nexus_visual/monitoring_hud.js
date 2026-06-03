@@ -915,12 +915,19 @@ function monitoringHudCreateOverlayProfile() {
     source: "slc-039-membership-editor-create-shell",
     dirty: true
   };
+  monitoringHudControlState.activeOverlayProfileId = profileId;
+  monitoringHudControlState.activeOverlayProfileDraftSessionId = profileId;
   monitoringHudOverlayProfileWindowSelectedId = profileId;
   monitoringHudOverlayProfileDetailOpen = true;
   monitoringHudPendingDeleteOverlayProfileId = "";
   monitoringHudSetOverlayProfileDraftFromProfile(monitoringHudOverlayProfilePendingCreate);
   monitoringHudClearOverlayProfileMembershipList();
   monitoringHudRenderControls();
+  monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+  setTimeout(() => {
+    monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+    monitoringHudRenderActiveOverlayRecordingTargetPreview();
+  }, 0);
   if (monitoringHudOverlayProfileNameInput && typeof monitoringHudOverlayProfileNameInput.focus === "function") {
     monitoringHudOverlayProfileNameInput.focus();
     monitoringHudOverlayProfileNameInput.select();
@@ -1249,8 +1256,10 @@ function monitoringHudLoadStoredState() {
 function monitoringHudSaveStoredState() {
   try {
     if (!window.localStorage) return;
-    monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
-    window.localStorage.setItem(monitoringHudStorageKey, JSON.stringify(monitoringHudControlState));
+    const persistedState = JSON.parse(JSON.stringify(monitoringHudControlState));
+    monitoringHudNormalizeOverlayProfileState(persistedState);
+    window.localStorage.setItem(monitoringHudStorageKey, JSON.stringify(persistedState));
+    monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
   } catch (_err) {}
 }
 
@@ -4011,6 +4020,49 @@ function monitoringHudApplyCardLayout() {
   monitoringHudRenderOverlayDisplay();
 }
 
+function monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile() {
+  const profiles = Object.assign({}, monitoringHudControlState.overlayProfiles || {});
+  const selectedDraft = monitoringHudOverlayProfileDraftTarget ? monitoringHudOverlayProfileDraftTarget() : null;
+  const draftIsActive = Boolean(
+    selectedDraft
+    && selectedDraft.id
+    && (
+      monitoringHudOverlayProfilePendingCreate
+      || String(selectedDraft.id) === String(monitoringHudOverlayProfileWindowSelectedId || "")
+      || String(selectedDraft.id) === String(monitoringHudControlState.activeOverlayProfileId || "")
+    )
+  );
+  let targetState = monitoringHudControlState;
+  if (draftIsActive) {
+    monitoringHudControlState.activeOverlayProfileId = selectedDraft.id;
+    monitoringHudControlState.activeOverlayProfileDraftSessionId = selectedDraft.id;
+    profiles[selectedDraft.id] = Object.assign({}, selectedDraft, {
+      monitorIds: monitoringHudUniqueValidMonitorIds(selectedDraft.monitorIds || [], monitoringHudControlState.cards || {})
+    });
+    targetState = Object.assign({}, monitoringHudControlState, {
+      overlayProfiles: profiles,
+      activeOverlayProfileId: selectedDraft.id,
+      overlayProfileDefaultDeletedByUser: false
+    });
+  }
+  const snapshot = monitoringHudBuildActiveOverlayRecordingTargetSnapshot(targetState);
+  monitoringHudControlState.activeOverlayRecordingTarget = snapshot;
+  monitoringHudControlState.recordingTargetOverlayProfileMirrorProof = {
+    passed: true,
+    source: draftIsActive ? "active-overlay-profile-draft-mirror" : "active-overlay-profile-state-mirror",
+    sessionActiveDraft: draftIsActive,
+    activeOverlayProfileId: snapshot.activeOverlayProfileId || "",
+    activeOverlayProfileName: snapshot.activeOverlayProfileName || "",
+    targetState: snapshot.targetState || "no-overlay-profiles",
+    monitorCount: Number(snapshot.membershipSnapshotCandidateCount) || 0
+  };
+  if (monitoringHud) {
+    monitoringHud.dataset.recordingTargetOverlayProfileMirror = "active-overlay-profile-state";
+    monitoringHud.dataset.recordingTargetOverlayProfileMirrorProof = "pass";
+  }
+  return snapshot;
+}
+
 function monitoringHudRenderControls() {
   if (!monitoringHud) return;
   const featureEnabled = Boolean(monitoringHudControlState.featureEnabled);
@@ -4036,8 +4088,7 @@ function monitoringHudRenderControls() {
   monitoringHud.dataset.manageOverlayProfileContext = "clickable-assigned-overlay-status-window";
   monitoringHud.dataset.sourceSettingsIa = "source-list-settings-entry-points";
   monitoringHud.dataset.recordingProfileState = "recording-profile-state-absent-future-gated";
-  const activeRecordingTarget = monitoringHudControlState.activeOverlayRecordingTarget
-    || monitoringHudBuildActiveOverlayRecordingTargetSnapshot(monitoringHudControlState);
+  const activeRecordingTarget = monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
   monitoringHud.dataset.activeOverlayRecordingTarget = "slc-051-active-overlay-profile-membership-target";
   monitoringHud.dataset.activeOverlayRecordingTargetProof = monitoringHud.dataset.activeOverlayRecordingTargetProof || "pending";
   monitoringHud.dataset.activeOverlayRecordingTargetState = activeRecordingTarget.targetState || "no-overlay-profiles";
@@ -5081,7 +5132,9 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
     recordingExecutionBlocked: false,
     fileWritingBlocked: false,
     trayControlsAbsent: false,
-    noRecordingControlWindowCreated: false
+    noRecordingControlWindowCreated: false,
+    activeProfileCreateMirrorsRecordingTarget: false,
+    recordingTargetOverlayProfileMirrorProof: false
   };
   try {
     monitoringHudControlState.cards = {
@@ -5147,6 +5200,24 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
       && monitoringHudRecordingControlLauncher.dataset.recordingFileWritingState === "blocked";
     proof.trayControlsAbsent = !document.querySelector("[data-control='tray-recording-control']");
     proof.noRecordingControlWindowCreated = !document.querySelector("[data-child-window='recording-control']");
+    monitoringHudCreateOverlayProfile();
+    const createdProfile = monitoringHudOverlayProfilePendingCreate || {};
+    const createdId = String(createdProfile.id || "");
+    monitoringHudRenderControls();
+    proof.activeProfileCreateMirrorsRecordingTarget = Boolean(
+      createdId
+      && monitoringHudControlState.activeOverlayRecordingTarget
+      && monitoringHudControlState.activeOverlayRecordingTarget.activeOverlayProfileId === createdId
+      && monitoringHudRecordingTargetProfile
+      && monitoringHudRecordingTargetProfile.textContent === monitoringHudCleanOverlayProfileName(createdProfile.name, "Overlay Profile")
+      && monitoringHudRecordingTargetCount
+      && monitoringHudRecordingTargetCount.textContent === "0 target monitors"
+    );
+    proof.recordingTargetOverlayProfileMirrorProof = Boolean(
+      monitoringHudControlState.recordingTargetOverlayProfileMirrorProof
+      && monitoringHudControlState.recordingTargetOverlayProfileMirrorProof.passed === true
+      && monitoringHud.dataset.recordingTargetOverlayProfileMirrorProof === "pass"
+    );
     proof.passed = proof.dashboardRecordingCardPresent
       && proof.hudOverlayBoundaryPreserved
       && proof.activeProfileNameVisible
@@ -5157,7 +5228,9 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
       && proof.recordingExecutionBlocked
       && proof.fileWritingBlocked
       && proof.trayControlsAbsent
-      && proof.noRecordingControlWindowCreated;
+      && proof.noRecordingControlWindowCreated
+      && proof.activeProfileCreateMirrorsRecordingTarget
+      && proof.recordingTargetOverlayProfileMirrorProof;
   } finally {
     try {
       monitoringHudControlState = JSON.parse(previousState);
@@ -6520,6 +6593,11 @@ window.getMonitoringHudLiveClientGeometry = function() {
     panelDragHandle: rectFor("#monitoring-hud-drag-handle"),
     monitorList: rectFor("#monitoring-hud-monitor-list"),
     hudOverlayCard: rectFor('[data-dashboard-hub-card="hud-overlay"]'),
+    recordingCard: rectFor('[data-dashboard-hub-card="recording"]'),
+    recordingTargetPreview: rectFor("#monitoring-hud-recording-target-preview"),
+    recordingTargetSourceRow: rectFor("#monitoring-hud-recording-target-profile"),
+    recordingActiveMonitorsRow: rectFor("#monitoring-hud-recording-target-count"),
+    recordingControlLauncher: rectFor("#monitoring-hud-recording-control-launcher"),
     monitorGroupsCard: rectFor('[data-dashboard-hub-card="monitor-groups"]'),
     monitorGroupsSummaryGrid: rectFor('[data-dashboard-hub-card="monitor-groups"] .monitoring-hud__monitor-summary-grid'),
     monitorGroupsActions: rectFor('[data-dashboard-hub-card="monitor-groups"] .monitoring-hud__hub-actions'),
