@@ -59,7 +59,7 @@ USER Response Proof: Attached and accepted - USER response accepted the branch p
 USER Response Digested: Digested - Codex converted USER response into implementation constraints.
 Acceptance / Waiver / Revision / Rejection Receipt: Acceptance receipt recorded in this fixture contract.
 Contract Version / Revision: v1 - Fixture contract with USER response and Codex digest complete.
-USER Review Hub Packet: C:\Nexus USER\FAM-000 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-000.zip.
+USER Review Hub Packet: C:\Nexus USER\FAM-000 contains the copied review files and START_HERE map beside C:\Nexus USER\FAM-000-YYYYMMDD-HHMMSS.zip.
 USER Review Packet Finding: Loaded and digested - START_HERE.md, USER_BRANCH_PLAN_REVIEW.md, and exported zip source HEAD match current branch HEAD.
 Plain-Language Branch Goal: Build a user-visible provider setup foundation that explains consent state and safe setup boundaries.
 What Will I Actually See, And Where Will I See It?: USER sees provider readiness status, consent copy, disabled protected actions, and proof screenshots on the setup surface before provider execution is admitted.
@@ -90,7 +90,7 @@ Implementation Constraints Created By USER Response: Provider execution remains 
 USER Rejected / Deferred Ideas: Broader provider setup, provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
 Vision Delta / Source-Truth Impact: No further source-truth mutation is required because the fixture contract is complete and aligned with the branch plan.
 Contract Change Log: v1 created the accepted USER Branch Plan Contract for the runtime engineering fixture.
-Workstream Entry Result: Workstream Entry may return the first implementation seam, affected files, validators, proof requirements, USER-facing proof, and exact implementation approval text.
+Workstream Entry Result: Workstream Entry may return bounded Workstream package implementation approval text with the entry seam, affected files, validators, proof requirements, USER-facing proof, and continuation posture.
 Contract Completion Checklist: Complete - USER response is present, Codex digest is present, implementation constraints are recorded, source-truth impact is resolved, rejected/deferred ideas are recorded, packet metadata matches HEAD, and exact implementation approval text must cite the complete contract.
 Accepted Scope: Accepted scope includes consent status, safe setup copy, disabled actions, validation, screenshots, and UTS proof.
 Deferred Scope: Future provider execution, model download, memory, voice, shortcut, installer, and private-edition work remain deferred.
