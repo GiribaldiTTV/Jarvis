@@ -19730,6 +19730,24 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         f"{fixture}: broad historical receipt fixture must not rely on PR Readiness fallback wording",
     )
     _validate_historical_worktree_receipt_confinement(require, fixture, fixture_text)
+    external_target_fixture = (
+        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
+        / "valid_external_state_historical_worktree_receipt_target.md"
+    )
+    external_target_text = _read_text(external_target_fixture)
+    require(
+        bool(external_target_text),
+        f"{external_target_fixture}: missing external-state historical receipt target fixture",
+    )
+    require(
+        _is_historical_worktree_receipt(external_target_text),
+        f"{external_target_fixture}: fixture must classify as a historical worktree receipt",
+    )
+    _validate_historical_worktree_receipt_confinement(
+        require,
+        external_target_fixture,
+        external_target_text,
+    )
     require(
         not _extract_exact_marker_value(identity, "Worktree"),
         f"{fixture}: `Worktree Receipt:` must not be parsed as active `Worktree:` assignment",
@@ -19767,10 +19785,18 @@ def _run_worktree_confinement_gate(require) -> None:
         branch_name,
     )
     if not record_text:
-        record_path, record_text = _external_branch_state_record_for_branch(
+        external_record_path, external_record_text = _external_branch_state_record_for_branch(
             branch_name,
             actual_root,
         )
+        if external_record_text and _is_historical_worktree_receipt(external_record_text):
+            _validate_historical_worktree_receipt_confinement(
+                require,
+                external_record_path,
+                external_record_text,
+            )
+            return
+        record_path, record_text = external_record_path, external_record_text
     if not record_text:
         historical_branch_record_paths = _collect_branch_record_paths(
             branch_record_index_text,
