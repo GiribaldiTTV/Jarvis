@@ -151,7 +151,7 @@ function New-Paths {
         ShortVideoFrameRoot = Join-Path $ArtifactRoot "short_video_frames"
         ShortVideo = Join-Path $ArtifactRoot "monitoring_hud_lv1_short_video.mp4"
         ShortVideoEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_lv1_short_video.mp4"
-        UserTestSummary = "C:\Nexus USER\User Test Summary.txt"
+        UserTestSummary = "C:\Nexus USER\UTS - FAM-006.txt"
         AbortSignal = Join-Path $ArtifactRoot "startup_abort.signal"
     }
 }
@@ -849,6 +849,7 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     # active Live Validation seam; detailed ledger/proof evidence stays in manifests.
     $content = @"
 Nexus Desktop AI - User Test Summary
+Worktree Label: FAM-006
 Workstream: FAM-006 Active Overlay Recording Runtime Implementation
 Current Phase: Live Validation Stage 1 User Test Summary handoff
 Branch: $currentBranch

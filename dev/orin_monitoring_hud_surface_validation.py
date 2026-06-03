@@ -2491,6 +2491,8 @@ def validate() -> list[str]:
         "monitoring_hud_desktop_after_launch.png",
         "beforeAfterDesktopComparisonReady",
         "PrepareLiveValidationUserTestSummary",
+        'UserTestSummary = "C:\\Nexus USER\\UTS - FAM-006.txt"',
+        "Worktree Label: FAM-006",
         "skipped User Test Summary export: UTS is Live Validation Stage 1 only",
         "Overlay/display release acceptance is deferred and non-gating",
         "Current Phase: Live Validation Stage 1 User Test Summary handoff",
@@ -2516,6 +2518,11 @@ def validate() -> list[str]:
         "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
     ):
         _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
+    _require(
+        'UserTestSummary = "C:\\Nexus USER\\User Test Summary.txt"' not in live_validation,
+        "monitoring HUD live validation helper must not write active UTS results to template path",
+        failures,
+    )
     for needle in (
         "real-os-mouse-cursor-move-down-up",
         "realOsInputProof",

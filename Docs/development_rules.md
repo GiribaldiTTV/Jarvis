@@ -905,16 +905,18 @@ The normal next phase after Workstream completion remains `Hardening`.
 
 Response-only `## User Test Summary` output does not satisfy the workstream-owned validation layer when the canonical repo artifact remains stale.
 
-For desktop user-facing slices, Codex must also export or refresh the convenience copy at:
+For desktop user-facing slices, Codex must also export or refresh the worktree-specific convenience copy at:
 
-- `C:\Nexus USER\User Test Summary.txt`
+- `C:\Nexus USER\UTS - <worktree-label>.txt`
 
 unless it explicitly explains why the local USER hub export is not relevant or is being intentionally skipped.
+The global `C:\Nexus USER\User Test Summary.txt` file is template-only and must not receive active returned-results content.
 
 The ownership hierarchy is:
 
 - workstream doc exact `## User Test Summary` section = canonical repo source of truth
-- local USER hub `User Test Summary.txt` = required user-facing exported copy when relevant
+- local USER hub `UTS - <worktree-label>.txt` = required user-facing exported copy when relevant
+- local USER hub `User Test Summary.txt` = template/layout example only
 - response-level `## User Test Summary` = current handoff text only
 
 If Codex does not update the canonical repo-level `UTS` artifact, it must say explicitly why. Valid reasons are limited to:
@@ -924,7 +926,7 @@ If Codex does not update the canonical repo-level `UTS` artifact, it must say ex
 - the user explicitly restricted the pass so the relevant artifact could not be updated
 - the relevant closed workstream doc already says that no separate ongoing `UTS` artifact remains
 
-If Codex does not export or refresh the local USER hub `User Test Summary.txt` copy for a relevant desktop slice, it must also say explicitly why.
+If Codex does not export or refresh the local USER hub `UTS - <worktree-label>.txt` copy for a relevant desktop slice, it must also say explicitly why.
 
 Returned evidence such as `UTS`, screenshots, interactive reports, PR review comments, or release-review findings may satisfy exit criteria, but they must never auto-advance phase by implication.
 

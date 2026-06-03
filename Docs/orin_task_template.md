@@ -867,7 +867,7 @@ If the artifact is not updated, the final output must explain why the update was
 
 For relevant desktop Live Validation Stage 1 runs, the execution pass must also export or refresh:
 
-- `C:\Nexus USER\User Test Summary.txt`
+- `C:\Nexus USER\UTS - <worktree-label>.txt`
 - `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\element_<label>_<state>.png`
 
 unless the final output explicitly explains why the local USER hub export was not relevant or was intentionally skipped.
