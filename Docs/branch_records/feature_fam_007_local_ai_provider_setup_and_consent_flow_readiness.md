@@ -118,7 +118,7 @@ Next Legal Phase: `PR Readiness Stage 2 / PR creation`
 
 Next Legal Seam: `PR Readiness Stage 2 / PR creation for FAM-007 Local AI Provider Setup and Consent Flow Readiness`
 
-Exact USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
+Historical USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
 
 ## Governance Drift Audit
 
@@ -336,7 +336,7 @@ Planned PR Base: `main`
 
 Planned PR Head: `feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness`
 
-Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness`
+Historical Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness`
 
 Workstream Completion State: `Green - Workstream implementation, Hardening H1, Live Validation LV1, desktop AI-owned readiness display suppression proof, and PR Readiness Stage 1 repair are recorded and ready for PR Readiness Stage 2 after USER approval.`
 
@@ -672,4 +672,4 @@ Governance Overlap Forecast: `Governance remains the standing intake lane. PR #1
 
 Next Legal Seam: `PR Readiness Stage 2 / PR creation`
 
-Exact USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
+Historical USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`

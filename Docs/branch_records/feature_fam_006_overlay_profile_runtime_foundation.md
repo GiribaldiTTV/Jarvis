@@ -749,13 +749,13 @@ Rollback Target Detail: `Return to Stage 1 successor analysis / USER decision ga
 - Release Window Audit Posture: `PASS`
 - Rollback Plan: `If Stage 2 is not approved, keep this branch and record in historical projection posture; do not delete branches, worktrees, artifacts, issues, or sibling worktrees without later USER approval.`
 - Next Legal Phase: `PR Readiness`
-- Stage 2 Green-Light Decision Needed: `Approve PR Readiness Stage 2 execution to create the PR, validate the live PR, provision the watcher, and return the PR execution packet without merging unless separately approved.`
+- Historical Stage 2 Green-Light Decision Receipt: `Approve PR Readiness Stage 2 execution to create the PR, validate the live PR, provision the watcher, and return the PR execution packet without merging unless separately approved.`
 
-Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+Historical Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
 
-PR Creation Approval: Pending USER approval
+Historical PR Creation Approval Receipt: Pending USER approval
 
-Stage 2 PR Creation: Pending USER approval
+Historical Stage 2 PR Creation Receipt: Pending USER approval
 
 ## PR Bot Review Signal
 
@@ -955,7 +955,7 @@ Why This Phase Is Next: `Stage 1 resolved the PR-readiness blockers that were st
 
 Approval Required: `USER approval is required to run PR Readiness Stage 2 / PR creation. Later separate approval is required for merge, release, issue work, artifacts, cleanup, or additional runtime seams.`
 
-Exact USER Approval Text: `Approve PR Readiness Stage 2 execution for feature/fam-006-overlay-profile-runtime-foundation: create the PR from feature/fam-006-overlay-profile-runtime-foundation to main, validate live PR state, provision watcher proof, validate mergeability/checks/review state, and return the PR execution packet without merging unless separately approved.`
+Historical USER Approval Text Receipt: `Approve PR Readiness Stage 2 execution for feature/fam-006-overlay-profile-runtime-foundation: create the PR from feature/fam-006-overlay-profile-runtime-foundation to main, validate live PR state, provision watcher proof, validate mergeability/checks/review state, and return the PR execution packet without merging unless separately approved.`
 
 Allowed Scope: `PR Readiness Stage 2 only after USER approval: final freshness checks, PR creation, live PR validation, watcher provisioning/routing proof, PR body/operator validation, and source-truth updates only if required by Stage 2 validation.`
 

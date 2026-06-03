@@ -133,7 +133,7 @@ Rollback Rule: `If validation fails and cannot be repaired within Stage 2 setup 
 
 Next Legal Phase: `PR Readiness Stage 2 / PR creation`
 Next Legal Seam: `PR Readiness Stage 2 final validation and PR creation for completed and LV1-validated activation-foundation scaffold`
-Exact USER Decision Needed: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-activation-foundation targeting main, covering final validation, non-draft PR creation, live PR state inspection, watcher/reporting posture, and any PR metadata/source-truth update required by governance. Merge, release/tag/GitHub Release/artifact work, issue closeout, provider SDK/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, branch cleanup, successor branch creation, and v1.8.0-prebeta release execution remain separate decisions.`
+Historical USER Decision Receipt: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-activation-foundation targeting main, covering final validation, non-draft PR creation, live PR state inspection, watcher/reporting posture, and any PR metadata/source-truth update required by governance. Merge, release/tag/GitHub Release/artifact work, issue closeout, provider SDK/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, FAM-006 mutation, branch cleanup, successor branch creation, and v1.8.0-prebeta release execution remain separate decisions.`
 
 ## Carrier Lifecycle Decision
 
@@ -418,8 +418,8 @@ Current PR Readiness Stage: `Stage 1 - Analysis Gate`
 PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2 - current branch scope and validation are clean after bounded Stage 1 repair; PR creation remains blocked until explicit PR Readiness Stage 2 USER approval`
 Stage 1 Repairs Made: `Selected-next defer/waiver truth, post-merge No Active Branch projection, pre-PR live-state truth, Release Readiness Health Pass, Release Window Audit, and successor-selection deferral recorded`
 Stage 1 Repair Validation: `PASS - standard validation and PR-readiness gate are required after this repair is committed`
-Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-activation-foundation`
-PR Readiness Stage 2 Green-Light Decision Needed: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-activation-foundation targeting main; merge remains a later USER decision`
+Historical Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-activation-foundation`
+Historical PR Readiness Stage 2 Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-activation-foundation targeting main; merge remains a later USER decision`
 
 ## Post-Merge State
 

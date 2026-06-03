@@ -352,13 +352,13 @@ Blockers And Waivers Needed: `PR Readiness Execution User Approval Missing remai
 Release Window Audit Posture: `PASS`
 Rollback Plan: `If Stage 2 is not approved, keep this branch and record in historical projection posture; do not delete branches, worktrees, artifacts, issues, or sibling worktrees without later USER approval.`
 Next Legal Phase: `PR Readiness`
-Stage 2 Green-Light Decision Needed: `Approve PR Readiness Stage 2 execution to create the PR, validate the live PR, provision the watcher, and return the PR execution packet without merging unless separately approved.`
+Historical Stage 2 Green-Light Decision Receipt: `Approve PR Readiness Stage 2 execution to create the PR, validate the live PR, provision the watcher, and return the PR execution packet without merging unless separately approved.`
 
-Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+Historical Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
 
-PR Creation Approval: Pending USER approval
+Historical PR Creation Approval Receipt: Pending USER approval
 
-Stage 2 PR Creation: Pending USER approval
+Historical Stage 2 PR Creation Receipt: Pending USER approval
 
 Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
 
@@ -533,7 +533,7 @@ Next Legal Phase: `PR Readiness`
 Next Active Seam: `PR Readiness Stage 2 / PR creation after USER approval`
 Why This Phase Is Next: `Stage 1 resolved the PR-readiness blockers that were still source-truth-only: pre-PR live-state truth, selected-next defer/no-active projection, release-window posture, and branch-authority historical projection. Stage 2 is the next gated step because PR creation has not occurred.`
 Approval Required: `USER approval is required to run PR Readiness Stage 2 / PR creation. Later separate approval is required for merge, release, issue work, artifacts, cleanup, or additional runtime seams.`
-Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-durable-consent-persistence-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@10c32804370ee5480416e68e55823e5997d18291. Scope: validate final branch package, create the PR to main, provision the required PR watcher on the current Codex thread, validate live PR state/mergeability/checks/review threads, handle same-PR repair comments if authorized by repo truth, and return the PR Stage 2 packet. Do not merge, release, tag, create artifacts, mutate issues, clean branches/worktrees, mutate siblings, implement provider setup, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Historical USER Approval Text Receipt: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-durable-consent-persistence-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@10c32804370ee5480416e68e55823e5997d18291. Scope: validate final branch package, create the PR to main, provision the required PR watcher on the current Codex thread, validate live PR state/mergeability/checks/review threads, handle same-PR repair comments if authorized by repo truth, and return the PR Stage 2 packet. Do not merge, release, tag, create artifacts, mutate issues, clean branches/worktrees, mutate siblings, implement provider setup, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Allowed Scope: `PR Readiness Stage 2 only after USER approval: final pre-PR validation, PR creation, watcher provisioning, live PR validation, mergeability/check/review-thread inspection, and same-PR repair handling only if repo truth authorizes it.`
 Explicit Exclusions: `No merge, release, tag, branch/worktree cleanup, runtime implementation, provider setup completion, user-operated consent UX, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `Run git diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, PR-readiness gate, governance efficiency validation, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, branch-readiness suite, runtime-fam007 suite, rebaseline audit, monitoring HUD validators, compileall, and any new PR-readiness validators required by source truth.`

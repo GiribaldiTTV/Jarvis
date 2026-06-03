@@ -137,11 +137,11 @@ Planned PR Base: `main`
 
 Planned PR Head: `feature/fam-007-local-ai-provider-setup-implementation-foundation`
 
-Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+Historical Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
 
-PR Creation Approval: Pending USER approval
+Historical PR Creation Approval Receipt: Pending USER approval
 
-Stage 2 PR Creation: Pending USER approval
+Historical Stage 2 PR Creation Receipt: Pending USER approval
 
 Workstream Completion State: `Green - Workstream implementation, Hardening H1, Live Validation LV1, setup implementation foundation proof, desktop readiness display suppression continuity, PR Readiness Stage 1 source-truth repair, and Stage 2 approval boundary are recorded.`
 

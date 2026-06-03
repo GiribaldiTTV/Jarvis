@@ -127,7 +127,7 @@ Rollback Path: abandon this branch before merge to restore merged `main` to PR #
 
 Next Legal Seam: `Historical trace only - Release Readiness resumes through the PR #112 source-truth closeout carrier`
 
-Next Legal Phase Gate: `Stage 2 may create the PR after validation, provision the same-thread watcher after PR creation, validate live PR state, and record merge-watch posture. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
+Historical Next Legal Phase Gate Receipt: `Stage 2 may create the PR after validation, provision the same-thread watcher after PR creation, validate live PR state, and record merge-watch posture. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
 
 ## Release Window Audit
 

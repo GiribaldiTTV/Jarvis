@@ -4637,6 +4637,27 @@ BRANCH_RECORD_LIVE_STATE_LEAKAGE_PATTERNS = (
         "active review/PR pending gate",
         r"\b(?:PR Readiness Stage 1 pending USER approval|Stage 2 PR creation pending USER approval|PR creation pending USER approval)\b",
     ),
+    (
+        "active next legal phase gate",
+        r"^\s*(?:-\s*)?Next Legal Phase Gate:\s*`?(?!(?:Historical|Not applicable|No next execution phase|Cleared|Closed|PR #\d+ is merged|PR #\d+ merged)\b)[^`\r\n]*(?:PR Readiness Stage 2|Stage 2 PR creation|PR creation|Execution Gate|create the PR|pending USER approval|approval missing|USER approval to enter|USER denied PR Readiness Stage 2)\b",
+    ),
+    (
+        "active stage 2 approval decision",
+        r"^\s*(?:-\s*)?(?:Stage 2 Green-Light Decision Needed|PR Readiness Stage 2 Green-Light Decision Needed):\s*`?(?!(?:Historical|Closed|Fulfilled historically|Granted by USER)\b)[^`\r\n]*(?:I approve|Approve|USER approval|Pending USER approval|PR Readiness Stage 2|PR creation|create the PR)\b",
+    ),
+    (
+        "active exact user approval text",
+        r"^\s*(?:-\s*)?(?:Exact USER Approval Text|Exact USER Decision Needed|Exact Next USER Decision Needed):\s*`?(?:I approve|Approve)[^`\r\n]*(?:\bPR Readiness Stage 2\b|create the PR|Stage 2 execution)\b",
+    ),
+    ("pre-pr live state", r"^\s*(?:-\s*)?Pre-PR Live State:\s*`?No live PR\b"),
+    (
+        "pending PR creation approval",
+        r"^\s*(?:-\s*)?PR Creation Approval:\s*`?Pending USER approval\b",
+    ),
+    (
+        "pending Stage 2 PR creation",
+        r"^\s*(?:-\s*)?Stage 2 PR Creation:\s*`?Pending USER approval\b",
+    ),
     ("live open PR state", r"\bLive PR State:\s*`?open\b"),
     ("current PR readiness seam", r"\bCurrent PR Readiness Seam:\b"),
     ("active worktree confinement", r"Assigned Worktree Confinement:\s*`?Active\b"),

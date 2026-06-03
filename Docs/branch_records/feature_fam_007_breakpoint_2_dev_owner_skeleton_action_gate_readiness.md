@@ -254,7 +254,7 @@ Rollback Target: `Branch Readiness`
 ## Next Legal Phase
 
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Gate: `PR Readiness Stage 1 repair is complete; Stage 2 PR creation remains pending USER approval; private/runtime/provider/cache/memory work, merge, release, cleanup, FAM-006/Governance mutation, and v1.8.0 remain blocked.`
+Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 1 repair is complete; Stage 2 PR creation remains pending USER approval; private/runtime/provider/cache/memory work, merge, release, cleanup, FAM-006/Governance mutation, and v1.8.0 remain blocked.`
 
 ## Backlog Taxonomy And Source-Truth Placement Gate
 
@@ -315,7 +315,7 @@ Public-Safe Metadata Proof: `public-safe fixture metadata contains no private re
 Source-Truth Fold-Down: `This branch record and the active branch plan record Seams 1 through 4 as implemented public-safe proof, Hardening H1 as green, and Live Validation LV1 as green.`
 Packet Proof Expectation: `Refresh the Desktop USER review packet and ZIP after the Seam 1 commit so branch, HEAD, origin/main, file counts, exact next USER decision, and packet decision path are self-consistent.`
 Next Seam Candidate: `Satisfied - Hardening H1 and Live Validation LV1 are complete; PR Readiness Stage 1 is next.`
-Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
+Historical Next USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
 
 ## Remaining Workstream Seam Group Implementation Receipt
 
@@ -335,7 +335,7 @@ Hardening Handoff Criteria Proof: `Implemented - Hardening H1 handoff criteria a
 Source-Truth Fold-Down: `This branch record and the active branch plan record Seams 1 through 4 as implemented public-safe proof; Hardening H1 and Live Validation LV1 are complete.`
 Satisfied Next Legal Phase: `Hardening H1 completed before LV1`
 No-Gated-Action Proof: `No private Dev repo, private Owner repo, local-only private root, private remote, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, FAM-006/Governance mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work was performed.`
-Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
+Historical Next USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
 
 ## Hardening H1 Comparison Receipt
 
@@ -347,7 +347,7 @@ H1 Private / Runtime Action Proof: `No private Dev repo, private Owner repo, loc
 H1 Packet Proof: `Desktop USER review packet and ZIP were refreshed after H1; LV1 must refresh them again so branch, HEAD, origin/main, decision path, counts, and next USER decision align.`
 H1 Follow-On Phase: `Live Validation LV1 - Complete`
 Live Validation LV1 Expected Route: `Satisfied - no-visible-runtime and UTS waiver proof were used because this carrier changed source-truth, fixture, validator, helper, packet, and external-state proof only, with no app UI/runtime/provider/model/cache/memory/private/backup/import/voice/Core/shortcut/installer surface.`
-Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
+Historical Next USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
 
 ## Live Validation LV1 / No-Visible-Runtime Proof Receipt
 
@@ -361,8 +361,8 @@ Provider / Runtime / Cache / Memory Proof: `PASS - provider-visible data none; s
 Private / Backup / Import Proof: `PASS - no private repo/root/remote, backup/import behavior, private path, secret, token, prompt, memory, model artifact, or private automation created.`
 Replay / Shortcut / UTS Boundary: `PASS - LV1 does not replay cached runtime behavior, does not validate shortcuts, and does not claim user-facing runtime exercise.`
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`
-Exact Next USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
+Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 2 - Execution Gate`
+Historical Next USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
 
 ## USER Branch Plan Review Gate
 
@@ -406,7 +406,7 @@ Contract Completion Checklist: `Complete through PR Readiness Stage 1 repair; re
 Accepted Scope: `Accepted scope includes Seams 1 through 4 public-safe proof, Hardening H1 comparison, Live Validation LV1/no-visible-runtime proof, and PR Readiness Stage 1 repair.`
 Deferred Scope: `All future private/runtime/provider/cache/memory/PR/merge/release/cleanup actions.`
 Rejected Scope: `None recorded.`
-Exact USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
+Historical USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906.`
 Implementation Approval: `Workstream implementation complete; Hardening H1 complete; Live Validation LV1 complete; PR Readiness Stage 1 repair complete; PR Readiness Stage 2 PR creation remains blocked pending exact USER approval.`
 
 ## Element-to-Phase Proof Matrix
@@ -454,10 +454,10 @@ Bounded Seam Default: `Bounded means one active seam at a time; bounded is not o
 
 Historical Phase Receipt: `PR Readiness Stage 1 Ready For Stage 2 before branch closeout`
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`
+Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 2 - Execution Gate`
 Why This Phase Is Next: `PR Readiness Stage 1 repaired stale packet metadata after current-main reconciliation, recorded no live PR, recorded PR creation and Stage 2 as pending USER approval, folded repo-tracked active authority to merge-stable historical/no-active posture, recorded no-release-debt posture, and preserved selected-next default/defer posture.`
 Approval Required: `YES - USER approval for PR Readiness Stage 2 PR creation is required before any PR, watcher, bot-review, merge-watch, or merge action.`
-Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906. Scope: create the PR from this branch to main for the completed FAM-007 Breakpoint 2 public-safe Dev/Owner skeleton action-gate readiness proof carrier, verify live PR state, run required validation, provision or update the PR watcher required by PR Readiness, request/monitor Codex bot review, repair only in-scope Codex comments if any, and stop before merge unless PR Readiness green and separate merge approval are present. Do not merge, release, cleanup, mutate FAM-006/Governance/sibling worktrees, create private Dev/Owner repos, private roots/remotes, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work.`
+Historical USER Approval Text Receipt: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906. Scope: create the PR from this branch to main for the completed FAM-007 Breakpoint 2 public-safe Dev/Owner skeleton action-gate readiness proof carrier, verify live PR state, run required validation, provision or update the PR watcher required by PR Readiness, request/monitor Codex bot review, repair only in-scope Codex comments if any, and stop before merge unless PR Readiness green and separate merge approval are present. Do not merge, release, cleanup, mutate FAM-006/Governance/sibling worktrees, create private Dev/Owner repos, private roots/remotes, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work.`
 Allowed Scope: `Run PR Readiness Stage 2 only after explicit USER approval; Stage 2 owns final PR execution, live PR validation, watcher provisioning, bot-review handling, and merge-watch setup.`
 Explicit Exclusions: `No merge, release, cleanup, private setup, provider/model execution, runtime cache behavior, memory, backup/import execution, sibling worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0.`
 Validation Required: `git diff checks, branch governance, PR readiness gate, worktree confinement, release-readiness health gate, governance efficiency, source-owner, release body, provider-state, public leak-prevention, branch-readiness fixture, external-state validation, branch-readiness validation suite, compileall, PR body quality audit before PR creation, live PR body validation after PR creation, and rebaseline audit if origin/main advances.`
@@ -473,9 +473,9 @@ Review Waiver Reason: `None - USER approval is required before PR creation.`
 PR Readiness Stage: `PR Readiness Stage 1 - Analysis Gate`
 Stage 1 Analysis Role: `analysis-first blocker repair gate`
 Stage 1 Outcome: `Stage 1 Ready For Stage 2`
-Pre-PR Live State: `No live PR`
-PR Creation Approval: `Pending USER approval`
-Stage 2 PR Creation: `Pending USER approval`
+Historical Pre-PR Live State: `No live PR`
+Historical PR Creation Approval Receipt: `Pending USER approval`
+Historical Stage 2 PR Creation Receipt: `Pending USER approval`
 Planned PR Title: `FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness`
 Planned Base Branch: `main`
 Planned Head Branch: `feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness`
@@ -511,8 +511,8 @@ Governance Ledger Fallback: `Not required - repair is current-branch PR Readines
 Branch Readiness Fallback: `Not required - current branch remains the legal carrier and no broader Branch Readiness re-entry is needed.`
 Stage 2 Sync Plan: `On approval, verify no live PR exists or bind to the live PR if one appears, rerun validation, write/quality-check PR body, create PR to main, provision watcher, request/monitor Codex bot review, and stop before merge unless subsequent merge approval exists.`
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Gate: `PR Readiness Stage 2 - Execution Gate`
-Stage 2 Green-Light Decision Needed: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906. Scope: create the PR from this branch to main for the completed FAM-007 Breakpoint 2 public-safe Dev/Owner skeleton action-gate readiness proof carrier, verify live PR state, run required validation, provision or update the PR watcher required by PR Readiness, request/monitor Codex bot review, repair only in-scope Codex comments if any, and stop before merge unless PR Readiness green and separate merge approval are present. Do not merge, release, cleanup, mutate FAM-006/Governance/sibling worktrees, create private Dev/Owner repos, private roots/remotes, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work.`
+Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 2 - Execution Gate`
+Historical Stage 2 Green-Light Decision Receipt: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness in C:\Nexus Worktrees\FAM-007 at HEAD c0fbd068d104fc3e44df71ed865b48ad296c9703 and origin/main@bf0047adce19b1ac1b6498775b11ca8ff2424906. Scope: create the PR from this branch to main for the completed FAM-007 Breakpoint 2 public-safe Dev/Owner skeleton action-gate readiness proof carrier, verify live PR state, run required validation, provision or update the PR watcher required by PR Readiness, request/monitor Codex bot review, repair only in-scope Codex comments if any, and stop before merge unless PR Readiness green and separate merge approval are present. Do not merge, release, cleanup, mutate FAM-006/Governance/sibling worktrees, create private Dev/Owner repos, private roots/remotes, backup/import behavior, provider/model/runtime/cache/memory behavior, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work.`
 
 ## Release Readiness Health Pass
 

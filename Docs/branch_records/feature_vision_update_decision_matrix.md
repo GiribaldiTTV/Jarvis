@@ -91,7 +91,7 @@ It is not the standing Governance Intake Branch. The standing branch remains `fe
 - Next Legal Phase: `PR Readiness`
 - Why This Phase Is Next: `The governance/source-truth hardening pass must finish validation, Desktop review-bundle proof, branch-authority routing, and merge-stability review before USER can decide whether PR Readiness Stage 2 / PR creation is legal.`
 - Approval Required: `USER approval required before PR creation; current approval covers source-truth/validator/fixture hardening, validation, commit, push, and refreshed review bundle only.`
-- Exact USER Approval Text: `Approve PR Readiness Stage 1 analysis for feature/vision-update-decision-matrix targeting main, including branch authority route, Main-first loader routing, phase digest non-compaction, Workstream Entry whole-package gate, Element-to-Phase matrix hardening, validator/fixture proof, Desktop review-bundle freshness, full validation, and whether Stage 2 PR creation is legal.`
+- Historical USER Approval Text Receipt: `Approve PR Readiness Stage 1 analysis for feature/vision-update-decision-matrix targeting main, including branch authority route, Main-first loader routing, phase digest non-compaction, Workstream Entry whole-package gate, Element-to-Phase matrix hardening, validator/fixture proof, Desktop review-bundle freshness, full validation, and whether Stage 2 PR creation is legal.`
 - Allowed Scope: `Analysis and bounded governance/source-truth hardening for docs, templates, validators, fixtures, helper registry wording, and review-bundle files relevant to this repair.`
 - Explicit Exclusions: `No PR creation, merge, runtime implementation, FAM-006/FAM-007/Compact-AI mutation, release work, issue work, branch cleanup, successor branch creation, file rename/delete/archive work, heavy historical enforcement, or natural-language semantic conflict blocking beyond marker-first checks without separate USER decision.`
 - Validation Required: `git diff --check; git diff --check origin/main...HEAD; python dev\orin_branch_governance_validation.py; python dev\orin_branch_governance_validation.py --release-readiness-health-gate; python dev\orin_governance_efficiency_validation.py; python dev\orin_branch_readiness_planning_fixture_validation.py; python dev\orin_source_owner_marker_validation.py; python dev\orin_release_body_validation.py; python dev\orin_ai_provider_state_validation.py; python -m compileall -q dev desktop Audio main.py.`
@@ -111,7 +111,7 @@ It is not the standing Governance Intake Branch. The standing branch remains `fe
 
 ## PR Readiness Hold
 
-- PR Creation Approval: `Pending USER approval`
-- Stage 2 PR Creation: `Pending USER approval`
+- Historical PR Creation Approval Receipt: `Pending USER approval`
+- Historical Stage 2 PR Creation Receipt: `Pending USER approval`
 - Merge-Stable Branch Authority Projection: `Required before PR green; this active record must move to Historical Branch Authority Records, be removed from Active Branch Authority Records, or otherwise be made merge-stable according to Docs/branch_records/index.md before merge approval.`
 - No Successor Runtime Branch By Inertia: `USER-waived for this governance/source-truth repair; this branch does not select or admit runtime successor work.`

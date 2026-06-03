@@ -193,9 +193,9 @@ PR Readiness Blocker: `Closed - PR #207 merged.`
 ## PR Readiness Stage 1 Projection
 
 PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2`
-Pre-PR Live State: `No live PR`
-PR Creation Approval: `Granted by USER for PR Readiness Stage 2 execution.`
-Stage 2 PR Creation: `Historical - PR #207 was created at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/207 and later merged.`
+Historical Pre-PR Live State: `No live PR`
+Historical PR Creation Approval Receipt: `Granted by USER for PR Readiness Stage 2 execution.`
+Historical Stage 2 PR Creation Receipt: `Historical - PR #207 was created at https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/207 and later merged.`
 Historical PR State Receipt: `PR #207 was opened from feature/fam-006-overlay-display-acceptance-foundation to main; mergeability was reported MERGEABLE during Stage 2 validation before merge.`
 Origin/Main Freshness Check: `PASS - current origin/main is a909f8e92c1fb1abd06e54e1301f12459e647b45; merge base is a909f8e92c1fb1abd06e54e1301f12459e647b45; branch is 40 ahead / 0 behind origin/main at Stage 2 PR creation.`
 Reconciliation Required: `NO - current-main reconciliation is complete.`
@@ -328,7 +328,7 @@ Current Phase: `Historical Traceability`
 Next Legal Phase: `Branch Readiness`
 Why This Phase Is Next: `SLC-042 through SLC-045, H1, current-main reconciliation, real-input LV1 proof, focused normal/compact screenshots, short video proof, Codex pessimistic visual review, USER Test Summary PASS/closed digestion, PR Readiness, PR #207 merge, and v1.7.19-prebeta publication are complete.`
 Approval Required: `None for this historical record; future FAM-006 work requires a new USER-approved Branch Readiness lane.`
-Exact USER Decision Needed: `None for this historical record.`
+Historical USER Decision Receipt: `None for this historical record.`
 Allowed Scope: `Historical traceability only.`
 Explicit Exclusions: `Future FAM-006 runtime work, issue mutation, stale branch cleanup, artifacts/raw evidence handling, sibling-worktree mutation, Recording Profile runtime, tray recording controls, export/share, provider/model/memory/shortcut/installer work, broad theme/skin work, FAM-007 work, and Governance worktree mutation.`
 Validation Required: `Identity, source-truth, HUD live/human-client proof as needed, branch governance, worktree confinement after commit, release-readiness health gate, validation suite, diff checks, compileall, and supported JS syntax/runtime checks including bundled runtime Node when needed.`

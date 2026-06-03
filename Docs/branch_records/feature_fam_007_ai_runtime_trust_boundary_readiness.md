@@ -50,8 +50,8 @@ Seam: `FAM-007 AI runtime and trust-boundary readiness historical PR #240 eviden
 - PR Readiness Stage 1 Outcome: `Historical complete - Stage 1 reached Stage 2-ready before PR #240.`
 - Historical Pre-PR Live State: `No live PR before Stage 2; retained as historical evidence only.`
 - PR URL: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/240`
-- PR Creation Approval: `Historical complete - PR #240 was created after USER approval.`
-- Stage 2 PR Creation: `Historical complete - PR #240 merged.`
+- Historical PR Creation Approval Receipt: `Historical complete - PR #240 was created after USER approval.`
+- Historical Stage 2 PR Creation Receipt: `Historical complete - PR #240 merged.`
 - Stage 2 USER Approval: `Historical complete - USER selected FAM-007 AI runtime/trust-boundary readiness planning and approved the bounded loop from origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9.`
 - Branch Creation: `Historical evidence - branch was created in C:\Nexus Worktrees\FAM-007 from origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9.`
 - Branch Plan Status: `Retired from active planning posture; preserved as historical branch-runtime engineering plan proof.`
@@ -214,8 +214,8 @@ Codex Live Client Self-QA: `WAIVED - no live client or user-facing runtime surfa
 PR Readiness Stage 1 USER Approval: `Historical complete - USER approved bounded Stage 1 repair only for feature/fam-007-ai-runtime-trust-boundary-readiness in C:\Nexus Worktrees\FAM-007.`
 PR Readiness Stage 1 Outcome: `Historical complete - Stage 1 reached Stage 2-ready before PR #240.`
 Historical Pre-PR Live State: `No live PR before Stage 2; retained as historical evidence only.`
-PR Creation Approval: `Historical complete - PR #240 was created after USER approval.`
-Stage 2 PR Creation: `Historical complete - PR #240 merged.`
+Historical PR Creation Approval Receipt: `Historical complete - PR #240 was created after USER approval.`
+Historical Stage 2 PR Creation Receipt: `Historical complete - PR #240 merged.`
 PR Title: `FAM-007 AI runtime trust-boundary readiness`
 Base Branch: `main`
 Head Branch: `feature/fam-007-ai-runtime-trust-boundary-readiness`
@@ -399,7 +399,7 @@ Rollback Target: `Branch Readiness`
 ## Next Legal Phase
 
 Next Legal Phase: `PR Readiness`
-Next Legal Phase Gate: `PR Readiness Stage 2 PR creation requires explicit USER approval; merge, release, cleanup, private/runtime/provider/cache/memory actions, and v1.8.0 execution remain blocked.`
+Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 2 PR creation requires explicit USER approval; merge, release, cleanup, private/runtime/provider/cache/memory actions, and v1.8.0 execution remain blocked.`
 
 ## Product Definition Plan
 
@@ -472,7 +472,7 @@ Historical Phase Receipt: `PR Readiness at branch closeout`
 Next Legal Phase: `PR Readiness`
 Why This Phase Is Next: `PR Readiness Stage 1 repair is recorded as Stage 1 Ready For Stage 2; Stage 2 PR creation now requires explicit USER approval.`
 Approval Required: `USER must explicitly approve PR Readiness Stage 2 PR creation; merge, release, cleanup, private/runtime/provider/cache/memory actions, and v1.8.0 execution remain separate decisions.`
-Exact USER Approval Text: `Approve PR Readiness Stage 2 PR creation for feature/fam-007-ai-runtime-trust-boundary-readiness in C:\Nexus Worktrees\FAM-007 from origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9, with FAM-007 Breakpoint 2 recorded as the selected next candidate/pre-plan, no live PR currently present, validation expected green, and merge/release/cleanup/provider/model/runtime/cache/memory/private actions still blocked.`
+Historical USER Approval Text Receipt: `Approve PR Readiness Stage 2 PR creation for feature/fam-007-ai-runtime-trust-boundary-readiness in C:\Nexus Worktrees\FAM-007 from origin/main@3b7b803eb1fee99a015ea6f675a9f2b916556de9, with FAM-007 Breakpoint 2 recorded as the selected next candidate/pre-plan, no live PR currently present, validation expected green, and merge/release/cleanup/provider/model/runtime/cache/memory/private actions still blocked.`
 Allowed Scope: `PR Readiness Stage 2 PR creation and watcher provisioning after explicit USER approval; no merge or release.`
 Explicit Exclusions: `Provider SDK/model execution; model downloads; runtime provider execution; cache runtime behavior; external calls; memory/learning/personalization; private Dev/Owner repos; private remotes; backup/import implementation; voice/Core sync; shortcuts/installers; PR creation before Stage 2 approval; merge; release; cleanup; sibling-worktree mutation; AI Product Contract import; Private Dev ORIN import; v1.8.0 execution.`
 Validation Required: `Full validation before PR Readiness Stage 2 approval/use: git diff checks, branch governance validation, worktree confinement gate, release-readiness health gate, PR-readiness gate after commit, branch-readiness planning fixtures, provider-state validation, public leak-prevention validation, release body validation, source-owner marker validation, compileall, packet validation, and rebaseline audit if source truth requires it.`

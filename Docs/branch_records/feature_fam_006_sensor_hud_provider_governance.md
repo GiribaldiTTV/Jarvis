@@ -366,7 +366,7 @@ The active seam is the Branch Readiness Stage 2 docs/governance and validator re
 - Release Window Audit Posture: `PASS`
 - Rollback Plan: `Abandon branch before PR merge; do not mutate direct main`
 - Next Legal Phase: `PR Readiness Stage 2 only after explicit USER approval; otherwise hold this carrier without PR creation`
-- Stage 2 Green-Light Decision Needed: `USER approval to enter PR Readiness Stage 2 and create the PR`
+- Historical Stage 2 Green-Light Decision Receipt: `USER approval to enter PR Readiness Stage 2 and create the PR`
 
 ## Next Workstream
 
@@ -500,4 +500,4 @@ Rollback Path: abandon branch `feature/fam-006-sensor-hud-provider-governance`; 
 
 - `PR Readiness`
 
-Next Legal Phase Gate: USER denied PR Readiness Stage 2 for now. This branch must hold until FAM-007 PR/merge reconciliation is complete or USER explicitly reopens PR Readiness Stage 2 / PR creation for this carrier. Runtime implementation, provider bundling, Libre update tooling, release work, issue closeout, FAM-007 work, and AI Product Contract import remain separate USER approval checkpoints.
+Historical Next Legal Phase Gate Receipt: USER denied PR Readiness Stage 2 for now. This branch must hold until FAM-007 PR/merge reconciliation is complete or USER explicitly reopens PR Readiness Stage 2 / PR creation for this carrier. Runtime implementation, provider bundling, Libre update tooling, release work, issue closeout, FAM-007 work, and AI Product Contract import remain separate USER approval checkpoints.

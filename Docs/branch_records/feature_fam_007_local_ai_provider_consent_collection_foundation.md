@@ -459,11 +459,11 @@ Planned PR Base: `main`
 
 Planned PR Head: `feature/fam-007-local-ai-provider-consent-collection-foundation`
 
-Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+Historical Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
 
-PR Creation Approval: Pending USER approval
+Historical PR Creation Approval Receipt: Pending USER approval
 
-Stage 2 PR Creation: Pending USER approval
+Historical Stage 2 PR Creation Receipt: Pending USER approval
 
 Workstream Completion State: `Green - bounded FAM-007 consent collection foundation implementation, H1, LV1, validator proof, desktop readiness display suppression continuity, and PR Readiness Stage 1 source-truth repair are complete.`
 
@@ -659,7 +659,7 @@ Why This Phase Is Next: `The bounded Workstream is implemented, H1 compared impl
 
 Approval Required: `USER approval`
 
-Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-consent-collection-foundation in C:\Nexus Worktrees\FAM-007.`
+Historical USER Approval Text Receipt: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-consent-collection-foundation in C:\Nexus Worktrees\FAM-007.`
 
 Allowed Scope: `Create the PR against main, validate live PR state, mergeability, checks, review state, PR body/source-truth fold-down, watcher provisioning, and PR metadata; do not merge, release, clean branches/worktrees, implement actual consent capture, provider setup, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, or mutate sibling lanes.`
 
