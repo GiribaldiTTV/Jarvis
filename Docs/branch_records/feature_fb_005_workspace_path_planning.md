@@ -14,7 +14,7 @@ Live execution authority moved to `Docs/workstreams/FB-005_workspace_and_folder_
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

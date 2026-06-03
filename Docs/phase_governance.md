@@ -308,6 +308,18 @@ When the proposed concept touches backlog identity, family vision, architecture,
 
 AI Operational Cache Governance must not be promoted as a new FAM by inertia. Cache is not memory: cache is operational, purpose-bound, explainable, clearable, and policy-governed, while memory is durable user-personal knowledge and requires separate explicit consent. Cross-family cache architecture, replay safety, provenance, invalidation, Trust Journal cache events, and policy placement route through `Docs/ai_runtime_and_trust_architecture.md`; family-specific cache placement routes through existing FAM-007 AI/runtime/capability-pack owners, FAM-008 setup/install/cache-root UX owners, the relevant implementing family vision for local data/privacy implications, and the active external branch planning owner for implementation-specific cache behavior. Any further new AI architecture or policy owner is legal only after the placement preflight records `No Existing Owner Fits` or USER approves a companion source-truth file.
 
+### Codex Plugin / Connector Use Boundary
+
+`Docs/governance_efficiency_operating_model.md` owns the `Codex Plugin / Connector Evidence Split Compatibility Contract`. Phase governance consumes that contract as a phase-gate boundary.
+
+Codex app plugins and connectors may support any phase only as evidence tools inside the existing phase machine. They do not create a new phase, bypass Branch Readiness / Branch Planning / Workstream / Hardening / Live Validation / PR Readiness / Release Readiness, waive USER gates, authorize implementation, or clear blockers by themselves.
+
+Before Codex relies on a plugin or connector for phase advancement, PR readiness, release readiness, source-truth repair, provider/API setup, private/public boundary work, or governed review evidence, the phase packet must include `Plugin / Connector Use Plan:` with tool, use case, phase/stage, authority class, read/write mode, mutation risk, privacy/secret risk, expected evidence, evidence owner, fallback, USER approval requirement, and repo persistence.
+
+`Plugin / Connector Use Plan Missing`, `Plugin Evidence Treated As Source Truth`, `Plugin Live-State Ledger In Repo`, `Sensitive Connector Setup In Repo`, and `External Plugin Evidence Schema Premature` block phase advancement when applicable.
+
+GitHub connector PR facts remain Git/GitHub/helper-derived live truth. OpenAI Docs lookups are evidence for durable rule review. OpenAI Developers/API key/provider setup is sensitive setup state and remains blocked unless USER approves that exact setup path. Browser, Chrome, Computer Use, Documents, Spreadsheets, and Presentations outputs are review or validation evidence until digested into an owning source-truth file or historical receipt.
+
 ### Architecture / Experience / Policy Impact Matrix
 
 Branch Readiness Stage 1 and Branch Planning packets for product, runtime, UI, provider, cache, AI-native, capability-pack, privacy, trust, or source-truth ownership work must include an `Architecture / Experience / Policy Impact Matrix`.

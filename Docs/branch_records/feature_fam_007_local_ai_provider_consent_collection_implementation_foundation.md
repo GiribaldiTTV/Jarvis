@@ -478,11 +478,11 @@ Historical PR Head: `feature/fam-007-local-ai-provider-consent-collection-implem
 
 Historical PR: `PR #201 merged at 2026-05-23T23:57:37Z with merge commit 600f50d60a808cbc5a32473e80dd6e8778616906.`
 
-Pre-PR Live State: Historical pre-PR snapshot - GitHub inspection found no open PR before Stage 2; USER later approved PR creation, PR #201 was created, and PR #201 merged.
+Historical Pre-PR Live State: Historical pre-PR snapshot - GitHub inspection found no open PR before Stage 2; USER later approved PR creation, PR #201 was created, and PR #201 merged.
 
-PR Creation Approval: Historical granted for PR #201
+Historical PR Creation Approval Receipt: Historical granted for PR #201
 
-Stage 2 PR Creation: Complete - PR #201 created and merged
+Historical Stage 2 PR Creation Receipt: Complete - PR #201 created and merged
 
 Workstream Completion State: `Green - bounded FAM-007 consent capture/write-path implementation foundation, H1, LV1, validator proof, desktop readiness display suppression continuity, and PR Readiness Stage 1 source-truth repair are complete.`
 
@@ -688,7 +688,7 @@ Compact-AI Preservation Posture: `Preserved as historical released/salvaged evid
 
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 Live Validation LV1`
 
-Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-007 was assigned while this branch was active`
 
 Worktree Ownership Ledger: `This branch record and Docs/worktree_slots.md runtime-active-1 receipt`
 
@@ -737,7 +737,7 @@ Required Validation:
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `PR Readiness Stage 1`
+Historical Phase Receipt: `PR Readiness Stage 1 at branch closeout`
 
 Next Legal Phase: `PR Readiness`
 
@@ -745,7 +745,7 @@ Why This Phase Is Next: `The bounded Workstream is implemented, H1 compared impl
 
 Approval Required: `USER approval`
 
-Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007. Scope: create the PR against main, validate live PR state, mergeability, checks, review state, PR body/source-truth fold-down, watcher provisioning, and PR metadata; do not merge, release, clean branches/worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, or mutate sibling lanes.`
+Historical USER Approval Text Receipt: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-consent-collection-implementation-foundation in C:\Nexus Worktrees\FAM-007. Scope: create the PR against main, validate live PR state, mergeability, checks, review state, PR body/source-truth fold-down, watcher provisioning, and PR metadata; do not merge, release, clean branches/worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, or mutate sibling lanes.`
 
 USER Plan Review Gate: `PR Readiness Stage 1 is complete; USER may inspect the PR Readiness Stage 1 Analysis Packet, branch plan, changed-file scope, validation results, and Stage 2 approval boundary before authorizing PR creation.`
 

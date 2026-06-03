@@ -6,7 +6,7 @@ Record State: `Projected Historical PR Readiness Stage 1 Ready`
 
 ## Status
 
-Status: `PR Readiness Stage 1 Ready For Stage 2 - Workstream, H1, LV1, desktop display suppression proof, selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, validation, commit, and push are recorded; PR creation requires separate USER approval`
+Status: `Historical projection receipt - completed readiness evidence is preserved for Workstream, H1, LV1, desktop display suppression proof, selected-next defer/waiver evidence, pre-PR live-state evidence, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, validation, commit, and push. This record does not own current PR creation, branch, selected-next, or approval state.`
 
 ## Branch Identity
 
@@ -118,7 +118,7 @@ Next Legal Phase: `PR Readiness Stage 2 / PR creation`
 
 Next Legal Seam: `PR Readiness Stage 2 / PR creation for FAM-007 Local AI Provider Setup and Consent Flow Readiness`
 
-Exact USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
+Historical USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
 
 ## Governance Drift Audit
 
@@ -248,7 +248,7 @@ Implementation Slice Non-Includes: `Provider setup implementation, consent colle
 
 ## Workstream Completion
 
-Workstream Completion State: `Green - bounded multi-seam setup and consent flow readiness implementation complete; H1 Green, LV1 Green, PR Readiness Stage 1 Ready For Stage 2, and PR creation pending USER approval.`
+Workstream Completion State: `Green - bounded multi-seam setup and consent flow readiness implementation complete; H1 Green, LV1 Green, PR Readiness Stage 1 Ready For Stage 2, and historical Stage 2 PR-creation gate recorded before PR execution.`
 
 Seam Family 1 - Setup Flow Readiness Contract: `Green - desktop/ai_provider_state.py publishes setup flow readiness state, eligibility, blockers, reason codes, provenance, schema/config versioning, approval status, and future setup handoff posture.`
 
@@ -336,7 +336,7 @@ Planned PR Base: `main`
 
 Planned PR Head: `feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness`
 
-Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness`
+Historical Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-setup-and-consent-flow-readiness`
 
 Workstream Completion State: `Green - Workstream implementation, Hardening H1, Live Validation LV1, desktop AI-owned readiness display suppression proof, and PR Readiness Stage 1 repair are recorded and ready for PR Readiness Stage 2 after USER approval.`
 
@@ -494,7 +494,7 @@ Stop Basis: Workstream Green / H1 Green / LV1 Green / PR Readiness Stage 1 Ready
 
 Next Active Seam: PR Readiness Stage 2 / PR creation
 
-Stop Condition: PR Readiness Stage 1 green; PR Readiness Stage 2 / PR creation pending USER approval.
+Stop Condition: Historical receipt - PR Readiness Stage 1 was green before Stage 2 PR creation.
 
 Continuation Action: Stop at phase boundary until USER admits the next phase; return PR Readiness Stage 1 closeout packet and await USER approval for PR Readiness Stage 2 / PR creation.
 
@@ -672,4 +672,4 @@ Governance Overlap Forecast: `Governance remains the standing intake lane. PR #1
 
 Next Legal Seam: `PR Readiness Stage 2 / PR creation`
 
-Exact USER Decision Needed: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`
+Historical USER Decision Receipt: `Approve PR Readiness Stage 2 / PR creation for the completed, H1-hardened, LV1-validated, and Stage 1-ready FAM-007 Local AI Provider Setup and Consent Flow Readiness branch.`

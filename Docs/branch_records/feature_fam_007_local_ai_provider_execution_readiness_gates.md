@@ -145,7 +145,7 @@ Rollback Rule: `If validation fails and cannot be repaired within Stage 2 setup 
 
 Next Legal Phase: `Historical traceability complete after PR #172 merge and v1.7.7-prebeta release; active FAM-007 path moved to feature/fam-007-local-ai-provider-path-and-consent-readiness`
 Next Legal Seam: `None on this historical branch record`
-Exact USER Decision Needed: `No USER decision is needed for this historical branch record; the active FAM-007 lane now needs Workstream Entry analysis approval for feature/fam-007-local-ai-provider-path-and-consent-readiness. Provider SDK/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate decisions.`
+Historical USER Decision Receipt: `No USER decision is needed for this historical branch record; the active FAM-007 lane now needs Workstream Entry analysis approval for feature/fam-007-local-ai-provider-path-and-consent-readiness. Provider SDK/model execution, downloads, external calls, memory/indexing/learning/personalization, voice/Core sync, shortcut/installer work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate decisions.`
 
 ## Carrier Lifecycle Decision
 
@@ -277,8 +277,8 @@ Merge Base: `9e33dd1216bab661c9183b73891c074acd6f5099`
 Origin/Main Advanced Since Branch Creation: `NO`
 Reconciliation Required: `NO`
 Reconciliation Mutation Status: `analysis-only - no file fixes during Stage 1 beyond bounded PR-readiness source-truth repair`
-Pre-PR Live State: `Historical - PR #172 was created and merged; live PR state is no longer an active branch gate`
-PR Readiness Stage 2 Green-Light Decision Needed: `Historical complete - no PR creation decision remains on this branch record`
+Historical Pre-PR Live State: `Historical - PR #172 was created and merged; live PR state is no longer an active branch gate`
+Historical PR Readiness Stage 2 Decision Receipt: `Historical complete - no PR creation decision remains on this branch record`
 
 ## Historical PR Readiness Validator Retention
 
@@ -286,7 +286,7 @@ Historical Validator Retention Note: `The following markers preserve the exact p
 Workstream Completion State: `Green - H1 Green / LV1 Green / PR Readiness Stage 1 repair recorded and ready for PR Readiness Stage 2 after USER approval`
 Next Legal Phase: `PR Readiness Stage 2 / PR creation for FAM-007 Local AI Provider Execution Readiness Gates`
 PR Readiness Stage 1 Outcome: `Stage 1 Ready For Stage 2 - current branch scope and validation are clean after bounded Stage 1 repair; PR creation remains blocked until explicit PR Readiness Stage 2 USER approval`
-Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-execution-readiness-gates`
+Historical Pre-PR Live State: `No live PR - PR Readiness Stage 2 / PR creation approval missing; no open PR exists for feature/fam-007-local-ai-provider-execution-readiness-gates`
 
 ## Post-Merge State
 

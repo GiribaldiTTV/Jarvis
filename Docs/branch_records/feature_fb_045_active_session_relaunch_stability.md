@@ -30,7 +30,7 @@ Historical traceability note: Branch Readiness is complete historical proof only
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

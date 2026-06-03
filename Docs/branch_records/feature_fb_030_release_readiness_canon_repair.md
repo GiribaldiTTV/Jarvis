@@ -14,7 +14,7 @@ It does not promote FB-030, create the selected-next FB-030 implementation branc
 
 ## Current Phase
 
-- Phase: `Branch Readiness`
+- Phase: `Historical Traceability`
 
 ## Phase Status
 

@@ -4663,6 +4663,61 @@ RELEASE_READINESS_HEALTH_STALE_POST_MERGE_PATTERNS = (
     ("release window unresolved", r"\bRelease Window(?: Audit)?:\s*`?(?:TBD|Unknown|Unresolved|Pending)\b"),
 )
 
+BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR = Path(
+    "dev/fixtures/branch_record_live_state_leakage"
+)
+
+BRANCH_RECORD_LIVE_STATE_LEAKAGE_PATTERNS = (
+    ("active branch authority marker", r"Branch Authority Marker:\s*`?Active Branch`?"),
+    ("active branch authority state", r"Branch Authority State:\s*`?Active\b"),
+    ("active transition waiver", r"Active Branch Authority Transition Waiver:\s*Granted"),
+    (
+        "active lifecycle state field",
+        r"^\s*(?:-\s*)?(?:Record State|Status):\s*`?(?:Branch Readiness|Branch Planning|Workstream|Hardening|Live Validation|PR Readiness|Release Readiness)\b",
+    ),
+    (
+        "active current phase",
+        r"^\s*(?:-\s*)?(?:Current Phase|Phase):\s*`?(?:Branch Readiness|Branch Planning|Workstream|Hardening|Live Validation|PR Readiness|Release Readiness)`?",
+    ),
+    (
+        "active review/PR pending gate",
+        r"\b(?:PR Readiness Stage 1 pending USER approval|Stage 2 PR creation pending USER approval|PR creation pending USER approval)\b",
+    ),
+    (
+        "active next legal phase gate",
+        r"^\s*(?:-\s*)?Next Legal Phase Gate:\s*`?(?!(?:Historical|Not applicable|No next execution phase|Cleared|Closed|PR #\d+ is merged|PR #\d+ merged)\b)[^`\r\n]*(?:PR Readiness Stage 2|Stage 2 PR creation|PR creation|Execution Gate|create the PR|pending USER approval|approval missing|USER approval to enter|USER denied PR Readiness Stage 2)\b",
+    ),
+    (
+        "active stage 2 approval decision",
+        r"^\s*(?:-\s*)?(?:Stage 2 Green-Light Decision Needed|PR Readiness Stage 2 Green-Light Decision Needed):\s*`?(?!(?:Historical|Closed|Fulfilled historically|Granted by USER)\b)[^`\r\n]*(?:I approve|Approve|USER approval|Pending USER approval|PR Readiness Stage 2|PR creation|create the PR)\b",
+    ),
+    (
+        "active exact user approval text",
+        r"^\s*(?:-\s*)?(?:Exact USER Approval Text|Exact USER Decision Needed|Exact Next USER Decision Needed):",
+    ),
+    ("pre-pr live state", r"^\s*(?:-\s*)?Pre-PR Live State:\s*`?No live PR\b"),
+    (
+        "pending PR creation approval",
+        r"^\s*(?:-\s*)?PR Creation Approval:\s*`?Pending USER approval\b",
+    ),
+    (
+        "pending Stage 2 PR creation",
+        r"^\s*(?:-\s*)?Stage 2 PR Creation:\s*`?Pending USER approval\b",
+    ),
+    ("live open PR state", r"\bLive PR State:\s*`?open\b"),
+    ("current PR readiness seam", r"\bCurrent PR Readiness Seam:\b"),
+    ("active worktree confinement", r"Assigned Worktree Confinement:\s*`?Active\b"),
+    (
+        "active thread assignment",
+        r"Thread Assignment Status:\s*`?(?:Assigned and active|Active)\b",
+    ),
+    (
+        "active branch plan owner",
+        r"(?:Branch Runtime Engineering Plan|Engineering Plan Status|Active Branch Plan|Branch Plan Status):\s*`?Active\b",
+    ),
+    ("release window current owner", r"\bRelease Window(?: Audit)?:\s*`?(?:TBD|Unknown|Unresolved|Pending)\b"),
+)
+
 RELEASE_READINESS_ACTIVE_AUTHORITY_FOLD_DOWN_MARKERS = (
     "must not remain active branch authority",
     "must not retain active",
@@ -12854,6 +12909,82 @@ def _collect_branch_record_paths(text: str, heading_prefix: str) -> set[str]:
     return set(re.findall(r"Docs/branch_records/[A-Za-z0-9._-]+\.md", section))
 
 
+def _all_branch_record_detail_paths() -> set[str]:
+    return {
+        normalized_path
+        for path in _git_tracked_files()
+        for normalized_path in (path.as_posix(),)
+        if normalized_path.startswith("Docs/branch_records/")
+        and normalized_path.endswith(".md")
+        and normalized_path != "Docs/branch_records/index.md"
+    }
+
+
+def _branch_record_live_state_scan_text(text: str) -> str:
+    return text
+
+
+def _branch_record_live_state_leakage_findings(
+    relative_path: Path | str,
+    text: str,
+    active_branch_record_paths: set[str],
+) -> list[str]:
+    normalized_path = Path(relative_path).as_posix()
+    if normalized_path == STANDING_GOVERNANCE_INTAKE_RECORD_PATH:
+        return []
+
+    findings: list[str] = []
+    scan_text = _branch_record_live_state_scan_text(text)
+    for finding_name, pattern in BRANCH_RECORD_LIVE_STATE_LEAKAGE_PATTERNS:
+        if re.search(pattern, scan_text, flags=re.IGNORECASE | re.MULTILINE):
+            findings.append(finding_name)
+
+    if normalized_path in active_branch_record_paths:
+        findings.append("listed in Active Branch Authority Records")
+
+    return findings
+
+
+def _run_branch_record_live_state_leakage_fixtures(require) -> None:
+    fixture_root = ROOT_DIR / BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
+    invalid_fixtures = sorted(
+        fixture_root.glob("invalid_*.md")
+    )
+    valid_fixture = (
+        BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR
+        / "valid_historical_branch_record_receipt.md"
+    )
+    valid_text = _read_text(valid_fixture)
+    require(
+        bool(invalid_fixtures),
+        f"{BRANCH_RECORD_LIVE_STATE_LEAKAGE_FIXTURE_DIR}: missing invalid branch-record leakage fixtures",
+    )
+    for invalid_fixture in invalid_fixtures:
+        invalid_fixture_relative = invalid_fixture.relative_to(ROOT_DIR)
+        invalid_text = _read_text(invalid_fixture_relative)
+        require(
+            bool(
+                _branch_record_live_state_leakage_findings(
+                    Path("Docs/branch_records") / invalid_fixture.name,
+                    invalid_text,
+                    set(),
+                )
+            ),
+            (
+                f"{invalid_fixture_relative}: branch-record live-state leakage fixture must fail; "
+                "unindexed live branch records cannot pass as durable receipts"
+            ),
+        )
+    require(
+        not _branch_record_live_state_leakage_findings(
+            Path("Docs/branch_records/valid_historical_branch_record_receipt.md"),
+            valid_text,
+            set(),
+        ),
+        f"{valid_fixture}: historical branch-record receipt fixture must not fail live-state leakage scan",
+    )
+
+
 def _collect_merge_stable_detail_record_paths(*texts: str) -> set[str]:
     paths: set[str] = set()
     for text in texts:
@@ -19247,6 +19378,7 @@ def _standing_governance_intake_file_allowed(path: str) -> bool:
     return (
         normalized.startswith("Docs/")
         or normalized.startswith("dev/fixtures/branch_readiness_planning/")
+        or normalized.startswith("dev/fixtures/branch_record_live_state_leakage/")
         or normalized in STANDING_GOVERNANCE_INTAKE_ALLOWED_DEV_FILES
     )
 
@@ -21289,32 +21421,57 @@ def main() -> int:
         for path in active_branch_record_paths
         if path != STANDING_GOVERNANCE_INTAKE_RECORD_PATH
     ]
-    active_non_standing_records_without_transition_waiver: list[str] = []
-    for path in active_non_standing_branch_record_paths:
-        record_text = _read_text(path)
-        has_transition_waiver = all(
-            marker in record_text
-            for marker in (
-                "Active Branch Authority Transition Waiver: Granted",
-                "Transition Waiver USER Decision:",
-                "External State Reconciliation Proof:",
-            )
-        )
-        if not has_transition_waiver:
-            active_non_standing_records_without_transition_waiver.append(path)
     require(
-        not active_non_standing_records_without_transition_waiver,
+        not active_non_standing_branch_record_paths,
         (
             "Repo Active Operational State Prohibited: "
             "Docs/branch_records/index.md may not list non-standing active branch "
             "authority records after the External Operational State Store transition. "
             "Repo docs may keep durable branch/document evidence pointers and historical "
             "receipts only; active branch lifecycle state belongs in external operational "
-            "state or Git/GitHub/helper-derived truth. A USER-approved transition "
-            "waiver must include Active Branch Authority Transition Waiver: Granted, "
-            "Transition Waiver USER Decision:, and External State Reconciliation Proof:. "
+            "state or Git/GitHub/helper-derived truth. Transition waivers may be preserved "
+            "only as historical receipt evidence; they must not keep live branch state in repo docs. "
             "Offending record(s): "
-            + ", ".join(active_non_standing_records_without_transition_waiver)
+            + ", ".join(sorted(active_non_standing_branch_record_paths))
+        ),
+    )
+    _run_branch_record_live_state_leakage_fixtures(require)
+    all_branch_record_detail_paths = _all_branch_record_detail_paths()
+    indexed_branch_record_paths = active_branch_record_paths | historical_branch_record_paths
+    unindexed_branch_record_paths = all_branch_record_detail_paths - indexed_branch_record_paths
+    for branch_record_path in sorted(all_branch_record_detail_paths):
+        record_text = _read_text(Path(branch_record_path))
+        leakage_findings = _branch_record_live_state_leakage_findings(
+            branch_record_path,
+            record_text,
+            active_branch_record_paths,
+        )
+        require(
+            not leakage_findings,
+            (
+                f"{branch_record_path}: Repo Branch Record Live-State Leakage; "
+                "non-standing repo branch records are durable receipts/pointers, not live "
+                "operational ledgers. Findings: "
+                + ", ".join(sorted(set(leakage_findings)))
+            ),
+        )
+    unindexed_leakage_records: list[str] = []
+    for branch_record_path in sorted(unindexed_branch_record_paths):
+        record_text = _read_text(Path(branch_record_path))
+        leakage_findings = _branch_record_live_state_leakage_findings(
+            branch_record_path,
+            record_text,
+            active_branch_record_paths,
+        )
+        if leakage_findings:
+            unindexed_leakage_records.append(branch_record_path)
+    require(
+        not unindexed_leakage_records,
+        (
+            "Repo Branch Record Live-State Leakage: unindexed branch record(s) contain "
+            "live-state markers and must be indexed as historical receipts, moved external, "
+            "or folded down before validation can pass. Offending record(s): "
+            + ", ".join(unindexed_leakage_records)
         ),
     )
     for prohibited_prefix in PROHIBITED_ACTIVE_BRANCH_PREFIXES:
@@ -22922,12 +23079,15 @@ def main() -> int:
                     "preserved historical records"
                 ),
             )
+        allowed_transition_targets = set(PHASES)
+        if branch_record_path in historical_branch_record_paths:
+            allowed_transition_targets.add(HISTORICAL_TRACEABILITY_PHASE)
         require(
-            str(info["rollback_target"]) in PHASES,
+            str(info["rollback_target"]) in allowed_transition_targets,
             f"{branch_record_path}: Rollback Target '{info['rollback_target']}' is not in the canonical phase enum",
         )
         require(
-            str(info["next_legal_phase"]) in PHASES,
+            str(info["next_legal_phase"]) in allowed_transition_targets,
             f"{branch_record_path}: Next Legal Phase '{info['next_legal_phase']}' is not in the canonical phase enum",
         )
         if branch_record_path in active_branch_record_paths:

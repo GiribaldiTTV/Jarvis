@@ -120,7 +120,7 @@ Rollback Rule: `If validation fails and cannot be repaired within Stage 2 setup 
 
 Next Legal Phase: `Release Readiness`
 Next Legal Seam: `Release Readiness Stage 1 rerun after Governance RRI-20260519-001 merges and worktrees rebaseline`
-Exact USER Decision Needed: `Approve rerunning FAM-007 Release Readiness Stage 1 from updated origin/main after Governance RRI-20260519-001 merges and the originating FAM-007 worktree rebaselines. Release execution, tag/GitHub Release/artifact work, issue closeout, branch cleanup, provider/model work, memory/indexing, voice/Core sync, shortcut/installer work, and successor branch selection remain separate USER decisions.`
+Historical USER Decision Receipt: `Approve rerunning FAM-007 Release Readiness Stage 1 from updated origin/main after Governance RRI-20260519-001 merges and the originating FAM-007 worktree rebaselines. Release execution, tag/GitHub Release/artifact work, issue closeout, branch cleanup, provider/model work, memory/indexing, voice/Core sync, shortcut/installer work, and successor branch selection remain separate USER decisions.`
 
 ## PR Readiness Historical Evidence
 

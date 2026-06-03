@@ -53,9 +53,9 @@ Branch Class: `implementation`
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active for this FAM-007 Workstream carrier`
+Assigned Worktree Confinement: `Historical receipt for this FAM-007 Workstream carrier`
 Active Thread Owner: `Current Codex thread assigned by USER for FAM-007 user-operated consent UX foundation Workstream implementation`
-Thread Assignment Status: `Active for C:\Nexus Worktrees\FAM-007 only`
+Thread Assignment Status: `Historical assignment receipt - C:\Nexus Worktrees\FAM-007 was assigned while this branch was active`
 Worktree Ownership Ledger: `This branch authority record plus Docs/worktree_slots.md runtime-active-1 receipt`
 Intended Write Set: `FAM-007 branch authority record, Branch Runtime Engineering Plan, compact pointer docs, provider-state source, Core/Desktop/ORIN status surfaces, validation-produced source truth, and FAM-007 provider-state validator updates required for the approved Workstream`
 Same Worktree / Same Branch Collision Check: `PASS - no second writer assigned to this FAM-007 worktree or branch`
@@ -374,13 +374,13 @@ Blockers And Waivers Needed: `PR Readiness Execution User Approval Missing remai
 Release Window Audit Posture: `PASS`
 Rollback Plan: `If Stage 2 is not approved, keep this branch and record in historical projection posture; do not delete branches, worktrees, artifacts, issues, or sibling worktrees without later USER approval.`
 Next Legal Phase: `PR Readiness`
-Stage 2 Green-Light Decision Needed: `Approve PR Readiness Stage 2 execution to create the PR, validate the live PR, provision the watcher, and return the PR execution packet without merging unless separately approved.`
+Historical Stage 2 Green-Light Decision Receipt: `Approve PR Readiness Stage 2 execution to create the PR, validate the live PR, provision the watcher, and return the PR execution packet without merging unless separately approved.`
 
-Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+Historical Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
 
-PR Creation Approval: Pending USER approval
+Historical PR Creation Approval Receipt: Pending USER approval
 
-Stage 2 PR Creation: Pending USER approval
+Historical Stage 2 PR Creation Receipt: Pending USER approval
 
 Next Workstream User Waiver: Granted - USER approved selected-next defer/waiver for this PR-readiness pass.
 
@@ -534,12 +534,12 @@ Governance Drift Found: `No unresolved drift - PR-readiness drift found here is 
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `PR Readiness`
+Historical Phase Receipt: `PR Readiness at branch closeout`
 Next Legal Phase: `PR Readiness`
 Next Active Seam: `PR Readiness Stage 2 / PR creation for FAM-007 Local AI Provider User-Operated Consent UX Foundation`
 Why This Phase Is Next: `PR Readiness Stage 1 repaired selected-next/defer truth and pre-PR live-state truth, validation is green, and PR creation remains the next separately USER-approved execution gate.`
 Approval Required: `USER approval is required for PR Readiness Stage 2 / PR creation. Later separate approval is required for merge, release, cleanup, and all future provider/model/runtime execution decisions.`
-Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1. Scope: verify Stage 1 source-truth repair, confirm no open PR exists or reconcile existing PR truth if one exists, create the PR targeting main, validate live PR state, mergeability, checks, review/comment state, watcher provisioning/runtime proof, provider-boundary preservation, and PR body scope; commit/push only bounded PR metadata if required by source truth. Do not merge, release, tag, create artifacts, clean branches/worktrees, mutate sibling worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
+Historical USER Approval Text Receipt: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-user-operated-consent-ux-foundation in C:\Nexus Worktrees\FAM-007 from origin/main@63cf3ff45f238ef47836972e9e6ed54f2a49ede1. Scope: verify Stage 1 source-truth repair, confirm no open PR exists or reconcile existing PR truth if one exists, create the PR targeting main, validate live PR state, mergeability, checks, review/comment state, watcher provisioning/runtime proof, provider-boundary preservation, and PR body scope; commit/push only bounded PR metadata if required by source truth. Do not merge, release, tag, create artifacts, clean branches/worktrees, mutate sibling worktrees, implement provider setup completion, SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Allowed Scope: `PR Readiness Stage 2 / PR creation, live PR validation, watcher provisioning/runtime proof, and bounded PR metadata repair only if required for Stage 2 eligibility.`
 Explicit Exclusions: `No PR creation, merge, release, tag, artifact work, cleanup, sibling mutation, provider setup completion, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, AI Product Contract import, Private Dev ORIN import, or v1.8.0-prebeta execution.`
 Validation Required: `Identity/freshness checks, open PR check, branch governance validation, worktree confinement gate, release-readiness health gate, PR-readiness gate if applicable, governance efficiency, release body validation, source-owner marker validation, branch-readiness planning fixture validation, AI provider state validation, runtime-fam007 validation suite, rebaseline audit, monitoring HUD validators, diff checks, compileall, and any PR Readiness validators required by source truth.`

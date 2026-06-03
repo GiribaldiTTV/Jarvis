@@ -94,7 +94,7 @@ Rollback Path: abandon branch `feature/fam-006-issue-readiness-governance-repair
 
 - `PR Readiness`
 
-Next Legal Phase Gate: PR Readiness Stage 2 created PR #122 and records this merge-target historical/no-active projection. GitHub issue creation, issue-resolution branch creation, PR merge, release work, runtime work, FAM-007 work, local AI work, or raw evidence upload/import/linking still requires separate explicit USER approval.
+Historical Next Legal Phase Gate Receipt: PR Readiness Stage 2 created PR #122 and records this merge-target historical/no-active projection. GitHub issue creation, issue-resolution branch creation, PR merge, release work, runtime work, FAM-007 work, local AI work, or raw evidence upload/import/linking still requires separate explicit USER approval.
 
 ## Branch Objective
 

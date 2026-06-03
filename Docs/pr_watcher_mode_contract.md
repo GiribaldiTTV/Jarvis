@@ -6,6 +6,8 @@ PR watchers exist to prove live PR state, Codex bot-review state, same-branch re
 
 This contract keeps watcher behavior predictable in multi-worktree PR Readiness by making every watcher declare one mode, one configured cwd, one PR, one branch, one delivery route, and one repair authority posture.
 
+GitHub connector output is live PR evidence, not durable repo ledger truth. Current PR reactions, unresolved review-thread counts, bot-review state, mergeability, head SHA, reviewer comments, watcher runtime health, and connector availability belong to Git/GitHub/helper-derived truth, watcher proof, Codex digest, or USER review evidence while the PR is active. Repo docs may preserve compact historical receipts after the live fact is checked and digested, but they must not become the current PR-state ledger.
+
 ## Stage 2 Approval Default
 
 PR Readiness Stage 2 approval includes watcher provisioning by default.
@@ -63,6 +65,7 @@ PR Readiness Stage 2 final handoff and every Verify Once post must include:
 - Manual rollout-file or transcript-file injection does not count as delivery proof.
 - Accepted delivery proof comes from assistant-message transcript presence, Codex thread-state refresh, automation run/inbox visibility, automation memory/log/state-file updates, or scheduler last-run evidence.
 - If final merge delivery proof is missing, the watcher remains in Silent Monitor or Blocked Mode and must not retire.
+- GitHub connector reads may supply live proof for the fields above, but connector output must not be pasted into durable repo docs as current state. If a PR body, branch record, review packet, or release digest needs durable proof, record only a compact historical receipt after the evidence is digested.
 
 ## Reliability Degradation
 

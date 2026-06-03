@@ -115,7 +115,7 @@ Rollback Path: delete or abandon `codex/v1.6.13-prebeta-post-release-canon-closu
 
 Next Legal Seam: `PR Readiness Stage 1 - v1.6.13-prebeta Post-Release Canon Closure PR Analysis Gate`
 
-Next Legal Phase Gate: `PR Readiness Stage 1 must confirm REL-PKG-004 completion, USER-approved FAM-006 selected-next hierarchy, no runtime branch/package admission, no release execution, protected-main release-closure hardening, PR scope, and watcher plan before USER may approve Stage 2 PR creation.`
+Historical Next Legal Phase Gate Receipt: `PR Readiness Stage 1 must confirm REL-PKG-004 completion, USER-approved FAM-006 selected-next hierarchy, no runtime branch/package admission, no release execution, protected-main release-closure hardening, PR scope, and watcher plan before USER may approve Stage 2 PR creation.`
 
 ## Branch Objective
 

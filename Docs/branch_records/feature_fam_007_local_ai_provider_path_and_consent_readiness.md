@@ -90,7 +90,7 @@ Rollback Rule: `If validation fails and cannot be repaired within Stage 2 setup 
 
 Next Legal Phase: `Release Readiness Stage 2 rerun`
 Next Legal Seam: `Release Readiness Stage 2 - prepare v1.7.8-prebeta candidate from updated origin/main after Governance repair merges`
-Exact USER Decision Needed: `Rerun Release Readiness Stage 2 for v1.7.8-prebeta after Governance source-truth repair merges. Release execution, tag/GitHub Release publication, artifacts, issue work, provider setup, consent collection, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product import, Private Dev ORIN import, successor branch creation, and v1.8.0-prebeta release execution remain separate decisions.`
+Historical USER Decision Receipt: `Rerun Release Readiness Stage 2 for v1.7.8-prebeta after Governance source-truth repair merges. Release execution, tag/GitHub Release publication, artifacts, issue work, provider setup, consent collection, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, FAM-006 mutation, Governance mutation, branch cleanup, AI Product import, Private Dev ORIN import, successor branch creation, and v1.8.0-prebeta release execution remain separate decisions.`
 
 ## Branch Class
 
@@ -180,7 +180,7 @@ Release Closure: `v1.7.7-prebeta is recorded as the latest public prerelease and
 Historical Evidence: `feature/fam-007-local-ai-provider-execution-readiness-gates is released historical PR #172 evidence; prior FAM-007 provider readiness/setup eligibility and activation foundation branches remain historical evidence`
 Expected Branch Count Forecast: `Planning-only estimate is roughly 2-4 successor runtime/release branches before functional/running AI meets the v1.8.0-prebeta jump standard; this is not a source-truth commitment to execute those branches`
 Next Legal Phase: `Release Readiness Stage 2 rerun after Governance repair`
-Exact USER Decision Needed: `Rerun Release Readiness Stage 2 for v1.7.8-prebeta after Governance source-truth repair merges; provider path/setup implementation, consent collection, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, FAM-006 mutation, Governance mutation, branch cleanup, successor branch creation, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate decisions`
+Historical USER Decision Receipt: `Rerun Release Readiness Stage 2 for v1.7.8-prebeta after Governance source-truth repair merges; provider path/setup implementation, consent collection, provider SDK/model execution, downloads, external calls, memory/learning/personalization, voice/Core sync, shortcut/installer work, release execution, issue work, FAM-006 mutation, Governance mutation, branch cleanup, successor branch creation, AI Product import, Private Dev ORIN import, and v1.8.0-prebeta release execution remain separate decisions`
 
 ## Workstream Completion Evidence
 

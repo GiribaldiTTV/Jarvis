@@ -127,7 +127,7 @@ Rollback Path: abandon this branch before merge to restore merged `main` to PR #
 
 Next Legal Seam: `Historical trace only - Release Readiness resumes through the PR #112 source-truth closeout carrier`
 
-Next Legal Phase Gate: `Stage 2 may create the PR after validation, provision the same-thread watcher after PR creation, validate live PR state, and record merge-watch posture. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
+Historical Next Legal Phase Gate Receipt: `Stage 2 may create the PR after validation, provision the same-thread watcher after PR creation, validate live PR state, and record merge-watch posture. Release execution remains blocked until this closeout/hardening carrier merges, updated main validates with no active branch authority record, no stale PR Readiness merge-watch blockers, and no missing PR #111 closeout proof, and the USER separately authorizes release execution and artifact creation.`
 
 ## Release Window Audit
 
@@ -407,7 +407,7 @@ Repair Scope: branch authority index, historical release-packaging closeout, rec
 
 ## PR Readiness Stage 2-R1 Bot Review and Watcher Runtime Proof Repair
 
-- Phase: `PR Readiness`
+- Historical Phase Receipt: `PR Readiness at branch closeout`
 - Recorded Seam: `PR Readiness Stage 2-R1 - Bot Review and Watcher Runtime Proof Repair`
 - Trigger: `USER reported PR release-quality process drift: Codex bot review must be awaited and repaired before green handoff, and watcher configuration was not producing same-thread runtime proof`
 - Codex Bot Review Finding: `ACTIONABLE - review thread PRRT_kwDORwnWIs5_uWrU / comment PRRC_kwDORwnWIs6-JlbJ reported that historical branch records listed under Historical Branch Authority Records could retain active PR-readiness markers when their Phase Status was mistakenly left in a non-historical phase`

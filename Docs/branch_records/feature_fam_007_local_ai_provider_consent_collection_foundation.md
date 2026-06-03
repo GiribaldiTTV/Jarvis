@@ -8,7 +8,7 @@ Record State: `Historical Branch Authority Projection`
 
 ## Status
 
-Status: `PR Readiness Stage 1 Complete - FAM-007 consent collection foundation validated as a disabled/status-only local consent foundation scaffold with static Core/Desktop/ORIN source truth and provider-state validator proof; selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit are recorded; PR Readiness Stage 2 / PR creation remains pending USER approval.`
+Status: `Historical projection receipt - FAM-007 consent collection foundation PR Readiness evidence is preserved as completed historical context, including disabled/status-only local consent foundation scaffold proof, static Core/Desktop/ORIN source truth, provider-state validator proof, selected-next defer/waiver evidence, pre-PR live-state evidence, post-merge No Active Branch projection, Release Readiness Health Pass, and Release Window Audit. This record does not own current PR, branch, selected-next, or approval state.`
 
 ## Canonical Branch
 
@@ -387,7 +387,7 @@ Branch Runtime Engineering Plan Path: `Docs/branch_plans/feature_fam_007_local_a
 
 Branch Runtime Engineering Plan: `Accepted - required plan file created during Stage 2 setup`
 
-Engineering Plan Status: Accepted - Workstream Green after bounded consent collection foundation implementation; H1 Green after plan-vs-implementation and proof review; LV1 Green after disabled/status-only validation; PR Readiness Stage 1 source-truth repair complete; PR Readiness Stage 2 / PR creation pending USER approval.
+Engineering Plan Status: Accepted - Workstream Green after bounded consent collection foundation implementation; H1 Green after plan-vs-implementation and proof review; LV1 Green after disabled/status-only validation; PR Readiness Stage 1 source-truth repair complete; historical Stage 2 PR-creation gate recorded before PR execution.
 
 PR Fold-Down Packet: `Stage 1 complete - selected-next defer/waiver, pre-PR live-state, post-merge No Active Branch projection, Release Readiness Health Pass, Release Window Audit, branch-authority historical projection, and Stage 2 approval boundary are recorded. Live PR metadata belongs to PR Readiness Stage 2 after USER approves PR creation.`
 
@@ -459,11 +459,11 @@ Planned PR Base: `main`
 
 Planned PR Head: `feature/fam-007-local-ai-provider-consent-collection-foundation`
 
-Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
+Historical Pre-PR Live State: No live PR - GitHub inspection found no open PR for this branch before Stage 2. Live PR state and watcher proof belong to PR Readiness Stage 2 after USER approves PR creation.
 
-PR Creation Approval: Pending USER approval
+Historical PR Creation Approval Receipt: Pending USER approval
 
-Stage 2 PR Creation: Pending USER approval
+Historical Stage 2 PR Creation Receipt: Pending USER approval
 
 Workstream Completion State: `Green - bounded FAM-007 consent collection foundation implementation, H1, LV1, validator proof, desktop readiness display suppression continuity, and PR Readiness Stage 1 source-truth repair are complete.`
 
@@ -651,7 +651,7 @@ Next Legal Phase Detail: PR Readiness Stage 2 should create the PR only after US
 
 ## Formal Next Legal Phase Digest
 
-Current Phase: `PR Readiness Stage 1`
+Historical Phase Receipt: `PR Readiness Stage 1 at branch closeout`
 
 Next Legal Phase: `PR Readiness`
 
@@ -659,7 +659,7 @@ Why This Phase Is Next: `The bounded Workstream is implemented, H1 compared impl
 
 Approval Required: `USER approval`
 
-Exact USER Approval Text: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-consent-collection-foundation in C:\Nexus Worktrees\FAM-007.`
+Historical USER Approval Text Receipt: `I approve PR Readiness Stage 2 / PR creation for feature/fam-007-local-ai-provider-consent-collection-foundation in C:\Nexus Worktrees\FAM-007.`
 
 Allowed Scope: `Create the PR against main, validate live PR state, mergeability, checks, review state, PR body/source-truth fold-down, watcher provisioning, and PR metadata; do not merge, release, clean branches/worktrees, implement actual consent capture, provider setup, SDK/model execution, downloads, external calls, memory, voice/Core sync, shortcuts/installers, or mutate sibling lanes.`
 

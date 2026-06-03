@@ -12,7 +12,7 @@ This model applies to governance/source-truth/process reform only.
 
 It does not authorize runtime implementation, FAM-006 mutation, FAM-007 mutation, successor branch creation, release execution, tag or GitHub Release work, issue closeout, branch deletion, worktree cleanup, provider/model execution, downloads, memory work, voice/Core sync, shortcut or installer work, AI Product Contract import, or private Dev ORIN import.
 
-External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, active-state migration planning packets, active-state migration execution planning packets, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup execution, branch-authority routing planning, branch-authority routing cleanup execution, branch-detail-record / branch-plan cleanup planning, no-loss cleanup closure, broader repo cleanup execution, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. Stage 4 active-state migration execution has seeded approved local external records, Stage 5 validator transition has made local external-state validation explicit, Stage 6 cleanup planning has classified future cleanup lanes, Stage 6A compact pointer cleanup has cleaned backlog/roadmap/worktree-slot compact surfaces, Stage 6B branch-authority routing planning has defined the `Docs/branch_records/index.md` execution packet, Stage 6C branch-authority routing cleanup has routed the index to external active-authority owners, and Stage 6D has planned branch-detail-record / branch-plan cleanup. Stage 6E no-loss cleanup closure may record that branch detail records and branch plans remain durable receipts or transition owners when scanners find zero blocking leakage; it must not bulk rewrite, move, delete, archive, or require external state in clean clones. Repo Docs movement and mandatory repo-validator enforcement remain separate stages. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.
+External Operational State Store / Release Debt Abolition work advances only through separately USER-approved stages. Docs/source-truth contracts, helper scaffolds, local root initialization, report-only migration-map helpers, active-state migration planning packets, active-state migration execution planning packets, active-state migration execution, validator transition, repo cleanup planning, compact pointer cleanup execution, branch-authority routing planning, branch-authority routing cleanup execution, branch-detail-record / branch-plan cleanup planning, no-loss cleanup closure, broader repo cleanup execution, file moves, file deletion, file archival, PR creation, merge, release execution, runtime work, FAM mutation, issue work, branch cleanup, backup setup, and private repo creation remain separate USER decisions unless the USER explicitly admits that later phase. Stage 4 active-state migration execution has seeded approved local external records, Stage 5 validator transition has made local external-state validation explicit, Stage 6 cleanup planning has classified future cleanup lanes, Stage 6A compact pointer cleanup has cleaned backlog/roadmap/worktree-slot compact surfaces, Stage 6B branch-authority routing planning has defined the `Docs/branch_records/index.md` execution packet, Stage 6C branch-authority routing cleanup has routed the index to external active-authority owners, and Stage 6D has planned branch-detail-record / branch-plan cleanup. Stage 6E no-loss cleanup closure may record that branch detail records and branch plans remain durable receipts or transition owners when scanners find zero blocking leakage; it must not bulk rewrite, move, delete, archive, or require external state in clean clones. If a later validator or review finds exact repo live-state leakage in a named branch detail record or branch-plan receipt, a bounded Governance repair may fold that exact surface down to historical/pointer posture without reopening broad cleanup or deleting evidence. Repo Docs movement and mandatory repo-validator enforcement remain separate stages. External-state helpers must default to report/dry-run behavior unless a later explicit USER-approved apply step authorizes mutation.
 
 Planning Reference: `Docs/external_operational_state_store_reform_plan.md` preserves the agreed sequencing, Docs Split Target Matrix, implementation annotations, and future-work design. Use it as the durable future-work reference, not as active migration authority.
 
@@ -63,7 +63,7 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/nexus_vision.md` | project-wide product vision contract, long-term standards, and durable product direction | active branch implementation plans or family-specific execution ledgers |
 | `Docs/family_visions/` | family-specific durable product direction and reusable USER-accepted standards | active branch authority, live state, or per-seam implementation checklists |
 | `Docs/branch_records/index.md` | durable branch-record law, standing Governance active-authority exception, historical receipt routing, and pointers to external active operational branch authority | detailed branch implementation checklists or general live active-branch operations lists |
-| `Docs/branch_records/<branch>.md` | durable branch identity, approval evidence, compact historical receipt, and pointers to external operational owners | active branch lifecycle ledger, volatile live state, unindexed execution diary, full feedback text, or reusable family-level implementation history after promotion |
+| `Docs/branch_records/<branch>.md` | durable branch identity, approval evidence, compact historical receipt, and pointers to external operational owners | current phase, active branch authority, active next gate, active branch lifecycle ledger, volatile live state, live PR/open-review state, selected-next posture, worktree assignment, release-window state, unindexed execution diary, full feedback text, or reusable family-level implementation history after promotion |
 | `Docs/branch_plans/<branch>.md` | Branch Runtime Engineering Plan shape, transition-approved plan receipts, retired/historical branch-plan evidence, and durable lookup paths | canonical live branch status, active/complete/pending lifecycle posture, permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger |
 | `Docs/workstreams/index.md` | canonical workstream and dossier routing | per-branch live state by inertia |
 | `Docs/workstreams/<id>.md` | durable promoted implementation history and reusable continuity | volatile branch/PR state |
@@ -101,6 +101,77 @@ Derived live truth comes from Git, GitHub, or approved helpers. Examples include
 Governance receipts are recorded after live truth is checked. Examples include USER assignment decisions, branch admission, release scope interpretation, merge closeout, watcher repair proof, and branch-plan fold-down.
 
 Docs may record historical receipts, but they must not pretend to be live operational truth. When a current operational fact is needed, run a helper or live check and report it as evidence.
+
+## Codex Plugin / Connector Evidence Split Compatibility Contract
+
+Rule Name: `Codex Plugin / Connector Evidence Split Compatibility Contract`
+
+Owner: `Docs/governance_efficiency_operating_model.md`
+
+Applies To: Codex app plugins, Codex connectors, GitHub connector use, Browser / Chrome / Computer Use evidence, OpenAI Docs lookups, OpenAI Developers tooling, Documents / Spreadsheets / Presentations review aids, plugin-generated screenshots, connector outputs, plugin run logs, connector authentication state, plugin capability selection, and any future Codex tool integration used to support Nexus governance, development, validation, review, PR, release, or planning work.
+
+Required State:
+
+- Codex plugins and connectors are evidence tools inside the existing phase machine; they are not a new phase, source-truth layer, branch authority, live-state ledger, or waiver path.
+- Repo docs may own durable plugin/connector governance rules, phase placement, approval requirements, privacy boundaries, source-truth ownership, prompt/template scaffolds, blocker names, stable schemas, and compact historical receipts after evidence is digested.
+- Repo docs must not own current plugin availability, connector login/auth/session state, API key state, current PR reactions, current review-thread state, current connector health, current plugin run output, temporary screenshots, per-run logs, live setup status, or other volatile tool evidence.
+- Git, GitHub, official provider/tool surfaces, approved helpers, Codex digests, USER review packets, and local external operational state own live evidence according to fact class and phase.
+- `C:\Nexus Governance State` may own plugin/connector operational evidence only after an explicit USER-approved external-state schema or active workflow need admits that evidence. Until then, plugin/connector outputs stay in Codex digest, helper output, USER review packets, local artifacts, or the live tool surface.
+- Product/runtime plugin integration for Nexus itself remains separate from Codex app plugin/connector evidence. Product plugin runtime work routes through the owning family/workstream and does not become authorized by this Codex evidence contract.
+
+Allowed Durable Repo Facts:
+
+- plugin/connector use classifications and approval boundaries
+- phase placement rules and read/write mode rules
+- privacy, secret, provider-visible-data, private/public boundary, and sanitization requirements
+- evidence interpretation rules
+- deterministic prompt/template fields such as `Plugin / Connector Use Plan:`
+- historical receipts after live evidence has been digested and no longer claims current state
+- public-safe architecture or provider-boundary rules promoted through USER-approved repo source-truth updates
+
+Invalid Durable Repo Facts:
+
+- current plugin installed/enabled/authenticated state
+- connector session, cookies, tokens, credentials, API keys, provider account state, or billing/quota state
+- current GitHub PR mergeability, reaction, unresolved-thread count, bot-review status, or live watcher state except as explicitly labeled historical receipt evidence
+- raw OpenAI Docs lookup output treated as permanent source truth without digest and USER-approved owner update
+- OpenAI Developers/API key setup state, plaintext key material, provider setup state, model/provider runtime readiness, or private setup evidence
+- Browser / Chrome / Computer Use screenshots, DOM snapshots, window state, or desktop session state treated as durable current truth by inertia
+- Documents / Spreadsheets / Presentations outputs treated as repo source truth without explicit promotion
+- per-run plugin logs, generated temp files, temporary review aid status, or plugin evidence manifests committed as active ledgers
+
+Required `Plugin / Connector Use Plan:` fields before relying on a plugin or connector for a governed decision:
+
+- `Tool / Connector:`
+- `Use Case:`
+- `Phase / Stage:`
+- `Authority Class:` `Evidence Only` / `Durable Rule Candidate` / `External Operational Evidence` / `USER Review Aid` / `Sensitive Setup`
+- `Read / Write Mode:` `Read-only` / `Bounded same-branch write` / `External-state write` / `Sensitive setup` / `Blocked`
+- `Mutation Risk:`
+- `Privacy / Secret Risk:`
+- `Expected Evidence:`
+- `Evidence Owner:`
+- `Fallback If Unavailable:`
+- `USER Approval Required:` `Yes` / `No` / `Already approved for this phase`
+- `Repo Persistence:` `None` / `Compact historical receipt only` / `USER-approved source-truth update`
+
+Blocking Condition:
+
+- `Plugin / Connector Use Plan Missing`: a plugin/connector is used for governed phase advancement, PR/release decisions, source-truth repair, provider setup, or private/public boundary work without the required use plan.
+- `Plugin Evidence Treated As Source Truth`: plugin output, connector output, screenshots, docs lookup text, generated document artifacts, Codex memory, or chat text overrides the owning repo source truth or live fact owner.
+- `Plugin Live-State Ledger In Repo`: a repo doc records current plugin auth/session/state, connector health, current PR reaction/thread/mergeability state, provider setup state, or per-run plugin evidence as a durable live ledger.
+- `Sensitive Connector Setup In Repo`: secrets, API keys, tokens, cookies, provider account state, private repo setup state, or private Owner/Dev evidence enters tracked repo docs, public PR bodies, public releases, or public review bundles without an approved sanitization receipt.
+- `External Plugin Evidence Schema Premature`: Codex creates or mutates an external plugin evidence schema, root, index, or ledger before USER approves the external-state schema/path and lock/snapshot rules.
+
+Repair Owner: current branch/worktree owner for branch-local prompt or packet repair; `Docs/governance_efficiency_operating_model.md` for split compatibility; `Docs/phase_governance.md` for phase-gate use; `Docs/validation_helper_registry.md` for evidence interpretation; `Docs/pr_watcher_mode_contract.md` for GitHub PR watcher connector behavior; `Docs/ai_runtime_and_trust_architecture.md` and relevant FAM visions for provider/API trust boundaries.
+
+Repair Path: classify the tool use, remove live ledger text from repo docs, relocate volatile evidence to the live source, Codex digest, USER review packet, helper output, or approved external state, sanitize private/sensitive material, then update only the durable owner file or compact historical receipt that source truth permits.
+
+USER Decision Required: required for plugin execution that mutates a repo, writes external state, creates or changes credentials, creates provider/API setup, creates private/Owner/Dev setup, changes external-state schema, promotes plugin evidence into repo source truth, or waives a blocker above.
+
+Validation Owner: current phase validators and helper/registry review may check markers and obvious leakage; plugin/connector evidence remains evidence and must be reviewed against source truth before final phase decisions.
+
+Final Disposition: plugin/connector evidence can support `Evidence Supports Green`, `Evidence Supports Repair`, `Evidence Supports Blocked`, or `USER Decision Required`. It cannot itself become branch authority, phase authority, implementation approval, release approval, provider approval, or durable repo truth.
 
 ## Source Truth Authority Hierarchy
 
@@ -259,8 +330,8 @@ Required State:
 - Stage 6B means branch-authority routing cleanup planning; it may define how `Docs/branch_records/index.md` should become durable routing law plus external active-authority pointers, but it must not edit the index, branch records, branch plans, or generated audits.
 - Stage 6C means branch-authority routing cleanup execution; it may edit only `Docs/branch_records/index.md` plus stage-boundary source truth so the index keeps durable routing law, historical receipt routing, and the single standing Governance active exception while non-standing active operational branch authority routes to `C:\Nexus Governance State\central\active_branch_authority_state.md`, branch-specific external records, and Git/GitHub/helper live checks.
 - Stage 6D means branch-detail-record / branch-plan cleanup planning; it may define exact future cleanup batches, durable receipt preservation rules, external replacement owners, and validation preflight for branch records and branch plans, but it must not edit branch detail records, branch plans, generated audits, move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
-- Stage 6E means branch-detail-record / branch-plan no-loss cleanup closure; it may record the execution finding that broad branch-record and branch-plan rewrites are not required when report-only scanners show zero blocking leakage, branch plans are classified as durable historical receipts, and branch records are transition-legal or durable receipt surfaces. It must not edit branch detail records or branch plans except the standing Governance intake record, move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
-- Current repo branch records and branch plans remain durable transition owners until a USER-approved repo cleanup stage removes live-state fields, makes them pointer-only, or folds them down as historical receipts.
+- Stage 6E means branch-detail-record / branch-plan no-loss cleanup closure; it may record the execution finding that broad branch-record and branch-plan rewrites are not required when report-only scanners show zero blocking leakage, branch plans are classified as durable historical receipts, and branch records are transition-legal or durable receipt surfaces. It must not edit branch detail records or branch plans except the standing Governance intake record or a later USER-approved exact live-state leakage fold-down repair for a named surface; it must not move/delete/archive repo files, create worktree-local staging, or mutate FAM worktrees.
+- Current repo branch records and branch plans remain durable transition owners or historical receipts until a USER-approved exact cleanup/fold-down stage changes them. That transition posture does not allow current phase, active authority, active next-gate, live PR, selected-next, worktree-assignment, release-window, or active branch-plan ledger fields to remain in a non-standing repo branch record after a validator names them as blocking leakage.
 - Main, phase governance, this model, the external-state plan, branch authority record, and helper registry must agree on the current stage and next legal step.
 
 Allowed Values:
@@ -282,7 +353,7 @@ Invalid Values:
 - treating Stage 6B branch-authority routing planning as permission to edit `Docs/branch_records/index.md` or any branch record before the execution packet is approved
 - treating Stage 6C branch-authority routing cleanup as permission to edit branch detail records, branch plans, workstreams, family visions, generated audits, move/delete/archive files, create worktree-local staging, mutate FAM worktrees, or make external state mandatory for clean-clone repo validation
 - treating Stage 6D branch-detail-record / branch-plan cleanup planning as permission to edit the branch records or branch plans being planned, collapse durable receipts, move/delete/archive files, or rely on external state without no-loss preservation proof
-- treating Stage 6E no-loss cleanup closure as permission to skip future exact cleanup if a later validator reports blocking leakage, or as permission to delete/move/archive branch records and branch plans without explicit USER approval
+- treating Stage 6E no-loss cleanup closure as permission to skip future exact cleanup if a later validator reports blocking leakage, as permission to keep non-standing repo branch records in live operational posture, or as permission to delete/move/archive branch records and branch plans without explicit USER approval
 - moving, deleting, archiving, or rewriting repo docs before helper/bootstrap/migration approval
 - treating worktree-local staging as canonical central state
 - adding new repo live-state owners without either a transition reason, historical-receipt label, or approved migration path
@@ -556,7 +627,7 @@ Branch records, branch plans, and workstreams are related but not interchangeabl
 
 Use this split:
 
-- branch records own branch authority, approvals, phase history, blockers, legal next phase, and structured branch traceability receipts
+- branch records own durable branch identity, approval receipts, historical phase history, historical blocker evidence, merge/release interpretation, and structured branch traceability receipts. They do not own current non-standing active authority, current phase, active next legal phase, live PR state, selected-next posture, worktree assignment, release-window state, or active branch-plan ledger rows.
 - branch plans own detailed active runtime planning, Element-to-Phase Proof Matrix planning, and current element proof-path mapping while the branch is active
 - workstreams and family dossiers own durable package trace, slice trace, proof history, reusable lessons, and family continuity
 
