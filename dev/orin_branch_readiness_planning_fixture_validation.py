@@ -1618,6 +1618,96 @@ def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
     return failures
 
 
+def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[str]:
+    failures: list[str] = []
+    exact_decision = (
+        "BP1, BP2, and BP3 are accepted; approve bounded Workstream package "
+        "implementation for the FAM-007 Dev/Owner Skeleton Readiness same-branch "
+        "package with Seam 1 as the entry checkpoint and continuation until "
+        "Workstream Green."
+    )
+    copied = [
+        (
+            "Docs/branch_records/feature_fam_007_dev_owner_skeleton_readiness.md",
+            "feature_fam_007_dev_owner_skeleton_readiness.md",
+        )
+    ]
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-007-dev-owner-skeleton-readiness",
+            source_head="fixture-head",
+            origin_main="fixture-origin-main",
+            packet_folder=target,
+            export_zip=target / "FAM-007-20260601-120000.zip",
+            copied=copied,
+            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            bundle_file_count=6,
+            expected_count=len(copied),
+            copied_count=len(copied),
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Hardening, Live Validation, PR, merge, release, private setup, "
+                "provider/runtime/cache/memory behavior, and cleanup remain future "
+                "USER decisions."
+            ],
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "USER Decision This Packet Supports: "
+                f"{exact_decision}\n"
+                "Decision Path Summary: implementation-ready - BP1, BP2, and BP3 "
+                "are accepted; bounded Workstream package implementation is "
+                "approved by this packet with Seam 1 as the entry checkpoint.\n"
+            )
+        }
+        for path in target.glob("*.md"):
+            packet_files[path.name] = path.read_text(encoding="utf-8")
+
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="feature/fam-007-dev-owner-skeleton-readiness",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+        require_implementation_ready=True,
+    )
+    if result.status != review_bundle.DECISION_STATUS_IMPLEMENTATION_READY:
+        failures.append(
+            "FAM-007 Workstream implementation approval packet did not classify "
+            f"as implementation-ready: {result.status}; {result.failures[:3]}"
+        )
+    combined = "\n".join(packet_files.values()).casefold()
+    forbidden_bp3_review_terms = [
+        "bp3 packet reviewability state: reviewable",
+        "bp3 user gate state: pending user review",
+        "workstream implementation itself remains a separate future user decision",
+        "exact bp3 user decision options",
+    ]
+    emitted_forbidden_terms = [
+        term for term in forbidden_bp3_review_terms if term in combined
+    ]
+    if emitted_forbidden_terms:
+        failures.append(
+            "FAM-007 Workstream implementation approval packet emitted BP3 review "
+            "or pending-gate wording despite implementation approval: "
+            + "; ".join(emitted_forbidden_terms)
+        )
+    required_terms = [
+        "bounded Workstream package implementation is approved",
+        "Seam 1 as the entry checkpoint",
+        "Continuation must proceed one active same-branch seam at a time until Workstream Green",
+    ]
+    missing_required_terms = [term for term in required_terms if term not in "\n".join(packet_files.values())]
+    if missing_required_terms:
+        failures.append(
+            "FAM-007 Workstream implementation approval packet is missing "
+            "implementation-ready terms: "
+            + "; ".join(missing_required_terms)
+        )
+    return failures
+
+
 def _validate_primary_user_review_file_stage_priority() -> list[str]:
     failures: list[str] = []
     bp3_trace_decision = (
@@ -2429,6 +2519,7 @@ def validate() -> list[str]:
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
     failures.extend(_validate_fam007_bp3_packet_generation_guard())
+    failures.extend(_validate_fam007_workstream_implementation_packet_priority_guard())
 
     return failures
 

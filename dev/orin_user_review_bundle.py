@@ -2016,10 +2016,12 @@ def _write_user_branch_plan_review(
         and "authorize bp2 user branch plan review only" in normalized_decision
     )
     bp3_orchestration_packet = (
-        "bp3" in normalized_decision
-        or "workstream entry / orchestration" in normalized_decision
-        or "orchestration validation" in normalized_decision
-        or (is_fam007_dev_owner_skeleton and workstream_package_approval_packet)
+        not workstream_package_approval_packet
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry / orchestration" in normalized_decision
+            or "orchestration validation" in normalized_decision
+        )
     )
     bp2_branch_plan_packet = (
         not bp1_branch_vision_packet
@@ -4782,14 +4784,6 @@ def _write_workstream_entry_packet_digests(
     pr_stage1_packet = (
         "pr readiness stage 1 analysis" in normalized_decision
     )
-    bp3_packet = (
-        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
-        and (
-            "bp3" in normalized_decision
-            or "workstream entry / orchestration" in normalized_decision
-            or "orchestration validation" in normalized_decision
-        )
-    )
     workstream_package_approval_packet = (
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
         and any(
@@ -4799,6 +4793,15 @@ def _write_workstream_entry_packet_digests(
         and not any(
             marker in normalized_decision
             for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
+    bp3_packet = (
+        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and not workstream_package_approval_packet
+        and (
+            "bp3" in normalized_decision
+            or "workstream entry / orchestration" in normalized_decision
+            or "orchestration validation" in normalized_decision
         )
     )
     dev_owner_workstream_green_packet = (
@@ -6223,6 +6226,7 @@ def build_bundle(
     )
     bp3_packet = (
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        and not workstream_package_approval_packet
         and (
             "bp3" in exact_user_decision.casefold()
             or "workstream entry / orchestration" in exact_user_decision.casefold()
