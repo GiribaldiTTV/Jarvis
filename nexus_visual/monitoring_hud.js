@@ -28,6 +28,7 @@ const monitoringHudOverlayProfileLabel = document.getElementById("monitoring-hud
 const monitoringHudOverlayProfileMenu = document.getElementById("monitoring-hud-overlay-profile-menu");
 const monitoringHudOverlayProfileMonitorCount = document.getElementById("monitoring-hud-overlay-profile-monitor-count");
 const monitoringHudOverlayProfileDisplayMode = document.getElementById("monitoring-hud-overlay-profile-display-mode");
+let monitoringHudOverlayProfileSelectorPointerActivatedAt = 0;
 const monitoringHudRecordingCard = document.querySelector('[data-dashboard-hub-card="recording"]');
 const monitoringHudRecordingCardSummary = document.getElementById("monitoring-hud-recording-card-summary");
 const monitoringHudRecordingTargetPreview = document.getElementById("monitoring-hud-recording-target-preview");
@@ -782,12 +783,37 @@ function monitoringHudOverlayProfileDraftDirty() {
   );
 }
 
+function monitoringHudCurrentOverlayProfileSelector() {
+  return document.getElementById("monitoring-hud-overlay-profile-selector") || monitoringHudOverlayProfileSelector;
+}
+
+function monitoringHudCurrentOverlayProfileToggle() {
+  return document.getElementById("monitoring-hud-overlay-profile-toggle") || monitoringHudOverlayProfileToggle;
+}
+
+function monitoringHudCurrentOverlayProfileLabel() {
+  return document.getElementById("monitoring-hud-overlay-profile-label") || monitoringHudOverlayProfileLabel;
+}
+
+function monitoringHudCurrentOverlayProfileMenu() {
+  return document.getElementById("monitoring-hud-overlay-profile-menu") || monitoringHudOverlayProfileMenu;
+}
+
 function monitoringHudSetOverlayProfileDropdownOpen(open) {
-  if (!monitoringHudOverlayProfileSelector || !monitoringHudOverlayProfileMenu) return;
-  monitoringHudOverlayProfileSelector.dataset.dropdownOpen = open ? "true" : "false";
-  monitoringHudOverlayProfileMenu.hidden = !open;
-  if (monitoringHudOverlayProfileToggle) {
-    monitoringHudOverlayProfileToggle.setAttribute("aria-expanded", open ? "true" : "false");
+  const selector = monitoringHudCurrentOverlayProfileSelector();
+  const menu = monitoringHudCurrentOverlayProfileMenu();
+  const toggle = monitoringHudCurrentOverlayProfileToggle();
+  if (!selector || !menu) return;
+  selector.dataset.dropdownOpen = open ? "true" : "false";
+  menu.hidden = !open;
+  const ownerCard = selector.closest
+    ? selector.closest("[data-dashboard-hub-card]")
+    : null;
+  if (ownerCard) {
+    ownerCard.dataset.dropdownLayerOpen = open ? "true" : "false";
+  }
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
   }
   if (!open) {
     monitoringHudResetOverlayProfileHover();
@@ -795,11 +821,68 @@ function monitoringHudSetOverlayProfileDropdownOpen(open) {
 }
 
 function monitoringHudResetOverlayProfileHover() {
-  if (!monitoringHudOverlayProfileSelector) return;
-  monitoringHudOverlayProfileSelector.dataset.hoveredProfileId = "";
-  monitoringHudOverlayProfileSelector.querySelectorAll("[data-overlay-profile-option].is-hovered").forEach((option) => {
+  const selector = monitoringHudCurrentOverlayProfileSelector();
+  if (!selector) return;
+  selector.dataset.hoveredProfileId = "";
+  selector.querySelectorAll("[data-overlay-profile-option].is-hovered").forEach((option) => {
     option.classList.remove("is-hovered");
   });
+}
+
+function monitoringHudShouldSuppressDuplicateOverlayProfileActivation(phase) {
+  const now = Date.now();
+  if (phase === "click") {
+    return Boolean(monitoringHudOverlayProfileSelectorPointerActivatedAt && now - monitoringHudOverlayProfileSelectorPointerActivatedAt < 700);
+  }
+  if (monitoringHudOverlayProfileSelectorPointerActivatedAt && now - monitoringHudOverlayProfileSelectorPointerActivatedAt < 150) {
+    return true;
+  }
+  monitoringHudOverlayProfileSelectorPointerActivatedAt = now;
+  return false;
+}
+
+function monitoringHudHandleDashboardOverlayProfileActivation(target, event, phase) {
+  const selector = monitoringHudCurrentOverlayProfileSelector();
+  if (!selector || !target || !selector.contains(target)) return false;
+  if (event && event.preventDefault) event.preventDefault();
+  if (event && event.stopPropagation) event.stopPropagation();
+  if (event && event.stopImmediatePropagation) event.stopImmediatePropagation();
+  if (monitoringHudShouldSuppressDuplicateOverlayProfileActivation(phase)) return true;
+  monitoringHudApplyPressedState(target, false);
+  const key = `overlay-profile:${monitoringHudControlActivationKey(target)}`;
+  if (!monitoringHudReliableActivationAllowed(key)) return false;
+  const menu = monitoringHudCurrentOverlayProfileMenu();
+  const selectorIsActuallyOpen = Boolean(selector.dataset.dropdownOpen === "true" && menu && !menu.hidden);
+  const desiredOpen = !selectorIsActuallyOpen;
+  const requestedProfileId = target.dataset.overlayProfileOption || "";
+  const profileExists = Boolean(requestedProfileId && monitoringHudControlState.overlayProfiles && monitoringHudControlState.overlayProfiles[requestedProfileId]);
+  const beforeActiveProfileId = String(monitoringHudControlState.activeOverlayProfileId || "");
+  const result = target.id === "monitoring-hud-overlay-profile-toggle"
+    ? (monitoringHudSetOverlayProfileDropdownOpen(desiredOpen), true)
+    : monitoringHudSelectOverlayProfile(requestedProfileId || monitoringHudDefaultOverlayProfileId);
+  const menuAfter = monitoringHudCurrentOverlayProfileMenu();
+  selector.dataset.lastDashboardSelectorActivation = JSON.stringify({
+    target: target.id || target.dataset.overlayProfileOption || "",
+    phase,
+    wasOpen: selectorIsActuallyOpen,
+    desiredOpen,
+    requestedProfileId,
+    profileExists,
+    beforeActiveProfileId,
+    result: result !== false,
+    afterActiveProfileId: String(monitoringHudControlState.activeOverlayProfileId || ""),
+    afterOpen: selector.dataset.dropdownOpen || "",
+    afterMenuHidden: menuAfter ? Boolean(menuAfter.hidden) : true
+  });
+  monitoringHudRecordReliableActivation(target, phase, result !== false);
+  return result !== false;
+}
+
+function monitoringHudBindDashboardOverlayProfileActivation(element) {
+  if (!element) return;
+  element.onpointerdown = (event) => monitoringHudHandleDashboardOverlayProfileActivation(element, event, "pointerdown");
+  element.onmousedown = (event) => monitoringHudHandleDashboardOverlayProfileActivation(element, event, "mousedown");
+  element.onclick = (event) => monitoringHudHandleDashboardOverlayProfileActivation(element, event, "click");
 }
 
 function monitoringHudSetOverlayProfileWindowDropdownOpen(open) {
@@ -882,6 +965,7 @@ function monitoringHudSelectOverlayProfile(profileId) {
   if (!monitoringHudControlState.overlayProfiles[normalizedProfileId]) return false;
   monitoringHudControlState.activeOverlayProfileId = normalizedProfileId;
   monitoringHudSetOverlayProfileDraftFromActive();
+  monitoringHudControlState.activeOverlayRecordingTarget = monitoringHudBuildActiveOverlayRecordingTargetSnapshot(monitoringHudControlState);
   monitoringHudClearOverlayProfileMembershipList();
   monitoringHudSetOverlayProfileDropdownOpen(false);
   monitoringHudRenderControls();
@@ -1733,6 +1817,9 @@ function monitoringHudRenderOverlayProfileControls() {
   const detailOpen = Boolean(monitoringHudOverlayProfileDetailOpen && selectedProfile);
   const dirty = detailOpen && monitoringHudOverlayProfileDraftDirty();
   const draftMonitorIds = monitoringHudOverlayProfileDraftMonitorIdsFromWindow();
+  const dashboardProfileSelector = monitoringHudCurrentOverlayProfileSelector();
+  const dashboardProfileLabel = monitoringHudCurrentOverlayProfileLabel();
+  const dashboardProfileMenu = monitoringHudCurrentOverlayProfileMenu();
 
   monitoringHudOverlayProfileEditor.dataset.overlayProfileEditorUi = "slc-039-membership-editor";
   monitoringHudOverlayProfileEditor.dataset.overlayProfileMembership = "editable-slc-039-mapping";
@@ -1741,17 +1828,18 @@ function monitoringHudRenderOverlayProfileControls() {
   monitoringHudOverlayProfileEditor.dataset.overlayProfileCount = String(profiles.length);
   monitoringHudOverlayProfileEditor.dataset.overlayProfileProof = "selector-settings-window-create-rename-membership-save-discard";
 
-  if (monitoringHudOverlayProfileSelector) {
-    monitoringHudOverlayProfileSelector.dataset.selectedProfileId = activeProfileId;
-    monitoringHudOverlayProfileSelector.dataset.overlayProfileSelector = "active-profile-selector";
+  if (dashboardProfileSelector) {
+    dashboardProfileSelector.dataset.selectedProfileId = activeProfileId;
+    dashboardProfileSelector.dataset.overlayProfileSelector = "active-profile-selector";
   }
-  if (monitoringHudOverlayProfileLabel) {
-    monitoringHudOverlayProfileLabel.textContent = activeProfileName;
+  monitoringHudBindDashboardOverlayProfileActivation(monitoringHudCurrentOverlayProfileToggle());
+  if (dashboardProfileLabel) {
+    dashboardProfileLabel.textContent = activeProfileName;
   }
-  if (monitoringHudOverlayProfileMenu) {
-    monitoringHudOverlayProfileMenu.replaceChildren();
-    monitoringHudOverlayProfileMenu.dataset.visibleOptionTarget = "max-five";
-    monitoringHudOverlayProfileMenu.dataset.scrollbarStyle = "ndai-native";
+  if (dashboardProfileMenu) {
+    dashboardProfileMenu.replaceChildren();
+    dashboardProfileMenu.dataset.visibleOptionTarget = "max-five";
+    dashboardProfileMenu.dataset.scrollbarStyle = "ndai-native";
     profiles.forEach((profile) => {
       const option = document.createElement("button");
       option.type = "button";
@@ -1760,7 +1848,8 @@ function monitoringHudRenderOverlayProfileControls() {
       option.setAttribute("role", "option");
       option.setAttribute("aria-selected", profile.id === activeProfileId ? "true" : "false");
       option.textContent = monitoringHudCleanOverlayProfileName(profile.name, "Overlay Profile");
-      monitoringHudOverlayProfileMenu.appendChild(option);
+      monitoringHudBindDashboardOverlayProfileActivation(option);
+      dashboardProfileMenu.appendChild(option);
     });
   }
   if (monitoringHudOverlayProfileWindowSelector) {
@@ -4037,7 +4126,6 @@ function monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile() {
     && selectedDraft.id
     && (
       monitoringHudOverlayProfilePendingCreate
-      || String(selectedDraft.id) === String(monitoringHudOverlayProfileWindowSelectedId || "")
       || String(selectedDraft.id) === String(monitoringHudControlState.activeOverlayProfileId || "")
     )
   );
@@ -4537,14 +4625,27 @@ function monitoringHudWireControls() {
     });
     monitoringHudSetSourceFilterValue(monitoringHudSensorFilterValue());
   }
+  const activateDashboardOverlayProfileSelector = (event, phase) => {
+    const selector = monitoringHudCurrentOverlayProfileSelector();
+    if (!selector || !event || !event.target || !event.target.closest) return;
+    const target = event.target.closest("#monitoring-hud-overlay-profile-toggle,[data-overlay-profile-option]");
+    if (!target || !selector.contains(target)) return;
+    monitoringHudHandleDashboardOverlayProfileActivation(target, event, phase);
+  };
+  ["pointerdown", "mousedown", "click"].forEach((eventName) => {
+    document.addEventListener(eventName, (event) => activateDashboardOverlayProfileSelector(event, eventName), true);
+  });
   if (monitoringHudOverlayProfileSelector) {
     monitoringHudWireReliableDelegatedControl(monitoringHudOverlayProfileSelector, "#monitoring-hud-overlay-profile-toggle,[data-overlay-profile-option]", "overlay-profile", (button) => {
       if (button.id === "monitoring-hud-overlay-profile-toggle") {
-        monitoringHudSetOverlayProfileDropdownOpen(monitoringHudOverlayProfileSelector.dataset.dropdownOpen !== "true");
+        const selector = monitoringHudCurrentOverlayProfileSelector();
+        const menu = monitoringHudCurrentOverlayProfileMenu();
+        const selectorIsActuallyOpen = Boolean(selector && selector.dataset.dropdownOpen === "true" && menu && !menu.hidden);
+        monitoringHudSetOverlayProfileDropdownOpen(!selectorIsActuallyOpen);
         return true;
       }
       return monitoringHudSelectOverlayProfile(button.dataset.overlayProfileOption || monitoringHudDefaultOverlayProfileId);
-    });
+    }, { activateOnPointerDown: true });
     monitoringHudOverlayProfileSelector.addEventListener("mouseover", (event) => {
       const option = event.target && event.target.closest ? event.target.closest("[data-overlay-profile-option]") : null;
       if (!option) return;
@@ -4777,7 +4878,8 @@ function monitoringHudWireControls() {
     monitoringHudSetSourceFilterDropdownOpen(false);
   });
   document.addEventListener("click", (event) => {
-    if (!monitoringHudOverlayProfileSelector || monitoringHudOverlayProfileSelector.contains(event.target)) return;
+    const selector = monitoringHudCurrentOverlayProfileSelector();
+    if (!selector || selector.contains(event.target)) return;
     monitoringHudSetOverlayProfileDropdownOpen(false);
   });
   document.addEventListener("click", (event) => {

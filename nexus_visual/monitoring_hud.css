@@ -983,7 +983,8 @@ body.desktop-mode #monitoring-hud > * {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
 }
 
-.monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open="true"]) {
+.monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open="true"]),
+.monitoring-hud__hub-card[data-dropdown-layer-open="true"] {
   z-index: 12;
 }
 

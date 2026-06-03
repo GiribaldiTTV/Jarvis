@@ -9463,7 +9463,11 @@ class DesktopRuntimeWindow(QWidget):
             absolute_move_sent = False
         click_point = cursor_after_move if cursor_inside_target and cursor_after_move else (x, y)
         snapped = self._monitoring_hud_snap_cursor_to_point((int(click_point[0]), int(click_point[1])))
-        move_sent = self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, int(click_point[0]), int(click_point[1]))
+        final_cursor = self._monitoring_hud_cursor_position()
+        final_inside_target = self._monitoring_hud_point_inside_screen_rect(final_cursor, rect)
+        move_sent = False
+        if not final_inside_target:
+            move_sent = self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, int(click_point[0]), int(click_point[1]))
         QApplication.processEvents()
         time.sleep(0.03)
         final_cursor = self._monitoring_hud_cursor_position()
@@ -9490,6 +9494,8 @@ class DesktopRuntimeWindow(QWidget):
                 if final_inside_target:
                     calibrated = True
                     break
+        if not final_inside_target:
+            return False
         down_sent = self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
         QApplication.processEvents()
         time.sleep(0.11)
@@ -9552,6 +9558,9 @@ class DesktopRuntimeWindow(QWidget):
             ok = bool(SetCursorPos(target_x, target_y)) or ok
             QApplication.processEvents()
             time.sleep(0.025)
+            cursor = self._monitoring_hud_cursor_position()
+            if cursor and abs(cursor[0] - target_x) <= 3 and abs(cursor[1] - target_y) <= 3:
+                return True
             ok = bool(self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, target_x, target_y)) or ok
             QApplication.processEvents()
             time.sleep(0.025)
@@ -9804,21 +9813,11 @@ class DesktopRuntimeWindow(QWidget):
                     if point is None:
                         return False
                     sent_attempts += 1
-                    self._monitoring_hud_force_cursor_visible()
-                    self._monitoring_hud_prepare_real_input_target()
-                    x, y = int(point[0]), int(point[1])
-                    snapped = self._monitoring_hud_snap_cursor_to_point((x, y))
-                    moved = self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, x, y)
-                    QApplication.processEvents()
-                    time.sleep(0.04)
-                    down = self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
-                    QApplication.processEvents()
-                    time.sleep(0.11)
-                    up = self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
+                    sent = self._monitoring_hud_send_mouse_click_in_rect(point, screen_rect)
                     QApplication.processEvents()
                     time.sleep(0.25)
                     cursor_after = self._monitoring_hud_cursor_position()
-                    return bool((snapped or moved) and down and up)
+                    return bool(sent)
 
                 def handle_state(result, sent: bool):
                     try:
@@ -9999,14 +9998,15 @@ class DesktopRuntimeWindow(QWidget):
                     state.activeOverlayProfileId = "default-overlay-profile";
                     state.activeOverlayProfileDraftSessionId = "";
                     for (let index = 1; index <= 120; index += 1) {
-                        const id = `lv1-real-os-profile-${index}`;
+                        const suffix = String(index).padStart(3, "0");
+                        const id = `lv1-real-os-profile-${suffix}`;
                         if (!state.overlayProfiles[id]) {
                             state.overlayProfiles[id] = {
                                 id,
                                 schemaVersion: 1,
                                 kind: "overlay-profile",
                                 scope: "overlay-visible-monitor-membership",
-                                name: `LV1 Real OS Profile ${String(index).padStart(3, "0")}`,
+                                name: `LV1 Real OS Profile ${suffix}`,
                                 monitorIds: monitorIds.slice(0, Math.min(monitorIds.length, Math.max(0, index % 6))),
                                 displayMode: "monitor-cards"
                             };
@@ -10070,6 +10070,124 @@ class DesktopRuntimeWindow(QWidget):
                 "02_recording_card_target_status_visual_contract",
                 "02_recording_card_target_preview_standard_state_rows",
                 "02_recording_card_future_controls_disabled_boundary",
+            ]
+            for label in labels:
+                capture(label)
+            QTimer.singleShot(delay(), step_dashboard_active_profile_selector_open)
+
+        def step_dashboard_active_profile_selector_open():
+            os_click_and_assert_state(
+                "#monitoring-hud-overlay-profile-toggle",
+                "real OS click opens HUD Overlay card Active Overlay Profile selector",
+                """
+                (function() {
+                    const selector = document.getElementById("monitoring-hud-overlay-profile-selector");
+                    const menu = document.getElementById("monitoring-hud-overlay-profile-menu");
+                    const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                    const option = document.querySelector('[data-overlay-profile-option="lv1-real-os-profile-001"]');
+                    const ownerCard = selector && selector.closest ? selector.closest("[data-dashboard-hub-card]") : null;
+                    const optionRect = option ? option.getBoundingClientRect() : null;
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    const proof = state && state.interactiveControlReliabilityProof ? state.interactiveControlReliabilityProof : {};
+                    return JSON.stringify({
+                        ok: Boolean(
+                            selector
+                            && selector.dataset.dropdownOpen === "true"
+                            && menu
+                            && !menu.hidden
+                            && option
+                            && optionRect
+                            && optionRect.width > 0
+                            && optionRect.height > 0
+                            && ownerCard
+                            && ownerCard.dataset.dropdownLayerOpen === "true"
+                        ),
+                        selectorOpen: selector ? String(selector.dataset.dropdownOpen || "") : "",
+                        menuHidden: menu ? Boolean(menu.hidden) : true,
+                        ownerCardDropdownLayerOpen: ownerCard ? String(ownerCard.dataset.dropdownLayerOpen || "") : "",
+                        toggleHasPointerHandler: Boolean(toggle && toggle.onpointerdown),
+                        toggleHasMouseHandler: Boolean(toggle && toggle.onmousedown),
+                        toggleHasClickHandler: Boolean(toggle && toggle.onclick),
+                        lastMouseEvent: state ? state.lastMouseEvent || null : null,
+                        lastActivationKey: proof ? String(proof.lastKey || "") : "",
+                        lastActivationPhase: proof && proof.attempts && proof.attempts.length ? String(proof.attempts[proof.attempts.length - 1].phase || "") : "",
+                        activationCount: proof && proof.attempts ? proof.attempts.length : 0,
+                        lastDashboardSelectorActivation: selector ? String(selector.dataset.lastDashboardSelectorActivation || "") : "",
+                        targetOptionText: option ? String(option.textContent || "").trim() : "",
+                        optionRect: optionRect ? {
+                            left: optionRect.left,
+                            top: optionRect.top,
+                            right: optionRect.right,
+                            bottom: optionRect.bottom,
+                            width: optionRect.width,
+                            height: optionRect.height
+                        } : null
+                    });
+                })();
+                """,
+                step_dashboard_active_profile_selector_select,
+            )
+
+        def step_dashboard_active_profile_selector_select():
+            os_click_and_assert_state(
+                '[data-overlay-profile-option="lv1-real-os-profile-001"]',
+                "real OS click selects HUD Overlay card Active Overlay Profile option",
+                """
+                (function() {
+                    if (typeof monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile === "function") {
+                        monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+                    }
+                    const selector = document.getElementById("monitoring-hud-overlay-profile-selector");
+                    const menu = document.getElementById("monitoring-hud-overlay-profile-menu");
+                    const ownerCard = selector && selector.closest ? selector.closest("[data-dashboard-hub-card]") : null;
+                    const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
+                        ? monitoringHudControlState.activeOverlayRecordingTarget
+                        : {};
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    const proof = state && state.interactiveControlReliabilityProof ? state.interactiveControlReliabilityProof : {};
+                    const recordingProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                    const recordingCount = document.getElementById("monitoring-hud-recording-target-count");
+                    const activeId = monitoringHudControlState ? String(monitoringHudControlState.activeOverlayProfileId || "") : "";
+                    const targetId = String(target.activeOverlayProfileId || "");
+                    const profileText = recordingProfile ? String(recordingProfile.textContent || "").trim() : "";
+                    const countText = recordingCount ? String(recordingCount.textContent || "").trim() : "";
+                    return JSON.stringify({
+                        ok: Boolean(
+                            activeId === "lv1-real-os-profile-001"
+                            && targetId === "lv1-real-os-profile-001"
+                            && profileText === "LV1 Real OS Profile 001"
+                            && countText === "1 active monitor"
+                            && selector
+                            && selector.dataset.dropdownOpen === "false"
+                            && menu
+                            && menu.hidden
+                            && ownerCard
+                            && ownerCard.dataset.dropdownLayerOpen === "false"
+                        ),
+                        activeOverlayProfileId: activeId,
+                        recordingTargetProfileId: targetId,
+                        recordingTargetProfileText: profileText,
+                        recordingTargetCountText: countText,
+                        selectorOpen: selector ? String(selector.dataset.dropdownOpen || "") : "",
+                        menuHidden: menu ? Boolean(menu.hidden) : true,
+                        ownerCardDropdownLayerOpen: ownerCard ? String(ownerCard.dataset.dropdownLayerOpen || "") : "",
+                        lastActivationKey: proof ? String(proof.lastKey || "") : "",
+                        lastActivationPhase: proof && proof.attempts && proof.attempts.length ? String(proof.attempts[proof.attempts.length - 1].phase || "") : "",
+                        activationCount: proof && proof.attempts ? proof.attempts.length : 0,
+                        lastDashboardSelectorActivation: selector ? String(selector.dataset.lastDashboardSelectorActivation || "") : "",
+                        lastMouseEvent: state ? state.lastMouseEvent || null : null,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_dashboard_active_profile_selector_captures,
+            )
+
+        def step_dashboard_active_profile_selector_captures():
+            labels = [
+                "02_hud_overlay_active_profile_selector_real_os_selected",
+                "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection",
             ]
             for label in labels:
                 capture(label)
