@@ -107,6 +107,16 @@ Accepted BP / SLC Trace: `PASS - BP1 USER Branch Vision, BP2 USER Branch Plan, B
 H1 Helper Repair: `dev/orin_fam006_hardening_h1.py now reads this branch receipt, checks issue #258 startup hydration markers, and requires active Dashboard Start/Stop plus runtime-owned local output write/readback instead of the older active-overlay foundation branch record.`
 H1 Boundary: `Live Validation, UTS, issue closeout, PR creation, merge, release, branch cleanup, tray/export/share, Native Log Loader implementation, provider/model work, FAM-007 mutation, Governance mutation, and neutral-main mutation remain pending separate USER decisions.`
 
+## Live Validation LV1 Traceability Receipt
+
+LV1 Approval Date: `2026-06-04`
+LV1 Scope: `Real user-facing validation for Dashboard Recording Start/Stop, runtime-owned local output write/readback, issue #258 Overlay Profile restart persistence, focused screenshots of new/affected elements only, and worktree-specific UTS handoff.`
+LV1 Helper Repair: `dev/orin_monitoring_hud_live_validation.ps1 and desktop/desktop_renderer.py now prove active Dashboard Start/Stop and saved/readback-complete behavior instead of the prior future-gated Recording control expectation; dev/orin_monitoring_hud_surface_validation.py validates the corrected UTS wording.`
+LV1 Automated Result: `PASS - human-client shortcut precheck passed, active-client LV1 self-QA passed, Dashboard Recording Start/Stop produced runtime-owned CSV/manifest output with readback proof, focused per-element screenshots were copied to the USER-inspectable screenshot folder, and short video/frame proof was generated.`
+UTS Handoff: `C:\Nexus USER\UTS - FAM-006.txt was refreshed as the active worktree-specific Live Validation Stage 1 handoff.`
+User Test Summary Results: `PENDING`
+LV1 Boundary: `The UTS export is a handoff artifact, not returned USER evidence. Live Validation cannot advance until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver; PR creation, merge, release, issue closeout, branch cleanup, tray/export/share, Native Log Loader implementation, provider/model work, FAM-007 mutation, Governance mutation, and neutral-main mutation remain pending separate USER decisions.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`

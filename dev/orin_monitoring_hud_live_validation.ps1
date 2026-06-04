@@ -291,7 +291,7 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         "manage_monitors_recreated_monitor_group_3_dirty_draft",
         "02_recording_card_target_status_visual_contract",
         "02_recording_card_target_preview_standard_state_rows",
-        "02_recording_card_future_controls_disabled_boundary"
+        "02_recording_card_start_stop_ready_state"
     )
     $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
     $missingRequiredElementLabels = @($requiredElementLabels | Where-Object { $availableElementLabels -notcontains $_ })
@@ -858,7 +858,7 @@ Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
 How To Use This File
 - Launch and test from the red FAM-006 desktop shortcut.
-- This pass is focused on the Dashboard Recording card visual-system repair seam.
+- This pass is focused on Dashboard Recording Start/Stop, local saved-output/readback proof, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.
 - Confirmed items from previous returned UTS passes are treated as closed unless they visibly regress during this pass.
 - For each active issue below, write PASS, FAIL, or WAIVED plus a short note.
 - If an active issue FAILS, describe exactly what you saw and attach/screenshot separately if useful.
@@ -871,30 +871,34 @@ Codex Precheck Summary
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
 - USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
-- Screenshot rule: review the detailed focused element screenshots, especially the Recording card target/status visual contract, standard state-row target preview, and future-control boundary. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, saved/readback, target/status mirror, and visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
 
 Brief Issue List
 - Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.
 - Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
-- Active repaired seam requiring focused USER retest: Dashboard Recording card visual-system inheritance and active Overlay Profile target mirroring.
+- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, local saved output/readback, issue #258 Overlay Profile persistence, Recording card visual-system inheritance, and active Overlay Profile target mirroring.
 
 Active Issues To Test
 
 FAM006-LV1-REC-001 - Dashboard Recording Card Visual-System Inheritance
-Expected: The Recording card appears as its own Dashboard card, separate from HUD Overlay. It must visually match the established Dashboard card system: same dark card chrome, badge style, row/divider treatment, typography scale, spacing, button style, disabled/future-gated affordance, glow/hover/focus behavior, and layout density. The Recording card must not look like a custom green boxed table or a separate visual system.
+Expected: The Recording card appears as its own Dashboard card, separate from HUD Overlay. It must visually match the established Dashboard card system: same dark card chrome, badge style, row/divider treatment, typography scale, spacing, button style, active Start/Stop affordance, glow/hover/focus behavior, and layout density. The Recording card must not look like a custom green boxed table or a separate visual system.
 USER Result / Notes:
 
 FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile
 Expected: The Recording card target overlay profile follows the active Overlay Profile. When the default profile is active, the Recording card shows Default Overlay Profile and its active monitor count. When a new Overlay Profile draft is created, the Recording card immediately mirrors that unsaved draft as the current recording target/session state with 0 active monitors, while persistence still waits for Save. After multiple profiles are saved, switching the Active Overlay Profile must update the Recording card target overlay profile and active monitor count.
 USER Result / Notes:
 
-FAM006-LV1-REC-003 - Future-Gated Recording Controls Stay Blocked
-Expected: Recording execution, file writing, real Start/Stop controls, tray controls, export/share, and provider/model behavior are still not enabled. The Recording card may show target/status and a disabled/future-gated controls affordance only.
+FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Local Output
+Expected: The Recording card Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete result. Local CSV/manifest path proof may remain in Codex/helper output instead of crowding the card, but the USER-facing card should show a simple successful save/readback result. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
 USER Result / Notes:
 
-FAM006-LV1-REC-004 - Dashboard Card Holder Equal Insets
+FAM006-LV1-REC-004 - Issue #258 Overlay Profile Persists Across Restart
+Expected: Create or save a new Overlay Profile, close/restart Nexus through the tested desktop path or equivalent helper-instructed lifecycle, reopen it, and confirm the profile still exists and remains selectable/usable. The Recording card should still mirror the active Overlay Profile after restart.
+USER Result / Notes:
+
+FAM006-LV1-REC-005 - Dashboard Card Holder Equal Insets
 Expected: The Dashboard card holder gives each card equal left and right visual inset inside the holder. The scrollbar gutter must not make the cards look offset or leave a wider right-side gap than the left-side gap.
 USER Result / Notes:
 

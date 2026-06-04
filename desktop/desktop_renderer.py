@@ -9984,6 +9984,15 @@ class DesktopRuntimeWindow(QWidget):
                         state.cards["gpu-group"] = { id: "gpu-group", title: "GPU Group", sourceIds: [], enabled: true };
                     }
                     const monitorIds = Object.keys(state.cards);
+                    state.overlayProfiles["default-overlay-profile"] = {
+                        id: "default-overlay-profile",
+                        schemaVersion: 1,
+                        kind: "overlay-profile",
+                        scope: "overlay-visible-monitor-membership",
+                        name: "Default Overlay Profile",
+                        monitorIds: monitorIds.slice(0, Math.min(monitorIds.length, 2)),
+                        displayMode: "monitor-cards"
+                    };
                     if (typeof monitoringHudOverlayProfilePendingCreate !== "undefined") {
                         monitoringHudOverlayProfilePendingCreate = null;
                     }
@@ -10049,7 +10058,10 @@ class DesktopRuntimeWindow(QWidget):
                             && targetCount
                             && summary
                             && launcher
-                            && launcher.disabled
+                            && !launcher.disabled
+                            && String(launcher.textContent || "").trim() === "Start Recording"
+                            && card.dataset.recordingExecutionState === "ready"
+                            && card.dataset.recordingFileWritingState === "ready"
                             && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
                             && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
                             && preview.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
@@ -10061,7 +10073,10 @@ class DesktopRuntimeWindow(QWidget):
                         ),
                         activeProfileName: targetProfile ? targetProfile.textContent : "",
                         activeMonitorCount: targetCount ? targetCount.textContent : "",
-                        futureControlDisabled: Boolean(launcher && launcher.disabled),
+                        startStopControlEnabled: Boolean(launcher && !launcher.disabled),
+                        launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                        recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
+                        recordingFileWritingState: card ? String(card.dataset.recordingFileWritingState || "") : "",
                         visualProofMarker: previewStyle ? previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() : "",
                         rowVisualContract: rowStyle ? rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() : "",
                         realOsInputProof: true,
@@ -10076,10 +10091,129 @@ class DesktopRuntimeWindow(QWidget):
             labels = [
                 "02_recording_card_target_status_visual_contract",
                 "02_recording_card_target_preview_standard_state_rows",
-                "02_recording_card_future_controls_disabled_boundary",
+                "02_recording_card_start_stop_ready_state",
             ]
             for label in labels:
                 capture(label)
+            QTimer.singleShot(delay(), step_recording_start_click)
+
+        def step_recording_start_click():
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-control-launcher",
+                "real OS click starts Dashboard Recording",
+                """
+                (function() {
+                    const card = document.querySelector('[data-dashboard-hub-card="recording"]');
+                    const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                    const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
+                        ? monitoringHudControlState.activeOverlayRecordingTarget
+                        : {};
+                    return JSON.stringify({
+                        ok: Boolean(
+                            card
+                            && launcher
+                            && String(launcher.textContent || "").trim() === "Stop Recording"
+                            && card.dataset.recordingExecutionState === "recording"
+                            && monitoringHudControlState
+                            && monitoringHudControlState.recordingSessionState === "recording"
+                            && monitoringHudControlState.recordingSnapshotTarget
+                            && String(monitoringHudControlState.recordingSnapshotTarget.activeOverlayProfileId || "") === String(target.activeOverlayProfileId || "")
+                        ),
+                        launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                        recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
+                        recordingSessionState: monitoringHudControlState ? String(monitoringHudControlState.recordingSessionState || "") : "",
+                        snapshotTargetProfileId: monitoringHudControlState && monitoringHudControlState.recordingSnapshotTarget ? String(monitoringHudControlState.recordingSnapshotTarget.activeOverlayProfileId || "") : "",
+                        activeTargetProfileId: String(target.activeOverlayProfileId || ""),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_active_captures,
+            )
+
+        def step_recording_active_captures():
+            capture("02_recording_card_start_recording_active_state")
+            QTimer.singleShot(delay(), step_recording_stop_click)
+
+        def step_recording_stop_click():
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-control-launcher",
+                "real OS click stops Dashboard Recording and requests local output",
+                """
+                (function() {
+                    const card = document.querySelector('[data-dashboard-hub-card="recording"]');
+                    const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                    const request = monitoringHudControlState ? monitoringHudControlState.recordingOutputRequest || {} : {};
+                    const state = monitoringHudControlState ? String(monitoringHudControlState.recordingSessionState || "") : "";
+                    return JSON.stringify({
+                        ok: Boolean(
+                            card
+                            && launcher
+                            && (state === "saving" || state === "saved-complete")
+                            && request
+                            && String(request.sessionId || "")
+                            && Array.isArray(request.samples)
+                            && request.samples.length > 0
+                        ),
+                        launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                        recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
+                        recordingSessionState: state,
+                        requestId: request ? String(request.requestId || "") : "",
+                        sampleCount: request && Array.isArray(request.samples) ? request.samples.length : 0,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_saved_assert_wait,
+            )
+
+        def step_recording_saved_assert_wait():
+            capture("02_recording_card_stop_saving_output_state")
+            QTimer.singleShot(delay(1500), step_recording_saved_assert)
+
+        def step_recording_saved_assert():
+            assert_state(
+                "Dashboard Recording stop writes local output and readback proof",
+                """
+                (function() {
+                    const card = document.querySelector('[data-dashboard-hub-card="recording"]');
+                    const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                    const summary = document.getElementById("monitoring-hud-recording-target-summary");
+                    const result = monitoringHudControlState ? monitoringHudControlState.recordingOutputResult || {} : {};
+                    return JSON.stringify({
+                        ok: Boolean(
+                            card
+                            && launcher
+                            && String(launcher.textContent || "").trim() === "Start Recording"
+                            && card.dataset.recordingExecutionState === "saved-complete"
+                            && card.dataset.recordingFileWritingState === "saved-complete"
+                            && monitoringHudControlState
+                            && monitoringHudControlState.recordingSessionState === "saved-complete"
+                            && result
+                            && result.passed === true
+                            && result.readbackPassed === true
+                        ),
+                        launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                        recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
+                        recordingFileWritingState: card ? String(card.dataset.recordingFileWritingState || "") : "",
+                        recordingSessionState: monitoringHudControlState ? String(monitoringHudControlState.recordingSessionState || "") : "",
+                        outputPassed: Boolean(result && result.passed),
+                        readbackPassed: Boolean(result && result.readbackPassed),
+                        csvPath: result ? String(result.csvPath || "") : "",
+                        manifestPath: result ? String(result.manifestPath || "") : "",
+                        summaryText: summary ? String(summary.textContent || "").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_saved_captures,
+            )
+
+        def step_recording_saved_captures():
+            capture("02_recording_card_saved_complete_readback_state")
             QTimer.singleShot(delay(), step_dashboard_active_profile_selector_open)
 
         def step_dashboard_active_profile_selector_open():
@@ -13963,7 +14097,7 @@ class DesktopRuntimeWindow(QWidget):
                     required_visual_labels = {
                         "02_recording_card_target_status_visual_contract",
                         "02_recording_card_target_preview_standard_state_rows",
-                        "02_recording_card_future_controls_disabled_boundary",
+                        "02_recording_card_start_stop_ready_state",
                         "03_manage_monitors_open_state",
                         "03_manage_monitors_close_hover_hitbox",
                         "04_source_filter_dropdown_open_hover_reset",
@@ -14470,7 +14604,9 @@ class DesktopRuntimeWindow(QWidget):
                                         && targetCount
                                         && summary
                                         && launcher
-                                        && launcher.disabled
+                                        && !launcher.disabled
+                                        && String(launcher.textContent || "").trim() === "Start Recording"
+                                        && card.dataset.recordingExecutionState !== "blocked"
                                         && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
                                         && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
                                         && preview.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
@@ -14484,7 +14620,9 @@ class DesktopRuntimeWindow(QWidget):
                                     targetPreviewProof: preview ? preview.dataset.recordingTargetPreview : "missing",
                                     targetProfileText: targetProfile ? targetProfile.textContent : "",
                                     targetCountText: targetCount ? targetCount.textContent : "",
-                                    launcherDisabled: Boolean(launcher && launcher.disabled),
+                                    launcherEnabled: Boolean(launcher && !launcher.disabled),
+                                    launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                                    recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
                                     visualProofMarker: previewStyle ? previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() : "",
                                     rowVisualContract: rowStyle ? rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() : ""
                                 });
@@ -14496,7 +14634,7 @@ class DesktopRuntimeWindow(QWidget):
                         lambda: (
                             record_visual("02_recording_card_target_status_visual_contract"),
                             record_visual("02_recording_card_target_preview_standard_state_rows"),
-                            record_visual("02_recording_card_future_controls_disabled_boundary"),
+                            record_visual("02_recording_card_start_stop_ready_state"),
                             visual_manage_open(),
                         ),
                     )
