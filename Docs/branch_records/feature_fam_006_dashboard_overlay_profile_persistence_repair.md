@@ -1,4 +1,4 @@
-﻿# Branch Authority Receipt - FAM-006 Dashboard Overlay Profile Persistence Repair
+﻿# Branch Authority Receipt - FAM-006 Dashboard Overlay Profile Persistence Runtime Foundation
 
 Branch: `feature/fam-006-dashboard-overlay-profile-persistence-repair`
 Worktree: `C:\Nexus Worktrees\FAM-006`
@@ -11,7 +11,7 @@ Engineering Plan Status: `External operational-state owner; repo record is a dur
 - Branch: `feature/fam-006-dashboard-overlay-profile-persistence-repair`
 - Worktree: `C:\Nexus Worktrees\FAM-006`
 - Target Family: `FAM-006 - Monitoring and HUD`
-- Runtime Lane: `Dashboard Overlay Profile persistence repair`
+- Runtime Lane: `Dashboard Overlay Profile persistence runtime foundation`
 - GitHub Issue Traceability: `#258 - FAM-006: Dashboard HUD Overlay Profiles do not persist after app restart`
 
 ## Record State
@@ -35,7 +35,7 @@ Blockers: `None owned by this repo receipt; active blockers are external-state a
 
 ## Exit Criteria
 
-Exit Criteria: `Admission receipt preserves branch identity and issue #258 traceability pointer; external branch plan and USER review packet own the active BP1 decision path.`
+Exit Criteria: `Admission receipt preserves Dashboard Overlay Profile persistence runtime foundation as the branch identity and issue #258 as traceability/proof input; external branch plan and USER review packet own the active BP1 decision path.`
 
 ## Rollback Target
 
@@ -55,29 +55,29 @@ Canonical Branch: `feature/fam-006-dashboard-overlay-profile-persistence-repair`
 
 ## Phase Receipt
 
-Phase Receipt: `Branch Readiness Stage 2 admission created a fresh FAM-006 runtime repair carrier from current origin/main after issue #258 was classified as FAM-006 Dashboard / Overlay Profile persistence scope. Current phase and next-gate posture are owned by the external branch plan and live Git/GitHub/helper truth, not this repo receipt.`
+Phase Receipt: `Branch Readiness Stage 2 admission created a fresh FAM-006 runtime foundation carrier from current origin/main for Dashboard Overlay Profile persistence. Issue #258 was admitted as FAM-006 Dashboard / Overlay Profile persistence traceability and future proof input, but it does not define the whole branch identity. Current phase and next-gate posture are owned by the external branch plan and live Git/GitHub/helper truth, not this repo receipt.`
 
 ## Branch Class
 
 Branch Class: `implementation`
 Primary Package: `PKG-006 - Monitoring and HUD`
-Runtime Lane Selection: `Dashboard Overlay Profile persistence repair`
-Issue Admission: `Issue #258 is admitted as a traceable repair item because the observed failure is that a USER-created HUD Dashboard Overlay Profile disappears after app restart. That is a FAM-006 Dashboard / Overlay Profile state and persistence workflow, not FAM-007, Governance, provider/model, recording execution, file-writing, tray, export/share, or release work.`
+Runtime Lane Selection: `Dashboard Overlay Profile persistence runtime foundation`
+Issue Admission: `Issue #258 is admitted as a traceable proof driver because the observed failure is that a USER-created HUD Dashboard Overlay Profile disappears after app restart. That restart-flow defect belongs inside the broader FAM-006 Dashboard / Overlay Profile persistence foundation lane, not FAM-007, Governance, provider/model, recording execution, file-writing, tray, export/share, or release work.`
 
 ## Entry Basis
 
-Entry Basis: `USER approved FAM-006 Branch Readiness Stage 2 execution in C:\Nexus Worktrees\FAM-006 to create or rebind a fresh FAM-006 branch from current origin/main, preserve the released active-overlay recording branch as historical traceability, admit GitHub issue #258 as FAM-006 runtime repair traceability, select the next legal FAM-006 runtime lane, update external branch authority/plan state, prepare BP1 USER Branch Vision Review routing, validate, commit, and push when green.`
+Entry Basis: `USER approved FAM-006 Branch Readiness Stage 2 execution in C:\Nexus Worktrees\FAM-006 to create or rebind a fresh FAM-006 branch from current origin/main, preserve the released active-overlay recording branch as historical traceability, admit GitHub issue #258 as FAM-006 runtime traceability, select the next legal FAM-006 runtime foundation lane, update external branch authority/plan state, prepare BP1 USER Branch Vision Review routing, validate, commit, and push when green.`
 
 ## Product Definition Pointer
 
-Product Vision: `Overlay Profiles should remain trustworthy Dashboard/HUD state. If USER creates a new Overlay Profile, closes Nexus, and opens it again, the profile should still be available and selectable unless USER explicitly deleted it.`
+Product Vision: `Overlay Profiles should behave as durable, trustworthy Dashboard/HUD runtime state. If USER creates a new Overlay Profile, selects an active Overlay Profile, closes Nexus, and opens it again, the profile and active selection path should still be available unless USER explicitly deleted or changed them.`
 Family Vision Alignment: `Docs/family_visions/FAM-006_monitoring_and_hud.md owns the durable FAM-006 direction for Dashboard, HUD, Overlay Profile, Monitor Group, active-overlay-driven recording, visual-system inheritance, truthful state, and local file hygiene.`
-Runtime Repair Hypothesis: `The repair should verify the full USER journey: create profile through the UI, persist it through the page/host state bridge, close the app, reopen the app, and confirm the profile still exists and can become the active Overlay Profile.`
-Proof Requirement: `Restart-flow proof is mandatory for issue #258. Direct helper save/load proof is supporting evidence only and cannot replace the create-close-reopen USER journey.`
+Runtime Lane Hypothesis: `The runtime foundation should reconcile the full USER journey: create profile through the UI, persist it through the page/host state bridge, preserve the active Overlay Profile identity, close the app, reopen the app, and confirm the profile still exists and can become or remain the active Overlay Profile.`
+Proof Requirement: `Restart-flow proof is mandatory for issue #258 during BP2/BP3 planning and later implementation proof. Direct helper save/load proof is supporting evidence only and cannot replace the create-close-reopen USER journey.`
 
 ## Scope Boundary
 
-Allowed Setup Scope: `BR2 branch creation/rebind, external active branch plan/state admission, branch receipt pointer, issue #258 traceability, BP1 USER Branch Vision Review route, USER packet generation, validation, commit, and push.`
+Allowed Setup Scope: `BR2 branch creation/rebind, external active branch plan/state admission, branch receipt pointer, Dashboard Overlay Profile persistence runtime foundation classification, issue #258 traceability/proof-input classification, BP1 USER Branch Vision Review route, USER packet generation, validation, commit, and push.`
 Implementation Boundary: `Runtime implementation remains blocked until BP1 is accepted or waived, BP2 is accepted or waived, BP3 is approved or waived, and USER separately approves bounded Workstream implementation.`
 Explicit Non-Includes: `No runtime mutation, recording execution, recording file writing, real Start/Stop controls, tray controls, export/share behavior, provider/model work, FAM-007 mutation, Governance worktree mutation, neutral main mutation, PR creation, merge, release, issue closeout, broad issue mutation, cleanup, or deletion.`
 
@@ -91,12 +91,12 @@ Repo Receipt Role: `This file is a durable branch admission pointer and traceabi
 ## Historical Traceability
 
 Historical Predecessor: `feature/fam-006-active-overlay-recording-runtime-implementation`
-Historical Predecessor Status: `Merged through PR #256, released in v1.7.31-prebeta, and preserved as historical evidence. It must not be reused as the active identity for this issue #258 repair lane.`
+Historical Predecessor Status: `Merged through PR #256, released in v1.7.31-prebeta, and preserved as historical evidence. It must not be reused as the active identity for this Dashboard Overlay Profile persistence runtime foundation lane.`
 No Unique Commit Loss Proof: `The FAM-006 stable worktree was rebound from current origin/main to a fresh branch; the prior released branch remains available as remote/local traceability and cleanup remains a separate USER decision.`
 
 ## BP1 Route
 
-BP1 Route: `Prepare USER Branch Vision Review for the FAM-006 Dashboard Overlay Profile persistence repair lane.`
+BP1 Route: `Prepare USER Branch Vision Review for the FAM-006 Dashboard Overlay Profile persistence runtime foundation lane.`
 Packet Reviewability Boundary: `A reviewable BP1 packet starts USER review; it is not USER acceptance.`
 USER Gate Boundary: `BP1 remains pending USER review until USER accepts, revises, rejects, waives, or blocks the Branch Vision.`
 
