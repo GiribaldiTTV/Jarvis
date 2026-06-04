@@ -44,6 +44,8 @@ Required active branch-plan route markers:
 
 Real feature implementation means the branch names the behavior, control, surface, state transition, workflow, source-truth enforcement, helper behavior, validator behavior, or runtime behavior that Workstream will create, change, or enforce. Proofs, packets, readiness matrices, registries, setup themes, boundary-control labels, decision paths, and validation plans are not enough by themselves. A boundary-control route is valid only when the branch plan names the actual control behavior that will be implemented or enforced; proof of the boundary is validation evidence, not the deliverable.
 
+When this requirement is machine-checkable, keep it deterministic: fixtures or validators should reject TBD implementation output, BP2-will-decide-later language, proof packets labeled as concrete feature routes, and boundary-control labels without an implemented control. When the distinction requires human judgment, the branch plan must say which semantic review remains open instead of treating marker presence as green.
+
 Infrastructure and setup can be branch-worthy only when tied to a selected implementation route or to an exact USER action gate. Creating User/Public, Developer, or Owner lanes by itself is groundwork, not a feature implementation carrier. When the legal answer is to pause, retarget, or rename, the branch plan must say so with `Route Disposition:` and `Retarget / Rename Recommendation:` before BP1 or BP2 continue.
 
 When BR2 cannot complete because infrastructure or lane groundwork blocks the selected route, the active branch plan or BR2 packet must include:

@@ -6,7 +6,7 @@ Infrastructure / Lane Groundwork Blockers: Owner lane and Developer lane AI work
 
 Required Before This Route Can Proceed: USER must either approve prerequisite groundwork for the named lane route, select an implementation-bearing route that can run without that groundwork, retarget/rename the branch to match a concrete route, or hold with No Active Branch.
 
-Concrete Feature Routes Available Now: Security/trust-boundary enforcement control, provider/runtime consent shell, capability-pack install-intent gate control, and memory/cache consent-state enforcement control are concrete worktree-focused feature routes that can proceed without creating private roots or executing providers.
+Concrete Feature Routes Available Now: Security/trust-boundary enforcement control, provider/runtime consent-shell disabled-state control, capability-pack install-intent gate control, and memory/cache consent-state enforcement control are concrete worktree-focused feature routes that can proceed without creating private roots or executing providers.
 
 Deferrable Groundwork: Private repository creation, GitHub Desktop private binding, off-boot backup roots, model downloads, provider execution, runtime cache behavior, memory persistence, and Owner-private hosting can be deferred while public-safe boundary enforcement proceeds.
 

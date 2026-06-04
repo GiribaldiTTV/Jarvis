@@ -211,6 +211,12 @@ INVALID_IMPLEMENTATION_ROUTE_FAKE_FEATURE_LABEL_FIXTURE = (
 INVALID_IMPLEMENTATION_ROUTE_PROOF_BOUNDARY_LABEL_FIXTURE = (
     FIXTURE_DIR / "invalid_implementation_route_proof_boundary_label.md"
 )
+INVALID_IMPLEMENTATION_ROUTE_TBD_OUTPUT_FIXTURE = (
+    FIXTURE_DIR / "invalid_implementation_route_tbd_output.md"
+)
+INVALID_BR2_ROUTE_BLOCKER_PROOF_ONLY_ROUTE_FIXTURE = (
+    FIXTURE_DIR / "invalid_br2_route_blocker_proof_only_route.md"
+)
 VALID_IMPLEMENTATION_ROUTE_BP2_HOLD_ACTION_GATE_FIXTURE = (
     FIXTURE_DIR / "valid_implementation_route_bp2_hold_action_gate.md"
 )
@@ -333,6 +339,12 @@ EXPECTED_FAKE_FEATURE_LABEL_FAILURE_SNIPPET = (
 )
 EXPECTED_PROOF_BOUNDARY_LABEL_FAILURE_SNIPPET = (
     "Proof/setup/boundary labels cannot substitute for real feature implementation"
+)
+EXPECTED_TBD_IMPLEMENTATION_OUTPUT_FAILURE_SNIPPET = (
+    "Implementation-bearing route cannot defer implementation output to BP2 or a later decision"
+)
+EXPECTED_BR2_PROOF_ONLY_ROUTE_FAILURE_SNIPPET = (
+    "BR2 blocker packet concrete routes cannot be proof/readiness labels only"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -1044,6 +1056,8 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
     )
     evidence_only_route_terms = (
         "proof package",
+        "proof packet",
+        "validation proof",
         "setup proof",
         "packet proof",
         "readiness proof",
@@ -1062,6 +1076,21 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         "boundary controls",
         "boundary-control labels",
     )
+    tbd_route_terms = (
+        "implementation output is tbd",
+        "tbd",
+        "to be determined",
+        "figured out later",
+        "will be figured out",
+        "will choose",
+        "choose the validator",
+        "decide later",
+        "selected later",
+        "later during bp2",
+        "after user reviews more options",
+        "bp2 will choose",
+        "bp2 will decide",
+    )
     negated_real_behavior_terms = (
         "no enforcement behavior",
         "no helper behavior",
@@ -1072,6 +1101,9 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         "no user-facing surface",
         "no state transition",
         "no behavior changes",
+        "behavior changes are deferred",
+        "changes are deferred",
+        "behavior is deferred",
         "without implemented behavior",
         "without naming the control behavior",
         "without naming the actual control",
@@ -1125,6 +1157,13 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
             "Proof/setup/boundary labels cannot substitute for real feature "
             "implementation: name the actual control, behavior, surface, or "
             "state transition Workstream will implement or enforce"
+        ),
+    )
+    require(
+        not any(term in combined_route for term in tbd_route_terms),
+        (
+            "Implementation-bearing route cannot defer implementation output "
+            "to BP2 or a later decision: name the actual route behavior before BP1"
         ),
     )
     fake_feature_detected = any(term in combined_route for term in fake_feature_terms)
@@ -1295,6 +1334,32 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
             ),
         )
     else:
+        proof_only_route_terms = (
+            "proof",
+            "proof packet",
+            "setup proof",
+            "packet proof",
+            "readiness proof",
+            "readiness matrix",
+            "decision path",
+            "boundary controls",
+            "validation plan",
+            "planning candidate",
+        )
+        route_behavior_terms = (
+            "control",
+            "enforcement",
+            "artifact exclusion",
+            "disabled-state",
+            "install-intent gate",
+            "consent-state enforcement",
+            "fail-closed",
+            "reject",
+            "block",
+            "gate",
+            "implements",
+            "implement",
+        )
         require(
             any(
                 term in routes_available
@@ -1315,6 +1380,15 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
                 )
             ),
             "BR2 blocker packet must name at least one concrete feature route available now",
+        )
+        require(
+            not any(term in routes_available for term in proof_only_route_terms)
+            or any(term in routes_available for term in route_behavior_terms),
+            (
+                "BR2 blocker packet concrete routes cannot be proof/readiness "
+                "labels only: name a control, behavior, gate, enforcement, or "
+                "state transition that can be implemented"
+            ),
         )
     require(
         "approve prerequisite groundwork" in normalized
@@ -3251,6 +3325,28 @@ def validate() -> list[str]:
         failures.append(
             "Invalid proof/boundary-label implementation-route fixture did not "
             "reject proof or boundary-control wording without implemented behavior"
+        )
+
+    tbd_output_failures = _validate_implementation_bearing_route_text(
+        INVALID_IMPLEMENTATION_ROUTE_TBD_OUTPUT_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_TBD_IMPLEMENTATION_OUTPUT_FAILURE_SNIPPET not in "\n".join(
+        tbd_output_failures
+    ):
+        failures.append(
+            "Invalid TBD implementation-output fixture did not reject BP2-will-decide-later wording"
+        )
+
+    proof_only_br2_failures = _validate_br2_route_blocker_packet_text(
+        INVALID_BR2_ROUTE_BLOCKER_PROOF_ONLY_ROUTE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_BR2_PROOF_ONLY_ROUTE_FAILURE_SNIPPET not in "\n".join(
+        proof_only_br2_failures
+    ):
+        failures.append(
+            "Invalid BR2 proof-only route fixture did not reject proof/readiness route wording"
         )
 
     failures.extend(_validate_active_external_branch_plan_posture())
