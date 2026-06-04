@@ -5228,6 +5228,7 @@ BOT_REVIEW_SIGNAL_PHRASES = (
     "live PR",
     "thumbs-up reaction",
     "bot comment",
+    "3-5 words only",
     "post-repair bot thumbs-up/approval latch",
     "same-PR Codex bot-review repair loop",
     "Stage 2 final handoff cannot be green until the post-repair bot thumbs-up/approval latch is verified",
@@ -5289,6 +5290,7 @@ PR_WATCHER_MODE_CONTRACT_PHRASES = (
     "Next Watcher Posture:",
     "Reliability Degradation",
     "Background Observability",
+    "3-5 word PR comment only",
 )
 
 PR_WATCHER_OUTPUT_CONTRACT_SOURCE = Path("dev/pr_same_thread_watcher.py")
