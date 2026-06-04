@@ -10,6 +10,7 @@ planning.
 from __future__ import annotations
 
 import inspect
+import re
 import tempfile
 import zipfile
 from pathlib import Path
@@ -214,6 +215,9 @@ INVALID_IMPLEMENTATION_ROUTE_PROOF_BOUNDARY_LABEL_FIXTURE = (
 INVALID_IMPLEMENTATION_ROUTE_TBD_OUTPUT_FIXTURE = (
     FIXTURE_DIR / "invalid_implementation_route_tbd_output.md"
 )
+INVALID_IMPLEMENTATION_ROUTE_BLANK_SELECTED_ROUTE_FIXTURE = (
+    FIXTURE_DIR / "invalid_implementation_route_blank_selected_route.md"
+)
 INVALID_BR2_ROUTE_BLOCKER_PROOF_ONLY_ROUTE_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_route_blocker_proof_only_route.md"
 )
@@ -342,6 +346,9 @@ EXPECTED_PROOF_BOUNDARY_LABEL_FAILURE_SNIPPET = (
 )
 EXPECTED_TBD_IMPLEMENTATION_OUTPUT_FAILURE_SNIPPET = (
     "Implementation-bearing route cannot defer implementation output to BP2 or a later decision"
+)
+EXPECTED_BLANK_SELECTED_ROUTE_FAILURE_SNIPPET = (
+    "Implementation-bearing route marker requires a value: Selected Implementation Route:"
 )
 EXPECTED_BR2_PROOF_ONLY_ROUTE_FAILURE_SNIPPET = (
     "BR2 blocker packet concrete routes cannot be proof/readiness labels only"
@@ -936,21 +943,34 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
     for marker in required_markers:
         require(marker in text, f"Implementation-bearing route missing {marker}")
 
-    selected_route = governance._extract_marker_value(
-        text, "Selected Implementation Route:"
-    )
-    deliverable = governance._extract_marker_value(text, "Concrete Deliverable:")
-    implementation_output = governance._extract_marker_value(
-        text, "Implementation Output:"
-    )
-    setup_relationship = governance._extract_marker_value(
-        text, "Infrastructure / Setup Relationship:"
-    )
-    user_gate = governance._extract_marker_value(text, "USER Action Gate:")
-    route_disposition = governance._extract_marker_value(text, "Route Disposition:")
-    retarget = governance._extract_marker_value(
-        text, "Retarget / Rename Recommendation:"
-    )
+    def same_line_marker_value(marker: str) -> str:
+        normalized_marker = marker.rstrip(":")
+        pattern = re.compile(
+            rf"^[ \t]*(?:-[ \t]*)?{re.escape(normalized_marker)}:"
+            r"[ \t]*`?([^\r\n]*?)`?[ \t]*$",
+            flags=re.M,
+        )
+        matches = pattern.findall(text)
+        if not matches:
+            return ""
+        return matches[-1].strip().strip("`").strip()
+
+    marker_values = {
+        marker: same_line_marker_value(marker) for marker in required_markers
+    }
+    for marker, value in marker_values.items():
+        require(
+            bool(governance._normalized_planning_value(value)),
+            f"Implementation-bearing route marker requires a value: {marker}",
+        )
+
+    selected_route = marker_values["Selected Implementation Route:"]
+    deliverable = marker_values["Concrete Deliverable:"]
+    implementation_output = marker_values["Implementation Output:"]
+    setup_relationship = marker_values["Infrastructure / Setup Relationship:"]
+    user_gate = marker_values["USER Action Gate:"]
+    route_disposition = marker_values["Route Disposition:"]
+    retarget = marker_values["Retarget / Rename Recommendation:"]
     combined_route = governance._normalized_planning_value(
         "\n".join((selected_route, deliverable, implementation_output))
     )
@@ -3335,6 +3355,18 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid TBD implementation-output fixture did not reject BP2-will-decide-later wording"
+        )
+
+    blank_selected_route_failures = _validate_implementation_bearing_route_text(
+        INVALID_IMPLEMENTATION_ROUTE_BLANK_SELECTED_ROUTE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_BLANK_SELECTED_ROUTE_FAILURE_SNIPPET not in "\n".join(
+        blank_selected_route_failures
+    ):
+        failures.append(
+            "Invalid blank selected-route fixture did not reject missing route marker value"
         )
 
     proof_only_br2_failures = _validate_br2_route_blocker_packet_text(
