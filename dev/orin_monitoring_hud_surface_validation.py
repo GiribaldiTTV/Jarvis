@@ -68,6 +68,9 @@ def validate() -> list[str]:
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
+    family_vision = _read("Docs/family_visions/FAM-006_monitoring_and_hud.md")
+    output_contract = _read("desktop/recording_output_contract.py")
+    workstream_readiness = _read("dev/orin_fam006_workstream_readiness.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
     tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
     hud_state = _read("desktop/monitoring_hud_state.py")
@@ -516,7 +519,7 @@ def validate() -> list[str]:
         'data-dashboard-quick-access="warning-notifications-only"',
         'data-dashboard-global-feature-control="tray-owned"',
         'data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"',
-        'data-dashboard-card-order="hud-overlay-monitor-groups-data-sources-readiness"',
+        'data-dashboard-card-order="hud-overlay-recording-monitor-groups-data-sources-readiness"',
         'data-dashboard-settings-affordance="dashboard-ia-card-settings-button"',
         'data-dashboard-settings-panel="settings-panel-child-window"',
         'data-dashboard-settings-panel-state="closed"',
@@ -847,7 +850,7 @@ def validate() -> list[str]:
         and "min-width: min(300px, 100%)" in css
         and "max-width: min(450px, 100%)" in css
         and ".monitoring-hud__overlay-profile-dropdown .monitoring-hud__bounded-dropdown-menu" in css
-        and "<span>Overlay Profile</span>" in html
+        and "<span>Active Overlay Profile</span>" in html
         and 'id="monitoring-hud-overlay-profile-active-name"' not in html
         and ".monitoring-hud__overlay-profile-actions" in css
         and ".monitoring-hud__overlay-profile-window-actions" in css
@@ -1208,6 +1211,184 @@ def validate() -> list[str]:
         _require_contains(html, needle, "SLC-039 Overlay Profile visible membership editor UI", failures)
 
     for needle in (
+        "ACTIVE_OVERLAY_RECORDING_TARGET_KIND",
+        "build_active_overlay_recording_target_snapshot",
+        "active-overlay-recording-target",
+        "target-session-truth-only",
+        "active-overlay-profile-membership",
+        "future-snapshot-at-recording-start-target-candidate",
+        "hiddenRecordingTargetState",
+        "recordingExecutionState",
+        "fileWritingState",
+        "separateRecordingProfileState",
+        "recording-profile-state-absent-future-gated",
+    ):
+        _require_contains(hud_state, needle, "SLC-051 active Overlay recording target state foundation", failures)
+
+    for needle in (
+        "monitoringHudBuildActiveOverlayRecordingTargetSnapshot",
+        "monitoringHudApplyActiveOverlayRecordingTargetProof",
+        "runMonitoringHudActiveOverlayRecordingTargetProof",
+        "slc-051-active-overlay-profile-membership-target",
+        "activeOverlayRecordingTargetProof",
+        "activeOverlayRecordingTargetSource",
+        "activeOverlayRecordingTargetScope",
+        "activeOverlayRecordingTargetMonitorCount",
+        "snapshotAtStartModel",
+        "recordingFileWritingState",
+    ):
+        _require_contains(js, needle, "SLC-051 active Overlay recording target JS proof", failures)
+
+    for needle in (
+        'id="monitoring-hud-recording-target-preview"',
+        'data-dashboard-hub-card="recording"',
+        'data-recording-card-placement="dashboard-recording-card-primary"',
+        'data-recording-surface-owner="dashboard-card-not-hud-overlay"',
+        'data-recording-target-preview="slc-052-dashboard-recording-card-target-status"',
+        'data-active-monitor-transparency="slc-052-dashboard-visible-count-and-names"',
+        'data-hud-overlay-recording-boundary="hud-overlay-overlay-focused"',
+        'id="monitoring-hud-recording-control-launcher"',
+        'data-recording-control-window-state="future-secondary"',
+        'data-native-window-contract="future-secondary-surface"',
+        'data-recording-execution-state="blocked"',
+        'data-recording-file-writing-state="blocked"',
+        '<span>Target overlay profile</span>',
+        'id="monitoring-hud-recording-target-count">2 active monitors</strong>',
+    ):
+        _require_contains(html, needle, "SLC-052 Dashboard Recording card target/status HTML", failures)
+
+    for needle in (
+        "monitoringHudRenderActiveOverlayRecordingTargetPreview",
+        "monitoringHudRequestRecordingControlWindow",
+        "runMonitoringHudRecordingTargetPreviewProof",
+        "recordingTargetPreviewProof",
+        "monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile",
+        "recordingTargetOverlayProfileMirrorProof",
+        "activeProfileCreateMirrorsRecordingTarget",
+        "savedActiveProfileSelectorSwitchesRecordingTarget",
+        "slc-052-dashboard-recording-card-target-status",
+        "slc-052-dashboard-visible-count-and-names",
+        "dashboard-recording-card-primary",
+        "hud-overlay-overlay-focused",
+        "Recording Controls Future",
+        "future-secondary-surface",
+        "trayRecordingControlState",
+    ):
+        _require_contains(js, needle, "SLC-052 Dashboard Recording card target/status JS proof", failures)
+
+    for needle in (
+        "class MonitoringHudRecordingControlWindow",
+        'self.setWindowTitle("Nexus Recording Control")',
+        "MONITORING_HUD_RECORDING_CONTROL_WINDOW_READY",
+        'slice="SLC-053"',
+        '"surface": "standalone_recording_control_window"',
+        '"taskbarRestorable": True',
+        '"recordingExecutionState": "blocked"',
+        '"recordingFileWritingState": "blocked"',
+        '"startStopState": "future-gated"',
+    ):
+        _require_contains(renderer, needle, "SLC-053 native Recording Control window foundation", failures)
+
+    for needle in (
+        "RECORDING_OUTPUT_CONTRACT_ID",
+        "slc-054-active-overlay-recording-output-contract",
+        "RECORDING_OUTPUT_FORMAT",
+        "csv-with-json-metadata-manifest",
+        "RECORDING_OUTPUT_HEADERS",
+        "timestamp_utc",
+        "elapsed_ms",
+        "overlay_profile_id",
+        "monitor_id",
+        "sensor_id",
+        "value",
+        "quality",
+        "render_recording_output_csv",
+        "parse_recording_output_csv",
+        "validate_recording_output_contract",
+        '"fileWritingState": "blocked"',
+        '"recordingExecutionState": "blocked"',
+        '"nativeLogLoaderState": "future-separate-viewer"',
+    ):
+        _require_contains(output_contract, needle, "SLC-054 durable recording output contract", failures)
+
+    for needle in (
+        "WORKSTREAM_READINESS_ID",
+        "slc-055-fam006-validation-live-proof-readiness",
+        "WORKSTREAM_PACKAGE_ID",
+        "pkg-006-active-overlay-recording-runtime-foundation",
+        "build_fam006_workstream_readiness_proof",
+        '"workstreamGreenCandidate"',
+        '"packageSlicesComplete"',
+        '"hardeningH1State"',
+        "pending-after-workstream-green",
+        '"liveValidationLV1State"',
+        "pending-after-h1",
+        '"utsState"',
+        "pending-after-lv1",
+        "real user-level mouse and keyboard proof",
+        "focused screenshots or photo comparison",
+        "no UTS is exported until Live Validation authority is active or waived",
+        "recording execution",
+        "file writing",
+        "real Start/Stop controls",
+        "Native Log Loader implementation",
+    ):
+        _require_contains(workstream_readiness, needle, "SLC-055 validation/live proof readiness", failures)
+
+    for needle in (
+        "monitoring-hud__recording-target-preview",
+        "monitoring-hud__recording-target-actions",
+        "--recording-card-live-visual-proof: dashboard-card-system-sampled",
+        "--recording-card-row-visual-contract: inherits-dashboard-state-row",
+    ):
+        _require_contains(css, needle, "SLC-052 Dashboard Recording card target/status CSS", failures)
+
+    for needle in (
+        'data-recording-card-visual-system="dashboard-hub-card-sampled"',
+        'data-recording-card-sampled-elements="hud-overlay-monitor-groups-data-sources-readiness"',
+    ):
+        _require_contains(html, needle, "SLC-052 Dashboard Recording card visual-system inheritance markers", failures)
+
+    for needle in (
+        'recordingCardVisualSystem = "dashboard-hub-card-sampled"',
+        'recordingCardSampledElements = "hud-overlay-monitor-groups-data-sources-readiness"',
+    ):
+        _require_contains(js, needle, "SLC-052 Dashboard Recording card active visual-system mirror", failures)
+
+    for forbidden in (
+        "--recording-card-live-visual-proof: focused-target-preview-required",
+        "--recording-card-row-visual-contract: contained-row-no-sliced-divider",
+        ".monitoring-hud__hub-card--recording {\n  border-color:",
+        ".monitoring-hud__hub-card--recording .monitoring-hud__hub-card-topline span",
+    ):
+        _require(
+            forbidden not in css,
+            "SLC-052 Recording card must sample the Dashboard card visual system instead of carrying custom Recording-only chrome",
+            failures,
+        )
+
+    for needle in (
+        "New Dashboard, HUD, Overlay Profile, Monitor Group, Recording, Sensor Command Center, or child-window UI must sample from the existing FAM-006 visual system",
+        "The Dashboard Recording card must look and behave like an existing Dashboard hub card",
+        "Implementation must hold itself to this vision contract",
+    ):
+        _require_contains(family_vision, needle, "FAM-006 family visual-system inheritance contract", failures)
+
+    for needle in (
+        "recordingCard: rectFor('[data-dashboard-hub-card=\"recording\"]')",
+        'recordingTargetPreview: rectFor("#monitoring-hud-recording-target-preview")',
+        'recordingControlLauncher: rectFor("#monitoring-hud-recording-control-launcher")',
+    ):
+        _require_contains(js, needle, "SLC-052 Dashboard Recording card live geometry proof", failures)
+
+    for needle in (
+        "dashboard-card-system-sampled",
+        "inherits-dashboard-state-row",
+        "02_recording_card_target_preview_standard_state_rows",
+    ):
+        _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
+
+    for needle in (
         'data-package="PKG-006"',
         'data-slice="SLC-016"',
         'data-placement-slice="SLC-026"',
@@ -1354,6 +1535,9 @@ def validate() -> list[str]:
         ".monitoring-hud__title-group",
         "position: sticky;",
         "scrollbar-gutter: stable;",
+        "scrollbar-gutter: stable both-edges;",
+        "--dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;",
+        ".monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open=\"true\"])",
         ".monitoring-hud--validation-fault",
         "@media (max-width: 760px), (max-height: 620px)",
         "@keyframes monitoringHudSettle",
@@ -1538,7 +1722,7 @@ def validate() -> list[str]:
         'monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only"',
         'monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned"',
         'monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable"',
-        'monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness"',
+        'monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness"',
         'monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment"',
         'monitoringHud.dataset.monitorManagementScale = "split-layout-search-filter-large-fixtures"',
         'monitoringHud.dataset.monitorManagementLayout = "compact-list-right-detail-command-center"',
@@ -2313,9 +2497,21 @@ def validate() -> list[str]:
         "monitoring_hud_desktop_after_launch.png",
         "beforeAfterDesktopComparisonReady",
         "PrepareLiveValidationUserTestSummary",
+        'UserTestSummary = "C:\\Nexus USER\\UTS - FAM-006.txt"',
+        "Worktree Label: FAM-006",
         "skipped User Test Summary export: UTS is Live Validation Stage 1 only",
         "Overlay/display release acceptance is deferred and non-gating",
         "Current Phase: Live Validation Stage 1 User Test Summary handoff",
+        "This pass is focused on the Dashboard Recording card visual-system repair seam.",
+        "FAM006-LV1-REC-001 - Dashboard Recording Card Visual-System Inheritance",
+        "FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile",
+        "FAM006-LV1-REC-003 - Future-Gated Recording Controls Stay Blocked",
+        "FAM006-LV1-REC-004 - Dashboard Card Holder Equal Insets",
+        "The Recording card must not look like a custom green boxed table or a separate visual system.",
+        "The Recording card target overlay profile follows the active Overlay Profile.",
+        "switching the Active Overlay Profile must update the Recording card target overlay profile",
+        "The scrollbar gutter must not make the cards look offset",
+        "Recording execution, file writing, real Start/Stop controls, tray controls, export/share, and provider/model behavior are still not enabled.",
         "Step 7 - #137 Dashboard Rounded Corners On Light Background",
         "no black rectangular native corner extends beyond the visible rounded Dashboard chrome",
         "manifest.json",
@@ -2331,6 +2527,11 @@ def validate() -> list[str]:
         "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
     ):
         _require_contains(live_validation, needle, "monitoring HUD live validation helper", failures)
+    _require(
+        'UserTestSummary = "C:\\Nexus USER\\User Test Summary.txt"' not in live_validation,
+        "monitoring HUD live validation helper must not write active UTS results to template path",
+        failures,
+    )
     for needle in (
         "real-os-mouse-cursor-move-down-up",
         "realOsInputProof",

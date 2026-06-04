@@ -93,7 +93,7 @@
     data-dashboard-quick-access="warning-notifications-only"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
-    data-dashboard-card-order="hud-overlay-monitor-groups-data-sources-readiness"
+    data-dashboard-card-order="hud-overlay-recording-monitor-groups-data-sources-readiness"
     data-dashboard-settings-affordance="dashboard-ia-card-settings-button"
     data-dashboard-settings-panel="settings-panel-child-window"
     data-dashboard-settings-panel-state="closed"
@@ -178,7 +178,7 @@
             aria-label="Overlay Profile selector and editor"
           >
             <div class="monitoring-hud__overlay-profile-heading">
-              <span>Overlay Profile</span>
+              <span>Active Overlay Profile</span>
               <div
                 class="monitoring-hud__bounded-dropdown monitoring-hud__overlay-profile-dropdown"
                 id="monitoring-hud-overlay-profile-selector"
@@ -220,9 +220,66 @@
             <small id="monitoring-hud-overlay-profile-membership-note">Membership is editable inside Overlay Profile Settings; monitor groups remain separate.</small>
           </div>
         </article>
-        <article class="monitoring-hud__hub-card monitoring-hud__hub-card--monitor-groups" data-dashboard-hub-card="monitor-groups" data-slice="SLC-027" data-dashboard-issue="125" data-monitor-group-flow="sensor-command-center-list-detail-source-picker">
+        <article
+          class="monitoring-hud__hub-card monitoring-hud__hub-card--recording"
+          data-dashboard-hub-card="recording"
+          data-slice="SLC-052"
+          data-recording-card-placement="dashboard-recording-card-primary"
+          data-recording-surface-owner="dashboard-card-not-hud-overlay"
+          data-recording-card-visual-system="dashboard-hub-card-sampled"
+          data-recording-card-sampled-elements="hud-overlay-monitor-groups-data-sources-readiness"
+          data-recording-execution-state="blocked"
+          data-recording-file-writing-state="blocked"
+          data-recording-control-surface-state="future-gated"
+        >
           <div class="monitoring-hud__hub-card-topline">
             <span>02</span>
+            <strong>Recording</strong>
+          </div>
+          <p id="monitoring-hud-recording-card-summary">Recording target/status follows the active Overlay Profile. Recording execution, file writing, and Start/Stop controls remain future-gated.</p>
+          <div
+            class="monitoring-hud__recording-target-preview"
+            id="monitoring-hud-recording-target-preview"
+            data-recording-target-preview="slc-052-dashboard-recording-card-target-status"
+            data-recording-card-visual-system="dashboard-hub-card-sampled"
+            data-recording-card-sampled-elements="hud-overlay-monitor-groups-data-sources-readiness"
+            data-active-monitor-transparency="slc-052-dashboard-visible-count-and-names"
+            data-recording-card-placement="dashboard-recording-card-primary"
+            data-hud-overlay-recording-boundary="hud-overlay-overlay-focused"
+            data-recording-execution-state="blocked"
+            data-recording-file-writing-state="blocked"
+            data-recording-control-window-state="future-secondary"
+            aria-label="Dashboard Recording card active Overlay target preview"
+          >
+            <div class="monitoring-hud__state-row">
+              <span>Target overlay profile</span>
+              <strong id="monitoring-hud-recording-target-profile">Default Overlay Profile</strong>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Active monitors</span>
+              <strong id="monitoring-hud-recording-target-count">2 active monitors</strong>
+            </div>
+            <small id="monitoring-hud-recording-target-summary">Recording target preview follows active Overlay Profile membership. Recording execution and file writing are not enabled.</small>
+            <div class="monitoring-hud__hub-actions monitoring-hud__recording-target-actions" data-recording-target-actions="future-secondary-control-surface">
+              <button
+                type="button"
+                id="monitoring-hud-recording-control-launcher"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--deferred"
+                data-control="open-recording-control"
+                data-slice="SLC-053"
+                data-recording-control-window-state="future-secondary"
+                data-recording-execution-state="blocked"
+                data-recording-file-writing-state="blocked"
+                data-native-window-contract="future-secondary-surface"
+                aria-disabled="true"
+                disabled
+              >Recording Controls Future</button>
+            </div>
+          </div>
+        </article>
+        <article class="monitoring-hud__hub-card monitoring-hud__hub-card--monitor-groups" data-dashboard-hub-card="monitor-groups" data-slice="SLC-027" data-dashboard-issue="125" data-monitor-group-flow="sensor-command-center-list-detail-source-picker">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>03</span>
             <strong>Monitor Groups</strong>
           </div>
           <p id="monitoring-hud-monitor-list-summary">2 Monitor Groups configured. Manage opens list, create, edit, delete, and supported sensor assignment controls.</p>
@@ -243,7 +300,7 @@
         </article>
         <article class="monitoring-hud__hub-card" data-dashboard-hub-card="data-sources" data-slice="SLC-025">
           <div class="monitoring-hud__hub-card-topline">
-            <span>03</span>
+            <span>04</span>
             <strong>Data Sources</strong>
           </div>
           <p>Provider truth and setup live here. Waiting for safe provider remains the data rule; Manage Data Sources is Feature Deferred.</p>
@@ -261,7 +318,7 @@
         </article>
         <article class="monitoring-hud__hub-card" data-dashboard-hub-card="readiness" data-slice="SLC-028">
           <div class="monitoring-hud__hub-card-topline">
-            <span>04</span>
+            <span>05</span>
             <strong>Readiness</strong>
           </div>
           <p>The Dashboard should explain setup, unavailable, and degraded states without showing fake telemetry.</p>

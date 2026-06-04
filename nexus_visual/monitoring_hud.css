@@ -956,11 +956,12 @@ body.desktop-mode #monitoring-hud > * {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable;
+  scrollbar-gutter: stable both-edges;
   scrollbar-width: thin;
   scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
-  padding: 12px 14px 22px 12px;
-  scroll-padding: 12px 14px 22px 12px;
+  padding: 12px 12px 22px;
+  scroll-padding: 12px 12px 22px;
+  --dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;
 }
 
 .monitoring-hud__hub-card {
@@ -980,6 +981,11 @@ body.desktop-mode #monitoring-hud > * {
     var(--monitoring-hud-surface-solid);
   background-size: auto, auto;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+}
+
+.monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open="true"]),
+.monitoring-hud__hub-card[data-dropdown-layer-open="true"] {
+  z-index: 12;
 }
 
 .monitoring-hud__hub-card--monitor-groups {
@@ -1108,6 +1114,30 @@ body.desktop-mode #monitoring-hud > * {
   border-top: 1px solid var(--monitoring-hud-divider-line);
   box-shadow: 0 -1px 0 var(--monitoring-hud-divider-highlight), inset 0 1px 0 var(--monitoring-hud-divider-shadow);
   background: var(--monitoring-hud-divider-glow);
+}
+
+.monitoring-hud__recording-target-preview {
+  display: grid;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  --recording-card-live-visual-proof: dashboard-card-system-sampled;
+}
+
+.monitoring-hud__recording-target-preview .monitoring-hud__state-row {
+  min-height: 30px;
+  --recording-card-row-visual-contract: inherits-dashboard-state-row;
+}
+
+.monitoring-hud__recording-target-preview small {
+  color: rgba(180, 211, 220, 0.82);
+  padding: 1px 0;
+}
+
+.monitoring-hud__recording-target-actions {
+  padding-top: 3px;
 }
 
 .monitoring-hud__overlay-profile-heading {

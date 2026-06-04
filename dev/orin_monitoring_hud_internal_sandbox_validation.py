@@ -28,13 +28,17 @@ from desktop.monitoring_hud_controls import build_monitoring_hud_controls_visibi
 from desktop.monitoring_hud_placement import build_monitoring_hud_placement_contract
 from desktop.monitoring_hud_status import build_monitoring_hud_status_snapshot
 from desktop.monitoring_hud_state import (
+    ACTIVE_OVERLAY_RECORDING_TARGET_KIND,
     DEFAULT_OVERLAY_PROFILE_ID,
     MONITORING_HUD_STATE_ENV,
+    build_active_overlay_recording_target_snapshot,
     load_monitoring_hud_state,
     normalize_monitoring_hud_overlay_profiles,
     save_monitoring_hud_state,
 )
 from desktop.monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
+from desktop.recording_output_contract import validate_recording_output_contract
+from dev.orin_fam006_workstream_readiness import build_fam006_workstream_readiness_proof
 
 
 LOG_ROOT = ROOT / "dev" / "logs" / "fam_006_monitoring_hud_internal_sandbox"
@@ -566,7 +570,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'data-dashboard-quick-access="warning-notifications-only"',
         'data-dashboard-global-feature-control="tray-owned"',
         'data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"',
-        'data-dashboard-card-order="hud-overlay-monitor-groups-data-sources-readiness"',
+        'data-dashboard-card-order="hud-overlay-recording-monitor-groups-data-sources-readiness"',
         'data-dashboard-settings-affordance="dashboard-ia-card-settings-button"',
         'data-dashboard-settings-panel="settings-panel-child-window"',
         'data-dashboard-settings-panel-state="closed"',
@@ -859,7 +863,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         and "min-width: min(300px, 100%)" in css
         and "max-width: min(450px, 100%)" in css
         and ".monitoring-hud__overlay-profile-dropdown .monitoring-hud__bounded-dropdown-menu" in css
-        and "<span>Overlay Profile</span>" in html
+        and "<span>Active Overlay Profile</span>" in html
         and 'id="monitoring-hud-overlay-profile-active-name"' not in html
         and ".monitoring-hud__overlay-profile-actions" in css
         and ".monitoring-hud__overlay-profile-window-actions" in css
@@ -1266,6 +1270,9 @@ def _validate_static_surface(failures: list[str]) -> None:
         "margin: 10px 0 14px;",
         'body.desktop-mode #monitoring-hud[data-drag-smoothing="native-os-window-move"]',
         "scrollbar-gutter: stable;",
+        "scrollbar-gutter: stable both-edges;",
+        "--dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;",
+        ".monitoring-hud__hub-card:has(.monitoring-hud__bounded-dropdown[data-dropdown-open=\"true\"])",
         ".monitoring-hud__child-actions--guard",
         "justify-self: stretch;",
     ):
@@ -1412,7 +1419,7 @@ def _validate_static_surface(failures: list[str]) -> None:
         'monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only"',
         'monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned"',
         'monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable"',
-        'monitoringHud.dataset.dashboardCardOrder = "hud-overlay-monitor-groups-data-sources-readiness"',
+        'monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness"',
         'monitoringHud.dataset.monitorGroupModel = "configurable-groups-sensor-assignment"',
         'monitoringHud.dataset.monitorManagementScale = "split-layout-search-filter-large-fixtures"',
         'monitoringHud.dataset.monitorManagementLayout = "compact-list-right-detail-command-center"',
@@ -1865,6 +1872,8 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         desktop_mode=True,
         event_route_present=True,
     ).as_dict()
+    output_contract = validate_recording_output_contract()
+    workstream_readiness = build_fam006_workstream_readiness_proof()
 
     cards = second.get("sensorCards") or []
     sensors = {
@@ -1903,6 +1912,17 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         failures,
     )
     _require(status.get("warningPosture") == "Visual badge, color state, and text label only", "status contract must preserve visual warning posture", failures)
+    _require(output_contract.get("passed") is True, "SLC-054 recording output contract proof must pass", failures)
+    _require(output_contract.get("parseReadback") is True, "SLC-054 output contract must parse/read back in memory", failures)
+    _require(output_contract.get("fileWritingBlocked") is True, "SLC-054 output contract must not admit file writing", failures)
+    _require(output_contract.get("recordingExecutionBlocked") is True, "SLC-054 output contract must not admit recording execution", failures)
+    _require(workstream_readiness.get("workstreamGreen") is True, "SLC-055 Workstream readiness proof must be green", failures)
+    _require(workstream_readiness.get("packageSlicesComplete") is True, "SLC-055 must prove all five admitted slices are complete", failures)
+    _require(workstream_readiness.get("hardeningH1State") == "pending-after-workstream-green", "SLC-055 must route H1 after Workstream Green", failures)
+    _require(workstream_readiness.get("liveValidationLV1State") == "pending-after-h1", "SLC-055 must keep LV1 after H1", failures)
+    _require(workstream_readiness.get("utsState") == "pending-after-lv1", "SLC-055 must keep UTS after LV1", failures)
+    _require(workstream_readiness.get("fileWritingBlocked") is True, "SLC-055 must keep file writing blocked", failures)
+    _require(workstream_readiness.get("recordingExecutionBlocked") is True, "SLC-055 must keep recording execution blocked", failures)
 
     persisted_state = {}
     previous_state_path = os.environ.get(MONITORING_HUD_STATE_ENV)
@@ -1959,6 +1979,39 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 "Overlay Profile state must stay distinct from Recording Profile and Monitor Group fields",
                 failures,
             )
+            persisted_target = persisted_state.get("activeOverlayRecordingTarget", {})
+            _require(
+                persisted_target.get("kind") == ACTIVE_OVERLAY_RECORDING_TARGET_KIND,
+                "SLC-051 active Overlay recording target snapshot must be present in persisted HUD state",
+                failures,
+            )
+            _require(
+                persisted_target.get("source") == "active-overlay-profile-membership",
+                "SLC-051 recording target must derive from active Overlay Profile membership",
+                failures,
+            )
+            _require(
+                persisted_target.get("scope") == "target-session-truth-only",
+                "SLC-051 recording target must stay target/session truth only",
+                failures,
+            )
+            _require(
+                persisted_target.get("membershipSnapshotCandidate") == ["cpu", "gpu"],
+                "SLC-051 fallback target must expose the normalized active Overlay Profile membership snapshot candidate",
+                failures,
+            )
+            _require(
+                persisted_target.get("snapshotAtStartModel") == "future-snapshot-at-recording-start-target-candidate",
+                "SLC-051 recording target must preserve future snapshot-at-start semantics",
+                failures,
+            )
+            _require(
+                persisted_target.get("hiddenRecordingTargetState") == "absent"
+                and persisted_target.get("recordingExecutionState") == "blocked"
+                and persisted_target.get("fileWritingState") == "blocked",
+                "SLC-051 target proof must block hidden target state, recording execution, and file writing",
+                failures,
+            )
             normalized_legacy = normalize_monitoring_hud_overlay_profiles({}, ["cpu", "gpu"])
             _require(
                 normalized_legacy.get("overlayProfiles", {}).get(DEFAULT_OVERLAY_PROFILE_ID, {}).get("monitorIds") == ["cpu", "gpu"],
@@ -1987,6 +2040,76 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
             _require(
                 normalized_deleted_default.get("overlayProfileDefaultDeletedByUser") is True,
                 "Persisted empty Overlay Profile set must keep the default-deleted marker",
+                failures,
+            )
+            _require(
+                normalized_deleted_default.get("activeOverlayRecordingTarget", {}).get("targetState") == "deleted-default-empty",
+                "SLC-051 target proof must classify deleted default / null active profile state",
+                failures,
+            )
+            normalized_empty_membership = normalize_monitoring_hud_overlay_profiles(
+                {
+                    "monitorIds": ["cpu", "gpu"],
+                    "overlayProfiles": {
+                        "empty-target": {
+                            "id": "empty-target",
+                            "name": "Empty Target",
+                            "monitorIds": [],
+                        }
+                    },
+                    "activeOverlayProfileId": "empty-target",
+                },
+                ["cpu", "gpu"],
+            )
+            _require(
+                normalized_empty_membership.get("activeOverlayRecordingTarget", {}).get("targetState") == "empty-membership",
+                "SLC-051 target proof must classify empty active Overlay Profile membership",
+                failures,
+            )
+            normalized_high_volume = normalize_monitoring_hud_overlay_profiles(
+                {
+                    "monitorIds": [f"monitor-{index:03d}" for index in range(125)],
+                    "overlayProfiles": {
+                        "high-volume-target": {
+                            "id": "high-volume-target",
+                            "name": "High Volume Target",
+                            "monitorIds": [f"monitor-{index:03d}" for index in range(125)]
+                            + ["missing-monitor", "monitor-000"],
+                            "recordingProfileId": "must-not-survive",
+                        }
+                    },
+                    "activeOverlayProfileId": "high-volume-target",
+                },
+            )
+            high_volume_target = normalized_high_volume.get("activeOverlayRecordingTarget", {})
+            high_volume_profile = (normalized_high_volume.get("overlayProfiles") or {}).get("high-volume-target", {})
+            _require(
+                high_volume_target.get("targetState") == "high-volume-membership"
+                and high_volume_target.get("membershipSnapshotCandidateCount") == 125
+                and "missing-monitor" not in high_volume_target.get("membershipSnapshotCandidate", []),
+                "SLC-051 target proof must normalize high-volume active Overlay Profile membership",
+                failures,
+            )
+            _require(
+                "recordingProfileId" not in high_volume_profile,
+                "SLC-051 target proof must not preserve hidden Recording Profile state",
+                failures,
+            )
+            direct_target = build_active_overlay_recording_target_snapshot(
+                active_profile_id="direct-target",
+                requested_active_profile_id="direct-target",
+                profiles={
+                    "direct-target": {
+                        "id": "direct-target",
+                        "name": "Direct Target",
+                        "monitorIds": ["gpu"],
+                    }
+                },
+            )
+            _require(
+                direct_target.get("membershipSnapshotCandidate") == ["gpu"]
+                and direct_target.get("separateRecordingProfileState") == "not-created",
+                "SLC-051 direct target helper must expose target/session truth without a separate Recording Profile",
                 failures,
             )
             saved_deleted_default = save_monitoring_hud_state(
@@ -2061,6 +2184,8 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
         "placement": placement,
         "controls": controls,
         "status": status,
+        "recordingOutputContract": output_contract,
+        "workstreamReadiness": workstream_readiness,
         "persistedState": persisted_state,
     }
 

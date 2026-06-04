@@ -52,8 +52,10 @@ After the External Operational State Store transition, repo branch-plan files ar
 
 ## Repo Active Plan Posture
 
-Repo active runtime Branch Runtime Engineering Plan: `None. Active operational plans belong in C:\Nexus Governance State after transition or in an explicitly approved transition packet; this index records retired/historical repo plan receipts only.`
+Repo active runtime Branch Runtime Engineering Plan: `None on main. Active operational plans belong in C:\Nexus Governance State after transition or in an explicitly approved transition packet; this index records retired/historical repo plan receipts only.`
 
-Current-main runtime Branch Runtime Engineering Plan context: `None active; historical FAM plans are retired/released receipts only and must not be treated as live branch planning authority.`
+Current branch-local runtime Branch Runtime Engineering Plan: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` - fresh FAM-006 active-overlay recording runtime implementation carrier admitted by Branch Readiness Stage 2; Workstream Entry and runtime implementation remain USER-gated.
+
+Current-main runtime Branch Runtime Engineering Plan context: `FAM-006 active-overlay recording implementation plan is active on feature/fam-006-active-overlay-recording-runtime-implementation; historical FAM plans remain retired/released receipts only.`
 
 Most recent retired runtime plan: `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` - the FAM-006 Active Overlay Recording Runtime Foundation plan is retired from active planning posture after PR #222 merge and v1.7.25-prebeta publication; it is historical released planning/governance receipt evidence with runtime implementation deferred.

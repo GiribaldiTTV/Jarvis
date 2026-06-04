@@ -25,6 +25,7 @@ _GITHUB_API_TOKEN_LOADED = False
 
 PHASES = (
     "Branch Readiness",
+    "Branch Planning",
     "Workstream",
     "Hardening",
     "Live Validation",
@@ -156,6 +157,7 @@ USER_VISION_INPUT_HANDOFF_HEADING = "USER Vision Input Handoff"
 USER_VISION_INPUT_ARTIFACT_PATH = Path(r"C:\Users\anden\OneDrive\Desktop\User Vision Input.txt")
 PRODUCT_PLANNING_ENFORCED_PHASES = {
     "Branch Readiness",
+    "Branch Planning",
     "Workstream",
     "Hardening",
     "Live Validation",
@@ -1345,6 +1347,38 @@ FAM006_WS56_NEXT_SEAM = "Hardening H1 - Monitoring HUD Product Surface Hardening
 FAM006_H1_HEADING = "Hardening H1 Dashboard-First Product Surface Rerun"
 FAM006_H1_NEXT_SEAM = (
     "Live Validation LV1 - Monitoring HUD Product Surface Live Validation Rerun"
+)
+FAM006_ACTIVE_OVERLAY_H1_HEADING = (
+    "Hardening H1 Active Overlay Recording Runtime Implementation"
+)
+FAM006_ACTIVE_OVERLAY_H1_NEXT_SEAM = (
+    "Live Validation LV1 - FAM-006 Active Overlay Recording Runtime Implementation"
+)
+FAM006_ACTIVE_OVERLAY_H1_REQUIRED_PHRASES = (
+    "H1 Admission:",
+    "PASS - USER explicitly admitted Hardening H1",
+    "H1 Result:",
+    "Green - SLC-051 through SLC-055 implementation matches accepted BP1/BP2/BP3",
+    "Accepted BP Trace:",
+    "PASS - BP1 Branch Vision, BP2 Branch Plan, and BP3 Workstream Entry / Orchestration Validation are accepted or approved",
+    "SLC-051 Pressure-Test:",
+    "active Overlay Profile target/session truth markers",
+    "SLC-052 Pressure-Test:",
+    "HUD Overlay launcher and target preview markers",
+    "SLC-053 Pressure-Test:",
+    "standalone Recording Control window foundation markers",
+    "SLC-054 Pressure-Test:",
+    "output contract schema/readback and blocked execution markers",
+    "SLC-055 Pressure-Test:",
+    "Workstream Green proof and H1/LV1/UTS routing markers",
+    "Future-Gated Boundary Check:",
+    "recording execution, file writing, real Start/Stop controls, tray controls, export/share, provider/model work, Native Log Loader implementation, and FAM-007 mutation remain blocked",
+    "UTS Phase Boundary:",
+    "Formal User Test Summary export is exclusive to Live Validation Stage 1",
+    "Helper Proof:",
+    "python dev\\orin_fam006_hardening_h1.py",
+    "Next Active Seam:",
+    FAM006_ACTIVE_OVERLAY_H1_NEXT_SEAM,
 )
 FAM006_STAGE2_R6_REQUIRED_MARKERS = (
     "Current-Branch Scope Final:",
@@ -3165,6 +3199,9 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
     "Post-Seam Final-Stop Drift is a governance blocker until source truth and validation are repaired.",
     "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+    "Post-Seam Continuation Self-Audit",
+    "Continue Same Workstream",
+    "it must not return a green seam closeout as terminal",
 )
 
 MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
@@ -3423,6 +3460,9 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
         "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
         "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "Before any final response during `Workstream`, Codex must run a `Post-Seam Continuation Self-Audit` against the governed markers it just wrote or validated.",
+        "If `Completion Status: In Progress` and `Continue Decision: Continue`, the self-audit result must be `Continue Same Workstream` and Codex must start the next active Workstream seam in the same bounded run.",
+        "If Codex cannot start the next seam after that self-audit, it must record `Completion Status: Red` with the exact named blocker or USER waiver needed; it must not return a green seam closeout as terminal.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times.",
         "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
@@ -3446,6 +3486,9 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
         "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
         "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "Before any final response during `Workstream`, Codex must run a `Post-Seam Continuation Self-Audit` against the governed markers it just wrote or validated.",
+        "If `Completion Status: In Progress` and `Continue Decision: Continue`, the self-audit result must be `Continue Same Workstream` and Codex must start the next active Workstream seam in the same bounded run.",
+        "If Codex cannot start the next seam after that self-audit, it must record `Completion Status: Red` with the exact named blocker or USER waiver needed; it must not return a green seam closeout as terminal.",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
@@ -3469,6 +3512,9 @@ GOVERNED_OUTPUT_CONTRACT_REQUIRED_PHRASES = {
         "A prompt `Return:` block is an output shape only; it cannot override governed continuation markers or authorize a terminal response while `Continue Decision` remains `Continue`.",
         "A final response after a green seam while `Continue Decision` remains `Continue` is `Post-Seam Final-Stop Drift`.",
         "Durability commit/push is not a lawful stop while `Continue Decision` remains `Continue`.",
+        "Before any final response during `Workstream`, Codex must run a `Post-Seam Continuation Self-Audit`",
+        "if `Completion Status: In Progress` and `Continue Decision: Continue`, the self-audit result must be `Continue Same Workstream`",
+        "it must record `Completion Status: Red` with the exact named blocker or USER waiver needed instead of returning a green seam closeout as terminal",
         "If `Completion Status` is `In Progress`, `Next Active Seam` must remain a `Workstream` seam; phase-exit seams require `Completion Status: Green`, `Completion Status: Red` with a named blocker/waiver, or explicit USER single-seam/backlog-split waiver.",
         "`Phase: Workstream` must remain bounded at all times, and the only lawful `Workstream` stop conditions are `Completion Status: Green` with `Hardening` next, or `Completion Status: Red` justified by a named blocker or waiver.",
         "Single-seam or single-slice Workstream authority is forbidden unless explicit USER waiver text is recorded.",
@@ -12217,6 +12263,71 @@ def _validate_fam006_stage2_r6_plan(
             ),
         )
     elif current_phase == "Hardening":
+        if (
+            "FAM-006 Active Overlay Recording Runtime Implementation" in text
+            and "active-overlay recording runtime implementation carrier" in text
+        ):
+            h1_section = _section(text, FAM006_ACTIVE_OVERLAY_H1_HEADING)
+            require(
+                bool(h1_section),
+                (
+                    f"{source_path}: FAM-006 active-overlay Hardening state is missing "
+                    f"'## {FAM006_ACTIVE_OVERLAY_H1_HEADING}'"
+                ),
+            )
+            for phrase in FAM006_ACTIVE_OVERLAY_H1_REQUIRED_PHRASES:
+                require(
+                    phrase in h1_section,
+                    f"{source_path}: {FAM006_ACTIVE_OVERLAY_H1_HEADING} is missing '{phrase}'",
+                )
+            require(
+                "Active seam: `Phase Boundary Stop - Await USER Live Validation Admission`"
+                in text,
+                (
+                    f"{source_path}: active-overlay H1 completion must stop at the "
+                    "phase boundary and await explicit USER Live Validation admission"
+                ),
+            )
+            require(
+                f"Next Active Seam: {FAM006_ACTIVE_OVERLAY_H1_NEXT_SEAM}" in text,
+                (
+                    f"{source_path}: active-overlay H1 completion must set Seam "
+                    "Continuation Decision next active seam to Live Validation LV1"
+                ),
+            )
+            require(
+                "Remaining Implementable Work: `None`"
+                in text,
+                (
+                    f"{source_path}: active-overlay H1 completion must close current "
+                    "Workstream and Hardening proof work before Live Validation handoff"
+                ),
+            )
+            require(
+                "Continuation Execution Latch: Inactive - Hardening H1 is Green; phase-boundary stop is required before USER may admit Live Validation LV1."
+                in text,
+                f"{source_path}: active-overlay H1 completion must keep the Live Validation phase-boundary latch inactive",
+            )
+            require(
+                "Formal User Test Summary export is exclusive to Live Validation Stage 1"
+                in text,
+                f"{source_path}: active-overlay H1 completion must preserve the Live Validation Stage 1 UTS boundary",
+            )
+            require(
+                _parse_uts_result_state(text) == "",
+                (
+                    f"{source_path}: Hardening may keep User Test Summary strategy current, "
+                    f"but must not declare '{UTS_RESULT_LABEL}' before Live Validation"
+                ),
+            )
+            require(
+                UTS_RESULTS_BLOCKER not in blockers,
+                (
+                    f"{source_path}: {UTS_RESULTS_BLOCKER} is a Live Validation / PR Readiness "
+                    "final-green blocker, not a Hardening stop condition"
+                ),
+            )
+            return
         h1_section = _section(text, FAM006_H1_HEADING)
         require(
             bool(h1_section),
@@ -12972,6 +13083,27 @@ def _collect_merge_stable_detail_record_paths(*texts: str) -> set[str]:
     return paths
 
 
+def _family_id_from_text(value: str) -> str:
+    match = re.search(r"fam[-_](\d{3})", value.casefold())
+    return f"FAM-{match.group(1)}" if match else ""
+
+
+def _is_outside_current_family_lane(record_path: str, record_text: str, current_branch: str) -> bool:
+    if not current_branch or current_branch == "main":
+        return False
+    if _is_standing_governance_intake_branch(current_branch):
+        return False
+    current_family = _family_id_from_text(current_branch)
+    if not current_family:
+        return False
+    record_family = (
+        _family_id_from_text(record_path)
+        or _family_id_from_text(_extract_branch_identity_branch(record_text))
+        or _family_id_from_text(record_text)
+    )
+    return bool(record_family and record_family != current_family)
+
+
 def _stale_pre_pr_lines(text: str) -> list[tuple[int, str]]:
     stale_lines: list[tuple[int, str]] = []
     for index, line in enumerate(text.splitlines(), start=1):
@@ -12991,6 +13123,8 @@ def _run_merge_stable_source_truth_projection_gate(
     roadmap_text: str,
     worktree_slots_text: str,
     branch_record_index_text: str,
+    current_branch: str,
+    outside_lane_findings: list[str],
 ) -> None:
     pointer_docs = (
         ("Docs/feature_backlog.md", backlog_text),
@@ -13023,6 +13157,22 @@ def _run_merge_stable_source_truth_projection_gate(
         merged_record = "merged-unreleased" in record_text.casefold() or "Merge PR:" in record_text
         if not merged_record:
             continue
+        outside_current_lane = _is_outside_current_family_lane(
+            record_path,
+            record_text,
+            current_branch,
+        )
+
+        def require_or_classify(condition: bool, message: str) -> None:
+            if condition:
+                require(True, message)
+                return
+            if outside_current_lane:
+                outside_lane_findings.append(message)
+                require(True, f"Outside-lane merge-stable finding classified for {record_path}")
+                return
+            require(False, message)
+
         summary_text = "\n".join(
             section
             for section in (
@@ -13036,7 +13186,7 @@ def _run_merge_stable_source_truth_projection_gate(
             if section
         )
         stale_lines = _stale_pre_pr_lines(summary_text)
-        require(
+        require_or_classify(
             not stale_lines,
             (
                 f"{record_path}: Merge-Stable Source Truth Projection Missing; "
@@ -13045,7 +13195,7 @@ def _run_merge_stable_source_truth_projection_gate(
                 + "; ".join(f"line {line_no}: {line}" for line_no, line in stale_lines[:5])
             ),
         )
-        require(
+        require_or_classify(
             "Merge PR:" in record_text or re.search(r"\bPR #\d+\b", record_text),
             (
                 f"{record_path}: merged-unreleased branch record must name the "
@@ -13058,7 +13208,7 @@ def _run_merge_stable_source_truth_projection_gate(
             plan = Path(plan_path)
             if not (ROOT_DIR / plan).exists():
                 continue
-            require(
+            require_or_classify(
                 plan_path in retirement_index_text,
                 (
                     f"{record_path}: merged-unreleased canonical branch record points to "
@@ -20929,6 +21079,9 @@ def main() -> int:
         if not condition:
             errors.append(message)
 
+    current_git_branch = _git_current_branch()
+    outside_lane_merge_stable_findings: list[str] = []
+
     for occurrence in _tracked_repo_legacy_product_name_occurrences():
         require(False, f"Tracked repo sterilization: {occurrence}")
 
@@ -20938,6 +21091,8 @@ def main() -> int:
         roadmap_text=roadmap_text,
         worktree_slots_text=worktree_slots_text,
         branch_record_index_text=branch_record_index_text,
+        current_branch=current_git_branch,
+        outside_lane_findings=outside_lane_merge_stable_findings,
     )
     _run_post_merge_fold_down_drift_gate(
         require,
@@ -22120,7 +22275,6 @@ def main() -> int:
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
     active_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
     historical_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Historical Branch Authority Records")
-    current_git_branch = _git_current_branch()
     active_non_standing_branch_record_paths = [
         path
         for path in active_branch_record_paths
@@ -24068,6 +24222,15 @@ def main() -> int:
                     "active PR-readiness or open-PR narration"
                 ),
             )
+
+    if outside_lane_merge_stable_findings:
+        print(
+            "INFO: branch governance validation classified "
+            f"{len(outside_lane_merge_stable_findings)} outside-lane merge-stable finding(s) "
+            f"for current branch `{current_git_branch}`."
+        )
+        for finding in outside_lane_merge_stable_findings:
+            print(f"- OUTSIDE-LANE: {finding}")
 
     if errors:
         print(f"FAIL: branch governance validation found {len(errors)} issue(s).")

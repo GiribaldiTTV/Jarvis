@@ -733,7 +733,7 @@ This matrix originated as the Stage 4B/Stage 4C review surface for preventing dr
 | `Docs/prebeta_roadmap.md` | stage-breakpoint schedule outline | stays repo durable source truth | keep milestones/checkpoints only | high if release-window live state returns | avoid live release-window assembly |
 | `Docs/workstreams/` | durable package/slice/proof history | stays repo durable receipt/history | keep promoted historical truth | medium | no live PR/watcher state |
 | `Docs/family_visions/` | reusable family product direction | stays repo durable source truth | keep USER-accepted durable direction | low | do not absorb active plans |
-| USER review hub packet | local review/export packet | external/local review-bundle state after helper stage | stable bundle remains helper output | medium if stale zip recurs | keep stale-guard proof |
+| USER review hub packet | local review/export packet | external/local review-bundle state after helper stage | timestamped upload bundle remains helper output | medium if stale zip recurs | keep stale-guard proof |
 | Git/GitHub/helper live facts | derived live truth | Git/GitHub/helpers | unchanged | high if copied into docs | derive on demand |
 
 ## Canonical Location Model

@@ -701,6 +701,7 @@ After analysis is complete and execution scope is approved, follow these discipl
 - no blind iteration
 - one coherent approved subproblem per revision
 - use bounded multi-seam workflow as the primary Workstream model when the current slice remains same-workstream, same-phase, same-branch-class, same approved scope, and same-subsystem-family or tightly coupled
+- run a `Post-Seam Continuation Self-Audit`; if `Completion Status: In Progress` and `Continue Decision: Continue`, report `Continue Same Workstream`; it must not return a green seam closeout as terminal
 - execute exactly one active seam at a time and validate, record, and decide continue-or-stop before the next seam
 - treat a prompt-named seam as the entry seam, not a terminal boundary
 - continue seam-to-seam inside the current slice until all required seams are complete and the slice status is green
