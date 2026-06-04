@@ -8309,7 +8309,7 @@ def _external_branch_state_record_for_branch(
     record_text = _read_text(Path(record_pointer))
     if _extract_branch_identity_branch(record_text) != branch_name:
         return "", ""
-    return record_pointer, record_text
+    return str(state_path), state_text
 
 
 def _user_test_summary_section(text: str) -> str:

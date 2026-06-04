@@ -2,18 +2,17 @@
 
 NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=FAM007-AI; ledger=feature-fam-007-dev-owner-private-boundary-setup; surface=branch-record; status=canonical
 
-## Record State
+## Receipt Class
 
-Record State: `Branch Readiness Stage 2 durable admission receipt`
+Receipt Class: `BR2 durable admission receipt`
 
-## Status
+## Durable Receipt Summary
 
-Status: `USER approved Branch Readiness Stage 2 continuation / authority admission for feature/fam-007-dev-owner-private-boundary-setup from origin/main@76c5f168dd4098abbb3ae2a0cf3425509ae7fe5d. This repo record preserves durable branch identity, BR2 approval scope, source-truth routing, external-state pointers, sibling-lane classification, and future-gated boundaries only. It does not own live active branch status, current phase execution state, worktree assignment truth, live PR state, selected-next posture, validation state, release-window state, or active branch-plan rows. Live operational truth belongs in Git/GitHub/helper checks and C:\Nexus Governance State.`
+Admission Summary: `USER approved BR2 continuation / authority admission for feature/fam-007-dev-owner-private-boundary-setup from origin/main@76c5f168dd4098abbb3ae2a0cf3425509ae7fe5d. This repo record preserves durable branch identity, BR2 approval scope, source-truth routing, external-state pointers, sibling-lane classification, and future-gated boundaries only. It does not own live active branch status, current phase execution state, worktree assignment truth, live PR state, selected-next posture, validation state, release-window state, or active branch-plan rows. Live operational truth belongs in Git/GitHub/helper checks and C:\Nexus Governance State.`
 
 ## Branch Identity
 
 - Branch: `feature/fam-007-dev-owner-private-boundary-setup`
-- Worktree: `C:\Nexus Worktrees\FAM-007`
 - Worktree Receipt: `C:\Nexus Worktrees\FAM-007`
 - Branch Class: `implementation`
 - Family: `FAM-007`
@@ -44,7 +43,7 @@ Source Truth Context:
 - AI runtime / trust architecture owner: `Docs/ai_runtime_and_trust_architecture.md`
 - Branch readiness and planning law: `Docs/phase_governance.md`
 - Branch record routing law: `Docs/branch_records/index.md`
-- Active branch plan owner while admitted: `C:\Nexus Governance State\branches\feature_fam_007_dev_owner_private_boundary_setup\branch_plan.md`
+- External branch plan owner after admission: `C:\Nexus Governance State\branches\feature_fam_007_dev_owner_private_boundary_setup\branch_plan.md`
 
 ## Branch Planning Route Receipt
 
@@ -83,26 +82,6 @@ v1.8.0 Work: `Pending USER decision`
 - The branch does not create, configure, import, copy, execute, publish, or bind any private Dev or Owner asset.
 - The branch preserves prior FAM-007 merged evidence from PR #246 and PR #250 as historical proof, not as active operational authority.
 - The branch keeps provider-visible data at `none`, prompt/model execution blocked, downloads/network/external calls blocked, memory/learning/personalization inactive, runtime cache behavior inactive, and voice/Core sync gated until later USER decisions.
-
-## Assigned Worktree Confinement
-
-Assigned Worktree Confinement: `Required for this BR2 admission receipt`
-Active Thread Owner: `Current Codex thread assigned by USER to C:\Nexus Worktrees\FAM-007`
-Thread Assignment Status: `Active for FAM-007 BR2 continuation / authority admission only`
-Worktree Ownership Ledger: `C:\Nexus Governance State\worktrees\FAM-007\worktree_state.md; C:\Nexus Governance State\branches\feature_fam_007_dev_owner_private_boundary_setup\branch_state.md`
-Intended Write Set: `Docs/branch_records/feature_fam_007_dev_owner_private_boundary_setup.md; C:\Nexus Governance State central/worktree/branch records for this carrier; deterministic Docs inventory refresh if validation requires it`
-Same Worktree / Same Branch Collision Check: `PASS - current thread owns C:\Nexus Worktrees\FAM-007 on feature/fam-007-dev-owner-private-boundary-setup for this BR2 pass`
-Dirty Worktree Collision Check: `PASS - FAM-007 worktree was clean before BR2 edits; current Codex thread owns the BR2 dirty tracked files Docs/branch_records/feature_fam_007_dev_owner_private_boundary_setup.md, Docs/governance_docs_full_inventory_reform_audit.md, and Docs/governance_docs_reform_user_review_index.md until commit/push closeout`
-Dirty Worktree Recovery Packet: `Not required unless unowned dirty files appear before the next phase`
-Off-Worktree Work Routing: `FAM-006, Governance, neutral-main, private Dev/Owner roots, backup roots, and sibling worktrees are context only and must route to their owning legal carrier unless USER grants a bounded waiver`
-Governance Routing Barrier: `Active for governance-only mutation outside this FAM-007 carrier; standing Governance intake remains separate`
-New Worktree Decision Gate: `Closed - USER approved using C:\Nexus Worktrees\FAM-007 and did not approve new worktree creation`
-Expected Worktree Root: `C:\Nexus Worktrees\FAM-007`
-Actual Worktree Root: `C:\Nexus Worktrees\FAM-007`
-No Cross-Worktree Mutation: `PASS - this branch does not mutate FAM-006, Governance worktree files, neutral-main, private Dev roots, private Owner roots, backup roots, or sibling worktrees`
-GitHub Desktop-bound worktree: `Preserve C:\Nexus Worktrees\FAM-007 binding; no cleanup or rebinding authorized`
-Worktree Escape User Waiver: `Not granted`
-Worktree Escape User Waiver Missing: `Blocks any mutation outside C:\Nexus Worktrees\FAM-007 except approved external operational-state files under C:\Nexus Governance State for this FAM-007 carrier`
 
 ## Next Review Gate Receipt
 
