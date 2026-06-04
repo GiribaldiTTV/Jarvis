@@ -16,7 +16,34 @@ Engineering Plan Status: `External operational-state owner; repo record is a dur
 
 ## Record State
 
-Record State: `Durable admission receipt`
+Record State: `Historical Traceability`
+
+## Current Phase
+
+Phase: `Historical Traceability`
+Stage: `Durable BR2 admission receipt; active BP1 gate state is external`
+
+## Phase Status
+
+Phase Status: `Historical receipt / branch-document pointer`
+Branch Authority Marker: `Historical Branch`
+Authority State: `Historical admission receipt only; live branch operations are derived from Git, GitHub, helper truth, and external operational state.`
+
+## Blockers
+
+Blockers: `None owned by this repo receipt; active blockers are external-state and helper-derived truth.`
+
+## Exit Criteria
+
+Exit Criteria: `Admission receipt preserves branch identity and issue #258 traceability pointer; external branch plan and USER review packet own the active BP1 decision path.`
+
+## Rollback Target
+
+Rollback Target: `Historical Traceability`
+
+## Next Legal Phase
+
+Next Legal Phase: `Historical Traceability`
 
 ## Status
 
@@ -75,7 +102,7 @@ USER Gate Boundary: `BP1 remains pending USER review until USER accepts, revises
 
 ## Assigned Worktree Confinement
 
-Assigned Worktree Confinement: `Active external-state-backed FAM-006 BR2 setup receipt`
+Assigned Worktree Confinement: `Durable BR2 setup receipt; external state owns active worktree confinement`
 Active Thread Owner: `Current Codex FAM-006 thread`
 Thread Assignment Status: `Assigned for BR2 setup and BP1 route`
 Worktree Ownership Ledger: `C:\Nexus Governance State\worktrees\FAM-006\worktree_state.md and C:\Nexus Governance State\branches\feature_fam_006_dashboard_overlay_profile_persistence_repair\branch_state.md`

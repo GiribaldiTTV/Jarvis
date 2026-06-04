@@ -4955,7 +4955,10 @@ def _write_workstream_entry_packet_digests(
     )
     bp1_packet = (
         "bp1 branch vision" in normalized_decision
-        and "authorize bp2 user branch plan review only" in normalized_decision
+        and "bp2 branch plan review" not in normalized_decision
+        and "bp2 user branch plan review" not in normalized_decision
+        and "bp3" not in normalized_decision
+        and "workstream implementation" not in normalized_decision
     )
     bp2_packet = (
         not bp1_packet
@@ -6370,9 +6373,13 @@ def build_bundle(
             or "orchestration validation" in exact_user_decision.casefold()
         )
     )
+    bp1_decision_text = exact_user_decision.casefold()
     bp1_packet = (
-        "bp1 branch vision" in exact_user_decision.casefold()
-        and "authorize bp2 user branch plan review only" in exact_user_decision.casefold()
+        "bp1 branch vision" in bp1_decision_text
+        and "bp2 branch plan review" not in bp1_decision_text
+        and "bp2 user branch plan review" not in bp1_decision_text
+        and "bp3" not in bp1_decision_text
+        and "workstream implementation" not in bp1_decision_text
     )
     bp2_packet = (
         not bp1_packet
