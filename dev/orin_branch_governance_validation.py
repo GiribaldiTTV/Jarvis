@@ -17619,6 +17619,20 @@ def _phase_status_bot_approval_proven(phase_status_section: str) -> bool:
     )
 
 
+def _fallback_bot_approval_clears_comment_latch(
+    *,
+    phase_status_section: str,
+    bot_comment_count: int,
+    bot_approval: bool,
+    bot_approval_ordered: bool = False,
+) -> bool:
+    if not bot_approval:
+        return False
+    if bot_comment_count <= 0:
+        return True
+    return bot_approval_ordered or _phase_status_bot_approval_proven(phase_status_section)
+
+
 def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bool, str]:
     if not AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH.is_file():
         return (
@@ -18352,6 +18366,7 @@ def _automation_planning_fallback_pr_view_for_branch(
         "repositoryFullName": repository_full_name,
         "fallbackLocalState": True,
         "botApproval": bot_approval,
+        "botApprovalOrdered": False,
         "botCommentCount": bot_comment_count,
     }, ""
 
@@ -18380,9 +18395,10 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
     pr_number = int(pr_number_match.group(1)) if pr_number_match else 101
     watcher_state = _load_json_file(AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH) or {}
     recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
+    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
     bot_approval = (
         bool(watcher_state.get("botApproval"))
-        or _phase_status_bot_approval_proven(phase_status_section)
+        or bot_approval_ordered
         or recorded_bot_status.strip().casefold() == "approved"
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
@@ -18416,6 +18432,7 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
         "repositoryFullName": repository_full_name,
         "fallbackLocalState": True,
         "botApproval": bot_approval,
+        "botApprovalOrdered": bot_approval_ordered,
         "botCommentCount": bot_comment_count,
     }, ""
 
@@ -18446,9 +18463,10 @@ def _pr101_closeout_canon_repair_fallback_pr_view_for_branch(
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR101_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
     recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
+    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
     bot_approval = (
         bool(watcher_state.get("botApproval"))
-        or _phase_status_bot_approval_proven(phase_status_section)
+        or bot_approval_ordered
         or recorded_bot_status.strip().casefold() == "approved"
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
@@ -18482,6 +18500,7 @@ def _pr101_closeout_canon_repair_fallback_pr_view_for_branch(
         "repositoryFullName": repository_full_name,
         "fallbackLocalState": True,
         "botApproval": bot_approval,
+        "botApprovalOrdered": bot_approval_ordered,
         "botCommentCount": bot_comment_count,
     }, ""
 
@@ -18509,9 +18528,8 @@ def _pr102_closeout_canon_repair_fallback_pr_view_for_branch(
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR102_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
-        phase_status_section
-    )
+    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+    bot_approval = bool(watcher_state.get("botApproval")) or bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
@@ -18543,6 +18561,7 @@ def _pr102_closeout_canon_repair_fallback_pr_view_for_branch(
         "repositoryFullName": repository_full_name,
         "fallbackLocalState": True,
         "botApproval": bot_approval,
+        "botApprovalOrdered": bot_approval_ordered,
         "botCommentCount": bot_comment_count,
     }, ""
 
@@ -18570,9 +18589,8 @@ def _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    bot_approval = bool(watcher_state.get("botApproval")) or _phase_status_bot_approval_proven(
-        phase_status_section
-    )
+    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+    bot_approval = bool(watcher_state.get("botApproval")) or bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
@@ -18604,6 +18622,7 @@ def _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
         "repositoryFullName": repository_full_name,
         "fallbackLocalState": True,
         "botApproval": bot_approval,
+        "botApprovalOrdered": bot_approval_ordered,
         "botCommentCount": bot_comment_count,
     }, ""
 
@@ -18653,9 +18672,10 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
         )
 
     recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
+    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
     bot_approval = (
         bool(watcher_state.get("botApproval"))
-        or _phase_status_bot_approval_proven(phase_status_section)
+        or bot_approval_ordered
         or recorded_bot_status.strip().casefold() == "approved"
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
@@ -18689,6 +18709,7 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
         "repositoryFullName": repository_full_name,
         "fallbackLocalState": True,
         "botApproval": bot_approval,
+        "botApprovalOrdered": bot_approval_ordered,
         "botCommentCount": bot_comment_count,
     }, ""
 
@@ -18810,6 +18831,7 @@ def _run_pr_live_state_gate(
     repository_full_name = str(pr_info.get("repositoryFullName") or "")
     fallback_local_state = bool(pr_info.get("fallbackLocalState"))
     fallback_bot_approval = bool(pr_info.get("botApproval"))
+    fallback_bot_approval_ordered = bool(pr_info.get("botApprovalOrdered"))
     fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
     if (
         pr_state != "OPEN"
@@ -18837,6 +18859,7 @@ def _run_pr_live_state_gate(
             review_decision = str(pr_info.get("reviewDecision") or review_decision)
             fallback_local_state = bool(pr_info.get("fallbackLocalState"))
             fallback_bot_approval = bool(pr_info.get("botApproval"))
+            fallback_bot_approval_ordered = bool(pr_info.get("botApprovalOrdered"))
             fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
     current_head_sha = _git_head_sha()
     current_head_time = _git_head_commit_time()
@@ -19047,14 +19070,21 @@ def _run_pr_live_state_gate(
         live_codex_review_threads_clear = not thread_error and not unresolved_codex_threads
 
     if fallback_local_state:
-        if fallback_bot_comment_count > 0 and not fallback_bot_approval:
+        fallback_bot_comment_latch_clear = _fallback_bot_approval_clears_comment_latch(
+            phase_status_section=phase_status_section,
+            bot_comment_count=fallback_bot_comment_count,
+            bot_approval=fallback_bot_approval,
+            bot_approval_ordered=fallback_bot_approval_ordered,
+        )
+        if fallback_bot_comment_count > 0 and not fallback_bot_comment_latch_clear:
             require(
                 False,
                 (
                     "PR readiness gate: PR Validation Pending blocker is active; bounded fallback "
                     f"runtime proof for PR {pr_url or pr_info.get('number')} reports "
                     f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, request "
-                    "Codex Connector bot revalidation, and wait for a later thumbs-up/approval signal before PR green"
+                    "Codex Connector bot revalidation, and record ordered later approval proof "
+                    "before PR green"
                 ),
             )
         if not fallback_bot_approval:
@@ -19093,15 +19123,23 @@ def _run_pr_live_state_gate(
     )
     if signal_error and closeout_watcher_state:
         fallback_bot_comment_count = int(closeout_watcher_state.get("botCommentCount") or 0)
-        fallback_bot_approval = bool(closeout_watcher_state.get("botApproval"))
-        if fallback_bot_comment_count > 0 and not fallback_bot_approval:
+        fallback_bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+        fallback_bot_approval = bool(closeout_watcher_state.get("botApproval")) or fallback_bot_approval_ordered
+        fallback_bot_comment_latch_clear = _fallback_bot_approval_clears_comment_latch(
+            phase_status_section=phase_status_section,
+            bot_comment_count=fallback_bot_comment_count,
+            bot_approval=fallback_bot_approval,
+            bot_approval_ordered=fallback_bot_approval_ordered,
+        )
+        if fallback_bot_comment_count > 0 and not fallback_bot_comment_latch_clear:
             require(
                 False,
                 (
                     "PR readiness gate: PR Validation Pending blocker is active; bounded watcher "
                     f"proof for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' reports "
                     f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, request "
-                    "Codex Connector bot revalidation, and wait for a later thumbs-up/approval signal before PR green"
+                    "Codex Connector bot revalidation, and record ordered later approval proof "
+                    "before PR green"
                 ),
             )
         if not fallback_bot_approval:

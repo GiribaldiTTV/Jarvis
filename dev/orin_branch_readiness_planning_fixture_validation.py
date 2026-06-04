@@ -977,6 +977,24 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         "Governance validator rejected explicit approval proof that mentioned repaired comments",
     )
     require(
+        not governance._fallback_bot_approval_clears_comment_latch(
+            phase_status_section="",
+            bot_comment_count=1,
+            bot_approval=True,
+        ),
+        "Governance validator let unordered fallback bot approval clear a prior bot comment",
+    )
+    require(
+        governance._fallback_bot_approval_clears_comment_latch(
+            phase_status_section=(
+                "Bot approval proof: `Comment addressed, then approved by later thumbs-up`"
+            ),
+            bot_comment_count=1,
+            bot_approval=True,
+        ),
+        "Governance validator rejected ordered later approval proof for fallback bot comments",
+    )
+    require(
         rebaseline._overlap_intent_missing_status("PASS").startswith("No -"),
         "Rebaseline helper did not return non-blocking intent-missing status for PASS",
     )
