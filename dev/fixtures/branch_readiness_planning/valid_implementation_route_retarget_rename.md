@@ -4,9 +4,9 @@ Selected Implementation Route: Provider/runtime consent shell for User/Public la
 
 Implementation Route Class: Retarget and rename recommendation for a concrete runtime/source-truth route.
 
-Concrete Deliverable: A public-safe consent-shell package that implements source-truth, helper, and validator proof for provider-visible data none, prompt acceptance disabled, sentToProvider false, and future provider/model execution blocked until USER approval.
+Concrete Deliverable: A public-safe consent-shell control that implements source-truth, helper, and validator behavior for provider-visible data none, prompt acceptance disabled, sentToProvider false, and future provider/model execution blocked until USER approval.
 
-Implementation Output: The branch can implement consent-shell validation, packet proof, and boundary fixtures for provider/runtime readiness without creating private roots, downloading models, or executing providers.
+Implementation Output: The branch can implement consent-shell disabled-state validation and boundary fixtures for provider/runtime readiness without creating private roots, downloading models, or executing providers.
 
 Infrastructure / Setup Relationship: Any Developer lane or Owner lane setup language is future-gated and only context for the selected implementation route; no setup action occurs without an exact USER action gate.
 

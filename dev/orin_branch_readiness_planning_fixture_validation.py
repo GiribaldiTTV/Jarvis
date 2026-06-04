@@ -208,6 +208,9 @@ INVALID_BR2_ROUTE_BLOCKER_NO_ROUTE_CONTINUE_FIXTURE = (
 INVALID_IMPLEMENTATION_ROUTE_FAKE_FEATURE_LABEL_FIXTURE = (
     FIXTURE_DIR / "invalid_implementation_route_fake_feature_label.md"
 )
+INVALID_IMPLEMENTATION_ROUTE_PROOF_BOUNDARY_LABEL_FIXTURE = (
+    FIXTURE_DIR / "invalid_implementation_route_proof_boundary_label.md"
+)
 VALID_IMPLEMENTATION_ROUTE_BP2_HOLD_ACTION_GATE_FIXTURE = (
     FIXTURE_DIR / "valid_implementation_route_bp2_hold_action_gate.md"
 )
@@ -327,6 +330,9 @@ EXPECTED_BR2_NO_ROUTE_CONTINUE_FAILURE_SNIPPET = (
 )
 EXPECTED_FAKE_FEATURE_LABEL_FAILURE_SNIPPET = (
     "Feature label cannot substitute for concrete implementation behavior"
+)
+EXPECTED_PROOF_BOUNDARY_LABEL_FAILURE_SNIPPET = (
+    "Proof/setup/boundary labels cannot substitute for real feature implementation"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -974,8 +980,6 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         "load",
         "sync",
         "consent",
-        "boundary",
-        "proof",
         "control",
         "runtime",
         "validator",
@@ -983,6 +987,94 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         "source-truth",
         "source truth",
         "user-facing",
+    )
+    actual_implementation_terms = (
+        "implement",
+        "implements",
+        "implemented",
+        "enforce",
+        "enforces",
+        "enforcement",
+        "block",
+        "blocks",
+        "blocked",
+        "reject",
+        "rejects",
+        "prevent",
+        "prevents",
+        "fail-closed",
+        "fails closed",
+        "validate",
+        "validates",
+        "render",
+        "renders",
+        "persist",
+        "persists",
+        "execute",
+        "executes",
+        "route",
+        "routes",
+        "disable",
+        "disables",
+        "update",
+        "updates",
+        "create",
+        "creates",
+    )
+    implemented_target_terms = (
+        "behavior",
+        "control",
+        "workflow",
+        "surface",
+        "state",
+        "transition",
+        "enforcement",
+        "consent shell",
+        "consent-shell",
+        "trust-boundary",
+        "boundary",
+        "exclusion",
+        "suppression",
+        "validator",
+        "helper",
+        "source-truth",
+        "source truth",
+        "runtime",
+        "user-facing",
+    )
+    evidence_only_route_terms = (
+        "proof package",
+        "setup proof",
+        "packet proof",
+        "readiness proof",
+        "registry proof",
+        "boundary proof",
+        "proof-only",
+        "proof as",
+        "proof of",
+        "review packet",
+        "packet generation",
+        "decision path",
+        "decision-ready",
+        "readiness matrix",
+        "validation plan",
+        "planning candidate",
+        "boundary controls",
+        "boundary-control labels",
+    )
+    negated_real_behavior_terms = (
+        "no enforcement behavior",
+        "no helper behavior",
+        "no validator behavior",
+        "no runtime behavior",
+        "no source-truth behavior",
+        "no source truth behavior",
+        "no user-facing surface",
+        "no state transition",
+        "no behavior changes",
+        "without implemented behavior",
+        "without naming the control behavior",
+        "without naming the actual control",
     )
     planning_only_terms = (
         "planning-only",
@@ -1008,14 +1100,31 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         "feature implementation label",
         "feature label",
     )
+    real_behavior_present = (
+        any(term in combined_route for term in actual_implementation_terms)
+        and any(term in combined_route for term in implemented_target_terms)
+        and not any(term in combined_route for term in negated_real_behavior_terms)
+    )
+    evidence_only_detected = any(
+        term in combined_route for term in evidence_only_route_terms
+    )
     require(
         governance._planning_word_count(deliverable) >= 8
         and governance._planning_word_count(implementation_output) >= 8
         and any(term in combined_route for term in concrete_terms)
+        and real_behavior_present
         and not any(term in combined_route for term in planning_only_terms),
         (
             "Implementation-bearing route required: concrete deliverable and "
             "implementation output must be named before BP1"
+        ),
+    )
+    require(
+        not evidence_only_detected or real_behavior_present,
+        (
+            "Proof/setup/boundary labels cannot substitute for real feature "
+            "implementation: name the actual control, behavior, surface, or "
+            "state transition Workstream will implement or enforce"
         ),
     )
     fake_feature_detected = any(term in combined_route for term in fake_feature_terms)
@@ -1042,7 +1151,8 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
     require(
         not fake_feature_detected
         or (
-            any(term in combined_route for term in concrete_behavior_terms)
+            real_behavior_present
+            and any(term in combined_route for term in concrete_behavior_terms)
             and not any(term in combined_route for term in negated_behavior_terms)
         ),
         (
@@ -1113,11 +1223,13 @@ def _validate_implementation_bearing_source_truth() -> list[str]:
         ROOT / "Docs" / "phase_governance.md": (
             "Implementation-Bearing Branch Standard",
             "Selected Implementation Route:",
+            "Real Feature Implementation Definition",
             "BR2 Blocker Packet Rule",
             "Developer lane",
         ),
         ROOT / "Docs" / "branch_plans" / "README.md": (
             "Implementation-Bearing Route Requirement",
+            "Real feature implementation",
             "Infrastructure / Lane Groundwork Blockers:",
             "Infrastructure / Setup Relationship:",
             "Developer lane",
@@ -1125,6 +1237,7 @@ def _validate_implementation_bearing_source_truth() -> list[str]:
         ROOT / "Docs" / "validation_helper_registry.md": (
             "Implementation-Bearing Branch Planning Validation Invariant",
             "planning-only lane/setup carrier",
+            "boundary-control labels",
             "Developer lane",
         ),
     }
@@ -1186,12 +1299,12 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
             any(
                 term in routes_available
                 for term in (
-                    "security/trust-boundary",
-                    "trust-boundary",
+                    "security/trust-boundary enforcement control",
+                    "trust-boundary enforcement control",
                     "provider/runtime consent",
                     "consent shell",
-                    "capability-pack",
-                    "memory/cache",
+                    "capability-pack install-intent gate",
+                    "memory/cache consent-state enforcement",
                     "agent",
                     "runtime",
                     "source-truth",
@@ -1224,6 +1337,70 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
         "Dev lane" not in text,
         "Use Developer lane, not Dev lane, in current branch-planning text",
     )
+    return failures
+
+
+def _validate_active_external_branch_plan_posture() -> list[str]:
+    failures: list[str] = []
+    state_root = Path("C:/Nexus Governance State")
+    active_state = state_root / "central" / "active_branch_authority_state.md"
+    if not active_state.is_file():
+        return failures
+
+    active_text = active_state.read_text(encoding="utf-8")
+    plan_value = governance._extract_marker_value(
+        active_text, "Branch Runtime Engineering Plan:"
+    ).strip("` ")
+    branch_state_value = governance._extract_marker_value(
+        active_text, "Branch State:"
+    ).strip("` ")
+    plan_path = Path(plan_value) if plan_value else None
+    branch_state_path = Path(branch_state_value) if branch_state_value else None
+    branch_state_text = (
+        branch_state_path.read_text(encoding="utf-8")
+        if branch_state_path and branch_state_path.is_file()
+        else ""
+    )
+    active_routes_to_bp1 = (
+        "Next Gate: `BP1 USER Branch Vision Review`" in active_text
+        or "Next Legal Phase: `BP1 USER Branch Vision Review`" in branch_state_text
+    )
+    if not active_routes_to_bp1:
+        return failures
+    if not plan_path or not plan_path.is_file():
+        return [
+            "External active branch state routes to BP1 without an existing active branch plan"
+        ]
+
+    plan_text = plan_path.read_text(encoding="utf-8")
+    required_route_markers = (
+        "Selected Implementation Route:",
+        "Implementation Route Class:",
+        "Concrete Deliverable:",
+        "Implementation Output:",
+        "Infrastructure / Setup Relationship:",
+        "USER Action Gate:",
+        "Route Disposition:",
+        "Retarget / Rename Recommendation:",
+    )
+    has_route_markers = all(marker in plan_text for marker in required_route_markers)
+    has_hold_or_retarget = (
+        "BR2 Route Resolution Status:" in plan_text
+        or "Route Disposition: `HOLD" in plan_text
+        or "Route Disposition: HOLD" in plan_text
+        or "Route Disposition: `RETARGET" in plan_text
+        or "Route Disposition: RETARGET" in plan_text
+    )
+    if has_hold_or_retarget:
+        failures.append(
+            "External active branch state routes to BP1 while active branch plan is still HOLD/RETARGET route resolution"
+        )
+    if not has_route_markers:
+        failures.append(
+            "External active branch state routes to BP1 without implementation-bearing route fields in active branch plan"
+        )
+    else:
+        failures.extend(_validate_implementation_bearing_route_text(plan_text))
     return failures
 
 
@@ -3062,6 +3239,21 @@ def validate() -> list[str]:
             "Invalid fake-feature-label implementation-route fixture did not "
             "reject setup/readiness/packet feature wording"
         )
+
+    proof_boundary_label_failures = _validate_implementation_bearing_route_text(
+        INVALID_IMPLEMENTATION_ROUTE_PROOF_BOUNDARY_LABEL_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_PROOF_BOUNDARY_LABEL_FAILURE_SNIPPET not in "\n".join(
+        proof_boundary_label_failures
+    ):
+        failures.append(
+            "Invalid proof/boundary-label implementation-route fixture did not "
+            "reject proof or boundary-control wording without implemented behavior"
+        )
+
+    failures.extend(_validate_active_external_branch_plan_posture())
 
     active_packet_metadata_failures = _validate_user_packet_metadata_text(
         INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")
