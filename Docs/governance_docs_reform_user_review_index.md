@@ -103,7 +103,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 | Ambiguous ownership/current-state wording | 152 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
-| Retired branch plan review | 30 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
+| Retired branch plan review | 29 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
 | Low-risk reference consolidation | 19 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
 Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
@@ -111,13 +111,12 @@ Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical
 
 ## Files Needing USER Decision
 
-Total USER decision rows: 30
+Total USER decision rows: 29
 
 | File | Reason | Recommendation |
 | --- | --- | --- |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
-| `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
@@ -132,7 +131,6 @@ Total USER decision rows: 30
 | `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_ai_runtime_trust_boundary_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
-| `Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
@@ -145,6 +143,7 @@ Total USER decision rows: 30
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_user_operated_consent_ux_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 
 ## Ambiguity Review Queue
 
@@ -204,7 +203,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/prebeta_roadmap.md` | release schedule outline | Keep compact | Critical |
 | `Docs/Main.md` | recovery map / source-truth router | Keep | High |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
-| `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | branch runtime engineering plan | Retired posture indexed | High |
+| `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | branch runtime engineering plan | Keep transition branch plan | High |
 | `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
 | `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
 | `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |

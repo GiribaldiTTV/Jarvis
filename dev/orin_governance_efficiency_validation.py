@@ -344,6 +344,16 @@ def _branch_name_to_plan_path(branch: str) -> str:
     return f"Docs/branch_plans/{branch.replace('-', '_').replace('/', '_')}.md"
 
 
+def _retired_branch_plan_paths(retirement_text: str) -> set[str]:
+    retired_section = _section(retirement_text, "## Retired Branch Plans")
+    return set(
+        re.findall(
+            r"`(Docs/branch_plans/[^`]+\.md)`\s*\|\s*Retired from active planning posture",
+            retired_section,
+        )
+    )
+
+
 def _field_value(line: str, field: str) -> str | None:
     prefix = f"{field}:"
     stripped = line.strip()
@@ -665,22 +675,25 @@ def validate() -> list[str]:
                     f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision declares "
                     f"{user_decision_count} rows but lists {user_decision_rows}"
                 )
-        branch = _git_output("branch", "--show-current")
-        active_branch_plan_paths = {_branch_name_to_plan_path(branch)} if branch else set()
-        branch_plan_root = ROOT / "Docs" / "branch_plans"
-        for branch_plan in sorted(branch_plan_root.glob("*.md")):
-            relative = branch_plan.relative_to(ROOT)
-            if relative in {Path("Docs/branch_plans/README.md"), BRANCH_PLAN_RETIREMENT_INDEX}:
-                continue
-            if str(relative).replace("\\", "/") in active_branch_plan_paths:
-                continue
-            branch_plan_text = branch_plan.read_text(encoding="utf-8")
-            if not _branch_plan_requires_retirement_index_row(branch_plan_text):
-                continue
-            if str(relative).replace("\\", "/") not in user_decision_section:
+        retirement_text = _read(BRANCH_PLAN_RETIREMENT_INDEX)
+        retired_plan_paths = _retired_branch_plan_paths(retirement_text)
+        user_decision_paths = set(
+            re.findall(r"(?m)^\| `(Docs/[^`]+)`", user_decision_section)
+        )
+        for retired_plan_path in sorted(retired_plan_paths):
+            if retired_plan_path not in user_decision_section:
                 failures.append(
                     f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision missing "
-                    f"retired plan row for {relative}"
+                    f"retired plan row for {retired_plan_path}"
+                )
+        for user_decision_path in sorted(
+            path for path in user_decision_paths if path.startswith("Docs/branch_plans/")
+        ):
+            if user_decision_path not in retired_plan_paths:
+                failures.append(
+                    f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision lists "
+                    f"{user_decision_path}, but that file is not listed in "
+                    f"{BRANCH_PLAN_RETIREMENT_INDEX}'s retired branch-plan table"
                 )
 
     for path in (Path("Docs/feature_backlog.md"), Path("Docs/prebeta_roadmap.md")):
