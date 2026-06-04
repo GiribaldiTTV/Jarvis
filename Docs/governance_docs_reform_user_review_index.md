@@ -7,7 +7,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 195
+- Docs files covered: 197
 - Source branch: not stored in this docs review index; derive current branch from Git/helper output at review time.
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
@@ -100,10 +100,10 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
 | --- | ---: | --- | --- |
-| Ambiguous ownership/current-state wording | 150 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
-| Structure and indexability risks | 39 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
+| Ambiguous ownership/current-state wording | 152 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
-| Retired branch plan review | 29 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
+| Retired branch plan review | 30 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
 | Low-risk reference consolidation | 19 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
 Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
@@ -115,6 +115,7 @@ Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical
 | --- | --- | --- |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_followup_repair_setup_20260521.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
@@ -137,7 +138,6 @@ Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_path_and_consent_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_and_consent_flow_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_completion_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_setup_contract_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 
 ## Ambiguity Review Queue
 
@@ -145,11 +145,12 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 | File | Ambiguity Risk | Signals | Action |
 | --- | --- | --- | --- |
-| `Docs/Main.md` | High | `volatile-current-wording=340`; `unclear-ownership-wording=157`; `soft-commitment-wording=63`; `state-ledger-wording=229` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/Main.md` | High | `volatile-current-wording=340`; `unclear-ownership-wording=157`; `soft-commitment-wording=63`; `state-ledger-wording=230` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ai_runtime_and_trust_architecture.md` | High | `volatile-current-wording=12`; `unclear-ownership-wording=16`; `soft-commitment-wording=38`; `state-ledger-wording=40` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/README.md` | High | `volatile-current-wording=89`; `unclear-ownership-wording=81`; `soft-commitment-wording=27`; `state-ledger-wording=114` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | High | `volatile-current-wording=30`; `unclear-ownership-wording=18`; `soft-commitment-wording=4`; `state-ledger-wording=52` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | High | `volatile-current-wording=187`; `unclear-ownership-wording=151`; `soft-commitment-wording=17`; `state-ledger-wording=109` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | High | `volatile-current-wording=305`; `unclear-ownership-wording=201`; `soft-commitment-wording=22`; `state-ledger-wording=128` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | High | `volatile-current-wording=163`; `unclear-ownership-wording=79`; `soft-commitment-wording=25`; `state-ledger-wording=136` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation.md` | High | `volatile-current-wording=85`; `unclear-ownership-wording=13`; `soft-commitment-wording=2`; `state-ledger-wording=94` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_overlay_profile_runtime_foundation_returned_uts_issue_form_20260521.md` | High | `volatile-current-wording=133`; `unclear-ownership-wording=21`; `soft-commitment-wording=72`; `state-ledger-wording=223` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -162,7 +163,6 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | High | `volatile-current-wording=46`; `unclear-ownership-wording=15`; `soft-commitment-wording=13`; `state-ledger-wording=98` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | High | `volatile-current-wording=59`; `unclear-ownership-wording=78`; `soft-commitment-wording=8`; `state-ledger-wording=137` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md` | High | `volatile-current-wording=70`; `unclear-ownership-wording=103`; `soft-commitment-wording=12`; `state-ledger-wording=119` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/feature_fam_007_local_ai_provider_execution_readiness_gates.md` | High | `volatile-current-wording=22`; `unclear-ownership-wording=11`; `soft-commitment-wording=4`; `state-ledger-wording=53` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 
 ## Structure Review Queue
 
@@ -174,6 +174,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_records/codex_v1_6_13_prebeta_post_merge_closeout_hardening.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_automation_planning.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_backlog_family_governance_reform.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
+| `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_006_dashboard_ia_controls_followthrough.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_006_dashboard_render_layout_hardening.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_006_dashboard_settings_panel.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
@@ -187,7 +188,6 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_foundation_readiness.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 | `Docs/branch_records/feature_fam_007_local_ai_foundation_runtime_continuation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
-| `Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md` | High | Large branch receipt; preserve traceability but organize current summary, indexed historical sections, commit/PR evid... |
 
 ## High-Risk Review Queue
 
@@ -197,6 +197,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/prebeta_roadmap.md` | release schedule outline | Keep compact | Critical |
 | `Docs/Main.md` | recovery map / source-truth router | Keep | High |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
+| `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | branch runtime engineering plan | Retired posture indexed | High |
 | `Docs/branch_plans/feature_fam_006_overlay_display_acceptance_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
 | `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
 | `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | branch runtime engineering plan | Retired posture indexed | High |
@@ -210,7 +211,6 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/branch_records/codex_v1_6_13_prebeta_release_packaging.md` | branch authority / structured receipt | Keep historical receipt | High |
 | `Docs/branch_records/feature_automation_planning.md` | branch authority / structured receipt | Organize structured receipt | High |
 | `Docs/branch_records/feature_automation_planning_post_merge_closeout_repair.md` | branch authority / structured receipt | Keep historical receipt | High |
-| `Docs/branch_records/feature_backlog_family_governance_reform.md` | branch authority / structured receipt | Organize structured receipt | High |
 
 ## Future Migration Queue
 
