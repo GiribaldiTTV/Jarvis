@@ -17611,8 +17611,6 @@ def _phase_status_bot_approval_proven(phase_status_section: str) -> bool:
         "comment addressed",
     }:
         return False
-    if "comment addressed" in normalized:
-        return False
     return (
         "approved" in normalized
         or "thumbs-up" in normalized
@@ -19049,7 +19047,7 @@ def _run_pr_live_state_gate(
         live_codex_review_threads_clear = not thread_error and not unresolved_codex_threads
 
     if fallback_local_state:
-        if fallback_bot_comment_count > 0:
+        if fallback_bot_comment_count > 0 and not fallback_bot_approval:
             require(
                 False,
                 (
@@ -19096,7 +19094,7 @@ def _run_pr_live_state_gate(
     if signal_error and closeout_watcher_state:
         fallback_bot_comment_count = int(closeout_watcher_state.get("botCommentCount") or 0)
         fallback_bot_approval = bool(closeout_watcher_state.get("botApproval"))
-        if fallback_bot_comment_count > 0:
+        if fallback_bot_comment_count > 0 and not fallback_bot_approval:
             require(
                 False,
                 (
