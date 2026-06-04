@@ -271,7 +271,7 @@ Release Artifact Creation Approval State: `NOT APPROVED`
 
 - Bot Review Signal Status: `Comment addressed`
 - Bot Review Signal Head SHA: `969b285940342cbf761f7fa6a37c6692d99c62b4`
-- Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs5_c5UG on PR #111 was fixed by same-branch repair commit 969b285940342cbf761f7fa6a37c6692d99c62b4 and resolved in GitHub; no later thumbs-up is required.`
+- Bot Review Signal Source: `Codex review thread PRRT_kwDORwnWIs5_c5UG on PR #111 was fixed by same-branch repair commit 969b285940342cbf761f7fa6a37c6692d99c62b4 and resolved in GitHub under the historical rule then in effect. Current PR Stage 2 governance supersedes that historical rule and requires a later Codex Connector bot thumbs-up/approval signal after bot-comment repair before PR green or merge.`
 - Bot Review Signal Timestamp: `2026-05-04T19:38:55Z`
 - Bot Review Signal Actor: `chatgpt-codex-connector[bot] / GiribaldiTTV`
 - Bot Review Signal Closeout State: `Resolved in GitHub`

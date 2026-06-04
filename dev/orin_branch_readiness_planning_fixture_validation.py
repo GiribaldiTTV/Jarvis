@@ -953,6 +953,24 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         "Governance validator treated a contrastive Codex review comment as a green bot-review signal",
     )
     require(
+        not governance._phase_status_bot_approval_proven(
+            "Bot approval proof: `Comment addressed`"
+        ),
+        "Governance validator treated comment-addressed closeout as bot approval proof",
+    )
+    require(
+        not governance._phase_status_bot_approval_proven(
+            "Bot approval proof: `not required after same-head comment-addressed closeout`"
+        ),
+        "Governance validator treated historical no-later-thumbs-up wording as bot approval proof",
+    )
+    require(
+        governance._phase_status_bot_approval_proven(
+            "Bot approval proof: `Approved by Codex Connector bot thumbs-up`"
+        ),
+        "Governance validator did not accept an explicit Codex Connector thumbs-up approval proof",
+    )
+    require(
         rebaseline._overlap_intent_missing_status("PASS").startswith("No -"),
         "Rebaseline helper did not return non-blocking intent-missing status for PASS",
     )

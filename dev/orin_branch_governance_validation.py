@@ -5228,9 +5228,9 @@ BOT_REVIEW_SIGNAL_PHRASES = (
     "live PR",
     "thumbs-up reaction",
     "bot comment",
-    "no later thumbs-up is required",
+    "post-repair bot thumbs-up/approval latch",
     "same-PR Codex bot-review repair loop",
-    "Stage 2 final handoff cannot be green until bot-review closeout is verified",
+    "Stage 2 final handoff cannot be green until the post-repair bot thumbs-up/approval latch is verified",
 )
 
 PR_WATCHER_THREAD_CONTRACT_DOCS = (
@@ -17603,12 +17603,22 @@ def _load_json_file(path: Path) -> dict[str, object] | None:
 def _phase_status_bot_approval_proven(phase_status_section: str) -> bool:
     marker_value = _extract_marker_value(phase_status_section, "Bot approval proof").strip()
     normalized = marker_value.casefold()
-    return normalized not in {
+    if normalized in {
         "",
         "pending",
         "not required after same-head comment-addressed closeout.",
         "not required after same-head comment-addressed closeout",
-    }
+        "comment addressed",
+    }:
+        return False
+    if "comment addressed" in normalized:
+        return False
+    return (
+        "approved" in normalized
+        or "thumbs-up" in normalized
+        or "green approval" in normalized
+        or "+1" in normalized
+    )
 
 
 def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bool, str]:
@@ -18375,7 +18385,7 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
     bot_approval = (
         bool(watcher_state.get("botApproval"))
         or _phase_status_bot_approval_proven(phase_status_section)
-        or recorded_bot_status.strip().casefold() in {"approved", "comment addressed"}
+        or recorded_bot_status.strip().casefold() == "approved"
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
@@ -18441,7 +18451,7 @@ def _pr101_closeout_canon_repair_fallback_pr_view_for_branch(
     bot_approval = (
         bool(watcher_state.get("botApproval"))
         or _phase_status_bot_approval_proven(phase_status_section)
-        or recorded_bot_status.strip().casefold() in {"approved", "comment addressed"}
+        or recorded_bot_status.strip().casefold() == "approved"
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
@@ -18648,7 +18658,7 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
     bot_approval = (
         bool(watcher_state.get("botApproval"))
         or _phase_status_bot_approval_proven(phase_status_section)
-        or recorded_bot_status.strip().casefold() in {"approved", "comment addressed"}
+        or recorded_bot_status.strip().casefold() == "approved"
     )
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
@@ -18948,11 +18958,15 @@ def _run_pr_live_state_gate(
         elif local_merge_error:
             merge_state = merge_state or "UNKNOWN"
     normalized_recorded_status = recorded_bot_review_status.strip().casefold()
-    manual_comment_resolution_clear = False
-    if normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold():
-        if recorded_bot_review_head == current_head_sha and current_head_sha:
-            manual_comment_resolution_clear = True
-        elif recorded_bot_review_head and current_head_sha:
+    comment_resolution_recorded = (
+        normalized_recorded_status == BOT_REVIEW_SIGNAL_STATUS_COMMENT_ADDRESSED.casefold()
+    )
+    if comment_resolution_recorded:
+        if (
+            recorded_bot_review_head
+            and current_head_sha
+            and recorded_bot_review_head != current_head_sha
+        ):
             followthrough_ok, followthrough_error = _bot_review_comment_closeout_followthrough_ok(
                 recorded_bot_review_head,
                 current_head_sha,
@@ -18967,8 +18981,6 @@ def _run_pr_live_state_gate(
                     f"closeout/governance files: {followthrough_error}"
                 ),
             )
-            if followthrough_ok:
-                manual_comment_resolution_clear = True
 
     require(
         pr_state == "OPEN",
@@ -19015,7 +19027,7 @@ def _run_pr_live_state_gate(
     )
 
     live_codex_review_threads_clear = False
-    if not manual_comment_resolution_clear and not fallback_local_state:
+    if not fallback_local_state:
         unresolved_codex_threads, thread_error = _gh_unresolved_codex_threads(
             str(pr_info.get("id") or ""),
             pr_info,
@@ -19036,28 +19048,6 @@ def _run_pr_live_state_gate(
         )
         live_codex_review_threads_clear = not thread_error and not unresolved_codex_threads
 
-    if manual_comment_resolution_clear:
-        if (
-            closeout_watcher_state is not None
-            and current_pr_readiness_seam
-            in {
-                AUTOMATION_CLOSEOUT_PR_READINESS_PR2_SEAM,
-                PR101_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
-                PR102_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
-                PR103_CLOSEOUT_CANON_PR_READINESS_PR2_SEAM,
-            }
-            and not bool(closeout_watcher_state.get("merged"))
-        ):
-            require(
-                False,
-                (
-                    "PR readiness gate: PR Merge Verification Pending blocker is active; the same-thread "
-                    f"watcher contract for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' "
-                    "has not yet verified a merged state"
-                ),
-            )
-        return
-
     if fallback_local_state:
         if fallback_bot_comment_count > 0:
             require(
@@ -19065,8 +19055,8 @@ def _run_pr_live_state_gate(
                 (
                     "PR readiness gate: PR Validation Pending blocker is active; bounded fallback "
                     f"runtime proof for PR {pr_url or pr_info.get('number')} reports "
-                    f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, and "
-                    "record comment-addressed closeout before PR green"
+                    f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, request "
+                    "Codex Connector bot revalidation, and wait for a later thumbs-up/approval signal before PR green"
                 ),
             )
         if not fallback_bot_approval:
@@ -19112,8 +19102,8 @@ def _run_pr_live_state_gate(
                 (
                     "PR readiness gate: PR Validation Pending blocker is active; bounded watcher "
                     f"proof for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}' reports "
-                    f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, and "
-                    "record comment-addressed closeout before PR green"
+                    f"{fallback_bot_comment_count} bot comment(s); fix, push, resolve, request "
+                    "Codex Connector bot revalidation, and wait for a later thumbs-up/approval signal before PR green"
                 ),
             )
         if not fallback_bot_approval:
@@ -19159,18 +19149,15 @@ def _run_pr_live_state_gate(
     signal_timestamp = live_signal.get("timestamp", "")
     signal_actor = live_signal.get("actor", "")
     if signal_status == "comment":
-        inline_review_thread_resolved = (
-            signal_source == "inline review comment"
-            and live_codex_review_threads_clear
-        )
         require(
-            inline_review_thread_resolved,
+            False,
             (
                 "PR readiness gate: PR Validation Pending blocker is active; bot review comment "
                 f"detected from '{signal_actor or BOT_REVIEW_BOT_LOGIN}' via {signal_source or 'comment'} "
                 f"at '{signal_timestamp or 'unknown time'}' on live PR "
                 f"'{pr_url or pr_info.get('number') or 'UNKNOWN'}'; fix, push, resolve the "
-                "comment, and then PR green may return without waiting for a later thumbs-up"
+                "comment, request Codex Connector bot revalidation, and wait for a later "
+                "thumbs-up/approval signal before PR green"
             ),
         )
     elif signal_status != BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold():
@@ -19179,7 +19166,7 @@ def _run_pr_live_state_gate(
             (
                 "PR readiness gate: PR Validation Pending blocker is active; Bot Review Signal Pending "
                 f"for live PR '{pr_url or pr_info.get('number') or 'UNKNOWN'}'; wait "
-                "for a thumbs-up reaction or a bot comment on the live PR"
+                "for a Codex Connector bot thumbs-up reaction or green approval comment on the live PR"
             ),
         )
         return

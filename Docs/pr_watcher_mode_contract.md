@@ -32,7 +32,7 @@ Verify Once:
 
 Repair Mode:
 - Active only when an unresolved actionable Codex bot review/comment is safely inside the approved same-PR scope and current worktree identity is proven.
-- Required repair loop: verify identity, evaluate the review against repo truth, patch only approved same-PR scope, run required validation, commit, push to the same branch, reply or resolve the addressed review thread when required, record `Comment addressed` for the current head SHA, and post a normal repair digest.
+- Required repair loop: verify identity, evaluate the review against repo truth, patch only approved same-PR scope, run required validation, commit, push to the same branch, reply or resolve the addressed review thread when required, record `Comment addressed` for the current head SHA, request Codex Connector bot revalidation, and keep `PR Validation Pending` active until a later Codex Connector bot thumbs-up reaction or green bot approval comment appears on the live PR after the repair.
 - Repair Mode must not cross worktrees, mutate `main`, perform release work, delete branches/worktrees, close issues, or implement runtime/provider/model/memory/voice/Core/shortcut/installer work unless that exact scope was already admitted for the PR.
 
 Blocked Mode:
