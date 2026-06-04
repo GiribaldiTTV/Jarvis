@@ -827,9 +827,9 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/closeouts/v2.0_closeout.md` | Low | `volatile-current-wording=13`; `unclear-ownership-wording=3`; `state-ledger-wording=4` | No scanner ambiguity markers found. |
 | `Docs/closeouts/v2.2.0_closeout.md` | Low | `volatile-current-wording=8`; `state-ledger-wording=1` | No scanner ambiguity markers found. |
 | `Docs/closeouts/v2.2.1_closeout.md` | Low | `volatile-current-wording=7`; `state-ledger-wording=4` | No scanner ambiguity markers found. |
-| `Docs/codex_modes.md` | High | `volatile-current-wording=355`; `unclear-ownership-wording=102`; `soft-commitment-wording=74`; `state-ledger-wording=161` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/codex_user_guide.md` | High | `volatile-current-wording=302`; `unclear-ownership-wording=69`; `soft-commitment-wording=56`; `state-ledger-wording=143` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/development_rules.md` | High | `volatile-current-wording=437`; `unclear-ownership-wording=144`; `soft-commitment-wording=77`; `state-ledger-wording=244` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/codex_modes.md` | High | `volatile-current-wording=357`; `unclear-ownership-wording=102`; `soft-commitment-wording=74`; `state-ledger-wording=161` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/codex_user_guide.md` | High | `volatile-current-wording=303`; `unclear-ownership-wording=69`; `soft-commitment-wording=56`; `state-ledger-wording=143` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/development_rules.md` | High | `volatile-current-wording=438`; `unclear-ownership-wording=144`; `soft-commitment-wording=77`; `state-ledger-wording=244` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/external_operational_state_store_reform_plan.md` | High | `volatile-current-wording=243`; `unclear-ownership-wording=109`; `soft-commitment-wording=29`; `state-ledger-wording=474` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/family_visions/FAM-001_boot_interface.md` | Low | `volatile-current-wording=3`; `unclear-ownership-wording=1`; `soft-commitment-wording=2`; `state-ledger-wording=1` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/family_visions/FAM-002_desktop_interface.md` | Low | `volatile-current-wording=1`; `unclear-ownership-wording=2`; `soft-commitment-wording=2`; `state-ledger-wording=1` | Low ambiguity; keep owner labels precise when edited. |
@@ -853,20 +853,20 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/governance_process_efficiency_reform_plan.md` | High | `volatile-current-wording=168`; `unclear-ownership-wording=168`; `soft-commitment-wording=65`; `state-ledger-wording=148` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_reliability_and_repo_split_reform_candidates.md` | High | `volatile-current-wording=67`; `unclear-ownership-wording=204`; `soft-commitment-wording=43`; `state-ledger-wording=75` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/incident_patterns.md` | High | `volatile-current-wording=58`; `unclear-ownership-wording=22`; `soft-commitment-wording=8`; `state-ledger-wording=31` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/Main.md` | High | `volatile-current-wording=339`; `unclear-ownership-wording=157`; `soft-commitment-wording=63`; `state-ledger-wording=229` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/Main.md` | High | `volatile-current-wording=340`; `unclear-ownership-wording=157`; `soft-commitment-wording=63`; `state-ledger-wording=229` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ncp_hardening_assessment.md` | Medium | `volatile-current-wording=13`; `unclear-ownership-wording=1`; `soft-commitment-wording=5`; `state-ledger-wording=6` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/nexus_startup_contract.md` | High | `volatile-current-wording=171`; `unclear-ownership-wording=82`; `soft-commitment-wording=48`; `state-ledger-wording=128` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/nexus_vision.md` | High | `volatile-current-wording=20`; `unclear-ownership-wording=11`; `soft-commitment-wording=44`; `state-ledger-wording=19` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/orchestration.md` | Low | `volatile-current-wording=13`; `soft-commitment-wording=2`; `state-ledger-wording=2` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/orin_display_naming_guidance.md` | Low | `volatile-current-wording=5`; `soft-commitment-wording=12`; `state-ledger-wording=3` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/orin_interaction_architecture.md` | Medium | `volatile-current-wording=18`; `unclear-ownership-wording=1`; `soft-commitment-wording=33`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/orin_task_template.md` | High | `volatile-current-wording=300`; `unclear-ownership-wording=110`; `soft-commitment-wording=46`; `state-ledger-wording=196` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/orin_task_template.md` | High | `volatile-current-wording=301`; `unclear-ownership-wording=110`; `soft-commitment-wording=46`; `state-ledger-wording=196` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ownership_ip_plan.md` | Medium | `volatile-current-wording=15`; `unclear-ownership-wording=3`; `soft-commitment-wording=9`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/phase_governance.md` | High | `volatile-current-wording=930`; `unclear-ownership-wording=401`; `soft-commitment-wording=205`; `state-ledger-wording=633` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/pr_watcher_mode_contract.md` | Medium | `volatile-current-wording=21`; `unclear-ownership-wording=8`; `soft-commitment-wording=4`; `state-ledger-wording=17` | Review for ambiguous current/active/latest/pending ownership language. |
+| `Docs/phase_governance.md` | High | `volatile-current-wording=931`; `unclear-ownership-wording=401`; `soft-commitment-wording=205`; `state-ledger-wording=633` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/pr_watcher_mode_contract.md` | Medium | `volatile-current-wording=22`; `unclear-ownership-wording=8`; `soft-commitment-wording=4`; `state-ledger-wording=17` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/prebeta_roadmap.md` | High | `volatile-current-wording=33`; `unclear-ownership-wording=15`; `soft-commitment-wording=6`; `state-ledger-wording=43` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/user_test_summary_guidance.md` | High | `volatile-current-wording=39`; `unclear-ownership-wording=17`; `soft-commitment-wording=15`; `state-ledger-wording=23` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/validation_helper_registry.md` | High | `volatile-current-wording=176`; `unclear-ownership-wording=129`; `soft-commitment-wording=24`; `state-ledger-wording=398` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/validation_helper_registry.md` | High | `volatile-current-wording=177`; `unclear-ownership-wording=129`; `soft-commitment-wording=24`; `state-ledger-wording=398` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/workspace_layout_plan.md` | Medium | `volatile-current-wording=17`; `soft-commitment-wording=6`; `state-ledger-wording=3` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/workstreams/FB-004_future_boot_orchestrator_layer.md` | High | `volatile-current-wording=115`; `unclear-ownership-wording=23`; `soft-commitment-wording=11`; `state-ledger-wording=115` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/workstreams/FB-005_workspace_and_folder_organization.md` | High | `volatile-current-wording=92`; `unclear-ownership-wording=16`; `soft-commitment-wording=1`; `state-ledger-wording=42` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -5444,7 +5444,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/codex_modes.md`
 - Line count: 795
 - Current purpose: Nexus Codex Modes
-- Actual observed use: Codex mode / behavior mirror with markers live=70, pr/release/issue=62, package/slice=16, branch/worktree/phase=439, validator/helper=240.
+- Actual observed use: Codex mode / behavior mirror with markers live=74, pr/release/issue=62, package/slice=16, branch/worktree/phase=439, validator/helper=240.
 - Correct owner category: Codex mode / behavior mirror
 - What gets recorded here: Codex collaboration modes and compact behavior mirrors.
 - What should be recorded here: mode behavior, evidence posture, and pointers.
@@ -5454,7 +5454,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=355`; `unclear-ownership-wording=102`; `soft-commitment-wording=74`; `state-ledger-wording=161`
+- Ambiguity signals: `volatile-current-wording=357`; `unclear-ownership-wording=102`; `soft-commitment-wording=74`; `state-ledger-wording=161`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5476,7 +5476,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/codex_user_guide.md`
 - Line count: 860
 - Current purpose: Codex User Guide
-- Actual observed use: operator guide with markers live=66, pr/release/issue=67, package/slice=19, branch/worktree/phase=364, validator/helper=170.
+- Actual observed use: operator guide with markers live=68, pr/release/issue=67, package/slice=19, branch/worktree/phase=364, validator/helper=170.
 - Correct owner category: operator guide
 - What gets recorded here: human-readable guide.
 - What should be recorded here: operator explanation and examples.
@@ -5486,7 +5486,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=302`; `unclear-ownership-wording=69`; `soft-commitment-wording=56`; `state-ledger-wording=143`
+- Ambiguity signals: `volatile-current-wording=303`; `unclear-ownership-wording=69`; `soft-commitment-wording=56`; `state-ledger-wording=143`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5508,7 +5508,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/development_rules.md`
 - Line count: 1063
 - Current purpose: Nexus Development Rules
-- Actual observed use: Codex execution rule mirror with markers live=120, pr/release/issue=73, package/slice=20, branch/worktree/phase=577, validator/helper=351.
+- Actual observed use: Codex execution rule mirror with markers live=122, pr/release/issue=73, package/slice=20, branch/worktree/phase=577, validator/helper=351.
 - Correct owner category: Codex execution rule mirror
 - What gets recorded here: developer-facing execution rules and compact governance mirrors.
 - What should be recorded here: execution reminders and pointers to owners.
@@ -5518,7 +5518,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=437`; `unclear-ownership-wording=144`; `soft-commitment-wording=77`; `state-ledger-wording=244`
+- Ambiguity signals: `volatile-current-wording=438`; `unclear-ownership-wording=144`; `soft-commitment-wording=77`; `state-ledger-wording=244`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6276,7 +6276,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/Main.md`
 - Line count: 635
 - Current purpose: Nexus Source-Of-Truth Index
-- Actual observed use: recovery map / source-truth router with markers live=110, pr/release/issue=70, package/slice=21, branch/worktree/phase=552, validator/helper=246.
+- Actual observed use: recovery map / source-truth router with markers live=112, pr/release/issue=70, package/slice=21, branch/worktree/phase=552, validator/helper=246.
 - Correct owner category: recovery map / source-truth router
 - What gets recorded here: least-updated canonical docs index, recovery map, and source-truth ownership map.
 - What should be recorded here: clear pointers to current governance/source-truth owners and a digest of each file's purpose.
@@ -6286,7 +6286,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=339`; `unclear-ownership-wording=157`; `soft-commitment-wording=63`; `state-ledger-wording=229`
+- Ambiguity signals: `volatile-current-wording=340`; `unclear-ownership-wording=157`; `soft-commitment-wording=63`; `state-ledger-wording=229`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6500,7 +6500,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/orin_task_template.md`
 - Line count: 1183
 - Current purpose: ORIN Task Template
-- Actual observed use: prompt template with markers live=76, pr/release/issue=48, package/slice=14, branch/worktree/phase=399, validator/helper=239.
+- Actual observed use: prompt template with markers live=78, pr/release/issue=48, package/slice=14, branch/worktree/phase=399, validator/helper=239.
 - Correct owner category: prompt template
 - What gets recorded here: reusable prompt packet skeleton.
 - What should be recorded here: fields prompts should include and owner pointers.
@@ -6510,7 +6510,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=300`; `unclear-ownership-wording=110`; `soft-commitment-wording=46`; `state-ledger-wording=196`
+- Ambiguity signals: `volatile-current-wording=301`; `unclear-ownership-wording=110`; `soft-commitment-wording=46`; `state-ledger-wording=196`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6564,7 +6564,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/phase_governance.md`
 - Line count: 2906
 - Current purpose: Nexus Phase Governance
-- Actual observed use: normative phase governance with markers live=234, pr/release/issue=171, package/slice=48, branch/worktree/phase=1327, validator/helper=784.
+- Actual observed use: normative phase governance with markers live=236, pr/release/issue=171, package/slice=48, branch/worktree/phase=1327, validator/helper=784.
 - Correct owner category: normative phase governance
 - What gets recorded here: canonical phase names, gates, blockers, proof hierarchy, phase transitions.
 - What should be recorded here: normative phase rules and machine-facing blocker names.
@@ -6574,7 +6574,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=930`; `unclear-ownership-wording=401`; `soft-commitment-wording=205`; `state-ledger-wording=633`
+- Ambiguity signals: `volatile-current-wording=931`; `unclear-ownership-wording=401`; `soft-commitment-wording=205`; `state-ledger-wording=633`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6596,7 +6596,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/pr_watcher_mode_contract.md`
 - Line count: 87
 - Current purpose: PR Watcher Mode Contract
-- Actual observed use: governance support standard with markers live=6, pr/release/issue=33, package/slice=0, branch/worktree/phase=12, validator/helper=9.
+- Actual observed use: governance support standard with markers live=8, pr/release/issue=33, package/slice=0, branch/worktree/phase=12, validator/helper=9.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -6606,7 +6606,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
-- Ambiguity signals: `volatile-current-wording=21`; `unclear-ownership-wording=8`; `soft-commitment-wording=4`; `state-ledger-wording=17`
+- Ambiguity signals: `volatile-current-wording=22`; `unclear-ownership-wording=8`; `soft-commitment-wording=4`; `state-ledger-wording=17`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6692,7 +6692,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/validation_helper_registry.md`
 - Line count: 321
 - Current purpose: Nexus Validation Helper Registry
-- Actual observed use: validator/helper registry with markers live=84, pr/release/issue=42, package/slice=8, branch/worktree/phase=267, validator/helper=849.
+- Actual observed use: validator/helper registry with markers live=86, pr/release/issue=42, package/slice=8, branch/worktree/phase=267, validator/helper=849.
 - Correct owner category: validator/helper registry
 - What gets recorded here: durable helper inventory and responsibility registry.
 - What should be recorded here: helper statuses, reuse/consolidation story.
@@ -6702,7 +6702,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=176`; `unclear-ownership-wording=129`; `soft-commitment-wording=24`; `state-ledger-wording=398`
+- Ambiguity signals: `volatile-current-wording=177`; `unclear-ownership-wording=129`; `soft-commitment-wording=24`; `state-ledger-wording=398`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.

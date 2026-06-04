@@ -5227,6 +5227,7 @@ BOT_REVIEW_SIGNAL_PHRASES = (
     "Bot Review Signal Pending",
     "live PR",
     "thumbs-up reaction",
+    "approval proof must be bound to the current live PR head",
     "bot comment",
     "3-5 words only",
     "post-repair bot thumbs-up/approval latch",
@@ -16759,6 +16760,7 @@ def _github_rest_pr_view_for_branch(
         "reviewDecision": review_decision,
         "isDraft": bool(detail_payload.get("draft")),
         "headRefName": str(((detail_payload.get("head") or {}).get("ref")) or ""),
+        "headRefOid": str(((detail_payload.get("head") or {}).get("sha")) or ""),
         "baseRefName": str(((detail_payload.get("base") or {}).get("ref")) or ""),
         "title": str(detail_payload.get("title") or ""),
         "url": str(detail_payload.get("html_url") or ""),
@@ -16830,10 +16832,30 @@ def _github_rest_unresolved_codex_threads(
 def _github_pr_bot_signal_for_live_pr(
     repository_full_name: str,
     pr_number: int,
+    current_head_sha: str = "",
 ) -> tuple[dict[str, str], str]:
-    signal = {"status": "pending", "source": "", "timestamp": "", "actor": ""}
+    signal = {"status": "pending", "source": "", "timestamp": "", "actor": "", "head": ""}
     if not repository_full_name or not pr_number:
         return signal, "live PR identity is incomplete"
+
+    if current_head_sha:
+        timeline_signal, timeline_error = _github_pr_bot_signal_for_current_head_timeline(
+            repository_full_name,
+            pr_number,
+            current_head_sha,
+        )
+        if not timeline_error:
+            return timeline_signal, ""
+        rest_signal, rest_error = _github_pr_bot_signal_for_current_head_rest(
+            repository_full_name,
+            pr_number,
+            current_head_sha,
+        )
+        if rest_signal.get("status") != "pending" and not rest_error:
+            return rest_signal, ""
+        if rest_error:
+            return signal, f"{timeline_error}; {rest_error}"
+        return signal, timeline_error
 
     reactions_payload, reactions_error = _github_api_json(
         f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/reactions"
@@ -16910,6 +16932,328 @@ def _github_pr_bot_signal_for_live_pr(
             "source": "thumbs-up reaction",
             "timestamp": str(latest_approval["timestamp"]),
             "actor": str(latest_approval["actor"]),
+            "head": "",
+        }, ""
+
+    return signal, ""
+
+
+def _github_pr_timeline_graphql_json(
+    repository_full_name: str,
+    pr_number: int,
+) -> tuple[dict[str, object] | None, str]:
+    if "/" not in repository_full_name:
+        return None, f"invalid repository name '{repository_full_name}'"
+    owner, repo = repository_full_name.split("/", 1)
+    query = """
+query($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    pullRequest(number: $number) {
+      headRefOid
+      timelineItems(last: 100, itemTypes: [PULL_REQUEST_COMMIT, PULL_REQUEST_REVIEW, ISSUE_COMMENT]) {
+        nodes {
+          __typename
+          ... on PullRequestCommit {
+            commit { oid }
+          }
+          ... on PullRequestReview {
+            createdAt
+            submittedAt
+            state
+            author { login }
+            body
+            commit { oid }
+          }
+          ... on IssueComment {
+            createdAt
+            author { login }
+            body
+            reactions(first: 100) {
+              nodes {
+                content
+                createdAt
+                user { login }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+    try:
+        completed = subprocess.run(
+            (
+                "gh",
+                "api",
+                "graphql",
+                "-f",
+                f"query={query}",
+                "-f",
+                f"owner={owner}",
+                "-f",
+                f"repo={repo}",
+                "-F",
+                f"number={pr_number}",
+            ),
+            cwd=ROOT_DIR,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        return None, str(exc)
+    if completed.returncode != 0:
+        return None, completed.stderr.strip() or completed.stdout.strip() or "gh api graphql failed"
+    try:
+        payload = json.loads(completed.stdout)
+    except json.JSONDecodeError as exc:
+        return None, f"could not parse PR timeline JSON: {exc}"
+    pull_request = (((payload.get("data") or {}).get("repository") or {}).get("pullRequest") or {})
+    if not pull_request:
+        return None, f"PR #{pr_number} timeline payload is empty"
+    return pull_request, ""
+
+
+def _latest_signal_candidate(
+    current: dict[str, object] | None,
+    candidate: dict[str, object],
+) -> dict[str, object]:
+    if current is None:
+        return candidate
+    candidate_time = candidate.get("time")
+    current_time = current.get("time")
+    if isinstance(candidate_time, datetime) and isinstance(current_time, datetime):
+        if candidate_time >= current_time:
+            return candidate
+    return current
+
+
+def _github_pr_bot_signal_for_current_head_timeline(
+    repository_full_name: str,
+    pr_number: int,
+    current_head_sha: str,
+) -> tuple[dict[str, str], str]:
+    signal = {"status": "pending", "source": "", "timestamp": "", "actor": "", "head": ""}
+    pull_request, timeline_error = _github_pr_timeline_graphql_json(
+        repository_full_name,
+        pr_number,
+    )
+    if timeline_error:
+        return signal, timeline_error
+    if not pull_request:
+        return signal, f"PR #{pr_number} timeline payload is empty"
+
+    pr_head_sha = str(pull_request.get("headRefOid") or "")
+    if pr_head_sha and pr_head_sha != current_head_sha:
+        return (
+            signal,
+            (
+                f"live PR head '{pr_head_sha}' does not match current branch head "
+                f"'{current_head_sha}'"
+            ),
+        )
+
+    nodes = (((pull_request.get("timelineItems") or {}).get("nodes")) or [])
+    current_head_index: int | None = None
+    for index, node in enumerate(nodes):
+        if node.get("__typename") != "PullRequestCommit":
+            continue
+        oid = str(((node.get("commit") or {}).get("oid")) or "")
+        if oid == current_head_sha:
+            current_head_index = index
+
+    if current_head_index is None:
+        return signal, f"could not locate current head '{current_head_sha}' in PR timeline"
+
+    latest_approval: dict[str, object] | None = None
+    latest_comment: dict[str, object] | None = None
+    for index, node in enumerate(nodes):
+        typename = str(node.get("__typename") or "")
+        if typename == "PullRequestReview":
+            actor = str(((node.get("author") or {}).get("login")) or "")
+            body = str(node.get("body") or "")
+            review_head = str(((node.get("commit") or {}).get("oid")) or "")
+            created_at = str(node.get("submittedAt") or node.get("createdAt") or "")
+            created_time = _parse_iso8601_timestamp(created_at)
+            if not (_bot_login_matches(actor) and created_time is not None):
+                continue
+            if review_head != current_head_sha:
+                continue
+            if _bot_review_comment_is_green_signal(body):
+                latest_approval = _latest_signal_candidate(
+                    latest_approval,
+                    {
+                        "time": created_time,
+                        "timestamp": created_at,
+                        "actor": actor,
+                        "source": "green review comment",
+                        "head": review_head,
+                    },
+                )
+            else:
+                latest_comment = _latest_signal_candidate(
+                    latest_comment,
+                    {
+                        "time": created_time,
+                        "timestamp": created_at,
+                        "actor": actor,
+                        "source": "review comment",
+                        "head": review_head,
+                    },
+                )
+            continue
+
+        if typename != "IssueComment" or index <= current_head_index:
+            continue
+        actor = str(((node.get("author") or {}).get("login")) or "")
+        body = str(node.get("body") or "")
+        created_at = str(node.get("createdAt") or "")
+        created_time = _parse_iso8601_timestamp(created_at)
+        if _bot_login_matches(actor) and created_time is not None:
+            if _bot_review_comment_is_green_signal(body):
+                latest_approval = _latest_signal_candidate(
+                    latest_approval,
+                    {
+                        "time": created_time,
+                        "timestamp": created_at,
+                        "actor": actor,
+                        "source": "green issue comment",
+                        "head": current_head_sha,
+                    },
+                )
+            else:
+                latest_comment = _latest_signal_candidate(
+                    latest_comment,
+                    {
+                        "time": created_time,
+                        "timestamp": created_at,
+                        "actor": actor,
+                        "source": "issue comment",
+                        "head": current_head_sha,
+                    },
+                )
+
+        reactions = ((node.get("reactions") or {}).get("nodes")) or []
+        for reaction in reactions:
+            reaction_actor = str(((reaction.get("user") or {}).get("login")) or "")
+            content = str(reaction.get("content") or "")
+            reaction_at = str(reaction.get("createdAt") or "")
+            reaction_time = _parse_iso8601_timestamp(reaction_at)
+            if not (
+                _bot_login_matches(reaction_actor)
+                and content in {"+1", "THUMBS_UP"}
+                and reaction_time is not None
+            ):
+                continue
+            if created_time is not None and reaction_time < created_time:
+                continue
+            latest_approval = _latest_signal_candidate(
+                latest_approval,
+                {
+                    "time": reaction_time,
+                    "timestamp": reaction_at,
+                    "actor": reaction_actor,
+                    "source": "thumbs-up reaction",
+                    "head": current_head_sha,
+                },
+            )
+
+    if latest_comment and (
+        latest_approval is None or latest_comment["time"] >= latest_approval["time"]
+    ):
+        return {
+            "status": "comment",
+            "source": str(latest_comment["source"]),
+            "timestamp": str(latest_comment["timestamp"]),
+            "actor": str(latest_comment["actor"]),
+            "head": str(latest_comment["head"]),
+        }, ""
+
+    if latest_approval:
+        return {
+            "status": BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold(),
+            "source": str(latest_approval["source"]),
+            "timestamp": str(latest_approval["timestamp"]),
+            "actor": str(latest_approval["actor"]),
+            "head": str(latest_approval["head"]),
+        }, ""
+
+    return signal, ""
+
+
+def _github_pr_bot_signal_for_current_head_rest(
+    repository_full_name: str,
+    pr_number: int,
+    current_head_sha: str,
+) -> tuple[dict[str, str], str]:
+    signal = {"status": "pending", "source": "", "timestamp": "", "actor": "", "head": ""}
+    latest_approval: dict[str, object] | None = None
+    latest_comment: dict[str, object] | None = None
+    for url, source_name in (
+        (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews", "review comment"),
+        (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/comments", "inline review comment"),
+    ):
+        payload, payload_error = _github_api_json(url)
+        if payload_error:
+            return signal, f"{source_name} lookup failed: {payload_error}"
+        for item in payload or []:
+            actor = str(((item.get("user") or {}).get("login")) or "")
+            body = str(item.get("body") or "")
+            commit_id = str(item.get("commit_id") or "")
+            created_at = str(item.get("submitted_at") or item.get("created_at") or "")
+            created_time = _parse_iso8601_timestamp(created_at)
+            if not (
+                _bot_login_matches(actor)
+                and created_time is not None
+                and commit_id == current_head_sha
+            ):
+                continue
+            if _bot_review_comment_is_green_signal(body):
+                latest_approval = _latest_signal_candidate(
+                    latest_approval,
+                    {
+                        "time": created_time,
+                        "timestamp": created_at,
+                        "actor": actor,
+                        "source": source_name,
+                        "head": commit_id,
+                    },
+                )
+                continue
+            latest_comment = _latest_signal_candidate(
+                latest_comment,
+                {
+                    "time": created_time,
+                    "timestamp": created_at,
+                    "actor": actor,
+                    "source": source_name,
+                    "head": commit_id,
+                },
+            )
+
+    if latest_comment and (
+        latest_approval is None or latest_comment["time"] >= latest_approval["time"]
+    ):
+        return {
+            "status": "comment",
+            "source": str(latest_comment["source"]),
+            "timestamp": str(latest_comment["timestamp"]),
+            "actor": str(latest_comment["actor"]),
+            "head": str(latest_comment["head"]),
+        }, ""
+
+    if latest_approval:
+        return {
+            "status": BOT_REVIEW_SIGNAL_STATUS_APPROVED.casefold(),
+            "source": str(latest_approval["source"]),
+            "timestamp": str(latest_approval["timestamp"]),
+            "actor": str(latest_approval["actor"]),
+            "head": str(latest_approval["head"]),
         }, ""
 
     return signal, ""
@@ -16918,7 +17262,7 @@ def _github_pr_bot_signal_for_live_pr(
 def _gh_pr_view_for_branch(branch_name: str) -> tuple[dict[str, object] | None, str]:
     fields = (
         "id,number,state,mergeable,mergeStateStatus,reviewDecision,isDraft,"
-        "headRefName,baseRefName,title,url"
+        "headRefName,headRefOid,baseRefName,title,url"
     )
     repository_full_name, repository_error = _git_origin_repository_full_name()
     gh_error = ""
@@ -18871,6 +19215,7 @@ def _run_pr_live_state_gate(
     pr_url = str(pr_info.get("url") or "")
     pr_state = str(pr_info.get("state") or "")
     pr_head = str(pr_info.get("headRefName") or "")
+    pr_head_oid = str(pr_info.get("headRefOid") or "")
     pr_base = str(pr_info.get("baseRefName") or "")
     mergeable = str(pr_info.get("mergeable") or "")
     merge_state = str(pr_info.get("mergeStateStatus") or "")
@@ -18900,6 +19245,7 @@ def _run_pr_live_state_gate(
             pr_url = str(pr_info.get("url") or pr_url)
             pr_state = str(pr_info.get("state") or pr_state)
             pr_head = str(pr_info.get("headRefName") or pr_head)
+            pr_head_oid = str(pr_info.get("headRefOid") or pr_head_oid)
             pr_base = str(pr_info.get("baseRefName") or pr_base)
             mergeable = str(pr_info.get("mergeable") or mergeable)
             merge_state = str(pr_info.get("mergeStateStatus") or merge_state)
@@ -18909,7 +19255,6 @@ def _run_pr_live_state_gate(
             fallback_bot_approval_ordered = bool(pr_info.get("botApprovalOrdered"))
             fallback_bot_comment_count = int(pr_info.get("botCommentCount") or 0)
     current_head_sha = _git_head_sha()
-    current_head_time = _git_head_commit_time()
     recorded_bot_review_status, recorded_bot_review_head = _branch_record_bot_review_state(
         active_branch_record_text
     )
@@ -19065,6 +19410,15 @@ def _run_pr_live_state_gate(
             f"PR head '{pr_head}' does not match current branch '{branch_name}'"
         ),
     )
+    if pr_head_oid:
+        require(
+            pr_head_oid == current_head_sha,
+            (
+                "PR readiness gate: PR Validation Pending blocker is active; "
+                f"PR head SHA '{pr_head_oid}' does not match current branch head "
+                f"'{current_head_sha or 'UNKNOWN'}'"
+            ),
+        )
     require(
         pr_base == "main",
         (
@@ -19167,6 +19521,7 @@ def _run_pr_live_state_gate(
     live_signal, signal_error = _github_pr_bot_signal_for_live_pr(
         str(pr_info.get("repositoryFullName") or ""),
         int(pr_info.get("number") or 0),
+        current_head_sha,
     )
     if signal_error and closeout_watcher_state:
         fallback_bot_comment_count = int(closeout_watcher_state.get("botCommentCount") or 0)
@@ -19233,6 +19588,7 @@ def _run_pr_live_state_gate(
     signal_source = live_signal.get("source", "")
     signal_timestamp = live_signal.get("timestamp", "")
     signal_actor = live_signal.get("actor", "")
+    signal_head = live_signal.get("head", "")
     if signal_status == "comment":
         require(
             False,
@@ -19258,11 +19614,11 @@ def _run_pr_live_state_gate(
 
     signal_time = _parse_iso8601_timestamp(signal_timestamp)
     require(
-        bool(signal_time and current_head_time and signal_time >= current_head_time),
+        bool(signal_time and signal_head == current_head_sha),
         (
             "PR readiness gate: PR Validation Pending blocker is active; Codex Connector "
-            f"approval signal at '{signal_timestamp or 'unknown time'}' does not prove approval "
-            f"after current head '{current_head_sha or 'UNKNOWN'}'"
+            f"approval signal at '{signal_timestamp or 'unknown time'}' is not bound to "
+            f"current live PR head '{current_head_sha or 'UNKNOWN'}'"
         ),
     )
 
@@ -21351,6 +21707,28 @@ def main() -> int:
                 required_phrase in text,
                 f"{relative_path}: bot-review signal contract is missing '{required_phrase}'",
             )
+    branch_governance_validator_text = _read_text(Path("dev/orin_branch_governance_validation.py"))
+    for required_phrase in (
+        "headRefOid",
+        "timelineItems",
+        "PULL_REQUEST_COMMIT",
+        "signal_head == current_head_sha",
+    ):
+        require(
+            required_phrase in branch_governance_validator_text,
+            (
+                "dev/orin_branch_governance_validation.py: Codex bot-review signal "
+                f"current-head proof is missing '{required_phrase}'"
+            ),
+        )
+    legacy_commit_time_latch = "signal_time and " + "current_head_time"
+    require(
+        legacy_commit_time_latch not in branch_governance_validator_text,
+        (
+            "dev/orin_branch_governance_validation.py: Codex bot-review signal proof "
+            "must not compare approval time to local HEAD commit time"
+        ),
+    )
 
     for relative_path in PR_WATCHER_THREAD_CONTRACT_DOCS:
         text = _read_text(relative_path)
