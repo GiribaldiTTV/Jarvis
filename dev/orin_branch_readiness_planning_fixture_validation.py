@@ -16,6 +16,7 @@ import zipfile
 from pathlib import Path
 
 import orin_branch_governance_validation as governance
+from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT
 import orin_user_review_bundle as review_bundle
 import orin_worktree_rebaseline_audit as rebaseline
 
@@ -1436,7 +1437,7 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
 
 def _validate_active_external_branch_plan_posture() -> list[str]:
     failures: list[str] = []
-    state_root = Path("C:/Nexus Governance State")
+    state_root = DEFAULT_EXTERNAL_STATE_ROOT
     active_state = state_root / "central" / "active_branch_authority_state.md"
     if not active_state.is_file():
         return failures
@@ -3379,6 +3380,12 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid BR2 proof-only route fixture did not reject proof/readiness route wording"
+        )
+
+    active_external_source = inspect.getsource(_validate_active_external_branch_plan_posture)
+    if 'Path("C:/Nexus Governance State")' in active_external_source:
+        failures.append(
+            "Active external branch-plan posture validation must use DEFAULT_EXTERNAL_STATE_ROOT"
         )
 
     failures.extend(_validate_active_external_branch_plan_posture())
