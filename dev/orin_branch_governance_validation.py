@@ -5350,6 +5350,7 @@ PR_WATCHER_DENIAL_POLICY_DOCS = (
 PR_WATCHER_DENIAL_POLICY_PHRASES = (
     "direct PR verification",
     "recurring PR watcher automation",
+    "Direct PR2 Continuation Rule",
 )
 PR_WATCHER_DENIAL_FORBIDDEN_PHRASES = (
     "PR Readiness Stage 2 approval includes watcher provisioning by default",

@@ -3625,6 +3625,23 @@ def validate() -> list[str]:
                 + "; ".join(bulleted_marker_failures[:5])
             )
 
+        (temp_central / "active_branch_authority_state.md").write_text(
+            "# Fixture Active Branch Authority State\n\n"
+            "- Branch Runtime Engineering Plan: Accepted\n"
+            f"- Branch Runtime Engineering Plan Path: `{temp_plan}`\n"
+            "- Next Legal Phase: `BP1 USER Branch Vision Review`\n",
+            encoding="utf-8",
+        )
+        plan_path_marker_failures = external_state.validate_active_branch_plan_posture(
+            temp_state_root
+        )
+        if plan_path_marker_failures:
+            failures.append(
+                "External-state validator Branch Runtime Engineering Plan Path fixture "
+                "unexpectedly failed: "
+                + "; ".join(plan_path_marker_failures[:5])
+            )
+
     active_packet_metadata_failures = _validate_user_packet_metadata_text(
         INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")
     )

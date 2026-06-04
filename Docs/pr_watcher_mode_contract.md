@@ -18,6 +18,12 @@ Do not create or update heartbeat, cron, same-thread, or fallback PR watcher aut
 
 The required default proof is `Direct PR Verification Proof:` in the Codex digest or helper output, including configured cwd, PR number, head SHA, mergeability, unresolved review-thread count, latest bot review, status checks, repair authority, approval latch posture, and next PR posture. If a stale watcher automation exists for the same PR, Codex must delete or pause it before relying on direct PR verification.
 
+Direct PR2 Continuation Rule:
+- Bounded PR2 direct verification must keep running in the active Codex turn after PR creation, after each same-PR repair push, and after each Codex Connector revalidation request until a terminal PR2 state is reached.
+- Terminal PR2 states are: a new actionable Codex Connector comment/review is found and repaired or blocked, a later Codex Connector thumbs-up reaction or green approval comment appears on the current head and mergeability is green, the PR merges/closes, or a real blocker prevents further direct verification.
+- No watcher does not mean no loop. Do not stop merely because the Codex bot has not answered yet, because mergeability is temporarily unknown, or because the prior verification pass was quiet.
+- When merge authority is already approved and the current head has the required Codex Connector approval latch plus green mergeability, bounded PR2 must merge and then directly verify the merged/closed PR state before handoff.
+
 ## Exception Watcher Modes
 
 These modes are exception-only. They remain valid for historical receipts and for a future USER-approved watcher exception, not as the bounded PR2 default.

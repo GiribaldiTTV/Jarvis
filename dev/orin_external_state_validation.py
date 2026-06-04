@@ -100,6 +100,17 @@ def resolve_markdown_path(value: str | None, root: Path) -> Path | None:
     return path if path.is_absolute() else root / cleaned
 
 
+def active_branch_plan_path(active_text: str, root: Path) -> Path | None:
+    path_value = markdown_field_value(active_text, "Branch Runtime Engineering Plan Path")
+    plan_path = resolve_markdown_path(path_value, root)
+    if plan_path:
+        return plan_path
+    return resolve_markdown_path(
+        markdown_field_value(active_text, "Branch Runtime Engineering Plan"),
+        root,
+    )
+
+
 def normalized_route_value(value: str) -> str:
     return re.sub(r"\s+", " ", value.casefold()).strip()
 
@@ -386,10 +397,7 @@ def validate_active_branch_plan_posture(root: Path) -> list[str]:
         return issues
 
     active_text = active_state.read_text(encoding="utf-8")
-    plan_path = resolve_markdown_path(
-        markdown_field_value(active_text, "Branch Runtime Engineering Plan"),
-        root,
-    )
+    plan_path = active_branch_plan_path(active_text, root)
     branch_state_path = resolve_markdown_path(
         markdown_field_value(active_text, "Branch State"),
         root,

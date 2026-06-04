@@ -404,10 +404,10 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 105 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 243 | Keep historical receipt | High | High |
 | 106 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / structured receipt | 165 | Keep historical receipt | High | High |
 | 107 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 177 | Keep historical receipt | High | High |
-| 108 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | 286 | Keep active standing authority | High | High |
+| 108 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | 288 | Keep active standing authority | High | High |
 | 109 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / structured receipt | 498 | Organize structured receipt | High | High |
 | 110 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | branch authority / structured receipt | 118 | Keep active bounded repair authority until PR fold-down | Medium | High |
-| 111 | `Docs/branch_records/index.md` | branch authority router | 222 | Keep | High | High |
+| 111 | `Docs/branch_records/index.md` | branch authority router | 223 | Keep | High | High |
 | 112 | `Docs/closeout_guidance.md` | release closeout receipt | 108 | Keep | Medium | High |
 | 113 | `Docs/closeout_index.md` | release closeout receipt | 71 | Keep | Low | High |
 | 114 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` | release closeout receipt | 80 | Keep | Medium | High |
@@ -458,8 +458,8 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 159 | `Docs/orin_interaction_architecture.md` | product / architecture reference | 285 | Keep | Medium | High |
 | 160 | `Docs/orin_task_template.md` | prompt template | 1184 | Keep | High | High |
 | 161 | `Docs/ownership_ip_plan.md` | product / architecture reference | 112 | Keep | Medium | High |
-| 162 | `Docs/phase_governance.md` | normative phase governance | 2922 | Keep | High | High |
-| 163 | `Docs/pr_watcher_mode_contract.md` | governance support standard | 92 | Keep | High | High |
+| 162 | `Docs/phase_governance.md` | normative phase governance | 2923 | Keep | High | High |
+| 163 | `Docs/pr_watcher_mode_contract.md` | governance support standard | 98 | Keep | High | High |
 | 164 | `Docs/prebeta_roadmap.md` | release schedule outline | 139 | Keep compact | Critical | High |
 | 165 | `Docs/user_test_summary_guidance.md` | governance support standard | 356 | Keep | Medium | High |
 | 166 | `Docs/validation_helper_registry.md` | validator/helper registry | 325 | Keep | High | High |
@@ -814,10 +814,10 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | High | `volatile-current-wording=66`; `unclear-ownership-wording=12`; `soft-commitment-wording=1`; `state-ledger-wording=37` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | High | `volatile-current-wording=60`; `unclear-ownership-wording=12`; `state-ledger-wording=29` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | Medium | `volatile-current-wording=45`; `unclear-ownership-wording=9`; `state-ledger-wording=29` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | High | `volatile-current-wording=113`; `unclear-ownership-wording=51`; `soft-commitment-wording=34`; `state-ledger-wording=93` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | High | `volatile-current-wording=115`; `unclear-ownership-wording=51`; `soft-commitment-wording=35`; `state-ledger-wording=93` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | High | `volatile-current-wording=58`; `unclear-ownership-wording=131`; `soft-commitment-wording=16`; `state-ledger-wording=160` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | Medium | `volatile-current-wording=33`; `unclear-ownership-wording=24`; `soft-commitment-wording=1`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/branch_records/index.md` | High | `volatile-current-wording=210`; `unclear-ownership-wording=100`; `soft-commitment-wording=32`; `state-ledger-wording=120` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_records/index.md` | High | `volatile-current-wording=212`; `unclear-ownership-wording=100`; `soft-commitment-wording=32`; `state-ledger-wording=120` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/closeout_guidance.md` | Low | `volatile-current-wording=19`; `unclear-ownership-wording=5`; `soft-commitment-wording=3`; `state-ledger-wording=9` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/closeout_index.md` | Low | `volatile-current-wording=3` | No scanner ambiguity markers found. |
 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` | Low | `volatile-current-wording=6`; `soft-commitment-wording=1`; `state-ledger-wording=2` | No scanner ambiguity markers found. |
@@ -833,9 +833,9 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/closeouts/v2.0_closeout.md` | Low | `volatile-current-wording=13`; `unclear-ownership-wording=3`; `state-ledger-wording=4` | No scanner ambiguity markers found. |
 | `Docs/closeouts/v2.2.0_closeout.md` | Low | `volatile-current-wording=8`; `state-ledger-wording=1` | No scanner ambiguity markers found. |
 | `Docs/closeouts/v2.2.1_closeout.md` | Low | `volatile-current-wording=7`; `state-ledger-wording=4` | No scanner ambiguity markers found. |
-| `Docs/codex_modes.md` | High | `volatile-current-wording=351`; `unclear-ownership-wording=102`; `soft-commitment-wording=72`; `state-ledger-wording=158` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/codex_modes.md` | High | `volatile-current-wording=353`; `unclear-ownership-wording=102`; `soft-commitment-wording=72`; `state-ledger-wording=158` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/codex_user_guide.md` | High | `volatile-current-wording=298`; `unclear-ownership-wording=69`; `soft-commitment-wording=55`; `state-ledger-wording=140` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/development_rules.md` | High | `volatile-current-wording=437`; `unclear-ownership-wording=142`; `soft-commitment-wording=77`; `state-ledger-wording=242` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/development_rules.md` | High | `volatile-current-wording=439`; `unclear-ownership-wording=142`; `soft-commitment-wording=77`; `state-ledger-wording=242` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/external_operational_state_store_reform_plan.md` | High | `volatile-current-wording=243`; `unclear-ownership-wording=109`; `soft-commitment-wording=29`; `state-ledger-wording=474` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/family_visions/FAM-001_boot_interface.md` | Low | `volatile-current-wording=3`; `unclear-ownership-wording=1`; `soft-commitment-wording=2`; `state-ledger-wording=1` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/family_visions/FAM-002_desktop_interface.md` | Low | `volatile-current-wording=1`; `unclear-ownership-wording=2`; `soft-commitment-wording=2`; `state-ledger-wording=1` | Low ambiguity; keep owner labels precise when edited. |
@@ -859,17 +859,17 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/governance_process_efficiency_reform_plan.md` | High | `volatile-current-wording=168`; `unclear-ownership-wording=168`; `soft-commitment-wording=65`; `state-ledger-wording=148` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_reliability_and_repo_split_reform_candidates.md` | High | `volatile-current-wording=67`; `unclear-ownership-wording=204`; `soft-commitment-wording=43`; `state-ledger-wording=75` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/incident_patterns.md` | High | `volatile-current-wording=56`; `unclear-ownership-wording=22`; `soft-commitment-wording=7`; `state-ledger-wording=30` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/Main.md` | High | `volatile-current-wording=339`; `unclear-ownership-wording=159`; `soft-commitment-wording=64`; `state-ledger-wording=231` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/Main.md` | High | `volatile-current-wording=343`; `unclear-ownership-wording=159`; `soft-commitment-wording=64`; `state-ledger-wording=231` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ncp_hardening_assessment.md` | Medium | `volatile-current-wording=13`; `unclear-ownership-wording=1`; `soft-commitment-wording=5`; `state-ledger-wording=6` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/nexus_startup_contract.md` | High | `volatile-current-wording=170`; `unclear-ownership-wording=82`; `soft-commitment-wording=50`; `state-ledger-wording=131` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/nexus_startup_contract.md` | High | `volatile-current-wording=172`; `unclear-ownership-wording=82`; `soft-commitment-wording=50`; `state-ledger-wording=131` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/nexus_vision.md` | High | `volatile-current-wording=20`; `unclear-ownership-wording=11`; `soft-commitment-wording=44`; `state-ledger-wording=19` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/orchestration.md` | Low | `volatile-current-wording=13`; `soft-commitment-wording=2`; `state-ledger-wording=2` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/orin_display_naming_guidance.md` | Low | `volatile-current-wording=5`; `soft-commitment-wording=12`; `state-ledger-wording=3` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/orin_interaction_architecture.md` | Medium | `volatile-current-wording=18`; `unclear-ownership-wording=1`; `soft-commitment-wording=33`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/orin_task_template.md` | High | `volatile-current-wording=299`; `unclear-ownership-wording=110`; `soft-commitment-wording=46`; `state-ledger-wording=198` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/orin_task_template.md` | High | `volatile-current-wording=301`; `unclear-ownership-wording=110`; `soft-commitment-wording=46`; `state-ledger-wording=198` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ownership_ip_plan.md` | Medium | `volatile-current-wording=15`; `unclear-ownership-wording=3`; `soft-commitment-wording=9`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/phase_governance.md` | High | `volatile-current-wording=936`; `unclear-ownership-wording=408`; `soft-commitment-wording=210`; `state-ledger-wording=636` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/pr_watcher_mode_contract.md` | Medium | `volatile-current-wording=25`; `unclear-ownership-wording=9`; `soft-commitment-wording=3`; `state-ledger-wording=21` | Review for ambiguous current/active/latest/pending ownership language. |
+| `Docs/phase_governance.md` | High | `volatile-current-wording=938`; `unclear-ownership-wording=408`; `soft-commitment-wording=210`; `state-ledger-wording=636` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/pr_watcher_mode_contract.md` | Medium | `volatile-current-wording=28`; `unclear-ownership-wording=10`; `soft-commitment-wording=3`; `state-ledger-wording=23` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/prebeta_roadmap.md` | High | `volatile-current-wording=35`; `unclear-ownership-wording=15`; `soft-commitment-wording=6`; `state-ledger-wording=43` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/user_test_summary_guidance.md` | High | `volatile-current-wording=46`; `unclear-ownership-wording=17`; `soft-commitment-wording=15`; `state-ledger-wording=24` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/validation_helper_registry.md` | High | `volatile-current-wording=185`; `unclear-ownership-wording=131`; `soft-commitment-wording=27`; `state-ledger-wording=401` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -1222,10 +1222,10 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | 243 | Branch Authority Record: feature/pr103-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | 165 | Branch Authority Record: feature/pr104-watcher-next-prompt-format-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | 177 | Branch Authority Record: feature/pr105-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | 286 | Branch Authority Record: feature/release-readiness-source-truth-intake | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | Updated in this reform branch. | Keep current markers compact and avoid cycle-ledger closeout-only PRs. | Keep active standing authority | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | 288 | Branch Authority Record: feature/release-readiness-source-truth-intake | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | Updated in this reform branch. | Keep current markers compact and avoid cycle-ledger closeout-only PRs. | Keep active standing authority | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | 498 | Branch Authority Record: feature/repo-wide-source-owner-marker-adoption | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | 118 | Branch Authority Record: feature/vision-update-decision-matrix | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Move to historical/no-active posture or otherwise make merge-stable before PR green. | Keep active bounded repair authority until PR fold-down | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/index.md` | 222 | Branch Authority Records Index | branch authority router | active/historical branch authority routing | lists and rules for branch authority records | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/branch_records/index.md` | 223 | Branch Authority Records Index | branch authority router | active/historical branch authority routing | lists and rules for branch authority records | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeout_guidance.md` | 108 | Closeout Guidance | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeout_index.md` | 71 | Closeout Index | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/closeouts/nexus_prebeta_rebaseline_through_v1.2.7-prebeta.md` | 80 | Nexus Pre-Beta Rebaseline Through v1.2.7-prebeta | release closeout receipt | historical release/closeout receipt | validated release interpretation and closure summary | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1276,8 +1276,8 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/orin_interaction_architecture.md` | 285 | ORIN Interaction Architecture | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/orin_task_template.md` | 1184 | ORIN Task Template | prompt template | reusable prompt packet skeleton | fields prompts should include and owner pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/ownership_ip_plan.md` | 112 | Ownership And IP Protection Plan | product / architecture reference | durable product or architecture reference | stable architecture/product intent | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/phase_governance.md` | 2922 | Nexus Phase Governance | normative phase governance | canonical phase names, gates, blockers, proof hierarchy, phase transitions | normative phase rules and machine-facing blocker names | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/pr_watcher_mode_contract.md` | 92 | PR Watcher Mode Contract | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/phase_governance.md` | 2923 | Nexus Phase Governance | normative phase governance | canonical phase names, gates, blockers, proof hierarchy, phase transitions | normative phase rules and machine-facing blocker names | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
+| `Docs/pr_watcher_mode_contract.md` | 98 | PR Watcher Mode Contract | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/prebeta_roadmap.md` | 139 | Nexus Pre-Beta Roadmap | release schedule outline | pre-Beta/Beta/release stage-breakpoint schedule and broad milestone checkpoints | release-stage gates, public milestone checkpoints, and broad feature-family breakpoint refere... | No direct edit in this branch; classified and governed by this dossier. | Keep pointer-only; do not reintroduce live state or detailed trace tables. | Keep compact | High | Low | Yes | Yes | Yes | Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan de... | _Add notes here._ |
 | `Docs/user_test_summary_guidance.md` | 356 | User Test Summary Guidance | governance support standard | supporting governance standard | single-purpose governance rules and pointers | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/validation_helper_registry.md` | 325 | Nexus Validation Helper Registry | validator/helper registry | durable helper inventory and responsibility registry | helper statuses, reuse/consolidation story | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1325,7 +1325,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | worktree live state | git status / worktree preflight / helper output | 165 | High |
 | origin/main | git fetch + git rev-parse / helper output | 106 | Medium |
 | PR state | GitHub / watcher / gh / GraphQL output | 116 | High |
-| merge status | GitHub PR merge truth plus structured historical receipt | 148 | Medium |
+| merge status | GitHub PR merge truth plus structured historical receipt | 149 | Medium |
 | latest tag/release | GitHub Releases / tags / release validator | 109 | High |
 | release receipt | Docs/closeouts, structured branch receipt, or release body after validation | 80 | Medium |
 | release schedule outline | Docs/prebeta_roadmap.md | 90 | Medium |
@@ -4908,9 +4908,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 108. `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 - File path: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- Line count: 286
+- Line count: 288
 - Current purpose: Branch Authority Record: feature/release-readiness-source-truth-intake
-- Actual observed use: branch authority / structured receipt with markers live=99, pr/release/issue=43, package/slice=2, branch/worktree/phase=267, validator/helper=161.
+- Actual observed use: branch authority / structured receipt with markers live=100, pr/release/issue=45, package/slice=2, branch/worktree/phase=267, validator/helper=161.
 - Correct owner category: branch authority / structured receipt
 - What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
 - What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
@@ -4920,7 +4920,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=113`; `unclear-ownership-wording=51`; `soft-commitment-wording=34`; `state-ledger-wording=93`
+- Ambiguity signals: `volatile-current-wording=115`; `unclear-ownership-wording=51`; `soft-commitment-wording=35`; `state-ledger-wording=93`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5004,9 +5004,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 111. `Docs/branch_records/index.md`
 
 - File path: `Docs/branch_records/index.md`
-- Line count: 222
+- Line count: 223
 - Current purpose: Branch Authority Records Index
-- Actual observed use: branch authority router with markers live=54, pr/release/issue=37, package/slice=8, branch/worktree/phase=259, validator/helper=78.
+- Actual observed use: branch authority router with markers live=55, pr/release/issue=37, package/slice=8, branch/worktree/phase=259, validator/helper=79.
 - Correct owner category: branch authority router
 - What gets recorded here: active/historical branch authority routing.
 - What should be recorded here: lists and rules for branch authority records.
@@ -5016,7 +5016,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=210`; `unclear-ownership-wording=100`; `soft-commitment-wording=32`; `state-ledger-wording=120`
+- Ambiguity signals: `volatile-current-wording=212`; `unclear-ownership-wording=100`; `soft-commitment-wording=32`; `state-ledger-wording=120`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5518,7 +5518,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/codex_modes.md`
 - Line count: 797
 - Current purpose: Nexus Codex Modes
-- Actual observed use: Codex mode / behavior mirror with markers live=75, pr/release/issue=54, package/slice=16, branch/worktree/phase=437, validator/helper=239.
+- Actual observed use: Codex mode / behavior mirror with markers live=76, pr/release/issue=54, package/slice=16, branch/worktree/phase=437, validator/helper=240.
 - Correct owner category: Codex mode / behavior mirror
 - What gets recorded here: Codex collaboration modes and compact behavior mirrors.
 - What should be recorded here: mode behavior, evidence posture, and pointers.
@@ -5528,7 +5528,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=351`; `unclear-ownership-wording=102`; `soft-commitment-wording=72`; `state-ledger-wording=158`
+- Ambiguity signals: `volatile-current-wording=353`; `unclear-ownership-wording=102`; `soft-commitment-wording=72`; `state-ledger-wording=158`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5550,7 +5550,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/codex_user_guide.md`
 - Line count: 862
 - Current purpose: Codex User Guide
-- Actual observed use: operator guide with markers live=68, pr/release/issue=66, package/slice=19, branch/worktree/phase=363, validator/helper=166.
+- Actual observed use: operator guide with markers live=68, pr/release/issue=66, package/slice=19, branch/worktree/phase=363, validator/helper=167.
 - Correct owner category: operator guide
 - What gets recorded here: human-readable guide.
 - What should be recorded here: operator explanation and examples.
@@ -5582,7 +5582,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/development_rules.md`
 - Line count: 1060
 - Current purpose: Nexus Development Rules
-- Actual observed use: Codex execution rule mirror with markers live=121, pr/release/issue=63, package/slice=20, branch/worktree/phase=577, validator/helper=351.
+- Actual observed use: Codex execution rule mirror with markers live=122, pr/release/issue=63, package/slice=20, branch/worktree/phase=577, validator/helper=352.
 - Correct owner category: Codex execution rule mirror
 - What gets recorded here: developer-facing execution rules and compact governance mirrors.
 - What should be recorded here: execution reminders and pointers to owners.
@@ -5592,7 +5592,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=437`; `unclear-ownership-wording=142`; `soft-commitment-wording=77`; `state-ledger-wording=242`
+- Ambiguity signals: `volatile-current-wording=439`; `unclear-ownership-wording=142`; `soft-commitment-wording=77`; `state-ledger-wording=242`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6318,7 +6318,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/incident_patterns.md`
 - Line count: 382
 - Current purpose: Incident Patterns
-- Actual observed use: governance support standard with markers live=10, pr/release/issue=28, package/slice=0, branch/worktree/phase=95, validator/helper=257.
+- Actual observed use: governance support standard with markers live=10, pr/release/issue=28, package/slice=0, branch/worktree/phase=95, validator/helper=258.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -6350,7 +6350,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/Main.md`
 - Line count: 635
 - Current purpose: Nexus Source-Of-Truth Index
-- Actual observed use: recovery map / source-truth router with markers live=113, pr/release/issue=66, package/slice=21, branch/worktree/phase=552, validator/helper=243.
+- Actual observed use: recovery map / source-truth router with markers live=115, pr/release/issue=67, package/slice=21, branch/worktree/phase=552, validator/helper=243.
 - Correct owner category: recovery map / source-truth router
 - What gets recorded here: least-updated canonical docs index, recovery map, and source-truth ownership map.
 - What should be recorded here: clear pointers to current governance/source-truth owners and a digest of each file's purpose.
@@ -6360,7 +6360,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=339`; `unclear-ownership-wording=159`; `soft-commitment-wording=64`; `state-ledger-wording=231`
+- Ambiguity signals: `volatile-current-wording=343`; `unclear-ownership-wording=159`; `soft-commitment-wording=64`; `state-ledger-wording=231`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6414,7 +6414,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/nexus_startup_contract.md`
 - Line count: 637
 - Current purpose: Nexus ChatGPT Loader Prompt Contract
-- Actual observed use: ChatGPT loader / prompt gate with markers live=28, pr/release/issue=17, package/slice=12, branch/worktree/phase=253, validator/helper=113.
+- Actual observed use: ChatGPT loader / prompt gate with markers live=29, pr/release/issue=17, package/slice=12, branch/worktree/phase=253, validator/helper=114.
 - Correct owner category: ChatGPT loader / prompt gate
 - What gets recorded here: ChatGPT-facing startup/loader contract.
 - What should be recorded here: loader map and prompt-generation guardrails.
@@ -6424,7 +6424,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=170`; `unclear-ownership-wording=82`; `soft-commitment-wording=50`; `state-ledger-wording=131`
+- Ambiguity signals: `volatile-current-wording=172`; `unclear-ownership-wording=82`; `soft-commitment-wording=50`; `state-ledger-wording=131`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6574,7 +6574,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/orin_task_template.md`
 - Line count: 1184
 - Current purpose: ORIN Task Template
-- Actual observed use: prompt template with markers live=78, pr/release/issue=50, package/slice=14, branch/worktree/phase=400, validator/helper=240.
+- Actual observed use: prompt template with markers live=79, pr/release/issue=50, package/slice=14, branch/worktree/phase=400, validator/helper=242.
 - Correct owner category: prompt template
 - What gets recorded here: reusable prompt packet skeleton.
 - What should be recorded here: fields prompts should include and owner pointers.
@@ -6584,12 +6584,12 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=299`; `unclear-ownership-wording=110`; `soft-commitment-wording=46`; `state-ledger-wording=198`
+- Ambiguity signals: `volatile-current-wording=301`; `unclear-ownership-wording=110`; `soft-commitment-wording=46`; `state-ledger-wording=198`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
 - Duplicate fact classes found: active branch authority, current branch status, next legal phase, selected-next, worktree slot assignment, worktree live state, origin/main, PR state, merge status, latest tag/release, release receipt, release schedule outline, package trace, slice trace, branch runtime plan, branch phase history, branch receipt, workstream durable history, validator registry, helper responsibility, phase rules, prompt/Codex mode rules, release note/public body rules.
-- Live operational truth fields found: `Prompt-generation review must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blocke`; `PR Readiness Stage 1 is the Stage 2 readiness-lock gate. Stage 1 must analyze release-debt impact, release-debt handling status, required current-branch source-truth sync, Stage 2 `; `Automation Observability is a multi-worktree evidence gate, not a source-truth shortcut. When a prompt asks Codex to inspect or act on automations, use `dev/automation_observabilit`; `[PASS / Prompt-Entry Origin/Main Freshness Missing / Origin/Main Advanced Rebaseline Required]`; `Fetched origin/main:`
+- Live operational truth fields found: `Prompt-generation review must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blocke`; `PR Readiness Stage 1 is the Stage 2 readiness-lock gate. Stage 1 must analyze release-debt impact, release-debt handling status, required current-branch source-truth sync, Stage 2 `; `Stage 2 owns final PR execution only after the readiness-lock outcome is green. Stage 2 final handoff cannot be green until bot-review closeout is verified through direct PR verifi`; `Automation Observability is a multi-worktree evidence gate, not a source-truth shortcut. When a prompt asks Codex to inspect or act on automations, use `dev/automation_observabilit`; `[PASS / Prompt-Entry Origin/Main Freshness Missing / Origin/Main Advanced Rebaseline Required]`
 - Governance receipt fields found: `- `C:\Nexus Desktop AI\Docs\[relevant rebaseline or closeout docs]``; `- Include prior closeout docs and older slice docs only when they are still materially relevant to the specific task.`; `Product, design, or vision prompts must route through `Docs/nexus_vision.md`, relevant `Docs/family_visions/`, and the active external branch plan when applicable; proposed ideas r`; `Prompt-generation review must preserve FAM -> Package -> Slice -> Seam, PR evidence-only handling, legacy global FB historical-only handling, single-slice/package-completion blocke`; `When a task proposes Codex app plugins or connectors, include a `Plugin / Connector Use Plan:` only when tool evidence affects governed phase decisions, source-truth repair, PR/rel`
 - Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
 - Current-state markers found: `**DO THIS ALWAYS before `PR Readiness`: when a bounded phase pass or durability seam changes source, docs, canon, validator, helper registry, workstream authority, or branch-truth `; `**Release Readiness is file-frozen: block ANY source, docs, canon, validator, helper registry, release-note, or handoff-file changes discovered or needed during `Release Readiness``; `- Preserve the Main-first loader chain: load Main first, then follow it to phase governance, execution posture docs, project/family vision, active external branch plan, branch reco`; `- If a canonical workstream, rebaseline, or consolidated design doc exists for the active question, prefer that authority doc over a stack of superseded slice docs.`; `- Treat canonical workstream docs as branch-local feature-state, evidence, validation-contract, and active-seam references.`
@@ -6636,9 +6636,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 162. `Docs/phase_governance.md`
 
 - File path: `Docs/phase_governance.md`
-- Line count: 2922
+- Line count: 2923
 - Current purpose: Nexus Phase Governance
-- Actual observed use: normative phase governance with markers live=237, pr/release/issue=167, package/slice=48, branch/worktree/phase=1340, validator/helper=796.
+- Actual observed use: normative phase governance with markers live=238, pr/release/issue=167, package/slice=48, branch/worktree/phase=1340, validator/helper=798.
 - Correct owner category: normative phase governance
 - What gets recorded here: canonical phase names, gates, blockers, proof hierarchy, phase transitions.
 - What should be recorded here: normative phase rules and machine-facing blocker names.
@@ -6648,7 +6648,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=936`; `unclear-ownership-wording=408`; `soft-commitment-wording=210`; `state-ledger-wording=636`
+- Ambiguity signals: `volatile-current-wording=938`; `unclear-ownership-wording=408`; `soft-commitment-wording=210`; `state-ledger-wording=636`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -6668,9 +6668,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 163. `Docs/pr_watcher_mode_contract.md`
 
 - File path: `Docs/pr_watcher_mode_contract.md`
-- Line count: 92
+- Line count: 98
 - Current purpose: PR Watcher Mode Contract
-- Actual observed use: governance support standard with markers live=9, pr/release/issue=44, package/slice=0, branch/worktree/phase=13, validator/helper=12.
+- Actual observed use: governance support standard with markers live=11, pr/release/issue=45, package/slice=0, branch/worktree/phase=13, validator/helper=14.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
@@ -6680,15 +6680,15 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep unless a focused USER-approved consolidation pass names a replacement owner..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: Medium.
-- Ambiguity signals: `volatile-current-wording=25`; `unclear-ownership-wording=9`; `soft-commitment-wording=3`; `state-ledger-wording=21`
+- Ambiguity signals: `volatile-current-wording=28`; `unclear-ownership-wording=10`; `soft-commitment-wording=3`; `state-ledger-wording=23`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
-- Duplicate fact classes found: next legal phase, worktree live state, PR state, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules.
-- Live operational truth fields found: `GitHub connector output is live PR evidence, not durable repo ledger truth. Current PR reactions, unresolved review-thread counts, bot-review state, mergeability, head SHA, reviewe`; `The required default proof is `Direct PR Verification Proof:` in the Codex digest or helper output, including configured cwd, PR number, head SHA, mergeability, unresolved review-t`; `- Must include `Watcher Health Proof:` with the current configured cwd, worktree/branch, PR number, head SHA, unresolved review-thread count, latest bot review, repair authority, d`; `- Required repair loop: verify identity, evaluate the review against repo truth, patch only approved same-PR scope, run required validation, commit, push to the same branch, reply `; `- PR conversation comments that request Codex Connector review or revalidation must be 3-5 words only, preferably `@codex review please`; place head SHAs, validation summaries, rep`
+- Duplicate fact classes found: next legal phase, worktree live state, PR state, merge status, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules.
+- Live operational truth fields found: `GitHub connector output is live PR evidence, not durable repo ledger truth. Current PR reactions, unresolved review-thread counts, bot-review state, mergeability, head SHA, reviewe`; `The required default proof is `Direct PR Verification Proof:` in the Codex digest or helper output, including configured cwd, PR number, head SHA, mergeability, unresolved review-t`; `- Terminal PR2 states are: a new actionable Codex Connector comment/review is found and repaired or blocked, a later Codex Connector thumbs-up reaction or green approval comment ap`; `- When merge authority is already approved and the current head has the required Codex Connector approval latch plus green mergeability, bounded PR2 must merge and then directly ve`; `- Must include `Watcher Health Proof:` with the current configured cwd, worktree/branch, PR number, head SHA, unresolved review-thread count, latest bot review, repair authority, d`
 - Governance receipt fields found: `This contract now denies recurring PR watcher automation by default for bounded PR Readiness Stage 2 and preserves watcher modes only for explicit exceptions or historical receipts`; `Bounded PR Readiness Stage 2 must use direct PR verification through GitHub connector, `gh`, GraphQL, status checks, or the active Codex turn. Direct PR verification owns live PR s`; `If the USER explicitly approves a watcher exception for one PR, the watcher must declare one mode, one configured cwd, one PR, one branch, one delivery route, and one repair author`; `GitHub connector output is live PR evidence, not durable repo ledger truth. Current PR reactions, unresolved review-thread counts, bot-review state, mergeability, head SHA, reviewe`; `Do not create or update heartbeat, cron, same-thread, or fallback PR watcher automations during bounded PR Readiness Stage 2 unless the USER explicitly approves a named watcher exc`
 - Repetitive language found: Release/phase/branch marker repetition requires owner-pointer discipline.
-- Current-state markers found: `Bounded PR Readiness Stage 2 must use direct PR verification through GitHub connector, `gh`, GraphQL, status checks, or the active Codex turn. Direct PR verification owns live PR s`; `GitHub connector output is live PR evidence, not durable repo ledger truth. Current PR reactions, unresolved review-thread counts, bot-review state, mergeability, head SHA, reviewe`; `- Must include `Watcher Health Proof:` with the current configured cwd, worktree/branch, PR number, head SHA, unresolved review-thread count, latest bot review, repair authority, d`; `- Active only when an unresolved actionable Codex bot review/comment is safely inside the approved same-PR scope and current worktree identity is proven.`; `- Required repair loop: verify identity, evaluate the review against repo truth, patch only approved same-PR scope, run required validation, commit, push to the same branch, reply `
+- Current-state markers found: `Bounded PR Readiness Stage 2 must use direct PR verification through GitHub connector, `gh`, GraphQL, status checks, or the active Codex turn. Direct PR verification owns live PR s`; `GitHub connector output is live PR evidence, not durable repo ledger truth. Current PR reactions, unresolved review-thread counts, bot-review state, mergeability, head SHA, reviewe`; `- Bounded PR2 direct verification must keep running in the active Codex turn after PR creation, after each same-PR repair push, and after each Codex Connector revalidation request `; `- Terminal PR2 states are: a new actionable Codex Connector comment/review is found and repaired or blocked, a later Codex Connector thumbs-up reaction or green approval comment ap`; `- When merge authority is already approved and the current head has the required Codex Connector approval latch plus green mergeability, bounded PR2 must merge and then directly ve`
 - Package Trace / Slice Trace markers found: None found.
 - Branch/worktree/phase markers found: `This contract now denies recurring PR watcher automation by default for bounded PR Readiness Stage 2 and preserves watcher modes only for explicit exceptions or historical receipts`; `Bounded PR Readiness Stage 2 must use direct PR verification through GitHub connector, `gh`, GraphQL, status checks, or the active Codex turn. Direct PR verification owns live PR s`; `Bounded PR Readiness Stage 2 denies recurring PR watcher automation by default.`; `Do not create or update heartbeat, cron, same-thread, or fallback PR watcher automations during bounded PR Readiness Stage 2 unless the USER explicitly approves a named watcher exc`; `- Must include `Watcher Health Proof:` with the current configured cwd, worktree/branch, PR number, head SHA, unresolved review-thread count, latest bot review, repair authority, d`
 - Release/PR/issue markers found: `# PR Watcher Mode Contract`; `This contract now denies recurring PR watcher automation by default for bounded PR Readiness Stage 2 and preserves watcher modes only for explicit exceptions or historical receipts`; `Bounded PR Readiness Stage 2 must use direct PR verification through GitHub connector, `gh`, GraphQL, status checks, or the active Codex turn. Direct PR verification owns live PR s`; `If the USER explicitly approves a watcher exception for one PR, the watcher must declare one mode, one configured cwd, one PR, one branch, one delivery route, and one repair author`; `GitHub connector output is live PR evidence, not durable repo ledger truth. Current PR reactions, unresolved review-thread counts, bot-review state, mergeability, head SHA, reviewe`
@@ -6766,7 +6766,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/validation_helper_registry.md`
 - Line count: 325
 - Current purpose: Nexus Validation Helper Registry
-- Actual observed use: validator/helper registry with markers live=86, pr/release/issue=43, package/slice=8, branch/worktree/phase=282, validator/helper=878.
+- Actual observed use: validator/helper registry with markers live=86, pr/release/issue=43, package/slice=8, branch/worktree/phase=282, validator/helper=879.
 - Correct owner category: validator/helper registry
 - What gets recorded here: durable helper inventory and responsibility registry.
 - What should be recorded here: helper statuses, reuse/consolidation story.
