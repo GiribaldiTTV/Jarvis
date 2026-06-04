@@ -210,6 +210,9 @@ VALID_BR2_ROUTE_BLOCKER_NONE_WORD_ROUTE_FIXTURE = (
 INVALID_BR2_ROUTE_BLOCKER_NO_ROUTE_CONTINUE_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_route_blocker_no_route_continue_planning.md"
 )
+INVALID_BR2_ROUTE_BLOCKER_MARKER_ONLY_DEFERRAL_FIXTURE = (
+    FIXTURE_DIR / "invalid_br2_route_blocker_marker_only_deferral.md"
+)
 INVALID_IMPLEMENTATION_ROUTE_FAKE_FEATURE_LABEL_FIXTURE = (
     FIXTURE_DIR / "invalid_implementation_route_fake_feature_label.md"
 )
@@ -344,6 +347,9 @@ EXPECTED_IMPLEMENTATION_ROUTE_FAILURE_SNIPPET = (
 )
 EXPECTED_BR2_NO_ROUTE_CONTINUE_FAILURE_SNIPPET = (
     "BR2 blocker packet with no concrete available route"
+)
+EXPECTED_BR2_MARKER_ONLY_DEFERRAL_FAILURE_SNIPPET = (
+    "BR2 blocker packet must offer deferral to a concrete feature route"
 )
 EXPECTED_FAKE_FEATURE_LABEL_FAILURE_SNIPPET = (
     "Feature label cannot substitute for concrete implementation behavior"
@@ -1377,6 +1383,23 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
     exact_decision = governance._normalized_planning_value(
         governance._extract_marker_value(text, "Exact USER Decision Needed:")
     )
+    required_before = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Required Before This Route Can Proceed:")
+    )
+    deferrable_groundwork = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Deferrable Groundwork:")
+    )
+    codex_recommendation = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Codex Recommendation:")
+    )
+    deferral_decision_text = "\n".join(
+        (
+            required_before,
+            deferrable_groundwork,
+            codex_recommendation,
+            exact_decision,
+        )
+    )
     require(
         "hold" in normalized
         or "retarget" in normalized
@@ -1466,10 +1489,11 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
         "BR2 blocker packet must offer prerequisite-groundwork approval path",
     )
     require(
-        "defer" in normalized
+        "defer" in deferral_decision_text
         and (
-            "concrete feature route" in normalized
-            or "concrete worktree-focused feature route" in normalized
+            "concrete feature route" in deferral_decision_text
+            or "concrete worktree-focused feature route" in deferral_decision_text
+            or "implementation-bearing route" in deferral_decision_text
         ),
         "BR2 blocker packet must offer deferral to a concrete feature route",
     )
@@ -3396,6 +3420,19 @@ def validate() -> list[str]:
         failures.append(
             "Invalid BR2 no-route continue-planning fixture did not reject "
             "continued planning after no concrete route remained"
+        )
+
+    marker_only_deferral_failures = _validate_br2_route_blocker_packet_text(
+        INVALID_BR2_ROUTE_BLOCKER_MARKER_ONLY_DEFERRAL_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_BR2_MARKER_ONLY_DEFERRAL_FAILURE_SNIPPET not in "\n".join(
+        marker_only_deferral_failures
+    ):
+        failures.append(
+            "Invalid BR2 marker-only deferral fixture did not reject missing "
+            "deferral decision wording outside marker labels"
         )
 
     fake_feature_label_failures = _validate_implementation_bearing_route_text(
