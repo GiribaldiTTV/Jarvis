@@ -17072,6 +17072,7 @@ def _github_pr_bot_signal_for_current_head_timeline(
 
     nodes = (((pull_request.get("timelineItems") or {}).get("nodes")) or [])
     current_head_index: int | None = None
+    current_head_admission_time: datetime | None = None
     current_head_commit_time: datetime | None = None
     commit_nodes = (((pull_request.get("commits") or {}).get("nodes")) or [])
     for commit_node in commit_nodes:
@@ -17079,12 +17080,10 @@ def _github_pr_bot_signal_for_current_head_timeline(
         oid = str(commit_payload.get("oid") or "")
         if oid != current_head_sha:
             continue
-        head_time_value = str(
-            commit_payload.get("pushedDate")
-            or commit_payload.get("committedDate")
-            or ""
-        )
-        current_head_commit_time = _parse_iso8601_timestamp(head_time_value)
+        pushed_at = str(commit_payload.get("pushedDate") or "")
+        committed_at = str(commit_payload.get("committedDate") or "")
+        current_head_admission_time = _parse_iso8601_timestamp(pushed_at)
+        current_head_commit_time = _parse_iso8601_timestamp(committed_at)
 
     for index, node in enumerate(nodes):
         if node.get("__typename") != "PullRequestCommit":
@@ -17093,15 +17092,10 @@ def _github_pr_bot_signal_for_current_head_timeline(
         oid = str(commit_payload.get("oid") or "")
         if oid == current_head_sha:
             current_head_index = index
-            head_time_value = str(
-                commit_payload.get("pushedDate")
-                or commit_payload.get("committedDate")
-                or ""
-            )
-            current_head_commit_time = _parse_iso8601_timestamp(head_time_value)
-
-    if current_head_index is None and current_head_commit_time is None:
-        return signal, f"could not locate current head '{current_head_sha}' in PR commits or timeline"
+            pushed_at = str(commit_payload.get("pushedDate") or "")
+            committed_at = str(commit_payload.get("committedDate") or "")
+            current_head_admission_time = _parse_iso8601_timestamp(pushed_at)
+            current_head_commit_time = _parse_iso8601_timestamp(committed_at)
 
     latest_approval: dict[str, object] | None = None
     latest_comment: dict[str, object] | None = None
@@ -17153,8 +17147,10 @@ def _github_pr_bot_signal_for_current_head_timeline(
             continue
         if (
             current_head_index is None
-            and current_head_commit_time is not None
-            and created_time < current_head_commit_time
+            and (
+                current_head_admission_time is None
+                or created_time < current_head_admission_time
+            )
         ):
             continue
         if _bot_login_matches(actor) and created_time is not None:
@@ -17207,7 +17203,7 @@ def _github_pr_bot_signal_for_current_head_timeline(
             )
 
     pr_reactions = ((pull_request.get("reactions") or {}).get("nodes")) or []
-    current_head_reaction_floor_time = current_head_commit_time
+    current_head_reaction_floor_time = current_head_admission_time
     for reaction in pr_reactions:
         reaction_actor = str(((reaction.get("user") or {}).get("login")) or "")
         content = str(reaction.get("content") or "")
@@ -17251,6 +17247,15 @@ def _github_pr_bot_signal_for_current_head_timeline(
             "actor": str(latest_approval["actor"]),
             "head": str(latest_approval["head"]),
         }, ""
+
+    if current_head_index is None and current_head_admission_time is None:
+        return (
+            signal,
+            (
+                f"could not locate current head '{current_head_sha}' with PR admission "
+                "time or timeline order"
+            ),
+        )
 
     return signal, ""
 
@@ -21785,8 +21790,10 @@ def main() -> int:
         "committedDate",
         "pushedDate",
         "reactions(first: 100, content: THUMBS_UP)",
+        "current_head_admission_time",
         "current_head_commit_time",
-        "current_head_index is None and current_head_commit_time is None",
+        "current_head_index is None and current_head_admission_time is None",
+        "current_head_reaction_floor_time = current_head_admission_time",
         "current_head_reaction_floor_time",
         "PR-level thumbs-up reaction",
         "signal_head == current_head_sha",
@@ -21806,6 +21813,24 @@ def main() -> int:
             "must not compare approval time to local HEAD commit time"
         ),
     )
+    forbidden_pushed_committed_fallback = (
+        'commit_payload.get("pushedDate")'
+        + '\n            or commit_payload.get("committedDate")'
+    )
+    forbidden_reaction_commit_floor = (
+        "current_head_reaction_floor_time = current_head_" + "commit_time"
+    )
+    for forbidden_phrase in (
+        forbidden_pushed_committed_fallback,
+        forbidden_reaction_commit_floor,
+    ):
+        require(
+            forbidden_phrase not in branch_governance_validator_text,
+            (
+                "dev/orin_branch_governance_validation.py: Codex bot-review signal proof "
+                "must not use local commit time as the PR-head admission fallback"
+            ),
+        )
 
     for relative_path in PR_WATCHER_THREAD_CONTRACT_DOCS:
         text = _read_text(relative_path)
