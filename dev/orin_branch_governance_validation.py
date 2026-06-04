@@ -16950,6 +16950,7 @@ query($owner: String!, $repo: String!, $number: Int!) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $number) {
       headRefOid
+      updatedAt
       reactions(first: 100, content: THUMBS_UP) {
         nodes {
           content
@@ -17079,6 +17080,7 @@ def _github_pr_bot_signal_for_current_head_timeline(
 
     latest_approval: dict[str, object] | None = None
     latest_comment: dict[str, object] | None = None
+    pr_updated_time = _parse_iso8601_timestamp(str(pull_request.get("updatedAt") or ""))
     current_head_activity_time: datetime | None = None
     for index, node in enumerate(nodes):
         typename = str(node.get("__typename") or "")
@@ -17184,6 +17186,7 @@ def _github_pr_bot_signal_for_current_head_timeline(
             )
 
     pr_reactions = ((pull_request.get("reactions") or {}).get("nodes")) or []
+    current_head_reaction_floor_time = current_head_activity_time or pr_updated_time
     for reaction in pr_reactions:
         reaction_actor = str(((reaction.get("user") or {}).get("login")) or "")
         content = str(reaction.get("content") or "")
@@ -17193,8 +17196,8 @@ def _github_pr_bot_signal_for_current_head_timeline(
             _bot_login_matches(reaction_actor)
             and content in {"+1", "THUMBS_UP"}
             and reaction_time is not None
-            and current_head_activity_time is not None
-            and reaction_time >= current_head_activity_time
+            and current_head_reaction_floor_time is not None
+            and reaction_time >= current_head_reaction_floor_time
         ):
             continue
         latest_approval = _latest_signal_candidate(
@@ -21755,10 +21758,12 @@ def main() -> int:
     branch_governance_validator_text = _read_text(Path("dev/orin_branch_governance_validation.py"))
     for required_phrase in (
         "headRefOid",
+        "updatedAt",
         "timelineItems",
         "PULL_REQUEST_COMMIT",
         "reactions(first: 100, content: THUMBS_UP)",
         "current_head_activity_time",
+        "current_head_reaction_floor_time",
         "PR-level thumbs-up reaction",
         "signal_head == current_head_sha",
     ):
