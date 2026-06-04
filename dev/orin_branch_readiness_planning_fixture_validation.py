@@ -1571,12 +1571,15 @@ def _validate_active_external_branch_plan_posture(
         "Retarget / Rename Recommendation:",
     )
     has_route_markers = all(marker in plan_text for marker in required_route_markers)
-    has_hold_or_retarget = (
-        "BR2 Route Resolution Status:" in plan_text
-        or "Route Disposition: `HOLD" in plan_text
-        or "Route Disposition: HOLD" in plan_text
-        or "Route Disposition: `RETARGET" in plan_text
-        or "Route Disposition: RETARGET" in plan_text
+    route_resolution_status = external_state.markdown_field_value(
+        plan_text, "BR2 Route Resolution Status"
+    )
+    route_disposition = governance._normalized_planning_value(
+        external_state.markdown_field_value(plan_text, "Route Disposition") or ""
+    )
+    has_hold_or_retarget = bool(route_resolution_status) or any(
+        disposition in route_disposition
+        for disposition in ("hold", "retarget", "rename")
     )
     if has_hold_or_retarget:
         failures.append(
@@ -3640,6 +3643,38 @@ def validate() -> list[str]:
                 "External-state validator Branch Runtime Engineering Plan Path fixture "
                 "unexpectedly failed: "
                 + "; ".join(plan_path_marker_failures[:5])
+            )
+
+        temp_plan.write_text(
+            "# Fixture Active Branch Plan\n\n"
+            "- Selected Implementation Route: Implement source-truth validator "
+            "control for security trust-boundary enforcement behavior\n"
+            "- Implementation Route Class: governance/source-truth validator "
+            "implementation\n"
+            "- Concrete Deliverable: Validator enforcement behavior blocks public "
+            "provider execution when required consent markers are missing.\n"
+            "- Implementation Output: Workstream implements validator behavior "
+            "that rejects unsafe public trust-boundary state transitions before "
+            "BP1.\n"
+            "- Infrastructure / Setup Relationship: Execution-enabling for the "
+            "selected implementation route and exact USER action gate.\n"
+            "- USER Action Gate: USER approves this implementation-bearing "
+            "validation route before BP1 proceeds.\n"
+            "- Route Disposition: hold\n"
+            "- Retarget / Rename Recommendation: None\n",
+            encoding="utf-8",
+        )
+        lowercase_hold_failures = external_state.validate_active_branch_plan_posture(
+            temp_state_root
+        )
+        if (
+            "External active branch state routes to BP1 while active branch plan "
+            "is still HOLD/RETARGET route resolution"
+            not in "\n".join(lowercase_hold_failures)
+        ):
+            failures.append(
+                "External-state validator fixture did not reject lowercase "
+                "HOLD/RETARGET route disposition before BP1"
             )
 
     active_packet_metadata_failures = _validate_user_packet_metadata_text(

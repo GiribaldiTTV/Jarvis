@@ -446,12 +446,15 @@ def validate_active_branch_plan_posture(root: Path) -> list[str]:
         for marker in required_route_markers
         if not markdown_field_value(plan_text, marker)
     ]
-    has_hold_or_retarget = (
-        "BR2 Route Resolution Status:" in plan_text
-        or "Route Disposition: `HOLD" in plan_text
-        or "Route Disposition: HOLD" in plan_text
-        or "Route Disposition: `RETARGET" in plan_text
-        or "Route Disposition: RETARGET" in plan_text
+    route_resolution_status = markdown_field_value(
+        plan_text, "BR2 Route Resolution Status"
+    )
+    route_disposition = normalized_route_value(
+        markdown_field_value(plan_text, "Route Disposition") or ""
+    )
+    has_hold_or_retarget = bool(route_resolution_status) or any(
+        disposition in route_disposition
+        for disposition in ("hold", "retarget", "rename")
     )
     if has_hold_or_retarget:
         issues.append(
