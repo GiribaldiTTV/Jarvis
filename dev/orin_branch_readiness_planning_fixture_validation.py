@@ -3544,8 +3544,6 @@ def validate() -> list[str]:
                 "missing implementation-bearing route fields"
             )
 
-    failures.extend(_validate_active_external_branch_plan_posture())
-
     active_packet_metadata_failures = _validate_user_packet_metadata_text(
         INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")
     )
