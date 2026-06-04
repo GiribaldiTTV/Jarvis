@@ -16844,7 +16844,7 @@ def _github_pr_bot_signal_for_live_pr(
             pr_number,
             current_head_sha,
         )
-        if not timeline_error:
+        if timeline_signal.get("status") != "pending" and not timeline_error:
             return timeline_signal, ""
         rest_signal, rest_error = _github_pr_bot_signal_for_current_head_rest(
             repository_full_name,
@@ -16950,6 +16950,13 @@ query($owner: String!, $repo: String!, $number: Int!) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $number) {
       headRefOid
+      reactions(first: 100, content: THUMBS_UP) {
+        nodes {
+          content
+          createdAt
+          user { login }
+        }
+      }
       timelineItems(last: 100, itemTypes: [PULL_REQUEST_COMMIT, PULL_REQUEST_REVIEW, ISSUE_COMMENT]) {
         nodes {
           __typename
@@ -17072,6 +17079,7 @@ def _github_pr_bot_signal_for_current_head_timeline(
 
     latest_approval: dict[str, object] | None = None
     latest_comment: dict[str, object] | None = None
+    current_head_activity_time: datetime | None = None
     for index, node in enumerate(nodes):
         typename = str(node.get("__typename") or "")
         if typename == "PullRequestReview":
@@ -17084,6 +17092,12 @@ def _github_pr_bot_signal_for_current_head_timeline(
                 continue
             if review_head != current_head_sha:
                 continue
+            if index > current_head_index:
+                if (
+                    current_head_activity_time is None
+                    or created_time < current_head_activity_time
+                ):
+                    current_head_activity_time = created_time
             if _bot_review_comment_is_green_signal(body):
                 latest_approval = _latest_signal_candidate(
                     latest_approval,
@@ -17114,6 +17128,12 @@ def _github_pr_bot_signal_for_current_head_timeline(
         body = str(node.get("body") or "")
         created_at = str(node.get("createdAt") or "")
         created_time = _parse_iso8601_timestamp(created_at)
+        if created_time is not None:
+            if (
+                current_head_activity_time is None
+                or created_time < current_head_activity_time
+            ):
+                current_head_activity_time = created_time
         if _bot_login_matches(actor) and created_time is not None:
             if _bot_review_comment_is_green_signal(body):
                 latest_approval = _latest_signal_candidate(
@@ -17162,6 +17182,31 @@ def _github_pr_bot_signal_for_current_head_timeline(
                     "head": current_head_sha,
                 },
             )
+
+    pr_reactions = ((pull_request.get("reactions") or {}).get("nodes")) or []
+    for reaction in pr_reactions:
+        reaction_actor = str(((reaction.get("user") or {}).get("login")) or "")
+        content = str(reaction.get("content") or "")
+        reaction_at = str(reaction.get("createdAt") or "")
+        reaction_time = _parse_iso8601_timestamp(reaction_at)
+        if not (
+            _bot_login_matches(reaction_actor)
+            and content in {"+1", "THUMBS_UP"}
+            and reaction_time is not None
+            and current_head_activity_time is not None
+            and reaction_time >= current_head_activity_time
+        ):
+            continue
+        latest_approval = _latest_signal_candidate(
+            latest_approval,
+            {
+                "time": reaction_time,
+                "timestamp": reaction_at,
+                "actor": reaction_actor,
+                "source": "PR-level thumbs-up reaction",
+                "head": current_head_sha,
+            },
+        )
 
     if latest_comment and (
         latest_approval is None or latest_comment["time"] >= latest_approval["time"]
@@ -21712,6 +21757,9 @@ def main() -> int:
         "headRefOid",
         "timelineItems",
         "PULL_REQUEST_COMMIT",
+        "reactions(first: 100, content: THUMBS_UP)",
+        "current_head_activity_time",
+        "PR-level thumbs-up reaction",
         "signal_head == current_head_sha",
     ):
         require(
