@@ -3392,6 +3392,15 @@ def validate() -> list[str]:
                 + "; ".join(route_failures[:5])
             )
 
+    external_retarget_failures = external_state.validate_implementation_route_values(
+        VALID_IMPLEMENTATION_ROUTE_RETARGET_RENAME_FIXTURE.read_text(encoding="utf-8")
+    )
+    if external_retarget_failures:
+        failures.append(
+            "External-state validator retarget/rename fixture unexpectedly failed: "
+            + "; ".join(external_retarget_failures[:5])
+        )
+
     br2_blocker_failures = _validate_br2_route_blocker_packet_text(
         VALID_BR2_ROUTE_BLOCKER_PACKET_FIXTURE.read_text(encoding="utf-8")
     )
