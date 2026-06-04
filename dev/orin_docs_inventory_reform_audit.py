@@ -1044,9 +1044,11 @@ def build_user_review_index(
     )
     add("## Files Needing USER Decision")
     add("")
+    add(f"Total USER decision rows: {len(retire_candidates)}")
+    add("")
     add("| File | Reason | Recommendation |")
     add("| --- | --- | --- |")
-    for rel, reason, rec in retire_candidates[:25]:
+    for rel, reason, rec in retire_candidates:
         add(f"| `{rel}` | {reason} | {rec} |")
     if not retire_candidates:
         add("| None | N/A | N/A |")

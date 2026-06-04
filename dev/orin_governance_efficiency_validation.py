@@ -640,6 +640,32 @@ def validate() -> list[str]:
             failures.append(
                 f"{DOCS_REFORM_REVIEW_INDEX}: exact decision must not pin a live branch"
             )
+        user_decision_section = _section(index_text, "## Files Needing USER Decision")
+        user_decision_rows = len(re.findall(r"(?m)^\| `Docs/", user_decision_section))
+        user_decision_count_match = re.search(
+            r"Total USER decision rows:\s*(\d+)",
+            user_decision_section,
+        )
+        if user_decision_count_match:
+            user_decision_count = int(user_decision_count_match.group(1))
+            if user_decision_count != user_decision_rows:
+                failures.append(
+                    f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision declares "
+                    f"{user_decision_count} rows but lists {user_decision_rows}"
+                )
+        branch_plan_root = ROOT / "Docs" / "branch_plans"
+        for branch_plan in sorted(branch_plan_root.glob("*.md")):
+            relative = branch_plan.relative_to(ROOT)
+            if relative in {Path("Docs/branch_plans/README.md"), BRANCH_PLAN_RETIREMENT_INDEX}:
+                continue
+            branch_plan_text = branch_plan.read_text(encoding="utf-8")
+            if not _branch_plan_requires_retirement_index_row(branch_plan_text):
+                continue
+            if str(relative).replace("\\", "/") not in user_decision_section:
+                failures.append(
+                    f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision missing "
+                    f"retired plan row for {relative}"
+                )
 
     for path in (Path("Docs/feature_backlog.md"), Path("Docs/prebeta_roadmap.md")):
         text = _read(path)
