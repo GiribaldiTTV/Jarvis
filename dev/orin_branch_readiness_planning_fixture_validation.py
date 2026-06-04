@@ -16,6 +16,7 @@ import zipfile
 from pathlib import Path
 
 import orin_branch_governance_validation as governance
+import orin_external_state_validation as external_state
 from orin_external_state_common import DEFAULT_EXTERNAL_STATE_ROOT
 import orin_user_review_bundle as review_bundle
 import orin_worktree_rebaseline_audit as rebaseline
@@ -3535,6 +3536,9 @@ def validate() -> list[str]:
         central_only_failures = _validate_active_external_branch_plan_posture(
             temp_state_root
         )
+        external_validator_failures = external_state.validate_active_branch_plan_posture(
+            temp_state_root
+        )
         if (
             "External active branch state routes to BP1 without implementation-bearing route fields in active branch plan"
             not in "\n".join(central_only_failures)
@@ -3542,6 +3546,14 @@ def validate() -> list[str]:
             failures.append(
                 "Central active-state Next Legal Phase fixture did not reject "
                 "missing implementation-bearing route fields"
+            )
+        if (
+            "External active branch state routes to BP1 without implementation-bearing route fields in active branch plan"
+            not in "\n".join(external_validator_failures)
+        ):
+            failures.append(
+                "External-state validator fixture did not reject missing "
+                "implementation-bearing route fields"
             )
 
     active_packet_metadata_failures = _validate_user_packet_metadata_text(

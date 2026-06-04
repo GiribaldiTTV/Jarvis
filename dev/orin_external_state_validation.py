@@ -82,6 +82,96 @@ def markdown_field_value(text: str, field: str) -> str | None:
     return match.group(1).strip() if match else None
 
 
+def resolve_markdown_path(value: str | None, root: Path) -> Path | None:
+    if not value:
+        return None
+    cleaned = value.strip().strip("`").strip()
+    if not cleaned:
+        return None
+    path = Path(cleaned)
+    return path if path.is_absolute() else root / cleaned
+
+
+def validate_active_branch_plan_posture(root: Path) -> list[str]:
+    issues: list[str] = []
+    active_state = root / "central" / "active_branch_authority_state.md"
+    if not active_state.is_file():
+        return issues
+
+    active_text = active_state.read_text(encoding="utf-8")
+    plan_path = resolve_markdown_path(
+        markdown_field_value(active_text, "Branch Runtime Engineering Plan"),
+        root,
+    )
+    branch_state_path = resolve_markdown_path(
+        markdown_field_value(active_text, "Branch State"),
+        root,
+    )
+    branch_state_text = (
+        branch_state_path.read_text(encoding="utf-8")
+        if branch_state_path and branch_state_path.is_file()
+        else ""
+    )
+    bp1_value = "BP1 USER Branch Vision Review"
+    active_routes_to_bp1 = bp1_value in {
+        (markdown_field_value(active_text, "Next Gate") or "").strip("` "),
+        (markdown_field_value(active_text, "Next Legal Phase") or "").strip("` "),
+        (markdown_field_value(branch_state_text, "Next Legal Phase") or "").strip("` "),
+    }
+    if not active_routes_to_bp1:
+        active_routes_to_bp1 = (
+            "Next Gate: `BP1 USER Branch Vision Review`" in active_text
+            or "Next Legal Phase: `BP1 USER Branch Vision Review`" in active_text
+            or "Next Legal Phase: `BP1 USER Branch Vision Review`" in branch_state_text
+            or "Next Gate: BP1 USER Branch Vision Review" in active_text
+            or "Next Legal Phase: BP1 USER Branch Vision Review" in active_text
+            or "Next Legal Phase: BP1 USER Branch Vision Review" in branch_state_text
+        )
+    if not active_routes_to_bp1:
+        return issues
+
+    if not plan_path or not plan_path.is_file():
+        return [
+            "External active branch state routes to BP1 without an existing active branch plan"
+        ]
+
+    plan_text = plan_path.read_text(encoding="utf-8")
+    required_route_markers = (
+        "Selected Implementation Route",
+        "Implementation Route Class",
+        "Concrete Deliverable",
+        "Implementation Output",
+        "Infrastructure / Setup Relationship",
+        "USER Action Gate",
+        "Route Disposition",
+        "Retarget / Rename Recommendation",
+    )
+    missing_route_markers = [
+        marker
+        for marker in required_route_markers
+        if not markdown_field_value(plan_text, marker)
+    ]
+    has_hold_or_retarget = (
+        "BR2 Route Resolution Status:" in plan_text
+        or "Route Disposition: `HOLD" in plan_text
+        or "Route Disposition: HOLD" in plan_text
+        or "Route Disposition: `RETARGET" in plan_text
+        or "Route Disposition: RETARGET" in plan_text
+    )
+    if has_hold_or_retarget:
+        issues.append(
+            "External active branch state routes to BP1 while active branch plan "
+            "is still HOLD/RETARGET route resolution"
+        )
+    if missing_route_markers:
+        issues.append(
+            "External active branch state routes to BP1 without "
+            "implementation-bearing route fields in active branch plan: "
+            + ", ".join(missing_route_markers)
+        )
+    return issues
+
+
 def validate_markdown_record(
     path: Path,
     expected_schema: str,
@@ -209,6 +299,7 @@ def main() -> int:
     if args.require_stage4_records:
         issues.extend(validate_stage4_records(root, args.schema, args.expected_source_head))
         issues.extend(validate_released_locks(root))
+        issues.extend(validate_active_branch_plan_posture(root))
 
     if issues:
         print("Validation Result: BLOCKED")
