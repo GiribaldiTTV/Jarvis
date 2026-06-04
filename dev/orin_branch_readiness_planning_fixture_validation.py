@@ -1446,9 +1446,11 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
     return failures
 
 
-def _validate_active_external_branch_plan_posture() -> list[str]:
+def _validate_active_external_branch_plan_posture(
+    state_root: Path | None = None,
+) -> list[str]:
     failures: list[str] = []
-    state_root = DEFAULT_EXTERNAL_STATE_ROOT
+    state_root = DEFAULT_EXTERNAL_STATE_ROOT if state_root is None else state_root
     active_state = state_root / "central" / "active_branch_authority_state.md"
     if not active_state.is_file():
         return failures
@@ -1467,10 +1469,26 @@ def _validate_active_external_branch_plan_posture() -> list[str]:
         if branch_state_path and branch_state_path.is_file()
         else ""
     )
-    active_routes_to_bp1 = (
-        "Next Gate: `BP1 USER Branch Vision Review`" in active_text
-        or "Next Legal Phase: `BP1 USER Branch Vision Review`" in branch_state_text
-    )
+    active_routes_to_bp1 = "BP1 USER Branch Vision Review" in {
+        governance._extract_marker_value(active_text, "Next Gate:").strip("` "),
+        governance._extract_marker_value(active_text, "Next Legal Phase:").strip("` "),
+        governance._extract_marker_value(branch_state_text, "Next Legal Phase:").strip(
+            "` "
+        ),
+    }
+    if not active_routes_to_bp1:
+        active_routes_to_bp1 = (
+            "Next Gate: `BP1 USER Branch Vision Review`" in active_text
+            or "Next Legal Phase: `BP1 USER Branch Vision Review`" in active_text
+            or "Next Legal Phase: `BP1 USER Branch Vision Review`"
+            in branch_state_text
+        )
+    if not active_routes_to_bp1:
+        active_routes_to_bp1 = (
+            "Next Gate: BP1 USER Branch Vision Review" in active_text
+            or "Next Legal Phase: BP1 USER Branch Vision Review" in active_text
+            or "Next Legal Phase: BP1 USER Branch Vision Review" in branch_state_text
+        )
     if not active_routes_to_bp1:
         return failures
     if not plan_path or not plan_path.is_file():
@@ -3407,6 +3425,36 @@ def validate() -> list[str]:
         failures.append(
             "Active external branch-plan posture validation must use DEFAULT_EXTERNAL_STATE_ROOT"
         )
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_state_root = Path(temp_dir)
+        temp_central = temp_state_root / "central"
+        temp_branch = temp_state_root / "branches" / "feature_fixture"
+        temp_central.mkdir(parents=True)
+        temp_branch.mkdir(parents=True)
+        temp_plan = temp_branch / "branch_plan.md"
+        temp_plan.write_text(
+            "# Fixture Active Branch Plan\n\n"
+            "Selected Implementation Route: Concrete control shell\n",
+            encoding="utf-8",
+        )
+        (temp_central / "active_branch_authority_state.md").write_text(
+            "# Fixture Active Branch Authority State\n\n"
+            f"Branch Runtime Engineering Plan: `{temp_plan}`\n"
+            "Next Legal Phase: `BP1 USER Branch Vision Review`\n",
+            encoding="utf-8",
+        )
+        central_only_failures = _validate_active_external_branch_plan_posture(
+            temp_state_root
+        )
+        if (
+            "External active branch state routes to BP1 without implementation-bearing route fields in active branch plan"
+            not in "\n".join(central_only_failures)
+        ):
+            failures.append(
+                "Central active-state Next Legal Phase fixture did not reject "
+                "missing implementation-bearing route fields"
+            )
 
     failures.extend(_validate_active_external_branch_plan_posture())
 
