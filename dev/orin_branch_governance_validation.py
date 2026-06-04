@@ -17619,6 +17619,48 @@ def _phase_status_bot_approval_proven(phase_status_section: str) -> bool:
     )
 
 
+def _phase_status_ordered_bot_approval_proven(phase_status_section: str) -> bool:
+    marker_value = _extract_marker_value(phase_status_section, "Bot approval proof").strip()
+    normalized = marker_value.casefold()
+    if not _phase_status_bot_approval_proven(phase_status_section):
+        return False
+    if any(
+        phrase in normalized
+        for phrase in (
+            "not approved",
+            "not required",
+            "no later",
+            "without waiting",
+            "before repair",
+            "before repaired",
+            "before current head",
+            "predate",
+            "pre-repair",
+            "older approval",
+            "stale approval",
+        )
+    ):
+        return False
+    return any(
+        phrase in normalized
+        for phrase in (
+            "after repair",
+            "after repaired",
+            "after current head",
+            "after bot comment",
+            "after comment",
+            "later approval",
+            "later thumbs-up",
+            "later +1",
+            "post-repair",
+            "subsequent approval",
+            "subsequent thumbs-up",
+            "current-head approval",
+            "repaired head",
+        )
+    )
+
+
 def _fallback_bot_approval_clears_comment_latch(
     *,
     phase_status_section: str,
@@ -17630,7 +17672,9 @@ def _fallback_bot_approval_clears_comment_latch(
         return False
     if bot_comment_count <= 0:
         return True
-    return bot_approval_ordered or _phase_status_bot_approval_proven(phase_status_section)
+    return bot_approval_ordered or _phase_status_ordered_bot_approval_proven(
+        phase_status_section
+    )
 
 
 def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bool, str]:
@@ -18395,7 +18439,7 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
     pr_number = int(pr_number_match.group(1)) if pr_number_match else 101
     watcher_state = _load_json_file(AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH) or {}
     recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
-    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
     bot_approval = (
         bool(watcher_state.get("botApproval"))
         or bot_approval_ordered
@@ -18463,7 +18507,7 @@ def _pr101_closeout_canon_repair_fallback_pr_view_for_branch(
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR101_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
     recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
-    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
     bot_approval = (
         bool(watcher_state.get("botApproval"))
         or bot_approval_ordered
@@ -18528,7 +18572,7 @@ def _pr102_closeout_canon_repair_fallback_pr_view_for_branch(
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR102_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
     bot_approval = bool(watcher_state.get("botApproval")) or bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
@@ -18589,7 +18633,7 @@ def _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
     bot_approval = bool(watcher_state.get("botApproval")) or bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
@@ -18672,7 +18716,7 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
         )
 
     recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
-    bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
     bot_approval = (
         bool(watcher_state.get("botApproval"))
         or bot_approval_ordered
@@ -19123,7 +19167,7 @@ def _run_pr_live_state_gate(
     )
     if signal_error and closeout_watcher_state:
         fallback_bot_comment_count = int(closeout_watcher_state.get("botCommentCount") or 0)
-        fallback_bot_approval_ordered = _phase_status_bot_approval_proven(phase_status_section)
+        fallback_bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
         fallback_bot_approval = bool(closeout_watcher_state.get("botApproval")) or fallback_bot_approval_ordered
         fallback_bot_comment_latch_clear = _fallback_bot_approval_clears_comment_latch(
             phase_status_section=phase_status_section,
@@ -19206,6 +19250,16 @@ def _run_pr_live_state_gate(
             ),
         )
         return
+
+    signal_time = _parse_iso8601_timestamp(signal_timestamp)
+    require(
+        bool(signal_time and current_head_time and signal_time >= current_head_time),
+        (
+            "PR readiness gate: PR Validation Pending blocker is active; Codex Connector "
+            f"approval signal at '{signal_timestamp or 'unknown time'}' does not prove approval "
+            f"after current head '{current_head_sha or 'UNKNOWN'}'"
+        ),
+    )
 
     if (
         closeout_watcher_state is not None

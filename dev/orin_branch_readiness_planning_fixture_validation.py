@@ -995,6 +995,24 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         "Governance validator rejected ordered later approval proof for fallback bot comments",
     )
     require(
+        not governance._fallback_bot_approval_clears_comment_latch(
+            phase_status_section="Bot approval proof: `Approved by Codex Connector bot thumbs-up`",
+            bot_comment_count=1,
+            bot_approval=True,
+        ),
+        "Governance validator treated an unordered approval marker as ordered fallback proof",
+    )
+    require(
+        not governance._fallback_bot_approval_clears_comment_latch(
+            phase_status_section=(
+                "Bot approval proof: `Codex Connector thumbs-up before repair`"
+            ),
+            bot_comment_count=1,
+            bot_approval=True,
+        ),
+        "Governance validator treated pre-repair approval wording as ordered fallback proof",
+    )
+    require(
         rebaseline._overlap_intent_missing_status("PASS").startswith("No -"),
         "Rebaseline helper did not return non-blocking intent-missing status for PASS",
     )
