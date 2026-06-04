@@ -16671,6 +16671,13 @@ def _bot_review_comment_is_green_signal(body: str) -> bool:
     return not re.search(r"\b(but|however|except|although|though|unless)\b", lead_summary)
 
 
+def _github_pr_review_request_comment_matches(author: str, body: str) -> bool:
+    if _bot_login_matches(author):
+        return False
+    lowered = body.casefold()
+    return "@codex" in lowered and "review" in lowered
+
+
 def _github_rest_review_decision(
     repository_full_name: str,
     pr_number: int,
@@ -17074,6 +17081,7 @@ def _github_pr_bot_signal_for_current_head_timeline(
     current_head_index: int | None = None
     current_head_admission_time: datetime | None = None
     current_head_commit_time: datetime | None = None
+    current_head_review_request_time: datetime | None = None
     commit_nodes = (((pull_request.get("commits") or {}).get("nodes")) or [])
     for commit_node in commit_nodes:
         commit_payload = commit_node.get("commit") or {}
@@ -17153,6 +17161,12 @@ def _github_pr_bot_signal_for_current_head_timeline(
             )
         ):
             continue
+        if _github_pr_review_request_comment_matches(actor, body):
+            if (
+                current_head_review_request_time is None
+                or created_time >= current_head_review_request_time
+            ):
+                current_head_review_request_time = created_time
         if _bot_login_matches(actor) and created_time is not None:
             if _bot_review_comment_is_green_signal(body):
                 latest_approval = _latest_signal_candidate(
@@ -17203,7 +17217,9 @@ def _github_pr_bot_signal_for_current_head_timeline(
             )
 
     pr_reactions = ((pull_request.get("reactions") or {}).get("nodes")) or []
-    current_head_reaction_floor_time = current_head_admission_time
+    current_head_reaction_floor_time = (
+        current_head_review_request_time or current_head_admission_time
+    )
     for reaction in pr_reactions:
         reaction_actor = str(((reaction.get("user") or {}).get("login")) or "")
         content = str(reaction.get("content") or "")
@@ -17268,6 +17284,25 @@ def _github_pr_bot_signal_for_current_head_rest(
     signal = {"status": "pending", "source": "", "timestamp": "", "actor": "", "head": ""}
     latest_approval: dict[str, object] | None = None
     latest_comment: dict[str, object] | None = None
+    current_head_review_request_time: datetime | None = None
+    issue_comments_payload, issue_comments_error = _github_api_json(
+        f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/comments"
+    )
+    if not issue_comments_error:
+        for item in issue_comments_payload or []:
+            actor = str(((item.get("user") or {}).get("login")) or "")
+            body = str(item.get("body") or "")
+            created_at = str(item.get("created_at") or "")
+            created_time = _parse_iso8601_timestamp(created_at)
+            if created_time is None:
+                continue
+            if _github_pr_review_request_comment_matches(actor, body):
+                if (
+                    current_head_review_request_time is None
+                    or created_time >= current_head_review_request_time
+                ):
+                    current_head_review_request_time = created_time
+
     for url, source_name in (
         (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/reviews", "review comment"),
         (f"https://api.github.com/repos/{repository_full_name}/pulls/{pr_number}/comments", "inline review comment"),
@@ -17310,6 +17345,69 @@ def _github_pr_bot_signal_for_current_head_rest(
                 },
             )
 
+    if current_head_review_request_time is not None:
+        for item in issue_comments_payload or []:
+            actor = str(((item.get("user") or {}).get("login")) or "")
+            body = str(item.get("body") or "")
+            created_at = str(item.get("created_at") or "")
+            created_time = _parse_iso8601_timestamp(created_at)
+            if not (
+                _bot_login_matches(actor)
+                and created_time is not None
+                and created_time >= current_head_review_request_time
+            ):
+                continue
+            if _bot_review_comment_is_green_signal(body):
+                latest_approval = _latest_signal_candidate(
+                    latest_approval,
+                    {
+                        "time": created_time,
+                        "timestamp": created_at,
+                        "actor": actor,
+                        "source": "green issue comment",
+                        "head": current_head_sha,
+                    },
+                )
+                continue
+            latest_comment = _latest_signal_candidate(
+                latest_comment,
+                {
+                    "time": created_time,
+                    "timestamp": created_at,
+                    "actor": actor,
+                    "source": "issue comment",
+                    "head": current_head_sha,
+                },
+            )
+
+        reactions_payload, reactions_error = _github_api_json(
+            f"https://api.github.com/repos/{repository_full_name}/issues/{pr_number}/reactions"
+        )
+        if reactions_error:
+            return signal, f"PR-level reaction lookup failed: {reactions_error}"
+        for reaction in reactions_payload or []:
+            reaction_actor = str(((reaction.get("user") or {}).get("login")) or "")
+            content = str(reaction.get("content") or "")
+            reaction_at = str(reaction.get("created_at") or "")
+            reaction_time = _parse_iso8601_timestamp(reaction_at)
+            if not (
+                _bot_login_matches(reaction_actor)
+                and content == "+1"
+                and reaction_time is not None
+                and reaction_time >= current_head_review_request_time
+            ):
+                continue
+            latest_approval = _latest_signal_candidate(
+                latest_approval,
+                {
+                    "time": reaction_time,
+                    "timestamp": reaction_at,
+                    "actor": reaction_actor,
+                    "source": "PR-level thumbs-up reaction",
+                    "head": current_head_sha,
+                },
+            )
+
     if latest_comment and (
         latest_approval is None or latest_comment["time"] >= latest_approval["time"]
     ):
@@ -17329,6 +17427,9 @@ def _github_pr_bot_signal_for_current_head_rest(
             "actor": str(latest_approval["actor"]),
             "head": str(latest_approval["head"]),
         }, ""
+
+    if issue_comments_error:
+        return signal, f"issue comment lookup failed: {issue_comments_error}"
 
     return signal, ""
 
@@ -21790,12 +21891,15 @@ def main() -> int:
         "committedDate",
         "pushedDate",
         "reactions(first: 100, content: THUMBS_UP)",
+        "_github_pr_review_request_comment_matches",
         "current_head_admission_time",
         "current_head_commit_time",
+        "current_head_review_request_time",
         "current_head_index is None and current_head_admission_time is None",
-        "current_head_reaction_floor_time = current_head_admission_time",
+        "current_head_review_request_time or current_head_admission_time",
         "current_head_reaction_floor_time",
         "PR-level thumbs-up reaction",
+        "issues/{pr_number}/reactions",
         "signal_head == current_head_sha",
     ):
         require(
