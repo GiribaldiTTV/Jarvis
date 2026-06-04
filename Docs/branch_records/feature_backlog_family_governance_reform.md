@@ -406,6 +406,6 @@ Release Window Split Waiver: None
 - Bot Review Signal Source: `Thumbs-up reaction on live PR #98.`
 - Bot Review Signal Timestamp: `2026-04-29T12:19:17Z`
 - Bot Review Signal Actor: `chatgpt-codex-connector[bot]`
-- Live-PR rule: the live PR must have either a thumbs-up reaction or a bot comment from `chatgpt-codex-connector[bot]`; if the bot comments, fix it on this same branch, push, resolve the comment, set `Bot Review Signal Status: Comment addressed` for the current head, and then PR green may return without waiting for a later thumbs-up.
+- Historical Live-PR rule superseded after PR Stage 2 latch repair: this receipt originally allowed `Bot Review Signal Status: Comment addressed` to clear PR green after same-branch repair. Current PR Stage 2 governance now requires a later Codex Connector bot thumbs-up/approval signal after bot-comment repair before PR green or merge.
 - Live PR approval preserved: `+1` from `chatgpt-codex-connector[bot]` was observed at `2026-04-29T12:19:17Z`; under the corrected live-PR rule, that approval remains valid for PR #98 unless a later bot comment requires action.
 - Polling Cadence: `Completed; PR2 monitor no longer required.`

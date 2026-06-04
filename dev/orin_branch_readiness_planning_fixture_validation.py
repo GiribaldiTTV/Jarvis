@@ -9,6 +9,7 @@ planning.
 
 from __future__ import annotations
 
+import inspect
 import tempfile
 import zipfile
 from pathlib import Path
@@ -973,6 +974,99 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         ),
         "Governance validator treated a contrastive Codex review comment as a green bot-review signal",
     )
+    require(
+        not governance._phase_status_bot_approval_proven(
+            "Bot approval proof: `Comment addressed`"
+        ),
+        "Governance validator treated comment-addressed closeout as bot approval proof",
+    )
+    require(
+        not governance._phase_status_bot_approval_proven(
+            "Bot approval proof: `not required after same-head comment-addressed closeout`"
+        ),
+        "Governance validator treated historical no-later-thumbs-up wording as bot approval proof",
+    )
+    require(
+        governance._phase_status_bot_approval_proven(
+            "Bot approval proof: `Approved by Codex Connector bot thumbs-up`"
+        ),
+        "Governance validator did not accept an explicit Codex Connector thumbs-up approval proof",
+    )
+    require(
+        governance._phase_status_bot_approval_proven(
+            "Bot approval proof: `Comment addressed, then approved by later thumbs-up`"
+        ),
+        "Governance validator rejected explicit approval proof that mentioned repaired comments",
+    )
+    require(
+        not governance._fallback_bot_approval_clears_comment_latch(
+            phase_status_section="",
+            bot_comment_count=1,
+            bot_approval=True,
+        ),
+        "Governance validator let unordered fallback bot approval clear a prior bot comment",
+    )
+    require(
+        governance._fallback_bot_approval_clears_comment_latch(
+            phase_status_section=(
+                "Bot approval proof: `Comment addressed, then approved by later thumbs-up`"
+            ),
+            bot_comment_count=1,
+            bot_approval=True,
+        ),
+        "Governance validator rejected ordered later approval proof for fallback bot comments",
+    )
+    require(
+        not governance._fallback_bot_approval_clears_comment_latch(
+            phase_status_section="Bot approval proof: `Approved by Codex Connector bot thumbs-up`",
+            bot_comment_count=1,
+            bot_approval=True,
+        ),
+        "Governance validator treated an unordered approval marker as ordered fallback proof",
+    )
+    require(
+        not governance._fallback_bot_approval_clears_comment_latch(
+            phase_status_section=(
+                "Bot approval proof: `Codex Connector thumbs-up before repair`"
+            ),
+            bot_comment_count=1,
+            bot_approval=True,
+        ),
+        "Governance validator treated pre-repair approval wording as ordered fallback proof",
+    )
+    require(
+        not governance._watcher_fallback_current_head_bot_approval_proven(
+            "Bot approval proof: `Approved by Codex Connector bot thumbs-up`"
+        ),
+        "Governance validator let unordered watcher fallback approval prove current-head approval",
+    )
+    require(
+        not governance._watcher_fallback_current_head_bot_approval_proven(
+            "Bot approval proof: `Codex Connector thumbs-up before repair`"
+        ),
+        "Governance validator let pre-repair watcher fallback approval prove current-head approval",
+    )
+    require(
+        governance._watcher_fallback_current_head_bot_approval_proven(
+            "Bot approval proof: `Comment addressed, then approved by later thumbs-up after current head`"
+        ),
+        "Governance validator rejected ordered current-head watcher fallback approval proof",
+    )
+    for fallback_view in (
+        governance._automation_closeout_repair_fallback_pr_view_for_branch,
+        governance._pr101_closeout_canon_repair_fallback_pr_view_for_branch,
+        governance._pr102_closeout_canon_repair_fallback_pr_view_for_branch,
+        governance._pr103_closeout_canon_repair_fallback_pr_view_for_branch,
+        governance._active_branch_watcher_fallback_pr_view_for_branch,
+    ):
+        source = inspect.getsource(fallback_view)
+        require(
+            'watcher_state.get("botApproval")' not in source,
+            (
+                "Governance validator fallback PR view still trusts raw watcher "
+                f"botApproval in {fallback_view.__name__}"
+            ),
+        )
     require(
         rebaseline._overlap_intent_missing_status("PASS").startswith("No -"),
         "Rebaseline helper did not return non-blocking intent-missing status for PASS",

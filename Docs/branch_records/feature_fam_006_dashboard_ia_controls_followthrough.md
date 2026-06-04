@@ -174,7 +174,7 @@ Passing Proof Root: `dev/logs/fam_006_monitoring_hud_live_validation/20260513_15
 Repair Commit: `deb06ccf498a84ddd15929df664275929ec84a0e`
 GitHub Review Reply: `https://github.com/GiribaldiTTV/Nexus-Desktop-AI/pull/132#discussion_r3237820272`
 GitHub Review Closeout: `Resolved - review thread PRRT_kwDORwnWIs6B576h resolved after repair commit push and evidence reply.`
-Gate Drift Repair: `After GitHub thread resolution, the PR readiness gate still treated the old flat inline bot comment as blocking. The validator now honors resolved inline review-thread state when the live GraphQL thread check is clear, matching the existing rule that green may return after fix/push/resolve without waiting for a later thumbs-up.`
+Gate Drift Repair: `Historical receipt only - after GitHub thread resolution, the PR readiness gate still treated the old flat inline bot comment as blocking, and the then-current validator honored resolved inline review-thread state. Current PR Stage 2 governance supersedes that historical rule and requires a later Codex Connector bot thumbs-up/approval signal after bot-comment repair before PR green or merge.`
 
 ## Post-Merge State
 
