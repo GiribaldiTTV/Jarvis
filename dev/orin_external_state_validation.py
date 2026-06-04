@@ -92,6 +92,285 @@ def resolve_markdown_path(value: str | None, root: Path) -> Path | None:
     return path if path.is_absolute() else root / cleaned
 
 
+def normalized_route_value(value: str) -> str:
+    return re.sub(r"\s+", " ", value.casefold()).strip()
+
+
+def route_word_count(value: str) -> int:
+    return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9_/-]*", value))
+
+
+def validate_implementation_route_values(plan_text: str) -> list[str]:
+    issues: list[str] = []
+    marker_values = {
+        "Selected Implementation Route": markdown_field_value(
+            plan_text, "Selected Implementation Route"
+        )
+        or "",
+        "Concrete Deliverable": markdown_field_value(plan_text, "Concrete Deliverable")
+        or "",
+        "Implementation Output": markdown_field_value(
+            plan_text, "Implementation Output"
+        )
+        or "",
+        "Infrastructure / Setup Relationship": markdown_field_value(
+            plan_text, "Infrastructure / Setup Relationship"
+        )
+        or "",
+        "USER Action Gate": markdown_field_value(plan_text, "USER Action Gate") or "",
+        "Route Disposition": markdown_field_value(plan_text, "Route Disposition") or "",
+        "Retarget / Rename Recommendation": markdown_field_value(
+            plan_text, "Retarget / Rename Recommendation"
+        )
+        or "",
+    }
+    combined_route = normalized_route_value(
+        "\n".join(
+            (
+                marker_values["Selected Implementation Route"],
+                marker_values["Concrete Deliverable"],
+                marker_values["Implementation Output"],
+            )
+        )
+    )
+    full_normalized = normalized_route_value(plan_text)
+    setup_normalized = normalized_route_value(
+        marker_values["Infrastructure / Setup Relationship"]
+    )
+    disposition_normalized = normalized_route_value(marker_values["Route Disposition"])
+    retarget_normalized = normalized_route_value(
+        marker_values["Retarget / Rename Recommendation"]
+    )
+    user_gate = marker_values["USER Action Gate"]
+
+    concrete_terms = (
+        "implementation",
+        "enforcement",
+        "runtime",
+        "validator",
+        "helper",
+        "source-truth",
+        "source truth",
+        "consent shell",
+        "trust-boundary",
+        "security",
+        "capability-pack",
+        "memory/cache",
+        "provider",
+        "user-facing",
+        "workflow",
+    )
+    concrete_behavior_terms = (
+        "enforce",
+        "block",
+        "validate",
+        "fail-closed",
+        "detect",
+        "route",
+        "render",
+        "persist",
+        "execute",
+        "control",
+        "runtime",
+        "validator",
+        "helper",
+        "source-truth",
+        "source truth",
+        "user-facing",
+    )
+    actual_implementation_terms = (
+        "implement",
+        "implemented",
+        "enforce",
+        "enforcement",
+        "block",
+        "reject",
+        "prevent",
+        "fail-closed",
+        "fails closed",
+        "validate",
+        "persist",
+        "execute",
+        "route",
+        "disable",
+        "update",
+        "create",
+    )
+    implemented_target_terms = (
+        "behavior",
+        "control",
+        "workflow",
+        "surface",
+        "state",
+        "transition",
+        "enforcement",
+        "consent shell",
+        "consent-shell",
+        "trust-boundary",
+        "boundary",
+        "exclusion",
+        "suppression",
+        "validator",
+        "helper",
+        "source-truth",
+        "source truth",
+        "runtime",
+        "user-facing",
+    )
+    evidence_only_route_terms = (
+        "proof package",
+        "proof packet",
+        "validation proof",
+        "setup proof",
+        "readiness proof",
+        "registry proof",
+        "boundary proof",
+        "review packet",
+        "packet generation",
+        "decision path",
+        "readiness matrix",
+        "validation plan",
+        "boundary controls",
+        "boundary-control labels",
+    )
+    tbd_route_terms = (
+        "implementation output is tbd",
+        "tbd",
+        "to be determined",
+        "decide later",
+        "selected later",
+        "later during bp2",
+        "bp2 will choose",
+        "bp2 will decide",
+    )
+    negated_real_behavior_terms = (
+        "does not add behavior",
+        "does not change behavior",
+        "does not change state",
+        "does not enforce",
+        "does not implement",
+        "will not add behavior",
+        "will not change behavior",
+        "will not enforce",
+        "will not implement",
+        "no enforcement behavior",
+        "no implemented behavior",
+        "no implemented control",
+        "no validator behavior",
+        "no runtime behavior",
+        "no source-truth behavior",
+        "no user-facing surface",
+        "no state transition",
+        "behavior changes are deferred",
+        "without implemented behavior",
+    )
+    planning_only_terms = (
+        "planning-only",
+        "readiness-only",
+        "setup-only",
+        "lane setup only",
+        "choose later branches",
+        "identify later branches",
+        "no implementation route",
+        "implementation output: none",
+    )
+    fake_feature_terms = (
+        "setup feature",
+        "readiness feature",
+        "planning feature",
+        "decision feature",
+        "registry feature",
+        "skeleton feature",
+        "packet feature",
+        "review feature",
+        "feature label",
+    )
+
+    real_behavior_present = (
+        any(term in combined_route for term in actual_implementation_terms)
+        and any(term in combined_route for term in implemented_target_terms)
+        and not any(term in combined_route for term in negated_real_behavior_terms)
+    )
+    if (
+        route_word_count(marker_values["Concrete Deliverable"]) < 8
+        or route_word_count(marker_values["Implementation Output"]) < 8
+        or not any(term in combined_route for term in concrete_terms)
+        or not real_behavior_present
+        or any(term in combined_route for term in planning_only_terms)
+    ):
+        issues.append(
+            "External active branch plan route values must name a concrete "
+            "implementation behavior before BP1"
+        )
+    if any(term in combined_route for term in negated_real_behavior_terms):
+        issues.append(
+            "External active branch plan route values cannot negate implementation behavior"
+        )
+    if (
+        any(term in combined_route for term in evidence_only_route_terms)
+        and not real_behavior_present
+    ):
+        issues.append(
+            "External active branch plan route values cannot substitute proof, readiness, "
+            "or boundary-label evidence for implementation behavior"
+        )
+    if any(term in combined_route for term in tbd_route_terms):
+        issues.append(
+            "External active branch plan route values cannot defer implementation output "
+            "to BP2 or a later decision"
+        )
+    if any(term in combined_route for term in fake_feature_terms) and not (
+        real_behavior_present
+        and any(term in combined_route for term in concrete_behavior_terms)
+    ):
+        issues.append(
+            "External active branch plan route values cannot label planning, setup, "
+            "registry, skeleton, packet, or review work as the feature"
+        )
+    if any(
+        term in full_normalized
+        for term in (
+            "lane setup",
+            "repo/root/remote",
+            "private root",
+            "private remote",
+            "skeleton setup",
+            "registry creation",
+        )
+    ) and not (
+        "execution-enabling" in setup_normalized
+        or "selected implementation route" in setup_normalized
+        or "exact user action gate" in setup_normalized
+    ):
+        issues.append(
+            "External active branch plan infrastructure/setup values must tie to "
+            "the selected route or exact USER action gate"
+        )
+    if "Dev lane" in plan_text:
+        issues.append("Use Developer lane, not Dev lane, in current branch-planning text")
+    if "developer" in full_normalized and "Developer lane" not in plan_text:
+        issues.append(
+            "Developer lane terminology must be explicit when developer lane scope appears"
+        )
+    if "hold" in disposition_normalized and route_word_count(user_gate) < 6:
+        issues.append("External active branch plan HOLD requires an exact USER action gate")
+    if (
+        "retarget" in disposition_normalized or "rename" in disposition_normalized
+    ) and not (
+        ("retarget" in retarget_normalized or "rename" in retarget_normalized)
+        and any(term in retarget_normalized for term in concrete_terms)
+    ):
+        issues.append(
+            "External active branch plan retarget/rename disposition requires "
+            "a concrete recommendation"
+        )
+    if route_word_count(user_gate) < 6:
+        issues.append(
+            "External active branch plan route values must name pending USER action gate posture"
+        )
+    return issues
+
+
 def validate_active_branch_plan_posture(root: Path) -> list[str]:
     issues: list[str] = []
     active_state = root / "central" / "active_branch_authority_state.md"
@@ -169,6 +448,8 @@ def validate_active_branch_plan_posture(root: Path) -> list[str]:
             "implementation-bearing route fields in active branch plan: "
             + ", ".join(missing_route_markers)
         )
+    else:
+        issues.extend(validate_implementation_route_values(plan_text))
     return issues
 
 

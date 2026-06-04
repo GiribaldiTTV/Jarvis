@@ -3555,6 +3555,32 @@ def validate() -> list[str]:
                 "External-state validator fixture did not reject missing "
                 "implementation-bearing route fields"
             )
+        temp_plan.write_text(
+            "# Fixture Active Branch Plan\n\n"
+            "Selected Implementation Route: Planning feature for later branch selection\n"
+            "Implementation Route Class: governance/source-truth planning\n"
+            "Concrete Deliverable: Readiness proof packet that documents route options only\n"
+            "Implementation Output: BP2 will decide implementation output later\n"
+            "Infrastructure / Setup Relationship: Lane setup only\n"
+            "USER Action Gate: USER chooses later after more options\n"
+            "Route Disposition: PROCEED\n"
+            "Retarget / Rename Recommendation: None\n",
+            encoding="utf-8",
+        )
+        marker_only_route_failures = external_state.validate_active_branch_plan_posture(
+            temp_state_root
+        )
+        marker_only_route_failure_text = "\n".join(marker_only_route_failures)
+        if (
+            "External active branch plan route values cannot defer implementation output"
+            not in marker_only_route_failure_text
+            or "External active branch plan route values cannot label planning"
+            not in marker_only_route_failure_text
+        ):
+            failures.append(
+                "External-state validator fixture did not reject populated "
+                "planning-only/TBD route values"
+            )
 
     active_packet_metadata_failures = _validate_user_packet_metadata_text(
         INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")
