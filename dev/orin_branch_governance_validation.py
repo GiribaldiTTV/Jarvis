@@ -5282,27 +5282,20 @@ BOT_REVIEW_SIGNAL_PHRASES = (
 )
 
 PR_WATCHER_THREAD_CONTRACT_DOCS = (
+    Path("Docs/pr_watcher_mode_contract.md"),
     Path("Docs/phase_governance.md"),
-    Path("Docs/development_rules.md"),
     Path("Docs/Main.md"),
-    Path("Docs/codex_modes.md"),
-    Path("Docs/orin_task_template.md"),
-    Path("Docs/codex_user_guide.md"),
-    Path("Docs/incident_patterns.md"),
 )
 
 PR_WATCHER_THREAD_CONTRACT_PHRASES = (
+    "direct PR verification",
+    "recurring PR watcher automation",
+    "USER-approved watcher exception",
     "approved reporting surface",
-    "minute cadence",
-    "reports only when a watched PR status changes",
-    "source-of-truth",
-    "copy/paste Codex prompt basis",
     "delivery proof",
     "PR Watcher Routing Unverified",
     "PR Merge Verification Pending",
-    "merge-watch seam",
     "Watcher configuration is not runtime proof",
-    "Stage 2 final handoff cannot be green until watcher runtime proof is present or the runtime-proof blocker remains active",
 )
 
 PR_WATCHER_MODE_CONTRACT_DOC = Path("Docs/pr_watcher_mode_contract.md")
@@ -5338,6 +5331,31 @@ PR_WATCHER_MODE_CONTRACT_PHRASES = (
     "Reliability Degradation",
     "Background Observability",
     "3-5 word PR comment only",
+)
+
+PR_WATCHER_DENIAL_POLICY_DOCS = (
+    Path("Docs/pr_watcher_mode_contract.md"),
+    Path("Docs/Main.md"),
+    Path("Docs/phase_governance.md"),
+    Path("Docs/development_rules.md"),
+    Path("Docs/codex_modes.md"),
+    Path("Docs/orin_task_template.md"),
+    Path("Docs/validation_helper_registry.md"),
+    Path("Docs/branch_records/index.md"),
+    Path("Docs/codex_user_guide.md"),
+    Path("Docs/nexus_startup_contract.md"),
+    Path("Docs/incident_patterns.md"),
+    Path("Docs/branch_records/feature_release_readiness_source_truth_intake.md"),
+)
+PR_WATCHER_DENIAL_POLICY_PHRASES = (
+    "direct PR verification",
+    "recurring PR watcher automation",
+)
+PR_WATCHER_DENIAL_FORBIDDEN_PHRASES = (
+    "PR Readiness Stage 2 approval includes watcher provisioning by default",
+    "Stage 2 final handoff cannot be green until watcher runtime proof is present",
+    "Stage 2 must provision or update a PR watcher",
+    "Standard operating procedure from now on is a watcher on an approved Codex reporting surface",
 )
 
 PR_WATCHER_OUTPUT_CONTRACT_SOURCE = Path("dev/pr_same_thread_watcher.py")
@@ -22111,6 +22129,25 @@ def main() -> int:
             require(
                 required_phrase in text,
                 f"{relative_path}: PR watcher mode contract pointer is missing '{required_phrase}'",
+            )
+    for relative_path in PR_WATCHER_DENIAL_POLICY_DOCS:
+        text = _read_text(relative_path)
+        text_lower = text.casefold()
+        for required_phrase in PR_WATCHER_DENIAL_POLICY_PHRASES:
+            require(
+                required_phrase.casefold() in text_lower,
+                (
+                    f"{relative_path}: PR watcher denial policy is missing "
+                    f"'{required_phrase}'"
+                ),
+            )
+        for forbidden_phrase in PR_WATCHER_DENIAL_FORBIDDEN_PHRASES:
+            require(
+                forbidden_phrase.casefold() not in text_lower,
+                (
+                    f"{relative_path}: stale PR watcher default wording remains "
+                    f"'{forbidden_phrase}'"
+                ),
             )
 
     watcher_output_source = _read_text(PR_WATCHER_OUTPUT_CONTRACT_SOURCE)

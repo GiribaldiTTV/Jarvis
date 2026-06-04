@@ -77,7 +77,10 @@ def validate_manifest(manifest_path: Path, expected_schema: str) -> list[str]:
 
 
 def markdown_field_value(text: str, field: str) -> str | None:
-    pattern = re.compile(rf"^{re.escape(field)}:\s*(.*?)\s*$", re.MULTILINE)
+    pattern = re.compile(
+        rf"^\s*(?:-\s*)?{re.escape(field)}:\s*(.*?)\s*$",
+        re.MULTILINE,
+    )
     match = pattern.search(text)
     if not match:
         return None

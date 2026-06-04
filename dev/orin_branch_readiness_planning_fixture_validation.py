@@ -3591,6 +3591,40 @@ def validate() -> list[str]:
                 "planning-only/TBD route values"
             )
 
+        temp_plan.write_text(
+            "# Fixture Active Branch Plan\n\n"
+            "- Selected Implementation Route: Implement source-truth validator "
+            "control for security trust-boundary enforcement behavior\n"
+            "- Implementation Route Class: governance/source-truth validator "
+            "implementation\n"
+            "- Concrete Deliverable: Validator enforcement behavior blocks public "
+            "provider execution when required consent markers are missing.\n"
+            "- Implementation Output: Workstream implements validator behavior "
+            "that rejects unsafe public trust-boundary state transitions before "
+            "BP1.\n"
+            "- Infrastructure / Setup Relationship: Execution-enabling for the "
+            "selected implementation route and exact USER action gate.\n"
+            "- USER Action Gate: USER approves this implementation-bearing "
+            "validation route before BP1 proceeds.\n"
+            "- Route Disposition: PROCEED\n"
+            "- Retarget / Rename Recommendation: None\n",
+            encoding="utf-8",
+        )
+        (temp_central / "active_branch_authority_state.md").write_text(
+            "# Fixture Active Branch Authority State\n\n"
+            f"- Branch Runtime Engineering Plan: `{temp_plan}`\n"
+            "- Next Legal Phase: `BP1 USER Branch Vision Review`\n",
+            encoding="utf-8",
+        )
+        bulleted_marker_failures = external_state.validate_active_branch_plan_posture(
+            temp_state_root
+        )
+        if bulleted_marker_failures:
+            failures.append(
+                "External-state validator bulleted-marker fixture unexpectedly failed: "
+                + "; ".join(bulleted_marker_failures[:5])
+            )
+
     active_packet_metadata_failures = _validate_user_packet_metadata_text(
         INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")
     )
