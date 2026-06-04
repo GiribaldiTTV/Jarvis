@@ -17677,6 +17677,12 @@ def _fallback_bot_approval_clears_comment_latch(
     )
 
 
+def _watcher_fallback_current_head_bot_approval_proven(
+    phase_status_section: str,
+) -> bool:
+    return _phase_status_ordered_bot_approval_proven(phase_status_section)
+
+
 def _automation_planning_runtime_proof_status(current_head_sha: str) -> tuple[bool, str]:
     if not AUTOMATION_PR99_NATIVE_HEARTBEAT_PATH.is_file():
         return (
@@ -19167,8 +19173,10 @@ def _run_pr_live_state_gate(
     )
     if signal_error and closeout_watcher_state:
         fallback_bot_comment_count = int(closeout_watcher_state.get("botCommentCount") or 0)
-        fallback_bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
-        fallback_bot_approval = bool(closeout_watcher_state.get("botApproval")) or fallback_bot_approval_ordered
+        fallback_bot_approval_ordered = _watcher_fallback_current_head_bot_approval_proven(
+            phase_status_section
+        )
+        fallback_bot_approval = fallback_bot_approval_ordered
         fallback_bot_comment_latch_clear = _fallback_bot_approval_clears_comment_latch(
             phase_status_section=phase_status_section,
             bot_comment_count=fallback_bot_comment_count,

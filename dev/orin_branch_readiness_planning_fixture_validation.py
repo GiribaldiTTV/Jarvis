@@ -1013,6 +1013,24 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         "Governance validator treated pre-repair approval wording as ordered fallback proof",
     )
     require(
+        not governance._watcher_fallback_current_head_bot_approval_proven(
+            "Bot approval proof: `Approved by Codex Connector bot thumbs-up`"
+        ),
+        "Governance validator let unordered watcher fallback approval prove current-head approval",
+    )
+    require(
+        not governance._watcher_fallback_current_head_bot_approval_proven(
+            "Bot approval proof: `Codex Connector thumbs-up before repair`"
+        ),
+        "Governance validator let pre-repair watcher fallback approval prove current-head approval",
+    )
+    require(
+        governance._watcher_fallback_current_head_bot_approval_proven(
+            "Bot approval proof: `Comment addressed, then approved by later thumbs-up after current head`"
+        ),
+        "Governance validator rejected ordered current-head watcher fallback approval proof",
+    )
+    require(
         rebaseline._overlap_intent_missing_status("PASS").startswith("No -"),
         "Rebaseline helper did not return non-blocking intent-missing status for PASS",
     )
