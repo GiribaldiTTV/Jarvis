@@ -222,6 +222,9 @@ INVALID_IMPLEMENTATION_ROUTE_TBD_OUTPUT_FIXTURE = (
 INVALID_IMPLEMENTATION_ROUTE_BLANK_SELECTED_ROUTE_FIXTURE = (
     FIXTURE_DIR / "invalid_implementation_route_blank_selected_route.md"
 )
+INVALID_IMPLEMENTATION_ROUTE_NEGATED_BEHAVIOR_FIXTURE = (
+    FIXTURE_DIR / "invalid_implementation_route_negated_behavior.md"
+)
 INVALID_BR2_ROUTE_BLOCKER_PROOF_ONLY_ROUTE_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_route_blocker_proof_only_route.md"
 )
@@ -353,6 +356,9 @@ EXPECTED_TBD_IMPLEMENTATION_OUTPUT_FAILURE_SNIPPET = (
 )
 EXPECTED_BLANK_SELECTED_ROUTE_FAILURE_SNIPPET = (
     "Implementation-bearing route marker requires a value: Selected Implementation Route:"
+)
+EXPECTED_NEGATED_ROUTE_BEHAVIOR_FAILURE_SNIPPET = (
+    "Implementation-bearing route cannot negate implementation behavior"
 )
 EXPECTED_BR2_PROOF_ONLY_ROUTE_FAILURE_SNIPPET = (
     "BR2 blocker packet concrete routes cannot be proof/readiness labels only"
@@ -1116,8 +1122,29 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         "bp2 will decide",
     )
     negated_real_behavior_terms = (
+        "does not add behavior",
+        "does not add implementation",
+        "does not add state",
+        "does not change behavior",
+        "does not change state",
+        "does not enforce",
+        "does not implement",
+        "doesn't add behavior",
+        "doesn't add implementation",
+        "doesn't change behavior",
+        "doesn't change state",
+        "doesn't enforce",
+        "doesn't implement",
+        "will not add behavior",
+        "will not add implementation",
+        "will not change behavior",
+        "will not change state",
+        "will not enforce",
+        "will not implement",
         "no enforcement behavior",
         "no helper behavior",
+        "no implemented behavior",
+        "no implemented control",
         "no validator behavior",
         "no runtime behavior",
         "no source-truth behavior",
@@ -1161,6 +1188,9 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         and any(term in combined_route for term in implemented_target_terms)
         and not any(term in combined_route for term in negated_real_behavior_terms)
     )
+    negated_real_behavior_detected = any(
+        term in combined_route for term in negated_real_behavior_terms
+    )
     evidence_only_detected = any(
         term in combined_route for term in evidence_only_route_terms
     )
@@ -1173,6 +1203,14 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         (
             "Implementation-bearing route required: concrete deliverable and "
             "implementation output must be named before BP1"
+        ),
+    )
+    require(
+        not negated_real_behavior_detected,
+        (
+            "Implementation-bearing route cannot negate implementation behavior: "
+            "name the control, behavior, surface, or state transition that "
+            "Workstream will implement or enforce"
         ),
     )
     require(
@@ -3406,6 +3444,19 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid blank selected-route fixture did not reject missing route marker value"
+        )
+
+    negated_route_behavior_failures = _validate_implementation_bearing_route_text(
+        INVALID_IMPLEMENTATION_ROUTE_NEGATED_BEHAVIOR_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_NEGATED_ROUTE_BEHAVIOR_FAILURE_SNIPPET not in "\n".join(
+        negated_route_behavior_failures
+    ):
+        failures.append(
+            "Invalid negated-behavior route fixture did not reject explicit "
+            "non-implementation wording"
         )
 
     proof_only_br2_failures = _validate_br2_route_blocker_packet_text(
