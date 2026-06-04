@@ -88,6 +88,24 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `dev/orin_user_review_bundle.py`
   - `dev/orin_branch_readiness_planning_fixture_validation.py`
 
+## Pattern: Runtime Focus Selection Collapsed Into Issue Thread
+
+- symptom:
+  USER asks Codex to select or recommend the next runtime focus from a full family/runtime source-truth survey, but the packet centers one GitHub issue, names the branch after that issue's failure mode, or treats issue evidence as BR2/BP1 branch identity before comparing family vision, backlog posture, roadmap context, workstream history, completed recent work, remaining runtime layers, and external selected-next state.
+- layer:
+  Branch Readiness Stage 1 / Stage 2, runtime focus options packets, `dev/orin_user_review_bundle.py`, Branch Readiness planning fixtures, and family-scoped runtime carrier selection.
+- root-cause pattern:
+  a branch-specific helper/template special case or Codex judgment used issue evidence as the selection source instead of loading issue evidence after the neutral family/runtime survey. The resulting packet can look substantive while still skipping the actual family/package selection question.
+- fix pattern:
+  runtime focus selection must survey family/runtime source truth first, list credible runtime options, classify each option by runtime/UI/governance/bugfix/proof/future-gated role, and only then map issue evidence as possible future BP2/BP3 proof input. Issue evidence may support a selected branch plan, but it must not define BR2/BP1 identity unless USER explicitly selects that issue-shaped focus after seeing the neutral options.
+- validation pattern:
+  run `python dev\orin_branch_readiness_planning_fixture_validation.py`. The invalid runtime-focus issue-anchored fixture must fail on `Runtime focus selection cannot use issue evidence as BR2/BP1 branch identity`.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_user_review_bundle.py`
+  - `dev/orin_branch_readiness_planning_fixture_validation.py`
+
 ## Pattern: Release Readiness Green Must Require Explicit Release Target
 
 - symptom:

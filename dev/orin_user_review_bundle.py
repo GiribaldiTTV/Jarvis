@@ -1585,6 +1585,19 @@ def _write_user_branch_vision_review(
         )
         and not pr_readiness_context_packet
     )
+    runtime_focus_selection_packet = any(
+        phrase in profile_text
+        for phrase in (
+            "runtime focus selection",
+            "runtime-focus selection",
+            "runtime focus options",
+            "runtime-focus options",
+            "neutral runtime survey",
+            "neutral fam-006 runtime",
+            "select the next fam-006 runtime focus",
+            "selecting from the full fam-006",
+        )
+    )
     fam006_overlay_profile_persistence_bp1_packet = (
         "fam-006" in profile_text
         and "overlay-profile" in profile_text
@@ -1594,6 +1607,7 @@ def _write_user_branch_vision_review(
             or "restart hydration" in profile_text
         )
         and not pr_readiness_context_packet
+        and not runtime_focus_selection_packet
     )
     if fam006_overlay_profile_persistence_bp1_packet:
         lines = [

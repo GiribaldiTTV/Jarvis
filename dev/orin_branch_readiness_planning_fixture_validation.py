@@ -160,6 +160,9 @@ INVALID_BP1_SLC_CENTERED_FIXTURE = (
 INVALID_BP1_TECHNICAL_METADATA_FIXTURE = (
     FIXTURE_DIR / "invalid_bp1_technical_metadata.md"
 )
+INVALID_RUNTIME_FOCUS_ISSUE_ANCHORED_SELECTION_FIXTURE = (
+    FIXTURE_DIR / "invalid_runtime_focus_issue_anchored_selection.md"
+)
 INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_bp2_missing_accepted_bp1_trace.md"
 )
@@ -281,6 +284,9 @@ EXPECTED_BP1_GENERIC_QUESTIONS_FAILURE_SNIPPET = (
 EXPECTED_BP1_SLC_CENTERED_FAILURE_SNIPPET = "BP1 cannot be SLC-centered"
 EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
     "BP1 must not center active branch technical metadata"
+)
+EXPECTED_RUNTIME_FOCUS_ISSUE_ANCHORED_FAILURE_SNIPPET = (
+    "Runtime focus selection cannot use issue evidence as BR2/BP1 branch identity"
 )
 EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET = "Accepted BP1 trace"
 EXPECTED_BP2_PRODUCT_DESIGN_WORDING_FAILURE_SNIPPET = (
@@ -450,6 +456,49 @@ def _validate_workstream_entry_whole_package_text(text: str) -> list[str]:
             phrase in normalized_summary,
             f"Workstream Entry Whole-Package Summary must include {phrase}",
         )
+    return failures
+
+
+def _validate_runtime_focus_selection_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+    runtime_focus_packet = (
+        "runtime focus selection" in normalized
+        or "runtime focus options" in normalized
+        or "neutral family runtime survey" in normalized
+    )
+    if not runtime_focus_packet:
+        return failures
+    issue_identity_phrases = (
+        "issue #258 role: br2/bp1 branch identity",
+        "issue #258 as the selection source before surveying",
+        "selected because issue #258",
+        "github issue #258 as the selection source",
+    )
+    issue_identity_present = any(phrase in normalized for phrase in issue_identity_phrases)
+    issue_deferred_present = (
+        "future bp2/bp3 proof input" in normalized
+        or "issue evidence is not deferred to later proof planning" in normalized
+    )
+    neutral_survey_present = (
+        "family vision" in normalized
+        and "backlog" in normalized
+        and "roadmap" in normalized
+        and "workstream history" in normalized
+        and "remaining runtime layers" in normalized
+    )
+    require(
+        not issue_identity_present,
+        "Runtime focus selection cannot use issue evidence as BR2/BP1 branch identity",
+    )
+    require(
+        neutral_survey_present,
+        "Runtime focus selection must survey family/runtime source truth before issue evidence",
+    )
+    require(
+        issue_deferred_present,
+        "Runtime focus selection must defer issue evidence to future BP2/BP3 proof input",
+    )
     return failures
 
 
@@ -2007,6 +2056,7 @@ def validate() -> list[str]:
         INVALID_BP1_GENERIC_USER_QUESTIONS_FIXTURE,
         INVALID_BP1_SLC_CENTERED_FIXTURE,
         INVALID_BP1_TECHNICAL_METADATA_FIXTURE,
+        INVALID_RUNTIME_FOCUS_ISSUE_ANCHORED_SELECTION_FIXTURE,
         INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE,
         VALID_BP2_FAM006_DOGFOOD_FIXTURE,
         VALID_BP2_FAM007_DOGFOOD_FIXTURE,
@@ -2566,6 +2616,16 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid BP1 technical-metadata fixture did not reject active branch metadata"
+        )
+
+    runtime_focus_issue_failures = _validate_runtime_focus_selection_text(
+        INVALID_RUNTIME_FOCUS_ISSUE_ANCHORED_SELECTION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RUNTIME_FOCUS_ISSUE_ANCHORED_FAILURE_SNIPPET not in "\n".join(
+        runtime_focus_issue_failures
+    ):
+        failures.append(
+            "Invalid runtime-focus issue-anchored fixture did not reject issue-shaped selection"
         )
 
     missing_bp1_trace_failures = _validate_bp2_branch_plan_review_text(
