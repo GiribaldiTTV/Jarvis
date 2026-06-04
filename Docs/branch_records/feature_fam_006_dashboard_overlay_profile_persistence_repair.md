@@ -3,7 +3,7 @@
 Branch: `feature/fam-006-dashboard-overlay-profile-persistence-repair`
 Worktree: `C:\Nexus Worktrees\FAM-006`
 Branch Runtime Engineering Plan Path: `C:\Nexus Governance State\branches\feature_fam_006_dashboard_overlay_profile_persistence_repair\branch_plan.md`
-Branch Runtime Engineering Plan: `External active branch plan owns current Branch Planning detail, Packet Reviewability State, USER Gate State, Branch Change Intent Ledger, Element-to-Phase Proof Matrix, and issue #258 traceability while this branch is active.`
+Branch Runtime Engineering Plan: `External branch plan is superseded for active planning after USER rejected the issue-shaped carrier; it remains historical traceability only.`
 Engineering Plan Status: `External operational-state owner; repo record is a durable admission pointer only.`
 
 ## Branch Identity
@@ -11,8 +11,8 @@ Engineering Plan Status: `External operational-state owner; repo record is a dur
 - Branch: `feature/fam-006-dashboard-overlay-profile-persistence-repair`
 - Worktree: `C:\Nexus Worktrees\FAM-006`
 - Target Family: `FAM-006 - Monitoring and HUD`
-- Runtime Lane: `Dashboard Overlay Profile persistence runtime foundation`
-- GitHub Issue Traceability: `#258 - FAM-006: Dashboard HUD Overlay Profiles do not persist after app restart`
+- Runtime Lane: `Superseded Dashboard Overlay Profile persistence runtime foundation carrier`
+- GitHub Issue Traceability: `#258 - deferred from BR2/BP1 branch identity; future proof input only after USER selects a clean FAM-006 runtime focus`
 
 ## Record State
 
@@ -21,7 +21,7 @@ Record State: `Historical Traceability`
 ## Current Phase
 
 Phase: `Historical Traceability`
-Stage: `Durable BR2 admission receipt; active BP1 gate state is external`
+Stage: `Durable BR2 admission receipt; USER rejected active issue-shaped BP1 route`
 
 ## Phase Status
 
@@ -35,7 +35,7 @@ Blockers: `None owned by this repo receipt; active blockers are external-state a
 
 ## Exit Criteria
 
-Exit Criteria: `Admission receipt preserves Dashboard Overlay Profile persistence runtime foundation as the branch identity and issue #258 as traceability/proof input; external branch plan and USER review packet own the active BP1 decision path.`
+Exit Criteria: `Admission receipt preserves the rejected Dashboard Overlay Profile persistence carrier as historical traceability; active FAM-006 planning returns to runtime focus selection from current source truth.`
 
 ## Rollback Target
 
@@ -47,7 +47,7 @@ Next Legal Phase: `Historical Traceability`
 
 ## Status
 
-Status: `BR2 setup receipt; live operational branch state is external`
+Status: `Superseded BR2 setup receipt; not an active BP1 route`
 
 ## Canonical Branch
 
@@ -55,18 +55,27 @@ Canonical Branch: `feature/fam-006-dashboard-overlay-profile-persistence-repair`
 
 ## Phase Receipt
 
-Phase Receipt: `Branch Readiness Stage 2 admission created a fresh FAM-006 runtime foundation carrier from current origin/main for Dashboard Overlay Profile persistence. Issue #258 was admitted as FAM-006 Dashboard / Overlay Profile persistence traceability and future proof input, but it does not define the whole branch identity. Current phase and next-gate posture are owned by the external branch plan and live Git/GitHub/helper truth, not this repo receipt.`
+Phase Receipt: `Branch Readiness Stage 2 admission created a fresh FAM-006 runtime foundation carrier from current origin/main for Dashboard Overlay Profile persistence. USER later rejected the carrier for active planning because it remained shaped around issue #258 instead of a clean FAM-006 runtime implementation focus. Issue #258 is deferred from BR2/BP1 branch identity and may become BP2/BP3 proof input only after USER selects a runtime focus.`
 
 ## Branch Class
 
 Branch Class: `implementation`
 Primary Package: `PKG-006 - Monitoring and HUD`
-Runtime Lane Selection: `Dashboard Overlay Profile persistence runtime foundation`
-Issue Admission: `Issue #258 is admitted as a traceable proof driver because the observed failure is that a USER-created HUD Dashboard Overlay Profile disappears after app restart. That restart-flow defect belongs inside the broader FAM-006 Dashboard / Overlay Profile persistence foundation lane, not FAM-007, Governance, provider/model, recording execution, file-writing, tray, export/share, or release work.`
+Runtime Lane Selection: `Superseded / rejected for active planning`
+Issue Admission: `Issue #258 is no longer admitted into BR2/BP1 branch identity for this rejected carrier. It remains a valid future proof candidate for the selected FAM-006 runtime focus when BP2/BP3 legally admits it.`
 
 ## Entry Basis
 
 Entry Basis: `USER approved FAM-006 Branch Readiness Stage 2 execution in C:\Nexus Worktrees\FAM-006 to create or rebind a fresh FAM-006 branch from current origin/main, preserve the released active-overlay recording branch as historical traceability, admit GitHub issue #258 as FAM-006 runtime traceability, select the next legal FAM-006 runtime foundation lane, update external branch authority/plan state, prepare BP1 USER Branch Vision Review routing, validate, commit, and push when green.`
+
+## USER Rejection / Supersession Receipt
+
+Supersession Date: `2026-06-04`
+Supersession Decision: `USER rejected this carrier for active planning because it remained issue-shaped around GitHub issue #258 rather than a clean FAM-006 runtime implementation focus.`
+Active Planning Result: `Superseded - do not proceed to BP1/BP2/BP3 on this branch identity.`
+FAM-006 Posture: `Return to Branch Readiness runtime focus selection from current project/family/source truth.`
+Issue #258 Posture: `Deferred from BR2/BP1 identity; keep open as future BP2/BP3 proof input only after USER selects a runtime focus.`
+Branch Cleanup Result: `Held. Branch deletion, worktree rebind, and remote cleanup require a later Branch Readiness execution decision with no-unique-commit-loss proof because this worktree is currently checked out on the rejected branch and the branch contains unique commits.`
 
 ## Product Definition Pointer
 
@@ -85,7 +94,7 @@ Explicit Non-Includes: `No runtime mutation, recording execution, recording file
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
 Selected-Next Owner: `C:\Nexus Governance State\central\selected_next_state.md`
-Active Branch Plan Owner: `C:\Nexus Governance State\branches\feature_fam_006_dashboard_overlay_profile_persistence_repair\branch_plan.md`
+Branch Plan Owner: `C:\Nexus Governance State\branches\feature_fam_006_dashboard_overlay_profile_persistence_repair\branch_plan.md`
 Repo Receipt Role: `This file is a durable branch admission pointer and traceability receipt only. It must not be treated as a live operational ledger for HEAD, origin/main, PR state, validation state, worktree cleanliness, current USER gate state, or release-window state.`
 
 ## Historical Traceability
@@ -96,7 +105,7 @@ No Unique Commit Loss Proof: `The FAM-006 stable worktree was rebound from curre
 
 ## BP1 Route
 
-BP1 Route: `Prepare USER Branch Vision Review for the FAM-006 Dashboard Overlay Profile persistence runtime foundation lane.`
+BP1 Route: `Superseded. Do not prepare BP1 for this branch identity. USER must first select a clean FAM-006 runtime focus through Branch Readiness.`
 Packet Reviewability Boundary: `A reviewable BP1 packet starts USER review; it is not USER acceptance.`
 USER Gate Boundary: `BP1 remains pending USER review until USER accepts, revises, rejects, waives, or blocks the Branch Vision.`
 
