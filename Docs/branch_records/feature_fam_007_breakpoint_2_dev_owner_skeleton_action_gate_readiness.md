@@ -488,7 +488,7 @@ Selected-Next Validation Status: `Not applicable by default - no USER-approved P
 Selected-Next Scope: `Deferred to Branch Readiness Stage 1 after merge and updated-main/external-state revalidation.`
 Branch Readiness Stage 1 Successor Selection Owner: `Branch Readiness Stage 1, not PR Readiness Stage 1 by default.`
 Required Current-Branch Source-Truth Sync: `Complete - current-main reconciliation landed at c0fbd068d104fc3e44df71ed865b48ad296c9703, repo-tracked active authority was folded down, Desktop packet must be refreshed to the reconciled HEAD, and external operational state points at the reconciled branch.`
-Planned Merge-Target Canon Updates: `Complete - branch record moves to a historical pre-release snapshot/no-active projection, branch plan records Stage 1 readiness as fixed receipt evidence, compact backlog/roadmap pointers remain durable evidence only, and active authority list retains only the standing Governance intake exception. After v1.7.29-prebeta publication this scope is released historical evidence, not current release-window posture.`
+Planned Merge-Target Canon Updates: `Complete - branch record moves to historical merged-unreleased/no-active projection, branch plan records Stage 1 readiness, compact backlog/roadmap pointers remain durable evidence only, and active authority list retains only the standing Governance intake exception.`
 Origin/Main Freshness Check: `PASS`
 Branch Creation Base: `origin/main@22054e0331d325303011798b12bf1118f7675eda`
 Current origin/main: `bf0047adce19b1ac1b6498775b11ca8ff2424906`
@@ -516,10 +516,10 @@ Historical Stage 2 Green-Light Decision Receipt: `I approve PR Readiness Stage 2
 
 ## Release Readiness Health Pass
 
-Post-Merge Branch Authority Projection: `PASS - this branch record preserves a historical pre-release snapshot and active operational state remains external/Git/GitHub/helper-derived until merge verification; merged main will not retain this branch as active authority. After v1.7.29-prebeta publication this is released historical evidence.`
+Post-Merge Branch Authority Projection: `PASS - this branch record is listed as historical merged-unreleased evidence and active operational state remains external/Git/GitHub/helper-derived until merge verification; merged main will not retain this branch as active authority.`
 Stale Active Branch Wording Scan: `PASS - post-merge state below does not retain active branch authority for this FAM-007 carrier.`
 Stale PR Creation / PR Readiness Pending Wording Scan: `PASS - PR creation pending wording is confined to this pre-PR Stage 1 packet and is not part of projected post-merge state.`
-Merged-Unreleased Scope Posture: `PASS - historical pre-release snapshot only. The completed implementation/proof carrier was release-window evidence before publication and became released historical evidence after v1.7.29-prebeta publication.`
+Merged-Unreleased Scope Posture: `PASS - this completed implementation/proof carrier becomes historical merged-unreleased evidence after PR merge until a separately approved Release Readiness pass publishes or defers release.`
 Release Execution Gate: `PASS - release, tag, GitHub Release, and artifact execution remain separate USER decisions after merge.`
 Watcher / Live PR State Projection: `PASS - no live PR exists at Stage 1; Stage 2 must establish live PR and watcher proof before PR green.`
 Branch Cleanup Plan: `PASS - no cleanup is authorized; stale branch/worktree cleanup remains a later USER decision.`
@@ -533,8 +533,8 @@ Projected Post-Merge Validation: `PASS - branch governance, PR readiness gate, r
 ## Post-Merge State
 
 Repo State: `No Active Branch`
-Branch Authority Projection: `Historical pre-release snapshot of the FAM-007 Breakpoint 2 public-safe proof carrier; released historical evidence after v1.7.29-prebeta publication.`
-Branch Record Projection: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md remains released historical evidence and a durable detail pointer after v1.7.29-prebeta publication.`
+Branch Authority Projection: `Historical merged-unreleased FAM-007 Breakpoint 2 public-safe proof carrier`
+Branch Record Projection: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md remains historical merged-unreleased evidence and durable detail pointer.`
 Branch Plan Projection: `Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md remains historical branch runtime engineering plan evidence until PR fold-down/retention decisions complete.`
 Backlog Projection: `Docs/feature_backlog.md keeps FAM-007 open/package-admitted and points to this branch record as durable planning/proof evidence only, not live operational authority.`
 Roadmap Projection: `Docs/prebeta_roadmap.md keeps FAM-007 Breakpoint 2 as durable branch evidence only, not active branch authority.`
