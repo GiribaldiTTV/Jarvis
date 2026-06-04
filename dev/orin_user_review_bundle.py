@@ -2013,8 +2013,12 @@ def _write_user_branch_plan_review(
     )
     bp1_branch_vision_packet = (
         "bp1 branch vision" in normalized_decision
-        and "authorize bp2 user branch plan review only" in normalized_decision
+        and "bp2 branch plan review" not in normalized_decision
+        and "bp2 user branch plan review" not in normalized_decision
+        and "bp3" not in normalized_decision
+        and "workstream implementation" not in normalized_decision
     )
+    bp1_packet = bp1_branch_vision_packet
     bp3_orchestration_packet = (
         not workstream_package_approval_packet
         and (
@@ -3058,13 +3062,25 @@ def _write_user_branch_plan_review(
         codex_response_digest = None
         workstream_entry_result = None
         contract_status = (
+            "Draft - BP2 is not prepared because BP1 Branch Vision acceptance or waiver is still pending."
+            if bp1_packet
+            else
             "Complete - BP2 engineering plan context is recorded for this PR Readiness Stage 1 packet; "
             "this packet does not request Workstream implementation approval."
             if pr_readiness_stage1_packet
             else "Pending USER Response - USER must accept, revise, reject, request more options, or waive this BP2 engineering plan before implementation."
         )
-        contract_version = "v2 - Generated BP2 Branch Plan Review."
+        contract_version = (
+            "v1 - BP2 pending placeholder generated during BP1 Branch Vision Review."
+            if bp1_packet
+            else "v2 - Generated BP2 Branch Plan Review."
+        )
         what_user_sees = (
+            "USER sees the BP1 Branch Vision Review as the primary decision file. "
+            "This BP2 review aid exists only to show that engineering planning remains "
+            "blocked until BP1 is accepted or explicitly waived."
+            if bp1_packet
+            else
             "USER sees a local USER hub review packet containing the governance lifecycle context plan, "
             "phase law, branch artifact rules, helper/validator ownership, branch authority routing, and "
             "supporting source-truth files needed before PR Readiness Stage 1."
@@ -3072,6 +3088,11 @@ def _write_user_branch_plan_review(
             else "USER should see the planned implementation surfaces, affected files, validators, proof requirements, and future-gated boundaries before implementation begins."
         )
         why_nexus = (
+            "This protects the Nexus phase contract by keeping Branch Vision before "
+            "Branch Plan, and by preventing packet reviewability from becoming USER "
+            "acceptance or implementation authority."
+            if bp1_packet
+            else
             "This keeps Branch Vision, Branch Plan, Workstream, Hardening, Live Validation, PR Readiness, "
             "and Release Readiness in separate governance layers while keeping USER review artifacts readable."
             if pr_readiness_stage1_packet
@@ -3106,6 +3127,13 @@ def _write_user_branch_plan_review(
         ]
         implementation_constraints = (
             [
+                "BP1 is pending USER acceptance, revision, waiver, rejection, or hold.",
+                "BP2 engineering planning must wait for accepted or explicitly waived BP1.",
+                "BP3, Workstream implementation, runtime mutation, PR, merge, release, cleanup, and unrelated family or governance mutation remain pending USER decisions.",
+            ]
+            if bp1_packet
+            else
+            [
                 "PR Readiness Stage 1 is analysis-only.",
                 "PR creation, merge, release, cleanup, runtime implementation, provider/model/cache/memory/private actions, sidecar artifacts, and separate Review/Upload taxonomy remain pending USER decisions; timestamped ZIP naming is mandatory active policy.",
                 "Accepted outcomes from this packet must fold into durable repo owners or approved external operational state, not the temporary USER review folder.",
@@ -3114,6 +3142,13 @@ def _write_user_branch_plan_review(
             else ["Pending USER response or explicit waiver."]
         )
         rejected_deferred = (
+            [
+                "Deferred: BP2 engineering plan until BP1 is accepted or explicitly waived.",
+                "Deferred: BP3 Workstream Entry / Orchestration Validation until BP2 is accepted or explicitly waived.",
+                "Deferred: Workstream implementation, runtime mutation, PR, merge, release, cleanup, and unrelated family or governance mutation.",
+            ]
+            if bp1_packet
+            else
             [
                 "Sidecar artifact model remains pending USER decision.",
                 "Uniquely named ZIP artifact model remains pending USER decision.",
@@ -3125,6 +3160,13 @@ def _write_user_branch_plan_review(
         )
         source_truth_impact = (
             [
+                "BP1 accepted outcomes must fold into the proper durable source-truth owners before BP2 relies on them.",
+                "The temporary USER review folder is not durable source truth.",
+                "Packet Reviewability State remains separate from USER Gate State.",
+            ]
+            if bp1_packet
+            else
+            [
                 "Lifecycle law remains owned by Docs/phase_governance.md.",
                 "Branch artifact rules remain owned by Docs/branch_plans/README.md.",
                 "USER hub helper enforcement remains owned by Docs/validation_helper_registry.md.",
@@ -3133,16 +3175,34 @@ def _write_user_branch_plan_review(
             if pr_readiness_stage1_packet
             else ["Pending USER response or explicit waiver."]
         )
-        contract_change_log = ["v2 - Generated as BP2 engineering-plan review rather than BP1 product/design contract."]
-        completion_checklist = [
-            "Contract Status is Complete or Waived by USER.",
-            "Accepted or waived BP1 trace is present or this packet is a later-phase context review.",
-            "Implementation package summary, seam/SLC plan, affected surfaces, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, and future-gated boundaries are represented.",
-            "Helper output verifies packet freshness while USER-facing files stay focused on context, plan, risks, proof expectations, and decisions.",
-            "BP3 / Workstream Entry may approve implementation only when BP1 and BP2 are accepted or explicitly waived.",
-            "PR Readiness Stage 1 approval remains analysis-only when this packet is a PR Readiness review packet.",
-        ]
+        contract_change_log = (
+            ["v1 - Generated as BP2 pending placeholder because BP1 Branch Vision Review is active."]
+            if bp1_packet
+            else ["v2 - Generated as BP2 engineering-plan review rather than BP1 product/design contract."]
+        )
+        completion_checklist = (
+            [
+                "BP1 is accepted or explicitly waived before this placeholder can become an active BP2 plan.",
+                "Accepted or waived BP1 trace is present before BP2 preparation.",
+                "Implementation package summary, seam/SLC plan, affected surfaces, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, and future-gated boundaries are not treated as accepted until BP2 is prepared and USER accepts or waives it.",
+                "BP3 / Workstream Entry remains blocked until BP2 is accepted or explicitly waived.",
+            ]
+            if bp1_packet
+            else [
+                "Contract Status is Complete or Waived by USER.",
+                "Accepted or waived BP1 trace is present or this packet is a later-phase context review.",
+                "Implementation package summary, seam/SLC plan, affected surfaces, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, and future-gated boundaries are represented.",
+                "Helper output verifies packet freshness while USER-facing files stay focused on context, plan, risks, proof expectations, and decisions.",
+                "BP3 / Workstream Entry may approve implementation only when BP1 and BP2 are accepted or explicitly waived.",
+                "PR Readiness Stage 1 approval remains analysis-only when this packet is a PR Readiness review packet.",
+            ]
+        )
         plain_english_summary = (
+            "BP2 is not active yet. This review aid exists during BP1 only to make "
+            "the gate boundary explicit: USER must accept or waive the Branch Vision "
+            "before Codex prepares the engineering plan."
+            if bp1_packet
+            else
             "This BP2 Branch Plan Review summarizes how the accepted or waived Branch Vision "
             "will be built, validated, hardened, live-validated, reviewed, and rolled back. "
             "For this packet, it serves as engineering-plan context for PR Readiness Stage 1."
@@ -3153,6 +3213,11 @@ def _write_user_branch_plan_review(
             "before BP3 may authorize Workstream implementation."
         )
         end_state_vision = (
+            "After BP1 is accepted or explicitly waived, BP2 should translate that "
+            "accepted Branch Vision into a concrete engineering plan. Until then, "
+            "no implementation plan is accepted and no runtime work is authorized."
+            if bp1_packet
+            else
             "The completed governance repair leaves lifecycle law, BP1/BP2/BP3 artifact roles, "
             "the local USER hub model, external-state split, helper/validator enforcement, and "
             "pending artifact-model decisions in their proper owners."
@@ -3161,24 +3226,48 @@ def _write_user_branch_plan_review(
             "When BP2 is accepted or waived, USER should understand which implementation surfaces "
             "are affected, which validators prove them, which risks remain, and what stays future-gated."
         )
-        walkthrough = [
-            "Review the copied context plan for the lifecycle and USER hub model.",
-            "Review phase governance, branch artifact rules, and helper registry for owner boundaries.",
-            "Review the copied branch authority record for standing Governance routing context.",
-            "Use this packet to decide whether PR Readiness Stage 1 analysis should begin.",
-        ]
-        surface_map = [
-            "Docs/phase_governance.md: lifecycle law.",
-            "Docs/branch_plans/README.md: BP1/BP2/BP3 artifact rules.",
-            "Docs/validation_helper_registry.md: helper and validator enforcement.",
-            "Docs/branch_records/index.md and Governance branch record: branch routing law.",
-            "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance-YYYYMMDD-HHMMSS.zip: temporary USER review aids.",
-        ]
-        implementation_options = [
-            "Option A - Approve PR Readiness Stage 1 analysis as recommended. Pros: moves the Governance reform toward PR creation review; Cons: no PR is created yet; Risk: low.",
-            "Option B - Revise the PR Readiness Stage 1 inspection criteria before analysis. Pros: lets USER tune the review; Cons: adds packet/source-truth repair; Risk: low.",
-            "Option C - Pause and request another governance hardening scan. Pros: maximum caution; Cons: delays PR readiness; Risk: low.",
-        ]
+        walkthrough = (
+            [
+                "Review USER_BRANCH_VISION_REVIEW.md as the primary BP1 decision file.",
+                "Use this BP2 review aid only to confirm BP2 is pending and blocked until BP1 is accepted or waived.",
+                "Do not treat this placeholder as an accepted engineering plan.",
+            ]
+            if bp1_packet
+            else [
+                "Review the copied context plan for the lifecycle and USER hub model.",
+                "Review phase governance, branch artifact rules, and helper registry for owner boundaries.",
+                "Review the copied branch authority record for standing Governance routing context.",
+                "Use this packet to decide whether PR Readiness Stage 1 analysis should begin.",
+            ]
+        )
+        surface_map = (
+            [
+                "USER Review/USER_BRANCH_VISION_REVIEW.md: primary BP1 Branch Vision decision file.",
+                "Review Aids/USER_BRANCH_PLAN_REVIEW.md: BP2 pending placeholder only.",
+                "Source Truth Context/: copied branch, family, phase, artifact, backlog, roadmap, and helper context supplied to the packet.",
+            ]
+            if bp1_packet
+            else [
+                "Docs/phase_governance.md: lifecycle law.",
+                "Docs/branch_plans/README.md: BP1/BP2/BP3 artifact rules.",
+                "Docs/validation_helper_registry.md: helper and validator enforcement.",
+                "Docs/branch_records/index.md and Governance branch record: branch routing law.",
+                "C:\\Nexus USER\\Governance and C:\\Nexus USER\\Governance-YYYYMMDD-HHMMSS.zip: temporary USER review aids.",
+            ]
+        )
+        implementation_options = (
+            [
+                "Option A - Accept BP1 and then prepare BP2. Pros: moves to real engineering planning; Cons: no implementation yet; Risk: low when vision is clear.",
+                "Option B - Revise BP1 before BP2. Pros: improves the plan basis; Cons: adds another packet pass; Risk: low.",
+                "Option C - Hold or reject BP1. Pros: prevents planning against the wrong vision; Cons: stops this branch lane; Risk: low.",
+            ]
+            if bp1_packet
+            else [
+                "Option A - Approve PR Readiness Stage 1 analysis as recommended. Pros: moves the Governance reform toward PR creation review; Cons: no PR is created yet; Risk: low.",
+                "Option B - Revise the PR Readiness Stage 1 inspection criteria before analysis. Pros: lets USER tune the review; Cons: adds packet/source-truth repair; Risk: low.",
+                "Option C - Pause and request another governance hardening scan. Pros: maximum caution; Cons: delays PR readiness; Risk: low.",
+            ]
+        )
         recommended_direction = (
             "Codex recommends approving PR Readiness Stage 1 only after the local USER hub packet, "
             "source-truth owners, helper/validator rules, and technical-metadata boundaries read cleanly."
@@ -3187,24 +3276,54 @@ def _write_user_branch_plan_review(
             "Codex recommends accepting BP2 only when the engineering plan clearly builds the accepted BP1 vision, "
             "names its affected surfaces, validators, proof path, rollback plan, and pending boundaries."
         )
-        current_scope = [
-            "Governance Phase Lifecycle Reform source-truth and helper hardening.",
-            "Local USER hub packet refresh under C:\\Nexus USER.",
-            "Technical proof metadata remains outside USER-facing review content.",
-            "PR Readiness Stage 1 remains pending USER approval.",
-        ]
-        future_scope = [
-            "PR creation, merge, release, cleanup, runtime work, FAM-006/FAM-007 mutation, private/provider/cache/memory actions, sidecars, and separate Review/Upload taxonomy remain pending USER decisions; timestamped ZIP naming is mandatory active policy.",
-        ]
-        slc_package_plan = [
-            "SLCs remain engineering route details inside an accepted branch; they do not automatically become separate branches.",
-            "Workstream implementation is not part of this PR Readiness Stage 1 packet.",
-        ]
-        user_decisions = [
-            "Does USER approve PR Readiness Stage 1 analysis for this Governance branch?",
-            "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
-            "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
-        ]
+        current_scope = (
+            [
+                "BP1 Branch Vision Review only.",
+                "Local USER hub packet refresh under C:\\Nexus USER.",
+                "Technical proof metadata remains outside USER-facing review content.",
+                "BP2 remains pending accepted or waived BP1.",
+            ]
+            if bp1_packet
+            else [
+                "Governance Phase Lifecycle Reform source-truth and helper hardening.",
+                "Local USER hub packet refresh under C:\\Nexus USER.",
+                "Technical proof metadata remains outside USER-facing review content.",
+                "PR Readiness Stage 1 remains pending USER approval.",
+            ]
+        )
+        future_scope = (
+            [
+                "BP2, BP3, Workstream implementation, runtime mutation, PR, merge, release, cleanup, issue mutation, sibling-family mutation, and governance mutation remain pending USER decisions.",
+            ]
+            if bp1_packet
+            else [
+                "PR creation, merge, release, cleanup, runtime work, FAM-006/FAM-007 mutation, private/provider/cache/memory actions, sidecars, and separate Review/Upload taxonomy remain pending USER decisions; timestamped ZIP naming is mandatory active policy.",
+            ]
+        )
+        slc_package_plan = (
+            [
+                "SLCs remain future engineering route details inside an accepted Branch Vision and Branch Plan.",
+                "Workstream implementation is not part of this BP1 packet.",
+            ]
+            if bp1_packet
+            else [
+                "SLCs remain engineering route details inside an accepted branch; they do not automatically become separate branches.",
+                "Workstream implementation is not part of this PR Readiness Stage 1 packet.",
+            ]
+        )
+        user_decisions = (
+            [
+                exact_user_decision,
+                "Does USER require any BP1 revision before BP2 planning?",
+                "Does USER confirm BP2, BP3, Workstream implementation, runtime mutation, PR, merge, release, and cleanup remain pending?",
+            ]
+            if bp1_packet
+            else [
+                "Does USER approve PR Readiness Stage 1 analysis for this Governance branch?",
+                "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
+                "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
+            ]
+        )
     if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2:
         plain_english_summary = (
             "This BP2 preview is future-gated until USER accepts or explicitly waives BP1. "
@@ -5057,11 +5176,12 @@ def _write_workstream_entry_packet_digests(
             "Plan Review only if USER accepts or explicitly waives BP1."
         )
         scan_result = (
-            "Source-Truth Coverage: packet includes the project vision, FAM-007 "
-            "family vision, Public/Dev/Owner boundary plan, AI Runtime And Trust "
-            "Architecture, active branch authority record, branch artifact rules, "
-            "phase governance, execution rules, validation registry, backlog, and "
-            "roadmap context needed for the BP1 Branch Vision decision."
+            "Source-Truth Coverage: packet includes the copied source-truth context "
+            "provided to the helper for this branch, plus branch artifact rules, "
+            "phase governance, execution rules, validation registry, backlog or "
+            "roadmap context when copied, and branch authority context needed for "
+            "the BP1 Branch Vision decision. Copied source truth is supporting "
+            "context only; it does not replace the primary USER decision file."
         )
         checklist_status = (
             "Checklist Focus: BP1 Branch Vision Review - project, family, feature, "
@@ -5070,10 +5190,11 @@ def _write_workstream_entry_packet_digests(
             "are represented for USER inspection."
         )
         digest_status = (
-            "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md, "
-            "USER_BRANCH_PLAN_REVIEW.md as BP2 preview only, required digest/"
-            "checklist files, and copied source-truth files are loaded and "
-            "digestible for USER review; BP1 remains pending USER decision."
+            "Review Summary: START_HERE.md, USER_BRANCH_VISION_REVIEW.md as the "
+            "primary BP1 decision file, BP2 context marked pending only when "
+            "generated as a review aid, required digest/checklist files, and "
+            "copied source-truth files are loaded and digestible for USER review; "
+            "BP1 remains pending USER decision."
         )
     elif bp2_packet:
         analysis_status = (
