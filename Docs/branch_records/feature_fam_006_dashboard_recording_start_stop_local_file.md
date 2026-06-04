@@ -85,7 +85,10 @@ Workstream Package Impact: `The accepted same-branch Workstream package now has 
 Issue #258 Proof Scenario: `Create or edit a Dashboard/HUD Overlay Profile through the accepted runtime path, close or restart Nexus or the accepted lifecycle equivalent, reopen or reload Nexus, confirm the created Overlay Profile still exists, confirm it remains selectable and usable in the Dashboard/HUD flow, and confirm the persistence repair does not regress the recording target model or Dashboard Recording card state model.`
 Issue #258 Closeout Status: `Pending implementation proof, Live Validation, USER disposition, and separate issue closeout decision.`
 Amended BP2 Disposition: `USER accepted the amended BP2 Branch Plan on 2026-06-04 with issue #258 admitted as a distinct required Workstream bugfix / repair line item.`
-Implementation Authority: `Pending amended BP3 Workstream Entry / Orchestration Validation and separate bounded Workstream implementation approval.`
+Amended BP3 Disposition: `USER approved amended BP3 Workstream Entry / Orchestration Validation on 2026-06-04 for the two-line-item package.`
+Accepted BP3 Guardrails: `Dashboard Recording Start/Stop To Local File and issue #258 Overlay Profile persistence are both required Workstream line items; issue #258 remains outside BR2/BP1 branch identity and closeout remains pending implementation proof, Live Validation, USER disposition, and separate issue closeout decision.`
+Implementation Authority: `Pending separate bounded Workstream implementation approval.`
+Next Legal Phase: `Bounded Workstream implementation approval`
 
 ## Source-Truth Placement
 
