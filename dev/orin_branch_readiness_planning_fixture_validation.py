@@ -552,6 +552,15 @@ def _validate_bp1_branch_vision_review_text(text: str) -> list[str]:
         "user will see a local user hub packet",
         "the accepted bp1 vision will become the target for bp2",
         "user reads the fam-007 packet",
+        "name the concrete branch outcome",
+        "user should be able to point to the accepted outcome",
+        "user should see an applied explanation",
+        "the branch vision functions as the product and governance target",
+        "strongest implied",
+        "narrower surface path",
+        "broader owner/family impact path",
+        "choose the most concrete",
+        "which concrete outcome should user expect",
     )
     for phrase in template_shell_phrases:
         require(
