@@ -16950,6 +16950,11 @@ query($owner: String!, $repo: String!, $number: Int!) {
   repository(owner: $owner, name: $repo) {
     pullRequest(number: $number) {
       headRefOid
+      commits(last: 1) {
+        nodes {
+          commit { oid committedDate pushedDate }
+        }
+      }
       reactions(first: 100, content: THUMBS_UP) {
         nodes {
           content
@@ -17068,6 +17073,19 @@ def _github_pr_bot_signal_for_current_head_timeline(
     nodes = (((pull_request.get("timelineItems") or {}).get("nodes")) or [])
     current_head_index: int | None = None
     current_head_commit_time: datetime | None = None
+    commit_nodes = (((pull_request.get("commits") or {}).get("nodes")) or [])
+    for commit_node in commit_nodes:
+        commit_payload = commit_node.get("commit") or {}
+        oid = str(commit_payload.get("oid") or "")
+        if oid != current_head_sha:
+            continue
+        head_time_value = str(
+            commit_payload.get("pushedDate")
+            or commit_payload.get("committedDate")
+            or ""
+        )
+        current_head_commit_time = _parse_iso8601_timestamp(head_time_value)
+
     for index, node in enumerate(nodes):
         if node.get("__typename") != "PullRequestCommit":
             continue
@@ -17082,8 +17100,8 @@ def _github_pr_bot_signal_for_current_head_timeline(
             )
             current_head_commit_time = _parse_iso8601_timestamp(head_time_value)
 
-    if current_head_index is None:
-        return signal, f"could not locate current head '{current_head_sha}' in PR timeline"
+    if current_head_index is None and current_head_commit_time is None:
+        return signal, f"could not locate current head '{current_head_sha}' in PR commits or timeline"
 
     latest_approval: dict[str, object] | None = None
     latest_comment: dict[str, object] | None = None
@@ -17123,12 +17141,22 @@ def _github_pr_bot_signal_for_current_head_timeline(
                 )
             continue
 
-        if typename != "IssueComment" or index <= current_head_index:
+        if typename != "IssueComment":
             continue
         actor = str(((node.get("author") or {}).get("login")) or "")
         body = str(node.get("body") or "")
         created_at = str(node.get("createdAt") or "")
         created_time = _parse_iso8601_timestamp(created_at)
+        if created_time is None:
+            continue
+        if current_head_index is not None and index <= current_head_index:
+            continue
+        if (
+            current_head_index is None
+            and current_head_commit_time is not None
+            and created_time < current_head_commit_time
+        ):
+            continue
         if _bot_login_matches(actor) and created_time is not None:
             if _bot_review_comment_is_green_signal(body):
                 latest_approval = _latest_signal_candidate(
@@ -21751,12 +21779,14 @@ def main() -> int:
     branch_governance_validator_text = _read_text(Path("dev/orin_branch_governance_validation.py"))
     for required_phrase in (
         "headRefOid",
+        "commits(last: 1)",
         "timelineItems",
         "PULL_REQUEST_COMMIT",
         "committedDate",
         "pushedDate",
         "reactions(first: 100, content: THUMBS_UP)",
         "current_head_commit_time",
+        "current_head_index is None and current_head_commit_time is None",
         "current_head_reaction_floor_time",
         "PR-level thumbs-up reaction",
         "signal_head == current_head_sha",
