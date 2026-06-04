@@ -9,6 +9,7 @@ backlog/roadmap from absorbing detailed runtime-branch planning narrative.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 
@@ -332,6 +333,27 @@ def _section(text: str, heading: str) -> str:
     return text[start:]
 
 
+def _git_output(*args: str) -> str:
+    try:
+        return subprocess.check_output(["git", *args], text=True, cwd=ROOT).strip()
+    except Exception:
+        return ""
+
+
+def _branch_name_to_plan_path(branch: str) -> str:
+    return f"Docs/branch_plans/{branch.replace('-', '_').replace('/', '_')}.md"
+
+
+def _retired_branch_plan_paths(retirement_text: str) -> set[str]:
+    retired_section = _section(retirement_text, "## Retired Branch Plans")
+    return set(
+        re.findall(
+            r"`(Docs/branch_plans/[^`]+\.md)`\s*\|\s*Retired from active planning posture",
+            retired_section,
+        )
+    )
+
+
 def _field_value(line: str, field: str) -> str | None:
     prefix = f"{field}:"
     stripped = line.strip()
@@ -640,6 +662,39 @@ def validate() -> list[str]:
             failures.append(
                 f"{DOCS_REFORM_REVIEW_INDEX}: exact decision must not pin a live branch"
             )
+        user_decision_section = _section(index_text, "## Files Needing USER Decision")
+        user_decision_rows = len(re.findall(r"(?m)^\| `Docs/", user_decision_section))
+        user_decision_count_match = re.search(
+            r"Total USER decision rows:\s*(\d+)",
+            user_decision_section,
+        )
+        if user_decision_count_match:
+            user_decision_count = int(user_decision_count_match.group(1))
+            if user_decision_count != user_decision_rows:
+                failures.append(
+                    f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision declares "
+                    f"{user_decision_count} rows but lists {user_decision_rows}"
+                )
+        retirement_text = _read(BRANCH_PLAN_RETIREMENT_INDEX)
+        retired_plan_paths = _retired_branch_plan_paths(retirement_text)
+        user_decision_paths = set(
+            re.findall(r"(?m)^\| `(Docs/[^`]+)`", user_decision_section)
+        )
+        for retired_plan_path in sorted(retired_plan_paths):
+            if retired_plan_path not in user_decision_section:
+                failures.append(
+                    f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision missing "
+                    f"retired plan row for {retired_plan_path}"
+                )
+        for user_decision_path in sorted(
+            path for path in user_decision_paths if path.startswith("Docs/branch_plans/")
+        ):
+            if user_decision_path not in retired_plan_paths:
+                failures.append(
+                    f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision lists "
+                    f"{user_decision_path}, but that file is not listed in "
+                    f"{BRANCH_PLAN_RETIREMENT_INDEX}'s retired branch-plan table"
+                )
 
     for path in (Path("Docs/feature_backlog.md"), Path("Docs/prebeta_roadmap.md")):
         text = _read(path)

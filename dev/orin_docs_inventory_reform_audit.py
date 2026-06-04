@@ -473,12 +473,30 @@ def branch_name_to_plan_path(branch: str) -> str:
     return f"Docs/branch_plans/{branch.replace('-', '_').replace('/', '_')}.md"
 
 
+def retired_branch_plan_paths() -> set[str]:
+    """Return branch plans explicitly listed as retired in the retirement index."""
+    retirement_index = DOCS / "branch_plans" / "retirement_index.md"
+    text = read_text(retirement_index)
+    start = text.find("## Retired Branch Plans")
+    if start == -1:
+        return set()
+    rest = text[start:]
+    next_heading = re.search(r"(?m)^##\s+", rest[len("## Retired Branch Plans") :])
+    section = (
+        rest[: len("## Retired Branch Plans") + next_heading.start()]
+        if next_heading
+        else rest
+    )
+    return set(re.findall(r"`(Docs/branch_plans/[^`]+\.md)`\s*\|\s*Retired from active planning posture", section))
+
+
 def action_for(
     rel: str,
     owner: str,
     lines: int,
     changed: set[str],
     active_branch_plan_paths: set[str] | None = None,
+    retired_branch_plan_paths: set[str] | None = None,
 ) -> tuple[str, str, str]:
     completed = (
         "Updated in this reform branch."
@@ -518,17 +536,24 @@ def action_for(
             "Keep as historical receipt; remove stale active wording if reopened or edited.",
         )
     active_branch_plan_paths = active_branch_plan_paths or set()
+    retired_branch_plan_paths = retired_branch_plan_paths or set()
     if owner == "branch runtime engineering plan" and rel in active_branch_plan_paths:
         return (
             "Externalize active branch plan",
             completed,
             "If this file still carries live branch planning state, move that operational state to external branch state or convert it to a historical receipt before PR green.",
         )
-    if owner == "branch runtime engineering plan":
+    if rel in retired_branch_plan_paths:
         return (
             "Retired posture indexed",
             completed,
             "Do not reuse as an active plan; deletion requires later USER approval plus reference proof that durable content remains preserved.",
+        )
+    if owner == "branch runtime engineering plan":
+        return (
+            "Keep transition branch plan",
+            completed,
+            "Not listed in the retired branch-plan table; preserve as transition/current branch-local planning receipt until the owning branch folds down or externalizes active state.",
         )
     if owner == "branch plan retirement index":
         return (
@@ -621,8 +646,10 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         return "Keep here as least-updated canonical docs index and recovery/source-truth map; move full policy to owner docs."
     if bool(row.get("active_branch_plan")):
         return "Current branch-plan transition candidate; active operational planning must live in external branch state, while repo retains only approved transition evidence or historical receipt."
-    if owner == "branch runtime engineering plan":
+    if action == "Retired posture indexed":
         return "Listed in Docs/branch_plans/retirement_index.md as historical retired posture; keep durable lookup paths in branch records/workstreams/family vision owners."
+    if owner == "branch runtime engineering plan":
+        return "Not listed in the retired branch-plan table; keep as transition/current branch-local planning receipt until owning branch fold-down or external replacement proof is USER-approved."
     if owner == "branch plan retirement index":
         return "Keep here as central retired-plan lookup; do not duplicate full branch plans in this index."
     if owner == "branch authority / structured receipt":
@@ -672,8 +699,10 @@ def deletion_posture_for(row: dict[str, object]) -> str:
     action = str(row["action"])
     if bool(row.get("active_branch_plan")):
         return "Transition branch-plan receipt; do not delete, archive, or retire without external replacement proof and USER approval."
-    if owner == "branch runtime engineering plan":
+    if action == "Retired posture indexed":
         return "Retired from active planning posture; do not delete without separate USER approval and reference proof."
+    if owner == "branch runtime engineering plan":
+        return "Transition/current branch-local branch-plan receipt; do not delete, archive, or retire until owning branch fold-down or external replacement proof is USER-approved."
     if owner == "pending fold-source file":
         return "Do not delete now; delete or rename only after USER accepts no-loss fold proof."
     if "USER review" in action:
@@ -1044,9 +1073,11 @@ def build_user_review_index(
     )
     add("## Files Needing USER Decision")
     add("")
+    add(f"Total USER decision rows: {len(retire_candidates)}")
+    add("")
     add("| File | Reason | Recommendation |")
     add("| --- | --- | --- |")
-    for rel, reason, rec in retire_candidates[:25]:
+    for rel, reason, rec in retire_candidates:
         add(f"| `{rel}` | {reason} | {rec} |")
     if not retire_candidates:
         add("| None | N/A | N/A |")
@@ -1133,6 +1164,7 @@ def generate() -> None:
     origin_main = git_output("rev-parse", "origin/main")
     merge_base = git_output("merge-base", "HEAD", "origin/main")
     active_branch_plan_paths = {branch_name_to_plan_path(branch)} if branch else set()
+    retired_plan_paths = retired_branch_plan_paths()
 
     file_rows: list[dict[str, object]] = []
     fact_map: dict[str, set[str]] = {key: set() for key in FACT_CLASSES}
@@ -1150,6 +1182,7 @@ def generate() -> None:
             lines,
             changed,
             active_branch_plan_paths=active_branch_plan_paths,
+            retired_branch_plan_paths=retired_plan_paths,
         )
         counts = {name: count_matches(text, patterns) for name, patterns in PATTERNS.items()}
         duplicate_classes = [fact for fact, patterns in FACT_CLASSES.items() if count_matches(text, patterns)]
@@ -1174,7 +1207,7 @@ def generate() -> None:
         if action == "USER review needed":
             retire_candidates.append((rel, "purpose not clearly owned by current model", "needs USER decision"))
         active_branch_plan = owner == "branch runtime engineering plan" and rel in active_branch_plan_paths
-        if owner == "branch runtime engineering plan" and not active_branch_plan:
+        if rel in retired_plan_paths and not active_branch_plan:
             retire_candidates.append(
                 (
                     rel,
