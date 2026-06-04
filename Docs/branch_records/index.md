@@ -147,6 +147,7 @@ This repo-tracked active list is intentionally narrow after External Operational
 
 ## Historical Branch Authority Records
 
+- `Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md`
 - `Docs/branch_records/feature_fam_006_dashboard_overlay_profile_persistence_repair.md`
 - `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 - `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
