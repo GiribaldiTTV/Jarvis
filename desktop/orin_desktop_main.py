@@ -514,6 +514,7 @@ def main():
                 surface_role="hud",
                 monitoring_hud_feature_enabled=monitoring_hud_feature_enabled_at_startup,
                 monitoring_hud_dashboard_visible=monitoring_hud_dashboard_visible_at_startup,
+                monitoring_hud_initial_state=monitoring_hud_saved_state,
             )
         except Exception as exc:
             window = DesktopRuntimeUnavailable(

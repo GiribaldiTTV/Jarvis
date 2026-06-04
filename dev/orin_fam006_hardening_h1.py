@@ -1,8 +1,8 @@
 """FAM-006 Hardening H1 proof for the active-overlay recording package.
 
 This helper is non-mutating. It compares SLC-051 through SLC-055 against the
-accepted BP1/BP2/BP3 route and verifies that Live Validation, UTS, recording
-execution, and file writing remain outside H1.
+accepted BP1/BP2/BP3 route and verifies that Live Validation and UTS remain
+outside H1 while Dashboard Start/Stop and local output writing are present.
 """
 
 from __future__ import annotations
@@ -77,11 +77,12 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "slc-052-dashboard-recording-card-target-status",
                     "dashboard-recording-card-primary",
                     "hud-overlay-overlay-focused",
+                    "dashboard-card-control",
                     "future-secondary-surface",
-                    "monitoringHudRequestRecordingControlWindow",
+                    "monitoringHudToggleRecording",
                 ),
             ),
-            "hardeningCheck": "Dashboard Recording card target/status and future-secondary control markers",
+            "hardeningCheck": "Dashboard Recording card target/status and Start/Stop control markers",
         },
         {
             "slice": "SLC-053",
@@ -96,26 +97,29 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "recordingFileWritingState",
                 ),
             ),
-            "hardeningCheck": "standalone Recording Control window foundation markers",
+            "hardeningCheck": "standalone Recording Control remains future-secondary while Dashboard controls are active",
         },
         {
             "slice": "SLC-054",
             "result": bool(
                 output_contract.get("passed")
-                and output_contract.get("fileWritingBlocked")
-                and output_contract.get("recordingExecutionBlocked")
+                and output_contract.get("fileWritingEnabled")
+                and output_contract.get("recordingExecutionEnabled")
+                and output_contract.get("writeReadbackPassed")
                 and _contains_all(
                     output_source,
                     (
                         "recording_output_contract",
+                        "write_recording_output_files",
+                        "readback_recording_output_files",
                         "render_recording_output_csv",
                         "parse_recording_output_csv",
-                        '"fileWritingState": "blocked"',
-                        '"recordingExecutionState": "blocked"',
+                        '"fileWritingState": "enabled"',
+                        '"recordingExecutionState": "enabled"',
                     ),
                 )
             ),
-            "hardeningCheck": "output contract schema/readback and blocked execution markers",
+            "hardeningCheck": "output contract schema/write/readback and active execution markers",
         },
         {
             "slice": "SLC-055",
@@ -164,8 +168,9 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         "slcResults": slc_results,
         "allSlicesHardened": all(item["result"] for item in slc_results),
         "outputContractProofPassed": output_contract["passed"],
-        "fileWritingBlocked": output_contract["fileWritingBlocked"],
-        "recordingExecutionBlocked": output_contract["recordingExecutionBlocked"],
+        "fileWritingEnabled": output_contract["fileWritingEnabled"],
+        "recordingExecutionEnabled": output_contract["recordingExecutionEnabled"],
+        "writeReadbackPassed": output_contract["writeReadbackPassed"],
         "futureBoundariesPreserved": boundary_trace,
         "liveValidationState": "pending-user-admission-after-h1",
         "utsState": "pending-live-validation-stage-1",
@@ -177,8 +182,9 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         proof["acceptedBPTracePassed"]
         and proof["allSlicesHardened"]
         and proof["outputContractProofPassed"]
-        and proof["fileWritingBlocked"]
-        and proof["recordingExecutionBlocked"]
+        and proof["fileWritingEnabled"]
+        and proof["recordingExecutionEnabled"]
+        and proof["writeReadbackPassed"]
         and proof["futureBoundariesPreserved"]
         and not proof["formalUtsExported"]
     )

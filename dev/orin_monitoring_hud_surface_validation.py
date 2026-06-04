@@ -1216,7 +1216,7 @@ def validate() -> list[str]:
         "active-overlay-recording-target",
         "target-session-truth-only",
         "active-overlay-profile-membership",
-        "future-snapshot-at-recording-start-target-candidate",
+        "snapshot-at-recording-start",
         "hiddenRecordingTargetState",
         "recordingExecutionState",
         "fileWritingState",
@@ -1248,10 +1248,10 @@ def validate() -> list[str]:
         'data-active-monitor-transparency="slc-052-dashboard-visible-count-and-names"',
         'data-hud-overlay-recording-boundary="hud-overlay-overlay-focused"',
         'id="monitoring-hud-recording-control-launcher"',
-        'data-recording-control-window-state="future-secondary"',
+        'data-recording-control-window-state="dashboard-card-control"',
         'data-native-window-contract="future-secondary-surface"',
-        'data-recording-execution-state="blocked"',
-        'data-recording-file-writing-state="blocked"',
+        'data-recording-execution-state="ready"',
+        'data-recording-file-writing-state="ready"',
         '<span>Target overlay profile</span>',
         'id="monitoring-hud-recording-target-count">2 active monitors</strong>',
     ):
@@ -1259,7 +1259,7 @@ def validate() -> list[str]:
 
     for needle in (
         "monitoringHudRenderActiveOverlayRecordingTargetPreview",
-        "monitoringHudRequestRecordingControlWindow",
+        "monitoringHudToggleRecording",
         "runMonitoringHudRecordingTargetPreviewProof",
         "recordingTargetPreviewProof",
         "monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile",
@@ -1270,7 +1270,7 @@ def validate() -> list[str]:
         "slc-052-dashboard-visible-count-and-names",
         "dashboard-recording-card-primary",
         "hud-overlay-overlay-focused",
-        "Recording Controls Future",
+        "Start Recording",
         "future-secondary-surface",
         "trayRecordingControlState",
     ):
@@ -1305,8 +1305,8 @@ def validate() -> list[str]:
         "render_recording_output_csv",
         "parse_recording_output_csv",
         "validate_recording_output_contract",
-        '"fileWritingState": "blocked"',
-        '"recordingExecutionState": "blocked"',
+        '"fileWritingState": "enabled"',
+        '"recordingExecutionState": "enabled"',
         '"nativeLogLoaderState": "future-separate-viewer"',
     ):
         _require_contains(output_contract, needle, "SLC-054 durable recording output contract", failures)

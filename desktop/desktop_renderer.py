@@ -46,6 +46,7 @@ from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
 from .monitoring_hud_state import save_monitoring_hud_state
 from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
+from .recording_output_contract import write_recording_output_files
 from .saved_action_authoring import (
     CallableGroupDraft,
     CallableGroupDraftValidationError,
@@ -5867,6 +5868,7 @@ class DesktopRuntimeWindow(QWidget):
         surface_role: str = "hud",
         monitoring_hud_feature_enabled: bool = False,
         monitoring_hud_dashboard_visible: bool | None = None,
+        monitoring_hud_initial_state: dict | None = None,
     ):
         super().__init__()
         global _DIALOG_RUNTIME_LOGGER
@@ -5936,6 +5938,7 @@ class DesktopRuntimeWindow(QWidget):
         self._last_launch_failure_action_id = ""
         self._last_launch_failure_count = 0
         self._reported_recoverable_launch_failures = set()
+        initial_hud_state = monitoring_hud_initial_state if isinstance(monitoring_hud_initial_state, dict) else {}
         self._monitoring_hud_feature_enabled = bool(monitoring_hud_feature_enabled)
         if monitoring_hud_dashboard_visible is None:
             monitoring_hud_dashboard_visible = monitoring_hud_feature_enabled
@@ -5953,9 +5956,10 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_dashboard_overlay_independence_signature = None
         self._monitoring_hud_overlay_display_workstream_readiness_signature = None
         self._monitoring_hud_recording_control_signature = None
-        self._monitoring_hud_overlay_profiles = {}
-        self._monitoring_hud_active_overlay_profile_id = "default-overlay-profile"
-        self._monitoring_hud_overlay_profile_default_deleted_by_user = False
+        self._monitoring_hud_recording_output_signature = None
+        self._monitoring_hud_overlay_profiles = dict(initial_hud_state.get("overlayProfiles") if isinstance(initial_hud_state.get("overlayProfiles"), dict) else {})
+        self._monitoring_hud_active_overlay_profile_id = str(initial_hud_state.get("activeOverlayProfileId") or "default-overlay-profile")
+        self._monitoring_hud_overlay_profile_default_deleted_by_user = bool(initial_hud_state.get("overlayProfileDefaultDeletedByUser"))
         self._monitoring_hud_overlay_profile_monitor_ids = []
         self._monitoring_hud_active_child_window_signature = None
         self._monitoring_hud_control_sync_timer = QTimer(self)
@@ -6612,6 +6616,9 @@ class DesktopRuntimeWindow(QWidget):
             "anchored": self._monitoring_hud_anchored,
             "snapEnabled": self._monitoring_hud_snap_enabled,
             "pollingRateMs": self._monitoring_hud_polling_rate_ms,
+            "overlayProfiles": dict(getattr(self, "_monitoring_hud_overlay_profiles", {}) or {}),
+            "activeOverlayProfileId": str(getattr(self, "_monitoring_hud_active_overlay_profile_id", "default-overlay-profile") or ""),
+            "overlayProfileDefaultDeletedByUser": bool(getattr(self, "_monitoring_hud_overlay_profile_default_deleted_by_user", False)),
         }
 
     def _publish_monitoring_hud_control_state_to_page(self):
@@ -16058,6 +16065,60 @@ class DesktopRuntimeWindow(QWidget):
         recording_control_summary = state.get("recordingControlWindowTargetSummary")
         recording_control_requested = bool(state.get("recordingControlWindowRequested"))
         recording_control_request_id = int(state.get("recordingControlWindowRequestId") or 0)
+        recording_output_request = state.get("recordingOutputRequest")
+        if isinstance(recording_output_request, dict):
+            samples = recording_output_request.get("samples")
+            target_monitor_ids = recording_output_request.get("targetMonitorIds")
+            output_signature = (
+                str(recording_output_request.get("requestId") or ""),
+                str(recording_output_request.get("sessionId") or ""),
+                str(recording_output_request.get("stoppedAtUtc") or ""),
+                len(samples) if isinstance(samples, list) else 0,
+            )
+            if output_signature != self._monitoring_hud_recording_output_signature:
+                self._monitoring_hud_recording_output_signature = output_signature
+                try:
+                    result = write_recording_output_files(
+                        session_id=str(recording_output_request.get("sessionId") or ""),
+                        active_overlay_profile_id=str(recording_output_request.get("activeOverlayProfileId") or ""),
+                        active_overlay_profile_name=str(recording_output_request.get("activeOverlayProfileName") or ""),
+                        target_monitor_ids=[
+                            str(monitor_id)
+                            for monitor_id in (target_monitor_ids if isinstance(target_monitor_ids, list) else [])
+                            if str(monitor_id or "").strip()
+                        ],
+                        target_state=str(recording_output_request.get("targetState") or "unknown"),
+                        samples=[
+                            sample
+                            for sample in (samples if isinstance(samples, list) else [])
+                            if isinstance(sample, dict)
+                        ],
+                        started_at_utc=str(recording_output_request.get("startedAtUtc") or ""),
+                        stopped_at_utc=str(recording_output_request.get("stoppedAtUtc") or ""),
+                    )
+                except Exception as exc:
+                    result = {
+                        "passed": False,
+                        "error": str(exc),
+                        "recordingExecutionState": "disabled-error",
+                        "fileWritingState": "disabled-error",
+                    }
+                self._run_javascript(
+                    "if (window.setMonitoringHudRecordingOutputResult) "
+                    f"{{ window.setMonitoringHudRecordingOutputResult({json.dumps(result, sort_keys=True)}); }}"
+                )
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_RECORDING_OUTPUT_READY",
+                    package="PKG-006",
+                    slice="SLC-054",
+                    seam="Workstream",
+                    passed=bool(result.get("passed")),
+                    session_id=str(result.get("sessionId") or ""),
+                    row_count=int(result.get("rowCount") or 0),
+                    csv_path=str(result.get("csvPath") or ""),
+                    manifest_path=str(result.get("manifestPath") or ""),
+                    output_root_owner=str(result.get("outputRootOwner") or ""),
+                )
         recording_control_signature = (
             recording_control_requested,
             recording_control_request_id,

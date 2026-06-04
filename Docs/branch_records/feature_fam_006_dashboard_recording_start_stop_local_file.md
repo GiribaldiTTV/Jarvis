@@ -87,8 +87,17 @@ Issue #258 Closeout Status: `Pending implementation proof, Live Validation, USER
 Amended BP2 Disposition: `USER accepted the amended BP2 Branch Plan on 2026-06-04 with issue #258 admitted as a distinct required Workstream bugfix / repair line item.`
 Amended BP3 Disposition: `USER approved amended BP3 Workstream Entry / Orchestration Validation on 2026-06-04 for the two-line-item package.`
 Accepted BP3 Guardrails: `Dashboard Recording Start/Stop To Local File and issue #258 Overlay Profile persistence are both required Workstream line items; issue #258 remains outside BR2/BP1 branch identity and closeout remains pending implementation proof, Live Validation, USER disposition, and separate issue closeout decision.`
-Implementation Authority: `Pending separate bounded Workstream implementation approval.`
-Next Legal Phase: `Bounded Workstream implementation approval`
+Implementation Authority: `USER approved bounded Workstream implementation on 2026-06-04.`
+Next Legal Phase: `Hardening H1 after Workstream validation is green`
+
+## Workstream Implementation Traceability Receipt
+
+Implementation Date: `2026-06-04`
+Implementation Scope: `Dashboard Recording Start/Stop To Local File feature line item plus issue #258 Overlay Profile restart persistence bugfix line item.`
+Implemented Feature Proof: `Dashboard Recording card owns active Start/Stop control state, snapshot-at-start target binding to the active Overlay Profile, runtime-owned local CSV/manifest output request on Stop, saved result display, and output readback validation.`
+Implemented Issue #258 Proof: `Renderer startup now receives saved Monitoring HUD state and republishes Overlay Profile state to the HUD page, so created profiles persist across app restart and remain usable as recording targets.`
+Runtime Output Root: `Runtime-owned local app data via desktop.recording_output_contract.recording_output_dir(); C:\Nexus USER\Recordings\FAM-006 remains Live Validation / UTS evidence/export handoff unless later source truth admits it as product runtime output.`
+Future-Gated Boundaries Preserved: `Tray controls, export/share behavior, Native Log Loader implementation, provider/model work, FAM-007 mutation, Governance mutation, neutral-main mutation, PR creation, merge, release, issue closeout, broad issue mutation, and branch cleanup remain pending separate USER decisions.`
 
 ## Source-Truth Placement
 

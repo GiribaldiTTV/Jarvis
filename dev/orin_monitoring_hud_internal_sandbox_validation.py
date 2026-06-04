@@ -1914,15 +1914,17 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
     _require(status.get("warningPosture") == "Visual badge, color state, and text label only", "status contract must preserve visual warning posture", failures)
     _require(output_contract.get("passed") is True, "SLC-054 recording output contract proof must pass", failures)
     _require(output_contract.get("parseReadback") is True, "SLC-054 output contract must parse/read back in memory", failures)
-    _require(output_contract.get("fileWritingBlocked") is True, "SLC-054 output contract must not admit file writing", failures)
-    _require(output_contract.get("recordingExecutionBlocked") is True, "SLC-054 output contract must not admit recording execution", failures)
+    _require(output_contract.get("fileWritingEnabled") is True, "SLC-054 output contract must admit bounded local file writing", failures)
+    _require(output_contract.get("recordingExecutionEnabled") is True, "SLC-054 output contract must admit bounded recording execution", failures)
+    _require(output_contract.get("writeReadbackPassed") is True, "SLC-054 output contract must prove write/readback", failures)
     _require(workstream_readiness.get("workstreamGreen") is True, "SLC-055 Workstream readiness proof must be green", failures)
     _require(workstream_readiness.get("packageSlicesComplete") is True, "SLC-055 must prove all five admitted slices are complete", failures)
     _require(workstream_readiness.get("hardeningH1State") == "pending-after-workstream-green", "SLC-055 must route H1 after Workstream Green", failures)
     _require(workstream_readiness.get("liveValidationLV1State") == "pending-after-h1", "SLC-055 must keep LV1 after H1", failures)
     _require(workstream_readiness.get("utsState") == "pending-after-lv1", "SLC-055 must keep UTS after LV1", failures)
-    _require(workstream_readiness.get("fileWritingBlocked") is True, "SLC-055 must keep file writing blocked", failures)
-    _require(workstream_readiness.get("recordingExecutionBlocked") is True, "SLC-055 must keep recording execution blocked", failures)
+    _require(workstream_readiness.get("fileWritingEnabled") is True, "SLC-055 must require bounded file writing", failures)
+    _require(workstream_readiness.get("recordingExecutionEnabled") is True, "SLC-055 must require bounded recording execution", failures)
+    _require(workstream_readiness.get("writeReadbackPassed") is True, "SLC-055 must require write/readback proof", failures)
 
     persisted_state = {}
     previous_state_path = os.environ.get(MONITORING_HUD_STATE_ENV)
@@ -2001,15 +2003,15 @@ def _validate_contracts(failures: list[str]) -> dict[str, object]:
                 failures,
             )
             _require(
-                persisted_target.get("snapshotAtStartModel") == "future-snapshot-at-recording-start-target-candidate",
-                "SLC-051 recording target must preserve future snapshot-at-start semantics",
+                persisted_target.get("snapshotAtStartModel") == "snapshot-at-recording-start",
+                "SLC-051 recording target must preserve active snapshot-at-start semantics",
                 failures,
             )
             _require(
                 persisted_target.get("hiddenRecordingTargetState") == "absent"
-                and persisted_target.get("recordingExecutionState") == "blocked"
-                and persisted_target.get("fileWritingState") == "blocked",
-                "SLC-051 target proof must block hidden target state, recording execution, and file writing",
+                and persisted_target.get("recordingExecutionState") == "ready"
+                and persisted_target.get("fileWritingState") == "ready",
+                "SLC-051 target proof must block hidden target state while allowing ready recording execution and file writing",
                 failures,
             )
             normalized_legacy = normalize_monitoring_hud_overlay_profiles({}, ["cpu", "gpu"])
