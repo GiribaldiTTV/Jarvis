@@ -42,15 +42,13 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
     output_contract = validate_recording_output_contract()
 
     branch_record = _read_repo_text(
-        "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md"
-    )
-    branch_plan = _read_repo_text(
-        "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md"
+        "Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md"
     )
     hud_state = _read_repo_text("desktop/monitoring_hud_state.py")
     hud_js = _read_repo_text("nexus_visual/monitoring_hud.js")
     hud_html = _read_repo_text("nexus_visual/monitoring_hud.html")
     renderer = _read_repo_text("desktop/desktop_renderer.py")
+    main_entry = _read_repo_text("desktop/orin_desktop_main.py")
     output_source = _read_repo_text("desktop/recording_output_contract.py")
 
     slc_results = [
@@ -132,14 +130,30 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
             ),
             "hardeningCheck": "Workstream Green proof and H1/LV1/UTS routing markers",
         },
+        {
+            "slice": "ISSUE-258",
+            "result": _contains_all(
+                renderer + main_entry,
+                (
+                    "monitoring_hud_initial_state",
+                    "monitoring_hud_saved_state",
+                    "overlayProfiles",
+                    "activeOverlayProfileId",
+                    "overlayProfileDefaultDeletedByUser",
+                ),
+            ),
+            "hardeningCheck": "Overlay Profile restart persistence hydration markers",
+        },
     ]
 
     accepted_gate_trace = _contains_all(
-        branch_record + branch_plan,
+        branch_record,
         (
             "BP1 USER Branch Vision",
             "BP2 USER Branch Plan",
             "BP3 Workstream Entry / Orchestration Validation",
+            "Dashboard Recording Start/Stop To Local File",
+            "issue #258 Overlay Profile persistence",
             "SLC-051",
             "SLC-052",
             "SLC-053",
@@ -148,16 +162,13 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         ),
     )
     future_boundaries = (
-        "recording execution",
-        "file writing",
-        "real Start/Stop controls",
         "tray controls",
         "export/share",
         "provider/model work",
         "Native Log Loader implementation",
         "FAM-007 mutation",
     )
-    boundary_trace = all(boundary in branch_record + branch_plan for boundary in future_boundaries)
+    boundary_trace = all(boundary in branch_record for boundary in future_boundaries)
 
     proof = {
         "hardeningH1Id": HARDENING_H1_ID,

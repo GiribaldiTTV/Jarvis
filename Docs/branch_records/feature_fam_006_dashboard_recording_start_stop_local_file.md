@@ -99,6 +99,14 @@ Implemented Issue #258 Proof: `Renderer startup now receives saved Monitoring HU
 Runtime Output Root: `Runtime-owned local app data via desktop.recording_output_contract.recording_output_dir(); C:\Nexus USER\Recordings\FAM-006 remains Live Validation / UTS evidence/export handoff unless later source truth admits it as product runtime output.`
 Future-Gated Boundaries Preserved: `Tray controls, export/share behavior, Native Log Loader implementation, provider/model work, FAM-007 mutation, Governance mutation, neutral-main mutation, PR creation, merge, release, issue closeout, broad issue mutation, and branch cleanup remain pending separate USER decisions.`
 
+## Hardening H1 Traceability Receipt
+
+H1 Approval Date: `2026-06-04`
+H1 Scope: `Pressure-test Dashboard Recording Start/Stop, runtime-owned local output write/readback, Overlay Profile restart persistence repair, issue #258 regression protection, visual-system conformance, rollback posture, and Live Validation readiness.`
+Accepted BP / SLC Trace: `PASS - BP1 USER Branch Vision, BP2 USER Branch Plan, BP3 Workstream Entry / Orchestration Validation, Dashboard Recording Start/Stop To Local File, issue #258 Overlay Profile persistence, SLC-051 target-session truth, SLC-052 Dashboard Recording card, SLC-053 Dashboard Start/Stop with standalone Recording Control future-secondary boundary, SLC-054 local output write/readback, and SLC-055 validation/live-proof readiness are traced to this branch receipt.`
+H1 Helper Repair: `dev/orin_fam006_hardening_h1.py now reads this branch receipt, checks issue #258 startup hydration markers, and requires active Dashboard Start/Stop plus runtime-owned local output write/readback instead of the older active-overlay foundation branch record.`
+H1 Boundary: `Live Validation, UTS, issue closeout, PR creation, merge, release, branch cleanup, tray/export/share, Native Log Loader implementation, provider/model work, FAM-007 mutation, Governance mutation, and neutral-main mutation remain pending separate USER decisions.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
