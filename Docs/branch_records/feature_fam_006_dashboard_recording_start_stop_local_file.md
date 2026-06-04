@@ -13,7 +13,7 @@ Engineering Plan Status: `External operational-state owner; repo record is a dur
 - Target Family: `FAM-006 - Monitoring and HUD`
 - Runtime Lane: `Dashboard Recording Start/Stop To Local File`
 - Selected Feature Focus: `USER can start and stop a Dashboard recording for the active Overlay Profile and receive a durable local recording file.`
-- GitHub Issue Traceability: `#258 is deferred from BR2/BP1 branch identity; it may become future BP2/BP3 proof input only if the accepted branch plan admits persistence/restart proof.`
+- GitHub Issue Traceability: `#258 is deferred from BR2/BP1 branch identity and admitted by amended BP2/BP3 planning as a distinct required Workstream bugfix line item inside this FAM-006 package. Issue closeout remains pending implementation proof, Live Validation, and USER disposition.`
 
 ## Record State
 
@@ -35,7 +35,7 @@ Authority State: `Repo receipt points to external state; live branch operations 
 Branch Class: `implementation`
 Primary Package: `PKG-006 - Monitoring and HUD`
 Runtime Lane Selection: `Dashboard Recording Start/Stop To Local File`
-Issue Admission: `Issue #258 is not admitted into BR2/BP1 identity; it remains a future proof candidate only if BP2/BP3 legally admits it.`
+Issue Admission: `Issue #258 is not admitted into BR2/BP1 identity. It is admitted into amended BP2/BP3 planning as the separate Dashboard HUD Overlay Profile persistence bugfix work item that must be implemented and proven alongside Dashboard Recording Start/Stop To Local File before this package can go green.`
 
 ## Blockers
 
@@ -75,6 +75,16 @@ Family Vision Alignment: `FAM-006 owns Dashboard/HUD monitoring, Overlay Profile
 ## Explicit Non-Includes
 
 No BP1 acceptance, BP2 acceptance, BP3 approval, Workstream implementation, runtime mutation, recording execution, recording file writing, real Start/Stop controls, tray controls, export/share behavior, provider/model work, FAM-007 mutation, Governance worktree mutation, neutral main mutation, PR creation, merge, release, issue closeout, broad issue mutation, or branch cleanup beyond the approved rejected-carrier remote replacement proof.
+
+## BP2/BP3 Issue #258 Admission Receipt
+
+Admission Date: `2026-06-04`
+Admission Scope: `Amended BP2/BP3 planning only`
+Branch Identity Boundary: `Dashboard Recording Start/Stop To Local File remains the selected branch feature focus. Issue #258 is not BR2/BP1 branch identity.`
+Workstream Package Impact: `The accepted same-branch Workstream package now has two required line items: Dashboard Recording Start/Stop To Local File feature implementation, and GitHub issue #258 Dashboard HUD Overlay Profile persistence bugfix.`
+Issue #258 Proof Scenario: `Create or edit a Dashboard/HUD Overlay Profile through the accepted runtime path, close or restart Nexus or the accepted lifecycle equivalent, reopen or reload Nexus, confirm the created Overlay Profile still exists, confirm it remains selectable and usable in the Dashboard/HUD flow, and confirm the persistence repair does not regress the recording target model or Dashboard Recording card state model.`
+Issue #258 Closeout Status: `Pending implementation proof, Live Validation, USER disposition, and separate issue closeout decision.`
+Implementation Authority: `Pending amended BP2 USER confirmation, BP3 Workstream Entry / Orchestration Validation, and separate bounded Workstream implementation approval.`
 
 ## Source-Truth Placement
 
