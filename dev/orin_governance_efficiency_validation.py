@@ -9,6 +9,7 @@ backlog/roadmap from absorbing detailed runtime-branch planning narrative.
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 
@@ -332,6 +333,17 @@ def _section(text: str, heading: str) -> str:
     return text[start:]
 
 
+def _git_output(*args: str) -> str:
+    try:
+        return subprocess.check_output(["git", *args], text=True, cwd=ROOT).strip()
+    except Exception:
+        return ""
+
+
+def _branch_name_to_plan_path(branch: str) -> str:
+    return f"Docs/branch_plans/{branch.replace('-', '_').replace('/', '_')}.md"
+
+
 def _field_value(line: str, field: str) -> str | None:
     prefix = f"{field}:"
     stripped = line.strip()
@@ -653,10 +665,14 @@ def validate() -> list[str]:
                     f"{DOCS_REFORM_REVIEW_INDEX}: Files Needing USER Decision declares "
                     f"{user_decision_count} rows but lists {user_decision_rows}"
                 )
+        branch = _git_output("branch", "--show-current")
+        active_branch_plan_paths = {_branch_name_to_plan_path(branch)} if branch else set()
         branch_plan_root = ROOT / "Docs" / "branch_plans"
         for branch_plan in sorted(branch_plan_root.glob("*.md")):
             relative = branch_plan.relative_to(ROOT)
             if relative in {Path("Docs/branch_plans/README.md"), BRANCH_PLAN_RETIREMENT_INDEX}:
+                continue
+            if str(relative).replace("\\", "/") in active_branch_plan_paths:
                 continue
             branch_plan_text = branch_plan.read_text(encoding="utf-8")
             if not _branch_plan_requires_retirement_index_row(branch_plan_text):
