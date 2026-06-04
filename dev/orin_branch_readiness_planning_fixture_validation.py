@@ -193,6 +193,27 @@ INVALID_USER_PACKET_ZIP_HASH_FIXTURE = (
 INVALID_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FIXTURE = (
     FIXTURE_DIR / "invalid_user_packet_desktop_active_upload_path.md"
 )
+INVALID_IMPLEMENTATION_ROUTE_PLANNING_ONLY_FIXTURE = (
+    FIXTURE_DIR / "invalid_implementation_route_planning_only_lane_setup.md"
+)
+VALID_IMPLEMENTATION_ROUTE_SECURITY_BOUNDARY_FIXTURE = (
+    FIXTURE_DIR / "valid_implementation_route_security_trust_boundary.md"
+)
+VALID_BR2_ROUTE_BLOCKER_PACKET_FIXTURE = (
+    FIXTURE_DIR / "valid_br2_route_blocker_packet.md"
+)
+INVALID_BR2_ROUTE_BLOCKER_NO_ROUTE_CONTINUE_FIXTURE = (
+    FIXTURE_DIR / "invalid_br2_route_blocker_no_route_continue_planning.md"
+)
+INVALID_IMPLEMENTATION_ROUTE_FAKE_FEATURE_LABEL_FIXTURE = (
+    FIXTURE_DIR / "invalid_implementation_route_fake_feature_label.md"
+)
+VALID_IMPLEMENTATION_ROUTE_BP2_HOLD_ACTION_GATE_FIXTURE = (
+    FIXTURE_DIR / "valid_implementation_route_bp2_hold_action_gate.md"
+)
+VALID_IMPLEMENTATION_ROUTE_RETARGET_RENAME_FIXTURE = (
+    FIXTURE_DIR / "valid_implementation_route_retarget_rename.md"
+)
 VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
     FIXTURE_DIR / "valid_merge_stable_source_truth_projection.md"
 )
@@ -297,6 +318,15 @@ EXPECTED_USER_PACKET_ZIP_HASH_FAILURE_SNIPPET = (
 )
 EXPECTED_USER_PACKET_DESKTOP_ACTIVE_UPLOAD_FAILURE_SNIPPET = (
     "USER-facing packet file routes active upload/review to Desktop or OneDrive"
+)
+EXPECTED_IMPLEMENTATION_ROUTE_FAILURE_SNIPPET = (
+    "Implementation-bearing route required"
+)
+EXPECTED_BR2_NO_ROUTE_CONTINUE_FAILURE_SNIPPET = (
+    "BR2 blocker packet with no concrete available route"
+)
+EXPECTED_FAKE_FEATURE_LABEL_FAILURE_SNIPPET = (
+    "Feature label cannot substitute for concrete implementation behavior"
 )
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
@@ -870,6 +900,330 @@ def _validate_user_packet_metadata_text(text: str) -> list[str]:
             marker.casefold() not in text.casefold(),
             "USER-facing packet file routes active upload/review to Desktop or OneDrive",
         )
+    return failures
+
+
+def _validate_implementation_bearing_route_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    required_markers = (
+        "Selected Implementation Route:",
+        "Implementation Route Class:",
+        "Concrete Deliverable:",
+        "Implementation Output:",
+        "Infrastructure / Setup Relationship:",
+        "USER Action Gate:",
+        "Route Disposition:",
+        "Retarget / Rename Recommendation:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"Implementation-bearing route missing {marker}")
+
+    selected_route = governance._extract_marker_value(
+        text, "Selected Implementation Route:"
+    )
+    deliverable = governance._extract_marker_value(text, "Concrete Deliverable:")
+    implementation_output = governance._extract_marker_value(
+        text, "Implementation Output:"
+    )
+    setup_relationship = governance._extract_marker_value(
+        text, "Infrastructure / Setup Relationship:"
+    )
+    user_gate = governance._extract_marker_value(text, "USER Action Gate:")
+    route_disposition = governance._extract_marker_value(text, "Route Disposition:")
+    retarget = governance._extract_marker_value(
+        text, "Retarget / Rename Recommendation:"
+    )
+    combined_route = governance._normalized_planning_value(
+        "\n".join((selected_route, deliverable, implementation_output))
+    )
+    setup_normalized = governance._normalized_planning_value(setup_relationship)
+    disposition_normalized = governance._normalized_planning_value(route_disposition)
+    retarget_normalized = governance._normalized_planning_value(retarget)
+    full_normalized = governance._normalized_planning_value(text)
+
+    concrete_terms = (
+        "implementation",
+        "enforcement",
+        "runtime",
+        "validator",
+        "helper",
+        "source-truth",
+        "source truth",
+        "consent shell",
+        "trust-boundary",
+        "security",
+        "capability-pack",
+        "memory/cache",
+        "provider",
+        "user-facing",
+        "workflow",
+    )
+    concrete_behavior_terms = (
+        "enforce",
+        "block",
+        "validate",
+        "fail-closed",
+        "detect",
+        "route",
+        "render",
+        "persist",
+        "execute",
+        "launch",
+        "open",
+        "save",
+        "load",
+        "sync",
+        "consent",
+        "boundary",
+        "proof",
+        "control",
+        "runtime",
+        "validator",
+        "helper",
+        "source-truth",
+        "source truth",
+        "user-facing",
+    )
+    planning_only_terms = (
+        "planning-only",
+        "readiness-only",
+        "setup-only",
+        "lane setup only",
+        "choose later branches",
+        "identify later branches",
+        "no implementation route",
+        "no product/runtime/source-truth/helper deliverable",
+        "implementation output: none",
+    )
+    fake_feature_terms = (
+        "setup feature",
+        "readiness feature",
+        "planning feature",
+        "decision feature",
+        "decision matrix feature",
+        "registry feature",
+        "skeleton feature",
+        "packet feature",
+        "review feature",
+        "feature implementation label",
+        "feature label",
+    )
+    require(
+        governance._planning_word_count(deliverable) >= 8
+        and governance._planning_word_count(implementation_output) >= 8
+        and any(term in combined_route for term in concrete_terms)
+        and not any(term in combined_route for term in planning_only_terms),
+        (
+            "Implementation-bearing route required: concrete deliverable and "
+            "implementation output must be named before BP1"
+        ),
+    )
+    fake_feature_detected = any(term in combined_route for term in fake_feature_terms)
+    negated_behavior_terms = (
+        "no runtime",
+        "no source-truth",
+        "no source truth",
+        "no helper",
+        "no validator",
+        "no enforcement",
+        "no consent-shell",
+        "no user-facing",
+        "no boundary behavior",
+        "no behavior changes",
+        "without runtime",
+        "without source-truth",
+        "without source truth",
+        "without helper",
+        "without validator",
+        "without enforcement",
+        "without user-facing",
+        "without boundary behavior",
+    )
+    require(
+        not fake_feature_detected
+        or (
+            any(term in combined_route for term in concrete_behavior_terms)
+            and not any(term in combined_route for term in negated_behavior_terms)
+        ),
+        (
+            "Feature label cannot substitute for concrete implementation behavior: "
+            "name the behavior, source-truth/helper/validator/runtime output, and proof"
+        ),
+    )
+
+    if any(
+        term in full_normalized
+        for term in (
+            "lane setup",
+            "repo/root/remote",
+            "private root",
+            "private remote",
+            "skeleton setup",
+            "registry creation",
+        )
+    ):
+        require(
+            "execution-enabling" in setup_normalized
+            or "selected implementation route" in setup_normalized
+            or "exact user action gate" in setup_normalized,
+            (
+                "Infrastructure/setup work must be tied to the selected "
+                "implementation route or an exact USER action gate"
+            ),
+        )
+
+    require(
+        "Dev lane" not in text,
+        "Use Developer lane, not Dev lane, in current branch-planning text",
+    )
+    if "developer" in full_normalized:
+        require(
+            "Developer lane" in text,
+            "Developer lane terminology must be explicit when developer lane scope appears",
+        )
+
+    if "hold" in disposition_normalized:
+        exact_gate = governance._extract_marker_value(text, "Exact USER Action Gate:")
+        blocked_scope = governance._extract_marker_value(text, "Blocked Scope:")
+        require(
+            governance._planning_word_count(exact_gate) >= 10,
+            "BP2 HOLD requires an exact USER action gate",
+        )
+        require(
+            governance._planning_word_count(blocked_scope) >= 8,
+            "BP2 HOLD requires blocked scope",
+        )
+    if "retarget" in disposition_normalized or "rename" in disposition_normalized:
+        require(
+            ("retarget" in retarget_normalized or "rename" in retarget_normalized)
+            and any(term in retarget_normalized for term in concrete_terms),
+            "Route retarget/rename disposition requires a concrete recommendation",
+        )
+
+    require(
+        governance._planning_word_count(user_gate) >= 6,
+        "Implementation-bearing route must name pending USER action gate posture",
+    )
+    return failures
+
+
+def _validate_implementation_bearing_source_truth() -> list[str]:
+    failures, require = _collect_failures()
+    source_truth_markers = {
+        ROOT / "Docs" / "phase_governance.md": (
+            "Implementation-Bearing Branch Standard",
+            "Selected Implementation Route:",
+            "BR2 Blocker Packet Rule",
+            "Developer lane",
+        ),
+        ROOT / "Docs" / "branch_plans" / "README.md": (
+            "Implementation-Bearing Route Requirement",
+            "Infrastructure / Lane Groundwork Blockers:",
+            "Infrastructure / Setup Relationship:",
+            "Developer lane",
+        ),
+        ROOT / "Docs" / "validation_helper_registry.md": (
+            "Implementation-Bearing Branch Planning Validation Invariant",
+            "planning-only lane/setup carrier",
+            "Developer lane",
+        ),
+    }
+    for path, markers in source_truth_markers.items():
+        if not path.is_file():
+            failures.append(f"Missing implementation-bearing source truth owner: {path}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for marker in markers:
+            require(
+                marker in text,
+                f"Implementation-bearing source truth missing {marker!r} in {path}",
+            )
+    return failures
+
+
+def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    required_markers = (
+        "BR2 Route Resolution Status:",
+        "Infrastructure / Lane Groundwork Blockers:",
+        "Required Before This Route Can Proceed:",
+        "Concrete Feature Routes Available Now:",
+        "Deferrable Groundwork:",
+        "Non-Deferrable Groundwork:",
+        "Codex Recommendation:",
+        "Exact USER Decision Needed:",
+        "Route Disposition:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"BR2 route blocker packet missing {marker}")
+    normalized = governance._normalized_planning_value(text)
+    routes_available = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Concrete Feature Routes Available Now:")
+    )
+    exact_decision = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Exact USER Decision Needed:")
+    )
+    require(
+        "hold" in normalized
+        or "retarget" in normalized
+        or "rename" in normalized
+        or "no active branch" in normalized,
+        "BR2 blocker packet must stop for hold, retarget, rename, or No Active Branch",
+    )
+    if "none" in routes_available:
+        require(
+            "no active branch" in normalized
+            and "no remaining implementation-bearing route" in normalized
+            and "continue planning" not in routes_available
+            and "continue planning" not in exact_decision,
+            (
+                "BR2 blocker packet with no concrete available route must stop on "
+                "No Active Branch or non-deferrable groundwork"
+            ),
+        )
+    else:
+        require(
+            any(
+                term in routes_available
+                for term in (
+                    "security/trust-boundary",
+                    "trust-boundary",
+                    "provider/runtime consent",
+                    "consent shell",
+                    "capability-pack",
+                    "memory/cache",
+                    "agent",
+                    "runtime",
+                    "source-truth",
+                    "source truth",
+                    "validator",
+                    "helper",
+                    "feature route",
+                )
+            ),
+            "BR2 blocker packet must name at least one concrete feature route available now",
+        )
+    require(
+        "approve prerequisite groundwork" in normalized
+        or "approve the prerequisite groundwork" in normalized,
+        "BR2 blocker packet must offer prerequisite-groundwork approval path",
+    )
+    require(
+        "defer" in normalized
+        and (
+            "concrete feature route" in normalized
+            or "concrete worktree-focused feature route" in normalized
+        ),
+        "BR2 blocker packet must offer deferral to a concrete feature route",
+    )
+    require(
+        "non-deferrable" in normalized and "no remaining implementation-bearing route" in normalized,
+        "BR2 blocker packet must state when continued deferral stops being legal",
+    )
+    require(
+        "Dev lane" not in text,
+        "Use Developer lane, not Dev lane, in current branch-planning text",
+    )
     return failures
 
 
@@ -2005,6 +2359,13 @@ def validate() -> list[str]:
         VALID_BP3_ACCEPTED_BP1_BP2_SLC_TRACE_FIXTURE,
         VALID_BP3_FAM006_DOGFOOD_FIXTURE,
         VALID_BP3_FAM007_DOGFOOD_FIXTURE,
+        INVALID_IMPLEMENTATION_ROUTE_PLANNING_ONLY_FIXTURE,
+        VALID_IMPLEMENTATION_ROUTE_SECURITY_BOUNDARY_FIXTURE,
+        VALID_BR2_ROUTE_BLOCKER_PACKET_FIXTURE,
+        INVALID_BR2_ROUTE_BLOCKER_NO_ROUTE_CONTINUE_FIXTURE,
+        INVALID_IMPLEMENTATION_ROUTE_FAKE_FEATURE_LABEL_FIXTURE,
+        VALID_IMPLEMENTATION_ROUTE_BP2_HOLD_ACTION_GATE_FIXTURE,
+        VALID_IMPLEMENTATION_ROUTE_RETARGET_RENAME_FIXTURE,
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
     ):
@@ -2623,6 +2984,84 @@ def validate() -> list[str]:
                 f"Valid {label} fixture unexpectedly failed: "
                 + "; ".join(dogfood_failures[:5])
             )
+
+    implementation_route_source_truth_failures = (
+        _validate_implementation_bearing_source_truth()
+    )
+    if implementation_route_source_truth_failures:
+        failures.append(
+            "Implementation-bearing source truth unexpectedly failed: "
+            + "; ".join(implementation_route_source_truth_failures[:5])
+        )
+
+    planning_only_route_failures = _validate_implementation_bearing_route_text(
+        INVALID_IMPLEMENTATION_ROUTE_PLANNING_ONLY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_IMPLEMENTATION_ROUTE_FAILURE_SNIPPET not in "\n".join(
+        planning_only_route_failures
+    ):
+        failures.append(
+            "Invalid planning-only implementation-route fixture did not reject "
+            "lane/setup-only carrier admission"
+        )
+
+    for fixture, label in (
+        (
+            VALID_IMPLEMENTATION_ROUTE_SECURITY_BOUNDARY_FIXTURE,
+            "security/trust-boundary implementation route",
+        ),
+        (
+            VALID_IMPLEMENTATION_ROUTE_BP2_HOLD_ACTION_GATE_FIXTURE,
+            "BP2 HOLD exact USER action gate route",
+        ),
+        (
+            VALID_IMPLEMENTATION_ROUTE_RETARGET_RENAME_FIXTURE,
+            "retarget/rename implementation route",
+        ),
+    ):
+        route_failures = _validate_implementation_bearing_route_text(
+            fixture.read_text(encoding="utf-8")
+        )
+        if route_failures:
+            failures.append(
+                f"Valid {label} fixture unexpectedly failed: "
+                + "; ".join(route_failures[:5])
+            )
+
+    br2_blocker_failures = _validate_br2_route_blocker_packet_text(
+        VALID_BR2_ROUTE_BLOCKER_PACKET_FIXTURE.read_text(encoding="utf-8")
+    )
+    if br2_blocker_failures:
+        failures.append(
+            "Valid BR2 route blocker packet fixture unexpectedly failed: "
+            + "; ".join(br2_blocker_failures[:5])
+        )
+
+    no_route_continue_failures = _validate_br2_route_blocker_packet_text(
+        INVALID_BR2_ROUTE_BLOCKER_NO_ROUTE_CONTINUE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_BR2_NO_ROUTE_CONTINUE_FAILURE_SNIPPET not in "\n".join(
+        no_route_continue_failures
+    ):
+        failures.append(
+            "Invalid BR2 no-route continue-planning fixture did not reject "
+            "continued planning after no concrete route remained"
+        )
+
+    fake_feature_label_failures = _validate_implementation_bearing_route_text(
+        INVALID_IMPLEMENTATION_ROUTE_FAKE_FEATURE_LABEL_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_FAKE_FEATURE_LABEL_FAILURE_SNIPPET not in "\n".join(
+        fake_feature_label_failures
+    ):
+        failures.append(
+            "Invalid fake-feature-label implementation-route fixture did not "
+            "reject setup/readiness/packet feature wording"
+        )
 
     active_packet_metadata_failures = _validate_user_packet_metadata_text(
         INVALID_USER_PACKET_ACTIVE_BRANCH_METADATA_FIXTURE.read_text(encoding="utf-8")

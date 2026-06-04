@@ -25,6 +25,39 @@ Branch Vision and Branch Plan are separate contracts:
 - Branch Plan is how Codex will build the accepted or waived Branch Vision.
 - SLCs are the engineering route inside a branch after vision acceptance. They should not automatically become separate branches.
 
+## Implementation-Bearing Route Requirement
+
+Every active branch plan for a runtime, product, source-truth, helper, validator, or governance repair carrier must include an implementation-bearing route before BP1 begins. Branch Readiness Stage 2 is allowed to discover infrastructure prerequisites, lane groundwork, and route blockers; it admits the route green only after those blockers are resolved, deferred with a legal alternate route, or converted into an exact USER action gate. BP1 defines the vision for the selected route; BP2 plans how Codex will implement that route; BP3 verifies that the route is ready for bounded Workstream execution.
+
+Required active branch-plan route markers:
+
+- Selected Implementation Route:
+- Implementation Route Class:
+- Concrete Deliverable:
+- Implementation Output:
+- Infrastructure / Setup Relationship:
+- USER Action Gate:
+- Route Disposition:
+- Retarget / Rename Recommendation:
+
+`Selected Implementation Route:` must name a concrete deliverable, not only a planning question, lane label, setup theme, skeleton, packet, registry, or later branch selection. `Concrete Deliverable:` and `Implementation Output:` must identify the user-visible, runtime, source-truth, helper, validator, or governance behavior that this branch will actually complete if later gates are accepted. `Infrastructure / Setup Relationship:` must explain whether any repo/root/remote/lane/skeleton work is execution-enabling for that deliverable, future-gated by USER action, or out of scope.
+
+Infrastructure and setup can be branch-worthy only when tied to a selected implementation route or to an exact USER action gate. Creating User/Public, Developer, or Owner lanes by itself is groundwork, not a feature implementation carrier. When the legal answer is to pause, retarget, or rename, the branch plan must say so with `Route Disposition:` and `Retarget / Rename Recommendation:` before BP1 or BP2 continue.
+
+When BR2 cannot complete because infrastructure or lane groundwork blocks the selected route, the active branch plan or BR2 packet must include:
+
+- Infrastructure / Lane Groundwork Blockers:
+- Required Before This Route Can Proceed:
+- Concrete Feature Routes Available Now:
+- Deferrable Groundwork:
+- Non-Deferrable Groundwork:
+- Codex Recommendation:
+- Exact USER Decision Needed:
+
+The packet should explain plainly what must exist before Owner, Developer, or User/Public AI work can begin, which prerequisites USER may approve now, which routes can proceed without those prerequisites, and when continued deferral leaves no remaining implementation-bearing route. BR2 may remain blocked or recommend No Active Branch, but it must not complete as green by naming only future planning, lane setup, or later branch selection.
+
+Current planning terminology must use `User/Public lane`, `Developer lane`, and `Owner lane` as lanes or environments, not product version numbers. Use `Developer lane`, not `Dev lane`, in new branch planning packets and active branch plans. Historical branch names, accepted private repo placeholders, and clearly labeled receipts may preserve older wording as traceability only.
+
 BP1 becomes green only when USER accepts the Branch Vision or explicitly waives BP1. BP2 becomes green only when USER accepts the Branch Plan or explicitly waives BP2. BP3 may return bounded Workstream implementation approval for the admitted same-branch package, naming the entry seam or initial seam sequence, only when BP1 and BP2 are accepted or waived, BP3 is approved or waived by USER, and orchestration validation is green.
 
 Branch Planning uses two independent state axes:
