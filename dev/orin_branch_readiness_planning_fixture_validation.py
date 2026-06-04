@@ -9,6 +9,7 @@ planning.
 
 from __future__ import annotations
 
+import inspect
 import tempfile
 import zipfile
 from pathlib import Path
@@ -1030,6 +1031,21 @@ def _validate_rebaseline_overlap_helper_matrix() -> list[str]:
         ),
         "Governance validator rejected ordered current-head watcher fallback approval proof",
     )
+    for fallback_view in (
+        governance._automation_closeout_repair_fallback_pr_view_for_branch,
+        governance._pr101_closeout_canon_repair_fallback_pr_view_for_branch,
+        governance._pr102_closeout_canon_repair_fallback_pr_view_for_branch,
+        governance._pr103_closeout_canon_repair_fallback_pr_view_for_branch,
+        governance._active_branch_watcher_fallback_pr_view_for_branch,
+    ):
+        source = inspect.getsource(fallback_view)
+        require(
+            'watcher_state.get("botApproval")' not in source,
+            (
+                "Governance validator fallback PR view still trusts raw watcher "
+                f"botApproval in {fallback_view.__name__}"
+            ),
+        )
     require(
         rebaseline._overlap_intent_missing_status("PASS").startswith("No -"),
         "Rebaseline helper did not return non-blocking intent-missing status for PASS",

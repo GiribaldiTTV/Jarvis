@@ -18444,13 +18444,10 @@ def _automation_closeout_repair_fallback_pr_view_for_branch(
     pr_number_match = re.search(r"/pull/(\d+)", pr_url)
     pr_number = int(pr_number_match.group(1)) if pr_number_match else 101
     watcher_state = _load_json_file(AUTOMATION_CLOSEOUT_PR101_WATCHER_STATE_PATH) or {}
-    recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
-    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
-    bot_approval = (
-        bool(watcher_state.get("botApproval"))
-        or bot_approval_ordered
-        or recorded_bot_status.strip().casefold() == "approved"
+    bot_approval_ordered = _watcher_fallback_current_head_bot_approval_proven(
+        phase_status_section
     )
+    bot_approval = bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
@@ -18512,13 +18509,10 @@ def _pr101_closeout_canon_repair_fallback_pr_view_for_branch(
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR101_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
-    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
-    bot_approval = (
-        bool(watcher_state.get("botApproval"))
-        or bot_approval_ordered
-        or recorded_bot_status.strip().casefold() == "approved"
+    bot_approval_ordered = _watcher_fallback_current_head_bot_approval_proven(
+        phase_status_section
     )
+    bot_approval = bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
@@ -18578,8 +18572,10 @@ def _pr102_closeout_canon_repair_fallback_pr_view_for_branch(
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR102_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
-    bot_approval = bool(watcher_state.get("botApproval")) or bot_approval_ordered
+    bot_approval_ordered = _watcher_fallback_current_head_bot_approval_proven(
+        phase_status_section
+    )
+    bot_approval = bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
@@ -18639,8 +18635,10 @@ def _pr103_closeout_canon_repair_fallback_pr_view_for_branch(
         return None, f"active branch record has an invalid Live PR URL '{pr_url}'"
     pr_number = int(pr_number_match.group(1))
     watcher_state = _load_json_file(PR103_CLOSEOUT_CANON_WATCHER_STATE_PATH) or {}
-    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
-    bot_approval = bool(watcher_state.get("botApproval")) or bot_approval_ordered
+    bot_approval_ordered = _watcher_fallback_current_head_bot_approval_proven(
+        phase_status_section
+    )
+    bot_approval = bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
@@ -18721,13 +18719,10 @@ def _active_branch_watcher_fallback_pr_view_for_branch(
             f"not current branch '{branch_name}'"
         )
 
-    recorded_bot_status, _recorded_bot_head = _branch_record_bot_review_state(active_branch_record_text)
-    bot_approval_ordered = _phase_status_ordered_bot_approval_proven(phase_status_section)
-    bot_approval = (
-        bool(watcher_state.get("botApproval"))
-        or bot_approval_ordered
-        or recorded_bot_status.strip().casefold() == "approved"
+    bot_approval_ordered = _watcher_fallback_current_head_bot_approval_proven(
+        phase_status_section
     )
+    bot_approval = bot_approval_ordered
     bot_comment_count = int(watcher_state.get("botCommentCount") or 0)
     merged = bool(watcher_state.get("merged"))
     state_value = str(watcher_state.get("prState") or "OPEN").upper()
