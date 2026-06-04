@@ -8,7 +8,7 @@ Receipt Class: `BR2 durable admission receipt`
 
 ## Durable Receipt Summary
 
-Admission Summary: `USER approved BR2 continuation / authority admission for feature/fam-007-dev-owner-private-boundary-setup from origin/main@76c5f168dd4098abbb3ae2a0cf3425509ae7fe5d. This repo record preserves durable branch identity, BR2 approval scope, source-truth routing, external-state pointers, sibling-lane classification, and future-gated boundaries only. It does not own live active branch status, current phase execution state, worktree assignment truth, live PR state, selected-next posture, validation state, release-window state, or active branch-plan rows. Live operational truth belongs in Git/GitHub/helper checks and C:\Nexus Governance State.`
+Admission Summary: `USER approved BR2 continuation / authority admission for feature/fam-007-dev-owner-private-boundary-setup from origin/main@76c5f168dd4098abbb3ae2a0cf3425509ae7fe5d, then approved post-PR #259 rebaseline and overlap-intent reconciliation to origin/main@2129083804c315252846fc30eff89e24fb71dede. This repo record preserves durable branch identity, BR2 approval scope, source-truth routing, external-state pointers, sibling-lane classification, rebaseline receipt, and future-gated boundaries only. It does not own live active branch status, current phase execution state, worktree assignment truth, live PR state, selected-next posture, validation state, release-window state, or active branch-plan rows. Live operational truth belongs in Git/GitHub/helper checks and C:\Nexus Governance State.`
 
 ## Branch Identity
 
@@ -83,8 +83,11 @@ v1.8.0 Work: `Pending USER decision`
 - The branch preserves prior FAM-007 merged evidence from PR #246 and PR #250 as historical proof, not as active operational authority.
 - The branch keeps provider-visible data at `none`, prompt/model execution blocked, downloads/network/external calls blocked, memory/learning/personalization inactive, runtime cache behavior inactive, and voice/Core sync gated until later USER decisions.
 
-## Next Review Gate Receipt
+## Route-Resolution Hold Receipt
 
-Next Review Gate Receipt: `BP1 USER Branch Vision Review is the planned next legal review route after this BR2 admission is validated, committed, pushed, and recorded in external operational state.`
+Route-Resolution Hold Receipt: `After Governance PR #259, this carrier cannot proceed directly to BP1 because private-boundary setup wording is groundwork unless USER selects a real implementation route or exact setup action gate.`
+Implementation-Bearing Route Status: `Missing - active external branch plan records HOLD / RETARGET REQUIRED.`
+Post-PR #259 Rebaseline Receipt: `USER approved merging origin/main@2129083804c315252846fc30eff89e24fb71dede into this branch after external Branch Change Intent Ledger repair for overlapping governance receipt and validator files.`
+Next Review Gate Receipt: `BR2 route-resolution USER decision is the next legal review route; BP1 packet generation remains blocked until USER selects a real implementation route, approves an exact setup action gate, retargets/renames, or holds No Active Branch.`
 
-Exact Next USER Decision Receipt: `Approve BP1 USER Branch Vision Review packet generation for feature/fam-007-dev-owner-private-boundary-setup in C:\Nexus Worktrees\FAM-007, with private setup, runtime/provider/cache/memory behavior, backup/import behavior, PR, merge, release, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work still pending separate USER decisions.`
+Exact Next USER Decision Receipt: `I approve FAM-007 BR2 route resolution for feature/fam-007-dev-owner-private-boundary-setup in C:\Nexus Worktrees\FAM-007: retarget/rename to a selected real implementation route, approve an exact setup action gate, or hold No Active Branch; BP1 may begin only after that route decision is recorded, with private repos/roots/remotes, GitHub Desktop private binding, backup/import behavior, provider/model/runtime/cache/memory behavior, PR, merge, release, cleanup, issue mutation, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work still pending separate USER decisions.`
