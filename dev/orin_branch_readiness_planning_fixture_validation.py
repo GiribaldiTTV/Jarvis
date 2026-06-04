@@ -204,6 +204,9 @@ VALID_IMPLEMENTATION_ROUTE_SECURITY_BOUNDARY_FIXTURE = (
 VALID_BR2_ROUTE_BLOCKER_PACKET_FIXTURE = (
     FIXTURE_DIR / "valid_br2_route_blocker_packet.md"
 )
+VALID_BR2_ROUTE_BLOCKER_NONE_WORD_ROUTE_FIXTURE = (
+    FIXTURE_DIR / "valid_br2_route_blocker_none_word_route.md"
+)
 INVALID_BR2_ROUTE_BLOCKER_NO_ROUTE_CONTINUE_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_route_blocker_no_route_continue_planning.md"
 )
@@ -1343,7 +1346,15 @@ def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
         or "no active branch" in normalized,
         "BR2 blocker packet must stop for hold, retarget, rename, or No Active Branch",
     )
-    if "none" in routes_available:
+    explicit_no_available_routes = routes_available in {
+        "none",
+        "none.",
+        "none;",
+        "none; continue planning anyway.",
+        "no concrete feature routes available now",
+        "no concrete feature routes available now.",
+    }
+    if explicit_no_available_routes:
         require(
             "no active branch" in normalized
             and "no remaining implementation-bearing route" in normalized
@@ -3307,6 +3318,15 @@ def validate() -> list[str]:
         failures.append(
             "Valid BR2 route blocker packet fixture unexpectedly failed: "
             + "; ".join(br2_blocker_failures[:5])
+        )
+
+    br2_none_word_failures = _validate_br2_route_blocker_packet_text(
+        VALID_BR2_ROUTE_BLOCKER_NONE_WORD_ROUTE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if br2_none_word_failures:
+        failures.append(
+            "Valid BR2 none-word route blocker packet fixture unexpectedly failed: "
+            + "; ".join(br2_none_word_failures[:5])
         )
 
     no_route_continue_failures = _validate_br2_route_blocker_packet_text(
