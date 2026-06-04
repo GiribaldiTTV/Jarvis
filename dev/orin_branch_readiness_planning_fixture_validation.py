@@ -163,6 +163,9 @@ INVALID_BP1_TECHNICAL_METADATA_FIXTURE = (
 INVALID_RUNTIME_FOCUS_ISSUE_ANCHORED_SELECTION_FIXTURE = (
     FIXTURE_DIR / "invalid_runtime_focus_issue_anchored_selection.md"
 )
+INVALID_RUNTIME_FOCUS_FOUNDATION_LABEL_SELECTION_FIXTURE = (
+    FIXTURE_DIR / "invalid_runtime_focus_foundation_label_selection.md"
+)
 INVALID_BP2_MISSING_ACCEPTED_BP1_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_bp2_missing_accepted_bp1_trace.md"
 )
@@ -287,6 +290,9 @@ EXPECTED_BP1_TECHNICAL_METADATA_FAILURE_SNIPPET = (
 )
 EXPECTED_RUNTIME_FOCUS_ISSUE_ANCHORED_FAILURE_SNIPPET = (
     "Runtime focus selection cannot use issue evidence as BR2/BP1 branch identity"
+)
+EXPECTED_RUNTIME_FOCUS_FOUNDATION_LABEL_FAILURE_SNIPPET = (
+    "Runtime focus selection must name a concrete feature outcome"
 )
 EXPECTED_BP2_ACCEPTED_BP1_TRACE_FAILURE_SNIPPET = "Accepted BP1 trace"
 EXPECTED_BP2_PRODUCT_DESIGN_WORDING_FAILURE_SNIPPET = (
@@ -466,6 +472,10 @@ def _validate_runtime_focus_selection_text(text: str) -> list[str]:
         "runtime focus selection" in normalized
         or "runtime focus options" in normalized
         or "neutral family runtime survey" in normalized
+        or "runtime feature focus" in normalized
+        or "feature carrier selection" in normalized
+        or "feature implementation options" in normalized
+        or "actual feature implementation" in normalized
     )
     if not runtime_focus_packet:
         return failures
@@ -487,6 +497,42 @@ def _validate_runtime_focus_selection_text(text: str) -> list[str]:
         and "workstream history" in normalized
         and "remaining runtime layers" in normalized
     )
+    foundation_label_present = any(
+        phrase in normalized
+        for phrase in (
+            "active overlay recording execution foundation",
+            "persistence foundation",
+            "infrastructure foundation",
+            "execution foundation",
+            "dashboard overlay profile persistence and restart hydration runtime foundation",
+        )
+    ) and "recommended runtime focus:" in normalized
+    concrete_outcome_markers = (
+        "feature outcome:",
+        "user-visible feature outcome:",
+        "what user gets:",
+        "what the user gets:",
+        "actual feature outcome:",
+        "concrete feature outcome:",
+    )
+    concrete_outcome_present = any(phrase in normalized for phrase in concrete_outcome_markers)
+    missing_concrete_outcome_present = any(
+        phrase in normalized
+        for phrase in (
+            "feature outcome: missing",
+            "feature outcome: `missing",
+            "user-visible feature outcome: missing",
+            "user-visible feature outcome: `missing",
+            "actual feature outcome: missing",
+            "actual feature outcome: `missing",
+            "concrete feature outcome: missing",
+            "concrete feature outcome: `missing",
+            "what user gets: missing",
+            "what user gets: `missing",
+            "what the user gets: missing",
+            "what the user gets: `missing",
+        )
+    )
     require(
         not issue_identity_present,
         "Runtime focus selection cannot use issue evidence as BR2/BP1 branch identity",
@@ -498,6 +544,11 @@ def _validate_runtime_focus_selection_text(text: str) -> list[str]:
     require(
         issue_deferred_present,
         "Runtime focus selection must defer issue evidence to future BP2/BP3 proof input",
+    )
+    require(
+        not foundation_label_present
+        or (concrete_outcome_present and not missing_concrete_outcome_present),
+        "Runtime focus selection must name a concrete feature outcome when infrastructure, groundwork, persistence, execution, schema, hydration, or foundation labels are used",
     )
     return failures
 
@@ -2626,6 +2677,16 @@ def validate() -> list[str]:
     ):
         failures.append(
             "Invalid runtime-focus issue-anchored fixture did not reject issue-shaped selection"
+        )
+
+    runtime_focus_foundation_failures = _validate_runtime_focus_selection_text(
+        INVALID_RUNTIME_FOCUS_FOUNDATION_LABEL_SELECTION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RUNTIME_FOCUS_FOUNDATION_LABEL_FAILURE_SNIPPET not in "\n".join(
+        runtime_focus_foundation_failures
+    ):
+        failures.append(
+            "Invalid runtime-focus foundation-label fixture did not reject non-feature selection"
         )
 
     missing_bp1_trace_failures = _validate_bp2_branch_plan_review_text(

@@ -1596,6 +1596,11 @@ def _write_user_branch_vision_review(
             "neutral fam-006 runtime",
             "select the next fam-006 runtime focus",
             "selecting from the full fam-006",
+            "runtime feature focus",
+            "feature carrier selection",
+            "feature implementation options",
+            "actual feature implementation",
+            "concrete feature outcome",
         )
     )
     fam006_overlay_profile_persistence_bp1_packet = (

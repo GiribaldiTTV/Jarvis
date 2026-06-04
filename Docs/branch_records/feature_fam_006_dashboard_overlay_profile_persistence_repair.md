@@ -75,8 +75,8 @@ Supersession Decision: `USER rejected this carrier for active planning because i
 Active Planning Result: `Superseded - do not proceed to BP1/BP2/BP3 on this branch identity.`
 FAM-006 Posture: `Return to Branch Readiness runtime focus selection from current project/family/source truth.`
 Issue #258 Posture: `Deferred from BR2/BP1 identity; keep open as future BP2/BP3 proof input only after USER selects a runtime focus.`
-Runtime Recommendation Posture: `The follow-up Dashboard / HUD User Configuration Persistence Foundation recommendation is also rejected for active planning because it still stayed anchored to issue #258 instead of surveying all credible FAM-006 runtime layers first.`
-Neutral Survey Requirement: `Next FAM-006 focus selection must survey family vision, backlog, roadmap, recent completed work, workstream/branch history, remaining runtime layers, and external selected-next state before loading issue #258 evidence.`
+Runtime Recommendation Posture: `The follow-up Dashboard / HUD User Configuration Persistence Foundation recommendation and the later Active Overlay Recording Execution Foundation recommendation are both superseded for active planning. The first remained issue-adjacent; the second used a vague infrastructure/foundation label without naming the concrete feature outcome USER would receive or inspect.`
+Neutral Survey Requirement: `Next FAM-006 focus selection must survey family vision, backlog, roadmap, recent completed work, workstream/branch history, remaining runtime layers, and external selected-next state before loading issue #258 evidence. Each option and recommendation must name an actual user-visible feature outcome; infrastructure, execution, persistence, hydration, schema, or foundation work is allowed only as supporting scope inside that feature outcome.`
 Branch Cleanup Result: `Held. Branch deletion, worktree rebind, and remote cleanup require a later Branch Readiness execution decision with no-unique-commit-loss proof because this worktree is currently checked out on the rejected branch and the branch contains unique commits.`
 
 ## Product Definition Pointer
