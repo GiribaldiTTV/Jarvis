@@ -1382,109 +1382,7 @@ def _validate_implementation_bearing_source_truth() -> list[str]:
 
 
 def _validate_slice_slc_seam_model_text(text: str) -> list[str]:
-    failures, require = _collect_failures()
-    normalized = governance._normalized_planning_value(text)
-    ambiguity_terms = (
-        "slc is the seam",
-        "slcs are seams",
-        "slc means seam",
-        "slice is proof",
-        "slice is the proof",
-        "seam is the branch deliverable",
-        "seam is the feature",
-        "seam-only branch",
-        "slc is a separate branch",
-        "each slc becomes a branch",
-        "slc creates the branch",
-    )
-    require(
-        not any(term in normalized for term in ambiguity_terms),
-        (
-            "SLC / Slice / Seam terminology ambiguity: SLC must resolve to "
-            "Slice-level deliverables, and seams must remain execution or "
-            "validation checkpoints"
-        ),
-    )
-
-    if "slc" in normalized:
-        require(
-            "slice-level" in normalized
-            or "alias" in normalized
-            or "historical" in normalized,
-            (
-                "SLC / Slice / Seam terminology ambiguity: SLC use must name "
-                "its Slice-level alias or historical traceability posture"
-            ),
-        )
-    if "multi-slice carrier:" in normalized:
-        required_markers = (
-            "FAM:",
-            "Package:",
-            "Selected Implementation Route:",
-            "Slice Map:",
-            "Shared Owner / Worktree:",
-            "Shared Validation / Proof Path:",
-            "Split Decision:",
-        )
-        for marker in required_markers:
-            require(marker in text, f"Multi-slice carrier missing {marker}")
-        route = governance._extract_marker_value(text, "Selected Implementation Route:")
-        slice_map = governance._extract_marker_value(text, "Slice Map:")
-        validation = governance._extract_marker_value(
-            text, "Shared Validation / Proof Path:"
-        )
-        split_decision = governance._extract_marker_value(text, "Split Decision:")
-        require(
-            governance._planning_word_count(route) >= 8,
-            "Multi-slice carrier must name a concrete implementation route",
-        )
-        require(
-            slice_map.count("Slice") >= 2,
-            "Multi-slice carrier must map at least two slices",
-        )
-        require(
-            governance._planning_word_count(validation) >= 8,
-            "Multi-slice carrier must name a shared validation/proof path",
-        )
-        require(
-            "same branch" in split_decision.casefold()
-            or "split not required" in split_decision.casefold(),
-            "Multi-slice carrier must prove why the grouped branch is legal",
-        )
-    if "required separate branch case:" in normalized:
-        required_markers = (
-            "Required Separate Branch Case:",
-            "Divergence Basis:",
-            "Split Required:",
-            "Blocked Same-Branch Reason:",
-            "Recommended Carrier:",
-        )
-        for marker in required_markers:
-            require(marker in text, f"Required separate branch case missing {marker}")
-        divergence = governance._extract_marker_value(text, "Divergence Basis:")
-        split_required = governance._extract_marker_value(text, "Split Required:")
-        require(
-            any(
-                term in divergence.casefold()
-                for term in (
-                    "different fam",
-                    "different package",
-                    "private",
-                    "provider",
-                    "runtime",
-                    "release timing",
-                    "validation path",
-                    "owner/worktree",
-                )
-            ),
-            "Required separate branch case must name a real divergence basis",
-        )
-        require(
-            "yes" in split_required.casefold()
-            or "required" in split_required.casefold(),
-            "Required separate branch case must explicitly require a split",
-        )
-    return failures
+    return external_state.validate_slice_slc_seam_model_text(text)
 
 
 def _validate_br2_route_blocker_packet_text(text: str) -> list[str]:
@@ -3746,6 +3644,37 @@ def validate() -> list[str]:
             failures.append(
                 "External-state validator fixture did not reject populated "
                 "planning-only/TBD route values"
+            )
+
+        temp_plan.write_text(
+            "# Fixture Active Branch Plan\n\n"
+            "- Selected Implementation Route: Implement source-truth validator "
+            "control for security trust-boundary enforcement behavior\n"
+            "- Implementation Route Class: governance/source-truth validator "
+            "implementation\n"
+            "- Concrete Deliverable: Validator enforcement behavior blocks public "
+            "provider execution when required consent markers are missing.\n"
+            "- Implementation Output: Workstream implements validator behavior "
+            "that rejects unsafe public trust-boundary state transitions before "
+            "BP1.\n"
+            "- Infrastructure / Setup Relationship: Execution-enabling for the "
+            "selected implementation route and exact USER action gate.\n"
+            "- USER Action Gate: USER approves this implementation-bearing "
+            "validation route before BP1 proceeds.\n"
+            "- Route Disposition: PROCEED\n"
+            "- Retarget / Rename Recommendation: None\n\n"
+            "SLC is the seam.\n",
+            encoding="utf-8",
+        )
+        external_terminology_failures = (
+            external_state.validate_active_branch_plan_posture(temp_state_root)
+        )
+        if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+            external_terminology_failures
+        ):
+            failures.append(
+                "External-state validator fixture did not reject active branch-plan "
+                "SLC/Slice/Seam terminology ambiguity"
             )
 
         temp_plan.write_text(

@@ -390,6 +390,111 @@ def validate_implementation_route_values(plan_text: str) -> list[str]:
     return issues
 
 
+def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
+    issues: list[str] = []
+    normalized = normalized_route_value(plan_text)
+    ambiguity_terms = (
+        "slc is the seam",
+        "slcs are seams",
+        "slc means seam",
+        "slice is proof",
+        "slice is the proof",
+        "seam is the branch deliverable",
+        "seam is the feature",
+        "seam-only branch",
+        "slc is a separate branch",
+        "each slc becomes a branch",
+        "slc creates the branch",
+    )
+    if any(term in normalized for term in ambiguity_terms):
+        issues.append(
+            "SLC / Slice / Seam terminology ambiguity: SLC must resolve to "
+            "Slice-level deliverables, and seams must remain execution or "
+            "validation checkpoints"
+        )
+
+    if "slc" in normalized and not (
+        "slice-level" in normalized
+        or "alias" in normalized
+        or "historical" in normalized
+    ):
+        issues.append(
+            "SLC / Slice / Seam terminology ambiguity: SLC use must name "
+            "its Slice-level alias or historical traceability posture"
+        )
+
+    if "multi-slice carrier:" in normalized:
+        required_markers = (
+            "FAM",
+            "Package",
+            "Selected Implementation Route",
+            "Slice Map",
+            "Shared Owner / Worktree",
+            "Shared Validation / Proof Path",
+            "Split Decision",
+        )
+        for marker in required_markers:
+            if not markdown_field_value(plan_text, marker):
+                issues.append(f"Multi-slice carrier missing {marker}:")
+        route = markdown_field_value(plan_text, "Selected Implementation Route") or ""
+        slice_map = markdown_field_value(plan_text, "Slice Map") or ""
+        validation = (
+            markdown_field_value(plan_text, "Shared Validation / Proof Path") or ""
+        )
+        split_decision = markdown_field_value(plan_text, "Split Decision") or ""
+        if route_word_count(route) < 8:
+            issues.append("Multi-slice carrier must name a concrete implementation route")
+        if slice_map.count("Slice") < 2:
+            issues.append("Multi-slice carrier must map at least two slices")
+        if route_word_count(validation) < 8:
+            issues.append(
+                "Multi-slice carrier must name a shared validation/proof path"
+            )
+        if not (
+            "same branch" in split_decision.casefold()
+            or "split not required" in split_decision.casefold()
+        ):
+            issues.append("Multi-slice carrier must prove why the grouped branch is legal")
+
+    if "required separate branch case:" in normalized:
+        required_markers = (
+            "Required Separate Branch Case",
+            "Divergence Basis",
+            "Split Required",
+            "Blocked Same-Branch Reason",
+            "Recommended Carrier",
+        )
+        for marker in required_markers:
+            if not markdown_field_value(plan_text, marker):
+                issues.append(f"Required separate branch case missing {marker}:")
+        divergence = markdown_field_value(plan_text, "Divergence Basis") or ""
+        split_required = markdown_field_value(plan_text, "Split Required") or ""
+        if not any(
+            term in divergence.casefold()
+            for term in (
+                "different fam",
+                "different package",
+                "private",
+                "provider",
+                "runtime",
+                "release timing",
+                "validation path",
+                "owner/worktree",
+            )
+        ):
+            issues.append(
+                "Required separate branch case must name a real divergence basis"
+            )
+        if not (
+            "yes" in split_required.casefold()
+            or "required" in split_required.casefold()
+        ):
+            issues.append(
+                "Required separate branch case must explicitly require a split"
+            )
+    return issues
+
+
 def validate_active_branch_plan_posture(root: Path) -> list[str]:
     issues: list[str] = []
     active_state = root / "central" / "active_branch_authority_state.md"
@@ -469,6 +574,7 @@ def validate_active_branch_plan_posture(root: Path) -> list[str]:
         )
     else:
         issues.extend(validate_implementation_route_values(plan_text))
+    issues.extend(validate_slice_slc_seam_model_text(plan_text))
     return issues
 
 
