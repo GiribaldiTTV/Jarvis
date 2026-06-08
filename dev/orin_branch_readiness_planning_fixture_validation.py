@@ -3833,6 +3833,26 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(numbered_multiline_slice_map_failures[:5])
         )
 
+    colon_labeled_slice_map_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Slice Map: Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy. Slice 2 / SLC-002 implements public "
+            "artifact exclusion validator/helper enforcement. Slice 3 / SLC-003 "
+            "implements packet proof and future-gated boundary preservation.",
+            "Slice Map:\n"
+            "- SLC-001: consent-shell disabled-state source-truth and review copy.\n"
+            "- SLC-002: public artifact exclusion validator/helper enforcement.\n"
+            "- SLC-003: packet proof and future-gated boundary preservation.",
+        )
+    )
+    if colon_labeled_slice_map_failures:
+        failures.append(
+            "Valid colon-labeled Slice Map fixture unexpectedly failed: "
+            + "; ".join(colon_labeled_slice_map_failures[:5])
+        )
+
     same_sentence_slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"

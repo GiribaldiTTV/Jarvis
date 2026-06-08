@@ -109,8 +109,6 @@ def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
             stripped = next_line.strip()
             if not stripped:
                 break
-            if any_field_pattern.match(next_line):
-                break
             if re.match(
                 r"^(?:[-*]|\d+\.)?\s*(?:slice\s+\d+|slc-\d+)\b",
                 stripped,
@@ -118,6 +116,8 @@ def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
             ):
                 values.append(stripped)
                 continue
+            if any_field_pattern.match(next_line):
+                break
             if next_line[:1].isspace() and values:
                 values.append(stripped)
                 continue
