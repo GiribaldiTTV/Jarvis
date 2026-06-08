@@ -3728,6 +3728,38 @@ SLC-001 is a separate branch for the consent shell.
             "wording after valid alias wording"
         )
 
+    plural_slc_branch_ambiguity_failures = _validate_slice_slc_seam_model_text(
+        """
+# Invalid Plural SLC Branch Split Ambiguity
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+SLCs are separate branches for the consent shell and artifact boundary.
+"""
+    )
+    if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+        plural_slc_branch_ambiguity_failures
+    ):
+        failures.append(
+            "Invalid plural SLC branch ambiguity fixture did not reject SLCs-as-branches "
+            "wording after valid alias wording"
+        )
+
+    coordinated_slc_branch_ambiguity_failures = _validate_slice_slc_seam_model_text(
+        """
+# Invalid Coordinated SLC Branch Split Ambiguity
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+SLC-001 and SLC-002 are separate branches for the consent shell and artifact boundary.
+"""
+    )
+    if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+        coordinated_slc_branch_ambiguity_failures
+    ):
+        failures.append(
+            "Invalid coordinated SLC branch ambiguity fixture did not reject "
+            "numbered SLCs-as-branches wording after valid alias wording"
+        )
+
     negated_same_branch_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"
