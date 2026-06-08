@@ -3413,6 +3413,43 @@ def validate() -> list[str]:
                 + "; ".join(terminology_failures[:5])
             )
 
+    negated_same_branch_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Split Decision: Split not required; same branch remains legal because "
+            "the slices share one FAM, one package, one selected implementation "
+            "route, one owner/worktree, aligned PR timing, and one validation/proof path.",
+            "Split Decision: same branch is not legal for this work; split required.",
+        )
+    )
+    if "Multi-slice carrier must prove why the grouped branch is legal" not in "\n".join(
+        negated_same_branch_failures
+    ):
+        failures.append(
+            "Invalid negated same-branch multi-slice fixture did not reject split-required wording"
+        )
+
+    negated_split_required_failures = _validate_slice_slc_seam_model_text(
+        VALID_REQUIRED_SEPARATE_BRANCH_CASE_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Split Required: Yes. The private Owner lane memory route must wait "
+            "for a separate USER-approved carrier because it crosses private "
+            "storage, provider/runtime/cache/memory behavior, and owner/worktree "
+            "boundaries.",
+            "Split Required: Not required; keep same branch.",
+        )
+    )
+    if (
+        "Required separate branch case must explicitly require a split"
+        not in "\n".join(negated_split_required_failures)
+    ):
+        failures.append(
+            "Invalid negated required-separate-branch fixture did not reject "
+            "not-required same-branch wording"
+        )
+
     planning_only_route_failures = _validate_implementation_bearing_route_text(
         INVALID_IMPLEMENTATION_ROUTE_PLANNING_ONLY_FIXTURE.read_text(encoding="utf-8")
     )

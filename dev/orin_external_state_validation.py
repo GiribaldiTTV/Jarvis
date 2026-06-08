@@ -119,6 +119,62 @@ def route_word_count(value: str) -> int:
     return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9_/-]*", value))
 
 
+def same_branch_split_decision_is_positive(value: str) -> bool:
+    normalized = normalized_route_value(value)
+    negative_terms = (
+        "same branch is not legal",
+        "same branch not legal",
+        "same branch is illegal",
+        "not legal for same branch",
+        "not legal in same branch",
+        "cannot stay same branch",
+        "cannot remain same branch",
+        "must split",
+        "split required",
+        "required separate branch",
+        "separate branch required",
+        "different branch required",
+        "same-branch blocked",
+        "blocked same branch",
+    )
+    if any(term in normalized for term in negative_terms):
+        return False
+    return "split not required" in normalized or "same branch" in normalized
+
+
+def separate_branch_split_required_is_positive(value: str) -> bool:
+    normalized = normalized_route_value(value)
+    negative_terms = (
+        "not required",
+        "not needed",
+        "not necessary",
+        "split not required",
+        "no split",
+        "same branch",
+        "keep same branch",
+        "remain same branch",
+        "split optional",
+    )
+    if any(term in normalized for term in negative_terms):
+        return False
+    positive_terms = (
+        "yes",
+        "required",
+        "split required",
+        "separate branch required",
+        "required separate branch",
+    )
+    return any(
+        normalized == term
+        or normalized.startswith(f"{term}.")
+        or normalized.startswith(f"{term};")
+        or normalized.startswith(f"{term}:")
+        or normalized.startswith(f"{term} ")
+        or term in normalized
+        for term in positive_terms
+    )
+
+
 def validate_implementation_route_values(plan_text: str) -> list[str]:
     issues: list[str] = []
     marker_values = {
@@ -461,10 +517,7 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
             issues.append(
                 "Multi-slice carrier must name a shared validation/proof path"
             )
-        if not (
-            "same branch" in split_decision.casefold()
-            or "split not required" in split_decision.casefold()
-        ):
+        if not same_branch_split_decision_is_positive(split_decision):
             issues.append("Multi-slice carrier must prove why the grouped branch is legal")
 
     if "required separate branch case:" in normalized:
@@ -496,10 +549,7 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
             issues.append(
                 "Required separate branch case must name a real divergence basis"
             )
-        if not (
-            "yes" in split_required.casefold()
-            or "required" in split_required.casefold()
-        ):
+        if not separate_branch_split_required_is_positive(split_required):
             issues.append(
                 "Required separate branch case must explicitly require a split"
             )
