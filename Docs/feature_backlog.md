@@ -41,7 +41,7 @@ Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits,
 | --- | --- | --- |
 | Backlog family | Broad long-lived product identity and compact registry pointer | Every subsystem, dependency, architecture idea, policy, or implementation package |
 | Family vision | Durable direction for one family | Cross-family architecture, runtime approval, or active branch authority by default |
-| Family feature vision | Durable feature-category direction inside exactly one FAM, including reusable surfaces, experience flow, non-goals, proof expectations, and deferred carryforward | New FAM identity, selected-next truth, active branch state, implementation approval, or live dependency queues |
+| Family feature vision | Durable feature-category direction inside exactly one FAM, including reusable surfaces, experience flow, non-goals, proof expectations, deferred carryforward, and BP1 `Feature Vision Context` when selected feature-bearing branch routes require it | New FAM identity, selected-next truth, active branch state, implementation approval, or live dependency queues |
 | Architecture layer | Reusable structural system concepts | Product-family identity, release identity, or implementation approval by itself |
 | Cross-family policy owner | Hard rules, constraints, enforcement requirements, and safety/privacy boundaries across families | Runtime identity or implementation scope by itself |
 | Experience layer | Interaction philosophy, UX orchestration, and user-facing behavioral model | Automatic backlog identity or implementation approval |

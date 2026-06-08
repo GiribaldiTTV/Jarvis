@@ -49,6 +49,12 @@ Docs/family_feature_visions/FAM-006_monitor_groups.md
 
 Creating the folder, creating the first content files, migrating existing family-vision text into those files, or treating any file as the active owner requires a separate USER approval. Until those files exist, `Docs/family_visions/` remains the durable family-level owner and active branch plans provide branch-local feature context.
 
+BP1 entry for a selected feature-bearing branch route is blocked on `Family Feature Vision Required For Selected Feature` until the required USER-approved Family Feature Vision exists and passes the `Feature Vision Sufficiency Check`. If the branch route is governance-only, release-support, pure helper/validator, source-truth-only, or otherwise non-product, the branch planning packet may record `Family Feature Vision Not Applicable` with the reason.
+
+`Feature Vision Sufficiency Check` requires enough durable content for BP1 to create a branch-specific vision without inventing feature direction: feature purpose, USER-facing surfaces, experience flow, included capabilities, explicit non-goals, dependency/deferred map, design options, proof expectations, Branch Readiness consumption notes, BP1 context notes, fold-down history when applicable, and active-state wording scan. A shallow, placeholder, copied-list-only, or branch-local implementation-only file does not satisfy BP1 entry.
+
+When Family Feature Vision planning exposes durable feature ideas, deferrals, surfaces, proof expectations, grouping rules, or routing constraints, those items must be folded into the relevant vision owner before BP1 or given a durable deferred disposition. Repo vision files must preserve the planning without storing live branch state.
+
 Family Feature Vision owns durable feature-category direction inside exactly one FAM:
 
 - feature purpose
@@ -76,7 +82,7 @@ Family Feature Vision must not own:
 - live operational ledgers
 - per-seam implementation checklists
 
-Nested surfaces such as a Log Viewer inside a Recording feature should stay inside the owning Family Feature Vision by default. Create another lower-level durable vision file only after a later `Source-Truth Placement Preflight` proves the single Family Feature Vision cannot preserve the detail safely and the USER approves a new owner.
+Nested surfaces such as a Log Viewer inside a Recording feature stay inside the owning Family Feature Vision by default. Create another lower-level durable vision file only after a later `Source-Truth Placement Preflight` proves the single Family Feature Vision cannot preserve the detail safely and the USER approves a new owner.
 
 ## Deferred Feature Carryforward
 
@@ -92,7 +98,7 @@ Allowed durable dispositions:
 - `Implemented Receipt`
 - `Superseded`
 
-Each deferred item should record:
+Each deferred item must record:
 
 - deferred item title
 - originating FAM

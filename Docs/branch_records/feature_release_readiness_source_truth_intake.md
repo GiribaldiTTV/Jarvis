@@ -250,6 +250,8 @@ Seam Scope: `Docs/Main.md, Docs/nexus_vision.md, Docs/family_visions/README.md, 
 
 Seam Non-Includes: `Helper code mutation, validator code mutation, fixture mutation, creating Docs/family_feature_visions/ content files such as FAM-006_recording.md, FAM-006 mutation, FAM-006 rebaseline, FAM-006 BP1 re-entry, FAM-007 mutation, neutral-main mutation, PR creation, draft PR creation, merge, release execution, tag/GitHub Release/artifact work, helper --apply operations, external-state mutation, worktree-local staging creation, repo Docs file movement/deletion/archival, broader repo cleanup execution, runtime/provider/model/memory/voice/Core/shortcut/installer work, successor branch creation, issue work, branch deletion, or worktree cleanup.`
 
+Precision Repair Addendum: `Family Feature Vision BP1-entry blocker hardened before PR Readiness Stage 1. Selected feature-bearing branch routes now block on Family Feature Vision Required For Selected Feature until the required Family Feature Vision exists and passes Feature Vision Sufficiency Check; non-product branches may record Family Feature Vision Not Applicable with reason; durable feature ideas exposed during Family Feature Vision planning must be folded into the relevant vision owner before BP1 or given a durable deferred disposition. Helper, validator, fixture, new Family Feature Vision content-file creation, FAM worktree mutation, PR creation, merge, release, and runtime/private/provider/cache/memory work remain non-includes.`
+
 ## Initial Workstream Seam Sequence
 
 Seam 1: Standing Governance Intake Bootstrap
