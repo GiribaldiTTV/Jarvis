@@ -177,6 +177,10 @@ def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
     if carrier_value:
         return not multi_slice_marker_value_is_negative(carrier_value)
 
+    slice_map = markdown_field_value(plan_text, "Slice Map")
+    if slice_map and slice_map_deliverable_count(slice_map) >= 2:
+        return True
+
     current_scope_fields = (
         "Package Summary",
         "Package",
@@ -547,20 +551,20 @@ def validate_implementation_route_values(plan_text: str) -> list[str]:
 def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
     issues: list[str] = []
     normalized = normalized_route_value(plan_text)
-    ambiguity_terms = (
-        "slc is the seam",
-        "slcs are seams",
-        "slc means seam",
-        "slice is proof",
-        "slice is the proof",
-        "seam is the branch deliverable",
-        "seam is the feature",
-        "seam-only branch",
-        "slc is a separate branch",
-        "each slc becomes a branch",
-        "slc creates the branch",
+    ambiguity_patterns = (
+        r"\bslc(?:-\d+)?\s+is\s+the\s+seam\b",
+        r"\bslcs\s+are\s+seams\b",
+        r"\bslc(?:-\d+)?\s+means\s+seam\b",
+        r"\bslice\s+is\s+(?:the\s+)?proof\b",
+        r"\bseam\s+is\s+the\s+branch\s+deliverable\b",
+        r"\bseam\s+is\s+the\s+feature\b",
+        r"\bseam-only\s+branch\b",
+        r"\bslc(?:-\d+)?\s+is\s+a\s+separate\s+branch\b",
+        r"\bslc(?:-\d+)?\s+becomes\s+a\s+branch\b",
+        r"\bslc(?:-\d+)?\s+creates\s+the\s+branch\b",
+        r"\beach\s+slc(?:-\d+)?\s+becomes\s+a\s+branch\b",
     )
-    if any(term in normalized for term in ambiguity_terms):
+    if any(re.search(pattern, normalized) for pattern in ambiguity_patterns):
         issues.append(
             "SLC / Slice / Seam terminology ambiguity: SLC must resolve to "
             "Slice-level deliverables, and seams must remain execution or "

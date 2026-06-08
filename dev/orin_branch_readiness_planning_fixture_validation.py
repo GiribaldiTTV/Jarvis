@@ -3587,6 +3587,30 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(prefixed_negated_multiple_slices_failures[:5])
         )
 
+    slice_map_only_multi_slice_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Multi-Slice Carrier: FAM-007 provider consent shell and artifact "
+            "exclusion control.\n",
+            "",
+        )
+        .replace(
+            "Shared Owner / Worktree: One FAM-007 branch/worktree owns all "
+            "slices because they serve the same public-safe provider-boundary "
+            "route and one package objective.\n\n",
+            "",
+        )
+    )
+    if "Multi-slice carrier missing Shared Owner / Worktree:" not in "\n".join(
+        slice_map_only_multi_slice_failures
+    ):
+        failures.append(
+            "Invalid Slice Map-only multi-slice fixture did not infer current "
+            "multi-slice carrier enforcement"
+        )
+
     slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"
@@ -3686,6 +3710,22 @@ terminology without creating a multi-slice package carrier.
         failures.append(
             "Invalid repeated generic slice-map fixture did not reject prose-only "
             "slice mentions without distinct Slice/SLC identifiers"
+        )
+
+    slc_id_branch_ambiguity_failures = _validate_slice_slc_seam_model_text(
+        """
+# Invalid SLC ID Branch Split Ambiguity
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+SLC-001 is a separate branch for the consent shell.
+"""
+    )
+    if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+        slc_id_branch_ambiguity_failures
+    ):
+        failures.append(
+            "Invalid SLC-ID branch ambiguity fixture did not reject SLC-as-branch "
+            "wording after valid alias wording"
         )
 
     negated_same_branch_failures = _validate_slice_slc_seam_model_text(
