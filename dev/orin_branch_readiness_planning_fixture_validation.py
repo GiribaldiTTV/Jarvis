@@ -3524,6 +3524,29 @@ USER-gated and outside this current branch plan.
             + "; ".join(future_gated_multi_slice_failures[:5])
         )
 
+    package_summary_future_gated_multi_slice_failures = (
+        _validate_slice_slc_seam_model_text(
+            """
+# Valid Single-Slice Branch Plan With Package Summary Future-Gated Boundary
+
+Package Summary: Future multi-slice package expansion remains USER-gated and
+outside this current branch plan.
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps the current branch scoped to one Slice-level deliverable.
+
+Concrete Deliverable: A single Slice-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+"""
+        )
+    )
+    if package_summary_future_gated_multi_slice_failures:
+        failures.append(
+            "Valid package-summary future-gated multi-slice boundary unexpectedly "
+            "triggered current multi-slice carrier enforcement: "
+            + "; ".join(package_summary_future_gated_multi_slice_failures[:5])
+        )
+
     postfixed_negated_multi_slice_failures = _validate_slice_slc_seam_model_text(
         """
 # Valid Single-Slice Branch Plan With Postfixed Multi-Slice Negation

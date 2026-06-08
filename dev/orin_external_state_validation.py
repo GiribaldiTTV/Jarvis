@@ -172,6 +172,25 @@ def value_declares_multi_slice(value: str) -> bool:
     )
     if postfixed_negation_match and postfixed_negation_match.start() == positive_match.start():
         return False
+
+    future_gate_match = re.search(
+        r"\bfuture(?:[- ]gated)?\b[^.\n;:]{0,80}"
+        r"\b(?:multi[- ]slice|multiple\s+slices)\b[^.\n;:]{0,100}"
+        r"\b(?:user[- ]gated|future[- ]gated|deferred|later|out\s+of\s+scope|outside)\b",
+        normalized,
+    )
+    if future_gate_match and future_gate_match.start() <= positive_match.start():
+        return False
+
+    future_scope_match = re.search(
+        r"\bfuture(?:[- ]gated)?\b[^.\n;:]{0,80}"
+        r"\b(?:multi[- ]slice|multiple\s+slices)\b[^.\n;:]{0,140}"
+        r"\b(?:outside|out\s+of\s+scope|not\s+part\s+of|excluded\s+from|deferred\s+beyond)\b"
+        r"[^.\n;:]{0,80}\b(?:this|current)\s+branch\b",
+        normalized,
+    )
+    if future_scope_match and future_scope_match.start() <= positive_match.start():
+        return False
     return True
 
 
