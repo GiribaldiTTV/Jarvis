@@ -135,8 +135,10 @@ def slice_map_deliverable_count(value: str) -> int:
         for pair_index, pair in enumerate(pair_pattern.finditer(entry)):
             left = pair.group(1) or pair.group(3)
             right = pair.group(2) or pair.group(4)
-            if left == right:
-                identifiers.add(str(int(left)))
+            left_id = int(left)
+            right_id = int(right)
+            if left_id == right_id:
+                identifiers.add(str(left_id))
             else:
                 identifiers.add(f"entry-{entry_index}-pair-{pair_index}")
             protected_spans.append(pair.span())

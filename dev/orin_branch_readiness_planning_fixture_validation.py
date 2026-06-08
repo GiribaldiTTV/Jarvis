@@ -3710,6 +3710,27 @@ terminology without creating a multi-slice package carrier.
             "mapped entries for the same slice"
         )
 
+    duplicate_slice_slc_pair_slice_map_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Slice Map: Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy. Slice 2 / SLC-002 implements public "
+            "artifact exclusion validator/helper enforcement. Slice 3 / SLC-003 "
+            "implements packet proof and future-gated boundary preservation.",
+            "Slice Map: Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy. Slice 1 / SLC-001 implements public "
+            "artifact exclusion validator/helper enforcement.",
+        )
+    )
+    if "Multi-slice carrier must map at least two slices" not in "\n".join(
+        duplicate_slice_slc_pair_slice_map_failures
+    ):
+        failures.append(
+            "Invalid duplicate Slice/SLC pair Slice Map fixture did not reject "
+            "two mapped entries for the same zero-padded SLC alias"
+        )
+
     repeated_generic_slice_map_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"
