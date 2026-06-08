@@ -1033,15 +1033,15 @@ def _fam007_bp2_plan_substantive_failures(packet_files: Mapping[str, str]) -> li
 
     text = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
     combined = f"{start_here}\n{text}".casefold()
-    fam007_bp2_support_packet = any(
-        marker in combined
-        for marker in (
-            "fam-007 dev/owner skeleton readiness",
-            "owner ai operational foundation gates",
-            "feature/fam-007-owner-ai-operational-foundation-gates",
-        )
+    owner_ai_foundation_packet = (
+        "owner ai operational foundation gates" in combined
+        or "feature/fam-007-owner-ai-operational-foundation-gates" in combined
     )
-    if not fam007_bp2_support_packet:
+    dev_owner_skeleton_packet = (
+        "fam-007 dev/owner skeleton readiness" in combined
+        or "dev/owner skeleton readiness" in combined
+    )
+    if not owner_ai_foundation_packet and not dev_owner_skeleton_packet:
         return []
     if _fam007_dev_owner_lv1_packet_detected(packet_files):
         return []
@@ -1091,26 +1091,46 @@ def _fam007_bp2_plan_substantive_failures(packet_files: Mapping[str, str]) -> li
         )
 
     required_headings = (
-        "## Integrated Dev/Owner Readiness Matrix",
-        "## Edition / Lane Matrix",
-        "## Dev Readiness Matrix",
-        "## Owner Readiness Matrix",
-        "## Private Root / Remote Matrix",
-        "## GitHub Desktop Binding Matrix",
-        "## Backup / Import Matrix",
-        "## Provider / Runtime / Cache / Memory Deferral Matrix",
-        "## Watermark / Identity Matrix",
-        "## Proof / Validation Matrix",
-        "## Future USER Gate Matrix",
+        (
+            "## Owner AI Foundation Gate Matrix",
+            "## Protected Artifact Exclusion Matrix",
+            "## Consent / Runtime Disabled-State Matrix",
+            "## Memory / Cache Consent Matrix",
+            "## Capability Install-Intent Matrix",
+            "## Developer / Owner Lane Readiness Matrix",
+            "## Owner AI Memory / Agent Schema Matrix",
+            "## Proof / Validation Matrix",
+            "## Future USER Gate Matrix",
+        )
+        if owner_ai_foundation_packet
+        else (
+            "## Integrated Dev/Owner Readiness Matrix",
+            "## Edition / Lane Matrix",
+            "## Dev Readiness Matrix",
+            "## Owner Readiness Matrix",
+            "## Private Root / Remote Matrix",
+            "## GitHub Desktop Binding Matrix",
+            "## Backup / Import Matrix",
+            "## Provider / Runtime / Cache / Memory Deferral Matrix",
+            "## Watermark / Identity Matrix",
+            "## Proof / Validation Matrix",
+            "## Future USER Gate Matrix",
+        )
     )
     for heading in required_headings:
         if heading not in text:
             failures.append(f"{display_name}: FAM-007 BP2 packet is missing {heading}")
 
     accepted_trace = _section(text, "Accepted Branch Vision Summary").casefold()
-    if "bp1 accepted" not in accepted_trace or "option a" not in accepted_trace:
+    accepted_trace_ok = (
+        "bp1 accepted" in accepted_trace
+        and "owner ai operational foundation gates" in accepted_trace
+        if owner_ai_foundation_packet
+        else "bp1 accepted" in accepted_trace and "option a" in accepted_trace
+    )
+    if not accepted_trace_ok:
         failures.append(
-            f"{display_name}: FAM-007 BP2 packet missing accepted BP1 Option A trace"
+            f"{display_name}: FAM-007 BP2 packet missing accepted BP1 trace"
         )
     return failures
 
@@ -4037,7 +4057,8 @@ def _write_user_branch_plan_review(
     if is_fam007_owner_ai_foundation and bp2_branch_plan_packet:
         accepted_user_response = (
             "BP1 accepted - USER accepted the repaired FAM-007 Owner AI Operational "
-            "Foundation Gates Branch Vision for BP2 generation. BP2 may plan the "
+            "Foundation Gates Branch Vision for BP2 generation as the Option A "
+            "grouped gate route. BP2 may plan the "
             "public-safe engineering route for artifact exclusion controls, "
             "provider/runtime disabled-state consent shells, memory/cache consent "
             "gates, capability-pack install-intent gates, Developer/Owner lane "
@@ -4153,6 +4174,19 @@ def _write_user_branch_plan_review(
             "dev/orin_ai_provider_state_validation.py for provider/runtime/cache/memory disabled-state proof if later implementation touches provider state.",
             "Docs/ai_runtime_and_trust_architecture.md or FAM-007 family vision files only if USER accepts reusable policy changes rather than branch-local planning detail.",
         ]
+        active_branch_files = [
+            "Active external branch plan exists at C:\\Nexus Governance State\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_plan.md; it owns active BP2 planning posture, accepted BP1 trace, Slice/SLC plan, external-state pointer, and next-gate routing.",
+            "Active external branch state exists at C:\\Nexus Governance State\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_state.md; it records the current carrier posture and packet pointer outside repo-tracked source truth.",
+            "Durable repo branch record remains Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md; it is route receipt/context and not active operational state.",
+        ]
+        user_decisions_intro = (
+            "USER may answer in order or respond generally. Useful BP2 feedback "
+            "includes slice changes, proof-lane changes, protected artifact classes, "
+            "consent-state wording, cache/memory boundary expectations, capability "
+            "install-intent gates, lane-readiness checks, Owner AI schema fields, "
+            "rollback requirements, future-gated boundaries, or anything that would "
+            "make this Owner AI foundation engineering plan wrong before BP3."
+        )
         implementation_constraints = [
             "BP2 may plan public-safe source-truth, helper, fixture, validator, packet, H1, LV/UTS, rollback, and proof surfaces.",
             "BP2 may not implement Workstream changes or execute the private/runtime actions it describes as future gates.",
@@ -4196,6 +4230,89 @@ def _write_user_branch_plan_review(
             "Explicitly waive remaining BP2 questions and authorize BP3 only.",
             "Reject this branch plan and request a narrower or different carrier.",
             "Hold for more examples, risks, or proof models.",
+        ]
+        extra_plan_sections = [
+            "## Owner AI Foundation Gate Matrix",
+            "",
+            "| Slice | Planned control behavior | Current BP2 scope | Future gate | Proof needed |",
+            "| --- | --- | --- | --- | --- |",
+            "| Protected artifact exclusion | Define controls that keep protected Owner/Developer/private artifacts out of public repo, public packets, upload ZIPs, and public artifacts. | Plan controls, manifests, fixtures, and validators only. | Any private artifact migration or private root setup. | Protected-class manifest, negative leak fixtures, and public bundle/repo exclusion proof. |",
+            "| Provider/runtime disabled-state consent shell | Define disabled states and copy for provider/runtime surfaces before execution exists. | Plan schema, wording, and no-execution proof only. | Provider/model/runtime activation. | Provider-state validation and disabled-state fixture proof. |",
+            "| Memory/cache consent gates | Separate operational cache consent from durable memory consent. | Plan state markers and blocked persistence states only. | Runtime cache activation or persistent memory. | Cache marker, memory marker, and separation validator proof. |",
+            "| Capability install intent | Require explicit install intent before any capability setup path can proceed. | Plan install-intent state and blocked pending-install state only. | Download, setup, or execution. | No-download/no-setup proof and install-intent fixture. |",
+            "| Developer/Owner lane readiness | Define readiness gates before private lanes or roots exist. | Plan lane identity, blocked setup states, and validation proof only. | Private Developer or Owner setup. | Lane-readiness validator proof and no private path leakage. |",
+            "| Owner AI memory/agent schemas | Define future prerequisite schemas and blocked states without real memory or agents. | Plan schema and no-real-agent/no-real-memory proof only. | Real Owner memory or real agents. | Schema validation and no-execution proof. |",
+            "",
+            "## Protected Artifact Exclusion Matrix",
+            "",
+            "| Protected class | BP2 plan | Exclusion proof | Future boundary |",
+            "| --- | --- | --- | --- |",
+            "| Private roots and remotes | Keep paths and URLs out of public packet/repo outputs. | Public leak-prevention scan and negative fixtures. | Private root/remote creation remains pending. |",
+            "| Secrets, tokens, prompts, memory, private screenshots, private automation, and model artifacts | Classify as protected and excluded from public review/export paths. | Protected-class manifest plus bundle/repo exclusion proof. | Any private import/export remains pending. |",
+            "| Owner/Developer artifacts | Keep artifact examples abstract or synthetic unless later USER approves private handling. | No private artifact fixture. | Private artifact migration remains pending. |",
+            "",
+            "## Consent / Runtime Disabled-State Matrix",
+            "",
+            "| Surface | Disabled state | BP2 proof | Future gate |",
+            "| --- | --- | --- | --- |",
+            "| Provider/model execution | Disabled and unavailable. | Provider-state validator. | Provider/model activation approval. |",
+            "| Runtime actions | Blocked behind USER consent. | No-execution fixture. | Workstream and runtime approval. |",
+            "| Downloads/network/setup | Blocked. | No-download/no-setup proof. | Capability install/setup approval. |",
+            "",
+            "## Memory / Cache Consent Matrix",
+            "",
+            "| State | Meaning | BP2 proof | Future gate |",
+            "| --- | --- | --- | --- |",
+            "| Cache inactive | Operational cache is not active or replaying data. | Cache-state marker proof. | Runtime cache approval. |",
+            "| Memory inactive | Durable memory/learning/personalization is not active. | Memory-state marker proof. | Memory approval. |",
+            "| Separation required | Cache cannot masquerade as memory and memory cannot start through cache wording. | Separation validator/fixture proof. | BP3 and later implementation approval. |",
+            "",
+            "## Capability Install-Intent Matrix",
+            "",
+            "| Install state | BP2 plan | Blocked action | Proof |",
+            "| --- | --- | --- | --- |",
+            "| No intent | No setup path can run. | Downloads, setup, execution. | Install-intent fixture. |",
+            "| Intent pending | USER-visible pending state only. | Silent install or provider activation. | Pending-install blocked-state proof. |",
+            "| Future approved setup | Separate later gate. | Not in BP2. | Future validation. |",
+            "",
+            "## Developer / Owner Lane Readiness Matrix",
+            "",
+            "| Lane | BP2 readiness plan | Current branch scope | Future USER gate |",
+            "| --- | --- | --- | --- |",
+            "| User/Public | Preserve public-safe proof and current public branch context. | Planning and review only. | None for private setup. |",
+            "| Developer | Define readiness gate before private Developer setup. | Lane label, blocked setup state, no private path proof. | Private Developer lane setup. |",
+            "| Owner | Define readiness gate before Owner private/local setup. | Lane label, blocked setup state, no Owner private data. | Owner lane setup, Owner memory, Owner agents. |",
+            "",
+            "## Owner AI Memory / Agent Schema Matrix",
+            "",
+            "| Schema area | BP2 plan | Explicit non-action | Proof |",
+            "| --- | --- | --- | --- |",
+            "| Memory prerequisites | Define required future consent and protected-state fields. | No real memory, learning, indexing, retrieval, or personalization. | No-memory proof. |",
+            "| Agent prerequisites | Define future gate schema and blocked-state language. | No real agents or autonomous execution. | No-agent/no-execution proof. |",
+            "| Owner data boundary | Keep Owner-private data out of public branch and packet. | No Owner data import/export. | Public leak-prevention proof. |",
+            "",
+            "## Proof / Validation Matrix",
+            "",
+            "| Proof class | Required proof | Candidate validator/helper |",
+            "| --- | --- | --- |",
+            "| Branch planning packet | Primary BP2 file, accepted BP1 support context, timestamped ZIP, no stale BP1-pending text, no metadata drift. | dev/orin_user_review_bundle.py |",
+            "| Protected artifact safety | No private path, token, remote URL, prompt, memory, model artifact, private automation, or private artifact in public branch. | dev/orin_public_leak_prevention_validation.py |",
+            "| Provider/runtime deferral | Provider-visible data none, prompt/model execution disabled, downloads blocked, cache/memory inactive. | dev/orin_ai_provider_state_validation.py |",
+            "| Planning gate proof | BP2 requires accepted BP1 trace; BP3 blocks while BP2 remains pending. | dev/orin_branch_readiness_planning_fixture_validation.py |",
+            "| External-state consistency | External branch plan/state records BP2 reviewability and pending USER gate without making repo files live ledgers. | dev/orin_external_state_validation.py |",
+            "| Source owner integrity | Durable source-truth owners keep valid ownership markers. | dev/orin_source_owner_marker_validation.py |",
+            "",
+            "## Future USER Gate Matrix",
+            "",
+            "| Future gate | Required before action |",
+            "| --- | --- |",
+            "| BP3 | USER accepts, revises into confirmation, or explicitly waives BP2. |",
+            "| Workstream implementation | BP1 and BP2 accepted or waived, BP3 green or waived, and separate bounded implementation approval. |",
+            "| Private Developer / Owner setup | Separate USER approval naming root/repo/remote/setup scope. |",
+            "| Provider/model/cache/memory behavior | Separate USER approval plus provider-state proof. |",
+            "| Real Owner memory / agents | Separate USER approval plus schema, consent, privacy, and no-leak proof. |",
+            "| PR / merge / release / cleanup | Separate phase approvals after implementation, H1, and LV gates. |",
+            "",
         ]
         response_structure = [
             "Decision: accept, revise, route back to BP1, waive, reject, or hold.",
