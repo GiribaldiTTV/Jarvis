@@ -3547,6 +3547,26 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(package_summary_future_gated_multi_slice_failures[:5])
         )
 
+    route_policy_multi_slice_reference_failures = _validate_slice_slc_seam_model_text(
+        """
+# Valid Single-Slice Governance Repair That Mentions Multi-Slice Policy
+
+Selected Implementation Route: Implement governance validator behavior that
+prevents multi-slice branches from splitting incorrectly.
+
+Concrete Deliverable: A validator repair that checks multi-slice carrier policy
+without making this governance branch a multi-slice implementation carrier.
+
+Implementation Route Class: governance/source-truth validator implementation.
+"""
+    )
+    if route_policy_multi_slice_reference_failures:
+        failures.append(
+            "Valid route-policy multi-slice reference unexpectedly triggered "
+            "current multi-slice carrier enforcement: "
+            + "; ".join(route_policy_multi_slice_reference_failures[:5])
+        )
+
     postfixed_negated_multi_slice_failures = _validate_slice_slc_seam_model_text(
         """
 # Valid Single-Slice Branch Plan With Postfixed Multi-Slice Negation

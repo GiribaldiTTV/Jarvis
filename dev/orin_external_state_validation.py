@@ -234,9 +234,6 @@ def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
     current_scope_fields = (
         "Package Summary",
         "Package",
-        "Selected Implementation Route",
-        "Implementation Route Class",
-        "Concrete Deliverable",
     )
     return any(
         value_declares_multi_slice(value)
