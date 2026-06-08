@@ -36,6 +36,7 @@ const monitoringHudRecordingTargetProfile = document.getElementById("monitoring-
 const monitoringHudRecordingTargetCount = document.getElementById("monitoring-hud-recording-target-count");
 const monitoringHudRecordingTargetSummary = document.getElementById("monitoring-hud-recording-target-summary");
 const monitoringHudRecordingControlLauncher = document.getElementById("monitoring-hud-recording-control-launcher");
+const monitoringHudRecordingOpenFolder = document.getElementById("monitoring-hud-recording-open-folder");
 const monitoringHudOverlayProfileOpenSettings = document.getElementById("monitoring-hud-overlay-profile-open-settings");
 const monitoringHudOverlayProfileNameInput = document.getElementById("monitoring-hud-overlay-profile-name-input");
 const monitoringHudOverlayProfileCreate = document.getElementById("monitoring-hud-overlay-profile-create");
@@ -503,6 +504,51 @@ function monitoringHudToggleRecording() {
   return monitoringHudRecordingState() === "recording" ? monitoringHudStopRecording() : monitoringHudStartRecording();
 }
 
+function monitoringHudRecordingOutputFolderPath(outputResult) {
+  const safeResult = outputResult && typeof outputResult === "object" ? outputResult : {};
+  if (safeResult.outputDir) return String(safeResult.outputDir || "");
+  const path = String(safeResult.csvPath || safeResult.manifestPath || "");
+  if (!path) return "";
+  const lastSlash = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+  return lastSlash >= 0 ? path.slice(0, lastSlash) : "";
+}
+
+function monitoringHudRequestOpenRecordingFolder() {
+  const outputResult = monitoringHudControlState.recordingOutputResult || {};
+  const folderPath = monitoringHudRecordingOutputFolderPath(outputResult);
+  if (!outputResult.passed || !folderPath) {
+    monitoringHudControlState.recordingFolderOpenStatus = "blocked-no-saved-output";
+    monitoringHudControlState.recordingSessionMessage = "Save a recording before opening the log folder.";
+    monitoringHudRenderControls();
+    monitoringHudMarkChanged();
+    return false;
+  }
+  const sequence = Number(monitoringHudControlState.recordingFolderOpenRequestSequence || 0) + 1;
+  monitoringHudControlState.recordingFolderOpenRequestSequence = sequence;
+  monitoringHudControlState.recordingFolderOpenRequest = {
+    requestId: `fam006-open-folder-${sequence}-${Date.now()}`,
+    outputDir: folderPath,
+    csvPath: String(outputResult.csvPath || ""),
+    manifestPath: String(outputResult.manifestPath || ""),
+    source: "dashboard-recording-card"
+  };
+  monitoringHudControlState.recordingFolderOpenStatus = "requested";
+  monitoringHudRenderControls();
+  monitoringHudMarkChanged();
+  return true;
+}
+
+window.setMonitoringHudRecordingFolderOpenResult = function(result) {
+  const safeResult = result && typeof result === "object" ? result : {};
+  monitoringHudControlState.recordingFolderOpenResult = safeResult;
+  monitoringHudControlState.recordingFolderOpenStatus = safeResult.passed ? "opened" : "blocked";
+  if (!safeResult.passed) {
+    monitoringHudControlState.recordingSessionMessage = String(safeResult.error || "The recording log folder could not be opened.");
+  }
+  monitoringHudRenderControls();
+  monitoringHudMarkChanged();
+};
+
 window.setMonitoringHudRecordingOutputResult = function(result) {
   const safeResult = result && typeof result === "object" ? result : {};
   monitoringHudControlState.recordingOutputResult = safeResult;
@@ -530,6 +576,8 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
   const executionState = sessionState === "recording" ? "recording" : sessionState === "saved-complete" ? "saved-complete" : targetReady ? "ready" : "disabled-error";
   const fileWritingState = sessionState === "saved-complete" ? "saved-complete" : sessionState === "saving" ? "saving" : targetReady ? "ready" : "blocked";
   const buttonEnabled = sessionState === "recording" || (targetReady && sessionState !== "saving");
+  const outputFolderPath = monitoringHudRecordingOutputFolderPath(outputResult);
+  const folderButtonEnabled = Boolean(outputResult && outputResult.passed && outputFolderPath);
   if (monitoringHudRecordingCard) {
     monitoringHudRecordingCard.dataset.recordingCardPlacement = "dashboard-recording-card-primary";
     monitoringHudRecordingCard.dataset.recordingSurfaceOwner = "dashboard-card-not-hud-overlay";
@@ -586,6 +634,15 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
         ? "Saving Recording"
         : "Start Recording";
   }
+  if (monitoringHudRecordingOpenFolder) {
+    monitoringHudRecordingOpenFolder.disabled = !folderButtonEnabled;
+    monitoringHudRecordingOpenFolder.setAttribute("aria-disabled", folderButtonEnabled ? "false" : "true");
+    monitoringHudRecordingOpenFolder.dataset.recordingFolderAction = "runtime-output-folder";
+    monitoringHudRecordingOpenFolder.dataset.recordingFolderPathAvailable = folderButtonEnabled ? "true" : "false";
+    monitoringHudRecordingOpenFolder.dataset.recordingFileWritingState = folderButtonEnabled ? "saved-complete" : fileWritingState;
+    monitoringHudRecordingOpenFolder.dataset.recordingCardVisualSystem = "dashboard-hub-card-sampled";
+    monitoringHudRecordingOpenFolder.textContent = "Open Log Folder";
+  }
   return {
     activeProfileName,
     count,
@@ -595,6 +652,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     fileWritingState,
     recordingCardPlacement: "dashboard-recording-card-primary",
     recordingControlWindowState: "dashboard-card-control",
+    recordingFolderPathAvailable: folderButtonEnabled,
   };
 }
 
@@ -1351,6 +1409,10 @@ let monitoringHudControlState = {
   recordingOutputRequest: null,
   recordingOutputRequestSequence: 0,
   recordingOutputResult: null,
+  recordingFolderOpenRequest: null,
+  recordingFolderOpenRequestSequence: 0,
+  recordingFolderOpenResult: null,
+  recordingFolderOpenStatus: "no-output-yet",
   changedAt: Date.now()
 };
 monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
@@ -4632,6 +4694,9 @@ function monitoringHudWireControls() {
   if (monitoringHudRecordingControlLauncher) {
     monitoringHudWireReliableControl(monitoringHudRecordingControlLauncher, "recording-control:dashboard-start-stop", monitoringHudToggleRecording);
   }
+  if (monitoringHudRecordingOpenFolder) {
+    monitoringHudWireReliableControl(monitoringHudRecordingOpenFolder, "recording-control:open-log-folder", monitoringHudRequestOpenRecordingFolder);
+  }
   if (monitoringHudCreateMonitorConfirm) {
     monitoringHudWireReliableControl(monitoringHudCreateMonitorConfirm, "create-window:confirm", monitoringHudCreateMonitorGroupFromWindow);
   }
@@ -6885,6 +6950,7 @@ window.getMonitoringHudLiveClientGeometry = function() {
     recordingTargetSourceRow: rectFor("#monitoring-hud-recording-target-profile"),
     recordingActiveMonitorsRow: rectFor("#monitoring-hud-recording-target-count"),
     recordingControlLauncher: rectFor("#monitoring-hud-recording-control-launcher"),
+    recordingOpenFolder: rectFor("#monitoring-hud-recording-open-folder"),
     monitorGroupsCard: rectFor('[data-dashboard-hub-card="monitor-groups"]'),
     monitorGroupsSummaryGrid: rectFor('[data-dashboard-hub-card="monitor-groups"] .monitoring-hud__monitor-summary-grid'),
     monitorGroupsActions: rectFor('[data-dashboard-hub-card="monitor-groups"] .monitoring-hud__hub-actions'),

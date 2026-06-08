@@ -1137,6 +1137,10 @@ body.desktop-mode #monitoring-hud > * {
 }
 
 .monitoring-hud__recording-target-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
   padding-top: 3px;
 }
 

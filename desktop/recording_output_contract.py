@@ -211,6 +211,7 @@ def write_recording_output_files(
     return {
         "passed": bool(readback.get("passed")),
         "sessionId": str(session_id or ""),
+        "outputDir": str(output_root),
         "csvPath": str(csv_path),
         "manifestPath": str(manifest_path),
         "rowCount": len(rows),

@@ -46,7 +46,7 @@ from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
 from .monitoring_hud_state import save_monitoring_hud_state
 from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
-from .recording_output_contract import write_recording_output_files
+from .recording_output_contract import recording_output_dir, write_recording_output_files
 from .saved_action_authoring import (
     CallableGroupDraft,
     CallableGroupDraftValidationError,
@@ -5957,6 +5957,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_overlay_display_workstream_readiness_signature = None
         self._monitoring_hud_recording_control_signature = None
         self._monitoring_hud_recording_output_signature = None
+        self._monitoring_hud_recording_folder_open_signature = None
         self._monitoring_hud_overlay_profiles = dict(initial_hud_state.get("overlayProfiles") if isinstance(initial_hud_state.get("overlayProfiles"), dict) else {})
         self._monitoring_hud_active_overlay_profile_id = str(initial_hud_state.get("activeOverlayProfileId") or "default-overlay-profile")
         self._monitoring_hud_overlay_profile_default_deleted_by_user = bool(initial_hud_state.get("overlayProfileDefaultDeletedByUser"))
@@ -10047,6 +10048,7 @@ class DesktopRuntimeWindow(QWidget):
                     const targetCount = document.getElementById("monitoring-hud-recording-target-count");
                     const summary = document.getElementById("monitoring-hud-recording-target-summary");
                     const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                    const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
                     const previewStyle = preview ? window.getComputedStyle(preview) : null;
                     const row = preview ? preview.querySelector(".monitoring-hud__state-row") : null;
                     const rowStyle = row ? window.getComputedStyle(row) : null;
@@ -10058,10 +10060,15 @@ class DesktopRuntimeWindow(QWidget):
                             && targetCount
                             && summary
                             && launcher
+                            && openFolder
                             && !launcher.disabled
+                            && openFolder.disabled
                             && String(launcher.textContent || "").trim() === "Start Recording"
+                            && String(openFolder.textContent || "").trim() === "Open Log Folder"
                             && card.dataset.recordingExecutionState === "ready"
                             && card.dataset.recordingFileWritingState === "ready"
+                            && openFolder.dataset.recordingFolderAction === "runtime-output-folder"
+                            && openFolder.dataset.recordingFolderPathAvailable === "false"
                             && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
                             && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
                             && preview.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
@@ -10075,6 +10082,8 @@ class DesktopRuntimeWindow(QWidget):
                         activeMonitorCount: targetCount ? targetCount.textContent : "",
                         startStopControlEnabled: Boolean(launcher && !launcher.disabled),
                         launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                        openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
+                        openFolderText: openFolder ? String(openFolder.textContent || "").trim() : "",
                         recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
                         recordingFileWritingState: card ? String(card.dataset.recordingFileWritingState || "") : "",
                         visualProofMarker: previewStyle ? previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() : "",
@@ -10092,6 +10101,7 @@ class DesktopRuntimeWindow(QWidget):
                 "02_recording_card_target_status_visual_contract",
                 "02_recording_card_target_preview_standard_state_rows",
                 "02_recording_card_start_stop_ready_state",
+                "02_recording_card_open_log_folder_disabled_state",
             ]
             for label in labels:
                 capture(label)
@@ -10180,13 +10190,17 @@ class DesktopRuntimeWindow(QWidget):
                 (function() {
                     const card = document.querySelector('[data-dashboard-hub-card="recording"]');
                     const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                    const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
                     const summary = document.getElementById("monitoring-hud-recording-target-summary");
                     const result = monitoringHudControlState ? monitoringHudControlState.recordingOutputResult || {} : {};
                     return JSON.stringify({
                         ok: Boolean(
                             card
                             && launcher
+                            && openFolder
                             && String(launcher.textContent || "").trim() === "Start Recording"
+                            && !openFolder.disabled
+                            && openFolder.dataset.recordingFolderPathAvailable === "true"
                             && card.dataset.recordingExecutionState === "saved-complete"
                             && card.dataset.recordingFileWritingState === "saved-complete"
                             && monitoringHudControlState
@@ -10194,8 +10208,11 @@ class DesktopRuntimeWindow(QWidget):
                             && result
                             && result.passed === true
                             && result.readbackPassed === true
+                            && String(result.outputDir || "")
                         ),
                         launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                        openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
+                        outputDir: result ? String(result.outputDir || "") : "",
                         recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
                         recordingFileWritingState: card ? String(card.dataset.recordingFileWritingState || "") : "",
                         recordingSessionState: monitoringHudControlState ? String(monitoringHudControlState.recordingSessionState || "") : "",
@@ -10214,6 +10231,69 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_recording_saved_captures():
             capture("02_recording_card_saved_complete_readback_state")
+            QTimer.singleShot(delay(), step_recording_open_folder_click)
+
+        def step_recording_open_folder_click():
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-open-folder",
+                "real OS click opens Dashboard Recording log folder",
+                """
+                (function() {
+                    const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
+                    const request = monitoringHudControlState ? monitoringHudControlState.recordingFolderOpenRequest || {} : {};
+                    return JSON.stringify({
+                        ok: Boolean(
+                            openFolder
+                            && !openFolder.disabled
+                            && String(openFolder.textContent || "").trim() === "Open Log Folder"
+                            && request
+                            && String(request.requestId || "")
+                            && String(request.outputDir || "")
+                            && request.source === "dashboard-recording-card"
+                        ),
+                        requestId: request ? String(request.requestId || "") : "",
+                        outputDir: request ? String(request.outputDir || "") : "",
+                        openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_open_folder_result_wait,
+            )
+
+        def step_recording_open_folder_result_wait():
+            capture("02_recording_card_open_log_folder_requested_state")
+            QTimer.singleShot(delay(1200), step_recording_open_folder_result_assert)
+
+        def step_recording_open_folder_result_assert():
+            assert_state(
+                "Dashboard Recording Open Log Folder crosses backend folder-open bridge",
+                """
+                (function() {
+                    const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
+                    const result = monitoringHudControlState ? monitoringHudControlState.recordingFolderOpenResult || {} : {};
+                    return JSON.stringify({
+                        ok: Boolean(
+                            openFolder
+                            && !openFolder.disabled
+                            && result
+                            && result.passed === true
+                            && String(result.outputDir || "")
+                            && monitoringHudControlState.recordingFolderOpenStatus === "opened"
+                        ),
+                        outputDir: result ? String(result.outputDir || "") : "",
+                        folderOpenStatus: monitoringHudControlState ? String(monitoringHudControlState.recordingFolderOpenStatus || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_open_folder_result_captures,
+            )
+
+        def step_recording_open_folder_result_captures():
+            capture("02_recording_card_open_log_folder_opened_state")
             QTimer.singleShot(delay(), step_dashboard_active_profile_selector_open)
 
         def step_dashboard_active_profile_selector_open():
@@ -14098,6 +14178,7 @@ class DesktopRuntimeWindow(QWidget):
                         "02_recording_card_target_status_visual_contract",
                         "02_recording_card_target_preview_standard_state_rows",
                         "02_recording_card_start_stop_ready_state",
+                        "02_recording_card_open_log_folder_disabled_state",
                         "03_manage_monitors_open_state",
                         "03_manage_monitors_close_hover_hitbox",
                         "04_source_filter_dropdown_open_hover_reset",
@@ -14593,6 +14674,7 @@ class DesktopRuntimeWindow(QWidget):
                                 const targetCount = document.getElementById("monitoring-hud-recording-target-count");
                                 const summary = document.getElementById("monitoring-hud-recording-target-summary");
                                 const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                                const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
                                 const previewStyle = preview ? window.getComputedStyle(preview) : null;
                                 const row = preview ? preview.querySelector(".monitoring-hud__state-row") : null;
                                 const rowStyle = row ? window.getComputedStyle(row) : null;
@@ -14604,8 +14686,13 @@ class DesktopRuntimeWindow(QWidget):
                                         && targetCount
                                         && summary
                                         && launcher
+                                        && openFolder
                                         && !launcher.disabled
+                                        && openFolder.disabled
                                         && String(launcher.textContent || "").trim() === "Start Recording"
+                                        && String(openFolder.textContent || "").trim() === "Open Log Folder"
+                                        && openFolder.dataset.recordingFolderAction === "runtime-output-folder"
+                                        && openFolder.dataset.recordingFolderPathAvailable === "false"
                                         && card.dataset.recordingExecutionState !== "blocked"
                                         && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
                                         && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
@@ -14622,6 +14709,8 @@ class DesktopRuntimeWindow(QWidget):
                                     targetCountText: targetCount ? targetCount.textContent : "",
                                     launcherEnabled: Boolean(launcher && !launcher.disabled),
                                     launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                                    openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
+                                    openFolderText: openFolder ? String(openFolder.textContent || "").trim() : "",
                                     recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
                                     visualProofMarker: previewStyle ? previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() : "",
                                     rowVisualContract: rowStyle ? rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() : ""
@@ -14635,6 +14724,7 @@ class DesktopRuntimeWindow(QWidget):
                             record_visual("02_recording_card_target_status_visual_contract"),
                             record_visual("02_recording_card_target_preview_standard_state_rows"),
                             record_visual("02_recording_card_start_stop_ready_state"),
+                            record_visual("02_recording_card_open_log_folder_disabled_state"),
                             visual_manage_open(),
                         ),
                     )
@@ -16256,6 +16346,50 @@ class DesktopRuntimeWindow(QWidget):
                     csv_path=str(result.get("csvPath") or ""),
                     manifest_path=str(result.get("manifestPath") or ""),
                     output_root_owner=str(result.get("outputRootOwner") or ""),
+                )
+        recording_folder_open_request = state.get("recordingFolderOpenRequest")
+        if isinstance(recording_folder_open_request, dict):
+            folder_open_signature = (
+                str(recording_folder_open_request.get("requestId") or ""),
+                str(recording_folder_open_request.get("outputDir") or ""),
+            )
+            if folder_open_signature != self._monitoring_hud_recording_folder_open_signature:
+                self._monitoring_hud_recording_folder_open_signature = folder_open_signature
+                requested_folder = str(recording_folder_open_request.get("outputDir") or "").strip()
+                result = {
+                    "passed": False,
+                    "requestId": str(recording_folder_open_request.get("requestId") or ""),
+                    "outputDir": requested_folder,
+                    "error": "Recording log folder path is not available.",
+                }
+                try:
+                    allowed_root = os.path.abspath(str(recording_output_dir()))
+                    target_folder = os.path.abspath(requested_folder or allowed_root)
+                    common_root = os.path.commonpath([allowed_root, target_folder])
+                    if os.path.normcase(common_root) != os.path.normcase(allowed_root):
+                        raise ValueError("Recording log folder request is outside the runtime output root.")
+                    if not os.path.isdir(target_folder):
+                        raise FileNotFoundError(target_folder)
+                    os.startfile(target_folder)
+                    result = {
+                        "passed": True,
+                        "requestId": str(recording_folder_open_request.get("requestId") or ""),
+                        "outputDir": target_folder,
+                        "recordingFolderOpenStatus": "opened",
+                    }
+                except Exception as exc:
+                    result["error"] = str(exc)
+                self._run_javascript(
+                    "if (window.setMonitoringHudRecordingFolderOpenResult) "
+                    f"{{ window.setMonitoringHudRecordingFolderOpenResult({json.dumps(result, sort_keys=True)}); }}"
+                )
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_RECORDING_LOG_FOLDER_OPENED",
+                    package="PKG-006",
+                    slice="SLC-054",
+                    seam="Workstream",
+                    passed=bool(result.get("passed")),
+                    output_dir=str(result.get("outputDir") or ""),
                 )
         recording_control_signature = (
             recording_control_requested,

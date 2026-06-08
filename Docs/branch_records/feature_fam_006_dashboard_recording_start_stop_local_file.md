@@ -117,6 +117,14 @@ UTS Handoff: `C:\Nexus USER\UTS - FAM-006.txt was refreshed as the active worktr
 User Test Summary Results: `PENDING`
 LV1 Boundary: `The UTS export is a handoff artifact, not returned USER evidence. Live Validation cannot advance until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver; PR creation, merge, release, issue closeout, branch cleanup, tray/export/share, Native Log Loader implementation, provider/model work, FAM-007 mutation, Governance mutation, and neutral-main mutation remain pending separate USER decisions.`
 
+## Live Validation LV1 Open Log Folder Repair Receipt
+
+LV1 Follow-Up Approval Date: `2026-06-08`
+LV1 Follow-Up Scope: `Add a Dashboard Recording card Open Log Folder button for the runtime-owned saved recording output folder created by Start/Stop, without introducing tray controls, export/share, Native Log Loader implementation, provider/model work, or a new surface.`
+Open Folder Implementation Proof: `The Recording card now renders Open Log Folder beside Start/Stop, keeps it disabled until saved/readback-complete output exists, derives the folder from the runtime output result, and routes the request through the renderer with a runtime-output-root guard before opening the folder through Windows shell integration.`
+LV1 Follow-Up Validation Proof: `dev/orin_monitoring_hud_live_validation.ps1 passed with real OS Start/Stop, saved/readback proof, Open Log Folder request/open proof, focused screenshots for disabled/requested/opened states, and refreshed C:\Nexus USER\UTS - FAM-006.txt handoff.`
+LV1 Follow-Up Boundary: `The button opens the saved runtime log folder only. It is not export/share, Native Log Loader, issue closeout, PR creation, merge, release, provider/model work, FAM-007 mutation, Governance mutation, neutral-main mutation, or branch cleanup authority.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`

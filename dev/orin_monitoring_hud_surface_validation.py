@@ -1248,7 +1248,9 @@ def validate() -> list[str]:
         'data-active-monitor-transparency="slc-052-dashboard-visible-count-and-names"',
         'data-hud-overlay-recording-boundary="hud-overlay-overlay-focused"',
         'id="monitoring-hud-recording-control-launcher"',
+        'id="monitoring-hud-recording-open-folder"',
         'data-recording-control-window-state="dashboard-card-control"',
+        'data-recording-folder-action="runtime-output-folder"',
         'data-native-window-contract="future-secondary-surface"',
         'data-recording-execution-state="ready"',
         'data-recording-file-writing-state="ready"',
@@ -1260,6 +1262,8 @@ def validate() -> list[str]:
     for needle in (
         "monitoringHudRenderActiveOverlayRecordingTargetPreview",
         "monitoringHudToggleRecording",
+        "monitoringHudRequestOpenRecordingFolder",
+        "setMonitoringHudRecordingFolderOpenResult",
         "runMonitoringHudRecordingTargetPreviewProof",
         "recordingTargetPreviewProof",
         "monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile",
@@ -1271,6 +1275,7 @@ def validate() -> list[str]:
         "dashboard-recording-card-primary",
         "hud-overlay-overlay-focused",
         "Start Recording",
+        "Open Log Folder",
         "future-secondary-surface",
         "trayRecordingControlState",
     ):
@@ -1378,6 +1383,7 @@ def validate() -> list[str]:
         "recordingCard: rectFor('[data-dashboard-hub-card=\"recording\"]')",
         'recordingTargetPreview: rectFor("#monitoring-hud-recording-target-preview")',
         'recordingControlLauncher: rectFor("#monitoring-hud-recording-control-launcher")',
+        'recordingOpenFolder: rectFor("#monitoring-hud-recording-open-folder")',
     ):
         _require_contains(js, needle, "SLC-052 Dashboard Recording card live geometry proof", failures)
 
@@ -1385,6 +1391,8 @@ def validate() -> list[str]:
         "dashboard-card-system-sampled",
         "inherits-dashboard-state-row",
         "02_recording_card_target_preview_standard_state_rows",
+        "02_recording_card_open_log_folder_disabled_state",
+        "02_recording_card_open_log_folder_opened_state",
     ):
         _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
 
@@ -2512,6 +2520,7 @@ def validate() -> list[str]:
         "The Recording card target overlay profile follows the active Overlay Profile.",
         "switching the Active Overlay Profile must update the Recording card target overlay profile",
         "Stop Recording stops the session and produces a saved/readback-complete result.",
+        "enable Open Log Folder for the saved runtime output folder.",
         "The Recording card should still mirror the active Overlay Profile after restart.",
         "The scrollbar gutter must not make the cards look offset",
         "Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.",

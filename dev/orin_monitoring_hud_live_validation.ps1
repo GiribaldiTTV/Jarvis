@@ -291,7 +291,10 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         "manage_monitors_recreated_monitor_group_3_dirty_draft",
         "02_recording_card_target_status_visual_contract",
         "02_recording_card_target_preview_standard_state_rows",
-        "02_recording_card_start_stop_ready_state"
+        "02_recording_card_start_stop_ready_state",
+        "02_recording_card_open_log_folder_disabled_state",
+        "02_recording_card_open_log_folder_requested_state",
+        "02_recording_card_open_log_folder_opened_state"
     )
     $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
     $missingRequiredElementLabels = @($requiredElementLabels | Where-Object { $availableElementLabels -notcontains $_ })
@@ -871,7 +874,7 @@ Codex Precheck Summary
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
 - USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
-- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, saved/readback, target/status mirror, and visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, saved/readback, Open Log Folder, target/status mirror, and visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
 
@@ -891,7 +894,7 @@ Expected: The Recording card target overlay profile follows the active Overlay P
 USER Result / Notes:
 
 FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Local Output
-Expected: The Recording card Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete result. Local CSV/manifest path proof may remain in Codex/helper output instead of crowding the card, but the USER-facing card should show a simple successful save/readback result. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
+Expected: The Recording card Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete result. Local CSV/manifest path proof may remain in Codex/helper output instead of crowding the card, but the USER-facing card should show a simple successful save/readback result and enable Open Log Folder for the saved runtime output folder. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
 USER Result / Notes:
 
 FAM006-LV1-REC-004 - Issue #258 Overlay Profile Persists Across Restart
