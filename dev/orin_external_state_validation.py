@@ -122,13 +122,28 @@ def route_word_count(value: str) -> int:
 def slice_map_deliverable_count(value: str) -> int:
     entries = re.split(r"(?:\.\s+|;\s+|\n+)", value)
     identifiers: set[str] = set()
-    for entry in entries:
-        match = re.search(
-            r"\b(?:slc-(\d+)|slice\s+(\d+))\b",
-            entry,
-            flags=re.IGNORECASE,
-        )
-        if match:
+    pair_pattern = re.compile(
+        r"\b(?:slice\s+(\d+)\s*/\s*slc-(\d+)|slc-(\d+)\s*/\s*slice\s+(\d+))\b",
+        flags=re.IGNORECASE,
+    )
+    identifier_pattern = re.compile(
+        r"\b(?:slc-(\d+)|slice\s+(\d+))\b",
+        flags=re.IGNORECASE,
+    )
+    for entry_index, entry in enumerate(entries):
+        protected_spans: list[tuple[int, int]] = []
+        for pair_index, pair in enumerate(pair_pattern.finditer(entry)):
+            left = pair.group(1) or pair.group(3)
+            right = pair.group(2) or pair.group(4)
+            if left == right:
+                identifiers.add(str(int(left)))
+            else:
+                identifiers.add(f"entry-{entry_index}-pair-{pair_index}")
+            protected_spans.append(pair.span())
+
+        for match in identifier_pattern.finditer(entry):
+            if any(start <= match.start() < end for start, end in protected_spans):
+                continue
             identifiers.add(str(int(match.group(1) or match.group(2))))
     return len(identifiers)
 
