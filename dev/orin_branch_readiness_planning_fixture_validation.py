@@ -3895,6 +3895,59 @@ SLC-001 and SLC-002 are branches for the consent shell and artifact boundary.
             "numbered SLCs-as-branches wording without the word separate"
         )
 
+    adjective_slc_branch_ambiguity_failures = _validate_slice_slc_seam_model_text(
+        """
+# Invalid SLC Branch Adjective Ambiguity
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+The SLC-001 branch owns the consent shell while SLC-002 branch owns the artifact boundary.
+"""
+    )
+    if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+        adjective_slc_branch_ambiguity_failures
+    ):
+        failures.append(
+            "Invalid SLC branch adjective fixture did not reject numbered "
+            "SLC-as-branch wording after valid alias wording"
+        )
+
+    slc_branch_identity_matrix = (
+        "SLC-001 branch owns the consent shell.",
+        "SLC-001 owns a branch for the consent shell.",
+        "SLC-002 has its own branch for the artifact boundary.",
+        "Create a branch for SLC-003.",
+        "Each SLC has a branch for implementation.",
+    )
+    for phrase in slc_branch_identity_matrix:
+        matrix_failures = _validate_slice_slc_seam_model_text(
+            f"""
+# Invalid SLC Branch Identity Matrix Case
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+{phrase}
+"""
+        )
+        if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(matrix_failures):
+            failures.append(
+                "Invalid SLC branch identity matrix fixture did not reject: "
+                + phrase
+            )
+
+    branch_material_alias_failures = _validate_slice_slc_seam_model_text(
+        """
+# Valid SLC Branch-Material Alias Wording
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+SLC-001 branch-material scaffolding is historical wording for one Slice-level
+line item, not a seam or separate branch.
+"""
+    )
+    if branch_material_alias_failures:
+        failures.append(
+            "Valid SLC branch-material alias fixture unexpectedly failed: "
+            + "; ".join(branch_material_alias_failures[:5])
+        )
+
     negated_same_branch_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"
