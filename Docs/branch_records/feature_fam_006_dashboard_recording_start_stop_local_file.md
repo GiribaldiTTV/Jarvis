@@ -126,6 +126,18 @@ LV1 Follow-Up Validation Proof: `dev/orin_monitoring_hud_live_validation.ps1 pas
 LV1 Follow-Up Helper/Product Repair Proof: `Live validation now restores the dashboard viewport after opening the exported-log folder, targets the visible monitor-filter option deterministically, uses state-verified cleanup for the reusable-number Monitor Group draft, and preserves dirty Overlay Profile draft state when the unsaved-change Cancel button is clicked.`
 LV1 Follow-Up Boundary: `The button opens the USER-facing exported-log folder only. It is not export/share, Native Log Loader, issue closeout, PR creation, merge, release, provider/model work, FAM-007 mutation, Governance mutation, neutral-main mutation, or branch cleanup authority.`
 
+## BP1 Re-entry / Recording Vision Stop-Loss Receipt
+
+Re-entry Date: `2026-06-08`
+Re-entry Basis: `USER denied the Live Validation / PR-readiness path and directed Codex to use the FAM-006 planning review packet at C:\Nexus USER\Planning\FAM-006-Planning-20260608-080430.zip to return the branch to BP1 Entry.`
+Planning Packet SHA256: `B42F2B96502145B69C71ED23D1F9758FC670DF02E9157EC75473D4C030DEC421`
+Active State Owner: `C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md`
+Active Gate Reset: `Branch Planning / BP1 Entry - Recording Vision repair`
+Superseded Active Gate: `Live Validation returned-UTS digestion and PR Readiness are blocked until BP1 re-entry is accepted, revised, waived, rejected, or otherwise disposed.`
+Historical Evidence Preserved: `Prior BP1/BP2/BP3, Workstream, Hardening H1, Live Validation LV1, and Open Log Folder follow-up receipts remain traceability evidence but are no longer active PR-movement authority.`
+BP1 Entry Scope: `Dashboard quick access, Recording Studio, Log Viewer Studio, native NDAI log, exported logs, tray icon, keybinds, settings, independent-window lifecycle, current-branch blockers, future-gated branch vision, and separate-branch candidates.`
+Pending USER Decisions: `BP1 re-entry review, BP2 revision or waiver, BP3 revalidation or waiver, Workstream continuation if needed, runtime mutation beyond already-approved scope, PR Readiness, issue closeout, merge, release, branch cleanup, Governance worktree mutation, FAM-007 mutation, and neutral-main mutation.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
