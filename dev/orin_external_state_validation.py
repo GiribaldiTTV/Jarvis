@@ -90,6 +90,45 @@ def markdown_field_value(text: str, field: str) -> str | None:
     return value
 
 
+def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
+    marker_pattern = re.compile(
+        rf"^\s*(?:-\s*)?{re.escape(field)}:\s*(.*?)\s*$",
+        re.IGNORECASE,
+    )
+    any_field_pattern = re.compile(r"^\s*(?:-\s*)?[A-Za-z][A-Za-z0-9 /_-]*:\s*")
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        match = marker_pattern.match(line)
+        if not match:
+            continue
+        values: list[str] = []
+        first_value = match.group(1).strip()
+        if first_value:
+            values.append(first_value)
+        for next_line in lines[index + 1 :]:
+            stripped = next_line.strip()
+            if not stripped:
+                break
+            if re.match(
+                r"^(?:[-*]|\d+\.)?\s*(?:slice\s+\d+|slc-\d+)\b",
+                stripped,
+                re.IGNORECASE,
+            ):
+                values.append(stripped)
+                continue
+            if any_field_pattern.match(next_line):
+                break
+            if next_line[:1].isspace() and values:
+                values.append(stripped)
+                continue
+            if values:
+                values.append(stripped)
+                continue
+            break
+        return " ".join(values).strip()
+    return None
+
+
 def resolve_markdown_path(value: str | None, root: Path) -> Path | None:
     if not value:
         return None
@@ -117,6 +156,246 @@ def normalized_route_value(value: str) -> str:
 
 def route_word_count(value: str) -> int:
     return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9_/-]*", value))
+
+
+def slice_map_deliverable_count(value: str) -> int:
+    entries = re.split(r"(?:\.\s+|;\s+|\n+)", value)
+    identifiers: set[str] = set()
+    pair_pattern = re.compile(
+        r"\b(?:slice\s+(\d+)\s*/\s*slc-(\d+)|slc-(\d+)\s*/\s*slice\s+(\d+))\b",
+        flags=re.IGNORECASE,
+    )
+    identifier_pattern = re.compile(
+        r"\b(?:slc-(\d+)|slice\s+(\d+))\b",
+        flags=re.IGNORECASE,
+    )
+    for entry_index, entry in enumerate(entries):
+        protected_spans: list[tuple[int, int]] = []
+        for pair_index, pair in enumerate(pair_pattern.finditer(entry)):
+            left = pair.group(1) or pair.group(3)
+            right = pair.group(2) or pair.group(4)
+            left_id = int(left)
+            right_id = int(right)
+            if left_id == right_id:
+                identifiers.add(str(left_id))
+            else:
+                identifiers.add(f"entry-{entry_index}-pair-{pair_index}")
+            protected_spans.append(pair.span())
+
+        for match in identifier_pattern.finditer(entry):
+            if any(start <= match.start() < end for start, end in protected_spans):
+                continue
+            identifiers.add(str(int(match.group(1) or match.group(2))))
+    return len(identifiers)
+
+
+def slice_map_mismatched_alias_pairs(value: str) -> list[str]:
+    pair_pattern = re.compile(
+        r"\b(?:slice\s+(\d+)\s*/\s*slc-(\d+)|slc-(\d+)\s*/\s*slice\s+(\d+))\b",
+        flags=re.IGNORECASE,
+    )
+    mismatches: list[str] = []
+    for pair in pair_pattern.finditer(value):
+        left = pair.group(1) or pair.group(3)
+        right = pair.group(2) or pair.group(4)
+        if int(left) != int(right):
+            mismatches.append(pair.group(0))
+    return mismatches
+
+
+def value_declares_multi_slice(value: str) -> bool:
+    normalized = normalized_route_value(value)
+    positive_match = re.search(r"\bmulti[- ]slice\b|\bmultiple\s+slices\b", normalized)
+    if not positive_match:
+        return False
+
+    negation_match = re.search(
+        r"\b(?:no|not|without)\b[^.\n;:]{0,80}\b(?:multi[- ]slice|multiple\s+slices)\b"
+        r"|\bnon[- ]multi[- ]slice\b",
+        normalized,
+    )
+    if negation_match and negation_match.start() < positive_match.start():
+        return False
+
+    postfixed_negation_match = re.search(
+        r"\b(?:multi[- ]slice|multiple\s+slices)\b\s+(?:(?:is|are)\s+)?(?:"
+        r"not\s+(?:required|needed|applicable|in\s+scope|part\s+of\s+this\s+branch)"
+        r"|out\s+of\s+scope|unneeded)",
+        normalized,
+    )
+    if postfixed_negation_match and postfixed_negation_match.start() == positive_match.start():
+        return False
+
+    future_gate_match = re.search(
+        r"\bfuture(?:[- ]gated)?\b[^.\n;:]{0,80}"
+        r"\b(?:multi[- ]slice|multiple\s+slices)\b[^.\n;:]{0,100}"
+        r"\b(?:user[- ]gated|future[- ]gated|deferred|later|out\s+of\s+scope|outside)\b",
+        normalized,
+    )
+    if future_gate_match and future_gate_match.start() <= positive_match.start():
+        return False
+
+    future_scope_match = re.search(
+        r"\bfuture(?:[- ]gated)?\b[^.\n;:]{0,80}"
+        r"\b(?:multi[- ]slice|multiple\s+slices)\b[^.\n;:]{0,140}"
+        r"\b(?:outside|out\s+of\s+scope|not\s+part\s+of|excluded\s+from|deferred\s+beyond)\b"
+        r"[^.\n;:]{0,80}\b(?:this|current)\s+branch\b",
+        normalized,
+    )
+    if future_scope_match and future_scope_match.start() <= positive_match.start():
+        return False
+
+    postfixed_future_scope_match = re.search(
+        r"\b(?:multi[- ]slice|multiple\s+slices)\b[^.\n;:]{0,140}"
+        r"\b(?:future[- ]gated|user[- ]gated|deferred|later)\b[^.\n;:]{0,120}"
+        r"\b(?:outside|out\s+of\s+scope|not\s+part\s+of|excluded\s+from)\b"
+        r"[^.\n;:]{0,80}\b(?:this|current)\s+branch\b",
+        normalized,
+    )
+    if (
+        postfixed_future_scope_match
+        and postfixed_future_scope_match.start() == positive_match.start()
+    ):
+        return False
+
+    policy_non_carrier_match = re.search(
+        r"\b(?:validat(?:e|es|ing)|validator|governance|policy|prevent(?:s|ing)?|"
+        r"check(?:s|ing)?)\b[^.\n;:]{0,120}\b(?:multi[- ]slice|multiple\s+slices)\b"
+        r"[^.\n;:]{0,160}\b(?:without|not)\b[^.\n;:]{0,120}"
+        r"\b(?:carrier|creating|making|becoming|current\s+scope)\b",
+        normalized,
+    )
+    if policy_non_carrier_match and policy_non_carrier_match.start() <= positive_match.start():
+        return False
+    return True
+
+
+def multi_slice_marker_value_is_negative(value: str) -> bool:
+    normalized = normalized_route_value(value)
+    negative_patterns = (
+        r"^(?:no|false|n/a|none|not applicable|not required)\.?$",
+        r"^(?:not applicable|not required|n/a|none)\b.*\b(?:future|deferred|user[- ]gated|outside|out\s+of\s+scope)\b",
+        r"^(?:future[- ]gated|deferred|not current|non[- ]current)\b.*\b(?:multi[- ]slice|multiple\s+slices)\b.*\b(?:future[- ]gated|user[- ]gated|deferred|outside|out\s+of\s+scope|not\s+current|non[- ]current)\b",
+        r"\bnot\s+a?\s*multi[- ]slice\s+carrier\b",
+        r"\bnot\s+multi[- ]slice\b",
+        r"\bnon[- ]multi[- ]slice\b",
+        r"\bsingle[- ]slice\b",
+        r"\bone\s+slice\b",
+        r"\bno\s+current\s+multi[- ]slice\b",
+    )
+    return any(re.search(pattern, normalized) for pattern in negative_patterns)
+
+
+def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
+    carrier_value = markdown_field_value(plan_text, "Multi-Slice Carrier")
+    slice_map = markdown_field_value_with_continuation(plan_text, "Slice Map")
+    if slice_map and slice_map_deliverable_count(slice_map) >= 2:
+        return True
+
+    if carrier_value:
+        return not multi_slice_marker_value_is_negative(carrier_value)
+
+    current_scope_fields = (
+        "Package Summary",
+        "Package",
+    )
+    return any(
+        value_declares_multi_slice(value)
+        for field in current_scope_fields
+        if (value := markdown_field_value_with_continuation(plan_text, field))
+    )
+
+
+def same_branch_split_decision_is_positive(value: str) -> bool:
+    normalized = normalized_route_value(value)
+    if re.search(
+        r"\bno\s+separate\s+branch\s+required\b[^.\n]{0,160}"
+        r"\bsame\s+branch\s+(?:remains|is|can\s+remain|may\s+remain)\s+legal\b",
+        normalized,
+    ):
+        return True
+    hard_negative_terms = (
+        "same branch is not legal",
+        "same branch not legal",
+        "same branch is illegal",
+        "not legal for same branch",
+        "not legal in same branch",
+        "cannot stay same branch",
+        "cannot remain same branch",
+        "must split",
+        "required separate branch",
+        "separate branch required",
+        "different branch required",
+        "same-branch blocked",
+        "blocked same branch",
+        "whether same branch",
+        "pending decision",
+        "before deciding",
+        "deciding whether",
+        "decide whether",
+    )
+    if any(term in normalized for term in hard_negative_terms):
+        return False
+    positive_terms = (
+        "no split required",
+        "split not required",
+        "same branch remains legal",
+        "same branch is legal",
+        "same branch legal",
+        "same branch remains valid",
+        "same branch can remain legal",
+        "same branch may remain legal",
+        "same branch remains the legal",
+        "same branch remains the approved",
+        "same branch carrier",
+        "same branch package",
+    )
+    if any(term in normalized for term in positive_terms):
+        return True
+    if "split required" in normalized:
+        return False
+    return False
+
+
+def separate_branch_split_required_is_positive(value: str) -> bool:
+    normalized = normalized_route_value(value)
+    negative_terms = (
+        "not required",
+        "not needed",
+        "not necessary",
+        "split not required",
+        "no split",
+        "keep same branch",
+        "same branch remains",
+        "same branch is legal",
+        "same branch legal",
+        "same branch carrier",
+        "same branch package",
+        "remain same branch",
+        "split optional",
+        "whether to split",
+        "deciding whether",
+        "decide whether",
+        "pending decision",
+    )
+    if any(term in normalized for term in negative_terms):
+        return False
+    explicit_split_terms = (
+        "split required",
+        "separate branch required",
+        "required separate branch",
+        "separate carrier",
+        "separate user-approved carrier",
+        "different branch",
+        "different carrier",
+        "must split",
+        "must wait for a separate",
+    )
+    if any(term in normalized for term in explicit_split_terms):
+        return True
+    if normalized.startswith(("yes.", "yes;", "yes:", "yes ")):
+        return any(term in normalized for term in explicit_split_terms)
+    return normalized == "yes"
 
 
 def validate_implementation_route_values(plan_text: str) -> list[str]:
@@ -390,6 +669,139 @@ def validate_implementation_route_values(plan_text: str) -> list[str]:
     return issues
 
 
+def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
+    issues: list[str] = []
+    normalized = normalized_route_value(plan_text)
+    ambiguity_patterns = (
+        r"\bslc(?:[- ]\d+)?\s+is\s+the\s+seam\b",
+        r"\bslcs\s+are\s+seams\b",
+        r"\bslc(?:[- ]\d+)?\s+means\s+seam\b",
+        r"\bslice\s+is\s+(?:the\s+)?proof\b",
+        r"\bseam\s+is\s+the\s+branch\s+deliverable\b",
+        r"\bseam\s+is\s+the\s+feature\b",
+        r"\bseam-only\s+branch\b",
+        r"\bslc[- ]\d+\s+branch(?:es)?(?=[\s.,;:]|$)",
+        r"\bslc[- ]\d+\s+(?:owns|has)\s+(?:a\s+|the\s+|its\s+own\s+)?branch(?:es)?(?=[\s.,;:]|$)",
+        r"\bslcs\s+(?:own|owns|have|has)\s+(?:a\s+|the\s+|their\s+own\s+)?branch(?:es)?(?=[\s.,;:]|$)",
+        r"\bslc[- ]\d+(?:\s*(?:,|and)\s*slc[- ]\d+)+\s+(?:own|owns|have|has)\s+(?:a\s+|the\s+|their\s+own\s+|its\s+own\s+)?branch(?:es)?(?=[\s.,;:]|$)",
+        r"\bbranch(?:es)?\s+(?:for|per)\s+slc[- ]\d+\b",
+        r"\bslc(?:[- ]\d+)?\s+is\s+a\s+branch(?=[\s.,;:]|$)",
+        r"\bslcs\s+are\s+branches(?=[\s.,;:]|$)",
+        r"\bslc[- ]\d+(?:\s*(?:,|and)\s*slc[- ]\d+)+\s+are\s+branches(?=[\s.,;:]|$)",
+        r"\bslc(?:[- ]\d+)?\s+is\s+a\s+separate\s+branch(?=[\s.,;:]|$)",
+        r"\bslcs\s+are\s+separate\s+branches(?=[\s.,;:]|$)",
+        r"\bslc[- ]\d+(?:\s*(?:,|and)\s*slc[- ]\d+)+\s+are\s+separate\s+branches(?=[\s.,;:]|$)",
+        r"\bslc(?:[- ]\d+)?\s+becomes\s+a\s+branch(?=[\s.,;:]|$)",
+        r"\bslcs\s+become\s+branches(?=[\s.,;:]|$)",
+        r"\bslc[- ]\d+(?:\s*(?:,|and)\s*slc[- ]\d+)+\s+become\s+branches(?=[\s.,;:]|$)",
+        r"\bslc(?:[- ]\d+)?\s+creates\s+the\s+branch(?=[\s.,;:]|$)",
+        r"\beach\s+slc(?:[- ]\d+)?\s+is\s+a\s+branch(?=[\s.,;:]|$)",
+        r"\beach\s+slc(?:[- ]\d+)?\s+(?:owns|has)\s+(?:a\s+|the\s+|its\s+own\s+)?branch(?=[\s.,;:]|$)",
+        r"\beach\s+slc(?:[- ]\d+)?\s+becomes\s+a\s+branch(?=[\s.,;:]|$)",
+    )
+    if any(re.search(pattern, normalized) for pattern in ambiguity_patterns):
+        issues.append(
+            "SLC / Slice / Seam terminology ambiguity: SLC must resolve to "
+            "Slice-level deliverables, and seams must remain execution or "
+            "validation checkpoints"
+        )
+
+    slc_slice_alias_terms = (
+        "slice-level",
+        "alias",
+        "historical",
+        "short form",
+        "short-form",
+        "shorthand",
+        "abbreviation",
+        "slc is slice",
+        "slc means slice",
+        "slc/slice",
+        "slice/slc",
+    )
+    if "slc" in normalized and not any(
+        term in normalized for term in slc_slice_alias_terms
+    ):
+        issues.append(
+            "SLC / Slice / Seam terminology ambiguity: SLC use must name "
+            "its Slice-level alias, shorthand, or historical traceability posture"
+        )
+
+    if plan_declares_multi_slice_carrier(plan_text):
+        required_markers = (
+            "FAM",
+            "Package",
+            "Selected Implementation Route",
+            "Slice Map",
+            "Shared Owner / Worktree",
+            "Shared Validation / Proof Path",
+            "Split Decision",
+        )
+        for marker in required_markers:
+            marker_value = (
+                markdown_field_value_with_continuation(plan_text, marker)
+                if marker == "Slice Map"
+                else markdown_field_value(plan_text, marker)
+            )
+            if not marker_value:
+                issues.append(f"Multi-slice carrier missing {marker}:")
+        route = markdown_field_value(plan_text, "Selected Implementation Route") or ""
+        slice_map = markdown_field_value_with_continuation(plan_text, "Slice Map") or ""
+        validation = (
+            markdown_field_value(plan_text, "Shared Validation / Proof Path") or ""
+        )
+        split_decision = markdown_field_value(plan_text, "Split Decision") or ""
+        if route_word_count(route) < 8:
+            issues.append("Multi-slice carrier must name a concrete implementation route")
+        if slice_map_mismatched_alias_pairs(slice_map):
+            issues.append(
+                "Multi-slice carrier Slice Map contains mismatched Slice/SLC alias pair"
+            )
+        if slice_map_deliverable_count(slice_map) < 2:
+            issues.append("Multi-slice carrier must map at least two slices")
+        if route_word_count(validation) < 8:
+            issues.append(
+                "Multi-slice carrier must name a shared validation/proof path"
+            )
+        if not same_branch_split_decision_is_positive(split_decision):
+            issues.append("Multi-slice carrier must prove why the grouped branch is legal")
+
+    if "required separate branch case:" in normalized:
+        required_markers = (
+            "Required Separate Branch Case",
+            "Divergence Basis",
+            "Split Required",
+            "Blocked Same-Branch Reason",
+            "Recommended Carrier",
+        )
+        for marker in required_markers:
+            if not markdown_field_value(plan_text, marker):
+                issues.append(f"Required separate branch case missing {marker}:")
+        divergence = markdown_field_value(plan_text, "Divergence Basis") or ""
+        split_required = markdown_field_value(plan_text, "Split Required") or ""
+        if not any(
+            term in divergence.casefold()
+            for term in (
+                "different fam",
+                "different package",
+                "private",
+                "provider",
+                "runtime",
+                "release timing",
+                "validation path",
+                "owner/worktree",
+            )
+        ):
+            issues.append(
+                "Required separate branch case must name a real divergence basis"
+            )
+        if not separate_branch_split_required_is_positive(split_required):
+            issues.append(
+                "Required separate branch case must explicitly require a split"
+            )
+    return issues
+
+
 def validate_active_branch_plan_posture(root: Path) -> list[str]:
     issues: list[str] = []
     active_state = root / "central" / "active_branch_authority_state.md"
@@ -469,6 +881,7 @@ def validate_active_branch_plan_posture(root: Path) -> list[str]:
         )
     else:
         issues.extend(validate_implementation_route_values(plan_text))
+    issues.extend(validate_slice_slc_seam_model_text(plan_text))
     return issues
 
 
