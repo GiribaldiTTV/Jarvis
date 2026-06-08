@@ -13,6 +13,7 @@ Family vision records:
 - keep future package boundaries visible without admitting implementation
 - give Branch Readiness a stable vision owner to compare against before creating a Branch Vision Contract Snapshot
 - receive reusable vision updates folded down from PR Readiness when they apply beyond one branch
+- route detailed feature-category direction to USER-approved Family Feature Vision records when a family vision would become too broad or too crowded
 
 Family vision records do not own:
 
@@ -25,10 +26,101 @@ Family vision records do not own:
 
 Backlog family work stays local to its owning family/worktree. A family vision may cite cross-family context constraints, but it must not turn another backlog family or context owner into an implementation dependency queue.
 
+## Family Feature Vision Layer
+
+`Family Feature Vision` is the approved name for the durable middle vision layer between `Family Vision` and the active `Branch Vision Contract Snapshot`.
+
+Do not use `Sub-Family Vision` as current terminology. That wording risks creating hierarchy drift under `FAM` identity and could make detailed feature categories look like new backlog families.
+
+Family Feature Vision records are recommended under:
+
+```text
+Docs/family_feature_visions/
+```
+
+Recommended file naming:
+
+```text
+Docs/family_feature_visions/FAM-006_recording.md
+Docs/family_feature_visions/FAM-006_hud_dashboard.md
+Docs/family_feature_visions/FAM-006_overlay_profiles.md
+Docs/family_feature_visions/FAM-006_monitor_groups.md
+```
+
+Creating the folder, creating the first content files, migrating existing family-vision text into those files, or treating any file as the active owner requires a separate USER approval. Until those files exist, `Docs/family_visions/` remains the durable family-level owner and active branch plans provide branch-local feature context.
+
+BP1 entry for a selected feature-bearing branch route is blocked on `Family Feature Vision Required For Selected Feature` until the required USER-approved Family Feature Vision exists and passes the `Feature Vision Sufficiency Check`. If the branch route is governance-only, release-support, pure helper/validator, source-truth-only, or otherwise non-product, the branch planning packet may record `Family Feature Vision Not Applicable` with the reason.
+
+`Feature Vision Sufficiency Check` requires enough durable content for BP1 to create a branch-specific vision without inventing feature direction: feature purpose, USER-facing surfaces, experience flow, included capabilities, explicit non-goals, dependency/deferred map, design options, proof expectations, Branch Readiness consumption notes, BP1 context notes, fold-down history when applicable, and active-state wording scan. A shallow, placeholder, copied-list-only, or branch-local implementation-only file does not satisfy BP1 entry.
+
+When Family Feature Vision planning exposes durable feature ideas, deferrals, surfaces, proof expectations, grouping rules, or routing constraints, those items must be folded into the relevant vision owner before BP1 or given a durable deferred disposition. Repo vision files must preserve the planning without storing live branch state.
+
+Family Feature Vision owns durable feature-category direction inside exactly one FAM:
+
+- feature purpose
+- USER-facing surfaces
+- experience flow
+- included capabilities
+- explicit non-goals
+- future feature candidates
+- dependency/deferred map
+- design options
+- proof expectations
+- Branch Readiness consumption notes
+- BP1 context notes
+- fold-down history
+
+Family Feature Vision must not own:
+
+- backlog family identity
+- active branch status
+- selected-next status
+- PR status
+- release-window status
+- worktree assignment
+- implementation approval
+- live operational ledgers
+- per-seam implementation checklists
+
+Nested surfaces such as a Log Viewer inside a Recording feature stay inside the owning Family Feature Vision by default. Create another lower-level durable vision file only after a later `Source-Truth Placement Preflight` proves the single Family Feature Vision cannot preserve the detail safely and the USER approves a new owner.
+
+## Deferred Feature Carryforward
+
+Deferred Feature Carryforward is a durable planning-preservation section inside each Family Feature Vision. It preserves future feature ideas, dependency-bound items, and grouping recommendations without turning repo vision canon into active branch state.
+
+Allowed durable dispositions:
+
+- `Candidate`
+- `Deferred Until Dependency`
+- `Future Package Candidate`
+- `Rejected`
+- `Folded Into Branch Vision`
+- `Implemented Receipt`
+- `Superseded`
+
+Each deferred item must record:
+
+- deferred item title
+- originating FAM
+- originating feature vision
+- origin branch or planning event
+- originating gate
+- feature surface
+- description
+- dependency trigger
+- future grouping recommendation
+- owner/worktree
+- validation/proof expectation
+- durable disposition
+- fold-down receipt
+
+Deferred Feature Carryforward must avoid active branch-state terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or `release window status`. Those terms belong to BR2 output, active external branch planning, `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, or USER decision packets.
+
 ## Owner Relationship
 
 - Project-wide vision: `Docs/nexus_vision.md`
 - Family-level vision: `Docs/family_visions/FAM-XXX_<slug>.md`
+- Family Feature Vision: `Docs/family_feature_visions/FAM-XXX_<feature_slug>.md` after USER-approved content-file creation
 - Active branch vision snapshot: `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`
 - Durable implementation/proof history: `Docs/workstreams/` records or structured branch receipts
 - Compact family registry and pointers: `Docs/feature_backlog.md`
