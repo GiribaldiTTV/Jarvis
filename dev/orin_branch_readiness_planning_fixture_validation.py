@@ -3524,6 +3524,27 @@ USER-gated and outside this current branch plan.
             + "; ".join(future_gated_multi_slice_failures[:5])
         )
 
+    postfixed_negated_multi_slice_failures = _validate_slice_slc_seam_model_text(
+        """
+# Valid Single-Slice Branch Plan With Postfixed Multi-Slice Negation
+
+Package Summary: Multi-slice not required for this branch; the current route
+owns one Slice-level governance validator repair.
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps Slice/SLC terminology distinct from seam routing.
+
+Concrete Deliverable: A single Slice-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+"""
+    )
+    if postfixed_negated_multi_slice_failures:
+        failures.append(
+            "Valid postfixed multi-slice negation unexpectedly triggered "
+            "current multi-slice carrier enforcement: "
+            + "; ".join(postfixed_negated_multi_slice_failures[:5])
+        )
+
     slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"

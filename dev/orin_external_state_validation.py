@@ -144,6 +144,15 @@ def value_declares_multi_slice(value: str) -> bool:
     )
     if negation_match and negation_match.start() < positive_match.start():
         return False
+
+    postfixed_negation_match = re.search(
+        r"\bmulti[- ]slice\b\s+(?:is\s+)?(?:"
+        r"not\s+(?:required|needed|applicable|in\s+scope|part\s+of\s+this\s+branch)"
+        r"|out\s+of\s+scope|unneeded)",
+        normalized,
+    )
+    if postfixed_negation_match and postfixed_negation_match.start() == positive_match.start():
+        return False
     return True
 
 
