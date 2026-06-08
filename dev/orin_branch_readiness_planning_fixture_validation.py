@@ -3413,6 +3413,31 @@ def validate() -> list[str]:
                 + "; ".join(terminology_failures[:5])
             )
 
+    prose_only_multi_slice_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Multi-Slice Carrier: FAM-007 provider consent shell and artifact "
+            "exclusion control.",
+            "Package Summary: This is a multi-slice FAM-007 provider consent "
+            "shell and artifact exclusion control.",
+        )
+        .replace(
+            "Shared Owner / Worktree: One FAM-007 branch/worktree owns all "
+            "slices because they serve the same public-safe provider-boundary "
+            "route and one package objective.\n\n",
+            "",
+        )
+    )
+    if "Multi-slice carrier missing Shared Owner / Worktree:" not in "\n".join(
+        prose_only_multi_slice_failures
+    ):
+        failures.append(
+            "Invalid prose-only multi-slice fixture did not enforce required "
+            "multi-slice evidence without the exact carrier marker"
+        )
+
     slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"

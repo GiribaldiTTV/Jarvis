@@ -131,6 +131,21 @@ def slice_map_deliverable_count(value: str) -> int:
     return len(identifiers)
 
 
+def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
+    normalized = normalized_route_value(plan_text)
+    if "multi-slice carrier:" in normalized:
+        return True
+    if re.search(r"\b(?:no|not|non)\s+(?:a\s+)?multi[- ]slice\b", normalized):
+        return False
+    return bool(
+        re.search(
+            r"\bmulti[- ]slice\b|\bmultiple\s+slices\b",
+            normalized,
+            flags=re.IGNORECASE,
+        )
+    )
+
+
 def same_branch_split_decision_is_positive(value: str) -> bool:
     normalized = normalized_route_value(value)
     negative_terms = (
@@ -528,7 +543,7 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
             "its Slice-level alias, shorthand, or historical traceability posture"
         )
 
-    if "multi-slice carrier:" in normalized:
+    if plan_declares_multi_slice_carrier(plan_text):
         required_markers = (
             "FAM",
             "Package",
