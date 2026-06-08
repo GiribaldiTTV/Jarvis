@@ -3488,6 +3488,24 @@ def validate() -> list[str]:
             "pending split-decision wording"
         )
 
+    affirmative_same_branch_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Split Decision: Split not required; same branch remains legal because "
+            "the slices share one FAM, one package, one selected implementation "
+            "route, one owner/worktree, aligned PR timing, and one validation/proof path.",
+            "Split Decision: The same branch can remain legal because the slices "
+            "share one FAM, one package, one selected implementation route, one "
+            "owner/worktree, aligned PR timing, and one validation/proof path.",
+        )
+    )
+    if affirmative_same_branch_failures:
+        failures.append(
+            "Valid affirmative same-branch multi-slice fixture unexpectedly failed: "
+            + "; ".join(affirmative_same_branch_failures[:5])
+        )
+
     negated_split_required_failures = _validate_slice_slc_seam_model_text(
         VALID_REQUIRED_SEPARATE_BRANCH_CASE_FIXTURE.read_text(
             encoding="utf-8"
