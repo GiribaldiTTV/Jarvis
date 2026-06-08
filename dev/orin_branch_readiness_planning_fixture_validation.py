@@ -3394,6 +3394,26 @@ def validate() -> list[str]:
             "Invalid SLC/Slice/Seam terminology fixture did not reject ambiguity"
         )
 
+    spaced_slc_seam_alias_matrix = (
+        "SLC 1 is the seam for the consent shell.",
+        "SLC 1 means seam for the consent shell.",
+    )
+    for phrase in spaced_slc_seam_alias_matrix:
+        spaced_slc_seam_failures = _validate_slice_slc_seam_model_text(
+            f"""
+# Invalid Spaced SLC Seam Alias Matrix Case
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+{phrase}
+"""
+        )
+        if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+            spaced_slc_seam_failures
+        ):
+            failures.append(
+                "Invalid spaced SLC seam alias fixture did not reject: " + phrase
+            )
+
     for fixture, label in (
         (
             VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE,
@@ -4115,6 +4135,9 @@ The SLC-001 branch owns the consent shell while SLC-002 branch owns the artifact
         "SLC-001 branch owns the consent shell.",
         "SLC-001 owns a branch for the consent shell.",
         "SLC-002 has its own branch for the artifact boundary.",
+        "SLC 1 is a branch for the consent shell.",
+        "SLC 1 owns a branch for the consent shell.",
+        "SLC 1 and SLC 2 own branches for the consent shell and artifact boundary.",
         "SLCs own branches for the consent shell and artifact boundary.",
         "SLC-001 and SLC-002 own branches for the consent shell and artifact boundary.",
         "SLC-001 and SLC-002 have branches for the consent shell and artifact boundary.",
