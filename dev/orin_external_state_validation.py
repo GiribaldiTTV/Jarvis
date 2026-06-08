@@ -131,21 +131,32 @@ def slice_map_deliverable_count(value: str) -> int:
     return len(identifiers)
 
 
-def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
-    normalized = normalized_route_value(plan_text)
+def value_declares_multi_slice(value: str) -> bool:
+    normalized = normalized_route_value(value)
     if re.search(
-        r"\b(?:no|not)\s+(?:a\s+)?multi[- ]slice\b|\bnon[- ]multi[- ]slice\b",
+        r"\b(?:no|not|without)\b[^.\n;:]{0,80}\bmulti[- ]slice\b"
+        r"|\bnon[- ]multi[- ]slice\b",
         normalized,
     ):
         return False
-    if "multi-slice carrier:" in normalized:
+    return bool(re.search(r"\bmulti[- ]slice\b|\bmultiple\s+slices\b", normalized))
+
+
+def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
+    if markdown_field_value(plan_text, "Multi-Slice Carrier"):
         return True
-    return bool(
-        re.search(
-            r"\bmulti[- ]slice\b|\bmultiple\s+slices\b",
-            normalized,
-            flags=re.IGNORECASE,
-        )
+
+    current_scope_fields = (
+        "Package Summary",
+        "Package",
+        "Selected Implementation Route",
+        "Implementation Route Class",
+        "Concrete Deliverable",
+    )
+    return any(
+        value_declares_multi_slice(value)
+        for field in current_scope_fields
+        if (value := markdown_field_value(plan_text, field))
     )
 
 

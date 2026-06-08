@@ -3458,6 +3458,27 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(negated_multi_slice_carrier_failures[:5])
         )
 
+    future_gated_multi_slice_failures = _validate_slice_slc_seam_model_text(
+        """
+# Valid Single-Slice Branch Plan With Future-Gated Multi-Slice Boundary
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps the current branch scoped to one Slice-level deliverable.
+
+Concrete Deliverable: A single Slice-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+
+Future-Gated Boundaries: Future multi-slice package expansion remains
+USER-gated and outside this current branch plan.
+"""
+    )
+    if future_gated_multi_slice_failures:
+        failures.append(
+            "Valid future-gated multi-slice boundary unexpectedly triggered "
+            "current multi-slice carrier enforcement: "
+            + "; ".join(future_gated_multi_slice_failures[:5])
+        )
+
     slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"
