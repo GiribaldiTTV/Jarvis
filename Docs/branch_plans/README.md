@@ -23,7 +23,10 @@ Branch Vision and Branch Plan are separate contracts:
 
 - Branch Vision is what the branch is building and what it should become.
 - Branch Plan is how Codex will build the accepted or waived Branch Vision.
-- SLCs are the engineering route inside a branch after vision acceptance. They should not automatically become separate branches.
+- `Slice` is the canonical package deliverable unit. `SLC` is the current branch-planning alias for Slice-level implementation line items or preserved historical slice IDs. SLCs/slices are the engineering route inside a branch after vision acceptance, and they should not automatically become separate branches.
+- `Seam` is the execution or validation checkpoint inside or between slices. A seam is the current bounded checkpoint, not the branch identity and not proof that the package is complete by itself.
+
+The BP2 marker `SLC / Seam Plan:` remains valid for existing packets and historical traceability, but current plans must resolve that marker to a concrete Slice/SLC deliverable map plus seam sequence. Current source truth should prefer `Slice` for canonical package deliverables and use `SLC` only as an alias or historical ID.
 
 ## Implementation-Bearing Route Requirement
 
@@ -48,6 +51,8 @@ When this requirement is machine-checkable, keep it deterministic: fixtures or v
 
 Infrastructure and setup can be branch-worthy only when tied to a selected implementation route or to an exact USER action gate. Creating User/Public, Developer, or Owner lanes by itself is groundwork, not a feature implementation carrier. When the legal answer is to pause, retarget, or rename, the branch plan must say so with `Route Disposition:` and `Retarget / Rename Recommendation:` before BP1 or BP2 continue.
 
+Multi-slice branches are legal when the slices share one FAM, one package objective, one selected implementation route, one owner/worktree, aligned release/PR timing, and one validation/proof path that can cover the grouped scope. Split the work when family ownership, package objective, implementation route, private/runtime/provider action gate, release timing, validation path, risk class, or owner/worktree boundary diverges enough that one bounded Workstream package would blur authority or weaken proof.
+
 When BR2 cannot complete because infrastructure or lane groundwork blocks the selected route, the active branch plan or BR2 packet must include:
 
 - Infrastructure / Lane Groundwork Blockers:
@@ -71,7 +76,7 @@ Branch Planning uses two independent state axes:
 
 `Packet Reviewability State: Reviewable` means the packet is ready for USER inspection. It is not USER acceptance, waiver, approval, implementation authority, or next-gate authority. USER gate closure requires a USER response, Codex digest of that response, and an acceptance / waiver / revision / rejection receipt recorded in the review packet, branch plan owner, branch authority receipt, or external operational state. Missing proof blocks on `Branch Planning Acceptance Receipt Missing`, and any helper, validator, or Codex digest that treats packet validation as USER acceptance blocks on `Packet Validation Treated As USER Acceptance`.
 
-Every SLC must trace to a BP1 accepted Branch Vision requirement and a BP2 Branch Plan line item. If BP2 exposes a vision gap or changes the accepted Branch Vision, Codex must route back to BP1 instead of treating the engineering plan as a new vision owner.
+Every Slice/SLC must trace to a BP1 accepted Branch Vision requirement and a BP2 Branch Plan line item. If BP2 exposes a vision gap or changes the accepted Branch Vision, Codex must route back to BP1 instead of treating the engineering plan as a new vision owner.
 
 The active USER hub for Branch Planning packets is:
 
