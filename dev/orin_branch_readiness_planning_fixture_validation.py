@@ -3478,6 +3478,31 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(negative_multi_slice_marker_failures[:5])
         )
 
+    no_split_multi_slice_marker_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Multi-Slice Carrier: FAM-007 provider consent shell and artifact "
+            "exclusion control.",
+            "Multi-Slice Carrier: No split required; this multi-slice carrier "
+            "remains branch-local because all slices serve one package route.",
+        )
+        .replace(
+            "Shared Owner / Worktree: One FAM-007 branch/worktree owns all "
+            "slices because they serve the same public-safe provider-boundary "
+            "route and one package objective.\n\n",
+            "",
+        )
+    )
+    if "Multi-slice carrier missing Shared Owner / Worktree:" not in "\n".join(
+        no_split_multi_slice_marker_failures
+    ):
+        failures.append(
+            "Invalid no-split multi-slice marker fixture did not enforce "
+            "required multi-slice evidence"
+        )
+
     future_gated_multi_slice_failures = _validate_slice_slc_seam_model_text(
         """
 # Valid Single-Slice Branch Plan With Future-Gated Multi-Slice Boundary

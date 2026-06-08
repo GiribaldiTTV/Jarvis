@@ -150,7 +150,7 @@ def value_declares_multi_slice(value: str) -> bool:
 def multi_slice_marker_value_is_negative(value: str) -> bool:
     normalized = normalized_route_value(value)
     negative_patterns = (
-        r"^(?:no|false|n/a|none|not applicable|not required)\b",
+        r"^(?:no|false|n/a|none|not applicable|not required)\.?$",
         r"\bnot\s+a?\s*multi[- ]slice\s+carrier\b",
         r"\bnot\s+multi[- ]slice\b",
         r"\bnon[- ]multi[- ]slice\b",
