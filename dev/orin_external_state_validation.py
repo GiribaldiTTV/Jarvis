@@ -111,10 +111,17 @@ def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
                 break
             if any_field_pattern.match(next_line):
                 break
-            if re.match(r"^(?:[-*]\s*)?(?:slice\s+\d+|slc-\d+)\b", stripped, re.IGNORECASE):
+            if re.match(
+                r"^(?:[-*]|\d+\.)?\s*(?:slice\s+\d+|slc-\d+)\b",
+                stripped,
+                re.IGNORECASE,
+            ):
                 values.append(stripped)
                 continue
             if next_line[:1].isspace() and values:
+                values.append(stripped)
+                continue
+            if values:
                 values.append(stripped)
                 continue
             break
@@ -237,6 +244,16 @@ def value_declares_multi_slice(value: str) -> bool:
     )
     if future_scope_match and future_scope_match.start() <= positive_match.start():
         return False
+
+    policy_non_carrier_match = re.search(
+        r"\b(?:validat(?:e|es|ing)|validator|governance|policy|prevent(?:s|ing)?|"
+        r"check(?:s|ing)?)\b[^.\n;:]{0,120}\b(?:multi[- ]slice|multiple\s+slices)\b"
+        r"[^.\n;:]{0,160}\b(?:without|not)\b[^.\n;:]{0,120}"
+        r"\b(?:carrier|creating|making|becoming|current\s+scope)\b",
+        normalized,
+    )
+    if policy_non_carrier_match and policy_non_carrier_match.start() <= positive_match.start():
+        return False
     return True
 
 
@@ -245,6 +262,7 @@ def multi_slice_marker_value_is_negative(value: str) -> bool:
     negative_patterns = (
         r"^(?:no|false|n/a|none|not applicable|not required)\.?$",
         r"^(?:not applicable|not required|n/a|none)\b.*\b(?:future|deferred|user[- ]gated|outside|out\s+of\s+scope)\b",
+        r"^(?:future[- ]gated|deferred|not current|non[- ]current)\b.*\b(?:multi[- ]slice|multiple\s+slices)\b.*\b(?:future[- ]gated|user[- ]gated|deferred|outside|out\s+of\s+scope|not\s+current|non[- ]current)\b",
         r"\bnot\s+a?\s*multi[- ]slice\s+carrier\b",
         r"\bnot\s+multi[- ]slice\b",
         r"\bnon[- ]multi[- ]slice\b",
@@ -257,12 +275,12 @@ def multi_slice_marker_value_is_negative(value: str) -> bool:
 
 def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
     carrier_value = markdown_field_value(plan_text, "Multi-Slice Carrier")
-    if carrier_value:
-        return not multi_slice_marker_value_is_negative(carrier_value)
-
     slice_map = markdown_field_value_with_continuation(plan_text, "Slice Map")
     if slice_map and slice_map_deliverable_count(slice_map) >= 2:
         return True
+
+    if carrier_value:
+        return not multi_slice_marker_value_is_negative(carrier_value)
 
     current_scope_fields = (
         "Package Summary",
@@ -271,7 +289,7 @@ def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
     return any(
         value_declares_multi_slice(value)
         for field in current_scope_fields
-        if (value := markdown_field_value(plan_text, field))
+        if (value := markdown_field_value_with_continuation(plan_text, field))
     )
 
 
@@ -645,6 +663,8 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
         r"\bseam-only\s+branch\b",
         r"\bslc-\d+\s+branch(?:es)?(?=[\s.,;:]|$)",
         r"\bslc-\d+\s+(?:owns|has)\s+(?:a\s+|the\s+|its\s+own\s+)?branch(?:es)?\b",
+        r"\bslcs\s+(?:own|owns|have|has)\s+(?:a\s+|the\s+|their\s+own\s+)?branch(?:es)?\b",
+        r"\bslc-\d+(?:\s*(?:,|and)\s*slc-\d+)+\s+(?:own|owns|have|has)\s+(?:a\s+|the\s+|their\s+own\s+|its\s+own\s+)?branch(?:es)?\b",
         r"\bbranch(?:es)?\s+(?:for|per)\s+slc-\d+\b",
         r"\bslc(?:-\d+)?\s+is\s+a\s+branch\b",
         r"\bslcs\s+are\s+branches\b",

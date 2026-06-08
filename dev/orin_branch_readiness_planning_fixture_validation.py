@@ -3478,6 +3478,30 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(negative_multi_slice_marker_failures[:5])
         )
 
+    stale_negative_marker_with_slice_map_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Multi-Slice Carrier: FAM-007 provider consent shell and artifact "
+            "exclusion control.",
+            "Multi-Slice Carrier: No",
+        )
+        .replace(
+            "Shared Owner / Worktree: One FAM-007 branch/worktree owns all "
+            "slices because they serve the same public-safe provider-boundary "
+            "route and one package objective.\n\n",
+            "",
+        )
+    )
+    if "Multi-slice carrier missing Shared Owner / Worktree:" not in "\n".join(
+        stale_negative_marker_with_slice_map_failures
+    ):
+        failures.append(
+            "Invalid stale negative carrier marker fixture did not enforce "
+            "multi-slice evidence when Slice Map names multiple deliverables"
+        )
+
     no_split_multi_slice_marker_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"
@@ -3569,6 +3593,28 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(explanatory_negative_multi_slice_marker_failures[:5])
         )
 
+    future_gated_only_multi_slice_marker_failures = (
+        _validate_slice_slc_seam_model_text(
+            """
+# Valid Future-Gated-Only Multi-Slice Marker
+
+Multi-Slice Carrier: Future-gated only; multi-slice expansion remains USER-gated and non-current.
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps the current branch scoped to one Slice-level deliverable.
+
+Concrete Deliverable: A single Slice-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+"""
+        )
+    )
+    if future_gated_only_multi_slice_marker_failures:
+        failures.append(
+            "Valid future-gated-only multi-slice marker unexpectedly triggered "
+            "current multi-slice carrier enforcement: "
+            + "; ".join(future_gated_only_multi_slice_marker_failures[:5])
+        )
+
     route_policy_multi_slice_reference_failures = _validate_slice_slc_seam_model_text(
         """
 # Valid Single-Slice Governance Repair That Mentions Multi-Slice Policy
@@ -3587,6 +3633,29 @@ Implementation Route Class: governance/source-truth validator implementation.
             "Valid route-policy multi-slice reference unexpectedly triggered "
             "current multi-slice carrier enforcement: "
             + "; ".join(route_policy_multi_slice_reference_failures[:5])
+        )
+
+    package_summary_policy_multi_slice_reference_failures = (
+        _validate_slice_slc_seam_model_text(
+            """
+# Valid Package Summary That Mentions Multi-Slice Policy
+
+Package Summary: This governance package validates multi-slice carrier policy
+without making this branch a multi-slice implementation carrier.
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps the current branch scoped to one Slice-level deliverable.
+
+Concrete Deliverable: A validator repair that checks multi-slice carrier policy
+without creating current multi-slice package scope.
+"""
+        )
+    )
+    if package_summary_policy_multi_slice_reference_failures:
+        failures.append(
+            "Valid package-summary multi-slice policy reference unexpectedly "
+            "triggered current multi-slice carrier enforcement: "
+            + "; ".join(package_summary_policy_multi_slice_reference_failures[:5])
         )
 
     postfixed_negated_multi_slice_failures = _validate_slice_slc_seam_model_text(
@@ -3716,6 +3785,29 @@ terminology without creating a multi-slice package carrier.
         failures.append(
             "Valid multiline Slice Map fixture unexpectedly failed: "
             + "; ".join(multiline_slice_map_failures[:5])
+        )
+
+    numbered_multiline_slice_map_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Slice Map: Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy. Slice 2 / SLC-002 implements public "
+            "artifact exclusion validator/helper enforcement. Slice 3 / SLC-003 "
+            "implements packet proof and future-gated boundary preservation.",
+            "Slice Map:\n"
+            "1. Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy.\n"
+            "2. Slice 2 / SLC-002 implements public artifact exclusion "
+            "validator/helper enforcement.\n"
+            "3. Slice 3 / SLC-003 implements packet proof and future-gated "
+            "boundary preservation.",
+        )
+    )
+    if numbered_multiline_slice_map_failures:
+        failures.append(
+            "Valid numbered multiline Slice Map fixture unexpectedly failed: "
+            + "; ".join(numbered_multiline_slice_map_failures[:5])
         )
 
     same_sentence_slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
@@ -3980,6 +4072,9 @@ The SLC-001 branch owns the consent shell while SLC-002 branch owns the artifact
         "SLC-001 branch owns the consent shell.",
         "SLC-001 owns a branch for the consent shell.",
         "SLC-002 has its own branch for the artifact boundary.",
+        "SLCs own branches for the consent shell and artifact boundary.",
+        "SLC-001 and SLC-002 own branches for the consent shell and artifact boundary.",
+        "SLC-001 and SLC-002 have branches for the consent shell and artifact boundary.",
         "Create a branch for SLC-003.",
         "Each SLC has a branch for implementation.",
     )
