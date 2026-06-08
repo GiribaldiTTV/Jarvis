@@ -3438,6 +3438,26 @@ def validate() -> list[str]:
             "multi-slice evidence without the exact carrier marker"
         )
 
+    negated_multi_slice_carrier_failures = _validate_slice_slc_seam_model_text(
+        """
+# Valid Non-Multi-Slice Branch Plan
+
+Not a Multi-Slice Carrier: This branch owns one Slice-level deliverable and
+does not require multi-slice-only owner, split, or shared validation fields.
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps Slice/SLC terminology distinct from seam routing.
+
+Concrete Deliverable: A single Slice-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+"""
+    )
+    if negated_multi_slice_carrier_failures:
+        failures.append(
+            "Valid negated multi-slice carrier declaration unexpectedly failed: "
+            + "; ".join(negated_multi_slice_carrier_failures[:5])
+        )
+
     slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"

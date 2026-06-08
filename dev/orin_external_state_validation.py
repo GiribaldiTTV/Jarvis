@@ -133,10 +133,13 @@ def slice_map_deliverable_count(value: str) -> int:
 
 def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
     normalized = normalized_route_value(plan_text)
+    if re.search(
+        r"\b(?:no|not)\s+(?:a\s+)?multi[- ]slice\b|\bnon[- ]multi[- ]slice\b",
+        normalized,
+    ):
+        return False
     if "multi-slice carrier:" in normalized:
         return True
-    if re.search(r"\b(?:no|not|non)\s+(?:a\s+)?multi[- ]slice\b", normalized):
-        return False
     return bool(
         re.search(
             r"\bmulti[- ]slice\b|\bmultiple\s+slices\b",
