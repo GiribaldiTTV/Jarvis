@@ -184,6 +184,20 @@ Terminology Rule: Use `User/Public lane`, `Developer lane`, and `Owner lane` as 
 Blocking Conditions: `Implementation-Bearing Route Missing`, `Planning-Only Carrier`, `Infrastructure-Only Carrier`, `Exact USER Action Gate Missing`, `Branch Retarget/Rename Decision Required`, and `Developer Lane Terminology Drift`.
 Repair Path: BR1 recommends continue, retarget, rename, or hold. BR2 investigates route prerequisites, presents blockers and options, and admits green only after the selected implementation route is named or USER explicitly chooses a legal setup/action-gate path. BP1, BP2, and BP3 serve that route. If the route changes, Codex must return to BR1/BR2 or BP1 as source truth requires instead of continuing Branch Planning by inertia.
 
+### Branch / Slice / SLC / Seam Terminology Model
+
+Rule Name: `Branch / Slice / SLC / Seam Terminology Model`
+Owner: `Docs/phase_governance.md`
+Applies To: Branch Readiness, Branch Planning, Workstream, active external branch plans, backlog/workstream package trace, local USER hub planning packets, helper output, validator output, fixtures, and historical receipts that use SLC identifiers.
+Branch Definition: A branch is the coherent implementation carrier admitted through Branch Readiness. It must carry one selected implementation route, one owning branch/worktree authority, and one bounded package objective. A branch is not a planning loop, a placeholder for choosing future branches, or a container for unrelated family/package work.
+Slice Definition: `Slice` is the canonical package deliverable unit. A slice is a traceable deliverable area inside one admitted package under one FAM; it must name the concrete deliverable, FAM/package relationship, admission posture, completion state, and seam trace when it is active or folded down.
+SLC Classification: `SLC` is the current branch-planning alias for a Slice-level implementation line item or historical slice ID. It is not a separate backlog identity, not a seam, and not automatic branch-split authority. Current BP2/BP3 packets may keep labels such as `SLC / Seam Plan:` and historical IDs such as `SLC-051` for traceability, but their meaning must resolve to Slice-level deliverable trace. New source truth should prefer `Slice` when naming canonical package deliverables and may include `SLC` only as an alias or historical trace label.
+Seam Definition: `Seam` is the execution or validation checkpoint inside or between slices. A seam is the current bounded checkpoint Codex executes and validates; it cannot replace the slice deliverable, cannot become the branch identity, and cannot authorize stopping while the slice or package remains incomplete.
+Relationship Rule: BP1 may mention slices/SLCs/seams only as later implementation staging, because BP1 is the vision gate. BP2 maps the accepted or waived BP1 route into Slice/SLC deliverables, seam sequence, files, validators, proof, rollback, risks, and USER gates. BP3 verifies the BP2 slice/seam map against BP1 and returns Workstream entry approval only for the admitted same-branch package. Workstream executes one active seam at a time and keeps moving through the accepted slice chain until Workstream Green, a real blocker, future dependency, or explicit USER waiver is recorded.
+Multi-Slice Branch Rule: Multi-slice branches are legal when the slices share one FAM, one package objective, one selected implementation route, one owner/worktree, aligned release/PR timing, and a validation/proof path that can cover the grouped scope. A branch should split when family ownership, package objective, implementation route, private/runtime/provider action gate, release timing, validation path, risk class, or ownership diverges enough that one bounded Workstream package would blur authority or weaken proof.
+Terminology Drift Blockers: `SLC / Slice / Seam Ambiguity`, `SLC Treated As Seam`, `SLC Treated As Separate Branch`, `Slice Treated As Proof Artifact`, `Seam Treated As Branch Deliverable`, and `Multi-Slice Package Shape Unproven`.
+Validation Preference: Machine-checkable packets and fixtures must reject ambiguous SLC/Slice/Seam language, fake feature labels, proof/setup/boundary labels posing as implementation, planning-only lane setup, first-seam-only Workstream entry, and multi-slice packages that omit shared FAM/package/route/owner/validation evidence.
+
 ### Branch Planning Review Gate State Model
 
 Rule Name: `Branch Planning Review Gate State Model`
@@ -2440,13 +2454,13 @@ Purpose:
 - obtain USER-facing branch vision acceptance before engineering planning
 - obtain USER-facing branch plan acceptance before orchestration validation
 - prove the accepted plan is ready for Workstream implementation
-- preserve branch-size law and SLC traceability without creating sprawl branches
+- preserve branch-size law and Slice/SLC traceability without creating sprawl branches
 
 Branch Planning uses three internal stage gates without changing the canonical phase enum:
 
 - `BP1 - USER Branch Vision Review`: uses `USER_BRANCH_VISION_REVIEW.md` to present Project Vision Context, Family Vision Context, Feature Vision Context, Branch Goal, End-State Vision, user-facing behavior, surface map, design options, Codex recommendations, USER response, Codex digest, accepted Branch Vision, deferred/future-gated ideas, question queue, design assumption ledger, and acceptance/revision/rejection/waiver status. The BP1 artifact must be substantive and branch-specific: it digests source-truth context into an applied branch vision, explains what USER will see/review/decide/rely on, names real design options and tradeoffs, asks decision-driving questions, and cannot pass as a template shell, copied-file list, generic options list, or marker-only packet.
-- `BP2 - USER Branch Plan Review`: uses `USER_BRANCH_PLAN_REVIEW.md` to present the engineering plan derived from accepted or waived BP1, including package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, and exact BP3 approval text. The BP2 artifact must translate the accepted BP1 vision into a branch-specific engineering contract with scope, seams, proof outputs, risk controls, rollback/reversibility posture, options, tradeoffs, and Codex recommendation; it cannot merely repeat BP1, list markers, or point USER at copied files.
-- `BP3 - Workstream Entry / Orchestration Validation`: proves BP2 correctly implements BP1, proves package size and SLC traceability, verifies affected files, validators, helper updates, H1/LV/UTS/rollback/proof paths, preserves future-gated boundaries, and returns bounded Workstream implementation approval for the admitted same-branch package only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. The BP3 artifact must name the entry seam or initial seam sequence and must be a substantive orchestration-readiness contract with scope, implementation order, validation/proof plan, rollback posture, drift controls, unresolved USER decisions, blockers, and a go/repair/blocked recommendation; it cannot rely on helper-green hygiene or first-seam-only readiness.
+- `BP2 - USER Branch Plan Review`: uses `USER_BRANCH_PLAN_REVIEW.md` to present the engineering plan derived from accepted or waived BP1, including package summary, branch scope size test, Slice/SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, and exact BP3 approval text. The BP2 artifact must translate the accepted BP1 vision into a branch-specific engineering contract with scope, slice-level deliverables, seams, proof outputs, risk controls, rollback/reversibility posture, options, tradeoffs, and Codex recommendation; it cannot merely repeat BP1, list markers, or point USER at copied files.
+- `BP3 - Workstream Entry / Orchestration Validation`: proves BP2 correctly implements BP1, proves package size and Slice/SLC traceability, verifies affected files, validators, helper updates, H1/LV/UTS/rollback/proof paths, preserves future-gated boundaries, and returns bounded Workstream implementation approval for the admitted same-branch package only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. The BP3 artifact must name the entry seam or initial seam sequence and must be a substantive orchestration-readiness contract with scope, implementation order, validation/proof plan, rollback posture, drift controls, unresolved USER decisions, blockers, and a go/repair/blocked recommendation; it cannot rely on helper-green hygiene or first-seam-only readiness.
 
 Allowed:
 
@@ -2459,7 +2473,7 @@ Allowed:
 Forbidden:
 
 - runtime/code implementation
-- treating SLCs as automatic separate branches
+- treating SLCs/slices as automatic separate branches
 - using Workstream for planning, Hardening planning execution, Live Validation execution, PR creation, merge, release execution, private/provider/runtime/cache/memory setup, or branch cleanup
 - approving implementation while BP1 or BP2 is pending, stale, missing, rejected, or unwaived
 - treating BP1, BP2, or BP3 packet generation, stale-language hygiene, marker validation, copied-file lists, helper PASS output, or ZIP consistency as substantive USER review content or USER gate acceptance
@@ -2469,7 +2483,7 @@ Required evidence:
 - accepted or explicitly waived BP1
 - accepted or explicitly waived BP2
 - BP3 orchestration validation with the admitted Workstream package and entry seam
-- SLC traceability from BP1 accepted branch vision requirements to BP2 branch plan line items
+- Slice/SLC traceability from BP1 accepted branch vision requirements to BP2 branch plan line items
 - local USER hub packet at `C:\Nexus USER\<worktree-label>` with matching timestamped upload ZIP at `C:\Nexus USER\<worktree-label>-YYYYMMDD-HHMMSS.zip` when USER review is required
 - packet decision-path consistency and unresolved-placeholder absence
 - substantive BP1/BP2/BP3 USER review artifacts that contain applied branch-specific vision, plan, or orchestration content rather than template instructions, copied-file manifests, generic recommendations, or broad non-decision-driving USER questions
@@ -2486,7 +2500,7 @@ Exit:
 
 Purpose:
 
-- execute the approved bounded runtime/code implementation slice or an explicit USER-approved docs-only bypass
+- execute the approved bounded runtime/code implementation slice-level deliverable or an explicit USER-approved docs-only bypass
 - run normal repo-side regression validation inside that boundary
 - use bounded multi-seam workflow as the primary model when the current slice remains inside its governed boundary and validation stays green
 

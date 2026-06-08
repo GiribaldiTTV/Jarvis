@@ -3204,6 +3204,41 @@ MULTI_SEAM_CONTRACT_PHRASES = (
     "it must not return a green seam closeout as terminal",
 )
 
+BRANCH_SLICE_SLC_SEAM_TERMINOLOGY_REQUIRED_PHRASES = {
+    Path("Docs/phase_governance.md"): (
+        "Branch / Slice / SLC / Seam Terminology Model",
+        "Branch Definition:",
+        "Slice Definition:",
+        "SLC Classification:",
+        "Seam Definition:",
+        "Multi-Slice Branch Rule:",
+        "Terminology Drift Blockers:",
+    ),
+    Path("Docs/branch_plans/README.md"): (
+        "`Slice` is the canonical package deliverable unit.",
+        "`SLC` is the current branch-planning alias",
+        "Multi-slice branches are legal",
+        "Every Slice/SLC must trace",
+    ),
+    Path("Docs/workstreams/index.md"): (
+        "SLC is the current branch-planning alias",
+        "a seam is the current execution checkpoint",
+    ),
+    Path("Docs/feature_backlog.md"): (
+        "`SLC` = branch-planning alias",
+        "`Seam` = execution or validation checkpoint",
+    ),
+    Path("Docs/validation_helper_registry.md"): (
+        "invalid SLC/Slice/Seam terminology ambiguity packet",
+        "valid multi-slice implementation carrier",
+        "SLC treated as a seam",
+    ),
+    Path("Docs/Main.md"): (
+        "SLC is a branch-planning alias",
+        "Slice/SLC/seam plan",
+    ),
+}
+
 MULTI_SEAM_PRIMARY_REPAIR_PHRASES = (
     "Category labels are not stop conditions by themselves.",
     "Legacy `Single-Seam Fallback` and `Single-Seam Mode Waiver` terms are retired and must not be used in active source-of-truth.",
@@ -21364,6 +21399,14 @@ def main() -> int:
             require(
                 prohibited_phrase not in lower_text,
                 f"{relative_path}: bounded seam workflow must not recreate single-seam throttling authority via '{prohibited_phrase}'",
+            )
+
+    for relative_path, required_phrases in BRANCH_SLICE_SLC_SEAM_TERMINOLOGY_REQUIRED_PHRASES.items():
+        text = _read_text(relative_path)
+        for required_phrase in required_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: Branch/Slice/SLC/Seam terminology model is missing '{required_phrase}'",
             )
 
     for relative_path, required_phrases in MANDATORY_BOUNDED_STATE_REQUIRED_PHRASES.items():
