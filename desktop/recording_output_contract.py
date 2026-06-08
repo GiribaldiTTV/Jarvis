@@ -1,9 +1,9 @@
 """Runtime output contract for active-overlay recording logs.
 
-The contract owns the local file shape, safe runtime output root, atomic write,
-and readback proof for Dashboard Recording Start/Stop. Tray controls,
-export/share, provider/model work, and Native Log Loader remain outside this
-branch.
+The contract owns the native NDAI log shape, safe runtime output root, atomic
+write, and readback proof for Dashboard Recording Start/Stop. User-facing export
+formats such as CSV are separate export artifacts and remain outside the normal
+product save flow unless validation explicitly asks for an export proof.
 """
 
 from __future__ import annotations
@@ -20,11 +20,15 @@ from pathlib import Path
 from typing import Any
 
 
-RECORDING_OUTPUT_CONTRACT_VERSION = 2
+RECORDING_OUTPUT_CONTRACT_VERSION = 3
 RECORDING_OUTPUT_CONTRACT_ID = "slc-054-active-overlay-recording-output-contract"
-RECORDING_OUTPUT_FORMAT = "csv-with-json-metadata-manifest"
+RECORDING_OUTPUT_FORMAT = "ndai-native-recording-log"
+RECORDING_OUTPUT_EXTENSION = ".ndailog"
 RECORDING_OUTPUT_ENV = "NEXUS_MONITORING_HUD_RECORDING_OUTPUT_DIR"
+RECORDING_EXPORT_ENV = "NEXUS_MONITORING_HUD_RECORDING_EXPORT_DIR"
+RECORDING_VALIDATION_EXPORT_ENV = "NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR"
 RECORDING_OUTPUT_DIR_NAME = "Recordings"
+RECORDING_EXPORT_DIR_NAME = "Exported Logs"
 RECORDING_OUTPUT_FAMILY_DIR_NAME = "FAM-006"
 RECORDING_OUTPUT_HEADERS = (
     "timestamp_utc",
@@ -61,11 +65,22 @@ def recording_output_dir() -> Path:
     return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME / RECORDING_OUTPUT_FAMILY_DIR_NAME
 
 
+def recording_export_dir() -> Path:
+    override = os.environ.get(RECORDING_EXPORT_ENV, "").strip()
+    if override:
+        return Path(override)
+    local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
+    if local_app_data:
+        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME / RECORDING_OUTPUT_FAMILY_DIR_NAME
+    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME / RECORDING_OUTPUT_FAMILY_DIR_NAME
+
+
 def recording_output_contract() -> dict[str, Any]:
     return {
         "contractId": RECORDING_OUTPUT_CONTRACT_ID,
         "schemaVersion": RECORDING_OUTPUT_CONTRACT_VERSION,
         "format": RECORDING_OUTPUT_FORMAT,
+        "extension": RECORDING_OUTPUT_EXTENSION,
         "headers": list(RECORDING_OUTPUT_HEADERS),
         "timestampColumn": "timestamp_utc",
         "xAxisCandidates": ["timestamp_utc", "elapsed_ms"],
@@ -79,12 +94,16 @@ def recording_output_contract() -> dict[str, Any]:
         "startStopState": "dashboard-card-enabled",
         "outputRootOwner": "runtime-local-app-data",
         "outputRoot": str(recording_output_dir()),
+        "exportRootOwner": "user-requested-export-folder",
+        "exportRoot": str(recording_export_dir()),
+        "normalProductSaveCreatesExport": False,
+        "csvExportState": "manual-validation-or-future-user-export-only",
         "nativeLogLoaderState": "future-separate-viewer",
         "exportShareState": "future-gated",
     }
 
 
-def build_recording_output_manifest(
+def build_recording_output_payload(
     *,
     active_overlay_profile_id: str,
     active_overlay_profile_name: str,
@@ -100,6 +119,7 @@ def build_recording_output_manifest(
         "contractId": RECORDING_OUTPUT_CONTRACT_ID,
         "schemaVersion": RECORDING_OUTPUT_CONTRACT_VERSION,
         "format": RECORDING_OUTPUT_FORMAT,
+        "fileExtension": RECORDING_OUTPUT_EXTENSION,
         "sessionId": str(session_id or ""),
         "activeOverlayProfileId": str(active_overlay_profile_id or ""),
         "activeOverlayProfileName": str(active_overlay_profile_name or ""),
@@ -112,6 +132,7 @@ def build_recording_output_manifest(
         "finalizedAtUtc": _utc_now_iso(),
         "recordingExecutionState": "saved-complete",
         "fileWritingState": "saved-complete",
+        "nativeLogReadableOnlyByNDAI": True,
         "nativeLogLoaderState": "future-separate-viewer",
         "exportShareState": "future-gated",
     }
@@ -154,15 +175,42 @@ def parse_recording_output_csv(csv_text: str) -> list[dict[str, str]]:
     return [normalize_recording_output_row(row) for row in reader]
 
 
-def readback_recording_output_files(csv_path: str | Path, manifest_path: str | Path) -> dict[str, Any]:
-    csv_text = Path(csv_path).read_text(encoding="utf-8")
-    manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
-    rows = parse_recording_output_csv(csv_text)
+def readback_recording_output_files(native_log_path: str | Path, manifest_path: str | Path | None = None) -> dict[str, Any]:
+    payload = json.loads(Path(native_log_path).read_text(encoding="utf-8"))
+    rows = [normalize_recording_output_row(row) for row in payload.get("rows", []) if isinstance(row, dict)]
     return {
-        "passed": bool(rows) and manifest.get("contractId") == RECORDING_OUTPUT_CONTRACT_ID,
+        "passed": (
+            bool(rows)
+            and payload.get("contractId") == RECORDING_OUTPUT_CONTRACT_ID
+            and payload.get("format") == RECORDING_OUTPUT_FORMAT
+            and payload.get("nativeLogReadableOnlyByNDAI") is True
+        ),
         "rowCount": len(rows),
-        "manifest": manifest,
+        "manifest": payload,
         "rows": rows,
+    }
+
+
+def write_recording_csv_export(
+    *,
+    rows: list[dict[str, Any]],
+    export_dir: str | Path,
+    stem: str,
+) -> dict[str, Any]:
+    export_root = Path(export_dir)
+    export_root.mkdir(parents=True, exist_ok=True)
+    csv_path = export_root / f"{_safe_token(stem, 'recording-export')}.csv"
+    csv_tmp = csv_path.with_suffix(csv_path.suffix + ".tmp")
+    csv_tmp.write_text(render_recording_output_csv(rows), encoding="utf-8", newline="")
+    os.replace(csv_tmp, csv_path)
+    parsed = parse_recording_output_csv(csv_path.read_text(encoding="utf-8"))
+    return {
+        "passed": bool(parsed),
+        "csvPath": str(csv_path),
+        "exportDir": str(export_root),
+        "rowCount": len(parsed),
+        "exportFormat": "csv",
+        "exportOwner": "manual-validation-artifact",
     }
 
 
@@ -183,12 +231,12 @@ def write_recording_output_files(
         raise ValueError("Recording output requires at least one usable sample row")
     output_root = Path(output_dir) if output_dir is not None else recording_output_dir()
     output_root.mkdir(parents=True, exist_ok=True)
+    export_root = recording_export_dir()
     safe_session = _safe_token(session_id, "recording-session")
     safe_profile = _safe_token(active_overlay_profile_name or active_overlay_profile_id, "overlay-profile")
     stem = f"{_safe_token(stopped_at_utc or _utc_now_iso(), 'recording-time')}_{safe_profile}_{safe_session}"
-    csv_path = output_root / f"{stem}.csv"
-    manifest_path = output_root / f"{stem}.manifest.json"
-    manifest = build_recording_output_manifest(
+    native_log_path = output_root / f"{stem}{RECORDING_OUTPUT_EXTENSION}"
+    payload = build_recording_output_payload(
         active_overlay_profile_id=active_overlay_profile_id,
         active_overlay_profile_name=active_overlay_profile_name,
         target_monitor_ids=target_monitor_ids,
@@ -197,23 +245,34 @@ def write_recording_output_files(
         started_at_utc=started_at_utc,
         stopped_at_utc=stopped_at_utc,
     )
-    manifest["csvPath"] = str(csv_path)
-    manifest["manifestPath"] = str(manifest_path)
-    manifest["rowCount"] = len(rows)
-    csv_text = render_recording_output_csv(rows)
-    csv_tmp = csv_path.with_suffix(csv_path.suffix + ".tmp")
-    manifest_tmp = manifest_path.with_suffix(manifest_path.suffix + ".tmp")
-    csv_tmp.write_text(csv_text, encoding="utf-8", newline="")
-    manifest_tmp.write_text(json.dumps(manifest, indent=2, sort_keys=True), encoding="utf-8")
-    os.replace(csv_tmp, csv_path)
-    os.replace(manifest_tmp, manifest_path)
-    readback = readback_recording_output_files(csv_path, manifest_path)
+    payload["nativeLogPath"] = str(native_log_path)
+    payload["rowCount"] = len(rows)
+    payload["rows"] = rows
+    tmp_path = native_log_path.with_suffix(native_log_path.suffix + ".tmp")
+    tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    os.replace(tmp_path, native_log_path)
+    validation_export = None
+    validation_export_dir = os.environ.get(RECORDING_VALIDATION_EXPORT_ENV, "").strip()
+    if validation_export_dir:
+        validation_export = write_recording_csv_export(
+            rows=rows,
+            export_dir=validation_export_dir,
+            stem=stem,
+        )
+    readback = readback_recording_output_files(native_log_path)
     return {
         "passed": bool(readback.get("passed")),
         "sessionId": str(session_id or ""),
         "outputDir": str(output_root),
-        "csvPath": str(csv_path),
-        "manifestPath": str(manifest_path),
+        "nativeLogPath": str(native_log_path),
+        "exportDir": str(export_root),
+        "csvPath": "",
+        "manifestPath": "",
+        "validationExportPath": str((validation_export or {}).get("csvPath") or ""),
+        "validationExportDir": str((validation_export or {}).get("exportDir") or ""),
+        "validationExportReadbackPassed": bool((validation_export or {}).get("passed") or False),
+        "normalProductSaveCreatesExport": False,
+        "nativeLogReadableOnlyByNDAI": True,
         "rowCount": len(rows),
         "readbackPassed": bool(readback.get("passed")),
         "fileWritingState": "saved-complete",
@@ -255,9 +314,12 @@ def validate_recording_output_contract() -> dict[str, Any]:
         },
     ]
     normalized = build_recording_output_rows(samples)
-    csv_text = render_recording_output_csv(samples)
-    parsed = parse_recording_output_csv(csv_text)
+    export_csv_text = render_recording_output_csv(samples)
+    parsed_export = parse_recording_output_csv(export_csv_text)
     with tempfile.TemporaryDirectory(prefix="nexus-fam006-recording-") as temp_dir:
+        validation_export_dir = Path(temp_dir) / "manual_validation_exports"
+        previous_validation_export_dir = os.environ.get(RECORDING_VALIDATION_EXPORT_ENV)
+        os.environ[RECORDING_VALIDATION_EXPORT_ENV] = str(validation_export_dir)
         write_result = write_recording_output_files(
             session_id="validation-session",
             active_overlay_profile_id="default-overlay-profile",
@@ -267,28 +329,42 @@ def validate_recording_output_contract() -> dict[str, Any]:
             samples=samples,
             started_at_utc="2026-06-01T18:59:59.000Z",
             stopped_at_utc="2026-06-01T19:00:01.000Z",
-            output_dir=temp_dir,
+            output_dir=Path(temp_dir) / "native_logs",
         )
-        readback = readback_recording_output_files(write_result["csvPath"], write_result["manifestPath"])
+        readback = readback_recording_output_files(write_result["nativeLogPath"])
+        if previous_validation_export_dir is None:
+            os.environ.pop(RECORDING_VALIDATION_EXPORT_ENV, None)
+        else:
+            os.environ[RECORDING_VALIDATION_EXPORT_ENV] = previous_validation_export_dir
     proof = {
         "passed": False,
         "contract": contract,
-        "headerDeterministic": csv_text.splitlines()[0].split(",") == list(RECORDING_OUTPUT_HEADERS),
+        "nativeLogFormat": contract["format"] == RECORDING_OUTPUT_FORMAT,
+        "nativeLogExtension": contract["extension"] == RECORDING_OUTPUT_EXTENSION,
+        "nativeLogOnlyDefaultSave": contract["normalProductSaveCreatesExport"] is False,
+        "exportRootSeparate": Path(contract["exportRoot"]) != Path(contract["outputRoot"]),
+        "exportHeaderDeterministic": export_csv_text.splitlines()[0].split(",") == list(RECORDING_OUTPUT_HEADERS),
         "rowDeterministic": normalized[0]["monitor_id"] == "cpu" and normalized[1]["monitor_id"] == "gpu",
-        "parseReadback": parsed == normalized,
-        "nullNoDataBehavior": parsed[1]["value"] == "" and parsed[1]["quality"] == "unavailable",
+        "parseReadback": parsed_export == normalized,
+        "nullNoDataBehavior": parsed_export[1]["value"] == "" and parsed_export[1]["quality"] == "unavailable",
         "graphPlotReady": contract["graphPlotReady"] is True,
         "fileWritingEnabled": contract["fileWritingState"] == "enabled",
         "recordingExecutionEnabled": contract["recordingExecutionState"] == "enabled",
         "dashboardStartStopEnabled": contract["startStopState"] == "dashboard-card-enabled",
         "writeReadbackPassed": bool(write_result.get("passed") and readback.get("passed")),
+        "manualValidationExportPassed": bool(write_result.get("validationExportReadbackPassed")),
+        "manualValidationExportInRepoStyleArtifactRoot": "manual_validation_exports" in str(write_result.get("validationExportDir") or ""),
         "nativeLogLoaderFutureBoundary": contract["nativeLogLoaderState"] == "future-separate-viewer",
         "exportShareBlocked": contract["exportShareState"] == "future-gated",
     }
     proof["passed"] = all(
         bool(proof[key])
         for key in (
-            "headerDeterministic",
+            "nativeLogFormat",
+            "nativeLogExtension",
+            "nativeLogOnlyDefaultSave",
+            "exportRootSeparate",
+            "exportHeaderDeterministic",
             "rowDeterministic",
             "parseReadback",
             "nullNoDataBehavior",
@@ -297,6 +373,8 @@ def validate_recording_output_contract() -> dict[str, Any]:
             "recordingExecutionEnabled",
             "dashboardStartStopEnabled",
             "writeReadbackPassed",
+            "manualValidationExportPassed",
+            "manualValidationExportInRepoStyleArtifactRoot",
             "nativeLogLoaderFutureBoundary",
             "exportShareBlocked",
         )

@@ -46,7 +46,7 @@ from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
 from .monitoring_hud_state import save_monitoring_hud_state
 from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
-from .recording_output_contract import recording_output_dir, write_recording_output_files
+from .recording_output_contract import recording_export_dir, write_recording_output_files
 from .saved_action_authoring import (
     CallableGroupDraft,
     CallableGroupDraftValidationError,
@@ -10067,7 +10067,7 @@ class DesktopRuntimeWindow(QWidget):
                             && String(openFolder.textContent || "").trim() === "Open Log Folder"
                             && card.dataset.recordingExecutionState === "ready"
                             && card.dataset.recordingFileWritingState === "ready"
-                            && openFolder.dataset.recordingFolderAction === "runtime-output-folder"
+                            && openFolder.dataset.recordingFolderAction === "user-export-folder"
                             && openFolder.dataset.recordingFolderPathAvailable === "false"
                             && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
                             && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
@@ -10208,18 +10208,21 @@ class DesktopRuntimeWindow(QWidget):
                             && result
                             && result.passed === true
                             && result.readbackPassed === true
-                            && String(result.outputDir || "")
+                            && String(result.nativeLogPath || "")
+                            && String(result.exportDir || "")
+                            && !String(result.csvPath || "")
+                            && !String(result.manifestPath || "")
                         ),
                         launcherText: launcher ? String(launcher.textContent || "").trim() : "",
                         openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
-                        outputDir: result ? String(result.outputDir || "") : "",
+                        nativeLogPath: result ? String(result.nativeLogPath || "") : "",
+                        exportDir: result ? String(result.exportDir || "") : "",
                         recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
                         recordingFileWritingState: card ? String(card.dataset.recordingFileWritingState || "") : "",
                         recordingSessionState: monitoringHudControlState ? String(monitoringHudControlState.recordingSessionState || "") : "",
                         outputPassed: Boolean(result && result.passed),
                         readbackPassed: Boolean(result && result.readbackPassed),
-                        csvPath: result ? String(result.csvPath || "") : "",
-                        manifestPath: result ? String(result.manifestPath || "") : "",
+                        validationExportPath: result ? String(result.validationExportPath || "") : "",
                         summaryText: summary ? String(summary.textContent || "").trim() : "",
                         realOsInputProof: true,
                         directJsClickUsed: false
@@ -10294,7 +10297,42 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_recording_open_folder_result_captures():
             capture("02_recording_card_open_log_folder_opened_state")
-            QTimer.singleShot(delay(), step_dashboard_active_profile_selector_open)
+            QTimer.singleShot(delay(), step_restore_dashboard_viewport_after_folder_open)
+
+        def step_restore_dashboard_viewport_after_folder_open():
+            os_wheel(
+                "#monitoring-hud",
+                8,
+                "real OS wheel restores dashboard viewport after exported-log folder open",
+                step_dashboard_active_profile_selector_visible,
+            )
+
+        def step_dashboard_active_profile_selector_visible():
+            assert_state(
+                "HUD Overlay card Active Overlay Profile selector is visible after viewport restore",
+                """
+                (function() {
+                    const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                    const rect = toggle ? toggle.getBoundingClientRect() : null;
+                    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+                    return JSON.stringify({
+                        ok: Boolean(toggle && rect && rect.width > 0 && rect.height > 0 && rect.top >= 0 && rect.bottom <= viewportHeight),
+                        rect: rect ? {
+                            left: rect.left,
+                            top: rect.top,
+                            right: rect.right,
+                            bottom: rect.bottom,
+                            width: rect.width,
+                            height: rect.height
+                        } : null,
+                        viewportHeight,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_dashboard_active_profile_selector_open,
+            )
 
         def step_dashboard_active_profile_selector_open():
             os_click_and_assert_state(
@@ -10658,7 +10696,7 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_filter_hover():
-            os_hover("[data-overlay-profile-monitor-filter-option]", "real OS hover illuminates Visible Monitors filter option", step_filter_assert)
+            os_hover('[data-overlay-profile-monitor-filter-option="visible"]', "real OS hover illuminates Visible Monitors filter option", step_filter_assert)
 
         def step_filter_assert():
             assert_state(
@@ -10668,9 +10706,34 @@ class DesktopRuntimeWindow(QWidget):
                     const filter = document.getElementById("monitoring-hud-overlay-profile-monitor-filter");
                     const menu = document.getElementById("monitoring-hud-overlay-profile-monitor-filter-menu");
                     const options = menu ? Array.from(menu.querySelectorAll("[data-overlay-profile-monitor-filter-option]")) : [];
+                    const visibleOption = menu ? menu.querySelector('[data-overlay-profile-monitor-filter-option="visible"]') : null;
                     const menuRect = menu ? menu.getBoundingClientRect() : null;
+                    const visibleRect = visibleOption ? visibleOption.getBoundingClientRect() : null;
                     return JSON.stringify({
-                        ok: Boolean(filter && filter.dataset.dropdownOpen === "true" && menu && !menu.hidden && options.length <= 5 && menuRect && menuRect.width > 0),
+                        ok: Boolean(
+                            filter
+                            && filter.dataset.dropdownOpen === "true"
+                            && menu
+                            && !menu.hidden
+                            && options.length > 0
+                            && options.length <= 5
+                            && menuRect
+                            && menuRect.width > 0
+                            && menuRect.height > 0
+                            && visibleOption
+                            && visibleRect
+                            && visibleRect.width > 0
+                            && visibleRect.height > 0
+                            && visibleRect.top >= menuRect.top - 1
+                            && visibleRect.bottom <= menuRect.bottom + 1
+                        ),
+                        dropdownOpen: filter ? String(filter.dataset.dropdownOpen || "") : "",
+                        menuHidden: menu ? Boolean(menu.hidden) : true,
+                        menuWidth: menuRect ? menuRect.width : 0,
+                        menuHeight: menuRect ? menuRect.height : 0,
+                        visibleOptionWidth: visibleRect ? visibleRect.width : 0,
+                        visibleOptionHeight: visibleRect ? visibleRect.height : 0,
+                        visibleOptionText: visibleOption ? String(visibleOption.textContent || "").trim() : "",
                         optionCount: options.length,
                         scrollbarPolicy: "ndai-native",
                         realOsInputProof: true,
@@ -10693,7 +10756,7 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(
                 delay(),
                 lambda: os_click_and_assert_state(
-                    "[data-overlay-profile-monitor-filter-option]",
+                    '[data-overlay-profile-monitor-filter-option="visible"]',
                     "real OS click selects Visible Monitors filter option before compact resize",
                     """
                     (function() {
@@ -11852,10 +11915,25 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_manage_name_reuse_discard_second():
-            os_click(
+            os_click_and_assert_state(
                 "#monitoring-hud-edit-monitor-discard",
                 "real OS click discards recreated Monitor Group draft after reusable-number proof",
-                step_manage_name_reuse_discarded_assert,
+                """
+                (function() {
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    const settings = document.querySelector("[data-source-settings-open]");
+                    const hud = document.getElementById("monitoring-hud");
+                    return JSON.stringify({
+                        ok: Boolean(state.cards && !state.cards["monitor-3"] && settings && hud && hud.dataset.monitorUnsavedChanges === "clean"),
+                        hasMonitor3: Boolean(state.cards && state.cards["monitor-3"]),
+                        sourceSettingsVisible: Boolean(settings && settings.offsetWidth > 0),
+                        monitorUnsavedChanges: hud ? String(hud.dataset.monitorUnsavedChanges || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_source_settings_open,
             )
 
         def step_manage_name_reuse_discarded_assert():
@@ -14691,7 +14769,7 @@ class DesktopRuntimeWindow(QWidget):
                                         && openFolder.disabled
                                         && String(launcher.textContent || "").trim() === "Start Recording"
                                         && String(openFolder.textContent || "").trim() === "Open Log Folder"
-                                        && openFolder.dataset.recordingFolderAction === "runtime-output-folder"
+                                        && openFolder.dataset.recordingFolderAction === "user-export-folder"
                                         && openFolder.dataset.recordingFolderPathAvailable === "false"
                                         && card.dataset.recordingExecutionState !== "blocked"
                                         && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
@@ -16343,8 +16421,8 @@ class DesktopRuntimeWindow(QWidget):
                     passed=bool(result.get("passed")),
                     session_id=str(result.get("sessionId") or ""),
                     row_count=int(result.get("rowCount") or 0),
-                    csv_path=str(result.get("csvPath") or ""),
-                    manifest_path=str(result.get("manifestPath") or ""),
+                    csv_path=str(result.get("validationExportPath") or ""),
+                    manifest_path=str(result.get("nativeLogPath") or ""),
                     output_root_owner=str(result.get("outputRootOwner") or ""),
                 )
         recording_folder_open_request = state.get("recordingFolderOpenRequest")
@@ -16363,13 +16441,13 @@ class DesktopRuntimeWindow(QWidget):
                     "error": "Recording log folder path is not available.",
                 }
                 try:
-                    allowed_root = os.path.abspath(str(recording_output_dir()))
+                    allowed_root = os.path.abspath(str(recording_export_dir()))
                     target_folder = os.path.abspath(requested_folder or allowed_root)
                     common_root = os.path.commonpath([allowed_root, target_folder])
                     if os.path.normcase(common_root) != os.path.normcase(allowed_root):
-                        raise ValueError("Recording log folder request is outside the runtime output root.")
+                        raise ValueError("Recording export folder request is outside the exported-log root.")
                     if not os.path.isdir(target_folder):
-                        raise FileNotFoundError(target_folder)
+                        os.makedirs(target_folder, exist_ok=True)
                     os.startfile(target_folder)
                     result = {
                         "passed": True,

@@ -861,7 +861,7 @@ Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
 How To Use This File
 - Launch and test from the red FAM-006 desktop shortcut.
-- This pass is focused on Dashboard Recording Start/Stop, local saved-output/readback proof, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.
+- This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, exported-log folder behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.
 - Confirmed items from previous returned UTS passes are treated as closed unless they visibly regress during this pass.
 - For each active issue below, write PASS, FAIL, or WAIVED plus a short note.
 - If an active issue FAILS, describe exactly what you saw and attach/screenshot separately if useful.
@@ -874,14 +874,14 @@ Codex Precheck Summary
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
 - USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
-- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, saved/readback, Open Log Folder, target/status mirror, and visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, native-log saved/readback, Open Log Folder to exported logs, target/status mirror, and visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
 
 Brief Issue List
 - Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.
 - Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
-- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, local saved output/readback, issue #258 Overlay Profile persistence, Recording card visual-system inheritance, and active Overlay Profile target mirroring.
+- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, native NDAI log save/readback, exported-log folder behavior, issue #258 Overlay Profile persistence, Recording card visual-system inheritance, and active Overlay Profile target mirroring.
 
 Active Issues To Test
 
@@ -893,8 +893,8 @@ FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile
 Expected: The Recording card target overlay profile follows the active Overlay Profile. When the default profile is active, the Recording card shows Default Overlay Profile and its active monitor count. When a new Overlay Profile draft is created, the Recording card immediately mirrors that unsaved draft as the current recording target/session state with 0 active monitors, while persistence still waits for Save. After multiple profiles are saved, switching the Active Overlay Profile must update the Recording card target overlay profile and active monitor count.
 USER Result / Notes:
 
-FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Local Output
-Expected: The Recording card Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete result. Local CSV/manifest path proof may remain in Codex/helper output instead of crowding the card, but the USER-facing card should show a simple successful save/readback result and enable Open Log Folder for the saved runtime output folder. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
+FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Native NDAI Log
+Expected: The Recording card Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete native NDAI log. Normal product flow must not auto-create Excel/CSV output; CSV is only a manual validation/export artifact until a future USER-approved export system exists. The USER-facing card should show a simple successful save/readback result and enable Open Log Folder for the exported logs folder, which may be empty until USER exports a log. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
 USER Result / Notes:
 
 FAM006-LV1-REC-004 - Issue #258 Overlay Profile Persists Across Restart
@@ -945,12 +945,14 @@ if ($effectiveRunInteractionSelfQA) {
 }
 
 $previousHudStatePath = $env:NEXUS_MONITORING_HUD_STATE_PATH
+$previousRecordingValidationExportDir = $env:NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR
 try {
     Step $paths "starting FAM-006 Monitoring/HUD live desktop validation"
     $pythonExe = Resolve-ValidationPython
     Step $paths "resolved Python: $pythonExe"
     Capture-Screen $paths "before_launch"
     $env:NEXUS_MONITORING_HUD_STATE_PATH = (Join-Path $paths.Root "monitoring_hud_state.json")
+    $env:NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR = (Join-Path $paths.Root "manual_exports")
 
     $args = @(
         "desktop\orin_desktop_main.py",
@@ -1142,6 +1144,12 @@ finally {
     }
     else {
         $env:NEXUS_MONITORING_HUD_STATE_PATH = $previousHudStatePath
+    }
+    if ($null -eq $previousRecordingValidationExportDir) {
+        Remove-Item Env:\NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR = $previousRecordingValidationExportDir
     }
     if ($script:RuntimeProcess) {
         try {

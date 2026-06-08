@@ -31,7 +31,9 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Recording-specific styling must not introduce a unique card color family, nested boxed table, custom row shape, custom glow, or separate visual hierarchy that makes the Recording card feel detached from the standardized Dashboard card format.
 - The HUD Overlay card should stay focused on overlay identity, Overlay Profile state, Overlay Status, and overlay-specific actions. It should not host recording-specific controls or be the primary recording launcher after this vision revision.
 - Any future standalone Recording Control window, expanded settings window, or secondary recording-detail surface now requires revised BP1/BP2/BP3 approval because the active design direction centers recording in its own Dashboard card first.
-- Future recording output should use a valid, durable, graph/plot-ready format. CSV-like output is a likely first candidate, but file-format options should be proposed before output/file writing is admitted.
+- Recording output should save first as a native NDAI recording log owned by Nexus Desktop AI. The native log is the canonical product artifact for NDAI readback, future in-app viewing, and validation.
+- Excel/CSV, JSON, or other third-party readable files are export artifacts, not the default recording save. Export requires a USER-requested export flow with supported file-type choices and validation that the exported file opens/readably displays in the target class of software.
+- The Dashboard Recording card may open the exported-log folder, but normal Start/Stop recording must not auto-create CSV or other third-party export files. Until a future export branch exists, manual CSV files may be created only as validation artifacts outside the product-native log folder.
 - Native Log Loader is a future separate graph/log viewer that reads completed recording logs over time. It is not the recording control surface and is not admitted for implementation by the active-overlay recording contract alone.
 
 ## Future Effective Polling Policy Vision

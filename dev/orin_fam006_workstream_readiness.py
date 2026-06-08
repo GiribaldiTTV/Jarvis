@@ -49,7 +49,7 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         {
             "slice": "SLC-054",
             "status": "complete",
-            "proof": "durable local file writing output contract writes CSV/manifest and proves readback",
+            "proof": "durable local file writing output contract writes native NDAI log output and proves readback; CSV exists only as manual validation or future export evidence",
             "futureGate": "Native Log Loader, export/share, and provider/model work remain future-gated",
         },
         {

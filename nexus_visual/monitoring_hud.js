@@ -504,10 +504,10 @@ function monitoringHudToggleRecording() {
   return monitoringHudRecordingState() === "recording" ? monitoringHudStopRecording() : monitoringHudStartRecording();
 }
 
-function monitoringHudRecordingOutputFolderPath(outputResult) {
+function monitoringHudRecordingExportFolderPath(outputResult) {
   const safeResult = outputResult && typeof outputResult === "object" ? outputResult : {};
-  if (safeResult.outputDir) return String(safeResult.outputDir || "");
-  const path = String(safeResult.csvPath || safeResult.manifestPath || "");
+  if (safeResult.exportDir) return String(safeResult.exportDir || "");
+  const path = String(safeResult.validationExportPath || safeResult.csvPath || "");
   if (!path) return "";
   const lastSlash = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
   return lastSlash >= 0 ? path.slice(0, lastSlash) : "";
@@ -515,10 +515,10 @@ function monitoringHudRecordingOutputFolderPath(outputResult) {
 
 function monitoringHudRequestOpenRecordingFolder() {
   const outputResult = monitoringHudControlState.recordingOutputResult || {};
-  const folderPath = monitoringHudRecordingOutputFolderPath(outputResult);
+  const folderPath = monitoringHudRecordingExportFolderPath(outputResult);
   if (!outputResult.passed || !folderPath) {
     monitoringHudControlState.recordingFolderOpenStatus = "blocked-no-saved-output";
-    monitoringHudControlState.recordingSessionMessage = "Save a recording before opening the log folder.";
+    monitoringHudControlState.recordingSessionMessage = "Save a recording before opening the exported logs folder.";
     monitoringHudRenderControls();
     monitoringHudMarkChanged();
     return false;
@@ -528,8 +528,8 @@ function monitoringHudRequestOpenRecordingFolder() {
   monitoringHudControlState.recordingFolderOpenRequest = {
     requestId: `fam006-open-folder-${sequence}-${Date.now()}`,
     outputDir: folderPath,
-    csvPath: String(outputResult.csvPath || ""),
-    manifestPath: String(outputResult.manifestPath || ""),
+    nativeLogPath: String(outputResult.nativeLogPath || ""),
+    validationExportPath: String(outputResult.validationExportPath || ""),
     source: "dashboard-recording-card"
   };
   monitoringHudControlState.recordingFolderOpenStatus = "requested";
@@ -576,7 +576,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
   const executionState = sessionState === "recording" ? "recording" : sessionState === "saved-complete" ? "saved-complete" : targetReady ? "ready" : "disabled-error";
   const fileWritingState = sessionState === "saved-complete" ? "saved-complete" : sessionState === "saving" ? "saving" : targetReady ? "ready" : "blocked";
   const buttonEnabled = sessionState === "recording" || (targetReady && sessionState !== "saving");
-  const outputFolderPath = monitoringHudRecordingOutputFolderPath(outputResult);
+  const outputFolderPath = monitoringHudRecordingExportFolderPath(outputResult);
   const folderButtonEnabled = Boolean(outputResult && outputResult.passed && outputFolderPath);
   if (monitoringHudRecordingCard) {
     monitoringHudRecordingCard.dataset.recordingCardPlacement = "dashboard-recording-card-primary";
@@ -608,7 +608,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingTargetPreview.dataset.trayRecordingControlState = "not-created";
   }
   if (monitoringHudRecordingCardSummary) {
-    monitoringHudRecordingCardSummary.textContent = "Recording follows the active Overlay Profile and saves a local CSV plus manifest when stopped.";
+    monitoringHudRecordingCardSummary.textContent = "Recording follows the active Overlay Profile and saves a native NDAI log when stopped.";
   }
   if (monitoringHudRecordingTargetProfile) {
     monitoringHudRecordingTargetProfile.textContent = activeProfileName;
@@ -617,7 +617,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingTargetCount.textContent = `${count} active monitor${count === 1 ? "" : "s"}`;
   }
   if (monitoringHudRecordingTargetSummary) {
-    const resultText = outputResult && outputResult.csvPath ? ` Saved ${outputResult.rowCount || 0} rows.` : "";
+    const resultText = outputResult && outputResult.nativeLogPath ? ` Saved ${outputResult.rowCount || 0} rows to a native NDAI log.` : "";
     monitoringHudRecordingTargetSummary.textContent = `${targetLabel}: ${targetNames}. ${monitoringHudControlState.recordingSessionMessage || "Ready for local Start/Stop recording."}${resultText}`;
   }
   if (monitoringHudRecordingControlLauncher) {
@@ -637,7 +637,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
   if (monitoringHudRecordingOpenFolder) {
     monitoringHudRecordingOpenFolder.disabled = !folderButtonEnabled;
     monitoringHudRecordingOpenFolder.setAttribute("aria-disabled", folderButtonEnabled ? "false" : "true");
-    monitoringHudRecordingOpenFolder.dataset.recordingFolderAction = "runtime-output-folder";
+    monitoringHudRecordingOpenFolder.dataset.recordingFolderAction = "user-export-folder";
     monitoringHudRecordingOpenFolder.dataset.recordingFolderPathAvailable = folderButtonEnabled ? "true" : "false";
     monitoringHudRecordingOpenFolder.dataset.recordingFileWritingState = folderButtonEnabled ? "saved-complete" : fileWritingState;
     monitoringHudRecordingOpenFolder.dataset.recordingCardVisualSystem = "dashboard-hub-card-sampled";
@@ -1360,8 +1360,34 @@ function monitoringHudSetOverlayProfileUnsavedGuard(open) {
 }
 
 function monitoringHudCancelOverlayProfileUnsavedGuard() {
+  const pendingCreate = monitoringHudOverlayProfilePendingCreate
+    ? Object.assign({}, monitoringHudOverlayProfilePendingCreate)
+    : null;
+  const selectedId = monitoringHudOverlayProfileWindowSelectedId || (pendingCreate ? pendingCreate.id : "");
+  const detailWasOpen = Boolean(monitoringHudOverlayProfileDetailOpen || pendingCreate);
+  const restoreDraftState = () => {
+    if (pendingCreate) {
+      monitoringHudOverlayProfilePendingCreate = Object.assign({}, pendingCreate);
+    }
+    if (selectedId) {
+      monitoringHudOverlayProfileWindowSelectedId = selectedId;
+    }
+    if (detailWasOpen) {
+      monitoringHudOverlayProfileDetailOpen = true;
+    }
+    if (monitoringHudActiveChildWindow !== "overlay-profile-settings") {
+      monitoringHudActiveChildWindow = "overlay-profile-settings";
+      monitoringHudSetChildWindowVisibility("overlay-profile-settings");
+    }
+    monitoringHudSetOverlayProfileUnsavedGuard(false);
+  };
   monitoringHudSetOverlayProfileUnsavedGuard(false);
+  restoreDraftState();
   monitoringHudRenderControls();
+  window.requestAnimationFrame(() => {
+    restoreDraftState();
+    monitoringHudRenderControls();
+  });
   return true;
 }
 
