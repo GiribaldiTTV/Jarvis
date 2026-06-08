@@ -15,7 +15,7 @@ It does not own:
 
 Use it for product direction, experience intent, and release-stage meaning.
 
-Family-specific vision records live under `Docs/family_visions/` when a broad feature family needs durable USER-reviewed product direction. Active external branch plans under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` own the Branch Vision Contract Snapshot and implementation checklist for the current branch only; repo branch-plan files are historical receipts after fold-down.
+Family-specific vision records live under `Docs/family_visions/` when a broad feature family needs durable USER-reviewed product direction. USER-approved Family Feature Vision records, when created under the recommended `Docs/family_feature_visions/` pattern, own durable feature-category direction inside one family between Family Vision and active Branch Vision. Selected feature-bearing branch routes require the relevant Family Feature Vision before BP1 unless the route is non-product and records `Family Feature Vision Not Applicable`; shallow feature-vision files do not satisfy BP1. Active external branch plans under `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` own the Branch Vision Contract Snapshot and implementation checklist for the current branch only; repo branch-plan files are historical receipts after fold-down.
 
 Edition-specific AI deployment planning lives in `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`. That plan records the public-safe Owner / Dev / Public edition capability model, private-repo separation, Public-to-Dev migration direction, GitHub Desktop setup guidance, and release breakpoints without authorizing runtime AI, provider/model execution, memory, packaging, licensing, or private repo implementation.
 
@@ -244,4 +244,5 @@ That means:
 - use `Docs/boot_access_design.md` for future boot-access planning
 - use `Docs/prebeta_roadmap.md` for sequencing and release posture
 - use `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md` for public-safe Owner / Dev / Public edition boundaries and release breakpoints
+- use USER-approved Family Feature Vision records under the recommended `Docs/family_feature_visions/` pattern for durable feature-category direction and deferred carryforward inside one family when Family Vision is too broad and active branch planning is too branch-local; selected feature-bearing branch routes require this layer before BP1 when source truth says the feature category needs durable middle vision detail
 - use `Docs/workstreams/...` for promoted workstream history
