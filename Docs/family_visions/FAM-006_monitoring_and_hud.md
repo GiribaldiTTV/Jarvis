@@ -64,6 +64,7 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Project vision: `Docs/nexus_vision.md`
 - AI runtime and trust architecture: `Docs/ai_runtime_and_trust_architecture.md`
 - Backlog registry: `Docs/feature_backlog.md`
+- Recording Family Feature Vision: `Docs/family_feature_visions/FAM-006_recording.md`
 - Durable receipt pointer: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`
 - Active branch pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 - Released planning receipt pointer: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`

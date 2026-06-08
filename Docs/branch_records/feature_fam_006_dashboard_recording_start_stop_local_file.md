@@ -151,6 +151,18 @@ Prior BP1 Entry Packet Status: `Superseded for active decision purposes because 
 Runtime / PR Boundary: `No runtime implementation, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, FAM-007 mutation, Governance worktree mutation, neutral-main mutation, provider/model work, or private action is authorized by this rebaseline.`
 Next Legal Phase: `FAM-006 Recording Family Feature Vision planning/admission, then BP1 Entry only after the feature vision gate is satisfied or legally waived.`
 
+## FAM-006 Recording Family Feature Vision Admission Receipt
+
+Admission Date: `2026-06-08`
+Admission Basis: `USER approved bounded FAM-006 Recording Family Feature Vision planning/admission on this branch after the Post-PR #261 Family Feature Vision gate blocked BP1 Entry for the selected feature-bearing route.`
+Family Feature Vision Owner: `Docs/family_feature_visions/FAM-006_recording.md`
+Feature Vision Sufficiency Result: `PASS - the FAM-006 Recording feature vision records feature purpose, USER-facing surfaces, experience flow, included capabilities, explicit non-goals, dependency/deferred map, design options, proof expectations, Branch Readiness consumption notes, BP1 context notes, fold-down history, and no live branch-state ledger.`
+Deferred Carryforward Result: `PASS - Recording Studio, Log Viewer Studio, native/export log model, tray recording visibility/control, keybind Start/Stop, settings, warning dismissal, Overlay Profile persistence dependency, Dashboard quick access, and Native Log Loader relationship are preserved with durable dispositions.`
+Active Gate After Admission: `BP1 Entry - FAM-006 Recording Branch Vision Review preparation.`
+Prior Packet Status: `Prior BP1 Entry packets remain superseded for active decision purposes until a new BP1 packet digests Docs/family_feature_visions/FAM-006_recording.md.`
+Runtime / PR Boundary: `No runtime implementation, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, FAM-007 mutation, Governance worktree mutation, neutral-main mutation, provider/model work, or private action is authorized by this admission receipt.`
+Next Legal Phase: `BP1 Entry / USER Branch Vision Review using Docs/family_feature_visions/FAM-006_recording.md as Feature Vision Context.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
