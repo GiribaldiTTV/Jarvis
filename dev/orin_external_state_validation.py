@@ -147,9 +147,24 @@ def value_declares_multi_slice(value: str) -> bool:
     return True
 
 
+def multi_slice_marker_value_is_negative(value: str) -> bool:
+    normalized = normalized_route_value(value)
+    negative_patterns = (
+        r"^(?:no|false|n/a|none|not applicable|not required)\b",
+        r"\bnot\s+a?\s*multi[- ]slice\s+carrier\b",
+        r"\bnot\s+multi[- ]slice\b",
+        r"\bnon[- ]multi[- ]slice\b",
+        r"\bsingle[- ]slice\b",
+        r"\bone\s+slice\b",
+        r"\bno\s+current\s+multi[- ]slice\b",
+    )
+    return any(re.search(pattern, normalized) for pattern in negative_patterns)
+
+
 def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
-    if markdown_field_value(plan_text, "Multi-Slice Carrier"):
-        return True
+    carrier_value = markdown_field_value(plan_text, "Multi-Slice Carrier")
+    if carrier_value:
+        return not multi_slice_marker_value_is_negative(carrier_value)
 
     current_scope_fields = (
         "Package Summary",

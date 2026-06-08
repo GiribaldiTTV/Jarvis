@@ -3459,6 +3459,25 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(negated_multi_slice_carrier_failures[:5])
         )
 
+    negative_multi_slice_marker_failures = _validate_slice_slc_seam_model_text(
+        """
+# Valid Single-Slice Branch Plan With Negative Multi-Slice Marker
+
+Multi-Slice Carrier: No
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps the current branch scoped to one Slice-level deliverable.
+
+Concrete Deliverable: A single SLC-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+"""
+    )
+    if negative_multi_slice_marker_failures:
+        failures.append(
+            "Valid negative Multi-Slice Carrier marker unexpectedly failed: "
+            + "; ".join(negative_multi_slice_marker_failures[:5])
+        )
+
     future_gated_multi_slice_failures = _validate_slice_slc_seam_model_text(
         """
 # Valid Single-Slice Branch Plan With Future-Gated Multi-Slice Boundary
