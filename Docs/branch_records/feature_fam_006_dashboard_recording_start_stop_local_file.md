@@ -138,6 +138,19 @@ Historical Evidence Preserved: `Prior BP1/BP2/BP3, Workstream, Hardening H1, Liv
 BP1 Entry Scope: `Dashboard quick access, Recording Studio, Log Viewer Studio, native NDAI log, exported logs, tray icon, keybinds, settings, independent-window lifecycle, current-branch blockers, future-gated branch vision, and separate-branch candidates.`
 Pending USER Decisions: `BP1 re-entry review, BP2 revision or waiver, BP3 revalidation or waiver, Workstream continuation if needed, runtime mutation beyond already-approved scope, PR Readiness, issue closeout, merge, release, branch cleanup, Governance worktree mutation, FAM-007 mutation, and neutral-main mutation.`
 
+## Post-PR #261 Rebaseline / Family Feature Vision Gate Receipt
+
+Rebaseline Date: `2026-06-08`
+Merged origin/main: `a719405a593b8b44f3cb759f516c4e3ee5c016ea`
+Merge Base Before Rebaseline: `c7dc1e41f6009bbe007e69aa38c4f614427a17f6`
+Incoming Governance Change: `Family Feature Vision / Deferred Feature Carryforward source-truth design now blocks selected feature-bearing routes from BP1 until the required Family Feature Vision exists and passes Feature Vision Sufficiency Check.`
+Current Feature Route Classification: `FAM-006 Dashboard Recording Start/Stop To Local File is a selected feature-bearing product/runtime route, not a non-product Family Feature Vision Not Applicable route.`
+Family Feature Vision Owner Status: `Docs/family_feature_visions/ does not exist yet; creating Docs/family_feature_visions/FAM-006_recording.md or equivalent content remains a separate USER decision.`
+Active Gate After Rebaseline: `Family Feature Vision planning/admission required before BP1 Entry.`
+Prior BP1 Entry Packet Status: `Superseded for active decision purposes because it predates the Family Feature Vision gate.`
+Runtime / PR Boundary: `No runtime implementation, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, FAM-007 mutation, Governance worktree mutation, neutral-main mutation, provider/model work, or private action is authorized by this rebaseline.`
+Next Legal Phase: `FAM-006 Recording Family Feature Vision planning/admission, then BP1 Entry only after the feature vision gate is satisfied or legally waived.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
