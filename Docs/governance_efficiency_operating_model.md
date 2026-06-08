@@ -61,7 +61,8 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/feature_backlog.md` | compact feature-family registry and pointer layer | detailed active-branch execution planning, package/slice ledgers, or live lifecycle posture |
 | `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, broad feature-family checkpoints, and durable branch evidence pointers | volatile Git/GitHub operational state, active release ledger fields, or active/complete/pending branch posture |
 | `Docs/nexus_vision.md` | project-wide product vision contract, long-term standards, and durable product direction | active branch implementation plans or family-specific execution ledgers |
-| `Docs/family_visions/` | family-specific durable product direction and reusable USER-accepted standards | active branch authority, live state, or per-seam implementation checklists |
+| `Docs/family_visions/` | family-specific durable product direction and reusable USER-accepted standards | active branch authority, live state, detailed feature-category ledgers that belong in Family Feature Vision, or per-seam implementation checklists |
+| `Docs/family_feature_visions/` | USER-approved durable feature-category direction inside one FAM, reusable surface/experience/proof direction, and Deferred Feature Carryforward facts | backlog family identity, selected-next truth, active branch state, current PR/release/worktree state, implementation approval, live operational ledgers, or per-seam execution checklists |
 | `Docs/branch_records/index.md` | durable branch-record law, standing Governance active-authority exception, historical receipt routing, and pointers to external active operational branch authority | detailed branch implementation checklists or general live active-branch operations lists |
 | `Docs/branch_records/<branch>.md` | durable branch identity, approval evidence, compact historical receipt, and pointers to external operational owners | current phase, active branch authority, active next gate, active branch lifecycle ledger, volatile live state, live PR/open-review state, selected-next posture, worktree assignment, release-window state, unindexed execution diary, full feedback text, or reusable family-level implementation history after promotion |
 | `Docs/branch_plans/<branch>.md` | Branch Runtime Engineering Plan shape, transition-approved plan receipts, retired/historical branch-plan evidence, and durable lookup paths | canonical live branch status, active/complete/pending lifecycle posture, permanent family-level dossier, active authority after fold-down, duplicate feedback ledger, or live-state ledger |
@@ -675,6 +676,10 @@ Vision records should support USER/Codex back-and-forth. They may grow as implem
 
 Family vision records live under `Docs/family_visions/` and receive reusable vision updates folded down from PR Readiness only after USER acceptance. Backlog and roadmap point to those records; they do not copy full family vision narratives.
 
+Family Feature Vision records, when USER approves creating them under `Docs/family_feature_visions/`, are the durable middle vision layer between Family Vision and active Branch Vision. They hold detailed feature-category product direction inside one FAM without becoming a new backlog family, branch plan, active status tracker, selected-next owner, or live dependency queue. The first expected pilot pattern is a FAM-owned feature-category file such as `Docs/family_feature_visions/FAM-006_recording.md`, not a `Sub-Family Vision`.
+
+Deferred Feature Carryforward belongs in the relevant Family Feature Vision when it preserves durable planning facts such as deferred item title, origin planning event, feature surface, dependency trigger, grouping recommendation, proof expectation, and durable disposition. Active branch terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or release-window status remain invalid in Family Feature Vision carryforward rows because those facts belong to BR2 output, active external branch planning, `C:\Nexus Governance State`, Git/GitHub/helper truth, or USER decision packets.
+
 ## Vision-To-Plan Interaction Loop
 
 The Vision Contract layer complements Branch Runtime Engineering Plans. It does not create a parallel planning system.
@@ -683,6 +688,7 @@ Use this layer when product/design assumptions would otherwise become implementa
 
 - Nexus Vision owns project-wide principles, long-term standards, and durable product direction through `Docs/nexus_vision.md`.
 - Family Vision owns broad feature-family direction through `Docs/family_visions/` when the family is large enough to justify a durable owner.
+- Family Feature Vision owns detailed feature-category direction and Deferred Feature Carryforward inside one FAM through `Docs/family_feature_visions/` after USER-approved content-file creation.
 - Branch Vision Contract Snapshot lives inside the active Branch Engineering Plan and records the USER-accepted branch-specific vision state.
 - Branch Engineering Plan translates the accepted snapshot into seams, files, validators, proof, and stop conditions.
 - Vision Question Digest is the required packet when product/design uncertainty affects planning or execution.

@@ -35,12 +35,13 @@ Use Git, GitHub, approved helpers, or `C:\Nexus Governance State` for live opera
 
 Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `SLC` = branch-planning alias or historical ID for a Slice-level line item, not a separate identity; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.
 
-Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits, or syncs any new backlog family, package, source-truth owner, architecture layer, policy owner, experience layer, runtime subsystem, capability-pack domain, or implementation slice/seam, the governing packet must answer: `Is this a backlog family, family vision, architecture layer, cross-family policy owner, experience layer, runtime subsystem, capability-pack domain, or implementation package/slice/seam?`
+Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits, or syncs any new backlog family, family feature vision, package, source-truth owner, architecture layer, policy owner, experience layer, runtime subsystem, capability-pack domain, or implementation slice/seam, the governing packet must answer: `Is this a backlog family, family vision, family feature vision, architecture layer, cross-family policy owner, experience layer, runtime subsystem, capability-pack domain, or implementation package/slice/seam?`
 
 | Concept Class | Should Own | Must Not Own |
 | --- | --- | --- |
 | Backlog family | Broad long-lived product identity and compact registry pointer | Every subsystem, dependency, architecture idea, policy, or implementation package |
 | Family vision | Durable direction for one family | Cross-family architecture, runtime approval, or active branch authority by default |
+| Family feature vision | Durable feature-category direction inside exactly one FAM, including reusable surfaces, experience flow, non-goals, proof expectations, and deferred carryforward | New FAM identity, selected-next truth, active branch state, implementation approval, or live dependency queues |
 | Architecture layer | Reusable structural system concepts | Product-family identity, release identity, or implementation approval by itself |
 | Cross-family policy owner | Hard rules, constraints, enforcement requirements, and safety/privacy boundaries across families | Runtime identity or implementation scope by itself |
 | Experience layer | Interaction philosophy, UX orchestration, and user-facing behavioral model | Automatic backlog identity or implementation approval |
@@ -50,7 +51,7 @@ Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits,
 
 Important concepts do not automatically deserve backlog identity. AI-native, cache, trust, provider, routine, deterministic-routing, Windows Health, gaming/competitive-integrity, or ambient-assistance concepts must pass this gate before they can become a new FAM, package, source-truth file, or implementation scope. `Backlog Taxonomy Gate Missing` blocks Branch Readiness or PR Readiness when a concept is promoted without this classification, and `Backlog Addition User Approval Missing` remains active when a new backlog family would be required.
 
-Automatic Family Rejection Tests: before Codex proposes or admits a new FAM, the packet must prove the concept is not better classified as `Family vision`, `Architecture layer`, `Cross-family policy owner`, `Experience layer`, `Runtime subsystem`, `Capability-pack domain`, `Package/slice/seam`, `Workstream evidence`, `External operational state`, `Durable receipt`, or an extension of an existing FAM. If any existing owner class fits, backlog admission is rejected unless USER explicitly approves new family identity. Missing tests block on `Backlog Family Rejection Test Missing`; creating backlog identity because a concept feels important blocks on `Backlog Identity Created By Inertia`.
+Automatic Family Rejection Tests: before Codex proposes or admits a new FAM, the packet must prove the concept is not better classified as `Family vision`, `Family feature vision`, `Architecture layer`, `Cross-family policy owner`, `Experience layer`, `Runtime subsystem`, `Capability-pack domain`, `Package/slice/seam`, `Workstream evidence`, `External operational state`, `Durable receipt`, or an extension of an existing FAM. If any existing owner class fits, backlog admission is rejected unless USER explicitly approves new family identity. Missing tests block on `Backlog Family Rejection Test Missing`; creating backlog identity because a concept feels important blocks on `Backlog Identity Created By Inertia`.
 
 `No Existing Owner Fits` is required before Codex recommends a new durable source-truth owner, architecture registry, experience registry, policy registry, or backlog-family identity. The packet must name the existing owners inspected, explain why each rejected owner is insufficient, name the intended compact mirrors, and identify validator/helper guidance needed to prevent drift.
 
@@ -107,6 +108,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | Branch authority router | `Docs/branch_records/index.md` |
 | Branch runtime engineering plans | `Docs/branch_plans/` |
 | Family vision records | `Docs/family_visions/` |
+| Family feature vision records | `Docs/family_feature_visions/` after USER-approved content-file creation |
 | AI runtime and trust architecture | `Docs/ai_runtime_and_trust_architecture.md` |
 | Workstream routing and family dossiers | `Docs/workstreams/index.md` |
 | Stable worktree slot registry | `Docs/worktree_slots.md` |

@@ -6,8 +6,8 @@ Repo branch-plan files are not the long-term place to maintain active ledger row
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
 
-This layer sits under the branch authority model. It does not replace the branch authority record, backlog, roadmap, external operational state, or canonical workstream doc.
-Codex reaches this layer through the Main-first loader chain: load `Docs/Main.md`, then the governing phase/vision/branch authority owners, then the active branch plan from external operational state for branch-local engineering detail. Repo branch-plan files are historical or transition receipts only.
+This layer sits under the branch authority model. It does not replace the branch authority record, backlog, roadmap, external operational state, Family Feature Vision, or canonical workstream doc.
+Codex reaches this layer through the Main-first loader chain: load `Docs/Main.md`, then the governing phase/vision/branch authority owners, then the relevant Family Feature Vision under the recommended `Docs/family_feature_visions/` pattern when USER-approved content exists, then the active branch plan from external operational state for branch-local engineering detail. Repo branch-plan files are historical or transition receipts only.
 
 ## Branch Planning Artifact Lifecycle
 
@@ -23,6 +23,7 @@ Branch Vision and Branch Plan are separate contracts:
 
 - Branch Vision is what the branch is building and what it should become.
 - Branch Plan is how Codex will build the accepted or waived Branch Vision.
+- Family Feature Vision is the durable feature-category context beneath one Family Vision. It can supply BP1 `Feature Vision Context` and Deferred Feature Carryforward, but it is not active branch state, selected-next truth, or implementation approval.
 - `Slice` is the canonical package deliverable unit. `SLC` is the current branch-planning alias for Slice-level implementation line items or preserved historical slice IDs. SLCs/slices are the engineering route inside a branch after vision acceptance, and they should not automatically become separate branches.
 - `Seam` is the execution or validation checkpoint inside or between slices. A seam is the current bounded checkpoint, not the branch identity and not proof that the package is complete by itself.
 
@@ -78,6 +79,8 @@ Branch Planning uses two independent state axes:
 
 Every Slice/SLC must trace to a BP1 accepted Branch Vision requirement and a BP2 Branch Plan line item. If BP2 exposes a vision gap or changes the accepted Branch Vision, Codex must route back to BP1 instead of treating the engineering plan as a new vision owner.
 
+When a USER-approved Family Feature Vision exists for the selected implementation route, BP1 must cite it as the durable `Feature Vision Context`. BP2 must carry forward BP1's accepted disposition for applicable deferred feature items, and BP3 must verify that applicable deferrals are either included in the admitted package, explicitly future-gated with reason, or routed to the correct future owner. Branch plans may record active gate state and branch-local choices for those items, but the durable deferred-item facts belong in the Family Feature Vision after USER-approved fold-down.
+
 The active USER hub for Branch Planning packets is:
 
 - Readable packet: `C:\Nexus USER\<label>\`
@@ -120,6 +123,8 @@ Runtime-focused plans must include:
 - Approval-Boundary Audit:
 - FAM / Shared-Surface Overlap Forecast:
 - Open Questions:
+- Feature Vision Context:
+- Deferred Feature Carryforward Review:
 - USER Planning Decisions:
 - Plan Revision History:
 - Plan-To-Implementation Traceability Table:

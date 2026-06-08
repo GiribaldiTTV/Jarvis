@@ -176,6 +176,7 @@ Main routes Codex to:
 - AI runtime/trust architecture, permission-state, deterministic-routing, Trust Journal, AI operational cache, and cross-family AI-native placement: `Docs/ai_runtime_and_trust_architecture.md`
 - public-safe AI edition/trust-boundary planning: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - reusable family vision: `Docs/family_visions/`
+- durable family feature vision layer, when USER approves feature-vision content files: `Docs/family_feature_visions/`
 - branch authority law, standing Governance intake exception, and historical receipts: `Docs/branch_records/`
 - active branch vision, planning, UFD, Element-to-Phase Proof Matrix, and Branch Change Intent Ledger: `C:\Nexus Governance State\branches\<branch_slug>\`
 - workstream and family implementation history: `Docs/workstreams/`
@@ -186,7 +187,7 @@ Main routes Codex to:
 
 Context docs may explain, summarize, or point to the owners above. They must not supersede Main or the named owner. If a context doc conflicts with Main or the relevant owner, Codex must follow Main to the owner, report the conflict, and repair through the legal branch/phase instead of inferring behavior.
 
-Vision routing follows this chain: `Docs/nexus_vision.md` for project-wide vision, `Docs/ai_runtime_and_trust_architecture.md` for cross-family AI-native runtime/trust architecture, `Docs/family_visions/` for reusable family-level vision, and the active external branch planning owner for the Branch Vision Contract Snapshot and implementation proof. Codex must not promote proposed product/design ideas into durable vision owners by inference.
+Vision routing follows this chain: `Docs/nexus_vision.md` for project-wide vision, `Docs/ai_runtime_and_trust_architecture.md` for cross-family AI-native runtime/trust architecture, `Docs/family_visions/` for reusable family-level vision, `Docs/family_feature_visions/` for USER-approved durable feature-category direction inside one family, and the active external branch planning owner for the Branch Vision Contract Snapshot and implementation proof. Family Feature Vision is the durable layer between Family Vision and Branch Vision Snapshot; it must not become backlog identity, active branch state, selected-next truth, PR state, release-window state, implementation approval, or a live operational ledger. Codex must not promote proposed product/design ideas into durable vision owners by inference.
 
 ## Analysis-First Prompt Baseline
 
