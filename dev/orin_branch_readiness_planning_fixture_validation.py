@@ -4093,6 +4093,20 @@ SLC is shorthand for Slice and remains a Slice-level deliverable.
                 + phrase
             )
 
+    branch_planning_alias_failures = _validate_slice_slc_seam_model_text(
+        """
+# Valid SLC Branch-Planning Alias Wording
+
+SLC is a branch-planning alias for Slice-level line items and preserved
+historical Slice IDs, not a seam or separate branch.
+"""
+    )
+    if branch_planning_alias_failures:
+        failures.append(
+            "Valid SLC branch-planning alias fixture unexpectedly failed: "
+            + "; ".join(branch_planning_alias_failures[:5])
+        )
+
     branch_material_alias_failures = _validate_slice_slc_seam_model_text(
         """
 # Valid SLC Branch-Material Alias Wording
