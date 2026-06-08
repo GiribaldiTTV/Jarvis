@@ -121,11 +121,16 @@ def route_word_count(value: str) -> int:
 
 def slice_map_deliverable_count(value: str) -> int:
     entries = re.split(r"(?:\.\s+|;\s+|\n+)", value)
-    return sum(
-        1
-        for entry in entries
-        if re.search(r"\b(?:slc-\d+|slice\s+\d+)\b", entry, flags=re.IGNORECASE)
-    )
+    identifiers: set[str] = set()
+    for entry in entries:
+        match = re.search(
+            r"\b(?:slc-(\d+)|slice\s+(\d+))\b",
+            entry,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            identifiers.add(str(int(match.group(1) or match.group(2))))
+    return len(identifiers)
 
 
 def value_declares_multi_slice(value: str) -> bool:
@@ -135,7 +140,7 @@ def value_declares_multi_slice(value: str) -> bool:
         return False
 
     negation_match = re.search(
-        r"\b(?:no|not|without)\b[^.\n;:]{0,80}\bmulti[- ]slice\b"
+        r"\b(?:no|not|without)\b[^.\n;:]{0,80}\b(?:multi[- ]slice|multiple\s+slices)\b"
         r"|\bnon[- ]multi[- ]slice\b",
         normalized,
     )

@@ -3566,6 +3566,27 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(postfixed_negated_multiple_slices_failures[:5])
         )
 
+    prefixed_negated_multiple_slices_failures = _validate_slice_slc_seam_model_text(
+        """
+# Valid Single-Slice Branch Plan With Prefixed Multiple-Slices Negation
+
+Package Summary: This branch is not multiple slices; the current route owns
+one Slice-level governance validator repair.
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps Slice/SLC terminology distinct from seam routing.
+
+Concrete Deliverable: A single Slice-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+"""
+    )
+    if prefixed_negated_multiple_slices_failures:
+        failures.append(
+            "Valid prefixed multiple-slices negation unexpectedly triggered "
+            "current multi-slice carrier enforcement: "
+            + "; ".join(prefixed_negated_multiple_slices_failures[:5])
+        )
+
     slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"
@@ -3623,6 +3644,27 @@ terminology without creating a multi-slice package carrier.
         failures.append(
             "Invalid mismatched Slice/SLC Slice Map fixture did not reject one "
             "mapped entry written with two label namespaces"
+        )
+
+    duplicate_slice_id_slice_map_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Slice Map: Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy. Slice 2 / SLC-002 implements public "
+            "artifact exclusion validator/helper enforcement. Slice 3 / SLC-003 "
+            "implements packet proof and future-gated boundary preservation.",
+            "Slice Map: Slice 1 implements consent-shell disabled-state "
+            "source-truth and review copy. Slice 1 implements public artifact "
+            "exclusion validator/helper enforcement.",
+        )
+    )
+    if "Multi-slice carrier must map at least two slices" not in "\n".join(
+        duplicate_slice_id_slice_map_failures
+    ):
+        failures.append(
+            "Invalid duplicate Slice ID Slice Map fixture did not reject two "
+            "mapped entries for the same slice"
         )
 
     repeated_generic_slice_map_failures = _validate_slice_slc_seam_model_text(
