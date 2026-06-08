@@ -233,7 +233,7 @@ def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
 
 def same_branch_split_decision_is_positive(value: str) -> bool:
     normalized = normalized_route_value(value)
-    negative_terms = (
+    hard_negative_terms = (
         "same branch is not legal",
         "same branch not legal",
         "same branch is illegal",
@@ -242,7 +242,6 @@ def same_branch_split_decision_is_positive(value: str) -> bool:
         "cannot stay same branch",
         "cannot remain same branch",
         "must split",
-        "split required",
         "required separate branch",
         "separate branch required",
         "different branch required",
@@ -254,9 +253,10 @@ def same_branch_split_decision_is_positive(value: str) -> bool:
         "deciding whether",
         "decide whether",
     )
-    if any(term in normalized for term in negative_terms):
+    if any(term in normalized for term in hard_negative_terms):
         return False
     positive_terms = (
+        "no split required",
         "split not required",
         "same branch remains legal",
         "same branch is legal",
@@ -269,7 +269,11 @@ def same_branch_split_decision_is_positive(value: str) -> bool:
         "same branch carrier",
         "same branch package",
     )
-    return any(term in normalized for term in positive_terms)
+    if any(term in normalized for term in positive_terms):
+        return True
+    if "split required" in normalized:
+        return False
+    return False
 
 
 def separate_branch_split_required_is_positive(value: str) -> bool:
