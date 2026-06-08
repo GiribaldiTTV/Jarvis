@@ -120,9 +120,19 @@ def route_word_count(value: str) -> int:
 
 
 def slice_map_deliverable_count(value: str) -> int:
-    slice_words = re.findall(r"\bslice\b", value, flags=re.IGNORECASE)
-    slc_ids = re.findall(r"\bslc-\d+\b", value, flags=re.IGNORECASE)
-    return len(slice_words) + len(set(slc_id.casefold() for slc_id in slc_ids))
+    count = 0
+    for segment in re.split(r"[.;\n]+", value):
+        if not segment.strip():
+            continue
+        slc_ids = {
+            slc_id.casefold()
+            for slc_id in re.findall(r"\bslc-\d+\b", segment, flags=re.IGNORECASE)
+        }
+        if len(slc_ids) > 1:
+            count += len(slc_ids)
+        elif slc_ids or re.search(r"\bslice\b", segment, flags=re.IGNORECASE):
+            count += 1
+    return count
 
 
 def same_branch_split_decision_is_positive(value: str) -> bool:
