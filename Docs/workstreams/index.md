@@ -21,8 +21,8 @@ Use `Docs/validation_helper_registry.md` for durable root `dev/` helper naming, 
 ## Workstream Record Rules
 
 - workstream docs are the canonical feature-state, branch-local validation/evidence, active-seam, artifact-history, branch-local reuse, and closure records for promoted work
-- a slice is a bounded admitted backlog-completion unit; a seam is the current execution checkpoint inside or between slices
-- under the broad backlog model, a FAM is the long-lived product family, a package is the branch/release unit under one FAM, a slice is the deliverable area inside that package, and a seam is the execution/validation checkpoint
+- a slice is a bounded admitted backlog-completion unit; SLC is the current branch-planning alias for a Slice-level line item or preserved historical slice ID; a seam is the current execution checkpoint inside or between slices
+- under the broad backlog model, a FAM is the long-lived product family, a package is the branch/release unit under one FAM, a slice is the deliverable area inside that package, SLC is branch-planning trace terminology for slice-level deliverables, and a seam is the execution/validation checkpoint
 - PR numbers are merge/review evidence only and must not be used as workstream, package, or backlog identities
 - active implementation workstreams may carry as many slices as needed to complete the backlog item on one branch when phase, scope, risk, and validation authority remain green
 - workstream docs must not encode a one-slice branch cap unless an explicit `Backlog-Split User Approval: APPROVED` or a named bounded stop condition is recorded

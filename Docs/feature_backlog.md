@@ -33,7 +33,7 @@ Use Git, GitHub, approved helpers, or `C:\Nexus Governance State` for live opera
 | Durable package trace, slice trace, proof history, branch lessons, and reusable continuity | `Docs/workstreams/` records or family dossiers |
 | Release sequencing and public milestone posture | `Docs/prebeta_roadmap.md` |
 
-Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.
+Canonical Identity Model: `FAM` = broad long-lived product family; `Package` = bulk branch/release package under one family; `Slice` = traceable deliverable area inside a package; `SLC` = branch-planning alias or historical ID for a Slice-level line item, not a separate identity; `Seam` = execution or validation checkpoint; `PR` = merge/review evidence only; legacy global `FB` = historical trace only.
 
 Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits, or syncs any new backlog family, package, source-truth owner, architecture layer, policy owner, experience layer, runtime subsystem, capability-pack domain, or implementation slice/seam, the governing packet must answer: `Is this a backlog family, family vision, architecture layer, cross-family policy owner, experience layer, runtime subsystem, capability-pack domain, or implementation package/slice/seam?`
 

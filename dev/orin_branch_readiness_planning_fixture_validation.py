@@ -232,6 +232,15 @@ INVALID_IMPLEMENTATION_ROUTE_NEGATED_BEHAVIOR_FIXTURE = (
 INVALID_BR2_ROUTE_BLOCKER_PROOF_ONLY_ROUTE_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_route_blocker_proof_only_route.md"
 )
+INVALID_SLC_SLICE_SEAM_AMBIGUITY_FIXTURE = (
+    FIXTURE_DIR / "invalid_slc_slice_seam_terminology_ambiguity.md"
+)
+VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE = (
+    FIXTURE_DIR / "valid_multi_slice_implementation_carrier.md"
+)
+VALID_REQUIRED_SEPARATE_BRANCH_CASE_FIXTURE = (
+    FIXTURE_DIR / "valid_required_separate_branch_case.md"
+)
 VALID_IMPLEMENTATION_ROUTE_BP2_HOLD_ACTION_GATE_FIXTURE = (
     FIXTURE_DIR / "valid_implementation_route_bp2_hold_action_gate.md"
 )
@@ -370,6 +379,7 @@ EXPECTED_NEGATED_ROUTE_BEHAVIOR_FAILURE_SNIPPET = (
 EXPECTED_BR2_PROOF_ONLY_ROUTE_FAILURE_SNIPPET = (
     "BR2 blocker packet concrete routes cannot be proof/readiness labels only"
 )
+EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET = "SLC / Slice / Seam terminology ambiguity"
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
 
 
@@ -1330,9 +1340,14 @@ def _validate_implementation_bearing_source_truth() -> list[str]:
     source_truth_markers = {
         ROOT / "Docs" / "phase_governance.md": (
             "Implementation-Bearing Branch Standard",
+            "Branch / Slice / SLC / Seam Terminology Model",
             "Selected Implementation Route:",
             "Real Feature Implementation Definition",
             "BR2 Blocker Packet Rule",
+            "Slice Definition:",
+            "SLC Classification:",
+            "Seam Definition:",
+            "Multi-Slice Branch Rule:",
             "Developer lane",
         ),
         ROOT / "Docs" / "branch_plans" / "README.md": (
@@ -1340,11 +1355,15 @@ def _validate_implementation_bearing_source_truth() -> list[str]:
             "Real feature implementation",
             "Infrastructure / Lane Groundwork Blockers:",
             "Infrastructure / Setup Relationship:",
+            "`SLC` is the current branch-planning alias",
+            "Multi-slice branches are legal",
             "Developer lane",
         ),
         ROOT / "Docs" / "validation_helper_registry.md": (
             "Implementation-Bearing Branch Planning Validation Invariant",
             "planning-only lane/setup carrier",
+            "invalid SLC/Slice/Seam terminology ambiguity packet",
+            "valid multi-slice implementation carrier",
             "boundary-control labels",
             "Developer lane",
         ),
@@ -1359,6 +1378,112 @@ def _validate_implementation_bearing_source_truth() -> list[str]:
                 marker in text,
                 f"Implementation-bearing source truth missing {marker!r} in {path}",
             )
+    return failures
+
+
+def _validate_slice_slc_seam_model_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+    ambiguity_terms = (
+        "slc is the seam",
+        "slcs are seams",
+        "slc means seam",
+        "slice is proof",
+        "slice is the proof",
+        "seam is the branch deliverable",
+        "seam is the feature",
+        "seam-only branch",
+        "slc is a separate branch",
+        "each slc becomes a branch",
+        "slc creates the branch",
+    )
+    require(
+        not any(term in normalized for term in ambiguity_terms),
+        (
+            "SLC / Slice / Seam terminology ambiguity: SLC must resolve to "
+            "Slice-level deliverables, and seams must remain execution or "
+            "validation checkpoints"
+        ),
+    )
+
+    if "slc" in normalized:
+        require(
+            "slice-level" in normalized
+            or "alias" in normalized
+            or "historical" in normalized,
+            (
+                "SLC / Slice / Seam terminology ambiguity: SLC use must name "
+                "its Slice-level alias or historical traceability posture"
+            ),
+        )
+    if "multi-slice carrier:" in normalized:
+        required_markers = (
+            "FAM:",
+            "Package:",
+            "Selected Implementation Route:",
+            "Slice Map:",
+            "Shared Owner / Worktree:",
+            "Shared Validation / Proof Path:",
+            "Split Decision:",
+        )
+        for marker in required_markers:
+            require(marker in text, f"Multi-slice carrier missing {marker}")
+        route = governance._extract_marker_value(text, "Selected Implementation Route:")
+        slice_map = governance._extract_marker_value(text, "Slice Map:")
+        validation = governance._extract_marker_value(
+            text, "Shared Validation / Proof Path:"
+        )
+        split_decision = governance._extract_marker_value(text, "Split Decision:")
+        require(
+            governance._planning_word_count(route) >= 8,
+            "Multi-slice carrier must name a concrete implementation route",
+        )
+        require(
+            slice_map.count("Slice") >= 2,
+            "Multi-slice carrier must map at least two slices",
+        )
+        require(
+            governance._planning_word_count(validation) >= 8,
+            "Multi-slice carrier must name a shared validation/proof path",
+        )
+        require(
+            "same branch" in split_decision.casefold()
+            or "split not required" in split_decision.casefold(),
+            "Multi-slice carrier must prove why the grouped branch is legal",
+        )
+    if "required separate branch case:" in normalized:
+        required_markers = (
+            "Required Separate Branch Case:",
+            "Divergence Basis:",
+            "Split Required:",
+            "Blocked Same-Branch Reason:",
+            "Recommended Carrier:",
+        )
+        for marker in required_markers:
+            require(marker in text, f"Required separate branch case missing {marker}")
+        divergence = governance._extract_marker_value(text, "Divergence Basis:")
+        split_required = governance._extract_marker_value(text, "Split Required:")
+        require(
+            any(
+                term in divergence.casefold()
+                for term in (
+                    "different fam",
+                    "different package",
+                    "private",
+                    "provider",
+                    "runtime",
+                    "release timing",
+                    "validation path",
+                    "owner/worktree",
+                )
+            ),
+            "Required separate branch case must name a real divergence basis",
+        )
+        require(
+            "yes" in split_required.casefold()
+            or "required" in split_required.casefold(),
+            "Required separate branch case must explicitly require a split",
+        )
     return failures
 
 
@@ -3360,6 +3485,35 @@ def validate() -> list[str]:
             "Implementation-bearing source truth unexpectedly failed: "
             + "; ".join(implementation_route_source_truth_failures[:5])
         )
+
+    terminology_ambiguity_failures = _validate_slice_slc_seam_model_text(
+        INVALID_SLC_SLICE_SEAM_AMBIGUITY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+        terminology_ambiguity_failures
+    ):
+        failures.append(
+            "Invalid SLC/Slice/Seam terminology fixture did not reject ambiguity"
+        )
+
+    for fixture, label in (
+        (
+            VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE,
+            "multi-slice implementation carrier",
+        ),
+        (
+            VALID_REQUIRED_SEPARATE_BRANCH_CASE_FIXTURE,
+            "required separate-branch case",
+        ),
+    ):
+        terminology_failures = _validate_slice_slc_seam_model_text(
+            fixture.read_text(encoding="utf-8")
+        )
+        if terminology_failures:
+            failures.append(
+                f"Valid {label} fixture unexpectedly failed: "
+                + "; ".join(terminology_failures[:5])
+            )
 
     planning_only_route_failures = _validate_implementation_bearing_route_text(
         INVALID_IMPLEMENTATION_ROUTE_PLANNING_ONLY_FIXTURE.read_text(encoding="utf-8")
