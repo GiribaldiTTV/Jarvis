@@ -3528,6 +3528,26 @@ def validate() -> list[str]:
             "undecided split wording"
         )
 
+    blocked_same_branch_required_split_failures = _validate_slice_slc_seam_model_text(
+        VALID_REQUIRED_SEPARATE_BRANCH_CASE_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Split Required: Yes. The private Owner lane memory route must wait "
+            "for a separate USER-approved carrier because it crosses private "
+            "storage, provider/runtime/cache/memory behavior, and owner/worktree "
+            "boundaries.",
+            "Split Required: Yes. Same branch is blocked; separate branch required "
+            "because the route crosses private storage, provider/runtime/cache/memory "
+            "behavior, and owner/worktree boundaries.",
+        )
+    )
+    if blocked_same_branch_required_split_failures:
+        failures.append(
+            "Valid blocked-same-branch required-separate-branch fixture "
+            "unexpectedly failed: "
+            + "; ".join(blocked_same_branch_required_split_failures[:5])
+        )
+
     planning_only_route_failures = _validate_implementation_bearing_route_text(
         INVALID_IMPLEMENTATION_ROUTE_PLANNING_ONLY_FIXTURE.read_text(encoding="utf-8")
     )
