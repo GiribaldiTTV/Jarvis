@@ -245,6 +245,19 @@ def value_declares_multi_slice(value: str) -> bool:
     if future_scope_match and future_scope_match.start() <= positive_match.start():
         return False
 
+    postfixed_future_scope_match = re.search(
+        r"\b(?:multi[- ]slice|multiple\s+slices)\b[^.\n;:]{0,140}"
+        r"\b(?:future[- ]gated|user[- ]gated|deferred|later)\b[^.\n;:]{0,120}"
+        r"\b(?:outside|out\s+of\s+scope|not\s+part\s+of|excluded\s+from)\b"
+        r"[^.\n;:]{0,80}\b(?:this|current)\s+branch\b",
+        normalized,
+    )
+    if (
+        postfixed_future_scope_match
+        and postfixed_future_scope_match.start() == positive_match.start()
+    ):
+        return False
+
     policy_non_carrier_match = re.search(
         r"\b(?:validat(?:e|es|ing)|validator|governance|policy|prevent(?:s|ing)?|"
         r"check(?:s|ing)?)\b[^.\n;:]{0,120}\b(?:multi[- ]slice|multiple\s+slices)\b"
@@ -295,6 +308,12 @@ def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
 
 def same_branch_split_decision_is_positive(value: str) -> bool:
     normalized = normalized_route_value(value)
+    if re.search(
+        r"\bno\s+separate\s+branch\s+required\b[^.\n]{0,160}"
+        r"\bsame\s+branch\s+(?:remains|is|can\s+remain|may\s+remain)\s+legal\b",
+        normalized,
+    ):
+        return True
     hard_negative_terms = (
         "same branch is not legal",
         "same branch not legal",

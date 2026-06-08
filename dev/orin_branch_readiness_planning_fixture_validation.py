@@ -3571,6 +3571,29 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(package_summary_future_gated_multi_slice_failures[:5])
         )
 
+    package_summary_postfixed_future_gated_multi_slice_failures = (
+        _validate_slice_slc_seam_model_text(
+            """
+# Valid Package Summary With Postfixed Future-Gated Multi-Slice Boundary
+
+Package Summary: Multi-slice package expansion remains future-gated and outside
+this current branch plan.
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps the current branch scoped to one Slice-level deliverable.
+
+Concrete Deliverable: A single Slice-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+"""
+        )
+    )
+    if package_summary_postfixed_future_gated_multi_slice_failures:
+        failures.append(
+            "Valid package-summary postfixed future-gated multi-slice boundary "
+            "unexpectedly triggered current multi-slice carrier enforcement: "
+            + "; ".join(package_summary_postfixed_future_gated_multi_slice_failures[:5])
+        )
+
     explanatory_negative_multi_slice_marker_failures = (
         _validate_slice_slc_seam_model_text(
             """
@@ -4192,6 +4215,27 @@ line item, not a seam or separate branch.
         failures.append(
             "Valid no-split-required same-branch multi-slice fixture unexpectedly failed: "
             + "; ".join(no_split_required_same_branch_failures[:5])
+        )
+
+    no_separate_branch_required_same_branch_failures = (
+        _validate_slice_slc_seam_model_text(
+            VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+                encoding="utf-8"
+            ).replace(
+                "Split Decision: Split not required; same branch remains legal because "
+                "the slices share one FAM, one package, one selected implementation "
+                "route, one owner/worktree, aligned PR timing, and one validation/proof path.",
+                "Split Decision: No separate branch required; same branch remains legal "
+                "because the slices share one FAM, one package, one selected "
+                "implementation route, one owner/worktree, aligned PR timing, and "
+                "one validation/proof path.",
+            )
+        )
+    )
+    if no_separate_branch_required_same_branch_failures:
+        failures.append(
+            "Valid no-separate-branch-required same-branch multi-slice fixture unexpectedly failed: "
+            + "; ".join(no_separate_branch_required_same_branch_failures[:5])
         )
 
     negated_split_required_failures = _validate_slice_slc_seam_model_text(
