@@ -3760,7 +3760,7 @@ def _write_user_branch_plan_review(
             "Which private root, private remote, GitHub Desktop, backup/import, provider/cache/memory, and public-to-private promotion decisions must BP2 prove?",
             "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
         ]
-    if is_fam007_owner_ai_foundation:
+    if is_fam007_owner_ai_foundation and not bp2_branch_plan_packet:
         plain_english_summary = (
             "This BP2 support file is preview/context only because BP1 is still pending. "
             "If USER accepts or explicitly waives BP1, BP2 should plan the public-safe "
@@ -3862,6 +3862,188 @@ def _write_user_branch_plan_review(
             "If BP1 is accepted or waived, should BP2 plan all six gate slices together or narrow the first engineering package?",
             "Which protected artifact classes, consent states, cache/memory boundaries, install-intent gates, lane-readiness checks, and Owner AI schema fields must BP2 prove?",
             "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
+        ]
+    if is_fam007_owner_ai_foundation and bp2_branch_plan_packet:
+        accepted_user_response = (
+            "BP1 accepted - USER accepted the repaired FAM-007 Owner AI Operational "
+            "Foundation Gates Branch Vision for BP2 generation. BP2 may plan the "
+            "public-safe engineering route for artifact exclusion controls, "
+            "provider/runtime disabled-state consent shells, memory/cache consent "
+            "gates, capability-pack install-intent gates, Developer/Owner lane "
+            "readiness gates, and Owner AI memory/agent foundation gate schemas."
+        )
+        user_response_text = (
+            "Status: Pending USER Response - this BP2 engineering plan is ready for "
+            "USER to accept, revise, waive, hold, reject, or route back. BP3, "
+            "Workstream implementation, private setup, provider/model/runtime/"
+            "cache/memory activation, real Owner memory, real agents, PR, merge, "
+            "release, cleanup, sibling-worktree mutation, AI Product Contract "
+            "import, Private Dev ORIN import, and v1.8.0 work remain pending."
+        )
+        codex_response_digest = (
+            "Codex digested the accepted BP1 vision into a BP2 engineering plan. "
+            "The plan keeps all six Owner AI foundation gate slices in one "
+            "public-safe package, names concrete control behavior for each slice, "
+            "and leaves private/runtime/provider/cache/memory behavior future-gated."
+        )
+        workstream_entry_result = (
+            "BP3 not started - Workstream Entry / Orchestration Validation remains "
+            "pending until USER accepts or explicitly waives this BP2 plan."
+        )
+        contract_status = (
+            "Pending USER Response - USER must accept, revise, reject, hold, route "
+            "back, or explicitly waive this BP2 engineering plan before BP3."
+        )
+        contract_version = (
+            "v2 - accepted repaired BP1 vision digested into FAM-007 Owner AI "
+            "Operational Foundation Gates BP2 engineering plan."
+        )
+        plain_english_summary = (
+            "This BP2 Branch Plan Review explains how Codex would build the "
+            "accepted Owner AI Operational Foundation Gates vision without starting "
+            "Workstream implementation. The plan is public-safe: it maps six gate "
+            "slices to concrete controls, likely source surfaces, validators, proof "
+            "requirements, rollback expectations, H1/LV/UTS expectations, and "
+            "future USER gates."
+        )
+        end_state_vision = (
+            "When BP2 is accepted or waived, USER should understand the engineering "
+            "route for protected artifact exclusion, disabled provider/runtime "
+            "states, cache-versus-memory consent, capability install intent, "
+            "Developer/Owner lane readiness, and Owner AI memory/agent schemas. "
+            "No private setup, provider/model execution, runtime cache activation, "
+            "durable memory, or real agent behavior is approved by this packet."
+        )
+        what_user_sees = (
+            "USER sees one primary BP2 decision file under the local USER hub. It "
+            "names the implementation package, Slice/SLC plan, seam checkpoints, "
+            "affected surfaces, proof lanes, risks, rollback plan, and exact next "
+            "decision options. Supporting BP1 context appears as review aid only."
+        )
+        why_nexus = (
+            "This fits Nexus because Owner AI readiness must be explicit, "
+            "inspectable, local-first, and consent-aware before sensitive capability "
+            "exists. The branch can implement or enforce public-safe gates later "
+            "without exposing private artifacts or activating provider/runtime/"
+            "cache/memory behavior."
+        )
+        walkthrough = [
+            "Open USER Review/USER_BRANCH_PLAN_REVIEW.md first and review the six-slice engineering plan.",
+            "Confirm that every slice names concrete control behavior rather than proof-only or boundary-label work.",
+            "Check the public/private leakage controls, disabled-state/no-execution rules, H1 expectations, LV/UTS expectations, rollback plan, and route-back limits.",
+            "Choose accept, revise, waive, hold, reject, or route back before BP3.",
+        ]
+        surface_map = [
+            "Primary USER decision file: USER Review/USER_BRANCH_PLAN_REVIEW.md.",
+            "Supporting accepted BP1 context: Review Aids/USER_BRANCH_VISION_REVIEW.md.",
+            "Branch record: durable FAM-007 route receipt and external-state pointers.",
+            "External branch plan/state: active BP2 posture, accepted BP1 trace, packet pointer, and next-gate routing.",
+            "Reusable helpers and validators: packet generation, packet validation, public leak-prevention, provider-state validation, source-owner validation, branch governance validation, and branch-planning fixture validation.",
+        ]
+        implementation_options = [
+            "Option A - accept the grouped six-slice BP2 plan as written. Pros: one coherent trust-boundary package; Cons: broader BP3 and Workstream; Risk: low when future-gated boundaries stay explicit.",
+            "Option B - accept with specific slice or proof changes. Pros: tunes the plan before BP3; Cons: requires packet/source-truth refresh; Risk: low.",
+            "Option C - route back to BP1 if the plan changes the accepted vision. Pros: safest for vision drift; Cons: delays BP3; Risk: low.",
+            "Option D - split the package before BP3. Pros: smaller later implementation packages; Cons: higher drift risk across coupled gates; Risk: medium.",
+            "Option E - waive remaining BP2 questions and proceed to BP3. Pros: faster; Cons: weaker planning proof; Risk: medium for trust-boundary work.",
+            "Option F - hold for more examples, risks, or proof models. Pros: improves confidence; Cons: delays implementation; Risk: low.",
+        ]
+        recommended_direction = (
+            "Codex recommends accepting the grouped BP2 plan if USER agrees the six "
+            "gates share one FAM, one trust-boundary route, one worktree, aligned "
+            "timing, and one validation path. BP3 should then verify whole-package "
+            "orchestration before any Workstream implementation approval is requested."
+        )
+        current_scope = [
+            "BP2 engineering planning for the accepted Owner AI Operational Foundation Gates vision.",
+            "Public-safe control, schema, helper, validator, fixture, packet, proof, H1, LV/UTS, and rollback planning.",
+            "No Workstream implementation and no private/runtime/provider/cache/memory action.",
+        ]
+        future_scope = [
+            "BP3 Workstream Entry / Orchestration Validation remains pending USER acceptance or waiver of BP2.",
+            "Workstream implementation remains pending BP1/BP2 acceptance or waiver, BP3 green or waiver, and separate bounded USER implementation approval.",
+            "Private setup, provider/model/runtime/cache/memory activation, real Owner memory, real agents, PR, merge, release, cleanup, issue mutation, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain pending USER decisions.",
+        ]
+        slc_package_plan = [
+            "SLC-001 - protected artifact exclusion controls: protected-class manifest, public bundle/repo exclusion checks, and negative leak fixtures.",
+            "SLC-002 - provider/runtime disabled-state consent shell: disabled-state schema, USER-facing disabled copy, and no-execution proof.",
+            "SLC-003 - memory-vs-cache consent gates: separate cache and memory markers, blocked persistence states, and validator proof.",
+            "SLC-004 - capability-pack install-intent gates: install-intent state, pending-install blocked state, and no-download/no-setup proof.",
+            "SLC-005 - Developer/Owner lane readiness gates: lane identity model, private setup blocked state, and readiness proof.",
+            "SLC-006 - Owner AI memory/agent foundation gate schemas: prerequisite schema, blocked-state descriptions, and no-real-memory/no-real-agent proof.",
+        ]
+        likely_files_lines = [
+            "Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md for durable branch receipt updates only if BP2 acceptance later needs folded receipt context.",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_plan.md for active BP2 posture, accepted BP1 trace, Slice/SLC plan, and next-gate routing.",
+            "C:\\Nexus Governance State\\branches\\feature_fam_007_owner_ai_operational_foundation_gates\\branch_state.md for external branch posture and packet pointer.",
+            "dev/orin_user_review_bundle.py if packet generation or stale-output validation changes.",
+            "dev/orin_branch_readiness_planning_fixture_validation.py and fixtures if deterministic BP2/BP3 false-green coverage changes.",
+            "dev/orin_public_leak_prevention_validation.py for protected artifact and private path leakage proof if later implementation touches leak-prevention checks.",
+            "dev/orin_ai_provider_state_validation.py for provider/runtime/cache/memory disabled-state proof if later implementation touches provider state.",
+            "Docs/ai_runtime_and_trust_architecture.md or FAM-007 family vision files only if USER accepts reusable policy changes rather than branch-local planning detail.",
+        ]
+        implementation_constraints = [
+            "BP2 may plan public-safe source-truth, helper, fixture, validator, packet, H1, LV/UTS, rollback, and proof surfaces.",
+            "BP2 may not implement Workstream changes or execute the private/runtime actions it describes as future gates.",
+            "BP2 may not create private repos, private roots, private remotes, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory behavior, real Owner memory, or real agents.",
+            "Provider-visible data remains none; sentToProvider=false; canAcceptPrompts=false; prompt/provider/model execution remains disabled; downloads/network/external calls remain blocked; runtime cache behavior remains inactive; memory/learning/personalization remains inactive.",
+            "Any USER change that alters edition boundaries, protected-asset policy, provider/cache/memory policy, capability-pack architecture, or reusable lane identity must fold into the proper durable source-truth owner before BP3 relies on it.",
+        ]
+        rejected_deferred = [
+            "Deferred: BP3, Workstream implementation, and actual private Developer or Owner setup.",
+            "Deferred: private repo/root/remote creation, GitHub Desktop private binding, backup/import execution, model downloads, provider setup, and capability-pack installation execution.",
+            "Deferred: provider SDK/model execution, runtime provider execution, runtime cache behavior, memory/learning/indexing/retrieval/personalization, real Owner agents, voice/Core sync, shortcut/installer work, PR, merge, release, cleanup, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work.",
+        ]
+        source_truth_impact = [
+            "External branch plan records BP1 accepted and BP2 pending review as active planning posture.",
+            "Branch record remains durable authority/history and should not become a mutable live ledger.",
+            "FAM-007 family vision, AI edition plan, and AI runtime/trust architecture remain reusable policy owners; accepted reusable changes route there only if USER changes family-level policy.",
+            "Review packet is a temporary USER review aid; accepted BP2 outcomes later fold into durable repo owners or approved external operational state.",
+        ]
+        contract_change_log = [
+            "v1 - BP1 generated for Owner AI Operational Foundation Gates.",
+            "v2 - USER accepted repaired BP1 and BP2 generated as engineering-plan-first review.",
+            "v3 - post-rebaseline BP2 generator repaired to avoid BP1-pending preview wording in BP2 packets.",
+        ]
+        completion_checklist = [
+            "Accepted BP1 trace is present.",
+            "BP2 implementation package summary, branch scope size test, Slice/SLC plan, affected surfaces, likely files, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, future gates, and exact next decision text are present.",
+            "Each slice has a concrete implemented-control target rather than only proof, readiness, or boundary-label language.",
+            "USER-facing files avoid live operational ledgers, raw commit values, upload byte-proof values, mutable validator run state, live pull-request posture, and command-wall boundary wording.",
+            "BP3 and Workstream implementation remain blocked until BP2 is accepted or explicitly waived and later gates are green and approved.",
+        ]
+        user_decisions = [
+            "Does USER accept the FAM-007 Owner AI Operational Foundation Gates BP2 engineering plan as written?",
+            "Does any slice, proof lane, affected surface, or rollback expectation need to be added, removed, or narrowed before BP3?",
+            "Are the named proof lanes sufficient for BP3: provider-state, public leak-prevention, external-state, branch-readiness planning fixtures, USER review packet validation, source-owner marker validation, and source-truth owner checks?",
+            "Does USER confirm all private/runtime/provider/cache/memory/backup-import-execution/PR/merge/release gates remain pending?",
+        ]
+        design_ballot = [
+            "Accept BP2 as written and authorize BP3 Workstream Entry / Orchestration Validation only.",
+            "Accept BP2 with listed changes, then regenerate the BP2 packet for confirmation.",
+            "Route back to BP1 because the plan changes the accepted vision.",
+            "Explicitly waive remaining BP2 questions and authorize BP3 only.",
+            "Reject this branch plan and request a narrower or different carrier.",
+            "Hold for more examples, risks, or proof models.",
+        ]
+        response_structure = [
+            "Decision: accept, revise, route back to BP1, waive, reject, or hold.",
+            "Slice, proof-lane, or surface changes requested.",
+            "Must-have proof requirements.",
+            "Future-gated boundary controls.",
+            "Questions before BP3.",
+            "General response.",
+        ]
+        digest_structure = [
+            "USER BP2 disposition.",
+            "Accepted BP2 line items.",
+            "Revised BP2 line items.",
+            "Rejected or deferred ideas.",
+            "Implementation constraints created from USER response.",
+            "Source-truth updates required.",
+            "Review packet updates required.",
+            "Whether BP3 may begin.",
+            "Next USER decision needed.",
         ]
     if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2:
         plain_english_summary = (
