@@ -154,25 +154,29 @@ def separate_branch_split_required_is_positive(value: str) -> bool:
         "keep same branch",
         "remain same branch",
         "split optional",
+        "whether to split",
+        "deciding whether",
+        "decide whether",
+        "pending decision",
     )
     if any(term in normalized for term in negative_terms):
         return False
-    positive_terms = (
-        "yes",
-        "required",
+    explicit_split_terms = (
         "split required",
         "separate branch required",
         "required separate branch",
+        "separate carrier",
+        "separate user-approved carrier",
+        "different branch",
+        "different carrier",
+        "must split",
+        "must wait for a separate",
     )
-    return any(
-        normalized == term
-        or normalized.startswith(f"{term}.")
-        or normalized.startswith(f"{term};")
-        or normalized.startswith(f"{term}:")
-        or normalized.startswith(f"{term} ")
-        or term in normalized
-        for term in positive_terms
-    )
+    if any(term in normalized for term in explicit_split_terms):
+        return True
+    if normalized.startswith(("yes.", "yes;", "yes:", "yes ")):
+        return any(term in normalized for term in explicit_split_terms)
+    return normalized == "yes"
 
 
 def validate_implementation_route_values(plan_text: str) -> list[str]:
