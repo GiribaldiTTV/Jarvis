@@ -136,10 +136,28 @@ def same_branch_split_decision_is_positive(value: str) -> bool:
         "different branch required",
         "same-branch blocked",
         "blocked same branch",
+        "whether same branch",
+        "same branch can remain",
+        "same branch may remain",
+        "pending decision",
+        "before deciding",
+        "deciding whether",
+        "decide whether",
     )
     if any(term in normalized for term in negative_terms):
         return False
-    return "split not required" in normalized or "same branch" in normalized
+    positive_terms = (
+        "split not required",
+        "same branch remains legal",
+        "same branch is legal",
+        "same branch legal",
+        "same branch remains valid",
+        "same branch remains the legal",
+        "same branch remains the approved",
+        "same branch carrier",
+        "same branch package",
+    )
+    return any(term in normalized for term in positive_terms)
 
 
 def separate_branch_split_required_is_positive(value: str) -> bool:
