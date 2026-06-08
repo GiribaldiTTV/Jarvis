@@ -150,6 +150,20 @@ def slice_map_deliverable_count(value: str) -> int:
     return len(identifiers)
 
 
+def slice_map_mismatched_alias_pairs(value: str) -> list[str]:
+    pair_pattern = re.compile(
+        r"\b(?:slice\s+(\d+)\s*/\s*slc-(\d+)|slc-(\d+)\s*/\s*slice\s+(\d+))\b",
+        flags=re.IGNORECASE,
+    )
+    mismatches: list[str] = []
+    for pair in pair_pattern.finditer(value):
+        left = pair.group(1) or pair.group(3)
+        right = pair.group(2) or pair.group(4)
+        if int(left) != int(right):
+            mismatches.append(pair.group(0))
+    return mismatches
+
+
 def value_declares_multi_slice(value: str) -> bool:
     normalized = normalized_route_value(value)
     positive_match = re.search(r"\bmulti[- ]slice\b|\bmultiple\s+slices\b", normalized)
@@ -661,6 +675,10 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
         split_decision = markdown_field_value(plan_text, "Split Decision") or ""
         if route_word_count(route) < 8:
             issues.append("Multi-slice carrier must name a concrete implementation route")
+        if slice_map_mismatched_alias_pairs(slice_map):
+            issues.append(
+                "Multi-slice carrier Slice Map contains mismatched Slice/SLC alias pair"
+            )
         if slice_map_deliverable_count(slice_map) < 2:
             issues.append("Multi-slice carrier must map at least two slices")
         if route_word_count(validation) < 8:
