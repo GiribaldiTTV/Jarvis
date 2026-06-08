@@ -3693,6 +3693,36 @@ def validate() -> list[str]:
             "- USER Action Gate: USER approves this implementation-bearing "
             "validation route before BP1 proceeds.\n"
             "- Route Disposition: PROCEED\n"
+            "- Retarget / Rename Recommendation: None\n\n"
+            "SLC is shorthand for Slice and remains a Slice-level deliverable, "
+            "not a seam or separate branch.\n",
+            encoding="utf-8",
+        )
+        external_shorthand_failures = (
+            external_state.validate_active_branch_plan_posture(temp_state_root)
+        )
+        if external_shorthand_failures:
+            failures.append(
+                "External-state validator shorthand-for-Slice fixture unexpectedly failed: "
+                + "; ".join(external_shorthand_failures[:5])
+            )
+
+        temp_plan.write_text(
+            "# Fixture Active Branch Plan\n\n"
+            "- Selected Implementation Route: Implement source-truth validator "
+            "control for security trust-boundary enforcement behavior\n"
+            "- Implementation Route Class: governance/source-truth validator "
+            "implementation\n"
+            "- Concrete Deliverable: Validator enforcement behavior blocks public "
+            "provider execution when required consent markers are missing.\n"
+            "- Implementation Output: Workstream implements validator behavior "
+            "that rejects unsafe public trust-boundary state transitions before "
+            "BP1.\n"
+            "- Infrastructure / Setup Relationship: Execution-enabling for the "
+            "selected implementation route and exact USER action gate.\n"
+            "- USER Action Gate: USER approves this implementation-bearing "
+            "validation route before BP1 proceeds.\n"
+            "- Route Disposition: PROCEED\n"
             "- Retarget / Rename Recommendation: None\n",
             encoding="utf-8",
         )

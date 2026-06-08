@@ -413,14 +413,25 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
             "validation checkpoints"
         )
 
-    if "slc" in normalized and not (
-        "slice-level" in normalized
-        or "alias" in normalized
-        or "historical" in normalized
+    slc_slice_alias_terms = (
+        "slice-level",
+        "alias",
+        "historical",
+        "short form",
+        "short-form",
+        "shorthand",
+        "abbreviation",
+        "slc is slice",
+        "slc means slice",
+        "slc/slice",
+        "slice/slc",
+    )
+    if "slc" in normalized and not any(
+        term in normalized for term in slc_slice_alias_terms
     ):
         issues.append(
             "SLC / Slice / Seam terminology ambiguity: SLC use must name "
-            "its Slice-level alias or historical traceability posture"
+            "its Slice-level alias, shorthand, or historical traceability posture"
         )
 
     if "multi-slice carrier:" in normalized:
