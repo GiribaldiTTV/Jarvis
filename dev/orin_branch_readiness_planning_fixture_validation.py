@@ -3413,6 +3413,25 @@ def validate() -> list[str]:
                 + "; ".join(terminology_failures[:5])
             )
 
+    slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Slice Map: Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy. Slice 2 / SLC-002 implements public "
+            "artifact exclusion validator/helper enforcement. Slice 3 / SLC-003 "
+            "implements packet proof and future-gated boundary preservation.",
+            "Slice Map: SLC-001 implements consent-shell disabled-state source-truth "
+            "and review copy. slc-002 implements public artifact exclusion "
+            "validator/helper enforcement.",
+        )
+    )
+    if slc_id_slice_map_failures:
+        failures.append(
+            "Valid SLC-ID Slice Map fixture unexpectedly failed: "
+            + "; ".join(slc_id_slice_map_failures[:5])
+        )
+
     negated_same_branch_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"

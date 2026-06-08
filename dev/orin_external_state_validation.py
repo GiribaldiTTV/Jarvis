@@ -119,6 +119,12 @@ def route_word_count(value: str) -> int:
     return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9_/-]*", value))
 
 
+def slice_map_deliverable_count(value: str) -> int:
+    slice_words = re.findall(r"\bslice\b", value, flags=re.IGNORECASE)
+    slc_ids = re.findall(r"\bslc-\d+\b", value, flags=re.IGNORECASE)
+    return len(slice_words) + len(set(slc_id.casefold() for slc_id in slc_ids))
+
+
 def same_branch_split_decision_is_positive(value: str) -> bool:
     normalized = normalized_route_value(value)
     negative_terms = (
@@ -533,7 +539,7 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
         split_decision = markdown_field_value(plan_text, "Split Decision") or ""
         if route_word_count(route) < 8:
             issues.append("Multi-slice carrier must name a concrete implementation route")
-        if slice_map.count("Slice") < 2:
+        if slice_map_deliverable_count(slice_map) < 2:
             issues.append("Multi-slice carrier must map at least two slices")
         if route_word_count(validation) < 8:
             issues.append(
