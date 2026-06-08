@@ -8344,17 +8344,19 @@ def _external_branch_state_record_for_branch(
     if not state_path.exists():
         return "", ""
     state_text = _read_text(state_path)
-    state_branch = _extract_marker_value(state_text, "Branch")
+    # External state files contain overlapping labels such as
+    # `Branch Planning Packet ZIP`; identity reads must be exact.
+    state_branch = _extract_exact_marker_value(state_text, "Branch")
     if state_branch != branch_name:
         return "", ""
-    state_worktree = _extract_marker_value(state_text, "Worktree")
+    state_worktree = _extract_exact_marker_value(state_text, "Worktree")
     if (
         actual_root
         and state_worktree
         and _normalized_local_path(state_worktree) != _normalized_local_path(actual_root)
     ):
         return "", ""
-    record_pointer = _extract_marker_value(state_text, "Repo Branch Record Pointer")
+    record_pointer = _extract_exact_marker_value(state_text, "Repo Branch Record Pointer")
     if not record_pointer:
         return "", ""
     record_path = ROOT_DIR / Path(record_pointer)
@@ -20449,6 +20451,13 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "- Worktree: `C:\\Nexus Worktrees\\FAM-007`\n"
         "- Worktree Receipt: `C:\\Nexus Worktrees\\Historical-FAM-007`\n"
     )
+    external_state_identity = (
+        "Branch: `feature/fam-007-owner-ai-operational-foundation-gates`\n"
+        "Branch Planning Packet ZIP: `C:\\Nexus USER\\FAM-007-20260608-164406.zip`\n"
+        "Worktree: `C:\\Nexus Worktrees\\FAM-007`\n"
+        "Worktree State: `C:\\Nexus Governance State\\worktrees\\FAM-007\\worktree_state.md`\n"
+        "Repo Branch Record Pointer: `Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md`\n"
+    )
     require(
         bool(fixture_text),
         f"{fixture}: missing historical worktree receipt regression fixture",
@@ -20499,6 +20508,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _extract_exact_marker_value(active_and_receipt_identity, "Worktree Receipt")
         == "C:\\Nexus Worktrees\\Historical-FAM-007",
         "Assigned Worktree Confinement exact-marker fixture did not parse `Worktree Receipt:`",
+    )
+    require(
+        _extract_exact_marker_value(external_state_identity, "Branch")
+        == "feature/fam-007-owner-ai-operational-foundation-gates",
+        "Assigned Worktree Confinement external-state fixture must not parse `Branch Planning Packet ZIP:` as `Branch:`",
+    )
+    require(
+        _extract_exact_marker_value(external_state_identity, "Worktree")
+        == "C:\\Nexus Worktrees\\FAM-007",
+        "Assigned Worktree Confinement external-state fixture must not parse `Worktree State:` as `Worktree:`",
     )
 
 
