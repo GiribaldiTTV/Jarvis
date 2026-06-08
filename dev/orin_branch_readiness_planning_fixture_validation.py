@@ -3421,7 +3421,8 @@ def validate() -> list[str]:
             "Multi-Slice Carrier: FAM-007 provider consent shell and artifact "
             "exclusion control.",
             "Package Summary: This is a multi-slice FAM-007 provider consent "
-            "shell and artifact exclusion control.",
+            "shell and artifact exclusion control without future multi-slice "
+            "scope creep.",
         )
         .replace(
             "Shared Owner / Worktree: One FAM-007 branch/worktree owns all "

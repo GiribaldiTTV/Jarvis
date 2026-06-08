@@ -133,13 +133,18 @@ def slice_map_deliverable_count(value: str) -> int:
 
 def value_declares_multi_slice(value: str) -> bool:
     normalized = normalized_route_value(value)
-    if re.search(
+    positive_match = re.search(r"\bmulti[- ]slice\b|\bmultiple\s+slices\b", normalized)
+    if not positive_match:
+        return False
+
+    negation_match = re.search(
         r"\b(?:no|not|without)\b[^.\n;:]{0,80}\bmulti[- ]slice\b"
         r"|\bnon[- ]multi[- ]slice\b",
         normalized,
-    ):
+    )
+    if negation_match and negation_match.start() < positive_match.start():
         return False
-    return bool(re.search(r"\bmulti[- ]slice\b|\bmultiple\s+slices\b", normalized))
+    return True
 
 
 def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
