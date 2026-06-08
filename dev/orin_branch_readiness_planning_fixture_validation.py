@@ -3547,6 +3547,28 @@ terminology without creating a multi-slice package carrier.
             + "; ".join(package_summary_future_gated_multi_slice_failures[:5])
         )
 
+    explanatory_negative_multi_slice_marker_failures = (
+        _validate_slice_slc_seam_model_text(
+            """
+# Valid Explanatory Negative Multi-Slice Marker
+
+Multi-Slice Carrier: Not applicable; future multi-slice expansion remains USER-gated.
+
+Selected Implementation Route: One branch-local governance validation repair
+that keeps the current branch scoped to one Slice-level deliverable.
+
+Concrete Deliverable: A single Slice-level validator proof for branch planning
+terminology without creating a multi-slice package carrier.
+"""
+        )
+    )
+    if explanatory_negative_multi_slice_marker_failures:
+        failures.append(
+            "Valid explanatory negative multi-slice marker unexpectedly triggered "
+            "current multi-slice carrier enforcement: "
+            + "; ".join(explanatory_negative_multi_slice_marker_failures[:5])
+        )
+
     route_policy_multi_slice_reference_failures = _validate_slice_slc_seam_model_text(
         """
 # Valid Single-Slice Governance Repair That Mentions Multi-Slice Policy
@@ -3671,6 +3693,29 @@ terminology without creating a multi-slice package carrier.
         failures.append(
             "Valid SLC-ID Slice Map fixture unexpectedly failed: "
             + "; ".join(slc_id_slice_map_failures[:5])
+        )
+
+    multiline_slice_map_failures = _validate_slice_slc_seam_model_text(
+        VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "Slice Map: Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy. Slice 2 / SLC-002 implements public "
+            "artifact exclusion validator/helper enforcement. Slice 3 / SLC-003 "
+            "implements packet proof and future-gated boundary preservation.",
+            "Slice Map:\n"
+            "- Slice 1 / SLC-001 implements consent-shell disabled-state "
+            "source-truth and review copy.\n"
+            "- Slice 2 / SLC-002 implements public artifact exclusion "
+            "validator/helper enforcement.\n"
+            "- Slice 3 / SLC-003 implements packet proof and future-gated "
+            "boundary preservation.",
+        )
+    )
+    if multiline_slice_map_failures:
+        failures.append(
+            "Valid multiline Slice Map fixture unexpectedly failed: "
+            + "; ".join(multiline_slice_map_failures[:5])
         )
 
     same_sentence_slc_id_slice_map_failures = _validate_slice_slc_seam_model_text(

@@ -90,6 +90,38 @@ def markdown_field_value(text: str, field: str) -> str | None:
     return value
 
 
+def markdown_field_value_with_continuation(text: str, field: str) -> str | None:
+    marker_pattern = re.compile(
+        rf"^\s*(?:-\s*)?{re.escape(field)}:\s*(.*?)\s*$",
+        re.IGNORECASE,
+    )
+    any_field_pattern = re.compile(r"^\s*(?:-\s*)?[A-Za-z][A-Za-z0-9 /_-]*:\s*")
+    lines = text.splitlines()
+    for index, line in enumerate(lines):
+        match = marker_pattern.match(line)
+        if not match:
+            continue
+        values: list[str] = []
+        first_value = match.group(1).strip()
+        if first_value:
+            values.append(first_value)
+        for next_line in lines[index + 1 :]:
+            stripped = next_line.strip()
+            if not stripped:
+                break
+            if any_field_pattern.match(next_line):
+                break
+            if re.match(r"^(?:[-*]\s*)?(?:slice\s+\d+|slc-\d+)\b", stripped, re.IGNORECASE):
+                values.append(stripped)
+                continue
+            if next_line[:1].isspace() and values:
+                values.append(stripped)
+                continue
+            break
+        return " ".join(values).strip()
+    return None
+
+
 def resolve_markdown_path(value: str | None, root: Path) -> Path | None:
     if not value:
         return None
@@ -212,6 +244,7 @@ def multi_slice_marker_value_is_negative(value: str) -> bool:
     normalized = normalized_route_value(value)
     negative_patterns = (
         r"^(?:no|false|n/a|none|not applicable|not required)\.?$",
+        r"^(?:not applicable|not required|n/a|none)\b.*\b(?:future|deferred|user[- ]gated|outside|out\s+of\s+scope)\b",
         r"\bnot\s+a?\s*multi[- ]slice\s+carrier\b",
         r"\bnot\s+multi[- ]slice\b",
         r"\bnon[- ]multi[- ]slice\b",
@@ -227,7 +260,7 @@ def plan_declares_multi_slice_carrier(plan_text: str) -> bool:
     if carrier_value:
         return not multi_slice_marker_value_is_negative(carrier_value)
 
-    slice_map = markdown_field_value(plan_text, "Slice Map")
+    slice_map = markdown_field_value_with_continuation(plan_text, "Slice Map")
     if slice_map and slice_map_deliverable_count(slice_map) >= 2:
         return True
 
@@ -666,10 +699,15 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
             "Split Decision",
         )
         for marker in required_markers:
-            if not markdown_field_value(plan_text, marker):
+            marker_value = (
+                markdown_field_value_with_continuation(plan_text, marker)
+                if marker == "Slice Map"
+                else markdown_field_value(plan_text, marker)
+            )
+            if not marker_value:
                 issues.append(f"Multi-slice carrier missing {marker}:")
         route = markdown_field_value(plan_text, "Selected Implementation Route") or ""
-        slice_map = markdown_field_value(plan_text, "Slice Map") or ""
+        slice_map = markdown_field_value_with_continuation(plan_text, "Slice Map") or ""
         validation = (
             markdown_field_value(plan_text, "Shared Validation / Proof Path") or ""
         )
