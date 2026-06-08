@@ -595,6 +595,9 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
         r"\bseam\s+is\s+the\s+branch\s+deliverable\b",
         r"\bseam\s+is\s+the\s+feature\b",
         r"\bseam-only\s+branch\b",
+        r"\bslc(?:-\d+)?\s+is\s+a\s+branch\b",
+        r"\bslcs\s+are\s+branches\b",
+        r"\bslc-\d+(?:\s*(?:,|and)\s*slc-\d+)+\s+are\s+branches\b",
         r"\bslc(?:-\d+)?\s+is\s+a\s+separate\s+branch\b",
         r"\bslcs\s+are\s+separate\s+branches\b",
         r"\bslc-\d+(?:\s*(?:,|and)\s*slc-\d+)+\s+are\s+separate\s+branches\b",
@@ -602,6 +605,7 @@ def validate_slice_slc_seam_model_text(plan_text: str) -> list[str]:
         r"\bslcs\s+become\s+branches\b",
         r"\bslc-\d+(?:\s*(?:,|and)\s*slc-\d+)+\s+become\s+branches\b",
         r"\bslc(?:-\d+)?\s+creates\s+the\s+branch\b",
+        r"\beach\s+slc(?:-\d+)?\s+is\s+a\s+branch\b",
         r"\beach\s+slc(?:-\d+)?\s+becomes\s+a\s+branch\b",
     )
     if any(re.search(pattern, normalized) for pattern in ambiguity_patterns):

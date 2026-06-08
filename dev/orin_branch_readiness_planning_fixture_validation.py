@@ -3823,6 +3823,56 @@ SLC-001 and SLC-002 are separate branches for the consent shell and artifact bou
             "numbered SLCs-as-branches wording after valid alias wording"
         )
 
+    bare_slc_branch_ambiguity_failures = _validate_slice_slc_seam_model_text(
+        """
+# Invalid Bare SLC Branch Identity Ambiguity
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+SLC-001 is a branch for the consent shell.
+"""
+    )
+    if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+        bare_slc_branch_ambiguity_failures
+    ):
+        failures.append(
+            "Invalid bare SLC branch identity fixture did not reject SLC-as-branch "
+            "wording without the word separate"
+        )
+
+    plural_bare_slc_branch_ambiguity_failures = _validate_slice_slc_seam_model_text(
+        """
+# Invalid Plural Bare SLC Branch Identity Ambiguity
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+SLCs are branches for the consent shell and artifact boundary.
+"""
+    )
+    if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+        plural_bare_slc_branch_ambiguity_failures
+    ):
+        failures.append(
+            "Invalid plural bare SLC branch identity fixture did not reject "
+            "SLCs-as-branches wording without the word separate"
+        )
+
+    coordinated_bare_slc_branch_ambiguity_failures = (
+        _validate_slice_slc_seam_model_text(
+            """
+# Invalid Coordinated Bare SLC Branch Identity Ambiguity
+
+SLC is shorthand for Slice and remains a Slice-level deliverable.
+SLC-001 and SLC-002 are branches for the consent shell and artifact boundary.
+"""
+        )
+    )
+    if EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET not in "\n".join(
+        coordinated_bare_slc_branch_ambiguity_failures
+    ):
+        failures.append(
+            "Invalid coordinated bare SLC branch identity fixture did not reject "
+            "numbered SLCs-as-branches wording without the word separate"
+        )
+
     negated_same_branch_failures = _validate_slice_slc_seam_model_text(
         VALID_MULTI_SLICE_IMPLEMENTATION_CARRIER_FIXTURE.read_text(
             encoding="utf-8"
