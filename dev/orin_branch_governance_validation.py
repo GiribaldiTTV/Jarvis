@@ -22387,6 +22387,7 @@ def main() -> int:
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
     active_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
     historical_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Historical Branch Authority Records")
+    durable_branch_receipt_paths = _collect_branch_record_paths(branch_record_index_text, "Durable Branch Receipt Records")
     active_non_standing_branch_record_paths = [
         path
         for path in active_branch_record_paths
@@ -22408,7 +22409,7 @@ def main() -> int:
     )
     _run_branch_record_live_state_leakage_fixtures(require)
     all_branch_record_detail_paths = _all_branch_record_detail_paths()
-    indexed_branch_record_paths = active_branch_record_paths | historical_branch_record_paths
+    indexed_branch_record_paths = active_branch_record_paths | historical_branch_record_paths | durable_branch_receipt_paths
     unindexed_branch_record_paths = all_branch_record_detail_paths - indexed_branch_record_paths
     for branch_record_path in sorted(all_branch_record_detail_paths):
         record_text = _read_text(Path(branch_record_path))
@@ -22461,7 +22462,7 @@ def main() -> int:
         historical_branch_names,
     ) = _branch_record_branch_sets(
         active_branch_record_paths,
-        historical_branch_record_paths,
+        historical_branch_record_paths | durable_branch_receipt_paths,
         current_git_branch,
     )
     active_branch_record_path, active_branch_record_text = _active_branch_record_for_branch(
