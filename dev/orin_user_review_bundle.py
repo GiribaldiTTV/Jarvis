@@ -4104,6 +4104,12 @@ def _write_user_branch_plan_review(
         or workstream_package_approval_packet
     ):
         accepted_user_response = (
+            "BP1, BP2, and BP3 accepted - USER accepted the repaired FAM-007 "
+            "Owner AI Operational Foundation Gates Branch Vision, engineering "
+            "plan, and Workstream Entry / Orchestration Validation; this packet "
+            "supports complete bounded Workstream implementation approval."
+            if workstream_package_approval_packet
+            else
             "BP1 and BP2 accepted - USER accepted the repaired FAM-007 Owner AI "
             "Operational Foundation Gates Branch Vision and engineering plan; BP3 "
             "is now the active Workstream Entry / Orchestration Validation packet."
@@ -4118,6 +4124,11 @@ def _write_user_branch_plan_review(
             "Owner AI memory/agent foundation gate schemas."
         )
         user_response_text = (
+            "Status: Accepted by USER for BP1/BP2/BP3 - this BP2 support file is "
+            "closed as accepted engineering-plan context for the complete bounded "
+            "Workstream implementation approval packet."
+            if workstream_package_approval_packet
+            else
             "Status: Accepted by USER - this BP2 support file is closed as the "
             "accepted engineering-plan context for the active BP3 Workstream Entry "
             "/ Orchestration Validation packet."
@@ -4131,6 +4142,12 @@ def _write_user_branch_plan_review(
             "import, Private Dev ORIN import, and v1.8.0 work remain pending."
         )
         codex_response_digest = (
+            "Codex digested accepted BP1, accepted BP2, and accepted BP3 into "
+            "Workstream approval context. The approval packet preserves all six "
+            "Owner AI foundation gate Slice/SLC deliverables, all eighteen accepted "
+            "seams, and SLC-001 / Seam 1 as the entry checkpoint."
+            if workstream_package_approval_packet
+            else
             "Codex digested USER BP2 acceptance into BP3 readiness context. BP3 "
             "must verify that the accepted BP2 plan implements the accepted BP1 "
             "vision, that all six Slice/SLCs trace to both contracts, and that "
@@ -4144,6 +4161,11 @@ def _write_user_branch_plan_review(
             "and leaves private/runtime/provider/cache/memory behavior future-gated."
         )
         workstream_entry_result = (
+            "Implementation-ready packet - BP1, BP2, and BP3 are accepted; USER "
+            "is reviewing complete bounded Workstream implementation for the "
+            "same-branch Owner AI Operational Foundation Gates package."
+            if workstream_package_approval_packet
+            else
             "BP3 active - Workstream Entry / Orchestration Validation is the "
             "current review gate. BP3 may recommend SLC-001 / Seam 1 - Define "
             "protected classes and public-safe exclusion contract as the first "
@@ -4155,6 +4177,11 @@ def _write_user_branch_plan_review(
             "pending until USER accepts or explicitly waives this BP2 plan."
         )
         contract_status = (
+            "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is "
+            "accepted; this file supports complete bounded Workstream "
+            "implementation approval."
+            if workstream_package_approval_packet
+            else
             "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is the "
             "active Workstream Entry / Orchestration Validation gate."
             if bp3_orchestration_packet
@@ -4163,6 +4190,10 @@ def _write_user_branch_plan_review(
             "back, or explicitly waive this BP2 engineering plan before BP3."
         )
         contract_version = (
+            "v5 - accepted BP1/BP2/BP3 digested into FAM-007 Owner AI "
+            "Operational Foundation Gates Workstream approval support context."
+            if workstream_package_approval_packet
+            else
             "v4 - BP2 acceptance digested into FAM-007 Owner AI Operational "
             "Foundation Gates BP3 orchestration-readiness support context."
             if bp3_orchestration_packet
@@ -4171,6 +4202,13 @@ def _write_user_branch_plan_review(
             "Operational Foundation Gates BP2 engineering plan."
         )
         plain_english_summary = (
+            "This support file records the accepted engineering plan for the "
+            "FAM-007 Owner AI Operational Foundation Gates carrier. The active "
+            "packet asks USER whether Codex may execute the complete accepted "
+            "public-safe Workstream package: SLC-001 through SLC-006 and all "
+            "eighteen accepted seams."
+            if workstream_package_approval_packet
+            else
             "This support file records the accepted BP2 engineering plan for the "
             "FAM-007 Owner AI Operational Foundation Gates carrier. The active "
             "packet is BP3: it checks whether the accepted vision and accepted "
@@ -4247,12 +4285,20 @@ def _write_user_branch_plan_review(
         ]
         future_scope = [
             (
+                "Workstream implementation is pending USER acceptance of this complete bounded Workstream approval packet."
+                if workstream_package_approval_packet
+                else
                 "Workstream implementation remains pending a later explicit USER decision after BP3 review."
                 if bp3_orchestration_packet
                 else
                 "BP3 Workstream Entry / Orchestration Validation remains pending USER acceptance or waiver of BP2."
             ),
-            "Workstream implementation remains pending BP1/BP2 acceptance or waiver, BP3 green or waiver, and separate bounded USER implementation approval.",
+            (
+                "Accepted BP1/BP2/BP3 already govern the requested implementation package; execution still waits for USER to approve this Workstream packet."
+                if workstream_package_approval_packet
+                else
+                "Workstream implementation remains pending BP1/BP2 acceptance or waiver, BP3 green or waiver, and separate bounded USER implementation approval."
+            ),
             "Private setup, provider/model/runtime/cache/memory activation, real Owner memory, real agents, PR, merge, release, cleanup, issue mutation, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work remain pending USER decisions.",
         ]
         slc_package_plan = [
@@ -4298,6 +4344,9 @@ def _write_user_branch_plan_review(
         ]
         source_truth_impact = [
             (
+                "External branch plan records BP1, BP2, and BP3 accepted with complete bounded Workstream approval pending USER decision as active planning posture."
+                if workstream_package_approval_packet
+                else
                 "External branch plan records BP1 and BP2 accepted with BP3 pending USER review as active planning posture."
                 if bp3_orchestration_packet
                 else
@@ -4317,10 +4366,23 @@ def _write_user_branch_plan_review(
             "BP2 implementation package summary, branch scope size test, Slice/SLC plan, affected surfaces, likely files, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, future gates, and exact next decision text are present.",
             "Each slice has a concrete implemented-control target rather than only proof, readiness, or boundary-label language.",
             "USER-facing files avoid live operational ledgers, raw commit values, upload byte-proof values, mutable validator run state, live pull-request posture, and command-wall boundary wording.",
-            "BP3 and Workstream implementation remain blocked until BP2 is accepted or explicitly waived and later gates are green and approved.",
+            (
+                "Complete bounded Workstream execution remains blocked until USER accepts this Workstream approval packet."
+                if workstream_package_approval_packet
+                else
+                "BP3 and Workstream implementation remain blocked until BP2 is accepted or explicitly waived and later gates are green and approved."
+            ),
         ]
         user_decisions = [
             *(
+                [
+                    "Does USER approve complete bounded Workstream implementation for SLC-001 through SLC-006 and all eighteen accepted seams?",
+                    "Does USER agree execution starts at SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract?",
+                    "Does USER want any seam-order, validator, proof, rollback, H1, LV/UTS, or stop-condition revision before implementation?",
+                    "Does USER confirm all private/runtime/provider/cache/memory/backup-import-execution/PR/merge/release gates remain pending?",
+                ]
+                if workstream_package_approval_packet
+                else
                 [
                     "Does USER approve, revise, waive, reject, or hold BP3 Workstream Entry / Orchestration Validation?",
                     "Does USER agree SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract should be the first future Workstream seam after separate implementation approval?",
@@ -4339,6 +4401,15 @@ def _write_user_branch_plan_review(
         ]
         design_ballot = [
             *(
+                [
+                    "Approve complete bounded Workstream implementation as recommended.",
+                    "Approve with a revised seam order or proof requirement.",
+                    "Waive a specific unresolved Workstream approval question and proceed under the accepted package constraints.",
+                    "Hold the branch before Workstream execution.",
+                    "Reject or route back to BP3/BP2 if the accepted orchestration or plan needs repair.",
+                ]
+                if workstream_package_approval_packet
+                else
                 [
                     "Approve BP3 as recommended.",
                     "Approve BP3 with changes.",
