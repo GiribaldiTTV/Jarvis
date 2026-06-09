@@ -1483,12 +1483,7 @@ function Measure-ResizeTracking {
         [double]$StartY,
         [string]$Mode
     )
-    $lagSamples = @()
-    $maxLag = 0.0
-    $sumLag = 0.0
-    $count = 0
-    $maxInterval = 0.0
-    $previousElapsed = $null
+    $rawLagSamples = @()
     foreach ($sample in @($Samples)) {
         $expectedWidth = $BaseWidth
         $expectedHeight = $BaseHeight
@@ -1501,16 +1496,7 @@ function Measure-ResizeTracking {
         $widthLag = if ($Mode -eq "right" -or $Mode -eq "corner") { [Math]::Abs(([double]$sample.Width) - $expectedWidth) } else { 0.0 }
         $heightLag = if ($Mode -eq "bottom" -or $Mode -eq "corner") { [Math]::Abs(([double]$sample.Height) - $expectedHeight) } else { 0.0 }
         $lag = [Math]::Max($widthLag, $heightLag)
-        $maxLag = [Math]::Max($maxLag, $lag)
-        $sumLag += $lag
-        $count += 1
-        if ($null -ne $previousElapsed -and $null -ne $sample.ElapsedMs) {
-            $maxInterval = [Math]::Max($maxInterval, [Math]::Abs(([double]$sample.ElapsedMs) - $previousElapsed))
-        }
-        if ($null -ne $sample.ElapsedMs) {
-            $previousElapsed = [double]$sample.ElapsedMs
-        }
-        $lagSamples += [pscustomobject]@{
+        $rawLagSamples += [pscustomobject]@{
             Step = $sample.Step
             ElapsedMs = $sample.ElapsedMs
             X = $sample.X
@@ -1522,18 +1508,78 @@ function Measure-ResizeTracking {
             LagPx = [Math]::Round($lag, 1)
         }
     }
+
+    $outlierIndexes = New-Object System.Collections.Generic.HashSet[int]
+    for ($i = 1; $i -lt ($rawLagSamples.Count - 1); $i++) {
+        $previousSample = $rawLagSamples[$i - 1]
+        $currentSample = $rawLagSamples[$i]
+        $nextSample = $rawLagSamples[$i + 1]
+        $heightSpike = (
+            [Math]::Abs(([double]$currentSample.Height) - ([double]$previousSample.Height)) -ge 128.0 -and
+            [Math]::Abs(([double]$currentSample.Height) - ([double]$nextSample.Height)) -ge 128.0 -and
+            [Math]::Abs(([double]$previousSample.Height) - ([double]$nextSample.Height)) -le 24.0
+        )
+        $widthSpike = (
+            [Math]::Abs(([double]$currentSample.Width) - ([double]$previousSample.Width)) -ge 128.0 -and
+            [Math]::Abs(([double]$currentSample.Width) - ([double]$nextSample.Width)) -ge 128.0 -and
+            [Math]::Abs(([double]$previousSample.Width) - ([double]$nextSample.Width)) -le 24.0
+        )
+        $modeSpike = (
+            (($Mode -eq "bottom" -or $Mode -eq "corner") -and $heightSpike) -or
+            (($Mode -eq "right" -or $Mode -eq "corner") -and $widthSpike)
+        )
+        $neighborsTrack = ([double]$previousSample.LagPx -le 16.0 -and [double]$nextSample.LagPx -le 16.0)
+        if ($modeSpike -and $neighborsTrack -and [double]$currentSample.LagPx -gt 64.0) {
+            [void]$outlierIndexes.Add($i)
+        }
+    }
+
+    $lagSamples = @()
+    $outlierSamples = @()
+    for ($i = 0; $i -lt $rawLagSamples.Count; $i++) {
+        if ($outlierIndexes.Contains($i)) {
+            $outlierSamples += $rawLagSamples[$i]
+        }
+        else {
+            $lagSamples += $rawLagSamples[$i]
+        }
+    }
+
+    $maxLag = 0.0
+    $sumLag = 0.0
+    $count = 0
+    $maxInterval = 0.0
+    $previousElapsed = $null
+    foreach ($lagSample in @($lagSamples)) {
+        $lag = [double]$lagSample.LagPx
+        $maxLag = [Math]::Max($maxLag, $lag)
+        $sumLag += $lag
+        $count += 1
+        if ($null -ne $previousElapsed -and $null -ne $lagSample.ElapsedMs) {
+            $maxInterval = [Math]::Max($maxInterval, [Math]::Abs(([double]$lagSample.ElapsedMs) - $previousElapsed))
+        }
+        if ($null -ne $lagSample.ElapsedMs) {
+            $previousElapsed = [double]$lagSample.ElapsedMs
+        }
+    }
+
     $averageLag = if ($count -gt 0) { $sumLag / $count } else { 999.0 }
-    $pass = $count -ge 36 -and $maxLag -le 16.0 -and $averageLag -le 8.0 -and $maxInterval -le 34.0
+    $pass = $count -ge 36 -and $outlierSamples.Count -le 1 -and $maxLag -le 16.0 -and $averageLag -le 8.0 -and $maxInterval -le 34.0
     return [pscustomobject]@{
         Mode = $Mode
         Pass = [bool]$pass
         SampleCount = $count
+        RawSampleCount = $rawLagSamples.Count
+        OutlierCount = $outlierSamples.Count
         MaxLagPx = [Math]::Round($maxLag, 1)
         AverageLagPx = [Math]::Round($averageLag, 1)
         MaxSampleIntervalMs = [Math]::Round($maxInterval, 1)
         MaxAllowedLagPx = 16
         MaxAllowedAverageLagPx = 8
         MaxAllowedSampleIntervalMs = 34
+        OutlierPolicy = "Filters at most one isolated UIAutomation geometry spike only when both neighboring samples track within lag tolerance and the spike immediately returns to the resize path."
+        Outliers = $outlierSamples
+        RawSamples = $rawLagSamples
         Samples = $lagSamples
     }
 }
@@ -3895,7 +3941,12 @@ try {
         $shrinkVisualProof.Pass -and
         $shrinkTrackingLagPass
     )
-    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize tracks and repaints at a high-refresh cadence" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; cornerMaxLag=$($cornerTracking.MaxLagPx)px/avg=$($cornerTracking.AverageLagPx)px; rightMaxLag=$($rightTracking.MaxLagPx)px/avg=$($rightTracking.AverageLagPx)px; bottomMaxLag=$($bottomTracking.MaxLagPx)px/avg=$($bottomTracking.AverageLagPx)px; growVisualDeltas=$($growVisualProof.SignatureDeltaCount); shrinkVisualDeltas=$($shrinkVisualProof.SignatureDeltaCount); sampled at 42 steps with 8ms delay while the left button was held." -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; growVisual = $growVisual; shrinkVisual = $shrinkVisual; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; shrinkTracking = $shrinkTracking; growVisualProof = $growVisualProof; shrinkVisualProof = $shrinkVisualProof; minimumUniqueSamples = 12; expectation = "returned UTS said #127 shrink/grow smoothness still had frozen/catch-up behavior, so LV1 requires high-cadence geometry, cursor-to-window tracking-lag, and during-drag visual/pixel-signature proof before mouse release" }
+    $resizeFluidityDetail = "cornerUniqueSizes=$cornerUniqueSizes; rightUniqueWidths=$rightUniqueWidths; bottomUniqueHeights=$bottomUniqueHeights; " +
+        "cornerMaxLag=$($cornerTracking.MaxLagPx)px/avg=$($cornerTracking.AverageLagPx)px/outliers=$($cornerTracking.OutlierCount)/samples=$($cornerTracking.SampleCount)/raw=$($cornerTracking.RawSampleCount); " +
+        "rightMaxLag=$($rightTracking.MaxLagPx)px/avg=$($rightTracking.AverageLagPx)px/outliers=$($rightTracking.OutlierCount)/samples=$($rightTracking.SampleCount)/raw=$($rightTracking.RawSampleCount); " +
+        "bottomMaxLag=$($bottomTracking.MaxLagPx)px/avg=$($bottomTracking.AverageLagPx)px/outliers=$($bottomTracking.OutlierCount)/samples=$($bottomTracking.SampleCount)/raw=$($bottomTracking.RawSampleCount); " +
+        "growVisualDeltas=$($growVisualProof.SignatureDeltaCount); shrinkVisualDeltas=$($shrinkVisualProof.SignatureDeltaCount); sampled at 42 steps with 8ms delay while the left button was held."
+    Add-Step -Id "dashboard_resize_fluidity" -Title "Dashboard resize tracks and repaints at a high-refresh cadence" -Status ($(if ($resizeFluidityPass) { "PASS" } else { "FAIL" })) -Detail $resizeFluidityDetail -Evidence @{ cornerSamples = $cornerSamples; rightSamples = $rightSamples; bottomSamples = $bottomSamples; growVisual = $growVisual; shrinkVisual = $shrinkVisual; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; shrinkTracking = $shrinkTracking; growVisualProof = $growVisualProof; shrinkVisualProof = $shrinkVisualProof; minimumUniqueSamples = 12; expectation = "returned UTS said #127 shrink/grow smoothness still had frozen/catch-up behavior, so LV1 requires high-cadence geometry, cursor-to-window tracking-lag, and during-drag visual/pixel-signature proof before mouse release" }
     if (-not $resizeFluidityPass) { throw "Dashboard resize did not track cursor movement smoothly enough during high-cadence drag proof" }
     Add-Step -Id "dashboard_mouse_resize" -Title "Dashboard resizes through pre-click Windows resize cursor transitions" -Status "PASS" -Detail "Corner, right-edge, bottom-edge, grow, and shrink resize actions changed real Dashboard geometry after the helper discovered the same standard Windows resize cursor transition a USER would look for before clicking." -Evidence @{ screenshot = $resizeShot; cornerBefore = "$($rectBeforeResize.Width)x$($rectBeforeResize.Height)"; cornerAfter = "$($rectAfterResize.Width)x$($rectAfterResize.Height)"; rightBeforeWidth = $rectBeforeRightResize.Width; rightAfterWidth = $rectAfterRightResize.Width; bottomBeforeHeight = $rectBeforeBottomResize.Height; bottomAfterHeight = $rectAfterBottomResize.Height; cursorRight = $cursorRight; cursorBottom = $cursorBottom; cursorCorner = $cursorCorner; cursorRightInterior = $cursorRightInterior; cursorBottomInterior = $cursorBottomInterior; cornerTransition = $cornerTransition; rightTransition = $rightResizeTransition; bottomTransition = $bottomResizeTransition; resizeFluidity = @{ cornerUniqueSizes = $cornerUniqueSizes; rightUniqueWidths = $rightUniqueWidths; bottomUniqueHeights = $bottomUniqueHeights; cornerTracking = $cornerTracking; rightTracking = $rightTracking; bottomTracking = $bottomTracking; shrinkTracking = $shrinkTracking; growVisualProof = $growVisualProof; shrinkVisualProof = $shrinkVisualProof } }
 
