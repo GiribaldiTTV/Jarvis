@@ -43,10 +43,14 @@ REPAIR_PLAN_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_FAILURE_REPAIR_PLAN.
 REPAIR_PLAN_STATUS = "live-validation-uts-failure-repair-planning"
 VALIDATOR_FIRST_PRIMARY_FILE = "USER Review/LIVE_VALIDATOR_FIRST_REPAIR_REVIEW.md"
 VALIDATOR_FIRST_STATUS = "live-validator-first-repair-review"
+REPAIR_IMPLEMENTATION_PRIMARY_FILE = "USER Review/REPAIR_IMPLEMENTATION_APPROVAL_REVIEW.md"
+REPAIR_IMPLEMENTATION_STATUS = "repair-implementation-approval-review"
 ACCEPTED_FINDINGS_ZIP = USER_ROOT / "FAM-006-20260609-124117.zip"
 ACCEPTED_FINDINGS_SHA256 = "18506FB2C0B47E2F7378DCA788558D9F666D2F4B08BAD30677B9735B6A6D71B9"
 REPAIR_PLAN_ZIP = USER_ROOT / "FAM-006-20260609-125215.zip"
 REPAIR_PLAN_SHA256 = "DC9A4F1688468F58801FD579743E5CB2C0AAAF48961C67D26B4053DDA1318D19"
+VALIDATOR_FIRST_ZIP = USER_ROOT / "FAM-006-20260609-130658.zip"
+VALIDATOR_FIRST_SHA256 = "23058F12AC3178C4546E58252CE945CA6689687E25CE812677BFEA60520F8252"
 REPAIR_PLAN_FINDING_IDS = [
     "FAM006-EVID-001",
     "FAM006-EVID-002",
@@ -1635,6 +1639,23 @@ def rebuild_repair_plan_zip_from_packet_zip(packet_zip: Path) -> bytes | None:
     return buffer.getvalue() if found else None
 
 
+def rebuild_embedded_zip_from_packet_zip(packet_zip: Path, prefix: str) -> bytes | None:
+    if not packet_zip.exists():
+        return None
+    buffer = io.BytesIO()
+    found = False
+    with zipfile.ZipFile(packet_zip, "r") as source, zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as target:
+        for info in source.infolist():
+            if info.is_dir() or not info.filename.startswith(prefix):
+                continue
+            target_name = info.filename[len(prefix):]
+            if not target_name:
+                continue
+            target.writestr(target_name, source.read(info))
+            found = True
+    return buffer.getvalue() if found else None
+
+
 def repair_plan_packet() -> tuple[dict[str, object], bytes]:
     source_path = REPAIR_PLAN_ZIP
     source_note = "standalone repair-planning packet"
@@ -1689,6 +1710,87 @@ def repair_plan_packet() -> tuple[dict[str, object], bytes]:
         "entries": names,
         "primaryPreview": primary_text[:4000],
     }, data
+
+
+def validator_first_packet() -> tuple[dict[str, object], bytes]:
+    source_path: Path | str = VALIDATOR_FIRST_ZIP
+    source_note = "standalone validator-first expected-red packet"
+    expected_sha = VALIDATOR_FIRST_SHA256
+    if VALIDATOR_FIRST_ZIP.exists():
+        data = VALIDATOR_FIRST_ZIP.read_bytes()
+    else:
+        embedded_folder = PACKET_ROOT / "Review Aids" / "Live Validator First Packet"
+        if embedded_folder.exists():
+            data = rebuild_zip_from_folder(embedded_folder)
+            source_path = embedded_folder
+            source_note = "embedded validator-first packet copy from current USER packet"
+            expected_sha = "original standalone ZIP already purged by timestamped USER packet regeneration"
+        else:
+            data = None
+            prefix = "Review Aids/Live Validator First Packet/"
+            for candidate in sorted(USER_ROOT.glob("FAM-006-*.zip"), key=lambda path: path.stat().st_mtime, reverse=True):
+                data = rebuild_embedded_zip_from_packet_zip(candidate, prefix)
+                if data is not None:
+                    source_path = candidate
+                    source_note = "embedded validator-first packet copy from timestamped USER packet ZIP"
+                    expected_sha = "original standalone ZIP already purged by timestamped USER packet regeneration"
+                    break
+            if data is None:
+                raise SystemExit(
+                    f"BLOCKED: accepted validator-first packet is missing: {VALIDATOR_FIRST_ZIP}, "
+                    "and no embedded validator-first packet copy was found."
+                )
+    digest = hashlib.sha256(data).hexdigest().upper()
+    if VALIDATOR_FIRST_ZIP.exists() and digest != VALIDATOR_FIRST_SHA256:
+        raise SystemExit(
+            "BLOCKED: validator-first packet SHA mismatch. "
+            f"Expected {VALIDATOR_FIRST_SHA256}, found {digest} at {VALIDATOR_FIRST_ZIP}"
+        )
+    with zipfile.ZipFile(io.BytesIO(data), "r") as archive:
+        names = sorted(name for name in archive.namelist() if not name.endswith("/"))
+        try:
+            primary_text = archive.read(VALIDATOR_FIRST_PRIMARY_FILE).decode("utf-8-sig", errors="replace")
+        except KeyError:
+            primary_text = ""
+    return {
+        "path": str(source_path),
+        "sourceNote": source_note,
+        "sha256": digest,
+        "expectedSha256": expected_sha,
+        "fileCount": len(names),
+        "markdownCount": len([name for name in names if name.lower().endswith(".md")]),
+        "primaryPresent": bool(primary_text),
+        "entries": names,
+        "primaryPreview": primary_text[:4000],
+    }, data
+
+
+def validator_first_packet_digest_md(packet: dict[str, object], extracted: list[str]) -> str:
+    entries = packet.get("entries") or []
+    preview = "\n".join(f"- `{name}`" for name in list(entries)[:80])
+    if len(entries) > 80:
+        preview += f"\n- ... {len(entries) - 80} more files"
+    return "\n".join(
+        [
+            table(
+                ["Field", "Value"],
+                [
+                    ["Path", packet.get("path", "")],
+                    ["Source note", packet.get("sourceNote", "")],
+                    ["SHA256", packet.get("sha256", "")],
+                    ["Expected SHA256", packet.get("expectedSha256", VALIDATOR_FIRST_SHA256)],
+                    ["Primary validator-first file present", packet.get("primaryPresent", "")],
+                    ["File count", packet.get("fileCount", "")],
+                    ["Markdown count", packet.get("markdownCount", "")],
+                    ["Copied into this packet", len(extracted)],
+                ],
+            ),
+            "",
+            "Validator-first packet entries copied under `Review Aids/Live Validator First Packet/`:",
+            "",
+            preview,
+        ]
+    )
 
 
 def repair_plan_packet_digest_md(repair_plan: dict[str, object], extracted: list[str]) -> str:
@@ -2360,6 +2462,227 @@ def generate_validator_first_packet() -> tuple[Path, Path, str]:
     return PACKET_ROOT, zip_path, digest
 
 
+def repair_implementation_package_md() -> str:
+    return textwrap.dedent(
+        """
+        The final bounded repair package is ready for separate USER approval, but not yet implemented by this packet.
+
+        - Repair A: make the Recording Studio visible-button path work through the normal USER path, with focused screenshot and event proof.
+        - Repair B: move the active Start/Stop affordance out of the Dashboard Recording Card body and into a compact Dashboard Quick Access section when legal, while keeping the Recording Studio as the focused/full control and status surface.
+        - Repair C: stop the Log Viewer Studio from opening, restoring, raising, or stealing focus during Start/Stop unless USER explicitly opens it.
+        - Repair D: add compact current/native-log tracking inside Recording Studio where needed for trustworthy recording status, without turning Log Viewer Studio into a full viewer in this branch.
+        - Repair E: prove the Overlay Profile normal USER create/switch/restart path or keep the issue #258 closeout blocked with exact evidence gaps.
+        - Repair VIS/WIN: rerun visual-system inheritance and native-window behavior proof against the new and affected elements, not historical-only surfaces.
+        - Repair F/G: require screenshot visual adjudication plus an interaction combination matrix before a future LV/UTS handoff.
+        - Repair UTS: stop UTS handoff until expected-red findings are green or explicitly waived under the right gate.
+        """
+    ).strip()
+
+
+def start_stop_finalization_md() -> str:
+    return textwrap.dedent(
+        """
+        USER accepted the B direction as a current-branch repair direction:
+
+        - Dashboard Recording Card remains the compact status, summary, and visibility surface.
+        - Active Start/Stop should move to the Dashboard Quick Access section when admitted by implementation approval.
+        - Recording Studio owns the focused/full recording control and status surface.
+        - A future setting may allow USER to enable or disable Quick Access Start/Stop, but settings implementation remains future-gated.
+        - Older receipts that say the Recording Card owns Start/Stop are historical evidence and no longer define the active repair direction.
+        """
+    ).strip()
+
+
+def native_log_finalization_md() -> str:
+    return textwrap.dedent(
+        """
+        USER accepted the D direction as a current-branch repair direction:
+
+        - Recording Studio should include compact current/native-log tracking when needed for trustworthy recording status.
+        - Log Viewer Studio remains the minimal native/export folder access shell for this branch.
+        - Native NDAI logs remain the product artifact.
+        - Exported logs remain USER-requested export artifacts.
+        - Full Log Viewer Studio, previous-log selection, export customization, Native Log Loader integration, tray controls, keybinds, and full settings remain future-gated.
+        - Older receipts that treat the Log Viewer shell as sufficient for all log-status needs are historical evidence and no longer define the active repair direction.
+        """
+    ).strip()
+
+
+def repair_implementation_exact_approval_text() -> str:
+    return (
+        "I approve bounded FAM-006 product/runtime repair implementation for the finalized expected-red repair package "
+        "in C:\\Nexus Worktrees\\FAM-006 on feature/fam-006-dashboard-recording-start-stop-local-file, including "
+        "Start/Stop Quick Access ownership alignment, compact native-log tracking in Recording Studio, Recording Studio "
+        "visible-button path, Log Viewer focus/open regression, visual-system inheritance, Overlay Profile normal USER "
+        "proof path, native/export folder proof path, screenshot/evidence proof-loop repair, interaction matrix repair, "
+        "and UTS stop-loss repair, with Live Validation acceptance, UTS acceptance, PR Readiness, issue closeout, merge, "
+        "release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, and future-gated "
+        "full Log Viewer/export/tray/keybind/settings/Native Log Loader work still pending separate approval."
+    )
+
+
+def generate_repair_implementation_approval_packet() -> tuple[Path, Path, str]:
+    identity = git_identity()
+    validator_packet, validator_bytes = validator_first_packet()
+    product_run = run_validator_first_product_state()
+    self_check = validator_first_self_check()
+    if not product_run.get("passed"):
+        raise SystemExit("REPAIR: validator-first expected-red product-state run did not cover the known findings.")
+    if not self_check.get("passed"):
+        raise SystemExit("REPAIR: validator-first self-check failed.")
+    checks = [
+        LiveValidatorCheck(**item)
+        for item in product_run.get("checks", [])
+        if isinstance(item, dict)
+    ]
+    loaded, missing = source_truth_loaded_lines()
+    changed = changed_files()
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    zip_path = USER_ROOT / f"FAM-006-{stamp}.zip"
+
+    purge_fam006_user_packet_outputs()
+
+    dirs = [
+        PACKET_ROOT / "USER Review",
+        PACKET_ROOT / "Review Aids",
+        PACKET_ROOT / "Review Aids" / "Live Validator First Packet",
+        PACKET_ROOT / "Source Truth Context",
+    ]
+    for directory in dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+
+    for rel in SOURCE_TRUTH_FILES:
+        copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
+    external_plan = Path(
+        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+    )
+    copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
+    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    extracted = extract_zip_bytes(validator_bytes, PACKET_ROOT / "Review Aids" / "Live Validator First Packet")
+    validator_digest = validator_first_packet_digest_md(validator_packet, extracted)
+
+    loaded_md = "\n".join(f"- `{item}`" for item in loaded)
+    missing_md = "\n".join(f"- `{item}`" for item in missing) or "- None found."
+    changed_md = "\n".join(f"- `{item}`" for item in changed) or "- None."
+    counts_md = table(
+        ["Result", "Count"],
+        sorted((str(key), str(value)) for key, value in (product_run.get("productStateCounts") or {}).items()),
+    )
+    approval_text = repair_implementation_exact_approval_text()
+
+    primary = "\n".join(
+        [
+            "# FAM-006 Repair Implementation Approval Review",
+            "",
+            f"Packet Status: {REPAIR_IMPLEMENTATION_STATUS}",
+            "Packet Reviewability State: Reviewable",
+            "USER Gate State: Pending USER Repair Implementation Approval",
+            "Live Validator First acceptance: Accepted by USER",
+            "Expected-red product-state run: PASS",
+            "Known-bad product state: EXPECTED_RED",
+            "Product/runtime repair: Withheld",
+            "Live Validation acceptance: Withheld",
+            "UTS acceptance: Withheld",
+            "PR Readiness: Withheld",
+            "Issue #258 closeout: Withheld",
+            "",
+            "This packet finalizes the bounded repair implementation approval surface. It does not implement product/runtime fixes, accept Live Validation, accept UTS results, close issue #258, or advance to PR Readiness.",
+            "",
+            section(
+                "Verdict",
+                "ACCEPTED VALIDATOR-FIRST / READY FOR SEPARATE REPAIR IMPLEMENTATION APPROVAL. The accepted expected-red packet remains the proof baseline. The next USER decision is whether to approve the bounded product/runtime repair package listed below.",
+            ),
+            section(
+                "Worktree Identity",
+                table(
+                    ["Field", "Value"],
+                    [
+                        ("Git root", identity.get("git_root", "")),
+                        ("Branch", identity.get("branch", "")),
+                        ("HEAD", identity.get("head", "")),
+                        ("origin/main", identity.get("origin_main", "")),
+                        ("Merge base", identity.get("merge_base", "")),
+                        ("Ahead/behind", identity.get("ahead_behind", "")),
+                        ("Status short", identity.get("status_short", "") or "clean at helper start"),
+                    ],
+                ),
+            ),
+            section("Source-Truth Files Loaded", loaded_md),
+            section("Missing / Stale / Conflicting Authority Notes", missing_md),
+            section("Changed Files Versus origin/main", changed_md),
+            section("Accepted Live Validator First Packet", validator_digest),
+            section("Expected-Red Product-State Summary", counts_md),
+            section("Expected-Red Product-State Checks Preserved", live_validator_checks_table_md(checks)),
+            section("B Decision - Start/Stop Ownership", start_stop_finalization_md()),
+            section("D Decision - Native Log / Log Viewer Boundary", native_log_finalization_md()),
+            section("Final Bounded Repair Package", repair_implementation_package_md()),
+            section(
+                "Future-Gated Boundaries",
+                "Full Log Viewer Studio implementation, previous-log selection, export customization, tray recording controls, keybind implementation, full settings implementation, Native Log Loader full implementation, provider/model/private work, issue closeout, PR Readiness, PR creation, merge, release, branch cleanup, Governance worktree mutation, FAM-007 mutation, and neutral-main mutation remain pending separate USER decisions.",
+            ),
+            section("Validator Self-Check Fixture Coverage", self_check_md(self_check)),
+            section(
+                "Exact Next USER Decision",
+                f"Approve the next step with this exact text:\n\n`{approval_text}`",
+            ),
+        ]
+    )
+    write(PACKET_ROOT / REPAIR_IMPLEMENTATION_PRIMARY_FILE, primary)
+    write(
+        PACKET_ROOT / "START_HERE.md",
+        "\n".join(
+            [
+                "# Start Here - FAM-006 Repair Implementation Approval Review",
+                "",
+                "This packet is an approval review for the next bounded repair implementation pass.",
+                "It preserves the accepted expected-red validator-first posture and does not implement product/runtime fixes.",
+                "",
+                f"Primary USER review file: `{REPAIR_IMPLEMENTATION_PRIMARY_FILE}`",
+                "",
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Repair Implementation Approval",
+                "",
+                "Read the primary USER Review file first. Review Aids include the copied validator-first packet, expected-red run, B/D decision summaries, final repair package, and exact next approval text.",
+                "",
+            ]
+        ),
+    )
+    aids = {
+        "LIVE_VALIDATOR_FIRST_PACKET_DIGEST.md": section("Live Validator First Packet Digest", validator_digest),
+        "EXPECTED_RED_PRODUCT_STATE_RUN.md": section(
+            "Expected-Red Product-State Run",
+            "\n".join(
+                [
+                    f"Expected-red product-state run: {'PASS' if product_run.get('passed') else 'FAIL'}",
+                    f"Known-bad product state: {product_run.get('knownBadProductState')}",
+                    "",
+                    live_validator_checks_table_md(checks),
+                ]
+            ),
+        ),
+        "B_START_STOP_OWNERSHIP_DECISION.md": section("B Start/Stop Ownership Decision", start_stop_finalization_md()),
+        "D_NATIVE_LOG_BOUNDARY_DECISION.md": section("D Native Log Boundary Decision", native_log_finalization_md()),
+        "FINAL_REPAIR_PACKAGE.md": section("Final Repair Package", repair_implementation_package_md()),
+        "REPAIR_SEQUENCING.md": section("Repair Sequencing", repair_sequencing_md()),
+        "FUTURE_GATED_BOUNDARIES.md": section(
+            "Future-Gated Boundaries",
+            "Full Log Viewer/export/tray/keybind/settings/Native Log Loader work and PR/merge/release/issue-closeout work remain outside this approval surface.",
+        ),
+        "VALIDATOR_FIRST_PRODUCT_STATE_RAW.json": json.dumps(product_run, indent=2),
+        "VALIDATOR_FIRST_SELF_CHECK_RAW.json": json.dumps(self_check, indent=2),
+        "EXACT_NEXT_APPROVAL_TEXT.md": section("Exact Next Approval Text", f"`{approval_text}`"),
+    }
+    for name, body in aids.items():
+        write(PACKET_ROOT / "Review Aids" / name, body)
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file_path in PACKET_ROOT.rglob("*"):
+            if file_path.is_file():
+                archive.write(file_path, file_path.relative_to(PACKET_ROOT).as_posix())
+    digest = sha256_file(zip_path)
+    return PACKET_ROOT, zip_path, digest
+
+
 def validate_validator_first_packet(packet_root: Path) -> dict[str, object]:
     primary = packet_root / VALIDATOR_FIRST_PRIMARY_FILE
     files = list(packet_root.rglob("*"))
@@ -2416,6 +2739,65 @@ def validate_validator_first_packet(packet_root: Path) -> dict[str, object]:
         and (packet_root / "Source Truth Context").is_dir()
         and len(user_review_files) == 1
         and (packet_root / "Review Aids" / "Repair Planning Packet" / REPAIR_PLAN_PRIMARY_FILE).exists()
+    )
+    return {
+        "passed": not missing and not forbidden_hits and layout_ok,
+        "layoutOk": layout_ok,
+        "missingRequiredMarkers": missing,
+        "forbiddenMarkers": forbidden_hits,
+        "userReviewFileCount": len(user_review_files),
+        "markdownFileCount": len(markdown_files),
+        "fileCount": len([p for p in files if p.is_file()]),
+    }
+
+
+def validate_repair_implementation_approval_packet(packet_root: Path) -> dict[str, object]:
+    primary = packet_root / REPAIR_IMPLEMENTATION_PRIMARY_FILE
+    files = list(packet_root.rglob("*"))
+    markdown_files = [p for p in files if p.suffix.lower() == ".md"]
+    user_review_files = list((packet_root / "USER Review").glob("*.md"))
+    text = read_text(primary)
+    required = [
+        f"Packet Status: {REPAIR_IMPLEMENTATION_STATUS}",
+        "Packet Reviewability State: Reviewable",
+        "USER Gate State: Pending USER Repair Implementation Approval",
+        "Live Validator First acceptance: Accepted by USER",
+        "Expected-red product-state run: PASS",
+        "Known-bad product state: EXPECTED_RED",
+        "Product/runtime repair: Withheld",
+        "Live Validation acceptance: Withheld",
+        "UTS acceptance: Withheld",
+        "Issue #258 closeout: Withheld",
+        "B Decision - Start/Stop Ownership",
+        "Dashboard Recording Card remains the compact status, summary, and visibility surface.",
+        "Active Start/Stop should move to the Dashboard Quick Access section",
+        "Recording Studio owns the focused/full recording control and status surface.",
+        "D Decision - Native Log / Log Viewer Boundary",
+        "Recording Studio should include compact current/native-log tracking",
+        "Log Viewer Studio remains the minimal native/export folder access shell",
+        "Final Bounded Repair Package",
+        "Repair A:",
+        "Repair B:",
+        "Repair C:",
+        "Repair D:",
+        "Repair UTS:",
+        "Exact Next USER Decision",
+    ]
+    forbidden = [
+        "Product/runtime repair: Implemented",
+        "UTS acceptance: Accepted",
+        "PR Readiness: Approved",
+        "Issue #258: Closed",
+    ]
+    missing = [marker for marker in required if marker not in text]
+    forbidden_hits = [marker for marker in forbidden if marker in text]
+    layout_ok = (
+        (packet_root / "START_HERE.md").exists()
+        and primary.exists()
+        and (packet_root / "Review Aids").is_dir()
+        and (packet_root / "Source Truth Context").is_dir()
+        and len(user_review_files) == 1
+        and (packet_root / "Review Aids" / "Live Validator First Packet" / VALIDATOR_FIRST_PRIMARY_FILE).exists()
     )
     return {
         "passed": not missing and not forbidden_hits and layout_ok,
@@ -3023,6 +3405,8 @@ def main() -> int:
     parser.add_argument("--self-check-validator-first", action="store_true")
     parser.add_argument("--generate-validator-first-packet", action="store_true")
     parser.add_argument("--validate-validator-first-packet", action="store_true")
+    parser.add_argument("--generate-repair-implementation-approval-packet", action="store_true")
+    parser.add_argument("--validate-repair-implementation-approval-packet", action="store_true")
     args = parser.parse_args()
     if args.generate_packet:
         packet_root, zip_path, digest = generate_packet()
@@ -3072,6 +3456,20 @@ def main() -> int:
         return 0 if validation["passed"] else 1
     if args.validate_validator_first_packet:
         validation = validate_validator_first_packet(PACKET_ROOT)
+        print(json.dumps(validation, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.generate_repair_implementation_approval_packet:
+        packet_root, zip_path, digest = generate_repair_implementation_approval_packet()
+        validation = validate_repair_implementation_approval_packet(packet_root)
+        print(json.dumps({
+            "packetRoot": str(packet_root),
+            "zipPath": str(zip_path),
+            "zipSha256": digest,
+            "validation": validation,
+        }, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.validate_repair_implementation_approval_packet:
+        validation = validate_repair_implementation_approval_packet(PACKET_ROOT)
         print(json.dumps(validation, indent=2))
         return 0 if validation["passed"] else 1
     parser.print_help()

@@ -82,9 +82,11 @@ It should not:
 
 Recording Studio is the compact Recording control surface when a branch admits
 it. The current Option C carrier admits a bounded focused control/status Studio
-that mirrors the Dashboard Start/Stop action path; tray integration, keybind
-behavior, close-while-recording warnings, and bulky settings remain separate
-future gates until accepted by later planning.
+that owns the focused/full Start/Stop control and recording status surface.
+Dashboard Quick Access may provide a compact Start/Stop shortcut when branch
+planning and implementation proof admit it. Tray integration, keybind behavior,
+close-while-recording warnings, and bulky settings remain separate future gates
+until accepted by later planning.
 
 Expected direction:
 
@@ -308,6 +310,14 @@ Recommendation: Recording Studio should own the full Start/Stop control surface,
 while Dashboard quick access may provide a compact shortcut if the branch can
 prove it stays clear and visually consistent.
 
+Current branch repair direction accepted for the FAM-006 expected-red repair
+package: move active Start/Stop out of the Dashboard Recording Card body and
+into a compact Dashboard Quick Access section when implementation approval is
+granted. Keep the Recording card as status, summary, target, and launch
+visibility. Keep Recording Studio as the focused/full recording control and
+status surface. Future settings may allow USER to enable or disable Quick
+Access Start/Stop, but settings implementation remains future-gated.
+
 ### Studio Minimize Behavior
 
 Options BP1 should present:
@@ -341,6 +351,13 @@ Options BP1 should present:
 
 Recommendation: native NDAI log plus explicit export path. Automatic readable
 export should be rejected unless USER later accepts that product flow.
+
+Current branch repair direction accepted for the FAM-006 expected-red repair
+package: Recording Studio may carry compact current/native-log tracking when it
+is needed to make recording status trustworthy. Log Viewer Studio remains a
+minimal native/export folder access shell for this branch. Full previous-log
+selection, in-app log viewing, export customization, Native Log Loader
+integration, tray controls, keybinds, and full settings remain future-gated.
 
 ## Proof Expectations
 
@@ -423,8 +440,8 @@ validation/proof expectations that would apply if USER selects that option.
 
 | Deferred Item | Originating FAM | Originating Feature Vision | Origin Planning Event | Originating Gate | Feature Surface | Description | Dependency Trigger | Future Grouping Recommendation | Owner / Worktree | Validation / Proof Expectation | Durable Disposition | Fold-Down Receipt |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Recording Studio full control surface | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Recording Studio | Compact non-child Studio for Start/Stop, target, status, close/minimize warning, and screen-space-efficient control. | Branch admits full recording control surface beyond Dashboard card summary. | Group with Dashboard Recording controls when the same package owns Start/Stop behavior. | FAM-006 / FAM-006 worktree lane | Focused Studio screenshots, Start/Stop proof, close/minimize behavior proof, UTS. | Candidate | Folded from planning packet and external reform candidate into this feature vision. |
-| Log Viewer Studio | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Log Viewer Studio | Non-child surface for native log access, exported-log access, previous-log selection, in-app viewing, and export entry. | Branch admits log review or export workflow. | Group with native/export log model; avoid burying it inside Dashboard card only. | FAM-006 / FAM-006 worktree lane | Focused Log Viewer screenshots, native/export folder proof, export/readability proof when export is admitted, UTS. | Candidate | Folded from planning packet and external reform candidate into this feature vision. |
+| Recording Studio full control surface | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Recording Studio | Compact non-child Studio for Start/Stop, target, status, close/minimize warning, and screen-space-efficient control. | Branch admits full recording control surface beyond Dashboard card summary. | Group with Dashboard Quick Access when the same package owns Start/Stop behavior. | FAM-006 / FAM-006 worktree lane | Focused Studio screenshots, Start/Stop proof, close/minimize behavior proof, UTS. | Current-Branch Repair Direction | Folded from planning packet, external reform candidate, and 2026-06-09 expected-red repair finalization into this feature vision. |
+| Log Viewer Studio | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Log Viewer Studio | Non-child surface for native log access, exported-log access, previous-log selection, in-app viewing, and export entry. | Branch admits log review or export workflow. | Group with native/export log model; avoid burying it inside Dashboard card only. | FAM-006 / FAM-006 worktree lane | Focused Log Viewer screenshots, native/export folder proof, export/readability proof when export is admitted, UTS. | Minimal Shell Current / Full Viewer Future-Gated | Folded from planning packet, external reform candidate, and 2026-06-09 expected-red repair finalization into this feature vision. |
 | Native NDAI log model | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Native logs | Recording saves first as NDAI-native product artifact for readback and future in-app review. | Branch writes or reads recording output. | Group with any Recording implementation that saves files. | FAM-006 / FAM-006 worktree lane | Native save/readback helper proof, no automatic readable export, UTS. | Folded Into Branch Vision | Existing branch evidence and USER feedback folded into durable feature direction. |
 | Exported log model | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Exports | Readable CSV/Excel/JSON or other files are USER-requested exports, not default product saves. | Branch admits export/share or third-party-readable output. | Group with Log Viewer Studio export workflow. | FAM-006 / FAM-006 worktree lane | Export file readability proof in target software class, output-folder proof, UTS. | Future Package Candidate | Preserved as future-gated direction until export branch admission. |
 | Tray recording visibility and control | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Tray | Dedicated recording visibility and optional Start/Stop / Studio / Log Viewer controls through tray. | Branch admits recording transparency or minimized Studio behavior. | Group with Recording Studio minimize behavior when the same package owns transparency. | FAM-006 / FAM-006 worktree lane | Real tray interaction proof, visible state proof, screenshot/video proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
@@ -432,7 +449,7 @@ validation/proof expectations that would apply if USER selects that option.
 | Recording settings | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Settings | Compact categorized settings for start/stop behavior, Studio opening, Log Viewer opening, warnings, export defaults, and log locations. | Branch admits configurable recording behavior. | Group with the behavior being configured; do not create settings-only drift. | FAM-006 / FAM-006 worktree lane | Settings UI proof, persistence proof, reset/rollback proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
 | Warning dismissal behavior | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Recording Studio warning | Local dismissal for close-while-recording warning, separate from global settings. | Branch admits close-while-recording warning. | Group with Recording Studio close behavior. | FAM-006 / FAM-006 worktree lane | Warning modal proof, dismissal persistence proof, recording continues/stops behavior proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
 | Overlay Profile persistence dependency | FAM-006 | Recording | GitHub issue #258 and FAM-006 recording branch planning | BP2/BP3 amended planning evidence | Overlay Profiles | Recording target reliability depends on saved Overlay Profiles remaining present after restart. | Branch depends on saved Overlay Profile targets across sessions. | Group with Recording target reliability only when implementation touches profile persistence. | FAM-006 / FAM-006 worktree lane | Create/save/restart/reselect proof, recording target mirror proof, UTS. | Implemented Receipt | Issue #258 remains open until USER disposition, but branch evidence records implemented persistence proof. |
-| Dashboard quick-access recording affordance | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Dashboard | Small obvious Dashboard Start/Stop affordance, possibly icon-led. | Branch admits Dashboard-level quick control. | Group with Recording card when quick access and target/status share state. | FAM-006 / FAM-006 worktree lane | Focused Dashboard card screenshots, click/state proof, visual-system proof, UTS. | Candidate | Folded from USER planning feedback into this feature vision. |
+| Dashboard quick-access recording affordance | FAM-006 | Recording | FAM-006 recording planning review, 2026-06-08 | Live Validation stop-loss planning | Dashboard | Small obvious Dashboard Start/Stop affordance, possibly icon-led. | Branch admits Dashboard-level quick control. | Group with Recording Studio when quick access and full control share state. | FAM-006 / FAM-006 worktree lane | Focused Dashboard Quick Access screenshots, click/state proof, visual-system proof, UTS. | Current-Branch Repair Direction | Folded from USER planning feedback and 2026-06-09 expected-red repair finalization into this feature vision. |
 | Native Log Loader relationship | FAM-006 | Recording | FAM-006 family vision and recording planning review | Family vision / planning evidence | Log viewing | Native Log Loader remains separate graph/log viewer unless later planning folds it into Log Viewer Studio. | Branch admits graph/log viewer capability. | Keep separate unless Source-Truth Placement Preflight proves same owner is needed. | FAM-006 / FAM-006 worktree lane | Viewer/readback proof if admitted; otherwise explicit future-gated proof. | Deferred Until Dependency | Preserved as a future dependency boundary. |
 
 ## Fold-Down History

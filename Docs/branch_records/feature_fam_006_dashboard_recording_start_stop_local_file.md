@@ -252,6 +252,20 @@ UTS Handoff: `C:\Nexus USER\UTS - FAM-006.txt was refreshed after LV1 PASS as th
 LV1 Boundary: `The UTS export is a handoff artifact, not returned USER evidence. Live Validation cannot advance to PR Readiness until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver; PR creation, issue closeout, merge, release, branch cleanup, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
 Next Legal Phase: `USER completes and returns C:\Nexus USER\UTS - FAM-006.txt for Live Validation result digestion.`
 
+## Live Validator First Acceptance / Repair Package Finalization Receipt
+
+Finalization Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; active packet proof, ZIP proof, expected-red helper output, and current Git proof live in helper output, external state, Git, and Codex completion packets.`
+Accepted Validator-First Packet: `C:\Nexus USER\FAM-006-20260609-130658.zip`
+Accepted Validator-First SHA256: `23058F12AC3178C4546E58252CE945CA6689687E25CE812677BFEA60520F8252`
+Expected-Red Posture: `Accepted - current product-state classification remains 4 FAIL / 3 BLOCKED / 5 UNPROVEN until product/runtime repair proves the normal USER path green.`
+Superseded Historical Evidence: `Prior LV1 automated handoff and UTS handoff receipts remain historical evidence, but they do not authorize PR Readiness or issue closeout while the expected-red findings remain unresolved.`
+Start/Stop Repair Direction: `Accepted for current-branch repair planning - move active Start/Stop out of the Dashboard Recording Card body and into a compact Dashboard Quick Access section when implementation approval is granted; keep the Recording card as compact status/summary/visibility; keep Recording Studio as the focused/full control and status surface.`
+Native Log / Log Viewer Repair Direction: `Accepted for current-branch repair planning - add compact current/native-log tracking in Recording Studio where needed for trustworthy recording status; keep Log Viewer Studio as the minimal native/export folder access shell; full previous-log selection, in-app viewing, export customization, Native Log Loader integration, tray, keybind, and full settings remain future-gated.`
+Final Repair Package: `Recording Studio visible-button path, Start/Stop Quick Access ownership alignment, Log Viewer focus/open regression, compact Recording Studio native-log tracking, Overlay Profile normal USER proof path, visual-system inheritance, native-window behavior, screenshot/evidence adjudication, interaction combination matrix, and UTS stop-loss repair.`
+Implementation Authority: `Pending - product/runtime fixes are withheld until USER approves the separate bounded FAM-006 repair implementation packet.`
+Next Legal Phase: `Bounded FAM-006 repair implementation approval review.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
@@ -264,7 +278,7 @@ Repo Receipt Role: `This file is a durable branch admission pointer and traceabi
 
 BP1 Route: `Historical/superseded planning receipt - USER_BRANCH_VISION_REVIEW.md generated under C:\Nexus USER\FAM-006 and accepted by USER after Option F planning solidification`
 Packet Reviewability Boundary: `A reviewable BP1 packet starts USER review; it is not USER acceptance.`
-USER Gate Boundary: `Superseded for active gate state - BP1 and BP2 are accepted, BP3 is accepted, and the active USER decision is bounded Workstream/runtime implementation approval review.`
+USER Gate Boundary: `Superseded for active gate state - BP1 and BP2 are accepted, BP3 is accepted, Workstream and H1 historical proof are superseded by the expected-red Live Validator First posture, and the active USER decision is bounded repair implementation approval review.`
 
 ## Assigned Worktree Confinement
 
