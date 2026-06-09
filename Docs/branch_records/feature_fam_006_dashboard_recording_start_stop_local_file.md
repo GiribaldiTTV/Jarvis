@@ -279,6 +279,20 @@ User Test Summary Results: `PENDING until USER explicitly accepts, revises, hold
 Boundary: `This receipt does not approve PR Readiness, issue #258 closeout, PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
 Next Legal Phase: `USER Live Validation / UTS disposition decision; if accepted, Codex digests the disposition before requesting PR Readiness Stage 1.`
 
+## Live Validation / UTS Disposition Acceptance Digest
+
+Acceptance Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; active gate state and USER Gate State live in C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md, helper output, Git, and Codex completion packets.`
+USER Decision Source: `USER accepted the generated Live Validation / UTS disposition packet after all A-J repair-return findings were green.`
+Accepted Disposition Packet: `C:\Nexus USER\FAM-006-20260609-161050.zip`
+Accepted Disposition SHA256: `69DC154178349729383E4BDC98F56F6148BBE7EB5363B9A35B9B2A0D0AC35510`
+User Test Summary Results: `PASS`
+Live Validation Stage 1 Result: `Accepted/green after USER disposition; no current-scope UTS failures remain outstanding from the accepted disposition.`
+Blocker Reevaluation: `User Test Summary Results Pending cleared for this FAM-006 Live Validation Stage 1 disposition.`
+Issue #258 Closeout: `Still pending separate USER/GitHub issue decision; this acceptance proves the admitted target-reliability line item for branch validation but does not close the issue.`
+Boundary: `This digest does not approve PR Readiness Stage 1 analysis, PR creation, issue #258 closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
+Next Legal Phase: `PR Readiness Stage 1 analysis approval.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
