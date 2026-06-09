@@ -123,6 +123,8 @@ const aiProviderStatusCapabilityEligibility = document.getElementById("ai-provid
 const aiProviderStatusInstallIntent = document.getElementById("ai-provider-status-install-intent");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
 const aiProviderStatusFallback = document.getElementById("ai-provider-status-fallback");
+const aiProviderStatusResult = document.getElementById("ai-provider-status-result");
+const aiProviderStatusResultDetail = document.getElementById("ai-provider-status-result-detail");
 const aiProviderStatusNextAction = document.getElementById("ai-provider-status-next-action");
 const aiProviderStatusPrivacy = document.getElementById("ai-provider-status-privacy");
 
@@ -258,6 +260,17 @@ let aiProviderState = {
   providerConsentBoundaryLabel: "Consent boundary: provider setup required before prompts",
   providerNextActionLabel:
     "Open local assist to review public-safe local status; provider/model execution remains blocked",
+  localActionResultSchemaVersion: "local-action-result.v1",
+  localActionResultState: "deterministic-no-provider-result",
+  localActionResultLabel: "Local assist result: no provider configured",
+  localActionResultDetail:
+    "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none.",
+  localActionResultProviderVisibleData: "none",
+  localActionResultSentToProvider: false,
+  localActionResultCanAcceptPrompts: false,
+  localActionResultPromptSendPosture: "prompt-send-disabled",
+  localActionResultNetworkEgressState: "network-egress-blocked",
+  localActionResultMemoryIndexingState: "memory-indexing-disabled",
   runtimeStateSchemaVersion: "provider-runtime-state.v1",
   runtimeStateCategory: "provider_setup_disabled",
   runtimeStateLabel: "Runtime state: provider setup disabled",
@@ -1682,6 +1695,22 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.localActionGuard = "no-provider";
   aiProviderStatus.dataset.localActionClickable = localActionAvailable ? "true" : "false";
   aiProviderStatus.dataset.localActionResult = aiProviderStatus.dataset.localActionResult || "idle";
+  aiProviderStatus.dataset.localActionResultState =
+    state.localActionResultState || "local-action-idle";
+  aiProviderStatus.dataset.localActionResultSchema =
+    state.localActionResultSchemaVersion || "local-action-result.v1";
+  aiProviderStatus.dataset.localResultProviderVisibleData =
+    state.localActionResultProviderVisibleData || "none";
+  aiProviderStatus.dataset.localResultSentToProvider =
+    state.localActionResultSentToProvider ? "true" : "false";
+  aiProviderStatus.dataset.localResultCanAcceptPrompts =
+    state.localActionResultCanAcceptPrompts ? "true" : "false";
+  aiProviderStatus.dataset.localResultPromptSend =
+    state.localActionResultPromptSendPosture || "prompt-send-disabled";
+  aiProviderStatus.dataset.localResultNetworkEgress =
+    state.localActionResultNetworkEgressState || "network-egress-blocked";
+  aiProviderStatus.dataset.localResultMemoryIndexing =
+    state.localActionResultMemoryIndexingState || "memory-indexing-disabled";
   aiProviderStatus.dataset.mode = state.mode || "unknown";
   aiProviderStatus.dataset.availability = state.availability || "disabled";
   aiProviderStatus.dataset.privacyScope = state.privacyScope || "unknown";
@@ -2282,6 +2311,14 @@ function renderAIProviderState() {
   if (aiProviderStatusFallback) {
     aiProviderStatusFallback.textContent = state.noProviderFallbackLabel || "No-provider fallback active";
   }
+  if (aiProviderStatusResult) {
+    aiProviderStatusResult.textContent =
+      "Local assist result: waiting for local action";
+  }
+  if (aiProviderStatusResultDetail) {
+    aiProviderStatusResultDetail.textContent =
+      "Open local assist to produce a deterministic local no-provider result.";
+  }
   if (aiProviderStatusNextAction) {
     aiProviderStatusNextAction.textContent =
       state.providerNextActionLabel ||
@@ -2305,20 +2342,45 @@ function handleAIProviderStatusActionClick(event) {
     state.networkEgressState === "network-egress-blocked" &&
     state.memoryIndexingState === "memory-indexing-disabled";
 
-  aiProviderStatus.dataset.localActionResult =
+  const resultState = guardClosed
+    ? (state.localActionResultState || "deterministic-no-provider-result")
+    : "blocked-boundary-mismatch";
+  const resultLabel = guardClosed
+    ? (state.localActionResultLabel || "Local assist result: no provider configured")
+    : "Local assist result: blocked";
+  const resultDetail = guardClosed
+    ? (state.localActionResultDetail ||
+      "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none.")
+    : "Provider boundary mismatch; no local result was produced.";
+
+  aiProviderStatus.dataset.localActionResult = resultState;
+  aiProviderStatus.dataset.localActionResultState = resultState;
+  aiProviderStatus.dataset.localActionGuardResult =
     guardClosed ? "guarded-no-provider" : "blocked-boundary-mismatch";
   aiProviderStatus.dataset.sentToProvider = "false";
   aiProviderStatus.dataset.canAcceptPrompts = "false";
   aiProviderStatus.dataset.providerVisibleData = "none";
+  aiProviderStatus.dataset.localResultProviderVisibleData = "none";
+  aiProviderStatus.dataset.localResultSentToProvider = "false";
+  aiProviderStatus.dataset.localResultCanAcceptPrompts = "false";
+  aiProviderStatus.dataset.localResultPromptSend = "prompt-send-disabled";
+  aiProviderStatus.dataset.localResultNetworkEgress = "network-egress-blocked";
+  aiProviderStatus.dataset.localResultMemoryIndexing = "memory-indexing-disabled";
 
   if (aiProviderStatusFallback) {
     aiProviderStatusFallback.textContent = guardClosed
       ? "Local assist opened; provider-visible data remains none"
       : "Local assist blocked; provider boundary mismatch";
   }
+  if (aiProviderStatusResult) {
+    aiProviderStatusResult.textContent = resultLabel;
+  }
+  if (aiProviderStatusResultDetail) {
+    aiProviderStatusResultDetail.textContent = resultDetail;
+  }
   if (aiProviderStatusNextAction) {
     aiProviderStatusNextAction.textContent = guardClosed
-      ? "No prompt was accepted or sent. Provider, download, network, cache, and memory paths remain blocked."
+      ? resultDetail
       : "Provider boundary mismatch; no local action ran.";
   }
 }

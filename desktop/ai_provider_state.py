@@ -478,6 +478,10 @@ PROMPT_ACCEPTANCE_GATE_FUTURE_GATED = "prompt-acceptance-future-gated"
 PROMPT_ROUTING_GATE_DISABLED = "prompt-routing-disabled"
 PROMPT_ROUTING_GATE_FUTURE_GATED = "prompt-routing-future-gated"
 PROMPT_SEND_POSTURE_DISABLED = "prompt-send-disabled"
+LOCAL_ACTION_RESULT_SCHEMA_VERSION = "local-action-result.v1"
+LOCAL_ACTION_RESULT_IDLE = "local-action-idle"
+LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER = "deterministic-no-provider-result"
+LOCAL_ACTION_RESULT_BLOCKED_BOUNDARY_MISMATCH = "blocked-boundary-mismatch"
 MODEL_EXECUTION_STATUS_DISABLED = "model-execution-disabled"
 MODEL_EXECUTION_STATUS_FUTURE_GATED = "model-execution-future-gated"
 MODEL_WORKLOAD_READINESS_DISABLED = "model-workload-readiness-disabled"
@@ -2296,6 +2300,16 @@ class AIProviderStateSnapshot:
     prompt_routing_gate_label: str = "Prompt routing gate: disabled"
     prompt_send_posture: str = PROMPT_SEND_POSTURE_DISABLED
     prompt_send_label: str = "Prompt send: disabled"
+    local_action_result_schema_version: str = LOCAL_ACTION_RESULT_SCHEMA_VERSION
+    local_action_result_state: str = LOCAL_ACTION_RESULT_IDLE
+    local_action_result_label: str = "Local assist result: waiting for local action"
+    local_action_result_detail: str = "Open local assist to produce a local no-provider result."
+    local_action_result_provider_visible_data: str = "none"
+    local_action_result_sent_to_provider: bool = False
+    local_action_result_can_accept_prompts: bool = False
+    local_action_result_prompt_send_posture: str = PROMPT_SEND_POSTURE_DISABLED
+    local_action_result_network_egress_state: str = NETWORK_EGRESS_BLOCKED
+    local_action_result_memory_indexing_state: str = MEMORY_INDEXING_DISABLED
     model_execution_status: str = MODEL_EXECUTION_STATUS_DISABLED
     model_execution_status_label: str = "Model execution status: disabled"
     model_workload_readiness_posture: str = MODEL_WORKLOAD_READINESS_DISABLED
@@ -3910,6 +3924,16 @@ class AIProviderStateSnapshot:
             "providerInteractionDetail": self.provider_interaction_detail,
             "providerConsentBoundaryLabel": self.provider_consent_boundary_label,
             "providerNextActionLabel": self.provider_next_action_label,
+            "localActionResultSchemaVersion": self.local_action_result_schema_version,
+            "localActionResultState": self.local_action_result_state,
+            "localActionResultLabel": self.local_action_result_label,
+            "localActionResultDetail": self.local_action_result_detail,
+            "localActionResultProviderVisibleData": self.local_action_result_provider_visible_data,
+            "localActionResultSentToProvider": self.local_action_result_sent_to_provider,
+            "localActionResultCanAcceptPrompts": self.local_action_result_can_accept_prompts,
+            "localActionResultPromptSendPosture": self.local_action_result_prompt_send_posture,
+            "localActionResultNetworkEgressState": self.local_action_result_network_egress_state,
+            "localActionResultMemoryIndexingState": self.local_action_result_memory_indexing_state,
             "localStorage": self.local_storage,
             "consentState": self.consent_state,
             "consentLabel": self.consent_label,
@@ -10481,6 +10505,17 @@ def build_provider_setup_completion_foundation_state(
         provider_next_action_label=(
             "Open local assist to review public-safe local status; provider/model execution remains blocked"
         ),
+        local_action_result_state=LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER,
+        local_action_result_label="Local assist result: no provider configured",
+        local_action_result_detail=(
+            "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none."
+        ),
+        local_action_result_provider_visible_data="none",
+        local_action_result_sent_to_provider=False,
+        local_action_result_can_accept_prompts=False,
+        local_action_result_prompt_send_posture=PROMPT_SEND_POSTURE_DISABLED,
+        local_action_result_network_egress_state=NETWORK_EGRESS_BLOCKED,
+        local_action_result_memory_indexing_state=MEMORY_INDEXING_DISABLED,
         interaction_affordance=LOCAL_ASSISTED_INTERACTION_AFFORDANCE,
         interaction_label="Open local assist",
         interaction_disabled_reason=(

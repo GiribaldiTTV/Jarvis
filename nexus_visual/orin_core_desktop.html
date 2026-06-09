@@ -51,6 +51,14 @@
       data-local-action-guard="no-provider"
       data-local-action-clickable="true"
       data-local-action-result="idle"
+      data-local-action-result-state="local-action-idle"
+      data-local-action-result-schema="local-action-result.v1"
+      data-local-result-provider-visible-data="none"
+      data-local-result-sent-to-provider="false"
+      data-local-result-can-accept-prompts="false"
+      data-local-result-prompt-send="prompt-send-disabled"
+      data-local-result-network-egress="network-egress-blocked"
+      data-local-result-memory-indexing="memory-indexing-disabled"
       data-availability="disabled"
       data-mode="no-provider"
       data-privacy-scope="local-only"
@@ -279,6 +287,8 @@
         data-local-action-guard="no-provider"
       >Open local assist</button>
       <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider guard active</div>
+      <div id="ai-provider-status-result" class="ai-provider-status__result">Local assist result: waiting for local action</div>
+      <div id="ai-provider-status-result-detail" class="ai-provider-status__result-detail">Open local assist to produce a deterministic local no-provider result.</div>
       <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Open local assist to review public-safe local status; provider/model execution remains blocked</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>

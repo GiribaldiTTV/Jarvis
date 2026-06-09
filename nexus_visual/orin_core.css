@@ -576,6 +576,8 @@ body {
 .ai-provider-status__capability-eligibility,
 .ai-provider-status__install-intent,
 .ai-provider-status__fallback,
+.ai-provider-status__result,
+.ai-provider-status__result-detail,
 .ai-provider-status__next-action,
 .ai-provider-status__privacy {
   margin-top: 7px;
@@ -641,8 +643,15 @@ body {
 
 .ai-provider-status__disclosure,
 .ai-provider-status__visible-data-detail,
-.ai-provider-status__fallback {
+.ai-provider-status__fallback,
+.ai-provider-status__result,
+.ai-provider-status__result-detail {
   color: rgba(206, 231, 244, 0.9);
+}
+
+.ai-provider-status__result,
+.ai-provider-status__result-detail {
+  white-space: normal;
 }
 
 .ai-provider-status__consent-boundary,
@@ -713,6 +722,7 @@ body {
 .ai-provider-status__functional-release,
 .ai-provider-status__capability-eligibility,
 .ai-provider-status__install-intent,
+.ai-provider-status__result-detail,
 .ai-provider-status__next-action {
   color: rgba(255, 218, 151, 0.9);
 }

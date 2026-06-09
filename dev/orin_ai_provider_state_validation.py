@@ -325,6 +325,8 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROMPT_ROUTING_GATE_DISABLED,
     PROMPT_ROUTING_GATE_FUTURE_GATED,
     PROMPT_SEND_POSTURE_DISABLED,
+    LOCAL_ACTION_RESULT_SCHEMA_VERSION,
+    LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER,
     MODEL_EXECUTION_STATUS_DISABLED,
     MODEL_EXECUTION_STATUS_FUTURE_GATED,
     MODEL_WORKLOAD_READINESS_DISABLED,
@@ -7903,6 +7905,30 @@ def validate() -> list[str]:
             failures,
         )
         _require(
+            setup_completion_payload["localActionResultSchemaVersion"]
+            == LOCAL_ACTION_RESULT_SCHEMA_VERSION
+            and setup_completion_payload["localActionResultState"]
+            == LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER
+            and setup_completion_payload["localActionResultLabel"]
+            == "Local assist result: no provider configured"
+            and "provider-visible data remains none"
+            in setup_completion_payload["localActionResultDetail"]
+            and setup_completion_payload["localActionResultProviderVisibleData"]
+            == "none"
+            and setup_completion_payload["localActionResultSentToProvider"]
+            is False
+            and setup_completion_payload["localActionResultCanAcceptPrompts"]
+            is False
+            and setup_completion_payload["localActionResultPromptSendPosture"]
+            == PROMPT_SEND_POSTURE_DISABLED
+            and setup_completion_payload["localActionResultNetworkEgressState"]
+            == NETWORK_EGRESS_BLOCKED
+            and setup_completion_payload["localActionResultMemoryIndexingState"]
+            == MEMORY_INDEXING_DISABLED,
+            f"{label} setup-completion fixture must expose deterministic no-provider result proof",
+            failures,
+        )
+        _require(
             setup_completion_payload["providerSetupCompletionProviderVisibleData"]
             == "none"
             and setup_completion_payload["providerSetupCompletionSentToProvider"]
@@ -8495,6 +8521,14 @@ def validate() -> list[str]:
             'data-local-action-guard="no-provider"',
             'data-local-action-clickable="true"',
             'data-local-action-result="idle"',
+            'data-local-action-result-state="local-action-idle"',
+            'data-local-action-result-schema="local-action-result.v1"',
+            'data-local-result-provider-visible-data="none"',
+            'data-local-result-sent-to-provider="false"',
+            'data-local-result-can-accept-prompts="false"',
+            'data-local-result-prompt-send="prompt-send-disabled"',
+            'data-local-result-network-egress="network-egress-blocked"',
+            'data-local-result-memory-indexing="memory-indexing-disabled"',
             'data-mode="no-provider"',
             'data-privacy-scope="local-only"',
             'data-provider-selection="fallback-no-provider"',
@@ -8790,6 +8824,10 @@ def validate() -> list[str]:
             'aria-disabled="false"',
             "Open local assist",
             "No-provider guard active",
+            'id="ai-provider-status-result"',
+            "Local assist result: waiting for local action",
+            'id="ai-provider-status-result-detail"',
+            "Open local assist to produce a deterministic local no-provider result.",
             "Open local assist to review public-safe local status; provider/model execution remains blocked",
             "Local shell only; nothing is sent",
         ):
@@ -9130,11 +9168,21 @@ def validate() -> list[str]:
         "aiProviderStatusFunctionalRelease",
         "aiProviderStatusCapabilityEligibility",
         "aiProviderStatusInstallIntent",
+        "aiProviderStatusResult",
+        "aiProviderStatusResultDetail",
         "aiProviderStatusRuntime",
         "aiProviderStatusRuntimeReason",
         "aiProviderStatusRuntimeProvenance",
         "aiProviderStatusRuntimeSchema",
         "handleAIProviderStatusActionClick",
+        "deterministic-no-provider-result",
+        "local-action-result.v1",
+        "localResultProviderVisibleData",
+        "localResultSentToProvider",
+        "localResultCanAcceptPrompts",
+        "localResultPromptSend",
+        "localResultNetworkEgress",
+        "localResultMemoryIndexing",
         "guarded-no-provider",
         "blocked-boundary-mismatch",
         "aiProviderStatusAction.disabled = !localActionAvailable",
