@@ -6160,6 +6160,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_self_qa_started = False
         self._monitoring_hud_live_self_qa_step_delay_ms = 250
         self._monitoring_hud_live_self_qa_final_hold_ms = 0
+        self._monitoring_hud_live_self_qa_lane = "full"
         self._monitoring_hud_interactive_screen_rect = QRect()
         self._monitoring_hud_native_panel_drag_active = False
         self._monitoring_hud_native_panel_drag_start = QPoint()
@@ -9380,6 +9381,7 @@ class DesktopRuntimeWindow(QWidget):
         evidence_root: str = "",
         step_delay_ms: int = 250,
         final_hold_ms: int = 0,
+        lane: str = "full",
     ):
         self._monitoring_hud_live_self_qa_manifest_path = os.path.abspath(manifest_path)
         root = evidence_root or os.path.dirname(self._monitoring_hud_live_self_qa_manifest_path)
@@ -9387,6 +9389,8 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_self_qa_started = False
         self._monitoring_hud_live_self_qa_step_delay_ms = max(250, int(step_delay_ms or 250))
         self._monitoring_hud_live_self_qa_final_hold_ms = max(0, int(final_hold_ms or 0))
+        normalized_lane = str(lane or "full").strip().casefold()
+        self._monitoring_hud_live_self_qa_lane = normalized_lane if normalized_lane in {"full", "recording-option-c"} else "full"
         self._emit_runtime_signal(
             "MONITORING_HUD_LIVE_CLIENT_SELF_QA_CONFIGURED",
             package="PKG-006",
@@ -9394,6 +9398,7 @@ class DesktopRuntimeWindow(QWidget):
             manifest=self._monitoring_hud_live_self_qa_manifest_path,
             step_delay_ms=self._monitoring_hud_live_self_qa_step_delay_ms,
             final_hold_ms=self._monitoring_hud_live_self_qa_final_hold_ms,
+            lane=self._monitoring_hud_live_self_qa_lane,
         )
         QTimer.singleShot(500, self._start_monitoring_hud_live_client_real_os_self_qa)
 
@@ -9425,6 +9430,7 @@ class DesktopRuntimeWindow(QWidget):
             },
             "client": "desktop/orin_desktop_main.py",
             "mode": "live-client-interaction-self-qa",
+            "lane": self._monitoring_hud_live_self_qa_lane,
             "entrypoint": "Nexus Desktop AI desktop runtime",
             "stepDelayMs": self._monitoring_hud_live_self_qa_step_delay_ms,
             "finalHoldMs": self._monitoring_hud_live_self_qa_final_hold_ms,
@@ -9886,6 +9892,40 @@ class DesktopRuntimeWindow(QWidget):
                 screenshots.append(path)
             return path
 
+        def capture_native_window(label: str, widget: QWidget | None) -> str:
+            if widget is None or not self._monitoring_hud_live_self_qa_root:
+                return ""
+            try:
+                os.makedirs(self._monitoring_hud_live_self_qa_root, exist_ok=True)
+                safe_label = re.sub(r"[^A-Za-z0-9_.-]+", "_", label).strip("_") or "native_window"
+                path = os.path.join(self._monitoring_hud_live_self_qa_root, f"{safe_label}.png")
+                widget.show()
+                widget.raise_()
+                widget.activateWindow()
+                QApplication.processEvents()
+                time.sleep(0.25)
+                screenshot = widget.grab()
+                if screenshot.save(path, "PNG"):
+                    screenshots.append(path)
+                    self._emit_runtime_signal(
+                        "MONITORING_HUD_LIVE_CLIENT_SELF_QA_SCREENSHOT_READY",
+                        package="PKG-006",
+                        slice="SLC-029",
+                        label=safe_label,
+                        path=path,
+                        capture="native_window_focused_visual_proof",
+                    )
+                    return path
+            except Exception as exc:
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_LIVE_CLIENT_SELF_QA_SCREENSHOT_FAILED",
+                    package="PKG-006",
+                    slice="SLC-029",
+                    label=label,
+                    reason=type(exc).__name__,
+                )
+            return ""
+
         def query(label: str, script: str, callback):
             self._run_javascript_with_result(
                 script,
@@ -10015,7 +10055,14 @@ class DesktopRuntimeWindow(QWidget):
             """
             query(label, script, click_from_rect)
 
-        def os_click_and_assert_state(selector: str, label: str, state_script: str, callback):
+        def os_click_and_assert_state(
+            selector: str,
+            label: str,
+            state_script: str,
+            callback,
+            *,
+            callback_delay_ms: int | None = None,
+        ):
             def click_from_rect(parsed: dict[str, object]):
                 point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect"))
                 screen_rect = self._monitoring_hud_screen_tuple_from_page_rect(parsed.get("rect"))
@@ -10071,7 +10118,7 @@ class DesktopRuntimeWindow(QWidget):
                     if not passed:
                         finish("FAIL", f"{label} failed real OS state-verified click")
                         return
-                    QTimer.singleShot(delay(), callback)
+                    QTimer.singleShot(delay() if callback_delay_ms is None else callback_delay_ms, callback)
 
                 sent = send_once()
                 self._run_javascript_with_result(state_script, lambda result: handle_state(result, sent))
@@ -10268,13 +10315,13 @@ class DesktopRuntimeWindow(QWidget):
                             && launcher
                             && openFolder
                             && !launcher.disabled
-                            && openFolder.disabled
+                            && !openFolder.disabled
                             && String(launcher.textContent || "").trim() === "Start Recording"
-                            && String(openFolder.textContent || "").trim() === "Open Log Folder"
+                            && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
                             && card.dataset.recordingExecutionState === "ready"
                             && card.dataset.recordingFileWritingState === "ready"
-                            && openFolder.dataset.recordingFolderAction === "user-export-folder"
-                            && openFolder.dataset.recordingFolderPathAvailable === "false"
+                            && openFolder.dataset.recordingFolderAction === "native-and-export-folder-shell"
+                            && openFolder.dataset.recordingFolderPathAvailable === "pre-session-root"
                             && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
                             && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
                             && preview.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
@@ -10307,10 +10354,67 @@ class DesktopRuntimeWindow(QWidget):
                 "02_recording_card_target_status_visual_contract",
                 "02_recording_card_target_preview_standard_state_rows",
                 "02_recording_card_start_stop_ready_state",
-                "02_recording_card_open_log_folder_disabled_state",
+                "02_recording_card_log_viewer_studio_pre_session_ready_state",
             ]
             for label in labels:
                 capture(label)
+            QTimer.singleShot(delay(), step_recording_studio_click)
+
+        recording_studio_native_proof_attempts = {"count": 0}
+
+        def step_recording_studio_click():
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-studio-open",
+                "real OS click opens Dashboard Recording Studio",
+                """
+                (function() {
+                    const studio = document.getElementById("monitoring-hud-recording-studio-open");
+                    const summary = monitoringHudControlState ? monitoringHudControlState.recordingControlWindowTargetSummary || {} : {};
+                    return JSON.stringify({
+                        ok: Boolean(
+                            studio
+                            && !studio.disabled
+                            && String(studio.textContent || "").trim() === "Recording Studio"
+                            && monitoringHudControlState.recordingControlWindowRequested === true
+                            && monitoringHudControlState.recordingControlWindowState === "native-window-requested"
+                        ),
+                        studioEnabled: Boolean(studio && !studio.disabled),
+                        studioText: studio ? String(studio.textContent || "").trim() : "",
+                        recordingControlWindowState: monitoringHudControlState ? String(monitoringHudControlState.recordingControlWindowState || "") : "",
+                        windowContract: summary ? String(summary.windowContract || "") : "",
+                        startStopState: summary ? String(summary.startStopState || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_studio_native_window_assert_wait,
+            )
+
+        def step_recording_studio_native_window_assert_wait():
+            QTimer.singleShot(delay(900), step_recording_studio_native_window_assert)
+
+        def step_recording_studio_native_window_assert():
+            widget = self._monitoring_hud_recording_studio_window
+            proof = widget.proof_state() if widget is not None else {}
+            passed = bool(
+                proof
+                and proof.get("visible") is True
+                and proof.get("surface") == "recording_studio_window"
+                and proof.get("standaloneTopLevel") is True
+                and proof.get("windowFlag") == "normal_window"
+                and proof.get("startEnabled") is True
+            )
+            if not passed and recording_studio_native_proof_attempts["count"] < 8:
+                recording_studio_native_proof_attempts["count"] += 1
+                QApplication.processEvents()
+                QTimer.singleShot(delay(500), step_recording_studio_native_window_assert)
+                return
+            add_step("Recording Studio native window focused screenshot proof", passed, proof)
+            if not passed:
+                finish("FAIL", "Recording Studio native window proof failed before focused screenshot")
+                return
+            capture_native_window("02_recording_studio_native_window_ready_state", widget)
             QTimer.singleShot(delay(), step_recording_start_click)
 
         def step_recording_start_click():
@@ -10346,6 +10450,7 @@ class DesktopRuntimeWindow(QWidget):
                 })();
                 """,
                 step_recording_active_captures,
+                callback_delay_ms=0,
             )
 
         def step_recording_active_captures():
@@ -10386,7 +10491,7 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_recording_saved_assert_wait():
-            capture("02_recording_card_stop_saving_output_state")
+            capture("02_recording_card_stop_recording_saved_request_state")
             QTimer.singleShot(delay(1500), step_recording_saved_assert)
 
         def step_recording_saved_assert():
@@ -10406,7 +10511,8 @@ class DesktopRuntimeWindow(QWidget):
                             && openFolder
                             && String(launcher.textContent || "").trim() === "Start Recording"
                             && !openFolder.disabled
-                            && openFolder.dataset.recordingFolderPathAvailable === "true"
+                            && openFolder.dataset.recordingFolderAction === "native-and-export-folder-shell"
+                            && openFolder.dataset.recordingFolderPathAvailable === "saved-export-path"
                             && card.dataset.recordingExecutionState === "saved-complete"
                             && card.dataset.recordingFileWritingState === "saved-complete"
                             && monitoringHudControlState
@@ -10476,7 +10582,7 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_recording_open_folder_result_wait():
-            capture("02_recording_card_open_log_folder_requested_state")
+            capture("02_recording_card_log_viewer_studio_requested_state")
             QTimer.singleShot(delay(1200), step_recording_open_folder_result_assert)
 
         def step_recording_open_folder_result_assert():
@@ -10493,8 +10599,13 @@ class DesktopRuntimeWindow(QWidget):
                             && monitoringHudControlState.logViewerStudioState === "native-window-requested"
                             && monitoringHudControlState.logViewerStudioSummary
                             && monitoringHudControlState.logViewerStudioSummary.fullLogViewerState === "future-gated"
+                            && monitoringHudControlState.logViewerStudioSummary.previousLogSelectionState === "future-gated"
+                            && monitoringHudControlState.logViewerStudioSummary.exportCustomizationState === "future-gated"
                         ),
                         logViewerStudioState: monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioState || "") : "",
+                        fullLogViewerState: monitoringHudControlState && monitoringHudControlState.logViewerStudioSummary ? String(monitoringHudControlState.logViewerStudioSummary.fullLogViewerState || "") : "",
+                        previousLogSelectionState: monitoringHudControlState && monitoringHudControlState.logViewerStudioSummary ? String(monitoringHudControlState.logViewerStudioSummary.previousLogSelectionState || "") : "",
+                        exportCustomizationState: monitoringHudControlState && monitoringHudControlState.logViewerStudioSummary ? String(monitoringHudControlState.logViewerStudioSummary.exportCustomizationState || "") : "",
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
@@ -10504,7 +10615,24 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_recording_open_folder_result_captures():
-            capture("02_recording_card_open_log_folder_opened_state")
+            widget = self._monitoring_hud_log_viewer_studio_window
+            proof = widget.proof_state() if widget is not None else {}
+            native_window_passed = bool(
+                proof
+                and proof.get("visible") is True
+                and proof.get("surface") == "log_viewer_studio_shell"
+                and proof.get("standaloneTopLevel") is True
+                and proof.get("windowFlag") == "normal_window"
+                and proof.get("previousLogSelectionState") == "future-gated"
+                and proof.get("exportCustomizationState") == "future-gated"
+                and proof.get("nativeLogLoaderState") == "future-gated"
+            )
+            add_step("Log Viewer Studio native window focused screenshot proof", native_window_passed, proof)
+            if not native_window_passed:
+                finish("FAIL", "Log Viewer Studio native window proof failed before focused screenshot")
+                return
+            capture_native_window("02_log_viewer_studio_native_window_shell_state", widget)
+            capture("02_recording_card_log_viewer_studio_opened_state")
             QTimer.singleShot(delay(), step_restore_dashboard_viewport_after_folder_open)
 
         def step_restore_dashboard_viewport_after_folder_open():
@@ -10658,6 +10786,16 @@ class DesktopRuntimeWindow(QWidget):
             ]
             for label in labels:
                 capture(label)
+            if self._monitoring_hud_live_self_qa_lane == "recording-option-c":
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
+                    package="PKG-006",
+                    slice="LV1",
+                    lane=self._monitoring_hud_live_self_qa_lane,
+                    status="PASS",
+                )
+                QTimer.singleShot(delay(), lambda: finish("PASS"))
+                return
             QTimer.singleShot(delay(), step_open_overlay_profiles)
 
         def step_open_overlay_profiles():
@@ -11647,7 +11785,32 @@ class DesktopRuntimeWindow(QWidget):
                             "qtestMouseUsed": False,
                         },
                     )
-                    QTimer.singleShot(delay(150), lambda: os_click("#monitoring-hud-edit-monitor-action", "real OS click opens Manage Monitors", step_manage_assert))
+                    QTimer.singleShot(
+                        delay(150),
+                        lambda: os_click_and_assert_state(
+                            "#monitoring-hud-edit-monitor-action",
+                            "real OS click opens Manage Monitors",
+                            """
+                            (function() {
+                                const windowNode = document.getElementById("monitoring-hud-edit-monitor-window");
+                                const sourceList = document.getElementById("monitoring-hud-monitor-sensor-assignment");
+                                const settings = document.querySelector("[data-source-settings-open]");
+                                const overlayContext = document.getElementById("monitoring-hud-monitor-overlay-profile-context");
+                                return JSON.stringify({
+                                    ok: Boolean(windowNode && !windowNode.hidden && sourceList && settings && overlayContext),
+                                    windowOpen: Boolean(windowNode && !windowNode.hidden),
+                                    sourceListVisible: Boolean(sourceList && sourceList.offsetWidth > 0),
+                                    sourceSettingsVisible: Boolean(settings && settings.offsetWidth > 0),
+                                    overlayContextVisible: Boolean(overlayContext && overlayContext.offsetWidth > 0),
+                                    sourceListId: sourceList ? sourceList.id : "",
+                                    realOsInputProof: true,
+                                    directJsClickUsed: false
+                                });
+                            })();
+                            """,
+                            step_manage_assert,
+                        ),
+                    )
                     return
                 if attempt >= max_attempts:
                     add_step(
@@ -14464,7 +14627,7 @@ class DesktopRuntimeWindow(QWidget):
                         "02_recording_card_target_status_visual_contract",
                         "02_recording_card_target_preview_standard_state_rows",
                         "02_recording_card_start_stop_ready_state",
-                        "02_recording_card_open_log_folder_disabled_state",
+                        "02_recording_card_log_viewer_studio_pre_session_ready_state",
                         "03_manage_monitors_open_state",
                         "03_manage_monitors_close_hover_hitbox",
                         "04_source_filter_dropdown_open_hover_reset",
@@ -14974,11 +15137,11 @@ class DesktopRuntimeWindow(QWidget):
                                         && launcher
                                         && openFolder
                                         && !launcher.disabled
-                                        && openFolder.disabled
+                                        && !openFolder.disabled
                                         && String(launcher.textContent || "").trim() === "Start Recording"
-                                        && String(openFolder.textContent || "").trim() === "Open Log Folder"
-                                        && openFolder.dataset.recordingFolderAction === "user-export-folder"
-                                        && openFolder.dataset.recordingFolderPathAvailable === "false"
+                                        && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
+                                        && openFolder.dataset.recordingFolderAction === "native-and-export-folder-shell"
+                                        && openFolder.dataset.recordingFolderPathAvailable === "pre-session-root"
                                         && card.dataset.recordingExecutionState !== "blocked"
                                         && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
                                         && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
@@ -15010,7 +15173,7 @@ class DesktopRuntimeWindow(QWidget):
                             record_visual("02_recording_card_target_status_visual_contract"),
                             record_visual("02_recording_card_target_preview_standard_state_rows"),
                             record_visual("02_recording_card_start_stop_ready_state"),
-                            record_visual("02_recording_card_open_log_folder_disabled_state"),
+                            record_visual("02_recording_card_log_viewer_studio_pre_session_ready_state"),
                             visual_manage_open(),
                         ),
                     )

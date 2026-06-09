@@ -239,6 +239,19 @@ H1 Result: `Green - dev/orin_fam006_hardening_h1.py passed with accepted BP trac
 H1 Boundary: `Live Validation, UTS acceptance/digestion, PR Readiness, PR creation, issue closeout, merge, release, branch cleanup, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
 Next Legal Phase: `Live Validation LV1 approval.`
 
+## Live Validation LV1 Log Viewer Studio Handoff Repair Receipt
+
+LV1 Repair Approval Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; current live validation paths, screenshot/video files, UTS handoff state, and Git proof live in helper output, external state, Git, and Codex completion packets.`
+Repair Basis: `USER identified that Live Validation must inspect new/affected Recording Option C elements, not only historical HUD elements, and that the accepted Option C contract replaced the superseded Open Log Folder disabled-until-saved contract with a pre-session Log Viewer Studio native/export shell contract.`
+Harness Drift Cause: `The LV1 helper still carried stale Open Log Folder proof labels and broad historical Overlay Profile / Manage Monitors self-QA expectations into the Recording Option C handoff path; the first focused green run also exposed a state-label screenshot drift where a transient active/saving proof label could capture the later saved/readback UI.`
+Helper Repair: `desktop/desktop_renderer.py, desktop/orin_desktop_main.py, dev/orin_monitoring_hud_live_validation.ps1, and dev/orin_monitoring_hud_surface_validation.py now support a Recording Option C focused LV1 lane, Log Viewer Studio pre-session/native-window proof, Recording Studio native-window proof, state-locked active Start/Stop visual proof, and state-neutral saved-output request proof.`
+LV1 Automated Result: `PASS - dev/orin_monitoring_hud_live_validation.ps1 passed with -RecordingOptionCSelfQA at C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260609_090906_117 after the H1 helper passed.`
+Visual Adjudication Result: `PASS - Codex inspected the focused screenshots and confirmed the Recording card inherits the Dashboard card visual system, the active state visibly shows Stop Recording, Recording Studio is a standalone native shell, Log Viewer Studio is a standalone native/export folder shell, saved/readback state is visible, and the Recording card mirrors the active Overlay Profile target after selection.`
+UTS Handoff: `C:\Nexus USER\UTS - FAM-006.txt was refreshed after LV1 PASS as the worktree-specific Live Validation Stage 1 handoff.`
+LV1 Boundary: `The UTS export is a handoff artifact, not returned USER evidence. Live Validation cannot advance to PR Readiness until USER returns PASS/FAIL/WAIVED results or grants an explicit waiver; PR creation, issue closeout, merge, release, branch cleanup, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
+Next Legal Phase: `USER completes and returns C:\Nexus USER\UTS - FAM-006.txt for Live Validation result digestion.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`

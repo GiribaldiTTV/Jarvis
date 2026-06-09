@@ -1428,8 +1428,10 @@ def validate() -> list[str]:
         "dashboard-card-system-sampled",
         "inherits-dashboard-state-row",
         "02_recording_card_target_preview_standard_state_rows",
-        "02_recording_card_open_log_folder_disabled_state",
-        "02_recording_card_open_log_folder_opened_state",
+        "02_recording_card_log_viewer_studio_pre_session_ready_state",
+        "02_recording_studio_native_window_ready_state",
+        "02_log_viewer_studio_native_window_shell_state",
+        "02_recording_card_log_viewer_studio_opened_state",
     ):
         _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
 
@@ -2547,7 +2549,7 @@ def validate() -> list[str]:
         "skipped User Test Summary export: UTS is Live Validation Stage 1 only",
         "Overlay/display release acceptance is deferred and non-gating",
         "Current Phase: Live Validation Stage 1 User Test Summary handoff",
-        "This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, exported-log folder behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.",
+        "This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, Log Viewer Studio native/export folder shell behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.",
         "FAM006-LV1-REC-001 - Dashboard Recording Card Visual-System Inheritance",
         "FAM006-LV1-REC-002 - Recording Target Mirrors Active Overlay Profile",
         "FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Native NDAI Log",
@@ -2558,7 +2560,7 @@ def validate() -> list[str]:
         "switching the Active Overlay Profile must update the Recording card target overlay profile",
         "Stop Recording stops the session and produces a saved/readback-complete native NDAI log.",
         "Normal product flow must not auto-create Excel/CSV output",
-        "enable Open Log Folder for the exported logs folder",
+        "keep Log Viewer Studio available before and after a recording",
         "The Recording card should still mirror the active Overlay Profile after restart.",
         "The scrollbar gutter must not make the cards look offset",
         "Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.",

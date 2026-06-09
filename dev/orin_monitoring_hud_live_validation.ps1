@@ -7,6 +7,7 @@
     [switch]$VisibleClient,
     [switch]$ActiveUserFacingClient,
     [switch]$PrepareLiveValidationUserTestSummary,
+    [switch]$RecordingOptionCSelfQA,
     [string]$ProofSeam = "",
     [int]$InteractionStepDelayMilliseconds = 250,
     [int]$FinalClientHoldSeconds = 0
@@ -208,7 +209,8 @@ function Get-HudIssueIdsForElementLabel {
 function Copy-FocusedElementScreenshotsToUserEvidence {
     param(
         [object]$Paths,
-        [int]$MinimumScreenshots = 48
+        [int]$MinimumScreenshots = 48,
+        [string]$FocusedLane = "full"
     )
 
     $contextNames = @(
@@ -267,6 +269,10 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         "UTS-HUD-013", "UTS-HUD-014", "UTS-HUD-015", "UTS-HUD-016", "UTS-HUD-017",
         "UTS-HUD-018", "UTS-HUD-019", "UTS-HUD-020", "UTS-HUD-021"
     )
+    if ($FocusedLane -eq "recording-option-c") {
+        $allIssueIds = @()
+        $MinimumScreenshots = [Math]::Max(12, [Math]::Min($MinimumScreenshots, 12))
+    }
     $issueCoverage = @()
     foreach ($issueId in $allIssueIds) {
         $covered = @($screenshots | Where-Object { @($_.issueIds) -contains $issueId })
@@ -292,10 +298,29 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         "02_recording_card_target_status_visual_contract",
         "02_recording_card_target_preview_standard_state_rows",
         "02_recording_card_start_stop_ready_state",
-        "02_recording_card_open_log_folder_disabled_state",
-        "02_recording_card_open_log_folder_requested_state",
-        "02_recording_card_open_log_folder_opened_state"
+        "02_recording_card_log_viewer_studio_pre_session_ready_state",
+        "02_recording_studio_native_window_ready_state",
+        "02_recording_card_log_viewer_studio_requested_state",
+        "02_log_viewer_studio_native_window_shell_state",
+        "02_recording_card_log_viewer_studio_opened_state"
     )
+    if ($FocusedLane -eq "recording-option-c") {
+        $requiredElementLabels = @(
+            "02_recording_card_target_status_visual_contract",
+            "02_recording_card_target_preview_standard_state_rows",
+            "02_recording_card_start_stop_ready_state",
+            "02_recording_card_log_viewer_studio_pre_session_ready_state",
+            "02_recording_studio_native_window_ready_state",
+            "02_recording_card_start_recording_active_state",
+            "02_recording_card_stop_recording_saved_request_state",
+            "02_recording_card_saved_complete_readback_state",
+            "02_recording_card_log_viewer_studio_requested_state",
+            "02_log_viewer_studio_native_window_shell_state",
+            "02_recording_card_log_viewer_studio_opened_state",
+            "02_hud_overlay_active_profile_selector_real_os_selected",
+            "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection"
+        )
+    }
     $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
     $missingRequiredElementLabels = @($requiredElementLabels | Where-Object { $availableElementLabels -notcontains $_ })
 
@@ -325,7 +350,7 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         }
     }
 
-    if ($missingIssueCoverage.Count -gt 0) {
+    if ($FocusedLane -ne "recording-option-c" -and $missingIssueCoverage.Count -gt 0) {
         return [ordered]@{
             status = "FAIL"
             root = $Paths.ElementScreenshotEvidenceRoot
@@ -861,7 +886,7 @@ Status: DRAFT HANDOFF COPY - NOT RETURNED RESULTS
 
 How To Use This File
 - Launch and test from the red FAM-006 desktop shortcut.
-- This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, exported-log folder behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.
+- This pass is focused on Dashboard Recording Start/Stop, native NDAI log save/readback proof, Log Viewer Studio native/export folder shell behavior, issue #258 Overlay Profile restart persistence, and the Recording card visual-system fit.
 - Confirmed items from previous returned UTS passes are treated as closed unless they visibly regress during this pass.
 - For each active issue below, write PASS, FAIL, or WAIVED plus a short note.
 - If an active issue FAILS, describe exactly what you saw and attach/screenshot separately if useful.
@@ -874,14 +899,14 @@ Codex Precheck Summary
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
 - USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
-- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, native-log saved/readback, Open Log Folder to exported logs, target/status mirror, and visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, native-log saved/readback, Log Viewer Studio pre-session/requested/opened states, target/status mirror, and visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
 
 Brief Issue List
 - Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.
 - Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
-- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, native NDAI log save/readback, exported-log folder behavior, issue #258 Overlay Profile persistence, Recording card visual-system inheritance, and active Overlay Profile target mirroring.
+- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, native NDAI log save/readback, Log Viewer Studio native/export folder shell behavior, issue #258 Overlay Profile persistence, Recording card visual-system inheritance, and active Overlay Profile target mirroring.
 
 Active Issues To Test
 
@@ -894,7 +919,7 @@ Expected: The Recording card target overlay profile follows the active Overlay P
 USER Result / Notes:
 
 FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Native NDAI Log
-Expected: The Recording card Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete native NDAI log. Normal product flow must not auto-create Excel/CSV output; CSV is only a manual validation/export artifact until a future USER-approved export system exists. The USER-facing card should show a simple successful save/readback result and enable Open Log Folder for the exported logs folder, which may be empty until USER exports a log. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
+Expected: The Recording card Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete native NDAI log. Normal product flow must not auto-create Excel/CSV output; CSV is only a manual validation/export artifact until a future USER-approved export system exists. The USER-facing card should show a simple successful save/readback result and keep Log Viewer Studio available before and after a recording so the native and exported log folders can be opened or created through the minimal shell. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
 USER Result / Notes:
 
 FAM006-LV1-REC-004 - Issue #258 Overlay Profile Persists Across Restart
@@ -933,6 +958,7 @@ $pythonExe = ""
 $exitCode = 1
 $effectiveRunInteractionSelfQA = [bool]($RunInteractionSelfQA -or $ActiveUserFacingClient)
 $effectiveVisibleClient = [bool]($VisibleClient -or $ActiveUserFacingClient)
+$effectiveFocusedLane = if ($RecordingOptionCSelfQA) { "recording-option-c" } else { "full" }
 $effectiveStepDelayMilliseconds = $InteractionStepDelayMilliseconds
 $effectiveFinalHoldMilliseconds = $FinalClientHoldSeconds * 1000
 if ($ActiveUserFacingClient) {
@@ -972,7 +998,9 @@ try {
             "--monitoring-hud-live-self-qa-step-delay-ms",
             ([string]$effectiveStepDelayMilliseconds),
             "--monitoring-hud-live-self-qa-final-hold-ms",
-            ([string]$effectiveFinalHoldMilliseconds)
+            ([string]$effectiveFinalHoldMilliseconds),
+            "--monitoring-hud-live-self-qa-lane",
+            $effectiveFocusedLane
         )
         $script:InteractionManifestStatus = "PENDING"
     }
@@ -1091,28 +1119,48 @@ try {
             $interactionManifestRaw -notmatch '"realOsInputProof"\s*:\s*true') {
             throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
         }
-        $requiredInteractionLabels = @(
-            "Active child window prevents Dashboard click-through under overlapping controls",
-            "Compact Overlay Profiles window preserves functional visible monitor row and action buttons",
-            "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
-            "Create Profile opens unsaved draft with empty monitor membership",
-            "Dirty-change guard blocks close after created draft",
-            "Manage Monitors dirty guard matches shared modal Save Discard Cancel contract",
-            "Manage Monitors dirty guard Cancel returns to dirty draft without queued close",
-            "Manage Monitors dirty guard Discard completes queued close and clears dirty state",
-            "Create after delete reuses Monitor Group 3 instead of skipping to a higher number"
-        )
+        if ($RecordingOptionCSelfQA) {
+            $requiredInteractionLabels = @(
+                "Dashboard Recording card target/status visual contract is focused before child windows",
+                "real OS click opens Dashboard Recording Studio",
+                "Recording Studio native window focused screenshot proof",
+                "real OS click starts Dashboard Recording",
+                "real OS click stops Dashboard Recording and requests local output",
+                "Dashboard Recording stop writes local output and readback proof",
+                "real OS click opens Dashboard Recording Log Viewer Studio",
+                "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
+                "Log Viewer Studio native window focused screenshot proof",
+                "HUD Overlay card Active Overlay Profile selector is visible after viewport restore",
+                "real OS click opens HUD Overlay card Active Overlay Profile selector",
+                "real OS click selects HUD Overlay card Active Overlay Profile option"
+            )
+        }
+        else {
+            $requiredInteractionLabels = @(
+                "Active child window prevents Dashboard click-through under overlapping controls",
+                "Compact Overlay Profiles window preserves functional visible monitor row and action buttons",
+                "Compact Overlay Profiles delete confirmation stays unclipped and non-overlapping",
+                "Create Profile opens unsaved draft with empty monitor membership",
+                "Dirty-change guard blocks close after created draft",
+                "Manage Monitors dirty guard matches shared modal Save Discard Cancel contract",
+                "Manage Monitors dirty guard Cancel returns to dirty draft without queued close",
+                "Manage Monitors dirty guard Discard completes queued close and clears dirty state",
+                "Create after delete reuses Monitor Group 3 instead of skipping to a higher number"
+            )
+        }
         foreach ($requiredLabel in $requiredInteractionLabels) {
             if ($interactionManifestRaw -notmatch [regex]::Escape($requiredLabel)) {
                 throw "Interaction self-QA missing required real-input scenario: $requiredLabel"
             }
         }
-        Wait-Marker $paths "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY"
-        Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY"
-        Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY"
+        if (-not $RecordingOptionCSelfQA) {
+            Wait-Marker $paths "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY"
+            Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY"
+            Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY"
+        }
         Wait-Marker $paths "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY"
         Step $paths "interaction self-QA manifest PASS: $($paths.InteractionManifest)"
-        $script:PerElementScreenshotProof = Copy-FocusedElementScreenshotsToUserEvidence -Paths $paths
+        $script:PerElementScreenshotProof = Copy-FocusedElementScreenshotsToUserEvidence -Paths $paths -FocusedLane $effectiveFocusedLane
         if ($script:PerElementScreenshotProof.status -ne "PASS") {
             throw "LV1 focused per-element screenshots missing or failed: $($script:PerElementScreenshotProof.reason)"
         }
