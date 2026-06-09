@@ -2670,7 +2670,7 @@ def _write_user_branch_plan_review(
             "",
             "## Contract Change Log",
             "",
-            "- v1 - Replaced generic BP2 placeholder with a FAM-006 Recording BP1 boundary note.",
+            "- v1 - Replaced generic BP2 review-aid shell with a FAM-006 Recording BP1 boundary note.",
             "",
             "## Current Branch Scope",
             "",
