@@ -80,7 +80,11 @@ It should not:
 
 ### Recording Studio
 
-Recording Studio is the future compact Recording control surface.
+Recording Studio is the compact Recording control surface when a branch admits
+it. The current Option C carrier admits a bounded focused control/status Studio
+that mirrors the Dashboard Start/Stop action path; tray integration, keybind
+behavior, close-while-recording warnings, and bulky settings remain separate
+future gates until accepted by later planning.
 
 Expected direction:
 
@@ -103,7 +107,11 @@ Recording tray icon to avoid taskbar clutter.
 
 ### Log Viewer Studio
 
-Log Viewer Studio is the future Recording log review and export surface.
+Log Viewer Studio is the Recording log review and export surface when a branch
+admits it. The current Option C carrier admits only a minimal launch/folder
+shell for native and exported log folder access; previous-log selection, in-app
+log viewing, export customization, and Native Log Loader integration remain
+future gates until accepted by later planning.
 
 Expected direction:
 

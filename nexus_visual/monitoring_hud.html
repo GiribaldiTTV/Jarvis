@@ -270,20 +270,31 @@
                 data-recording-control-window-state="dashboard-card-control"
                 data-recording-execution-state="ready"
                 data-recording-file-writing-state="ready"
-                data-native-window-contract="future-secondary-surface"
+                data-native-window-contract="dashboard-quick-access-start-stop"
                 aria-disabled="false"
               >Start Recording</button>
               <button
                 type="button"
+                id="monitoring-hud-recording-studio-open"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact"
+                data-control="open-recording-studio"
+                data-slice="SLC-053"
+                data-recording-control-window-state="recording-studio-ready"
+                data-native-window-contract="recording-studio-focused-control-status"
+                data-recording-file-writing-state="ready"
+                aria-disabled="false"
+              >Recording Studio</button>
+              <button
+                type="button"
                 id="monitoring-hud-recording-open-folder"
                 class="monitoring-hud__hub-action monitoring-hud__hub-action--compact"
-                data-control="open-recording-folder"
+                data-control="open-log-viewer-studio"
                 data-slice="SLC-054"
-                data-recording-folder-action="user-export-folder"
-                data-recording-file-writing-state="no-output-yet"
-                aria-disabled="true"
-                disabled
-              >Open Log Folder</button>
+                data-recording-folder-action="native-and-export-folder-shell"
+                data-recording-file-writing-state="ready"
+                data-log-viewer-studio-state="ready"
+                aria-disabled="false"
+              >Log Viewer Studio</button>
             </div>
           </div>
         </article>

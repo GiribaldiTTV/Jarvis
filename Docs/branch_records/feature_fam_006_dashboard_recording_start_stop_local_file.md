@@ -39,7 +39,7 @@ Issue Admission: `Issue #258 is not admitted into BR2/BP1 identity. It is admitt
 
 ## Blockers
 
-Blockers: `Bounded Workstream/runtime implementation approval packet pending USER response after accepted BP1, accepted BP2 Option C, and accepted BP3 Workstream Entry / Orchestration Validation`
+Blockers: `None for Workstream implementation approval after USER accepted the separate Option C bounded Workstream/runtime implementation packet on 2026-06-09. Hardening H1 approval remains pending after Workstream validation.`
 
 ## Entry Basis
 
@@ -212,6 +212,22 @@ Continuation Guard: `Workstream must continue through accepted admitted seams/sl
 First Recommended Seam: `SLC-051 / Seam 1 target reliability and active Overlay Profile contract may start the Workstream package but does not limit the package to one seam.`
 Future-Gated Boundaries: `Full Log Viewer Studio implementation, previous-log selection, export customization, tray recording controls, keybind implementation, full settings implementation, Native Log Loader full implementation, provider/model/private work, PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
 Next Legal Phase: `Bounded Workstream/runtime implementation approval review.`
+
+## Option C Workstream Implementation Receipt
+
+Implementation Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; live validation and branch operational state live in external state, helper output, Git, and Codex completion packets.`
+USER Workstream Decision: `Accepted`
+Implemented Package Shape: `Option C - Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio launch/folder shell.`
+Dashboard Recording Card Result: `The Dashboard Recording card remains the compact quick-access/status surface and owns active Start/Stop for the active Overlay Profile target.`
+Recording Studio Result: `A standalone native Recording Studio window is requestable from the Dashboard Recording card and mirrors active Overlay Profile target, session state, and Start/Stop action path.`
+Minimal Log Viewer Studio Shell Result: `A standalone native Log Viewer Studio shell is requestable from the Dashboard Recording card and provides pre-session Open Native Logs and Open Exported Logs folder access.`
+Native / Export Log Boundary Result: `Native NDAI logs remain the normal product artifact; exported logs remain USER-requested export artifacts; normal product save still does not auto-create CSV.`
+Issue #258 Result: `Overlay Profile persistence remains preserved as target-reliability support for recording; issue closeout remains pending Live Validation / USER disposition and a separate issue decision.`
+Validator / Helper Result: `FAM-006 surface, Workstream readiness, and H1 helpers now require Recording Studio plus minimal Log Viewer Studio shell proof and reject the old future-secondary Recording Control posture for this Option C package.`
+Workstream Status: `Green candidate before final validation; Codex completion packet must report required validation results before this becomes Workstream Green.`
+Boundary: `Hardening approval, Live Validation, UTS acceptance/digestion, PR Readiness, PR creation, issue closeout, merge, release, branch cleanup, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
+Next Legal Phase If Validation Is Green: `Hardening H1 approval.`
 
 ## Source-Truth Placement
 

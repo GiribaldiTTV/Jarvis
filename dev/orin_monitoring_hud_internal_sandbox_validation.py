@@ -197,7 +197,9 @@ def _validate_static_surface(failures: list[str]) -> None:
             "Recording Profile",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
             "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
-            "runtime recording implementation remains future-gated",
+            "Dashboard Recording Option C Workstream implementation",
+            "Recording Studio is implemented as a focused native control/status surface",
+            "full Log Viewer Studio / previous-log selection / export customization / tray / keybind / full settings / Native Log Loader full implementation remain future-gated",
             "canonical detail owners, not this compact backlog registry",
         ):
             _require_contains(
@@ -207,9 +209,10 @@ def _validate_static_surface(failures: list[str]) -> None:
                 failures,
             )
         for needle in (
-            "durable planning and release receipts preserved; future recording runtime remains USER-gated",
+            "Dashboard Recording Option C Workstream implementation",
+            "full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, and Native Log Loader full implementation remain future-gated",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
+            "Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md",
             "Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap",
         ):
             _require_contains(

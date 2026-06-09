@@ -15,7 +15,7 @@ from desktop.recording_output_contract import validate_recording_output_contract
 
 
 WORKSTREAM_READINESS_ID = "slc-055-fam006-validation-live-proof-readiness"
-WORKSTREAM_PACKAGE_ID = "pkg-006-active-overlay-recording-runtime-foundation"
+WORKSTREAM_PACKAGE_ID = "pkg-006-dashboard-recording-studio-log-viewer-option-c"
 WORKSTREAM_SEAMS = (
     "SLC-051 target-session-truth",
     "SLC-052 dashboard-recording-card-target-status",
@@ -43,14 +43,14 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         {
             "slice": "SLC-053",
             "status": "complete",
-            "proof": "Dashboard card Start/Stop is active; standalone/native Recording Control remains future-secondary",
-            "futureGate": "tray/export/share and standalone Recording Control activation remain future-gated",
+            "proof": "Dashboard quick-access Start/Stop is active and the standalone/native Recording Studio opens as the focused control/status surface",
+            "futureGate": "tray controls, keybinds, export/share customization, and provider/model work remain future-gated",
         },
         {
             "slice": "SLC-054",
             "status": "complete",
-            "proof": "durable local file writing output contract writes native NDAI log output and proves readback; CSV exists only as manual validation or future export evidence",
-            "futureGate": "Native Log Loader, export/share, and provider/model work remain future-gated",
+            "proof": "durable local file writing output contract writes native NDAI log output and proves readback; minimal Log Viewer Studio shell opens native/export folders before an active-session recording exists",
+            "futureGate": "full Log Viewer Studio, previous-log selection, export customization, Native Log Loader, export/share, and provider/model work remain future-gated",
         },
         {
             "slice": "SLC-055",
@@ -85,7 +85,7 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         "hardeningH1Expectations": [
             "compare SLC-051 through SLC-055 against accepted BP1/BP2/BP3",
             "stress null active profile, stale profile, high-volume membership, compact/default UI, output contract, and Start/Stop states",
-            "verify file writing stays in the runtime-owned local output root and tray/export/share/provider/model/FAM-007 scope does not slip into Workstream",
+            "verify file writing stays in the runtime-owned local output root, Log Viewer Studio opens native/export roots pre-session, and tray/export customization/provider/model/FAM-007 scope does not slip into Workstream",
         ],
         "liveValidationLV1State": "pending-after-h1",
         "liveValidationLV1Expectations": [
@@ -95,12 +95,15 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         ],
         "utsState": "pending-after-lv1",
         "utsExpectations": [
-            "USER-facing summary covers Dashboard Recording card Start/Stop, saved output result, readback proof, future-secondary Recording Control boundary, and future-gated export/share",
+            "USER-facing summary covers Dashboard Recording card Start/Stop, Recording Studio, minimal Log Viewer Studio shell, saved output result, readback proof, and future-gated tray/keybind/export customization",
             "no UTS is exported until Live Validation authority is active or waived",
         ],
         "futureGatedBoundaries": [
             "tray controls",
-            "export/share",
+            "keybinds",
+            "export/share customization",
+            "full Log Viewer Studio",
+            "previous-log selection",
             "provider/model work",
             "Native Log Loader implementation",
             "FAM-007 mutation",

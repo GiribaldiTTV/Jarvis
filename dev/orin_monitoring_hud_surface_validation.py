@@ -171,7 +171,9 @@ def validate() -> list[str]:
             "Recording Profile",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
             "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
-            "runtime recording implementation remains future-gated",
+            "Dashboard Recording Option C Workstream implementation",
+            "Recording Studio is implemented as a focused native control/status surface",
+            "full Log Viewer Studio / previous-log selection / export customization / tray / keybind / full settings / Native Log Loader full implementation remain future-gated",
             "canonical detail owners, not this compact backlog registry",
         ):
             _require_contains(
@@ -181,9 +183,10 @@ def validate() -> list[str]:
                 failures,
             )
         for needle in (
-            "durable planning and release receipts preserved; future recording runtime remains USER-gated",
+            "Dashboard Recording Option C Workstream implementation",
+            "full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, and Native Log Loader full implementation remain future-gated",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
+            "Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md",
             "Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap",
         ):
             _require_contains(
@@ -1250,8 +1253,11 @@ def validate() -> list[str]:
         'id="monitoring-hud-recording-control-launcher"',
         'id="monitoring-hud-recording-open-folder"',
         'data-recording-control-window-state="dashboard-card-control"',
-        'data-recording-folder-action="user-export-folder"',
-        'data-native-window-contract="future-secondary-surface"',
+        'id="monitoring-hud-recording-studio-open"',
+        'data-recording-folder-action="native-and-export-folder-shell"',
+        'data-native-window-contract="dashboard-quick-access-start-stop"',
+        'data-native-window-contract="recording-studio-focused-control-status"',
+        'data-log-viewer-studio-state="ready"',
         'data-recording-execution-state="ready"',
         'data-recording-file-writing-state="ready"',
         '<span>Target overlay profile</span>',
@@ -1262,6 +1268,8 @@ def validate() -> list[str]:
     for needle in (
         "monitoringHudRenderActiveOverlayRecordingTargetPreview",
         "monitoringHudToggleRecording",
+        "monitoringHudRequestRecordingControlWindow",
+        "monitoringHudRequestLogViewerStudioWindow",
         "monitoringHudRequestOpenRecordingFolder",
         "setMonitoringHudRecordingFolderOpenResult",
         "runMonitoringHudRecordingTargetPreviewProof",
@@ -1275,24 +1283,44 @@ def validate() -> list[str]:
         "dashboard-recording-card-primary",
         "hud-overlay-overlay-focused",
         "Start Recording",
-        "Open Log Folder",
-        "future-secondary-surface",
+        "Recording Studio",
+        "Log Viewer Studio",
+        "recording-studio-focused-control-status",
+        "native-and-export-folder-shell",
+        "create-or-open-before-session",
         "trayRecordingControlState",
     ):
         _require_contains(js, needle, "SLC-052 Dashboard Recording card target/status JS proof", failures)
 
     for needle in (
-        "class MonitoringHudRecordingControlWindow",
-        'self.setWindowTitle("Nexus Recording Control")',
-        "MONITORING_HUD_RECORDING_CONTROL_WINDOW_READY",
+        "class MonitoringHudRecordingStudioWindow",
+        'self.setWindowTitle("Nexus Recording Studio")',
+        "MONITORING_HUD_RECORDING_STUDIO_READY",
         'slice="SLC-053"',
-        '"surface": "standalone_recording_control_window"',
+        '"surface": "recording_studio_window"',
         '"taskbarRestorable": True',
-        '"recordingExecutionState": "blocked"',
-        '"recordingFileWritingState": "blocked"',
-        '"startStopState": "future-gated"',
+        '"recordingExecutionState": "enabled"',
+        '"recordingFileWritingState": "enabled"',
+        '"startEnabled": self._start.isEnabled()',
+        "recording_action_handler",
+        "_dispatch_monitoring_hud_recording_studio_action",
     ):
-        _require_contains(renderer, needle, "SLC-053 native Recording Control window foundation", failures)
+        _require_contains(renderer, needle, "SLC-053 native Recording Studio window", failures)
+
+    for needle in (
+        "class MonitoringHudLogViewerStudioWindow",
+        'self.setWindowTitle("Nexus Log Viewer Studio")',
+        "MONITORING_HUD_LOG_VIEWER_STUDIO_READY",
+        'slice="SLC-054"',
+        '"surface": "log_viewer_studio_shell"',
+        '"nativeFolderPreSessionUsable": True',
+        '"exportFolderPreSessionUsable": True',
+        '"previousLogSelectionState": "future-gated"',
+        '"exportCustomizationState": "future-gated"',
+        "recording_output_dir",
+        "recording_export_dir",
+    ):
+        _require_contains(renderer, needle, "SLC-054 minimal Log Viewer Studio shell", failures)
 
     for needle in (
         "RECORDING_OUTPUT_CONTRACT_ID",
@@ -1327,7 +1355,7 @@ def validate() -> list[str]:
         "WORKSTREAM_READINESS_ID",
         "slc-055-fam006-validation-live-proof-readiness",
         "WORKSTREAM_PACKAGE_ID",
-        "pkg-006-active-overlay-recording-runtime-foundation",
+        "pkg-006-dashboard-recording-studio-log-viewer-option-c",
         "build_fam006_workstream_readiness_proof",
         '"workstreamGreenCandidate"',
         '"packageSlicesComplete"',
@@ -1342,7 +1370,9 @@ def validate() -> list[str]:
         "no UTS is exported until Live Validation authority is active or waived",
         "recording execution",
         "file writing",
-        "real Start/Stop controls",
+        "Recording Studio",
+        "Log Viewer Studio",
+        "minimal Log Viewer Studio shell",
         "Native Log Loader implementation",
     ):
         _require_contains(workstream_readiness, needle, "SLC-055 validation/live proof readiness", failures)

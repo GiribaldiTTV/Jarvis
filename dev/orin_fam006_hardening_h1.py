@@ -21,8 +21,8 @@ from desktop.recording_output_contract import validate_recording_output_contract
 from dev.orin_fam006_workstream_readiness import build_fam006_workstream_readiness_proof
 
 
-HARDENING_H1_ID = "h1-fam006-active-overlay-recording-runtime-hardening"
-PACKAGE_ID = "pkg-006-active-overlay-recording-runtime-foundation"
+HARDENING_H1_ID = "h1-fam006-dashboard-recording-studio-log-viewer-option-c"
+PACKAGE_ID = "pkg-006-dashboard-recording-studio-log-viewer-option-c"
 
 
 def _repo_root() -> Path:
@@ -76,8 +76,9 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "dashboard-recording-card-primary",
                     "hud-overlay-overlay-focused",
                     "dashboard-card-control",
-                    "future-secondary-surface",
+                    "recording-studio-focused-control-status",
                     "monitoringHudToggleRecording",
+                    "Log Viewer Studio",
                 ),
             ),
             "hardeningCheck": "Dashboard Recording card target/status and Start/Stop control markers",
@@ -87,15 +88,31 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
             "result": _contains_all(
                 renderer + hud_js,
                 (
-                    "Recording Control",
-                    "recording_control",
-                    "Start Future-Gated",
-                    "Stop Future-Gated",
+                    "Recording Studio",
+                    "recording_studio_window",
+                    "MONITORING_HUD_RECORDING_STUDIO_READY",
+                    "_dispatch_monitoring_hud_recording_studio_action",
                     "recordingExecutionState",
                     "recordingFileWritingState",
                 ),
             ),
-            "hardeningCheck": "standalone Recording Control remains future-secondary while Dashboard controls are active",
+            "hardeningCheck": "standalone Recording Studio is active while tray/keybind/export customization remains future-gated",
+        },
+        {
+            "slice": "SLC-054-SHELL",
+            "result": _contains_all(
+                renderer + hud_js,
+                (
+                    "Log Viewer Studio",
+                    "log_viewer_studio_shell",
+                    "MONITORING_HUD_LOG_VIEWER_STUDIO_READY",
+                    "recording_output_dir",
+                    "recording_export_dir",
+                    "create-or-open-before-session",
+                    "exportCustomizationState",
+                ),
+            ),
+            "hardeningCheck": "minimal Log Viewer Studio shell opens native/export roots pre-session and keeps full viewer/export customization future-gated",
         },
         {
             "slice": "SLC-054",

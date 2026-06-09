@@ -46,7 +46,7 @@ from .monitoring_hud_placement import build_monitoring_hud_placement_contract
 from .monitoring_hud_status import build_monitoring_hud_status_snapshot
 from .monitoring_hud_state import save_monitoring_hud_state
 from .monitoring_hud_telemetry import build_monitoring_hud_telemetry_snapshot
-from .recording_output_contract import recording_export_dir, write_recording_output_files
+from .recording_output_contract import recording_export_dir, recording_output_dir, write_recording_output_files
 from .saved_action_authoring import (
     CallableGroupDraft,
     CallableGroupDraftValidationError,
@@ -5705,20 +5705,23 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
-class MonitoringHudRecordingControlWindow(QWidget):
-    def __init__(self, screen, event_logger=None):
+class MonitoringHudRecordingStudioWindow(QWidget):
+    def __init__(self, screen, event_logger=None, recording_action_handler=None):
         super().__init__(None)
         self.screen_ref = screen
         self.event_logger = event_logger
+        self.recording_action_handler = recording_action_handler
         self._request_id = 0
-        self.setObjectName("monitoringHudRecordingControlWindow")
-        self.setWindowTitle("Nexus Recording Control")
+        self._recording_session_state = "ready"
+        self._start_stop_state = "target-required"
+        self.setObjectName("monitoringHudRecordingStudioWindow")
+        self.setWindowTitle("Nexus Recording Studio")
         self.setWindowFlags(Qt.Window)
         self.setMinimumSize(380, 260)
         self.resize(440, 300)
         self.setStyleSheet(
             """
-            QWidget#monitoringHudRecordingControlWindow {
+            QWidget#monitoringHudRecordingStudioWindow {
                 background: #061827;
                 color: #dffbff;
                 font-family: Bahnschrift, Segoe UI, sans-serif;
@@ -5767,26 +5770,26 @@ class MonitoringHudRecordingControlWindow(QWidget):
         root.setSpacing(10)
         eyebrow = QLabel("Active Overlay Recording", self)
         eyebrow.setProperty("role", "eyebrow")
-        self._title = QLabel("Recording Control", self)
+        self._title = QLabel("Recording Studio", self)
         self._title.setProperty("role", "title")
         self._target = QLabel("Target: No active overlay profile", self)
         self._target.setProperty("role", "state")
-        self._summary = QLabel("Recording execution and file writing are not enabled.", self)
+        self._summary = QLabel("Ready for local Start/Stop recording.", self)
         self._summary.setWordWrap(True)
         self._summary.setProperty("role", "state")
         self._boundary = QLabel(
-            "Start/Stop, output files, tray controls, export/share, and provider/model work remain future-gated.",
+            "Dashboard and Studio share the active Overlay Profile target. Tray controls, keybinds, export customization, and provider/model work remain future-gated.",
             self,
         )
         self._boundary.setWordWrap(True)
         self._boundary.setProperty("role", "warning")
         actions = QHBoxLayout()
-        self._start = QPushButton("Start Future-Gated", self)
-        self._start.setEnabled(False)
-        self._stop = QPushButton("Stop Future-Gated", self)
-        self._stop.setEnabled(False)
+        self._start = QPushButton("Start", self)
+        self._stop = QPushButton("Stop", self)
         self._minimize = QPushButton("Minimize", self)
         self._close = QPushButton("Close", self)
+        self._start.clicked.connect(lambda: self._request_recording_action("start"))
+        self._stop.clicked.connect(lambda: self._request_recording_action("stop"))
         self._minimize.clicked.connect(self.showMinimized)
         self._close.clicked.connect(self.close)
         for button in (self._start, self._stop, self._minimize, self._close):
@@ -5810,6 +5813,16 @@ class MonitoringHudRecordingControlWindow(QWidget):
             height,
         )
 
+    def _request_recording_action(self, action: str) -> None:
+        normalized_action = action if action in {"start", "stop"} else "toggle"
+        if callable(self.recording_action_handler):
+            self.recording_action_handler(normalized_action)
+        if callable(self.event_logger):
+            self.event_logger(
+                "MONITORING_HUD_RECORDING_STUDIO_ACTION_REQUESTED|"
+                f"action={normalized_action}|sessionState={self._recording_session_state}"
+            )
+
     def update_product_state(
         self,
         *,
@@ -5818,15 +5831,21 @@ class MonitoringHudRecordingControlWindow(QWidget):
         target_count: int,
         target_names: str,
         target_state: str,
+        recording_session_state: str = "ready",
+        start_stop_state: str = "target-required",
     ) -> None:
         self._request_id = max(self._request_id, int(request_id or 0))
+        self._recording_session_state = recording_session_state or "ready"
+        self._start_stop_state = start_stop_state or "target-required"
         profile = active_profile_name.strip() or "No active overlay profile"
         count = max(0, int(target_count or 0))
         self._target.setText(f"Target: {profile} / {count} monitor{'s' if count != 1 else ''}")
         self._summary.setText(
             f"{target_state or 'Target pending'}: {target_names or 'No active monitor targets'}. "
-            "Recording execution and file writing are not enabled."
+            f"Session state: {self._recording_session_state}."
         )
+        self._start.setEnabled(self._start_stop_state == "start-enabled")
+        self._stop.setEnabled(self._start_stop_state == "recording-stop-enabled")
         if not self.isVisible():
             self.setGeometry(self._initial_geometry())
         self.show()
@@ -5836,16 +5855,184 @@ class MonitoringHudRecordingControlWindow(QWidget):
     def proof_state(self) -> dict[str, object]:
         geometry = self.geometry()
         return {
-            "owner": "MonitoringHudRecordingControlWindow",
-            "surface": "standalone_recording_control_window",
+            "owner": "MonitoringHudRecordingStudioWindow",
+            "surface": "recording_studio_window",
             "standaloneTopLevel": self.parent() is None,
             "windowFlag": "normal_window",
             "taskbarRestorable": True,
             "minimizeControl": True,
             "closeControl": True,
-            "recordingExecutionState": "blocked",
-            "recordingFileWritingState": "blocked",
-            "startStopState": "future-gated",
+            "recordingExecutionState": "enabled",
+            "recordingFileWritingState": "enabled",
+            "startStopState": self._start_stop_state,
+            "startEnabled": self._start.isEnabled(),
+            "stopEnabled": self._stop.isEnabled(),
+            "visible": self.isVisible(),
+            "requestId": self._request_id,
+            "x": geometry.x(),
+            "y": geometry.y(),
+            "w": geometry.width(),
+            "h": geometry.height(),
+        }
+
+
+class MonitoringHudLogViewerStudioWindow(QWidget):
+    def __init__(self, screen, event_logger=None):
+        super().__init__(None)
+        self.screen_ref = screen
+        self.event_logger = event_logger
+        self._request_id = ""
+        self.setObjectName("monitoringHudLogViewerStudioWindow")
+        self.setWindowTitle("Nexus Log Viewer Studio")
+        self.setWindowFlags(Qt.Window)
+        self.setMinimumSize(420, 260)
+        self.resize(480, 300)
+        self.setStyleSheet(
+            """
+            QWidget#monitoringHudLogViewerStudioWindow {
+                background: #061827;
+                color: #dffbff;
+                font-family: Bahnschrift, Segoe UI, sans-serif;
+            }
+            QLabel {
+                color: #dffbff;
+                background: transparent;
+            }
+            QLabel[role="eyebrow"] {
+                color: rgba(125, 235, 255, 0.72);
+                font-size: 10px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+            QLabel[role="title"] {
+                color: #f5ffff;
+                font-size: 17px;
+                font-weight: 700;
+            }
+            QLabel[role="state"] {
+                color: #a5f8dc;
+                font-size: 12px;
+            }
+            QLabel[role="warning"] {
+                color: #ffe3a6;
+                font-size: 11px;
+            }
+            QPushButton {
+                min-height: 30px;
+                padding: 4px 12px;
+                border: 1px solid rgba(116, 239, 255, 0.26);
+                border-radius: 8px;
+                background: rgba(5, 22, 38, 0.72);
+                color: #dffbff;
+                font-weight: 700;
+            }
+            """
+        )
+        root = QVBoxLayout(self)
+        root.setContentsMargins(18, 16, 18, 16)
+        root.setSpacing(10)
+        eyebrow = QLabel("Recording Logs", self)
+        eyebrow.setProperty("role", "eyebrow")
+        title = QLabel("Log Viewer Studio", self)
+        title.setProperty("role", "title")
+        self._native = QLabel(f"Native logs: {recording_output_dir()}", self)
+        self._native.setProperty("role", "state")
+        self._native.setWordWrap(True)
+        self._export = QLabel(f"Exported logs: {recording_export_dir()}", self)
+        self._export.setProperty("role", "state")
+        self._export.setWordWrap(True)
+        boundary = QLabel(
+            "This branch provides folder access only. Previous-log selection, in-app viewing, export customization, and Native Log Loader remain future-gated.",
+            self,
+        )
+        boundary.setProperty("role", "warning")
+        boundary.setWordWrap(True)
+        actions = QHBoxLayout()
+        self._open_native = QPushButton("Open Native Logs", self)
+        self._open_export = QPushButton("Open Exported Logs", self)
+        self._minimize = QPushButton("Minimize", self)
+        self._close = QPushButton("Close", self)
+        self._open_native.clicked.connect(lambda: self._open_log_folder("native"))
+        self._open_export.clicked.connect(lambda: self._open_log_folder("export"))
+        self._minimize.clicked.connect(self.showMinimized)
+        self._close.clicked.connect(self.close)
+        for button in (self._open_native, self._open_export, self._minimize, self._close):
+            actions.addWidget(button)
+        root.addWidget(eyebrow)
+        root.addWidget(title)
+        root.addWidget(self._native)
+        root.addWidget(self._export)
+        root.addWidget(boundary)
+        root.addLayout(actions)
+        self.setGeometry(self._initial_geometry())
+
+    def _initial_geometry(self) -> QRect:
+        available = self.screen_ref.availableGeometry()
+        width = 480
+        height = 300
+        return QRect(
+            available.x() + max(24, available.width() - width - 120),
+            available.y() + 96,
+            width,
+            height,
+        )
+
+    def _open_log_folder(self, folder_kind: str) -> None:
+        root = recording_output_dir() if folder_kind == "native" else recording_export_dir()
+        target_folder = os.path.abspath(str(root))
+        try:
+            os.makedirs(target_folder, exist_ok=True)
+            os.startfile(target_folder)
+            if callable(self.event_logger):
+                self.event_logger(
+                    "MONITORING_HUD_LOG_VIEWER_STUDIO_FOLDER_OPENED|"
+                    f"folderKind={folder_kind}|outputDir={target_folder}"
+                )
+        except Exception as exc:
+            if callable(self.event_logger):
+                self.event_logger(
+                    "MONITORING_HUD_LOG_VIEWER_STUDIO_FOLDER_BLOCKED|"
+                    f"folderKind={folder_kind}|error={exc}"
+                )
+
+    def update_product_state(
+        self,
+        *,
+        request_id: str,
+        native_log_path: str = "",
+        validation_export_path: str = "",
+        export_dir: str = "",
+    ) -> None:
+        self._request_id = request_id or self._request_id
+        native_root = recording_output_dir()
+        export_root = recording_export_dir()
+        native_detail = native_log_path.strip() or str(native_root)
+        export_detail = export_dir.strip() or validation_export_path.strip() or str(export_root)
+        self._native.setText(f"Native logs: {native_detail}")
+        self._export.setText(f"Exported logs: {export_detail}")
+        if not self.isVisible():
+            self.setGeometry(self._initial_geometry())
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+    def proof_state(self) -> dict[str, object]:
+        geometry = self.geometry()
+        return {
+            "owner": "MonitoringHudLogViewerStudioWindow",
+            "surface": "log_viewer_studio_shell",
+            "standaloneTopLevel": self.parent() is None,
+            "windowFlag": "normal_window",
+            "taskbarRestorable": True,
+            "minimizeControl": True,
+            "closeControl": True,
+            "nativeFolderPreSessionUsable": True,
+            "exportFolderPreSessionUsable": True,
+            "nativeLogRoot": str(recording_output_dir()),
+            "exportLogRoot": str(recording_export_dir()),
+            "previousLogSelectionState": "future-gated",
+            "exportCustomizationState": "future-gated",
+            "nativeLogLoaderState": "future-gated",
             "visible": self.isVisible(),
             "requestId": self._request_id,
             "x": geometry.x(),
@@ -5958,6 +6145,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_recording_control_signature = None
         self._monitoring_hud_recording_output_signature = None
         self._monitoring_hud_recording_folder_open_signature = None
+        self._monitoring_hud_log_viewer_studio_signature = None
         self._monitoring_hud_overlay_profiles = dict(initial_hud_state.get("overlayProfiles") if isinstance(initial_hud_state.get("overlayProfiles"), dict) else {})
         self._monitoring_hud_active_overlay_profile_id = str(initial_hud_state.get("activeOverlayProfileId") or "default-overlay-profile")
         self._monitoring_hud_overlay_profile_default_deleted_by_user = bool(initial_hud_state.get("overlayProfileDefaultDeletedByUser"))
@@ -6053,8 +6241,17 @@ class DesktopRuntimeWindow(QWidget):
             if self.surface_role == "hud"
             else None
         )
-        self._monitoring_hud_recording_control_window = (
-            MonitoringHudRecordingControlWindow(screen, event_logger)
+        self._monitoring_hud_recording_studio_window = (
+            MonitoringHudRecordingStudioWindow(
+                screen,
+                event_logger,
+                recording_action_handler=self._dispatch_monitoring_hud_recording_studio_action,
+            )
+            if self.surface_role == "hud"
+            else None
+        )
+        self._monitoring_hud_log_viewer_studio_window = (
+            MonitoringHudLogViewerStudioWindow(screen, event_logger)
             if self.surface_role == "hud"
             else None
         )
@@ -6598,6 +6795,15 @@ class DesktopRuntimeWindow(QWidget):
         page = self.webview.page()
         if page is not None:
             page.runJavaScript(script)
+
+    def _dispatch_monitoring_hud_recording_studio_action(self, action: str) -> None:
+        if action == "start":
+            script = "if (typeof monitoringHudStartRecording === 'function') { monitoringHudStartRecording(); }"
+        elif action == "stop":
+            script = "if (typeof monitoringHudStopRecording === 'function') { monitoringHudStopRecording(); }"
+        else:
+            script = "if (typeof monitoringHudToggleRecording === 'function') { monitoringHudToggleRecording(); }"
+        self._run_javascript(script)
 
     def _run_javascript_with_result(self, script, callback):
         page = self.webview.page()
@@ -10239,23 +10445,27 @@ class DesktopRuntimeWindow(QWidget):
         def step_recording_open_folder_click():
             os_click_and_assert_state(
                 "#monitoring-hud-recording-open-folder",
-                "real OS click opens Dashboard Recording log folder",
+                "real OS click opens Dashboard Recording Log Viewer Studio",
                 """
                 (function() {
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
-                    const request = monitoringHudControlState ? monitoringHudControlState.recordingFolderOpenRequest || {} : {};
+                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioRequestId || "") : "";
+                    const summary = monitoringHudControlState ? monitoringHudControlState.logViewerStudioSummary || {} : {};
                     return JSON.stringify({
                         ok: Boolean(
                             openFolder
                             && !openFolder.disabled
-                            && String(openFolder.textContent || "").trim() === "Open Log Folder"
-                            && request
-                            && String(request.requestId || "")
-                            && String(request.outputDir || "")
-                            && request.source === "dashboard-recording-card"
+                            && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
+                            && monitoringHudControlState.logViewerStudioRequested === true
+                            && monitoringHudControlState.logViewerStudioState === "native-window-requested"
+                            && requestId
+                            && summary
+                            && summary.nativeFolderState === "create-or-open-before-session"
+                            && summary.exportFolderState === "create-or-open-before-session"
                         ),
-                        requestId: request ? String(request.requestId || "") : "",
-                        outputDir: request ? String(request.outputDir || "") : "",
+                        requestId,
+                        nativeFolderState: summary ? String(summary.nativeFolderState || "") : "",
+                        exportFolderState: summary ? String(summary.exportFolderState || "") : "",
                         openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
                         realOsInputProof: true,
                         directJsClickUsed: false
@@ -10271,22 +10481,20 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_recording_open_folder_result_assert():
             assert_state(
-                "Dashboard Recording Open Log Folder crosses backend folder-open bridge",
+                "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
                 """
                 (function() {
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
-                    const result = monitoringHudControlState ? monitoringHudControlState.recordingFolderOpenResult || {} : {};
                     return JSON.stringify({
                         ok: Boolean(
                             openFolder
                             && !openFolder.disabled
-                            && result
-                            && result.passed === true
-                            && String(result.outputDir || "")
-                            && monitoringHudControlState.recordingFolderOpenStatus === "opened"
+                            && monitoringHudControlState.logViewerStudioRequested === true
+                            && monitoringHudControlState.logViewerStudioState === "native-window-requested"
+                            && monitoringHudControlState.logViewerStudioSummary
+                            && monitoringHudControlState.logViewerStudioSummary.fullLogViewerState === "future-gated"
                         ),
-                        outputDir: result ? String(result.outputDir || "") : "",
-                        folderOpenStatus: monitoringHudControlState ? String(monitoringHudControlState.recordingFolderOpenStatus || "") : "",
+                        logViewerStudioState: monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioState || "") : "",
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
@@ -16479,21 +16687,23 @@ class DesktopRuntimeWindow(QWidget):
         )
         if (
             recording_control_requested
-            and self._monitoring_hud_recording_control_window is not None
+            and self._monitoring_hud_recording_studio_window is not None
             and recording_control_signature != self._monitoring_hud_recording_control_signature
         ):
             self._monitoring_hud_recording_control_signature = recording_control_signature
             summary = recording_control_summary if isinstance(recording_control_summary, dict) else {}
-            self._monitoring_hud_recording_control_window.update_product_state(
+            self._monitoring_hud_recording_studio_window.update_product_state(
                 request_id=recording_control_request_id,
                 active_profile_name=str(summary.get("activeOverlayProfileName") or ""),
                 target_count=int(summary.get("targetCount") or 0),
                 target_names=str(summary.get("targetNames") or ""),
                 target_state=str(summary.get("targetState") or ""),
+                recording_session_state=str(summary.get("recordingSessionState") or "ready"),
+                start_stop_state=str(summary.get("startStopState") or "target-required"),
             )
-            proof = self._monitoring_hud_recording_control_window.proof_state()
+            proof = self._monitoring_hud_recording_studio_window.proof_state()
             self._emit_runtime_signal(
-                "MONITORING_HUD_RECORDING_CONTROL_WINDOW_READY",
+                "MONITORING_HUD_RECORDING_STUDIO_READY",
                 package="PKG-006",
                 slice="SLC-053",
                 seam="Workstream",
@@ -16507,6 +16717,47 @@ class DesktopRuntimeWindow(QWidget):
                 recording_execution_state=proof.get("recordingExecutionState"),
                 recording_file_writing_state=proof.get("recordingFileWritingState"),
                 start_stop_state=proof.get("startStopState"),
+                visible=proof.get("visible"),
+                x=proof.get("x"),
+                y=proof.get("y"),
+                w=proof.get("w"),
+                h=proof.get("h"),
+            )
+        log_viewer_summary = state.get("logViewerStudioSummary")
+        log_viewer_requested = bool(state.get("logViewerStudioRequested"))
+        log_viewer_request_id = str(state.get("logViewerStudioRequestId") or "")
+        log_viewer_signature = (
+            log_viewer_requested,
+            log_viewer_request_id,
+            json.dumps(log_viewer_summary if isinstance(log_viewer_summary, dict) else {}, sort_keys=True),
+        )
+        if (
+            log_viewer_requested
+            and self._monitoring_hud_log_viewer_studio_window is not None
+            and log_viewer_signature != self._monitoring_hud_log_viewer_studio_signature
+        ):
+            self._monitoring_hud_log_viewer_studio_signature = log_viewer_signature
+            summary = log_viewer_summary if isinstance(log_viewer_summary, dict) else {}
+            self._monitoring_hud_log_viewer_studio_window.update_product_state(
+                request_id=log_viewer_request_id,
+                native_log_path=str(summary.get("nativeLogPath") or ""),
+                validation_export_path=str(summary.get("validationExportPath") or ""),
+                export_dir=str(summary.get("exportDir") or ""),
+            )
+            proof = self._monitoring_hud_log_viewer_studio_window.proof_state()
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LOG_VIEWER_STUDIO_READY",
+                package="PKG-006",
+                slice="SLC-054",
+                seam="Workstream",
+                surface=proof.get("surface"),
+                owner=proof.get("owner"),
+                standalone=proof.get("standaloneTopLevel"),
+                native_folder_pre_session_usable=proof.get("nativeFolderPreSessionUsable"),
+                export_folder_pre_session_usable=proof.get("exportFolderPreSessionUsable"),
+                previous_log_selection_state=proof.get("previousLogSelectionState"),
+                export_customization_state=proof.get("exportCustomizationState"),
+                native_log_loader_state=proof.get("nativeLogLoaderState"),
                 visible=proof.get("visible"),
                 x=proof.get("x"),
                 y=proof.get("y"),
@@ -18772,8 +19023,10 @@ class DesktopRuntimeWindow(QWidget):
         self._command_panel.hide()
         if self._monitoring_hud_minimal_native_overlay is not None:
             self._monitoring_hud_minimal_native_overlay.request_shutdown()
-        if self._monitoring_hud_recording_control_window is not None:
-            self._monitoring_hud_recording_control_window.close()
+        if self._monitoring_hud_recording_studio_window is not None:
+            self._monitoring_hud_recording_studio_window.close()
+        if self._monitoring_hud_log_viewer_studio_window is not None:
+            self._monitoring_hud_log_viewer_studio_window.close()
         self.webview.stop()
         self.hide()
         self.close()
