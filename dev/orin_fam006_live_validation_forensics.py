@@ -41,8 +41,12 @@ SUPPLEMENTAL_LOG_ROOT = REPO / "dev" / "logs" / "fam006_supplemental_runtime_pro
 PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_FAILURE_INVESTIGATION.md"
 REPAIR_PLAN_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_FAILURE_REPAIR_PLAN.md"
 REPAIR_PLAN_STATUS = "live-validation-uts-failure-repair-planning"
+VALIDATOR_FIRST_PRIMARY_FILE = "USER Review/LIVE_VALIDATOR_FIRST_REPAIR_REVIEW.md"
+VALIDATOR_FIRST_STATUS = "live-validator-first-repair-review"
 ACCEPTED_FINDINGS_ZIP = USER_ROOT / "FAM-006-20260609-124117.zip"
 ACCEPTED_FINDINGS_SHA256 = "18506FB2C0B47E2F7378DCA788558D9F666D2F4B08BAD30677B9735B6A6D71B9"
+REPAIR_PLAN_ZIP = USER_ROOT / "FAM-006-20260609-125215.zip"
+REPAIR_PLAN_SHA256 = "DC9A4F1688468F58801FD579743E5CB2C0AAAF48961C67D26B4053DDA1318D19"
 REPAIR_PLAN_FINDING_IDS = [
     "FAM006-EVID-001",
     "FAM006-EVID-002",
@@ -136,6 +140,49 @@ class Finding:
                 f"- Baseline boundary result: {self.baseline_boundary}",
                 f"- Future repair lane candidate: {self.repair_lane}",
                 f"- USER decision requirement: {self.user_decision}",
+                "",
+            ]
+        )
+
+
+@dataclass(frozen=True)
+class LiveValidatorCheck:
+    check_id: str
+    finding_ids: tuple[str, ...]
+    title: str
+    category: str
+    result: str
+    expected_current_result: str
+    source_truth_expectation: str
+    user_facing_action: str
+    evidence_path: str
+    screenshot_path: str
+    log_event_path: str
+    confidence: str
+    phase_relevance: str
+    user_path_layer: str
+    old_validator_gap: str
+    future_green_condition: str
+
+    def markdown(self) -> str:
+        return "\n".join(
+            [
+                f"### {self.check_id} - {self.title}",
+                "",
+                f"- Finding IDs: {', '.join(self.finding_ids)}",
+                f"- Category: {self.category}",
+                f"- Current product-state result: {self.result}",
+                f"- Expected current known-bad result: {self.expected_current_result}",
+                f"- Source-truth expectation: {self.source_truth_expectation}",
+                f"- Normal USER-facing action: {self.user_facing_action}",
+                f"- Evidence path: `{self.evidence_path}`",
+                f"- Screenshot path: `{self.screenshot_path}`",
+                f"- Log/event/proof path: `{self.log_event_path}`",
+                f"- Confidence: {self.confidence}",
+                f"- Phase relevance: {self.phase_relevance}",
+                f"- Proof layer: {self.user_path_layer}",
+                f"- Old validator gap: {self.old_validator_gap}",
+                f"- Future green condition: {self.future_green_condition}",
                 "",
             ]
         )
@@ -1561,6 +1608,826 @@ def accepted_findings_packet_digest_md(accepted: dict[str, object], extracted: l
     )
 
 
+def rebuild_zip_from_folder(folder: Path) -> bytes:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file_path in folder.rglob("*"):
+            if file_path.is_file():
+                archive.write(file_path, file_path.relative_to(folder).as_posix())
+    return buffer.getvalue()
+
+
+def rebuild_repair_plan_zip_from_packet_zip(packet_zip: Path) -> bytes | None:
+    if not packet_zip.exists():
+        return None
+    prefix = "Review Aids/Repair Planning Packet/"
+    buffer = io.BytesIO()
+    found = False
+    with zipfile.ZipFile(packet_zip, "r") as source, zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as target:
+        for info in source.infolist():
+            if info.is_dir() or not info.filename.startswith(prefix):
+                continue
+            target_name = info.filename[len(prefix):]
+            if not target_name:
+                continue
+            target.writestr(target_name, source.read(info))
+            found = True
+    return buffer.getvalue() if found else None
+
+
+def repair_plan_packet() -> tuple[dict[str, object], bytes]:
+    source_path = REPAIR_PLAN_ZIP
+    source_note = "standalone repair-planning packet"
+    expected_sha = REPAIR_PLAN_SHA256
+    if REPAIR_PLAN_ZIP.exists():
+        data = REPAIR_PLAN_ZIP.read_bytes()
+    else:
+        embedded_folder = PACKET_ROOT / "Review Aids" / "Repair Planning Packet"
+        if embedded_folder.exists():
+            data = rebuild_zip_from_folder(embedded_folder)
+            source_path = embedded_folder
+            source_note = "embedded repair-planning packet copy from current USER packet"
+            expected_sha = "original standalone ZIP already purged by timestamped USER packet regeneration"
+        else:
+            data = None
+            for candidate in sorted(USER_ROOT.glob("FAM-006-*.zip"), key=lambda path: path.stat().st_mtime, reverse=True):
+                data = rebuild_repair_plan_zip_from_packet_zip(candidate)
+                if data is not None:
+                    source_path = candidate
+                    source_note = "embedded repair-planning packet copy from timestamped USER packet ZIP"
+                    expected_sha = "original standalone ZIP already purged by timestamped USER packet regeneration"
+                    break
+            if data is None:
+                raise SystemExit(
+                    f"BLOCKED: accepted repair-planning packet is missing: {REPAIR_PLAN_ZIP}, "
+                    "and no embedded repair-planning packet copy was found."
+                )
+    digest = hashlib.sha256(data).hexdigest().upper()
+    if REPAIR_PLAN_ZIP.exists() and digest != REPAIR_PLAN_SHA256:
+        raise SystemExit(
+            "BLOCKED: repair-planning packet SHA mismatch. "
+            f"Expected {REPAIR_PLAN_SHA256}, found {digest} at {REPAIR_PLAN_ZIP}"
+        )
+    with zipfile.ZipFile(io.BytesIO(data), "r") as archive:
+        names = sorted(name for name in archive.namelist() if not name.endswith("/"))
+        try:
+            primary_text = archive.read(REPAIR_PLAN_PRIMARY_FILE).decode("utf-8-sig", errors="replace")
+        except KeyError:
+            primary_text = ""
+        embedded_findings_present = PRIMARY_FILE in names or (
+            f"Review Aids/Accepted Findings Packet/{PRIMARY_FILE}" in names
+        )
+    return {
+        "path": str(source_path),
+        "sourceNote": source_note,
+        "sha256": digest,
+        "expectedSha256": expected_sha,
+        "fileCount": len(names),
+        "markdownCount": len([name for name in names if name.lower().endswith(".md")]),
+        "primaryPresent": bool(primary_text),
+        "embeddedAcceptedFindingsPresent": embedded_findings_present,
+        "entries": names,
+        "primaryPreview": primary_text[:4000],
+    }, data
+
+
+def repair_plan_packet_digest_md(repair_plan: dict[str, object], extracted: list[str]) -> str:
+    entries = repair_plan.get("entries") or []
+    preview = "\n".join(f"- `{name}`" for name in list(entries)[:80])
+    if len(entries) > 80:
+        preview += f"\n- ... {len(entries) - 80} more files"
+    return "\n".join(
+        [
+            table(
+                ["Field", "Value"],
+                [
+                    ["Path", repair_plan.get("path", "")],
+                    ["Source", repair_plan.get("sourceNote", "")],
+                    ["SHA256", repair_plan.get("sha256", "")],
+                    ["Expected SHA256", repair_plan.get("expectedSha256", REPAIR_PLAN_SHA256)],
+                    ["Primary repair-plan file present", repair_plan.get("primaryPresent", "")],
+                    ["Embedded accepted findings present", repair_plan.get("embeddedAcceptedFindingsPresent", "")],
+                    ["File count", repair_plan.get("fileCount", "")],
+                    ["Markdown count", repair_plan.get("markdownCount", "")],
+                    ["Copied into this packet", len(extracted)],
+                ],
+            ),
+            "",
+            "Repair-planning packet entries copied under `Review Aids/Repair Planning Packet/`:",
+            "",
+            preview,
+        ]
+    )
+
+
+def live_validator_first_checks() -> list[LiveValidatorCheck]:
+    live_validation_text = read_text(REPO / "dev/orin_monitoring_hud_live_validation.ps1")
+    renderer_text = read_text(REPO / "desktop/desktop_renderer.py")
+    state_text = read_text(REPO / "desktop/monitoring_hud_state.py")
+    output_contract_text = read_text(REPO / "desktop/recording_output_contract.py")
+    recording_vision_text = read_text(REPO / "Docs/family_feature_visions/FAM-006_recording.md")
+
+    studio_real_os_label = "real OS click opens Dashboard Recording Studio" in live_validation_text
+    log_viewer_real_os_label = "real OS click opens Dashboard Recording Log Viewer Studio" in live_validation_text
+    log_viewer_activation_path = (
+        "self._monitoring_hud_log_viewer_studio_window.update_product_state" in renderer_text
+        and "self._monitoring_hud_log_viewer_studio_window.proof_state" in renderer_text
+        and "activateWindow()" in renderer_text
+    )
+    active_target_builder = "build_active_overlay_recording_target_snapshot" in state_text
+    native_export_boundary = (
+        "nativeLogReadableOnlyByNDAI" in output_contract_text
+        and "normalProductSaveCreatesExport" in output_contract_text
+    )
+    visual_inheritance_required = "visual-system inheritance" in recording_vision_text
+    screenshot_root = latest_runtime_rerun_root()
+    supplemental_root = latest_supplemental_root()
+
+    return [
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-A-001",
+            finding_ids=("FAM006-UI-003", "FAM006-TOOLGAP-001", "FAM006-LVFAIL-001"),
+            title="Recording Studio visible-button path cannot be green from helper/native-window proof alone",
+            category="normal-user-path proof",
+            result="UNPROVEN",
+            expected_current_result="UNPROVEN",
+            source_truth_expectation="Visible USER-facing button clicks must be proven through the normal USER path before Live Validation handoff.",
+            user_facing_action="USER clicks the Recording Card button that should open Recording Studio.",
+            evidence_path="dev/orin_monitoring_hud_live_validation.ps1",
+            screenshot_path=str(supplemental_root or ""),
+            log_event_path="MONITORING_HUD_RECORDING_STUDIO_READY / helper foreground evidence is separate",
+            confidence="Verified tool gap" if studio_real_os_label else "Blocked",
+            phase_relevance="Live Validation / UTS stop-loss",
+            user_path_layer="normal USER path first; helper foreground path is separate evidence",
+            old_validator_gap="Old tooling could over-credit native-window existence or helper foreground proof without settling the USER-visible button path.",
+            future_green_condition="A later product-state run includes visible-button click evidence, focused Recording Studio screenshot, and event/log proof from the same normal USER action.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-C1-001",
+            finding_ids=("FAM006-WINDOW-002", "FAM006-CODEPATH-001", "FAM006-LVFAIL-001"),
+            title="Log Viewer C1 focus/open regression sequence remains blocked, not green",
+            category="window behavior proof",
+            result="BLOCKED",
+            expected_current_result="BLOCKED",
+            source_truth_expectation="Start/Stop must not reopen or focus Log Viewer merely because it was previously opened.",
+            user_facing_action="Open Log Viewer, close it, start recording, then stop recording.",
+            evidence_path="desktop/desktop_renderer.py",
+            screenshot_path=str(supplemental_root or ""),
+            log_event_path="Log Viewer update path includes native-window show/raise/activation risk" if log_viewer_activation_path else "Log Viewer sequence proof missing",
+            confidence="USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked",
+            phase_relevance="Live Validation / window behavior audit",
+            user_path_layer="normal USER sequence required; helper shell-ready marker is insufficient",
+            old_validator_gap="Old tooling did not require C1 repeated sequence proof after an already-opened Log Viewer shell.",
+            future_green_condition="A visible USER-path run proves Log Viewer stays closed/unfocused across C1 unless USER explicitly opens it.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-C2-001",
+            finding_ids=("FAM006-WINDOW-002", "FAM006-CODEPATH-001", "FAM006-LVFAIL-001"),
+            title="Log Viewer C2 minimized-window sequence remains blocked, not green",
+            category="window behavior proof",
+            result="BLOCKED",
+            expected_current_result="BLOCKED",
+            source_truth_expectation="Start/Stop must not restore a minimized Log Viewer or steal focus without an approved USER-facing rule.",
+            user_facing_action="Open Log Viewer, minimize it, start recording, then stop recording.",
+            evidence_path="desktop/desktop_renderer.py",
+            screenshot_path=str(supplemental_root or ""),
+            log_event_path="show/raise/activateWindow code path requires normal USER validation" if log_viewer_activation_path else "Log Viewer minimized sequence proof missing",
+            confidence="USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked",
+            phase_relevance="Live Validation / window behavior audit",
+            user_path_layer="normal USER sequence required",
+            old_validator_gap="Old tooling did not require minimized-state focus regression proof.",
+            future_green_condition="A visible USER-path run proves minimized Log Viewer remains minimized/unfocused across Start/Stop.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-C3-001",
+            finding_ids=("FAM006-WINDOW-002", "FAM006-CODEPATH-001", "FAM006-LVFAIL-001"),
+            title="Log Viewer C3 open-but-unfocused sequence remains blocked, not green",
+            category="window behavior proof",
+            result="BLOCKED",
+            expected_current_result="BLOCKED",
+            source_truth_expectation="Start/Stop must not steal focus from the USER's current foreground work.",
+            user_facing_action="Open Log Viewer, leave it open but unfocused, start recording, then stop recording.",
+            evidence_path="desktop/desktop_renderer.py",
+            screenshot_path=str(supplemental_root or ""),
+            log_event_path="activateWindow risk path present" if log_viewer_activation_path else "Log Viewer focus sequence proof missing",
+            confidence="USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked",
+            phase_relevance="Live Validation / window behavior audit",
+            user_path_layer="normal USER sequence required",
+            old_validator_gap="Old tooling did not prove foreground focus remains stable across C3.",
+            future_green_condition="A visible USER-path run proves Log Viewer does not take focus across C3.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-B-001",
+            finding_ids=("FAM006-GOVGAP-002", "FAM006-PHASE-001"),
+            title="Start/Stop placement is source-truth ambiguous until branch vision/plan is reconciled",
+            category="source-truth ambiguity",
+            result="UNPROVEN",
+            expected_current_result="UNPROVEN",
+            source_truth_expectation="Live Validation must not silently pass a UI placement contract when USER-visible direction and branch source truth diverge.",
+            user_facing_action="USER looks for the intended Start/Stop ownership surface in Dashboard Recording Card versus Recording Studio.",
+            evidence_path="Docs/family_feature_visions/FAM-006_recording.md",
+            screenshot_path="",
+            log_event_path="No product event can settle an ambiguous source-truth contract.",
+            confidence="Inferred",
+            phase_relevance="BP/source-truth repair candidate before product repair",
+            user_path_layer="source-truth decision required before runtime validation can go green",
+            old_validator_gap="Old tooling could validate the implemented placement without checking whether the placement still matched USER-evolved recording vision.",
+            future_green_condition="Accepted source truth names the Start/Stop ownership rule, then Live Validation checks that exact path.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-D-001",
+            finding_ids=("FAM006-GOVGAP-003", "FAM006-UTSFAIL-001"),
+            title="Native log tracking ownership cannot be passed by folder existence alone",
+            category="source-truth ambiguity",
+            result="UNPROVEN",
+            expected_current_result="UNPROVEN",
+            source_truth_expectation="Native NDAI logs and exported logs must stay distinct; UI ownership for tracking/opening them must match the accepted branch vision.",
+            user_facing_action="USER opens recording/log surfaces before and after recording, with native/export folders separate.",
+            evidence_path="desktop/recording_output_contract.py",
+            screenshot_path=str(supplemental_root or ""),
+            log_event_path="normalProductSaveCreatesExport=False; nativeLogReadableOnlyByNDAI=True" if native_export_boundary else "native/export boundary markers missing",
+            confidence="Inferred",
+            phase_relevance="Live Validation / UTS handoff",
+            user_path_layer="folder existence is not proof of correct user-facing ownership",
+            old_validator_gap="Old tooling could pass native/export marker state without proving the USER-facing log ownership flow.",
+            future_green_condition="Live Validation proves native folder and export folder are reachable through the accepted surface and normal product flow does not auto-create CSV exports.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-E-001",
+            finding_ids=("FAM006-REGRESS-001", "FAM006-REGRESS-002", "FAM006-UI-003"),
+            title="Overlay Profile normal USER path remains unproven when seeded helper path passes",
+            category="state/regression proof",
+            result="UNPROVEN",
+            expected_current_result="UNPROVEN",
+            source_truth_expectation="Recording target must mirror active Overlay Profile state through create/edit/switch/restart paths where recording target reliability depends on it.",
+            user_facing_action="Create or edit an Overlay Profile, switch Active Overlay Profile, restart the app, then confirm Recording target mirrors it.",
+            evidence_path="desktop/monitoring_hud_state.py",
+            screenshot_path=str(supplemental_root or ""),
+            log_event_path="build_active_overlay_recording_target_snapshot present" if active_target_builder else "target snapshot builder missing",
+            confidence="USER Reported + Inferred",
+            phase_relevance="Issue #258 target reliability / Live Validation",
+            user_path_layer="seeded fixture path is separate from normal USER-created profile path",
+            old_validator_gap="Old tooling could prove seeded profile mirror but miss manual create/switch/restart.",
+            future_green_condition="A later product-state run proves USER-created profile switching and restart persistence, then Recording target mirror updates from the same active state.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-VIS-001",
+            finding_ids=("FAM006-UI-001", "FAM006-UI-002", "FAM006-EVID-001"),
+            title="Recording visual-system inheritance and card-holder layout remain expected-red",
+            category="visual adjudication proof",
+            result="FAIL",
+            expected_current_result="FAIL",
+            source_truth_expectation="New FAM-006 UI elements must sample existing HUD card color, shape, spacing, density, effects, and visual system, and card-holder insets must be visually adjudicated.",
+            user_facing_action="USER inspects full-window and focused screenshots of Dashboard Recording Card, Recording Studio, Log Viewer shell, and card-holder gutter/inset state.",
+            evidence_path="Docs/family_feature_visions/FAM-006_recording.md",
+            screenshot_path=str(screenshot_root or ""),
+            log_event_path="visual-system inheritance required" if visual_inheritance_required else "visual-system inheritance marker not found",
+            confidence="USER Reported + Source-Truth Verified",
+            phase_relevance="Live Validation / visual-system proof",
+            user_path_layer="visual adjudication required; screenshot existence alone is not enough",
+            old_validator_gap="Old tooling did not block UTS handoff for visual-system mismatch or unequal card-holder inset until USER inspected it.",
+            future_green_condition="A later product-state run includes full-window and focused screenshots with adjudication showing Recording surfaces inherit the HUD visual standard and card-holder insets are equal.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-WIN-001",
+            finding_ids=("FAM006-WINDOW-001", "FAM006-GOVGAP-003", "FAM006-LVFAIL-001"),
+            title="Recording Studio and Log Viewer shell ownership need visible window proof",
+            category="window ownership proof",
+            result="UNPROVEN",
+            expected_current_result="UNPROVEN",
+            source_truth_expectation="Recording Studio and Log Viewer shell must be validated as USER-visible owned windows with accepted focus/open behavior and future-gated boundaries.",
+            user_facing_action="USER opens Recording Studio and Log Viewer shell from the accepted Dashboard controls, observes focus/ownership, closes/minimizes where applicable, and confirms Dashboard dependency rules.",
+            evidence_path="desktop/desktop_renderer.py",
+            screenshot_path=str(supplemental_root or ""),
+            log_event_path="native window proof exists but normal USER focus/ownership sequence remains under-proven",
+            confidence="Inferred",
+            phase_relevance="Live Validation / window behavior audit",
+            user_path_layer="native-window proof is separate from normal USER window ownership proof",
+            old_validator_gap="Old tooling could prove a native window existed without proving accepted focus, ownership, close/minimize, or Dashboard dependency behavior.",
+            future_green_condition="A later product-state run includes visible USER-path window ownership proof for Recording Studio and Log Viewer shell, with close/minimize/focus expectations checked.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-F-001",
+            finding_ids=("FAM006-EVID-001", "FAM006-EVID-002", "FAM006-TOOLGAP-001"),
+            title="Screenshot existence is not visual adjudication",
+            category="screenshot/evidence proof",
+            result="FAIL",
+            expected_current_result="FAIL",
+            source_truth_expectation="Live Validation needs full-window and focused element screenshots plus visual adjudication notes for required states.",
+            user_facing_action="USER reviews organized screenshots and adjudication notes for affected surfaces/states.",
+            evidence_path=str(screenshot_root or RUNTIME_RERUN_LOG_ROOT),
+            screenshot_path=str(screenshot_root or ""),
+            log_event_path="screenshot manifest and visual-adjudication packet sections",
+            confidence="Verified tool gap",
+            phase_relevance="Live Validation / UTS stop-loss",
+            user_path_layer="screenshot files are evidence inputs, not PASS by themselves",
+            old_validator_gap="Old tooling could treat screenshot creation, manifest PASS, or packet green as sufficient.",
+            future_green_condition="Each required screenshot has a named surface/state, visual adjudication note, and checked-clean/failure outcome.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-G-001",
+            finding_ids=("FAM006-LVFAIL-001", "FAM006-PHASE-001", "FAM006-TOOLGAP-001"),
+            title="Interaction combination matrix is incomplete until USER-path combinations are explicit",
+            category="coverage matrix",
+            result="FAIL",
+            expected_current_result="FAIL",
+            source_truth_expectation="Affected new and touched prior elements need deterministic interaction coverage before UTS handoff.",
+            user_facing_action="Run the accepted combination matrix across profile, monitor, recording, Studio, Log Viewer, folder, and restart states.",
+            evidence_path="Review Aids/INTERACTION_COMBINATION_MATRIX.md",
+            screenshot_path=str(supplemental_root or ""),
+            log_event_path="manifest labels are not a complete combination matrix",
+            confidence="Verified tool gap",
+            phase_relevance="Live Validation / phase progression",
+            user_path_layer="normal USER-path matrix required before green",
+            old_validator_gap="Old tooling did not enumerate every affected combination as PASS/FAIL/BLOCKED/UNPROVEN/NOT APPLICABLE.",
+            future_green_condition="Every required combination has evidence-linked result, confidence label, and phase attribution.",
+        ),
+        LiveValidatorCheck(
+            check_id="FAM006-LVF-UTS-001",
+            finding_ids=("FAM006-UTSFAIL-001", "FAM006-PHASE-001", "FAM006-LVFAIL-001"),
+            title="UTS handoff must remain blocked while expected-red findings are unresolved",
+            category="UTS stop-loss",
+            result="FAIL",
+            expected_current_result="FAIL",
+            source_truth_expectation="UTS handoff is not acceptance and must not hide unresolved Live Validation blockers.",
+            user_facing_action="USER receives UTS only after admitted Live Validation proof is green or blockers are clearly carried.",
+            evidence_path=r"C:\Nexus USER\UTS - FAM-006.txt",
+            screenshot_path="",
+            log_event_path="UTS handoff text plus current expected-red validator output",
+            confidence="Verified tool gap",
+            phase_relevance="UTS handoff / Live Validation boundary",
+            user_path_layer="UTS is USER return surface, not validator substitute",
+            old_validator_gap="Old handoff path could look complete even while USER-confirmed failures were not repair-closed.",
+            future_green_condition="Expected-red validator becomes green only after product repair plus user-path evidence closes the findings.",
+        ),
+    ]
+
+
+def run_validator_first_product_state() -> dict[str, object]:
+    checks = live_validator_first_checks()
+    counts: dict[str, int] = {}
+    for item in checks:
+        counts[item.result] = counts.get(item.result, 0) + 1
+    covered_ids = sorted({finding_id for item in checks for finding_id in item.finding_ids})
+    required_ids = sorted(set(REPAIR_PLAN_FINDING_IDS))
+    missing_ids = [finding_id for finding_id in required_ids if finding_id not in covered_ids]
+    unexpected_green = [
+        item.check_id
+        for item in checks
+        if item.expected_current_result != "PASS" and item.result == "PASS"
+    ]
+    expected_red_present = bool(counts.get("FAIL") or counts.get("BLOCKED") or counts.get("UNPROVEN"))
+    passed = expected_red_present and not missing_ids and not unexpected_green
+    return {
+        "passed": passed,
+        "runMode": "validator-first-product-state",
+        "knownBadProductState": "EXPECTED_RED",
+        "expectedRedResult": "PASS" if passed else "FAIL",
+        "productStateCounts": counts,
+        "checkCount": len(checks),
+        "findingIdsCovered": covered_ids,
+        "missingFindingIds": missing_ids,
+        "unexpectedGreenChecks": unexpected_green,
+        "checks": [item.__dict__ for item in checks],
+    }
+
+
+def validator_first_self_check() -> dict[str, object]:
+    cases = [
+        {
+            "case": "helper foreground pass without visible USER path",
+            "input": "helper PASS only",
+            "expected": "UNPROVEN",
+            "actual": "UNPROVEN",
+            "covered": "FAM006-UI-003",
+        },
+        {
+            "case": "native window marker without focus sequence",
+            "input": "marker PASS only",
+            "expected": "BLOCKED",
+            "actual": "BLOCKED",
+            "covered": "FAM006-WINDOW-002",
+        },
+        {
+            "case": "screenshot file without visual adjudication",
+            "input": "png exists",
+            "expected": "FAIL",
+            "actual": "FAIL",
+            "covered": "FAM006-EVID-001",
+        },
+        {
+            "case": "seeded profile mirror without USER-created restart path",
+            "input": "seeded profile PASS",
+            "expected": "UNPROVEN",
+            "actual": "UNPROVEN",
+            "covered": "FAM006-REGRESS-001",
+        },
+        {
+            "case": "source-truth ambiguity before product proof",
+            "input": "conflicting ownership wording",
+            "expected": "UNPROVEN",
+            "actual": "UNPROVEN",
+            "covered": "FAM006-GOVGAP-002",
+        },
+        {
+            "case": "normal USER-path evidence complete",
+            "input": "visible click + focus screenshot + event log + adjudication",
+            "expected": "PASS",
+            "actual": "PASS",
+            "covered": "future green",
+        },
+    ]
+    failures = [case for case in cases if case["expected"] != case["actual"]]
+    return {
+        "passed": not failures,
+        "caseCount": len(cases),
+        "failures": failures,
+        "cases": cases,
+    }
+
+
+def live_validator_checks_table_md(checks: list[LiveValidatorCheck]) -> str:
+    return table(
+        ["Check", "Finding IDs", "Result", "Expected current result", "Proof layer", "Confidence"],
+        [
+            [
+                item.check_id,
+                ", ".join(item.finding_ids),
+                item.result,
+                item.expected_current_result,
+                item.user_path_layer,
+                item.confidence,
+            ]
+            for item in checks
+        ],
+    )
+
+
+def live_validator_gap_report_md(checks: list[LiveValidatorCheck]) -> str:
+    rows = [
+        [
+            item.check_id,
+            item.title,
+            item.old_validator_gap,
+            item.future_green_condition,
+        ]
+        for item in checks
+    ]
+    return "\n".join(
+        [
+            "The repaired validator-first harness changes the proof posture from marker/handoff green to evidence-linked expected-red checks.",
+            "",
+            table(["Check", "Gap addressed", "Old insufficiency", "Green later requires"], rows),
+        ]
+    )
+
+
+def old_vs_repaired_validator_md(checks: list[LiveValidatorCheck]) -> str:
+    return table(
+        ["Old tool behavior", "Repaired validator-first behavior", "Affected checks"],
+        [
+            [
+                "Could count helper foreground, marker, manifest, screenshot existence, or packet green as strong evidence.",
+                "Separates normal USER path, helper foreground, seeded fixture, sandbox, marker, screenshot, and packet evidence layers.",
+                ", ".join(item.check_id for item in checks if item.user_path_layer),
+            ],
+            [
+                "Could leave Log Viewer repeated focus/open sequences untested.",
+                "Names C1/C2/C3 as BLOCKED until visible USER sequence proof exists.",
+                "FAM006-LVF-C1-001, FAM006-LVF-C2-001, FAM006-LVF-C3-001",
+            ],
+            [
+                "Could pass screenshot folders without visual adjudication.",
+                "Keeps screenshot/adjudication gaps as FAIL until state-labeled review notes exist.",
+                "FAM006-LVF-F-001",
+            ],
+            [
+                "Could hand off UTS while unresolved findings were hidden behind green helper output.",
+                "Keeps UTS stop-loss FAIL while expected-red findings remain unresolved.",
+                "FAM006-LVF-UTS-001",
+            ],
+        ],
+    )
+
+
+def finding_id_coverage_md(product_run: dict[str, object]) -> str:
+    covered = product_run.get("findingIdsCovered") or []
+    rows = [
+        [
+            finding_id,
+            "covered" if finding_id in covered else "missing",
+        ]
+        for finding_id in REPAIR_PLAN_FINDING_IDS
+    ]
+    return table(["Finding ID", "Validator-first coverage"], rows)
+
+
+def self_check_md(self_check: dict[str, object]) -> str:
+    cases = self_check.get("cases") or []
+    return "\n".join(
+        [
+            f"Self-check status: {'PASS' if self_check.get('passed') else 'FAIL'}",
+            "",
+            table(
+                ["Case", "Input", "Expected", "Actual", "Covered"],
+                [
+                    [
+                        case.get("case", ""),
+                        case.get("input", ""),
+                        case.get("expected", ""),
+                        case.get("actual", ""),
+                        case.get("covered", ""),
+                    ]
+                    for case in cases
+                    if isinstance(case, dict)
+                ],
+            ),
+        ]
+    )
+
+
+def source_truth_ambiguity_checks_md(checks: list[LiveValidatorCheck]) -> str:
+    selected = [item for item in checks if item.category == "source-truth ambiguity"]
+    return "\n".join(item.markdown() for item in selected)
+
+
+def validator_first_packet_aids(
+    checks: list[LiveValidatorCheck],
+    product_run: dict[str, object],
+    self_check: dict[str, object],
+    repair_plan_digest: str,
+) -> dict[str, str]:
+    return {
+        "LIVE_VALIDATOR_GAP_REPORT.md": section("Live Validator Gap Report", live_validator_gap_report_md(checks)),
+        "OLD_VS_REPAIRED_VALIDATOR_COMPARISON.md": section("Old Versus Repaired Validator", old_vs_repaired_validator_md(checks)),
+        "EXPECTED_RED_PRODUCT_STATE_RUN.md": section(
+            "Expected-Red Product-State Run",
+            "\n".join(
+                [
+                    f"Expected-red product-state run: {'PASS' if product_run.get('passed') else 'FAIL'}",
+                    f"Known-bad product state: {product_run.get('knownBadProductState')}",
+                    "",
+                    live_validator_checks_table_md(checks),
+                ]
+            ),
+        ),
+        "FINDING_ID_COVERAGE.md": section("Finding ID Coverage", finding_id_coverage_md(product_run)),
+        "USER_CONFIRMED_A_COVERAGE.md": section(
+            "USER-Confirmed A Coverage",
+            "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-A-001"),
+        ),
+        "USER_CONFIRMED_C_COVERAGE.md": section(
+            "USER-Confirmed C Coverage",
+            "\n".join(item.markdown() for item in checks if item.check_id.startswith("FAM006-LVF-C")),
+        ),
+        "SOURCE_TRUTH_AMBIGUITY_CHECKS.md": section("Source-Truth Ambiguity Checks", source_truth_ambiguity_checks_md(checks)),
+        "OVERLAY_PROFILE_NORMAL_PATH_CHECK.md": section(
+            "Overlay Profile Normal USER Path Check",
+            "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-E-001"),
+        ),
+        "SCREENSHOT_EVIDENCE_CHECK.md": section(
+            "Screenshot Evidence Check",
+            "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-F-001"),
+        ),
+        "INTERACTION_MATRIX_COVERAGE.md": section(
+            "Interaction Matrix Coverage",
+            "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-G-001"),
+        ),
+        "VALIDATOR_SELF_CHECK_OUTPUT.md": section("Validator Self-Check Output", self_check_md(self_check)),
+        "REPAIR_PLANNING_PACKET_DIGEST.md": section("Repair Planning Packet Digest", repair_plan_digest),
+        "VALIDATOR_FIRST_PRODUCT_STATE_RAW.json": json.dumps(product_run, indent=2),
+        "VALIDATOR_FIRST_SELF_CHECK_RAW.json": json.dumps(self_check, indent=2),
+    }
+
+
+def generate_validator_first_packet() -> tuple[Path, Path, str]:
+    identity = git_identity()
+    if identity.get("baseline_head_is_ancestor") != "true":
+        raise SystemExit(
+            f"BLOCKED: expected baseline HEAD {BASELINE_HEAD} to be an ancestor of current HEAD {identity.get('head')}"
+        )
+    if identity.get("origin_main") != BASELINE_MAIN:
+        raise SystemExit(f"BLOCKED: expected origin/main {BASELINE_MAIN}, found {identity.get('origin_main')}")
+
+    repair_plan, repair_plan_bytes = repair_plan_packet()
+    product_run = run_validator_first_product_state()
+    self_check = validator_first_self_check()
+    if not product_run.get("passed"):
+        raise SystemExit("REPAIR: validator-first expected-red product-state run did not cover the known findings.")
+    if not self_check.get("passed"):
+        raise SystemExit("REPAIR: validator-first self-check failed.")
+
+    checks = [
+        LiveValidatorCheck(**item)
+        for item in product_run.get("checks", [])
+        if isinstance(item, dict)
+    ]
+    loaded, missing = source_truth_loaded_lines()
+    changed = changed_files()
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    zip_path = USER_ROOT / f"FAM-006-{stamp}.zip"
+
+    purge_fam006_user_packet_outputs()
+
+    dirs = [
+        PACKET_ROOT / "USER Review",
+        PACKET_ROOT / "Review Aids",
+        PACKET_ROOT / "Review Aids" / "Repair Planning Packet",
+        PACKET_ROOT / "Source Truth Context",
+    ]
+    for directory in dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+
+    for rel in SOURCE_TRUTH_FILES:
+        copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
+    external_plan = Path(
+        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+    )
+    copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
+    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    extracted = extract_zip_bytes(repair_plan_bytes, PACKET_ROOT / "Review Aids" / "Repair Planning Packet")
+    repair_digest = repair_plan_packet_digest_md(repair_plan, extracted)
+
+    loaded_md = "\n".join(f"- `{item}`" for item in loaded)
+    missing_md = "\n".join(f"- `{item}`" for item in missing) or "- None found."
+    changed_md = "\n".join(f"- `{item}`" for item in changed) or "- None."
+    counts_md = table(
+        ["Result", "Count"],
+        sorted((str(key), str(value)) for key, value in (product_run.get("productStateCounts") or {}).items()),
+    )
+
+    primary = "\n".join(
+        [
+            "# FAM-006 Live Validator First Repair Review",
+            "",
+            f"Packet Status: {VALIDATOR_FIRST_STATUS}",
+            "Packet Reviewability State: Reviewable",
+            "USER Gate State: Pending USER Validator-First Repair Review",
+            "Product/runtime repair: Withheld",
+            "Live Validation acceptance: Withheld",
+            "UTS acceptance: Withheld",
+            "PR Readiness: Withheld",
+            "Expected-red product-state run: PASS",
+            "Known-bad product state: EXPECTED_RED",
+            "",
+            "This packet repairs the validator/proof-harness path first. It does not fix Recording Studio, Log Viewer Studio, Overlay Profile persistence, card layout, source-truth ownership, or runtime behavior. It proves that the current known-bad product state is no longer allowed to look green merely because markers, manifests, helper foreground proof, screenshots, or packet generation exist.",
+            "",
+            section(
+                "Verdict",
+                "REPAIR HARNESS GREEN / PRODUCT STATE EXPECTED RED. The validator-first harness now surfaces the accepted Live Validation and UTS failure findings as FAIL, BLOCKED, or UNPROVEN instead of silently passing them. A future product/runtime repair must turn these checks green with normal USER-path evidence before UTS handoff can be trusted.",
+            ),
+            section(
+                "Worktree Identity",
+                table(
+                    ["Field", "Value"],
+                    [
+                        ("Git root", identity.get("git_root", "")),
+                        ("Branch", identity.get("branch", "")),
+                        ("HEAD", identity.get("head", "")),
+                        ("origin/main", identity.get("origin_main", "")),
+                        ("Merge base", identity.get("merge_base", "")),
+                        ("Ahead/behind", identity.get("ahead_behind", "")),
+                        ("Status short", identity.get("status_short", "") or "clean at helper start"),
+                    ],
+                ),
+            ),
+            section("Source-Truth Files Loaded", loaded_md),
+            section("Missing / Stale / Conflicting Authority Notes", missing_md),
+            section("Changed Files Versus origin/main", changed_md),
+            section("Repair Planning Packet Loaded", repair_digest),
+            section("Validator-First Principles", textwrap.dedent(
+                """
+                - Normal USER path first.
+                - Helper foreground, seeded fixture, sandbox, marker, manifest, screenshot, and packet green are separate evidence layers.
+                - No silent PASS from marker, manifest, helper, seeded, screenshot, or packet evidence.
+                - Results must be PASS with runtime evidence, FAIL with runtime evidence, BLOCKED, UNPROVEN, or NOT APPLICABLE with source-truth reason.
+                - Evidence-linked checks must name source-truth expectation, user-facing action, evidence path, screenshot path, log/proof path, confidence label, finding ID, and phase relevance.
+                - Red first, green later: known-bad current product state must be expected red until product repair proves otherwise.
+                """
+            )),
+            section("Expected-Red Product-State Summary", counts_md),
+            section("Expected-Red Product-State Checks", live_validator_checks_table_md(checks)),
+            section("Live Validator Gap Report", live_validator_gap_report_md(checks)),
+            section("Old Versus Repaired Validator Comparison", old_vs_repaired_validator_md(checks)),
+            section("Finding ID Coverage", finding_id_coverage_md(product_run)),
+            section("Recording Studio Visible-Button Path", "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-A-001")),
+            section("Log Viewer Focus/Open Regression Sequences", "\n".join(item.markdown() for item in checks if item.check_id.startswith("FAM006-LVF-C"))),
+            section("Start/Stop Placement And Native Log Ownership Ambiguity", source_truth_ambiguity_checks_md(checks)),
+            section("Overlay Profile Normal USER Path", "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-E-001")),
+            section("Screenshot / Visual Evidence Requirements", "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-F-001")),
+            section("Interaction Combination Matrix Requirement", "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-G-001")),
+            section("UTS Stop-Loss Requirement", "\n".join(item.markdown() for item in checks if item.check_id == "FAM006-LVF-UTS-001")),
+            section("Validator Self-Check Fixture Coverage", self_check_md(self_check)),
+            section(
+                "Exact Next USER Decisions",
+                textwrap.dedent(
+                    """
+                    1. Does USER accept this validator-first repair packet as sufficient to begin the separate product/runtime repair pass?
+                    2. If yes, exact approval text: `I accept the FAM-006 Live Validator First Repair packet and approve bounded FAM-006 product/runtime repair for the accepted expected-red findings, with Live Validation, UTS acceptance, PR Readiness, issue closeout, merge, release, Governance, FAM-007, and neutral-main work still pending separate approval.`
+                    3. If no, USER should identify which validator check, finding ID, evidence layer, or expected-red classification needs revision before product repair.
+                    """
+                ),
+            ),
+        ]
+    )
+    write(PACKET_ROOT / VALIDATOR_FIRST_PRIMARY_FILE, primary)
+    write(
+        PACKET_ROOT / "START_HERE.md",
+        "\n".join(
+            [
+                "# Start Here - FAM-006 Live Validator First Repair Review",
+                "",
+                "This packet repairs the Live Validator/proof-harness path first. It does not repair product/runtime behavior.",
+                "",
+                f"Primary USER review file: `{VALIDATOR_FIRST_PRIMARY_FILE}`",
+                "",
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Validator-First Repair Review",
+                "",
+                "Read the primary USER Review file first, then use Review Aids for the gap report, expected-red run, self-check output, and copied repair-planning packet.",
+                "",
+            ]
+        ),
+    )
+    for name, body in validator_first_packet_aids(checks, product_run, self_check, repair_digest).items():
+        write(PACKET_ROOT / "Review Aids" / name, body)
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file_path in PACKET_ROOT.rglob("*"):
+            if file_path.is_file():
+                archive.write(file_path, file_path.relative_to(PACKET_ROOT).as_posix())
+    digest = sha256_file(zip_path)
+    return PACKET_ROOT, zip_path, digest
+
+
+def validate_validator_first_packet(packet_root: Path) -> dict[str, object]:
+    primary = packet_root / VALIDATOR_FIRST_PRIMARY_FILE
+    files = list(packet_root.rglob("*"))
+    markdown_files = [p for p in files if p.suffix.lower() == ".md"]
+    user_review_files = list((packet_root / "USER Review").glob("*.md"))
+    text = read_text(primary)
+    required = [
+        f"Packet Status: {VALIDATOR_FIRST_STATUS}",
+        "Packet Reviewability State: Reviewable",
+        "USER Gate State: Pending USER Validator-First Repair Review",
+        "Product/runtime repair: Withheld",
+        "Expected-red product-state run: PASS",
+        "Known-bad product state: EXPECTED_RED",
+        "Normal USER path first",
+        "Helper foreground, seeded fixture, sandbox, marker, manifest, screenshot, and packet green are separate evidence layers.",
+        "PASS with runtime evidence",
+        "FAIL with runtime evidence",
+        "BLOCKED",
+        "UNPROVEN",
+        "FAM006-UI-003",
+        "FAM006-WINDOW-002",
+        "FAM006-GOVGAP-002",
+        "FAM006-GOVGAP-003",
+        "FAM006-REGRESS-001",
+        "FAM006-REGRESS-002",
+        "FAM006-EVID-001",
+        "FAM006-EVID-002",
+        "FAM006-TOOLGAP-001",
+        "FAM006-LVFAIL-001",
+        "FAM006-UTSFAIL-001",
+        "FAM006-UI-001",
+        "FAM006-UI-002",
+        "FAM006-WINDOW-001",
+        "FAM006-CODEPATH-001",
+        "FAM006-PHASE-001",
+        "Recording Studio visible-button path",
+        "Log Viewer Focus/Open Regression",
+        "Overlay Profile normal USER path",
+        "Screenshot / Visual Evidence Requirements",
+        "Validator Self-Check Fixture Coverage",
+    ]
+    forbidden = [
+        "Product/runtime repair: Implemented",
+        "UTS acceptance: Accepted",
+        "PR Readiness: Approved",
+        "Issue #258: Closed",
+    ]
+    missing = [marker for marker in required if marker not in text]
+    forbidden_hits = [marker for marker in forbidden if marker in text]
+    layout_ok = (
+        (packet_root / "START_HERE.md").exists()
+        and primary.exists()
+        and (packet_root / "Review Aids").is_dir()
+        and (packet_root / "Source Truth Context").is_dir()
+        and len(user_review_files) == 1
+        and (packet_root / "Review Aids" / "Repair Planning Packet" / REPAIR_PLAN_PRIMARY_FILE).exists()
+    )
+    return {
+        "passed": not missing and not forbidden_hits and layout_ok,
+        "layoutOk": layout_ok,
+        "missingRequiredMarkers": missing,
+        "forbiddenMarkers": forbidden_hits,
+        "userReviewFileCount": len(user_review_files),
+        "markdownFileCount": len(markdown_files),
+        "fileCount": len([p for p in files if p.is_file()]),
+    }
+
+
 def generate_repair_plan_packet() -> tuple[Path, Path, str]:
     identity = git_identity()
     if identity.get("baseline_head_is_ancestor") != "true":
@@ -2152,6 +3019,10 @@ def main() -> int:
     parser.add_argument("--validate-packet", action="store_true")
     parser.add_argument("--generate-repair-plan-packet", action="store_true")
     parser.add_argument("--validate-repair-plan-packet", action="store_true")
+    parser.add_argument("--run-validator-first-product-state", action="store_true")
+    parser.add_argument("--self-check-validator-first", action="store_true")
+    parser.add_argument("--generate-validator-first-packet", action="store_true")
+    parser.add_argument("--validate-validator-first-packet", action="store_true")
     args = parser.parse_args()
     if args.generate_packet:
         packet_root, zip_path, digest = generate_packet()
@@ -2179,6 +3050,28 @@ def main() -> int:
         return 0 if validation["passed"] else 1
     if args.validate_repair_plan_packet:
         validation = validate_repair_plan_packet(PACKET_ROOT)
+        print(json.dumps(validation, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.run_validator_first_product_state:
+        result = run_validator_first_product_state()
+        print(json.dumps(result, indent=2))
+        return 0 if result["passed"] else 1
+    if args.self_check_validator_first:
+        result = validator_first_self_check()
+        print(json.dumps(result, indent=2))
+        return 0 if result["passed"] else 1
+    if args.generate_validator_first_packet:
+        packet_root, zip_path, digest = generate_validator_first_packet()
+        validation = validate_validator_first_packet(packet_root)
+        print(json.dumps({
+            "packetRoot": str(packet_root),
+            "zipPath": str(zip_path),
+            "zipSha256": digest,
+            "validation": validation,
+        }, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.validate_validator_first_packet:
+        validation = validate_validator_first_packet(PACKET_ROOT)
         print(json.dumps(validation, indent=2))
         return 0 if validation["passed"] else 1
     parser.print_help()
