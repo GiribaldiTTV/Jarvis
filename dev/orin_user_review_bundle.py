@@ -134,6 +134,10 @@ BRANCH_PLANNING_PENDING_USER_GATE_VALUES = {
     "user blocked",
 }
 BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS = (
+    "approve complete bounded workstream package implementation",
+    "approve complete bounded workstream implementation",
+    "complete bounded workstream package implementation",
+    "complete bounded workstream implementation",
     "approve bounded workstream package implementation",
     "approve bounded workstream implementation",
     "bounded workstream package implementation",
@@ -153,6 +157,10 @@ BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS = (
     "not a workstream implementation approval",
     "workstream implementation remains pending",
 )
+FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES = {
+    "feature/fam-007-dev-owner-skeleton-readiness",
+    "feature/fam-007-owner-ai-operational-foundation-gates",
+}
 UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("shell-variable-branch", re.compile(r"(?<![A-Za-z0-9_])\$branch\b")),
     ("shell-variable-head", re.compile(r"(?<![A-Za-z0-9_])\$head\b")),
@@ -4090,7 +4098,11 @@ def _write_user_branch_plan_review(
             "Which protected artifact classes, consent states, cache/memory boundaries, install-intent gates, lane-readiness checks, and Owner AI schema fields must BP2 prove?",
             "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release gates remain pending?",
         ]
-    if is_fam007_owner_ai_foundation and (bp2_branch_plan_packet or bp3_orchestration_packet):
+    if is_fam007_owner_ai_foundation and (
+        bp2_branch_plan_packet
+        or bp3_orchestration_packet
+        or workstream_package_approval_packet
+    ):
         accepted_user_response = (
             "BP1 and BP2 accepted - USER accepted the repaired FAM-007 Owner AI "
             "Operational Foundation Gates Branch Vision and engineering plan; BP3 "
@@ -4376,7 +4388,7 @@ def _write_user_branch_plan_review(
             "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
             "| SLC-002 / Seam 1 | Define disabled provider/runtime state contract. | Docs/ai_runtime_and_trust_architecture.md; Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; external branch plan | Provider/model/runtime surfaces have explicit unavailable states and consent prerequisites without activation. | python dev\\orin_ai_provider_state_validation.py | Fixture must show sentToProvider=false, canAcceptPrompts=false, provider execution disabled, and downloads blocked. | No provider SDK call, model prompt, download, network setup, runtime start, or cache activation occurs. | Revert disabled-state copy/schema to previous inactive posture and rerun provider-state validation. | Provider/model/runtime activation remains pending USER decision. | Stop if copy/schema implies execution is available or provider-visible data can be sent. |",
             "| SLC-002 / Seam 2 | Plan USER-facing disabled-state copy and review packet wording. | dev/orin_user_review_bundle.py; C:\\Nexus USER\\FAM-007\\USER Review\\USER_BRANCH_PLAN_REVIEW.md; Review Aids | USER can inspect why provider/runtime actions are disabled, what consent is missing, and what future gate would be needed. | packet validator; direct USER-facing stale-language and metadata scan | Fixture rejects fake enabled states, implementation-ready wording, and provider execution implied by copy. | Disabled copy is informational only; no button/action path executes provider/runtime work. | Regenerate USER packet from helper after removing misleading copy. | Runtime/provider setup and Workstream implementation remain later gates. | Stop if USER-facing copy makes a disabled state look like a runnable feature. |",
-            "| SLC-002 / Seam 3 | Add no-execution proof linkage for BP3. | dev/orin_ai_provider_state_validation.py; dev/orin_branch_readiness_planning_fixture_validation.py; external branch plan | BP3 can prove planned disabled-state changes preserve no-execution posture before implementation begins. | python dev\\orin_ai_provider_state_validation.py; python dev\\orin_branch_readiness_planning_fixture_validation.py | Fixture covers provider disabled, prompt rejected, downloads blocked, and runtime action deferred. | Static validation only; runtime execution remains blocked unless later USER approves. | Remove new action hooks or state transitions that bypass disabled state. | Workstream implementation remains pending after BP3 unless separately approved. | Stop if validating the disabled state requires launching provider/model/runtime behavior. |",
+            "| SLC-002 / Seam 3 | Add no-execution proof linkage for BP3. | dev/orin_ai_provider_state_validation.py; dev/orin_branch_readiness_planning_fixture_validation.py; external branch plan | BP3 can prove planned disabled-state changes preserve no-execution posture before implementation begins. | python dev\\orin_ai_provider_state_validation.py; python dev\\orin_branch_readiness_planning_fixture_validation.py | Fixture covers provider disabled, prompt rejected, downloads blocked, and runtime action deferred. | Static validation only; runtime execution stays future-gated unless a later USER approval changes that boundary. | Remove new action hooks or state transitions that bypass disabled state. | Workstream execution follows the active accepted package approval packet and preserves provider/runtime future gates. | Stop if validating the disabled state requires launching provider/model/runtime behavior. |",
             "",
             "### SLC-003 - Memory-Versus-Cache Consent-State Enforcement Gates",
             "",
@@ -4565,6 +4577,153 @@ def _write_user_branch_plan_review(
             "Whether BP3 may begin.",
             "Next USER decision needed.",
         ]
+        if workstream_package_approval_packet:
+            accepted_user_response = (
+                "BP1, BP2, and BP3 accepted - USER accepted the repaired FAM-007 "
+                "Owner AI Operational Foundation Gates Branch Vision, accepted the "
+                "engineering Branch Plan, and accepted BP3 Workstream Entry / "
+                "Orchestration Validation for the complete public-safe SLC-001 "
+                "through SLC-006 package."
+            )
+            user_response_text = (
+                "Status: Accepted by USER for BP1/BP2/BP3. This BP2 support file "
+                "now supports the complete bounded Workstream implementation approval "
+                "packet for the accepted Owner AI Operational Foundation Gates package."
+            )
+            codex_response_digest = (
+                "Codex digested accepted BP1, accepted BP2, and accepted BP3 into "
+                "Workstream approval context. The approval packet preserves all six "
+                "Slice/SLC deliverables, all eighteen accepted seams, SLC-001 / Seam "
+                "1 as the entry checkpoint, and every future-gated private/runtime/"
+                "provider/cache/memory boundary."
+            )
+            workstream_entry_result = (
+                "Implementation-ready packet - BP1, BP2, and BP3 are accepted; "
+                "USER is reviewing complete bounded Workstream implementation for "
+                "the same-branch Owner AI Operational Foundation Gates package with "
+                "SLC-001 / Seam 1 as the entry checkpoint."
+            )
+            contract_status = (
+                "Complete - USER accepted the BP2 Branch Plan Contract; BP3 is "
+                "accepted; this file is supporting context for the complete bounded "
+                "Workstream implementation approval packet."
+            )
+            contract_version = (
+                "v5 - accepted BP1/BP2/BP3 digested into FAM-007 Owner AI "
+                "Operational Foundation Gates Workstream approval support context."
+            )
+            plain_english_summary = (
+                "This support file records the accepted engineering plan for the "
+                "FAM-007 Owner AI Operational Foundation Gates carrier. The active "
+                "packet asks USER whether Codex may execute the complete accepted "
+                "public-safe Workstream package: SLC-001 through SLC-006, all "
+                "eighteen accepted seams, starting at SLC-001 / Seam 1 - Define "
+                "protected classes and public-safe exclusion contract."
+            )
+            end_state_vision = (
+                "When the approval is accepted, Workstream should implement or "
+                "enforce public-safe controls for protected artifact exclusion, "
+                "provider/runtime disabled states, cache-versus-memory consent, "
+                "capability install intent, Developer/Owner lane readiness, and "
+                "Owner AI memory/agent prerequisite schemas without creating private "
+                "roots/remotes, executing providers/models, activating cache or "
+                "memory, or running real Owner agents."
+            )
+            what_user_sees = (
+                "The primary decision file is USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md. "
+                "This BP2 file remains a Review Aids support file showing the accepted "
+                "engineering plan, SLC/seam order, affected surfaces, validators, "
+                "proof requirements, rollback posture, and future-gated boundaries "
+                "that Workstream execution must follow."
+            )
+            walkthrough = [
+                "Open USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md first and confirm the complete bounded Workstream package.",
+                "Check that SLC-001 / Seam 1 is the entry checkpoint, not the terminal scope.",
+                "Confirm SLC-001 through SLC-006 and all eighteen seams remain in order.",
+                "Confirm private setup, provider/model/runtime/cache/memory activation, real Owner memory, real agents, PR, merge, release, cleanup, issue mutation, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 remain future-gated.",
+            ]
+            implementation_options = [
+                "Approve complete bounded Workstream implementation as recommended.",
+                "Approve with a revised seam order or proof requirement.",
+                "Waive a specific unresolved Workstream approval question and proceed under the accepted package constraints.",
+                "Hold the branch before Workstream execution.",
+                "Reject or route back to BP3/BP2 if the accepted orchestration or plan needs repair.",
+            ]
+            recommended_direction = (
+                "Codex recommends approving the complete bounded Workstream package "
+                "only if USER agrees the accepted BP1/BP2/BP3 contracts still govern, "
+                "SLC-001 / Seam 1 is the first execution checkpoint, and later "
+                "Workstream execution continues through the accepted SLC/seam order "
+                "until Workstream Green, a real named blocker, validation failure "
+                "requiring route-back, or explicit USER waiver."
+            )
+            current_scope = [
+                "Complete bounded Workstream implementation approval packet generation for FAM-007 Owner AI Operational Foundation Gates.",
+                "Accepted BP1, accepted BP2, and accepted BP3 traceability proof.",
+                "Executable Workstream scope, if USER accepts this approval packet: SLC-001 through SLC-006 and all eighteen accepted seams in the approved sequence.",
+                "Entry checkpoint: SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract.",
+            ]
+            future_scope = [
+                "Hardening, Live Validation, PR Readiness, PR creation, merge, release, cleanup, issue mutation, sibling-worktree mutation, and v1.8.0 remain later USER-gated phases.",
+                "Private Developer setup, Owner setup, private repo/root/remote creation, GitHub Desktop private binding, backup/import execution, provider/model/runtime/cache/memory activation, real Owner memory, real agents, AI Product Contract import, and Private Dev ORIN import remain future-gated.",
+            ]
+            user_decisions = [
+                "Does USER approve complete bounded Workstream implementation for SLC-001 through SLC-006 and all eighteen accepted seams?",
+                "Does USER agree execution starts at SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract?",
+                "Does USER want any seam-order, validator, proof, rollback, H1, LV/UTS, or stop-condition revision before implementation?",
+                "Does USER confirm all private/runtime/provider/cache/memory/PR/merge/release/cleanup gates remain future-gated?",
+            ]
+            user_decisions_intro = (
+                "USER is reviewing Workstream approval now. Useful feedback names "
+                "approval, revision, waiver, hold, rejection, or route-back before "
+                "any Workstream execution starts."
+            )
+            design_ballot = [
+                "Approve complete bounded Workstream implementation.",
+                "Request a Workstream approval packet revision.",
+                "Waive a specific Workstream approval issue.",
+                "Hold before Workstream execution.",
+                "Reject or route back to BP3/BP2.",
+            ]
+            response_structure = [
+                "Decision: approve, revise, waive, hold, reject, or route back.",
+                "Scope or seam-order changes, if any.",
+                "Proof, validator, rollback, H1, LV/UTS, or stop-condition changes, if any.",
+                "Future-gated boundary confirmations.",
+                "General response.",
+            ]
+            digest_structure = [
+                "USER Workstream approval disposition.",
+                "Accepted or revised SLC/seam sequence.",
+                "Approved entry checkpoint and continuation constraints.",
+                "Implementation constraints created by USER response.",
+                "Source-truth, external-state, packet, helper, validator, or fixture updates required.",
+                "Next USER decision needed.",
+            ]
+            implementation_constraints = [
+                "Workstream execution may start only after USER accepts this Workstream approval packet.",
+                "Execution starts at SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract.",
+                "Later execution continues one active same-branch seam at a time through all eighteen accepted seams until Workstream Green, a real named blocker, validation failure requiring repair or route-back, or explicit USER waiver.",
+                "No private setup, provider/model/runtime/cache/memory activation, real Owner memory, real agents, PR, merge, release, cleanup, issue mutation, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, or v1.8.0 work is included.",
+            ]
+            rejected_deferred = [
+                "Deferred: private Developer lane setup, Owner lane setup, private repos/roots/remotes, GitHub Desktop private binding, backup/import execution, model downloads, provider setup, runtime activation, cache/memory activation, real Owner memory, and real Owner agents.",
+                "Deferred: PR creation, merge, release, cleanup, issue mutation, sibling-worktree mutation, AI Product Contract import, Private Dev ORIN import, and v1.8.0 work.",
+            ]
+            source_truth_impact = [
+                "Accepted BP1/BP2/BP3 remain the Workstream implementation route authority for this branch.",
+                "External branch/worktree state records active packet pointers and mutable posture outside repo-tracked live ledgers.",
+                "Durable repo owners retain public-safe source truth, helper/validator behavior, fixtures, and historical receipts only.",
+            ]
+            completion_checklist = [
+                "BP1 Branch Vision is accepted or waived.",
+                "BP2 Branch Plan is accepted or waived.",
+                "BP3 Workstream Entry / Orchestration Validation is accepted or waived.",
+                "SLC-001 through SLC-006 trace to accepted BP1 and accepted BP2.",
+                "All eighteen accepted seams trace to BP3 orchestration.",
+                "SLC-001 / Seam 1 is named as the first execution checkpoint.",
+                "Future-gated private/runtime/provider/cache/memory boundaries are preserved.",
+            ]
     if is_fam007_dev_owner_skeleton and not is_fam007_breakpoint_2:
         plain_english_summary = (
             "This BP2 preview is future-gated until USER accepts or explicitly waives BP1. "
@@ -5954,6 +6113,16 @@ def _write_user_branch_plan_review(
         user_response_proof = "Pending USER Response - BP2 gate remains open."
         user_response_digested = "Pending USER Response - Codex has not digested a final USER disposition."
     bp3_approval_text = (
+        "BP3 is accepted for FAM-007 Owner AI Operational Foundation Gates. The "
+        "active decision is complete bounded Workstream implementation approval "
+        "for SLC-001 through SLC-006 and all eighteen accepted seams, starting at "
+        "SLC-001 / Seam 1 - Define protected classes and public-safe exclusion "
+        "contract, while private setup, provider/model/runtime/cache/memory "
+        "activation, real Owner memory, real agents, PR, merge, release, cleanup, "
+        "issue mutation, sibling-worktree mutation, AI Product Contract import, "
+        "Private Dev ORIN import, and v1.8.0 stay future-gated."
+        if workstream_package_approval_packet
+        else
         "Live Validation LV1 is green for the admitted FAM-007 Dev/Owner Skeleton Readiness package. The next decision is bounded PR Readiness Stage 1 analysis only; this packet does not authorize PR creation, private/runtime/provider/cache/memory behavior, merge, release, or cleanup."
         if dev_owner_live_validation_lv1_packet
         else
@@ -6285,7 +6454,7 @@ def _write_workstream_entry_packet_digests(
         "pr readiness stage 1 analysis" in normalized_decision
     )
     workstream_package_approval_packet = (
-        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        source_branch in FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES
         and any(
             marker in normalized_decision
             for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
@@ -6993,6 +7162,182 @@ def _write_workstream_entry_packet_digests(
             "for USER review; the contract records PR Readiness Stage 1 complete and "
             "Stage 2 PR creation as the next USER decision."
         )
+    elif workstream_package_approval_packet and is_fam007_owner_ai_foundation:
+        bp3_readiness_contract = (
+            "\n## Plain-Language Workstream Approval Summary\n\n"
+            "USER accepted BP3 for FAM-007 Owner AI Operational Foundation Gates. "
+            "This packet asks whether Codex may begin the complete bounded "
+            "Workstream package that BP1, BP2, and BP3 already accepted: SLC-001 "
+            "through SLC-006 and all eighteen accepted seams.\n\n"
+            "The Workstream package starts at `SLC-001 / Seam 1 - Define protected "
+            "classes and public-safe exclusion contract`. That seam is the first "
+            "execution checkpoint, not the terminal scope. Later execution is expected "
+            "to continue through the accepted same-branch SLC/seam sequence until "
+            "Workstream Green, a real named blocker, validation failure requiring "
+            "repair or route-back, or explicit USER waiver.\n\n"
+            "## Accepted Planning Basis\n\n"
+            "- BP1 accepted the Owner AI Operational Foundation Gates Branch Vision.\n"
+            "- BP2 accepted the engineering plan for six public-safe gate/control "
+            "deliverables.\n"
+            "- BP3 accepted the orchestration map for SLC-001 through SLC-006 and "
+            "all eighteen seams.\n"
+            "- Workstream may implement public-safe controls, schemas, helper/"
+            "validator behavior, fixtures, packet enforcement, and source-truth "
+            "fold-down only inside that accepted package.\n\n"
+            "## Complete Bounded Workstream Scope\n\n"
+            "1. SLC-001 - Protected Artifact Exclusion Controls.\n"
+            "2. SLC-002 - Provider/Runtime Consent-Shell Disabled States.\n"
+            "3. SLC-003 - Memory-Versus-Cache Consent Gates.\n"
+            "4. SLC-004 - Capability-Pack Install-Intent Gates.\n"
+            "5. SLC-005 - Developer / Owner Lane Readiness Gates.\n"
+            "6. SLC-006 - Owner AI Memory / Agent Foundation Gate Schemas.\n\n"
+            "## Accepted Seam Sequence\n\n"
+            "| Seam | Workstream intent |\n"
+            "| --- | --- |\n"
+            "| SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract | Name protected classes and the public-safe exclusion contract before any other gate references protected material. |\n"
+            "| SLC-001 / Seam 2 - Enforce public packet/repo/bundle exclusion checks | Add direct exclusion checks for public repo, packet, bundle, and upload paths. |\n"
+            "| SLC-001 / Seam 3 - Preserve acceptance/fold-down boundary for protected-asset policy | Keep accepted branch-local exclusion outcomes in the correct durable owner or external-state lane. |\n"
+            "| SLC-002 / Seam 1 - Define disabled provider/runtime state contract | Define disabled provider/runtime states without creating executable provider/runtime behavior. |\n"
+            "| SLC-002 / Seam 2 - Plan USER-facing disabled-state copy and review packet wording | Make disabled states understandable in USER-facing packet/review surfaces. |\n"
+            "| SLC-002 / Seam 3 - Add no-execution proof linkage for BP3 | Link disabled state proof to provider-state and no-execution validation. |\n"
+            "| SLC-003 / Seam 1 - Separate cache consent from memory consent | Keep cache and memory consent as separate blocked states. |\n"
+            "| SLC-003 / Seam 2 - Plan blocked persistence states and consent error states | Define blocked persistence and consent-error states without persistence behavior. |\n"
+            "| SLC-003 / Seam 3 - Preserve source-truth placement for future memory/cache policy | Route durable memory/cache policy to the proper source-truth owner. |\n"
+            "| SLC-004 / Seam 1 - Define explicit install-intent state model | Define install intent as a gate record, not setup or execution. |\n"
+            "| SLC-004 / Seam 2 - Plan blocked pending-install state and visible route-back | Make pending install state visible and reversible. |\n"
+            "| SLC-004 / Seam 3 - Link install-intent gates to protected artifact and provider-state proof | Tie install intent to leak prevention and provider no-execution proof. |\n"
+            "| SLC-005 / Seam 1 - Define lane identity without private setup | Define User/Public, Developer, and Owner readiness labels without creating private lanes. |\n"
+            "| SLC-005 / Seam 2 - Plan readiness gates for later private setup approval | Name future setup gates without executing setup. |\n"
+            "| SLC-005 / Seam 3 - Validate lane-readiness copy in USER-facing packet | Keep lane-readiness copy review-focused and metadata-safe. |\n"
+            "| SLC-006 / Seam 1 - Define future prerequisite schema names and blocked states | Define prerequisite schemas for future memory/agent work without runtime authority. |\n"
+            "| SLC-006 / Seam 2 - Plan no-real-memory/no-real-agent proof and public-safe examples | Keep examples synthetic/public-safe and prove no real memory or agent behavior. |\n"
+            "| SLC-006 / Seam 3 - Link schema gates to BP3 whole-package orchestration | Connect schema gates back to the accepted whole-package route. |\n\n"
+            "## Protected Artifact Classes And Public-Safe Exclusion Outcome\n\n"
+            "Workstream should define and enforce a protected-class contract for private "
+            "roots, private remotes, secrets, tokens, private prompts, memory content, "
+            "private screenshots, private automation, model artifacts, Owner data, "
+            "Developer lane artifacts, and Owner lane artifacts. The expected outcome "
+            "is public repo, packet, bundle, and upload exclusion that can be proven "
+            "without reading, moving, exporting, or uploading private material.\n\n"
+            "## Likely Files And Surfaces\n\n"
+            "- FAM-007 family vision and AI runtime/trust architecture for durable "
+            "public/private, provider, cache, memory, permission, and lane policy.\n"
+            "- Branch record as durable receipt/context only.\n"
+            "- External branch plan/state and worktree state for mutable packet and "
+            "phase posture.\n"
+            "- USER review bundle helper for packet generation, timestamped ZIPs, "
+            "metadata exclusion, stale wording checks, and packet validation.\n"
+            "- Public leak-prevention, provider-state, branch-planning, external-state, "
+            "source-owner, release-body, governance, docs-inventory, and compile "
+            "validation surfaces.\n"
+            "- Public-safe fixtures under the registered FAM-007 fixture surfaces when "
+            "a seam needs negative proof.\n\n"
+            "## Validators, Fixtures, And Proof Commands\n\n"
+            "- `python dev\\orin_user_review_bundle.py --validate-workstream-entry-packet ... --require-implementation-ready`\n"
+            "- `python dev\\orin_branch_governance_validation.py`\n"
+            "- `python dev\\orin_branch_governance_validation.py --worktree-confinement-gate`\n"
+            "- `python dev\\orin_branch_readiness_planning_fixture_validation.py`\n"
+            "- `python dev\\orin_external_state_validation.py --root C:\\Nexus Governance State --repo C:\\Nexus Worktrees\\FAM-007 --require-root --require-stage4-records`\n"
+            "- `python dev\\orin_ai_provider_state_validation.py`\n"
+            "- `python dev\\orin_public_leak_prevention_validation.py`\n"
+            "- `python dev\\orin_source_owner_marker_validation.py`\n"
+            "- `python dev\\orin_release_body_validation.py`\n"
+            "- `python dev\\orin_governance_efficiency_validation.py`\n"
+            "- `python dev\\orin_docs_inventory_reform_audit.py`\n"
+            "- `python -m compileall -q dev desktop Audio main.py nexus_visual`\n\n"
+            "## Public / Private Leak Prevention Posture\n\n"
+            "Workstream must keep private roots, private remotes, private paths, secrets, "
+            "tokens, private prompts, private memory, private screenshots, model "
+            "artifacts, private automation data, Owner data, and Developer/Owner "
+            "lane artifacts out of public repo, packet, bundle, and upload surfaces. "
+            "Proof must be public-safe, synthetic where examples are needed, and "
+            "validator-backed.\n\n"
+            "## Disabled-State And No-Execution Boundaries\n\n"
+            "Provider-visible data remains none, sentToProvider remains false, "
+            "canAcceptPrompts remains false, prompt/provider/model execution stays "
+            "disabled, downloads/network/external calls stay blocked, runtime cache "
+            "behavior stays inactive, memory/learning/personalization stays inactive, "
+            "and real Owner memory and real agents stay future-gated. This package "
+            "may create gates, schemas, disabled states, copy, fixtures, and validators; "
+            "it may not activate the gated behavior.\n\n"
+            "## Rollback / Repair Posture\n\n"
+            "Each seam should be committed and validated as a reversible public-safe "
+            "control change. If a seam creates drift, Codex should repair inside the "
+            "active seam, regenerate the USER packet when packet-relevant, rerun "
+            "validation, and route back to BP3/BP2 only when the accepted orchestration "
+            "or plan changes.\n\n"
+            "## Stop / Report Conditions\n\n"
+            "- Main baseline advances and rebaseline/reconciliation is required.\n"
+            "- A seam needs private setup, private roots/remotes, provider execution, "
+            "runtime activation, cache/memory activation, real Owner memory, real "
+            "agents, backup/import execution, PR, merge, release, cleanup, issue "
+            "mutation, sibling-worktree mutation, AI Product Contract import, "
+            "Private Dev ORIN import, or v1.8.0 work.\n"
+            "- A validator fails and cannot be repaired inside the active accepted seam.\n"
+            "- The accepted BP1/BP2/BP3 route changes and needs route-back.\n"
+            "- USER-facing packet files would contain live operational state or "
+            "technical byte-proof metadata.\n\n"
+            "## USER Gates Preserved\n\n"
+            "Hardening, Live Validation, PR Readiness, PR creation, merge, release, "
+            "cleanup, issue mutation, sibling-worktree mutation, private setup, "
+            "provider/model/runtime/cache/memory activation, backup/import execution, "
+            "real Owner memory, real agents, AI Product Contract import, Private Dev "
+            "ORIN import, and v1.8.0 remain future-gated.\n\n"
+            "## Exact Workstream USER Decision Options\n\n"
+            "- Approve complete bounded Workstream implementation for SLC-001 through "
+            "SLC-006 and all eighteen accepted seams, starting at SLC-001 / Seam 1.\n"
+            "- Request a revision to scope, seam order, proof, validators, rollback, "
+            "H1/LV/UTS expectations, or stop conditions.\n"
+            "- Waive a specific Workstream approval issue and keep the accepted package "
+            "constraints.\n"
+            "- Hold before Workstream execution.\n"
+            "- Reject or route back to BP3/BP2 if orchestration or plan authority needs "
+            "repair.\n"
+        )
+        analysis_status = (
+            "Analysis Summary: Workstream implementation approval packet for FAM-007 "
+            "Owner AI Operational Foundation Gates.\n"
+            "BP1 USER Gate State: USER Accepted\n"
+            "BP2 USER Gate State: USER Accepted\n"
+            "BP3 USER Gate State: USER Approved\n"
+            "Workstream Approval Packet Reviewability State: Reviewable\n"
+            "Workstream Approval Target: complete bounded package across SLC-001 "
+            "through SLC-006 and all eighteen accepted seams.\n"
+            "Entry Checkpoint: SLC-001 / Seam 1 - Define protected classes and "
+            "public-safe exclusion contract."
+        )
+        implementation_posture = (
+            "Implementation Posture: complete bounded Workstream package approval "
+            "is requested by this packet. The executable package is SLC-001 through "
+            "SLC-006 and all eighteen accepted seams, starting at SLC-001 / Seam 1 "
+            "and continuing until Workstream Green, a real named blocker, validation "
+            "failure requiring repair or route-back, or explicit USER waiver."
+        )
+        recommended_seam = (
+            "Entry Checkpoint: SLC-001 / Seam 1 - Define protected classes and "
+            "public-safe exclusion contract."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes accepted BP1, accepted BP2, "
+            "accepted BP3, FAM-007 family vision, AI Runtime And Trust Architecture, "
+            "active branch receipt, external branch plan/state context, branch "
+            "artifact rules, phase governance, development rules, codex modes, "
+            "validation registry, backlog, roadmap, and worktree-slot context needed "
+            "for complete bounded Workstream approval."
+        )
+        checklist_status = (
+            "Checklist Focus: complete Workstream approval - accepted BP1/BP2/BP3 "
+            "traceability, six-SLC package scope, all eighteen seams, entry checkpoint, "
+            "protected artifact exclusion outcome, proof commands, rollback posture, "
+            "future-gated private/runtime boundaries, and phase closeout expectation."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, "
+            "supporting accepted BP1/BP2 review files, required digest/checklist "
+            "files, and copied source-truth files are loaded for USER review; packet "
+            "wording treats SLC-001 / Seam 1 as the entry checkpoint for the complete "
+            "accepted package."
+        )
     elif workstream_package_approval_packet:
         analysis_status = (
             "Analysis Summary: BP3 is accepted; USER is approving bounded Workstream "
@@ -7456,6 +7801,10 @@ def _packet_text_status(text: str) -> str:
             return DECISION_STATUS_BP1_BRANCH_VISION_REVIEW
 
     implementation_markers = (
+        "approve complete bounded workstream package implementation",
+        "approve complete bounded workstream implementation",
+        "complete bounded workstream package implementation",
+        "complete bounded workstream implementation",
         "approve bounded workstream package implementation",
         "approve bounded workstream implementation",
         "bounded workstream package implementation",
@@ -7895,7 +8244,7 @@ def build_bundle(
     export_zip = _export_zip_path(review_root, label, created_at_dt)
     normalized_decision = exact_user_decision.casefold()
     workstream_package_approval_packet = (
-        source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
+        source_branch in FAM007_WORKSTREAM_PACKAGE_APPROVAL_BRANCHES
         and any(
             marker in normalized_decision
             for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
