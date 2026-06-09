@@ -623,9 +623,9 @@ These are reference layers, not active workstream or roadmap owners.
 
 If you are unsure what to include in a future Nexus Desktop AI prompt:
 
-1. start with `Docs/nexus_startup_contract.md`
-2. treat it as a loader map, not execution authority
-3. add `Docs/Main.md`
+1. start with `Docs/Main.md`
+2. add `Docs/nexus_startup_contract.md` when loader/new-chat continuity, prompt generation, handoff, continuation, bootstrap, loader alignment, or ChatGPT/Codex behavior alignment is in scope
+3. treat `Docs/nexus_startup_contract.md` as a loader map, not execution authority
 4. add `Docs/development_rules.md`
 5. add `Docs/phase_governance.md`
 6. add `Docs/codex_modes.md`
