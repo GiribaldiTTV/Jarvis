@@ -45,6 +45,8 @@ VALIDATOR_FIRST_PRIMARY_FILE = "USER Review/LIVE_VALIDATOR_FIRST_REPAIR_REVIEW.m
 VALIDATOR_FIRST_STATUS = "live-validator-first-repair-review"
 REPAIR_IMPLEMENTATION_PRIMARY_FILE = "USER Review/REPAIR_IMPLEMENTATION_APPROVAL_REVIEW.md"
 REPAIR_IMPLEMENTATION_STATUS = "repair-implementation-approval-review"
+REPAIR_RETURN_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_REPAIR_RETURN_REVIEW.md"
+REPAIR_RETURN_STATUS = "live-validation-repair-return-review"
 ACCEPTED_FINDINGS_ZIP = USER_ROOT / "FAM-006-20260609-124117.zip"
 ACCEPTED_FINDINGS_SHA256 = "18506FB2C0B47E2F7378DCA788558D9F666D2F4B08BAD30677B9735B6A6D71B9"
 REPAIR_PLAN_ZIP = USER_ROOT / "FAM-006-20260609-125215.zip"
@@ -346,6 +348,231 @@ def supplemental_attempt_rows() -> list[list[str]]:
             ]
         )
     return rows or [["none", "missing", "", ""]]
+
+
+def latest_monitoring_hud_live_validation_root() -> Path | None:
+    root = REPO / "dev" / "logs" / "fam_006_monitoring_hud_live_validation"
+    if not root.exists():
+        return None
+    roots = sorted([p for p in root.iterdir() if p.is_dir()], key=lambda p: p.stat().st_mtime, reverse=True)
+    for candidate in roots:
+        if (candidate / "monitoring_hud_live_client_interaction_manifest.json").exists():
+            return candidate
+    return roots[0] if roots else None
+
+
+def latest_return_flow_evidence() -> dict[str, object]:
+    root = latest_monitoring_hud_live_validation_root()
+    if root is None:
+        return {
+            "root": "",
+            "manifest": {},
+            "interaction": {},
+            "steps": {},
+            "screenshots": [],
+            "userScreenshotRoot": "",
+            "userElementScreenshotRoot": "",
+            "supplementalManifest": "",
+        }
+    manifest = load_json(root / "manifest.json")
+    interaction = load_json(root / "monitoring_hud_live_client_interaction_manifest.json")
+    steps: dict[str, dict[str, object]] = {}
+    if isinstance(interaction, dict):
+        for item in interaction.get("steps", []):
+            if isinstance(item, dict):
+                steps[str(item.get("label") or "")] = item
+    screenshots = [
+        str(item)
+        for item in (interaction.get("screenshots", []) if isinstance(interaction, dict) else [])
+        if str(item).strip()
+    ]
+    user_root = str(manifest.get("screenshotEvidenceRoot") or "") if isinstance(manifest, dict) else ""
+    user_element_root = str(manifest.get("elementScreenshotEvidenceRoot") or "") if isinstance(manifest, dict) else ""
+    supplemental = ""
+    if user_root:
+        supplemental_path = Path(user_root) / "supplemental_issue_evidence_manifest.json"
+        if supplemental_path.exists():
+            supplemental = str(supplemental_path)
+    return {
+        "root": str(root),
+        "manifestPath": str(root / "manifest.json"),
+        "interactionPath": str(root / "monitoring_hud_live_client_interaction_manifest.json"),
+        "manifest": manifest,
+        "interaction": interaction,
+        "steps": steps,
+        "screenshots": screenshots,
+        "userScreenshotRoot": user_root,
+        "userElementScreenshotRoot": user_element_root,
+        "supplementalManifest": supplemental,
+    }
+
+
+def return_step_passed(evidence: dict[str, object], label: str) -> bool:
+    steps = evidence.get("steps") if isinstance(evidence.get("steps"), dict) else {}
+    item = steps.get(label) if isinstance(steps, dict) else None
+    return isinstance(item, dict) and item.get("status") == "PASS"
+
+
+def return_step(evidence: dict[str, object], label: str) -> dict[str, object]:
+    steps = evidence.get("steps") if isinstance(evidence.get("steps"), dict) else {}
+    item = steps.get(label) if isinstance(steps, dict) else None
+    return item if isinstance(item, dict) else {}
+
+
+def screenshot_contains(evidence: dict[str, object], needle: str) -> bool:
+    screenshots = evidence.get("screenshots") if isinstance(evidence.get("screenshots"), list) else []
+    return any(needle in str(item) for item in screenshots)
+
+
+def return_status_table(rows: list[dict[str, str]]) -> str:
+    return table(
+        ["Finding", "Result", "Evidence", "Notes"],
+        [
+            [
+                row.get("finding", ""),
+                row.get("result", ""),
+                row.get("evidence", ""),
+                row.get("notes", ""),
+            ]
+            for row in rows
+        ],
+    )
+
+
+def return_flow_findings(evidence: dict[str, object]) -> list[dict[str, str]]:
+    interaction = evidence.get("interaction") if isinstance(evidence.get("interaction"), dict) else {}
+    manifest = evidence.get("manifest") if isinstance(evidence.get("manifest"), dict) else {}
+    interaction_status = str(interaction.get("status") or "MISSING")
+    manifest_status = str(manifest.get("status") or "MISSING")
+    a_pass = (
+        interaction_status == "PASS"
+        and return_step_passed(evidence, "real OS click opens Dashboard Recording Studio")
+        and return_step_passed(evidence, "Recording Studio native window focused screenshot proof")
+        and screenshot_contains(evidence, "02_recording_studio_native_window_ready_state")
+    )
+    b_pass = (
+        interaction_status == "PASS"
+        and return_step_passed(evidence, "real OS click starts Dashboard Recording")
+        and return_step_passed(evidence, "real OS click stops Dashboard Recording and requests local output")
+        and return_step_passed(evidence, "Dashboard Recording stop writes local output and readback proof")
+    )
+    c_labels = [
+        "C1 Log Viewer closed before repeated Start/Stop",
+        "C1 real OS click starts recording after Log Viewer close",
+        "C1 real OS click stops recording after Log Viewer close",
+        "C1 Log Viewer remains closed and unfocused after Start/Stop",
+        "C2 real OS click opens Log Viewer before minimize test",
+        "C2 Log Viewer minimized before repeated Start/Stop",
+        "C2 real OS click starts recording after Log Viewer minimize",
+        "C2 real OS click stops recording after Log Viewer minimize",
+        "C2 Log Viewer remains minimized and unfocused after Start/Stop",
+        "C3 real OS click opens Log Viewer before unfocused-open test",
+        "C3 Log Viewer open but unfocused before repeated Start/Stop",
+        "C3 real OS click starts recording after Log Viewer open unfocused",
+        "C3 real OS click stops recording after Log Viewer open unfocused",
+        "C3 Log Viewer remains open and unfocused after Start/Stop",
+    ]
+    c_missing = [label for label in c_labels if not return_step_passed(evidence, label)]
+    d_pass = (
+        interaction_status == "PASS"
+        and return_step_passed(evidence, "Recording Studio compact native/current-log tracking updates after save")
+        and return_step_passed(evidence, "Log Viewer Studio native window focused screenshot proof")
+        and screenshot_contains(evidence, "02_recording_studio_native_log_saved_tracking_state")
+        and screenshot_contains(evidence, "02_log_viewer_studio_native_window_shell_state")
+    )
+    e_seeded = (
+        interaction_status == "PASS"
+        and return_step_passed(evidence, "real OS click opens HUD Overlay card Active Overlay Profile selector")
+        and return_step_passed(evidence, "real OS click selects HUD Overlay card Active Overlay Profile option")
+    )
+    visual_step = return_step(evidence, "Dashboard Recording card target/status visual contract is focused before child windows")
+    visual_details = visual_step.get("details") if isinstance(visual_step, dict) else {}
+    visual_checks = visual_details.get("checks") if isinstance(visual_details, dict) else {}
+    f_pass = (
+        interaction_status == "PASS"
+        and isinstance(visual_checks, dict)
+        and visual_checks.get("cardVisualSystem") is True
+        and visual_checks.get("previewVisualSystem") is True
+        and visual_checks.get("rowVisualProof") is True
+        and visual_checks.get("cardHolderInsetParity") is True
+        and screenshot_contains(evidence, "02_recording_card_target_status_visual_contract")
+    )
+    g_pass = (
+        interaction_status == "PASS"
+        and return_step_passed(evidence, "Dashboard Recording Log Viewer Studio crosses backend native-window bridge")
+        and return_step_passed(evidence, "Dashboard Recording stop writes local output and readback proof")
+    )
+    h_pass = (
+        manifest_status == "PASS"
+        and bool(evidence.get("userScreenshotRoot"))
+        and bool(evidence.get("userElementScreenshotRoot"))
+        and bool(evidence.get("supplementalManifest"))
+    )
+    i_pass = a_pass and b_pass and not c_missing and d_pass and f_pass and g_pass
+    return [
+        {
+            "finding": "A / FAM006-LVF-A-001 Recording Studio visible-button path",
+            "result": "PASS" if a_pass else "UNPROVEN",
+            "evidence": str(evidence.get("interactionPath") or ""),
+            "notes": "Normal visible button path is separate from helper/native launch proof.",
+        },
+        {
+            "finding": "B Quick Access Start/Stop ownership",
+            "result": "PASS" if b_pass else "UNPROVEN",
+            "evidence": str(evidence.get("interactionPath") or ""),
+            "notes": "Quick Access owns active Start/Stop; Recording card remains status/summary.",
+        },
+        {
+            "finding": "C Log Viewer focus/open regression C1-C3",
+            "result": "PASS" if not c_missing else "UNPROVEN",
+            "evidence": str(evidence.get("interactionPath") or ""),
+            "notes": "Missing sequence labels: " + (", ".join(c_missing) if c_missing else "None."),
+        },
+        {
+            "finding": "D Native/current-log tracking ownership",
+            "result": "PASS" if d_pass else "UNPROVEN",
+            "evidence": str(evidence.get("interactionPath") or ""),
+            "notes": "Recording Studio owns compact native-log tracking; Log Viewer remains shell/folder boundary.",
+        },
+        {
+            "finding": "E Overlay Profile normal USER proof path",
+            "result": "BLOCKED",
+            "evidence": str(evidence.get("interactionPath") or ""),
+            "notes": "Seeded selector/mirror proof present: "
+            + ("yes" if e_seeded else "no")
+            + ". Full create/edit/restart persistence remains pending and issue closeout stays blocked.",
+        },
+        {
+            "finding": "F Visual-system inheritance and card-holder inset",
+            "result": "PASS" if f_pass else "UNPROVEN",
+            "evidence": str(evidence.get("userElementScreenshotRoot") or evidence.get("interactionPath") or ""),
+            "notes": "Requires card visual-system markers and measured left/right inset parity excluding scrollbar.",
+        },
+        {
+            "finding": "G Native/export folder proof path",
+            "result": "PASS" if g_pass else "UNPROVEN",
+            "evidence": str(evidence.get("interactionPath") or ""),
+            "notes": "Log Viewer shell opens native/export roots before session; saved output stays native by default.",
+        },
+        {
+            "finding": "H Screenshot/evidence proof-loop",
+            "result": "PASS" if h_pass else "UNPROVEN",
+            "evidence": str(evidence.get("userScreenshotRoot") or ""),
+            "notes": "Requires organized USER-inspectable screenshots and supplemental issue manifest.",
+        },
+        {
+            "finding": "I Interaction matrix",
+            "result": "PASS" if i_pass else "UNPROVEN",
+            "evidence": str(evidence.get("interactionPath") or ""),
+            "notes": "Option C matrix represented except full Overlay Profile normal create/edit/restart remains blocked.",
+        },
+        {
+            "finding": "J UTS stop-loss",
+            "result": "PASS",
+            "evidence": r"C:\Nexus USER\UTS - FAM-006.txt",
+            "notes": "UTS handoff remains withheld because unresolved/blocking proof remains.",
+        },
+    ]
 
 
 def is_ancestor(ancestor: str, descendant: str) -> bool:
@@ -2810,6 +3037,232 @@ def validate_repair_implementation_approval_packet(packet_root: Path) -> dict[st
     }
 
 
+def repair_return_next_decision_text() -> str:
+    return (
+        "I reviewed the FAM-006 Live Validation repair return packet. I understand Live Validation acceptance "
+        "and UTS acceptance remain withheld. I approve Codex to continue only the remaining unresolved FAM-006 "
+        "Live Validation repair/proof items identified in the packet, with PR Readiness, issue closeout, merge, "
+        "release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, and "
+        "future-gated Log Viewer/export/tray/keybind/settings/Native Log Loader work still pending separate approval."
+    )
+
+
+def generate_repair_return_review_packet() -> tuple[Path, Path, str]:
+    identity = git_identity()
+    evidence = latest_return_flow_evidence()
+    rows = return_flow_findings(evidence)
+    loaded, missing = source_truth_loaded_lines()
+    changed = changed_files()
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    zip_path = USER_ROOT / f"FAM-006-{stamp}.zip"
+
+    purge_fam006_user_packet_outputs()
+
+    dirs = [
+        PACKET_ROOT / "USER Review",
+        PACKET_ROOT / "Review Aids",
+        PACKET_ROOT / "Source Truth Context",
+    ]
+    for directory in dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+
+    for rel in SOURCE_TRUTH_FILES:
+        copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
+    external_plan = Path(
+        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+    )
+    copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
+
+    interaction_path = Path(str(evidence.get("interactionPath") or ""))
+    manifest_path = Path(str(evidence.get("manifestPath") or ""))
+    supplemental_path = Path(str(evidence.get("supplementalManifest") or ""))
+    copy_if_exists(interaction_path, PACKET_ROOT / "Review Aids" / "monitoring_hud_live_client_interaction_manifest.json")
+    copy_if_exists(manifest_path, PACKET_ROOT / "Review Aids" / "monitoring_hud_live_validation_manifest.json")
+    copy_if_exists(supplemental_path, PACKET_ROOT / "Review Aids" / "supplemental_issue_evidence_manifest.json")
+    write(PACKET_ROOT / "Review Aids" / "A_J_FINDING_STATUS_TABLE.md", section("A-J Finding Status Table", return_status_table(rows)))
+    write(PACKET_ROOT / "Review Aids" / "LATEST_EVIDENCE_PATHS.md", section(
+        "Latest Evidence Paths",
+        table(
+            ["Evidence", "Path"],
+            [
+                ["Latest live-validation root", str(evidence.get("root") or "")],
+                ["Interaction manifest", str(evidence.get("interactionPath") or "")],
+                ["USER screenshot folder", str(evidence.get("userScreenshotRoot") or "")],
+                ["USER element screenshot folder", str(evidence.get("userElementScreenshotRoot") or "")],
+                ["Supplemental issue manifest", str(evidence.get("supplementalManifest") or "")],
+            ],
+        ),
+    ))
+
+    loaded_md = "\n".join(f"- `{item}`" for item in loaded)
+    missing_md = "\n".join(f"- `{item}`" for item in missing) or "- None found."
+    changed_md = "\n".join(f"- `{item}`" for item in changed) or "- None."
+    green = [row for row in rows if row.get("result") == "PASS"]
+    blocked = [row for row in rows if row.get("result") == "BLOCKED"]
+    unproven = [row for row in rows if row.get("result") == "UNPROVEN"]
+    fail = [row for row in rows if row.get("result") == "FAIL"]
+    next_text = repair_return_next_decision_text()
+
+    primary = "\n".join(
+        [
+            "# FAM-006 Live Validation Repair Return Review",
+            "",
+            f"Packet Status: {REPAIR_RETURN_STATUS}",
+            "Packet Reviewability State: Reviewable",
+            "USER Gate State: Pending USER Review",
+            "Live Validation acceptance: Withheld",
+            "UTS acceptance: Withheld",
+            "PR Readiness: Withheld",
+            "Issue #258 closeout: Withheld",
+            "",
+            "This packet maps the accepted Live Validation repair findings to the newest available proof. It does not accept Live Validation, does not accept UTS, does not close issue #258, and does not advance to PR Readiness.",
+            "",
+            section(
+                "Verdict",
+                "REPAIR RETURN REVIEW. The latest live proof turns several expected-red findings green, but the packet deliberately keeps Live Validation and UTS acceptance withheld while blocked or unproven items remain.",
+            ),
+            section(
+                "Worktree Identity",
+                table(
+                    ["Field", "Value"],
+                    [
+                        ("Git root", identity.get("git_root", "")),
+                        ("Branch", identity.get("branch", "")),
+                        ("HEAD", identity.get("head", "")),
+                        ("origin/main", identity.get("origin_main", "")),
+                        ("Merge base", identity.get("merge_base", "")),
+                        ("Ahead/behind", identity.get("ahead_behind", "")),
+                        ("Status short", identity.get("status_short", "") or "clean at helper start"),
+                    ],
+                ),
+            ),
+            section("Source-Truth Files Loaded", loaded_md),
+            section("Missing / Stale / Conflicting Authority Notes", missing_md),
+            section("Changed Files Versus origin/main", changed_md),
+            section(
+                "Latest Repair Evidence Loaded",
+                table(
+                    ["Evidence", "Path"],
+                    [
+                        ["Latest live-validation root", str(evidence.get("root") or "")],
+                        ["Interaction manifest", str(evidence.get("interactionPath") or "")],
+                        ["USER screenshot folder", str(evidence.get("userScreenshotRoot") or "")],
+                        ["USER element screenshot folder", str(evidence.get("userElementScreenshotRoot") or "")],
+                        ["Supplemental issue manifest", str(evidence.get("supplementalManifest") or "")],
+                    ],
+                ),
+            ),
+            section("A-J Finding Status", return_status_table(rows)),
+            section("Findings Green", "\n".join(f"- {row['finding']}" for row in green) or "- None."),
+            section("Findings Red", "\n".join(f"- {row['finding']}" for row in fail) or "- None."),
+            section("Findings Blocked", "\n".join(f"- {row['finding']}: {row['notes']}" for row in blocked) or "- None."),
+            section("Findings Unproven", "\n".join(f"- {row['finding']}: {row['notes']}" for row in unproven) or "- None."),
+            section(
+                "C Log Viewer Focus/Open Sequence Results",
+                "\n".join(
+                    [
+                        "- C1: open Log Viewer Studio, close it, start/stop recording, verify Log Viewer does not open or steal focus.",
+                        "- C2: open Log Viewer Studio, minimize it, start/stop recording, verify Log Viewer does not restore/open/steal focus.",
+                        "- C3: open Log Viewer Studio, leave it open but unfocused, start/stop recording, verify Log Viewer does not steal focus.",
+                        "- Evidence is recorded in `Review Aids/monitoring_hud_live_client_interaction_manifest.json` and the USER screenshot folder named above.",
+                    ]
+                ),
+            ),
+            section(
+                "Acceptance Boundary",
+                "Live Validation acceptance and UTS acceptance are withheld in this packet. UTS handoff remains stopped while any finding is BLOCKED, FAIL, or UNPROVEN, especially the full Overlay Profile create/edit/restart/persistence normal USER path.",
+            ),
+            section(
+                "Exact Next USER Decision",
+                f"Approve the next bounded return-flow step with this exact text:\n\n`{next_text}`",
+            ),
+        ]
+    )
+    write(PACKET_ROOT / REPAIR_RETURN_PRIMARY_FILE, primary)
+    write(
+        PACKET_ROOT / "START_HERE.md",
+        "\n".join(
+            [
+                "# Start Here - FAM-006 Live Validation Repair Return Review",
+                "",
+                "This packet is a return-review for Live Validation repair proof. It is not Live Validation acceptance or UTS acceptance.",
+                "",
+                f"Primary USER review file: `{REPAIR_RETURN_PRIMARY_FILE}`",
+                "",
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Review",
+                "Live Validation acceptance: Withheld",
+                "UTS acceptance: Withheld",
+                "",
+                "Review the primary file first. Review Aids include the A-J finding table, latest manifest copies, and evidence paths.",
+                "",
+            ]
+        ),
+    )
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file_path in PACKET_ROOT.rglob("*"):
+            if file_path.is_file():
+                archive.write(file_path, file_path.relative_to(PACKET_ROOT).as_posix())
+    digest = sha256_file(zip_path)
+    return PACKET_ROOT, zip_path, digest
+
+
+def validate_repair_return_review_packet(packet_root: Path) -> dict[str, object]:
+    primary = packet_root / REPAIR_RETURN_PRIMARY_FILE
+    files = list(packet_root.rglob("*"))
+    markdown_files = [p for p in files if p.suffix.lower() == ".md"]
+    user_review_files = list((packet_root / "USER Review").glob("*.md"))
+    text = read_text(primary)
+    required = [
+        f"Packet Status: {REPAIR_RETURN_STATUS}",
+        "Packet Reviewability State: Reviewable",
+        "USER Gate State: Pending USER Review",
+        "Live Validation acceptance: Withheld",
+        "UTS acceptance: Withheld",
+        "A / FAM006-LVF-A-001",
+        "B Quick Access Start/Stop ownership",
+        "C Log Viewer focus/open regression C1-C3",
+        "D Native/current-log tracking ownership",
+        "E Overlay Profile normal USER proof path",
+        "F Visual-system inheritance and card-holder inset",
+        "G Native/export folder proof path",
+        "H Screenshot/evidence proof-loop",
+        "I Interaction matrix",
+        "J UTS stop-loss",
+        "C1:",
+        "C2:",
+        "C3:",
+        "Exact Next USER Decision",
+    ]
+    forbidden = [
+        "Live Validation acceptance: Accepted",
+        "UTS acceptance: Accepted",
+        "PR Readiness: Approved",
+        "Issue #258: Closed",
+    ]
+    missing = [marker for marker in required if marker not in text]
+    forbidden_hits = [marker for marker in forbidden if marker in text]
+    layout_ok = (
+        (packet_root / "START_HERE.md").exists()
+        and primary.exists()
+        and (packet_root / "Review Aids").is_dir()
+        and (packet_root / "Source Truth Context").is_dir()
+        and len(user_review_files) == 1
+        and (packet_root / "Review Aids" / "A_J_FINDING_STATUS_TABLE.md").exists()
+        and (packet_root / "Review Aids" / "monitoring_hud_live_client_interaction_manifest.json").exists()
+    )
+    return {
+        "passed": not missing and not forbidden_hits and layout_ok,
+        "layoutOk": layout_ok,
+        "missingRequiredMarkers": missing,
+        "forbiddenMarkers": forbidden_hits,
+        "userReviewFileCount": len(user_review_files),
+        "markdownFileCount": len(markdown_files),
+        "fileCount": len([p for p in files if p.is_file()]),
+    }
+
+
 def generate_repair_plan_packet() -> tuple[Path, Path, str]:
     identity = git_identity()
     if identity.get("baseline_head_is_ancestor") != "true":
@@ -3407,6 +3860,8 @@ def main() -> int:
     parser.add_argument("--validate-validator-first-packet", action="store_true")
     parser.add_argument("--generate-repair-implementation-approval-packet", action="store_true")
     parser.add_argument("--validate-repair-implementation-approval-packet", action="store_true")
+    parser.add_argument("--generate-repair-return-review-packet", action="store_true")
+    parser.add_argument("--validate-repair-return-review-packet", action="store_true")
     args = parser.parse_args()
     if args.generate_packet:
         packet_root, zip_path, digest = generate_packet()
@@ -3470,6 +3925,20 @@ def main() -> int:
         return 0 if validation["passed"] else 1
     if args.validate_repair_implementation_approval_packet:
         validation = validate_repair_implementation_approval_packet(PACKET_ROOT)
+        print(json.dumps(validation, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.generate_repair_return_review_packet:
+        packet_root, zip_path, digest = generate_repair_return_review_packet()
+        validation = validate_repair_return_review_packet(packet_root)
+        print(json.dumps({
+            "packetRoot": str(packet_root),
+            "zipPath": str(zip_path),
+            "zipSha256": digest,
+            "validation": validation,
+        }, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.validate_repair_return_review_packet:
+        validation = validate_repair_return_review_packet(PACKET_ROOT)
         print(json.dumps(validation, indent=2))
         return 0 if validation["passed"] else 1
     parser.print_help()

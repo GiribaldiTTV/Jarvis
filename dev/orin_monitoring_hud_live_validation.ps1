@@ -322,9 +322,24 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             "02_dashboard_quick_access_recording_active_state",
             "02_dashboard_quick_access_stop_saved_request_state",
             "02_recording_card_saved_complete_readback_state",
+            "02_recording_studio_native_log_saved_tracking_state",
             "02_recording_card_log_viewer_studio_requested_state",
             "02_log_viewer_studio_native_window_shell_state",
             "02_recording_card_log_viewer_studio_opened_state",
+            "02_log_viewer_c1_closed_before_start_stop",
+            "02_log_viewer_c1_recording_active_state",
+            "02_log_viewer_c1_stop_saved_request_state",
+            "02_log_viewer_c1_closed_after_start_stop",
+            "02_log_viewer_c2_minimized_before_start_stop",
+            "02_log_viewer_c2_recording_active_state",
+            "02_log_viewer_c2_stop_saved_request_state",
+            "02_log_viewer_c2_minimized_after_start_stop",
+            "02_log_viewer_c3_open_unfocused_before_start_stop",
+            "02_log_viewer_c3_shell_open_unfocused_before_start_stop",
+            "02_log_viewer_c3_recording_active_state",
+            "02_log_viewer_c3_stop_saved_request_state",
+            "02_log_viewer_c3_open_unfocused_after_start_stop",
+            "02_log_viewer_c3_shell_open_unfocused_after_start_stop",
             "02_hud_overlay_active_profile_selector_real_os_selected",
             "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection"
         )
@@ -395,8 +410,8 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
             issueId = "A"
             folder = "A_Recording_Studio_Button_Click"
             expected = "Clicking the visible Dashboard Recording Card Recording Studio button opens the standalone Recording Studio window."
-            observed = "USER personally confirmed the normal visible button path does not open Recording Studio. Helper foreground proof remains separate evidence and does not disprove the USER-confirmed manual-path failure."
-            confidence = "USER Confirmed + helper foreground path separately verified when the helper interaction manifest passes."
+            observed = "Current return-flow proof must include the normal visible Dashboard Recording Card button path, event proof, bridge proof, and focused native Recording Studio screenshot."
+            confidence = "Runtime return-flow proof when the interaction manifest includes real OS click and focused native-window screenshot evidence."
             patterns = @("02_recording_studio_native_window_ready_state", "02_recording_card_target_status_visual_contract")
         },
         [pscustomobject]@{
@@ -411,17 +426,26 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
             issueId = "C"
             folder = "C_Log_Viewer_Focus_Open_Regression"
             expected = "Opening/closing/minimizing Log Viewer Studio should not make every later start/stop steal focus unless source truth requires it."
-            observed = "USER personally confirmed that after Log Viewer Studio has been opened once, later Start/Stop recording actions cause it to open or steal focus depending on state. Codex normal-user automation is blocked when Computer Use is unavailable; code lineage is carried in the findings packet."
-            confidence = "USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked when Computer Use is unavailable."
-            patterns = @("02_log_viewer_studio_native_window_shell_state", "02_recording_card_log_viewer_studio_opened_state")
+            observed = "Current return-flow proof must include C1 closed, C2 minimized, and C3 open-unfocused Start/Stop sequences with real OS Quick Access clicks and native focus/window state evidence."
+            confidence = "Runtime return-flow proof when all C1/C2/C3 interaction-manifest steps pass with pre/post screenshots."
+            patterns = @(
+                "02_log_viewer_studio_native_window_shell_state",
+                "02_recording_card_log_viewer_studio_opened_state",
+                "02_log_viewer_c1_closed_before_start_stop",
+                "02_log_viewer_c1_closed_after_start_stop",
+                "02_log_viewer_c2_minimized_before_start_stop",
+                "02_log_viewer_c2_minimized_after_start_stop",
+                "02_log_viewer_c3_open_unfocused_before_start_stop",
+                "02_log_viewer_c3_open_unfocused_after_start_stop"
+            )
         },
         [pscustomobject]@{
             issueId = "D"
             folder = "D_Log_Viewer_Recording_Studio_Ownership"
             expected = "Recording Studio and Log Viewer Studio ownership boundaries should match accepted source truth; USER now says native log tracking belongs in Recording Studio and Log Viewer should stay shell/export oriented."
-            observed = "Screenshots capture both native windows for ownership comparison; product changes are withheld."
-            confidence = "Verified visual/source-truth comparison."
-            patterns = @("02_recording_studio_native_window_ready_state", "02_log_viewer_studio_native_window_shell_state")
+            observed = "Screenshots capture Recording Studio ready and saved-native-log tracking states plus Log Viewer shell-only boundaries for ownership comparison."
+            confidence = "Runtime proof when the saved-native-log tracking and shell-only screenshots are present."
+            patterns = @("02_recording_studio_native_window_ready_state", "02_recording_studio_native_log_saved_tracking_state", "02_log_viewer_studio_native_window_shell_state")
         },
         [pscustomobject]@{
             issueId = "E"
@@ -1245,9 +1269,24 @@ try {
                 "real OS click starts Dashboard Recording",
                 "real OS click stops Dashboard Recording and requests local output",
                 "Dashboard Recording stop writes local output and readback proof",
+                "Recording Studio compact native/current-log tracking updates after save",
                 "real OS click opens Dashboard Recording Log Viewer Studio",
                 "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
                 "Log Viewer Studio native window focused screenshot proof",
+                "C1 Log Viewer closed before repeated Start/Stop",
+                "C1 real OS click starts recording after Log Viewer close",
+                "C1 real OS click stops recording after Log Viewer close",
+                "C1 Log Viewer remains closed and unfocused after Start/Stop",
+                "C2 real OS click opens Log Viewer before minimize test",
+                "C2 Log Viewer minimized before repeated Start/Stop",
+                "C2 real OS click starts recording after Log Viewer minimize",
+                "C2 real OS click stops recording after Log Viewer minimize",
+                "C2 Log Viewer remains minimized and unfocused after Start/Stop",
+                "C3 real OS click opens Log Viewer before unfocused-open test",
+                "C3 Log Viewer open but unfocused before repeated Start/Stop",
+                "C3 real OS click starts recording after Log Viewer open unfocused",
+                "C3 real OS click stops recording after Log Viewer open unfocused",
+                "C3 Log Viewer remains open and unfocused after Start/Stop",
                 "HUD Overlay card Active Overlay Profile selector is visible after viewport restore",
                 "real OS click opens HUD Overlay card Active Overlay Profile selector",
                 "real OS click selects HUD Overlay card Active Overlay Profile option"

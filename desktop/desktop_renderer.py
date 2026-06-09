@@ -5730,6 +5730,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._start_stop_state = "target-required"
         self._current_log_state = "no-current-log"
         self._native_log_path = ""
+        self._last_activation_mode = "not-requested"
         self.setObjectName("monitoringHudRecordingStudioWindow")
         self.setWindowTitle("Nexus Recording Studio")
         self.setWindowFlags(Qt.Window)
@@ -5861,6 +5862,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         activate_window: bool = True,
     ) -> None:
         self._request_id = max(self._request_id, int(request_id or 0))
+        self._last_activation_mode = "explicit-user-open" if activate_window else "passive-state-refresh"
         self._recording_session_state = recording_session_state or "ready"
         self._start_stop_state = start_stop_state or "target-required"
         self._native_log_path = native_log_path.strip()
@@ -5905,10 +5907,13 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
             "currentLogState": self._current_log_state,
+            "activationMode": self._last_activation_mode,
             "startStopState": self._start_stop_state,
             "startEnabled": self._start.isEnabled(),
             "stopEnabled": self._stop.isEnabled(),
             "visible": self.isVisible(),
+            "isActiveWindow": self.isActiveWindow(),
+            "isMinimized": self.isMinimized(),
             "requestId": self._request_id,
             "x": geometry.x(),
             "y": geometry.y(),
@@ -6084,6 +6089,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "nativeLogLoaderState": "future-gated",
             "activationMode": self._last_activation_mode,
             "visible": self.isVisible(),
+            "isActiveWindow": self.isActiveWindow(),
+            "isMinimized": self.isMinimized(),
             "requestId": self._request_id,
             "x": geometry.x(),
             "y": geometry.y(),
@@ -10376,6 +10383,74 @@ class DesktopRuntimeWindow(QWidget):
                 )
             return ""
 
+        def capture_native_window_unfocused(label: str, widget: QWidget | None) -> str:
+            if widget is None or not self._monitoring_hud_live_self_qa_root:
+                return ""
+            try:
+                os.makedirs(self._monitoring_hud_live_self_qa_root, exist_ok=True)
+                safe_label = re.sub(r"[^A-Za-z0-9_.-]+", "_", label).strip("_") or "native_window"
+                path = os.path.join(self._monitoring_hud_live_self_qa_root, f"{safe_label}.png")
+                QApplication.processEvents()
+                screenshot = widget.grab()
+                if screenshot.save(path, "PNG"):
+                    screenshots.append(path)
+                    self._emit_runtime_signal(
+                        "MONITORING_HUD_LIVE_CLIENT_SELF_QA_SCREENSHOT_READY",
+                        package="PKG-006",
+                        slice="SLC-029",
+                        label=safe_label,
+                        path=path,
+                        capture="native_window_unfocused_state_visual_proof",
+                    )
+                    return path
+            except Exception as exc:
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_LIVE_CLIENT_SELF_QA_SCREENSHOT_FAILED",
+                    package="PKG-006",
+                    slice="SLC-029",
+                    label=label,
+                    reason=type(exc).__name__,
+                )
+            return ""
+
+        def active_window_proof() -> dict[str, object]:
+            active = QApplication.activeWindow()
+            if active is None:
+                return {
+                    "activeWindowTitle": "",
+                    "activeWindowObjectName": "",
+                    "activeWindowClass": "",
+                }
+            return {
+                "activeWindowTitle": active.windowTitle(),
+                "activeWindowObjectName": active.objectName(),
+                "activeWindowClass": type(active).__name__,
+            }
+
+        def focus_dashboard_for_sequence() -> None:
+            self.show()
+            self.raise_()
+            self.activateWindow()
+            if self.webview is not None:
+                self.webview.setFocus(Qt.MouseFocusReason)
+            QApplication.processEvents()
+            time.sleep(0.18)
+
+        def log_viewer_focus_snapshot(sequence: str, phase: str) -> dict[str, object]:
+            widget = self._monitoring_hud_log_viewer_studio_window
+            proof = widget.proof_state() if widget is not None else {}
+            return {
+                "sequence": sequence,
+                "phase": phase,
+                **active_window_proof(),
+                "logViewerProof": proof,
+                "logViewerVisible": bool(proof.get("visible")),
+                "logViewerActive": bool(proof.get("isActiveWindow")),
+                "logViewerMinimized": bool(proof.get("isMinimized")),
+                "logViewerActivationMode": str(proof.get("activationMode") or ""),
+                "logViewerRequestId": str(proof.get("requestId") or ""),
+            }
+
         def query(label: str, script: str, callback):
             self._run_javascript_with_result(
                 script,
@@ -10781,9 +10856,19 @@ class DesktopRuntimeWindow(QWidget):
                     const summary = document.getElementById("monitoring-hud-recording-target-summary");
                     const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
+                    const controlHub = document.querySelector(".monitoring-hud__control-hub");
                     const previewStyle = preview ? window.getComputedStyle(preview) : null;
                     const row = preview ? preview.querySelector(".monitoring-hud__state-row") : null;
                     const rowStyle = row ? window.getComputedStyle(row) : null;
+                    const cardRect = card ? card.getBoundingClientRect() : null;
+                    const hubRect = controlHub ? controlHub.getBoundingClientRect() : null;
+                    const hubStyle = controlHub ? window.getComputedStyle(controlHub) : null;
+                    const borderLeft = hubStyle ? parseFloat(hubStyle.borderLeftWidth || "0") || 0 : 0;
+                    const borderRight = hubStyle ? parseFloat(hubStyle.borderRightWidth || "0") || 0 : 0;
+                    const scrollbarWidth = controlHub ? Math.max(0, controlHub.offsetWidth - controlHub.clientWidth - borderLeft - borderRight) : 0;
+                    const leftInset = cardRect && hubRect ? Math.round((cardRect.left - hubRect.left - borderLeft) * 10) / 10 : null;
+                    const rightInset = cardRect && hubRect ? Math.round(((hubRect.right - borderRight - scrollbarWidth) - cardRect.right) * 10) / 10 : null;
+                    const insetDelta = leftInset !== null && rightInset !== null ? Math.abs(leftInset - rightInset) : null;
                     const checks = {
                         card: Boolean(card),
                         preview: Boolean(preview),
@@ -10807,11 +10892,21 @@ class DesktopRuntimeWindow(QWidget):
                         previewStyle: Boolean(previewStyle),
                         rowStyle: Boolean(rowStyle),
                         visualProof: Boolean(previewStyle && previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() === "dashboard-card-system-sampled"),
-                        rowVisualProof: Boolean(rowStyle && rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() === "inherits-dashboard-state-row")
+                        rowVisualProof: Boolean(rowStyle && rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() === "inherits-dashboard-state-row"),
+                        cardHolderInsetParity: Boolean(leftInset !== null && rightInset !== null && insetDelta <= 1.5)
                     };
                     return JSON.stringify({
                         ok: Object.keys(checks).every((key) => checks[key] === true),
                         checks,
+                        cardHolderInsetProof: {
+                            leftInset,
+                            rightInset,
+                            scrollbarWidth,
+                            borderLeft,
+                            borderRight,
+                            insetDelta,
+                            rule: "left-right-card-holder-content-inset-excludes-scrollbar-and-border"
+                        },
                         activeProfileName: targetProfile ? targetProfile.textContent : "",
                         activeMonitorCount: targetCount ? targetCount.textContent : "",
                         startStopControlEnabled: Boolean(launcher && !launcher.disabled),
@@ -11040,6 +11135,24 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_recording_saved_captures():
             capture("02_recording_card_saved_complete_readback_state")
+            QTimer.singleShot(delay(900), step_recording_studio_native_log_tracking_assert)
+
+        def step_recording_studio_native_log_tracking_assert():
+            widget = self._monitoring_hud_recording_studio_window
+            proof = widget.proof_state() if widget is not None else {}
+            passed = bool(
+                proof
+                and proof.get("visible") is True
+                and proof.get("surface") == "recording_studio_window"
+                and proof.get("currentLogState") == "native-log-saved"
+                and str(proof.get("nativeLogPath") or "").strip()
+                and proof.get("activationMode") == "passive-state-refresh"
+            )
+            add_step("Recording Studio compact native/current-log tracking updates after save", passed, proof)
+            if not passed:
+                finish("FAIL", "Recording Studio native/current-log tracking proof failed")
+                return
+            capture_native_window("02_recording_studio_native_log_saved_tracking_state", widget)
             QTimer.singleShot(delay(), step_recording_open_folder_click)
 
         def step_recording_open_folder_click():
@@ -11127,6 +11240,253 @@ class DesktopRuntimeWindow(QWidget):
                 return
             capture_native_window("02_log_viewer_studio_native_window_shell_state", widget)
             capture("02_recording_card_log_viewer_studio_opened_state")
+            QTimer.singleShot(delay(), step_log_viewer_c1_prepare)
+
+        def repeated_quick_access_start_stop(
+            sequence_id: str,
+            start_label: str,
+            stop_label: str,
+            callback,
+        ):
+            def start_clicked():
+                capture(f"02_log_viewer_{sequence_id.lower()}_recording_active_state")
+                QTimer.singleShot(delay(), stop_click)
+
+            def stop_clicked():
+                capture(f"02_log_viewer_{sequence_id.lower()}_stop_saved_request_state")
+                QTimer.singleShot(delay(1700), callback)
+
+            def start_click():
+                os_click_and_assert_state(
+                    "#monitoring-hud-recording-control-launcher",
+                    start_label,
+                    """
+                    (function() {
+                        const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                        return JSON.stringify({
+                            ok: Boolean(
+                                launcher
+                                && String(launcher.textContent || "").trim() === "Stop Recording"
+                                && monitoringHudControlState.recordingSessionState === "recording"
+                            ),
+                            launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                            recordingSessionState: monitoringHudControlState ? String(monitoringHudControlState.recordingSessionState || "") : "",
+                            realOsInputProof: true,
+                            directJsClickUsed: false
+                        });
+                    })();
+                    """,
+                    start_clicked,
+                )
+
+            def stop_click():
+                os_click_and_assert_state(
+                    "#monitoring-hud-recording-control-launcher",
+                    stop_label,
+                    """
+                    (function() {
+                        const launcher = document.getElementById("monitoring-hud-recording-control-launcher");
+                        const request = monitoringHudControlState ? monitoringHudControlState.recordingOutputRequest || {} : {};
+                        const state = monitoringHudControlState ? String(monitoringHudControlState.recordingSessionState || "") : "";
+                        return JSON.stringify({
+                            ok: Boolean(
+                                launcher
+                                && String(launcher.textContent || "").trim() !== "Stop Recording"
+                                && (state === "saving" || state === "saved-complete")
+                                && request
+                                && String(request.sessionId || "")
+                                && Array.isArray(request.samples)
+                                && request.samples.length > 0
+                            ),
+                            launcherText: launcher ? String(launcher.textContent || "").trim() : "",
+                            recordingSessionState: state,
+                            requestId: request ? String(request.requestId || "") : "",
+                            sampleCount: request && Array.isArray(request.samples) ? request.samples.length : 0,
+                            realOsInputProof: true,
+                            directJsClickUsed: false
+                        });
+                    })();
+                    """,
+                    stop_clicked,
+                )
+
+            start_click()
+
+        def step_log_viewer_c1_prepare():
+            widget = self._monitoring_hud_log_viewer_studio_window
+            if widget is not None:
+                widget.close()
+            focus_dashboard_for_sequence()
+            capture("02_log_viewer_c1_closed_before_start_stop")
+            snapshot = log_viewer_focus_snapshot("C1", "pre-start-stop-closed")
+            passed = bool(
+                snapshot.get("logViewerVisible") is False
+                and snapshot.get("logViewerActive") is False
+            )
+            add_step("C1 Log Viewer closed before repeated Start/Stop", passed, snapshot)
+            if not passed:
+                finish("FAIL", "C1 Log Viewer did not close before repeated Start/Stop")
+                return
+            repeated_quick_access_start_stop(
+                "C1",
+                "C1 real OS click starts recording after Log Viewer close",
+                "C1 real OS click stops recording after Log Viewer close",
+                step_log_viewer_c1_assert,
+            )
+
+        def step_log_viewer_c1_assert():
+            focus_dashboard_for_sequence()
+            capture("02_log_viewer_c1_closed_after_start_stop")
+            snapshot = log_viewer_focus_snapshot("C1", "post-start-stop-closed")
+            proof = snapshot.get("logViewerProof") if isinstance(snapshot.get("logViewerProof"), dict) else {}
+            passed = bool(
+                snapshot.get("logViewerVisible") is False
+                and snapshot.get("logViewerActive") is False
+                and proof.get("activationMode") == "passive-state-refresh"
+            )
+            add_step("C1 Log Viewer remains closed and unfocused after Start/Stop", passed, snapshot)
+            if not passed:
+                finish("FAIL", "C1 Log Viewer reopened or stole focus after Start/Stop")
+                return
+            QTimer.singleShot(delay(), step_log_viewer_c2_open)
+
+        def step_log_viewer_c2_open():
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-open-folder",
+                "C2 real OS click opens Log Viewer before minimize test",
+                """
+                (function() {
+                    const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
+                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioRequestId || "") : "";
+                    return JSON.stringify({
+                        ok: Boolean(
+                            openFolder
+                            && !openFolder.disabled
+                            && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
+                            && monitoringHudControlState.logViewerStudioRequested === true
+                            && monitoringHudControlState.logViewerStudioState === "native-window-requested"
+                            && requestId
+                        ),
+                        requestId,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                lambda: QTimer.singleShot(delay(900), step_log_viewer_c2_prepare),
+            )
+
+        def step_log_viewer_c2_prepare():
+            widget = self._monitoring_hud_log_viewer_studio_window
+            if widget is not None:
+                widget.showMinimized()
+            focus_dashboard_for_sequence()
+            capture("02_log_viewer_c2_minimized_before_start_stop")
+            snapshot = log_viewer_focus_snapshot("C2", "pre-start-stop-minimized")
+            passed = bool(
+                snapshot.get("logViewerVisible") is True
+                and snapshot.get("logViewerMinimized") is True
+                and snapshot.get("logViewerActive") is False
+            )
+            add_step("C2 Log Viewer minimized before repeated Start/Stop", passed, snapshot)
+            if not passed:
+                finish("FAIL", "C2 Log Viewer did not enter minimized non-active state")
+                return
+            repeated_quick_access_start_stop(
+                "C2",
+                "C2 real OS click starts recording after Log Viewer minimize",
+                "C2 real OS click stops recording after Log Viewer minimize",
+                step_log_viewer_c2_assert,
+            )
+
+        def step_log_viewer_c2_assert():
+            focus_dashboard_for_sequence()
+            capture("02_log_viewer_c2_minimized_after_start_stop")
+            snapshot = log_viewer_focus_snapshot("C2", "post-start-stop-minimized")
+            proof = snapshot.get("logViewerProof") if isinstance(snapshot.get("logViewerProof"), dict) else {}
+            passed = bool(
+                snapshot.get("logViewerVisible") is True
+                and snapshot.get("logViewerMinimized") is True
+                and snapshot.get("logViewerActive") is False
+                and proof.get("activationMode") == "passive-state-refresh"
+            )
+            add_step("C2 Log Viewer remains minimized and unfocused after Start/Stop", passed, snapshot)
+            if not passed:
+                finish("FAIL", "C2 Log Viewer restored or stole focus after Start/Stop")
+                return
+            QTimer.singleShot(delay(), step_log_viewer_c3_open)
+
+        def step_log_viewer_c3_open():
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-open-folder",
+                "C3 real OS click opens Log Viewer before unfocused-open test",
+                """
+                (function() {
+                    const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
+                    const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioRequestId || "") : "";
+                    return JSON.stringify({
+                        ok: Boolean(
+                            openFolder
+                            && !openFolder.disabled
+                            && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
+                            && monitoringHudControlState.logViewerStudioRequested === true
+                            && monitoringHudControlState.logViewerStudioState === "native-window-requested"
+                            && requestId
+                        ),
+                        requestId,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                lambda: QTimer.singleShot(delay(900), step_log_viewer_c3_prepare),
+            )
+
+        def step_log_viewer_c3_prepare():
+            widget = self._monitoring_hud_log_viewer_studio_window
+            if widget is not None and widget.isMinimized():
+                widget.showNormal()
+                widget.raise_()
+                widget.activateWindow()
+                QApplication.processEvents()
+                time.sleep(0.25)
+            focus_dashboard_for_sequence()
+            capture("02_log_viewer_c3_open_unfocused_before_start_stop")
+            capture_native_window_unfocused("02_log_viewer_c3_shell_open_unfocused_before_start_stop", widget)
+            snapshot = log_viewer_focus_snapshot("C3", "pre-start-stop-open-unfocused")
+            passed = bool(
+                snapshot.get("logViewerVisible") is True
+                and snapshot.get("logViewerMinimized") is False
+                and snapshot.get("logViewerActive") is False
+            )
+            add_step("C3 Log Viewer open but unfocused before repeated Start/Stop", passed, snapshot)
+            if not passed:
+                finish("FAIL", "C3 Log Viewer did not enter open non-active state")
+                return
+            repeated_quick_access_start_stop(
+                "C3",
+                "C3 real OS click starts recording after Log Viewer open unfocused",
+                "C3 real OS click stops recording after Log Viewer open unfocused",
+                step_log_viewer_c3_assert,
+            )
+
+        def step_log_viewer_c3_assert():
+            focus_dashboard_for_sequence()
+            capture("02_log_viewer_c3_open_unfocused_after_start_stop")
+            widget = self._monitoring_hud_log_viewer_studio_window
+            capture_native_window_unfocused("02_log_viewer_c3_shell_open_unfocused_after_start_stop", widget)
+            snapshot = log_viewer_focus_snapshot("C3", "post-start-stop-open-unfocused")
+            proof = snapshot.get("logViewerProof") if isinstance(snapshot.get("logViewerProof"), dict) else {}
+            passed = bool(
+                snapshot.get("logViewerVisible") is True
+                and snapshot.get("logViewerMinimized") is False
+                and snapshot.get("logViewerActive") is False
+                and proof.get("activationMode") == "passive-state-refresh"
+            )
+            add_step("C3 Log Viewer remains open and unfocused after Start/Stop", passed, snapshot)
+            if not passed:
+                finish("FAIL", "C3 Log Viewer stole focus after Start/Stop")
+                return
             QTimer.singleShot(delay(), step_restore_dashboard_viewport_after_folder_open)
 
         def step_restore_dashboard_viewport_after_folder_open():
