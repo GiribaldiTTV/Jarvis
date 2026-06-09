@@ -1442,6 +1442,67 @@ def _validate_cross_fam_dependency_packet_text(text: str) -> list[str]:
     return failures
 
 
+def _owning_fam_from_ffv(path: Path, text: str) -> str:
+    candidates = (
+        re.search(r"\bFAM-(\d{3})\b", path.name),
+        re.search(r"\bF(\d+)-FF\d{2}\b", text),
+    )
+    for match in candidates:
+        if not match:
+            continue
+        raw = match.group(1)
+        if len(raw) == 3:
+            return f"FAM-{raw}"
+        return f"FAM-{int(raw):03d}"
+    return ""
+
+
+def _validate_current_worktree_ffv_dependency_records() -> list[str]:
+    """Scan tracked FFVs in the current worktree for loose cross-FAM dependencies."""
+
+    failures: list[str] = []
+    ffv_dir = ROOT / "Docs" / "family_feature_visions"
+    if not ffv_dir.is_dir():
+        return failures
+
+    trigger_terms = (
+        "dependency",
+        "carry-in",
+        "platform contract",
+        "affected fam",
+        "installer",
+        "packaging",
+        "shortcut",
+        "update",
+        "patch",
+    )
+    for path in sorted(ffv_dir.glob("*.md")):
+        if path.name.casefold() == "index.md":
+            continue
+        text = path.read_text(encoding="utf-8")
+        owning_fam = _owning_fam_from_ffv(path, text)
+        mentioned_fams = sorted(set(re.findall(r"\bFAM-\d{3}\b", text)))
+        other_fams = [fam for fam in mentioned_fams if fam != owning_fam]
+        normalized_text = governance._normalized_planning_value(text)
+        if not other_fams:
+            continue
+        if not any(term in normalized_text for term in trigger_terms):
+            continue
+        if "Cross-FAM Dependency" not in text and "Dependency Scope Class:" not in text:
+            failures.append(
+                f"{path.relative_to(ROOT)}: Cross-FAM dependency content mentions "
+                f"{', '.join(other_fams)} but lacks a Cross-FAM Dependency record"
+            )
+            continue
+        record_failures = _validate_cross_fam_dependency_packet_text(text)
+        if record_failures:
+            failures.append(
+                f"{path.relative_to(ROOT)}: Cross-FAM dependency record invalid: "
+                + "; ".join(record_failures[:5])
+            )
+    return failures
+
+
 def _validate_implementation_bearing_source_truth() -> list[str]:
     failures, require = _collect_failures()
     source_truth_markers = {
@@ -4896,6 +4957,8 @@ line item, not a seam or separate branch.
             "Invalid cross-FAM dependency fixture did not reject unclassified "
             "affected-FAM dependency work"
         )
+
+    failures.extend(_validate_current_worktree_ffv_dependency_records())
 
     failures.extend(_validate_merge_stable_projection_helpers())
 
