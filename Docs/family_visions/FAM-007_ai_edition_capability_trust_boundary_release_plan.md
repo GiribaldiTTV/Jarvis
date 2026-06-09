@@ -113,6 +113,24 @@ Public review bundles must not include Owner/Dev private files, private repo pat
 
 Review bundles created from the public repo should copy only public repo-relative files or public-safe generated review guides. If a future helper needs private-edition review bundles, it must use a private review root or explicit private-workspace routing and must not mix those files with public FAM review bundles.
 
+## Owner AI Operational Foundation Gates
+
+The Owner AI Operational Foundation Gates route is a public-safe edition-boundary implementation route. It may add control-plane checks, validators, fixtures, disabled-state contracts, consent-state markers, lane-readiness states, and future prerequisite schema names that make later Developer and Owner AI work safer.
+
+This route is allowed to implement:
+
+- protected artifact exclusion controls for public repo, USER packet, timestamped USER ZIP, public review bundle, and public release artifact paths
+- provider/runtime disabled-state consent shell proof with provider-visible data `none`
+- cache consent and memory consent separation, with cache treated as operational state and memory as a separate future USER decision
+- blocked persistence and consent-error states before runtime cache or memory behavior exists
+- capability-pack install-intent gates before downloads, installs, updates, uninstalls, or execution
+- Developer and Owner lane readiness gates that name future setup prerequisites without creating private roots, repos, remotes, or GitHub Desktop bindings
+- Owner AI memory/agent prerequisite schemas and blocked states using public-safe examples only
+
+This route is not allowed to implement private Dev/Owner repositories, private roots, private remotes, private capability assets, backup/import execution, provider/model execution, runtime cache activation, memory persistence, real Owner memory, real Owner agents, private provider-visible data, public-to-Dev import, PR/merge/release work, branch cleanup, issue mutation, or v1.8.0 work unless a later USER-approved phase explicitly admits that action.
+
+The durable enforcement surfaces for this route are `desktop/ai_provider_state.py`, `dev/orin_ai_provider_state_validation.py`, `dev/orin_public_leak_prevention_validation.py`, and `dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json`. USER-facing review packets may explain the gates and decisions, but byte-proof metadata and active branch state remain outside USER-facing files.
+
 ## Edition Names
 
 Public Edition name: `Nexus Desktop AI`.

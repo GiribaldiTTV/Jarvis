@@ -173,6 +173,21 @@ Provider/API behavior must preserve:
 
 Provider recommendation is allowed when local capability is insufficient, but provider execution remains permission-gated.
 
+## Owner AI Operational Foundation Gates
+
+Owner AI Operational Foundation Gates are public-safe control-plane scaffolds for future Developer and Owner AI work. They may define disabled states, explicit consent and install-intent states, artifact exclusion checks, lane-readiness gates, and prerequisite schemas before any private Owner/Developer setup or provider/runtime execution exists.
+
+The gate contract must preserve:
+
+- protected artifact exclusion from public repo files, USER review packets, timestamped USER ZIPs, public review bundles, and public release artifacts
+- provider-visible data of `none`, prompt/provider/model execution disabled, network/download/external calls blocked, and no hidden provider residue
+- cache consent and memory consent as separate states; cache remains operational state and does not become durable user memory
+- runtime cache behavior, memory writes, indexing, retrieval, learning, personalization, real Owner memory, and real Owner agents blocked until later explicit USER approval
+- capability-pack install intent as an explicit blocked or future-gated state before any download, install, update, uninstall, or execution path
+- Developer lane and Owner lane readiness as future-gated identity/readiness states, not private repo/root/remote creation
+
+`desktop/ai_provider_state.py` owns the static public-safe gate contract used by validators. `dev/orin_ai_provider_state_validation.py` and `dev/orin_public_leak_prevention_validation.py` must fail if a public-safe gate branch claims readiness while enabling private setup, provider/model execution, runtime cache behavior, real memory, real agents, private paths, secrets, or protected artifacts.
+
 ## OpenAI Docs / Developer Tool Boundary
 
 Official OpenAI Docs lookups, Codex connector output, and AI-development plugin evidence may support source-truth review, architecture review, and provider-boundary planning. They are evidence until Codex digests them into the owning repo source-truth file through a USER-approved update.
