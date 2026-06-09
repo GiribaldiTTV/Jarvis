@@ -1345,6 +1345,22 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
 
 
 def _validate_cross_fam_dependency_packet_text(text: str) -> list[str]:
+    record_starts = list(re.finditer(r"(?im)^Cross-FAM Dependency Map:", text))
+    if len(record_starts) > 1:
+        failures: list[str] = []
+        for index, record_start in enumerate(record_starts):
+            record_end = (
+                record_starts[index + 1].start()
+                if index + 1 < len(record_starts)
+                else len(text)
+            )
+            record_text = text[record_start.start() : record_end]
+            failures.extend(
+                f"Cross-FAM dependency record {index + 1}: {failure}"
+                for failure in _validate_cross_fam_dependency_packet_text(record_text)
+            )
+        return failures
+
     failures, require = _collect_failures()
     required_markers = (
         "Cross-FAM Dependency Map:",
@@ -4983,6 +4999,19 @@ line item, not a seam or separate branch.
         failures.append(
             "Invalid cross-FAM dependency fixture did not reject unclassified "
             "affected-FAM dependency work"
+        )
+
+    mixed_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
+        INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE.read_text(encoding="utf-8")
+        + "\n\n"
+        + valid_cross_fam_text
+    )
+    if EXPECTED_CROSS_FAM_UNCLASSIFIED_FAILURE_SNIPPET not in "\n".join(
+        mixed_cross_fam_failures
+    ):
+        failures.append(
+            "Mixed cross-FAM dependency fixture did not reject an invalid record "
+            "before a valid record"
         )
 
     compact_ffv_owner = _owning_fam_from_ffv(
