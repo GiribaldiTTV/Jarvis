@@ -1,81 +1,168 @@
-# FAM-007 Assisted Desktop AI Function Slice Vision
+# F7-FF01 Public-Safe Assisted Desktop AI Interaction And Edition Boundary
 
-## Purpose
+## FFV Identity
 
-This Family Feature Vision records durable direction for the FAM-007 Assisted Desktop AI function slice.
+FFV ID: `F7-FF01`
 
-It sits below the broad FAM-007 Local AI and Capability Packs vision and above branch-specific Branch Vision review. It supplies reusable feature-category context for a product-bearing route that makes ORIN visibly useful in a no-provider posture without authorizing provider/model execution, private edition setup, downloads, memory, or hidden network behavior.
+FFV Category: `Public-Safe Assisted Desktop AI Interaction And Edition Boundary`
+
+Transition Alias Path: `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md`
+
+Preferred Future Compact Path: `Docs/family_feature_visions/F7-FF01.md`
+
+Path Disposition: `Retained as the USER-approved transition alias for this BR2 repair; a later rename may move this record to the preferred compact path only with full pointer migration.`
+
+Parent Family: `FAM-007 Local AI and Capability Packs`
+
+Package Context: `PKG-007`
+
+Durable Category Scope: `Public-safe local assisted AI interaction, no-provider result behavior, provider-visible-data explanation, capability-pack eligibility display, blocked install intent, and Public / Developer / Owner lane boundary presentation before provider/model execution or private setup exists.`
+
+## Ownership Boundary
+
+This Family Feature Vision owns durable feature-category direction inside FAM-007. It supplies BP1 Feature Vision Context and durable FFV element IDs for branch planning.
+
+It owns:
+
+- compact FFV identity and category title
+- durable user value and product purpose
+- expected public-safe surfaces and flows
+- durable element inventory
+- deferred feature carryforward facts
+- boundary and proof expectations
+- branch-planning guidance for selected/deferred FFV elements
+
+It does not own:
+
+- branch route identity
+- Slice, SLC, or seam identity
+- active branch state
+- selected-next truth
+- BP gate acceptance
+- Workstream implementation approval
+- live validation status
+- provider/model execution approval
+- private Developer or Owner setup
+- capability-pack download or install execution
+- runtime cache, memory, learning, indexing, or personalization
 
 ## Vision Basis
 
-FAM: `FAM-007`
-
-Package: `PKG-007`
-
-Feature Category: `Assisted Desktop AI Function Slice`
-
-Route Label: `Three-NDAI Assisted Desktop AI Function Slice`
-
-Owning Context:
+Source-truth basis:
 
 - `Docs/nexus_vision.md`
+- `Docs/feature_backlog.md`
 - `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
 - `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - `Docs/ai_runtime_and_trust_architecture.md`
-- `Docs/family_visions/FAM-008_packaging_and_install_experience.md` for install and capability-pack setup boundaries
+- `Docs/family_visions/FAM-008_packaging_and_install_experience.md`
+- `Docs/phase_governance.md`
+- `Docs/branch_plans/README.md`
+
+FAM-007 direction requires the base app to remain useful without a local LLM. Assisted Desktop Mode and no-provider behavior should be understandable before any real provider execution. Provider-visible data, provider state, capability-pack eligibility, and edition boundaries must be visible and truthful without activating hidden network, prompt, model, download, memory, or private-edition behavior.
 
 ## Feature Purpose
 
-This feature should make the Public Edition AI posture feel understandable and useful before any provider is connected. ORIN should no longer present AI as only unavailable or disabled when the base app still has deterministic local facts it can explain.
+The user-facing purpose is to make ORIN's AI posture visible, useful, and honest in the Public Edition before a provider or local model is connected.
 
-The user-facing goal is a local-only assisted desktop action that:
+The durable product target is not "make the provider work." The target is a public-safe assisted interaction layer that can say what Nexus can do locally, why provider execution is unavailable, what data would be visible to a provider, and which future capability or edition gates remain blocked.
 
-- shows the Public Edition AI / ORIN status as a visible product surface
-- explains the provider state in plain language
-- runs a deterministic no-provider result flow
-- shows provider-visible data as `none`
-- names safe local actions the user can take
-- shows capability-pack eligibility without download or install execution
-- preserves Developer lane and Owner lane boundaries as gated edition concepts
+## Category Boundary
+
+This FFV category is broader than one branch route. It covers the public-safe assisted desktop interaction and edition-boundary pattern for FAM-007.
+
+The branch route label `Three-NDAI Assisted Desktop AI Function Slice` is a selected grouped implementation route that may consume a subset of this FFV's elements. It is not the FFV category title and must not turn this FFV into a branch plan or live-state ledger.
 
 ## User-Facing Surfaces
 
-- ORIN AI status surface in the desktop visual layer.
-- A clickable local assisted action tied to that status surface.
-- A deterministic result view that states local capability, provider availability, data-sent posture, and safe follow-up actions.
-- Capability-pack eligibility and blocked install-intent copy tied to the same result flow.
-- Public Edition, Developer lane, and Owner lane boundary labels that do not expose private content or private setup behavior.
+- ORIN / AI status surface in the desktop visual layer.
+- Local assisted action entrypoint tied to that status surface.
+- Deterministic result view for no-provider operation.
+- Plain-language provider-visible data display.
+- Capability-pack eligibility and blocked install-intent display.
+- Public Edition, Developer lane, and Owner lane boundary presentation.
 
-## Experience Flow
+## Durable Experience Flow
 
 1. The user sees an AI / ORIN status surface rather than a hidden or inert provider block.
-2. The user clicks a local assisted action.
+2. The user activates a local assisted action.
 3. Nexus reads only public-safe local app state and provider-boundary state.
-4. The result explains that provider execution is unavailable, provider-visible data is `none`, and no prompt/model path ran.
-5. The result names what the local app can do now, what capability packs could add later, and why install intent remains blocked.
-6. Developer lane and Owner lane posture remains visible only as gated boundaries, not as private setup, private repository, or private asset behavior.
+4. The result explains that provider execution is unavailable or disabled.
+5. The result states provider-visible data as `none` when no prompt/provider path ran.
+6. The result names useful local follow-up actions.
+7. The result shows capability-pack eligibility without starting download, install, update, uninstall, or execution.
+8. Developer lane and Owner lane posture remains visible only as gated boundaries, not as private setup or private asset behavior.
 
-## Included Capabilities
+## Durable FFV Element Inventory
 
-- Visible Public Edition AI / ORIN status.
-- Local-only clickable assisted desktop action.
-- Deterministic no-provider result flow.
-- Plain-language result text for local capability, provider unavailability, provider-visible data, and safe local follow-up.
-- Capability-pack eligibility summary plus blocked install intent.
-- Edition-boundary display for Public Edition, Developer lane, and Owner lane.
-- Validator or fixture proof that the flow does not send prompts, call providers, download models, write memory, or hide network behavior.
+Family Feature Vision elements are durable vision units. They are not Slices, SLCs, seams, implementation tasks, or active branch status rows.
+
+| FFV Element ID | Element | Durable User Value | Expected Surface / Flow | Boundary / Gate | Proof Expectation |
+| --- | --- | --- | --- | --- | --- |
+| `F7-FF01-E01` | Public Edition AI / ORIN status | The user can see whether AI assistance is locally available, degraded, disabled, or provider-blocked. | Visible ORIN / AI status in the Public Edition desktop surface. | Must not imply provider/model execution, prompt acceptance, network use, memory, or private setup. | UI/status proof plus provider-state contract proof. |
+| `F7-FF01-E02` | Local assisted desktop action | The user can click a local action that is useful even without a provider. | Action control tied to the AI / ORIN status surface. | Reads public-safe local app state only; no prompt send, provider call, download, memory write, or external dependency. | Action-click result proof plus no-provider/no-egress checks. |
+| `F7-FF01-E03` | Deterministic no-provider result flow | The user gets truthful local guidance instead of a broken or vague AI-disabled message. | Result panel or equivalent local response state. | Result must say provider execution is unavailable or disabled and provider-visible data is `none` when no provider path ran. | Deterministic result fixture, provider-visible-data proof, no hidden network proof. |
+| `F7-FF01-E04` | Capability-pack eligibility with blocked install intent | The user can understand what capability packs could add without accidentally installing anything. | Eligibility summary and disabled or blocked install intent state. | Actual download, install, update, uninstall, model asset fetch, or capability execution remains future-gated. | Static/fixture proof that install intent is blocked and FAM-008 install authority is preserved. |
+| `F7-FF01-E05` | Public / Developer / Owner lane boundary display | The user can distinguish public-safe behavior from future Developer and Owner capabilities. | Boundary labels or explanatory copy in the Public Edition surface. | No private repository, private root, private remote, private prompt, private memory, private log, or private asset exposure. | Public leak-prevention proof and branch-vision copy review. |
+| `F7-FF01-E06` | Provider, download, memory, cache, and network enforcement proof | The product proves the public-safe path is not secretly executing gated AI behavior. | Validator, fixture, and branch-plan proof surface; visible copy where useful. | Provider/model execution, prompt send, downloads, network/external calls, runtime cache behavior, memory, learning, indexing, personalization, and real Owner agents remain blocked. | Provider-state validation, public leak-prevention validation, and no-egress/no-persistence checks. |
+
+## Deferred Feature Carryforward
+
+Deferred elements below are durable planning facts. They are not active branch status and do not approve future implementation.
+
+| Deferred Element ID | Deferred Element | Reason | Gate / Trigger | Owner | Return Path | Required Proof | Tracking Location |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `F7-FF01-E07` | Real provider/model execution | Provider execution changes data egress, cost/privacy posture, consent, rollback, and runtime trust. | `USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION` approval. | FAM-007 provider execution branch under AI runtime/trust architecture. | Later Branch Readiness, BP1/BP2/BP3, Workstream, Hardening, and Live Validation. | Provider-visible data proof, consent proof, no hidden external calls, rollback/disable proof, direct runtime proof. | This FFV plus future FAM-007 branch plan. |
+| `F7-FF01-E08` | Actual capability-pack install, download, update, uninstall, or execution | Capability-pack execution crosses storage, network, integrity, licensing, update, removal, and FAM-008 setup boundaries. | USER approves pack source, license, storage, integrity, setup UX, and execution scope. | FAM-007 capability-pack owner plus FAM-008 packaging/install owner. | Later capability-pack/setup carrier. | No hidden download, source/integrity proof, uninstall/reset proof, storage and network disclosure proof. | This FFV plus FAM-008 family vision and future branch plan. |
+| `F7-FF01-E09` | Persistent memory, indexing, learning, personalization, or real Owner memory | Memory is durable user-personal state and is separate from operational cache. | `USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION` approval. | FAM-007 memory/personalization branch under AI runtime/trust architecture. | Later memory-specific Branch Readiness path. | Consent, storage boundary, reset/delete/export, no hidden indexing, edition separation, no unapproved training. | This FFV plus AI runtime/trust architecture and future branch plan. |
+| `F7-FF01-E10` | Private Developer or Owner setup | Private roots, repos, remotes, prompts, memory, logs, evals, and assets must not enter public source truth by inertia. | `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE`, `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE`, or related private setup approval. | FAM-007 edition-boundary/private setup owner. | Separate private setup carrier after USER action gate. | Private origin/public-upstream proof, secret scan posture, protected asset exclusion, no Owner inheritance into Developer or Public. | Edition trust-boundary plan plus future private setup branch plan. |
+| `F7-FF01-E11` | Shortcut, installer, packaging, and edition identity execution | Packaging and install behavior belongs to FAM-008 and changes public release/user setup expectations. | `USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY` or FAM-008 packaging approval. | FAM-008 packaging/install owner with FAM-007 edition-boundary input. | Later FAM-008 Branch Readiness path. | Installer/shortcut/source proof, distinct data-root proof, update-channel proof, public build exclusion proof. | FAM-008 family vision plus future packaging branch plan. |
+
+## BP1 Selection Guidance
+
+For a public-safe no-provider assisted desktop action route, BP1 may select:
+
+- `F7-FF01-E01`
+- `F7-FF01-E02`
+- `F7-FF01-E03`
+- `F7-FF01-E04`
+- `F7-FF01-E05`
+- `F7-FF01-E06`
+
+BP1 should defer:
+
+- `F7-FF01-E07`
+- `F7-FF01-E08`
+- `F7-FF01-E09`
+- `F7-FF01-E10`
+- `F7-FF01-E11`
+
+BP1 must state the selected/deferred FFV element matrix explicitly. BP2 and BP3 must map every selected FFV element to branch-local Slice/SLC/seam planning, affected surfaces, proof outputs, rollback/safety posture, and future-gated boundaries before Workstream implementation can be requested.
+
+## Design Options
+
+Option A - Status-only AI surface:
+This improves visibility, but it can still feel inert because the user cannot do anything useful inside the no-provider boundary.
+
+Option B - Provider setup path:
+This is too broad for this category's first public-safe branch route because provider/model execution, prompt send, data egress, credentials, downloads, and cost/privacy posture require later USER gates.
+
+Option C - Public-safe local assisted interaction:
+This is the preferred direction for the selected branch route. It creates useful, clickable, deterministic no-provider behavior while preserving provider, private edition, memory, download, and packaging gates.
 
 ## Explicit Non-Goals
 
 - Provider SDK integration.
+- Provider account setup or API key creation.
 - Model execution.
 - Prompt acceptance or prompt send.
 - Model or capability-pack download.
 - Capability-pack install, update, uninstall, or execution.
 - External API calls or hidden network behavior.
+- Runtime cache behavior.
 - Persistent memory, indexing, learning, personalization, or real Owner memory.
 - Real Owner agents.
-- Private Developer or Owner repositories, roots, remotes, prompts, logs, memory, or assets.
+- Private Developer or Owner repositories, roots, remotes, prompts, logs, memory, evals, or assets.
 - GitHub Desktop private binding.
 - Public-to-Developer import.
 - Backup or recovery execution.
@@ -85,52 +172,26 @@ The user-facing goal is a local-only assisted desktop action that:
 - Private Dev ORIN import.
 - Issue mutation, PR creation, merge, release, or v1.8.0 execution.
 
-## Dependency And Deferred Map
-
-| Deferred Item | Owning Surface | Dependency Trigger | Grouping Recommendation | Proof Expectation | Durable Disposition |
-| --- | --- | --- | --- | --- | --- |
-| Provider/model execution | FAM-007 provider execution gate | USER approves provider/model execution scope, data boundary, cost/privacy posture, and rollback path | Separate provider execution carrier | Direct runtime and validator proof of approved provider-visible data | Later USER decision |
-| Capability-pack install execution | FAM-007 plus FAM-008 setup/install owners | USER approves pack source, license, storage, integrity, and setup UX | Separate capability-pack/setup carrier | No hidden download, integrity proof, uninstall/reset proof | Later USER decision |
-| Persistent memory or learning | FAM-007 memory gate | USER approves memory scope, retention, reset/export, and edition separation | Separate memory carrier | Consent, storage-boundary, reset/delete/export, and no hidden indexing proof | Later USER decision |
-| Developer lane private setup | Edition trust-boundary plan | USER approves private Developer repository or local-only path | Separate private setup carrier | Private origin/public-upstream proof, secret scan posture, no Owner inheritance | Later USER decision |
-| Owner lane private setup | Edition trust-boundary plan | USER approves private Owner repository or local-only path | Separate private setup carrier | Owner-private exclusion, path/hosting proof, no Public/Developer inheritance | Later USER decision |
-| Packaging/install identity | FAM-008 | USER approves edition names, install paths, data roots, update channels, and setup UX | Separate packaging carrier | Installer/shortcut/source proof and distinct data-root proof | Later USER decision |
-
-## Design Options
-
-Option A - Status-only AI surface:
-This would improve visibility, but it would still feel inert because the user could not ask the app to do anything useful inside the no-provider boundary.
-
-Option B - Provider setup path:
-This would be too broad for this feature category because provider/model execution, prompt send, data egress, credentials, and cost/privacy posture require later USER gates.
-
-Option C - Local-only assisted desktop action:
-This is the recommended product direction. It creates a useful, clickable, deterministic no-provider flow while preserving all private/provider/runtime/memory/install gates.
-
 ## Proof Expectations
 
-- The AI / ORIN status surface is visible in the Public Edition desktop surface.
+- The Public Edition AI / ORIN status surface is visible when implementation later begins.
 - The local assisted action is clickable and produces a deterministic result.
-- The result includes local capability, provider unavailable/degraded posture, provider-visible data `none`, and safe next actions.
-- Capability-pack eligibility and blocked install intent appear in the same flow.
+- The result includes local capability, provider unavailable or disabled posture, provider-visible data `none`, and safe next actions.
+- Capability-pack eligibility and blocked install intent appear without executing installation.
 - Developer lane and Owner lane labels do not expose private content or private setup behavior.
 - Provider/model execution remains disabled.
 - Prompt acceptance and prompt send remain disabled.
-- Downloads, installs, external calls, memory writes, cache behavior, real Owner memory, and real agents remain blocked.
+- Downloads, installs, external calls, runtime cache behavior, memory writes, real Owner memory, and real agents remain blocked.
 - Validation includes static contract proof plus UI/result-flow proof once implementation begins.
 
-## Branch Readiness Consumption Notes
+## Feature Vision Sufficiency
 
-Feature Vision Sufficiency Check: `PASS`
+Feature Vision Sufficiency Check: `PASS after BR2 repair`
 
-Sufficiency Basis: This file defines purpose, surfaces, flow, included capability, non-goals, deferred map, design options, proof expectations, and branch-planning consumption notes for the Assisted Desktop AI function slice.
-
-BP1 Feature Vision Context: Branch Vision review should cite this file and decide the exact Public Edition status wording, local action label, result layout, and capability-pack eligibility copy before Workstream implementation.
-
-BP2 Carryforward: Engineering planning should keep the route grouped when the Public Edition surface, local result flow, edition boundaries, and capability-pack eligibility proof share the same validation path.
-
-BP3 Carryforward: Orchestration review should verify that every deferred item is excluded for the stated reason or routed to the correct later owner.
+Sufficiency Basis: `This FFV now records a compact FFV ID, category-level scope, parent FAM basis, durable element IDs, durable user value, boundaries/gates, proof expectations, deferred feature carryforward, branch-route relationship, and BP1/BP2/BP3 consumption guidance without owning active branch state or implementation approval.`
 
 ## Fold-Down Notes
 
-Reusable product standards accepted through later review should fold into this file or the owning broad FAM-007 vision when they outgrow branch-local planning. Branch-specific implementation details, file checklists, live validation evidence, and review packet state belong to the external branch plan, branch receipt, workstream evidence, helper output, or Git/GitHub-derived proof.
+Reusable product standards accepted through later USER review should fold into this file or the owning broad FAM-007 vision when they outgrow branch-local planning.
+
+Branch-specific implementation details, Slice/SLC/seam status, live validation evidence, review packet state, ZIP metadata, active phase state, and worktree assignment belong to the external branch plan, USER review packet, branch receipt, workstream evidence, helper output, or Git/GitHub-derived proof as routed by source truth.

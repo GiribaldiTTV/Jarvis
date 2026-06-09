@@ -6,7 +6,7 @@ Receipt Class: `BR2 durable branch-admission receipt`
 
 ## Durable Receipt Summary
 
-Admission Summary: `USER approved FAM-007 Branch Readiness Stage 2 execution for the fresh carrier feature/fam-007-three-ndai-assisted-ai-function-slice from origin/main@f239c97415fb8aaac414f9b802888ea004d08c29. This record preserves the approved route, source-truth ownership, Family Feature Vision sufficiency result, future Workstream scope, validation expectations, and explicit non-includes. Live branch lifecycle, branch plan rows, worktree assignment truth, and review packet state belong to C:\Nexus Governance State, Git/GitHub/helper truth, and C:\Nexus USER.`
+Admission Summary: `USER approved FAM-007 Branch Readiness Stage 2 execution for the fresh carrier feature/fam-007-three-ndai-assisted-ai-function-slice from origin/main@f239c97415fb8aaac414f9b802888ea004d08c29, then approved same-carrier BR2 repair after governance rebaseline to origin/main@e81802c9b60011ef01df9351339cc0fc8f4edae2. This record preserves the approved route, source-truth ownership, compact Family Feature Vision repair, future Workstream scope, validation expectations, and explicit non-includes. Live branch lifecycle, branch plan rows, worktree assignment truth, and review packet state belong to C:\Nexus Governance State, Git/GitHub/helper truth, and C:\Nexus USER.`
 
 ## Branch Identity
 
@@ -16,6 +16,8 @@ Admission Summary: `USER approved FAM-007 Branch Readiness Stage 2 execution for
 - Family: `FAM-007`
 - Package: `PKG-007`
 - Route Label: `Three-NDAI Assisted Desktop AI Function Slice`
+- Family Feature Vision ID: `F7-FF01`
+- Family Feature Vision Category: `Public-Safe Assisted Desktop AI Interaction And Edition Boundary`
 - Created From Receipt: `origin/main@f239c97415fb8aaac414f9b802888ea004d08c29`
 - Prior Historical Carrier Receipt: `feature/fam-007-owner-ai-operational-foundation-gates`
 - Prior PR Receipt: `PR #262 merged to origin/main@f239c97415fb8aaac414f9b802888ea004d08c29`
@@ -28,6 +30,8 @@ Admission Summary: `USER approved FAM-007 Branch Readiness Stage 2 execution for
 ## USER Approval Receipt
 
 Stage 2 Approval Receipt: `USER approved Branch Readiness Stage 2 execution in C:\Nexus Worktrees\FAM-007 for this exact branch, baseline, and route, including branch rebind from the historical merged FAM-007 carrier, source-truth setup, Family Feature Vision handling, external state update, BP1 packet preparation, validation, commit, and push when green.`
+
+Stage 2 Repair Approval Receipt: `USER approved same-carrier FAM-007 Branch Readiness Stage 2 repair at post-rebaseline HEAD ef708778c63f0dfd8c8b39e864092aca49fee98e against origin/main@e81802c9b60011ef01df9351339cc0fc8f4edae2. Approved repair scope includes compact FFV/element model repair, in-scope pointer repair, external-state residue repair, BP1 packet regeneration, validation, commit, and push when green. BP1 acceptance, BP2, BP3, Workstream, provider/model execution, downloads, runtime cache, memory, private setup, PR, merge, release, cleanup, FAM-006 mutation, Governance mutation, issue mutation, AI Product Contract import, Private Dev ORIN import, shortcut/installer/packaging execution, and v1.8.0 work remain excluded.`
 
 Approved Baseline Receipt: `origin/main@f239c97415fb8aaac414f9b802888ea004d08c29`
 
@@ -43,6 +47,7 @@ Loaded source-truth owners for this admission include:
 - `Docs/phase_governance.md`
 - `Docs/branch_plans/README.md`
 - `Docs/branch_records/index.md`
+- `Docs/governance_efficiency_operating_model.md`
 - `Docs/development_rules.md`
 - `Docs/codex_modes.md`
 - `Docs/nexus_vision.md`
@@ -63,13 +68,21 @@ No source-truth conflict was found that blocks admitting this implementation-bea
 
 Family Feature Vision Owner: `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md`
 
-Feature Vision Sufficiency Result: `PASS`
+Family Feature Vision ID: `F7-FF01`
 
-Sufficiency Basis: `The Family Feature Vision records purpose, user-facing surfaces, experience flow, included capabilities, explicit non-goals, dependency/deferred map, design options, proof expectations, BP1 context notes, BP2/BP3 carryforward rules, and fold-down guidance for the Assisted Desktop AI function slice.`
+Family Feature Vision Category: `Public-Safe Assisted Desktop AI Interaction And Edition Boundary`
+
+Path Disposition: `Retained at the existing long filename as a transition alias. The file content now carries compact FFV ID F7-FF01 and compact FFV element IDs. No compact filename rename was required for this BR2 repair; a later rename to Docs/family_feature_visions/F7-FF01.md would require full pointer migration.`
+
+Feature Vision Sufficiency Result: `PASS after BR2 repair`
+
+Sufficiency Basis: `The repaired Family Feature Vision records compact FFV identity, category-level scope, parent FAM basis, durable user value, surfaces, flow, element IDs F7-FF01-E01 through F7-FF01-E11, selected/deferred guidance, explicit non-goals, deferred carryforward, proof expectations, branch-route relationship, BP1 context notes, BP2/BP3 carryforward rules, and fold-down guidance without owning active branch state or implementation approval.`
 
 ## Implementation-Bearing Route Receipt
 
 Selected Implementation Route: `Three-NDAI Assisted Desktop AI Function Slice`
+
+Route Relationship To FFV: `The route is a selected grouped implementation route inside FFV F7-FF01, not the FFV category itself. BP1 may select F7-FF01-E01 through F7-FF01-E06 for this carrier and defer F7-FF01-E07 through F7-FF01-E11.`
 
 Implementation Route Class: `Public-safe FAM-007 product/runtime UI and deterministic no-provider action route`
 
@@ -85,11 +98,11 @@ Retarget / Rename Receipt: `No retarget or rename is needed; USER named the fres
 
 Planned grouped slices for later USER-reviewed Workstream planning:
 
-- `Slice 1 / SLC-001`: Public Edition AI / ORIN visible status and local assisted action surface.
-- `Slice 2 / SLC-002`: Deterministic no-provider/degraded result flow with provider-visible data `none`.
-- `Slice 3 / SLC-003`: Capability-pack eligibility and blocked install-intent integration.
-- `Slice 4 / SLC-004`: Developer lane and Owner lane public-safe boundary display.
-- `Slice 5 / SLC-005`: Validation, fixtures, and proof that provider/model execution, prompt send, downloads, memory, private setup, and hidden network behavior remain blocked.
+- `Slice 1 / SLC-001`: `F7-FF01-E01` Public Edition AI / ORIN visible status and `F7-FF01-E02` local assisted action surface.
+- `Slice 2 / SLC-002`: `F7-FF01-E03` deterministic no-provider/degraded result flow with provider-visible data `none`.
+- `Slice 3 / SLC-003`: `F7-FF01-E04` capability-pack eligibility and blocked install-intent integration.
+- `Slice 4 / SLC-004`: `F7-FF01-E05` Developer lane and Owner lane public-safe boundary display.
+- `Slice 5 / SLC-005`: `F7-FF01-E06` validation, fixtures, and proof that provider/model execution, prompt send, downloads, runtime cache, memory, private setup, and hidden network behavior remain blocked.
 
 SLC is shorthand for Slice and remains a Slice-level deliverable, not a seam or separate branch.
 
@@ -108,7 +121,8 @@ Same-Branch Grouping Receipt: `The slices share one FAM, one package, one user-f
 Stage 2 validation should prove:
 
 - branch creation from the approved baseline
-- Family Feature Vision sufficiency
+- compact Family Feature Vision sufficiency
+- FFV selected/deferred element traceability
 - implementation-bearing route fields
 - external state split
 - FAM-006 sibling preservation
@@ -121,7 +135,7 @@ Stage 2 validation should prove:
 
 ## Review Gate Receipt
 
-The next USER-facing gate after this BR2 receipt is BP1 `USER Branch Vision Review`. BP1 should ask USER to accept, revise, waive, reject, or hold the Branch Vision before BP2 engineering planning begins. Workstream implementation remains unauthorized until BP1, BP2, BP3, and a later explicit Workstream implementation approval all pass or receive a valid USER waiver.
+The next USER-facing gate after this BR2 repair is BP1 `USER Branch Vision Review`. BP1 should ask USER to accept, revise, waive, reject, or hold the Branch Vision before BP2 engineering planning begins. The BP1 packet must cite FFV `F7-FF01`, show selected elements `F7-FF01-E01` through `F7-FF01-E06`, show deferred elements `F7-FF01-E07` through `F7-FF01-E11`, and preserve the route as implementation-bearing but not implementation-approved. Workstream implementation remains unauthorized until BP1, BP2, BP3, and a later explicit Workstream implementation approval all pass or receive a valid USER waiver.
 
 ## Boundary Receipt
 
