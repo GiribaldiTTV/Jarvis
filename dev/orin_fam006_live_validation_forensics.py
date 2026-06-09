@@ -2,7 +2,9 @@
 
 This helper is investigation support only. It does not repair product runtime
 behavior, advance phase state, accept UTS results, close issues, or claim that
-new investigation evidence validates the earlier Live Validation handoff.
+new investigation evidence validates the earlier Live Validation handoff. It
+may attach a later runtime proof rerun as investigation evidence when the
+approved baseline is still an ancestor of the current branch head.
 """
 
 from __future__ import annotations
@@ -28,10 +30,12 @@ PACKET_ROOT = USER_ROOT / "FAM-006"
 SCREENSHOT_ROOT = Path(r"C:\Users\anden\OneDrive\Pictures\Screenshots")
 BASELINE_HEAD = "4afb18905d961c492a701149133e122fabee301d"
 BASELINE_MAIN = "f239c97415fb8aaac414f9b802888ea004d08c29"
+PRIOR_INVESTIGATION_HEAD = "ddeb90a43ae6e84352d06e7acfbfb8be1fa6c35f"
 LIVE_VALIDATION_ROOT = (
     REPO / "dev" / "logs" / "fam_006_monitoring_hud_live_validation" / "20260609_090906_117"
 )
 FORENSICS_LOG_ROOT = REPO / "dev" / "logs" / "fam006_live_validation_forensics"
+RUNTIME_RERUN_LOG_ROOT = REPO / "dev" / "logs" / "fam006_live_validation_runtime_rerun_baseline"
 PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_FAILURE_INVESTIGATION.md"
 
 
@@ -176,6 +180,18 @@ def latest_baseline_root() -> Path | None:
     return max(roots, key=lambda p: p.stat().st_mtime, default=None)
 
 
+def latest_runtime_rerun_root() -> Path | None:
+    if not RUNTIME_RERUN_LOG_ROOT.exists():
+        return None
+    roots = [p for p in RUNTIME_RERUN_LOG_ROOT.iterdir() if p.is_dir()]
+    return max(roots, key=lambda p: p.stat().st_mtime, default=None)
+
+
+def is_ancestor(ancestor: str, descendant: str) -> bool:
+    code, _output = run_command(["git", "merge-base", "--is-ancestor", ancestor, descendant])
+    return code == 0
+
+
 def list_files(root: Path, limit: int = 400) -> list[str]:
     if not root.exists():
         return [f"MISSING: {root}"]
@@ -227,6 +243,11 @@ def git_identity() -> dict[str, str]:
     for key, command in commands.items():
         code, output = run_command(command)
         proof[key] = output.strip() if code == 0 else f"ERROR({code}): {output.strip()}"
+    head = proof.get("head", "")
+    proof["baseline_head_is_ancestor"] = str(is_ancestor(BASELINE_HEAD, head)).lower() if head else "false"
+    proof["prior_investigation_head_is_ancestor"] = (
+        str(is_ancestor(PRIOR_INVESTIGATION_HEAD, head)).lower() if head else "false"
+    )
     return proof
 
 
@@ -237,21 +258,19 @@ def changed_files() -> list[str]:
     return [line.strip() for line in output.splitlines() if line.strip()]
 
 
-def manifest_summary() -> dict[str, object]:
-    manifest = load_json(LIVE_VALIDATION_ROOT / "manifest.json")
-    interaction = load_json(LIVE_VALIDATION_ROOT / "monitoring_hud_live_client_interaction_manifest.json")
+def manifest_snapshot(root: Path) -> dict[str, object]:
+    manifest = load_json(root / "manifest.json")
+    interaction = load_json(root / "monitoring_hud_live_client_interaction_manifest.json")
     user_screenshot_root = Path(str(manifest.get("screenshotEvidenceRoot") or ""))
     user_element_root = Path(str(manifest.get("elementScreenshotEvidenceRoot") or ""))
     return {
         "manifest_status": manifest.get("status", "MISSING"),
         "interaction_status": interaction.get("status", "MISSING"),
-        "manifest_path": str(LIVE_VALIDATION_ROOT / "manifest.json"),
-        "interaction_manifest_path": str(
-            LIVE_VALIDATION_ROOT / "monitoring_hud_live_client_interaction_manifest.json"
-        ),
-        "repo_live_validation_root_exists": LIVE_VALIDATION_ROOT.exists(),
-        "repo_screenshot_count": len(list((LIVE_VALIDATION_ROOT / "live_client_interaction").glob("*.png")))
-        if (LIVE_VALIDATION_ROOT / "live_client_interaction").exists()
+        "manifest_path": str(root / "manifest.json"),
+        "interaction_manifest_path": str(root / "monitoring_hud_live_client_interaction_manifest.json"),
+        "repo_live_validation_root_exists": root.exists(),
+        "repo_screenshot_count": len(list((root / "live_client_interaction").glob("*.png")))
+        if (root / "live_client_interaction").exists()
         else 0,
         "user_screenshot_root": str(user_screenshot_root),
         "user_screenshot_root_exists": user_screenshot_root.exists(),
@@ -262,11 +281,38 @@ def manifest_summary() -> dict[str, object]:
         else 0,
         "steps": interaction.get("steps", []),
         "screenshots": interaction.get("screenshots", []),
+        "short_video_user_path": str((manifest.get("shortVideoProof") or {}).get("userInspectablePath", ""))
+        if isinstance(manifest.get("shortVideoProof"), dict)
+        else "",
+        "short_video_status": str((manifest.get("shortVideoProof") or {}).get("status", ""))
+        if isinstance(manifest.get("shortVideoProof"), dict)
+        else "",
+    }
+
+
+def manifest_summary() -> dict[str, object]:
+    prior = manifest_snapshot(LIVE_VALIDATION_ROOT)
+    runtime_root = latest_runtime_rerun_root()
+    runtime = manifest_snapshot(runtime_root) if runtime_root else {}
+    runtime_interaction = load_json(runtime_root / "monitoring_hud_live_client_interaction_manifest.json") if runtime_root else {}
+    runtime_manifest = load_json(runtime_root / "manifest.json") if runtime_root else {}
+    return {
+        **prior,
+        "prior_lv1": prior,
+        "runtime_rerun_root": str(runtime_root or ""),
+        "runtime_rerun_exists": bool(runtime_root and runtime_root.exists()),
+        "runtime_rerun": runtime,
+        "runtime_interaction_steps": runtime_interaction.get("steps", []),
+        "runtime_screenshots": runtime_interaction.get("screenshots", []),
+        "runtime_short_video_user_path": str((runtime_manifest.get("shortVideoProof") or {}).get("userInspectablePath", ""))
+        if isinstance(runtime_manifest.get("shortVideoProof"), dict)
+        else "",
     }
 
 
 def tool_gap_rows() -> list[dict[str, str]]:
     baseline = latest_baseline_root()
+    runtime = latest_runtime_rerun_root()
     rows = [
         {
             "tool": "dev/orin_monitoring_hud_surface_validation.py",
@@ -294,37 +340,39 @@ def tool_gap_rows() -> list[dict[str, str]]:
         },
         {
             "tool": "dev/orin_monitoring_hud_live_validation.ps1",
-            "claim": "LV1 PASS and UTS handoff refreshed",
-            "gap": "Automated handoff did not close USER Gate State; manifest can point to missing USER-inspectable evidence paths and did not exhaustively test all USER-reported combinations.",
-            "baseline_output": str(LIVE_VALIDATION_ROOT / "manifest.json"),
+            "claim": "LV1 PASS and runtime rerun PASS",
+            "gap": "Automated PASS proves the scripted real-OS route it exercised; it still does not close USER Gate State, prove every USER-created/restart path, or visually adjudicate every screenshot label by itself.",
+            "baseline_output": f"prior={LIVE_VALIDATION_ROOT / 'manifest.json'}; runtime={runtime / 'manifest.json' if runtime else 'not captured'}",
         },
     ]
     return rows
 
 
 def findings(summary: dict[str, object]) -> list[Finding]:
-    user_root_exists = bool(summary["user_screenshot_root_exists"])
-    user_element_exists = bool(summary["user_element_root_exists"])
-    user_evidence_actual = (
-        "LV1 manifest claims USER-inspectable OneDrive evidence paths, but the exact "
-        "screenshot root and focused element root do not currently exist."
-        if not user_root_exists or not user_element_exists
-        else "LV1 USER-inspectable evidence paths exist now; investigation still distinguishes existence from visual adjudication."
+    prior = summary.get("prior_lv1") or {}
+    runtime = summary.get("runtime_rerun") or {}
+    runtime_root_exists = bool(summary.get("runtime_rerun_exists"))
+    runtime_user_root_exists = bool(runtime.get("user_screenshot_root_exists"))
+    runtime_user_element_exists = bool(runtime.get("user_element_root_exists"))
+    runtime_evidence_actual = (
+        "The runtime rerun produced USER-inspectable OneDrive evidence paths, 13 focused element screenshots, and a short video; the investigation still distinguishes screenshot existence from visual adjudication and state-label correctness."
+        if runtime_root_exists and runtime_user_root_exists and runtime_user_element_exists
+        else "The runtime rerun evidence root is missing or incomplete; screenshot evidence remains blocked."
     )
-    user_evidence_confidence = "Verified" if not user_root_exists or not user_element_exists else "No Issue Found"
+    runtime_evidence_confidence = "Verified" if runtime_root_exists and runtime_user_root_exists and runtime_user_element_exists else "Blocked"
     return [
         Finding(
             "FAM006-EVID-001",
-            "LV1 user-inspectable screenshot path does not resolve",
+            "Runtime evidence now exists, but screenshot existence is not visual acceptance",
             "screenshot/evidence failure",
             "Live Validation screenshot evidence handoff",
             "LV1 must provide full-window and element-level evidence in an organized USER-inspectable screenshot folder.",
-            user_evidence_actual,
-            str(LIVE_VALIDATION_ROOT / "manifest.json"),
-            user_evidence_confidence,
+            runtime_evidence_actual,
+            str(latest_runtime_rerun_root() or RUNTIME_RERUN_LOG_ROOT),
+            runtime_evidence_confidence,
             "Live Validation / UTS handoff",
-            "dev/orin_monitoring_hud_live_validation.ps1 writes manifest evidence paths; current path availability was not rechecked before handoff.",
-            "Baseline reconciliation through 4afb1890 is not treated as the original cause; this finding is about current evidence path availability for the prior LV1 artifact.",
+            "dev/orin_monitoring_hud_live_validation.ps1 writes manifest evidence paths; this investigation reran the helper and then manually adjudicated key screenshot claims.",
+            "Baseline reconciliation through 4afb1890 is not treated as the original cause; this finding is about current proof quality after the runtime rerun.",
             "Investigation-support tooling now; durable prevention likely Governance/FAM-006 Live Validation helper after USER review.",
             "USER review of investigation packet before repair planning.",
         ),
@@ -334,8 +382,8 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "helper/validator/tool gap",
             "H1, surface, internal sandbox, and LV1 helpers",
             "Helper PASS is evidence only; Live Validation must expose affected user-facing interactions and visual proof, not only marker or manifest presence.",
-            "Baseline tools passed while USER later reported visual, switching, folder, and evidence failures; several old tools do not test the USER-created-profile and post-handoff evidence combinations.",
-            str(latest_baseline_root() or FORENSICS_LOG_ROOT),
+            "Baseline tools passed while USER later reported visual, switching, folder, and evidence failures. The runtime rerun now proves selected real-OS actions, but it also shows the helper can label a screenshot as an active state when visible text does not prove that state.",
+            str(latest_runtime_rerun_root() or latest_baseline_root() or FORENSICS_LOG_ROOT),
             "Verified",
             "Workstream / Hardening / Live Validation",
             "dev/orin_monitoring_hud_surface_validation.py and dev/orin_fam006_hardening_h1.py inspect markers/source and declared proof; dev/orin_monitoring_hud_live_validation.ps1 generated a handoff manifest but did not settle USER Gate State.",
@@ -349,9 +397,9 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "Live Validation failure",
             "Dashboard Recording Card, Recording Studio, Log Viewer Studio shell, Overlay Profile interactions",
             "Accepted Option C required deterministic proof for new or affected surfaces, including target mirroring, open-folder pre-session usability, native/export boundary, visual-system inheritance, and USER-facing UTS evidence.",
-            "The LV1 run covered selected focused states, but USER-reported failures show missing or insufficient coverage for combinations such as creating/switching multiple profiles in normal use, screenshot evidence handoff, and visual quality adjudication.",
-            str(LIVE_VALIDATION_ROOT / "monitoring_hud_live_client_interaction_manifest.json"),
-            "Inferred",
+            "The runtime rerun covered default target, start/stop, native log readback, Recording Studio launch, Log Viewer Studio launch, and seeded profile target mirroring. It did not prove manual create/edit/restart persistence, no-active-monitor states, explicit native/export folder button clicks before any recording, or visual acceptance for every screenshot label.",
+            str((latest_runtime_rerun_root() or RUNTIME_RERUN_LOG_ROOT) / "monitoring_hud_live_client_interaction_manifest.json"),
+            "Verified",
             "Live Validation",
             "nexus_visual/monitoring_hud.js user-state/event paths plus desktop/native bridge paths were tested through a narrow scripted path, not every user-relevant combination.",
             "The failure is reconstructed from prior LV1 artifact plus USER reports; not attributed to the reconciliation merge without direct evidence.",
@@ -379,9 +427,9 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "UI/window behavior failure",
             "Dashboard Recording Card",
             "FAM-006 Recording vision requires new UI elements to sample existing card color, shape, style, effects, spacing, button behavior, and layout density.",
-            "USER reported the Recording card did not match the standardized Dashboard card format; the investigation did not reproduce a new screenshot and treats the attached chat screenshot as USER evidence not present on disk.",
-            "USER-provided chat screenshot; local file C:\\Users\\anden\\OneDrive\\Pictures\\Screenshots\\pythonw_O2aIAY5eBZ.png not found during investigation.",
-            "Reproducible",
+            "The current runtime screenshot shows the Recording card itself largely inherits the dashboard card/row system. The Recording Studio and Log Viewer Studio native windows remain visually much plainer than the Dashboard card system, so visual-system inheritance is mixed rather than globally green.",
+            str((Path(str(runtime.get("user_element_root") or "")) / "element_02_recording_studio_native_window_ready_state.png")),
+            "Verified",
             "Workstream / Hardening / Live Validation",
             "Likely CSS/DOM lineage in nexus_visual/monitoring_hud.css and nexus_visual/monitoring_hud.js around dashboard recording card markup and visual inspection markers.",
             "Not attributed to reconciliation; the reported UI mismatch predates this investigation and was a USER-observed post-handoff failure.",
@@ -394,8 +442,8 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "regression",
             "HUD Overlay card Active Overlay Profile selector",
             "Recording target reliability requires Active Overlay Profile switching to update the Recording card target and remain usable with multiple profiles.",
-            "USER reported they still cannot switch Overlay Profiles inside the HUD Overlay card. The LV1 scripted path selected an LV1 seeded profile, but this does not disprove the USER path failure.",
-            str(LIVE_VALIDATION_ROOT / "monitoring_hud_live_client_interaction_manifest.json"),
+            "The runtime rerun verifies a seeded real-OS selection path: the HUD Overlay card selected LV1 Real OS Profile 001 and the Recording card mirrored that target with 1 active monitor. This does not disprove the USER-reported manual create/switch or post-restart persistence path.",
+            str((latest_runtime_rerun_root() or RUNTIME_RERUN_LOG_ROOT) / "monitoring_hud_live_client_interaction_manifest.json"),
             "Reproducible",
             "Live Validation / Workstream",
             "Likely event/state lineage in nexus_visual/monitoring_hud.js overlay-profile selector activation and recording target mirror state; desktop/monitoring_hud_state.py normalizes active profile snapshots.",
@@ -409,9 +457,9 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "UI/window behavior failure",
             "Dashboard card holder / scrollbar gutter",
             "Dashboard cards should maintain equal visual insets; the scrollbar gutter should not make cards appear offset.",
-            "USER reported unequal left/right spacing inside the card holder, likely due to scrollbar gutter accounting. No current investigation screenshot reproduction was taken.",
-            r"C:\Nexus USER\UTS - FAM-006.txt",
-            "Reproducible",
+            "USER reported unequal left/right spacing inside the card holder. Current rerun screenshots show a visible scrollbar gutter and do not by themselves settle whether the visual inset contract passes, so this remains an adjudication/product repair candidate.",
+            str(Path(str(runtime.get("user_element_root") or "")) / "element_02_recording_card_saved_complete_readback_state.png"),
+            "Inferred",
             "Live Validation / UTS handoff",
             "Likely CSS/layout lineage in nexus_visual/monitoring_hud.css around control hub, card holder, and scrollbar gutter styling.",
             "Not attributed to reconciliation; UTS active issue list proves this was known as a USER retest item after LV1.",
@@ -424,8 +472,8 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "UI/window behavior failure",
             "Log Viewer Studio shell and native/export folder actions",
             "The minimal Log Viewer Studio shell should make native/export folder access usable before recording and keep full viewer/export customization future-gated.",
-            "Scripted LV1 records a pass for native/export shell pre-session proof, but USER reports indicated the open-folder experience and product/native-vs-export boundary were still confusing or not aligned with desired workflow.",
-            str(LIVE_VALIDATION_ROOT / "monitoring_hud_live_client_interaction_manifest.json"),
+            "The runtime rerun visually verifies the Log Viewer Studio shell and its Open Native Logs / Open Exported Logs buttons. It does not provide focused visual proof that both buttons were clicked before any recording in the session or that folder creation/opening worked in that pre-session path.",
+            str(Path(str(runtime.get("user_element_root") or "")) / "element_02_log_viewer_studio_native_window_shell_state.png"),
             "Inferred",
             "Live Validation",
             "desktop/orin_desktop_main.py and desktop/desktop_renderer.py own native window/folder bridge dispatch; recording_output_contract.py owns native/export boundary.",
@@ -469,7 +517,7 @@ def findings(summary: dict[str, object]) -> list[Finding]:
             "baseline boundary",
             "Investigation evidence model",
             "The merged main reconciliation and waiver-law repair through 4afb1890 must be treated as baseline, not as original Live Validation failure evidence absent direct proof.",
-            "Git identity proves HEAD 4afb1890, origin/main f239c974, and merge base f239c974; findings cite prior LV1 artifacts and USER reports separately.",
+            "Git identity proves the current HEAD descends from reconciled baseline 4afb1890 and prior investigation helper ddeb90a4; findings cite prior LV1 artifacts, the runtime proof rerun, and USER reports separately.",
             "git identity baseline captured in raw evidence",
             "Verified",
             "Investigation",
@@ -510,7 +558,7 @@ def loop_summary_md(findings_list: list[Finding], summary: dict[str, object]) ->
         ),
         (
             "Loop 3 - Patched-tool rerun",
-            "This helper reran the evidence audit against the reconciled baseline and produced packet-visible findings. It does not claim to reproduce all runtime symptoms.",
+            "This helper now incorporates the focused runtime proof rerun at `dev/logs/fam006_live_validation_runtime_rerun_baseline`, compares it against prior LV1 evidence, and reports which runtime claims were visually proved versus under-proven.",
         ),
         (
             "Loop 4 - USER-found issue exposure",
@@ -518,7 +566,7 @@ def loop_summary_md(findings_list: list[Finding], summary: dict[str, object]) ->
         ),
         (
             "Loop 5 - Additional failure discovery",
-            "Discovered a concrete evidence-handoff gap: the LV1 manifest claims a USER-inspectable screenshot path that does not currently resolve.",
+            "Discovered concrete proof-quality gaps: the runtime rerun produced screenshot/video evidence, but an active-state screenshot label does not visually prove active recording, and folder-button pre-session behavior is not fully separated from shell visibility.",
         ),
         (
             "Loop 6 - Code injection / implementation lineage",
@@ -538,38 +586,111 @@ def loop_summary_md(findings_list: list[Finding], summary: dict[str, object]) ->
         ),
         (
             "Loop 10 - Exhaustiveness check",
-            "Confirmed every accepted Option C surface is inventoried and every finding has a stable ID and confidence label.",
+            "Confirmed every accepted Option C surface is inventoried, every finding has a stable ID and confidence label, and runtime-created evidence is labeled as investigation evidence rather than prior LV1 acceptance proof.",
         ),
     ]
     return "\n".join(f"### {name}\n\n{body}\n" for name, body in loops)
 
 
 def evidence_inventory_md(summary: dict[str, object]) -> str:
+    prior = summary.get("prior_lv1") or {}
+    runtime = summary.get("runtime_rerun") or {}
     rows = [
-        ("Repo LV1 root", str(LIVE_VALIDATION_ROOT), str(summary["repo_live_validation_root_exists"])),
-        ("Repo LV1 screenshots", "live_client_interaction/*.png", str(summary["repo_screenshot_count"])),
-        ("LV1 manifest", str(summary["manifest_path"]), str(summary["manifest_status"])),
-        ("LV1 interaction manifest", str(summary["interaction_manifest_path"]), str(summary["interaction_status"])),
-        ("Claimed USER screenshot root", str(summary["user_screenshot_root"]), str(summary["user_screenshot_root_exists"])),
-        ("Claimed USER element screenshot root", str(summary["user_element_root"]), str(summary["user_element_root_exists"])),
-        ("Manifest user element screenshot count", "perElementUserInspectableScreenshots.count", str(summary["user_element_manifest_count"])),
+        ("Prior LV1 root", str(LIVE_VALIDATION_ROOT), str(prior.get("repo_live_validation_root_exists", ""))),
+        ("Prior LV1 screenshots", "live_client_interaction/*.png", str(prior.get("repo_screenshot_count", ""))),
+        ("Prior LV1 manifest", str(prior.get("manifest_path", "")), str(prior.get("manifest_status", ""))),
+        ("Prior LV1 interaction manifest", str(prior.get("interaction_manifest_path", "")), str(prior.get("interaction_status", ""))),
+        ("Runtime rerun root", str(summary.get("runtime_rerun_root", "")), str(summary.get("runtime_rerun_exists", ""))),
+        ("Runtime rerun manifest", str(runtime.get("manifest_path", "")), str(runtime.get("manifest_status", ""))),
+        ("Runtime rerun interaction manifest", str(runtime.get("interaction_manifest_path", "")), str(runtime.get("interaction_status", ""))),
+        ("Runtime USER screenshot root", str(runtime.get("user_screenshot_root", "")), str(runtime.get("user_screenshot_root_exists", ""))),
+        ("Runtime USER element screenshot root", str(runtime.get("user_element_root", "")), str(runtime.get("user_element_root_exists", ""))),
+        ("Runtime focused screenshot count", "perElementUserInspectableScreenshots.count", str(runtime.get("user_element_manifest_count", ""))),
+        ("Runtime short video", str(summary.get("runtime_short_video_user_path", "")), str(runtime.get("short_video_status", ""))),
         ("Worktree-specific UTS", r"C:\Nexus USER\UTS - FAM-006.txt", str(Path(r"C:\Nexus USER\UTS - FAM-006.txt").exists())),
     ]
     return table(["Evidence", "Path / Field", "Result"], rows)
 
 
+def runtime_proof_rerun_md(summary: dict[str, object]) -> str:
+    runtime = summary.get("runtime_rerun") or {}
+    steps = summary.get("runtime_interaction_steps") or []
+    step_rows = []
+    for step in steps:
+        if isinstance(step, dict):
+            step_rows.append([
+                step.get("label", ""),
+                step.get("status", ""),
+                "real OS" if "real OS" in str(step.get("label", "")) else "manifest/window proof",
+            ])
+    return "\n".join(
+        [
+            "Runtime-created evidence in this packet is investigation evidence. It does not retroactively validate the prior LV1/UTS handoff.",
+            "",
+            table(
+                ["Field", "Value"],
+                [
+                    ("Runtime rerun root", summary.get("runtime_rerun_root", "")),
+                    ("Manifest status", runtime.get("manifest_status", "")),
+                    ("Interaction status", runtime.get("interaction_status", "")),
+                    ("USER screenshot root", runtime.get("user_screenshot_root", "")),
+                    ("USER focused screenshot root", runtime.get("user_element_root", "")),
+                    ("Focused screenshot count", runtime.get("user_element_manifest_count", "")),
+                    ("Short video", summary.get("runtime_short_video_user_path", "")),
+                ],
+            ),
+            "",
+            table(["Runtime step", "Status", "Proof class"], step_rows),
+        ]
+    )
+
+
+def visual_adjudication_md(summary: dict[str, object]) -> str:
+    runtime = summary.get("runtime_rerun") or {}
+    root = Path(str(runtime.get("user_element_root") or ""))
+    rows = [
+        (
+            "Recording card ready/saved states",
+            root / "element_02_recording_card_saved_complete_readback_state.png",
+            "Verified positive evidence: visible text says native log saved/read back successfully; card uses dashboard row/card language.",
+        ),
+        (
+            "Recording active state screenshot",
+            root / "element_02_recording_card_start_recording_active_state.png",
+            "Evidence-quality gap: filename claims active state, but visible text still shows Start Recording / ready state rather than an unmistakable active-recording state.",
+        ),
+        (
+            "Recording Studio window",
+            root / "element_02_recording_studio_native_window_ready_state.png",
+            "Verified mixed visual result: functional window proof exists, but the window is plainer than the Dashboard card visual system.",
+        ),
+        (
+            "Log Viewer Studio shell",
+            root / "element_02_log_viewer_studio_native_window_shell_state.png",
+            "Verified shell proof exists; folder-button click behavior remains under-proven for pre-session native/export folder creation/open.",
+        ),
+        (
+            "Seeded active Overlay Profile mirror",
+            root / "element_02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection.png",
+            "Verified positive evidence for seeded real-OS selection: HUD and Recording card both show LV1 Real OS Profile 001 with 1 active monitor.",
+        ),
+    ]
+    return table(["Surface", "Screenshot", "Codex visual adjudication"], rows)
+
+
 def combination_matrix_md() -> str:
     rows = [
         ("Default profile + active monitors + not recording", "Ready, Start enabled, Recording card mirrors active profile", "LV1 scripted path PASS", "Verified by manifest"),
-        ("USER-created profile + active monitor + switch selector", "Selector changes active Overlay Profile and Recording card target", "USER reports still blocked; scripted seeded profile path PASS", "Reproducible / conflict"),
+        ("Seeded LV1 profile + active monitor + selector", "Selector changes active Overlay Profile and Recording card target", "Runtime rerun PASS with real OS input and visual mirror evidence", "Verified"),
+        ("USER-created profile + active monitor + switch selector", "Selector changes active Overlay Profile and Recording card target", "USER reports still blocked; seeded profile path PASS does not disprove manual create/switch failure", "Reproducible / conflict"),
         ("USER-created profile + app restart", "Profile persists and remains selectable; issue #258 target reliability", "UTS asks USER to retest; no direct investigation reproduction", "Blocked"),
         ("No active monitors", "Recording blocked/truthful unavailable state", "Not directly reproduced in current investigation", "Blocked"),
-        ("Recording active", "Stop visible; state transparent", "LV1 scripted path PASS", "Verified by manifest"),
-        ("Recording stopped/saved", "Native NDAI log saved/readback complete; no normal CSV export", "LV1 scripted path PASS with manual validation CSV artifact", "Verified by manifest"),
-        ("Log Viewer shell before recording", "Native/export folders open/create before active-session recording", "LV1 scripted path PASS", "Verified by manifest"),
-        ("Claimed USER screenshot evidence", "Folder exists and USER can inspect screenshots/video", "Exact claimed OneDrive folder missing now", "Verified failure"),
-        ("Dashboard card holder scrollbar", "Equal left/right insets", "USER reported fail; no current reproduction", "Reproducible"),
-        ("Recording card visual inheritance", "Card matches existing visual system fully", "USER reported mismatch; marker proof passed", "Reproducible"),
+        ("Recording active", "Stop visible; state transparent", "Runtime helper step PASS, but active-state screenshot is visually weak", "Verified tool-gap"),
+        ("Recording stopped/saved", "Native NDAI log saved/readback complete; no normal CSV export", "Runtime rerun PASS with native ndailog plus validation-only CSV artifact", "Verified"),
+        ("Log Viewer shell before recording", "Native/export folders open/create before active-session recording", "Shell button ready state visible; explicit pre-session folder button click proof missing", "Inferred"),
+        ("Claimed USER screenshot evidence", "Folder exists and USER can inspect screenshots/video", "Runtime rerun OneDrive folder exists with focused screenshots and short video", "Verified"),
+        ("Dashboard card holder scrollbar", "Equal left/right insets", "USER reported fail; current screenshots need product repair adjudication", "Inferred"),
+        ("Recording visual inheritance", "Card/studio/shell match existing visual system fully", "Card mostly aligns; Studio/Shell are visually plain and active-state screenshot is weak", "Verified mixed"),
     ]
     return table(["Combination", "Expected", "Actual / Available Evidence", "Confidence"], rows)
 
@@ -585,7 +706,9 @@ def timeline_md() -> str:
         ("2026-06-09 09:10", "UTS handoff", "UTS - FAM-006 refreshed as draft handoff", r"C:\Nexus USER\UTS - FAM-006.txt", "USER result pending"),
         ("2026-06-09", "USER review", "USER reports failures/regressions/UI/evidence gaps", "chat prompt and UTS context", "Contradicts readiness of automated handoff"),
         ("2026-06-09", "Rebaseline", "origin/main merged; baseline HEAD 4afb1890", "git log", "Baseline boundary for investigation"),
-        ("2026-06-09", "Investigation", "Baseline old tools captured; forensics packet generated", "dev/logs/fam006_live_validation_forensics", "Findings packet, not repair plan"),
+        ("2026-06-09 11:03", "Investigation", "Static forensics packet generated at ddeb90a4", "C:\\Nexus USER\\FAM-006-20260609-110335.zip", "Findings packet, not repair plan"),
+        ("2026-06-09 11:20", "Runtime proof rerun", "Focused Recording Option C real-OS helper rerun PASS", "dev/logs/fam006_live_validation_runtime_rerun_baseline/20260609_112010_830", "Adds investigation evidence and exposes proof-quality gaps"),
+        ("2026-06-09", "Investigation repair", "Forensics helper patched to require baseline ancestry and include runtime rerun evidence", "dev/orin_fam006_live_validation_forensics.py", "Investigation-support patch only"),
     ]
     return table(["Date/time", "Phase/gate", "Claim or decision", "Proof", "Later finding relation"], rows)
 
@@ -606,10 +729,12 @@ def phase_map_md() -> str:
 
 def negative_findings_md(summary: dict[str, object]) -> str:
     rows = [
-        ("Repo-local LV1 artifacts", "Manifest and screenshot files exist under repo log root", "No Issue Found", "Does not prove USER-inspectable copy exists"),
+        ("Repo-local LV1 artifacts", "Manifest and screenshot files exist under repo log root", "No Issue Found", "Does not prove visual acceptability"),
+        ("Runtime USER-inspectable screenshots", "Runtime rerun copied focused screenshots/video to the OneDrive screenshots folder", "No Issue Found", "Runtime evidence is investigation-created, not prior LV1 acceptance proof"),
         ("Native log no normal CSV", "recording_output_contract.py says normal product save does not create export; validation CSV only with env var", "No Issue Found", "USER workflow still needs future export UX"),
-        ("Scripted default profile Start/Stop", "LV1 manifest records real OS Start and Stop PASS", "No Issue Found", "Scripted default path does not cover all USER-created profile paths"),
-        ("Log Viewer shell future boundaries", "Manifest records full viewer/export customization future-gated", "No Issue Found", "Does not prove ideal UX wording or all folder paths"),
+        ("Scripted default profile Start/Stop", "Runtime rerun records real OS Start and Stop PASS plus native readback", "No Issue Found", "Active-state screenshot label remains visually weak"),
+        ("Seeded profile target mirror", "Runtime rerun records real OS selector option click and target mirror screenshot", "No Issue Found", "Does not cover manual create/edit/restart persistence"),
+        ("Log Viewer shell future boundaries", "Manifest records full viewer/export customization future-gated", "No Issue Found", "Does not prove every native/export folder button path"),
     ]
     return table(["Surface checked", "Evidence used", "Confidence", "Limitation"], rows)
 
@@ -638,16 +763,26 @@ def code_lineage_md() -> str:
 
 def generate_packet() -> tuple[Path, Path, str]:
     identity = git_identity()
-    if identity.get("head") != BASELINE_HEAD:
-        raise SystemExit(f"BLOCKED: expected HEAD {BASELINE_HEAD}, found {identity.get('head')}")
+    if identity.get("baseline_head_is_ancestor") != "true":
+        raise SystemExit(
+            f"BLOCKED: expected baseline HEAD {BASELINE_HEAD} to be an ancestor of current HEAD {identity.get('head')}"
+        )
+    if identity.get("prior_investigation_head_is_ancestor") != "true":
+        raise SystemExit(
+            "BLOCKED: expected prior investigation helper head "
+            f"{PRIOR_INVESTIGATION_HEAD} to be an ancestor of current HEAD {identity.get('head')}"
+        )
     if identity.get("origin_main") != BASELINE_MAIN:
         raise SystemExit(f"BLOCKED: expected origin/main {BASELINE_MAIN}, found {identity.get('origin_main')}")
 
     summary = manifest_summary()
+    if not summary.get("runtime_rerun_exists"):
+        raise SystemExit(f"BLOCKED: no runtime proof rerun found under {RUNTIME_RERUN_LOG_ROOT}")
     findings_list = findings(summary)
     loaded, missing = source_truth_loaded_lines()
     changed = changed_files()
     baseline = latest_baseline_root()
+    runtime = latest_runtime_rerun_root()
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     zip_path = USER_ROOT / f"FAM-006-{stamp}.zip"
 
@@ -663,6 +798,7 @@ def generate_packet() -> tuple[Path, Path, str]:
         PACKET_ROOT / "Review Aids" / "Raw Evidence",
         PACKET_ROOT / "Review Aids" / "Raw Evidence" / "baseline_old_tools",
         PACKET_ROOT / "Review Aids" / "Raw Evidence" / "evidence_listings",
+        PACKET_ROOT / "Review Aids" / "Raw Evidence" / "runtime_proof_rerun",
         PACKET_ROOT / "Source Truth Context",
     ]
     for directory in dirs:
@@ -686,6 +822,19 @@ def generate_packet() -> tuple[Path, Path, str]:
         LIVE_VALIDATION_ROOT / "step_log.txt",
     ]:
         copy_if_exists(source, PACKET_ROOT / "Review Aids" / "Raw Evidence" / source.name)
+    if runtime and runtime.exists():
+        runtime_raw = PACKET_ROOT / "Review Aids" / "Raw Evidence" / "runtime_proof_rerun"
+        for name in [
+            "command_output.txt",
+            "manifest.json",
+            "monitoring_hud_live_client_interaction_manifest.json",
+            "step_log.txt",
+            "runtime_log.txt",
+        ]:
+            copy_if_exists(runtime / name, runtime_raw / name)
+        write(runtime_raw / "runtime_rerun_file_listing.txt", "\n".join(list_files(runtime, 600)))
+        screenshot_root = Path(str((summary.get("runtime_rerun") or {}).get("user_element_root") or ""))
+        write(runtime_raw / "user_focused_screenshot_listing.txt", "\n".join(list_files(screenshot_root, 200)))
 
     loaded_md = "\n".join(f"- `{item}`" for item in loaded)
     missing_md = "\n".join(f"- `{item}`" for item in missing) or "- None found."
@@ -743,6 +892,8 @@ def generate_packet() -> tuple[Path, Path, str]:
                         ("origin/main", identity.get("origin_main", "")),
                         ("Merge base", identity.get("merge_base", "")),
                         ("Ahead/behind", identity.get("ahead_behind", "")),
+                        ("Baseline 4afb1890 ancestor", identity.get("baseline_head_is_ancestor", "")),
+                        ("Prior investigation ddeb90a4 ancestor", identity.get("prior_investigation_head_is_ancestor", "")),
                         ("Status short", identity.get("status_short", "") or "clean at helper start"),
                     ],
                 ),
@@ -764,6 +915,8 @@ def generate_packet() -> tuple[Path, Path, str]:
             section("Stable Finding ID Inventory", finding_index),
             section("Finding Details", "\n".join(item.markdown() for item in findings_list)),
             section("Investigation Loop Summary", loop_summary_md(findings_list, summary)),
+            section("Runtime Proof Rerun", runtime_proof_rerun_md(summary)),
+            section("Codex Visual Adjudication", visual_adjudication_md(summary)),
             section("Evidence Inventory", evidence_inventory_md(summary)),
             section("Old-Tool False-Green Replay", tool_gap_md),
             section("Interaction Combination Matrix Summary", combination_matrix_md()),
@@ -826,7 +979,7 @@ def generate_packet() -> tuple[Path, Path, str]:
         "OLD_TOOL_FALSE_GREEN_REPLAY.md": section("Old-Tool False-Green Replay", tool_gap_md),
         "PATCHED_TOOL_OUTPUTS.md": section(
             "Investigation-Support Tool Output",
-            "This helper generated the packet, stable findings, evidence inventory, coverage matrix, and screenshot path audit. It is investigation support only and should be evaluated for durable adoption after USER review.",
+            "This helper generated the packet, stable findings, evidence inventory, coverage matrix, runtime proof rerun digest, and screenshot visual-adjudication audit. It is investigation support only and should be evaluated for durable adoption after USER review.",
         ),
         "OLD_TOOL_VS_PATCHED_TOOL_COMPARISON.md": section(
             "Old Tool Versus Investigation Tool",
@@ -854,6 +1007,8 @@ def generate_packet() -> tuple[Path, Path, str]:
         ),
         "INTERACTION_COMBINATION_MATRIX.md": section("Interaction Combination Matrix", combination_matrix_md()),
         "SCREENSHOT_EVIDENCE_AUDIT.md": section("Screenshot Evidence Audit", evidence_inventory_md(summary)),
+        "RUNTIME_PROOF_RERUN_RESULTS.md": section("Runtime Proof Rerun", runtime_proof_rerun_md(summary)),
+        "CODEX_VISUAL_ADJUDICATION.md": section("Codex Visual Adjudication", visual_adjudication_md(summary)),
         "VALIDATOR_HELPER_TOOL_AUDIT.md": section("Validator / Helper / Tool Audit", tool_gap_md),
         "CODE_LINEAGE_TRACE.md": section("Code Lineage Trace", code_lineage_md()),
         "PHASE_CAUSALITY_MAP.md": section("Phase Causality Map", phase_map_md()),
@@ -869,6 +1024,7 @@ def generate_packet() -> tuple[Path, Path, str]:
                     "- `Review Aids/Raw Evidence/manifest.json`",
                     "- `Review Aids/Raw Evidence/monitoring_hud_live_client_interaction_manifest.json`",
                     "- `Review Aids/Raw Evidence/step_log.txt`",
+                    "- `Review Aids/Raw Evidence/runtime_proof_rerun/`",
                 ]
             ),
         ),
@@ -897,6 +1053,8 @@ def validate_packet(packet_root: Path) -> dict[str, object]:
         "Packet Status: live-validation-uts-failure-investigation",
         "Packet Reviewability State: Reviewable",
         "USER Gate State: Pending USER Investigation Review",
+        "Runtime Proof Rerun",
+        "Codex Visual Adjudication",
         "FAM006-EVID-001",
         "FAM006-TOOLGAP-001",
         "FAM006-LVFAIL-001",
@@ -905,6 +1063,7 @@ def validate_packet(packet_root: Path) -> dict[str, object]:
         "FAM006-PHASE-001",
         "Product/runtime repair: Withheld",
         "Prevention plan implementation: Withheld",
+        "fam006_live_validation_runtime_rerun_baseline",
     ]
     missing = [marker for marker in required if marker not in text]
     layout_ok = (
