@@ -1345,7 +1345,9 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
 
 
 def _validate_cross_fam_dependency_packet_text(text: str) -> list[str]:
-    record_starts = list(re.finditer(r"(?im)^Cross-FAM Dependency Map:", text))
+    record_starts = list(
+        re.finditer(r"(?im)^\s*(?:-\s*)?Cross-FAM Dependency Map:", text)
+    )
     if len(record_starts) > 1:
         failures: list[str] = []
         for index, record_start in enumerate(record_starts):
@@ -5001,10 +5003,11 @@ line item, not a seam or separate branch.
             "affected-FAM dependency work"
         )
 
+    invalid_cross_fam_text = INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE.read_text(
+        encoding="utf-8"
+    )
     mixed_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
-        INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE.read_text(encoding="utf-8")
-        + "\n\n"
-        + valid_cross_fam_text
+        invalid_cross_fam_text + "\n\n" + valid_cross_fam_text
     )
     if EXPECTED_CROSS_FAM_UNCLASSIFIED_FAILURE_SNIPPET not in "\n".join(
         mixed_cross_fam_failures
@@ -5012,6 +5015,23 @@ line item, not a seam or separate branch.
         failures.append(
             "Mixed cross-FAM dependency fixture did not reject an invalid record "
             "before a valid record"
+        )
+
+    bulleted_mixed_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
+        invalid_cross_fam_text.replace(
+            "Cross-FAM Dependency Map:", "- Cross-FAM Dependency Map:"
+        )
+        + "\n\n"
+        + valid_cross_fam_text.replace(
+            "Cross-FAM Dependency Map:", "- Cross-FAM Dependency Map:"
+        )
+    )
+    if EXPECTED_CROSS_FAM_UNCLASSIFIED_FAILURE_SNIPPET not in "\n".join(
+        bulleted_mixed_cross_fam_failures
+    ):
+        failures.append(
+            "Bulleted mixed cross-FAM dependency fixture did not reject an invalid "
+            "record before a valid record"
         )
 
     compact_ffv_owner = _owning_fam_from_ffv(
