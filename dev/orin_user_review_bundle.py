@@ -238,6 +238,44 @@ BP1_PACKET_STALE_LANGUAGE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         re.compile(r"^\s*-\s*Do not\b", re.IGNORECASE | re.MULTILINE),
     ),
 )
+BP2_PACKET_STALE_ACTIVE_LATER_GATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "active-bp3-packet",
+        re.compile(r"\bactive\s+BP3\s+packet\b", re.IGNORECASE),
+    ),
+    (
+        "bp3-active-gate",
+        re.compile(
+            r"(?:\bBP3\b[^\n.]{0,100}\bactive\s+(?:USER\s+decision\s+)?gate\b)|"
+            r"(?:\bactive\s+(?:USER\s+decision\s+)?gate\b[^\n.]{0,100}\bBP3\b)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "active-workstream-packet",
+        re.compile(r"\bactive\s+Workstream\s+packet\b", re.IGNORECASE),
+    ),
+    (
+        "workstream-active-gate",
+        re.compile(
+            r"(?:\bWorkstream\b[^\n.]{0,100}\bactive\s+(?:USER\s+decision\s+)?gate\b)|"
+            r"(?:\bactive\s+(?:USER\s+decision\s+)?gate\b[^\n.]{0,100}\bWorkstream\b)",
+            re.IGNORECASE,
+        ),
+    ),
+    (
+        "active-pr-readiness-packet",
+        re.compile(r"\bactive\s+PR\s+Readiness\s+packet\b", re.IGNORECASE),
+    ),
+    (
+        "pr-readiness-active-gate",
+        re.compile(
+            r"(?:\bPR\s+Readiness\b[^\n.]{0,100}\bactive\s+(?:USER\s+decision\s+)?gate\b)|"
+            r"(?:\bactive\s+(?:USER\s+decision\s+)?gate\b[^\n.]{0,100}\bPR\s+Readiness\b)",
+            re.IGNORECASE,
+        ),
+    ),
+)
 USER_BRANCH_VISION_TEMPLATE_SHELL_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "project-context-process-shell",
@@ -807,6 +845,7 @@ def _validate_export_zip(
         *_fam007_bp2_plan_substantive_failures(packet_files),
         *_fam007_bp2_support_bp1_context_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
+        *_bp2_packet_active_later_gate_wording_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
@@ -1270,6 +1309,41 @@ def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list
     return failures
 
 
+def _is_bp2_branch_plan_packet(packet_files: Mapping[str, str]) -> bool:
+    start_here = packet_files.get("START_HERE.md", "")
+    primary = _packet_file_text(packet_files, USER_BRANCH_PLAN_REVIEW_FILE)
+    combined = f"{start_here}\n{primary}".replace("\\", "/").casefold()
+    return (
+        "user review/user_branch_plan_review.md" in combined
+        and (
+            "bp2 user branch plan review" in combined
+            or "bp2 branch plan review" in combined
+            or DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW in combined
+        )
+    )
+
+
+def _bp2_packet_active_later_gate_wording_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    if not _is_bp2_branch_plan_packet(packet_files):
+        return []
+
+    failures: list[str] = []
+    for file_name, text in sorted(packet_files.items()):
+        normalized_path = file_name.replace("\\", "/")
+        if normalized_path.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+            continue
+        if _packet_file_basename(file_name) not in USER_FACING_GENERATED_FILES:
+            continue
+        for reason, pattern in BP2_PACKET_STALE_ACTIVE_LATER_GATE_PATTERNS:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: BP2 packet generated file contains stale active later-gate wording {reason}"
+                )
+    return failures
+
+
 def _review_word_count(value: str) -> int:
     return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'-]*", value))
 
@@ -1530,6 +1604,8 @@ def _write_user_branch_vision_review(
         else
         "Hardening H1"
         if hardening_h1_context_packet
+        else "BP2"
+        if bp2_context_packet
         else "BP3"
         if bp3_context_packet
         else "BP2"
@@ -7669,6 +7745,7 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_fam007_bp2_plan_substantive_failures(packet_files))
     failures.extend(_fam007_bp2_support_bp1_context_failures(packet_files))
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
+    failures.extend(_bp2_packet_active_later_gate_wording_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:
