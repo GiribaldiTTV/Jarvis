@@ -846,6 +846,7 @@ def _validate_export_zip(
         *_fam007_bp2_support_bp1_context_failures(packet_files),
         *_bp1_packet_phase_language_failures(packet_files),
         *_bp2_packet_active_later_gate_wording_failures(packet_files),
+        *_fam006_bp3_support_context_failures(packet_files),
         *_user_branch_vision_substantive_failures(packet_files),
         *_branch_planning_review_gate_state_failures(packet_files),
     ]
@@ -1344,6 +1345,72 @@ def _bp2_packet_active_later_gate_wording_failures(
     return failures
 
 
+def _is_fam006_bp3_orchestration_packet(packet_files: Mapping[str, str]) -> bool:
+    start_here = packet_files.get("START_HERE.md", "")
+    workstream_digest = _packet_file_text(packet_files, "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md")
+    combined = f"{start_here}\n{workstream_digest}".replace("\\", "/").casefold()
+    return (
+        "bp3 orchestration review" in combined
+        and "fam-006" in combined
+        and "recording" in combined
+        and "option c" in combined
+    )
+
+
+def _fam006_bp3_support_context_failures(packet_files: Mapping[str, str]) -> list[str]:
+    if not _is_fam006_bp3_orchestration_packet(packet_files):
+        return []
+
+    stale_patterns = (
+        (
+            "bp2-remains-pending",
+            re.compile(r"\bBP2 remains Pending USER Review\b", re.IGNORECASE),
+        ),
+        (
+            "active-response-bp2",
+            re.compile(r"active USER response now belongs to the BP2 Branch Plan Review", re.IGNORECASE),
+        ),
+        (
+            "primary-decision-bp2-file",
+            re.compile(r"primary active decision is USER Review/USER_BRANCH_PLAN_REVIEW\.md", re.IGNORECASE),
+        ),
+        (
+            "bp2-must-answer-option-c",
+            re.compile(r"BP2 must answer whether Option C", re.IGNORECASE),
+        ),
+        (
+            "bp3-may-be-prepared-after-bp2",
+            re.compile(r"BP3 may be prepared only after BP2 is accepted or waived", re.IGNORECASE),
+        ),
+        (
+            "prepared-bp2-around-option-c",
+            re.compile(r"prepared BP2 around Option C", re.IGNORECASE),
+        ),
+        (
+            "accepted-for-bp2-planning",
+            re.compile(r"Accepted for BP2 planning", re.IGNORECASE),
+        ),
+        (
+            "bp2-reviewability-boundary",
+            re.compile(r"Keep BP2 reviewability separate from USER acceptance", re.IGNORECASE),
+        ),
+    )
+
+    failures: list[str] = []
+    for file_name, text in sorted(packet_files.items()):
+        normalized_path = file_name.replace("\\", "/")
+        if normalized_path.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/"):
+            continue
+        if _packet_file_basename(file_name) not in USER_FACING_GENERATED_FILES:
+            continue
+        for reason, pattern in stale_patterns:
+            if pattern.search(text):
+                failures.append(
+                    f"{file_name}: FAM-006 BP3 generated support file contains stale BP2-active wording {reason}"
+                )
+    return failures
+
+
 def _review_word_count(value: str) -> int:
     return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'-]*", value))
 
@@ -1706,6 +1773,69 @@ def _write_user_branch_vision_review(
             f"- `{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
         )
         pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+        fam006_bp3_context_packet = (
+            active_planning_gate.casefold().startswith("bp3")
+            or "bp3 workstream entry" in profile_text
+            or "workstream entry / orchestration validation" in profile_text
+        )
+        contract_revision = (
+            "v3 - accepted BP1 context supporting BP3 after USER accepted the Option C BP2 Branch Plan."
+            if fam006_bp3_context_packet
+            else "v2 - BP1 acceptance context after USER selected Option C as the BP2 implementation-shape candidate."
+        )
+        branch_goal = (
+            "Validate the accepted FAM-006 Recording branch plan so the Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, and issue #258 target reliability can enter Workstream only if BP3 stays coherent and bounded."
+            if fam006_bp3_context_packet
+            else "Plan the FAM-006 Recording branch so the Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, and issue #258 target reliability can be sized before BP3."
+        )
+        recommendation_1 = (
+            "- Recommendation 1: keep Option C as the BP3 candidate because BP2 accepted it as the coherent branch plan; BP3 must now prove that Recording Studio and the minimal Log Viewer shell fit one bounded Workstream package. Tradeoff: stronger user workflow continuity, but more UI proof than a Dashboard-only plan."
+            if fam006_bp3_context_packet
+            else "- Recommendation 1: keep Option C as the BP2 planning candidate because it preserves the accepted Recording product shape while still forcing BP3 to prove whether the Studio and Log Viewer shell are bounded enough. Tradeoff: stronger user workflow continuity, but more UI proof than a Dashboard-only plan."
+        )
+        user_response_line = (
+            "BP1 and BP2 responses are accepted. The active USER response now belongs to the BP3 Workstream Entry / Orchestration Validation packet."
+            if fam006_bp3_context_packet
+            else "BP1 response is accepted. The active USER response now belongs to the BP2 Branch Plan Review."
+        )
+        codex_digest_line = (
+            "Codex digested USER's BP1 acceptance and BP2 Option C acceptance. This file is accepted BP1 context only; the primary active decision is USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md."
+            if fam006_bp3_context_packet
+            else "Codex digested USER's BP1 acceptance and prepared BP2 around Option C. This file is accepted BP1 context only; the primary active decision is USER Review/USER_BRANCH_PLAN_REVIEW.md."
+        )
+        accepted_recording_studio_line = (
+            "- Accepted in BP2 plan: Recording Studio as focused recording control/status surface."
+            if fam006_bp3_context_packet
+            else "- Accepted for BP2 planning: Recording Studio as focused recording control/status surface."
+        )
+        accepted_log_viewer_line = (
+            "- Accepted in BP2 plan: minimal Log Viewer Studio launch/folder shell only where it supports native/export folder access."
+            if fam006_bp3_context_packet
+            else "- Accepted for BP2 planning: minimal Log Viewer Studio launch/folder shell only where it supports native/export folder access."
+        )
+        reviewability_boundary_line = (
+            "- Keep BP3 reviewability separate from USER acceptance and separate from Workstream implementation approval."
+            if fam006_bp3_context_packet
+            else "- Keep BP2 reviewability separate from USER acceptance."
+        )
+        vision_queue_lines = (
+            [
+                "- No BP1 decision remains open in this file.",
+                "- BP2 answered: Option C was accepted by USER as the Branch Plan.",
+                "- BP3 must answer whether Option C is accepted, revised, waived, rejected, or held for Workstream Entry / Orchestration Validation.",
+            ]
+            if fam006_bp3_context_packet
+            else [
+                "- No BP1 decision remains open in this file.",
+                "- BP2 must answer whether Option C is accepted, revised, waived, rejected, or held.",
+                "- BP3 may be prepared only after BP2 is accepted or waived.",
+            ]
+        )
+        acceptance_decision_line = (
+            "USER Accepted - BP1 Branch Vision accepted after Option F planning solidification; BP2 Option C Branch Plan accepted by USER; BP3 remains Pending USER Review."
+            if fam006_bp3_context_packet
+            else "USER Accepted - BP1 Branch Vision accepted after Option F planning solidification. BP2 remains Pending USER Review."
+        )
         lines = [
             f"# USER Branch Vision Review - {title}",
             "",
@@ -1727,7 +1857,7 @@ def _write_user_branch_vision_review(
             "",
             "## Contract Revision",
             "",
-            "v2 - BP1 acceptance context after USER selected Option C as the BP2 implementation-shape candidate.",
+            contract_revision,
             "",
             "## Project Vision Context",
             "",
@@ -1743,7 +1873,7 @@ def _write_user_branch_vision_review(
             "",
             "## Branch Goal",
             "",
-            "Plan the FAM-006 Recording branch so the Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, and issue #258 target reliability can be sized before BP3.",
+            branch_goal,
             "",
             "## End-State Vision",
             "",
@@ -1790,7 +1920,7 @@ def _write_user_branch_vision_review(
             "",
             "## Codex Recommendations",
             "",
-            "- Recommendation 1: keep Option C as the BP2 planning candidate because it preserves the accepted Recording product shape while still forcing BP3 to prove whether the Studio and Log Viewer shell are bounded enough. Tradeoff: stronger user workflow continuity, but more UI proof than a Dashboard-only plan.",
+            recommendation_1,
             "- Recommendation 2: require BP3 to split Recording Studio or the minimal Log Viewer Studio shell if lifecycle, rollback, visual proof, or folder-access risk becomes too wide. Tradeoff: safer implementation control, but the current branch may deliver a narrower product path.",
             "- Recommendation 3: keep full Log Viewer, tray, keybind, settings, export customization, and Native Log Loader work future-gated because those surfaces need separate UX and validation depth. Tradeoff: less immediate completeness, but less drift and clearer proof.",
             "",
@@ -1806,11 +1936,11 @@ def _write_user_branch_vision_review(
             "",
             "## USER Response",
             "",
-            "BP1 response is accepted. The active USER response now belongs to the BP2 Branch Plan Review.",
+            user_response_line,
             "",
             "## Codex Digest",
             "",
-            "Codex digested USER's BP1 acceptance and prepared BP2 around Option C. This file is accepted BP1 context only; the primary active decision is USER Review/USER_BRANCH_PLAN_REVIEW.md.",
+            codex_digest_line,
             "",
             "## USER Response Proof",
             "",
@@ -1823,8 +1953,8 @@ def _write_user_branch_vision_review(
             "## Accepted Branch Vision",
             "",
             "- Accepted: Dashboard Recording Card remains compact quick-access/status.",
-            "- Accepted for BP2 planning: Recording Studio as focused recording control/status surface.",
-            "- Accepted for BP2 planning: minimal Log Viewer Studio launch/folder shell only where it supports native/export folder access.",
+            accepted_recording_studio_line,
+            accepted_log_viewer_line,
             "- Accepted: native NDAI logs are the normal product artifact.",
             "- Accepted: exported logs are USER-requested artifacts.",
             "- Accepted: issue #258 profile persistence is a target-reliability line item where it affects recording.",
@@ -1839,7 +1969,7 @@ def _write_user_branch_vision_review(
             "- Preserve visual-system inheritance from existing FAM-006 Dashboard surfaces.",
             "- Keep native product logs separate from USER-requested exports.",
             "- Keep folder-open behavior usable before active-session recording when admitted.",
-            "- Keep BP2 reviewability separate from USER acceptance.",
+            reviewability_boundary_line,
             "",
             "## Future-Gated Decisions And Regression-Risk Controls",
             "",
@@ -1853,9 +1983,7 @@ def _write_user_branch_vision_review(
             "",
             "## Vision Question Queue",
             "",
-            "- No BP1 decision remains open in this file.",
-            "- BP2 must answer whether Option C is accepted, revised, waived, rejected, or held.",
-            "- BP3 may be prepared only after BP2 is accepted or waived.",
+            *vision_queue_lines,
             "",
             "## Design Assumption Ledger",
             "",
@@ -1866,7 +1994,7 @@ def _write_user_branch_vision_review(
             "",
             "## Acceptance / Revision / Rejection / Waiver Decision",
             "",
-            "USER Accepted - BP1 Branch Vision accepted after Option F planning solidification. BP2 remains Pending USER Review.",
+            acceptance_decision_line,
             "",
             "## Supporting Source-Truth Files",
             "",
@@ -8172,6 +8300,7 @@ def _validate_workstream_entry_packet_decision_path(
     failures.extend(_fam007_bp2_support_bp1_context_failures(packet_files))
     failures.extend(_bp1_packet_phase_language_failures(packet_files))
     failures.extend(_bp2_packet_active_later_gate_wording_failures(packet_files))
+    failures.extend(_fam006_bp3_support_context_failures(packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(packet_files))
     failures.extend(_user_branch_vision_substantive_failures(packet_files))
     for required_file in WORKSTREAM_ENTRY_PACKET_REQUIRED_FILES:

@@ -2651,6 +2651,24 @@ def _validate_fam006_bp3_packet_generation_guard() -> list[str]:
             f"{result.status}; {result.failures[:3]}"
         )
 
+    stale_support_packet_files = dict(packet_files)
+    stale_support_packet_files[review_bundle.USER_BRANCH_VISION_REVIEW_FILE] = (
+        "FAM-006 BP3 support context.\n"
+        "USER Accepted - BP1 Branch Vision accepted after Option F planning "
+        "solidification. BP2 remains Pending USER Review.\n"
+    )
+    stale_support_result = review_bundle._validate_workstream_entry_packet_decision_path(
+        stale_support_packet_files,
+        expected_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+    )
+    if not any("stale BP2-active wording" in failure for failure in stale_support_result.failures):
+        failures.append(
+            "FAM-006 BP3 packet validation did not reject stale BP2-pending wording "
+            "inside a generated support file"
+        )
+
     combined = "\n".join(packet_files.values()).casefold()
     forbidden_terms = [
         "workstream entry final decision review",
