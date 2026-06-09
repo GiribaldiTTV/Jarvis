@@ -9,6 +9,7 @@
     [switch]$PrepareLiveValidationUserTestSummary,
     [switch]$RecordingOptionCSelfQA,
     [switch]$SupplementalRuntimeProof,
+    [switch]$UserConfirmedACSupplementProof,
     [string]$ProofSeam = "",
     [int]$InteractionStepDelayMilliseconds = 250,
     [int]$FinalClientHoldSeconds = 0
@@ -383,15 +384,19 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
 }
 
 function Copy-SupplementalIssueScreenshotsToUserEvidence {
-    param([object]$Paths)
+    param(
+        [object]$Paths,
+        [string[]]$IssueFilter = @(),
+        [string]$ProofClass = "supplemental-runtime-proof-gap-investigation"
+    )
 
     $issueRules = @(
         [pscustomobject]@{
             issueId = "A"
             folder = "A_Recording_Studio_Button_Click"
             expected = "Clicking the visible Dashboard Recording card Recording Studio button opens the standalone Recording Studio window."
-            observed = "Covered by real OS click step when the interaction manifest contains the Recording Studio click label; user normal-path conflict remains reviewable if USER still cannot open it."
-            confidence = "Verified for helper foreground real-OS path; USER path conflict remains Reproducible if still seen."
+            observed = "USER personally confirmed the normal visible button path does not open Recording Studio. Helper foreground proof remains separate evidence and does not disprove the USER-confirmed manual-path failure."
+            confidence = "USER Confirmed + helper foreground path separately verified when the helper interaction manifest passes."
             patterns = @("02_recording_studio_native_window_ready_state", "02_recording_card_target_status_visual_contract")
         },
         [pscustomobject]@{
@@ -406,8 +411,8 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
             issueId = "C"
             folder = "C_Log_Viewer_Focus_Open_Regression"
             expected = "Opening/closing/minimizing Log Viewer Studio should not make every later start/stop steal focus unless source truth requires it."
-            observed = "The current helper captures Log Viewer shell proof but cannot perform the full user close/minimize/focus-steal sequence without product repair or unavailable Computer Use control; code lineage is carried in the findings packet."
-            confidence = "Blocked for normal close/minimize click sequence; Inferred from code lineage."
+            observed = "USER personally confirmed that after Log Viewer Studio has been opened once, later Start/Stop recording actions cause it to open or steal focus depending on state. Codex normal-user automation is blocked when Computer Use is unavailable; code lineage is carried in the findings packet."
+            confidence = "USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked when Computer Use is unavailable."
             patterns = @("02_log_viewer_studio_native_window_shell_state", "02_recording_card_log_viewer_studio_opened_state")
         },
         [pscustomobject]@{
@@ -438,6 +443,9 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
 
     $issueResults = @()
     foreach ($issue in $issueRules) {
+        if ($IssueFilter.Count -gt 0 -and -not ($IssueFilter -contains $issue.issueId)) {
+            continue
+        }
         $folderPath = Join-Path $Paths.ScreenshotEvidenceRoot $issue.folder
         New-Item -ItemType Directory -Force -Path $folderPath | Out-Null
         $copied = @()
@@ -465,11 +473,13 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
     $manifestPath = Join-Path $Paths.ScreenshotEvidenceRoot "supplemental_issue_evidence_manifest.json"
     $manifest = [ordered]@{
         status = "SUPPLEMENTAL_INVESTIGATION_EVIDENCE"
-        proofClass = "supplemental-runtime-proof-gap-investigation"
+        proofClass = $ProofClass
         root = $Paths.ScreenshotEvidenceRoot
         interactionManifest = $Paths.InteractionManifest
         generatedAt = (Get-Date).ToUniversalTime().ToString("o")
         noRetroactiveEvidenceLaundering = $true
+        helperPathAndUserPathSeparated = $true
+        normalUserAutomationStatus = "Blocked when Computer Use native pipe path is unavailable; USER-confirmed findings are not disproven by helper proof."
         issueFolders = $issueResults
     }
     $manifest | ConvertTo-Json -Depth 7 | Set-Content -LiteralPath $manifestPath -Encoding utf8
@@ -1065,7 +1075,7 @@ $pythonExe = ""
 $exitCode = 1
 $effectiveRunInteractionSelfQA = [bool]($RunInteractionSelfQA -or $ActiveUserFacingClient)
 $effectiveVisibleClient = [bool]($VisibleClient -or $ActiveUserFacingClient)
-$effectiveRecordingFocusedLane = [bool]($RecordingOptionCSelfQA -or $SupplementalRuntimeProof)
+$effectiveRecordingFocusedLane = [bool]($RecordingOptionCSelfQA -or $SupplementalRuntimeProof -or $UserConfirmedACSupplementProof)
 $effectiveFocusedLane = if ($effectiveRecordingFocusedLane) { "recording-option-c" } else { "full" }
 $effectiveStepDelayMilliseconds = $InteractionStepDelayMilliseconds
 $effectiveFinalHoldMilliseconds = $FinalClientHoldSeconds * 1000
@@ -1273,9 +1283,15 @@ try {
             throw "LV1 focused per-element screenshots missing or failed: $($script:PerElementScreenshotProof.reason)"
         }
         Step $paths "copied mandatory LV1 focused per-element screenshots to USER-inspectable folder: $($script:PerElementScreenshotProof.root)"
-        if ($SupplementalRuntimeProof) {
-            $script:SupplementalIssueProof = Copy-SupplementalIssueScreenshotsToUserEvidence -Paths $paths
-            Step $paths "copied supplemental A-F issue evidence folders and manifest: $($script:SupplementalIssueProof.manifest)"
+        if ($SupplementalRuntimeProof -or $UserConfirmedACSupplementProof) {
+            if ($UserConfirmedACSupplementProof) {
+                $script:SupplementalIssueProof = Copy-SupplementalIssueScreenshotsToUserEvidence -Paths $paths -IssueFilter @("A", "C") -ProofClass "user-confirmed-ac-supplemental-runtime-proof"
+                Step $paths "copied USER-confirmed A/C issue evidence folders and manifest: $($script:SupplementalIssueProof.manifest)"
+            }
+            else {
+                $script:SupplementalIssueProof = Copy-SupplementalIssueScreenshotsToUserEvidence -Paths $paths
+                Step $paths "copied supplemental A-F issue evidence folders and manifest: $($script:SupplementalIssueProof.manifest)"
+            }
         }
     }
 

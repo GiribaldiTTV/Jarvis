@@ -586,9 +586,9 @@ def supplemental_findings(summary: dict[str, object]) -> list[Finding]:
             "UI/window behavior failure",
             "Dashboard Recording Card / Recording Studio button",
             "The visible Dashboard Recording card Recording Studio button should open the standalone Recording Studio window through the normal visible USER click path.",
-            "Supplemental foreground helper evidence uses a real OS click against the visible Dashboard button and captures the native Recording Studio window. That verifies the helper foreground path, but USER-reported failure remains a normal-path conflict if the installed/manual app path still does not open it.",
+            "USER personally confirmed the normal visible button path does not open Recording Studio. Supplemental foreground helper evidence may verify a controlled helper path when it passes, but that helper path is not the same proof as USER manual-path behavior and does not disprove the USER-confirmed failure.",
             supplemental_root,
-            "Verified for foreground helper path; Reproducible conflict for USER manual path",
+            "USER Confirmed + Codex Reproduction Blocked + helper foreground path separately verified when helper evidence passes",
             "Live Validation",
             "nexus_visual/monitoring_hud.js wires #monitoring-hud-recording-studio-open to monitoringHudRequestRecordingControlWindow; desktop/desktop_renderer.py opens MonitoringHudRecordingStudioWindow from recordingControlWindowRequested state.",
             "Supplemental investigation evidence, not retroactive LV1 acceptance.",
@@ -616,9 +616,9 @@ def supplemental_findings(summary: dict[str, object]) -> list[Finding]:
             "UI/window behavior failure",
             "Log Viewer Studio focus/open behavior after start/stop",
             "After Log Viewer Studio has been opened, later recording start/stop state changes should not repeatedly focus or reopen it unless the accepted UX explicitly requires that behavior.",
-            "Supplemental helper could not complete the full close/minimize/focus sequence through normal native clicks because Computer Use was unavailable, but code lineage shows MonitoringHudLogViewerStudioWindow.update_product_state calls show(), raise_(), and activateWindow() whenever the requested log-viewer signature changes. That directly explains the USER-reported focus/open regression after the shell has been requested once.",
+            "USER personally confirmed that after Log Viewer Studio has been opened once, later Start/Stop recording actions cause it to open or steal focus depending on state. Codex could not complete the normal close/minimize/focus sequence because the Windows Computer Use channel reported `Computer Use native pipe path is unavailable`; code lineage shows MonitoringHudLogViewerStudioWindow.update_product_state calls show(), raise_(), and activateWindow() whenever the requested log-viewer signature changes.",
             "desktop/desktop_renderer.py:6000",
-            "Inferred with high confidence from code lineage; normal click sequence Blocked",
+            "USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked",
             "Workstream / Live Validation",
             "desktop/desktop_renderer.py update_product_state for the Log Viewer Studio shell; state updates after recording output can change logViewerStudioSummary and rerun the native-window update path.",
             "Supplemental finding; no product behavior changed.",
@@ -766,7 +766,12 @@ def evidence_inventory_md(summary: dict[str, object]) -> str:
 def supplemental_issue_map_md(summary: dict[str, object]) -> str:
     rows = []
     fixed_observed = {
-        "A": "Covered by real OS click step when the interaction manifest contains the Recording Studio click label; user normal-path conflict remains reviewable if USER still cannot open it.",
+        "A": "USER personally confirmed the visible Recording Studio button does not open Recording Studio through the normal USER path. Helper foreground proof remains separate and does not disprove the USER-confirmed failure.",
+        "C": "USER personally confirmed Log Viewer Studio opens or steals focus after it has been opened once and recording Start/Stop state changes occur. Codex normal-user sequence reproduction is blocked when Computer Use is unavailable; code lineage supports the finding.",
+    }
+    fixed_confidence = {
+        "A": "USER Confirmed + Codex Reproduction Blocked + helper foreground path separately verified when helper evidence passes",
+        "C": "USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked",
     }
     for item in summary.get("supplemental_issue_folders") or []:
         if not isinstance(item, dict):
@@ -783,7 +788,7 @@ def supplemental_issue_map_md(summary: dict[str, object]) -> str:
                 str(item.get("screenshotCount", "")),
                 str(item.get("expected", "")),
                 observed,
-                str(item.get("confidence", "")),
+                fixed_confidence.get(issue_id, str(item.get("confidence", ""))),
             ]
         )
     if not rows:
@@ -794,6 +799,63 @@ def supplemental_issue_map_md(summary: dict[str, object]) -> str:
             "",
             table(["Issue", "Folder", "Screenshots", "Expected", "Observed", "Confidence"], rows),
         ]
+    )
+
+
+def user_confirmed_ac_supplement_md(summary: dict[str, object]) -> str:
+    screenshot_root = str((summary.get("supplemental_manifest") or {}).get("screenshotEvidenceRoot") or summary.get("supplemental_root") or "")
+    rows = [
+        [
+            "Issue A",
+            "FAM006-UI-003",
+            "Recording Studio visible button",
+            "USER Confirmed + Codex Reproduction Blocked + helper foreground path separately verified when helper evidence passes",
+            "USER confirmed the normal visible button path fails. The supported Windows automation channel is unavailable, so Codex cannot disprove or fully re-run the USER path in this supplement.",
+            screenshot_root,
+        ],
+        [
+            "Issue C",
+            "FAM006-WINDOW-002",
+            "Log Viewer Studio focus/open behavior",
+            "USER Confirmed + Inferred Code Lineage + Codex Reproduction Blocked",
+            "USER confirmed the start/stop-triggered focus/open regression. Codex sequence reproduction is blocked, and code lineage shows show/raise/activateWindow in the update path.",
+            "desktop/desktop_renderer.py:5998-6017",
+        ],
+    ]
+    return "\n".join(
+        [
+            "This supplement preserves USER confirmation as direct evidence. Helper foreground proof and native-window existence are evidence layers, not a substitute for USER normal-path proof.",
+            "",
+            "Codex normal-user automation attempt: `Computer Use native pipe path is unavailable`.",
+            "",
+            table(["Issue", "Finding ID", "Surface", "Confidence", "Supplement result", "Evidence path"], rows),
+        ]
+    )
+
+
+def issue_c_sequence_matrix_md() -> str:
+    return table(
+        ["Sequence", "Expected behavior", "Codex reproduction status", "Evidence / confidence"],
+        [
+            [
+                "C1: open Log Viewer, close, start, stop",
+                "Start/Stop must not reopen Log Viewer or steal focus merely because the shell was previously opened.",
+                "Blocked - supported Computer Use normal-user automation channel unavailable.",
+                "USER Confirmed + Inferred Code Lineage from desktop/desktop_renderer.py update_product_state show/raise/activateWindow.",
+            ],
+            [
+                "C2: open Log Viewer, minimize, start, stop",
+                "Start/Stop must not restore/minimize-state-break or focus the Log Viewer unless USER accepted that behavior.",
+                "Blocked - supported Computer Use normal-user automation channel unavailable.",
+                "USER Confirmed + Inferred Code Lineage from the same native-window activation path.",
+            ],
+            [
+                "C3: open Log Viewer, leave open unfocused, start, stop",
+                "Start/Stop must not steal focus from the USER's current foreground work.",
+                "Blocked - supported Computer Use normal-user automation channel unavailable.",
+                "USER Confirmed + Inferred Code Lineage from show(), raise_(), and activateWindow().",
+            ],
+        ],
     )
 
 
@@ -1129,6 +1191,8 @@ def generate_packet() -> tuple[Path, Path, str]:
                 "REPAIR FINDINGS. The branch is reconciled and the investigation can proceed, but LV1/UTS readiness is not accepted. The packet identifies evidence handoff failure, helper false-green risk, insufficient combination coverage, and product issue candidates that require a later repair plan.",
             ),
             section("Prior Packet Sufficiency Statement", prior_packet_sufficiency_md(summary)),
+            section("USER-Confirmed A/C Findings Supplement", user_confirmed_ac_supplement_md(summary)),
+            section("Issue C Normal-User Sequence Matrix", issue_c_sequence_matrix_md()),
             section("Supplemental Runtime Proof Issue Map", supplemental_issue_map_md(summary)),
             section("Supplemental Attempt Stability", supplemental_attempts_md()),
             section(
@@ -1166,6 +1230,8 @@ def generate_packet() -> tuple[Path, Path, str]:
             section("Finding Details", "\n".join(item.markdown() for item in findings_list)),
             section("Investigation Loop Summary", loop_summary_md(findings_list, summary)),
             section("Runtime Proof Rerun", runtime_proof_rerun_md(summary)),
+            section("USER-Confirmed A/C Findings Supplement", user_confirmed_ac_supplement_md(summary)),
+            section("Issue C Normal-User Sequence Matrix", issue_c_sequence_matrix_md()),
             section("Supplemental Runtime Proof", supplemental_issue_map_md(summary)),
             section("Supplemental Attempt Stability", supplemental_attempts_md()),
             section("Codex Visual Adjudication", visual_adjudication_md(summary)),
@@ -1260,6 +1326,8 @@ def generate_packet() -> tuple[Path, Path, str]:
         "INTERACTION_COMBINATION_MATRIX.md": section("Interaction Combination Matrix", combination_matrix_md()),
         "SCREENSHOT_EVIDENCE_AUDIT.md": section("Screenshot Evidence Audit", evidence_inventory_md(summary)),
         "RUNTIME_PROOF_RERUN_RESULTS.md": section("Runtime Proof Rerun", runtime_proof_rerun_md(summary)),
+        "USER_CONFIRMED_AC_FINDINGS_SUPPLEMENT.md": section("USER-Confirmed A/C Findings Supplement", user_confirmed_ac_supplement_md(summary)),
+        "ISSUE_C_SEQUENCE_MATRIX.md": section("Issue C Normal-User Sequence Matrix", issue_c_sequence_matrix_md()),
         "SUPPLEMENTAL_RUNTIME_PROOF_ISSUE_MAP.md": section("Supplemental Runtime Proof Issue Map", supplemental_issue_map_md(summary)),
         "SUPPLEMENTAL_ATTEMPT_STABILITY.md": section("Supplemental Attempt Stability", supplemental_attempts_md()),
         "PRIOR_PACKET_SUFFICIENCY.md": section("Prior Packet Sufficiency Statement", prior_packet_sufficiency_md(summary)),
@@ -1309,6 +1377,8 @@ def validate_packet(packet_root: Path) -> dict[str, object]:
         "Packet Reviewability State: Reviewable",
         "USER Gate State: Pending USER Investigation Review",
         "Runtime Proof Rerun",
+        "USER-Confirmed A/C Findings Supplement",
+        "Issue C Normal-User Sequence Matrix",
         "Supplemental Status: supplemental-runtime-proof-gap-investigation",
         "Supplemental Runtime Proof",
         "Prior Packet Sufficiency Statement",
@@ -1320,6 +1390,7 @@ def validate_packet(packet_root: Path) -> dict[str, object]:
         "FAM006-REGRESS-001",
         "FAM006-UI-003",
         "FAM006-WINDOW-002",
+        "USER Confirmed + Codex Reproduction Blocked",
         "FAM006-GOVGAP-003",
         "FAM006-EVID-002",
         "FAM006-PHASE-001",
