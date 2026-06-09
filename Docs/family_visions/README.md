@@ -22,9 +22,9 @@ Family vision records do not own:
 - live Git, GitHub, release, PR, issue, worktree, or review state
 - package/slice execution ledgers
 - runtime implementation approval
-- dependency work for another backlog family
+- implementation responsibility for another backlog family
 
-Backlog family work stays local to its owning family/worktree. A family vision may cite cross-family context constraints, but it must not turn another backlog family or context owner into an implementation dependency queue.
+Backlog family work stays local to its owning family/worktree. A family vision may preserve durable cross-family dependency candidates, constraints, platform-contract implications, and future carry-in context, but it must not turn another backlog family or context owner into an active implementation dependency queue.
 
 ## Family Feature Vision Layer
 
@@ -134,6 +134,56 @@ Each deferred item must record:
 Deferred Feature Carryforward must avoid active branch-state terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or `release window status`. Those terms belong to BR2 output, active external branch planning, `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, or USER decision packets.
 
 Deferred carryforward may preserve durable planning facts even when the implementation is future-gated. It must not become a live dependency ledger. BR2, BP1, BP2, BP3, Workstream, Hardening, and Live Validation dynamically select, map, prove, defer, or block the durable FFV elements; the FFV itself owns only the durable visioned inventory, deferred facts, proof expectations, and fold-down receipts.
+
+## Cross-FAM Dependency Candidates
+
+Cross-FAM Dependency Candidates preserve durable dependency facts discovered by an originating FAM without authorizing cross-worktree mutation, creating another FAM's missing Family Feature Vision, or turning repo vision canon into active branch state.
+
+The originating FAM should record dependency candidates when its Family Vision, Family Feature Vision, BR1, BR2, BP1, BP2, BP3, Workstream, Hardening, Live Validation, or PR Readiness evidence discovers that another FAM may need future adoption, compatibility work, proof, or feature-specific follow-through. The affected FAM owns its own later FFV creation, FFV repair, branch selection, implementation, and feature-specific adoption unless the current branch receives explicit USER approval for dependency-bounded cross-FAM work.
+
+When the affected FFV exists, record the dependency against the affected FFV and element ID. When the affected FFV does not exist, record the dependency at affected-FAM level as a durable dependency candidate and mark the affected FFV / element as `Not Created`. The originating FAM must not create, rename, or fully design the affected FAM's missing FFV unless USER approves a bounded FFV content-file carrier for that work.
+
+Each cross-FAM dependency candidate should record:
+
+- dependency ID
+- originating FAM
+- originating FFV / element, or family-level source if no FFV exists
+- affected FAM
+- affected FFV / element, or `Not Created`
+- dependency type
+- reason
+- required contract / capability
+- suggested grouping
+- proof expectation
+- durable disposition
+- fold-down receipt
+
+Allowed dependency types:
+
+- `Awareness Only`
+- `Compatibility Default`
+- `Future Adoption`
+- `Priority Carry-In`
+- `Platform Contract`
+- `Dependency-Bounded Cross-FAM Work`
+- `Coordinated Cross-FAM Patch`
+- `Repo-Wide Migration / Halt`
+- `Transferred FAM Work`
+
+Allowed durable dispositions:
+
+- `Candidate`
+- `Mapped To FFV`
+- `Future Carry-In`
+- `Implemented Receipt`
+- `Rejected`
+- `Superseded`
+
+Dependency candidates must avoid active branch-state terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or `release window status`. Those terms belong to BR2 output, active external branch planning, `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, or USER decision packets.
+
+`Priority Carry-In, Not Scope Capture`: when a cross-FAM contract creates required work for an affected FAM, that work must be evaluated by the affected FAM's next BR1, but it does not automatically become the only branch objective. The affected FAM should group the carry-in into the relevant FFV or coherent package when practical, and split only when source truth proves the carry-in cannot safely share the branch package.
+
+`Implementation Ownership Split`: the branch that introduces a dependency owns the introduced contract, compatibility default, and proof that existing affected families are not broken. The affected FAM owns later feature-specific adoption, FFV creation or repair, polish, expansion, and user-facing follow-through inside its own normal Branch Readiness path.
 
 ## Owner Relationship
 
