@@ -373,14 +373,23 @@ def latest_return_flow_evidence() -> dict[str, object]:
             "userScreenshotRoot": "",
             "userElementScreenshotRoot": "",
             "supplementalManifest": "",
+            "restartInteractionPath": "",
+            "restartInteraction": {},
+            "restartSteps": {},
         }
     manifest = load_json(root / "manifest.json")
     interaction = load_json(root / "monitoring_hud_live_client_interaction_manifest.json")
+    restart_interaction = load_json(root / "monitoring_hud_restart_check_interaction_manifest.json")
     steps: dict[str, dict[str, object]] = {}
     if isinstance(interaction, dict):
         for item in interaction.get("steps", []):
             if isinstance(item, dict):
                 steps[str(item.get("label") or "")] = item
+    restart_steps: dict[str, dict[str, object]] = {}
+    if isinstance(restart_interaction, dict):
+        for item in restart_interaction.get("steps", []):
+            if isinstance(item, dict):
+                restart_steps[str(item.get("label") or "")] = item
     screenshots = [
         str(item)
         for item in (interaction.get("screenshots", []) if isinstance(interaction, dict) else [])
@@ -404,6 +413,9 @@ def latest_return_flow_evidence() -> dict[str, object]:
         "userScreenshotRoot": user_root,
         "userElementScreenshotRoot": user_element_root,
         "supplementalManifest": supplemental,
+        "restartInteractionPath": str(root / "monitoring_hud_restart_check_interaction_manifest.json"),
+        "restartInteraction": restart_interaction,
+        "restartSteps": restart_steps,
     }
 
 
@@ -417,6 +429,12 @@ def return_step(evidence: dict[str, object], label: str) -> dict[str, object]:
     steps = evidence.get("steps") if isinstance(evidence.get("steps"), dict) else {}
     item = steps.get(label) if isinstance(steps, dict) else None
     return item if isinstance(item, dict) else {}
+
+
+def restart_step_passed(evidence: dict[str, object], label: str) -> bool:
+    steps = evidence.get("restartSteps") if isinstance(evidence.get("restartSteps"), dict) else {}
+    item = steps.get(label) if isinstance(steps, dict) else None
+    return isinstance(item, dict) and item.get("status") == "PASS"
 
 
 def screenshot_contains(evidence: dict[str, object], needle: str) -> bool:
@@ -485,6 +503,25 @@ def return_flow_findings(evidence: dict[str, object]) -> list[dict[str, str]]:
         and return_step_passed(evidence, "real OS click opens HUD Overlay card Active Overlay Profile selector")
         and return_step_passed(evidence, "real OS click selects HUD Overlay card Active Overlay Profile option")
     )
+    e_normal_labels = [
+        "real OS click opens Overlay Profile Settings for normal USER path proof",
+        "real OS click creates normal USER Overlay Profile draft",
+        "real OS keyboard edits created Overlay Profile name",
+        "real OS click selects monitor membership for created Overlay Profile",
+        "real OS click saves created Overlay Profile",
+        "Saved USER Overlay Profile id recorded for restart proof",
+        "real OS click closes Overlay Profile Settings after saved USER profile",
+        "real OS click selects Default Overlay Profile after saved profile",
+        "real OS click reselects saved USER Overlay Profile",
+    ]
+    e_missing = [label for label in e_normal_labels if not return_step_passed(evidence, label)]
+    restart_interaction = evidence.get("restartInteraction") if isinstance(evidence.get("restartInteraction"), dict) else {}
+    restart_status = str(restart_interaction.get("status") or "MISSING")
+    e_restart = (
+        restart_status == "PASS"
+        and restart_step_passed(evidence, "Restart check reloads saved USER Overlay Profile and Recording target mirror")
+    )
+    e_pass = e_seeded and not e_missing and e_restart
     visual_step = return_step(evidence, "Dashboard Recording card target/status visual contract is focused before child windows")
     visual_details = visual_step.get("details") if isinstance(visual_step, dict) else {}
     visual_checks = visual_details.get("checks") if isinstance(visual_details, dict) else {}
@@ -508,7 +545,7 @@ def return_flow_findings(evidence: dict[str, object]) -> list[dict[str, str]]:
         and bool(evidence.get("userElementScreenshotRoot"))
         and bool(evidence.get("supplementalManifest"))
     )
-    i_pass = a_pass and b_pass and not c_missing and d_pass and f_pass and g_pass
+    i_pass = a_pass and b_pass and not c_missing and d_pass and e_pass and f_pass and g_pass
     return [
         {
             "finding": "A / FAM006-LVF-A-001 Recording Studio visible-button path",
@@ -536,11 +573,18 @@ def return_flow_findings(evidence: dict[str, object]) -> list[dict[str, str]]:
         },
         {
             "finding": "E Overlay Profile normal USER proof path",
-            "result": "BLOCKED",
-            "evidence": str(evidence.get("interactionPath") or ""),
-            "notes": "Seeded selector/mirror proof present: "
-            + ("yes" if e_seeded else "no")
-            + ". Full create/edit/restart persistence remains pending and issue closeout stays blocked.",
+            "result": "PASS" if e_pass else "BLOCKED",
+            "evidence": str(evidence.get("interactionPath") or evidence.get("restartInteractionPath") or ""),
+            "notes": (
+                "Normal create/edit/save/switch and fresh-runtime restart persistence proof present; "
+                "issue #258 closeout remains a separate USER/GitHub decision."
+                if e_pass
+                else "Seeded selector/mirror proof present: "
+                + ("yes" if e_seeded else "no")
+                + ". Missing normal-path labels: "
+                + (", ".join(e_missing) if e_missing else "None")
+                + f". Restart proof status: {restart_status}."
+            ),
         },
         {
             "finding": "F Visual-system inheritance and card-holder inset",
@@ -564,13 +608,13 @@ def return_flow_findings(evidence: dict[str, object]) -> list[dict[str, str]]:
             "finding": "I Interaction matrix",
             "result": "PASS" if i_pass else "UNPROVEN",
             "evidence": str(evidence.get("interactionPath") or ""),
-            "notes": "Option C matrix represented except full Overlay Profile normal create/edit/restart remains blocked.",
+            "notes": "Option C matrix represented across A-G return-flow proof; USER acceptance and UTS acceptance remain separate.",
         },
         {
             "finding": "J UTS stop-loss",
             "result": "PASS",
             "evidence": r"C:\Nexus USER\UTS - FAM-006.txt",
-            "notes": "UTS handoff remains withheld because unresolved/blocking proof remains.",
+            "notes": "UTS handoff remains withheld until USER separately approves Live Validation / UTS disposition; repair-return proof does not auto-accept UTS.",
         },
     ]
 
@@ -3037,7 +3081,16 @@ def validate_repair_implementation_approval_packet(packet_root: Path) -> dict[st
     }
 
 
-def repair_return_next_decision_text() -> str:
+def repair_return_next_decision_text(*, all_green: bool = False) -> str:
+    if all_green:
+        return (
+            "I reviewed the FAM-006 Live Validation repair return packet and understand it does not by itself accept "
+            "Live Validation, accept UTS, approve PR Readiness, close issue #258, or approve merge/release/cleanup. "
+            "I approve Codex to prepare the next legal FAM-006 Live Validation acceptance / UTS disposition packet "
+            "from the all-green repair-return evidence, with PR Readiness, issue closeout, merge, release, branch "
+            "cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, and future-gated Log "
+            "Viewer/export/tray/keybind/settings/Native Log Loader work still pending separate approval."
+        )
     return (
         "I reviewed the FAM-006 Live Validation repair return packet. I understand Live Validation acceptance "
         "and UTS acceptance remain withheld. I approve Codex to continue only the remaining unresolved FAM-006 "
@@ -3074,9 +3127,11 @@ def generate_repair_return_review_packet() -> tuple[Path, Path, str]:
     copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
 
     interaction_path = Path(str(evidence.get("interactionPath") or ""))
+    restart_interaction_path = Path(str(evidence.get("restartInteractionPath") or ""))
     manifest_path = Path(str(evidence.get("manifestPath") or ""))
     supplemental_path = Path(str(evidence.get("supplementalManifest") or ""))
     copy_if_exists(interaction_path, PACKET_ROOT / "Review Aids" / "monitoring_hud_live_client_interaction_manifest.json")
+    copy_if_exists(restart_interaction_path, PACKET_ROOT / "Review Aids" / "monitoring_hud_restart_check_interaction_manifest.json")
     copy_if_exists(manifest_path, PACKET_ROOT / "Review Aids" / "monitoring_hud_live_validation_manifest.json")
     copy_if_exists(supplemental_path, PACKET_ROOT / "Review Aids" / "supplemental_issue_evidence_manifest.json")
     write(PACKET_ROOT / "Review Aids" / "A_J_FINDING_STATUS_TABLE.md", section("A-J Finding Status Table", return_status_table(rows)))
@@ -3087,6 +3142,7 @@ def generate_repair_return_review_packet() -> tuple[Path, Path, str]:
             [
                 ["Latest live-validation root", str(evidence.get("root") or "")],
                 ["Interaction manifest", str(evidence.get("interactionPath") or "")],
+                ["Restart interaction manifest", str(evidence.get("restartInteractionPath") or "")],
                 ["USER screenshot folder", str(evidence.get("userScreenshotRoot") or "")],
                 ["USER element screenshot folder", str(evidence.get("userElementScreenshotRoot") or "")],
                 ["Supplemental issue manifest", str(evidence.get("supplementalManifest") or "")],
@@ -3101,7 +3157,18 @@ def generate_repair_return_review_packet() -> tuple[Path, Path, str]:
     blocked = [row for row in rows if row.get("result") == "BLOCKED"]
     unproven = [row for row in rows if row.get("result") == "UNPROVEN"]
     fail = [row for row in rows if row.get("result") == "FAIL"]
-    next_text = repair_return_next_decision_text()
+    all_green = not blocked and not unproven and not fail
+    next_text = repair_return_next_decision_text(all_green=all_green)
+    verdict_text = (
+        "REPAIR RETURN GREEN. The latest live proof turns every A-J finding green, including the normal Overlay Profile create/edit/save/switch path and fresh-runtime persistence proof. The packet still withholds Live Validation acceptance, UTS acceptance, PR Readiness, and issue #258 closeout pending explicit USER decisions."
+        if all_green
+        else "REPAIR RETURN REVIEW. The latest live proof turns several expected-red findings green, but the packet deliberately keeps Live Validation and UTS acceptance withheld while blocked or unproven items remain."
+    )
+    acceptance_text = (
+        "All A-J repair-return findings are green in the latest evidence. Live Validation acceptance, UTS acceptance, PR Readiness, issue #258 closeout, merge, release, and cleanup remain withheld until USER explicitly approves the next legal disposition packet."
+        if all_green
+        else "Live Validation acceptance and UTS acceptance are withheld in this packet. UTS handoff remains stopped while any finding is BLOCKED, FAIL, or UNPROVEN, especially the full Overlay Profile create/edit/restart/persistence normal USER path."
+    )
 
     primary = "\n".join(
         [
@@ -3119,7 +3186,7 @@ def generate_repair_return_review_packet() -> tuple[Path, Path, str]:
             "",
             section(
                 "Verdict",
-                "REPAIR RETURN REVIEW. The latest live proof turns several expected-red findings green, but the packet deliberately keeps Live Validation and UTS acceptance withheld while blocked or unproven items remain.",
+                verdict_text,
             ),
             section(
                 "Worktree Identity",
@@ -3146,6 +3213,7 @@ def generate_repair_return_review_packet() -> tuple[Path, Path, str]:
                     [
                         ["Latest live-validation root", str(evidence.get("root") or "")],
                         ["Interaction manifest", str(evidence.get("interactionPath") or "")],
+                        ["Restart interaction manifest", str(evidence.get("restartInteractionPath") or "")],
                         ["USER screenshot folder", str(evidence.get("userScreenshotRoot") or "")],
                         ["USER element screenshot folder", str(evidence.get("userElementScreenshotRoot") or "")],
                         ["Supplemental issue manifest", str(evidence.get("supplementalManifest") or "")],
@@ -3170,7 +3238,7 @@ def generate_repair_return_review_packet() -> tuple[Path, Path, str]:
             ),
             section(
                 "Acceptance Boundary",
-                "Live Validation acceptance and UTS acceptance are withheld in this packet. UTS handoff remains stopped while any finding is BLOCKED, FAIL, or UNPROVEN, especially the full Overlay Profile create/edit/restart/persistence normal USER path.",
+                acceptance_text,
             ),
             section(
                 "Exact Next USER Decision",
@@ -3225,6 +3293,7 @@ def validate_repair_return_review_packet(packet_root: Path) -> dict[str, object]
         "C Log Viewer focus/open regression C1-C3",
         "D Native/current-log tracking ownership",
         "E Overlay Profile normal USER proof path",
+        "Restart interaction manifest",
         "F Visual-system inheritance and card-holder inset",
         "G Native/export folder proof path",
         "H Screenshot/evidence proof-loop",
@@ -3251,6 +3320,7 @@ def validate_repair_return_review_packet(packet_root: Path) -> dict[str, object]
         and len(user_review_files) == 1
         and (packet_root / "Review Aids" / "A_J_FINDING_STATUS_TABLE.md").exists()
         and (packet_root / "Review Aids" / "monitoring_hud_live_client_interaction_manifest.json").exists()
+        and (packet_root / "Review Aids" / "monitoring_hud_restart_check_interaction_manifest.json").exists()
     )
     return {
         "passed": not missing and not forbidden_hits and layout_ok,

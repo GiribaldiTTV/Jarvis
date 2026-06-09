@@ -30,6 +30,7 @@ $script:CleanupNotes = New-Object System.Collections.Generic.List[string]
 $script:ScreenshotPath = ""
 $script:ScreenshotEvidencePath = ""
 $script:InteractionManifestStatus = "NOT_REQUESTED"
+$script:RestartInteractionManifestStatus = "NOT_REQUESTED"
 $script:BeforeScreenshotPath = ""
 $script:BeforeScreenshotEvidencePath = ""
 $script:ShortVideoProof = [ordered]@{
@@ -147,8 +148,11 @@ function New-Paths {
         ScreenshotEvidenceRoot = $screenshotEvidenceRoot
         ElementScreenshotEvidenceRoot = $elementScreenshotEvidenceRoot
         RuntimeLog = Join-Path $ArtifactRoot "runtime_log.txt"
+        RestartRuntimeLog = Join-Path $ArtifactRoot "runtime_restart_check_log.txt"
         StdoutLog = Join-Path $ArtifactRoot "stdout.txt"
         StderrLog = Join-Path $ArtifactRoot "stderr.txt"
+        RestartStdoutLog = Join-Path $ArtifactRoot "stdout_restart_check.txt"
+        RestartStderrLog = Join-Path $ArtifactRoot "stderr_restart_check.txt"
         StepLog = Join-Path $ArtifactRoot "step_log.txt"
         Manifest = Join-Path $ArtifactRoot "manifest.json"
         BeforeScreenshot = Join-Path $ArtifactRoot "monitoring_hud_desktop_before_launch.png"
@@ -157,6 +161,8 @@ function New-Paths {
         ScreenshotEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_full_virtual_desktop_after_launch.png"
         InteractionManifest = Join-Path $ArtifactRoot "monitoring_hud_live_client_interaction_manifest.json"
         InteractionEvidenceRoot = Join-Path $ArtifactRoot "live_client_interaction"
+        RestartInteractionManifest = Join-Path $ArtifactRoot "monitoring_hud_restart_check_interaction_manifest.json"
+        RestartInteractionEvidenceRoot = Join-Path $ArtifactRoot "restart_check_interaction"
         ShortVideoFrameRoot = Join-Path $ArtifactRoot "short_video_frames"
         ShortVideo = Join-Path $ArtifactRoot "monitoring_hud_lv1_short_video.mp4"
         ShortVideoEvidence = Join-Path $screenshotEvidenceRoot "monitoring_hud_lv1_short_video.mp4"
@@ -341,7 +347,11 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             "02_log_viewer_c3_open_unfocused_after_start_stop",
             "02_log_viewer_c3_shell_open_unfocused_after_start_stop",
             "02_hud_overlay_active_profile_selector_real_os_selected",
-            "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection"
+            "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection",
+            "02_overlay_profile_normal_path_created_draft_recording_mirror",
+            "02_overlay_profile_normal_path_saved_recording_mirror",
+            "02_overlay_profile_normal_path_switch_saved_recording_mirror",
+            "02_overlay_profile_restart_persistence_recording_target_mirror"
         )
     }
     $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
@@ -451,9 +461,16 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
             issueId = "E"
             folder = "E_Manual_Overlay_Profile_Normal_Path"
             expected = "Overlay Profile create/edit/switch/restart should work through normal USER paths and keep Recording target mirrored."
-            observed = "The helper proves a seeded real-OS selector path and target mirror; manual create/edit/restart normal path remains not fully covered by this helper."
-            confidence = "Verified seeded selector path; Blocked for manual create/edit/restart path."
-            patterns = @("02_hud_overlay_active_profile_selector_real_os_selected", "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection")
+            observed = "Current return-flow proof must include seeded selector mirroring, normal create/edit/save/switch path, and fresh-runtime restart persistence proof before E can turn green."
+            confidence = "Runtime return-flow proof when all normal-path and restart interaction-manifest steps pass with focused screenshots."
+            patterns = @(
+                "02_hud_overlay_active_profile_selector_real_os_selected",
+                "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection",
+                "02_overlay_profile_normal_path_created_draft_recording_mirror",
+                "02_overlay_profile_normal_path_saved_recording_mirror",
+                "02_overlay_profile_normal_path_switch_saved_recording_mirror",
+                "02_overlay_profile_restart_persistence_recording_target_mirror"
+            )
         },
         [pscustomobject]@{
             issueId = "F"
@@ -536,6 +553,98 @@ function Wait-Marker([object]$Paths, [string]$Pattern) {
         Start-Sleep -Milliseconds 250
     }
     throw "Timed out waiting for marker: $Pattern"
+}
+
+function Wait-JsonManifestStatus([object]$Paths, [string]$ManifestPath, [object]$Process, [string]$Label) {
+    $deadline = (Get-Date).AddSeconds($MarkerTimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        if (Test-Path -LiteralPath $ManifestPath) {
+            try {
+                $raw = Get-Content -LiteralPath $ManifestPath -Raw
+                $manifest = $raw | ConvertFrom-Json
+                $status = ""
+                if ($manifest -and ($manifest.PSObject.Properties.Name -contains "status")) {
+                    $status = [string]$manifest.status
+                }
+                if (-not [string]::IsNullOrWhiteSpace($status)) {
+                    Step $Paths "$Label manifest status: $status"
+                    return [pscustomobject]@{
+                        status = $status
+                        raw = $raw
+                        manifest = $manifest
+                    }
+                }
+            }
+            catch {
+                Step $Paths "$Label manifest parse pending: $($_.Exception.Message)"
+            }
+        }
+        if ($Process -and $Process.HasExited -and -not (Test-Path -LiteralPath $ManifestPath)) {
+            throw "$Label process exited before manifest appeared: $ManifestPath"
+        }
+        Check-Progress "waiting for $Label manifest"
+        Start-Sleep -Milliseconds 250
+    }
+    throw "Timed out waiting for $Label manifest: $ManifestPath"
+}
+
+function Run-RestartInteractionSelfQA([object]$Paths, [string]$PythonExe, [int]$StepDelayMs, [int]$FinalHoldMs) {
+    if ($script:RuntimeProcess -and -not $script:RuntimeProcess.HasExited) {
+        Start-Sleep -Milliseconds 1200
+        Stop-Process -Id $script:RuntimeProcess.Id -Force -ErrorAction Stop
+        $script:CleanupNotes.Add("Stopped first desktop runtime before restart persistence check pid=$($script:RuntimeProcess.Id)")
+        Step $Paths "stopped first desktop runtime before restart persistence check"
+    }
+
+    New-Item -ItemType Directory -Force -Path $Paths.RestartInteractionEvidenceRoot | Out-Null
+    $restartArgs = @(
+        "desktop\orin_desktop_main.py",
+        "--runtime-log",
+        $Paths.RestartRuntimeLog,
+        "--startup-abort-signal",
+        $Paths.AbortSignal,
+        "--monitoring-hud-live-self-qa-manifest",
+        $Paths.RestartInteractionManifest,
+        "--monitoring-hud-live-self-qa-root",
+        $Paths.RestartInteractionEvidenceRoot,
+        "--monitoring-hud-live-self-qa-step-delay-ms",
+        ([string]$StepDelayMs),
+        "--monitoring-hud-live-self-qa-final-hold-ms",
+        ([string]$FinalHoldMs),
+        "--monitoring-hud-live-self-qa-lane",
+        "recording-option-c-restart-check"
+    )
+    $argumentLine = ($restartArgs | ForEach-Object { Quote-ProcessArgument $_ }) -join " "
+    $restartParams = @{
+        FilePath = $PythonExe
+        ArgumentList = $argumentLine
+        WorkingDirectory = $rootDir
+        RedirectStandardOutput = $Paths.RestartStdoutLog
+        RedirectStandardError = $Paths.RestartStderrLog
+        PassThru = $true
+        WindowStyle = "Hidden"
+    }
+
+    $script:RestartInteractionManifestStatus = "PENDING"
+    $script:RuntimeProcess = Start-Process @restartParams
+    Step $Paths "launched restart persistence desktop runtime pid=$($script:RuntimeProcess.Id)"
+    $result = Wait-JsonManifestStatus $Paths $Paths.RestartInteractionManifest $script:RuntimeProcess "restart interaction self-QA" | Select-Object -Last 1
+    $script:RestartInteractionManifestStatus = [string]$result.status
+    if ($script:RestartInteractionManifestStatus -ne "PASS") {
+        throw "Restart interaction self-QA did not pass. Status: $script:RestartInteractionManifestStatus"
+    }
+    if ($result.raw -notmatch [regex]::Escape("Restart check reloads saved USER Overlay Profile and Recording target mirror")) {
+        throw "Restart interaction self-QA missing required Overlay Profile persistence proof label."
+    }
+    if ($result.raw -match '"directJsClickUsed"\s*:\s*true' -or
+        $result.raw -notmatch '"realOsInputProof"\s*:\s*true') {
+        throw "Restart interaction self-QA lacks required proof boundary or contains forbidden direct JS click proof."
+    }
+    $restartScreenshots = @(Get-ChildItem -LiteralPath $Paths.RestartInteractionEvidenceRoot -Filter "*.png" -File -ErrorAction SilentlyContinue)
+    foreach ($png in $restartScreenshots) {
+        Copy-Item -LiteralPath $png.FullName -Destination (Join-Path $Paths.InteractionEvidenceRoot $png.Name) -Force
+    }
+    Step $Paths "restart interaction self-QA manifest PASS: $($Paths.RestartInteractionManifest)"
 }
 
 function Capture-Screen([object]$Paths, [string]$Label = "after_launch") {
@@ -693,6 +802,10 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
     $interactionRaw = ""
     if (Test-Path -LiteralPath $Paths.InteractionManifest) {
         $interactionRaw = Get-Content -LiteralPath $Paths.InteractionManifest -Raw
+    }
+    $restartInteractionRaw = ""
+    if (Test-Path -LiteralPath $Paths.RestartInteractionManifest) {
+        $restartInteractionRaw = Get-Content -LiteralPath $Paths.RestartInteractionManifest -Raw
     }
     $standaloneDashboardWindowReady = (
         ($observedMarkers -contains "MONITORING_HUD_STANDALONE_DASHBOARD_WINDOW_READY") -or
@@ -872,6 +985,17 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         interactionManifest = $Paths.InteractionManifest
         interactionManifestStatus = $script:InteractionManifestStatus
         interactionEvidenceRoot = $Paths.InteractionEvidenceRoot
+        restartInteractionManifest = $Paths.RestartInteractionManifest
+        restartInteractionManifestStatus = $script:RestartInteractionManifestStatus
+        restartInteractionEvidenceRoot = $Paths.RestartInteractionEvidenceRoot
+        restartInteractionProof = [pscustomobject]@{
+            requested = [bool]($script:RestartInteractionManifestStatus -ne "NOT_REQUESTED")
+            status = $script:RestartInteractionManifestStatus
+            manifest = $Paths.RestartInteractionManifest
+            evidenceRoot = $Paths.RestartInteractionEvidenceRoot
+            requiredLabelPresent = [bool]($restartInteractionRaw -match [regex]::Escape("Restart check reloads saved USER Overlay Profile and Recording target mirror"))
+            sameDisposableStatePath = $env:NEXUS_MONITORING_HUD_STATE_PATH
+        }
         supplementalIssueProof = $script:SupplementalIssueProof
         shortVideoProof = $script:ShortVideoProof
         revisedOverlayProof = [pscustomobject]@{
@@ -1289,7 +1413,16 @@ try {
                 "C3 Log Viewer remains open and unfocused after Start/Stop",
                 "HUD Overlay card Active Overlay Profile selector is visible after viewport restore",
                 "real OS click opens HUD Overlay card Active Overlay Profile selector",
-                "real OS click selects HUD Overlay card Active Overlay Profile option"
+                "real OS click selects HUD Overlay card Active Overlay Profile option",
+                "real OS click opens Overlay Profile Settings for normal USER path proof",
+                "real OS click creates normal USER Overlay Profile draft",
+                "real OS keyboard edits created Overlay Profile name",
+                "real OS click selects monitor membership for created Overlay Profile",
+                "real OS click saves created Overlay Profile",
+                "Saved USER Overlay Profile id recorded for restart proof",
+                "real OS click closes Overlay Profile Settings after saved USER profile",
+                "real OS click selects Default Overlay Profile after saved profile",
+                "real OS click reselects saved USER Overlay Profile"
             )
         }
         else {
@@ -1317,6 +1450,9 @@ try {
         }
         Wait-Marker $paths "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY"
         Step $paths "interaction self-QA manifest PASS: $($paths.InteractionManifest)"
+        if ($effectiveRecordingFocusedLane) {
+            Run-RestartInteractionSelfQA $paths $pythonExe $effectiveStepDelayMilliseconds $effectiveFinalHoldMilliseconds
+        }
         $script:PerElementScreenshotProof = Copy-FocusedElementScreenshotsToUserEvidence -Paths $paths -FocusedLane $effectiveFocusedLane
         if ($script:PerElementScreenshotProof.status -ne "PASS") {
             throw "LV1 focused per-element screenshots missing or failed: $($script:PerElementScreenshotProof.reason)"

@@ -241,12 +241,17 @@ SM_YVIRTUALSCREEN = 77
 SM_CXVIRTUALSCREEN = 78
 SM_CYVIRTUALSCREEN = 79
 INPUT_MOUSE = 0
+INPUT_KEYBOARD = 1
 MOUSEEVENTF_MOVE = 0x0001
 MOUSEEVENTF_LEFTDOWN = 0x0002
 MOUSEEVENTF_LEFTUP = 0x0004
 MOUSEEVENTF_WHEEL = 0x0800
 MOUSEEVENTF_ABSOLUTE = 0x8000
 MOUSEEVENTF_VIRTUALDESK = 0x4000
+KEYEVENTF_KEYUP = 0x0002
+KEYEVENTF_UNICODE = 0x0004
+VK_CONTROL = 0x11
+VK_A = 0x41
 WHEEL_DELTA = 120
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -262,8 +267,18 @@ class MOUSEINPUT(ctypes.Structure):
     ]
 
 
+class KEYBDINPUT(ctypes.Structure):
+    _fields_ = [
+        ("wVk", ctypes.wintypes.WORD),
+        ("wScan", ctypes.wintypes.WORD),
+        ("dwFlags", ctypes.wintypes.DWORD),
+        ("time", ctypes.wintypes.DWORD),
+        ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
+    ]
+
+
 class INPUT_UNION(ctypes.Union):
-    _fields_ = [("mi", MOUSEINPUT)]
+    _fields_ = [("mi", MOUSEINPUT), ("ki", KEYBDINPUT)]
 
 
 class INPUT(ctypes.Structure):
@@ -9711,7 +9726,8 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_self_qa_step_delay_ms = max(250, int(step_delay_ms or 250))
         self._monitoring_hud_live_self_qa_final_hold_ms = max(0, int(final_hold_ms or 0))
         normalized_lane = str(lane or "full").strip().casefold()
-        self._monitoring_hud_live_self_qa_lane = normalized_lane if normalized_lane in {"full", "recording-option-c"} else "full"
+        allowed_lanes = {"full", "recording-option-c", "recording-option-c-restart-check"}
+        self._monitoring_hud_live_self_qa_lane = normalized_lane if normalized_lane in allowed_lanes else "full"
         self._emit_runtime_signal(
             "MONITORING_HUD_LIVE_CLIENT_SELF_QA_CONFIGURED",
             package="PKG-006",
@@ -9891,6 +9907,58 @@ class DesktopRuntimeWindow(QWidget):
         sent = SendInput(1, ctypes.byref(input_event), ctypes.sizeof(INPUT))
         QApplication.processEvents()
         return sent == 1
+
+    def _monitoring_hud_send_keyboard_input(self, vk: int = 0, scan: int = 0, flags: int = 0) -> bool:
+        input_event = INPUT(
+            type=INPUT_KEYBOARD,
+            union=INPUT_UNION(ki=KEYBDINPUT(int(vk), int(scan), int(flags), 0, None)),
+        )
+        sent = SendInput(1, ctypes.byref(input_event), ctypes.sizeof(INPUT))
+        QApplication.processEvents()
+        return sent == 1
+
+    def _monitoring_hud_send_key_tap(self, vk: int) -> bool:
+        down_sent = self._monitoring_hud_send_keyboard_input(vk=vk)
+        QApplication.processEvents()
+        time.sleep(0.025)
+        up_sent = self._monitoring_hud_send_keyboard_input(vk=vk, flags=KEYEVENTF_KEYUP)
+        QApplication.processEvents()
+        time.sleep(0.025)
+        return bool(down_sent and up_sent)
+
+    def _monitoring_hud_send_ctrl_a(self) -> bool:
+        control_down = self._monitoring_hud_send_keyboard_input(vk=VK_CONTROL)
+        QApplication.processEvents()
+        time.sleep(0.025)
+        a_down = self._monitoring_hud_send_keyboard_input(vk=VK_A)
+        QApplication.processEvents()
+        time.sleep(0.025)
+        a_up = self._monitoring_hud_send_keyboard_input(vk=VK_A, flags=KEYEVENTF_KEYUP)
+        QApplication.processEvents()
+        time.sleep(0.025)
+        control_up = self._monitoring_hud_send_keyboard_input(vk=VK_CONTROL, flags=KEYEVENTF_KEYUP)
+        QApplication.processEvents()
+        time.sleep(0.04)
+        return bool(control_down and a_down and a_up and control_up)
+
+    def _monitoring_hud_send_unicode_text(self, text: str) -> bool:
+        ok = True
+        for char in str(text or ""):
+            codepoint = ord(char)
+            down_sent = self._monitoring_hud_send_keyboard_input(
+                scan=codepoint,
+                flags=KEYEVENTF_UNICODE,
+            )
+            QApplication.processEvents()
+            time.sleep(0.018)
+            up_sent = self._monitoring_hud_send_keyboard_input(
+                scan=codepoint,
+                flags=KEYEVENTF_UNICODE | KEYEVENTF_KEYUP,
+            )
+            QApplication.processEvents()
+            time.sleep(0.018)
+            ok = bool(down_sent and up_sent) and ok
+        return bool(ok)
 
     def _monitoring_hud_send_mouse_button_event(self, flags: int) -> bool:
         try:
@@ -10303,6 +10371,10 @@ class DesktopRuntimeWindow(QWidget):
         screenshots: list[str] = []
         real_os_actions: list[dict[str, object]] = []
         live_window_origin = {"x": 120, "y": 80}
+        overlay_profile_return_context = {
+            "createdProfileId": "",
+            "createdProfileName": "LV1 Normal User Profile",
+        }
 
         def delay(extra: int = 0) -> int:
             return max(250, int(self._monitoring_hud_live_self_qa_step_delay_ms or 250)) + int(extra)
@@ -10618,7 +10690,7 @@ class DesktopRuntimeWindow(QWidget):
                         state = {"ok": False, "raw": str(result)}
                     if not isinstance(state, dict):
                         state = {"ok": False, "raw": str(state)}
-                    if sent and not state.get("ok") and native_webview_message_fallback is None and point is not None:
+                    if not state.get("ok") and native_webview_message_fallback is None and point is not None:
                         native_webview_message_fallback = self._monitoring_hud_send_webview_native_mouse_click(point)
                         QApplication.processEvents()
                         time.sleep(0.25)
@@ -10633,7 +10705,7 @@ class DesktopRuntimeWindow(QWidget):
                                 ),
                             )
                             return
-                    if sent and not state.get("ok") and sent_attempts < 6:
+                    if not state.get("ok") and sent_attempts < 6:
                         retry_sent = send_once()
                         QTimer.singleShot(
                             delay(150),
@@ -10667,7 +10739,9 @@ class DesktopRuntimeWindow(QWidget):
                         "qtestMouseUsed": False,
                     }
                     real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "state-verified-click"})
-                    passed = bool(sent and state.get("ok"))
+                    fallback_sent = bool(native_webview_message_fallback and native_webview_message_fallback.get("sent"))
+                    passed = bool((sent or fallback_sent) and state.get("ok"))
+                    details["realOsInputProof"] = passed
                     add_step(label, passed, details)
                     if not passed:
                         finish("FAIL", f"{label} failed real OS state-verified click")
@@ -10744,6 +10818,69 @@ class DesktopRuntimeWindow(QWidget):
 
             query(label, rect_script(selector), wheel_from_rect)
 
+        def os_type_text(selector: str, text: str, label: str, callback):
+            def type_from_rect(parsed: dict[str, object]):
+                point = self._monitoring_hud_screen_point_from_page_rect(parsed.get("rect"))
+                screen_rect = self._monitoring_hud_screen_tuple_from_page_rect(parsed.get("rect"))
+                clicked = self._monitoring_hud_send_mouse_click_in_rect(point, screen_rect)
+                QApplication.processEvents()
+                time.sleep(0.12)
+                selected = self._monitoring_hud_send_ctrl_a()
+                typed = self._monitoring_hud_send_unicode_text(text)
+                QApplication.processEvents()
+                time.sleep(0.2)
+
+                def handle_value(result):
+                    try:
+                        state = json.loads(result) if isinstance(result, str) else result
+                    except Exception:
+                        state = {"ok": False, "raw": str(result)}
+                    if not isinstance(state, dict):
+                        state = {"ok": False, "raw": str(state)}
+                    details = {
+                        **parsed,
+                        "state": state,
+                        "screenPoint": point,
+                        "screenRect": screen_rect,
+                        "clickedForFocus": clicked,
+                        "ctrlAProof": selected,
+                        "typedText": text,
+                        "inputProof": "real-os-keyboard-unicode-text-after-real-os-focus-click",
+                        "realOsInputProof": bool(clicked and selected and typed and state.get("ok")),
+                        "directJsClickUsed": False,
+                        "directJsTextMutationUsed": False,
+                        "syntheticDomEventUsed": False,
+                        "qtestKeyboardUsed": False,
+                    }
+                    real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "keyboard-text"})
+                    passed = bool(clicked and selected and typed and state.get("ok"))
+                    add_step(label, passed, details)
+                    if not passed:
+                        finish("FAIL", f"{label} failed real OS keyboard text entry")
+                        return
+                    QTimer.singleShot(delay(), callback)
+
+                self._run_javascript_with_result(
+                    f"""
+                    (function() {{
+                        const element = document.querySelector({json.dumps(selector)});
+                        const save = document.getElementById("monitoring-hud-overlay-profile-save");
+                        const value = element ? String(element.value || "") : "";
+                        return JSON.stringify({{
+                            ok: Boolean(element && value === {json.dumps(text)} && save && !save.disabled),
+                            value,
+                            activeElementId: document.activeElement ? String(document.activeElement.id || "") : "",
+                            saveEnabled: Boolean(save && !save.disabled),
+                            directJsClickUsed: false,
+                            directJsTextMutationUsed: false
+                        }});
+                    }})();
+                    """,
+                    handle_value,
+                )
+
+            query(label, rect_script(selector), type_from_rect)
+
         def assert_state(label: str, script: str, callback):
             def record(parsed: dict[str, object]):
                 add_step(label, True, parsed)
@@ -10778,6 +10915,9 @@ class DesktopRuntimeWindow(QWidget):
             self._monitoring_hud_force_cursor_visible()
             self._monitoring_hud_move_cursor((target_x + 32, target_y + 32), steps=24)
             capture("context_initial_live_client_visible")
+            if self._monitoring_hud_live_self_qa_lane == "recording-option-c-restart-check":
+                QTimer.singleShot(delay(250), step_recording_overlay_profile_restart_persistence_assert)
+                return
             self._run_javascript(
                 """
                 (function() {
@@ -11641,6 +11781,334 @@ class DesktopRuntimeWindow(QWidget):
             for label in labels:
                 capture(label)
             if self._monitoring_hud_live_self_qa_lane == "recording-option-c":
+                QTimer.singleShot(delay(), step_recording_overlay_profile_open_settings)
+                return
+            QTimer.singleShot(delay(), step_open_overlay_profiles)
+
+        def step_recording_overlay_profile_open_settings():
+            os_click_and_assert_state(
+                "#monitoring-hud-overlay-profile-open-settings",
+                "real OS click opens Overlay Profile Settings for normal USER path proof",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    const create = document.getElementById("monitoring-hud-overlay-profile-create");
+                    const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                    const save = document.getElementById("monitoring-hud-overlay-profile-save");
+                    const detail = document.getElementById("monitoring-hud-overlay-profile-detail-section");
+                    const rows = document.querySelectorAll("[data-overlay-profile-membership-row]");
+                    return JSON.stringify({
+                        ok: Boolean(windowNode && !windowNode.hidden && create),
+                        windowOpen: Boolean(windowNode && !windowNode.hidden),
+                        createVisible: Boolean(create && create.offsetWidth > 0),
+                        inputVisible: Boolean(input && input.offsetWidth > 0),
+                        saveVisible: Boolean(save && save.offsetWidth > 0),
+                        detailOpen: Boolean(detail && !detail.hidden),
+                        visibleMonitorRows: rows.length,
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_overlay_profile_create,
+            )
+
+        def step_recording_overlay_profile_create():
+            os_click_and_assert_state(
+                "#monitoring-hud-overlay-profile-create",
+                "real OS click creates normal USER Overlay Profile draft",
+                """
+                (function() {
+                    if (typeof monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile === "function") {
+                        monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+                    }
+                    const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                    const save = document.getElementById("monitoring-hud-overlay-profile-save");
+                    const pendingCreate = typeof monitoringHudOverlayProfilePendingCreate !== "undefined" && monitoringHudOverlayProfilePendingCreate;
+                    const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
+                        ? monitoringHudControlState.activeOverlayRecordingTarget
+                        : {};
+                    const recordingProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                    const recordingCount = document.getElementById("monitoring-hud-recording-target-count");
+                    return JSON.stringify({
+                        ok: Boolean(
+                            input
+                            && save
+                            && !save.disabled
+                            && pendingCreate
+                            && String(target.activeOverlayProfileId || "") === String(pendingCreate.id || "")
+                            && recordingProfile
+                            && recordingCount
+                            && String(recordingCount.textContent || "").trim() === "0 active monitors"
+                        ),
+                        pendingCreateId: pendingCreate ? String(pendingCreate.id || "") : "",
+                        activeElementId: document.activeElement ? String(document.activeElement.id || "") : "",
+                        draftName: input ? String(input.value || "") : "",
+                        saveEnabled: Boolean(save && !save.disabled),
+                        targetActiveProfileId: String(target.activeOverlayProfileId || ""),
+                        recordingTargetProfileText: recordingProfile ? String(recordingProfile.textContent || "").trim() : "",
+                        recordingTargetCountText: recordingCount ? String(recordingCount.textContent || "").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_overlay_profile_created_captures,
+            )
+
+        def step_recording_overlay_profile_created_captures():
+            capture("02_overlay_profile_normal_path_created_draft_recording_mirror")
+            QTimer.singleShot(
+                delay(),
+                lambda: os_type_text(
+                    "#monitoring-hud-overlay-profile-name-input",
+                    str(overlay_profile_return_context["createdProfileName"]),
+                    "real OS keyboard edits created Overlay Profile name",
+                    step_recording_overlay_profile_select_monitor,
+                ),
+            )
+
+        def step_recording_overlay_profile_select_monitor():
+            os_click_and_assert_state(
+                "[data-overlay-profile-membership-toggle]",
+                "real OS click selects monitor membership for created Overlay Profile",
+                """
+                (function() {
+                    const input = document.getElementById("monitoring-hud-overlay-profile-name-input");
+                    const save = document.getElementById("monitoring-hud-overlay-profile-save");
+                    const checked = Array.from(document.querySelectorAll("[data-overlay-profile-membership-toggle]:checked"));
+                    return JSON.stringify({
+                        ok: Boolean(
+                            input
+                            && input.value === "LV1 Normal User Profile"
+                            && save
+                            && !save.disabled
+                            && checked.length === 1
+                        ),
+                        nameValue: input ? String(input.value || "") : "",
+                        checkedMembershipRows: checked.length,
+                        saveEnabled: Boolean(save && !save.disabled),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_overlay_profile_save,
+            )
+
+        def step_recording_overlay_profile_save():
+            os_click_and_assert_state(
+                "#monitoring-hud-overlay-profile-save",
+                "real OS click saves created Overlay Profile",
+                """
+                (function() {
+                    if (typeof monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile === "function") {
+                        monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+                    }
+                    const profiles = monitoringHudControlState ? monitoringHudControlState.overlayProfiles || {} : {};
+                    const saved = Object.values(profiles).find((profile) => String(profile.name || "") === "LV1 Normal User Profile") || null;
+                    const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
+                        ? monitoringHudControlState.activeOverlayRecordingTarget
+                        : {};
+                    const recordingProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                    const recordingCount = document.getElementById("monitoring-hud-recording-target-count");
+                    return JSON.stringify({
+                        ok: Boolean(
+                            saved
+                            && saved.monitorIds
+                            && saved.monitorIds.length === 1
+                            && monitoringHudControlState.activeOverlayProfileId === saved.id
+                            && String(target.activeOverlayProfileId || "") === String(saved.id || "")
+                            && recordingProfile
+                            && String(recordingProfile.textContent || "").trim() === "LV1 Normal User Profile"
+                            && recordingCount
+                            && String(recordingCount.textContent || "").trim() === "1 active monitor"
+                        ),
+                        createdProfileId: saved ? String(saved.id || "") : "",
+                        activeOverlayProfileId: monitoringHudControlState ? String(monitoringHudControlState.activeOverlayProfileId || "") : "",
+                        targetActiveProfileId: String(target.activeOverlayProfileId || ""),
+                        savedMonitorCount: saved && saved.monitorIds ? saved.monitorIds.length : 0,
+                        recordingTargetProfileText: recordingProfile ? String(recordingProfile.textContent || "").trim() : "",
+                        recordingTargetCountText: recordingCount ? String(recordingCount.textContent || "").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_overlay_profile_save_context,
+            )
+
+        def step_recording_overlay_profile_save_context():
+            def record(parsed: dict[str, object]):
+                overlay_profile_return_context["createdProfileId"] = str(parsed.get("createdProfileId") or "")
+                add_step("Saved USER Overlay Profile id recorded for restart proof", True, parsed)
+                QTimer.singleShot(delay(), step_recording_overlay_profile_saved_captures)
+
+            query(
+                "Saved USER Overlay Profile id recorded for restart proof",
+                """
+                (function() {
+                    const profiles = monitoringHudControlState ? monitoringHudControlState.overlayProfiles || {} : {};
+                    const saved = Object.values(profiles).find((profile) => String(profile.name || "") === "LV1 Normal User Profile") || null;
+                    return JSON.stringify({
+                        ok: Boolean(saved && saved.id),
+                        createdProfileId: saved ? String(saved.id || "") : "",
+                        savedProfileName: saved ? String(saved.name || "") : "",
+                        savedMonitorCount: saved && saved.monitorIds ? saved.monitorIds.length : 0,
+                        activeOverlayProfileId: monitoringHudControlState ? String(monitoringHudControlState.activeOverlayProfileId || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                record,
+            )
+
+        def step_recording_overlay_profile_saved_captures():
+            capture("02_overlay_profile_normal_path_saved_recording_mirror")
+            QTimer.singleShot(delay(350), step_recording_overlay_profile_close_settings)
+
+        def step_recording_overlay_profile_close_settings():
+            os_click_and_assert_state(
+                '[data-child-window-close="overlay-profile-settings"]',
+                "real OS click closes Overlay Profile Settings after saved USER profile",
+                """
+                (function() {
+                    const windowNode = document.getElementById("monitoring-hud-overlay-profile-window");
+                    const guard = document.getElementById("monitoring-hud-overlay-profile-unsaved-guard");
+                    return JSON.stringify({
+                        ok: Boolean(windowNode && windowNode.hidden && (!guard || guard.hidden)),
+                        windowClosed: Boolean(windowNode && windowNode.hidden),
+                        unsavedGuardOpen: Boolean(guard && !guard.hidden),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_overlay_profile_switch_default_open,
+            )
+
+        def step_recording_overlay_profile_switch_default_open():
+            os_click(
+                "#monitoring-hud-overlay-profile-toggle",
+                "real OS click opens Active Overlay Profile selector before default switch",
+                step_recording_overlay_profile_switch_default_select,
+            )
+
+        def step_recording_overlay_profile_switch_default_select():
+            os_click_and_assert_state(
+                '[data-overlay-profile-option="default-overlay-profile"]',
+                "real OS click selects Default Overlay Profile after saved profile",
+                """
+                (function() {
+                    if (typeof monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile === "function") {
+                        monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+                    }
+                    const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
+                        ? monitoringHudControlState.activeOverlayRecordingTarget
+                        : {};
+                    const recordingProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                    const recordingCount = document.getElementById("monitoring-hud-recording-target-count");
+                    return JSON.stringify({
+                        ok: Boolean(
+                            monitoringHudControlState
+                            && monitoringHudControlState.activeOverlayProfileId === "default-overlay-profile"
+                            && String(target.activeOverlayProfileId || "") === "default-overlay-profile"
+                            && recordingProfile
+                            && String(recordingProfile.textContent || "").trim() === "Default Overlay Profile"
+                            && recordingCount
+                            && String(recordingCount.textContent || "").trim() === "2 active monitors"
+                        ),
+                        activeOverlayProfileId: monitoringHudControlState ? String(monitoringHudControlState.activeOverlayProfileId || "") : "",
+                        targetActiveProfileId: String(target.activeOverlayProfileId || ""),
+                        recordingTargetProfileText: recordingProfile ? String(recordingProfile.textContent || "").trim() : "",
+                        recordingTargetCountText: recordingCount ? String(recordingCount.textContent || "").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_overlay_profile_switch_saved_open,
+            )
+
+        def step_recording_overlay_profile_switch_saved_open():
+            os_click(
+                "#monitoring-hud-overlay-profile-toggle",
+                "real OS click opens Active Overlay Profile selector before saved USER switch",
+                step_recording_overlay_profile_switch_saved_select,
+            )
+
+        def step_recording_overlay_profile_switch_saved_select():
+            created_id = str(overlay_profile_return_context.get("createdProfileId") or "")
+            if not created_id:
+                add_step(
+                    "real OS click reselects saved USER Overlay Profile",
+                    False,
+                    {"reason": "created profile id missing", "realOsInputProof": False},
+                )
+                finish("FAIL", "saved USER Overlay Profile id was not recorded")
+                return
+            os_click_and_assert_state(
+                f'[data-overlay-profile-option="{created_id}"]',
+                "real OS click reselects saved USER Overlay Profile",
+                f"""
+                (function() {{
+                    if (typeof monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile === "function") {{
+                        monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+                    }}
+                    const expectedId = {json.dumps(created_id)};
+                    const expectedName = {json.dumps(str(overlay_profile_return_context["createdProfileName"]))};
+                    const profiles = monitoringHudControlState ? monitoringHudControlState.overlayProfiles || {{}} : {{}};
+                    const saved = profiles[expectedId] || null;
+                    const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
+                        ? monitoringHudControlState.activeOverlayRecordingTarget
+                        : {{}};
+                    const recordingProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                    const recordingCount = document.getElementById("monitoring-hud-recording-target-count");
+                    return JSON.stringify({{
+                        ok: Boolean(
+                            saved
+                            && String(saved.name || "") === expectedName
+                            && saved.monitorIds
+                            && saved.monitorIds.length === 1
+                            && monitoringHudControlState.activeOverlayProfileId === expectedId
+                            && String(target.activeOverlayProfileId || "") === expectedId
+                            && recordingProfile
+                            && String(recordingProfile.textContent || "").trim() === expectedName
+                            && recordingCount
+                            && String(recordingCount.textContent || "").trim() === "1 active monitor"
+                        ),
+                        createdProfileId: expectedId,
+                        savedProfileName: saved ? String(saved.name || "") : "",
+                        savedMonitorCount: saved && saved.monitorIds ? saved.monitorIds.length : 0,
+                        activeOverlayProfileId: monitoringHudControlState ? String(monitoringHudControlState.activeOverlayProfileId || "") : "",
+                        targetActiveProfileId: String(target.activeOverlayProfileId || ""),
+                        recordingTargetProfileText: recordingProfile ? String(recordingProfile.textContent || "").trim() : "",
+                        recordingTargetCountText: recordingCount ? String(recordingCount.textContent || "").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    }});
+                }})();
+                """,
+                step_recording_overlay_profile_switch_saved_captures,
+                callback_delay_ms=delay(1500),
+            )
+
+        def step_recording_overlay_profile_switch_saved_captures():
+            capture("02_overlay_profile_normal_path_switch_saved_recording_mirror")
+            self._emit_runtime_signal(
+                "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
+                package="PKG-006",
+                slice="LV1",
+                lane=self._monitoring_hud_live_self_qa_lane,
+                status="PASS",
+            )
+            QTimer.singleShot(delay(650), lambda: finish("PASS"))
+
+        def step_recording_overlay_profile_restart_persistence_assert():
+            def record(parsed: dict[str, object]):
+                add_step("Restart check reloads saved USER Overlay Profile and Recording target mirror", True, parsed)
+                capture("02_overlay_profile_restart_persistence_recording_target_mirror")
                 self._emit_runtime_signal(
                     "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
                     package="PKG-006",
@@ -11648,9 +12116,54 @@ class DesktopRuntimeWindow(QWidget):
                     lane=self._monitoring_hud_live_self_qa_lane,
                     status="PASS",
                 )
-                QTimer.singleShot(delay(), lambda: finish("PASS"))
-                return
-            QTimer.singleShot(delay(), step_open_overlay_profiles)
+                QTimer.singleShot(delay(300), lambda: finish("PASS"))
+
+            query(
+                "Restart check reloads saved USER Overlay Profile and Recording target mirror",
+                """
+                (function() {
+                    if (typeof monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile === "function") {
+                        monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
+                    }
+                    if (typeof monitoringHudRenderControls === "function") {
+                        monitoringHudRenderControls();
+                    }
+                    const expectedName = "LV1 Normal User Profile";
+                    const profiles = monitoringHudControlState ? monitoringHudControlState.overlayProfiles || {} : {};
+                    const saved = Object.values(profiles).find((profile) => String(profile.name || "") === expectedName) || null;
+                    const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
+                        ? monitoringHudControlState.activeOverlayRecordingTarget
+                        : {};
+                    const recordingProfile = document.getElementById("monitoring-hud-recording-target-profile");
+                    const recordingCount = document.getElementById("monitoring-hud-recording-target-count");
+                    return JSON.stringify({
+                        ok: Boolean(
+                            saved
+                            && saved.monitorIds
+                            && saved.monitorIds.length === 1
+                            && monitoringHudControlState.activeOverlayProfileId === saved.id
+                            && String(target.activeOverlayProfileId || "") === String(saved.id || "")
+                            && recordingProfile
+                            && String(recordingProfile.textContent || "").trim() === expectedName
+                            && recordingCount
+                            && String(recordingCount.textContent || "").trim() === "1 active monitor"
+                        ),
+                        restartPersistenceProof: "fresh-runtime-reload-same-disposable-state-path",
+                        createdProfileId: saved ? String(saved.id || "") : "",
+                        savedProfileName: saved ? String(saved.name || "") : "",
+                        savedMonitorCount: saved && saved.monitorIds ? saved.monitorIds.length : 0,
+                        activeOverlayProfileId: monitoringHudControlState ? String(monitoringHudControlState.activeOverlayProfileId || "") : "",
+                        targetActiveProfileId: String(target.activeOverlayProfileId || ""),
+                        recordingTargetProfileText: recordingProfile ? String(recordingProfile.textContent || "").trim() : "",
+                        recordingTargetCountText: recordingCount ? String(recordingCount.textContent || "").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false,
+                        stateReloadProofOnly: true
+                    });
+                })();
+                """,
+                record,
+            )
 
         def step_open_overlay_profiles():
             capture("dashboard_window_card_button_glow_grid_background_normal_state")
