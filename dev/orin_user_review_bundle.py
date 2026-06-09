@@ -4133,9 +4133,10 @@ def _write_user_branch_plan_review(
         )
         workstream_entry_result = (
             "BP3 active - Workstream Entry / Orchestration Validation is the "
-            "current review gate. BP3 may recommend SLC-001 protected artifact "
-            "exclusion controls as the first bounded Workstream seam, but this "
-            "packet does not authorize Workstream implementation."
+            "current review gate. BP3 may recommend SLC-001 / Seam 1 - Define "
+            "protected classes and public-safe exclusion contract as the first "
+            "bounded Workstream seam, but this packet does not authorize "
+            "Workstream implementation."
             if bp3_orchestration_packet
             else
             "BP3 not started - Workstream Entry / Orchestration Validation remains "
@@ -4310,7 +4311,7 @@ def _write_user_branch_plan_review(
             *(
                 [
                     "Does USER approve, revise, waive, reject, or hold BP3 Workstream Entry / Orchestration Validation?",
-                    "Does USER agree SLC-001 protected artifact exclusion controls should be the first future Workstream seam after separate implementation approval?",
+                    "Does USER agree SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract should be the first future Workstream seam after separate implementation approval?",
                     "Does USER agree the accepted BP2 plan implements the accepted BP1 vision without changing the Owner AI Operational Foundation Gates route?",
                     "Does USER confirm all private/runtime/provider/cache/memory/backup-import-execution/PR/merge/release gates remain pending?",
                 ]
@@ -4359,7 +4360,7 @@ def _write_user_branch_plan_review(
             "",
             "## Per-SLC / Per-Seam Engineering Plan",
             "",
-            "Each SLC is a Slice-level deliverable. Each seam is a later execution or validation checkpoint inside that slice; these seams do not start until BP2 is accepted or waived, BP3 is green or waived, and USER separately approves bounded Workstream implementation.",
+            "Each SLC is a Slice-level deliverable. Each seam is a later execution or validation checkpoint inside that slice; seam work starts only after BP2 is accepted or waived, BP3 is green or waived, and USER separately approves bounded Workstream implementation.",
             "",
             "### SLC-001 - Protected Artifact Exclusion Controls",
             "",
@@ -4397,7 +4398,7 @@ def _write_user_branch_plan_review(
             "",
             "| Seam | Seam purpose | Likely files / surfaces | Concrete behavior or control target | Expected validator / proof command | Fixture expectation | Disabled / no-execution proof | Rollback / repair posture | USER gate preserved | Stop / report condition |",
             "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
-            "| SLC-005 / Seam 1 | Define lane identity without private setup. | Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md; external branch plan | User/Public lane, Developer lane, and Owner lane are labels/readiness states only; they do not create private roots/remotes. | python dev\\orin_public_leak_prevention_validation.py; python dev\\orin_branch_governance_validation.py | Fixture rejects private path leakage, old Developer-lane terminology drift, and lane labels that imply setup complete. | No private repo, root, remote, GitHub Desktop binding, or private folder is created. | Revert lane readiness wording to public-safe blocked-state labels. | Private Developer and Owner setup remain pending USER decisions. | Stop if lane labels leak private assumptions or imply private setup exists. |",
+            "| SLC-005 / Seam 1 | Define lane identity without private setup. | Docs/family_visions/FAM-007_local_ai_and_capability_packs.md; Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md; external branch plan | User/Public lane, Developer lane, and Owner lane are labels/readiness states only; they create no private roots/remotes. | python dev\\orin_public_leak_prevention_validation.py; python dev\\orin_branch_governance_validation.py | Fixture rejects private path leakage, old Developer-lane terminology drift, and lane labels that imply setup complete. | No private repo, root, remote, GitHub Desktop binding, or private folder is created. | Revert lane readiness wording to public-safe blocked-state labels. | Private Developer and Owner setup remain pending USER decisions. | Stop if lane labels leak private assumptions or imply private setup exists. |",
             "| SLC-005 / Seam 2 | Plan readiness gates for later private setup approval. | external branch plan/state; Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md | Later setup must name root/repo/remote/binding/backup/import scope before action; current branch only plans the gate. | python dev\\orin_external_state_validation.py --root C:\\Nexus Governance State --repo C:\\Nexus Worktrees\\FAM-007 --require-root --require-stage4-records | Fixture proves external state can record pending setup without repo live-state leakage. | No setup command, private remote, or GitHub Desktop private binding runs. | Remove active setup posture from repo docs and keep only external pending-state pointer. | Private setup remains pending exact USER approval. | Stop if BR/BP/Workstream text tries to admit private setup by inertia. |",
             "| SLC-005 / Seam 3 | Validate lane-readiness copy in USER-facing packet. | dev/orin_user_review_bundle.py; C:\\Nexus USER\\FAM-007 | USER sees lanes as future-gated readiness states, not product version numbers or live private environments. | packet validator; direct stale-language scan | Fixture rejects copy that treats Developer/Owner lanes as active private roots. | Review packet contains no private path/status/credential proof. | Regenerate packet after correcting lane wording. | Private lane setup and private artifact import stay pending. | Stop if USER-facing copy could be read as approval to create private lanes. |",
             "",
@@ -4413,7 +4414,7 @@ def _write_user_branch_plan_review(
             "",
             "Recommended execution order after BP2 acceptance, BP3 approval, and separate Workstream approval:",
             "",
-            "1. SLC-001 protected artifact exclusion controls, because all later slices depend on knowing what cannot enter public repo, packet, or upload paths.",
+            "1. SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract, because all later slices and seams depend on knowing what cannot enter public repo, packet, or upload paths.",
             "2. SLC-002 provider/runtime disabled-state consent shell, because no-execution copy and state must be stable before memory/cache or install-intent gates reference it.",
             "3. SLC-003 memory-vs-cache consent-state enforcement gates, because consent separation depends on disabled provider/runtime posture and protects later schema language.",
             "4. SLC-004 capability-pack install-intent gates, because install/setup must stay blocked before Developer/Owner lane readiness can safely describe future capability work.",
@@ -6756,6 +6757,50 @@ def _write_workstream_entry_packet_digests(
                 "6. SLC-006 - Owner AI Memory / Agent Foundation Gate Schemas: final "
                 "schema seam because it depends on all earlier exclusion, consent, "
                 "install-intent, and lane-readiness proof.\n\n"
+                "## Per-SLC Readiness Verdicts\n\n"
+                "| SLC | Readiness Verdict | BP3 Reason | Route-Back / Blocker |\n"
+                "| --- | --- | --- | --- |\n"
+                "| SLC-001 - Protected Artifact Exclusion Controls | READY FOR FIRST WORKSTREAM SEAM | Accepted BP2 names protected classes, exclusion checks, public leak prevention, and rollback; this is the safest entry because every later SLC depends on keeping protected Owner/Developer material out of public repo, packet, and upload paths. | Route back to BP2 if protected classes, exclusion surfaces, or public leak fixtures are incomplete. |\n"
+                "| SLC-002 - Provider/Runtime Consent-Shell Disabled States | READY AFTER SLC-001 ENTRY PROOF | Accepted BP2 names disabled provider/runtime state, USER-facing copy, and no-execution proof; it depends on SLC-001 because disabled-state artifacts must already be protected from leakage. | Hold before SLC-002 if SLC-001 has not proven public-safe exclusion. |\n"
+                "| SLC-003 - Memory-Versus-Cache Consent Gates | READY AFTER DISABLED-STATE PROOF | Accepted BP2 separates cache consent from memory consent and keeps memory/cache behavior inactive; it depends on SLC-002 because provider/runtime disabled-state proof guards the no-execution posture. | Route back to BP2 if cache and memory consent cannot be explained as separate states. |\n"
+                "| SLC-004 - Capability-Pack Install-Intent Gates | READY AFTER CONSENT-GATE PROOF | Accepted BP2 defines install intent without download, setup, provider calls, or execution; it depends on prior consent and protected-artifact proof. | Hold if install-intent wording could be mistaken for install execution or capability enablement. |\n"
+                "| SLC-005 - Developer / Owner Lane Readiness Gates | READY AFTER INSTALL-INTENT PROOF | Accepted BP2 defines lane identity and later private setup readiness without creating private repos, roots, remotes, or GitHub Desktop private binding. | Route back to BP2 if lane readiness begins to imply private setup approval. |\n"
+                "| SLC-006 - Owner AI Memory / Agent Foundation Gate Schemas | READY AFTER LANE-READINESS PROOF | Accepted BP2 names prerequisite schemas and blocked states for future Owner memory/agents while preserving no-real-memory and no-real-agent boundaries. | Hold if schema examples require real Owner memory, real agents, prompt routing, or provider execution. |\n\n"
+                "## Per-Seam Readiness Verdicts\n\n"
+                "| Seam | Readiness Verdict | BP3 Proof Basis | Exact Blocker / Route-Back Statement |\n"
+                "| --- | --- | --- | --- |\n"
+                "| SLC-001 / Seam 1 - Define protected classes and public-safe exclusion contract | READY - recommended first bounded Workstream seam | Accepted BP2 names the protected-asset contract as the first concrete control needed before any other gate can be safely implemented. | No blocker. Route back only if USER changes protected classes or public-safe exclusion policy. |\n"
+                "| SLC-001 / Seam 2 - Enforce public packet/repo/bundle exclusion checks | READY AFTER SLC-001 / Seam 1 | Enforcement depends on the protected-class contract produced in Seam 1. | Blocked until Seam 1 defines the classes and exclusion contract. |\n"
+                "| SLC-001 / Seam 3 - Preserve acceptance/fold-down boundary for protected-asset policy | READY AFTER SLC-001 / Seam 2 | Fold-down depends on proved exclusion checks and accepted policy placement. | Blocked until Seam 2 proves packet/repo/bundle exclusion. |\n"
+                "| SLC-002 / Seam 1 - Define disabled provider/runtime state contract | READY AFTER SLC-001 / Seam 1 | The disabled-state contract can be drafted once protected classes are defined. | Blocked if provider/runtime wording would imply execution approval. |\n"
+                "| SLC-002 / Seam 2 - Plan USER-facing disabled-state copy and review packet wording | READY AFTER SLC-002 / Seam 1 | Copy depends on the disabled-state contract and must remain review-focused. | Route back if copy makes a disabled state look runnable. |\n"
+                "| SLC-002 / Seam 3 - Add no-execution proof linkage for BP3 | READY AFTER SLC-002 / Seam 2 | Proof linkage depends on disabled-state copy and provider-state validator expectations. | Hold if proof requires provider/model/runtime execution. |\n"
+                "| SLC-003 / Seam 1 - Separate cache consent from memory consent | READY AFTER SLC-002 / Seam 3 | Consent separation depends on proved no-execution and inactive provider/runtime posture. | Route back if cache is described as memory or memory consent is implicit. |\n"
+                "| SLC-003 / Seam 2 - Plan blocked persistence states and consent error states | READY AFTER SLC-003 / Seam 1 | Blocked states depend on the cache-vs-memory consent split. | Hold if blocked states imply persistence, indexing, learning, retrieval, or personalization. |\n"
+                "| SLC-003 / Seam 3 - Preserve source-truth placement for future memory/cache policy | READY AFTER SLC-003 / Seam 2 | Source-truth placement depends on clear blocked states and accepted future-gate boundaries. | Route back if policy ownership changes family or architecture-level memory/cache law. |\n"
+                "| SLC-004 / Seam 1 - Define explicit install-intent state model | READY AFTER SLC-003 / Seam 1 | Install intent can be modeled once consent gates are separated and no-execution posture is preserved. | Hold if install intent is treated as download, setup, install, or execution. |\n"
+                "| SLC-004 / Seam 2 - Plan blocked pending-install state and visible route-back | READY AFTER SLC-004 / Seam 1 | Pending-install copy depends on the install-intent state model. | Route back if pending-install state hides the approval needed for real installation. |\n"
+                "| SLC-004 / Seam 3 - Link install-intent gates to protected artifact and provider-state proof | READY AFTER SLC-004 / Seam 2 | Linkage depends on protected artifact proof and provider no-execution proof. | Blocked until SLC-001 and SLC-002 proof exists. |\n"
+                "| SLC-005 / Seam 1 - Define lane identity without private setup | READY AFTER SLC-001 / Seam 1 | Lane identity can be defined once protected public/private boundaries are explicit. | Hold if lane identity creates private repo/root/remote or GitHub Desktop binding work. |\n"
+                "| SLC-005 / Seam 2 - Plan readiness gates for later private setup approval | READY AFTER SLC-005 / Seam 1 | Readiness gates depend on lane identity and future-gated private setup language. | Route back if readiness gates approve private setup instead of naming future approval needs. |\n"
+                "| SLC-005 / Seam 3 - Validate lane-readiness copy in USER-facing packet | READY AFTER SLC-005 / Seam 2 | USER-facing validation depends on readiness-gate copy and packet metadata boundaries. | Hold if review files contain live technical metadata or private path leakage. |\n"
+                "| SLC-006 / Seam 1 - Define future prerequisite schema names and blocked states | READY AFTER SLC-003 / Seam 1 AND SLC-005 / Seam 1 | Schema names depend on consent separation and lane identity. | Route back if schemas require real memory, real agents, prompt routing, or provider execution. |\n"
+                "| SLC-006 / Seam 2 - Plan no-real-memory/no-real-agent proof and public-safe examples | READY AFTER SLC-006 / Seam 1 | Proof examples depend on schema names and blocked states. | Hold if examples include Owner-private memory, prompts, private data, or agent execution. |\n"
+                "| SLC-006 / Seam 3 - Link schema gates to BP3 whole-package orchestration | READY AFTER SLC-006 / Seam 2 | Whole-package linkage depends on all prior SLC gate proofs and future-gated boundaries. | Blocked until SLC-001 through SLC-006 prior seams are satisfied or explicitly waived. |\n\n"
+                "## Whole-Package Readiness Verdict\n\n"
+                "BP3 Verdict: REVIEWABLE AND READY FOR USER BP3 DECISION. The accepted "
+                "BP1 vision and accepted BP2 plan provide enough route, SLC, seam, "
+                "proof, rollback, and future-gate detail for USER to decide BP3. "
+                "The package is not implementation-approved. If USER accepts BP3, "
+                "the next legal request should be a separate bounded Workstream "
+                "implementation approval packet for exactly `SLC-001 / Seam 1 - "
+                "Define protected classes and public-safe exclusion contract`.\n\n"
+                "No seam is classified as impossible or route-blocked at BP3. Later "
+                "seams are readiness-ordered, not approved for execution. Any seam "
+                "that requires private setup, provider/model/runtime/cache/memory "
+                "activation, real Owner memory, real agents, PR, merge, release, "
+                "cleanup, or sibling mutation remains blocked until its future USER "
+                "approval exists.\n\n"
                 "## BP3 Verification Checklist By SLC\n\n"
                 "- SLC-001 must prove protected artifact classes, private path "
                 "exclusions, review-packet exclusion behavior, public-leak prevention, "
@@ -6775,11 +6820,13 @@ def _write_workstream_entry_packet_digests(
                 "real Owner memory, real agents, prompt routing, and provider execution "
                 "remain future-gated.\n\n"
                 "## Recommended First Workstream Seam\n\n"
-                "Codex recommends SLC-001 protected artifact exclusion controls as the "
-                "first future Workstream seam. It is the safest entry point because it "
-                "reduces public/private leakage risk before the branch touches disabled "
-                "runtime states, memory/cache gates, install-intent gates, lane readiness, "
-                "or Owner AI schemas.\n\n"
+                "Codex recommends `SLC-001 / Seam 1 - Define protected classes and "
+                "public-safe exclusion contract` as the exact first future Workstream "
+                "seam. The first SLC is SLC-001, but the first bounded Workstream "
+                "approval packet should cover only Seam 1 unless USER explicitly "
+                "approves a larger Workstream scope. Grouping all of SLC-001 as the "
+                "first Workstream scope is not recommended by default because Seam 2 "
+                "and Seam 3 depend on the protected-class contract produced by Seam 1.\n\n"
                 "## Proof / Validation Matrix\n\n"
                 "- Packet proof: validate the local USER folder and timestamped ZIP "
                 "directly; reviewability remains separate from USER acceptance.\n"
@@ -6805,6 +6852,13 @@ def _write_workstream_entry_packet_digests(
                 "would be needed to prove readiness.\n"
                 "- Keep Workstream implementation pending until BP3 is accepted or "
                 "waived and USER separately approves bounded implementation.\n\n"
+                "## Exact Workstream Approval Packet Target After BP3 Acceptance\n\n"
+                "If USER accepts or waives BP3, the next packet should ask only for "
+                "bounded Workstream implementation approval for `SLC-001 / Seam 1 - "
+                "Define protected classes and public-safe exclusion contract`. That "
+                "packet must preserve the full eighteen-seam orchestration map, but "
+                "its executable scope should stay on the first seam unless USER grants "
+                "an explicit wider Workstream waiver.\n\n"
                 "## Exact BP3 USER Decision Options\n\n"
                 "- Accept BP3 as written and request a separate bounded Workstream "
                 "implementation approval packet next.\n"
@@ -6828,8 +6882,12 @@ def _write_workstream_entry_packet_digests(
                 "BP3 USER Gate State: Pending USER Review\n"
                 "SLC Traceability: Complete - SLC-001 through SLC-006 trace to "
                 "accepted BP1 and accepted BP2.\n"
-                "First Bounded Workstream Seam: SLC-001 protected artifact exclusion "
-                "controls are recommended as the first future seam.\n"
+                "Seam Traceability: Complete - all eighteen accepted BP2 seams have "
+                "BP3 readiness verdicts.\n"
+                "Whole-Package Readiness Verdict: Reviewable and ready for USER BP3 "
+                "decision; not implementation-approved.\n"
+                "First Bounded Workstream Seam: SLC-001 / Seam 1 - Define protected "
+                "classes and public-safe exclusion contract.\n"
                 "Implementation Approval: Pending separate USER approval after BP3; "
                 "this packet does not authorize Workstream implementation."
             )
@@ -6842,9 +6900,10 @@ def _write_workstream_entry_packet_digests(
                 "ORIN import, and v1.8.0 remain pending USER decisions."
             )
             recommended_seam = (
-                "Recommended First Bounded Workstream Seam: SLC-001 protected "
-                "artifact exclusion controls, to be considered only after USER "
-                "accepts or waives BP3 and separately approves Workstream implementation."
+                "Recommended First Bounded Workstream Seam: SLC-001 / Seam 1 - "
+                "Define protected classes and public-safe exclusion contract, to "
+                "be considered only after USER accepts or waives BP3 and separately "
+                "approves Workstream implementation."
             )
             scan_result = (
                 "Source-Truth Coverage: packet includes accepted BP1 Branch Vision "
