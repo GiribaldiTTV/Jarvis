@@ -1169,6 +1169,7 @@
     "schema": "owner-ai-operational-foundation-gates.v1",
     "branch": "feature/fam-007-owner-ai-operational-foundation-gates",
     "packageId": "PKG-007",
+    "stateId": "fam007-owner-ai-operational-foundation-gates",
     "state": "implemented-public-safe-gate-contract",
     "sliceIds": [
       "SLC-001",

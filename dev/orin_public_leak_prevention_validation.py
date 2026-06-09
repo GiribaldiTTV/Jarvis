@@ -1505,6 +1505,11 @@ def _validate_owner_ai_operational_foundation_gates(
         "Owner AI operational foundation gates fixture branch mismatch",
     )
     _require(
+        fixture.get("stateId") == contract.get("stateId"),
+        failures,
+        "Owner AI operational foundation gates fixture state ID mismatch",
+    )
+    _require(
         fixture.get("state") == "implemented-public-safe-gate-contract",
         failures,
         "Owner AI operational foundation gates fixture must be implemented public-safe proof",

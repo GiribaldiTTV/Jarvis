@@ -53,6 +53,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     OWNER_AI_GATE_SEAM_RECORDS,
     OWNER_AI_GATE_SLICE_IDS,
     OWNER_AI_OPERATIONAL_FOUNDATION_GATES_BRANCH,
+    OWNER_AI_OPERATIONAL_FOUNDATION_GATES_STATE_ID,
     OWNER_AI_OPERATIONAL_FOUNDATION_GATES_SCHEMA_VERSION,
     PACKAGE_ID,
     PROVIDER_CONFIGURATION_UNCONFIGURED,
@@ -959,6 +960,11 @@ def _validate_owner_ai_operational_foundation_gates_state(
     _require(
         state.get("branch") == OWNER_AI_OPERATIONAL_FOUNDATION_GATES_BRANCH,
         "Owner AI operational foundation gates branch mismatch",
+        failures,
+    )
+    _require(
+        state.get("stateId") == OWNER_AI_OPERATIONAL_FOUNDATION_GATES_STATE_ID,
+        "Owner AI operational foundation gates state ID mismatch",
         failures,
     )
     _require(
