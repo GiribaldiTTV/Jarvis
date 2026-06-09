@@ -61,6 +61,8 @@ AI-native architecture placement is now routed without adding backlog families b
 
 Branch Scope Standard: branches must package multiple related admitted slices under exactly one broad family by default. A package with exactly one admitted slice is blocked by `Single-Slice Package User Approval Missing` unless `Single-Slice Package User Approval: Granted` is recorded with explicit USER approval.
 
+Branch Readiness Stage 1 must apply the `BR1 Candidate Viability / Grouping Matrix` from `Docs/phase_governance.md` before presenting backlog/family/package candidates. A backlog candidate is not valid merely because it has planning, support, manifest, readiness, infrastructure, or future dependency work; it must name a concrete feature outcome, implementation-bearing route class, behavior-change classification, grouping recommendation, split reason when not grouped, and proof path. Supporting work belongs inside the coherent implementation-bearing package when owner, route, timing, risk, and validation proof align.
+
 Package Completion Standard: Workstream continues through every admitted package slice until `Package Completion State: Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred` is truthfully recorded before Hardening admission.
 
 Admitted Slice Counting Rule: only rows with `Admission State` equal to `Admitted` count toward a package's admitted-slice total. Package slices must trace to exactly one FAM and exactly one package in the owning workstream or family dossier.

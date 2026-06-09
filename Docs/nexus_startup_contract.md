@@ -198,6 +198,20 @@ Branch Planning and runtime-plan anchors:
 - USER Review Response
 - BP3 Orchestration Validation Missing
 - Branch Readiness Stage 1 - Analysis Gate
+- BR1 Candidate Viability / Grouping Matrix
+- BR1 Candidate Implementability Missing
+- BR1 Candidate Grouping Matrix Missing
+- BR1 Planning-Only Candidate Drift
+- BR1 Support-Only Candidate Drift
+- BR1 Readiness-Only Candidate Drift
+- BR1 Manifest-Only Candidate Drift
+- BR1 Tiny-Branch Sprawl
+- BR1 Feature Vision Context Missing
+- BR1 Candidate Split Reason Missing
+- Implementation-Bearing Route Unproven
+- Post-Merge Release Readiness Handoff
+- Post-Merge Release Readiness Decision Missing
+- Release Readiness Handoff Skipped
 - Branch Readiness Stage 2 - Execution Gate
 - Branch Readiness Execution User Approval Missing
 - no repository file mutation

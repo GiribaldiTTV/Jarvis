@@ -33,6 +33,10 @@ The BP2 marker `SLC / Seam Plan:` remains valid for existing packets and histori
 
 Every active branch plan for a runtime, product, source-truth, helper, validator, or governance repair carrier must include an implementation-bearing route before BP1 begins. Branch Readiness Stage 2 is allowed to discover infrastructure prerequisites, lane groundwork, and route blockers; it admits the route green only after those blockers are resolved, deferred with a legal alternate route, or converted into an exact USER action gate. BP1 defines the vision for the selected route; BP2 plans how Codex will implement that route; BP3 verifies that the route is ready for bounded Workstream execution.
 
+BR1 must produce a `BR1 Candidate Viability / Grouping Matrix` before BR2 admits a route. The matrix compares USER-selectable candidates and must name the main feature/package objective, concrete feature outcome, implementation-bearing route class, behavior-change classification, support/infrastructure relationship, Family Feature Vision context, Deferred Feature Carryforward consumed, grouping recommendation, split reason when not grouped, expected Slice/SLC/seam map, proof path, largest safe coherent package explanation, tiny-branch sprawl review, blockers, and exact USER decision needed. Candidate matrix rows are review evidence, not active branch state, selected-next truth, or implementation approval.
+
+Planning-only, readiness-only, support-only, infrastructure-only, manifest-only, registry-only, proof-only, setup/skeleton-only, and choose-later candidates are invalid unless USER grants an exact setup/action gate and the packet names the concrete implemented behavior or control that the branch will enforce. Support work should be grouped into the implementation-bearing package when it shares the same FAM, package objective, route, owner/worktree, release timing, risk class, and validation/proof path. Splitting support or deferred carryforward into tiny branches requires an explicit split reason and future owner.
+
 Required active branch-plan route markers:
 
 - Selected Implementation Route:
