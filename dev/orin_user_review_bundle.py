@@ -583,6 +583,29 @@ def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> boo
     return bool(_packet_file_text(packet_files, file_name))
 
 
+def _is_bp1_branch_vision_packet_text(value: str) -> bool:
+    normalized = re.sub(r"\s+", " ", value).casefold()
+    if any(
+        marker in normalized
+        for marker in (
+            "bp2 branch plan review",
+            "bp2 user branch plan review",
+            "bp3",
+            "workstream implementation",
+        )
+    ):
+        return False
+    return any(
+        marker in normalized
+        for marker in (
+            "bp1 branch vision",
+            "bp1 entry",
+            "bp1 user branch vision review",
+            "user branch vision review",
+        )
+    )
+
+
 def _primary_user_review_file(exact_user_decision: str) -> str:
     normalized = re.sub(r"\s+", " ", exact_user_decision).casefold()
     stage_patterns = (
@@ -1218,7 +1241,14 @@ def _bp1_packet_phase_language_failures(packet_files: Mapping[str, str]) -> list
         _packet_file_text(packet_files, file_name)
         for file_name in USER_FACING_GENERATED_FILES
     ).casefold()
-    if "bp1 branch vision" not in combined or "authorize bp2 user branch plan review only" not in combined:
+    if not (
+        _is_bp1_branch_vision_packet_text(combined)
+        and (
+            "bp2 remains pending" in combined
+            or "authorize bp2 user branch plan review only" in combined
+            or "pending user review" in combined
+        )
+    ):
         return []
 
     failures: list[str] = []
@@ -1663,6 +1693,16 @@ def _write_user_branch_vision_review(
             "",
             "The current branch implemented Dashboard Recording Start/Stop and native NDAI log output, then Live Validation exposed a larger product-shape question: Recording needs a clearer relationship between the Dashboard card, quick access, Recording Studio, Log Viewer Studio, tray visibility, keybinds, native logs, exported logs, and future settings. This BP1 Entry repairs that Branch Vision before PR Readiness or further runtime mutation.",
             "",
+            "## USER Recording Planning Digest",
+            "",
+            "- Recording should eventually support USER-customizable Start/Stop keybinds, with a future setting for whether keybind-start opens Recording Studio.",
+            "- The HUD Dashboard should expose a small, obvious quick-access recording affordance, while the Recording card stays concise and visually aligned with the existing Dashboard card system.",
+            "- Recording Studio is the proposed compact, non-child Recording control window for Start/Stop, target, status, close/minimize behavior, and screen-space-efficient recording transparency.",
+            "- Log Viewer Studio is the proposed non-child log surface for native NDAI log access, exported-log access, later previous-log selection, in-app viewing, and future export customization.",
+            "- Native NDAI logs are the product artifact. CSV, Excel-readable, JSON, or other third-party-readable files are exports only, created through a future explicit export flow.",
+            "- Tray visibility, keybind behavior, post-stop behavior, warning dismissal, settings, export defaults, and log locations are important future Recording design items, but they must be admitted deliberately before implementation.",
+            "- The miss this packet repairs is governance/product planning depth: BP1 must surface the real Recording product shape early enough that USER can add, revise, reject, or future-gate it before BP2/BP3 and Workstream execution.",
+            "",
             "## Codex Understanding",
             "",
             "Codex understands this as a stop-loss return to BP1 Entry. Prior Workstream, Hardening, and Live Validation proof remains useful evidence, but it no longer authorizes PR movement. The repaired vision must decide which Recording surfaces belong to the current branch, which are future-gated FAM-006 direction, and which require separate branches or Governance intake.",
@@ -1674,6 +1714,25 @@ def _write_user_branch_vision_review(
             "## End-State Vision",
             "",
             "At the end of the repaired BP1 path, USER should know whether this branch remains a Dashboard Recording card and native-log start/stop branch, expands to include a small Recording Studio or Log Viewer launch surface, defers tray/keybind/settings/export work, or routes some ideas to future branches. The end state should be clear enough that BP2 can write an engineering plan without discovering new product direction during Live Validation.",
+            "",
+            "## Branch-Sprawl Principle",
+            "",
+            "Branches should carry as much coherent implementation as safely possible under one FAM/package objective when owner/worktree, route, validation/proof path, release timing, rollback posture, and risk remain aligned. BP1 should not split Recording into tiny branches merely because there are many surfaces; it should split only when dependency, proof path, risk, release timing, or USER preference requires separate packages.",
+            "",
+            "## Deferred Carryforward Rule",
+            "",
+            "Deferred Recording ideas are not discarded. BR2 and BP2 should surface applicable deferred items from the Recording Family Feature Vision, explain why each item is in the current branch, future FAM-006 vision, future branch candidate, BP2/BP3 analysis item, or no-action bucket, and preserve the reason when an item is left future-gated.",
+            "",
+            "## Disposition Categories For USER Review",
+            "",
+            "- Current branch candidate: a surface or behavior that may belong in this branch if USER accepts that package shape.",
+            "- Current branch must-have: a surface or behavior that must be repaired before this branch can resume BP2/BP3 or PR movement.",
+            "- BP2/BP3 analysis item: a decision that BP1 can accept conceptually but BP2/BP3 must size, sequence, and validate before implementation.",
+            "- Future FAM-006 vision item: durable product direction that belongs in Recording vision but not necessarily in this branch.",
+            "- Future branch candidate: a coherent later package with its own BP1/BP2/BP3 route.",
+            "- Governance/process lesson: a planning or validation rule that should be folded into governance by the legal carrier before future branches repeat the miss.",
+            "- Rejected/no-action item: an option USER rejects or Codex determines does not fit source truth.",
+            "- Needs USER decision: an item that cannot be classified without USER response.",
             "",
             "## What Will I Actually See, And Where Will I See It?",
             "",
@@ -1729,20 +1788,24 @@ def _write_user_branch_vision_review(
             "",
             "## Product Options / Design Paths",
             "",
-            "- Option A - Current branch stays minimal: keep this branch to Dashboard Recording card Start/Stop, native NDAI log output, and corrected visual/live-validation proof. Tradeoff: fastest PR path after BP2/BP3 repair, but Recording Studio and Log Viewer Studio become future branches.",
-            "- Option B - Admit launch scaffolding only: keep implemented Start/Stop behavior but add or plan a small button path to open placeholder Recording Studio and Log Viewer Studio shells. Tradeoff: aligns with the broader vision sooner, but requires more BP2/BP3 repair and Live Validation.",
-            "- Option C - Replan full Recording surface package: treat Recording Studio, Log Viewer Studio, tray transparency, keybind/settings, and native/export model as one larger same-branch package. Tradeoff: strongest product coherence, but likely too large for this branch and may require future branch splitting.",
-            "- Option D - Future-vision fold-down: preserve the full Recording vision in FAM-006/future planning while current branch closes only after fixing current accepted-scope defects. Tradeoff: avoids over-expanding this branch, but USER must accept that the current product shape remains interim.",
+            "- Option A - Minimal Dashboard Recording Card / native log repair: keep this branch to the Dashboard Recording card, active Overlay Profile target mirroring, Start/Stop behavior already admitted by historical work, native NDAI log output, no automatic readable export, visual-system repair, and focused proof. Tradeoff: fastest recovery path, but Recording Studio and Log Viewer Studio wait.",
+            "- Option B - Dashboard Recording Card plus Recording Studio scaffold: keep the Dashboard card and add or plan a small non-child Recording Studio shell/launch path without full tray/keybind/settings/export behavior. Tradeoff: better product direction signal now, but more BP2/BP3 sizing and Live Validation proof.",
+            "- Option C - Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio launch/folder shell: admit both separate-window launch surfaces at a minimal shell level, with Log Viewer focused on native/export folder access rather than full viewing/export workflow. Tradeoff: strongest near-term UX continuity, but more UI/lifecycle proof and higher regression risk.",
+            "- Option D - Full Recording ecosystem now: implement Dashboard quick access, Recording Studio, Log Viewer Studio, tray visibility/control, keybind behavior, settings, native/export flows, warning behavior, and proof as one large package. Tradeoff: most coherent product shape, but likely too broad for this branch without major BP2/BP3 replanning.",
+            "- Option E - Preserve full vision and close only the smallest viable current branch repair: fold the full Recording ecosystem into durable FAM-006 vision and finish this branch only around the smallest safe repair needed to avoid regression. Tradeoff: protects scope and release timing, but the shipped feature remains interim.",
+            "- Option F - Planning digest / vision solidification before selecting implementation shape: keep this branch in BP1 review until USER and Codex settle the Recording product model, then decide whether BP2 should plan Option A, B, C, D, E, a hybrid, or rejection. Tradeoff: more planning now, but reduces late-phase rework.",
             "",
             "## Codex Recommendations",
             "",
-            "- Recommendation 1: Choose Option D as the safest default unless USER wants to reopen implementation. Because the current branch already has working Dashboard Start/Stop and native log proof, folding Recording Studio, Log Viewer Studio, tray, keybind, export, and settings into future FAM-006 planning avoids turning Live Validation into product replanning. Tradeoff: the current branch remains an interim Recording slice, not the full Recording product.",
+            "- Recommendation 1: Choose Option E as the safest default unless USER wants to reopen implementation. Because the current branch already has working Dashboard Start/Stop and native log proof, preserving the full Recording vision while closing only the smallest viable repair avoids turning Live Validation into a full product rebuild. Tradeoff: the current branch remains an interim Recording slice, not the full Recording product.",
             "  USER response:",
-            "- Recommendation 2: Keep the native/export log boundary as a must-have for this branch. Because USER explicitly corrected the CSV behavior, BP2 repair should preserve native NDAI logs as the normal save path and keep readable files as future export artifacts. Tradeoff: export convenience waits for a separate planned export flow.",
+            "- Recommendation 2: Keep the native/export log boundary as a current-branch must-have. Because USER explicitly corrected the CSV behavior, BP2 repair should preserve native NDAI logs as the normal save path and keep readable files as future export artifacts. Tradeoff: export convenience waits for a separate planned export flow.",
             "  USER response:",
-            "- Recommendation 3: Treat Recording Studio and Log Viewer Studio as future branch candidates unless USER decides current branch must create launch shells now. Because independent windows affect lifecycle, taskbar/tray behavior, close warnings, and validation scope, they deserve their own BP2/BP3 detail. Tradeoff: the Dashboard card remains the visible current surface for now.",
+            "- Recommendation 3: Treat Recording Studio and Log Viewer Studio as BP2/BP3 analysis items and likely future branch candidates unless USER selects Option B or C for this branch. Because independent windows affect lifecycle, taskbar/tray behavior, close warnings, and validation scope, they deserve explicit sizing before implementation. Tradeoff: the Dashboard card remains the visible current surface for now.",
             "  USER response:",
             "- Recommendation 4: Require BP2 repair to explain every current versus future Recording surface in an Element-to-Phase matrix. Because the miss happened when surfaces were implied instead of reviewed, the next plan must make every surface explicit. Tradeoff: more planning text now, fewer late-phase surprises later.",
+            "  USER response:",
+            "- Recommendation 5: Reject Option D unless USER explicitly accepts a full replan. The full Recording ecosystem is coherent as a product vision, but it carries tray, keybind, settings, independent-window lifecycle, native/export handling, and Live Validation complexity that can swamp this branch. Tradeoff: less immediate completeness, more reliable branch closure.",
             "  USER response:",
             "",
             "## Why This Fits The Nexus Vision",
@@ -2466,13 +2529,7 @@ def _write_user_branch_plan_review(
         "pr readiness stage 1 analysis" in normalized_decision
         and not dev_owner_live_validation_lv1_packet
     )
-    bp1_branch_vision_packet = (
-        "bp1 branch vision" in normalized_decision
-        and "bp2 branch plan review" not in normalized_decision
-        and "bp2 user branch plan review" not in normalized_decision
-        and "bp3" not in normalized_decision
-        and "workstream implementation" not in normalized_decision
-    )
+    bp1_branch_vision_packet = _is_bp1_branch_vision_packet_text(normalized_decision)
     bp1_packet = bp1_branch_vision_packet
     bp3_orchestration_packet = (
         not workstream_package_approval_packet
@@ -2490,6 +2547,169 @@ def _write_user_branch_plan_review(
             or "bp2 branch plan review" in normalized_decision
         )
     )
+    fam006_recording_bp1_entry_packet = (
+        bp1_branch_vision_packet
+        and (
+            source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+            or any(
+                "FAM-006_recording" in source_rel
+                or "feature_fam_006_dashboard_recording_start_stop_local_file" in source_rel
+                for source_rel, _copied_rel in copied
+            )
+        )
+    )
+    if fam006_recording_bp1_entry_packet:
+        copied_sources = "\n".join(
+            f"- `{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
+        )
+        pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+        lines = [
+            f"# BP2 Boundary Note - {title}",
+            "",
+            "## Contract Status",
+            "",
+            "Draft - BP2 is not prepared because BP1 Recording Branch Vision acceptance or waiver is still pending.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - supporting BP1 boundary aid only.",
+            "",
+            "## USER Gate State",
+            "",
+            "Pending USER Review - USER must answer BP1 before BP2 can be prepared.",
+            "",
+            "## USER Response Proof",
+            "",
+            "Pending USER Response - BP1 has not been accepted, revised, rejected, waived, or held.",
+            "",
+            "## USER Response Digested",
+            "",
+            "No - Codex has not digested a USER BP1 response for this packet.",
+            "",
+            "## Acceptance / Waiver / Revision / Rejection Receipt",
+            "",
+            "None - no BP2 acceptance, waiver, revision closure, or rejection is recorded by this aid.",
+            "",
+            "## Contract Version / Revision",
+            "",
+            "v1 - BP2 boundary note generated during FAM-006 Recording BP1 Entry.",
+            "",
+            "## Plain-English Branch Summary",
+            "",
+            "This is not the FAM-006 engineering plan. It exists only because the current packet format keeps a BP2 review-aid filename in Review Aids. The primary decision file is USER Review/USER_BRANCH_VISION_REVIEW.md.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "USER should read the primary BP1 file to decide the Recording branch vision. This note only confirms that BP2, BP3, Workstream implementation, runtime mutation, Live Validation, PR Readiness, and issue closeout remain blocked until BP1 is accepted, revised, waived, rejected, or held.",
+            "",
+            "## End-State Vision",
+            "",
+            "After USER accepts or waives BP1, BP2 should translate the accepted Recording Branch Vision into a concrete engineering plan. Until then, no implementation package, Recording Studio shell, Log Viewer Studio shell, tray behavior, keybind behavior, settings behavior, export flow, or Native Log Loader work is accepted by this packet.",
+            "",
+            "## Visual / Functional Walkthrough",
+            "",
+            "- Open START_HERE.md.",
+            "- Open USER Review/USER_BRANCH_VISION_REVIEW.md.",
+            "- Use this BP2 boundary note only to confirm that engineering planning is pending.",
+            "",
+            "## Surface Map",
+            "",
+            "- Primary BP1 decision surface: USER Review/USER_BRANCH_VISION_REVIEW.md.",
+            "- BP1 support surfaces: Review Aids/*.md.",
+            "- Source truth context: Source Truth Context/.",
+            "- Not active in this packet: BP2 engineering plan, BP3 orchestration approval, Workstream implementation, runtime mutation, PR Readiness, issue closeout, merge, release, cleanup, or sibling-family mutation.",
+            "",
+            "## Implementation Options",
+            "",
+            "- No BP2 implementation options are selected by this file.",
+            "- BP2 may later plan Option A, B, C, D, E, F, a USER-requested hybrid, or rejection only after BP1 is accepted or waived.",
+            "- Any BP2 plan must trace to the accepted BP1 Recording Branch Vision and preserve future-gated boundaries.",
+            "",
+            "## Recommended Direction",
+            "",
+            "Codex recommends treating this file as a boundary marker only. USER should make the BP1 Recording vision decision first; Codex should prepare BP2 only after that response is accepted, waived, or explicitly routed.",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "This protects Nexus by keeping user-facing product vision separate from engineering plan acceptance. It prevents helper output, ZIP reviewability, or a placeholder BP2 aid from becoming USER acceptance.",
+            "",
+            "## USER Plan Review Decision",
+            "",
+            "No BP2 plan-review decision is requested by this file. The only current decision is BP1 Recording Branch Vision review in USER Review/USER_BRANCH_VISION_REVIEW.md.",
+            "",
+            "## USER Decisions Needed",
+            "",
+            f"- {exact_user_decision}",
+            "- Select, revise, reject, waive, or hold the current branch implementation direction after reading the BP1 file.",
+            "- Confirm whether BP2 should be prepared after BP1, or whether more BP1 review is needed.",
+            "",
+            "## USER Response",
+            "",
+            "Pending USER response to BP1.",
+            "",
+            "## Codex Response Digest",
+            "",
+            "Pending USER response digest. Codex must not prepare BP2 from this aid alone.",
+            "",
+            "## Implementation Constraints Created By USER Response",
+            "",
+            "- None yet; USER BP1 response is pending.",
+            "- BP2 must not infer accepted implementation scope from prior Workstream, Hardening, Live Validation, helper, or ZIP proof.",
+            "",
+            "## USER Rejected / Deferred Ideas",
+            "",
+            "- Deferred until BP1 response: BP2 engineering plan.",
+            "- Deferred until accepted/waived BP2: BP3 Workstream Entry / Orchestration Validation.",
+            "- Deferred until legal BP3 plus a separate USER runtime-implementation decision: Workstream implementation and runtime mutation.",
+            "",
+            "## Vision Delta / Source-Truth Impact",
+            "",
+            "- Accepted BP1 outcomes must fold into the relevant FAM-006 source-truth owner before BP2 relies on them.",
+            "- The temporary USER packet is a review aid, not canon.",
+            "- Packet Reviewability State remains separate from USER Gate State.",
+            "",
+            "## Contract Change Log",
+            "",
+            "- v1 - Replaced generic BP2 placeholder with a FAM-006 Recording BP1 boundary note.",
+            "",
+            "## Current Branch Scope",
+            "",
+            "- BP1 Entry / USER Branch Vision Review only.",
+            "- Repair generated review-aid drift for the FAM-006 Recording packet.",
+            "- No runtime mutation or PR movement.",
+            "",
+            "## Future-Gated Scope",
+            "",
+            f"{pending}",
+            "",
+            "## Implementation Staging Notes",
+            "",
+            "- SLC/seam details belong in BP2/BP3 after BP1 acceptance or waiver.",
+            "- Recording Studio, Log Viewer Studio, tray, keybind, settings, export/share, and Native Log Loader remain future-gated unless USER selects and BP2/BP3 admits them.",
+            "",
+            "## Workstream Entry Result",
+            "",
+            "Not applicable - this BP1 packet does not request or approve Workstream Entry.",
+            "",
+            "## Contract Completion Checklist",
+            "",
+            "- BP1 response is received.",
+            "- Codex digests BP1 response into the proper source-truth owner.",
+            "- BP2 is prepared only after BP1 is accepted or explicitly waived.",
+            "- BP3 and Workstream remain blocked until their later gates are legal.",
+            "",
+            "## Supporting Source-Truth Files",
+            "",
+            f"{copied_sources}",
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     active_branch_files = [
         copied_rel
         for source_rel, copied_rel in copied
@@ -5527,13 +5747,7 @@ def _write_workstream_entry_packet_digests(
         source_branch == "feature/fam-007-dev-owner-skeleton-readiness"
         and "approve bounded pr readiness stage 1" in normalized_decision
     )
-    bp1_packet = (
-        "bp1 branch vision" in normalized_decision
-        and "bp2 branch plan review" not in normalized_decision
-        and "bp2 user branch plan review" not in normalized_decision
-        and "bp3" not in normalized_decision
-        and "workstream implementation" not in normalized_decision
-    )
+    bp1_packet = _is_bp1_branch_vision_packet_text(normalized_decision)
     bp2_packet = (
         not bp1_packet
         and not bp3_packet
@@ -6369,6 +6583,19 @@ def _write_workstream_entry_packet_digests(
             "BP3 Packet Reviewability State: Reviewable\n"
             "BP3 USER Gate State: Pending USER Review\n"
         )
+    workstream_digest_title = (
+        "BP1 Entry Boundary Digest"
+        if bp1_packet
+        else "Workstream Entry Analysis Digest"
+    )
+    workstream_boundary_note = (
+        "This file is retained because current packet validation requires the "
+        "standard review-aid filename. For this packet it is a BP1 boundary "
+        "digest only; it is not a Workstream Entry request and does not approve "
+        "implementation.\n"
+        if bp1_packet
+        else ""
+    )
     files: dict[str, str] = {
         "USER_REVIEW_FOLDER_AND_FILE_DIGEST.md": (
             "# USER Review Folder And File Digest\n\n"
@@ -6385,8 +6612,9 @@ def _write_workstream_entry_packet_digests(
             f"{scan_result}\n"
         ),
         "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md": (
-            "# Workstream Entry Analysis Digest\n\n"
+            f"# {workstream_digest_title}\n\n"
             f"{common}"
+            f"{workstream_boundary_note}"
             f"{analysis_status}\n"
             f"{implementation_posture}\n"
             f"{recommended_seam}"
@@ -6411,8 +6639,10 @@ def _write_workstream_entry_packet_digests(
 def _packet_text_status(text: str) -> str:
     normalized = re.sub(r"\s+", " ", text).casefold()
     bp1_markers = (
+        "bp1 entry",
         "bp1 branch vision review",
         "user_branch_vision_review.md",
+        "user branch vision review",
         "user branch vision review gate",
     )
     bp2_markers = (
@@ -6489,8 +6719,10 @@ def _packet_text_status(text: str) -> str:
         return DECISION_STATUS_REPAIR_REVALIDATION
 
     bp1_review_markers = (
+        "bp1 entry",
         "bp1 branch vision review",
         "bp1 user branch vision review",
+        "user branch vision review",
         "bp1 review packet",
     )
     bp1_decision_markers = (
@@ -6950,13 +7182,7 @@ def build_bundle(
         )
     )
     bp1_decision_text = exact_user_decision.casefold()
-    bp1_packet = (
-        "bp1 branch vision" in bp1_decision_text
-        and "bp2 branch plan review" not in bp1_decision_text
-        and "bp2 user branch plan review" not in bp1_decision_text
-        and "bp3" not in bp1_decision_text
-        and "workstream implementation" not in bp1_decision_text
-    )
+    bp1_packet = _is_bp1_branch_vision_packet_text(bp1_decision_text)
     bp2_packet = (
         not bp1_packet
         and not bp3_packet
