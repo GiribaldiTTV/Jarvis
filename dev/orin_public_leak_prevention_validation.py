@@ -1488,6 +1488,169 @@ def _validate_ai_runtime_trust_boundary_readiness(fixture_set: dict[str, Any], f
         _require(forbidden.get(field) is False, failures, f"AI runtime/trust-boundary must set forbidden {field}=false")
 
 
+def _validate_owner_ai_operational_foundation_gates(
+    fixture_set: dict[str, Any], failures: list[str]
+) -> None:
+    fixture = fixture_set.get("ownerAiOperationalFoundationGates", {})
+    contract = ai_provider_state.build_owner_ai_operational_foundation_gates_state()
+
+    _require(
+        fixture.get("schema") == contract.get("schema"),
+        failures,
+        "Owner AI operational foundation gates fixture schema mismatch",
+    )
+    _require(
+        fixture.get("branch") == contract.get("branch"),
+        failures,
+        "Owner AI operational foundation gates fixture branch mismatch",
+    )
+    _require(
+        fixture.get("stateId") == contract.get("stateId"),
+        failures,
+        "Owner AI operational foundation gates fixture state ID mismatch",
+    )
+    _require(
+        fixture.get("state") == "implemented-public-safe-gate-contract",
+        failures,
+        "Owner AI operational foundation gates fixture must be implemented public-safe proof",
+    )
+
+    expected_slices = tuple(contract.get("sliceIds", ()))
+    actual_slices = tuple(fixture.get("sliceIds", ()))
+    _require(
+        actual_slices == expected_slices and len(actual_slices) == 6,
+        failures,
+        "Owner AI operational foundation gates fixture must preserve SLC-001 through SLC-006",
+    )
+    expected_seams = {
+        (str(seam.get("slc", "")), str(seam.get("seam", "")), str(seam.get("name", "")))
+        for seam in contract.get("seams", ())
+        if isinstance(seam, dict)
+    }
+    actual_seams = {
+        (str(seam.get("slc", "")), str(seam.get("seam", "")), str(seam.get("name", "")))
+        for seam in fixture.get("seams", [])
+        if isinstance(seam, dict)
+    }
+    _require(
+        actual_seams == expected_seams and len(actual_seams) == 18,
+        failures,
+        "Owner AI operational foundation gates fixture must preserve all 18 accepted seams",
+    )
+
+    protected = fixture.get("protectedArtifactExclusion", {})
+    contract_protected = contract.get("protectedArtifactExclusion", {})
+    _require(
+        protected.get("protectedClasses") == list(contract_protected.get("protectedClasses", ())),
+        failures,
+        "Owner AI protected artifact classes mismatch",
+    )
+    _require(
+        protected.get("publicExclusionTargets") == list(contract_protected.get("publicExclusionTargets", ())),
+        failures,
+        "Owner AI public exclusion targets mismatch",
+    )
+    for field in ("repoPacketBundleChecksRequired", "acceptedPolicyFoldDownRequired"):
+        _require(protected.get(field) is True, failures, f"Owner AI protected gate must set {field}=true")
+    for field in (
+        "ownerPrivateMaterialAllowed",
+        "privateDevMaterialAllowed",
+        "privatePathAllowed",
+        "secretAllowed",
+        "privateModelOrCapabilityAssetAllowed",
+    ):
+        _require(protected.get(field) is False, failures, f"Owner AI protected gate must set {field}=false")
+
+    provider = fixture.get("providerRuntimeDisabledState", {})
+    _require(provider.get("providerVisibleData") == "none", failures, "Owner AI provider-visible data must be none")
+    _require(
+        provider.get("promptProviderModelExecution") == "disabled",
+        failures,
+        "Owner AI provider/model execution must be disabled",
+    )
+    _require(
+        provider.get("downloadsNetworkExternalCalls") == "blocked",
+        failures,
+        "Owner AI downloads/network/external calls must be blocked",
+    )
+    for field in (
+        "sentToProvider",
+        "canAcceptPrompts",
+        "providerSdkIntegrated",
+        "modelExecutionEnabled",
+        "modelDownloadsEnabled",
+        "runtimeProviderExecutionEnabled",
+        "externalCallsEnabled",
+    ):
+        _require(provider.get(field) is False, failures, f"Owner AI provider gate must set {field}=false")
+
+    consent = fixture.get("consentStateGates", {})
+    _require(consent.get("cacheIsNotMemory") is True, failures, "Owner AI cache must remain distinct from memory")
+    _require(consent.get("runtimeCacheBehaviorEnabled") is False, failures, "Owner AI runtime cache must remain blocked")
+    _require(consent.get("memoryWriteEnabled") is False, failures, "Owner AI memory writes must remain blocked")
+    _require(
+        consent.get("cacheConsentState") != consent.get("memoryConsentState"),
+        failures,
+        "Owner AI cache consent and memory consent must be separate",
+    )
+
+    install = fixture.get("capabilityInstallIntentGates", {})
+    for field in (
+        "capabilityPackDownloadsBlocked",
+        "capabilityPackInstallBlocked",
+        "capabilityPackUpdateBlocked",
+        "capabilityPackUninstallBlocked",
+        "protectedArtifactAndProviderProofLinked",
+    ):
+        _require(install.get(field) is True, failures, f"Owner AI install-intent gate must set {field}=true")
+
+    lanes = fixture.get("laneReadinessGates", {})
+    for lane_name in ("developerLane", "ownerLane"):
+        lane = lanes.get(lane_name, {})
+        for field in ("privateRepoCreated", "privateRootCreated", "privateRemoteConfigured"):
+            _require(lane.get(field) is False, failures, f"Owner AI {lane_name} must set {field}=false")
+
+    schemas = fixture.get("ownerAiMemoryAgentFoundationSchemas", {})
+    for field in ("realOwnerMemoryEnabled", "realOwnerAgentsEnabled"):
+        _require(schemas.get(field) is False, failures, f"Owner AI schema gate must set {field}=false")
+    _require(
+        schemas.get("publicSafeExamplesOnly") is True,
+        failures,
+        "Owner AI schema examples must be public-safe only",
+    )
+
+    forbidden = fixture.get("forbiddenMaterialPresence", {})
+    contract_forbidden = contract.get("forbiddenMaterialPresence", {})
+    expected_forbidden_fields = set(contract_forbidden)
+    actual_forbidden_fields = set(forbidden)
+    missing_forbidden_fields = sorted(expected_forbidden_fields - actual_forbidden_fields)
+    extra_forbidden_fields = sorted(actual_forbidden_fields - expected_forbidden_fields)
+    _require(
+        not missing_forbidden_fields,
+        failures,
+        "Owner AI forbidden material proof missing field(s): " + ", ".join(missing_forbidden_fields),
+    )
+    _require(
+        not extra_forbidden_fields,
+        failures,
+        "Owner AI forbidden material proof has unexpected field(s): " + ", ".join(extra_forbidden_fields),
+    )
+    for field in sorted(expected_forbidden_fields):
+        _require(forbidden.get(field) is False, failures, f"Owner AI forbidden material proof must set {field}=false")
+
+    handoff = fixture.get("hardeningHandoff", {})
+    _require(handoff.get("nextLegalPhase") == "Hardening H1", failures, "Owner AI handoff must route to Hardening H1")
+    _require(handoff.get("workstreamGreenCandidate") is True, failures, "Owner AI Workstream green candidate missing")
+    for field in (
+        "privateSetupAuthorized",
+        "providerModelExecutionAuthorized",
+        "runtimeCacheBehaviorAuthorized",
+        "memoryLearningPersonalizationAuthorized",
+        "realOwnerMemoryAuthorized",
+        "realOwnerAgentsAuthorized",
+    ):
+        _require(handoff.get(field) is False, failures, f"Owner AI handoff must set {field}=false")
+
 def _validate_breakpoint2_seam1_action_gate_registry(fixture_set: dict[str, Any], failures: list[str]) -> None:
     registry = fixture_set.get("breakpoint2Seam1ActionGateRegistry", {})
     _require(
@@ -1845,6 +2008,7 @@ def validate() -> list[str]:
     _validate_dev_owner_skeleton_hardening_h1_comparison(fixture_set, failures)
     _validate_dev_owner_skeleton_live_validation_lv1_completion(fixture_set, failures)
     _validate_ai_runtime_trust_boundary_readiness(fixture_set, failures)
+    _validate_owner_ai_operational_foundation_gates(fixture_set, failures)
     _validate_breakpoint2_seam1_action_gate_registry(fixture_set, failures)
     _validate_breakpoint2_remaining_workstream_readiness(fixture_set, failures)
     _validate_blocked_canaries(fixture_set, failures)

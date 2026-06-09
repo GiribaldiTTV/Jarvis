@@ -50,6 +50,11 @@ from desktop.ai_provider_state import (  # noqa: E402
     NO_PROVIDER_INTERACTION_AFFORDANCE,
     NO_PROVIDER_MODE,
     NO_PROVIDER_PRIVACY_SCOPE,
+    OWNER_AI_GATE_SEAM_RECORDS,
+    OWNER_AI_GATE_SLICE_IDS,
+    OWNER_AI_OPERATIONAL_FOUNDATION_GATES_BRANCH,
+    OWNER_AI_OPERATIONAL_FOUNDATION_GATES_STATE_ID,
+    OWNER_AI_OPERATIONAL_FOUNDATION_GATES_SCHEMA_VERSION,
     PACKAGE_ID,
     PROVIDER_CONFIGURATION_UNCONFIGURED,
     PROVIDER_CONSENT_REQUIRED,
@@ -907,6 +912,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     build_default_provider_setup_foundation_config,
     build_default_provider_setup_completion_config,
     build_fam007_foundation_readiness_state,
+    build_owner_ai_operational_foundation_gates_state,
     build_default_provider_runtime_config,
     build_default_provider_readiness_config,
     build_local_ai_runtime_foundation_provider_boundary_state,
@@ -943,6 +949,174 @@ def _require(condition: bool, message: str, failures: list[str]) -> None:
         failures.append(message)
 
 
+def _validate_owner_ai_operational_foundation_gates_state(
+    state: dict[str, object], failures: list[str]
+) -> None:
+    _require(
+        state.get("schema") == OWNER_AI_OPERATIONAL_FOUNDATION_GATES_SCHEMA_VERSION,
+        "Owner AI operational foundation gates schema mismatch",
+        failures,
+    )
+    _require(
+        state.get("branch") == OWNER_AI_OPERATIONAL_FOUNDATION_GATES_BRANCH,
+        "Owner AI operational foundation gates branch mismatch",
+        failures,
+    )
+    _require(
+        state.get("stateId") == OWNER_AI_OPERATIONAL_FOUNDATION_GATES_STATE_ID,
+        "Owner AI operational foundation gates state ID mismatch",
+        failures,
+    )
+    _require(
+        tuple(state.get("sliceIds", ())) == OWNER_AI_GATE_SLICE_IDS,
+        "Owner AI operational foundation gates must preserve SLC-001 through SLC-006",
+        failures,
+    )
+    seams = tuple(state.get("seams", ()))
+    _require(
+        len(seams) == len(OWNER_AI_GATE_SEAM_RECORDS) == 18,
+        "Owner AI operational foundation gates must preserve all 18 accepted seams",
+        failures,
+    )
+    expected_seams = {
+        (slc, seam, name)
+        for slc, seam, name in OWNER_AI_GATE_SEAM_RECORDS
+    }
+    actual_seams = {
+        (
+            str(seam.get("slc", "")),
+            str(seam.get("seam", "")),
+            str(seam.get("name", "")),
+        )
+        for seam in seams
+        if isinstance(seam, dict)
+    }
+    _require(
+        actual_seams == expected_seams,
+        "Owner AI operational foundation gates seam records must match accepted BP2/BP3 seams",
+        failures,
+    )
+
+    protected = state.get("protectedArtifactExclusion", {})
+    _require(isinstance(protected, dict), "Owner AI protected artifact gate missing", failures)
+    if isinstance(protected, dict):
+        _require(
+            protected.get("repoPacketBundleChecksRequired") is True,
+            "Owner AI protected artifact gate must require repo/packet/bundle checks",
+            failures,
+        )
+        for field in (
+            "ownerPrivateMaterialAllowed",
+            "privateDevMaterialAllowed",
+            "privatePathAllowed",
+            "secretAllowed",
+            "privateModelOrCapabilityAssetAllowed",
+        ):
+            _require(protected.get(field) is False, f"Owner AI protected gate must set {field}=false", failures)
+
+    provider = state.get("providerRuntimeDisabledState", {})
+    _require(isinstance(provider, dict), "Owner AI provider/runtime disabled state missing", failures)
+    if isinstance(provider, dict):
+        _require(provider.get("providerVisibleData") == "none", "Owner AI provider-visible data must be none", failures)
+        _require(
+            provider.get("providerVisibleDataGuarantee") == PROVIDER_VISIBLE_DATA_GUARANTEE_NONE,
+            "Owner AI provider-visible data guarantee mismatch",
+            failures,
+        )
+        for field in (
+            "sentToProvider",
+            "canAcceptPrompts",
+            "providerSdkIntegrated",
+            "modelExecutionEnabled",
+            "modelDownloadsEnabled",
+            "runtimeProviderExecutionEnabled",
+            "externalCallsEnabled",
+        ):
+            _require(provider.get(field) is False, f"Owner AI provider/runtime gate must set {field}=false", failures)
+        _require(
+            provider.get("promptProviderModelExecution") == "disabled",
+            "Owner AI prompt/provider/model execution must be disabled",
+            failures,
+        )
+        _require(
+            provider.get("networkEgressState") == NETWORK_EGRESS_BLOCKED,
+            "Owner AI network egress must remain blocked",
+            failures,
+        )
+
+    consent = state.get("consentStateGates", {})
+    _require(isinstance(consent, dict), "Owner AI consent-state gates missing", failures)
+    if isinstance(consent, dict):
+        _require(consent.get("cacheIsNotMemory") is True, "Owner AI cache must remain distinct from memory", failures)
+        _require(consent.get("runtimeCacheBehaviorEnabled") is False, "Owner AI runtime cache must remain disabled", failures)
+        _require(consent.get("memoryWriteEnabled") is False, "Owner AI memory writes must remain disabled", failures)
+        _require(consent.get("memoryContextState") == MEMORY_CONTEXT_DISABLED, "Owner AI memory context state mismatch", failures)
+        _require(consent.get("memoryIndexingState") == MEMORY_INDEXING_DISABLED, "Owner AI memory indexing state mismatch", failures)
+        _require(consent.get("retrievalState") == RETRIEVAL_DISABLED, "Owner AI retrieval state mismatch", failures)
+        _require(consent.get("learningState") == LEARNING_DISABLED, "Owner AI learning state mismatch", failures)
+        _require(consent.get("persistenceState") == PERSISTENCE_DISABLED, "Owner AI persistence state mismatch", failures)
+        _require(
+            consent.get("cacheConsentState") != consent.get("memoryConsentState"),
+            "Owner AI cache consent and memory consent must be separate states",
+            failures,
+        )
+
+    install = state.get("capabilityInstallIntentGates", {})
+    _require(isinstance(install, dict), "Owner AI install-intent gates missing", failures)
+    if isinstance(install, dict):
+        _require(
+            install.get("installIntentState") == CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            "Owner AI install intent must be blocked",
+            failures,
+        )
+        for field in (
+            "capabilityPackDownloadsBlocked",
+            "capabilityPackInstallBlocked",
+            "capabilityPackUpdateBlocked",
+            "capabilityPackUninstallBlocked",
+            "protectedArtifactAndProviderProofLinked",
+        ):
+            _require(install.get(field) is True, f"Owner AI install-intent gate must set {field}=true", failures)
+
+    lanes = state.get("laneReadinessGates", {})
+    _require(isinstance(lanes, dict), "Owner AI lane readiness gates missing", failures)
+    if isinstance(lanes, dict):
+        for lane_name in ("developerLane", "ownerLane"):
+            lane = lanes.get(lane_name, {})
+            _require(isinstance(lane, dict), f"Owner AI {lane_name} gate missing", failures)
+            if isinstance(lane, dict):
+                for field in ("privateRepoCreated", "privateRootCreated", "privateRemoteConfigured"):
+                    _require(lane.get(field) is False, f"Owner AI {lane_name} must set {field}=false", failures)
+
+    schemas = state.get("ownerAiMemoryAgentFoundationSchemas", {})
+    _require(isinstance(schemas, dict), "Owner AI memory/agent schema gates missing", failures)
+    if isinstance(schemas, dict):
+        _require(schemas.get("realOwnerMemoryEnabled") is False, "Owner AI real memory must remain disabled", failures)
+        _require(schemas.get("realOwnerAgentsEnabled") is False, "Owner AI real agents must remain disabled", failures)
+        _require(schemas.get("publicSafeExamplesOnly") is True, "Owner AI schema examples must be public-safe only", failures)
+
+    forbidden = state.get("forbiddenMaterialPresence", {})
+    _require(isinstance(forbidden, dict), "Owner AI forbidden material proof missing", failures)
+    if isinstance(forbidden, dict):
+        for field, value in forbidden.items():
+            _require(value is False, f"Owner AI forbidden material proof must set {field}=false", failures)
+
+    handoff = state.get("hardeningHandoff", {})
+    _require(isinstance(handoff, dict), "Owner AI Hardening handoff missing", failures)
+    if isinstance(handoff, dict):
+        _require(handoff.get("nextLegalPhase") == "Hardening H1", "Owner AI next legal phase must be Hardening H1", failures)
+        _require(handoff.get("workstreamGreenCandidate") is True, "Owner AI Workstream green candidate missing", failures)
+        for field in (
+            "privateSetupAuthorized",
+            "providerModelExecutionAuthorized",
+            "runtimeCacheBehaviorAuthorized",
+            "memoryLearningPersonalizationAuthorized",
+            "realOwnerMemoryAuthorized",
+            "realOwnerAgentsAuthorized",
+        ):
+            _require(handoff.get(field) is False, f"Owner AI handoff must set {field}=false", failures)
+
+
 def validate() -> list[str]:
     failures: list[str] = []
 
@@ -951,6 +1125,7 @@ def validate() -> list[str]:
     registry_snapshot = build_local_provider_registry_state(surface_role="core")
     runtime_foundation_snapshot = build_local_ai_runtime_foundation_provider_boundary_state(surface_role="core")
     foundation_snapshot = build_fam007_foundation_readiness_state(surface_role="core")
+    owner_ai_gates_state = build_owner_ai_operational_foundation_gates_state()
     default_runtime_snapshot = build_provider_runtime_contract_state(
         build_default_provider_runtime_config(),
         surface_role="core",
@@ -2980,6 +3155,7 @@ def validate() -> list[str]:
     registry_payload = registry_snapshot.as_renderer_payload()
     runtime_foundation_payload = runtime_foundation_snapshot.as_renderer_payload()
     foundation_payload = foundation_snapshot.as_renderer_payload()
+    _validate_owner_ai_operational_foundation_gates_state(owner_ai_gates_state, failures)
     default_runtime_payload = default_runtime_snapshot.as_renderer_payload()
     missing_config_payload = missing_config_snapshot.as_renderer_payload()
     invalid_config_payload = invalid_config_snapshot.as_renderer_payload()

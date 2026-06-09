@@ -759,25 +759,21 @@ Required `PR Creation Details` operator blocks:
 
 <concise branch outcome and purpose>
 
-## Branch Evidence
+## What Changed
 
-<concrete implemented work, source-truth changes, behavior/capability changes, historical context, branch-specific boundaries when useful, and evidence only; do not repeat the Summary>
-
-## Validation
-
-<validation commands, evidence paths, or "Validation was not recorded in the original PR body.">
+<concrete implemented work, source-truth changes, behavior/capability changes, and useful historical context; do not repeat the Summary>
 ```
 ````
 
 When the conditional `Next Branch` block is included, it must state whether branch creation is legal now.
 When release debt or updated-`main` revalidation blocks an in-scope selected next implementation branch, use `May Create Now: NO` and record the gate.
 The PR operator blocks should be markdown-friendly and copy-ready, but they must not create the PR, merge the branch, run release work, or create the next branch by themselves.
-The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.
-`## Summary` must be one concise outcome paragraph, and `## Branch Evidence` must not repeat the Summary through nested `### Summary`, `### Purpose`, or `### Overview` sections.
-Use concrete Branch Evidence subheads such as `### Changes`, `### Context`, `### Source Truth`, or `### Boundaries` only when they improve scanability.
-The PR summary must report implemented branch truth only. Generic exclusion dumps, `Not Included` sections, and defensive scope language remain prohibited; concise branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth.
-`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only.
-GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.
+The PR summary/GitHub PR body uses exactly two top-level sections: `## Summary` and `## What Changed`.
+`## Summary` must be one concise human-readable outcome paragraph, and `## What Changed` must describe the actual branch work in concrete Markdown-friendly detail without repeating the Summary through nested `### Summary`, `### Purpose`, or `### Overview` sections.
+Use concrete What Changed subheads such as `### Source Truth`, `### Runtime`, `### Tooling`, or `### Review Support` only when they improve scanability.
+The PR summary must report implemented branch truth only. GitHub PR bodies and PR Summary copy must not include `## Validation`, `## PR posture`, `## Branch Evidence`, Testing/Checks sections, generic exclusion dumps, `Not Included` sections, deferred/future-gated sections, defensive scope language, or phase-digest/Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`.
+Validation commands, command output, byte-proof evidence, mergeability, bot-review state, watcher state, and PR Readiness posture belong in Codex digests, helper output, status checks, or external operational state, not the GitHub PR body.
+All visible PR bodies must be scanned by `dev\orin_pr_body_quality_audit.py`; every nonconforming PR body inside the approved GitHub correction scope must be repaired before the PR-body standard can be reported green.
 
 ## Release Readiness Green Output
 
