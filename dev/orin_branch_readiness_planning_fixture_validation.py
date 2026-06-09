@@ -1405,7 +1405,7 @@ def _validate_cross_fam_dependency_packet_text(text: str) -> list[str]:
     )
     require(
         "not created" in affected_ffv.casefold()
-        or re.search(r"\bF\d+-FF\d{2}(?:-E\d{2})?\b", affected_ffv),
+        or re.search(r"\bF\d+-FF\d{2}(?:-E\d{2})?\b", affected_ffv, re.IGNORECASE),
         "Cross-FAM dependency packet must name affected FFV / element or Not Created",
     )
     require(

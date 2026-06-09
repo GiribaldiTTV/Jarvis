@@ -10,7 +10,7 @@ Originating FFV / Element: F7-FF01-E03 assisted desktop AI capability-pack eligi
 
 Affected FAMs: FAM-008 Packaging and Install Experience.
 
-Affected FFV / Element or Not Created: Not Created.
+Affected FFV / Element or Not Created: F8-FF02-E01 self-maintaining app lifecycle update visibility.
 
 Dependency Scope Class: Priority Carry-In
 
