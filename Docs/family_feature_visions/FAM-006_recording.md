@@ -264,6 +264,30 @@ tray controls, keybinds, global settings, and Native Log Loader full
 implementation remain future-gated unless BP2/BP3 prove a minimal part is
 required for this branch.
 
+### BP2 Consumption After Option F
+
+USER accepted the revised FAM-006 Recording BP1 Branch Vision after Option F
+planning solidification and selected Option C as the current-branch
+implementation-shape candidate for BP2 planning.
+
+For BP2, Option C means:
+
+- Dashboard Recording Card remains the compact quick-access/status surface.
+- Recording Studio may be planned as the focused recording control/status
+  surface when BP2/BP3 can prove it remains bounded.
+- Minimal Log Viewer Studio launch/folder shell may be planned only where it
+  directly supports Recording native/export log access.
+- Native NDAI logs remain the normal product artifact.
+- Exported logs remain USER-requested export artifacts.
+- Open native/export log folder behavior should remain usable before a
+  recording is created in the active session.
+- Issue #258 Overlay Profile persistence may be admitted as a distinct repair
+  line item where it affects recording target reliability.
+
+This BP2 consumption note is durable feature-category direction for the accepted
+Recording vision. It is not Workstream implementation approval, issue closeout,
+PR authority, release authority, or a live branch-state ledger.
+
 ### Start/Stop Ownership
 
 Options BP1 should present:

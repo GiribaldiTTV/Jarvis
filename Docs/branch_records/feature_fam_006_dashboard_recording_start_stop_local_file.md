@@ -39,7 +39,7 @@ Issue Admission: `Issue #258 is not admitted into BR2/BP1 identity. It is admitt
 
 ## Blockers
 
-Blockers: `BP1 USER Branch Vision Review pending USER response`
+Blockers: `BP2 USER Branch Plan Review pending USER response after accepted BP1 Option F planning solidification`
 
 ## Entry Basis
 
@@ -47,7 +47,7 @@ Entry Basis: `USER selected Dashboard Recording Start/Stop To Local File as the 
 
 ## Exit Criteria
 
-Exit Criteria: `BP1 packet is reviewable; USER accepts, revises, rejects, requests more options, or waives the Branch Vision before BP2 preparation.`
+Exit Criteria: `BP2 packet is reviewable; USER accepts, revises, rejects, holds, or waives the Branch Plan before BP3 preparation.`
 
 ## Rollback Target
 
@@ -175,6 +175,19 @@ Durable Recording Direction: `Docs/family_feature_visions/FAM-006_recording.md o
 Current USER Leaning: `After planning solidification, USER is leaning toward refined Option C / C-lite: compact Dashboard Recording Card, likely bounded Recording Studio, and minimal Log Viewer Studio launch/folder shell only where directly supporting Recording native/export log access.`
 Boundary: `BP1 acceptance, BP2, BP3, Workstream, runtime mutation, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, and unrelated cleanup remain pending separate USER decisions.`
 
+## BP1 Acceptance / BP2 Option C Planning Receipt
+
+Acceptance Date: `2026-06-08`
+Receipt Role: `Durable compact receipt only; active gate state lives in C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md.`
+USER BP1 Decision: `Accepted after Option F planning solidification`
+Selected BP2 Planning Candidate: `Option C - Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio launch/folder shell`
+Accepted Branch Vision Basis: `Dashboard Recording Card remains compact quick-access/status surface; Recording Studio is planned as focused recording control/status surface; minimal Log Viewer Studio launch/folder shell is planned only where it directly supports Recording native/export log access.`
+Native / Export Log Boundary: `Native NDAI logs are the normal product artifact; exported logs are USER-requested export artifacts.`
+Open Folder Boundary: `Open native/export log folder behavior should remain usable before a recording is created in the active session.`
+Issue #258 Planning Boundary: `Overlay Profile persistence is a distinct admitted repair line item where it affects recording target reliability; issue closeout remains pending proof and USER disposition.`
+Branch-Sprawl Principle: `Option C remains one coherent FAM-006 package only while owner/worktree, route, validation/proof path, release timing, rollback posture, and risk class remain aligned.`
+Boundary: `BP2 acceptance, BP3, Workstream, runtime mutation, Hardening, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, and Native Log Loader full implementation remain pending separate USER decisions.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
@@ -185,9 +198,9 @@ Repo Receipt Role: `This file is a durable branch admission pointer and traceabi
 
 ## BP1 Route
 
-BP1 Route: `USER_BRANCH_VISION_REVIEW.md generated under C:\Nexus USER\FAM-006`
+BP1 Route: `USER_BRANCH_VISION_REVIEW.md generated under C:\Nexus USER\FAM-006 and accepted by USER after Option F planning solidification`
 Packet Reviewability Boundary: `A reviewable BP1 packet starts USER review; it is not USER acceptance.`
-USER Gate Boundary: `BP1 remains pending USER review until USER accepts, revises, rejects, waives, requests more options, or blocks the Branch Vision.`
+USER Gate Boundary: `BP1 is accepted for Option C BP2 planning; BP2 remains pending USER acceptance, revision, waiver, rejection, or hold.`
 
 ## Assigned Worktree Confinement
 

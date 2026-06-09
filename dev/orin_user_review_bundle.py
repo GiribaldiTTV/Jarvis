@@ -1613,6 +1613,197 @@ def _write_user_branch_vision_review(
     profile_text = " ".join(
         [title, review_purpose, exact_user_decision, *source_file_names]
     ).casefold().replace("_", "-")
+    fam006_recording_bp2_or_later_context_packet = (
+        bp2_or_later_context_packet
+        and "fam-006" in profile_text
+        and "recording" in profile_text
+        and (
+            "dashboard-recording" in profile_text
+            or "fam-006-recording" in profile_text
+            or "recording card" in profile_text
+            or "recording studio" in profile_text
+        )
+        and not pr_readiness_context_packet
+    )
+    if fam006_recording_bp2_or_later_context_packet:
+        copied_sources = "\n".join(
+            f"- `{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
+        )
+        pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+        lines = [
+            f"# USER Branch Vision Review - {title}",
+            "",
+            "## Review Status",
+            "",
+            f"Accepted BP1 Context - this file supports the active {active_planning_gate} packet and does not request a new BP1 decision.",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - USER accepted the revised FAM-006 Recording Branch Vision after Option F planning solidification.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            f"Reviewable - accepted BP1 context for the active {active_planning_gate} packet.",
+            "",
+            "## USER Gate State",
+            "",
+            f"USER Accepted - BP1 Branch Vision accepted by USER; {active_planning_gate} is the active gate.",
+            "",
+            "## Contract Revision",
+            "",
+            "v2 - BP1 acceptance context after USER selected Option C as the BP2 implementation-shape candidate.",
+            "",
+            "## Project Vision Context",
+            "",
+            "Nexus should make user-facing runtime work understandable, recoverable, and evidence-backed without turning temporary review packets into durable source truth.",
+            "",
+            "## Family Vision Context",
+            "",
+            "FAM-006 owns Monitoring/HUD user-facing surfaces, including Dashboard status, overlay profile targeting, recording access, visual-system inheritance, and proof that changed UI behaves in the real desktop path.",
+            "",
+            "## Feature Vision Context",
+            "",
+            "FAM-006 Recording uses the active Overlay Profile as the recording target source. Native NDAI logs are the normal product artifact. Readable/exported logs are USER-requested export artifacts or validation evidence, not automatic normal saves.",
+            "",
+            "## Branch Goal",
+            "",
+            "Plan the FAM-006 Recording branch so the Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, and issue #258 target reliability can be sized before BP3.",
+            "",
+            "## End-State Vision",
+            "",
+            "Recording should feel like one coherent product path: compact status and quick access in the Dashboard, focused control in Recording Studio, safe folder access through a minimal Log Viewer Studio shell, reliable active Overlay Profile targets, and no accidental expansion into full Log Viewer, tray, keybind, full settings, export customization, provider/model/private, or Native Log Loader scope.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "- Dashboard Recording Card: compact target/status/action surface inside the HUD Dashboard.",
+            "- Recording Studio: a focused separate recording control/status surface if BP3 keeps it bounded.",
+            "- Minimal Log Viewer Studio shell: a separate launch/folder-access surface for native/export log folders only if BP3 keeps it bounded.",
+            "- Native NDAI recording artifacts: product-native saved/readback data.",
+            "- Exported logs: readable artifacts only when USER requests export or validation explicitly creates export evidence.",
+            "",
+            "## How It Will Function",
+            "",
+            "- Recording target follows the active Overlay Profile.",
+            "- Open-folder actions should remain usable before a recording exists in the active session.",
+            "- Missing native/export folders should be created/opened safely when the admitted UI asks for them.",
+            "- Issue #258 profile persistence is a target-reliability dependency, not a broad settings rewrite.",
+            "",
+            "## User Experience Flow",
+            "",
+            "- USER checks or starts from the Dashboard Recording Card.",
+            "- USER opens Recording Studio for focused recording controls/status if admitted by BP3.",
+            "- USER opens the minimal Log Viewer Studio shell for folder access if admitted by BP3.",
+            "- USER expects native output by default and intentional export when readable external files are needed.",
+            "",
+            "## Surface Map",
+            "",
+            "- Dashboard Recording Card.",
+            "- Recording Studio.",
+            "- Minimal Log Viewer Studio launch/folder shell.",
+            "- Native NDAI log save/readback path.",
+            "- Export folder boundary.",
+            "- Overlay Profile persistence / issue #258.",
+            "- Live Validation and worktree-specific UTS evidence surfaces.",
+            "",
+            "## Product Options / Design Paths",
+            "",
+            "- Option C: Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio launch/folder shell.",
+            "- Option C-lite: split the Log Viewer shell if BP3 finds it too wide.",
+            "- Narrow fallback: Dashboard Recording Card plus native log and profile target reliability only.",
+            "- Return-to-BP1 route: required only if BP2 changes the accepted vision instead of translating it.",
+            "",
+            "## Codex Recommendations",
+            "",
+            "- Recommendation 1: keep Option C as the BP2 planning candidate because it preserves the accepted Recording product shape while still forcing BP3 to prove whether the Studio and Log Viewer shell are bounded enough. Tradeoff: stronger user workflow continuity, but more UI proof than a Dashboard-only plan.",
+            "- Recommendation 2: require BP3 to split Recording Studio or the minimal Log Viewer Studio shell if lifecycle, rollback, visual proof, or folder-access risk becomes too wide. Tradeoff: safer implementation control, but the current branch may deliver a narrower product path.",
+            "- Recommendation 3: keep full Log Viewer, tray, keybind, settings, export customization, and Native Log Loader work future-gated because those surfaces need separate UX and validation depth. Tradeoff: less immediate completeness, but less drift and clearer proof.",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "This keeps the user-facing path readable and intentional: quick Dashboard access, focused control where needed, native product data by default, explicit exports, and per-element proof for every new or affected UI element.",
+            "",
+            "## USER Design Questions",
+            "",
+            "- Does Option C still match the accepted BP1 Recording direction?",
+            "- Should BP3 split Recording Studio or the Log Viewer shell if proof/rollback risk is too high?",
+            "- Should any deferred item become current-branch scope before BP3?",
+            "",
+            "## USER Response",
+            "",
+            "BP1 response is accepted. The active USER response now belongs to the BP2 Branch Plan Review.",
+            "",
+            "## Codex Digest",
+            "",
+            "Codex digested USER's BP1 acceptance and prepared BP2 around Option C. This file is accepted BP1 context only; the primary active decision is USER Review/USER_BRANCH_PLAN_REVIEW.md.",
+            "",
+            "## USER Response Proof",
+            "",
+            "USER accepted the revised FAM-006 BP1 Branch Vision after Option F planning solidification and selected Option C as the BP2 planning candidate.",
+            "",
+            "## USER Response Digested",
+            "",
+            "Yes - BP1 acceptance is folded into the active branch record, external branch plan/state, and Recording feature vision context.",
+            "",
+            "## Accepted Branch Vision",
+            "",
+            "- Accepted: Dashboard Recording Card remains compact quick-access/status.",
+            "- Accepted for BP2 planning: Recording Studio as focused recording control/status surface.",
+            "- Accepted for BP2 planning: minimal Log Viewer Studio launch/folder shell only where it supports native/export folder access.",
+            "- Accepted: native NDAI logs are the normal product artifact.",
+            "- Accepted: exported logs are USER-requested artifacts.",
+            "- Accepted: issue #258 profile persistence is a target-reliability line item where it affects recording.",
+            "",
+            "## Family-Vision Versus Branch-Only Vision Impact",
+            "",
+            "Durable Recording ecosystem direction belongs in the FAM-006 Recording feature vision. Active BP2/BP3 packet state belongs in external branch state and the temporary USER packet, not in durable repo docs as live operational state.",
+            "",
+            "## Must-Have Behavior",
+            "",
+            "- Preserve active Overlay Profile as the target source.",
+            "- Preserve visual-system inheritance from existing FAM-006 Dashboard surfaces.",
+            "- Keep native product logs separate from USER-requested exports.",
+            "- Keep folder-open behavior usable before active-session recording when admitted.",
+            "- Keep BP2 reviewability separate from USER acceptance.",
+            "",
+            "## Future-Gated Decisions And Regression-Risk Controls",
+            "",
+            "- Full Log Viewer Studio, previous-log selection, export customization, tray recording controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, PR/merge/release/cleanup, and sibling-worktree mutation remain future-gated.",
+            "- New or affected elements need focused proof; unchanged previous elements need Live Validation only when affected by the branch.",
+            "- BP3 must block or split any surface that widens proof, rollback, or release risk beyond the accepted branch package.",
+            "",
+            "## Deferred And Future-Gated Ideas",
+            "",
+            f"{pending}",
+            "",
+            "## Vision Question Queue",
+            "",
+            "- No BP1 decision remains open in this file.",
+            "- BP2 must answer whether Option C is accepted, revised, waived, rejected, or held.",
+            "- BP3 may be prepared only after BP2 is accepted or waived.",
+            "",
+            "## Design Assumption Ledger",
+            "",
+            "- Assumption: Recording Studio can remain a compact focused surface.",
+            "- Assumption: minimal Log Viewer Studio shell can remain folder-access-only.",
+            "- Assumption: issue #258 repair is needed only to protect target reliability.",
+            "- Assumption: export customization and full viewer behavior stay future-gated.",
+            "",
+            "## Acceptance / Revision / Rejection / Waiver Decision",
+            "",
+            "USER Accepted - BP1 Branch Vision accepted after Option F planning solidification. BP2 remains Pending USER Review.",
+            "",
+            "## Supporting Source-Truth Files",
+            "",
+            f"{copied_sources}",
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_VISION_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
     fam007_dev_owner_bp1_packet = (
         "fam-007" in profile_text
         and (
@@ -2585,6 +2776,14 @@ def _write_user_branch_plan_review(
         )
     )
     normalized_decision = exact_user_decision.casefold()
+    is_fam006_recording = (
+        source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+        or any(
+            "FAM-006_recording" in source_rel
+            or "feature_fam_006_dashboard_recording_start_stop_local_file" in source_rel
+            for source_rel, _copied_rel in copied
+        )
+    )
     workstream_package_approval_packet = any(
         marker in normalized_decision
         for marker in BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS
@@ -2613,20 +2812,20 @@ def _write_user_branch_plan_review(
     )
     bp1_branch_vision_packet = _is_bp1_branch_vision_packet_text(normalized_decision)
     bp1_packet = bp1_branch_vision_packet
+    bp2_branch_plan_packet = (
+        not bp1_branch_vision_packet
+        and (
+            "bp2 user branch plan review" in normalized_decision
+            or "bp2 branch plan review" in normalized_decision
+        )
+    )
     bp3_orchestration_packet = (
-        not workstream_package_approval_packet
+        not bp2_branch_plan_packet
+        and not workstream_package_approval_packet
         and (
             "bp3" in normalized_decision
             or "workstream entry / orchestration" in normalized_decision
             or "orchestration validation" in normalized_decision
-        )
-    )
-    bp2_branch_plan_packet = (
-        not bp1_branch_vision_packet
-        and not bp3_orchestration_packet
-        and (
-            "bp2 user branch plan review" in normalized_decision
-            or "bp2 branch plan review" in normalized_decision
         )
     )
     fam006_recording_bp1_entry_packet = (
@@ -2783,6 +2982,382 @@ def _write_user_branch_plan_review(
             "## Supporting Source-Truth Files",
             "",
             f"{copied_sources}",
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
+    fam006_recording_bp2_option_c_packet = (
+        bp2_branch_plan_packet
+        and (
+            source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+            or any(
+                "FAM-006_recording" in source_rel
+                or "feature_fam_006_dashboard_recording_start_stop_local_file" in source_rel
+                for source_rel, _copied_rel in copied
+            )
+        )
+    )
+    if fam006_recording_bp2_option_c_packet:
+        copied_sources = "\n".join(
+            f"- `{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
+        )
+        pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+        lines = [
+            f"# USER Branch Plan Review - {title}",
+            "",
+            "## Contract Status",
+            "",
+            "Pending USER Response - BP2 is prepared for USER Branch Plan Review; BP2 is not accepted, waived, rejected, or held yet.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - substantive FAM-006 Recording Option C BP2 packet generated for USER inspection.",
+            "",
+            "## USER Gate State",
+            "",
+            "Pending USER Review - USER accepted BP1 after Option F planning solidification; USER must now accept, revise, waive, reject, or hold this BP2 plan before BP3 can proceed.",
+            "",
+            "## USER Response Proof",
+            "",
+            "BP1 accepted by USER after Option F planning solidification. BP2 response is pending.",
+            "",
+            "## USER Response Digested",
+            "",
+            "BP1 acceptance digested into the active branch plan and Recording feature vision context. BP2 is pending USER response.",
+            "",
+            "## Acceptance / Waiver / Revision / Rejection Receipt",
+            "",
+            "BP1 accepted. BP2 pending USER decision.",
+            "",
+            "## Contract Version / Revision",
+            "",
+            "v2 - BP1 accepted after Option F; Option C selected as the current-branch implementation-shape candidate for BP2 planning.",
+            "",
+            "## Plain-English Branch Summary",
+            "",
+            "This BP2 plan translates the accepted FAM-006 Recording Branch Vision into a bounded engineering package candidate: the Dashboard Recording Card remains the compact quick-access and status surface, Recording Studio becomes the focused recording control/status surface, and a minimal Log Viewer Studio launch/folder shell supports native and exported log access without becoming the full Log Viewer implementation.",
+            "",
+            "This packet does not approve BP3, Workstream implementation, runtime mutation, PR work, issue closeout, merge, release, cleanup, or sibling worktree mutation. It gives USER the engineering plan to accept, revise, waive, reject, or hold.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "- In the Dashboard HUD, USER should see a compact Recording Card that communicates target/status and quick access without becoming the full recording workspace.",
+            "- In a separate Recording Studio surface, USER should see focused recording controls and status if BP3 keeps that surface inside this branch.",
+            "- In a minimal Log Viewer Studio shell, USER should see only native/export folder access that directly supports Recording unless BP3 or a later branch admits more.",
+            "- In product output, normal saved recording evidence should be native NDAI log data; readable/exported logs should appear only through USER-requested export or validation/export evidence flow.",
+            "",
+            "## End-State Vision",
+            "",
+            "After this branch is implemented, hardened, and live-validated under later approvals, Recording should feel like a coherent FAM-006 workflow: quick status from the Dashboard, focused control from Recording Studio, safe access to native/export log folders, reliable active Overlay Profile targeting, and no accidental expansion into full Log Viewer, tray, keybind, settings, provider/model/private, or Native Log Loader work.",
+            "",
+            "## Visual / Functional Walkthrough",
+            "",
+            "- USER starts from the HUD Dashboard Recording Card for quick recording status and entry points.",
+            "- USER opens Recording Studio when they need focused recording controls or status.",
+            "- USER opens the minimal Log Viewer Studio shell only for native/export folder access admitted by BP3.",
+            "- USER can open native/export folders before active-session recording; missing folders should be created safely instead of disabling the action.",
+            "- USER-created Overlay Profiles persist across restart when target reliability depends on them.",
+            "",
+            "## Surface Map",
+            "",
+            "- Dashboard Recording Card: compact quick-access/status surface.",
+            "- Recording Studio: focused recording control/status surface, BP3-bounded.",
+            "- Minimal Log Viewer Studio shell: native/export folder access surface, BP3-bounded.",
+            "- Native recording output: NDAI-native log artifact and readback route.",
+            "- Export boundary: USER-requested readable/export artifacts, not automatic normal saves.",
+            "- Overlay Profile persistence / issue #258: target-reliability repair line item.",
+            "",
+            "## Implementation Options",
+            "",
+            "- Option C as selected for BP2 planning: Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio launch/folder shell.",
+            "- Option C-lite fallback: Dashboard Recording Card plus Recording Studio, with Log Viewer folder access split out if BP3 finds it too wide.",
+            "- Narrow fallback: Dashboard Recording Card plus native log and issue #258 target reliability only if Studio/window proof becomes too risky.",
+            "- Return-to-BP1 route: required if USER decides this plan changes the accepted Recording vision rather than translating it.",
+            "",
+            "## Recommended Direction",
+            "",
+            "Codex recommends Option C for BP2 review, with BP3 required to pressure-test whether Recording Studio and the minimal Log Viewer Studio shell remain bounded enough for one branch. This keeps the branch-sprawl principle intact without silently admitting tray, keybind, full settings, full Log Viewer, export customization, or Native Log Loader work.",
+            "",
+            "## Why This Fits The Nexus Vision",
+            "",
+            "This plan keeps Nexus user-first: the Dashboard stays compact, focused work moves into dedicated surfaces, native product data remains controlled by NDAI, exports become intentional USER actions, and every new or affected element gets proof instead of relying on generic validation.",
+            "",
+            "## USER Plan Review Decision",
+            "",
+            "USER is deciding whether this Option C engineering plan correctly translates the accepted BP1 Recording vision into a branch package that can move to BP3. This decision does not approve BP3, Workstream implementation, runtime mutation, issue closeout, PR, merge, release, cleanup, or future-gated feature work.",
+            "",
+            "## USER Decisions Needed",
+            "",
+            "- Accept, revise, waive, reject, or hold this BP2 Option C Branch Plan.",
+            "- Name any surface that should route back to BP1 because it changes the accepted Branch Vision.",
+            "- Name any current-branch surface that should be split out before BP3.",
+            "- Confirm whether BP3 may evaluate Option C as the current branch implementation shape after BP2 acceptance or waiver.",
+            "",
+            "## Accepted Branch Vision Summary",
+            "",
+            "- USER accepted the revised FAM-006 BP1 Branch Vision after Option F planning solidification.",
+            "- Selected current-branch implementation-shape candidate for BP2: Option C.",
+            "- Dashboard Recording Card remains the compact Dashboard quick-access/status surface.",
+            "- Recording Studio is planned as the focused recording control/status surface.",
+            "- Minimal Log Viewer Studio launch/folder shell is planned only where it directly supports Recording native/export log access.",
+            "- Native NDAI logs are the normal product artifact.",
+            "- Exported logs are USER-requested export artifacts, not automatic normal product saves.",
+            "- Open native/export log folder behavior must remain usable before a recording is created in the active session.",
+            "- Issue #258 Overlay Profile persistence is admitted as a distinct repair line item only where it affects recording target reliability.",
+            "- Full Log Viewer Studio, previous-log selection, export customization, tray recording controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, and sibling-family work remain future-gated.",
+            "",
+            "## Implementation Package Summary",
+            "",
+            "Option C is one coherent FAM-006 Recording package when it stays bounded to the same product objective: make recording understandable and usable from the Dashboard, give the USER a focused Recording Studio control surface, and expose native/export log access through a minimal Log Viewer Studio shell without silently adding full log viewing, export customization, tray, keybind, settings, or Native Log Loader scope.",
+            "",
+            "The package is branch-worthy as a multi-surface package because the surfaces share the same FAM, package objective, owner/worktree, implementation route, proof path, release timing, rollback posture, and risk class. It must split only if BP3 finds the Studio or Log Viewer shell widens proof, lifecycle, release, or rollback risk beyond this branch.",
+            "",
+            "## Branch Scope Size Test",
+            "",
+            "| Test | BP2 Result |",
+            "| --- | --- |",
+            "| Same FAM | PASS - all admitted current-branch surfaces belong to FAM-006 Recording / Monitoring and HUD. |",
+            "| Same package objective | PASS - recording control, target reliability, native-log output, and folder access all support the Recording package. |",
+            "| Same owner/worktree | PASS - FAM-006 worktree owns this runtime/UI branch. |",
+            "| Same implementation route | PASS - Dashboard, Recording Studio, and minimal Log Viewer shell route through desktop Dashboard/HUD recording UI/runtime boundaries. |",
+            "| Same validation/proof path | PASS with BP3 check - focused screenshots, runtime validators, live desktop proof, native/export folder proof, and UTS can cover the package. |",
+            "| Same release/rollback posture | PASS with BP3 check - rollback can disable/remove new launch shells and restore prior Dashboard Recording behavior without touching sibling-family or Governance source truth. |",
+            "| Risk class | WATCH - multiple UI surfaces require stronger visual-system inheritance and live validation proof; BP3 must confirm no full Log Viewer/tray/keybind/settings creep. |",
+            "",
+            "## Slice / SLC And Seam Plan",
+            "",
+            "| Slice / SLC | Current BP2 Plan | Branch Boundary |",
+            "| --- | --- | --- |",
+            "| SLC-051 - Recording target/session truth | Preserve active Overlay Profile as target source; prove issue #258 persistence where target reliability depends on saved profiles. | No separate Recording Profile system. |",
+            "| SLC-052 - Dashboard Recording Card | Keep compact quick-access/status surface; align labels, state rows, visual system, and launch buttons with existing Dashboard cards. | Does not become a full studio or log viewer. |",
+            "| SLC-053 - Recording Studio | Add/repair a focused, compact non-child control/status surface if BP3 proves it bounded. | No tray/keybind/global settings unless future-gated decision changes. |",
+            "| SLC-054 - Native NDAI recording output | Preserve native NDAI log as normal product artifact and prove save/readback. | No automatic CSV/Excel/JSON export. |",
+            "| SLC-055 - Minimal Log Viewer Studio launch/folder shell | Provide native-log and exported-log folder access where directly supporting Recording. | No previous-log selection, export customization, full in-app viewer, or Native Log Loader implementation. |",
+            "| SLC-056 - Open folder pre-session usability | Native/export folder buttons should be usable before active-session recording by creating/opening safe folders when missing. | Folder creation is not recording execution or export execution. |",
+            "",
+            "## Affected Surfaces",
+            "",
+            "- Dashboard Recording Card: compact target/status/action surface, quick access, current visual-system inheritance.",
+            "- Recording Studio: focused control/status window planned as non-child/exclusive surface, if BP3 keeps it bounded.",
+            "- Log Viewer Studio shell: minimal launch/folder-access surface for native/export log folders only.",
+            "- Recording runtime contract: native NDAI log artifact, readback proof, no automatic readable export.",
+            "- Export folder boundary: exported logs are USER-requested artifacts and remain empty unless export/validation creates an artifact under approved scope.",
+            "- Overlay Profile persistence / issue #258: target reliability dependency, distinct repair/proof line item.",
+            "- USER Review/UTS/Live Validation: focused screenshots, interaction proof, visual adjudication, worktree-specific UTS export during LV1.",
+            "",
+            "## Likely Files",
+            "",
+            "- `desktop/desktop_renderer.py`",
+            "- `desktop/orin_hud_dashboard.py` or current Dashboard/HUD renderer owners if route differs after BP3 inspection",
+            "- `desktop/recording_output_contract.py`",
+            "- `desktop/monitoring_hud_state.py` and Overlay Profile persistence owners where issue #258 touches target reliability",
+            "- `desktop/hud_recording_bridge.py` or existing bridge/event owners if route differs after BP3 inspection",
+            "- `dev/orin_monitoring_hud_surface_validation.py`",
+            "- `dev/orin_monitoring_hud_internal_sandbox_validation.py`",
+            "- `dev/orin_monitoring_hud_live_validation.ps1`",
+            "- `dev/orin_fam006_hardening_h1.py`",
+            "- `Docs/family_feature_visions/FAM-006_recording.md` for durable future-gated carryforward if USER revises product direction",
+            "- `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\branch_plan.md` for active BP2/BP3/Workstream planning state",
+            "",
+            "## Validators / Helpers",
+            "",
+            "- `python dev\\orin_monitoring_hud_surface_validation.py` for Dashboard/Recording card state and UTS wording checks.",
+            "- `python dev\\orin_monitoring_hud_internal_sandbox_validation.py` for renderer/state/sandbox behavior.",
+            "- `python dev\\orin_validation_suite.py --phase runtime-fam006 --format text` for runtime validation recommendation.",
+            "- `python dev\\orin_branch_readiness_planning_fixture_validation.py` for BP1/BP2/BP3 packet and planning-regression coverage.",
+            "- `python dev\\orin_branch_governance_validation.py` plus worktree/release gates for branch governance.",
+            "- `dev\\orin_monitoring_hud_live_validation.ps1` for later Live Validation real desktop proof, including per-element screenshots and interaction evidence.",
+            "- `dev\\orin_fam006_hardening_h1.py` for later implementation-vs-plan pressure proof.",
+            "",
+            "## Proof Requirements",
+            "",
+            "- Dashboard Recording Card: focused screenshot proof of compact card layout, equal spacing, labels, quick access, status state, hover/focus/disabled states, and visual-system inheritance.",
+            "- Recording Studio: focused screenshot and interaction proof for open, focus, start/stop control readiness, status mirroring, close/minimize behavior accepted by BP3, and taskbar/tray boundary if admitted.",
+            "- Minimal Log Viewer Studio shell: focused screenshot proof for native-log folder and exported-log folder access only; proof that full viewer/export customization is not present.",
+            "- Native NDAI log: save/readback proof through product-native artifact path.",
+            "- Exported logs: proof that readable exports are not automatic product saves; if validation creates a readable artifact, it must live under the governed validation/export evidence root and be identified as validation/export evidence.",
+            "- Open folder pre-session behavior: proof native/export folders open or are created safely before recording in the active session.",
+            "- Issue #258: create/switch/restart/reselect proof that Overlay Profiles persist and continue to support recording target reliability.",
+            "- Visual-system inheritance: compare new card/window/buttons/rows/dividers/effects against existing FAM-006 Dashboard surfaces.",
+            "",
+            "## Element-To-Phase Proof Matrix",
+            "",
+            "| Element ID | Element / Surface | Element Classification | Workstream Implementation Plan | Workstream Proof Plan | Hardening Proof Plan | Live Validation Proof / Waiver Plan | UTS / USER Acceptance Path | Future / Deferred Boundary | USER Decision State | Source Owner / Ledger Owner |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+            "| FAM006-REC-BP2-001 | Dashboard Recording Card compact quick-access/status | Planned / Touched | Align card controls, labels, target/status, and quick access to accepted BP2. | Surface validator plus focused card screenshot and interaction proof. | Compare against accepted BP2 and visual-system contract. | LV1 focused screenshot/video for new or affected states. | Worktree-specific UTS asks USER to verify card clarity and spacing. | No full studio layout inside card. | Pending BP2 review. | External branch plan + FAM-006 Recording vision. |",
+            "| FAM006-REC-BP2-002 | Recording Studio | Planned | Add or repair compact focused control/status window only if BP3 keeps scope bounded. | Launch/open/close/minimize/start-stop readiness proof. | H1 checks lifecycle, rollback, and no tray/keybind creep. | LV1 focused Studio screenshots and interaction proof. | UTS verifies Studio behavior if implemented. | Tray/keybind/settings future-gated. | Pending BP2 review. | External branch plan + FAM-006 Recording vision. |",
+            "| FAM006-REC-BP2-003 | Minimal Log Viewer Studio launch/folder shell | Planned | Provide non-child shell/folder access for native/export log folders if BP3 admits. | Folder-open proof and shell boundary proof. | H1 checks no full viewer/export customization appears. | LV1 focused shell/folder proof. | UTS verifies folder access if implemented. | Previous-log selection, export customization, full viewer, Native Log Loader future-gated. | Pending BP2 review. | External branch plan + FAM-006 Recording vision. |",
+            "| FAM006-REC-BP2-004 | Native NDAI recording log | Touched / Preserved | Keep native NDAI log as normal save/readback artifact. | Native save/readback validator proof. | H1 checks no automatic CSV/export. | LV1 proves native artifact and readback where implementation changes. | UTS verifies saved recording result. | Third-party-readable files are export artifacts. | Pending BP2 review. | Runtime output contract + FAM-006 Recording vision. |",
+            "| FAM006-REC-BP2-005 | Exported-log folder / USER-requested export boundary | Planned / Deferred | Keep folder access separate from export implementation. | Proof folder opens/exists without auto-export. | H1 checks no CSV/Excel auto-create in product path. | LV1 only validates admitted folder access; export flow future-gated. | UTS notes exports are not automatic. | Export customization and file-type choices future-gated. | Pending BP2 review. | FAM-006 Recording vision. |",
+            "| FAM006-REC-BP2-006 | Open folder pre-session usability | Planned | Native/export folder actions create/open safe folders before active-session recording. | Direct UI/helper proof before recording starts. | H1 verifies no session-state dependency. | LV1 exercises open-folder behavior before recording. | UTS asks USER to test folder buttons before recording if implemented. | Not export execution. | Pending BP2 review. | External branch plan + runtime file hygiene owners. |",
+            "| FAM006-REC-BP2-007 | Overlay Profile persistence / issue #258 | Dependency / Admitted repair | Preserve/repair profile persistence where required for target reliability. | Create/switch/restart/reselect proof. | H1 regression checks target mirroring and profile persistence. | LV1 real lifecycle or accepted equivalent proof. | UTS verifies profiles remain after restart if touched. | Issue closeout remains separate USER decision. | Pending BP2 review. | Branch record + external branch plan + issue evidence. |",
+            "| FAM006-REC-BP2-008 | Visual-system inheritance | Cross-cutting proof | Sample existing Dashboard card/window grammar for all new/changed elements. | Focused screenshots and style comparison. | H1 visual conformance check. | LV1 visual adjudication before UTS handoff. | UTS asks USER to flag visual mismatch. | New visual grammar requires BP1/BP2/BP3 revision. | Pending BP2 review. | FAM-006 family vision + Recording vision. |",
+            "",
+            "## H1 Expectations",
+            "",
+            "- Compare implemented Dashboard, Recording Studio, and Log Viewer shell behavior against accepted BP1/BP2/BP3.",
+            "- Pressure-test issue #258 persistence and active Overlay Profile target reliability.",
+            "- Verify no automatic readable export appears in normal product flow.",
+            "- Verify open native/export folder actions are not blocked by no active-session recording.",
+            "- Verify visual-system inheritance before Live Validation handoff.",
+            "- Confirm rollback can remove or disable new shell surfaces without losing native log safety or existing Dashboard stability.",
+            "",
+            "## LV / UTS Expectations",
+            "",
+            "- Live Validation must exercise the real user-facing client path when feasible.",
+            "- Capture focused screenshots for every new or affected element: Dashboard Recording Card, Recording Studio if implemented, Log Viewer shell if implemented, open-folder states, issue #258 persistence state, and any warning/disabled/error states admitted by BP3.",
+            "- Validate previous elements only if this branch changed them or their dependencies.",
+            "- Export or refresh `C:\\Nexus USER\\UTS - FAM-006.txt` during Live Validation Stage 1, not during BP2.",
+            "- USER Test Summary should ask USER to verify current branch behavior, not future-gated tray/keybind/full Log Viewer/export customization/settings behavior.",
+            "",
+            "## Rollback / Safety Plan",
+            "",
+            "- Keep Dashboard Recording Card behavior separable from Recording Studio and Log Viewer shell launch behavior.",
+            "- If Recording Studio or Log Viewer shell fails proof, BP3 may route back to BP2 or split that surface while preserving Dashboard Recording Card/native-log baseline.",
+            "- Folder-open actions must use bounded native/export roots and must not open arbitrary paths.",
+            "- Issue #258 repair must not corrupt or hide existing default Overlay Profile state.",
+            "- No sibling-family, Governance, neutral-main, provider/model/private, release, merge, or issue-closeout mutation occurs in BP2.",
+            "",
+            "## Open Engineering Risks",
+            "",
+            "- Recording Studio may widen lifecycle proof if close/minimize/taskbar/tray behavior is not kept minimal.",
+            "- Log Viewer Studio shell may accidentally become full viewer/export implementation unless BP3 keeps the shell boundary strict.",
+            "- Folder-open behavior must be usable before active-session recording without implying an export has happened.",
+            "- Issue #258 persistence proof may require restart/lifecycle validation depth that affects Workstream/H1/LV sequencing.",
+            "- Multiple UI surfaces increase visual consistency risk; BP3 must size proof before implementation.",
+            "",
+            "## Deferred Carryforward Applicability By Option / Surface",
+            "",
+            "| Deferred item | Applies to Option C now? | Reason it applies | Dependency trigger | Recommended grouping | Future-gated items and reason | Validation/proof expectation if selected |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+            "| Recording Studio full control surface | Partial | Option C needs focused control/status surface; full close/minimize/tray behavior may exceed minimal scope. | BP3 admits Studio shell/control behavior. | Group minimal Studio with Dashboard recording controls. | Tray-backed minimize, keybind-start behavior, warning dismissal settings future-gated until explicitly accepted. | Studio screenshots, start/stop/status proof, close/minimize proof only for admitted behavior. |",
+            "| Log Viewer Studio | Partial | Option C needs launch/folder shell for native/export access. | BP3 admits minimal shell. | Group minimal shell with native/export log boundary. | Previous-log selection, in-app viewer, export customization future-gated because they require separate UX and proof. | Shell screenshots, native/export folder proof, no full viewer proof. |",
+            "| Native NDAI log model | Yes | Recording output is central to branch purpose. | Branch saves/reads recording output. | Group with Dashboard and Studio controls. | None for native save/readback; export remains separate. | Native save/readback proof and UTS. |",
+            "| Exported log model | Boundary only | Exported folder access may support USER mental model, but export flow is not current scope. | Branch exposes exported-log folder or validation export evidence. | Keep as boundary with Log Viewer shell. | Export file-type choices/customization future-gated. | Proof no automatic export; folder proof only. |",
+            "| Overlay Profile persistence dependency | Yes where target reliability depends on it | Recording target follows active Overlay Profile; missing profiles break reliability. | Issue #258 profile persistence affects target availability. | Distinct repair line item inside same FAM package only if BP3 confirms dependency. | Issue closeout separate after proof/USER disposition. | Create/switch/restart/reselect and target-mirroring proof. |",
+            "| Tray recording visibility/control | No | Useful future transparency but not required for minimal Option C branch shape. | Branch admits minimized Studio/tray behavior. | Future branch or later BP revision. | Future-gated to prevent scope creep. | Real tray interaction proof when selected. |",
+            "| Keybind Start/Stop | No | Future convenience, not required for current branch shape. | Branch admits keyboard control/settings. | Future keybind/settings package. | Future-gated due conflict, settings, and discoverability proof. | Keybind registration/conflict proof when selected. |",
+            "| Recording settings | No except local folder defaults if required by implementation | Full settings UI is broader than Option C. | Branch admits configurable recording behavior. | Future settings package. | Future-gated for UX and persistence proof. | Settings UI/persistence/reset proof when selected. |",
+            "| Native Log Loader relationship | No | Full graph/log viewer is separate future capability. | Branch admits graph/log viewer. | Future Native Log Loader package. | Future-gated because Option C only plans minimal shell/folder access. | Viewer/readback proof if later selected. |",
+            "",
+            "## Future-Gated Boundaries",
+            "",
+            f"{pending}",
+            "",
+            "## Line-Item USER Plan Review",
+            "",
+            "- Does USER accept Option C as the BP2 engineering plan candidate for this branch?",
+            "- Should Recording Studio be admitted as a minimal focused control/status surface in this branch, or should BP3 split it back out if too risky?",
+            "- Should minimal Log Viewer Studio shell/folder access be admitted, or should this branch keep only folder access from the Dashboard Recording Card?",
+            "- Does USER agree native NDAI logs are the normal product artifact and readable exports remain USER-requested future-gated artifacts?",
+            "- Does USER agree open native/export folder behavior should work before active-session recording by creating/opening safe folders when missing?",
+            "- Does USER agree issue #258 Overlay Profile persistence remains a distinct repair line item only where it affects recording target reliability?",
+            "- Does USER require any surface to route back to BP1 because this plan changes the accepted Branch Vision?",
+            "",
+            "## USER Response",
+            "",
+            "Status: Pending USER Response - BP2 remains open until USER accepts, revises, waives, rejects, or holds this plan.",
+            "",
+            "Required USER Response structure:",
+            "",
+            "- Decision: accept, revise, waive, reject, or hold BP2.",
+            "- Required changes by surface, if any.",
+            "- Any surface that must route back to BP1.",
+            "- Any future-gated item that should become current-branch scope.",
+            "- Any current-branch item that should be split out.",
+            "- General response.",
+            "",
+            "## Codex Response Digest",
+            "",
+            "Status: Pending USER Response - Codex has not yet digested USER answers for this BP2 contract.",
+            "",
+            "Required Codex Response Digest structure:",
+            "",
+            "- USER intent summary.",
+            "- Accepted BP2 line items.",
+            "- Revised/rejected/deferred line items.",
+            "- Implementation constraints created from USER response.",
+            "- Source-truth updates required.",
+            "- Packet updates required.",
+            "- Next USER decision needed.",
+            "",
+            "## Implementation Constraints Created By USER Response",
+            "",
+            "- Pending USER response.",
+            "- Implementation remains blocked until BP2 is accepted or waived, BP3 is green/approved or waived, and USER separately approves bounded Workstream implementation.",
+            "",
+            "## USER Rejected / Deferred Ideas",
+            "",
+            "- Deferred: full Log Viewer Studio, previous-log selection, export customization, tray recording controls, keybind implementation, full settings implementation, Native Log Loader full implementation, provider/model/private work, sibling-family mutation, Governance mutation, neutral-main mutation, PR, merge, release, cleanup, and issue closeout.",
+            "",
+            "## Vision Delta / Source-Truth Impact",
+            "",
+            "- This BP2 plan consumes the accepted BP1 Option C direction and does not change the durable Recording feature vision by itself.",
+            "- If USER revises any reusable Recording product standard, Codex must fold the accepted durable outcome into `Docs/family_feature_visions/FAM-006_recording.md` or the proper owner before BP3.",
+            "- Active BP2 gate state lives in the external branch plan/state, not in this temporary USER review packet.",
+            "",
+            "## Contract Change Log",
+            "",
+            "- v1 - Prior BP2 plans were superseded by the USER-directed BP1 re-entry.",
+            "- v2 - BP1 accepted after Option F planning solidification; BP2 prepared for Option C current-branch implementation-shape review.",
+            "",
+            "## Current Branch Scope",
+            "",
+            "- Dashboard Recording Card as compact quick-access/status surface.",
+            "- Recording Studio as focused recording control/status surface if BP3 proves bounded.",
+            "- Minimal Log Viewer Studio launch/folder shell where directly supporting Recording native/export log access if BP3 proves bounded.",
+            "- Native NDAI logs as normal product artifacts.",
+            "- Exported logs as USER-requested artifacts and future-gated export flow.",
+            "- Open native/export folder behavior usable before active-session recording.",
+            "- Issue #258 Overlay Profile persistence as a distinct admitted repair line item where it affects recording target reliability.",
+            "",
+            "## Future-Gated Scope",
+            "",
+            "- Full Log Viewer Studio implementation.",
+            "- Previous-log selection.",
+            "- Export customization or file-type selection implementation.",
+            "- Tray recording controls.",
+            "- Keybind implementation.",
+            "- Full settings implementation.",
+            "- Native Log Loader full implementation.",
+            "- Provider/model/private work.",
+            "- Sibling-family, Governance, neutral-main mutation.",
+            "- PR creation, merge, release, issue closeout, branch cleanup.",
+            "",
+            "## Implementation Staging Notes",
+            "",
+            "- BP3 must decide first bounded Workstream implementation recommendation only after USER accepts or waives this BP2 plan.",
+            "- BP3 must verify whole-package readiness, surface order, rollback, validation depth, visual proof, and UTS expectations.",
+            "- Workstream implementation still needs separate USER approval after BP3.",
+            "",
+            "## Workstream Entry Result",
+            "",
+            "Status: Pending BP2 USER decision - BP3 Workstream Entry / Orchestration Validation has not been prepared or approved by this packet.",
+            "",
+            "## Contract Completion Checklist",
+            "",
+            "- BP1 acceptance after Option F is recorded in the active branch plan/state.",
+            "- BP2 primary packet file is USER Review/USER_BRANCH_PLAN_REVIEW.md.",
+            "- The plan includes Option C package summary, branch scope size test, Slice/SLC route, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase matrix, H1/LV/UTS expectations, rollback, risks, deferred carryforward, future-gated boundaries, and exact BP3 approval text.",
+            "- BP2 USER Gate State remains pending until USER responds.",
+            "- BP3 and Workstream implementation remain blocked.",
+            "",
+            "## Exact BP3 Approval Text When Ready",
+            "",
+            "I accept the FAM-006 BP2 Option C Branch Plan and approve Codex to prepare BP3 Workstream Entry / Orchestration Validation in C:\\Nexus Worktrees\\FAM-006 on feature/fam-006-dashboard-recording-start-stop-local-file. BP3 must validate the Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, open-folder pre-session usability, issue #258 target-reliability line item, deferred carryforward, Element-to-Phase proof, rollback, validation, Live Validation, and UTS expectations. Runtime implementation remains pending a later separate USER approval.",
+            "",
+            "## Supporting Source-Truth Files",
+            "",
+            f"{copied_sources}",
+            "",
+            "## Pending USER Decisions",
+            "",
+            f"{pending}",
             "",
             "## Exact USER Decision Supported",
             "",
@@ -5765,8 +6340,16 @@ def _write_workstream_entry_packet_digests(
     copied_count: int,
     exact_user_decision: str,
     pending_user_decisions: list[str],
-) -> list[Path]:
+    ) -> list[Path]:
     normalized_decision = exact_user_decision.casefold()
+    is_fam006_recording = (
+        source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+        or any(
+            "FAM-006_recording" in source_rel
+            or "feature_fam_006_dashboard_recording_start_stop_local_file" in source_rel
+            for source_rel, _copied_rel in copied
+        )
+    )
     is_fam007_breakpoint_2 = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
     )
@@ -5949,11 +6532,21 @@ def _write_workstream_entry_packet_digests(
         )
     elif bp2_packet:
         analysis_status = (
-            "Analysis Summary: BP2 USER Branch Plan Review packet for the active "
+            "Analysis Summary: FAM-006 Recording BP2 USER Branch Plan Review packet "
+            "for the active Branch Planning carrier."
+            if is_fam006_recording
+            else "Analysis Summary: BP2 USER Branch Plan Review packet for the active "
             "Branch Planning carrier."
         )
         implementation_posture = (
             "Implementation Posture: BP2 is reviewable but not accepted; BP3, "
+            "Workstream implementation, runtime mutation, issue closeout, PR, "
+            "merge, release, cleanup, FAM-007/Governance/neutral-main mutation, "
+            "provider/model/private work, tray, keybind, full settings, full Log "
+            "Viewer Studio, export customization, and Native Log Loader remain "
+            "pending USER decisions."
+            if is_fam006_recording
+            else "Implementation Posture: BP2 is reviewable but not accepted; BP3, "
             "Workstream implementation, private setup, runtime/provider/cache/memory "
             "behavior, PR, merge, release, cleanup, and sibling-worktree mutation "
             "remain pending USER decisions."
@@ -5964,7 +6557,14 @@ def _write_workstream_entry_packet_digests(
             "explicitly waives BP2."
         )
         scan_result = (
-            "Source-Truth Coverage: packet includes accepted BP1 Branch Vision context, "
+            "Source-Truth Coverage: packet includes accepted FAM-006 Recording BP1 "
+            "Branch Vision context, FAM-006 family vision, Recording Family Feature "
+            "Vision, active branch authority record, external branch plan/state "
+            "context when copied, branch artifact rules, phase governance, execution "
+            "rules, validation registry, incident patterns, Nexus vision, and helper "
+            "context needed for the Option C BP2 engineering-plan decision."
+            if is_fam006_recording
+            else "Source-Truth Coverage: packet includes accepted BP1 Branch Vision context, "
             "FAM-007 family vision, Public/Dev/Owner boundary plan, AI Runtime And "
             "Trust Architecture, active branch authority record, branch artifact rules, "
             "phase governance, execution rules, validation registry, backlog, roadmap, "
