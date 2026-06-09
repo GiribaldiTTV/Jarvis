@@ -1386,6 +1386,9 @@ def _validate_cross_fam_dependency_packet_text(text: str) -> list[str]:
     )
 
     allowed_scope_classes = {
+        "awareness only",
+        "compatibility default",
+        "future adoption",
         "local fam only",
         "cross-fam awareness",
         "dependency-bounded cross-fam work",
@@ -4939,14 +4942,37 @@ line item, not a seam or separate branch.
             "stale PR creation pending wording"
         )
 
+    valid_cross_fam_text = VALID_CROSS_FAM_DEPENDENCY_CANDIDATE_FIXTURE.read_text(
+        encoding="utf-8"
+    )
     valid_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
-        VALID_CROSS_FAM_DEPENDENCY_CANDIDATE_FIXTURE.read_text(encoding="utf-8")
+        valid_cross_fam_text
     )
     if valid_cross_fam_failures:
         failures.append(
             "Valid cross-FAM dependency candidate fixture unexpectedly failed: "
             + "; ".join(valid_cross_fam_failures[:5])
         )
+
+    for documented_scope_class in (
+        "Awareness Only",
+        "Compatibility Default",
+        "Future Adoption",
+    ):
+        documented_scope_text = re.sub(
+            r"Dependency Scope Class: .+",
+            f"Dependency Scope Class: {documented_scope_class}",
+            valid_cross_fam_text,
+        )
+        documented_scope_failures = _validate_cross_fam_dependency_packet_text(
+            documented_scope_text
+        )
+        if documented_scope_failures:
+            failures.append(
+                "Documented cross-FAM dependency scope class unexpectedly failed "
+                f"({documented_scope_class}): "
+                + "; ".join(documented_scope_failures[:5])
+            )
 
     invalid_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
         INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE.read_text(encoding="utf-8")
