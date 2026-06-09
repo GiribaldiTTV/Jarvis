@@ -8365,7 +8365,19 @@ def _external_branch_state_record_for_branch(
     record_text = _read_text(Path(record_pointer))
     if _extract_branch_identity_branch(record_text) != branch_name:
         return "", ""
-    return str(state_path), state_text
+    record_identity = _section(record_text, "Branch Identity")
+    state_identity = _section(state_text, "Branch Identity")
+    if _extract_exact_marker_value(record_identity, "Worktree") and _section(
+        record_text,
+        "Assigned Worktree Confinement",
+    ):
+        return record_pointer, record_text
+    if _extract_exact_marker_value(state_identity, "Worktree") and _section(
+        state_text,
+        "Assigned Worktree Confinement",
+    ):
+        return str(state_path), state_text
+    return record_pointer, record_text
 
 
 def _user_test_summary_section(text: str) -> str:
