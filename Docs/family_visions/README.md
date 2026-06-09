@@ -143,22 +143,24 @@ The originating FAM should record dependency candidates when its Family Vision, 
 
 When the affected FFV exists, record the dependency against the affected FFV and element ID. When the affected FFV does not exist, record the dependency at affected-FAM level as a durable dependency candidate and mark the affected FFV / element as `Not Created`. The originating FAM must not create, rename, or fully design the affected FAM's missing FFV unless USER approves a bounded FFV content-file carrier for that work.
 
-Each cross-FAM dependency candidate should record:
+Each cross-FAM dependency candidate should use the marker shape validated by the Branch Readiness planning fixture helper:
 
-- dependency ID
-- originating FAM
-- originating FFV / element, or family-level source if no FFV exists
-- affected FAM
-- affected FFV / element, or `Not Created`
-- dependency type
-- reason
-- required contract / capability
-- suggested grouping
-- proof expectation
-- durable disposition
-- fold-down receipt
+- `Cross-FAM Dependency Map:`
+- `Dependency ID:`
+- `Originating FAM:`
+- `Originating FFV / Element:`
+- `Affected FAMs:`
+- `Affected FFV / Element or Not Created:`
+- `Dependency Scope Class:`
+- `Carry-In / Deferral / Transfer Decision:`
+- `Required Contract / Capability:`
+- `Suggested Grouping:`
+- `Proof Expectation:`
+- `Durable Disposition:`
+- `Affected FAM Receipt / Fold-Down Target:`
+- `Worktree-To-Worktree Mutation:`
 
-Allowed dependency types:
+Allowed `Dependency Scope Class:` values:
 
 - `Awareness Only`
 - `Compatibility Default`
