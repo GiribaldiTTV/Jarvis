@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import os
 import shutil
@@ -38,6 +39,28 @@ FORENSICS_LOG_ROOT = REPO / "dev" / "logs" / "fam006_live_validation_forensics"
 RUNTIME_RERUN_LOG_ROOT = REPO / "dev" / "logs" / "fam006_live_validation_runtime_rerun_baseline"
 SUPPLEMENTAL_LOG_ROOT = REPO / "dev" / "logs" / "fam006_supplemental_runtime_proof"
 PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_FAILURE_INVESTIGATION.md"
+REPAIR_PLAN_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_FAILURE_REPAIR_PLAN.md"
+REPAIR_PLAN_STATUS = "live-validation-uts-failure-repair-planning"
+ACCEPTED_FINDINGS_ZIP = USER_ROOT / "FAM-006-20260609-124117.zip"
+ACCEPTED_FINDINGS_SHA256 = "18506FB2C0B47E2F7378DCA788558D9F666D2F4B08BAD30677B9735B6A6D71B9"
+REPAIR_PLAN_FINDING_IDS = [
+    "FAM006-EVID-001",
+    "FAM006-EVID-002",
+    "FAM006-TOOLGAP-001",
+    "FAM006-LVFAIL-001",
+    "FAM006-UTSFAIL-001",
+    "FAM006-UI-001",
+    "FAM006-UI-002",
+    "FAM006-UI-003",
+    "FAM006-WINDOW-001",
+    "FAM006-WINDOW-002",
+    "FAM006-GOVGAP-002",
+    "FAM006-GOVGAP-003",
+    "FAM006-REGRESS-001",
+    "FAM006-REGRESS-002",
+    "FAM006-CODEPATH-001",
+    "FAM006-PHASE-001",
+]
 
 
 SOURCE_TRUTH_FILES = [
@@ -172,6 +195,62 @@ def copy_if_exists(source: Path, target: Path) -> bool:
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, target)
     return True
+
+
+def sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+
+
+def accepted_findings_packet() -> tuple[dict[str, object], bytes]:
+    if not ACCEPTED_FINDINGS_ZIP.exists():
+        raise SystemExit(f"BLOCKED: accepted findings packet is missing: {ACCEPTED_FINDINGS_ZIP}")
+    data = ACCEPTED_FINDINGS_ZIP.read_bytes()
+    digest = hashlib.sha256(data).hexdigest().upper()
+    if digest != ACCEPTED_FINDINGS_SHA256:
+        raise SystemExit(
+            "BLOCKED: accepted findings packet SHA mismatch. "
+            f"Expected {ACCEPTED_FINDINGS_SHA256}, found {digest} at {ACCEPTED_FINDINGS_ZIP}"
+        )
+    with zipfile.ZipFile(io.BytesIO(data), "r") as archive:
+        names = sorted(name for name in archive.namelist() if not name.endswith("/"))
+        try:
+            primary_text = archive.read(PRIMARY_FILE).decode("utf-8-sig", errors="replace")
+        except KeyError:
+            primary_text = ""
+    return {
+        "path": str(ACCEPTED_FINDINGS_ZIP),
+        "sha256": digest,
+        "fileCount": len(names),
+        "markdownCount": len([name for name in names if name.lower().endswith(".md")]),
+        "primaryPresent": bool(primary_text),
+        "entries": names,
+        "primaryPreview": primary_text[:4000],
+    }, data
+
+
+def extract_zip_bytes(data: bytes, target: Path) -> list[str]:
+    extracted: list[str] = []
+    target.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(io.BytesIO(data), "r") as archive:
+        for info in archive.infolist():
+            if info.is_dir():
+                continue
+            member = Path(info.filename)
+            if member.is_absolute() or ".." in member.parts:
+                continue
+            destination = target / member
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(archive.read(info))
+            extracted.append(info.filename)
+    return sorted(extracted)
+
+
+def purge_fam006_user_packet_outputs() -> None:
+    if PACKET_ROOT.exists():
+        shutil.rmtree(PACKET_ROOT)
+    PACKET_ROOT.mkdir(parents=True, exist_ok=True)
+    for old_zip in USER_ROOT.glob("FAM-006*.zip"):
+        old_zip.unlink()
 
 
 def latest_baseline_root() -> Path | None:
@@ -1048,6 +1127,588 @@ def code_lineage_md() -> str:
     return table(["Symptom lineage", "File(s)", "Event/state path", "Finding IDs"], rows)
 
 
+def repair_guidance(finding_id: str) -> dict[str, str]:
+    guidance = {
+        "FAM006-EVID-001": {
+            "objective": "Convert screenshot existence into visual adjudication proof with full-window, element, state, and USER-inspectable folder checks.",
+            "lane": "FAM-006 Live Validation proof-loop repair",
+            "branch_scope": "In-scope for later approved FAM-006 repair because it governs this branch's LV/UTS handoff.",
+            "proof": "New LV rerun must include screenshot manifest, visual-adjudication notes, state labels, and checked-clean negatives.",
+            "decision": "Approve LV proof-loop repair; do not accept UTS from screenshot existence alone.",
+        },
+        "FAM006-EVID-002": {
+            "objective": "Require issue-specific A-D evidence instead of broad findings packets that miss concrete USER questions.",
+            "lane": "FAM-006 packet/evidence repair with Governance follow-up candidate",
+            "branch_scope": "In-scope as packet support; durable generic adoption should be routed to Governance after this branch proves the model.",
+            "proof": "Each USER issue gets a finding ID, evidence path, confidence label, and reproduction limitation.",
+            "decision": "Approve issue-specific evidence sections for repair validation.",
+        },
+        "FAM006-TOOLGAP-001": {
+            "objective": "Stop treating marker, manifest, and helper PASS as user-facing behavior proof.",
+            "lane": "FAM-006 helper/validator planning; durable Governance candidate",
+            "branch_scope": "In-scope to plan and later add FAM-006-specific tool checks; global rules remain Governance-owned.",
+            "proof": "Repair validation must show what each helper checked and did not check.",
+            "decision": "Approve helper false-green guardrails before another UTS handoff.",
+        },
+        "FAM006-LVFAIL-001": {
+            "objective": "Build a deterministic affected-surface and interaction combination matrix for Option C surfaces.",
+            "lane": "FAM-006 Live Validation repair",
+            "branch_scope": "In-scope for later approved LV rerun and proof repair.",
+            "proof": "Matrix covers default, USER-created, edited, restarted, active/no-active monitors, recording active/stopped, Studio open/closed, Log Viewer open/closed, and folder missing/exists states.",
+            "decision": "Approve LV matrix repair and rerun criteria.",
+        },
+        "FAM006-UTSFAIL-001": {
+            "objective": "Make UTS handoff a post-proof USER return surface, not a substitute for pre-handoff validation.",
+            "lane": "FAM-006 UTS gate repair",
+            "branch_scope": "In-scope for later approved branch UTS update and stop-loss validation.",
+            "proof": "UTS must list only items with deterministic pre-handoff proof or explicitly mark USER retest items as open blockers.",
+            "decision": "Approve UTS stop-loss repair before another USER handoff.",
+        },
+        "FAM006-UI-001": {
+            "objective": "Repair visual-system inheritance so Recording surfaces sample existing HUD card color, shape, spacing, density, effects, and button language.",
+            "lane": "FAM-006 product/UI repair",
+            "branch_scope": "Requires later product/runtime repair approval.",
+            "proof": "Full-window plus element screenshots compare Recording Card, Recording Studio, and Log Viewer shell against existing HUD card standards.",
+            "decision": "Approve product/UI visual repair if USER accepts the plan.",
+        },
+        "FAM006-UI-002": {
+            "objective": "Repair card-holder inset/scrollbar gutter regression so left and right visual insets are equal.",
+            "lane": "FAM-006 product/UI repair",
+            "branch_scope": "Requires later product/runtime repair approval.",
+            "proof": "Before/after full-window and card-holder screenshots with scrollbar visible and absent where possible.",
+            "decision": "Approve product/UI layout repair if USER accepts the plan.",
+        },
+        "FAM006-UI-003": {
+            "objective": "Repair the visible Dashboard Recording Card button path so it opens Recording Studio through the normal USER click path.",
+            "lane": "FAM-006 product/runtime repair",
+            "branch_scope": "Requires later product/runtime repair approval.",
+            "proof": "Manual-equivalent click proof, native-window focus proof, screenshot proof, and no marker-only acceptance.",
+            "decision": "Approve Issue A product repair if USER accepts the plan.",
+        },
+        "FAM006-WINDOW-001": {
+            "objective": "Prove native/export folder actions work before any recording in the current session and remain future-gated outside minimal shell scope.",
+            "lane": "FAM-006 product/window and LV proof repair",
+            "branch_scope": "Requires later product/runtime repair approval for behavior changes; proof planning is in-scope.",
+            "proof": "Pre-session click evidence for native and exported folders, folder-exists/missing cases, and no unwanted CSV creation.",
+            "decision": "Approve minimal Log Viewer shell folder-behavior repair if needed.",
+        },
+        "FAM006-WINDOW-002": {
+            "objective": "Repair Log Viewer Studio focus/open regression after prior open and later Start/Stop updates.",
+            "lane": "FAM-006 product/window behavior repair",
+            "branch_scope": "Requires later product/runtime repair approval.",
+            "proof": "Sequences: open-close-start-stop, open-minimize-start-stop, open-unfocused-start-stop; Log Viewer must not reopen or steal focus unless USER explicitly clicks it.",
+            "decision": "Approve Issue C product repair if USER accepts the plan.",
+        },
+        "FAM006-GOVGAP-002": {
+            "objective": "Resolve Start/Stop placement drift before moving controls: accepted plan versus USER-refined Quick Access/Recording Studio expectation.",
+            "lane": "BP/source-truth amendment planning",
+            "branch_scope": "Do not mutate product until USER chooses whether to amend BP1/BP2/BP3 or treat it as later carryforward.",
+            "proof": "Updated branch vision/plan or explicit waiver records the chosen control ownership.",
+            "decision": "Choose BP amendment, targeted product repair, or defer Start/Stop relocation.",
+        },
+        "FAM006-GOVGAP-003": {
+            "objective": "Resolve native-log tracking ownership between Recording Studio and Log Viewer Studio before changing UI ownership.",
+            "lane": "BP/source-truth amendment planning",
+            "branch_scope": "Do not mutate product until ownership is admitted or deferred.",
+            "proof": "Source truth states which surface owns compact current-log status versus native/export folder access.",
+            "decision": "Choose BP amendment, targeted product repair, or defer ownership shift.",
+        },
+        "FAM006-REGRESS-001": {
+            "objective": "Repair and prove Overlay Profile switching mirrors into Recording target state across normal USER paths.",
+            "lane": "FAM-006 product/state regression repair",
+            "branch_scope": "Requires later product/runtime repair approval; issue #258 relevance is in-scope.",
+            "proof": "Multiple profiles, create/edit/switch, active state mirror, restart persistence, no stale target source.",
+            "decision": "Approve Overlay Profile state repair and proof path.",
+        },
+        "FAM006-REGRESS-002": {
+            "objective": "Close seeded-proof versus USER-created/restart proof gap for Overlay Profile persistence.",
+            "lane": "FAM-006 product/state proof repair",
+            "branch_scope": "Requires later product/runtime repair approval for behavior changes; validation proof is branch-specific.",
+            "proof": "USER-created profile persists after app restart and remains selectable; Recording card uses it as target.",
+            "decision": "Approve Overlay Profile persistence proof before issue #258 closeout.",
+        },
+        "FAM006-CODEPATH-001": {
+            "objective": "Trace each repair through JS state, native bridge, desktop state persistence, and output contract code paths.",
+            "lane": "FAM-006 implementation lineage guard",
+            "branch_scope": "In-scope for later approved repair implementation and proof.",
+            "proof": "Each product fix cites event/state path, changed file, expected user behavior, and validator coverage.",
+            "decision": "Approve code-lineage tracking for the repair package.",
+        },
+        "FAM006-PHASE-001": {
+            "objective": "Prevent automated LV handoff green from being treated as USER acceptance or sufficient UTS readiness.",
+            "lane": "FAM-006 phase/gate repair with Governance follow-up candidate",
+            "branch_scope": "Branch can repair its own handoff packet and proof loop; global phase law remains Governance-owned.",
+            "proof": "Packet Reviewability, USER Gate State, LV proof state, UTS handoff state, and UTS acceptance state stay separate.",
+            "decision": "Approve gate-state stop-loss before returning to Live Validation.",
+        },
+    }
+    return guidance.get(finding_id, {
+        "objective": "Classify and repair only after USER accepts this plan.",
+        "lane": "Unclassified",
+        "branch_scope": "Requires USER decision.",
+        "proof": "To be defined.",
+        "decision": "USER review required.",
+    })
+
+
+def repair_plan_findings(summary: dict[str, object]) -> list[Finding]:
+    by_id = {item.finding_id: item for item in findings(summary) + supplemental_findings(summary)}
+    missing = [finding_id for finding_id in REPAIR_PLAN_FINDING_IDS if finding_id not in by_id]
+    if missing:
+        raise SystemExit(f"BLOCKED: repair plan findings missing from accepted findings model: {', '.join(missing)}")
+    return [by_id[finding_id] for finding_id in REPAIR_PLAN_FINDING_IDS]
+
+
+def findings_to_repair_map_md(findings_list: list[Finding]) -> str:
+    rows = []
+    for item in findings_list:
+        guide = repair_guidance(item.finding_id)
+        rows.append([
+            item.finding_id,
+            item.finding_class,
+            item.confidence,
+            guide["objective"],
+            guide["lane"],
+            guide["branch_scope"],
+            guide["proof"],
+            guide["decision"],
+        ])
+    return table(
+        [
+            "Finding ID",
+            "Class",
+            "Confidence",
+            "Repair objective",
+            "Lane",
+            "Current-branch scope",
+            "Proof expectation",
+            "USER decision",
+        ],
+        rows,
+    )
+
+
+def repair_lane_classification_md() -> str:
+    return table(
+        ["Lane", "Finding IDs", "What it means", "Approval status"],
+        [
+            [
+                "Current FAM-006 product/runtime repair",
+                "FAM006-UI-001, FAM006-UI-002, FAM006-UI-003, FAM006-WINDOW-001, FAM006-WINDOW-002, FAM006-REGRESS-001, FAM006-REGRESS-002, FAM006-CODEPATH-001",
+                "Repair accepted Option C surfaces and issue #258 target reliability inside this worktree after separate USER implementation approval.",
+                "Pending USER approval; not implemented by this packet.",
+            ],
+            [
+                "Current FAM-006 Live Validation / UTS proof-loop repair",
+                "FAM006-EVID-001, FAM006-EVID-002, FAM006-TOOLGAP-001, FAM006-LVFAIL-001, FAM006-UTSFAIL-001, FAM006-PHASE-001",
+                "Make the FAM-006 proof loop deterministic enough to block another false-green UTS handoff.",
+                "Pending USER approval; plan only.",
+            ],
+            [
+                "BP/source-truth amendment candidate",
+                "FAM006-GOVGAP-002, FAM006-GOVGAP-003",
+                "Resolve Start/Stop placement and native-log tracking ownership before product UI changes that would differ from accepted BP2/BP3.",
+                "Pending USER decision whether to amend BP or defer.",
+            ],
+            [
+                "Governance follow-up candidate",
+                "FAM006-TOOLGAP-001, FAM006-PHASE-001, FAM006-EVID-002",
+                "Consider generalizing the FAM-006 proof-loop lessons after the branch repair proves them.",
+                "Deferred; Governance worktree mutation excluded.",
+            ],
+            [
+                "Future-gated product features",
+                "Full Log Viewer, export customization, tray controls, keybinds, global settings, Native Log Loader full implementation",
+                "Remain outside this branch unless USER reopens scope and source truth admits them.",
+                "Not approved.",
+            ],
+        ],
+    )
+
+
+def current_branch_repair_package_md() -> str:
+    return textwrap.dedent(
+        """
+        Recommended package after USER accepts this plan:
+
+        1. Gate/source-truth alignment first.
+           - Decide whether Start/Stop relocation and native-log tracking ownership require a BP amendment.
+           - Keep full Log Viewer, export customization, tray, keybinds, full settings, and Native Log Loader full implementation future-gated.
+
+        2. Product/runtime repair second.
+           - Fix the normal visible Recording Studio button path.
+           - Fix Log Viewer Studio focus/open behavior after prior open and recording Start/Stop updates.
+           - Fix Overlay Profile create/edit/switch/restart persistence and Recording target mirroring.
+           - Fix card-holder inset and Recording surface visual-system inheritance.
+           - Verify native/export folder access before a recording exists in the active session.
+
+        3. Proof-loop repair third.
+           - Rebuild Live Validation around affected surfaces and combinations, not only prior elements.
+           - Require full-window and element screenshots with visual adjudication.
+           - Update `C:\\Nexus USER\\UTS - FAM-006.txt` only after deterministic proof exists.
+
+        4. Return to USER gate.
+           - Do not claim UTS acceptance, PR Readiness, issue #258 closeout, merge, or release from this repair plan.
+        """
+    ).strip()
+
+
+def issue_a_repair_plan_md() -> str:
+    return textwrap.dedent(
+        """
+        Finding: `FAM006-UI-003`.
+
+        Repair target: the visible Dashboard Recording Card button must open Recording Studio through the normal USER click path, not only through helper/native-window existence proof.
+
+        Planned investigation before code change:
+        - Confirm the button selector and event listener in `nexus_visual/monitoring_hud.js`.
+        - Confirm the bridge request emitted by the Dashboard is received by the desktop renderer.
+        - Confirm the standalone Recording Studio window opens without requiring an unrelated state update.
+
+        Planned proof after code change:
+        - Click the visible button from a fresh dashboard session.
+        - Capture full-window screenshot before click, click evidence, and Recording Studio window evidence.
+        - Record whether Recording Studio is already open, closed, or minimized.
+        - Treat helper foreground proof as supporting evidence only, not USER-path proof.
+        """
+    ).strip()
+
+
+def issue_c_repair_plan_md() -> str:
+    return textwrap.dedent(
+        """
+        Finding: `FAM006-WINDOW-002`.
+
+        Repair target: after the USER has opened Log Viewer Studio once, later Start/Stop recording updates must not reopen it, raise it, or steal focus unless the USER explicitly asks for it.
+
+        Planned code lineage:
+        - Inspect `desktop/desktop_renderer.py` around `MonitoringHudLogViewerStudioWindow.update_product_state`.
+        - Separate data refresh from show/raise/activate behavior.
+        - Preserve explicit open action while preventing passive recording-state updates from becoming focus actions.
+
+        Planned proof after code change:
+        - Open Log Viewer, close, start, stop.
+        - Open Log Viewer, minimize if implemented, start, stop.
+        - Open Log Viewer, leave it open but unfocused, start, stop.
+        - Confirm no unwanted focus steal and no unwanted window reopen.
+        """
+    ).strip()
+
+
+def issue_b_repair_plan_md() -> str:
+    return textwrap.dedent(
+        """
+        Finding: `FAM006-GOVGAP-002`.
+
+        Repair target: decide whether Start/Stop remains inside the Dashboard Recording Card for this branch or moves to Quick Access / Recording Studio ownership.
+
+        Planning rule:
+        - Do not move product controls until source truth admits the change or USER explicitly chooses a narrow repair route.
+        - If moved now, update BP/source truth to describe the branch-specific control ownership.
+        - If deferred, keep the current control placement and record the Quick Access / keybind path as durable carryforward.
+
+        Proof expectation if admitted:
+        - Screenshot and interaction proof for the chosen Start/Stop surface.
+        - Recording Studio and Dashboard states must remain synchronized.
+        - UTS must ask about the chosen surface, not an obsolete one.
+        """
+    ).strip()
+
+
+def issue_d_repair_plan_md() -> str:
+    return textwrap.dedent(
+        """
+        Finding: `FAM006-GOVGAP-003`.
+
+        Repair target: decide whether compact current native-log tracking belongs in Recording Studio, Log Viewer Studio, or both with distinct ownership.
+
+        Planning rule:
+        - Recording Studio may own current-session control/status if admitted.
+        - Minimal Log Viewer Studio may own native/export folder access if admitted.
+        - Full previous-log selection, export customization, and Native Log Loader remain future-gated.
+
+        Proof expectation if admitted:
+        - Recording Studio shows the agreed current-log status without becoming a full log viewer.
+        - Log Viewer Studio exposes native and exported folder access without stealing focus or implying full viewer implementation.
+        - Native `.ndailog` files remain product-native; exported files remain USER-requested artifacts.
+        """
+    ).strip()
+
+
+def overlay_profile_proof_plan_md() -> str:
+    return textwrap.dedent(
+        """
+        Overlay Profile proof must cover normal USER paths, not only seeded helper paths:
+
+        - Create at least two Overlay Profiles through the UI.
+        - Switch Active Overlay Profile from the HUD Overlay card.
+        - Verify the Recording Card target changes immediately to the active profile.
+        - Edit a profile and verify the display/target mirror updates.
+        - Restart the app and verify created profiles persist and remain selectable.
+        - Start/Stop recording with the selected profile and verify target snapshot stability.
+        - Capture full-window and element screenshots for each state.
+        - Keep issue #258 open until persistence and recording target reliability are proven.
+        """
+    ).strip()
+
+
+def live_validation_repair_plan_md() -> str:
+    return textwrap.dedent(
+        """
+        Live Validation should be rebuilt as an affected-surface proof loop:
+
+        - Inventory changed files and map each to user-facing surfaces.
+        - Test new surfaces plus previous surfaces affected by the diff.
+        - Do not retest unrelated legacy surfaces unless the branch changed or risk-touched them.
+        - Build a combination matrix covering profiles, monitors, recording state, Studio state, Log Viewer state, folder existence, and app restart.
+        - Capture full-window and element screenshots in a USER-inspectable folder.
+        - Add visual adjudication notes for screenshots; screenshot existence is not enough.
+        - Generate negative findings for checked-clean surfaces.
+        - Block UTS handoff if any admitted surface lacks proof or has unresolved USER-confirmed failure.
+        """
+    ).strip()
+
+
+def helper_validator_tooling_repair_plan_md() -> str:
+    return textwrap.dedent(
+        """
+        Proposed helper/validator repairs for later approval:
+
+        - Add a visible-button click-path verifier for Recording Studio launch.
+        - Add a Log Viewer focus-regression verifier for open/close/minimize/unfocused Start/Stop sequences.
+        - Add an Overlay Profile persistence verifier for create/edit/switch/restart and Recording target mirror.
+        - Add a screenshot manifest validator that requires full-window, element, and state labels.
+        - Add a visual-adjudication checklist that distinguishes screenshot presence from visual pass.
+        - Add a UTS stop-loss validator that blocks handoff while accepted-scope findings remain unresolved.
+        - Add old-tool versus behavior-proof comparison output so PASS claims say what they actually prove.
+
+        These are planning items only in this packet. Durable global adoption should be routed to Governance after the FAM-006 branch proves the model.
+        """
+    ).strip()
+
+
+def source_truth_amendment_plan_md() -> str:
+    return textwrap.dedent(
+        """
+        Source-truth amendment candidates:
+
+        - `Docs/family_feature_visions/FAM-006_recording.md`: record durable Recording ecosystem direction, visual-system inheritance, native/export boundary, and future-gated carryforward.
+        - External branch plan under `C:\\Nexus Governance State`: record which repair plan was accepted, what remains pending, and the legal next phase.
+        - FAM-006 branch record/receipts: record repair planning reviewability and keep product fixes pending until USER approval.
+        - Governance follow-up: consider general Live Validation determinism, helper false-green rules, and UTS stop-loss rules after this branch proves the pattern.
+
+        This packet does not perform those amendments except for generating the repair-planning USER packet.
+        """
+    ).strip()
+
+
+def repair_sequencing_md() -> str:
+    return table(
+        ["Step", "Gate", "Action", "Exit criteria"],
+        [
+            ["1", "Repair plan USER review", "USER accepts, revises, splits, or holds this plan.", "A clear implementation or amendment route is selected."],
+            ["2", "BP/source-truth amendment if needed", "Resolve Issue B and Issue D ownership drift before product UI relocation.", "Accepted source-truth route or explicit deferral."],
+            ["3", "Bounded product/runtime repair", "Fix admitted product defects in one coherent Option C repair package.", "Product validators and targeted manual-equivalent proofs pass."],
+            ["4", "H1 / Hardening repair proof", "Pressure-test visual, state, persistence, window, and output paths.", "No admitted H1 blockers remain."],
+            ["5", "Live Validation rerun", "Run deterministic affected-surface LV matrix with screenshots and visual adjudication.", "LV proof is green; USER Gate remains pending."],
+            ["6", "UTS handoff", "Update `C:\\Nexus USER\\UTS - FAM-006.txt` from proof and return to USER.", "USER can accept, revise, or reject returned UTS results."],
+        ],
+    )
+
+
+def exact_user_decision_options_md() -> str:
+    return textwrap.dedent(
+        """
+        Option 1 - Accept this repair plan and approve bounded implementation:
+        `I accept the FAM-006 Live Validation / UTS failure repair plan and approve bounded FAM-006 repair implementation for the admitted current-branch repair package, with product/runtime changes limited to the accepted plan and Governance/FAM-007/neutral-main/PR/merge/release/issue-closeout work still pending separate approval.`
+
+        Option 2 - Revise this repair plan:
+        `I revise the FAM-006 repair plan. Update these findings, lanes, or sequencing items: [USER edits].`
+
+        Option 3 - Reopen BP/source-truth before product repair:
+        `I approve a bounded FAM-006 BP/source-truth amendment pass for Start/Stop placement and Recording Studio / Log Viewer Studio ownership before product repair.`
+
+        Option 4 - Split the package:
+        `I approve only [named findings] for the next FAM-006 repair pass and defer the remaining findings.`
+        """
+    ).strip()
+
+
+def accepted_findings_packet_digest_md(accepted: dict[str, object], extracted: list[str]) -> str:
+    entries = accepted.get("entries") or []
+    preview = "\n".join(f"- `{name}`" for name in list(entries)[:80])
+    if len(entries) > 80:
+        preview += f"\n- ... {len(entries) - 80} more files"
+    return "\n".join(
+        [
+            table(
+                ["Field", "Value"],
+                [
+                    ["Path", accepted.get("path", "")],
+                    ["SHA256", accepted.get("sha256", "")],
+                    ["Expected SHA256", ACCEPTED_FINDINGS_SHA256],
+                    ["Primary investigation file present", accepted.get("primaryPresent", "")],
+                    ["File count", accepted.get("fileCount", "")],
+                    ["Markdown count", accepted.get("markdownCount", "")],
+                    ["Copied into this packet", len(extracted)],
+                ],
+            ),
+            "",
+            "Accepted findings packet entries copied under `Review Aids/Accepted Findings Packet/`:",
+            "",
+            preview,
+        ]
+    )
+
+
+def generate_repair_plan_packet() -> tuple[Path, Path, str]:
+    identity = git_identity()
+    if identity.get("baseline_head_is_ancestor") != "true":
+        raise SystemExit(
+            f"BLOCKED: expected baseline HEAD {BASELINE_HEAD} to be an ancestor of current HEAD {identity.get('head')}"
+        )
+    if identity.get("prior_investigation_head_is_ancestor") != "true":
+        raise SystemExit(
+            "BLOCKED: expected prior investigation helper head "
+            f"{PRIOR_INVESTIGATION_HEAD} to be an ancestor of current HEAD {identity.get('head')}"
+        )
+    if identity.get("origin_main") != BASELINE_MAIN:
+        raise SystemExit(f"BLOCKED: expected origin/main {BASELINE_MAIN}, found {identity.get('origin_main')}")
+
+    accepted, accepted_bytes = accepted_findings_packet()
+    summary = manifest_summary()
+    findings_list = repair_plan_findings(summary)
+    loaded, missing = source_truth_loaded_lines()
+    changed = changed_files()
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    zip_path = USER_ROOT / f"FAM-006-{stamp}.zip"
+
+    purge_fam006_user_packet_outputs()
+
+    dirs = [
+        PACKET_ROOT / "USER Review",
+        PACKET_ROOT / "Review Aids",
+        PACKET_ROOT / "Review Aids" / "Accepted Findings Packet",
+        PACKET_ROOT / "Source Truth Context",
+    ]
+    for directory in dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+
+    for rel in SOURCE_TRUTH_FILES:
+        copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
+    external_plan = Path(
+        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+    )
+    copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
+    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    extracted = extract_zip_bytes(accepted_bytes, PACKET_ROOT / "Review Aids" / "Accepted Findings Packet")
+
+    loaded_md = "\n".join(f"- `{item}`" for item in loaded)
+    missing_md = "\n".join(f"- `{item}`" for item in missing) or "- None found."
+    changed_md = "\n".join(f"- `{item}`" for item in changed) or "- None."
+    findings_map = findings_to_repair_map_md(findings_list)
+    accepted_digest = accepted_findings_packet_digest_md(accepted, extracted)
+
+    primary = "\n".join(
+        [
+            "# FAM-006 Live Validation / UTS Failure Repair Plan",
+            "",
+            f"Packet Status: {REPAIR_PLAN_STATUS}",
+            "Packet Reviewability State: Reviewable",
+            "USER Gate State: Pending USER Repair Plan Review",
+            "Product/runtime repair: Withheld",
+            "Live Validation acceptance: Withheld",
+            "UTS acceptance: Withheld",
+            "PR Readiness: Withheld",
+            "",
+            "This packet plans repairs from the accepted FAM-006 Live Validation / UTS failure findings. It does not implement product fixes, accept UTS results, close issue #258, or advance to PR Readiness.",
+            "",
+            section(
+                "Executive Summary",
+                "REPAIR PLAN. The accepted findings show that FAM-006 should not continue from the LV1/UTS handoff without a bounded repair package. The recommended route is to resolve Start/Stop and native-log ownership drift if USER wants those changes admitted, then repair the current Option C product defects, then rerun a deterministic Live Validation proof loop before any new UTS handoff.",
+            ),
+            section("Accepted Findings Packet", accepted_digest),
+            section(
+                "Worktree Identity",
+                table(
+                    ["Field", "Value"],
+                    [
+                        ("Git root", identity.get("git_root", "")),
+                        ("Branch", identity.get("branch", "")),
+                        ("HEAD", identity.get("head", "")),
+                        ("origin/main", identity.get("origin_main", "")),
+                        ("Merge base", identity.get("merge_base", "")),
+                        ("Ahead/behind", identity.get("ahead_behind", "")),
+                        ("Baseline 4afb1890 ancestor", identity.get("baseline_head_is_ancestor", "")),
+                        ("Prior investigation ddeb90a4 ancestor", identity.get("prior_investigation_head_is_ancestor", "")),
+                        ("Status short", identity.get("status_short", "") or "clean at helper start"),
+                    ],
+                ),
+            ),
+            section("Source-Truth Files Loaded", loaded_md),
+            section("Missing / Stale / Conflicting Authority Notes", missing_md),
+            section("Changed Files Versus origin/main", changed_md),
+            section("Findings-To-Repair Map", findings_map),
+            section("Repair Lane Classification", repair_lane_classification_md()),
+            section("Current-Branch Repair Package Recommendation", current_branch_repair_package_md()),
+            section("Specific Repair Planning For USER-Confirmed A", issue_a_repair_plan_md()),
+            section("Specific Repair Planning For USER-Confirmed C", issue_c_repair_plan_md()),
+            section("Specific Repair Planning For B", issue_b_repair_plan_md()),
+            section("Specific Repair Planning For D", issue_d_repair_plan_md()),
+            section("Overlay Profile Proof Planning", overlay_profile_proof_plan_md()),
+            section("Live Validation Repair Planning", live_validation_repair_plan_md()),
+            section("Helper / Validator / Tooling Repair Planning", helper_validator_tooling_repair_plan_md()),
+            section("Source-Truth Amendment Planning", source_truth_amendment_plan_md()),
+            section("Repair Sequencing", repair_sequencing_md()),
+            section("Exact USER Decision Options", exact_user_decision_options_md()),
+        ]
+    )
+    write(PACKET_ROOT / REPAIR_PLAN_PRIMARY_FILE, primary)
+    write(
+        PACKET_ROOT / "START_HERE.md",
+        "\n".join(
+            [
+                "# Start Here - FAM-006 Live Validation / UTS Failure Repair Plan",
+                "",
+                "This packet is a repair-planning packet. It does not implement product fixes.",
+                "",
+                f"Primary USER review file: `{REPAIR_PLAN_PRIMARY_FILE}`",
+                "",
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Repair Plan Review",
+                "",
+                "Read the primary USER Review file first, then use Review Aids for the accepted findings copy and focused planning aids.",
+                "",
+            ]
+        ),
+    )
+    aids = {
+        "ACCEPTED_FINDINGS_PACKET_DIGEST.md": section("Accepted Findings Packet Digest", accepted_digest),
+        "FINDINGS_TO_REPAIR_MAP.md": section("Findings-To-Repair Map", findings_map),
+        "REPAIR_LANE_CLASSIFICATION.md": section("Repair Lane Classification", repair_lane_classification_md()),
+        "CURRENT_BRANCH_REPAIR_PACKAGE_RECOMMENDATION.md": section("Current-Branch Repair Package Recommendation", current_branch_repair_package_md()),
+        "ISSUE_A_REPAIR_PLAN.md": section("Issue A Repair Plan", issue_a_repair_plan_md()),
+        "ISSUE_B_REPAIR_PLAN.md": section("Issue B Repair Plan", issue_b_repair_plan_md()),
+        "ISSUE_C_REPAIR_PLAN.md": section("Issue C Repair Plan", issue_c_repair_plan_md()),
+        "ISSUE_D_REPAIR_PLAN.md": section("Issue D Repair Plan", issue_d_repair_plan_md()),
+        "OVERLAY_PROFILE_PROOF_PLAN.md": section("Overlay Profile Proof Plan", overlay_profile_proof_plan_md()),
+        "LIVE_VALIDATION_REPAIR_PLAN.md": section("Live Validation Repair Plan", live_validation_repair_plan_md()),
+        "HELPER_VALIDATOR_TOOLING_REPAIR_PLAN.md": section("Helper / Validator / Tooling Repair Plan", helper_validator_tooling_repair_plan_md()),
+        "SOURCE_TRUTH_AMENDMENT_PLAN.md": section("Source-Truth Amendment Plan", source_truth_amendment_plan_md()),
+        "REPAIR_SEQUENCING.md": section("Repair Sequencing", repair_sequencing_md()),
+        "EXACT_USER_DECISION_OPTIONS.md": section("Exact USER Decision Options", exact_user_decision_options_md()),
+    }
+    for name, body in aids.items():
+        write(PACKET_ROOT / "Review Aids" / name, body)
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file_path in PACKET_ROOT.rglob("*"):
+            if file_path.is_file():
+                archive.write(file_path, file_path.relative_to(PACKET_ROOT).as_posix())
+    digest = sha256_file(zip_path)
+    return PACKET_ROOT, zip_path, digest
+
+
 def generate_packet() -> tuple[Path, Path, str]:
     identity = git_identity()
     if identity.get("baseline_head_is_ancestor") != "true":
@@ -1415,10 +2076,82 @@ def validate_packet(packet_root: Path) -> dict[str, object]:
     }
 
 
+def validate_repair_plan_packet(packet_root: Path) -> dict[str, object]:
+    primary = packet_root / REPAIR_PLAN_PRIMARY_FILE
+    files = list(packet_root.rglob("*"))
+    markdown_files = [p for p in files if p.suffix.lower() == ".md"]
+    user_review_files = list((packet_root / "USER Review").glob("*.md"))
+    text = read_text(primary)
+    required = [
+        f"Packet Status: {REPAIR_PLAN_STATUS}",
+        "Packet Reviewability State: Reviewable",
+        "USER Gate State: Pending USER Repair Plan Review",
+        "Product/runtime repair: Withheld",
+        "Live Validation acceptance: Withheld",
+        "UTS acceptance: Withheld",
+        "Findings-To-Repair Map",
+        "Repair Lane Classification",
+        "Current-Branch Repair Package Recommendation",
+        "Specific Repair Planning For USER-Confirmed A",
+        "Specific Repair Planning For USER-Confirmed C",
+        "Specific Repair Planning For B",
+        "Specific Repair Planning For D",
+        "Overlay Profile Proof Planning",
+        "Live Validation Repair Planning",
+        "Helper / Validator / Tooling Repair Planning",
+        "Source-Truth Amendment Planning",
+        "Repair Sequencing",
+        "Exact USER Decision Options",
+        "FAM006-EVID-001",
+        "FAM006-EVID-002",
+        "FAM006-TOOLGAP-001",
+        "FAM006-LVFAIL-001",
+        "FAM006-UTSFAIL-001",
+        "FAM006-UI-001",
+        "FAM006-UI-002",
+        "FAM006-UI-003",
+        "FAM006-WINDOW-001",
+        "FAM006-WINDOW-002",
+        "FAM006-GOVGAP-002",
+        "FAM006-GOVGAP-003",
+        "FAM006-REGRESS-001",
+        "FAM006-REGRESS-002",
+        "FAM006-CODEPATH-001",
+        "FAM006-PHASE-001",
+    ]
+    forbidden = [
+        "Product/runtime repair: Implemented",
+        "UTS acceptance: Accepted",
+        "PR Readiness: Approved",
+        "Issue #258: Closed",
+    ]
+    missing = [marker for marker in required if marker not in text]
+    forbidden_hits = [marker for marker in forbidden if marker in text]
+    layout_ok = (
+        (packet_root / "START_HERE.md").exists()
+        and primary.exists()
+        and (packet_root / "Review Aids").is_dir()
+        and (packet_root / "Source Truth Context").is_dir()
+        and len(user_review_files) == 1
+        and (packet_root / "Review Aids" / "Accepted Findings Packet" / PRIMARY_FILE).exists()
+    )
+    return {
+        "passed": not missing and not forbidden_hits and layout_ok,
+        "layoutOk": layout_ok,
+        "missingRequiredMarkers": missing,
+        "forbiddenMarkers": forbidden_hits,
+        "userReviewFileCount": len(user_review_files),
+        "markdownFileCount": len(markdown_files),
+        "fileCount": len([p for p in files if p.is_file()]),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--generate-packet", action="store_true")
     parser.add_argument("--validate-packet", action="store_true")
+    parser.add_argument("--generate-repair-plan-packet", action="store_true")
+    parser.add_argument("--validate-repair-plan-packet", action="store_true")
     args = parser.parse_args()
     if args.generate_packet:
         packet_root, zip_path, digest = generate_packet()
@@ -1432,6 +2165,20 @@ def main() -> int:
         return 0 if validation["passed"] else 1
     if args.validate_packet:
         validation = validate_packet(PACKET_ROOT)
+        print(json.dumps(validation, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.generate_repair_plan_packet:
+        packet_root, zip_path, digest = generate_repair_plan_packet()
+        validation = validate_repair_plan_packet(packet_root)
+        print(json.dumps({
+            "packetRoot": str(packet_root),
+            "zipPath": str(zip_path),
+            "zipSha256": digest,
+            "validation": validation,
+        }, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.validate_repair_plan_packet:
+        validation = validate_repair_plan_packet(PACKET_ROOT)
         print(json.dumps(validation, indent=2))
         return 0 if validation["passed"] else 1
     parser.print_help()
