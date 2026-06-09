@@ -41,7 +41,7 @@ Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits,
 | --- | --- | --- |
 | Backlog family | Broad long-lived product identity and compact registry pointer | Every subsystem, dependency, architecture idea, policy, or implementation package |
 | Family vision | Durable direction for one family | Cross-family architecture, runtime approval, or active branch authority by default |
-| Family feature vision | Durable feature-category direction inside exactly one FAM, including reusable surfaces, experience flow, non-goals, proof expectations, deferred carryforward, and BP1 `Feature Vision Context` when selected feature-bearing branch routes require it | New FAM identity, selected-next truth, active branch state, implementation approval, or live dependency queues |
+| Family feature vision | Durable feature-category direction inside exactly one FAM, compact FFV/element IDs, reusable surfaces, experience flow, non-goals, proof expectations, deferred carryforward, and BP1 `Feature Vision Context` when selected feature-bearing branch routes require it | New FAM identity, branch route identity, Slice/SLC identity, seam identity, selected-next truth, active branch state, implementation approval, or live dependency queues |
 | Architecture layer | Reusable structural system concepts | Product-family identity, release identity, or implementation approval by itself |
 | Cross-family policy owner | Hard rules, constraints, enforcement requirements, and safety/privacy boundaries across families | Runtime identity or implementation scope by itself |
 | Experience layer | Interaction philosophy, UX orchestration, and user-facing behavioral model | Automatic backlog identity or implementation approval |
@@ -60,6 +60,8 @@ AI Operational Cache Governance is not a backlog family. Cache is operational, p
 AI-native architecture placement is now routed without adding backlog families by default: `Docs/ai_runtime_and_trust_architecture.md` owns cross-family permission-state, deterministic routing, provider-orchestration boundaries, AI Operational Cache Governance, Trust Journal direction, capability-pack architecture, routine/continuity boundaries, Windows Health recommendation pipeline boundaries, and competitive-integrity architecture. Future branches may consume those concepts only after the taxonomy gate names whether the proposed work is a family vision update, architecture layer, cross-family policy owner, experience layer, runtime subsystem, capability-pack domain, or package/slice/seam.
 
 Branch Scope Standard: branches must package multiple related admitted slices under exactly one broad family by default. A package with exactly one admitted slice is blocked by `Single-Slice Package User Approval Missing` unless `Single-Slice Package User Approval: Granted` is recorded with explicit USER approval.
+
+Branch Readiness Stage 1 must apply the `BR1 Candidate Viability / Grouping Matrix` from `Docs/phase_governance.md` before presenting backlog/family/package candidates. A backlog candidate is not valid merely because it has planning, support, manifest, readiness, infrastructure, or future dependency work; it must name a concrete feature outcome, implementation-bearing route class, behavior-change classification, grouping recommendation, split reason when not grouped, and proof path. Supporting work belongs inside the coherent implementation-bearing package when owner, route, timing, risk, and validation proof align.
 
 Package Completion Standard: Workstream continues through every admitted package slice until `Package Completion State: Complete`, `Released Baseline / Open`, `Blocked`, or `Deferred` is truthfully recorded before Hardening admission.
 
@@ -108,7 +110,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | Branch authority router | `Docs/branch_records/index.md` |
 | Branch runtime engineering plans | `Docs/branch_plans/` |
 | Family vision records | `Docs/family_visions/` |
-| Family feature vision records | `Docs/family_feature_visions/` after USER-approved content-file creation |
+| Family feature vision records | `Docs/family_feature_visions/` after USER-approved content-file creation; preferred compact files such as `F7-FF01.md` after USER-approved index/rename migration |
 | AI runtime and trust architecture | `Docs/ai_runtime_and_trust_architecture.md` |
 | Workstream routing and family dossiers | `Docs/workstreams/index.md` |
 | Stable worktree slot registry | `Docs/worktree_slots.md` |

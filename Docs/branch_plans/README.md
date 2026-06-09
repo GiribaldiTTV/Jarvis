@@ -33,6 +33,10 @@ The BP2 marker `SLC / Seam Plan:` remains valid for existing packets and histori
 
 Every active branch plan for a runtime, product, source-truth, helper, validator, or governance repair carrier must include an implementation-bearing route before BP1 begins. Branch Readiness Stage 2 is allowed to discover infrastructure prerequisites, lane groundwork, and route blockers; it admits the route green only after those blockers are resolved, deferred with a legal alternate route, or converted into an exact USER action gate. BP1 defines the vision for the selected route; BP2 plans how Codex will implement that route; BP3 verifies that the route is ready for bounded Workstream execution.
 
+BR1 must produce a `BR1 Candidate Viability / Grouping Matrix` before BR2 admits a route. The matrix compares USER-selectable candidates and must name the main feature/package objective, concrete feature outcome, implementation-bearing route class, behavior-change classification, support/infrastructure relationship, Family Feature Vision context, Deferred Feature Carryforward consumed, grouping recommendation, split reason when not grouped, expected Slice/SLC/seam map, proof path, largest safe coherent package explanation, tiny-branch sprawl review, blockers, and exact USER decision needed. Candidate matrix rows are review evidence, not active branch state, selected-next truth, or implementation approval.
+
+Planning-only, readiness-only, support-only, infrastructure-only, manifest-only, registry-only, proof-only, setup/skeleton-only, and choose-later candidates are invalid unless USER grants an exact setup/action gate and the packet names the concrete implemented behavior or control that the branch will enforce. Support work should be grouped into the implementation-bearing package when it shares the same FAM, package objective, route, owner/worktree, release timing, risk class, and validation/proof path. Splitting support or deferred carryforward into tiny branches requires an explicit split reason and future owner.
+
 Required active branch-plan route markers:
 
 - Selected Implementation Route:
@@ -80,6 +84,35 @@ Branch Planning uses two independent state axes:
 Every Slice/SLC must trace to a BP1 accepted Branch Vision requirement and a BP2 Branch Plan line item. If BP2 exposes a vision gap or changes the accepted Branch Vision, Codex must route back to BP1 instead of treating the engineering plan as a new vision owner.
 
 For a selected feature-bearing branch route, BP1 entry is blocked on `Family Feature Vision Required For Selected Feature` until the required USER-approved Family Feature Vision exists and passes the `Feature Vision Sufficiency Check`. If the route is governance-only, release-support, pure helper/validator, source-truth-only, or otherwise non-product, the branch planning packet may record `Family Feature Vision Not Applicable` with the reason. When a USER-approved Family Feature Vision exists for the selected implementation route, BP1 must cite it as the durable `Feature Vision Context`. BP2 must carry forward BP1's accepted disposition for applicable deferred feature items, and BP3 must verify that applicable deferrals are either included in the admitted package, explicitly future-gated with reason, or routed to the correct future owner. Branch plans may record active gate state and branch-local choices for those items, but the durable deferred-item facts belong in the Family Feature Vision after USER-approved fold-down.
+
+## Family Feature Vision Element Traceability
+
+Family Feature Vision elements are durable vision units. They are not Slices, SLCs, seams, branch routes, or implementation status rows.
+
+Allowed element lifecycle terms:
+
+- `Visioned` = the element exists in the Family Feature Vision inventory.
+- `Selected` = BP1 chooses the element for the branch vision.
+- `Planned` = BP2/BP3 maps the selected element to branch-local Slice/SLC/seam work and proof.
+- `Implemented` = Workstream changes code, source truth, artifacts, or behavior for that element.
+- `Hardened` = Hardening inspects that element for defects, regressions, boundary leaks, weak proof, stale assumptions, and deferral integrity.
+- `Live Validated` = Live Validation proves the element through the real user/app path when applicable, or records an allowed proof category or waiver for non-UI/non-runtime elements.
+- `Deferred` = the element is not in current branch scope and has owner, reason, trigger, proof expectation, and return path.
+- `Blocked` = source truth, USER approval, external state, branch plan, private/provider/runtime boundary, or validation prevents the element from moving forward.
+
+Required proof chain:
+
+```text
+FFV element -> BP1 selected/deferred -> BP2/BP3 mapped to branch-local Slice/SLC/seam -> Workstream implemented -> Hardening inspected -> Live Validation proven -> USER packet evidence
+```
+
+BP1 packets for selected feature-bearing routes must include a selected/deferred FFV element matrix. That matrix names each relevant FFV element ID, whether it is selected or deferred, why it is grouped or deferred, the dependency trigger, the expected proof, and the owner or return path. A BP1 packet cannot pass by citing the Family Feature Vision generally while omitting the elements that determine branch scope.
+
+BP2 and BP3 packets must map every selected FFV element to branch-local Slice/SLC/seam work, affected surfaces, proof outputs, rollback/safety posture, and future-gated boundaries. If BP2 or BP3 changes which FFV elements are selected, defers an element BP1 selected, or pulls in a new element BP1 did not accept, Codex must return to BP1 or record an explicit USER waiver before Workstream implementation can be requested.
+
+Workstream, Hardening, and Live Validation must carry the same selected FFV element IDs forward. Broad inference, nearby proof, fixture-only proof, validator pass, or a general statement that the branch implemented the feature is not enough for a user-visible, runtime-visible, UI, workflow, provider, helper, validator, or source-truth element. Each such element needs element-specific evidence or a named waiver.
+
+Active implementation status for selected elements belongs in the active external branch plan or approved branch-planning packet. Family Feature Vision records own only the durable `Visioned` inventory, deferred facts, proof expectations, and fold-down receipts.
 
 The active USER hub for Branch Planning packets is:
 

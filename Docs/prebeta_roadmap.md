@@ -44,8 +44,11 @@ Use these sources instead of manually updating live release facts here:
 | PR state / merge commit / review state | `gh pr view` or GitHub GraphQL |
 | Worktree branch freshness | `git status`, `git merge-base`, and `dev/orin_worktree_rebaseline_audit.py` |
 | Active branch lifecycle / selected-next operational posture | `C:\Nexus Governance State` plus Git/GitHub/helper-derived truth |
+| Post-merge Release Readiness handoff before successor BR1 | Release Readiness Stage 1 digest, explicit USER release-readiness deferral, or Branch Readiness Stage 1 handoff report |
 
 Historical receipts may cite releases, PRs, and commits when the receipt is intentionally preserved as interpretation. Do not promote those receipts into live current-state ownership.
+
+When a successor Branch Readiness Stage 1 consumes this roadmap after release-bearing work has merged beyond the latest public prerelease, it must not infer that release readiness is complete from roadmap pointer text. It must use the `Post-Merge Release Readiness Handoff:` rule in `Docs/phase_governance.md` and report whether Release Readiness Stage 1 has run for current `origin/main` or USER explicitly deferred it.
 
 ## Stage Breakpoint Schedule
 
