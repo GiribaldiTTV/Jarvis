@@ -153,8 +153,8 @@ let commandOverlayState = {
 let aiProviderState = {
   mode: "no-provider",
   availability: "disabled",
-  providerLabel: "No AI provider",
-  statusLabel: "AI unavailable",
+  providerLabel: "ORIN local assist",
+  statusLabel: "ORIN local assist available",
   selectedProviderId: "no-provider",
   providerSelectionState: "fallback-no-provider",
   providerSelectionLabel: "No-provider fallback active",
@@ -256,7 +256,8 @@ let aiProviderState = {
   providerVisibleDataLabel: "Provider-visible data: none",
   providerVisibleDataDetail: "No prompt, file, screen, memory, or telemetry is sent",
   providerConsentBoundaryLabel: "Consent boundary: provider setup required before prompts",
-  providerNextActionLabel: "Next: provider setup is disabled in this local-only foundation seam",
+  providerNextActionLabel:
+    "Open local assist to review public-safe local status; provider/model execution remains blocked",
   runtimeStateSchemaVersion: "provider-runtime-state.v1",
   runtimeStateCategory: "provider_setup_disabled",
   runtimeStateLabel: "Runtime state: provider setup disabled",
@@ -508,8 +509,8 @@ let aiProviderState = {
   executionApprovalGateState: "execution-approval-gate-missing",
   dataVisibilityConsentPosture: "data-visibility-consent-none-required",
   dataVisibilityConsentLabel: "Data visibility consent: none required for local status",
-  desktopAiOwnedReadinessDisplayState: "desktop-ai-owned-readiness-display-suppressed",
-  desktopAiOwnedReadinessDisplayLabel: "Desktop AI-owned readiness display: suppressed by default",
+  desktopAiOwnedReadinessDisplayState: "desktop-ai-owned-readiness-display-visible",
+  desktopAiOwnedReadinessDisplayLabel: "Desktop AI-owned readiness display: visible public local assist",
   providerSetupFutureGatedPosture: "provider-setup-future-gated",
   providerSetupFutureGatedLabel: "Provider setup: future-gated",
   providerExecutionFutureGatedPosture: "provider-execution-future-gated",
@@ -566,10 +567,11 @@ let aiProviderState = {
   capabilityPackInstallBlockedReason: "install_blocked_manifest_or_user_approval_required",
   capabilityPackUpdateBlockedReason: "update_blocked_user_approval_required",
   capabilityPackUninstallBlockedReason: "uninstall_blocked_no_installed_pack",
-  interactionAffordance: "disabled-no-provider-interaction",
-  interactionLabel: "Assisted Desktop unavailable",
-  interactionDisabledReason: "Consent and provider configuration are required before prompts can run",
-  noProviderFallbackLabel: "No-provider fallback active",
+  interactionAffordance: "local-assisted-action-available",
+  interactionLabel: "Open local assist",
+  interactionDisabledReason:
+    "Local assist opens a guarded no-provider status only; prompts, providers, downloads, memory, and network remain blocked",
+  noProviderFallbackLabel: "No-provider guard active",
   sentToProvider: false,
   canAcceptPrompts: false,
   requiresConsent: true,
@@ -1667,11 +1669,19 @@ function renderAIProviderState() {
   if (!aiProviderStatus) return;
 
   const state = aiProviderState || {};
-  aiProviderStatus.hidden = true;
-  aiProviderStatus.setAttribute("aria-hidden", "true");
+  const displayState =
+    state.desktopAiOwnedReadinessDisplayState || "desktop-ai-owned-readiness-display-visible";
+  const localActionAvailable = state.interactionAffordance === "local-assisted-action-available";
+  const displayVisible =
+    displayState === "desktop-ai-owned-readiness-display-visible" || localActionAvailable;
+  aiProviderStatus.hidden = !displayVisible;
+  aiProviderStatus.setAttribute("aria-hidden", displayVisible ? "false" : "true");
   aiProviderStatus.dataset.displaySuppression =
-    state.desktopAiOwnedReadinessDisplayState || "desktop-ai-owned-readiness-display-suppressed";
-  aiProviderStatus.dataset.displayVisibility = "suppressed-by-default";
+    displayState;
+  aiProviderStatus.dataset.displayVisibility = displayVisible ? "public-safe-visible" : "suppressed-by-default";
+  aiProviderStatus.dataset.localActionGuard = "no-provider";
+  aiProviderStatus.dataset.localActionClickable = localActionAvailable ? "true" : "false";
+  aiProviderStatus.dataset.localActionResult = aiProviderStatus.dataset.localActionResult || "idle";
   aiProviderStatus.dataset.mode = state.mode || "unknown";
   aiProviderStatus.dataset.availability = state.availability || "disabled";
   aiProviderStatus.dataset.privacyScope = state.privacyScope || "unknown";
@@ -1849,10 +1859,10 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.canAcceptPrompts = state.canAcceptPrompts ? "true" : "false";
 
   if (aiProviderStatusState) {
-    aiProviderStatusState.textContent = state.statusLabel || "AI unavailable";
+    aiProviderStatusState.textContent = state.statusLabel || "ORIN local assist available";
   }
   if (aiProviderStatusProvider) {
-    aiProviderStatusProvider.textContent = state.providerLabel || "No AI provider";
+    aiProviderStatusProvider.textContent = state.providerLabel || "No AI provider; local assist only";
   }
   if (aiProviderStatusSelection) {
     aiProviderStatusSelection.textContent = state.providerSelectionLabel || "No-provider fallback active";
@@ -2261,22 +2271,60 @@ function renderAIProviderState() {
     aiProviderStatusInstallIntent.textContent = state.installIntentLabel || "Install intent: blocked";
   }
   if (aiProviderStatusAction) {
-    aiProviderStatusAction.textContent = state.interactionLabel || "Assisted Desktop unavailable";
+    aiProviderStatusAction.textContent = state.interactionLabel || "Open local assist";
     aiProviderStatusAction.title =
-      state.interactionDisabledReason || "Provider consent is required before AI prompts can run";
-    aiProviderStatusAction.disabled = true;
-    aiProviderStatusAction.setAttribute("aria-disabled", "true");
+      state.interactionDisabledReason ||
+      "Local assist opens a guarded no-provider status only; prompts, providers, downloads, memory, and network remain blocked";
+    aiProviderStatusAction.disabled = !localActionAvailable;
+    aiProviderStatusAction.setAttribute("aria-disabled", localActionAvailable ? "false" : "true");
+    aiProviderStatusAction.dataset.localActionGuard = "no-provider";
   }
   if (aiProviderStatusFallback) {
     aiProviderStatusFallback.textContent = state.noProviderFallbackLabel || "No-provider fallback active";
   }
   if (aiProviderStatusNextAction) {
     aiProviderStatusNextAction.textContent =
-      state.providerNextActionLabel || "Next: provider setup is disabled in this local-only foundation seam";
+      state.providerNextActionLabel ||
+      "Open local assist to review public-safe local status; provider/model execution remains blocked";
   }
   if (aiProviderStatusPrivacy) {
     aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";
   }
+}
+
+function handleAIProviderStatusActionClick(event) {
+  event.preventDefault();
+  if (!aiProviderStatus) return;
+
+  const state = aiProviderState || {};
+  const guardClosed =
+    state.sentToProvider === false &&
+    state.canAcceptPrompts === false &&
+    state.providerVisibleData === "none" &&
+    state.promptSendPosture === "prompt-send-disabled" &&
+    state.networkEgressState === "network-egress-blocked" &&
+    state.memoryIndexingState === "memory-indexing-disabled";
+
+  aiProviderStatus.dataset.localActionResult =
+    guardClosed ? "guarded-no-provider" : "blocked-boundary-mismatch";
+  aiProviderStatus.dataset.sentToProvider = "false";
+  aiProviderStatus.dataset.canAcceptPrompts = "false";
+  aiProviderStatus.dataset.providerVisibleData = "none";
+
+  if (aiProviderStatusFallback) {
+    aiProviderStatusFallback.textContent = guardClosed
+      ? "Local assist opened; provider-visible data remains none"
+      : "Local assist blocked; provider boundary mismatch";
+  }
+  if (aiProviderStatusNextAction) {
+    aiProviderStatusNextAction.textContent = guardClosed
+      ? "No prompt was accepted or sent. Provider, download, network, cache, and memory paths remain blocked."
+      : "Provider boundary mismatch; no local action ran.";
+  }
+}
+
+if (aiProviderStatusAction) {
+  aiProviderStatusAction.addEventListener("click", handleAIProviderStatusActionClick);
 }
 
 function frame(ts) {

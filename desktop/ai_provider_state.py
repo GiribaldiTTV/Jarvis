@@ -106,6 +106,7 @@ NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
 NO_PROVIDER_INTERACTION_AFFORDANCE = "disabled-no-provider-interaction"
+LOCAL_ASSISTED_INTERACTION_AFFORDANCE = "local-assisted-action-available"
 PROVIDER_CONFIGURATION_UNCONFIGURED = "unconfigured"
 PROVIDER_CONFIGURATION_FALLBACK_ACTIVE = "fallback-active"
 LOCAL_PROVIDER_REGISTRY_STATE = "local-only-registry"
@@ -758,6 +759,7 @@ EXECUTION_APPROVAL_GATE_MISSING = "execution-approval-gate-missing"
 EXECUTION_APPROVAL_GATE_FUTURE_GATED = "execution-approval-gate-future-gated"
 AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED = "desktop-ai-owned-readiness-display-suppressed"
 AI_PROVIDER_STATUS_DISPLAY_ABSENT_FROM_DEFAULT_DESKTOP = "desktop-ai-owned-readiness-display-absent-from-default-surface"
+AI_PROVIDER_STATUS_DISPLAY_VISIBLE = "desktop-ai-owned-readiness-display-visible"
 
 SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION = "provider-setup-contract-readiness-state.v1"
 SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION = "provider-setup-contract-readiness-config.v1"
@@ -1363,8 +1365,14 @@ SETUP_COMPLETION_RESET_REQUESTED = "setup_completion_reset_requested_local_only"
 SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY = (
     "setup-completion-status-hidden-telemetry"
 )
+SETUP_COMPLETION_STATUS_PROOF_PUBLIC_LOCAL_ASSIST = (
+    "setup-completion-status-public-local-assist"
+)
 SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED = (
     "setup-completion-desktop-display-suppressed"
+)
+SETUP_COMPLETION_DESKTOP_DISPLAY_VISIBLE = (
+    "setup-completion-desktop-display-visible"
 )
 SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED = (
     "setup-completion-provider-setup-gate-blocked"
@@ -10367,14 +10375,14 @@ def _provider_setup_completion_fields(
         "provider_setup_completion_execution_consent_state": execution_consent_state,
         "provider_setup_completion_execution_consent_label": execution_consent_label,
         "provider_setup_completion_status_proof_state": (
-            SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY
+            SETUP_COMPLETION_STATUS_PROOF_PUBLIC_LOCAL_ASSIST
         ),
         "provider_setup_completion_status_proof_label": (
-            "Setup completion status proof: hidden telemetry derived from consent UX "
+            "Setup completion status proof: public local assist derived from consent UX "
             f"and reason {completion_reason}"
         ),
         "provider_setup_completion_desktop_display_state": (
-            SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED
+            SETUP_COMPLETION_DESKTOP_DISPLAY_VISIBLE
         ),
         "provider_setup_completion_provider_setup_gate_state": setup_gate_state,
         "provider_setup_completion_provider_execution_gate_state": (
@@ -10465,16 +10473,23 @@ def build_provider_setup_completion_foundation_state(
         state_id=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID,
         mode=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_MODE,
         availability=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_AVAILABILITY,
-        status_label=setup_completion_fields["provider_setup_completion_label"],
+        status_label="ORIN local assist available",
+        provider_label="ORIN local assist",
         disabled_reason=(
-            "Provider setup completion foundation is local-only; SDK/model execution remains pending USER approval"
+            "ORIN local assist is public-safe and local-only; SDK/model execution remains pending USER approval"
         ),
         provider_next_action_label=(
-            "Next: validate setup completion foundation before provider SDK/model handoff remains future-gated"
+            "Open local assist to review public-safe local status; provider/model execution remains blocked"
         ),
-        interaction_label="Provider setup completion foundation only",
+        interaction_affordance=LOCAL_ASSISTED_INTERACTION_AFFORDANCE,
+        interaction_label="Open local assist",
         interaction_disabled_reason=(
-            "Setup completion records local status only and does not enable prompt routing or model execution"
+            "Local assist opens a guarded no-provider status only; prompts, providers, downloads, memory, and network remain blocked"
+        ),
+        no_provider_fallback_label="No-provider guard active",
+        desktop_ai_owned_readiness_display_state=AI_PROVIDER_STATUS_DISPLAY_VISIBLE,
+        desktop_ai_owned_readiness_display_label=(
+            "Desktop AI-owned readiness display: visible public local assist"
         ),
         **setup_completion_fields,
     )

@@ -31,7 +31,7 @@ body.desktop-mode #front-bloom {
   opacity: 0.18;
 }
 
-body.desktop-mode .ai-provider-status {
+body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-default"] {
   display: none;
 }
 

@@ -547,6 +547,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     EXECUTION_APPROVAL_GATE_FUTURE_GATED,
     AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
     AI_PROVIDER_STATUS_DISPLAY_ABSENT_FROM_DEFAULT_DESKTOP,
+    AI_PROVIDER_STATUS_DISPLAY_VISIBLE,
     SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION,
     SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION,
     SETUP_CONTRACT_STATE_BLOCKED_BY_CAPABILITY,
@@ -7887,14 +7888,18 @@ def validate() -> list[str]:
         )
         _require(
             setup_completion_payload["providerSetupCompletionStatusProofState"]
-            == ai_provider_state.SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY
+            == ai_provider_state.SETUP_COMPLETION_STATUS_PROOF_PUBLIC_LOCAL_ASSIST
             and setup_completion_payload[
                 "providerSetupCompletionDesktopDisplayState"
             ]
-            == ai_provider_state.SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED
+            == ai_provider_state.SETUP_COMPLETION_DESKTOP_DISPLAY_VISIBLE
             and setup_completion_payload["desktopAiOwnedReadinessDisplayState"]
-            == AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
-            f"{label} setup-completion fixture must publish hidden telemetry and preserve display suppression",
+            == AI_PROVIDER_STATUS_DISPLAY_VISIBLE
+            and setup_completion_payload["interactionAffordance"]
+            == ai_provider_state.LOCAL_ASSISTED_INTERACTION_AFFORDANCE
+            and setup_completion_payload["interactionLabel"]
+            == "Open local assist",
+            f"{label} setup-completion fixture must publish visible public local-assist status",
             failures,
         )
         _require(
@@ -8484,10 +8489,12 @@ def validate() -> list[str]:
     ):
         for needle in (
             'id="ai-provider-status"',
-            "hidden",
-            'aria-hidden="true"',
-            'data-display-suppression="desktop-ai-owned-readiness-display-suppressed"',
-            'data-display-visibility="suppressed-by-default"',
+            'aria-hidden="false"',
+            'data-display-suppression="desktop-ai-owned-readiness-display-visible"',
+            'data-display-visibility="public-safe-visible"',
+            'data-local-action-guard="no-provider"',
+            'data-local-action-clickable="true"',
+            'data-local-action-result="idle"',
             'data-mode="no-provider"',
             'data-privacy-scope="local-only"',
             'data-provider-selection="fallback-no-provider"',
@@ -8780,8 +8787,10 @@ def validate() -> list[str]:
             'id="ai-provider-status-install-intent"',
             "Install intent: blocked",
             'id="ai-provider-status-action"',
-            "Assisted Desktop unavailable",
-            "Next: provider path and consent readiness remain local-only",
+            'aria-disabled="false"',
+            "Open local assist",
+            "No-provider guard active",
+            "Open local assist to review public-safe local status; provider/model execution remains blocked",
             "Local shell only; nothing is sent",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)
@@ -8795,7 +8804,7 @@ def validate() -> list[str]:
         _require(needle in desktop_html, f"desktop Core HTML is missing {needle!r}", failures)
 
     for needle in (
-        "body.desktop-mode .ai-provider-status",
+        'body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-default"]',
         "display: none",
     ):
         _require(needle in desktop_css, f"desktop Core CSS is missing {needle!r}", failures)
@@ -8853,11 +8862,13 @@ def validate() -> list[str]:
         ".ai-provider-status__copy-contract",
         ".ai-provider-status::after",
         "max-height: min(34vh, 210px)",
-        "Details held in validation; setup and execution remain gated",
-        "body.desktop-mode .ai-provider-status",
+        "Local assist uses no provider; no prompt, network, memory, or download runs",
+        'body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-default"]',
         '.ai-provider-status[hidden]',
         '.ai-provider-status[data-display-visibility="suppressed-by-default"]',
         "display: none !important",
+        "pointer-events: auto",
+        "cursor: pointer",
         'data-availability="ready"',
         "overflow-wrap: anywhere",
     ):
@@ -9016,10 +9027,15 @@ def validate() -> list[str]:
         "providerPathHandoffPosture",
         "dataVisibilityConsentPosture",
         "desktopAiOwnedReadinessDisplayState",
-        "aiProviderStatus.hidden = true",
-        'aiProviderStatus.setAttribute("aria-hidden", "true")',
+        "const displayState",
+        "const localActionAvailable",
+        "aiProviderStatus.hidden = !displayVisible",
+        'aiProviderStatus.setAttribute("aria-hidden", displayVisible ? "false" : "true")',
         "displaySuppression",
         "displayVisibility",
+        "public-safe-visible",
+        "local-assisted-action-available",
+        "localActionGuard",
         "providerSetupFutureGatedPosture",
         "providerExecutionFutureGatedPosture",
         "providerPathGateState",
@@ -9118,7 +9134,14 @@ def validate() -> list[str]:
         "aiProviderStatusRuntimeReason",
         "aiProviderStatusRuntimeProvenance",
         "aiProviderStatusRuntimeSchema",
-        "aiProviderStatusAction.disabled = true",
+        "handleAIProviderStatusActionClick",
+        "guarded-no-provider",
+        "blocked-boundary-mismatch",
+        "aiProviderStatusAction.disabled = !localActionAvailable",
+        'aiProviderStatusAction.setAttribute("aria-disabled", localActionAvailable ? "false" : "true")',
+        "prompt-send-disabled",
+        "network-egress-blocked",
+        "memory-indexing-disabled",
         "sentToProvider",
         "canAcceptPrompts",
     ):

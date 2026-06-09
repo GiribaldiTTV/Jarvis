@@ -45,10 +45,12 @@
     <div
       id="ai-provider-status"
       class="ai-provider-status"
-      hidden
-      aria-hidden="true"
-      data-display-suppression="desktop-ai-owned-readiness-display-suppressed"
-      data-display-visibility="suppressed-by-default"
+      aria-hidden="false"
+      data-display-suppression="desktop-ai-owned-readiness-display-visible"
+      data-display-visibility="public-safe-visible"
+      data-local-action-guard="no-provider"
+      data-local-action-clickable="true"
+      data-local-action-result="idle"
       data-availability="disabled"
       data-mode="no-provider"
       data-privacy-scope="local-only"
@@ -163,9 +165,9 @@
     >
       <div class="ai-provider-status__topline">
         <span class="ai-provider-status__label">AI</span>
-        <span id="ai-provider-status-state" class="ai-provider-status__state">AI unavailable</span>
+        <span id="ai-provider-status-state" class="ai-provider-status__state">ORIN local assist available</span>
       </div>
-      <div id="ai-provider-status-provider" class="ai-provider-status__provider">No AI provider</div>
+      <div id="ai-provider-status-provider" class="ai-provider-status__provider">No AI provider; local assist only</div>
       <div id="ai-provider-status-selection" class="ai-provider-status__selection">No-provider fallback active</div>
       <div id="ai-provider-status-configuration" class="ai-provider-status__configuration">Provider configuration: none</div>
       <div id="ai-provider-status-registry" class="ai-provider-status__registry">Local provider registry: no configured providers</div>
@@ -273,11 +275,11 @@
         id="ai-provider-status-action"
         class="ai-provider-status__action"
         type="button"
-        disabled
-        aria-disabled="true"
-      >Assisted Desktop unavailable</button>
-      <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider fallback active</div>
-      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Next: provider path and consent readiness remain local-only</div>
+        aria-disabled="false"
+        data-local-action-guard="no-provider"
+      >Open local assist</button>
+      <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider guard active</div>
+      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Open local assist to review public-safe local status; provider/model execution remains blocked</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>
   </div>

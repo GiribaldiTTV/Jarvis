@@ -428,14 +428,14 @@ body {
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
   color: rgba(236, 248, 255, 0.94);
   overflow: hidden;
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .ai-provider-status::after {
   display: block;
   margin-top: 7px;
   color: rgba(245, 198, 96, 0.72);
-  content: "Details held in validation; setup and execution remain gated";
+  content: "Local assist uses no provider; no prompt, network, memory, or download runs";
   font-size: 11px;
   line-height: 1.25;
 }
@@ -789,13 +789,12 @@ body {
 .ai-provider-status__functional-release,
 .ai-provider-status__capability-eligibility,
 .ai-provider-status__install-intent,
-.ai-provider-status__fallback,
-.ai-provider-status__next-action,
 .ai-provider-status__action {
   display: none;
 }
 
 .ai-provider-status__action {
+  display: block;
   width: 100%;
   margin-top: 9px;
   padding: 7px 9px;
@@ -803,11 +802,19 @@ body {
   border-radius: 6px;
   background: rgba(245, 198, 96, 0.08);
   color: rgba(255, 230, 176, 0.88);
+  cursor: pointer;
   font: inherit;
   font-size: 12px;
   line-height: 1.2;
   text-align: left;
   overflow-wrap: anywhere;
+}
+
+.ai-provider-status__action:hover,
+.ai-provider-status__action:focus-visible {
+  border-color: rgba(255, 218, 151, 0.58);
+  background: rgba(245, 198, 96, 0.14);
+  outline: none;
 }
 
 .ai-provider-status__action:disabled {
@@ -825,7 +832,7 @@ body {
   color: rgba(183, 247, 212, 0.96);
 }
 
-body.desktop-mode .ai-provider-status {
+body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-default"] {
   display: none;
 }
 
