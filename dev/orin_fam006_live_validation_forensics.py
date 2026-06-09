@@ -47,6 +47,8 @@ REPAIR_IMPLEMENTATION_PRIMARY_FILE = "USER Review/REPAIR_IMPLEMENTATION_APPROVAL
 REPAIR_IMPLEMENTATION_STATUS = "repair-implementation-approval-review"
 REPAIR_RETURN_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_REPAIR_RETURN_REVIEW.md"
 REPAIR_RETURN_STATUS = "live-validation-repair-return-review"
+LV_UTS_DISPOSITION_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_DISPOSITION_REVIEW.md"
+LV_UTS_DISPOSITION_STATUS = "live-validation-uts-disposition-review"
 ACCEPTED_FINDINGS_ZIP = USER_ROOT / "FAM-006-20260609-124117.zip"
 ACCEPTED_FINDINGS_SHA256 = "18506FB2C0B47E2F7378DCA788558D9F666D2F4B08BAD30677B9735B6A6D71B9"
 REPAIR_PLAN_ZIP = USER_ROOT / "FAM-006-20260609-125215.zip"
@@ -3333,6 +3335,254 @@ def validate_repair_return_review_packet(packet_root: Path) -> dict[str, object]
     }
 
 
+def live_validation_uts_disposition_next_decision_text() -> str:
+    return (
+        "I accept the FAM-006 Live Validation / UTS disposition packet. I confirm the all-green "
+        "repair-return evidence and worktree-specific UTS handoff are sufficient to mark the FAM-006 "
+        "Live Validation Stage 1 USER disposition as accepted, with no current-scope UTS failures "
+        "outstanding. I approve Codex to digest this USER disposition into the FAM-006 branch authority "
+        "record and return the exact PR Readiness Stage 1 approval packet, with issue #258 closeout, "
+        "PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, "
+        "provider/model/private work, and future-gated Log Viewer/export/tray/keybind/settings/Native "
+        "Log Loader work still pending separate approval."
+    )
+
+
+def generate_live_validation_uts_disposition_packet() -> tuple[Path, Path, str]:
+    identity = git_identity()
+    evidence = latest_return_flow_evidence()
+    rows = return_flow_findings(evidence)
+    non_green = [row for row in rows if row.get("result") != "PASS"]
+    if non_green:
+        details = "; ".join(f"{row.get('finding')}: {row.get('result')}" for row in non_green)
+        raise SystemExit(
+            "BLOCKED: Live Validation / UTS disposition packet requires all A-J repair-return "
+            f"findings to be PASS. Non-green findings: {details}"
+        )
+
+    loaded, missing = source_truth_loaded_lines()
+    changed = changed_files()
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    zip_path = USER_ROOT / f"FAM-006-{stamp}.zip"
+
+    purge_fam006_user_packet_outputs()
+
+    dirs = [
+        PACKET_ROOT / "USER Review",
+        PACKET_ROOT / "Review Aids",
+        PACKET_ROOT / "Source Truth Context",
+    ]
+    for directory in dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+
+    for rel in SOURCE_TRUTH_FILES:
+        copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
+    external_plan = Path(
+        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+    )
+    external_state = Path(
+        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_state.md"
+    )
+    copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
+    copy_if_exists(external_state, PACKET_ROOT / "Source Truth Context" / "external_branch_state.md")
+    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+
+    interaction_path = Path(str(evidence.get("interactionPath") or ""))
+    restart_interaction_path = Path(str(evidence.get("restartInteractionPath") or ""))
+    manifest_path = Path(str(evidence.get("manifestPath") or ""))
+    supplemental_path = Path(str(evidence.get("supplementalManifest") or ""))
+    copy_if_exists(interaction_path, PACKET_ROOT / "Review Aids" / "monitoring_hud_live_client_interaction_manifest.json")
+    copy_if_exists(restart_interaction_path, PACKET_ROOT / "Review Aids" / "monitoring_hud_restart_check_interaction_manifest.json")
+    copy_if_exists(manifest_path, PACKET_ROOT / "Review Aids" / "monitoring_hud_live_validation_manifest.json")
+    copy_if_exists(supplemental_path, PACKET_ROOT / "Review Aids" / "supplemental_issue_evidence_manifest.json")
+    write(PACKET_ROOT / "Review Aids" / "A_J_FINDING_STATUS_TABLE.md", section("A-J Finding Status Table", return_status_table(rows)))
+    write(
+        PACKET_ROOT / "Review Aids" / "LATEST_EVIDENCE_PATHS.md",
+        section(
+            "Latest Evidence Paths",
+            table(
+                ["Evidence", "Path"],
+                [
+                    ["Latest live-validation root", str(evidence.get("root") or "")],
+                    ["Interaction manifest", str(evidence.get("interactionPath") or "")],
+                    ["Restart interaction manifest", str(evidence.get("restartInteractionPath") or "")],
+                    ["USER screenshot folder", str(evidence.get("userScreenshotRoot") or "")],
+                    ["USER element screenshot folder", str(evidence.get("userElementScreenshotRoot") or "")],
+                    ["Supplemental issue manifest", str(evidence.get("supplementalManifest") or "")],
+                    ["Worktree-specific UTS handoff", r"C:\Nexus USER\UTS - FAM-006.txt"],
+                ],
+            ),
+        ),
+    )
+
+    loaded_md = "\n".join(f"- `{item}`" for item in loaded)
+    missing_md = "\n".join(f"- `{item}`" for item in missing) or "- None found."
+    changed_md = "\n".join(f"- `{item}`" for item in changed) or "- None."
+    next_text = live_validation_uts_disposition_next_decision_text()
+
+    primary = "\n".join(
+        [
+            "# FAM-006 Live Validation / UTS Disposition Review",
+            "",
+            f"Packet Status: {LV_UTS_DISPOSITION_STATUS}",
+            "Packet Reviewability State: Reviewable",
+            "USER Gate State: Pending USER Live Validation / UTS Disposition",
+            "Live Validation acceptance: Pending USER decision",
+            "UTS disposition: Pending USER decision",
+            "User Test Summary Results: PENDING",
+            "PR Readiness: Withheld",
+            "Issue #258 closeout: Withheld",
+            "",
+            "This packet is the decision surface for the all-green repair-return evidence. It does not itself accept Live Validation, accept UTS, approve PR Readiness, close issue #258, or approve merge/release/cleanup.",
+            "",
+            section(
+                "Verdict",
+                "DISPOSITION REVIEW READY. All A-J repair-return findings are PASS, and the packet is ready for USER to accept, revise, hold, or reject the Live Validation / UTS disposition.",
+            ),
+            section(
+                "Worktree Identity",
+                table(
+                    ["Field", "Value"],
+                    [
+                        ("Git root", identity.get("git_root", "")),
+                        ("Branch", identity.get("branch", "")),
+                        ("HEAD", identity.get("head", "")),
+                        ("origin/main", identity.get("origin_main", "")),
+                        ("Merge base", identity.get("merge_base", "")),
+                        ("Ahead/behind", identity.get("ahead_behind", "")),
+                        ("Status short", identity.get("status_short", "") or "clean at helper start"),
+                    ],
+                ),
+            ),
+            section("Source-Truth Files Loaded", loaded_md),
+            section("Missing / Stale / Conflicting Authority Notes", missing_md),
+            section("Changed Files Versus origin/main", changed_md),
+            section(
+                "Latest Repair Evidence Loaded",
+                table(
+                    ["Evidence", "Path"],
+                    [
+                        ["Latest live-validation root", str(evidence.get("root") or "")],
+                        ["Interaction manifest", str(evidence.get("interactionPath") or "")],
+                        ["Restart interaction manifest", str(evidence.get("restartInteractionPath") or "")],
+                        ["USER screenshot folder", str(evidence.get("userScreenshotRoot") or "")],
+                        ["USER element screenshot folder", str(evidence.get("userElementScreenshotRoot") or "")],
+                        ["Supplemental issue manifest", str(evidence.get("supplementalManifest") or "")],
+                        ["Worktree-specific UTS handoff", r"C:\Nexus USER\UTS - FAM-006.txt"],
+                    ],
+                ),
+            ),
+            section("All A-J Repair-Return Findings", "All A-J repair-return findings: PASS\n\n" + return_status_table(rows)),
+            section(
+                "Disposition Boundary",
+                "\n".join(
+                    [
+                        "- USER may accept, revise, hold, or reject this disposition.",
+                        "- Acceptance would authorize Codex to digest the Live Validation Stage 1 USER disposition into the active FAM-006 branch authority record.",
+                        "- Acceptance would not approve PR creation, issue #258 closeout, merge, release, branch cleanup, or future-gated feature work.",
+                        "- If USER reports any new current-scope failure, the branch returns to Workstream or Hardening repair rather than PR Readiness.",
+                    ]
+                ),
+            ),
+            section(
+                "Decision Options",
+                "\n".join(
+                    [
+                        "1. Accept the Live Validation / UTS disposition and approve Codex to digest it.",
+                        "2. Request revision or additional proof for a named A-J surface.",
+                        "3. Hold the disposition without phase advancement.",
+                        "4. Reject the disposition and route back to Workstream or Hardening repair.",
+                    ]
+                ),
+            ),
+            section(
+                "Exact Next USER Decision",
+                f"Approve the disposition digest step with this exact text:\n\n`{next_text}`",
+            ),
+        ]
+    )
+    write(PACKET_ROOT / LV_UTS_DISPOSITION_PRIMARY_FILE, primary)
+    write(
+        PACKET_ROOT / "START_HERE.md",
+        "\n".join(
+            [
+                "# Start Here - FAM-006 Live Validation / UTS Disposition Review",
+                "",
+                "This packet is the USER disposition surface for all-green Live Validation repair-return proof.",
+                "",
+                f"Primary USER review file: `{LV_UTS_DISPOSITION_PRIMARY_FILE}`",
+                "",
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Live Validation / UTS Disposition",
+                "Live Validation acceptance: Pending USER decision",
+                "UTS disposition: Pending USER decision",
+                "User Test Summary Results: PENDING",
+                "",
+                "Review the primary file first. Review Aids include the A-J finding table, latest manifest copies, evidence paths, and the worktree-specific UTS handoff.",
+                "",
+            ]
+        ),
+    )
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file_path in PACKET_ROOT.rglob("*"):
+            if file_path.is_file():
+                archive.write(file_path, file_path.relative_to(PACKET_ROOT).as_posix())
+    digest = sha256_file(zip_path)
+    return PACKET_ROOT, zip_path, digest
+
+
+def validate_live_validation_uts_disposition_packet(packet_root: Path) -> dict[str, object]:
+    primary = packet_root / LV_UTS_DISPOSITION_PRIMARY_FILE
+    files = list(packet_root.rglob("*"))
+    markdown_files = [p for p in files if p.suffix.lower() == ".md"]
+    user_review_files = list((packet_root / "USER Review").glob("*.md"))
+    text = read_text(primary)
+    required = [
+        f"Packet Status: {LV_UTS_DISPOSITION_STATUS}",
+        "Packet Reviewability State: Reviewable",
+        "USER Gate State: Pending USER Live Validation / UTS Disposition",
+        "Live Validation acceptance: Pending USER decision",
+        "UTS disposition: Pending USER decision",
+        "User Test Summary Results: PENDING",
+        "All A-J repair-return findings: PASS",
+        "A / FAM006-LVF-A-001",
+        "E Overlay Profile normal USER proof path",
+        "J UTS stop-loss",
+        "Disposition Boundary",
+        "Decision Options",
+        "Exact Next USER Decision",
+    ]
+    forbidden = [
+        "Live Validation acceptance: Accepted",
+        "UTS acceptance: Accepted",
+        "PR Readiness: Approved",
+        "Issue #258: Closed",
+    ]
+    missing = [marker for marker in required if marker not in text]
+    forbidden_hits = [marker for marker in forbidden if marker in text]
+    layout_ok = (
+        (packet_root / "START_HERE.md").exists()
+        and primary.exists()
+        and (packet_root / "Review Aids").is_dir()
+        and (packet_root / "Source Truth Context").is_dir()
+        and len(user_review_files) == 1
+        and (packet_root / "Review Aids" / "A_J_FINDING_STATUS_TABLE.md").exists()
+        and (packet_root / "Review Aids" / "monitoring_hud_live_client_interaction_manifest.json").exists()
+        and (packet_root / "Review Aids" / "monitoring_hud_restart_check_interaction_manifest.json").exists()
+        and (packet_root / "Review Aids" / "UTS - FAM-006.txt").exists()
+    )
+    return {
+        "passed": not missing and not forbidden_hits and layout_ok,
+        "layoutOk": layout_ok,
+        "missingRequiredMarkers": missing,
+        "forbiddenMarkers": forbidden_hits,
+        "userReviewFileCount": len(user_review_files),
+        "markdownFileCount": len(markdown_files),
+        "fileCount": len([p for p in files if p.is_file()]),
+    }
+
+
 def generate_repair_plan_packet() -> tuple[Path, Path, str]:
     identity = git_identity()
     if identity.get("baseline_head_is_ancestor") != "true":
@@ -3932,6 +4182,8 @@ def main() -> int:
     parser.add_argument("--validate-repair-implementation-approval-packet", action="store_true")
     parser.add_argument("--generate-repair-return-review-packet", action="store_true")
     parser.add_argument("--validate-repair-return-review-packet", action="store_true")
+    parser.add_argument("--generate-live-validation-uts-disposition-packet", action="store_true")
+    parser.add_argument("--validate-live-validation-uts-disposition-packet", action="store_true")
     args = parser.parse_args()
     if args.generate_packet:
         packet_root, zip_path, digest = generate_packet()
@@ -4009,6 +4261,20 @@ def main() -> int:
         return 0 if validation["passed"] else 1
     if args.validate_repair_return_review_packet:
         validation = validate_repair_return_review_packet(PACKET_ROOT)
+        print(json.dumps(validation, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.generate_live_validation_uts_disposition_packet:
+        packet_root, zip_path, digest = generate_live_validation_uts_disposition_packet()
+        validation = validate_live_validation_uts_disposition_packet(packet_root)
+        print(json.dumps({
+            "packetRoot": str(packet_root),
+            "zipPath": str(zip_path),
+            "zipSha256": digest,
+            "validation": validation,
+        }, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.validate_live_validation_uts_disposition_packet:
+        validation = validate_live_validation_uts_disposition_packet(PACKET_ROOT)
         print(json.dumps(validation, indent=2))
         return 0 if validation["passed"] else 1
     parser.print_help()

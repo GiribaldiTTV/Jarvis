@@ -266,6 +266,19 @@ Final Repair Package: `Recording Studio visible-button path, Start/Stop Quick Ac
 Implementation Authority: `Pending - product/runtime fixes are withheld until USER approves the separate bounded FAM-006 repair implementation packet.`
 Next Legal Phase: `Bounded FAM-006 repair implementation approval review.`
 
+## Live Validation Repair Return Green / UTS Disposition Packet Receipt
+
+Receipt Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; active gate state, exact packet ZIP proof, and USER Gate State live in C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md, helper output, Git, and Codex completion packets.`
+Repair Return Proof: `Green - A-J repair-return findings passed with deterministic Recording Studio, Quick Access Start/Stop, Log Viewer focus/open, native/current-log tracking, normal Overlay Profile create/edit/save/switch/restart, visual-system inheritance, native/export folder, screenshot/evidence loop, interaction matrix, and UTS stop-loss proof.`
+Latest Evidence Root: `C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260609_155357_496`
+Repair Return Commit: `8e067295583fb68b5aecc9e7e80d939cc9b511da`
+Packet Reviewability State: `Reviewable - Live Validation / UTS disposition packet generated under C:\Nexus USER\FAM-006 with timestamped ZIP proof in helper output and Codex digest.`
+USER Gate State: `Pending USER Live Validation / UTS disposition decision.`
+User Test Summary Results: `PENDING until USER explicitly accepts, revises, holds, rejects, or waives the disposition and Codex digests that result into active branch authority.`
+Boundary: `This receipt does not approve PR Readiness, issue #258 closeout, PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
+Next Legal Phase: `USER Live Validation / UTS disposition decision; if accepted, Codex digests the disposition before requesting PR Readiness Stage 1.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
