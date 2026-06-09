@@ -8,6 +8,7 @@
     [switch]$ActiveUserFacingClient,
     [switch]$PrepareLiveValidationUserTestSummary,
     [switch]$RecordingOptionCSelfQA,
+    [switch]$SupplementalRuntimeProof,
     [string]$ProofSeam = "",
     [int]$InteractionStepDelayMilliseconds = 250,
     [int]$FinalClientHoldSeconds = 0
@@ -44,6 +45,12 @@ $script:PerElementScreenshotProof = [ordered]@{
     count = 0
     proofClass = "focused-per-element-screenshot"
     screenshots = @()
+}
+$script:SupplementalIssueProof = [ordered]@{
+    status = "NOT_REQUESTED"
+    root = ""
+    manifest = ""
+    issueFolders = @()
 }
 
 function Step([object]$Paths, [string]$Message) {
@@ -372,6 +379,105 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         perElementVisualInventory = $screenshots
         issueFormCoverageMatrix = $issueCoverage
         screenshots = $screenshots
+    }
+}
+
+function Copy-SupplementalIssueScreenshotsToUserEvidence {
+    param([object]$Paths)
+
+    $issueRules = @(
+        [pscustomobject]@{
+            issueId = "A"
+            folder = "A_Recording_Studio_Button_Click"
+            expected = "Clicking the visible Dashboard Recording card Recording Studio button opens the standalone Recording Studio window."
+            observed = "Covered by real OS click step when the interaction manifest contains the Recording Studio click label; user normal-path conflict remains reviewable if USER still cannot open it."
+            confidence = "Verified for helper foreground real-OS path; USER path conflict remains Reproducible if still seen."
+            patterns = @("02_recording_studio_native_window_ready_state", "02_recording_card_target_status_visual_contract")
+        },
+        [pscustomobject]@{
+            issueId = "B"
+            folder = "B_Start_Stop_Quick_Access_Placement"
+            expected = "Accepted current source truth keeps active Start/Stop on the Dashboard Recording card; USER now requests Quick Access relocation/future setting review."
+            observed = "Screenshot evidence captures the current Dashboard-card Start/Stop placement. This is classified as source-truth/USER-expectation drift, not a silent product edit."
+            confidence = "Verified source-truth comparison."
+            patterns = @("02_recording_card_start_stop_ready_state", "02_recording_card_start_recording_active_state")
+        },
+        [pscustomobject]@{
+            issueId = "C"
+            folder = "C_Log_Viewer_Focus_Open_Regression"
+            expected = "Opening/closing/minimizing Log Viewer Studio should not make every later start/stop steal focus unless source truth requires it."
+            observed = "The current helper captures Log Viewer shell proof but cannot perform the full user close/minimize/focus-steal sequence without product repair or unavailable Computer Use control; code lineage is carried in the findings packet."
+            confidence = "Blocked for normal close/minimize click sequence; Inferred from code lineage."
+            patterns = @("02_log_viewer_studio_native_window_shell_state", "02_recording_card_log_viewer_studio_opened_state")
+        },
+        [pscustomobject]@{
+            issueId = "D"
+            folder = "D_Log_Viewer_Recording_Studio_Ownership"
+            expected = "Recording Studio and Log Viewer Studio ownership boundaries should match accepted source truth; USER now says native log tracking belongs in Recording Studio and Log Viewer should stay shell/export oriented."
+            observed = "Screenshots capture both native windows for ownership comparison; product changes are withheld."
+            confidence = "Verified visual/source-truth comparison."
+            patterns = @("02_recording_studio_native_window_ready_state", "02_log_viewer_studio_native_window_shell_state")
+        },
+        [pscustomobject]@{
+            issueId = "E"
+            folder = "E_Manual_Overlay_Profile_Normal_Path"
+            expected = "Overlay Profile create/edit/switch/restart should work through normal USER paths and keep Recording target mirrored."
+            observed = "The helper proves a seeded real-OS selector path and target mirror; manual create/edit/restart normal path remains not fully covered by this helper."
+            confidence = "Verified seeded selector path; Blocked for manual create/edit/restart path."
+            patterns = @("02_hud_overlay_active_profile_selector_real_os_selected", "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection")
+        },
+        [pscustomobject]@{
+            issueId = "F"
+            folder = "F_Dashboard_Card_Holder_Visual_State"
+            expected = "Dashboard card holder should keep equal left/right card insets with scrollbar gutter exempt from visual offset."
+            observed = "Focused Recording card screenshots exist, but equal-inset visual adjudication is not measured by this helper."
+            confidence = "Inferred/needs product visual adjudication."
+            patterns = @("02_recording_card_target_status_visual_contract", "02_recording_card_saved_complete_readback_state")
+        }
+    )
+
+    $issueResults = @()
+    foreach ($issue in $issueRules) {
+        $folderPath = Join-Path $Paths.ScreenshotEvidenceRoot $issue.folder
+        New-Item -ItemType Directory -Force -Path $folderPath | Out-Null
+        $copied = @()
+        foreach ($pattern in $issue.patterns) {
+            $matches = @(Get-ChildItem -LiteralPath $Paths.ElementScreenshotEvidenceRoot -Filter "*.png" -File -ErrorAction SilentlyContinue | Where-Object {
+                $_.BaseName.ToLowerInvariant().Contains($pattern.ToLowerInvariant())
+            })
+            foreach ($match in $matches) {
+                $destination = Join-Path $folderPath $match.Name
+                Copy-Item -LiteralPath $match.FullName -Destination $destination -Force
+                $copied += $destination
+            }
+        }
+        $issueResults += [pscustomobject]@{
+            issueId = $issue.issueId
+            folder = $folderPath
+            expected = $issue.expected
+            observed = $issue.observed
+            confidence = $issue.confidence
+            screenshotCount = [int]$copied.Count
+            screenshots = @($copied)
+        }
+    }
+
+    $manifestPath = Join-Path $Paths.ScreenshotEvidenceRoot "supplemental_issue_evidence_manifest.json"
+    $manifest = [ordered]@{
+        status = "SUPPLEMENTAL_INVESTIGATION_EVIDENCE"
+        proofClass = "supplemental-runtime-proof-gap-investigation"
+        root = $Paths.ScreenshotEvidenceRoot
+        interactionManifest = $Paths.InteractionManifest
+        generatedAt = (Get-Date).ToUniversalTime().ToString("o")
+        noRetroactiveEvidenceLaundering = $true
+        issueFolders = $issueResults
+    }
+    $manifest | ConvertTo-Json -Depth 7 | Set-Content -LiteralPath $manifestPath -Encoding utf8
+    [ordered]@{
+        status = "PASS"
+        root = $Paths.ScreenshotEvidenceRoot
+        manifest = $manifestPath
+        issueFolders = $issueResults
     }
 }
 
@@ -732,6 +838,7 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         interactionManifest = $Paths.InteractionManifest
         interactionManifestStatus = $script:InteractionManifestStatus
         interactionEvidenceRoot = $Paths.InteractionEvidenceRoot
+        supplementalIssueProof = $script:SupplementalIssueProof
         shortVideoProof = $script:ShortVideoProof
         revisedOverlayProof = [pscustomobject]@{
             beforeLaunchFullVirtualDesktopScreenshot = [bool]$script:BeforeScreenshotPath
@@ -958,7 +1065,8 @@ $pythonExe = ""
 $exitCode = 1
 $effectiveRunInteractionSelfQA = [bool]($RunInteractionSelfQA -or $ActiveUserFacingClient)
 $effectiveVisibleClient = [bool]($VisibleClient -or $ActiveUserFacingClient)
-$effectiveFocusedLane = if ($RecordingOptionCSelfQA) { "recording-option-c" } else { "full" }
+$effectiveRecordingFocusedLane = [bool]($RecordingOptionCSelfQA -or $SupplementalRuntimeProof)
+$effectiveFocusedLane = if ($effectiveRecordingFocusedLane) { "recording-option-c" } else { "full" }
 $effectiveStepDelayMilliseconds = $InteractionStepDelayMilliseconds
 $effectiveFinalHoldMilliseconds = $FinalClientHoldSeconds * 1000
 if ($ActiveUserFacingClient) {
@@ -1119,7 +1227,7 @@ try {
             $interactionManifestRaw -notmatch '"realOsInputProof"\s*:\s*true') {
             throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
         }
-        if ($RecordingOptionCSelfQA) {
+        if ($effectiveRecordingFocusedLane) {
             $requiredInteractionLabels = @(
                 "Dashboard Recording card target/status visual contract is focused before child windows",
                 "real OS click opens Dashboard Recording Studio",
@@ -1153,7 +1261,7 @@ try {
                 throw "Interaction self-QA missing required real-input scenario: $requiredLabel"
             }
         }
-        if (-not $RecordingOptionCSelfQA) {
+        if (-not $effectiveRecordingFocusedLane) {
             Wait-Marker $paths "MONITORING_HUD_DASHBOARD_STANDALONE_WINDOW_TRAVEL_READY"
             Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CLIPPING_BOUNDARY_READY"
             Wait-Marker $paths "MONITORING_HUD_DASHBOARD_CORE_OVERLAY_DECOUPLING_READY"
@@ -1165,6 +1273,10 @@ try {
             throw "LV1 focused per-element screenshots missing or failed: $($script:PerElementScreenshotProof.reason)"
         }
         Step $paths "copied mandatory LV1 focused per-element screenshots to USER-inspectable folder: $($script:PerElementScreenshotProof.root)"
+        if ($SupplementalRuntimeProof) {
+            $script:SupplementalIssueProof = Copy-SupplementalIssueScreenshotsToUserEvidence -Paths $paths
+            Step $paths "copied supplemental A-F issue evidence folders and manifest: $($script:SupplementalIssueProof.manifest)"
+        }
     }
 
     Step $paths "settling Dashboard-first client before full-desktop screenshot"

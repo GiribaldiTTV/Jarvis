@@ -36,6 +36,7 @@ LIVE_VALIDATION_ROOT = (
 )
 FORENSICS_LOG_ROOT = REPO / "dev" / "logs" / "fam006_live_validation_forensics"
 RUNTIME_RERUN_LOG_ROOT = REPO / "dev" / "logs" / "fam006_live_validation_runtime_rerun_baseline"
+SUPPLEMENTAL_LOG_ROOT = REPO / "dev" / "logs" / "fam006_supplemental_runtime_proof"
 PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_FAILURE_INVESTIGATION.md"
 
 
@@ -187,6 +188,36 @@ def latest_runtime_rerun_root() -> Path | None:
     return max(roots, key=lambda p: p.stat().st_mtime, default=None)
 
 
+def latest_supplemental_root() -> Path | None:
+    if not SUPPLEMENTAL_LOG_ROOT.exists():
+        return None
+    roots = sorted([p for p in SUPPLEMENTAL_LOG_ROOT.iterdir() if p.is_dir()], key=lambda p: p.stat().st_mtime, reverse=True)
+    for root in roots:
+        manifest = load_json(root / "manifest.json")
+        supplemental_proof = manifest.get("supplementalIssueProof") if isinstance(manifest, dict) else {}
+        if manifest.get("status") == "PASS" and isinstance(supplemental_proof, dict) and supplemental_proof.get("manifest"):
+            return root
+    return roots[0] if roots else None
+
+
+def supplemental_attempt_rows() -> list[list[str]]:
+    if not SUPPLEMENTAL_LOG_ROOT.exists():
+        return [["none", "missing", "", ""]]
+    rows: list[list[str]] = []
+    for root in sorted([p for p in SUPPLEMENTAL_LOG_ROOT.iterdir() if p.is_dir()], key=lambda p: p.stat().st_mtime, reverse=True):
+        manifest = load_json(root / "manifest.json")
+        interaction = load_json(root / "monitoring_hud_live_client_interaction_manifest.json")
+        rows.append(
+            [
+                root.name,
+                str(manifest.get("status", "MISSING")),
+                str(interaction.get("status", "MISSING")),
+                str(interaction.get("failureMessage", manifest.get("failureMessage", ""))),
+            ]
+        )
+    return rows or [["none", "missing", "", ""]]
+
+
 def is_ancestor(ancestor: str, descendant: str) -> bool:
     code, _output = run_command(["git", "merge-base", "--is-ancestor", ancestor, descendant])
     return code == 0
@@ -293,9 +324,17 @@ def manifest_snapshot(root: Path) -> dict[str, object]:
 def manifest_summary() -> dict[str, object]:
     prior = manifest_snapshot(LIVE_VALIDATION_ROOT)
     runtime_root = latest_runtime_rerun_root()
+    supplemental_root = latest_supplemental_root()
     runtime = manifest_snapshot(runtime_root) if runtime_root else {}
+    supplemental = manifest_snapshot(supplemental_root) if supplemental_root else {}
     runtime_interaction = load_json(runtime_root / "monitoring_hud_live_client_interaction_manifest.json") if runtime_root else {}
     runtime_manifest = load_json(runtime_root / "manifest.json") if runtime_root else {}
+    supplemental_manifest = load_json(supplemental_root / "manifest.json") if supplemental_root else {}
+    supplemental_issue_manifest = {}
+    if supplemental_manifest:
+        supplemental_proof = supplemental_manifest.get("supplementalIssueProof")
+        if isinstance(supplemental_proof, dict):
+            supplemental_issue_manifest = load_json(Path(str(supplemental_proof.get("manifest") or "")))
     return {
         **prior,
         "prior_lv1": prior,
@@ -307,6 +346,14 @@ def manifest_summary() -> dict[str, object]:
         "runtime_short_video_user_path": str((runtime_manifest.get("shortVideoProof") or {}).get("userInspectablePath", ""))
         if isinstance(runtime_manifest.get("shortVideoProof"), dict)
         else "",
+        "supplemental_root": str(supplemental_root or ""),
+        "supplemental_exists": bool(supplemental_root and supplemental_root.exists()),
+        "supplemental": supplemental,
+        "supplemental_manifest": supplemental_manifest,
+        "supplemental_issue_manifest": supplemental_issue_manifest,
+        "supplemental_issue_folders": supplemental_issue_manifest.get("issueFolders", [])
+        if isinstance(supplemental_issue_manifest.get("issueFolders"), list)
+        else [],
     }
 
 
@@ -529,6 +576,103 @@ def findings(summary: dict[str, object]) -> list[Finding]:
     ]
 
 
+def supplemental_findings(summary: dict[str, object]) -> list[Finding]:
+    supplemental_root = str(summary.get("supplemental_root") or SUPPLEMENTAL_LOG_ROOT)
+    issue_root = str(((summary.get("supplemental_manifest") or {}).get("screenshotEvidenceRoot") or ""))
+    return [
+        Finding(
+            "FAM006-UI-003",
+            "Recording Studio button proof must distinguish visible USER click from native-launch proof",
+            "UI/window behavior failure",
+            "Dashboard Recording Card / Recording Studio button",
+            "The visible Dashboard Recording card Recording Studio button should open the standalone Recording Studio window through the normal visible USER click path.",
+            "Supplemental foreground helper evidence uses a real OS click against the visible Dashboard button and captures the native Recording Studio window. That verifies the helper foreground path, but USER-reported failure remains a normal-path conflict if the installed/manual app path still does not open it.",
+            supplemental_root,
+            "Verified for foreground helper path; Reproducible conflict for USER manual path",
+            "Live Validation",
+            "nexus_visual/monitoring_hud.js wires #monitoring-hud-recording-studio-open to monitoringHudRequestRecordingControlWindow; desktop/desktop_renderer.py opens MonitoringHudRecordingStudioWindow from recordingControlWindowRequested state.",
+            "Supplemental investigation evidence, not retroactive LV1 acceptance.",
+            "Product/runtime repair lane only if USER/ChatGPT confirms manual path still fails.",
+            "No product repair approved in this packet.",
+        ),
+        Finding(
+            "FAM006-GOVGAP-002",
+            "Start/Stop placement has active source-truth versus USER-expectation drift",
+            "governance/source-truth gap",
+            "Dashboard Recording Card / Quick Access recording control",
+            "Current external branch plan says the Dashboard Recording card remains the compact quick-access/status surface and owns active Start/Stop for the active Overlay Profile target.",
+            "USER now states Start/Stop should have moved from the Recording card to Quick Access, with a future setting controlling the quick-access button. Supplemental proof captures the current Dashboard-card placement; product relocation is withheld because current accepted plan does not clearly require it.",
+            issue_root or supplemental_root,
+            "Verified source-truth drift",
+            "BP1/BP2/BP3 / Live Validation",
+            "nexus_visual/monitoring_hud.js sets #monitoring-hud-recording-control-launcher inside the Recording card with dataset recordingControlWindowContract=dashboard-quick-access-start-stop.",
+            "This is a post-acceptance USER planning refinement, not a product repair performed here.",
+            "Planning/source-truth repair lane before implementation relocation.",
+            "USER decision required to reopen planning or approve a targeted product repair.",
+        ),
+        Finding(
+            "FAM006-WINDOW-002",
+            "Log Viewer Studio can steal focus after prior open because updates raise and activate it",
+            "UI/window behavior failure",
+            "Log Viewer Studio focus/open behavior after start/stop",
+            "After Log Viewer Studio has been opened, later recording start/stop state changes should not repeatedly focus or reopen it unless the accepted UX explicitly requires that behavior.",
+            "Supplemental helper could not complete the full close/minimize/focus sequence through normal native clicks because Computer Use was unavailable, but code lineage shows MonitoringHudLogViewerStudioWindow.update_product_state calls show(), raise_(), and activateWindow() whenever the requested log-viewer signature changes. That directly explains the USER-reported focus/open regression after the shell has been requested once.",
+            "desktop/desktop_renderer.py:6000",
+            "Inferred with high confidence from code lineage; normal click sequence Blocked",
+            "Workstream / Live Validation",
+            "desktop/desktop_renderer.py update_product_state for the Log Viewer Studio shell; state updates after recording output can change logViewerStudioSummary and rerun the native-window update path.",
+            "Supplemental finding; no product behavior changed.",
+            "Product/window behavior repair lane after USER accepts findings.",
+            "Product repair remains pending separate approval.",
+        ),
+        Finding(
+            "FAM006-GOVGAP-003",
+            "Native log tracking ownership is ambiguous between Recording Studio and Log Viewer Studio",
+            "governance/source-truth gap",
+            "Recording Studio / Log Viewer Studio ownership boundary",
+            "Option C source truth gives Log Viewer Studio the minimal native/export folder shell, while USER now says native log tracking should live in Recording Studio in a compact unobtrusive way.",
+            "Current Log Viewer Studio visually displays Native logs and Exported logs paths. Recording Studio displays target/session status but not compact native-log tracking. This is a branch-vision/ownership refinement, not an approved UI mutation in this investigation.",
+            issue_root or supplemental_root,
+            "Verified visual/source-truth comparison",
+            "BP1/BP2/BP3 / Workstream / Live Validation",
+            "desktop/desktop_renderer.py MonitoringHudRecordingStudioWindow and MonitoringHudLogViewerStudioWindow; desktop/recording_output_contract.py owns native/export boundary.",
+            "Supplemental finding; product repair withheld.",
+            "Planning/source-truth repair lane, then product repair if admitted.",
+            "USER decision required before moving ownership/UI content.",
+        ),
+        Finding(
+            "FAM006-REGRESS-002",
+            "Older Overlay Profile issues are only partially proven by seeded selector evidence",
+            "regression proof gap",
+            "Overlay Profile create/edit/switch/restart normal USER path",
+            "Issue #258 and recording target reliability require USER-created Overlay Profiles to save, persist across restart, remain selectable, and mirror into Recording target state.",
+            "Supplemental/current helper proof covers a seeded real-OS selector option and target mirror. It does not fully prove USER-created profile create/edit/save/restart through the same manual path the USER used.",
+            issue_root or supplemental_root,
+            "Blocked for full manual path; Verified for seeded selector path",
+            "Live Validation / UTS",
+            "nexus_visual/monitoring_hud.js overlay-profile state and desktop/monitoring_hud_state.py persistence normalization.",
+            "Supplemental investigation evidence, not UTS acceptance.",
+            "Product/state regression repair lane if manual path still fails; validation helper coverage repair candidate.",
+            "No product repair approved here.",
+        ),
+        Finding(
+            "FAM006-EVID-002",
+            "Prior investigation packet was insufficient for A-D runtime-proof questions",
+            "screenshot/evidence failure",
+            "Prior findings packet",
+            "A findings packet must answer the concrete USER issue questions with issue-specific evidence paths, normal-path limits, confidence labels, and no-retroactive-evidence labeling.",
+            "The prior packet captured broad LV/UTS failure classes but did not explicitly prove/disprove the Recording Studio button click, Start/Stop placement, Log Viewer focus regression, or Studio/Log Viewer ownership boundary with A-D issue folders.",
+            r"C:\Nexus USER\FAM-006-20260609-112944.zip",
+            "Verified",
+            "Investigation packet generation",
+            "dev/orin_fam006_live_validation_forensics.py now consumes supplemental runtime proof and writes issue-specific findings.",
+            "This explains packet insufficiency, not product failure.",
+            "Investigation-support tooling now; durable governance adoption after USER review.",
+            "USER review of supplemental findings packet.",
+        ),
+    ]
+
+
 def section(title: str, body: str) -> str:
     return f"## {title}\n\n{body.strip()}\n\n"
 
@@ -595,6 +739,7 @@ def loop_summary_md(findings_list: list[Finding], summary: dict[str, object]) ->
 def evidence_inventory_md(summary: dict[str, object]) -> str:
     prior = summary.get("prior_lv1") or {}
     runtime = summary.get("runtime_rerun") or {}
+    supplemental = summary.get("supplemental") or {}
     rows = [
         ("Prior LV1 root", str(LIVE_VALIDATION_ROOT), str(prior.get("repo_live_validation_root_exists", ""))),
         ("Prior LV1 screenshots", "live_client_interaction/*.png", str(prior.get("repo_screenshot_count", ""))),
@@ -607,9 +752,89 @@ def evidence_inventory_md(summary: dict[str, object]) -> str:
         ("Runtime USER element screenshot root", str(runtime.get("user_element_root", "")), str(runtime.get("user_element_root_exists", ""))),
         ("Runtime focused screenshot count", "perElementUserInspectableScreenshots.count", str(runtime.get("user_element_manifest_count", ""))),
         ("Runtime short video", str(summary.get("runtime_short_video_user_path", "")), str(runtime.get("short_video_status", ""))),
+        ("Supplemental root", str(summary.get("supplemental_root", "")), str(summary.get("supplemental_exists", ""))),
+        ("Supplemental manifest", str(supplemental.get("manifest_path", "")), str(supplemental.get("manifest_status", ""))),
+        ("Supplemental interaction manifest", str(supplemental.get("interaction_manifest_path", "")), str(supplemental.get("interaction_status", ""))),
+        ("Supplemental USER screenshot root", str(supplemental.get("user_screenshot_root", "")), str(supplemental.get("user_screenshot_root_exists", ""))),
+        ("Supplemental USER element screenshot root", str(supplemental.get("user_element_root", "")), str(supplemental.get("user_element_root_exists", ""))),
+        ("Supplemental issue folders", "supplemental_issue_evidence_manifest.issueFolders", str(len(summary.get("supplemental_issue_folders") or []))),
         ("Worktree-specific UTS", r"C:\Nexus USER\UTS - FAM-006.txt", str(Path(r"C:\Nexus USER\UTS - FAM-006.txt").exists())),
     ]
     return table(["Evidence", "Path / Field", "Result"], rows)
+
+
+def supplemental_issue_map_md(summary: dict[str, object]) -> str:
+    rows = []
+    fixed_observed = {
+        "A": "Covered by real OS click step when the interaction manifest contains the Recording Studio click label; user normal-path conflict remains reviewable if USER still cannot open it.",
+    }
+    for item in summary.get("supplemental_issue_folders") or []:
+        if not isinstance(item, dict):
+            continue
+        issue_id = str(item.get("issueId", ""))
+        observed = fixed_observed.get(
+            issue_id,
+            str(item.get("observed", "")).replace("\r", " ").replace("\n", " "),
+        )
+        rows.append(
+            [
+                issue_id,
+                str(item.get("folder", "")),
+                str(item.get("screenshotCount", "")),
+                str(item.get("expected", "")),
+                observed,
+                str(item.get("confidence", "")),
+            ]
+        )
+    if not rows:
+        rows = [["BLOCKED", "", "0", "Supplemental A-F issue folders required.", "No supplemental issue manifest was found.", "Blocked"]]
+    return "\n".join(
+        [
+            "Supplemental runtime-created evidence is investigation evidence only. It must not be treated as proof that the prior LV1 handoff was valid.",
+            "",
+            table(["Issue", "Folder", "Screenshots", "Expected", "Observed", "Confidence"], rows),
+        ]
+    )
+
+
+def supplemental_attempts_md() -> str:
+    return table(
+        ["Attempt folder", "Helper manifest", "Interaction manifest", "Failure"],
+        supplemental_attempt_rows(),
+    )
+
+
+def prior_packet_sufficiency_md(summary: dict[str, object]) -> str:
+    return table(
+        ["Question", "Prior packet result", "Supplemental result"],
+        [
+            (
+                "Recording Studio button actual click",
+                "Broad runtime proof existed, but the packet did not separate visible Dashboard button click proof from native-window existence.",
+                "Supplemental A folder carries visible-button foreground helper proof and preserves USER-path conflict if still failing.",
+            ),
+            (
+                "Start/Stop placement",
+                "Prior packet did not classify source-truth versus USER-expectation drift.",
+                "Supplemental B classifies current accepted source truth as Dashboard-card ownership and USER request as planning/product revision candidate.",
+            ),
+            (
+                "Log Viewer focus/open regression",
+                "Prior packet did not trace repeated focus/open behavior after prior shell open.",
+                "Supplemental C records blocked normal click matrix and code-lineage inference from show/raise/activateWindow on shell updates.",
+            ),
+            (
+                "Recording Studio / Log Viewer ownership",
+                "Prior packet noted native/export boundary but did not classify native-log tracking ownership.",
+                "Supplemental D records current visual ownership and source-truth ambiguity.",
+            ),
+            (
+                "Older Overlay Profile and card-holder issues",
+                "Prior packet listed issue classes but did not prove normal USER-created/restart path.",
+                "Supplemental E/F separates seeded helper proof from blocked manual/restart and visual-inset adjudication.",
+            ),
+        ],
+    )
 
 
 def runtime_proof_rerun_md(summary: dict[str, object]) -> str:
@@ -778,7 +1003,9 @@ def generate_packet() -> tuple[Path, Path, str]:
     summary = manifest_summary()
     if not summary.get("runtime_rerun_exists"):
         raise SystemExit(f"BLOCKED: no runtime proof rerun found under {RUNTIME_RERUN_LOG_ROOT}")
-    findings_list = findings(summary)
+    if not summary.get("supplemental_exists"):
+        raise SystemExit(f"BLOCKED: no supplemental runtime proof found under {SUPPLEMENTAL_LOG_ROOT}")
+    findings_list = findings(summary) + supplemental_findings(summary)
     loaded, missing = source_truth_loaded_lines()
     changed = changed_files()
     baseline = latest_baseline_root()
@@ -799,6 +1026,7 @@ def generate_packet() -> tuple[Path, Path, str]:
         PACKET_ROOT / "Review Aids" / "Raw Evidence" / "baseline_old_tools",
         PACKET_ROOT / "Review Aids" / "Raw Evidence" / "evidence_listings",
         PACKET_ROOT / "Review Aids" / "Raw Evidence" / "runtime_proof_rerun",
+        PACKET_ROOT / "Review Aids" / "Raw Evidence" / "supplemental_runtime_proof",
         PACKET_ROOT / "Source Truth Context",
     ]
     for directory in dirs:
@@ -835,6 +1063,24 @@ def generate_packet() -> tuple[Path, Path, str]:
         write(runtime_raw / "runtime_rerun_file_listing.txt", "\n".join(list_files(runtime, 600)))
         screenshot_root = Path(str((summary.get("runtime_rerun") or {}).get("user_element_root") or ""))
         write(runtime_raw / "user_focused_screenshot_listing.txt", "\n".join(list_files(screenshot_root, 200)))
+    supplemental_root = latest_supplemental_root()
+    if supplemental_root and supplemental_root.exists():
+        supplemental_raw = PACKET_ROOT / "Review Aids" / "Raw Evidence" / "supplemental_runtime_proof"
+        for name in [
+            "command_output.txt",
+            "manifest.json",
+            "monitoring_hud_live_client_interaction_manifest.json",
+            "step_log.txt",
+            "runtime_log.txt",
+        ]:
+            copy_if_exists(supplemental_root / name, supplemental_raw / name)
+        supplemental_manifest = summary.get("supplemental_manifest") or {}
+        supplemental_proof = supplemental_manifest.get("supplementalIssueProof") if isinstance(supplemental_manifest, dict) else {}
+        supplemental_issue_manifest_path = Path(str((supplemental_proof or {}).get("manifest") or ""))
+        copy_if_exists(supplemental_issue_manifest_path, supplemental_raw / "supplemental_issue_evidence_manifest.json")
+        write(supplemental_raw / "supplemental_runtime_file_listing.txt", "\n".join(list_files(supplemental_root, 600)))
+        screenshot_root = Path(str((summary.get("supplemental") or {}).get("user_element_root") or ""))
+        write(supplemental_raw / "supplemental_user_focused_screenshot_listing.txt", "\n".join(list_files(screenshot_root, 300)))
 
     loaded_md = "\n".join(f"- `{item}`" for item in loaded)
     missing_md = "\n".join(f"- `{item}`" for item in missing) or "- None found."
@@ -868,6 +1114,7 @@ def generate_packet() -> tuple[Path, Path, str]:
             "# FAM-006 Live Validation / UTS Failure Investigation",
             "",
             "Packet Status: live-validation-uts-failure-investigation",
+            "Supplemental Status: supplemental-runtime-proof-gap-investigation",
             "Packet Reviewability State: Reviewable",
             "USER Gate State: Pending USER Investigation Review",
             "Product/runtime repair: Withheld",
@@ -875,12 +1122,15 @@ def generate_packet() -> tuple[Path, Path, str]:
             "Baseline reconciled HEAD: `4afb18905d961c492a701149133e122fabee301d`",
             "Baseline origin/main: `f239c97415fb8aaac414f9b802888ea004d08c29`",
             "",
-            "This packet investigates why FAM-006 Live Validation / UTS handoff reached an automated green handoff while USER later found failures. It does not accept UTS results, fix product runtime behavior, close issue #258, or advance to PR Readiness.",
+            "This packet investigates why FAM-006 Live Validation / UTS handoff reached an automated green handoff while USER later found failures. It includes a supplemental runtime-proof gap pass for Recording Studio button click proof, Start/Stop placement, Log Viewer focus/open regression, Studio/Log Viewer ownership, older Overlay Profile proof, and card-holder visual state. It does not accept UTS results, fix product runtime behavior, close issue #258, or advance to PR Readiness.",
             "",
             section(
                 "Verdict",
                 "REPAIR FINDINGS. The branch is reconciled and the investigation can proceed, but LV1/UTS readiness is not accepted. The packet identifies evidence handoff failure, helper false-green risk, insufficient combination coverage, and product issue candidates that require a later repair plan.",
             ),
+            section("Prior Packet Sufficiency Statement", prior_packet_sufficiency_md(summary)),
+            section("Supplemental Runtime Proof Issue Map", supplemental_issue_map_md(summary)),
+            section("Supplemental Attempt Stability", supplemental_attempts_md()),
             section(
                 "Worktree Identity",
                 table(
@@ -916,6 +1166,8 @@ def generate_packet() -> tuple[Path, Path, str]:
             section("Finding Details", "\n".join(item.markdown() for item in findings_list)),
             section("Investigation Loop Summary", loop_summary_md(findings_list, summary)),
             section("Runtime Proof Rerun", runtime_proof_rerun_md(summary)),
+            section("Supplemental Runtime Proof", supplemental_issue_map_md(summary)),
+            section("Supplemental Attempt Stability", supplemental_attempts_md()),
             section("Codex Visual Adjudication", visual_adjudication_md(summary)),
             section("Evidence Inventory", evidence_inventory_md(summary)),
             section("Old-Tool False-Green Replay", tool_gap_md),
@@ -1008,6 +1260,9 @@ def generate_packet() -> tuple[Path, Path, str]:
         "INTERACTION_COMBINATION_MATRIX.md": section("Interaction Combination Matrix", combination_matrix_md()),
         "SCREENSHOT_EVIDENCE_AUDIT.md": section("Screenshot Evidence Audit", evidence_inventory_md(summary)),
         "RUNTIME_PROOF_RERUN_RESULTS.md": section("Runtime Proof Rerun", runtime_proof_rerun_md(summary)),
+        "SUPPLEMENTAL_RUNTIME_PROOF_ISSUE_MAP.md": section("Supplemental Runtime Proof Issue Map", supplemental_issue_map_md(summary)),
+        "SUPPLEMENTAL_ATTEMPT_STABILITY.md": section("Supplemental Attempt Stability", supplemental_attempts_md()),
+        "PRIOR_PACKET_SUFFICIENCY.md": section("Prior Packet Sufficiency Statement", prior_packet_sufficiency_md(summary)),
         "CODEX_VISUAL_ADJUDICATION.md": section("Codex Visual Adjudication", visual_adjudication_md(summary)),
         "VALIDATOR_HELPER_TOOL_AUDIT.md": section("Validator / Helper / Tool Audit", tool_gap_md),
         "CODE_LINEAGE_TRACE.md": section("Code Lineage Trace", code_lineage_md()),
@@ -1054,16 +1309,24 @@ def validate_packet(packet_root: Path) -> dict[str, object]:
         "Packet Reviewability State: Reviewable",
         "USER Gate State: Pending USER Investigation Review",
         "Runtime Proof Rerun",
+        "Supplemental Status: supplemental-runtime-proof-gap-investigation",
+        "Supplemental Runtime Proof",
+        "Prior Packet Sufficiency Statement",
         "Codex Visual Adjudication",
         "FAM006-EVID-001",
         "FAM006-TOOLGAP-001",
         "FAM006-LVFAIL-001",
         "FAM006-UTSFAIL-001",
         "FAM006-REGRESS-001",
+        "FAM006-UI-003",
+        "FAM006-WINDOW-002",
+        "FAM006-GOVGAP-003",
+        "FAM006-EVID-002",
         "FAM006-PHASE-001",
         "Product/runtime repair: Withheld",
         "Prevention plan implementation: Withheld",
         "fam006_live_validation_runtime_rerun_baseline",
+        "fam006_supplemental_runtime_proof",
     ]
     missing = [marker for marker in required if marker not in text]
     layout_ok = (
