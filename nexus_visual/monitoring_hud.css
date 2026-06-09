@@ -956,12 +956,12 @@ body.desktop-mode #monitoring-hud > * {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable both-edges;
+  scrollbar-gutter: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
   padding: 12px 12px 22px;
   scroll-padding: 12px 12px 22px;
-  --dashboard-card-holder-inset-proof: stable-both-edges-equal-card-insets;
+  --dashboard-card-holder-inset-proof: scrollbar-exempt-equal-card-insets;
 }
 
 .monitoring-hud__hub-card {

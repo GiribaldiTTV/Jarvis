@@ -90,7 +90,7 @@
     data-dashboard-child-window-scope="monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings"
     data-dashboard-close-affordance="window-level-close-button"
     data-dashboard-open-badge="removed"
-    data-dashboard-quick-access="warning-notifications-only"
+    data-dashboard-quick-access="warning-notifications-recording-start-stop"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
     data-dashboard-card-order="hud-overlay-recording-monitor-groups-data-sources-readiness"
@@ -140,11 +140,24 @@
           </div>
         </div>
       </div>
-      <div class="monitoring-hud__toolbar" aria-label="HUD Dashboard quick access" data-dashboard-quick-access="warning-notifications-only">
+      <div class="monitoring-hud__toolbar" aria-label="HUD Dashboard quick access" data-dashboard-quick-access="warning-notifications-recording-start-stop">
         <span class="monitoring-hud__toolbar-label">Quick Access</span>
         <button type="button" id="monitoring-hud-warning-toggle" class="monitoring-hud__control-button" data-control="warning-notifications">
           Warning Notifications On
         </button>
+        <button
+          type="button"
+          id="monitoring-hud-recording-control-launcher"
+          class="monitoring-hud__control-button monitoring-hud__control-button--recording"
+          data-control="toggle-recording"
+          data-slice="SLC-053"
+          data-dashboard-quick-access="recording-start-stop"
+          data-recording-control-window-state="quick-access-start-stop"
+          data-recording-execution-state="ready"
+          data-recording-file-writing-state="ready"
+          data-native-window-contract="dashboard-quick-access-start-stop"
+          aria-disabled="false"
+        >Start Recording</button>
       </div>
       <div
         class="monitoring-hud__control-hub"
@@ -230,7 +243,7 @@
           data-recording-card-sampled-elements="hud-overlay-monitor-groups-data-sources-readiness"
           data-recording-execution-state="ready"
           data-recording-file-writing-state="ready"
-          data-recording-control-surface-state="dashboard-start-stop"
+          data-recording-control-surface-state="dashboard-status-summary"
         >
           <div class="monitoring-hud__hub-card-topline">
             <span>02</span>
@@ -248,7 +261,7 @@
             data-hud-overlay-recording-boundary="hud-overlay-overlay-focused"
             data-recording-execution-state="ready"
             data-recording-file-writing-state="ready"
-            data-recording-control-window-state="dashboard-card-control"
+            data-recording-control-window-state="recording-card-status-summary"
             aria-label="Dashboard Recording card active Overlay target preview"
           >
             <div class="monitoring-hud__state-row">
@@ -260,19 +273,7 @@
               <strong id="monitoring-hud-recording-target-count">2 active monitors</strong>
             </div>
             <small id="monitoring-hud-recording-target-summary">Ready for local Start/Stop recording.</small>
-            <div class="monitoring-hud__hub-actions monitoring-hud__recording-target-actions" data-recording-target-actions="dashboard-start-stop-control-surface">
-              <button
-                type="button"
-                id="monitoring-hud-recording-control-launcher"
-                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact"
-                data-control="toggle-recording"
-                data-slice="SLC-053"
-                data-recording-control-window-state="dashboard-card-control"
-                data-recording-execution-state="ready"
-                data-recording-file-writing-state="ready"
-                data-native-window-contract="dashboard-quick-access-start-stop"
-                aria-disabled="false"
-              >Start Recording</button>
+            <div class="monitoring-hud__hub-actions monitoring-hud__recording-target-actions" data-recording-target-actions="recording-studio-and-log-viewer-launchers">
               <button
                 type="button"
                 id="monitoring-hud-recording-studio-open"
@@ -291,6 +292,7 @@
                 data-control="open-log-viewer-studio"
                 data-slice="SLC-054"
                 data-recording-folder-action="native-and-export-folder-shell"
+                data-recording-folder-path-available="pre-session-root"
                 data-recording-file-writing-state="ready"
                 data-log-viewer-studio-state="ready"
                 aria-disabled="false"

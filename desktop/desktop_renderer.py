@@ -91,6 +91,7 @@ WM_LBUTTONDOWN = 0x0201
 WM_LBUTTONUP = 0x0202
 WM_CAPTURECHANGED = 0x0215
 VK_LBUTTON = 0x01
+MK_LBUTTON = 0x0001
 HTTRANSPARENT = -1
 HTCLIENT = 1
 HTCAPTION = 2
@@ -110,6 +111,7 @@ IDC_SIZENS = 32645
 user32 = ctypes.windll.user32
 kernel32 = ctypes.windll.kernel32
 gdi32 = ctypes.windll.gdi32
+WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.wintypes.BOOL, ctypes.wintypes.HWND, ctypes.wintypes.LPARAM)
 LoadCursorW = user32.LoadCursorW
 LoadCursorW.restype = ctypes.wintypes.HCURSOR
 SetCursor = user32.SetCursor
@@ -169,6 +171,9 @@ GetCursorPos.restype = ctypes.c_bool
 WindowFromPoint = user32.WindowFromPoint
 WindowFromPoint.argtypes = [ctypes.wintypes.POINT]
 WindowFromPoint.restype = ctypes.wintypes.HWND
+EnumChildWindows = user32.EnumChildWindows
+EnumChildWindows.argtypes = [ctypes.wintypes.HWND, WNDENUMPROC, ctypes.wintypes.LPARAM]
+EnumChildWindows.restype = ctypes.wintypes.BOOL
 mouse_event = user32.mouse_event
 mouse_event.argtypes = [
     ctypes.wintypes.DWORD,
@@ -183,6 +188,15 @@ GetSystemMetrics.argtypes = [ctypes.c_int]
 GetSystemMetrics.restype = ctypes.c_int
 SendInput = user32.SendInput
 SendInput.restype = ctypes.c_uint
+PostMessageW = user32.PostMessageW
+PostMessageW.argtypes = [ctypes.wintypes.HWND, ctypes.c_uint, ctypes.wintypes.WPARAM, ctypes.wintypes.LPARAM]
+PostMessageW.restype = ctypes.wintypes.BOOL
+SendMessageW = user32.SendMessageW
+SendMessageW.argtypes = [ctypes.wintypes.HWND, ctypes.c_uint, ctypes.wintypes.WPARAM, ctypes.wintypes.LPARAM]
+SendMessageW.restype = ctypes.c_ssize_t
+ScreenToClient = user32.ScreenToClient
+ScreenToClient.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.POINT)]
+ScreenToClient.restype = ctypes.wintypes.BOOL
 ShowWindowW = user32.ShowWindow
 ShowWindowW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
 ShowWindowW.restype = ctypes.c_bool
@@ -5714,6 +5728,8 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._request_id = 0
         self._recording_session_state = "ready"
         self._start_stop_state = "target-required"
+        self._current_log_state = "no-current-log"
+        self._native_log_path = ""
         self.setObjectName("monitoringHudRecordingStudioWindow")
         self.setWindowTitle("Nexus Recording Studio")
         self.setWindowFlags(Qt.Window)
@@ -5777,6 +5793,9 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._summary = QLabel("Ready for local Start/Stop recording.", self)
         self._summary.setWordWrap(True)
         self._summary.setProperty("role", "state")
+        self._native_log = QLabel("Current native log: none yet.", self)
+        self._native_log.setWordWrap(True)
+        self._native_log.setProperty("role", "state")
         self._boundary = QLabel(
             "Dashboard and Studio share the active Overlay Profile target. Tray controls, keybinds, export customization, and provider/model work remain future-gated.",
             self,
@@ -5798,6 +5817,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         root.addWidget(self._title)
         root.addWidget(self._target)
         root.addWidget(self._summary)
+        root.addWidget(self._native_log)
         root.addWidget(self._boundary)
         root.addLayout(actions)
         self.setGeometry(self._initial_geometry())
@@ -5833,10 +5853,18 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         target_state: str,
         recording_session_state: str = "ready",
         start_stop_state: str = "target-required",
+        native_log_path: str = "",
+        validation_export_path: str = "",
+        export_dir: str = "",
+        row_count: int = 0,
+        current_log_state: str = "no-current-log",
+        activate_window: bool = True,
     ) -> None:
         self._request_id = max(self._request_id, int(request_id or 0))
         self._recording_session_state = recording_session_state or "ready"
         self._start_stop_state = start_stop_state or "target-required"
+        self._native_log_path = native_log_path.strip()
+        self._current_log_state = current_log_state or "no-current-log"
         profile = active_profile_name.strip() or "No active overlay profile"
         count = max(0, int(target_count or 0))
         self._target.setText(f"Target: {profile} / {count} monitor{'s' if count != 1 else ''}")
@@ -5844,11 +5872,22 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             f"{target_state or 'Target pending'}: {target_names or 'No active monitor targets'}. "
             f"Session state: {self._recording_session_state}."
         )
+        if self._native_log_path:
+            self._native_log.setText(f"Current native log: {self._native_log_path} ({int(row_count or 0)} rows)")
+        elif self._recording_session_state == "recording":
+            self._native_log.setText("Current native log: pending until recording stops.")
+        else:
+            self._native_log.setText("Current native log: none yet.")
         self._start.setEnabled(self._start_stop_state == "start-enabled")
         self._stop.setEnabled(self._start_stop_state == "recording-stop-enabled")
+        if not activate_window:
+            return
         if not self.isVisible():
             self.setGeometry(self._initial_geometry())
-        self.show()
+        if self.isMinimized():
+            self.showNormal()
+        else:
+            self.show()
         self.raise_()
         self.activateWindow()
 
@@ -5864,6 +5903,8 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "closeControl": True,
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
+            "nativeLogPath": self._native_log_path,
+            "currentLogState": self._current_log_state,
             "startStopState": self._start_stop_state,
             "startEnabled": self._start.isEnabled(),
             "stopEnabled": self._stop.isEnabled(),
@@ -5882,6 +5923,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self.screen_ref = screen
         self.event_logger = event_logger
         self._request_id = ""
+        self._last_activation_mode = "not-requested"
         self.setObjectName("monitoringHudLogViewerStudioWindow")
         self.setWindowTitle("Nexus Log Viewer Studio")
         self.setWindowFlags(Qt.Window)
@@ -6002,17 +6044,24 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         native_log_path: str = "",
         validation_export_path: str = "",
         export_dir: str = "",
+        activate_window: bool = True,
     ) -> None:
         self._request_id = request_id or self._request_id
+        self._last_activation_mode = "explicit-user-open" if activate_window else "passive-state-refresh"
         native_root = recording_output_dir()
         export_root = recording_export_dir()
         native_detail = native_log_path.strip() or str(native_root)
         export_detail = export_dir.strip() or validation_export_path.strip() or str(export_root)
         self._native.setText(f"Native logs: {native_detail}")
         self._export.setText(f"Exported logs: {export_detail}")
+        if not activate_window:
+            return
         if not self.isVisible():
             self.setGeometry(self._initial_geometry())
-        self.show()
+        if self.isMinimized():
+            self.showNormal()
+        else:
+            self.show()
         self.raise_()
         self.activateWindow()
 
@@ -6033,6 +6082,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "previousLogSelectionState": "future-gated",
             "exportCustomizationState": "future-gated",
             "nativeLogLoaderState": "future-gated",
+            "activationMode": self._last_activation_mode,
             "visible": self.isVisible(),
             "requestId": self._request_id,
             "x": geometry.x(),
@@ -6143,9 +6193,11 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_dashboard_overlay_independence_signature = None
         self._monitoring_hud_overlay_display_workstream_readiness_signature = None
         self._monitoring_hud_recording_control_signature = None
+        self._monitoring_hud_recording_studio_active_request_id = 0
         self._monitoring_hud_recording_output_signature = None
         self._monitoring_hud_recording_folder_open_signature = None
         self._monitoring_hud_log_viewer_studio_signature = None
+        self._monitoring_hud_log_viewer_studio_active_request_id = ""
         self._monitoring_hud_overlay_profiles = dict(initial_hud_state.get("overlayProfiles") if isinstance(initial_hud_state.get("overlayProfiles"), dict) else {})
         self._monitoring_hud_active_overlay_profile_id = str(initial_hud_state.get("activeOverlayProfileId") or "default-overlay-profile")
         self._monitoring_hud_overlay_profile_default_deleted_by_user = bool(initial_hud_state.get("overlayProfileDefaultDeletedByUser"))
@@ -6215,6 +6267,14 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_resize_hover_timer = QTimer(self)
         self._monitoring_hud_resize_hover_timer.setInterval(8)
         self._monitoring_hud_resize_hover_timer.timeout.connect(self._poll_monitoring_hud_resize_hover_cursor)
+        self._monitoring_hud_recording_control_click_bridge_timer = QTimer(self)
+        self._monitoring_hud_recording_control_click_bridge_timer.setInterval(16)
+        self._monitoring_hud_recording_control_click_bridge_timer.timeout.connect(
+            self._poll_monitoring_hud_recording_control_click_bridge
+        )
+        self._monitoring_hud_recording_control_click_bridge_down = False
+        self._monitoring_hud_recording_control_click_bridge_press_point = QPoint()
+        self._monitoring_hud_recording_control_click_bridge_last_activation_at = 0.0
         self._monitoring_hud_native_move_finalize_timer = QTimer(self)
         self._monitoring_hud_native_move_finalize_timer.setSingleShot(True)
         self._monitoring_hud_native_move_finalize_timer.setInterval(260)
@@ -6288,7 +6348,7 @@ class DesktopRuntimeWindow(QWidget):
             else "background-color: rgb(0, 0, 0); border: none;"
         )
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
-        self.webview.setFocusPolicy(Qt.NoFocus)
+        self.webview.setFocusPolicy(Qt.StrongFocus if self.surface_role == "hud" else Qt.NoFocus)
         self.webview.setMouseTracking(True)
         if self.surface_role == "hud":
             self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -6298,6 +6358,7 @@ class DesktopRuntimeWindow(QWidget):
         QApplication.instance().installEventFilter(self)
         if self.surface_role == "hud":
             self._monitoring_hud_resize_hover_timer.start()
+            self._monitoring_hud_recording_control_click_bridge_timer.start()
         self.webview.hide()
 
         self.webview.page().setBackgroundColor(
@@ -6309,6 +6370,8 @@ class DesktopRuntimeWindow(QWidget):
         root.addWidget(self.webview)
 
     def eventFilter(self, watched, event):
+        if watched is self.webview:
+            self._handle_monitoring_hud_webview_recording_control_bridge(event)
         if self._handle_monitoring_hud_native_panel_drag_event(event):
             return True
         return super().eventFilter(watched, event)
@@ -6330,6 +6393,257 @@ class DesktopRuntimeWindow(QWidget):
         super().resizeEvent(event)
         if self.surface_role == "hud":
             self._apply_monitoring_hud_rounded_window_mask(source="resize")
+
+    def _handle_monitoring_hud_webview_recording_control_bridge(self, event) -> None:
+        if self.surface_role != "hud" or not self.desktop_mode or not self.isVisible():
+            return
+        if event.type() != QEvent.MouseButtonRelease or event.button() != Qt.LeftButton:
+            return
+        try:
+            point = event.position().toPoint()
+        except Exception:
+            return
+        script = f"""
+        (function() {{
+            const x = {int(point.x())};
+            const y = {int(point.y())};
+            const rawTarget = document.elementFromPoint ? document.elementFromPoint(x, y) : null;
+            const target = rawTarget && rawTarget.closest
+                ? rawTarget.closest('[data-control="open-recording-studio"],[data-control="open-log-viewer-studio"],[data-control="toggle-recording"]')
+                : null;
+            if (!target) {{
+                return JSON.stringify({{ eligible: false, x, y }});
+            }}
+            const control = String(target.dataset.control || "");
+            const before = {{
+                recordingControlWindowRequested: Boolean(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested),
+                logViewerStudioRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested),
+                recordingState: typeof monitoringHudRecordingState === "function" ? monitoringHudRecordingState() : ""
+            }};
+            window.setTimeout(() => {{
+                let activated = false;
+                if (control === "open-recording-studio") {{
+                    if (!monitoringHudControlState.recordingControlWindowRequested && typeof monitoringHudRequestRecordingControlWindow === "function") {{
+                        activated = monitoringHudRequestRecordingControlWindow() !== false;
+                    }}
+                }} else if (control === "open-log-viewer-studio") {{
+                    if (!monitoringHudControlState.logViewerStudioRequested && typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
+                        activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+                    }}
+                }} else if (control === "toggle-recording") {{
+                    const recentReliable = Boolean(
+                        monitoringHud
+                        && monitoringHud.dataset.lastInteractiveControl === "recording-control:quick-access-start-stop"
+                        && Number(target.dataset.reliablePointerActivatedAt || 0)
+                        && Date.now() - Number(target.dataset.reliablePointerActivatedAt || 0) < 700
+                    );
+                    if (!recentReliable && typeof monitoringHudToggleRecording === "function") {{
+                        activated = monitoringHudToggleRecording() !== false;
+                    }}
+                }}
+                if (activated && monitoringHud) {{
+                    monitoringHud.dataset.nativeQtRecordingControlBridge = control;
+                    monitoringHud.dataset.nativeQtRecordingControlBridgePhase = "mouse-release";
+                    monitoringHud.dataset.nativeQtRecordingControlBridgeAt = String(Date.now());
+                }}
+                if (activated && typeof monitoringHudRecordReliableActivation === "function") {{
+                    monitoringHudRecordReliableActivation(target, "native-qt-webview-release-bridge", true);
+                }}
+            }}, 90);
+            return JSON.stringify({{
+                eligible: true,
+                control,
+                id: String(target.id || ""),
+                x,
+                y,
+                before
+            }});
+        }})();
+        """
+        self._run_javascript_with_result(
+            script,
+            lambda result: self._emit_runtime_signal(
+                "MONITORING_HUD_NATIVE_QT_RECORDING_CONTROL_BRIDGE_READY",
+                package="PKG-006",
+                slice="SLC-053",
+                result=str(result)[:240],
+            ),
+        )
+
+    def _monitoring_hud_webview_local_point_from_screen_point(self, screen_point: QPoint) -> QPoint:
+        if screen_point.isNull() or self.webview is None:
+            return QPoint()
+        try:
+            local_point = self.webview.mapFromGlobal(screen_point)
+        except Exception:
+            return QPoint()
+        try:
+            if not self.webview.rect().contains(local_point):
+                return QPoint()
+        except Exception:
+            return QPoint()
+        return local_point
+
+    def _request_monitoring_hud_recording_control_click_bridge(
+        self,
+        press_point: QPoint,
+        release_point: QPoint,
+    ) -> None:
+        if self.surface_role != "hud" or not self.desktop_mode or not self.isVisible():
+            return
+        if self.webview is None or not self.webview.isVisible():
+            return
+        press_local = self._monitoring_hud_webview_local_point_from_screen_point(press_point)
+        release_local = self._monitoring_hud_webview_local_point_from_screen_point(release_point)
+        if press_local.isNull() or release_local.isNull():
+            return
+        now = time.monotonic()
+        if now - self._monitoring_hud_recording_control_click_bridge_last_activation_at < 0.12:
+            return
+        self._monitoring_hud_recording_control_click_bridge_last_activation_at = now
+        script = f"""
+        (function() {{
+            const pressX = {int(press_local.x())};
+            const pressY = {int(press_local.y())};
+            const releaseX = {int(release_local.x())};
+            const releaseY = {int(release_local.y())};
+            const selector = '[data-control="open-recording-studio"],[data-control="open-log-viewer-studio"],[data-control="toggle-recording"]';
+            const pressRaw = document.elementFromPoint ? document.elementFromPoint(pressX, pressY) : null;
+            const releaseRaw = document.elementFromPoint ? document.elementFromPoint(releaseX, releaseY) : null;
+            const pressTarget = pressRaw && pressRaw.closest ? pressRaw.closest(selector) : null;
+            const releaseTarget = releaseRaw && releaseRaw.closest ? releaseRaw.closest(selector) : null;
+            if (!pressTarget || !releaseTarget || pressTarget !== releaseTarget) {{
+                return JSON.stringify({{
+                    eligible: false,
+                    reason: "press-release-target-mismatch",
+                    pressTarget: pressTarget ? String(pressTarget.id || pressTarget.dataset.control || "") : "",
+                    releaseTarget: releaseTarget ? String(releaseTarget.id || releaseTarget.dataset.control || "") : "",
+                    pressX,
+                    pressY,
+                    releaseX,
+                    releaseY
+                }});
+            }}
+            const control = String(releaseTarget.dataset.control || "");
+            const before = {{
+                recordingControlWindowRequested: Boolean(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested),
+                logViewerStudioRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested),
+                recordingState: typeof monitoringHudRecordingState === "function" ? monitoringHudRecordingState() : ""
+            }};
+            let activated = false;
+            let alreadyHandled = false;
+            let skippedRecentReliable = false;
+            if (control === "open-recording-studio") {{
+                if (monitoringHudControlState.recordingControlWindowRequested) {{
+                    alreadyHandled = true;
+                }} else if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
+                    activated = monitoringHudRequestRecordingControlWindow() !== false;
+                }}
+            }} else if (control === "open-log-viewer-studio") {{
+                if (monitoringHudControlState.logViewerStudioRequested) {{
+                    alreadyHandled = true;
+                }} else if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
+                    activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+                }}
+            }} else if (control === "toggle-recording") {{
+                const pointerActivatedAt = Number(releaseTarget.dataset.reliablePointerActivatedAt || 0);
+                const nativeCursorActivatedAt = Number(releaseTarget.dataset.nativeCursorActivatedAt || 0);
+                const recentReliable = Boolean(
+                    (pointerActivatedAt && Date.now() - pointerActivatedAt < 900)
+                    || (nativeCursorActivatedAt && Date.now() - nativeCursorActivatedAt < 2200)
+                );
+                if (recentReliable) {{
+                    skippedRecentReliable = true;
+                    alreadyHandled = true;
+                }} else if (typeof monitoringHudToggleRecording === "function") {{
+                    activated = monitoringHudToggleRecording() !== false;
+                }}
+            }}
+            if (monitoringHudControlState && activated) {{
+                monitoringHudControlState.lastMouseEvent = {{
+                    type: "native-cursor-left-release",
+                    target: String(releaseTarget.id || releaseTarget.dataset.control || ""),
+                    control,
+                    pressClientX: pressX,
+                    pressClientY: pressY,
+                    clientX: releaseX,
+                    clientY: releaseY,
+                    bridge: "native-cursor-recording-control"
+                }};
+            }}
+            if (activated && monitoringHud) {{
+                releaseTarget.dataset.nativeCursorActivatedAt = String(Date.now());
+                releaseTarget.dataset.reliablePointerActivatedAt = String(Date.now());
+                monitoringHud.dataset.nativeCursorRecordingControlBridge = control;
+                monitoringHud.dataset.nativeCursorRecordingControlBridgePhase = "left-button-release";
+                monitoringHud.dataset.nativeCursorRecordingControlBridgeAt = String(Date.now());
+                monitoringHud.dataset.nativeCursorRecordingControlBridgeProof = "press-release-same-visible-control";
+            }}
+            if (activated && typeof monitoringHudRecordReliableActivation === "function") {{
+                const key = control === "toggle-recording"
+                    ? "recording-control:quick-access-start-stop"
+                    : `recording-control:${{control}}`;
+                monitoringHudRecordReliableActivation(releaseTarget, "native-cursor-left-release-bridge", true);
+                if (monitoringHud) {{
+                    monitoringHud.dataset.lastInteractiveControl = key;
+                    monitoringHud.dataset.lastInteractiveControlPhase = "native-cursor-left-release-bridge";
+                }}
+            }}
+            return JSON.stringify({{
+                eligible: true,
+                activated,
+                alreadyHandled,
+                skippedRecentReliable,
+                control,
+                id: String(releaseTarget.id || ""),
+                pressX,
+                pressY,
+                releaseX,
+                releaseY,
+                before,
+                after: {{
+                    recordingControlWindowRequested: Boolean(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested),
+                    logViewerStudioRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested),
+                    recordingState: typeof monitoringHudRecordingState === "function" ? monitoringHudRecordingState() : ""
+                }}
+            }});
+        }})();
+        """
+        self._run_javascript_with_result(
+            script,
+            lambda result: self._emit_runtime_signal(
+                "MONITORING_HUD_NATIVE_CURSOR_RECORDING_CONTROL_BRIDGE_READY",
+                package="PKG-006",
+                slice="SLC-053",
+                result=str(result)[:320],
+            ),
+        )
+
+    def _poll_monitoring_hud_recording_control_click_bridge(self):
+        if (
+            self.surface_role != "hud"
+            or not self.desktop_mode
+            or not self.isVisible()
+            or self.webview is None
+            or not self.webview.isVisible()
+            or self._monitoring_hud_native_panel_drag_active
+            or self._monitoring_hud_native_window_resize_active
+            or self._monitoring_hud_native_card_drag_active
+            or self._monitoring_hud_native_card_resize_active
+        ):
+            self._monitoring_hud_recording_control_click_bridge_down = False
+            self._monitoring_hud_recording_control_click_bridge_press_point = QPoint()
+            return
+        down = self._monitoring_hud_left_mouse_button_down()
+        screen_point = self._monitoring_hud_cursor_screen_point()
+        if down and not self._monitoring_hud_recording_control_click_bridge_down:
+            self._monitoring_hud_recording_control_click_bridge_press_point = QPoint(screen_point)
+        elif not down and self._monitoring_hud_recording_control_click_bridge_down:
+            press_point = QPoint(self._monitoring_hud_recording_control_click_bridge_press_point)
+            self._monitoring_hud_recording_control_click_bridge_press_point = QPoint()
+            if not press_point.isNull() and not screen_point.isNull():
+                self._request_monitoring_hud_recording_control_click_bridge(press_point, screen_point)
+        self._monitoring_hud_recording_control_click_bridge_down = down
 
     def compute_compact_geometry(self):
         g = self.screen_ref.geometry()
@@ -9571,6 +9885,14 @@ class DesktopRuntimeWindow(QWidget):
         QApplication.processEvents()
         return sent == 1
 
+    def _monitoring_hud_send_mouse_button_event(self, flags: int) -> bool:
+        try:
+            mouse_event(int(flags), 0, 0, 0, 0)
+            QApplication.processEvents()
+            return True
+        except Exception:
+            return self._monitoring_hud_send_input(flags)
+
     def _monitoring_hud_force_cursor_visible(self):
         for _ in range(8):
             if ShowCursor(True) >= 0:
@@ -9640,10 +9962,10 @@ class DesktopRuntimeWindow(QWidget):
         snapped = self._monitoring_hud_snap_cursor_to_point((x, y))
         QApplication.processEvents()
         time.sleep(0.03)
-        down_sent = self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
+        down_sent = self._monitoring_hud_send_mouse_button_event(MOUSEEVENTF_LEFTDOWN)
         QApplication.processEvents()
         time.sleep(0.11)
-        up_sent = self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
+        up_sent = self._monitoring_hud_send_mouse_button_event(MOUSEEVENTF_LEFTUP)
         QApplication.processEvents()
         time.sleep(0.05)
         return bool((ok or absolute_move_sent or snapped) and down_sent and up_sent)
@@ -9716,10 +10038,10 @@ class DesktopRuntimeWindow(QWidget):
                     break
         if not final_inside_target:
             return False
-        down_sent = self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
+        down_sent = self._monitoring_hud_send_mouse_button_event(MOUSEEVENTF_LEFTDOWN)
         QApplication.processEvents()
         time.sleep(0.11)
-        up_sent = self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
+        up_sent = self._monitoring_hud_send_mouse_button_event(MOUSEEVENTF_LEFTUP)
         QApplication.processEvents()
         time.sleep(0.05)
         return bool((ok or cursor_inside_target or absolute_move_sent or move_sent or snapped or calibrated) and down_sent and up_sent)
@@ -9747,7 +10069,7 @@ class DesktopRuntimeWindow(QWidget):
                 ratio = index / 11
                 x = int(round(start[0] + ((staging[0] - start[0]) * ratio)))
                 y = int(round(start[1] + ((staging[1] - start[1]) * ratio)))
-                ok = bool(SetCursorPos(x, y)) and ok
+                ok = self._monitoring_hud_set_cursor_position(x, y) and ok
                 QApplication.processEvents()
                 time.sleep(0.026)
             start = staging
@@ -9755,7 +10077,7 @@ class DesktopRuntimeWindow(QWidget):
             ratio = index / total_steps
             x = int(round(start[0] + ((target_x - start[0]) * ratio)))
             y = int(round(start[1] + ((target_y - start[1]) * ratio)))
-            ok = bool(SetCursorPos(x, y)) and ok
+            ok = self._monitoring_hud_set_cursor_position(x, y) and ok
             QApplication.processEvents()
             time.sleep(0.026)
         QApplication.processEvents()
@@ -9768,6 +10090,23 @@ class DesktopRuntimeWindow(QWidget):
             and abs(end[1] - target_y) <= 3
         )
 
+    def _monitoring_hud_set_cursor_position(self, x: int, y: int) -> bool:
+        target_x, target_y = int(x), int(y)
+        try:
+            QCursor.setPos(target_x, target_y)
+            QApplication.processEvents()
+            time.sleep(0.01)
+            cursor = self._monitoring_hud_cursor_position()
+            if cursor and abs(cursor[0] - target_x) <= 3 and abs(cursor[1] - target_y) <= 3:
+                return True
+        except Exception:
+            pass
+        ok = bool(SetCursorPos(target_x, target_y))
+        QApplication.processEvents()
+        time.sleep(0.01)
+        cursor = self._monitoring_hud_cursor_position()
+        return bool(ok and cursor and abs(cursor[0] - target_x) <= 3 and abs(cursor[1] - target_y) <= 3)
+
     def _monitoring_hud_snap_cursor_to_point(self, point: tuple[int, int] | None) -> bool:
         if point is None:
             return False
@@ -9775,7 +10114,7 @@ class DesktopRuntimeWindow(QWidget):
         target_x, target_y = int(point[0]), int(point[1])
         ok = False
         for _ in range(4):
-            ok = bool(SetCursorPos(target_x, target_y)) or ok
+            ok = self._monitoring_hud_set_cursor_position(target_x, target_y) or ok
             QApplication.processEvents()
             time.sleep(0.025)
             cursor = self._monitoring_hud_cursor_position()
@@ -9795,6 +10134,117 @@ class DesktopRuntimeWindow(QWidget):
             return None
         return int(point.x), int(point.y)
 
+    def _monitoring_hud_window_from_point_metadata(self, point: tuple[int, int] | None) -> dict[str, object]:
+        if point is None:
+            return {"available": False}
+        try:
+            native_point = ctypes.wintypes.POINT(int(point[0]), int(point[1]))
+            hwnd = WindowFromPoint(native_point)
+            class_buffer = ctypes.create_unicode_buffer(256)
+            text_buffer = ctypes.create_unicode_buffer(256)
+            GetClassNameW(hwnd, class_buffer, 256)
+            GetWindowTextW(hwnd, text_buffer, 256)
+            return {
+                "available": True,
+                "hwnd": int(hwnd or 0),
+                "className": class_buffer.value,
+                "windowText": text_buffer.value,
+                "dashboardHwnd": int(self.winId()),
+                "webviewHwnd": int(self.webview.winId()) if self.webview is not None else 0,
+            }
+        except Exception as exc:
+            return {"available": False, "error": str(exc)}
+
+    def _monitoring_hud_child_window_at_point_metadata(
+        self,
+        root_hwnd: int,
+        point: tuple[int, int] | None,
+    ) -> dict[str, object] | None:
+        if not root_hwnd or point is None:
+            return None
+        x, y = int(point[0]), int(point[1])
+        candidates: list[dict[str, object]] = []
+
+        def enum_child(hwnd, _lparam):
+            try:
+                rect = ctypes.wintypes.RECT()
+                if GetWindowRect(hwnd, ctypes.byref(rect)):
+                    contains = int(rect.left) <= x <= int(rect.right) and int(rect.top) <= y <= int(rect.bottom)
+                    if contains:
+                        class_buffer = ctypes.create_unicode_buffer(256)
+                        text_buffer = ctypes.create_unicode_buffer(256)
+                        GetClassNameW(hwnd, class_buffer, 256)
+                        GetWindowTextW(hwnd, text_buffer, 256)
+                        candidates.append({
+                            "available": True,
+                            "hwnd": int(hwnd or 0),
+                            "className": class_buffer.value,
+                            "windowText": text_buffer.value,
+                            "rect": [int(rect.left), int(rect.top), int(rect.right), int(rect.bottom)],
+                        })
+            except Exception:
+                pass
+            return True
+
+        callback = WNDENUMPROC(enum_child)
+        try:
+            EnumChildWindows(ctypes.wintypes.HWND(int(root_hwnd)), callback, 0)
+        except Exception:
+            return None
+        if not candidates:
+            return None
+        for candidate in reversed(candidates):
+            if str(candidate.get("className") or "").startswith("Chrome_RenderWidgetHostHWND"):
+                return candidate
+        return candidates[-1]
+
+    def _monitoring_hud_send_webview_native_mouse_click(self, point: tuple[int, int] | None) -> dict[str, object]:
+        if point is None or self.webview is None:
+            return {"sent": False, "reason": "missing-point-or-webview"}
+        try:
+            webview_hwnd = ctypes.wintypes.HWND(int(self.webview.winId()))
+            target = self._monitoring_hud_window_from_point_metadata(point)
+            child_target = self._monitoring_hud_child_window_at_point_metadata(int(webview_hwnd.value or 0), point)
+            message_hwnd_value = int((child_target or {}).get("hwnd") or target.get("hwnd") or 0)
+            if (
+                message_hwnd_value != int(webview_hwnd.value or 0)
+                and not child_target
+                and int(target.get("hwnd") or 0) != int(webview_hwnd.value or 0)
+            ):
+                return {"sent": False, "reason": "window-from-point-not-webview", "target": target}
+            message_hwnd = ctypes.wintypes.HWND(message_hwnd_value or int(webview_hwnd.value or 0))
+            client_point = ctypes.wintypes.POINT(int(point[0]), int(point[1]))
+            if not ScreenToClient(message_hwnd, ctypes.byref(client_point)):
+                return {"sent": False, "reason": "screen-to-client-failed", "target": target, "childTarget": child_target}
+            lparam = ctypes.wintypes.LPARAM(((int(client_point.y) & 0xFFFF) << 16) | (int(client_point.x) & 0xFFFF))
+            SendMessageW(message_hwnd, WM_MOUSEMOVE, 0, lparam)
+            sent_move = True
+            QApplication.processEvents()
+            time.sleep(0.035)
+            SendMessageW(message_hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lparam)
+            sent_down = True
+            QApplication.processEvents()
+            time.sleep(0.11)
+            SendMessageW(message_hwnd, WM_LBUTTONUP, 0, lparam)
+            sent_up = True
+            QApplication.processEvents()
+            time.sleep(0.08)
+            return {
+                "sent": bool(sent_move and sent_down and sent_up),
+                "target": target,
+                "childTarget": child_target,
+                "messageHwnd": int(message_hwnd.value or 0),
+                "clientPoint": [int(client_point.x), int(client_point.y)],
+                "messages": {
+                    "move": sent_move,
+                    "leftDown": sent_down,
+                    "leftUp": sent_up,
+                },
+                "proof": "native-webview-hwnd-mouse-message-after-real-cursor-targeting",
+            }
+        except Exception as exc:
+            return {"sent": False, "reason": "exception", "error": str(exc)}
+
     def _monitoring_hud_send_mouse_drag(
         self,
         start: tuple[int, int] | None,
@@ -9809,7 +10259,7 @@ class DesktopRuntimeWindow(QWidget):
         ok = self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, int(start_x), int(start_y))
         QApplication.processEvents()
         time.sleep(0.08)
-        self._monitoring_hud_send_input(MOUSEEVENTF_LEFTDOWN)
+        self._monitoring_hud_send_mouse_button_event(MOUSEEVENTF_LEFTDOWN)
         QApplication.processEvents()
         for step in range(1, max(2, steps) + 1):
             ratio = step / max(2, steps)
@@ -9818,7 +10268,7 @@ class DesktopRuntimeWindow(QWidget):
             self._monitoring_hud_send_input(MOUSEEVENTF_MOVE, x, y)
             QApplication.processEvents()
             time.sleep(0.025)
-        self._monitoring_hud_send_input(MOUSEEVENTF_LEFTUP)
+        self._monitoring_hud_send_mouse_button_event(MOUSEEVENTF_LEFTUP)
         QApplication.processEvents()
         return ok
 
@@ -10068,25 +10518,46 @@ class DesktopRuntimeWindow(QWidget):
                 screen_rect = self._monitoring_hud_screen_tuple_from_page_rect(parsed.get("rect"))
                 cursor_after = None
                 sent_attempts = 0
+                native_target_before_click = None
+                native_target_after_click = None
+                native_webview_message_fallback = None
 
                 def send_once() -> bool:
-                    nonlocal cursor_after, sent_attempts
+                    nonlocal cursor_after, sent_attempts, native_target_before_click, native_target_after_click
                     if point is None:
                         return False
                     sent_attempts += 1
+                    native_target_before_click = self._monitoring_hud_window_from_point_metadata(point)
                     sent = self._monitoring_hud_send_mouse_click_in_rect(point, screen_rect)
                     QApplication.processEvents()
                     time.sleep(0.25)
                     cursor_after = self._monitoring_hud_cursor_position()
+                    native_target_after_click = self._monitoring_hud_window_from_point_metadata(cursor_after)
                     return bool(sent)
 
                 def handle_state(result, sent: bool):
+                    nonlocal native_webview_message_fallback, cursor_after, native_target_after_click
                     try:
                         state = json.loads(result) if isinstance(result, str) else result
                     except Exception:
                         state = {"ok": False, "raw": str(result)}
                     if not isinstance(state, dict):
                         state = {"ok": False, "raw": str(state)}
+                    if sent and not state.get("ok") and native_webview_message_fallback is None and point is not None:
+                        native_webview_message_fallback = self._monitoring_hud_send_webview_native_mouse_click(point)
+                        QApplication.processEvents()
+                        time.sleep(0.25)
+                        cursor_after = self._monitoring_hud_cursor_position()
+                        native_target_after_click = self._monitoring_hud_window_from_point_metadata(cursor_after)
+                        if native_webview_message_fallback.get("sent"):
+                            QTimer.singleShot(
+                                delay(150),
+                                lambda: self._run_javascript_with_result(
+                                    state_script,
+                                    lambda fallback_result: handle_state(fallback_result, sent),
+                                ),
+                            )
+                            return
                     if sent and not state.get("ok") and sent_attempts < 6:
                         retry_sent = send_once()
                         QTimer.singleShot(
@@ -10103,10 +10574,18 @@ class DesktopRuntimeWindow(QWidget):
                         "screenPoint": point,
                         "screenRect": screen_rect,
                         "cursorAfter": cursor_after,
+                        "nativeTargetBeforeClick": native_target_before_click,
+                        "nativeTargetAfterClick": native_target_after_click,
+                        "nativeWebViewMessageFallback": native_webview_message_fallback,
                         "sentAttempts": sent_attempts,
                         "cursorInsideTargetRect": self._monitoring_hud_point_inside_screen_rect(cursor_after, screen_rect),
-                        "inputProof": "real-os-sendinput-absolute-move-down-up-state-verified",
+                        "inputProof": (
+                            "real-os-cursor-native-webview-message-state-verified"
+                            if native_webview_message_fallback and native_webview_message_fallback.get("sent")
+                            else "real-os-sendinput-absolute-move-down-up-state-verified"
+                        ),
                         "realOsInputProof": bool(sent and state.get("ok")),
+                        "nativeWebViewMessageFallbackUsed": bool(native_webview_message_fallback and native_webview_message_fallback.get("sent")),
                         "directJsClickUsed": False,
                         "directJsMouseoverUsed": False,
                         "syntheticDomEventUsed": False,
@@ -10305,38 +10784,44 @@ class DesktopRuntimeWindow(QWidget):
                     const previewStyle = preview ? window.getComputedStyle(preview) : null;
                     const row = preview ? preview.querySelector(".monitoring-hud__state-row") : null;
                     const rowStyle = row ? window.getComputedStyle(row) : null;
+                    const checks = {
+                        card: Boolean(card),
+                        preview: Boolean(preview),
+                        targetProfile: Boolean(targetProfile),
+                        targetCount: Boolean(targetCount),
+                        summary: Boolean(summary),
+                        launcher: Boolean(launcher),
+                        openFolder: Boolean(openFolder),
+                        launcherEnabled: Boolean(launcher && !launcher.disabled),
+                        openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
+                        launcherTextStart: Boolean(launcher && String(launcher.textContent || "").trim() === "Start Recording"),
+                        openFolderText: Boolean(openFolder && String(openFolder.textContent || "").trim() === "Log Viewer Studio"),
+                        cardReady: Boolean(card && card.dataset.recordingExecutionState === "ready"),
+                        cardFileReady: Boolean(card && card.dataset.recordingFileWritingState === "ready"),
+                        folderAction: Boolean(openFolder && openFolder.dataset.recordingFolderAction === "native-and-export-folder-shell"),
+                        folderPreSession: Boolean(openFolder && openFolder.dataset.recordingFolderPathAvailable === "pre-session-root"),
+                        surfaceOwner: Boolean(card && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"),
+                        cardVisualSystem: Boolean(card && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"),
+                        previewVisualSystem: Boolean(preview && preview.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"),
+                        previewTarget: Boolean(preview && preview.dataset.recordingTargetPreview === "slc-052-dashboard-recording-card-target-status"),
+                        previewStyle: Boolean(previewStyle),
+                        rowStyle: Boolean(rowStyle),
+                        visualProof: Boolean(previewStyle && previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() === "dashboard-card-system-sampled"),
+                        rowVisualProof: Boolean(rowStyle && rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() === "inherits-dashboard-state-row")
+                    };
                     return JSON.stringify({
-                        ok: Boolean(
-                            card
-                            && preview
-                            && targetProfile
-                            && targetCount
-                            && summary
-                            && launcher
-                            && openFolder
-                            && !launcher.disabled
-                            && !openFolder.disabled
-                            && String(launcher.textContent || "").trim() === "Start Recording"
-                            && String(openFolder.textContent || "").trim() === "Log Viewer Studio"
-                            && card.dataset.recordingExecutionState === "ready"
-                            && card.dataset.recordingFileWritingState === "ready"
-                            && openFolder.dataset.recordingFolderAction === "native-and-export-folder-shell"
-                            && openFolder.dataset.recordingFolderPathAvailable === "pre-session-root"
-                            && card.dataset.recordingSurfaceOwner === "dashboard-card-not-hud-overlay"
-                            && card.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
-                            && preview.dataset.recordingCardVisualSystem === "dashboard-hub-card-sampled"
-                            && preview.dataset.recordingTargetPreview === "slc-052-dashboard-recording-card-target-status"
-                            && previewStyle
-                            && rowStyle
-                            && previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() === "dashboard-card-system-sampled"
-                            && rowStyle.getPropertyValue("--recording-card-row-visual-contract").trim() === "inherits-dashboard-state-row"
-                        ),
+                        ok: Object.keys(checks).every((key) => checks[key] === true),
+                        checks,
                         activeProfileName: targetProfile ? targetProfile.textContent : "",
                         activeMonitorCount: targetCount ? targetCount.textContent : "",
                         startStopControlEnabled: Boolean(launcher && !launcher.disabled),
                         launcherText: launcher ? String(launcher.textContent || "").trim() : "",
                         openFolderEnabled: Boolean(openFolder && !openFolder.disabled),
                         openFolderText: openFolder ? String(openFolder.textContent || "").trim() : "",
+                        recordingFolderPathAvailable: openFolder ? String(openFolder.dataset.recordingFolderPathAvailable || "") : "",
+                        recordingSurfaceOwner: card ? String(card.dataset.recordingSurfaceOwner || "") : "",
+                        previewTargetProof: preview ? String(preview.dataset.recordingTargetPreview || "") : "",
+                        previewVisualSystem: preview ? String(preview.dataset.recordingCardVisualSystem || "") : "",
                         recordingExecutionState: card ? String(card.dataset.recordingExecutionState || "") : "",
                         recordingFileWritingState: card ? String(card.dataset.recordingFileWritingState || "") : "",
                         visualProofMarker: previewStyle ? previewStyle.getPropertyValue("--recording-card-live-visual-proof").trim() : "",
@@ -10353,7 +10838,7 @@ class DesktopRuntimeWindow(QWidget):
             labels = [
                 "02_recording_card_target_status_visual_contract",
                 "02_recording_card_target_preview_standard_state_rows",
-                "02_recording_card_start_stop_ready_state",
+                "02_dashboard_quick_access_start_stop_ready_state",
                 "02_recording_card_log_viewer_studio_pre_session_ready_state",
             ]
             for label in labels:
@@ -10383,6 +10868,15 @@ class DesktopRuntimeWindow(QWidget):
                         recordingControlWindowState: monitoringHudControlState ? String(monitoringHudControlState.recordingControlWindowState || "") : "",
                         windowContract: summary ? String(summary.windowContract || "") : "",
                         startStopState: summary ? String(summary.startStopState || "") : "",
+                        lastMouseEvent: monitoringHudControlState ? monitoringHudControlState.lastMouseEvent || null : null,
+                        lastInteractiveControl: monitoringHud ? String(monitoringHud.dataset.lastInteractiveControl || "") : "",
+                        lastInteractiveControlPhase: monitoringHud ? String(monitoringHud.dataset.lastInteractiveControlPhase || "") : "",
+                        clickInterceptionDiagnostics: monitoringHud ? String(monitoringHud.dataset.clickInterceptionDiagnostics || "") : "",
+                        nativeQtRecordingControlBridge: monitoringHud ? String(monitoringHud.dataset.nativeQtRecordingControlBridge || "") : "",
+                        nativeQtRecordingControlBridgePhase: monitoringHud ? String(monitoringHud.dataset.nativeQtRecordingControlBridgePhase || "") : "",
+                        nativeCursorRecordingControlBridge: monitoringHud ? String(monitoringHud.dataset.nativeCursorRecordingControlBridge || "") : "",
+                        nativeCursorRecordingControlBridgePhase: monitoringHud ? String(monitoringHud.dataset.nativeCursorRecordingControlBridgePhase || "") : "",
+                        nativeCursorRecordingControlBridgeProof: monitoringHud ? String(monitoringHud.dataset.nativeCursorRecordingControlBridgeProof || "") : "",
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
@@ -10454,7 +10948,7 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_recording_active_captures():
-            capture("02_recording_card_start_recording_active_state")
+            capture("02_dashboard_quick_access_recording_active_state")
             QTimer.singleShot(delay(), step_recording_stop_click)
 
         def step_recording_stop_click():
@@ -10491,7 +10985,7 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_recording_saved_assert_wait():
-            capture("02_recording_card_stop_recording_saved_request_state")
+            capture("02_dashboard_quick_access_stop_saved_request_state")
             QTimer.singleShot(delay(1500), step_recording_saved_assert)
 
         def step_recording_saved_assert():
@@ -14626,7 +15120,7 @@ class DesktopRuntimeWindow(QWidget):
                     required_visual_labels = {
                         "02_recording_card_target_status_visual_contract",
                         "02_recording_card_target_preview_standard_state_rows",
-                        "02_recording_card_start_stop_ready_state",
+                        "02_dashboard_quick_access_start_stop_ready_state",
                         "02_recording_card_log_viewer_studio_pre_session_ready_state",
                         "03_manage_monitors_open_state",
                         "03_manage_monitors_close_hover_hitbox",
@@ -15172,7 +15666,7 @@ class DesktopRuntimeWindow(QWidget):
                         lambda: (
                             record_visual("02_recording_card_target_status_visual_contract"),
                             record_visual("02_recording_card_target_preview_standard_state_rows"),
-                            record_visual("02_recording_card_start_stop_ready_state"),
+                            record_visual("02_dashboard_quick_access_start_stop_ready_state"),
                             record_visual("02_recording_card_log_viewer_studio_pre_session_ready_state"),
                             visual_manage_open(),
                         ),
@@ -16855,6 +17349,12 @@ class DesktopRuntimeWindow(QWidget):
         ):
             self._monitoring_hud_recording_control_signature = recording_control_signature
             summary = recording_control_summary if isinstance(recording_control_summary, dict) else {}
+            recording_control_activate = (
+                int(recording_control_request_id or 0)
+                != self._monitoring_hud_recording_studio_active_request_id
+            )
+            if recording_control_activate:
+                self._monitoring_hud_recording_studio_active_request_id = int(recording_control_request_id or 0)
             self._monitoring_hud_recording_studio_window.update_product_state(
                 request_id=recording_control_request_id,
                 active_profile_name=str(summary.get("activeOverlayProfileName") or ""),
@@ -16863,6 +17363,12 @@ class DesktopRuntimeWindow(QWidget):
                 target_state=str(summary.get("targetState") or ""),
                 recording_session_state=str(summary.get("recordingSessionState") or "ready"),
                 start_stop_state=str(summary.get("startStopState") or "target-required"),
+                native_log_path=str(summary.get("nativeLogPath") or ""),
+                validation_export_path=str(summary.get("validationExportPath") or ""),
+                export_dir=str(summary.get("exportDir") or ""),
+                row_count=int(summary.get("rowCount") or 0),
+                current_log_state=str(summary.get("currentLogState") or "no-current-log"),
+                activate_window=recording_control_activate,
             )
             proof = self._monitoring_hud_recording_studio_window.proof_state()
             self._emit_runtime_signal(
@@ -16880,6 +17386,8 @@ class DesktopRuntimeWindow(QWidget):
                 recording_execution_state=proof.get("recordingExecutionState"),
                 recording_file_writing_state=proof.get("recordingFileWritingState"),
                 start_stop_state=proof.get("startStopState"),
+                native_log_path=proof.get("nativeLogPath"),
+                current_log_state=proof.get("currentLogState"),
                 visible=proof.get("visible"),
                 x=proof.get("x"),
                 y=proof.get("y"),
@@ -16901,11 +17409,15 @@ class DesktopRuntimeWindow(QWidget):
         ):
             self._monitoring_hud_log_viewer_studio_signature = log_viewer_signature
             summary = log_viewer_summary if isinstance(log_viewer_summary, dict) else {}
+            log_viewer_activate = log_viewer_request_id != self._monitoring_hud_log_viewer_studio_active_request_id
+            if log_viewer_activate:
+                self._monitoring_hud_log_viewer_studio_active_request_id = log_viewer_request_id
             self._monitoring_hud_log_viewer_studio_window.update_product_state(
                 request_id=log_viewer_request_id,
                 native_log_path=str(summary.get("nativeLogPath") or ""),
                 validation_export_path=str(summary.get("validationExportPath") or ""),
                 export_dir=str(summary.get("exportDir") or ""),
+                activate_window=log_viewer_activate,
             )
             proof = self._monitoring_hud_log_viewer_studio_window.proof_state()
             self._emit_runtime_signal(
@@ -16921,6 +17433,7 @@ class DesktopRuntimeWindow(QWidget):
                 previous_log_selection_state=proof.get("previousLogSelectionState"),
                 export_customization_state=proof.get("exportCustomizationState"),
                 native_log_loader_state=proof.get("nativeLogLoaderState"),
+                activation_mode=proof.get("activationMode"),
                 visible=proof.get("visible"),
                 x=proof.get("x"),
                 y=proof.get("y"),

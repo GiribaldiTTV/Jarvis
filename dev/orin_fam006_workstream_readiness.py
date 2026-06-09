@@ -19,7 +19,7 @@ WORKSTREAM_PACKAGE_ID = "pkg-006-dashboard-recording-studio-log-viewer-option-c"
 WORKSTREAM_SEAMS = (
     "SLC-051 target-session-truth",
     "SLC-052 dashboard-recording-card-target-status",
-    "SLC-053 dashboard-start-stop-control",
+    "SLC-053 dashboard-quick-access-start-stop",
     "SLC-054 output-contract-write-readback",
     "SLC-055 validation-live-proof-readiness",
 )
@@ -37,7 +37,7 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         {
             "slice": "SLC-052",
             "status": "complete",
-            "proof": "Dashboard Recording card real Start/Stop controls, recording execution, target/status, and active-monitor transparency validator coverage",
+            "proof": "Dashboard Recording card target/status, Dashboard Quick Access Start/Stop, recording execution, and active-monitor transparency validator coverage",
             "futureGate": "tray, export/share, provider/model, and Native Log Loader work blocked",
         },
         {
@@ -95,7 +95,7 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         ],
         "utsState": "pending-after-lv1",
         "utsExpectations": [
-            "USER-facing summary covers Dashboard Recording card Start/Stop, Recording Studio, minimal Log Viewer Studio shell, saved output result, readback proof, and future-gated tray/keybind/export customization",
+            "USER-facing summary covers Dashboard Quick Access Start/Stop, Recording card target/status, Recording Studio, minimal Log Viewer Studio shell, saved output result, readback proof, and future-gated tray/keybind/export customization",
             "no UTS is exported until Live Validation authority is active or waived",
         ],
         "futureGatedBoundaries": [

@@ -245,6 +245,7 @@ function monitoringHudSafeCardsObject(cards) {
 const monitoringHudOverlayProfileSchemaVersion = 1;
 const monitoringHudDefaultOverlayProfileId = "default-overlay-profile";
 const monitoringHudActiveOverlayRecordingTargetSchemaVersion = 1;
+let monitoringHudOverlayProfilePendingCreate = null;
 
 function monitoringHudSafeOverlayProfilesObject(overlayProfiles) {
   if (!overlayProfiles || typeof overlayProfiles !== "object" || Array.isArray(overlayProfiles)) return {};
@@ -291,7 +292,13 @@ function monitoringHudBuildActiveOverlayRecordingTargetSnapshot(targetState, req
   const profiles = monitoringHudSafeOverlayProfilesObject(safeState.overlayProfiles);
   const activeProfileId = String(safeState.activeOverlayProfileId || "").trim();
   const requestedProfileId = String(requestedActiveProfileId || "").trim();
-  const activeProfile = activeProfileId && profiles[activeProfileId] ? profiles[activeProfileId] : null;
+  const pendingCreate = monitoringHudOverlayProfilePendingCreate
+    && activeProfileId === String(monitoringHudOverlayProfilePendingCreate.id || "").trim()
+    ? monitoringHudOverlayProfilePendingCreate
+    : null;
+  const activeProfile = activeProfileId && profiles[activeProfileId]
+    ? profiles[activeProfileId]
+    : pendingCreate;
   const monitorIds = activeProfile
     ? monitoringHudUniqueValidMonitorIds(activeProfile.monitorIds, safeState.cards || {})
     : [];
@@ -544,6 +551,10 @@ function monitoringHudBuildRecordingStudioTargetSummary(target, executionState, 
       : monitoringHudRecordingTargetReady(safeTarget)
         ? "start-enabled"
         : "target-required";
+  const outputResult = monitoringHudControlState.recordingOutputResult || {};
+  const nativeLogPath = String(outputResult.nativeLogPath || "");
+  const validationExportPath = String(outputResult.validationExportPath || "");
+  const exportDir = monitoringHudRecordingExportFolderPath(outputResult);
   return {
     activeOverlayProfileId: safeTarget.activeOverlayProfileId || "",
     activeOverlayProfileName: safeTarget.activeOverlayProfileName || "",
@@ -553,6 +564,11 @@ function monitoringHudBuildRecordingStudioTargetSummary(target, executionState, 
     recordingExecutionState: executionState || (currentSessionState === "recording" ? "recording" : "ready"),
     fileWritingState: fileWritingState || (currentSessionState === "saved-complete" ? "saved-complete" : "ready"),
     recordingSessionState: currentSessionState,
+    nativeLogPath,
+    validationExportPath,
+    exportDir,
+    rowCount: Number(outputResult.rowCount || 0),
+    currentLogState: nativeLogPath ? "native-log-saved" : currentSessionState === "recording" ? "native-log-pending" : "no-current-log",
     startStopState,
     studioSurfaceState: "recording-studio-focused-control-status"
   };
@@ -622,7 +638,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingCard.dataset.activeOverlayRecordingTargetCount = String(count);
     monitoringHudRecordingCard.dataset.recordingExecutionState = executionState;
     monitoringHudRecordingCard.dataset.recordingFileWritingState = fileWritingState;
-    monitoringHudRecordingCard.dataset.recordingControlSurfaceState = "dashboard-start-stop";
+    monitoringHudRecordingCard.dataset.recordingControlSurfaceState = "dashboard-status-summary";
     monitoringHudRecordingCard.dataset.hudOverlayRecordingBoundary = "hud-overlay-overlay-focused";
   }
   if (monitoringHudRecordingTargetPreview) {
@@ -637,7 +653,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     monitoringHudRecordingTargetPreview.dataset.hudOverlayRecordingBoundary = "hud-overlay-overlay-focused";
     monitoringHudRecordingTargetPreview.dataset.recordingExecutionState = executionState;
     monitoringHudRecordingTargetPreview.dataset.recordingFileWritingState = fileWritingState;
-    monitoringHudRecordingTargetPreview.dataset.recordingControlWindowState = "dashboard-card-control";
+    monitoringHudRecordingTargetPreview.dataset.recordingControlWindowState = "recording-card-status-summary";
     monitoringHudRecordingTargetPreview.dataset.recordingControlWindowContract = "recording-studio-focused-control-status";
     monitoringHudRecordingTargetPreview.dataset.logViewerStudioState = "ready";
     monitoringHudRecordingTargetPreview.dataset.trayRecordingControlState = "not-created";
@@ -658,7 +674,8 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
   if (monitoringHudRecordingControlLauncher) {
     monitoringHudRecordingControlLauncher.disabled = !buttonEnabled;
     monitoringHudRecordingControlLauncher.setAttribute("aria-disabled", buttonEnabled ? "false" : "true");
-    monitoringHudRecordingControlLauncher.dataset.recordingControlWindowState = "dashboard-card-control";
+    monitoringHudRecordingControlLauncher.dataset.dashboardQuickAccess = "recording-start-stop";
+    monitoringHudRecordingControlLauncher.dataset.recordingControlWindowState = "quick-access-start-stop";
     monitoringHudRecordingControlLauncher.dataset.recordingControlWindowContract = "dashboard-quick-access-start-stop";
     monitoringHudRecordingControlLauncher.dataset.nativeWindowContract = "dashboard-quick-access-start-stop";
     monitoringHudRecordingControlLauncher.dataset.recordingExecutionState = executionState;
@@ -709,7 +726,7 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
     recordingExecutionState: executionState,
     fileWritingState,
     recordingCardPlacement: "dashboard-recording-card-primary",
-    recordingControlWindowState: "dashboard-card-control",
+    recordingControlWindowState: "recording-card-status-summary",
     recordingFolderPathAvailable: true,
   };
 }
@@ -788,10 +805,14 @@ function monitoringHudNormalizeOverlayProfileState(state) {
   const fallbackProfileId = profiles[monitoringHudDefaultOverlayProfileId]
     ? monitoringHudDefaultOverlayProfileId
     : Object.keys(profiles)[0] || "";
+  const pendingCreate = monitoringHudOverlayProfilePendingCreate
+    && requestedActiveProfileId === String(monitoringHudOverlayProfilePendingCreate.id || "").trim()
+    ? monitoringHudOverlayProfilePendingCreate
+    : null;
   targetState.overlayProfileSchemaVersion = monitoringHudOverlayProfileSchemaVersion;
   targetState.overlayProfiles = profiles;
   targetState.overlayProfileDefaultDeletedByUser = defaultProfileDeletedByUser && !profiles[monitoringHudDefaultOverlayProfileId];
-  targetState.activeOverlayProfileId = profiles[activeProfileId] ? activeProfileId : fallbackProfileId;
+  targetState.activeOverlayProfileId = profiles[activeProfileId] ? activeProfileId : (pendingCreate ? activeProfileId : fallbackProfileId);
   targetState.overlayProfileStateProof = {
     schemaVersion: monitoringHudOverlayProfileSchemaVersion,
     activeProfileId: targetState.activeOverlayProfileId,
@@ -800,7 +821,7 @@ function monitoringHudNormalizeOverlayProfileState(state) {
       ? profiles[monitoringHudDefaultOverlayProfileId].monitorIds.slice()
       : [],
     defaultProfileDeletedByUser: Boolean(targetState.overlayProfileDefaultDeletedByUser),
-    profileCount: Object.keys(profiles).length,
+    profileCount: Object.keys(profiles).length + (pendingCreate ? 1 : 0),
     legacyCardsMigrated: migratedLegacyCards,
     duplicateMonitorIdsRemoved: true,
     staleMonitorIdsRemoved: true,
@@ -814,6 +835,12 @@ function monitoringHudNormalizeOverlayProfileState(state) {
 
 function monitoringHudActiveOverlayProfile() {
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
+  if (
+    monitoringHudOverlayProfilePendingCreate
+    && monitoringHudControlState.activeOverlayProfileId === String(monitoringHudOverlayProfilePendingCreate.id || "")
+  ) {
+    return monitoringHudOverlayProfilePendingCreate;
+  }
   return monitoringHudControlState.overlayProfiles[monitoringHudControlState.activeOverlayProfileId]
     || monitoringHudControlState.overlayProfiles[monitoringHudDefaultOverlayProfileId]
     || null;
@@ -1373,6 +1400,7 @@ function monitoringHudSaveOverlayProfileDraft() {
   monitoringHudSetOverlayProfileDraftFromProfile(activeProfile);
   monitoringHudClearOverlayProfileMembershipList();
   monitoringHudPendingDeleteOverlayProfileId = "";
+  monitoringHudSyncActiveOverlayRecordingTargetFromOverlayProfile();
   monitoringHudRenderControls();
   monitoringHudMarkChanged();
   return true;
@@ -1545,7 +1573,6 @@ let monitoringHudHoveredSourcePickerId = "";
 let monitoringHudOverlayProfileDraftId = monitoringHudDefaultOverlayProfileId;
 let monitoringHudOverlayProfileDraftName = "Default Overlay Profile";
 let monitoringHudOverlayProfileDraftMonitorIds = [];
-let monitoringHudOverlayProfilePendingCreate = null;
 let monitoringHudOverlayProfileContextMonitorId = "";
 let monitoringHudOverlayProfileWindowSelectedId = "";
 let monitoringHudOverlayProfileDetailOpen = false;
@@ -2735,14 +2762,24 @@ function monitoringHudWireReliableControl(element, key, handler, options = {}) {
     }
     monitoringHudRecordReliableActivation(element, phase, result !== false);
   };
-  element.addEventListener("pointerdown", (event) => {
+  const activateOnDown = (event) => {
     monitoringHudApplyPressedState(element, true);
     if (options.activateOnPointerDown) {
-      activate(event, "pointerdown");
-    } else {
-      monitoringHudRecordReliableActivation(element, "pointerdown", true);
+      const pointerActivatedAt = Number(element.dataset.reliablePointerActivatedAt || 0);
+      if (pointerActivatedAt && Date.now() - pointerActivatedAt < 700) {
+        if (event && typeof event.preventDefault === "function") event.preventDefault();
+        if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+        return;
+      }
     }
-  });
+    if (options.activateOnPointerDown) {
+      activate(event, event && event.type === "mousedown" ? "mousedown" : "pointerdown");
+    } else {
+      monitoringHudRecordReliableActivation(element, event && event.type === "mousedown" ? "mousedown" : "pointerdown", true);
+    }
+  };
+  element.addEventListener("pointerdown", activateOnDown);
+  element.addEventListener("mousedown", activateOnDown);
   if (options.activateOnPointerUp) {
     element.addEventListener("pointerup", (event) => activate(event, "pointerup"));
   }
@@ -4125,7 +4162,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill";
     monitoringHud.dataset.dashboardOpenBadge = "removed";
     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
-    monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
+    monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-recording-start-stop";
     monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
     monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
     monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness";
@@ -4367,7 +4404,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill";
     monitoringHud.dataset.dashboardOpenBadge = "removed";
     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
-    monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-only";
+    monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-recording-start-stop";
     monitoringHud.dataset.dashboardGlobalFeatureControl = "tray-owned";
     monitoringHud.dataset.dashboardDeferredActionPolicy = "disabled-labeled-not-clickable";
     monitoringHud.dataset.dashboardCardOrder = "hud-overlay-recording-monitor-groups-data-sources-readiness";
@@ -4792,13 +4829,13 @@ function monitoringHudWireControls() {
     });
   }
   if (monitoringHudRecordingControlLauncher) {
-    monitoringHudWireReliableControl(monitoringHudRecordingControlLauncher, "recording-control:dashboard-start-stop", monitoringHudToggleRecording);
+    monitoringHudWireReliableControl(monitoringHudRecordingControlLauncher, "recording-control:quick-access-start-stop", monitoringHudToggleRecording, { activateOnPointerDown: true });
   }
   if (monitoringHudRecordingStudioOpen) {
-    monitoringHudWireReliableControl(monitoringHudRecordingStudioOpen, "recording-control:open-recording-studio", monitoringHudRequestRecordingControlWindow);
+    monitoringHudWireReliableControl(monitoringHudRecordingStudioOpen, "recording-control:open-recording-studio", monitoringHudRequestRecordingControlWindow, { activateOnPointerDown: true });
   }
   if (monitoringHudRecordingOpenFolder) {
-    monitoringHudWireReliableControl(monitoringHudRecordingOpenFolder, "recording-control:open-log-viewer-studio", monitoringHudRequestLogViewerStudioWindow);
+    monitoringHudWireReliableControl(monitoringHudRecordingOpenFolder, "recording-control:open-log-viewer-studio", monitoringHudRequestLogViewerStudioWindow, { activateOnPointerDown: true });
   }
   if (monitoringHudCreateMonitorConfirm) {
     monitoringHudWireReliableControl(monitoringHudCreateMonitorConfirm, "create-window:confirm", monitoringHudCreateMonitorGroupFromWindow);
@@ -5620,7 +5657,12 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
     proof.controlSurfaceEnabled = Boolean(monitoringHudRecordingControlLauncher)
       && monitoringHudRecordingControlLauncher.disabled === false
       && monitoringHudRecordingControlLauncher.dataset.recordingControlWindowContract === "dashboard-quick-access-start-stop"
-      && monitoringHudRecordingControlLauncher.dataset.recordingControlWindowState === "dashboard-card-control";
+      && monitoringHudRecordingControlLauncher.dataset.recordingControlWindowState === "quick-access-start-stop"
+      && monitoringHudRecordingControlLauncher.closest(".monitoring-hud__toolbar");
+    proof.recordingCardRemainsSummarySurface = Boolean(monitoringHudRecordingCard)
+      && Boolean(monitoringHudRecordingTargetPreview)
+      && monitoringHudRecordingCard.dataset.recordingControlSurfaceState === "dashboard-status-summary"
+      && !monitoringHudRecordingTargetPreview.querySelector("#monitoring-hud-recording-control-launcher");
     proof.recordingStudioLaunchReady = Boolean(monitoringHudRecordingStudioOpen)
       && monitoringHudRecordingStudioOpen.disabled === false
       && monitoringHudRecordingStudioOpen.dataset.recordingControlWindowContract === "recording-studio-focused-control-status";
@@ -5700,6 +5742,7 @@ window.runMonitoringHudRecordingTargetPreviewProof = function() {
       && proof.activeMonitorCountVisible
       && proof.activeMonitorNamesVisible
       && proof.controlSurfaceEnabled
+      && proof.recordingCardRemainsSummarySurface
       && proof.recordingStudioLaunchReady
       && proof.recordingStudioNativeWindowRequested
       && proof.logViewerStudioLaunchReady
@@ -7078,6 +7121,7 @@ window.getMonitoringHudLiveClientGeometry = function() {
     recordingTargetSourceRow: rectFor("#monitoring-hud-recording-target-profile"),
     recordingActiveMonitorsRow: rectFor("#monitoring-hud-recording-target-count"),
     recordingControlLauncher: rectFor("#monitoring-hud-recording-control-launcher"),
+    recordingStudioOpen: rectFor("#monitoring-hud-recording-studio-open"),
     recordingOpenFolder: rectFor("#monitoring-hud-recording-open-folder"),
     monitorGroupsCard: rectFor('[data-dashboard-hub-card="monitor-groups"]'),
     monitorGroupsSummaryGrid: rectFor('[data-dashboard-hub-card="monitor-groups"] .monitoring-hud__monitor-summary-grid'),

@@ -305,7 +305,7 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         "manage_monitors_recreated_monitor_group_3_dirty_draft",
         "02_recording_card_target_status_visual_contract",
         "02_recording_card_target_preview_standard_state_rows",
-        "02_recording_card_start_stop_ready_state",
+        "02_dashboard_quick_access_start_stop_ready_state",
         "02_recording_card_log_viewer_studio_pre_session_ready_state",
         "02_recording_studio_native_window_ready_state",
         "02_recording_card_log_viewer_studio_requested_state",
@@ -316,11 +316,11 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         $requiredElementLabels = @(
             "02_recording_card_target_status_visual_contract",
             "02_recording_card_target_preview_standard_state_rows",
-            "02_recording_card_start_stop_ready_state",
+            "02_dashboard_quick_access_start_stop_ready_state",
             "02_recording_card_log_viewer_studio_pre_session_ready_state",
             "02_recording_studio_native_window_ready_state",
-            "02_recording_card_start_recording_active_state",
-            "02_recording_card_stop_recording_saved_request_state",
+            "02_dashboard_quick_access_recording_active_state",
+            "02_dashboard_quick_access_stop_saved_request_state",
             "02_recording_card_saved_complete_readback_state",
             "02_recording_card_log_viewer_studio_requested_state",
             "02_log_viewer_studio_native_window_shell_state",
@@ -394,7 +394,7 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
         [pscustomobject]@{
             issueId = "A"
             folder = "A_Recording_Studio_Button_Click"
-            expected = "Clicking the visible Dashboard Recording card Recording Studio button opens the standalone Recording Studio window."
+            expected = "Clicking the visible Dashboard Recording Card Recording Studio button opens the standalone Recording Studio window."
             observed = "USER personally confirmed the normal visible button path does not open Recording Studio. Helper foreground proof remains separate evidence and does not disprove the USER-confirmed manual-path failure."
             confidence = "USER Confirmed + helper foreground path separately verified when the helper interaction manifest passes."
             patterns = @("02_recording_studio_native_window_ready_state", "02_recording_card_target_status_visual_contract")
@@ -402,10 +402,10 @@ function Copy-SupplementalIssueScreenshotsToUserEvidence {
         [pscustomobject]@{
             issueId = "B"
             folder = "B_Start_Stop_Quick_Access_Placement"
-            expected = "Accepted current source truth keeps active Start/Stop on the Dashboard Recording card; USER now requests Quick Access relocation/future setting review."
-            observed = "Screenshot evidence captures the current Dashboard-card Start/Stop placement. This is classified as source-truth/USER-expectation drift, not a silent product edit."
-            confidence = "Verified source-truth comparison."
-            patterns = @("02_recording_card_start_stop_ready_state", "02_recording_card_start_recording_active_state")
+            expected = "Accepted current repair scope keeps active Start/Stop in Dashboard Quick Access while the Recording card remains target/status summary."
+            observed = "Screenshot evidence captures the repaired Dashboard Quick Access Start/Stop placement and the Recording card summary surface."
+            confidence = "Verified source-truth comparison and repaired UI placement."
+            patterns = @("02_dashboard_quick_access_start_stop_ready_state", "02_dashboard_quick_access_recording_active_state")
         },
         [pscustomobject]@{
             issueId = "C"
@@ -1036,7 +1036,7 @@ Expected: The Recording card target overlay profile follows the active Overlay P
 USER Result / Notes:
 
 FAM006-LV1-REC-003 - Dashboard Start/Stop Saves Native NDAI Log
-Expected: The Recording card Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete native NDAI log. Normal product flow must not auto-create Excel/CSV output; CSV is only a manual validation/export artifact until a future USER-approved export system exists. The USER-facing card should show a simple successful save/readback result and keep Log Viewer Studio available before and after a recording so the native and exported log folders can be opened or created through the minimal shell. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
+Expected: The Dashboard Quick Access Start Recording button starts a visible recording state for the active Overlay Profile. Stop Recording stops the session and produces a saved/readback-complete native NDAI log. Normal product flow must not auto-create Excel/CSV output; CSV is only a manual validation/export artifact until a future USER-approved export system exists. The USER-facing Recording card should show a simple target/status and save/readback result while Recording Studio owns focused control/status and Log Viewer Studio stays available for native/export folder access. Tray controls, export/share, Native Log Loader, and provider/model behavior remain future-gated.
 USER Result / Notes:
 
 FAM006-LV1-REC-004 - Issue #258 Overlay Profile Persists Across Restart
