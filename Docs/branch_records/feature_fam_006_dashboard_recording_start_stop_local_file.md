@@ -39,7 +39,7 @@ Issue Admission: `Issue #258 is not admitted into BR2/BP1 identity. It is admitt
 
 ## Blockers
 
-Blockers: `None for Workstream implementation approval after USER accepted the separate Option C bounded Workstream/runtime implementation packet on 2026-06-09. Hardening H1 approval remains pending after Workstream validation.`
+Blockers: `None for Hardening H1 after USER approved H1 on 2026-06-09 and branch-specific H1 proof passed. Live Validation LV1 remains pending separate USER approval.`
 
 ## Entry Basis
 
@@ -225,9 +225,19 @@ Minimal Log Viewer Studio Shell Result: `A standalone native Log Viewer Studio s
 Native / Export Log Boundary Result: `Native NDAI logs remain the normal product artifact; exported logs remain USER-requested export artifacts; normal product save still does not auto-create CSV.`
 Issue #258 Result: `Overlay Profile persistence remains preserved as target-reliability support for recording; issue closeout remains pending Live Validation / USER disposition and a separate issue decision.`
 Validator / Helper Result: `FAM-006 surface, Workstream readiness, and H1 helpers now require Recording Studio plus minimal Log Viewer Studio shell proof and reject the old future-secondary Recording Control posture for this Option C package.`
-Workstream Status: `Green candidate before final validation; Codex completion packet must report required validation results before this becomes Workstream Green.`
-Boundary: `Hardening approval, Live Validation, UTS acceptance/digestion, PR Readiness, PR creation, issue closeout, merge, release, branch cleanup, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
-Next Legal Phase If Validation Is Green: `Hardening H1 approval.`
+Workstream Status: `Green - required validation passed and commit 8330af1b was pushed to origin/feature/fam-006-dashboard-recording-start-stop-local-file.`
+Boundary: `Hardening H1 is now green for the Option C package; Live Validation, UTS acceptance/digestion, PR Readiness, PR creation, issue closeout, merge, release, branch cleanup, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
+Next Legal Phase If Validation Is Green: `Superseded by Hardening H1 Green; current next legal phase is Live Validation LV1 approval.`
+
+## Option C Hardening H1 Receipt
+
+H1 Approval Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; live validation, branch operational state, and current Git proof live in external state, helper output, Git, and Codex completion packets.`
+H1 Approval: `USER approved Hardening H1 for the Option C Workstream Green implementation at 8330af1be99d03f4f5a6a0589180fb9d9805f25c.`
+H1 Scope: `Pressure-test Dashboard Recording Card Start/Stop, Recording Studio, minimal Log Viewer Studio shell, native/export log boundary, pre-session native/export folder access, issue #258 target-reliability support, visual-system inheritance, rollback posture, and Live Validation readiness.`
+H1 Result: `Green - dev/orin_fam006_hardening_h1.py passed with accepted BP trace, SLC-051 through SLC-055 pressure tests, Recording Studio proof, Log Viewer Studio shell proof, native NDAI output write/readback proof, issue #258 startup hydration markers, future-boundary preservation, and no formal UTS export.`
+H1 Boundary: `Live Validation, UTS acceptance/digestion, PR Readiness, PR creation, issue closeout, merge, release, branch cleanup, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, Native Log Loader full implementation, provider/model/private work, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
+Next Legal Phase: `Live Validation LV1 approval.`
 
 ## Source-Truth Placement
 
