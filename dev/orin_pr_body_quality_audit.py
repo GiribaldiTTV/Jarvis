@@ -268,15 +268,24 @@ def normalize_summary(pr: PullRequest, raw_summary: str) -> tuple[str, str, list
         reasons.append("filled missing summary")
 
     paragraph = first_paragraph(summary)
+    handled_bullet_summary = False
     if paragraph.startswith("- "):
+        original_paragraph = paragraph
         bullet_lines = [line.strip()[2:].strip() for line in paragraph.splitlines() if line.strip().startswith("- ")]
         if bullet_lines:
             paragraph = bullet_lines[0].rstrip(".") + "."
+            handled_bullet_summary = True
             if len(bullet_lines) > 1:
                 preserved_detail.extend(f"- {line}" for line in bullet_lines[1:])
                 reasons.append("moved summary bullet detail into What Changed")
 
-    if paragraph and paragraph != summary:
+            trailing = summary[len(original_paragraph) :].strip() if summary.startswith(original_paragraph) else ""
+            if trailing:
+                preserved_detail.append(trailing)
+                reasons.append("moved summary detail into What Changed")
+            summary = paragraph
+
+    if not handled_bullet_summary and paragraph and paragraph != summary:
         trailing = summary[len(paragraph) :].strip()
         if trailing:
             preserved_detail.append(trailing)
