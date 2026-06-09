@@ -1445,7 +1445,8 @@ def _validate_cross_fam_dependency_packet_text(text: str) -> list[str]:
 def _owning_fam_from_ffv(path: Path, text: str) -> str:
     candidates = (
         re.search(r"\bFAM-(\d{3})\b", path.name),
-        re.search(r"\bF(\d+)-FF\d{2}\b", text),
+        re.search(r"\bF(\d+)-FF\d{2}\b", path.name, re.IGNORECASE),
+        re.search(r"\bF(\d+)-FF\d{2}\b", text, re.IGNORECASE),
     )
     for match in candidates:
         if not match:
@@ -4956,6 +4957,16 @@ line item, not a seam or separate branch.
         failures.append(
             "Invalid cross-FAM dependency fixture did not reject unclassified "
             "affected-FAM dependency work"
+        )
+
+    compact_ffv_owner = _owning_fam_from_ffv(
+        Path("Docs/family_feature_visions/F8-FF01.md"),
+        "# FAM-008 Packaging Update Visibility\n\n"
+        "Durable feature-category direction for packaging, update, and restart continuity.",
+    )
+    if compact_ffv_owner != "FAM-008":
+        failures.append(
+            "Compact Family Feature Vision filename fixture did not resolve owning FAM"
         )
 
     failures.extend(_validate_current_worktree_ffv_dependency_records())
