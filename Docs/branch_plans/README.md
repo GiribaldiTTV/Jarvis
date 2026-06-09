@@ -85,6 +85,35 @@ Every Slice/SLC must trace to a BP1 accepted Branch Vision requirement and a BP2
 
 For a selected feature-bearing branch route, BP1 entry is blocked on `Family Feature Vision Required For Selected Feature` until the required USER-approved Family Feature Vision exists and passes the `Feature Vision Sufficiency Check`. If the route is governance-only, release-support, pure helper/validator, source-truth-only, or otherwise non-product, the branch planning packet may record `Family Feature Vision Not Applicable` with the reason. When a USER-approved Family Feature Vision exists for the selected implementation route, BP1 must cite it as the durable `Feature Vision Context`. BP2 must carry forward BP1's accepted disposition for applicable deferred feature items, and BP3 must verify that applicable deferrals are either included in the admitted package, explicitly future-gated with reason, or routed to the correct future owner. Branch plans may record active gate state and branch-local choices for those items, but the durable deferred-item facts belong in the Family Feature Vision after USER-approved fold-down.
 
+## Family Feature Vision Element Traceability
+
+Family Feature Vision elements are durable vision units. They are not Slices, SLCs, seams, branch routes, or implementation status rows.
+
+Allowed element lifecycle terms:
+
+- `Visioned` = the element exists in the Family Feature Vision inventory.
+- `Selected` = BP1 chooses the element for the branch vision.
+- `Planned` = BP2/BP3 maps the selected element to branch-local Slice/SLC/seam work and proof.
+- `Implemented` = Workstream changes code, source truth, artifacts, or behavior for that element.
+- `Hardened` = Hardening inspects that element for defects, regressions, boundary leaks, weak proof, stale assumptions, and deferral integrity.
+- `Live Validated` = Live Validation proves the element through the real user/app path when applicable, or records an allowed proof category or waiver for non-UI/non-runtime elements.
+- `Deferred` = the element is not in current branch scope and has owner, reason, trigger, proof expectation, and return path.
+- `Blocked` = source truth, USER approval, external state, branch plan, private/provider/runtime boundary, or validation prevents the element from moving forward.
+
+Required proof chain:
+
+```text
+FFV element -> BP1 selected/deferred -> BP2/BP3 mapped to branch-local Slice/SLC/seam -> Workstream implemented -> Hardening inspected -> Live Validation proven -> USER packet evidence
+```
+
+BP1 packets for selected feature-bearing routes must include a selected/deferred FFV element matrix. That matrix names each relevant FFV element ID, whether it is selected or deferred, why it is grouped or deferred, the dependency trigger, the expected proof, and the owner or return path. A BP1 packet cannot pass by citing the Family Feature Vision generally while omitting the elements that determine branch scope.
+
+BP2 and BP3 packets must map every selected FFV element to branch-local Slice/SLC/seam work, affected surfaces, proof outputs, rollback/safety posture, and future-gated boundaries. If BP2 or BP3 changes which FFV elements are selected, defers an element BP1 selected, or pulls in a new element BP1 did not accept, Codex must return to BP1 or record an explicit USER waiver before Workstream implementation can be requested.
+
+Workstream, Hardening, and Live Validation must carry the same selected FFV element IDs forward. Broad inference, nearby proof, fixture-only proof, validator pass, or a general statement that the branch implemented the feature is not enough for a user-visible, runtime-visible, UI, workflow, provider, helper, validator, or source-truth element. Each such element needs element-specific evidence or a named waiver.
+
+Active implementation status for selected elements belongs in the active external branch plan or approved branch-planning packet. Family Feature Vision records own only the durable `Visioned` inventory, deferred facts, proof expectations, and fold-down receipts.
+
 The active USER hub for Branch Planning packets is:
 
 - Readable packet: `C:\Nexus USER\<label>\`

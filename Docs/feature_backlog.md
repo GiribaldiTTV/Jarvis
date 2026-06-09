@@ -41,7 +41,7 @@ Backlog Taxonomy And Source-Truth Placement Gate: before Codex proposes, admits,
 | --- | --- | --- |
 | Backlog family | Broad long-lived product identity and compact registry pointer | Every subsystem, dependency, architecture idea, policy, or implementation package |
 | Family vision | Durable direction for one family | Cross-family architecture, runtime approval, or active branch authority by default |
-| Family feature vision | Durable feature-category direction inside exactly one FAM, including reusable surfaces, experience flow, non-goals, proof expectations, deferred carryforward, and BP1 `Feature Vision Context` when selected feature-bearing branch routes require it | New FAM identity, selected-next truth, active branch state, implementation approval, or live dependency queues |
+| Family feature vision | Durable feature-category direction inside exactly one FAM, compact FFV/element IDs, reusable surfaces, experience flow, non-goals, proof expectations, deferred carryforward, and BP1 `Feature Vision Context` when selected feature-bearing branch routes require it | New FAM identity, branch route identity, Slice/SLC identity, seam identity, selected-next truth, active branch state, implementation approval, or live dependency queues |
 | Architecture layer | Reusable structural system concepts | Product-family identity, release identity, or implementation approval by itself |
 | Cross-family policy owner | Hard rules, constraints, enforcement requirements, and safety/privacy boundaries across families | Runtime identity or implementation scope by itself |
 | Experience layer | Interaction philosophy, UX orchestration, and user-facing behavioral model | Automatic backlog identity or implementation approval |
@@ -110,7 +110,7 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | Branch authority router | `Docs/branch_records/index.md` |
 | Branch runtime engineering plans | `Docs/branch_plans/` |
 | Family vision records | `Docs/family_visions/` |
-| Family feature vision records | `Docs/family_feature_visions/` after USER-approved content-file creation |
+| Family feature vision records | `Docs/family_feature_visions/` after USER-approved content-file creation; preferred compact files such as `F7-FF01.md` after USER-approved index/rename migration |
 | AI runtime and trust architecture | `Docs/ai_runtime_and_trust_architecture.md` |
 | Workstream routing and family dossiers | `Docs/workstreams/index.md` |
 | Stable worktree slot registry | `Docs/worktree_slots.md` |
