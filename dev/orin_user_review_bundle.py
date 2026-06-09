@@ -102,6 +102,9 @@ DECISION_STATUS_IMPLEMENTATION_READY = "implementation-ready"
 DECISION_STATUS_BP1_BRANCH_VISION_REVIEW = "bp1-branch-vision-review"
 DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW = "bp2-branch-plan-review"
 DECISION_STATUS_BP3_ORCHESTRATION_REVIEW = "bp3-orchestration-review"
+DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW = (
+    "workstream-implementation-approval-review"
+)
 DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW = "workstream-entry-final-review"
 DECISION_STATUS_HARDENING_REVIEW = "hardening-final-review"
 DECISION_STATUS_LIVE_VALIDATION_REVIEW = "live-validation-final-review"
@@ -152,6 +155,12 @@ BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS = (
     "does not request bp3 implementation approval",
     "not a workstream implementation approval",
     "workstream implementation remains pending",
+)
+FAM006_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_MARKERS = (
+    "prepare the separate bounded workstream/runtime implementation approval packet",
+    "workstream implementation approval packet",
+    "does user approve bounded fam-006 workstream/runtime implementation",
+    "approve bounded fam-006 workstream/runtime implementation",
 )
 UNRESOLVED_TEMPLATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     ("shell-variable-branch", re.compile(r"(?<![A-Za-z0-9_])\$branch\b")),
@@ -238,6 +247,24 @@ BP1_PACKET_STALE_LANGUAGE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
         re.compile(r"^\s*-\s*Do not\b", re.IGNORECASE | re.MULTILINE),
     ),
 )
+
+
+def _is_fam006_workstream_implementation_approval_review(
+    normalized_decision: str,
+    *,
+    is_fam006_recording: bool,
+) -> bool:
+    return (
+        is_fam006_recording
+        and any(
+            marker in normalized_decision
+            for marker in FAM006_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_MARKERS
+        )
+        and any(
+            marker in normalized_decision
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
 BP2_PACKET_STALE_ACTIVE_LATER_GATE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "active-bp3-packet",
@@ -426,6 +453,7 @@ class WorkstreamEntryPacketDecisionPathResult:
             DECISION_STATUS_BP1_BRANCH_VISION_REVIEW,
             DECISION_STATUS_BP2_BRANCH_PLAN_REVIEW,
             DECISION_STATUS_BP3_ORCHESTRATION_REVIEW,
+            DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW,
             DECISION_STATUS_WORKSTREAM_ENTRY_REVIEW,
             DECISION_STATUS_HARDENING_REVIEW,
             DECISION_STATUS_LIVE_VALIDATION_REVIEW,
@@ -2995,6 +3023,12 @@ def _write_user_branch_plan_review(
         marker in normalized_decision
         for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
     )
+    fam006_workstream_approval_review_packet = (
+        _is_fam006_workstream_implementation_approval_review(
+            normalized_decision,
+            is_fam006_recording=is_fam006_recording,
+        )
+    )
     dev_owner_workstream_green_packet = (
         is_fam007_dev_owner_skeleton
         and not is_fam007_breakpoint_2
@@ -3026,6 +3060,7 @@ def _write_user_branch_plan_review(
     bp3_orchestration_packet = (
         not bp2_branch_plan_packet
         and not workstream_package_approval_packet
+        and not fam006_workstream_approval_review_packet
         and (
             "bp3" in normalized_decision
             or "workstream entry / orchestration" in normalized_decision
@@ -3562,6 +3597,109 @@ def _write_user_branch_plan_review(
             "## Pending USER Decisions",
             "",
             f"{pending}",
+            "",
+            "## Exact USER Decision Supported",
+            "",
+            exact_user_decision,
+            "",
+        ]
+        review_path = target / USER_BRANCH_PLAN_REVIEW_FILE
+        review_path.write_text("\n".join(lines), encoding="utf-8")
+        return review_path.resolve()
+    fam006_recording_workstream_approval_review_packet = (
+        is_fam006_recording
+        and fam006_workstream_approval_review_packet
+    )
+    if fam006_recording_workstream_approval_review_packet:
+        copied_sources = "\n".join(
+            f"- `{source_rel}` copied as `{copied_rel}`" for source_rel, copied_rel in copied
+        )
+        pending = "\n".join(f"- {decision}" for decision in pending_user_decisions) or "- None recorded."
+        lines = [
+            f"# Accepted BP2/BP3 Context - {title}",
+            "",
+            "## Contract Status",
+            "",
+            "Complete - USER accepted the FAM-006 BP2 Option C Branch Plan and accepted BP3 Workstream Entry / Orchestration Validation.",
+            "",
+            "## Packet Reviewability State",
+            "",
+            "Reviewable - supporting accepted BP2/BP3 context for the bounded Workstream/runtime implementation approval packet.",
+            "",
+            "## USER Gate State",
+            "",
+            "Pending USER Review - bounded Workstream/runtime implementation remains pending until USER approves the primary approval packet.",
+            "",
+            "## USER Response Proof",
+            "",
+            "USER accepted BP3 for Option C and requested the separate bounded Workstream/runtime implementation approval packet only.",
+            "",
+            "## USER Response Digested",
+            "",
+            "Yes - BP3 acceptance is digested into this support context. Runtime implementation remains blocked until USER approves the Workstream implementation approval packet.",
+            "",
+            "## Acceptance / Waiver / Revision / Rejection Receipt",
+            "",
+            "BP1, BP2, and BP3 are accepted for the current Option C package. This support file does not approve runtime implementation, issue closeout, PR movement, merge, release, cleanup, or sibling-worktree mutation.",
+            "",
+            "## Contract Version / Revision",
+            "",
+            "v4 - accepted BP2/BP3 context for bounded Workstream/runtime implementation approval review.",
+            "",
+            "## Plain-English Branch Summary",
+            "",
+            "FAM-006 Recording may now ask USER whether Codex can implement the accepted Option C package: Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, open-folder pre-session usability, issue #258 target reliability, proof/rollback/validation, H1, Live Validation, UTS, visual-system inheritance, and slice/SLC/seam sequencing.",
+            "",
+            "## What Will I Actually See, And Where Will I See It?",
+            "",
+            "- Dashboard Recording Card: compact quick-access/status surface inside the HUD Dashboard.",
+            "- Recording Studio: focused recording control/status surface when Workstream implementation is approved.",
+            "- Minimal Log Viewer Studio shell: launch/folder shell only where it directly supports Recording native/export log access.",
+            "- Native NDAI logs: normal product artifact.",
+            "- Exported logs: USER-requested readable export artifacts, not automatic product saves.",
+            "- Issue #258 target reliability: Overlay Profile persistence proof where saved targets affect Recording.",
+            "",
+            "## Accepted Workstream Package",
+            "",
+            "- Dashboard Recording Card.",
+            "- Recording Studio.",
+            "- Minimal Log Viewer Studio launch/folder shell.",
+            "- Native/export log boundary.",
+            "- Open-folder pre-session usability.",
+            "- Issue #258 Overlay Profile persistence as target-reliability repair.",
+            "- Deferred carryforward applicability.",
+            "- Element-to-Phase proof.",
+            "- Rollback, validation, H1, Live Validation, and UTS expectations.",
+            "- Visual-system inheritance proof.",
+            "- Slice/SLC/seam sequencing.",
+            "",
+            "## Continuation Contract",
+            "",
+            "If USER approves implementation, Codex must continue through the accepted admitted seams/slices until Workstream Green, approved scope is exhausted, a real named blocker appears, or USER explicitly waives the remaining package. A green first seam is continuation proof, not package completion. Single-seam or single-slice authority is not granted.",
+            "",
+            "## First Recommended Seam",
+            "",
+            "SLC-051 / Seam 1 target reliability and active Overlay Profile contract may be the first implementation checkpoint, but it is not the whole package.",
+            "",
+            "## Future-Gated Boundaries",
+            "",
+            "- Full Log Viewer Studio implementation.",
+            "- Previous-log selection.",
+            "- Export customization.",
+            "- Tray recording controls.",
+            "- Keybind implementation.",
+            "- Full settings implementation.",
+            "- Native Log Loader full implementation.",
+            "- Provider/model/private work.",
+            "- PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation.",
+            "",
+            "## Source Truth Context Copied",
+            "",
+            copied_sources,
+            "",
+            "## Pending USER Decisions",
+            "",
+            pending,
             "",
             "## Exact USER Decision Supported",
             "",
@@ -6813,8 +6951,18 @@ def _write_workstream_entry_packet_digests(
             for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
         )
     )
+    is_fam006_recording = (
+        source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+    )
+    fam006_workstream_approval_review_packet = (
+        _is_fam006_workstream_implementation_approval_review(
+            normalized_decision,
+            is_fam006_recording=is_fam006_recording,
+        )
+    )
     bp3_packet = (
         not workstream_package_approval_packet
+        and not fam006_workstream_approval_review_packet
         and (
             "bp3" in normalized_decision
             or "workstream entry / orchestration" in normalized_decision
@@ -6851,6 +6999,12 @@ def _write_workstream_entry_packet_digests(
         "BP2 USER Branch Plan Review packet is Reviewable; USER acceptance, revision, "
         "waiver, rejection, or hold remains pending; BP3 remains pending."
         if bp2_packet
+        else
+        "workstream implementation approval review - BP1, BP2, and BP3 are "
+        "accepted; bounded FAM-006 Workstream/runtime implementation approval "
+        "packet is Reviewable; USER implementation approval remains pending; "
+        "a green first seam is continuation proof, not package completion."
+        if fam006_workstream_approval_review_packet
         else
         "implementation-ready - BP1, BP2, and BP3 are accepted; bounded Workstream "
         "package implementation is approved by this packet with Seam 1 as the entry "
@@ -7514,6 +7668,50 @@ def _write_workstream_entry_packet_digests(
             "for USER review; the contract records PR Readiness Stage 1 complete and "
             "Stage 2 PR creation as the next USER decision."
         )
+    elif fam006_workstream_approval_review_packet:
+        analysis_status = (
+            "Analysis Summary: BP3 is accepted for the FAM-006 Option C package; "
+            "this packet asks USER whether to approve bounded Workstream/runtime "
+            "implementation for that accepted package."
+        )
+        implementation_posture = (
+            "Implementation Posture: Workstream/runtime implementation remains "
+            "pending until USER approves this packet. If approved, Codex must "
+            "continue through the accepted admitted seams/slices until Workstream "
+            "Green, approved scope is exhausted, a real named blocker appears, or "
+            "USER explicitly waives the remaining package. A green first seam is "
+            "continuation proof, not package completion; single-seam or "
+            "single-slice authority is not granted."
+        )
+        recommended_seam = (
+            "Recommended Entry Checkpoint: SLC-051 / Seam 1 target reliability and "
+            "active Overlay Profile contract. This starts the package; it does not "
+            "limit the package to Seam 1."
+        )
+        scan_result = (
+            "Source-Truth Coverage: packet includes the Main router, FAM-006 "
+            "Recording feature vision, active FAM-006 branch record, external "
+            "branch plan context where copied, branch-plan README, phase governance, "
+            "development rules, codex modes, validation helper registry, and "
+            "review surfaces needed for bounded Workstream/runtime implementation "
+            "approval review."
+        )
+        checklist_status = (
+            "Checklist Focus: FAM-006 Workstream approval review - accepted BP1/BP2/BP3 "
+            "posture, Dashboard Recording Card, Recording Studio, minimal Log Viewer "
+            "Studio shell, native/export boundary, open-folder pre-session usability, "
+            "issue #258 target reliability, Element-to-Phase proof, rollback, "
+            "validation, H1, Live Validation, UTS, visual-system inheritance, "
+            "future-gated boundaries, and continuation until Workstream Green are "
+            "represented for USER inspection."
+        )
+        digest_status = (
+            "Review Summary: START_HERE.md, WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md, "
+            "supporting accepted BP1/BP2/BP3 review aids, required digest/checklist "
+            "files, and copied source-truth files are loaded for USER review. The "
+            "packet asks for Workstream/runtime implementation approval and keeps "
+            "implementation pending until USER accepts it."
+        )
     elif workstream_package_approval_packet:
         analysis_status = (
             "Analysis Summary: BP3 is accepted; USER is approving bounded Workstream "
@@ -7895,6 +8093,12 @@ def _write_workstream_entry_packet_digests(
             "BP3 Packet Reviewability State: Reviewable\n"
             "BP3 USER Gate State: Pending USER Review\n"
         )
+    if fam006_workstream_approval_review_packet:
+        common += (
+            "Packet Reviewability State: Reviewable\n"
+            "USER Gate State: Pending USER Review - Workstream/runtime implementation "
+            "approval remains pending\n"
+        )
     workstream_digest_title = (
         "BP1 Entry Boundary Digest"
         if bp1_packet
@@ -7967,6 +8171,11 @@ def _packet_text_status(text: str) -> str:
         "workstream entry / orchestration",
         "workstream entry orchestration",
     )
+    workstream_approval_review_markers = (
+        "workstream implementation approval review",
+        "bounded fam-006 workstream/runtime implementation approval packet is reviewable",
+        "does user approve bounded fam-006 workstream/runtime implementation",
+    )
     pending_gate_markers = (
         "user gate state: pending user review",
         "user gate state: user revision requested",
@@ -7985,6 +8194,8 @@ def _packet_text_status(text: str) -> str:
         )
     )
     if any(marker in normalized for marker in pending_gate_markers) or reviewable_without_closed_gate:
+        if any(marker in normalized for marker in workstream_approval_review_markers):
+            return DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
         if any(marker in normalized for marker in bp3_markers):
             return DECISION_STATUS_BP3_ORCHESTRATION_REVIEW
         if any(marker in normalized for marker in bp2_markers):
@@ -8020,6 +8231,9 @@ def _packet_text_status(text: str) -> str:
         marker in normalized for marker in blocking_markers
     ):
         return DECISION_STATUS_IMPLEMENTATION_READY
+
+    if any(marker in normalized for marker in workstream_approval_review_markers):
+        return DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
 
     repair_markers = (
         "branch readiness stage 2 repair/revalidation",
@@ -8446,6 +8660,15 @@ def build_bundle(
             for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
         )
     )
+    is_fam006_recording = (
+        source_branch == "feature/fam-006-dashboard-recording-start-stop-local-file"
+    )
+    fam006_workstream_approval_review_packet = (
+        _is_fam006_workstream_implementation_approval_review(
+            normalized_decision,
+            is_fam006_recording=is_fam006_recording,
+        )
+    )
     seam1_approval_packet = (
         source_branch == "feature/fam-007-breakpoint-2-dev-owner-skeleton-action-gate-readiness"
         and "approve bounded workstream implementation" in normalized_decision
@@ -8488,6 +8711,7 @@ def build_bundle(
     )
     bp3_packet = (
         not workstream_package_approval_packet
+        and not fam006_workstream_approval_review_packet
         and (
             "bp3" in exact_user_decision.casefold()
             or "workstream entry / orchestration" in exact_user_decision.casefold()
@@ -8513,6 +8737,12 @@ def build_bundle(
         "BP2 USER Branch Plan Review packet is Reviewable; USER acceptance, revision, "
         "waiver, rejection, or hold remains pending; BP3 remains pending."
         if bp2_packet
+        else
+        "workstream implementation approval review - BP1, BP2, and BP3 are "
+        "accepted; bounded FAM-006 Workstream/runtime implementation approval "
+        "packet is Reviewable; USER implementation approval remains pending; "
+        "a green first seam is continuation proof, not package completion."
+        if fam006_workstream_approval_review_packet
         else
         "bp3 orchestration review - accepted BP1 Branch Vision and accepted BP2 "
         "Branch Plan are the traceability basis; BP3 Workstream Entry / "
@@ -8710,6 +8940,14 @@ def build_bundle(
             [
                 "BP3 Packet Reviewability State: Reviewable",
                 "BP3 USER Gate State: Pending USER Review",
+                "",
+            ]
+        )
+    if fam006_workstream_approval_review_packet:
+        readme_lines.extend(
+            [
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Review - Workstream/runtime implementation approval remains pending",
                 "",
             ]
         )

@@ -2863,6 +2863,143 @@ def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[s
     return failures
 
 
+def _validate_fam006_workstream_approval_review_packet_guard() -> list[str]:
+    failures: list[str] = []
+    exact_decision = (
+        "Does USER approve bounded FAM-006 Workstream/runtime implementation "
+        "for the accepted Option C package: Dashboard Recording Card, Recording "
+        "Studio, minimal Log Viewer Studio launch/folder shell, native/export "
+        "log boundary, open-folder pre-session usability, issue #258 target "
+        "reliability, deferred carryforward applicability, Element-to-Phase "
+        "proof, rollback, validation, H1, Live Validation, UTS, visual-system "
+        "inheritance, and slice/SLC/seam sequencing? Workstream implementation "
+        "remains pending until USER approves this packet."
+    )
+    copied = [
+        (
+            "Docs/family_feature_visions/FAM-006_recording.md",
+            "FAM-006_recording.md",
+        ),
+        (
+            "Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md",
+            "feature_fam_006_dashboard_recording_start_stop_local_file.md",
+        ),
+    ]
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+            source_head="fixture-head",
+            origin_main="fixture-origin-main",
+            packet_folder=target,
+            export_zip=target / "FAM-006-20260609-120000.zip",
+            copied=copied,
+            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            bundle_file_count=7,
+            expected_count=len(copied),
+            copied_count=len(copied),
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Runtime mutation, issue closeout, PR Readiness, merge, release, "
+                "branch cleanup, Governance/FAM-007/neutral-main mutation, "
+                "provider/model/private work, and full Log Viewer/export/tray/"
+                "keybind/settings/Native Log Loader scope remain pending."
+            ],
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "USER Decision This Packet Supports: "
+                f"{exact_decision}\n"
+                "Decision Path Summary: workstream implementation approval review - "
+                "BP1, BP2, and BP3 are accepted; bounded FAM-006 Workstream/runtime "
+                "implementation approval packet is Reviewable; USER implementation "
+                "approval remains pending.\n"
+                "Packet Reviewability State: Reviewable\n"
+                "USER Gate State: Pending USER Review - Workstream/runtime "
+                "implementation approval remains pending\n"
+            )
+        }
+        for path in target.glob("*.md"):
+            packet_files[path.name] = path.read_text(encoding="utf-8")
+        review_bundle._write_user_branch_plan_review(
+            target=target,
+            title="FAM-006 Dashboard Recording Start/Stop To Local File",
+            review_purpose="Fixture Workstream implementation approval review support file.",
+            source_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+            source_head="fixture-head",
+            upstream="origin/feature/fam-006-dashboard-recording-start-stop-local-file",
+            origin_main="fixture-origin-main",
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Runtime mutation, issue closeout, PR Readiness, merge, release, "
+                "branch cleanup, Governance/FAM-007/neutral-main mutation, "
+                "provider/model/private work, and full Log Viewer/export/tray/"
+                "keybind/settings/Native Log Loader scope remain pending."
+            ],
+            copied=copied,
+        )
+        branch_plan_review = (
+            target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+        ).read_text(encoding="utf-8")
+        packet_files[review_bundle.USER_BRANCH_PLAN_REVIEW_FILE] = branch_plan_review
+
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+    )
+    if (
+        result.status
+        != review_bundle.DECISION_STATUS_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW
+    ):
+        failures.append(
+            "FAM-006 Workstream implementation approval review packet did not "
+            f"classify as pending approval review: {result.status}; "
+            f"{result.failures[:3]}"
+        )
+    combined = "\n".join(packet_files.values())
+    required_terms = [
+        "Dashboard Recording Card",
+        "Recording Studio",
+        "minimal Log Viewer Studio",
+        "native/export log boundary",
+        "issue #258 target reliability",
+        "SLC-051 / Seam 1 target reliability",
+        "A green first seam is continuation proof, not package completion",
+        "Single-seam or single-slice authority is not granted",
+        "Workstream/runtime implementation remains pending until USER approves",
+    ]
+    missing_required_terms = [term for term in required_terms if term not in combined]
+    if missing_required_terms:
+        failures.append(
+            "FAM-006 Workstream implementation approval review packet is missing "
+            "required bounded-package terms: "
+            + "; ".join(missing_required_terms)
+        )
+    combined_normalized = combined.casefold()
+    forbidden_terms = [
+        "fam-007 dev/owner",
+        "fam-007 breakpoint",
+        "dev/owner",
+        "action-gate registry",
+        "bounded workstream package implementation is approved by this packet",
+        "bp3 is not accepted",
+        "bp2 remains pending",
+    ]
+    emitted_forbidden_terms = [
+        term for term in forbidden_terms if term in combined_normalized
+    ]
+    if emitted_forbidden_terms:
+        failures.append(
+            "FAM-006 Workstream implementation approval review packet emitted "
+            "wrong-family, approved-implementation, or stale-gate wording: "
+            + "; ".join(emitted_forbidden_terms)
+        )
+    return failures
+
+
 def _validate_primary_user_review_file_stage_priority() -> list[str]:
     failures: list[str] = []
     bp3_trace_decision = (
@@ -5047,6 +5184,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_fam007_bp3_packet_generation_guard())
     failures.extend(_validate_fam006_bp3_packet_generation_guard())
     failures.extend(_validate_fam007_workstream_implementation_packet_priority_guard())
+    failures.extend(_validate_fam006_workstream_approval_review_packet_guard())
 
     return failures
 

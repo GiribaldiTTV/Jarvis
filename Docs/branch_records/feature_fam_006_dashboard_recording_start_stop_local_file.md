@@ -39,7 +39,7 @@ Issue Admission: `Issue #258 is not admitted into BR2/BP1 identity. It is admitt
 
 ## Blockers
 
-Blockers: `BP2 USER Branch Plan Review pending USER response after accepted BP1 Option F planning solidification`
+Blockers: `Bounded Workstream/runtime implementation approval packet pending USER response after accepted BP1, accepted BP2 Option C, and accepted BP3 Workstream Entry / Orchestration Validation`
 
 ## Entry Basis
 
@@ -47,7 +47,7 @@ Entry Basis: `USER selected Dashboard Recording Start/Stop To Local File as the 
 
 ## Exit Criteria
 
-Exit Criteria: `BP2 packet is reviewable; USER accepts, revises, rejects, holds, or waives the Branch Plan before BP3 preparation.`
+Exit Criteria: `Workstream implementation approval packet is reviewable; USER accepts, revises, rejects, holds, or waives bounded runtime implementation before Workstream starts.`
 
 ## Rollback Target
 
@@ -201,6 +201,18 @@ Helper / Fixture Guard: `dev/orin_user_review_bundle.py and dev/orin_branch_read
 Boundary: `BP3 acceptance, Workstream/runtime implementation, Hardening, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybind implementation, full settings implementation, and Native Log Loader full implementation remain pending separate USER decisions.`
 Next Legal Phase: `BP3 Workstream Entry / Orchestration Validation USER review.`
 
+## BP3 Acceptance / Workstream Approval Packet Preparation Receipt
+
+Acceptance Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; active packet proof, ZIP proof, and USER Gate State live in C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md and helper output.`
+USER BP3 Decision: `Accepted`
+Accepted BP3 Result: `Option C remains one coherent bounded Workstream package for Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, open-folder pre-session usability, issue #258 target reliability, deferred carryforward applicability, Element-to-Phase proof, rollback, validation, H1, Live Validation, UTS, visual-system inheritance, and slice/SLC/seam sequencing.`
+Workstream Approval Packet Scope: `Prepare a separate bounded Workstream/runtime implementation approval packet only. Runtime implementation remains pending until USER approves that packet.`
+Continuation Guard: `Workstream must continue through accepted admitted seams/slices until Workstream Green, approved scope is exhausted, a real named blocker appears, or USER explicitly waives the remaining package; a green first seam is continuation proof, not package completion.`
+First Recommended Seam: `SLC-051 / Seam 1 target reliability and active Overlay Profile contract may start the Workstream package but does not limit the package to one seam.`
+Future-Gated Boundaries: `Full Log Viewer Studio implementation, previous-log selection, export customization, tray recording controls, keybind implementation, full settings implementation, Native Log Loader full implementation, provider/model/private work, PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation remain pending separate USER decisions.`
+Next Legal Phase: `Bounded Workstream/runtime implementation approval review.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`
@@ -211,9 +223,9 @@ Repo Receipt Role: `This file is a durable branch admission pointer and traceabi
 
 ## BP1 Route
 
-BP1 Route: `USER_BRANCH_VISION_REVIEW.md generated under C:\Nexus USER\FAM-006 and accepted by USER after Option F planning solidification`
+BP1 Route: `Historical/superseded planning receipt - USER_BRANCH_VISION_REVIEW.md generated under C:\Nexus USER\FAM-006 and accepted by USER after Option F planning solidification`
 Packet Reviewability Boundary: `A reviewable BP1 packet starts USER review; it is not USER acceptance.`
-USER Gate Boundary: `BP1 is accepted for Option C BP2 planning; BP2 remains pending USER acceptance, revision, waiver, rejection, or hold.`
+USER Gate Boundary: `Superseded for active gate state - BP1 and BP2 are accepted, BP3 is accepted, and the active USER decision is bounded Workstream/runtime implementation approval review.`
 
 ## Assigned Worktree Confinement
 
