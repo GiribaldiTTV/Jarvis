@@ -1673,6 +1673,19 @@ def _write_user_branch_vision_review(
         or "workstream entry / orchestration" in decision_text
         or "orchestration validation" in decision_text
     )
+    workstream_implementation_approval_context_packet = (
+        any(
+            marker in decision_text
+            for marker in (
+                *BRANCH_PLANNING_IMPLEMENTATION_REQUEST_MARKERS,
+                *FAM006_WORKSTREAM_IMPLEMENTATION_APPROVAL_REVIEW_MARKERS,
+            )
+        )
+        and any(
+            marker in decision_text
+            for marker in BRANCH_PLANNING_IMPLEMENTATION_BLOCKING_MARKERS
+        )
+    )
     hardening_h1_context_packet = (
         "approve bounded hardening h1" in decision_text
         and (
@@ -1690,6 +1703,7 @@ def _write_user_branch_vision_review(
     bp2_or_later_context_packet = (
         bp2_context_packet
         or bp3_context_packet
+        or workstream_implementation_approval_context_packet
         or hardening_h1_context_packet
         or live_validation_context_packet
     )
@@ -1699,6 +1713,8 @@ def _write_user_branch_vision_review(
         else
         "Hardening H1"
         if hardening_h1_context_packet
+        else "Workstream implementation approval review"
+        if workstream_implementation_approval_context_packet
         else "BP2"
         if bp2_context_packet
         else "BP3"
@@ -1806,47 +1822,86 @@ def _write_user_branch_vision_review(
             or "bp3 workstream entry" in profile_text
             or "workstream entry / orchestration validation" in profile_text
         )
+        fam006_workstream_approval_context_packet = (
+            _is_fam006_workstream_implementation_approval_review(
+                profile_text,
+                is_fam006_recording=True,
+            )
+            or active_planning_gate.casefold().startswith(
+                "workstream implementation approval"
+            )
+        )
         contract_revision = (
+            "v4 - accepted BP1 context supporting the Workstream implementation approval review after USER accepted BP3 Option C."
+            if fam006_workstream_approval_context_packet
+            else
             "v3 - accepted BP1 context supporting BP3 after USER accepted the Option C BP2 Branch Plan."
             if fam006_bp3_context_packet
             else "v2 - BP1 acceptance context after USER selected Option C as the BP2 implementation-shape candidate."
         )
         branch_goal = (
+            "Support USER review of the separate bounded Workstream/runtime implementation approval packet for the accepted Option C package while keeping runtime implementation blocked until USER approves that packet."
+            if fam006_workstream_approval_context_packet
+            else
             "Validate the accepted FAM-006 Recording branch plan so the Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, and issue #258 target reliability can enter Workstream only if BP3 stays coherent and bounded."
             if fam006_bp3_context_packet
             else "Plan the FAM-006 Recording branch so the Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio launch/folder shell, native/export log boundary, and issue #258 target reliability can be sized before BP3."
         )
         recommendation_1 = (
+            "- Recommendation 1: approve Workstream/runtime implementation only if USER agrees that the accepted Option C package should proceed as one bounded multi-seam package. Tradeoff: Codex can continue through the admitted seams without stopping after Seam 1, but implementation remains blocked until USER accepts this packet."
+            if fam006_workstream_approval_context_packet
+            else
             "- Recommendation 1: keep Option C as the BP3 candidate because BP2 accepted it as the coherent branch plan; BP3 must now prove that Recording Studio and the minimal Log Viewer shell fit one bounded Workstream package. Tradeoff: stronger user workflow continuity, but more UI proof than a Dashboard-only plan."
             if fam006_bp3_context_packet
             else "- Recommendation 1: keep Option C as the BP2 planning candidate because it preserves the accepted Recording product shape while still forcing BP3 to prove whether the Studio and Log Viewer shell are bounded enough. Tradeoff: stronger user workflow continuity, but more UI proof than a Dashboard-only plan."
         )
         user_response_line = (
+            "BP1, BP2, and BP3 responses are accepted. The active USER response now belongs to the Workstream/runtime implementation approval packet."
+            if fam006_workstream_approval_context_packet
+            else
             "BP1 and BP2 responses are accepted. The active USER response now belongs to the BP3 Workstream Entry / Orchestration Validation packet."
             if fam006_bp3_context_packet
             else "BP1 response is accepted. The active USER response now belongs to the BP2 Branch Plan Review."
         )
         codex_digest_line = (
+            "Codex digested USER's BP1 acceptance, BP2 Option C acceptance, and BP3 Option C acceptance. This file is accepted BP1 context only; the primary active decision is USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md for Workstream/runtime implementation approval."
+            if fam006_workstream_approval_context_packet
+            else
             "Codex digested USER's BP1 acceptance and BP2 Option C acceptance. This file is accepted BP1 context only; the primary active decision is USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md."
             if fam006_bp3_context_packet
             else "Codex digested USER's BP1 acceptance and prepared BP2 around Option C. This file is accepted BP1 context only; the primary active decision is USER Review/USER_BRANCH_PLAN_REVIEW.md."
         )
         accepted_recording_studio_line = (
-            "- Accepted in BP2 plan: Recording Studio as focused recording control/status surface."
+            "- Accepted in BP2/BP3: Recording Studio as focused recording control/status surface inside the bounded Option C package."
+            if fam006_workstream_approval_context_packet
+            else "- Accepted in BP2 plan: Recording Studio as focused recording control/status surface."
             if fam006_bp3_context_packet
             else "- Accepted for BP2 planning: Recording Studio as focused recording control/status surface."
         )
         accepted_log_viewer_line = (
-            "- Accepted in BP2 plan: minimal Log Viewer Studio launch/folder shell only where it supports native/export folder access."
+            "- Accepted in BP2/BP3: minimal Log Viewer Studio launch/folder shell only where it supports native/export folder access."
+            if fam006_workstream_approval_context_packet
+            else "- Accepted in BP2 plan: minimal Log Viewer Studio launch/folder shell only where it supports native/export folder access."
             if fam006_bp3_context_packet
             else "- Accepted for BP2 planning: minimal Log Viewer Studio launch/folder shell only where it supports native/export folder access."
         )
         reviewability_boundary_line = (
+            "- Keep this Workstream approval packet reviewability separate from USER implementation approval; implementation remains blocked until USER accepts, revises, waives, rejects, or holds this packet."
+            if fam006_workstream_approval_context_packet
+            else
             "- Keep BP3 reviewability separate from USER acceptance and separate from Workstream implementation approval."
             if fam006_bp3_context_packet
             else "- Keep BP2 reviewability separate from USER acceptance."
         )
         vision_queue_lines = (
+            [
+                "- No BP1 decision remains open in this file.",
+                "- BP2 answered: Option C was accepted by USER as the Branch Plan.",
+                "- BP3 answered: Option C was accepted by USER as one coherent bounded Workstream package.",
+                "- Workstream/runtime implementation approval remains Pending USER Review in the primary packet.",
+            ]
+            if fam006_workstream_approval_context_packet
+            else
             [
                 "- No BP1 decision remains open in this file.",
                 "- BP2 answered: Option C was accepted by USER as the Branch Plan.",
@@ -1860,6 +1915,9 @@ def _write_user_branch_vision_review(
             ]
         )
         acceptance_decision_line = (
+            "USER Accepted - BP1 Branch Vision accepted after Option F planning solidification; BP2 Option C Branch Plan accepted by USER; BP3 Option C Workstream Entry accepted by USER; Workstream/runtime implementation approval remains Pending USER Review."
+            if fam006_workstream_approval_context_packet
+            else
             "USER Accepted - BP1 Branch Vision accepted after Option F planning solidification; BP2 Option C Branch Plan accepted by USER; BP3 remains Pending USER Review."
             if fam006_bp3_context_packet
             else "USER Accepted - BP1 Branch Vision accepted after Option F planning solidification. BP2 remains Pending USER Review."

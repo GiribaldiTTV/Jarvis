@@ -2943,6 +2943,23 @@ def _validate_fam006_workstream_approval_review_packet_guard() -> list[str]:
             target / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
         ).read_text(encoding="utf-8")
         packet_files[review_bundle.USER_BRANCH_PLAN_REVIEW_FILE] = branch_plan_review
+        review_bundle._write_user_branch_vision_review(
+            target=target,
+            title="FAM-006 Workstream Implementation Approval Review - Option C",
+            review_purpose="Fixture Workstream implementation approval review accepted BP1 support file.",
+            exact_user_decision=exact_decision,
+            pending_user_decisions=[
+                "Runtime mutation, issue closeout, PR Readiness, merge, release, "
+                "branch cleanup, Governance/FAM-007/neutral-main mutation, "
+                "provider/model/private work, and full Log Viewer/export/tray/"
+                "keybind/settings/Native Log Loader scope remain pending."
+            ],
+            copied=copied,
+        )
+        branch_vision_review = (
+            target / review_bundle.USER_BRANCH_VISION_REVIEW_FILE
+        ).read_text(encoding="utf-8")
+        packet_files[review_bundle.USER_BRANCH_VISION_REVIEW_FILE] = branch_vision_review
 
     result = review_bundle._validate_workstream_entry_packet_decision_path(
         packet_files,
@@ -2996,6 +3013,43 @@ def _validate_fam006_workstream_approval_review_packet_guard() -> list[str]:
             "FAM-006 Workstream implementation approval review packet emitted "
             "wrong-family, approved-implementation, or stale-gate wording: "
             + "; ".join(emitted_forbidden_terms)
+        )
+    side_aid_required_terms = [
+        "Accepted BP1 Context",
+        "USER Accepted - BP1 Branch Vision accepted by USER",
+        "BP2 answered: Option C was accepted by USER as the Branch Plan",
+        "BP3 answered: Option C was accepted by USER as one coherent bounded Workstream package",
+        "Workstream/runtime implementation approval remains Pending USER Review",
+    ]
+    missing_side_aid_terms = [
+        term for term in side_aid_required_terms if term not in branch_vision_review
+    ]
+    if missing_side_aid_terms:
+        failures.append(
+            "FAM-006 Workstream implementation approval review BP1 support aid "
+            "is missing accepted-context terms: "
+            + "; ".join(missing_side_aid_terms)
+        )
+    side_aid_forbidden_terms = [
+        "Draft - update to Complete",
+        "BP1 packet is ready for USER Branch Vision Review, but acceptance is not recorded",
+        "USER must accept, revise, waive, reject, or block BP1 before BP2 preparation can be green",
+        "BP2 remains Pending USER Review",
+        "BP3 remains Pending USER Review",
+        "BP3 may be prepared only after BP2 is accepted or waived",
+        "BP3 must answer whether Option C is accepted",
+        "Workstream Entry remains pending",
+    ]
+    emitted_side_aid_forbidden_terms = [
+        term
+        for term in side_aid_forbidden_terms
+        if term.casefold() in branch_vision_review.casefold()
+    ]
+    if emitted_side_aid_forbidden_terms:
+        failures.append(
+            "FAM-006 Workstream implementation approval review BP1 support aid "
+            "emitted stale BP1/BP2/BP3 gate wording: "
+            + "; ".join(emitted_side_aid_forbidden_terms)
         )
     return failures
 
