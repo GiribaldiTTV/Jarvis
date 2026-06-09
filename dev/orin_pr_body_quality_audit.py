@@ -33,6 +33,10 @@ CHANGE_SECTION_ALIASES = {
     "what changed",
 }
 
+FLATTENED_CHANGE_SECTION_ALIASES = {
+    "branch evidence",
+}
+
 REMOVED_SECTION_ALIASES = {
     "checks",
     "codex review",
@@ -76,6 +80,14 @@ FORBIDDEN_COPY_PATTERNS = (
     re.compile(r"\bdeferred\b", flags=re.I),
     re.compile(r"\bfuture[-\s]?gated\b", flags=re.I),
     re.compile(r"\bpr\s+posture\b", flags=re.I),
+)
+
+FORBIDDEN_HEADING_PATTERNS = (
+    re.compile(r"(?m)^#{2,6}\s+branch\s+evidence\b", flags=re.I),
+    re.compile(r"(?m)^#{2,6}\s+checks?\b", flags=re.I),
+    re.compile(r"(?m)^#{2,6}\s+pr\s+posture\b", flags=re.I),
+    re.compile(r"(?m)^#{2,6}\s+testing\b", flags=re.I),
+    re.compile(r"(?m)^#{2,6}\s+validation\b", flags=re.I),
 )
 
 
@@ -239,6 +251,10 @@ def is_removed_section(title: str) -> bool:
     return any(token in alias for token in ("validation", "posture", "test", "check", "deferred"))
 
 
+def is_flattened_change_section(title: str) -> bool:
+    return section_alias(title) in FLATTENED_CHANGE_SECTION_ALIASES
+
+
 def has_forbidden_copy(text: str) -> bool:
     return any(pattern.search(text) for pattern in FORBIDDEN_COPY_PATTERNS)
 
@@ -381,7 +397,12 @@ def scrub_changes(changes: str) -> tuple[str, list[str]]:
         heading_match = re.match(r"^(#{3,6})\s+(.+?)\s*$", line)
         if heading_match:
             title = heading_match.group(2).strip()
-            if is_removed_section(title):
+            if is_flattened_change_section(title):
+                skipping_removed_section = False
+                skipped_heading = ""
+                reasons.append(f"flattened legacy change heading '{title}'")
+                continue
+            elif is_removed_section(title):
                 skipping_removed_section = True
                 skipped_heading = title
                 reasons.append(f"removed PR-body-only section '{title}'")
@@ -411,7 +432,10 @@ def remap_noncanonical_sections(sections: dict[str, str]) -> tuple[str, list[str
         if not body:
             continue
         alias = section_alias(title)
-        if alias in CHANGE_SECTION_ALIASES:
+        if alias in FLATTENED_CHANGE_SECTION_ALIASES:
+            extra_changes.append(body)
+            reasons.append(f"flattened nonstandard change section '{title}'")
+        elif alias in CHANGE_SECTION_ALIASES:
             extra_changes.append(demoted_section(title, body))
             reasons.append(f"preserved nonstandard change section '{title}'")
         elif is_removed_section(title):
@@ -467,6 +491,9 @@ def pr_body_firewall_warnings(body: str) -> list[str]:
     for pattern in FORBIDDEN_COPY_PATTERNS:
         if pattern.search(body):
             warnings.append(f"PR body contains forbidden copy pattern: {pattern.pattern}")
+    for pattern in FORBIDDEN_HEADING_PATTERNS:
+        if pattern.search(body):
+            warnings.append(f"PR body contains forbidden heading pattern: {pattern.pattern}")
     return warnings
 
 
@@ -478,8 +505,6 @@ def normalize_body(pr: PullRequest) -> NormalizedBody:
     sections, preface = split_top_level_sections(pr.body)
     raw_summary = sections.get("Summary", "")
     raw_changes = sections.get("What Changed", "")
-    if not raw_changes:
-        raw_changes = sections.get("Branch Evidence", "")
     if not sections:
         raw_changes = strip_bom(pr.body)
 
