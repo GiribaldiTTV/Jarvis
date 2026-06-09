@@ -1,7 +1,8 @@
 """Audit and normalize GitHub pull request body quality.
 
-The helper keeps the governed three-section PR body shape while removing
-low-signal repetition introduced by historical normalization passes.
+The helper keeps the governed human-review PR body shape while keeping
+operator proof, PR posture, and defensive scope language out of GitHub
+PR bodies.
 """
 
 from __future__ import annotations
@@ -19,40 +20,63 @@ from tempfile import TemporaryDirectory
 
 
 TOP_LEVEL_SECTION_RE = re.compile(r"(?m)^## ([^\n#].*?)\s*$")
-MISSING_VALIDATION = "Validation was not recorded in the original PR body."
-PHASE_DIGEST_MARKERS = {
-    "Next Legal Phase",
-    "Next Safe Move",
-    "Continue Decision",
-    "Stop Basis",
+CANONICAL_SECTION_ORDER = ["Summary", "What Changed"]
+CANONICAL_SECTIONS = set(CANONICAL_SECTION_ORDER)
+
+CHANGE_SECTION_ALIASES = {
+    "branch evidence",
+    "changes",
+    "context",
+    "details",
+    "implementation",
+    "source truth",
+    "what changed",
 }
-PR_BODY_FIREWALL_MARKERS = PHASE_DIGEST_MARKERS | {
-    "Exact next USER decision",
-    "Implemented, validated",
-    "::git-",
-}
-BOUNDARY_HEADINGS = {
-    "not included",
-    "not included:",
-    "explicitly deferred",
-    "explicitly deferred:",
-    "architecture boundaries preserved",
-    "architecture boundaries preserved:",
-    "boundaries",
-    "boundaries:",
-}
-CANONICAL_SECTIONS = {"Summary", "Branch Evidence", "Validation"}
-VALIDATION_SECTION_ALIASES = {
-    "check",
+
+REMOVED_SECTION_ALIASES = {
     "checks",
+    "codex review",
+    "deferred",
+    "does not include",
+    "exclusions",
+    "future gated",
+    "not included",
+    "pr posture",
+    "proof",
+    "proofs",
     "qa",
-    "test",
+    "review posture",
+    "status",
     "test plan",
     "testing",
     "tests",
     "validation",
     "verification",
 }
+
+PHASE_DIGEST_MARKERS = {
+    "Next Legal Phase",
+    "Next Safe Move",
+    "Continue Decision",
+    "Stop Basis",
+}
+
+PR_BODY_FIREWALL_MARKERS = PHASE_DIGEST_MARKERS | {
+    "Exact next USER decision",
+    "Implemented, validated",
+    "PR posture",
+    "::git-",
+}
+
+FORBIDDEN_COPY_PATTERNS = (
+    re.compile(r"\bdoes\s+not\s+include\b", flags=re.I),
+    re.compile(r"\bnot\s+included\b", flags=re.I),
+    re.compile(r"\bnot\s+include\b", flags=re.I),
+    re.compile(r"\bnon[-\s]?includes?\b", flags=re.I),
+    re.compile(r"\bdeferred\b", flags=re.I),
+    re.compile(r"\bfuture[-\s]?gated\b", flags=re.I),
+    re.compile(r"\bpr\s+posture\b", flags=re.I),
+)
 
 
 @dataclass
@@ -158,6 +182,12 @@ def normalized_text(text: str) -> str:
     return " ".join(lowered.split())
 
 
+def section_alias(title: str) -> str:
+    alias = title.strip().casefold()
+    alias = re.sub(r"[^a-z0-9]+", " ", alias)
+    return " ".join(alias.split())
+
+
 def split_top_level_sections(body: str) -> tuple[dict[str, str], str]:
     text = strip_bom(body)
     matches = list(TOP_LEVEL_SECTION_RE.finditer(text))
@@ -187,36 +217,62 @@ def first_paragraph(text: str) -> str:
 def default_summary(pr: PullRequest) -> str:
     title = pr.title.strip().rstrip(".")
     if not title:
-        return f"PR #{pr.number} branch evidence is preserved for traceability."
+        return f"Updates PR #{pr.number}."
     if title.casefold() == "update readme.md":
         return "Updates `README.md`."
     if title.casefold() == "create readme.md":
         return "Creates `README.md`."
     if title.casefold() == "fix: readme":
         return "Refines `README.md` content and formatting."
-    return f"This PR records {title}."
+    return f"Updates {title}."
 
 
-def normalize_summary(pr: PullRequest, raw_summary: str, evidence: str) -> tuple[str, str, list[str]]:
+def demoted_section(title: str, content: str) -> str:
+    safe_title = title.strip() or "Details"
+    return f"### {safe_title}\n\n{content.strip()}"
+
+
+def is_removed_section(title: str) -> bool:
+    alias = section_alias(title)
+    if alias in REMOVED_SECTION_ALIASES:
+        return True
+    return any(token in alias for token in ("validation", "posture", "test", "check", "deferred"))
+
+
+def has_forbidden_copy(text: str) -> bool:
+    return any(pattern.search(text) for pattern in FORBIDDEN_COPY_PATTERNS)
+
+
+def normalize_summary(pr: PullRequest, raw_summary: str) -> tuple[str, str, list[str]]:
     reasons: list[str] = []
     preserved_detail: list[str] = []
     summary = collapse_blank_lines(raw_summary)
     if not summary:
         summary = default_summary(pr)
         reasons.append("filled missing summary")
+
     paragraph = first_paragraph(summary)
+    if paragraph.startswith("- "):
+        bullet_lines = [line.strip()[2:].strip() for line in paragraph.splitlines() if line.strip().startswith("- ")]
+        if bullet_lines:
+            paragraph = bullet_lines[0].rstrip(".") + "."
+            if len(bullet_lines) > 1:
+                preserved_detail.extend(f"- {line}" for line in bullet_lines[1:])
+                reasons.append("moved summary bullet detail into What Changed")
+
     if paragraph and paragraph != summary:
         trailing = summary[len(paragraph) :].strip()
         if trailing:
-            reasons.append("trimmed multi-paragraph summary")
             preserved_detail.append(trailing)
-            reasons.append("preserved trimmed summary detail in Branch Evidence")
+            reasons.append("moved summary detail into What Changed")
         summary = paragraph
+
     if normalized_text(summary) == normalized_text(f"This PR records {pr.title}."):
         improved = default_summary(pr)
         if improved != summary:
             summary = improved
             reasons.append("tightened generic summary")
+
     if len(summary) > 700:
         sentences = re.split(r"(?<=[.!?])\s+", summary)
         if len(sentences) > 1:
@@ -224,31 +280,18 @@ def normalize_summary(pr: PullRequest, raw_summary: str, evidence: str) -> tuple
             trailing = summary[len(shortened) :].strip()
             if trailing:
                 preserved_detail.append(trailing)
-                reasons.append("preserved overlong summary detail in Branch Evidence")
+                reasons.append("moved overlong summary detail into What Changed")
             summary = shortened
             reasons.append("shortened overlong summary")
+
+    if has_forbidden_copy(summary):
+        preserved_detail.append(summary)
+        summary = default_summary(pr)
+        if has_forbidden_copy(summary):
+            summary = f"Updates PR #{pr.number}."
+        reasons.append("replaced defensive or deferred summary wording")
+
     return summary.strip(), collapse_blank_lines("\n\n".join(preserved_detail)), reasons
-
-
-def improve_historical_placeholder(text: str) -> tuple[str, bool]:
-    pattern = re.compile(
-        r"Original PR body did not record detailed branch evidence\.\s+"
-        r"Historical PR metadata:\s*base\s+`([^`]+)`,\s*head\s+`([^`]+)`,\s*head commit\s+`([^`]+)`\.",
-        flags=re.I,
-    )
-
-    def replacement(match: re.Match[str]) -> str:
-        base, head, head_commit = match.groups()
-        return (
-            "No detailed branch evidence was preserved in the original PR body.\n\n"
-            "Historical metadata preserved for traceability:\n"
-            f"- Base: `{base}`\n"
-            f"- Head: `{head}`\n"
-            f"- Head commit: `{head_commit}`"
-        )
-
-    new_text, count = pattern.subn(replacement, text)
-    return new_text, bool(count)
 
 
 def remove_duplicate_paragraphs(text: str) -> tuple[str, int]:
@@ -278,18 +321,17 @@ def remove_duplicate_paragraphs(text: str) -> tuple[str, int]:
     return collapse_blank_lines("".join(output)), removed
 
 
-def remove_summary_duplication(evidence: str, summary: str) -> tuple[str, list[str]]:
+def remove_summary_duplication(changes: str, summary: str) -> tuple[str, list[str]]:
     reasons: list[str] = []
     summary_key = normalized_text(summary)
-    text = collapse_blank_lines(evidence)
+    text = collapse_blank_lines(changes)
     if not text:
         return text, reasons
 
-    # Remove a repeated summary paragraph at the beginning of Branch Evidence.
     first = first_paragraph(text)
     if summary_key and normalized_text(first) == summary_key and text.lstrip().startswith(first):
         text = text[len(first) :].strip()
-        reasons.append("removed repeated leading summary from Branch Evidence")
+        reasons.append("removed repeated leading summary from What Changed")
 
     lines = text.splitlines()
     output: list[str] = []
@@ -312,9 +354,7 @@ def remove_summary_duplication(evidence: str, summary: str) -> tuple[str, list[s
             chunk = chunk[len(first_chunk_paragraph) :].strip()
             reasons.append(f"removed duplicate nested {heading_match.group(1).lower()} paragraph")
         if chunk:
-            replacement_heading = "### Changes"
-            if heading_match.group(1).casefold() in {"purpose", "overview"}:
-                replacement_heading = "### Context"
+            replacement_heading = "### Context"
             output.append(replacement_heading)
             output.append("")
             output.extend(chunk.splitlines())
@@ -326,49 +366,43 @@ def remove_summary_duplication(evidence: str, summary: str) -> tuple[str, list[s
     text = re.sub(r"(?m)^---+\s*$", "", text)
     text, removed_count = remove_duplicate_paragraphs(text)
     if removed_count:
-        reasons.append(f"removed {removed_count} duplicate evidence paragraph(s)")
+        reasons.append(f"removed {removed_count} duplicate detail paragraph(s)")
     return tidy_markdown(text), reasons
 
 
-def split_validation_boundaries(validation: str) -> tuple[str, str, bool]:
-    lines = validation.splitlines()
-    for index, line in enumerate(lines):
-        normalized = line.strip().casefold()
-        if normalized in BOUNDARY_HEADINGS:
-            return (
-                collapse_blank_lines("\n".join(lines[:index])),
-                collapse_blank_lines("\n".join(lines[index:])),
-                True,
-            )
-    return collapse_blank_lines(validation), "", False
-
-
-def normalize_validation(raw_validation: str) -> tuple[str, str, list[str]]:
+def scrub_changes(changes: str) -> tuple[str, list[str]]:
     reasons: list[str] = []
-    validation, boundaries, moved = split_validation_boundaries(raw_validation)
-    if moved:
-        reasons.append("moved boundary text out of Validation")
-    validation = collapse_blank_lines(validation)
-    if not validation:
-        validation = MISSING_VALIDATION
-        reasons.append("filled missing validation")
-    return validation, boundaries, reasons
+    lines = changes.splitlines()
+    output: list[str] = []
+    skipping_removed_section = False
+    skipped_heading = ""
+
+    for line in lines:
+        heading_match = re.match(r"^(#{3,6})\s+(.+?)\s*$", line)
+        if heading_match:
+            title = heading_match.group(2).strip()
+            if is_removed_section(title):
+                skipping_removed_section = True
+                skipped_heading = title
+                reasons.append(f"removed PR-body-only section '{title}'")
+                continue
+            skipping_removed_section = False
+            skipped_heading = ""
+
+        if skipping_removed_section:
+            continue
+        if has_forbidden_copy(line):
+            reasons.append("removed defensive or deferred PR-body wording")
+            continue
+        output.append(line)
+
+    if skipped_heading:
+        reasons.append(f"removed trailing PR-body-only section '{skipped_heading}'")
+    return tidy_markdown("\n".join(output)), sorted(set(reasons))
 
 
-def section_alias(title: str) -> str:
-    alias = title.strip().casefold()
-    alias = re.sub(r"[^a-z0-9]+", " ", alias)
-    return " ".join(alias.split())
-
-
-def demoted_section(title: str, content: str) -> str:
-    safe_title = title.strip() or "Historical Section"
-    return f"### {safe_title}\n\n{content.strip()}"
-
-
-def remap_noncanonical_sections(sections: dict[str, str]) -> tuple[str, str, list[str]]:
-    extra_evidence: list[str] = []
-    extra_validation: list[str] = []
+def remap_noncanonical_sections(sections: dict[str, str]) -> tuple[str, list[str]]:
+    extra_changes: list[str] = []
     reasons: list[str] = []
     for title, content in sections.items():
         if title in CANONICAL_SECTIONS:
@@ -377,119 +411,102 @@ def remap_noncanonical_sections(sections: dict[str, str]) -> tuple[str, str, lis
         if not body:
             continue
         alias = section_alias(title)
-        if alias in VALIDATION_SECTION_ALIASES or "test" in alias or "validation" in alias:
-            extra_validation.append(demoted_section(title, body))
-            reasons.append(f"preserved nonstandard validation section '{title}'")
+        if alias in CHANGE_SECTION_ALIASES:
+            extra_changes.append(demoted_section(title, body))
+            reasons.append(f"preserved nonstandard change section '{title}'")
+        elif is_removed_section(title):
+            reasons.append(f"removed PR-body-only section '{title}'")
         else:
-            extra_evidence.append(demoted_section(title, body))
-            reasons.append(f"preserved nonstandard evidence section '{title}'")
-    return (
-        collapse_blank_lines("\n\n".join(extra_evidence)),
-        collapse_blank_lines("\n\n".join(extra_validation)),
-        reasons,
-    )
+            extra_changes.append(demoted_section(title, body))
+            reasons.append(f"preserved nonstandard detail section '{title}'")
+    return collapse_blank_lines("\n\n".join(extra_changes)), reasons
 
 
-def normalize_evidence(
+def normalize_changes(
     pr: PullRequest,
-    raw_evidence: str,
+    raw_changes: str,
     summary: str,
     preface: str,
-    validation_boundaries: str,
 ) -> tuple[str, list[str], list[str]]:
     reasons: list[str] = []
     warnings: list[str] = []
-    evidence = collapse_blank_lines(raw_evidence)
+    changes = collapse_blank_lines(raw_changes)
     if preface:
-        evidence = collapse_blank_lines(f"{preface}\n\n{evidence}" if evidence else preface)
-        reasons.append("moved preface into Branch Evidence")
-    evidence, dup_reasons = remove_summary_duplication(evidence, summary)
+        changes = collapse_blank_lines(f"{preface}\n\n{changes}" if changes else preface)
+        reasons.append("moved preface into What Changed")
+
+    changes, dup_reasons = remove_summary_duplication(changes, summary)
     reasons.extend(dup_reasons)
-    evidence, improved_placeholder = improve_historical_placeholder(evidence)
-    if improved_placeholder:
-        reasons.append("clarified historical placeholder evidence")
-    if validation_boundaries:
-        heading = "### Boundaries"
-        boundary_text = validation_boundaries
-        if boundary_text.lower().startswith("not included"):
-            boundary_text = re.sub(r"(?i)^not included:?", "Branch boundaries:", boundary_text).strip()
-        evidence = collapse_blank_lines(f"{evidence}\n\n{heading}\n\n{boundary_text}" if evidence else f"{heading}\n\n{boundary_text}")
-        reasons.append("preserved branch boundaries in Branch Evidence")
-    if not evidence:
-        evidence = (
-            "No detailed branch evidence was preserved in the original PR body.\n\n"
-            "Historical metadata preserved for traceability:\n"
+    changes, scrub_reasons = scrub_changes(changes)
+    reasons.extend(scrub_reasons)
+
+    if not changes:
+        changes = (
+            "Historical metadata preserved for review context:\n"
             f"- Base: `{pr.base_ref_name or 'unknown'}`\n"
-            f"- Head: `{pr.head_ref_name or 'unknown'}`\n"
-            f"- Head commit: `{pr.head_ref_oid or 'unknown'}`"
+            f"- Head: `{pr.head_ref_name or 'unknown'}`"
         )
-        reasons.append("filled missing Branch Evidence with historical metadata")
-    if re.search(r"(?m)^###\s+(Summary|Purpose)\s*$", evidence):
+        reasons.append("filled missing What Changed with historical metadata")
+
+    if re.search(r"(?m)^###\s+(Summary|Purpose)\s*$", changes):
         warnings.append("nested summary/purpose heading remains")
     for marker in PHASE_DIGEST_MARKERS:
-        if marker in evidence:
-            warnings.append(f"phase-digest marker remains in Branch Evidence: {marker}")
-    return tidy_markdown(evidence), reasons, warnings
+        if marker in changes:
+            warnings.append(f"phase-digest marker remains in What Changed: {marker}")
+    return tidy_markdown(changes), sorted(set(reasons)), warnings
 
 
 def pr_body_firewall_warnings(body: str) -> list[str]:
     warnings: list[str] = []
+    sections, _ = split_top_level_sections(body)
+    if list(sections.keys()) != CANONICAL_SECTION_ORDER:
+        warnings.append("PR body must use exactly ## Summary and ## What Changed")
     for marker in sorted(PR_BODY_FIREWALL_MARKERS):
         if marker in body:
             warnings.append(f"PR body firewall marker remains: {marker}")
+    for pattern in FORBIDDEN_COPY_PATTERNS:
+        if pattern.search(body):
+            warnings.append(f"PR body contains forbidden copy pattern: {pattern.pattern}")
     return warnings
 
 
-def build_body(summary: str, evidence: str, validation: str) -> str:
-    return (
-        f"## Summary\n\n{summary.strip()}\n\n"
-        f"## Branch Evidence\n\n{evidence.strip()}\n\n"
-        f"## Validation\n\n{validation.strip()}\n"
-    )
+def build_body(summary: str, changes: str) -> str:
+    return f"## Summary\n\n{summary.strip()}\n\n## What Changed\n\n{changes.strip()}\n"
 
 
 def normalize_body(pr: PullRequest) -> NormalizedBody:
     sections, preface = split_top_level_sections(pr.body)
     raw_summary = sections.get("Summary", "")
-    raw_evidence = sections.get("Branch Evidence", "")
-    raw_validation = sections.get("Validation", "")
+    raw_changes = sections.get("What Changed", "")
+    if not raw_changes:
+        raw_changes = sections.get("Branch Evidence", "")
     if not sections:
-        raw_evidence = strip_bom(pr.body)
-    extra_evidence, extra_validation, remap_reasons = remap_noncanonical_sections(sections)
-    if extra_evidence:
-        raw_evidence = collapse_blank_lines(
-            f"{raw_evidence}\n\n{extra_evidence}" if raw_evidence else extra_evidence
+        raw_changes = strip_bom(pr.body)
+
+    extra_changes, remap_reasons = remap_noncanonical_sections(sections)
+    if extra_changes:
+        raw_changes = collapse_blank_lines(
+            f"{raw_changes}\n\n{extra_changes}" if raw_changes else extra_changes
         )
-    if extra_validation:
-        raw_validation = collapse_blank_lines(
-            f"{raw_validation}\n\n{extra_validation}" if raw_validation else extra_validation
-        )
-    summary, summary_detail, summary_reasons = normalize_summary(pr, raw_summary, raw_evidence)
+
+    summary, summary_detail, summary_reasons = normalize_summary(pr, raw_summary)
     if summary_detail:
         summary_detail_section = demoted_section("Summary Detail", summary_detail)
-        raw_evidence = collapse_blank_lines(
-            f"{summary_detail_section}\n\n{raw_evidence}"
-            if raw_evidence
-            else summary_detail_section
+        raw_changes = collapse_blank_lines(
+            f"{summary_detail_section}\n\n{raw_changes}" if raw_changes else summary_detail_section
         )
-    validation, validation_boundaries, validation_reasons = normalize_validation(raw_validation)
-    evidence, evidence_reasons, evidence_warnings = normalize_evidence(
-        pr,
-        raw_evidence,
-        summary,
-        preface,
-        validation_boundaries,
-    )
-    body = build_body(summary, evidence, validation)
-    reasons = summary_reasons + evidence_reasons + validation_reasons + remap_reasons
 
-    if list(sections.keys()) != ["Summary", "Branch Evidence", "Validation"]:
-        reasons.append("enforced three top-level sections")
+    changes, change_reasons, change_warnings = normalize_changes(pr, raw_changes, summary, preface)
+    body = build_body(summary, changes)
+    reasons = summary_reasons + change_reasons + remap_reasons
+
+    if list(sections.keys()) != CANONICAL_SECTION_ORDER:
+        reasons.append("enforced two top-level sections")
     original = strip_bom(pr.body).strip()
     if body.strip() != original and not reasons:
         reasons.append("normalized whitespace")
-    warnings = evidence_warnings + pr_body_firewall_warnings(body)
-    return NormalizedBody(body=body, reasons=reasons, warnings=warnings)
+    warnings = change_warnings + pr_body_firewall_warnings(body)
+    return NormalizedBody(body=body, reasons=sorted(set(reasons)), warnings=warnings)
 
 
 def write_text(path: Path, value: str) -> None:

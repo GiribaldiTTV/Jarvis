@@ -4340,14 +4340,15 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "### Base Branch",
     "### Head Branch",
     "### PR Summary",
-    "## Branch Evidence",
-    "The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.",
-    "`## Summary` must be one concise outcome paragraph",
-    "`## Branch Evidence` must not repeat the Summary",
-    "`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only",
+    "## What Changed",
+    "The PR summary/GitHub PR body uses exactly two top-level sections: `## Summary` and `## What Changed`.",
+    "`## Summary` must be one concise human-readable outcome paragraph",
+    "`## What Changed` must describe the actual branch work",
+    "GitHub PR bodies and PR Summary copy must not include `## Validation`, `## PR posture`, `## Branch Evidence`",
+    "Validation commands, command output, byte-proof evidence, mergeability, bot-review state, watcher state, and PR Readiness posture belong in Codex digests, helper output, status checks, or external operational state",
     "inclusion-only",
     "defensive scope language",
-    "GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.",
+    "All visible PR bodies must be scanned by `dev\\orin_pr_body_quality_audit.py`; every nonconforming PR body inside the approved GitHub correction scope must be repaired before the PR-body standard can be reported green.",
 )
 
 PR_READINESS_STAGE_GATE_DOCS = (

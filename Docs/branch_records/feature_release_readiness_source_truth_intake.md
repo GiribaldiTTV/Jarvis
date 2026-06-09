@@ -203,7 +203,7 @@ The return digest must preserve the originating lane identity exactly as recorde
 
 ## PR Body Firewall
 
-GitHub PR bodies for this branch must stay evidence-only. They must use the standard `## Summary`, `## Branch Evidence`, and `## Validation` sections and must not include Codex phase-handoff/operator text such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`.
+GitHub PR bodies for this branch must stay human-readable and evidence-first. They must use the standard `## Summary` and `## What Changed` sections, must describe what the branch actually changed, and must not include `## Validation`, PR posture, defensive exclusion/deferred sections, or Codex phase-handoff/operator text such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`.
 
 ## Branch Objective
 

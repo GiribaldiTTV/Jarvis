@@ -512,8 +512,9 @@ That means:
   - PR Readiness PR creation details must use separate copy-ready blocks for `PR Title`, `Base Branch`, `Head Branch`, and `PR Summary`
   - Release Readiness release package details must use separate copy-ready blocks for `Release Title`, `Release Tag`, `Target Commit`, and `Release Notes`
   - PR summaries and release notes must report implemented or released work only
-  - PR summaries use exactly `## Summary`, `## Branch Evidence`, and `## Validation`; `## Summary` is one concise outcome paragraph, `## Branch Evidence` must not repeat it through nested Summary/Purpose/Overview sections, and `## Validation` must contain proof only
-  - concise branch-specific boundaries are allowed inside `## Branch Evidence` when they clarify reliable branch truth
+  - PR summaries use exactly `## Summary` and `## What Changed`; `## Summary` is one concise outcome paragraph, and `## What Changed` must describe the actual branch work in concrete Markdown-friendly detail
+  - PR summaries must not include `## Validation`, `## PR posture`, `## Branch Evidence`, Testing/Checks sections, defensive exclusion/deferred sections, generic negative scope framing, mergeability/bot-review/watcher state, or phase-handoff text
+  - validation proof, command output, live PR state, bot-review state, watcher state, and PR Readiness posture belong in Codex digests, helper output, status checks, or external operational state
   - GitHub release notes must use the standard Markdown release body shape used by the current pre-Beta releases: start with `## Release Summary` or `## Release Overview`, continue with `## Release Highlights` or release-specific rich sections, then include GitHub-generated `## What's Changed` and the generated `**Full Changelog**:` compare link to the previous release
   - the live GitHub release body must not start with or repeat the release title as `# <release title>`; the release title belongs in GitHub release metadata and the separate `Release Title` operator block only
   - Release Execution must use GitHub-generated release notes, through the GitHub release notes button or generated-release-notes API, so the `## What's Changed` section and previous-release compare link are populated from GitHub instead of hand-written or omitted
