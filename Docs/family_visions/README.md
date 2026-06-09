@@ -41,27 +41,39 @@ Docs/family_feature_visions/
 Recommended file naming:
 
 ```text
-Docs/family_feature_visions/FAM-006_recording.md
-Docs/family_feature_visions/FAM-006_hud_dashboard.md
-Docs/family_feature_visions/FAM-006_overlay_profiles.md
-Docs/family_feature_visions/FAM-006_monitor_groups.md
+Docs/family_feature_visions/index.md
+Docs/family_feature_visions/F6-FF01.md
+Docs/family_feature_visions/F6-FF02.md
+Docs/family_feature_visions/F7-FF01.md
 ```
 
-Creating the folder, creating the first content files, migrating existing family-vision text into those files, or treating any file as the active owner requires a separate USER approval. Until those files exist, `Docs/family_visions/` remains the durable family-level owner and active branch plans provide branch-local feature context.
+Compact aliases use `F<number>` for the owning FAM without leading zeroes: `FAM-006` becomes `F6`, `FAM-007` becomes `F7`, and `FAM-008` becomes `F8`. Family Feature Vision IDs use `F<family>-FF<two digits>`, and durable feature elements inside the file use `F<family>-FF<two digits>-E<two digits>`. Example: `F7-FF01-E03` is the third durable element in the first FAM-007 Family Feature Vision.
+
+`Docs/family_feature_visions/index.md`, once USER-approved and created, owns the compact FFV registry. It maps each compact FFV ID to the family, human-readable category title, file path, source owner, and durable status. The index is a compact registry only; it must not record selected-next truth, active branch status, gate status, PR state, release-window state, or worktree assignment. Until that index exists, this README owns the compact ID rule, and existing FFV filenames are transition aliases that must be normalized by the owning branch when USER approves FFV content mutation.
+
+Family Feature Vision filenames should be compact IDs. Human-readable category names live in the file title and the index. The FFV title and `Feature Category` must name a durable product feature category, not a branch route, Slice/SLC, seam, current implementation package, or temporary branch wording. A branch may select a route such as a "three-NDAI assisted desktop AI" implementation package inside a category, but the FFV identity itself must stay category-level.
+
+Creating the folder, creating the first content files, renaming existing FFV files, migrating existing family-vision text into those files, updating branch/external-state pointers to new FFV names, or treating any file as the active owner requires a separate USER approval unless the current approved branch explicitly includes FFV content-file mutation. Until those files exist or are repaired, `Docs/family_visions/` remains the durable family-level owner and active branch plans provide branch-local feature context.
+
+Every FFV creation, rename, or repair pass must inventory all currently tracked `Docs/family_feature_visions/*.md` files in the owning worktree. The pass must classify each file as `Valid Category-Level FFV`, `Rename / Reframe Required`, `Compact ID Missing`, `Pointer Migration Required`, `Live-State Wording Repair Required`, `Historical Transition Alias`, or `USER Decision Required`. When approval covers FFV content mutation, all affected FFVs in that worktree must be repaired or explicitly deferred with a named blocker before BP1 proceeds. Leaving stale branch-record, branch-plan, external-state, USER packet, backlog, roadmap, or source-truth pointers to old FFV names blocks on `Family Feature Vision Pointer Migration Missing`.
 
 BP1 entry for a selected feature-bearing branch route is blocked on `Family Feature Vision Required For Selected Feature` until the required USER-approved Family Feature Vision exists and passes the `Feature Vision Sufficiency Check`. If the branch route is governance-only, release-support, pure helper/validator, source-truth-only, or otherwise non-product, the branch planning packet may record `Family Feature Vision Not Applicable` with the reason.
 
-`Feature Vision Sufficiency Check` requires enough durable content for BP1 to create a branch-specific vision without inventing feature direction: feature purpose, USER-facing surfaces, experience flow, included capabilities, explicit non-goals, dependency/deferred map, design options, proof expectations, Branch Readiness consumption notes, BP1 context notes, fold-down history when applicable, and active-state wording scan. A shallow, placeholder, copied-list-only, or branch-local implementation-only file does not satisfy BP1 entry.
+`Feature Vision Sufficiency Check` requires enough durable content for BP1 to create a branch-specific vision without inventing feature direction: stable FFV ID or approved transition alias, parent FAM, human-readable category title, category-level purpose, USER-facing surfaces, experience flow, included capabilities, explicit non-goals, durable feature element inventory, dependency/deferred map, design options, proof expectations, Branch Readiness consumption notes, BP1 context notes, fold-down history when applicable, category-scope scan, pointer-migration scan, and active-state wording scan. A shallow, placeholder, copied-list-only, branch-route-specific, Slice/SLC-specific, seam-specific, or branch-local implementation-only file does not satisfy BP1 entry.
 
 When Family Feature Vision planning exposes durable feature ideas, deferrals, surfaces, proof expectations, grouping rules, or routing constraints, those items must be folded into the relevant vision owner before BP1 or given a durable deferred disposition. Repo vision files must preserve the planning without storing live branch state.
 
 Family Feature Vision owns durable feature-category direction inside exactly one FAM:
 
+- stable FFV ID or approved transition alias
+- parent FAM
+- human-readable category title
 - feature purpose
 - USER-facing surfaces
 - experience flow
 - included capabilities
 - explicit non-goals
+- durable feature element inventory with element IDs
 - future feature candidates
 - dependency/deferred map
 - design options
@@ -73,6 +85,10 @@ Family Feature Vision owns durable feature-category direction inside exactly one
 Family Feature Vision must not own:
 
 - backlog family identity
+- branch route identity
+- Slice/SLC identity
+- seam identity
+- branch-local implementation sequence
 - active branch status
 - selected-next status
 - PR status
@@ -100,6 +116,7 @@ Allowed durable dispositions:
 
 Each deferred item must record:
 
+- element ID when the deferred item is also a durable feature element
 - deferred item title
 - originating FAM
 - originating feature vision
@@ -116,11 +133,14 @@ Each deferred item must record:
 
 Deferred Feature Carryforward must avoid active branch-state terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or `release window status`. Those terms belong to BR2 output, active external branch planning, `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, or USER decision packets.
 
+Deferred carryforward may preserve durable planning facts even when the implementation is future-gated. It must not become a live dependency ledger. BR2, BP1, BP2, BP3, Workstream, Hardening, and Live Validation dynamically select, map, prove, defer, or block the durable FFV elements; the FFV itself owns only the durable visioned inventory, deferred facts, proof expectations, and fold-down receipts.
+
 ## Owner Relationship
 
 - Project-wide vision: `Docs/nexus_vision.md`
 - Family-level vision: `Docs/family_visions/FAM-XXX_<slug>.md`
-- Family Feature Vision: `Docs/family_feature_visions/FAM-XXX_<feature_slug>.md` after USER-approved content-file creation
+- Family Feature Vision index and compact aliases: `Docs/family_feature_visions/index.md` after USER-approved index creation
+- Family Feature Vision content: `Docs/family_feature_visions/F<family>-FF<two digits>.md` after USER-approved content-file creation
 - Active branch vision snapshot: `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`
 - Durable implementation/proof history: `Docs/workstreams/` records or structured branch receipts
 - Compact family registry and pointers: `Docs/feature_backlog.md`
