@@ -188,6 +188,19 @@ Issue #258 Planning Boundary: `Overlay Profile persistence is a distinct admitte
 Branch-Sprawl Principle: `Option C remains one coherent FAM-006 package only while owner/worktree, route, validation/proof path, release timing, rollback posture, and risk class remain aligned.`
 Boundary: `BP2 acceptance, BP3, Workstream, runtime mutation, Hardening, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, and Native Log Loader full implementation remain pending separate USER decisions.`
 
+## BP2 Acceptance / BP3 Option C Orchestration Preparation Receipt
+
+Acceptance Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; active gate state, packet proof, ZIP proof, and USER Gate State live in C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md and helper output.`
+USER BP2 Decision: `Accepted`
+Accepted BP2 Plan: `Option C - Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio launch/folder shell.`
+BP3 Preparation Scope: `Validate Dashboard Recording Card, Recording Studio, minimal Log Viewer Studio shell, native/export log boundary, open-folder pre-session usability, issue #258 target reliability, deferred carryforward applicability, Element-to-Phase proof, rollback, validation, H1, Live Validation, UTS, visual-system inheritance, branch-sprawl/package-size safety, and slice/SLC/seam sequencing.`
+Option C Coherence Posture: `Codex may recommend Option C as one coherent bounded Workstream package only if BP3 proves the admitted surfaces stay minimal, share the same FAM-006 owner/worktree, route, validation/proof path, release timing, rollback posture, and risk class.`
+Split / Defer Guard: `BP3 must split, defer, waive, or return to BP2 if Recording Studio, Log Viewer Studio shell, native/export behavior, issue #258 repair, or visual-system work widens into full Log Viewer, previous-log selection, export customization, tray controls, keybinds, full settings, Native Log Loader full implementation, broad Dashboard persistence, new visual grammar, or other future-gated scope.`
+Helper / Fixture Guard: `dev/orin_user_review_bundle.py and dev/orin_branch_readiness_planning_fixture_validation.py now carry a FAM-006 BP3 packet-generation guard so BP3 reviewability does not fall through to stale Workstream-final wording or implementation approval.`
+Boundary: `BP3 acceptance, Workstream/runtime implementation, Hardening, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, full Log Viewer Studio, previous-log selection, export customization, tray controls, keybind implementation, full settings implementation, and Native Log Loader full implementation remain pending separate USER decisions.`
+Next Legal Phase: `BP3 Workstream Entry / Orchestration Validation USER review.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`

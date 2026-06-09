@@ -2587,6 +2587,124 @@ def _validate_fam007_bp3_packet_generation_guard() -> list[str]:
     return failures
 
 
+def _validate_fam006_bp3_packet_generation_guard() -> list[str]:
+    failures: list[str] = []
+    exact_decision = (
+        "I accept the FAM-006 BP2 Option C Branch Plan and approve Codex to "
+        "prepare BP3 Workstream Entry / Orchestration Validation. BP3 must "
+        "validate the Dashboard Recording Card, Recording Studio, minimal Log "
+        "Viewer Studio launch/folder shell, native/export log boundary, "
+        "open-folder pre-session usability, issue #258 target-reliability line "
+        "item, deferred carryforward, Element-to-Phase proof, rollback, "
+        "validation, Live Validation, UTS expectations, visual-system inheritance "
+        "proof, branch-sprawl safety, and slice/SLC/seam sequencing. Workstream "
+        "implementation remains pending separate USER approval."
+    )
+    copied = [
+        (
+            "Docs/family_feature_visions/FAM-006_recording.md",
+            "FAM-006_recording.md",
+        ),
+        (
+            "Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md",
+            "feature_fam_006_dashboard_recording_start_stop_local_file.md",
+        ),
+    ]
+    with tempfile.TemporaryDirectory() as temp_dir:
+        target = Path(temp_dir)
+        review_bundle._write_workstream_entry_packet_digests(
+            target=target,
+            source_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+            source_head="fixture-head",
+            origin_main="fixture-origin-main",
+            packet_folder=target,
+            export_zip=target / "FAM-006-20260601-120000.zip",
+            copied=copied,
+            extra_bundle_files=["USER Review/WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md"],
+            bundle_file_count=7,
+            expected_count=len(copied),
+            copied_count=len(copied),
+            exact_user_decision=exact_decision,
+            pending_user_decisions=["Workstream implementation remains pending USER approval."],
+        )
+        packet_files = {
+            "START_HERE.md": (
+                "USER Decision This Packet Supports: "
+                f"{exact_decision}\n"
+                "Decision Path Summary: bp3 orchestration review\n"
+                "BP3 Packet Reviewability State: Reviewable\n"
+                "BP3 USER Gate State: Pending USER Review\n"
+            )
+        }
+        for path in target.glob("*.md"):
+            packet_files[path.name] = path.read_text(encoding="utf-8")
+
+    result = review_bundle._validate_workstream_entry_packet_decision_path(
+        packet_files,
+        expected_branch="feature/fam-006-dashboard-recording-start-stop-local-file",
+        expected_head="fixture-head",
+        expected_origin_main="fixture-origin-main",
+    )
+    if result.status != review_bundle.DECISION_STATUS_BP3_ORCHESTRATION_REVIEW:
+        failures.append(
+            "FAM-006 BP3 generated packet did not classify as bp3-orchestration-review: "
+            f"{result.status}; {result.failures[:3]}"
+        )
+
+    combined = "\n".join(packet_files.values()).casefold()
+    forbidden_terms = [
+        "workstream entry final decision review",
+        "implementation approval: approved",
+        "approve bounded workstream package implementation",
+    ]
+    stale_terms = [term for term in forbidden_terms if term in combined]
+    if stale_terms:
+        failures.append(
+            "FAM-006 BP3 generated packet emitted stale implementation/final-review wording: "
+            + "; ".join(stale_terms)
+        )
+
+    primary_digest = packet_files.get("WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md", "")
+    required_sections = [
+        "## Plain-Language BP3 Readiness Summary",
+        "## Accepted BP1 Vision Traceability",
+        "## Accepted BP2 Plan Traceability",
+        "## Option C Whole-Package Coherence Test",
+        "## Surface Admit / Split / Defer Findings",
+        "## Proposed Slice / SLC / Seam Sequence",
+        "## Direct Proof Plan",
+        "## Rollback And Reversibility Posture",
+        "## Validation / H1 / Live Validation / UTS Plan",
+        "## Visual-System Inheritance Proof",
+        "## Deferred Carryforward Applicability",
+        "## Exact BP3 USER Decision Options",
+    ]
+    missing_sections = [section for section in required_sections if section not in primary_digest]
+    if missing_sections:
+        failures.append(
+            "FAM-006 BP3 primary digest is missing substantive orchestration sections: "
+            + "; ".join(missing_sections)
+        )
+
+    required_proof_terms = [
+        "Dashboard Recording Card proof",
+        "Recording Studio proof",
+        "Log Viewer shell proof",
+        "Native/export boundary proof",
+        "Issue #258 proof",
+        "Option C remains one coherent bounded",
+        "Return to BP2",
+    ]
+    missing_proof_terms = [term for term in required_proof_terms if term not in primary_digest]
+    if missing_proof_terms:
+        failures.append(
+            "FAM-006 BP3 primary digest is missing direct-proof topics: "
+            + "; ".join(missing_proof_terms)
+        )
+
+    return failures
+
+
 def _validate_fam007_workstream_implementation_packet_priority_guard() -> list[str]:
     failures: list[str] = []
     exact_decision = (
@@ -4909,6 +5027,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
     failures.extend(_validate_fam007_bp3_packet_generation_guard())
+    failures.extend(_validate_fam006_bp3_packet_generation_guard())
     failures.extend(_validate_fam007_workstream_implementation_packet_priority_guard())
 
     return failures
