@@ -1620,8 +1620,23 @@ def _validate_owner_ai_operational_foundation_gates(
     )
 
     forbidden = fixture.get("forbiddenMaterialPresence", {})
-    for field, value in forbidden.items():
-        _require(value is False, failures, f"Owner AI forbidden material proof must set {field}=false")
+    contract_forbidden = contract.get("forbiddenMaterialPresence", {})
+    expected_forbidden_fields = set(contract_forbidden)
+    actual_forbidden_fields = set(forbidden)
+    missing_forbidden_fields = sorted(expected_forbidden_fields - actual_forbidden_fields)
+    extra_forbidden_fields = sorted(actual_forbidden_fields - expected_forbidden_fields)
+    _require(
+        not missing_forbidden_fields,
+        failures,
+        "Owner AI forbidden material proof missing field(s): " + ", ".join(missing_forbidden_fields),
+    )
+    _require(
+        not extra_forbidden_fields,
+        failures,
+        "Owner AI forbidden material proof has unexpected field(s): " + ", ".join(extra_forbidden_fields),
+    )
+    for field in sorted(expected_forbidden_fields):
+        _require(forbidden.get(field) is False, failures, f"Owner AI forbidden material proof must set {field}=false")
 
     handoff = fixture.get("hardeningHandoff", {})
     _require(handoff.get("nextLegalPhase") == "Hardening H1", failures, "Owner AI handoff must route to Hardening H1")
