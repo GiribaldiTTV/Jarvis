@@ -51,6 +51,15 @@ FAM007_PROVIDER_USER_OPERATED_CONSENT_UX_FOUNDATION_STATE_ID = (
 FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID = (
     "fam007-provider-setup-completion-foundation"
 )
+OWNER_AI_OPERATIONAL_FOUNDATION_GATES_STATE_ID = (
+    "fam007-owner-ai-operational-foundation-gates"
+)
+OWNER_AI_OPERATIONAL_FOUNDATION_GATES_SCHEMA_VERSION = (
+    "owner-ai-operational-foundation-gates.v1"
+)
+OWNER_AI_OPERATIONAL_FOUNDATION_GATES_BRANCH = (
+    "feature/fam-007-owner-ai-operational-foundation-gates"
+)
 
 NO_PROVIDER_MODE = "no-provider"
 NO_PROVIDER_AVAILABILITY = "disabled"
@@ -159,6 +168,51 @@ CONTRACT_READY_MARKER = "contract-ready"
 UI_READY_MARKER = "ui-ready"
 VALIDATOR_READY_MARKER = "validator-ready"
 FUTURE_IMPLEMENTATION_GATED_MARKER = "future-implementation-gated"
+OWNER_AI_GATE_SLICE_IDS = (
+    "SLC-001",
+    "SLC-002",
+    "SLC-003",
+    "SLC-004",
+    "SLC-005",
+    "SLC-006",
+)
+OWNER_AI_GATE_SEAM_RECORDS = (
+    ("SLC-001", "Seam 1", "Define protected classes and public-safe exclusion contract"),
+    ("SLC-001", "Seam 2", "Enforce public packet/repo/bundle exclusion checks"),
+    ("SLC-001", "Seam 3", "Preserve acceptance/fold-down boundary for protected-asset policy"),
+    ("SLC-002", "Seam 1", "Define disabled provider/runtime state contract"),
+    ("SLC-002", "Seam 2", "Plan USER-facing disabled-state copy and review packet wording"),
+    ("SLC-002", "Seam 3", "Add no-execution proof linkage for BP3"),
+    ("SLC-003", "Seam 1", "Separate cache consent from memory consent"),
+    ("SLC-003", "Seam 2", "Plan blocked persistence states and consent error states"),
+    ("SLC-003", "Seam 3", "Preserve source-truth placement for future memory/cache policy"),
+    ("SLC-004", "Seam 1", "Define explicit install-intent state model"),
+    ("SLC-004", "Seam 2", "Plan blocked pending-install state and visible route-back"),
+    ("SLC-004", "Seam 3", "Link install-intent gates to protected artifact and provider-state proof"),
+    ("SLC-005", "Seam 1", "Define lane identity without private setup"),
+    ("SLC-005", "Seam 2", "Plan readiness gates for later private setup approval"),
+    ("SLC-005", "Seam 3", "Validate lane-readiness copy in USER-facing packet"),
+    ("SLC-006", "Seam 1", "Define future prerequisite schema names and blocked states"),
+    ("SLC-006", "Seam 2", "Plan no-real-memory/no-real-agent proof and public-safe examples"),
+    ("SLC-006", "Seam 3", "Link schema gates to BP3 whole-package orchestration"),
+)
+OWNER_AI_PROTECTED_ARTIFACT_CLASSES = (
+    "owner-private-prompts",
+    "owner-private-memory",
+    "private-dev-orin-content",
+    "secrets-and-credentials",
+    "private-model-or-capability-assets",
+    "private-eval-logs",
+    "private-automation",
+    "imported-public-user-data",
+)
+OWNER_AI_PUBLIC_EXCLUSION_TARGETS = (
+    "public-repo",
+    "local-user-review-packet",
+    "timestamped-user-upload-zip",
+    "public-review-bundle",
+    "public-release-artifact",
+)
 PROVIDER_RUNTIME_STATE_SCHEMA_VERSION = "provider-runtime-state.v1"
 PROVIDER_RUNTIME_CONFIG_SCHEMA_VERSION = "provider-runtime-config.v1"
 PROVIDER_RUNTIME_CONFIG_MIGRATION_POSTURE = "no-runtime-migration-required"
@@ -12088,6 +12142,142 @@ def build_local_hardware_capability_state(*, surface_role: str = "hud") -> AIPro
         surface_role=normalized_surface,
         provider_options=_provider_selection_options(),
     )
+
+
+def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
+    """Build the public-safe FAM-007 Owner AI foundation gate contract."""
+
+    seam_records = tuple(
+        {
+            "slc": slc,
+            "seam": seam,
+            "name": name,
+            "status": "implemented-public-safe-gate-contract",
+        }
+        for slc, seam, name in OWNER_AI_GATE_SEAM_RECORDS
+    )
+    return {
+        "schema": OWNER_AI_OPERATIONAL_FOUNDATION_GATES_SCHEMA_VERSION,
+        "branch": OWNER_AI_OPERATIONAL_FOUNDATION_GATES_BRANCH,
+        "packageId": PACKAGE_ID,
+        "stateId": OWNER_AI_OPERATIONAL_FOUNDATION_GATES_STATE_ID,
+        "state": "implemented-public-safe-gate-contract",
+        "sliceIds": OWNER_AI_GATE_SLICE_IDS,
+        "seams": seam_records,
+        "protectedArtifactExclusion": {
+            "protectedClasses": OWNER_AI_PROTECTED_ARTIFACT_CLASSES,
+            "publicExclusionTargets": OWNER_AI_PUBLIC_EXCLUSION_TARGETS,
+            "repoPacketBundleChecksRequired": True,
+            "acceptedPolicyFoldDownRequired": True,
+            "ownerPrivateMaterialAllowed": False,
+            "privateDevMaterialAllowed": False,
+            "privatePathAllowed": False,
+            "secretAllowed": False,
+            "privateModelOrCapabilityAssetAllowed": False,
+        },
+        "providerRuntimeDisabledState": {
+            "providerVisibleData": "none",
+            "providerVisibleDataGuarantee": PROVIDER_VISIBLE_DATA_GUARANTEE_NONE,
+            "sentToProvider": False,
+            "canAcceptPrompts": False,
+            "promptProviderModelExecution": "disabled",
+            "providerSdkIntegrated": False,
+            "modelExecutionEnabled": False,
+            "modelDownloadsEnabled": False,
+            "runtimeProviderExecutionEnabled": False,
+            "downloadsNetworkExternalCalls": "blocked",
+            "networkEgressState": NETWORK_EGRESS_BLOCKED,
+            "externalCallsEnabled": False,
+            "bp3NoExecutionProofLink": "accepted-bp3-no-provider-no-runtime-proof",
+        },
+        "consentStateGates": {
+            "cacheConsentState": "blocked-pending-user-cache-approval",
+            "memoryConsentState": "blocked-pending-user-memory-approval",
+            "cacheIsNotMemory": True,
+            "runtimeCacheBehaviorEnabled": False,
+            "memoryContextState": MEMORY_CONTEXT_DISABLED,
+            "memoryIndexingState": MEMORY_INDEXING_DISABLED,
+            "retrievalState": RETRIEVAL_DISABLED,
+            "learningState": LEARNING_DISABLED,
+            "persistenceState": PERSISTENCE_DISABLED,
+            "memoryWriteEnabled": False,
+            "consentErrorState": "blocked-state-visible-route-back-required",
+        },
+        "capabilityInstallIntentGates": {
+            "installIntentState": CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+            "installIntentRequiredBeforeInstall": True,
+            "pendingInstallState": "blocked-pending-explicit-user-install-intent",
+            "capabilityPackDownloadsBlocked": True,
+            "capabilityPackInstallBlocked": True,
+            "capabilityPackUpdateBlocked": True,
+            "capabilityPackUninstallBlocked": True,
+            "protectedArtifactAndProviderProofLinked": True,
+        },
+        "laneReadinessGates": {
+            "userPublicLane": {
+                "laneIdentity": "public-user-lane",
+                "privateSetupRequired": False,
+                "readinessState": "public-safe-gates-present",
+            },
+            "developerLane": {
+                "laneIdentity": "developer-lane-future-gated",
+                "privateRepoCreated": False,
+                "privateRootCreated": False,
+                "privateRemoteConfigured": False,
+                "readinessState": "blocked-pending-user-private-dev-setup-approval",
+            },
+            "ownerLane": {
+                "laneIdentity": "owner-lane-future-gated",
+                "privateRepoCreated": False,
+                "privateRootCreated": False,
+                "privateRemoteConfigured": False,
+                "readinessState": "blocked-pending-user-owner-setup-approval",
+            },
+        },
+        "ownerAiMemoryAgentFoundationSchemas": {
+            "memoryPrerequisiteSchema": "owner-ai-memory-prerequisites.v1",
+            "agentPrerequisiteSchema": "owner-ai-agent-prerequisites.v1",
+            "memoryBlockedState": "blocked-pending-user-owner-memory-approval",
+            "agentBlockedState": "blocked-pending-user-owner-agent-approval",
+            "realOwnerMemoryEnabled": False,
+            "realOwnerAgentsEnabled": False,
+            "publicSafeExamplesOnly": True,
+            "bp3WholePackageOrchestrationLink": "accepted-bp3-slc-006-whole-package-link",
+        },
+        "futureUserGates": {
+            "privateDevRepo": "USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE",
+            "privateOwnerRepo": "USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE",
+            "githubDesktopPrivateRemote": "USER-ACTION-FAM007-GITHUB-DESKTOP-PRIVATE-REMOTE-SETUP",
+            "providerModelExecution": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+            "runtimeCacheBehavior": "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR",
+            "memoryLearningPersonalization": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+            "realOwnerMemory": "USER-GATE-FAM007-REAL-OWNER-MEMORY",
+            "realOwnerAgents": "USER-GATE-FAM007-REAL-OWNER-AGENTS",
+        },
+        "forbiddenMaterialPresence": {
+            "privateRemoteUrl": False,
+            "tokenOrCredential": False,
+            "ownerSecret": False,
+            "privatePath": False,
+            "promptPayload": False,
+            "memoryPayload": False,
+            "privateAutomation": False,
+            "modelArtifact": False,
+            "capabilityPackAsset": False,
+            "privateHostingSecret": False,
+        },
+        "hardeningHandoff": {
+            "state": "ready-for-hardening-h1",
+            "nextLegalPhase": "Hardening H1",
+            "workstreamGreenCandidate": True,
+            "privateSetupAuthorized": False,
+            "providerModelExecutionAuthorized": False,
+            "runtimeCacheBehaviorAuthorized": False,
+            "memoryLearningPersonalizationAuthorized": False,
+            "realOwnerMemoryAuthorized": False,
+            "realOwnerAgentsAuthorized": False,
+        },
+    }
 
 
 def build_fam007_foundation_readiness_state(*, surface_role: str = "hud") -> AIProviderStateSnapshot:

@@ -21,6 +21,7 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 - Deterministic routing, reliability tiers, capability self-awareness, provider orchestration, and cache replay safety must follow `Docs/ai_runtime_and_trust_architecture.md` before implementation-specific FAM-007 slices can claim readiness.
 - Capability packs should declare what they can do, what they cannot do, what sources they contain, what hardware/storage/provider state they require, what cache/index state they own, and whether they are local-only or provider-assisted.
 - Provider recommendation is allowed when local capability is insufficient, but execution remains permission-gated and provider-visible data must be explicit before anything leaves the machine.
+- Owner AI Operational Foundation Gates are accepted as a public-safe control-plane route for artifact exclusion controls, provider/runtime disabled-state consent shells, cache-versus-memory consent gates, capability install-intent gates, Developer/Owner lane readiness gates, and future Owner AI memory/agent prerequisite schemas without activating private setup, provider/model execution, runtime cache behavior, real memory, or real agents.
 - OpenAI Docs or other provider documentation lookups are planning evidence only until digested into the owning repo source truth. OpenAI Developers tooling, API key creation, provider account setup, connector authentication, billing/quota state, model/runtime setup, and provider-visible data routing remain sensitive setup or implementation concerns and require separate USER approval before execution or durable source-truth claims.
 
 ## Implementation Boundaries
@@ -29,6 +30,7 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 - This vision does not admit persistent memory, learning, personalization, hidden provider residue, or runtime cache implementation by itself.
 - Active FAM-007 branches must carry accepted Branch Vision Snapshot and provider-state validation proof before Workstream implementation.
 - Active FAM-007 branches that consume AI-native architecture must run the Backlog Taxonomy And Source-Truth Placement Gate, cite `Docs/ai_runtime_and_trust_architecture.md`, and prove provider, cache, permission-state, capability-pack, and local-only boundaries in the USER Branch Plan Review packet before Workstream implementation.
+- FAM-007 gate/control-plane branches may implement public-safe disabled states, schemas, validators, and route-back checks only when BP1, BP2, BP3, and Workstream approval are accepted or waived; those gates must keep real private setup, provider/model execution, runtime cache activation, memory persistence, Owner memory, and Owner agents behind later USER decisions.
 
 ## Canonical Pointers
 

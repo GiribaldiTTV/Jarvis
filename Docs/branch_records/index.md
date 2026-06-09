@@ -222,3 +222,7 @@ This repo-tracked active list is intentionally narrow after External Operational
 - `Docs/branch_records/feature_fb_030_orin_voice_audio_direction_refinement.md`
 - `Docs/branch_records/feature_fb_030_release_readiness_canon_repair.md`
 - `Docs/branch_records/feature_fb_030_successor_branch_truth_repair.md`
+
+## Durable Branch Receipt Records
+
+- `Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md`

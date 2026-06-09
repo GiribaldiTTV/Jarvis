@@ -4340,14 +4340,15 @@ PR_READINESS_RESPONSE_CONTRACT_PHRASES = (
     "### Base Branch",
     "### Head Branch",
     "### PR Summary",
-    "## Branch Evidence",
-    "The PR summary/GitHub PR body uses exactly three top-level sections: `## Summary`, `## Branch Evidence`, and `## Validation`.",
-    "`## Summary` must be one concise outcome paragraph",
-    "`## Branch Evidence` must not repeat the Summary",
-    "`## Validation` must contain validation commands, proof paths, or the historical no-validation sentence only",
+    "## What Changed",
+    "The PR summary/GitHub PR body uses exactly two top-level sections: `## Summary` and `## What Changed`.",
+    "`## Summary` must be one concise human-readable outcome paragraph",
+    "`## What Changed` must describe the actual branch work",
+    "GitHub PR bodies and PR Summary copy must not include `## Validation`, `## PR posture`, `## Branch Evidence`",
+    "Validation commands, command output, byte-proof evidence, mergeability, bot-review state, watcher state, and PR Readiness posture belong in Codex digests, helper output, status checks, or external operational state",
     "inclusion-only",
     "defensive scope language",
-    "GitHub PR bodies and PR Summary copy must not include phase-digest or Codex operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`; those belong in governed Codex/source-truth output, not branch evidence copy.",
+    "All visible PR bodies must be scanned by `dev\\orin_pr_body_quality_audit.py`; every nonconforming PR body inside the approved GitHub correction scope must be repaired before the PR-body standard can be reported green.",
 )
 
 PR_READINESS_STAGE_GATE_DOCS = (
@@ -8344,17 +8345,19 @@ def _external_branch_state_record_for_branch(
     if not state_path.exists():
         return "", ""
     state_text = _read_text(state_path)
-    state_branch = _extract_marker_value(state_text, "Branch")
+    # External state files contain overlapping labels such as
+    # `Branch Planning Packet ZIP`; identity reads must be exact.
+    state_branch = _extract_exact_marker_value(state_text, "Branch")
     if state_branch != branch_name:
         return "", ""
-    state_worktree = _extract_marker_value(state_text, "Worktree")
+    state_worktree = _extract_exact_marker_value(state_text, "Worktree")
     if (
         actual_root
         and state_worktree
         and _normalized_local_path(state_worktree) != _normalized_local_path(actual_root)
     ):
         return "", ""
-    record_pointer = _extract_marker_value(state_text, "Repo Branch Record Pointer")
+    record_pointer = _extract_exact_marker_value(state_text, "Repo Branch Record Pointer")
     if not record_pointer:
         return "", ""
     record_path = ROOT_DIR / Path(record_pointer)
@@ -8363,6 +8366,18 @@ def _external_branch_state_record_for_branch(
     record_text = _read_text(Path(record_pointer))
     if _extract_branch_identity_branch(record_text) != branch_name:
         return "", ""
+    record_identity = _section(record_text, "Branch Identity")
+    state_identity = _section(state_text, "Branch Identity")
+    if _extract_exact_marker_value(record_identity, "Worktree") and _section(
+        record_text,
+        "Assigned Worktree Confinement",
+    ):
+        return record_pointer, record_text
+    if _extract_exact_marker_value(state_identity, "Worktree") and _section(
+        state_text,
+        "Assigned Worktree Confinement",
+    ):
+        return str(state_path), state_text
     return record_pointer, record_text
 
 
@@ -20449,6 +20464,13 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         "- Worktree: `C:\\Nexus Worktrees\\FAM-007`\n"
         "- Worktree Receipt: `C:\\Nexus Worktrees\\Historical-FAM-007`\n"
     )
+    external_state_identity = (
+        "Branch: `feature/fam-007-owner-ai-operational-foundation-gates`\n"
+        "Branch Planning Packet ZIP: `C:\\Nexus USER\\FAM-007-20260608-164406.zip`\n"
+        "Worktree: `C:\\Nexus Worktrees\\FAM-007`\n"
+        "Worktree State: `C:\\Nexus Governance State\\worktrees\\FAM-007\\worktree_state.md`\n"
+        "Repo Branch Record Pointer: `Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md`\n"
+    )
     require(
         bool(fixture_text),
         f"{fixture}: missing historical worktree receipt regression fixture",
@@ -20499,6 +20521,16 @@ def _run_worktree_confinement_regression_fixtures(require) -> None:
         _extract_exact_marker_value(active_and_receipt_identity, "Worktree Receipt")
         == "C:\\Nexus Worktrees\\Historical-FAM-007",
         "Assigned Worktree Confinement exact-marker fixture did not parse `Worktree Receipt:`",
+    )
+    require(
+        _extract_exact_marker_value(external_state_identity, "Branch")
+        == "feature/fam-007-owner-ai-operational-foundation-gates",
+        "Assigned Worktree Confinement external-state fixture must not parse `Branch Planning Packet ZIP:` as `Branch:`",
+    )
+    require(
+        _extract_exact_marker_value(external_state_identity, "Worktree")
+        == "C:\\Nexus Worktrees\\FAM-007",
+        "Assigned Worktree Confinement external-state fixture must not parse `Worktree State:` as `Worktree:`",
     )
 
 
@@ -22356,6 +22388,7 @@ def main() -> int:
     release_debt_index_paths = _collect_release_debt_index_paths(index_text)
     active_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Active Branch Authority Records")
     historical_branch_record_paths = _collect_branch_record_paths(branch_record_index_text, "Historical Branch Authority Records")
+    durable_branch_receipt_paths = _collect_branch_record_paths(branch_record_index_text, "Durable Branch Receipt Records")
     active_non_standing_branch_record_paths = [
         path
         for path in active_branch_record_paths
@@ -22377,7 +22410,7 @@ def main() -> int:
     )
     _run_branch_record_live_state_leakage_fixtures(require)
     all_branch_record_detail_paths = _all_branch_record_detail_paths()
-    indexed_branch_record_paths = active_branch_record_paths | historical_branch_record_paths
+    indexed_branch_record_paths = active_branch_record_paths | historical_branch_record_paths | durable_branch_receipt_paths
     unindexed_branch_record_paths = all_branch_record_detail_paths - indexed_branch_record_paths
     for branch_record_path in sorted(all_branch_record_detail_paths):
         record_text = _read_text(Path(branch_record_path))
@@ -22430,7 +22463,7 @@ def main() -> int:
         historical_branch_names,
     ) = _branch_record_branch_sets(
         active_branch_record_paths,
-        historical_branch_record_paths,
+        historical_branch_record_paths | durable_branch_receipt_paths,
         current_git_branch,
     )
     active_branch_record_path, active_branch_record_text = _active_branch_record_for_branch(
