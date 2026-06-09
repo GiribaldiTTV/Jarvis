@@ -585,6 +585,12 @@ def _packet_file_present(packet_files: Mapping[str, str], file_name: str) -> boo
 
 def _is_bp1_branch_vision_packet_text(value: str) -> bool:
     normalized = re.sub(r"\s+", " ", value).casefold()
+    if (
+        ("confirm or revise" in normalized or "revision" in normalized)
+        and "bp1" in normalized
+        and ("branch vision" in normalized or "planning digest" in normalized)
+    ):
+        return True
     if any(
         marker in normalized
         for marker in (
@@ -1650,12 +1656,73 @@ def _write_user_branch_vision_review(
         and (
             "recording vision repair" in profile_text
             or "bp1 entry" in profile_text
+            or "bp1 user branch vision review" in profile_text
+            or "branch vision review revision" in profile_text
             or "dashboard recording" in profile_text
+            or "dashboard-recording" in profile_text
+            or "fam-006-recording" in profile_text
         )
         and not pr_readiness_context_packet
         and not runtime_focus_selection_packet
     )
     if fam006_recording_bp1_entry_packet:
+        fam006_recording_revision_requested = any(
+            marker in profile_text
+            for marker in (
+                "option f",
+                "planning digest",
+                "planning solidification",
+                "vision solidification",
+                "bp1 decision is: revise",
+                "bp1 revise",
+                "revise bp1",
+            )
+        )
+        if fam006_recording_revision_requested:
+            review_status = (
+                "Revision Requested By USER - Option F planning digest / vision "
+                "solidification is the active BP1 process route before final "
+                "implementation-shape selection."
+            )
+            user_gate_state = (
+                "USER Revision Requested - revised BP1 packet must be confirmed, "
+                "accepted, waived, rejected, or blocked by USER before BP2 can proceed."
+            )
+            contract_status = (
+                "Pending USER Confirmation - USER requested BP1 revision; Option F "
+                "is the current planning route and BP1 acceptance remains pending."
+            )
+            user_response = (
+                "USER response digested: revise BP1. USER did not accept Option E "
+                "as the default branch direction. USER selected Option F first: "
+                "review/digest the Recording ecosystem planning, make recommendations "
+                "and revisions, preserve accepted durable Recording ecosystem direction, "
+                "then prepare the BP1 decision so USER can choose the final current-branch "
+                "implementation shape."
+            )
+            codex_digest = (
+                "Codex records Option F as the active BP1 process route, not an "
+                "implementation option beside A-E. Codex preserves the current USER "
+                "leaning toward a refined Option C / C-lite only as a post-solidification "
+                "candidate: Dashboard Recording card as compact quick-access/status "
+                "surface, Recording Studio as likely current-branch relevant if BP2/BP3 "
+                "can keep it bounded, and minimal Log Viewer Studio launch/folder shell "
+                "only where it directly supports Recording native/export log access."
+            )
+            accepted_vision = (
+                "Pending USER acceptance - durable Recording ecosystem direction is "
+                "folded into the FAM-006 Recording feature vision, but final current-branch "
+                "implementation shape is not accepted yet."
+            )
+            user_response_digested = (
+                "Yes - the USER revision is digested into this BP1 packet and durable "
+                "Recording feature vision. BP1 acceptance remains pending."
+            )
+        else:
+            user_response_digested = (
+                "No - BP1 Entry remains open until Codex digests an explicit USER "
+                "response or waiver."
+            )
         lines = [
             f"# {title} - USER Branch Vision Review",
             "",
@@ -1667,7 +1734,7 @@ def _write_user_branch_vision_review(
             "",
             "## Contract Status",
             "",
-            "Draft - BP1 re-entry is open. Mark Complete or Waived only after USER explicitly accepts or waives the repaired Recording Branch Vision.",
+            contract_status,
             "",
             "## Packet Reviewability State",
             "",
@@ -1702,6 +1769,9 @@ def _write_user_branch_vision_review(
             "- Native NDAI logs are the product artifact. CSV, Excel-readable, JSON, or other third-party-readable files are exports only, created through a future explicit export flow.",
             "- Tray visibility, keybind behavior, post-stop behavior, warning dismissal, settings, export defaults, and log locations are important future Recording design items, but they must be admitted deliberately before implementation.",
             "- The miss this packet repairs is governance/product planning depth: BP1 must surface the real Recording product shape early enough that USER can add, revise, reject, or future-gate it before BP2/BP3 and Workstream execution.",
+            "- USER selected Option F first: planning digest / vision solidification before selecting a final implementation shape.",
+            "- USER did not accept Option E as the default branch direction.",
+            "- USER's current post-solidification leaning is refined Option C / C-lite: Dashboard Recording Card remains compact; Recording Studio is likely current-branch relevant; a minimal Log Viewer Studio launch/folder shell may be current-branch relevant only where it directly supports Recording native/export log access.",
             "",
             "## Codex Understanding",
             "",
@@ -1788,24 +1858,32 @@ def _write_user_branch_vision_review(
             "",
             "## Product Options / Design Paths",
             "",
+            "### Option F - Current BP1 Process Route",
+            "",
+            "Option F is the active process route for this revision: first digest and solidify the Recording ecosystem vision, then let USER choose the current-branch implementation shape. This is not a peer implementation option beside Options A-E, and it does not accept BP2, BP3, Workstream, runtime mutation, PR Readiness, or any implementation authority.",
+            "",
+            "### Current-Branch Implementation Shape Options After Option F",
+            "",
             "- Option A - Minimal Dashboard Recording Card / native log repair: keep this branch to the Dashboard Recording card, active Overlay Profile target mirroring, Start/Stop behavior already admitted by historical work, native NDAI log output, no automatic readable export, visual-system repair, and focused proof. Tradeoff: fastest recovery path, but Recording Studio and Log Viewer Studio wait.",
             "- Option B - Dashboard Recording Card plus Recording Studio scaffold: keep the Dashboard card and add or plan a small non-child Recording Studio shell/launch path without full tray/keybind/settings/export behavior. Tradeoff: better product direction signal now, but more BP2/BP3 sizing and Live Validation proof.",
             "- Option C - Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio launch/folder shell: admit both separate-window launch surfaces at a minimal shell level, with Log Viewer focused on native/export folder access rather than full viewing/export workflow. Tradeoff: strongest near-term UX continuity, but more UI/lifecycle proof and higher regression risk.",
+            "- Refined Option C / C-lite - Dashboard Recording Card remains the compact quick-access/status surface; Recording Studio becomes the focused recording control/status surface if BP2/BP3 prove it bounded; minimal Log Viewer Studio launch/folder shell is admitted only where it directly supports Recording native/export log access. Tradeoff: best match to USER's current leaning, but still needs BP1 confirmation before BP2 planning.",
             "- Option D - Full Recording ecosystem now: implement Dashboard quick access, Recording Studio, Log Viewer Studio, tray visibility/control, keybind behavior, settings, native/export flows, warning behavior, and proof as one large package. Tradeoff: most coherent product shape, but likely too broad for this branch without major BP2/BP3 replanning.",
             "- Option E - Preserve full vision and close only the smallest viable current branch repair: fold the full Recording ecosystem into durable FAM-006 vision and finish this branch only around the smallest safe repair needed to avoid regression. Tradeoff: protects scope and release timing, but the shipped feature remains interim.",
-            "- Option F - Planning digest / vision solidification before selecting implementation shape: keep this branch in BP1 review until USER and Codex settle the Recording product model, then decide whether BP2 should plan Option A, B, C, D, E, a hybrid, or rejection. Tradeoff: more planning now, but reduces late-phase rework.",
             "",
             "## Codex Recommendations",
             "",
-            "- Recommendation 1: Choose Option E as the safest default unless USER wants to reopen implementation. Because the current branch already has working Dashboard Start/Stop and native log proof, preserving the full Recording vision while closing only the smallest viable repair avoids turning Live Validation into a full product rebuild. Tradeoff: the current branch remains an interim Recording slice, not the full Recording product.",
+            "- Recommendation 1: Use Option F now and do not select a final implementation shape until the Recording planning digest is accepted or revised by USER. Because the current late-phase miss was planning depth, BP1 should finish the vision conversation before BP2 writes engineering scope. Tradeoff: BP2 waits, but the branch avoids another false-green review packet.",
             "  USER response:",
-            "- Recommendation 2: Keep the native/export log boundary as a current-branch must-have. Because USER explicitly corrected the CSV behavior, BP2 repair should preserve native NDAI logs as the normal save path and keep readable files as future export artifacts. Tradeoff: export convenience waits for a separate planned export flow.",
+            "- Recommendation 2: Treat refined Option C / C-lite as Codex's current post-solidification leaning, not as accepted scope. Because it keeps the Dashboard card compact while giving Recording a focused Studio surface and only minimal Log Viewer support, it fits the branch-sprawl principle without pulling in tray, keybind, settings, full export, or Native Log Loader. Tradeoff: more UI/lifecycle proof than Option E, but a more coherent product result.",
             "  USER response:",
-            "- Recommendation 3: Treat Recording Studio and Log Viewer Studio as BP2/BP3 analysis items and likely future branch candidates unless USER selects Option B or C for this branch. Because independent windows affect lifecycle, taskbar/tray behavior, close warnings, and validation scope, they deserve explicit sizing before implementation. Tradeoff: the Dashboard card remains the visible current surface for now.",
+            "- Recommendation 3: Preserve Option E as fallback, not default. Because Option E can still protect release timing if C-lite proves too broad, BP2/BP3 should keep it available as a safety route. Tradeoff: fallback keeps the shipped feature interim if USER chooses it.",
             "  USER response:",
-            "- Recommendation 4: Require BP2 repair to explain every current versus future Recording surface in an Element-to-Phase matrix. Because the miss happened when surfaces were implied instead of reviewed, the next plan must make every surface explicit. Tradeoff: more planning text now, fewer late-phase surprises later.",
+            "- Recommendation 4: Keep the native/export log boundary as a current-branch must-have. Because USER explicitly corrected the CSV behavior, BP2 repair should preserve native NDAI logs as the normal save path and keep readable files as future export artifacts. Tradeoff: export convenience waits for a separate planned export flow.",
             "  USER response:",
-            "- Recommendation 5: Reject Option D unless USER explicitly accepts a full replan. The full Recording ecosystem is coherent as a product vision, but it carries tray, keybind, settings, independent-window lifecycle, native/export handling, and Live Validation complexity that can swamp this branch. Tradeoff: less immediate completeness, more reliable branch closure.",
+            "- Recommendation 5: Require BP2 repair to explain every current versus future Recording surface in an Element-to-Phase matrix and deferred-carryforward review. Because the miss happened when surfaces were implied instead of reviewed, the next plan must make every surface explicit. Tradeoff: more planning text now, fewer late-phase surprises later.",
+            "  USER response:",
+            "- Recommendation 6: Reject Option D unless USER explicitly accepts a full replan. The full Recording ecosystem is coherent as product vision, but tray, keybind, settings, full Log Viewer, export customization, and Native Log Loader are too broad unless USER intentionally reopens the branch as a larger package. Tradeoff: less immediate completeness, more reliable branch closure.",
             "  USER response:",
             "",
             "## Why This Fits The Nexus Vision",
@@ -1814,6 +1892,8 @@ def _write_user_branch_vision_review(
             "",
             "## USER Design Questions",
             "",
+            "- Does USER confirm Option F as the current BP1 process route: planning digest / vision solidification before final implementation-shape selection?",
+            "- Does USER want the revised packet to preserve refined Option C / C-lite as the current Codex recommendation after planning solidification, or should Codex revise that recommendation?",
             "- Should the current branch close around Dashboard Recording card Start/Stop plus native NDAI log output, or should it add Recording Studio / Log Viewer Studio launch scaffolding before PR Readiness?",
             "- Should Recording Studio and Log Viewer Studio be future branch candidates with their own BP1/BP2/BP3, or should one of them be pulled into this branch?",
             "- Is the tray icon a future must-have for recording transparency, and should it replace taskbar-minimized Recording Studio as the preferred minimized state?",
@@ -1835,7 +1915,7 @@ def _write_user_branch_vision_review(
             "",
             "## USER Response Digested",
             "",
-            "No - BP1 Entry remains open until Codex digests an explicit USER response or waiver.",
+            user_response_digested,
             "",
             "## Accepted Branch Vision",
             "",
@@ -1843,7 +1923,7 @@ def _write_user_branch_vision_review(
             "",
             "## Family-Vision Versus Branch-Only Vision Impact",
             "",
-            "Branch-only by default. If USER accepts Recording Studio, Log Viewer Studio, tray, keybind, export, or settings as durable FAM-006 direction, Codex must fold those accepted outcomes into the proper family or subfeature vision owner before BP2 treats them as implementation scope.",
+            "Durable Recording ecosystem direction belongs in `Docs/family_feature_visions/FAM-006_recording.md`. Current-branch implementation shape remains branch-only and pending BP1 confirmation. Deferred carryforward must stay product-oriented and must not become active branch state until BP1/BP2/BP3 legally admit the item.",
             "",
             "## Must-Have Behavior",
             "",
@@ -1867,6 +1947,8 @@ def _write_user_branch_vision_review(
             "## Vision Question Queue",
             "",
             "- Decide whether the current branch should remain an interim Dashboard card/native-log branch or expand to launch-shell work.",
+            "- Decide whether the revised Option F planning digest is complete enough for USER to choose the current-branch implementation shape.",
+            "- Decide whether refined Option C / C-lite should be the preferred branch plan candidate after planning solidification.",
             "- Decide the future ownership path for Recording Studio, Log Viewer Studio, tray controls, keybinds, export flow, and settings.",
             "- Decide what evidence is enough to accept the native/export log boundary.",
             "- Decide whether USER wants more options before BP2 repair.",

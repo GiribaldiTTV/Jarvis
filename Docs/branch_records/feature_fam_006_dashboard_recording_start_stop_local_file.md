@@ -163,6 +163,18 @@ Prior Packet Status: `Prior BP1 Entry packets remain superseded for active decis
 Runtime / PR Boundary: `No runtime implementation, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, FAM-007 mutation, Governance worktree mutation, neutral-main mutation, provider/model work, or private action is authorized by this admission receipt.`
 Next Legal Phase: `BP1 Entry / USER Branch Vision Review using Docs/family_feature_visions/FAM-006_recording.md as Feature Vision Context.`
 
+## BP1 Revision Receipt - Option F Planning Solidification
+
+Revision Date: `2026-06-08`
+Receipt Role: `Durable compact receipt only; active gate state lives in C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md.`
+USER BP1 Decision: `Revise`
+Selected BP1 Review Route: `Option F first - planning digest / vision solidification before selecting final current-branch implementation shape.`
+Option F Classification: `Process route, not a peer implementation option beside Options A-E.`
+USER Non-Acceptance: `USER did not accept Option E as the default branch direction and did not accept BP1.`
+Durable Recording Direction: `Docs/family_feature_visions/FAM-006_recording.md owns accepted product-oriented Recording ecosystem direction and deferred carryforward guidance without making deferred items active branch state.`
+Current USER Leaning: `After planning solidification, USER is leaning toward refined Option C / C-lite: compact Dashboard Recording Card, likely bounded Recording Studio, and minimal Log Viewer Studio launch/folder shell only where directly supporting Recording native/export log access.`
+Boundary: `BP1 acceptance, BP2, BP3, Workstream, runtime mutation, Live Validation, PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, and unrelated cleanup remain pending separate USER decisions.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`

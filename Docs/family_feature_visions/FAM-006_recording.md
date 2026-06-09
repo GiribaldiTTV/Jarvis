@@ -237,6 +237,33 @@ This Family Feature Vision does not authorize:
 
 ## Design Options To Preserve For BP1
 
+### Planning Solidification Before Scope Selection
+
+Option F is a process route, not a peer implementation package beside the
+current-branch scope options.
+
+When USER selects Option F, BP1 must:
+
+- digest the USER-submitted Recording ecosystem planning first
+- revise and recommend against that planning before selecting final
+  current-branch scope
+- keep BP1 USER Gate State pending until USER accepts, waives, rejects, or
+  requests another revision
+- preserve accepted durable Recording ecosystem direction in this file without
+  turning deferred carryforward into active branch state
+- return a revised decision surface that lets USER choose the branch
+  implementation shape after the vision is solid
+
+Current USER leaning after planning solidification is a refined Option C /
+C-lite: keep the Dashboard Recording card as compact quick-access/status
+surface, treat Recording Studio as likely current-branch relevant when BP2/BP3
+can prove it stays bounded, and admit only a minimal Log Viewer Studio
+launch/folder shell when it directly supports Recording native/export log
+access. Full Log Viewer Studio, previous-log selection, export customization,
+tray controls, keybinds, global settings, and Native Log Loader full
+implementation remain future-gated unless BP2/BP3 prove a minimal part is
+required for this branch.
+
 ### Start/Stop Ownership
 
 Options BP1 should present:
@@ -336,7 +363,8 @@ direction. It must not present a shallow card/output-only vision as complete.
 
 ## BR2 Deferred Carryforward Applicability Guidance
 
-BR2 option packets should include this matrix for each candidate Recording lane:
+BR2 option packets and BP2 branch-plan packets should include this matrix for
+each candidate Recording lane or later option:
 
 | Field | Required BR2 Answer |
 | --- | --- |
@@ -347,11 +375,17 @@ BR2 option packets should include this matrix for each candidate Recording lane:
 | Dependency trigger | Name what makes the deferred item relevant now. |
 | Recommended grouping | Say whether the item belongs in the same coherent package. |
 | Future-gated items | Name items left out and why. |
+| Reason future-gated items remain deferred | Explain the risk, dependency, timing, proof, or USER-decision reason each item stays out. |
 | Validation/proof expectations | Name focused screenshot, helper, UTS, live, readback, or rollback proof. |
 
 If a deferred item satisfies the same dependency and proof path, Codex should
 recommend grouping it into one coherent package unless package size, risk, or
 USER direction requires a split.
+
+Deferred carryforward is dynamic. Later BR2/BP2 options must surface only the
+deferred items that apply to the selected option, explain why they apply, name
+the dependency trigger, group or future-gate them deliberately, and state the
+validation/proof expectations that would apply if USER selects that option.
 
 ## Deferred Feature Carryforward
 
