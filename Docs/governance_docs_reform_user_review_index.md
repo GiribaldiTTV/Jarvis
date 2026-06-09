@@ -7,7 +7,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 198
+- Docs files covered: 200
 - Source branch: not stored in this docs review index; derive current branch from Git/helper output at review time.
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
@@ -100,9 +100,9 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
 | --- | ---: | --- | --- |
-| Ambiguous ownership/current-state wording | 155 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Ambiguous ownership/current-state wording | 156 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
-| Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
+| Migration / organization candidates | 1 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 29 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
 | Low-risk reference consolidation | 16 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
@@ -111,7 +111,7 @@ Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical
 
 ## Files Needing USER Decision
 
-Total USER decision rows: 29
+Total USER decision rows: 30
 
 | File | Reason | Recommendation |
 | --- | --- | --- |
@@ -144,6 +144,7 @@ Total USER decision rows: 29
 | `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md` | purpose not clearly owned by current model | needs USER decision |
 
 ## Ambiguity Review Queue
 
@@ -222,7 +223,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 | File | Owner | Recommendation | Risk |
 | --- | --- | --- | --- |
-| None | N/A | N/A | N/A |
+| `Docs/family_feature_visions/FAM-007_assisted_desktop_ai_function_slice.md` | unknown docs reference | USER review needed | Low |
 
 ## Safe To Leave For Now
 
