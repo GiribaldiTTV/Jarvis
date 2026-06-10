@@ -48,7 +48,7 @@
       type="button"
       aria-expanded="false"
       aria-controls="ai-provider-tray-window"
-      aria-label="Open AI status and provider-visible data"
+      aria-label="Open AI usage and settings"
       data-ai-tray-state="closed"
       data-ai-local-status="active-local-only"
       data-provider-visible-data="none"
@@ -80,8 +80,8 @@
     >
       <div class="ai-provider-tray-window__header">
         <div>
-          <div class="ai-provider-tray-window__kicker">AI status</div>
-          <h2 id="ai-provider-tray-title" class="ai-provider-tray-window__title">Provider-visible data</h2>
+          <div class="ai-provider-tray-window__kicker">NDAI tray</div>
+          <h2 id="ai-provider-tray-title" class="ai-provider-tray-window__title">AI usage and settings</h2>
         </div>
         <button id="ai-provider-tray-close" class="ai-provider-tray-window__close" type="button">Close</button>
       </div>
@@ -122,9 +122,10 @@
     <div
       id="ai-provider-status"
       class="ai-provider-status"
-      aria-hidden="false"
-      data-display-suppression="desktop-ai-owned-readiness-display-visible"
-      data-display-visibility="public-safe-visible"
+      hidden
+      aria-hidden="true"
+      data-display-suppression="tray-owned-status"
+      data-display-visibility="tray-owned-hidden"
       data-local-action-guard="no-provider"
       data-local-action-clickable="true"
       data-local-action-result="idle"

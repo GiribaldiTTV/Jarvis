@@ -17,6 +17,9 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  --ai-tray-left: min(55vw, calc(100vw - 236px));
+  --ai-tray-window-left: min(45vw, calc(100vw - 384px));
+  --ai-tray-bottom: clamp(92px, 14vh, 140px);
   background:
     radial-gradient(circle at 51% 48%, rgba(0, 150, 220, 0.035) 0%, rgba(0, 0, 0, 0) 20%),
     radial-gradient(circle at 48% 53%, rgba(0, 70, 125, 0.08) 0%, rgba(0, 0, 0, 0) 38%),
@@ -414,8 +417,10 @@ body {
 .ai-provider-tray {
   position: absolute;
   z-index: 16;
-  top: 20px;
-  right: 22px;
+  top: auto;
+  left: var(--ai-tray-left);
+  right: auto;
+  bottom: var(--ai-tray-bottom);
   display: inline-grid;
   grid-template-columns: 12px auto;
   grid-template-rows: auto auto;
@@ -480,10 +485,12 @@ body {
 .ai-provider-tray-window {
   position: absolute;
   z-index: 17;
-  top: 78px;
-  right: 22px;
-  width: min(420px, calc(100vw - 44px));
-  max-height: min(70vh, 560px);
+  top: auto;
+  left: var(--ai-tray-window-left);
+  right: auto;
+  bottom: calc(var(--ai-tray-bottom) + 62px);
+  width: min(360px, calc(100vw - 44px));
+  max-height: min(62vh, 560px);
   box-sizing: border-box;
   padding: 16px;
   border: 1px solid rgba(124, 232, 218, 0.34);
@@ -612,23 +619,7 @@ body {
 }
 
 .ai-provider-status {
-  position: absolute;
-  z-index: 10;
-  left: 22px;
-  bottom: 22px;
-  width: clamp(224px, 24vw, 300px);
-  min-height: 72px;
-  max-height: min(34vh, 210px);
-  box-sizing: border-box;
-  padding: 12px 14px;
-  border: 1px solid rgba(245, 198, 96, 0.42);
-  border-left: 3px solid rgba(245, 198, 96, 0.86);
-  border-radius: 8px;
-  background: rgba(4, 9, 14, 0.72);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
-  color: rgba(236, 248, 255, 0.94);
-  overflow: hidden;
-  pointer-events: auto;
+  display: none !important;
 }
 
 .ai-provider-status::after {
@@ -1096,10 +1087,17 @@ body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-def
 }
 
 @media (max-width: 640px) {
+  #scene {
+    --ai-tray-left: 14px;
+    --ai-tray-window-left: 14px;
+    --ai-tray-bottom: 14px;
+  }
+
   .ai-provider-tray {
     left: 14px;
     right: 14px;
-    top: 14px;
+    top: auto;
+    bottom: 14px;
     min-width: 0;
     width: auto;
   }
@@ -1107,8 +1105,10 @@ body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-def
   .ai-provider-tray-window {
     left: 14px;
     right: 14px;
-    top: 74px;
+    top: auto;
+    bottom: 76px;
     width: auto;
+    max-height: calc(100vh - 106px);
   }
 
   .ai-provider-tray-window__facts div {

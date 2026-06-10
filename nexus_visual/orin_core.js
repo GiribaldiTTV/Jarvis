@@ -1815,11 +1815,11 @@ function renderAIProviderState() {
   const localActionAvailable = state.interactionAffordance === "local-assisted-action-available";
   const displayVisible =
     displayState === "desktop-ai-owned-readiness-display-visible" || localActionAvailable;
-  aiProviderStatus.hidden = !displayVisible;
-  aiProviderStatus.setAttribute("aria-hidden", displayVisible ? "false" : "true");
+  aiProviderStatus.hidden = true;
+  aiProviderStatus.setAttribute("aria-hidden", "true");
   aiProviderStatus.dataset.displaySuppression =
-    displayState;
-  aiProviderStatus.dataset.displayVisibility = displayVisible ? "public-safe-visible" : "suppressed-by-default";
+    "tray-owned-status";
+  aiProviderStatus.dataset.displayVisibility = "tray-owned-hidden";
   aiProviderStatus.dataset.localActionGuard = "no-provider";
   aiProviderStatus.dataset.localActionClickable = localActionAvailable ? "true" : "false";
   aiProviderStatus.dataset.localActionResult = aiProviderStatus.dataset.localActionResult || "idle";
