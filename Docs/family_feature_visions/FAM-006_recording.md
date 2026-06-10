@@ -403,6 +403,22 @@ Branches consuming this feature vision should prove:
 - Overlay Profile persistence when recording target reliability depends on it
 - USER-facing UTS coverage for new or affected elements
 - rollback path that restores pre-Recording UI/runtime behavior
+- profile-specific log consistency when multiple Overlay Profiles have different
+  monitor membership: Live Validation must prove selected profile identity,
+  selected monitor set, recording target snapshot, generated native log
+  contents, and consistency between the snapshot and log contents
+- normal USER-path activation for Recording Studio and Log Viewer Studio:
+  helper foreground, native direct-launch, seeded/sandbox, or callback proof is
+  supporting evidence only and cannot clear the visible manual button path
+- Recording Studio visual proof only after the normal visible activation path is
+  proven; if activation is blocked, Studio UI visual validation is blocked or
+  unproven rather than passed from helper-launched screenshots
+- Log Viewer Studio visual-system inheritance against Project Vision, this
+  family vision, and this feature vision; generic/plain UI cannot pass from
+  screenshot existence or window-shell markers alone
+- user-visible native/export folder labels and paths that avoid exposing
+  worktree, branch, developer, owner-only, FAM, or other internal implementation
+  concepts unless source truth explicitly permits that client-facing model
 
 Live Validation should validate new or affected elements. Previously accepted
 elements need retesting only when the branch changes them or their dependencies.

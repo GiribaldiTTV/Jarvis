@@ -69,6 +69,7 @@ def validate() -> list[str]:
     js = _read("nexus_visual/monitoring_hud.js")
     renderer = _read("desktop/desktop_renderer.py")
     family_vision = _read("Docs/family_visions/FAM-006_monitoring_and_hud.md")
+    recording_feature_vision = _read("Docs/family_feature_visions/FAM-006_recording.md")
     output_contract = _read("desktop/recording_output_contract.py")
     workstream_readiness = _read("dev/orin_fam006_workstream_readiness.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
@@ -1438,6 +1439,36 @@ def validate() -> list[str]:
         "02_recording_card_log_viewer_studio_opened_state",
     ):
         _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
+
+    for needle in (
+        "profile-specific log consistency",
+        "normal USER-path activation for Recording Studio and Log Viewer Studio",
+        "Recording Studio visual proof only after the normal visible activation path is",
+        "Log Viewer Studio visual-system inheritance",
+        "user-visible native/export folder labels and paths",
+    ):
+        _require_contains(
+            recording_feature_vision,
+            needle,
+            "FAM-006 Recording returned-UTS determinism proof expectations",
+            failures,
+        )
+
+    for needle in (
+        "RETURNED_UTS_PROFILE_LOG_CONSISTENCY_GATE",
+        "RETURNED_UTS_RECORDING_STUDIO_MANUAL_BUTTON_GATE",
+        "RETURNED_UTS_LOG_VIEWER_VISUAL_SYSTEM_GATE",
+        "RETURNED_UTS_USER_VISIBLE_STORAGE_MODEL_GATE",
+        "RETURNED_UTS_RECORDING_STUDIO_UI_ACTIVATION_GATE",
+        "Assert-ReturnedUtsDeterminismGatesClear",
+        "Live Validation LV1 UTS export blocked by returned-UTS determinism gates",
+    ):
+        _require_contains(
+            live_validation,
+            needle,
+            "FAM-006 returned-UTS deterministic Live Validation stop-loss",
+            failures,
+        )
 
     for needle in (
         'data-package="PKG-006"',

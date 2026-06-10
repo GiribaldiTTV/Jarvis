@@ -49,6 +49,8 @@ REPAIR_RETURN_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_REPAIR_RETURN_REVIEW.m
 REPAIR_RETURN_STATUS = "live-validation-repair-return-review"
 LV_UTS_DISPOSITION_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_DISPOSITION_REVIEW.md"
 LV_UTS_DISPOSITION_STATUS = "live-validation-uts-disposition-review"
+RETURNED_UTS_DETERMINISM_PRIMARY_FILE = "USER Review/RETURNED_UTS_LIVE_VALIDATION_FAILURE_REVIEW.md"
+RETURNED_UTS_DETERMINISM_STATUS = "returned-uts-live-validation-failure-review"
 ACCEPTED_FINDINGS_ZIP = USER_ROOT / "FAM-006-20260609-124117.zip"
 ACCEPTED_FINDINGS_SHA256 = "18506FB2C0B47E2F7378DCA788558D9F666D2F4B08BAD30677B9735B6A6D71B9"
 REPAIR_PLAN_ZIP = USER_ROOT / "FAM-006-20260609-125215.zip"
@@ -72,6 +74,95 @@ REPAIR_PLAN_FINDING_IDS = [
     "FAM006-REGRESS-002",
     "FAM006-CODEPATH-001",
     "FAM006-PHASE-001",
+]
+
+RETURNED_UTS_DETERMINISM_GATES = [
+    {
+        "issue": "Issue 1",
+        "finding_id": "FAM006-RUTS-001",
+        "gate": "RETURNED_UTS_PROFILE_LOG_CONSISTENCY_GATE",
+        "title": "Profile-specific log consistency proof failure",
+        "user_report": (
+            "Live Validation failed to prove that changing profiles, where those profiles consist "
+            "of different monitors, creates logs consistent with the selected profile."
+        ),
+        "latest_lv_claim": "LV1 claimed Dashboard Recording Start/Stop saved/readback proof and active Overlay Profile target mirroring.",
+        "contradiction": (
+            "That claim is weakened because a saved/readback log is not enough unless the log "
+            "contents are checked against the selected profile identity and monitor set."
+        ),
+        "validator_gap": "Profile selection/target mirroring could pass without native log-content consistency validation.",
+        "product_candidate": "Add/repair product proof path so generated native logs include and preserve selected profile/monitor evidence.",
+        "source_candidate": "FAM-006 Recording FFV now requires profile-specific log consistency proof.",
+        "classification": "validator/proof-harness defect; Live Validation phase failure; current-branch repair candidate",
+    },
+    {
+        "issue": "Issue 2",
+        "finding_id": "FAM006-RUTS-002",
+        "gate": "RETURNED_UTS_RECORDING_STUDIO_MANUAL_BUTTON_GATE",
+        "title": "Recording Studio manual button path still fails",
+        "user_report": "Recording Studio does not open when the button is clicked.",
+        "latest_lv_claim": "LV1 claimed real OS click opens Dashboard Recording Studio and native-window focused screenshot proof.",
+        "contradiction": (
+            "The claim is invalidated for USER acceptance until the exact visible manual button path "
+            "is reproven and separated from helper foreground/native direct-launch/seeded paths."
+        ),
+        "validator_gap": "The old proof could over-credit helper/native launch evidence as normal USER-path activation.",
+        "product_candidate": "Repair Recording Studio button activation and rerun normal visible-button proof.",
+        "source_candidate": "Live Validation script now carries a manual-button stop-loss gate.",
+        "classification": "product/runtime defect; validator/proof-harness defect; UI/window behavior failure",
+    },
+    {
+        "issue": "Issue 3",
+        "finding_id": "FAM006-RUTS-003",
+        "gate": "RETURNED_UTS_LOG_VIEWER_VISUAL_SYSTEM_GATE",
+        "title": "Log Viewer UI generic / not aligned with vision",
+        "user_report": "Log Viewer UI is generic and does not match the UI Vision for the Project, FAM, or FFV.",
+        "latest_lv_claim": "LV1 claimed Log Viewer Studio native window shell and focused screenshot proof.",
+        "contradiction": (
+            "The claim is weakened because shell existence and screenshots do not prove visual-system "
+            "inheritance against Project/FAM/FFV expectations."
+        ),
+        "validator_gap": "Visual validation was too shallow for generic/plain UI rejection.",
+        "product_candidate": "Repair Log Viewer Studio visual design or defer with explicit source-truth ambiguity.",
+        "source_candidate": "FAM-006 Recording FFV now requires Log Viewer visual-system inheritance adjudication.",
+        "classification": "visual-system defect; source-truth/proof ambiguity; Governance follow-up candidate if generalized",
+    },
+    {
+        "issue": "Issue 4",
+        "finding_id": "FAM006-RUTS-004",
+        "gate": "RETURNED_UTS_USER_VISIBLE_STORAGE_MODEL_GATE",
+        "title": "Exported logs path exposes internal/worktree-like folder model",
+        "user_report": (
+            "Exported logs open to a FAM-006 exclusive folder inside the logical folder directory, "
+            "but worktree folders should not be user-visible."
+        ),
+        "latest_lv_claim": "LV1 claimed native/export folder proof path and pre-session folder usability.",
+        "contradiction": (
+            "The claim is weakened because opening a folder is not enough; user-visible path and label "
+            "semantics must be checked against client packaging/storage vision."
+        ),
+        "validator_gap": "The old proof did not classify FAM/worktree/developer/internal path leakage.",
+        "product_candidate": "Repair public/client-visible native/export folder model after USER approval.",
+        "source_candidate": "FAM-006 FFV now requires user-visible native/export folder labels and paths to avoid internal concepts unless admitted.",
+        "classification": "product path defect candidate; Project Vision/storage governance follow-up candidate",
+    },
+    {
+        "issue": "Issue 5",
+        "finding_id": "FAM006-RUTS-005",
+        "gate": "RETURNED_UTS_RECORDING_STUDIO_UI_ACTIVATION_GATE",
+        "title": "Recording Studio UI cannot be verified because it cannot be activated",
+        "user_report": "Recording Studio UI cannot be verified against Project Vision, FAM Vision, or FFV because Recording Studio cannot be activated.",
+        "latest_lv_claim": "LV1 claimed Recording Studio native window focused screenshot proof.",
+        "contradiction": (
+            "The claim is invalidated for UI acceptance while normal visible activation is blocked; "
+            "helper-launched screenshots are supporting evidence only."
+        ),
+        "validator_gap": "Recording Studio visual proof did not depend on passing normal activation first.",
+        "product_candidate": "Repair manual activation, then rerun Studio UI visual adjudication.",
+        "source_candidate": "Live Validation script now blocks Studio UI proof behind normal activation.",
+        "classification": "UI/window behavior failure; validator/proof-harness defect; UTS handoff failure",
+    },
 ]
 
 
@@ -4050,6 +4141,409 @@ def generate_packet() -> tuple[Path, Path, str]:
     return PACKET_ROOT, zip_path, digest
 
 
+def returned_uts_issue_digest_md() -> str:
+    return table(
+        ["Issue", "Finding ID", "Returned USER issue", "Classification"],
+        [
+            [
+                item["issue"],
+                item["finding_id"],
+                item["user_report"],
+                item["classification"],
+            ]
+            for item in RETURNED_UTS_DETERMINISM_GATES
+        ],
+    )
+
+
+def returned_uts_contradiction_map_md() -> str:
+    return table(
+        ["Finding ID", "Latest LV claim", "USER contradiction", "LV PASS posture", "Validator/proof gap"],
+        [
+            [
+                item["finding_id"],
+                item["latest_lv_claim"],
+                item["contradiction"],
+                "Invalidated or weakened for USER acceptance until the gate is proven through the normal USER path.",
+                item["validator_gap"],
+            ]
+            for item in RETURNED_UTS_DETERMINISM_GATES
+        ],
+    )
+
+
+def returned_uts_validation_repairs_md() -> str:
+    return table(
+        [
+            "File changed",
+            "Blind spot closed",
+            "Old behavior",
+            "New behavior",
+            "Expected current result",
+            "Expected future green",
+        ],
+        [
+            [
+                "dev/orin_monitoring_hud_live_validation.ps1",
+                "UTS export could follow a generic manifest PASS without returned-UTS issue gates.",
+                "Manifest PASS could refresh UTS even when returned issue classes were not proven.",
+                "Manifest includes returned-UTS determinism gates and UTS export throws while any gate is FAIL, BLOCKED, or UNPROVEN.",
+                "BLOCKED/UNPROVEN before product repair.",
+                "PASS only after normal USER-path evidence closes all five returned gates.",
+            ],
+            [
+                "Docs/family_feature_visions/FAM-006_recording.md",
+                "Recording FFV did not explicitly require profile/log consistency, visual inheritance for Log Viewer, user-visible path checks, and activation-dependent Studio UI proof.",
+                "Source truth could be read as satisfied by broad save/readback, screenshot, or folder-open proof.",
+                "Feature vision now names the specific proof standards Live Validation must satisfy or block.",
+                "UNPROVEN where current product proof lacks those checks.",
+                "Green when product proof maps these expectations to real evidence.",
+            ],
+            [
+                "dev/orin_monitoring_hud_surface_validation.py",
+                "Static validation did not ensure the returned-UTS stop-loss remained installed.",
+                "A future helper edit could remove gate markers without a static validation failure.",
+                "Surface validator requires the FFV proof expectations and all live-script returned-UTS gate markers.",
+                "PASS for harness installation, not product acceptance.",
+                "Continues passing while harness stays wired; product green remains separate.",
+            ],
+            [
+                "Docs/validation_helper_registry.md",
+                "Helper registry did not name the five returned-UTS determinism gates.",
+                "The repair contract was easy to lose as hidden script behavior.",
+                "Registry now records the returned-UTS stop-loss ownership and evidence layering rule.",
+                "PASS for helper contract registration.",
+                "Reusable FAM-006 validators carry the rule into future branches.",
+            ],
+            [
+                "dev/orin_fam006_live_validation_forensics.py",
+                "Existing packet modes did not represent this exact returned-UTS-after-green-handoff posture.",
+                "Packet generation focused on prior investigation/repair-return/disposition flows.",
+                "New returned-UTS failure-review packet mode preserves the five issues and reports product fixes withheld.",
+                "Reviewable packet; no UTS acceptance.",
+                "Future findings packets can reuse the same deterministic issue-gate layout.",
+            ],
+        ],
+    )
+
+
+def returned_uts_durable_rules_md() -> str:
+    return "\n".join(
+        [
+            "- Normal USER-path button activation is a separate proof class from helper foreground, native direct-launch, seeded, sandbox, or callback proof.",
+            "- Profile-specific recording/log consistency must prove profile identity, monitor set, target snapshot, native log contents, and consistency between them.",
+            "- Visual-system inheritance must map screenshots to Project Vision, FAM-006 family vision, and the Recording FFV; generic shell presence is not enough.",
+            "- User-visible native/export folder labels and paths must not silently expose worktree, branch, developer, owner-only, FAM, or internal implementation concepts.",
+            "- Recording Studio UI visual proof is blocked until normal visible activation is proven.",
+            "- Screenshot existence, marker PASS, manifest PASS, and UTS packet reviewability are evidence layers only; they cannot clear USER Gate State.",
+            "- Formal UTS handoff must stop while any accepted-scope returned issue gate remains FAIL, BLOCKED, or UNPROVEN.",
+        ]
+    )
+
+
+def returned_uts_product_candidates_md() -> str:
+    return table(
+        ["Finding ID", "Product/runtime repair candidate", "Approval posture"],
+        [
+            [
+                item["finding_id"],
+                item["product_candidate"],
+                "Withheld; requires separate USER product/runtime repair approval.",
+            ]
+            for item in RETURNED_UTS_DETERMINISM_GATES
+        ],
+    )
+
+
+def returned_uts_governance_followups_md() -> str:
+    return table(
+        ["Finding ID", "Source-truth / governance candidate", "Carrier recommendation"],
+        [
+            [
+                item["finding_id"],
+                item["source_candidate"],
+                (
+                    "FAM-006 branch-local repair is installed where it governs this package; "
+                    "general repo-wide visual/storage/live-validation law can route to Governance after USER review."
+                ),
+            ]
+            for item in RETURNED_UTS_DETERMINISM_GATES
+        ],
+    )
+
+
+def returned_uts_gate_self_check() -> dict[str, object]:
+    live_validation = read_text(REPO / "dev/orin_monitoring_hud_live_validation.ps1")
+    surface_validation = read_text(REPO / "dev/orin_monitoring_hud_surface_validation.py")
+    feature_vision = read_text(REPO / "Docs/family_feature_visions/FAM-006_recording.md")
+    helper_registry = read_text(REPO / "Docs/validation_helper_registry.md")
+    required_live = [
+        "Assert-ReturnedUtsDeterminismGatesClear",
+        "returnedUtsDeterminismGateStatus",
+        "Live Validation LV1 UTS export blocked by returned-UTS determinism gates",
+    ] + [item["gate"] for item in RETURNED_UTS_DETERMINISM_GATES]
+    required_surface = [
+        "FAM-006 returned-UTS deterministic Live Validation stop-loss",
+        "FAM-006 Recording returned-UTS determinism proof expectations",
+    ] + [item["gate"] for item in RETURNED_UTS_DETERMINISM_GATES]
+    required_feature = [
+        "profile-specific log consistency",
+        "normal USER-path activation for Recording Studio and Log Viewer Studio",
+        "Recording Studio visual proof only after the normal visible activation path is",
+        "Log Viewer Studio visual-system inheritance",
+        "user-visible native/export folder labels and paths",
+    ]
+    required_registry = [
+        "FAM-006 Returned-UTS Determinism Stop-Loss Addendum",
+        "Helper foreground proof, native direct-launch proof, seeded/sandbox proof",
+    ] + [item["gate"] for item in RETURNED_UTS_DETERMINISM_GATES]
+    missing = []
+    for marker in required_live:
+        if marker not in live_validation:
+            missing.append(f"live_validation:{marker}")
+    for marker in required_surface:
+        if marker not in surface_validation:
+            missing.append(f"surface_validation:{marker}")
+    for marker in required_feature:
+        if marker not in feature_vision:
+            missing.append(f"feature_vision:{marker}")
+    for marker in required_registry:
+        if marker not in helper_registry:
+            missing.append(f"helper_registry:{marker}")
+    return {
+        "passed": not missing,
+        "missing": missing,
+        "knownBadProductState": "expected-red: product/runtime fixes withheld; five returned-UTS gates remain FAIL/BLOCKED/UNPROVEN until separately repaired",
+        "openGateCount": len(RETURNED_UTS_DETERMINISM_GATES),
+        "openGates": [
+            {
+                "findingId": item["finding_id"],
+                "gate": item["gate"],
+                "title": item["title"],
+            }
+            for item in RETURNED_UTS_DETERMINISM_GATES
+        ],
+    }
+
+
+def generate_returned_uts_determinism_review_packet() -> tuple[Path, Path, str]:
+    identity = git_identity()
+    loaded, missing = source_truth_loaded_lines()
+    changed = changed_files()
+    evidence = latest_return_flow_evidence()
+    self_check = returned_uts_gate_self_check()
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    zip_path = USER_ROOT / f"FAM-006-{stamp}.zip"
+    purge_fam006_user_packet_outputs()
+
+    for directory in (
+        PACKET_ROOT / "USER Review",
+        PACKET_ROOT / "Review Aids",
+        PACKET_ROOT / "Review Aids" / "Raw Evidence",
+        PACKET_ROOT / "Source Truth Context",
+    ):
+        directory.mkdir(parents=True, exist_ok=True)
+
+    for rel in SOURCE_TRUTH_FILES:
+        copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
+    for rel in TOOL_FILES:
+        copy_if_exists(REPO / rel, PACKET_ROOT / "Source Truth Context" / Path(rel).name)
+    external_plan = Path(
+        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md"
+    )
+    external_state = Path(
+        r"C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_state.md"
+    )
+    copy_if_exists(external_plan, PACKET_ROOT / "Source Truth Context" / "external_branch_plan.md")
+    copy_if_exists(external_state, PACKET_ROOT / "Source Truth Context" / "external_branch_state.md")
+    copy_if_exists(Path(r"C:\Nexus USER\UTS - FAM-006.txt"), PACKET_ROOT / "Review Aids" / "UTS - FAM-006.txt")
+    for source in (
+        Path(str(evidence.get("manifestPath") or "")),
+        Path(str(evidence.get("interactionPath") or "")),
+        Path(str(evidence.get("restartInteractionPath") or "")),
+    ):
+        copy_if_exists(source, PACKET_ROOT / "Review Aids" / "Raw Evidence" / source.name)
+
+    loaded_md = "\n".join(f"- `{item}`" for item in loaded)
+    missing_md = "\n".join(f"- `{item}`" for item in missing) or "- None found."
+    changed_md = "\n".join(f"- `{item}`" for item in changed) or "- None."
+    self_check_md = json.dumps(self_check, indent=2)
+    evidence_md = table(
+        ["Evidence field", "Value"],
+        [
+            ("Latest LV root", evidence.get("root", "")),
+            ("Manifest", evidence.get("manifestPath", "")),
+            ("Interaction manifest", evidence.get("interactionPath", "")),
+            ("Restart manifest", evidence.get("restartInteractionPath", "")),
+            ("USER screenshot root", evidence.get("userScreenshotRoot", "")),
+            ("USER focused screenshot root", evidence.get("userElementScreenshotRoot", "")),
+        ],
+    )
+    next_text = (
+        "I approve bounded FAM-006 product/runtime repair for the returned-UTS Live Validation failure gates "
+        "FAM006-RUTS-001 through FAM006-RUTS-005 on feature/fam-006-dashboard-recording-start-stop-local-file, "
+        "with PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, "
+        "provider/model/private work, and future-gated full Log Viewer/export/tray/keybind/settings/Native Log Loader work still pending separate approval."
+    )
+    primary = "\n".join(
+        [
+            "# FAM-006 Returned UTS Live Validation Failure Review",
+            "",
+            f"Packet Status: {RETURNED_UTS_DETERMINISM_STATUS}",
+            "Packet Reviewability State: Reviewable",
+            "USER Gate State: Pending USER Returned-UTS Failure Review",
+            "Product/runtime repair: Withheld",
+            "Live Validation acceptance: Withheld",
+            "UTS acceptance: Withheld",
+            "PR Readiness: Withheld",
+            "",
+            "This packet preserves the returned USER UTS issues and records the FAM-006 validation/proof harness repair. It does not fix product/runtime behavior, accept Live Validation, accept UTS, close issue #258, or advance to PR Readiness.",
+            "",
+            section(
+                "Verdict",
+                "REPAIR. The prior Live Validation PASS is contradicted or weakened for USER acceptance by the returned UTS issues. The harness now carries deterministic returned-UTS stop-loss gates, and product/runtime fixes remain pending separate USER approval.",
+            ),
+            section(
+                "Worktree Identity",
+                table(
+                    ["Field", "Value"],
+                    [
+                        ("Git root", identity.get("git_root", "")),
+                        ("Branch", identity.get("branch", "")),
+                        ("HEAD", identity.get("head", "")),
+                        ("origin/main", identity.get("origin_main", "")),
+                        ("Merge base", identity.get("merge_base", "")),
+                        ("Ahead/behind", identity.get("ahead_behind", "")),
+                        ("Status short", identity.get("status_short", "") or "clean at helper start"),
+                    ],
+                ),
+            ),
+            section("Source-Truth Files Loaded", loaded_md),
+            section("Missing / Stale / Conflicting Authority Notes", missing_md),
+            section("Changed Files Versus origin/main", changed_md),
+            section("Returned UTS Issues Preserved", returned_uts_issue_digest_md()),
+            section("Live Validation PASS Contradiction Map", returned_uts_contradiction_map_md()),
+            section("Repaired Validation / Proof-Harness Behavior", returned_uts_validation_repairs_md()),
+            section("Durable Validation Rules Added", returned_uts_durable_rules_md()),
+            section("Expected-Red Product-State / Harness Self-Check", self_check_md),
+            section("Latest Evidence Pointers", evidence_md),
+            section("Product / Runtime Fixes Withheld", returned_uts_product_candidates_md()),
+            section("Project Vision / Governance Follow-Up Candidates", returned_uts_governance_followups_md()),
+            section(
+                "Exact Next USER Decision",
+                f"Approve the product/runtime repair only if desired with this exact text:\n\n`{next_text}`",
+            ),
+        ]
+    )
+    write(PACKET_ROOT / RETURNED_UTS_DETERMINISM_PRIMARY_FILE, primary)
+    write(
+        PACKET_ROOT / "START_HERE.md",
+        "\n".join(
+            [
+                "# Start Here - FAM-006 Returned UTS Live Validation Failure Review",
+                "",
+                "This packet reviews returned USER UTS failures and the validation/proof harness repair.",
+                "It is not Live Validation acceptance, UTS acceptance, PR Readiness, or product/runtime repair.",
+                "",
+                f"Primary USER review file: `{RETURNED_UTS_DETERMINISM_PRIMARY_FILE}`",
+                "",
+                "Packet Reviewability State: Reviewable",
+                "USER Gate State: Pending USER Returned-UTS Failure Review",
+                "",
+                "Read the primary USER Review file first. Review Aids include the issue digest, contradiction map, repair summary, product repair candidates, governance follow-up candidates, and raw evidence pointers.",
+                "",
+            ]
+        ),
+    )
+    aids = {
+        "RETURNED_UTS_ISSUE_DIGEST.md": section("Returned UTS Issue Digest", returned_uts_issue_digest_md()),
+        "LIVE_VALIDATION_PASS_CONTRADICTION_MAP.md": section(
+            "Live Validation PASS Contradiction Map",
+            returned_uts_contradiction_map_md(),
+        ),
+        "VALIDATION_REPAIR_SUMMARY.md": section(
+            "Validation Repair Summary",
+            returned_uts_validation_repairs_md(),
+        ),
+        "DURABLE_VALIDATION_RULES.md": section("Durable Validation Rules", returned_uts_durable_rules_md()),
+        "PRODUCT_RUNTIME_REPAIR_CANDIDATES.md": section(
+            "Product Runtime Repair Candidates",
+            returned_uts_product_candidates_md(),
+        ),
+        "GOVERNANCE_FOLLOW_UP_CANDIDATES.md": section(
+            "Governance Follow-Up Candidates",
+            returned_uts_governance_followups_md(),
+        ),
+        "EXPECTED_RED_HARNESS_SELF_CHECK.json": self_check_md,
+        "LATEST_EVIDENCE_POINTERS.md": section("Latest Evidence Pointers", evidence_md),
+    }
+    for name, body in aids.items():
+        write(PACKET_ROOT / "Review Aids" / name, body)
+
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as archive:
+        for file_path in PACKET_ROOT.rglob("*"):
+            if file_path.is_file():
+                archive.write(file_path, file_path.relative_to(PACKET_ROOT).as_posix())
+    digest = sha256_file(zip_path)
+    return PACKET_ROOT, zip_path, digest
+
+
+def validate_returned_uts_determinism_review_packet(packet_root: Path) -> dict[str, object]:
+    primary = packet_root / RETURNED_UTS_DETERMINISM_PRIMARY_FILE
+    files = list(packet_root.rglob("*"))
+    markdown_files = [p for p in files if p.suffix.lower() == ".md"]
+    user_review_files = list((packet_root / "USER Review").glob("*.md"))
+    text = read_text(primary)
+    required = [
+        f"Packet Status: {RETURNED_UTS_DETERMINISM_STATUS}",
+        "Packet Reviewability State: Reviewable",
+        "USER Gate State: Pending USER Returned-UTS Failure Review",
+        "Product/runtime repair: Withheld",
+        "Live Validation acceptance: Withheld",
+        "UTS acceptance: Withheld",
+        "Live Validation PASS Contradiction Map",
+        "Repaired Validation / Proof-Harness Behavior",
+        "Durable Validation Rules Added",
+        "FAM006-RUTS-001",
+        "FAM006-RUTS-002",
+        "FAM006-RUTS-003",
+        "FAM006-RUTS-004",
+        "FAM006-RUTS-005",
+        "RETURNED_UTS_PROFILE_LOG_CONSISTENCY_GATE",
+        "RETURNED_UTS_RECORDING_STUDIO_MANUAL_BUTTON_GATE",
+        "RETURNED_UTS_LOG_VIEWER_VISUAL_SYSTEM_GATE",
+        "RETURNED_UTS_USER_VISIBLE_STORAGE_MODEL_GATE",
+        "RETURNED_UTS_RECORDING_STUDIO_UI_ACTIVATION_GATE",
+    ]
+    forbidden = [
+        "Product/runtime repair: Implemented",
+        "UTS acceptance: Accepted",
+        "PR Readiness: Approved",
+        "Issue #258: Closed",
+    ]
+    missing = [marker for marker in required if marker not in text]
+    forbidden_hits = [marker for marker in forbidden if marker in text]
+    layout_ok = (
+        (packet_root / "START_HERE.md").exists()
+        and primary.exists()
+        and (packet_root / "Review Aids").is_dir()
+        and (packet_root / "Source Truth Context").is_dir()
+        and len(user_review_files) == 1
+        and (packet_root / "Review Aids" / "RETURNED_UTS_ISSUE_DIGEST.md").exists()
+        and (packet_root / "Review Aids" / "LIVE_VALIDATION_PASS_CONTRADICTION_MAP.md").exists()
+        and (packet_root / "Review Aids" / "EXPECTED_RED_HARNESS_SELF_CHECK.json").exists()
+    )
+    return {
+        "passed": not missing and not forbidden_hits and layout_ok,
+        "layoutOk": layout_ok,
+        "missingRequiredMarkers": missing,
+        "forbiddenMarkers": forbidden_hits,
+        "userReviewFileCount": len(user_review_files),
+        "markdownFileCount": len(markdown_files),
+        "fileCount": len([p for p in files if p.is_file()]),
+    }
+
+
 def validate_packet(packet_root: Path) -> dict[str, object]:
     primary = packet_root / PRIMARY_FILE
     files = list(packet_root.rglob("*"))
@@ -4184,6 +4678,9 @@ def main() -> int:
     parser.add_argument("--validate-repair-return-review-packet", action="store_true")
     parser.add_argument("--generate-live-validation-uts-disposition-packet", action="store_true")
     parser.add_argument("--validate-live-validation-uts-disposition-packet", action="store_true")
+    parser.add_argument("--run-returned-uts-determinism-gate", action="store_true")
+    parser.add_argument("--generate-returned-uts-determinism-review-packet", action="store_true")
+    parser.add_argument("--validate-returned-uts-determinism-review-packet", action="store_true")
     args = parser.parse_args()
     if args.generate_packet:
         packet_root, zip_path, digest = generate_packet()
@@ -4275,6 +4772,24 @@ def main() -> int:
         return 0 if validation["passed"] else 1
     if args.validate_live_validation_uts_disposition_packet:
         validation = validate_live_validation_uts_disposition_packet(PACKET_ROOT)
+        print(json.dumps(validation, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.run_returned_uts_determinism_gate:
+        result = returned_uts_gate_self_check()
+        print(json.dumps(result, indent=2))
+        return 0 if result["passed"] else 1
+    if args.generate_returned_uts_determinism_review_packet:
+        packet_root, zip_path, digest = generate_returned_uts_determinism_review_packet()
+        validation = validate_returned_uts_determinism_review_packet(packet_root)
+        print(json.dumps({
+            "packetRoot": str(packet_root),
+            "zipPath": str(zip_path),
+            "zipSha256": digest,
+            "validation": validation,
+        }, indent=2))
+        return 0 if validation["passed"] else 1
+    if args.validate_returned_uts_determinism_review_packet:
+        validation = validate_returned_uts_determinism_review_packet(PACKET_ROOT)
         print(json.dumps(validation, indent=2))
         return 0 if validation["passed"] else 1
     parser.print_help()

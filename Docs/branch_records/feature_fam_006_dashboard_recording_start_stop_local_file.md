@@ -293,6 +293,20 @@ Issue #258 Closeout: `Still pending separate USER/GitHub issue decision; this ac
 Boundary: `This digest does not approve PR Readiness Stage 1 analysis, PR creation, issue #258 closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
 Next Legal Phase: `PR Readiness Stage 1 analysis approval.`
 
+## Returned UTS Live Validation Failure / Determinism Repair Receipt
+
+Receipt Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; active gate state and exact packet proof live in C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md, helper output, Git, and Codex completion packets.`
+USER Returned Issues: `Profile-specific log consistency proof failure; Recording Studio manual button path still fails; Log Viewer Studio UI generic / vision mismatch; exported logs path exposes internal/worktree-like folder model; Recording Studio UI cannot be verified while normal activation fails.`
+Supersedes Earlier Disposition For Active Movement: `Yes - the earlier all-green Live Validation / UTS disposition acceptance remains historical evidence, but these returned UTS issues block PR Readiness until digested and repaired or explicitly waived under current source truth.`
+Validation Harness Repair: `dev/orin_monitoring_hud_live_validation.ps1 now carries returned-UTS determinism gates and blocks UTS export while any gate remains FAIL, BLOCKED, or UNPROVEN; dev/orin_monitoring_hud_surface_validation.py validates those gates and the FAM-006 Recording feature-vision proof expectations.`
+Feature Vision Repair: `Docs/family_feature_visions/FAM-006_recording.md now requires profile-specific log consistency, normal USER-path Studio/Log Viewer activation separation, activation-dependent Studio UI proof, Log Viewer visual-system inheritance, and user-visible native/export folder model checks.`
+Product Runtime Fixes: `Withheld - Recording Studio activation, profile/log consistency, Log Viewer visual design, user-visible path model, and Studio UI activation-dependent visual proof require separate USER product/runtime repair approval.`
+Packet Reviewability State: `Reviewable after returned-UTS failure packet generation under C:\Nexus USER\FAM-006 with timestamped ZIP proof in helper output and Codex digest.`
+USER Gate State: `Pending USER returned-UTS failure review and separate product/runtime repair decision.`
+Boundary: `This receipt does not approve product/runtime fixes, Live Validation acceptance, UTS acceptance, PR Readiness, issue #258 closeout, PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated full Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
+Next Legal Phase: `USER reviews the returned-UTS failure packet and either approves bounded FAM-006 product/runtime repair for FAM006-RUTS-001 through FAM006-RUTS-005, revises the findings, holds the branch, or grants an explicit waiver.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`

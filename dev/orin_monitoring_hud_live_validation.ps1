@@ -903,6 +903,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         slice = "SLC-029"
         seam = $manifestSeam
         proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only; mandatory LV1 short video/frame-sequence proof is required for desktop UI handoff; detailed focused per-element screenshots must be copied to the USER-inspectable OneDrive screenshots folder with the element label/name in each filename; per-element visual inventory and returned issue-form coverage matrix are required; full-desktop screenshots are context only; active-client/direct-runtime proof is supporting only when the real user-facing desktop launcher is feasible"
+        returnedUtsDeterminismGateStatus = (Get-ReturnedUtsDeterminismGateStatus)
+        returnedUtsDeterminismGates = @(Get-ReturnedUtsDeterminismGates)
         lv1ScreenshotAndShortVideoProofRequired = $true
         lv1DetailedPerElementScreenshotsRequired = $true
         lv1RealUserFacingDesktopLauncherRequired = [bool]$PrepareLiveValidationUserTestSummary
@@ -1036,6 +1038,74 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         generatedAt = (Get-Date).ToUniversalTime().ToString("o")
     }
     $manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $Paths.Manifest -Encoding utf8
+}
+
+function Get-ReturnedUtsDeterminismGates() {
+    return @(
+        [pscustomobject]@{
+            id = "RETURNED_UTS_PROFILE_LOG_CONSISTENCY_GATE"
+            issueId = "FAM006-RUTS-001"
+            title = "Profile-specific recording/log consistency"
+            status = "UNPROVEN"
+            requiredProof = "Selected profile identity, profile monitor set, recording target snapshot, generated native log contents, and profile/log consistency must be checked together."
+            stopLossReason = "The prior LV PASS could prove target mirroring without proving the native log contents matched the selected profile/monitor set."
+            futureGreenCondition = "Normal USER-path LV proof records two distinct Overlay Profiles with different monitor membership, starts/stops recording for each, and verifies generated native NDAI log contents against the selected profile snapshot."
+        }
+        [pscustomobject]@{
+            id = "RETURNED_UTS_RECORDING_STUDIO_MANUAL_BUTTON_GATE"
+            issueId = "FAM006-RUTS-002"
+            title = "Recording Studio visible manual button path"
+            status = "FAIL"
+            requiredProof = "The visible Dashboard Recording card button must be clicked through the normal USER path and distinguished from helper foreground, native direct-launch, and seeded/sandbox launch paths."
+            stopLossReason = "USER reports the manual button still fails, so helper/native-window proof cannot satisfy the normal USER path."
+            futureGreenCondition = "LV manifest contains real OS click proof for the visible Recording Studio button and focused native Recording Studio evidence from that same path."
+        }
+        [pscustomobject]@{
+            id = "RETURNED_UTS_LOG_VIEWER_VISUAL_SYSTEM_GATE"
+            issueId = "FAM006-RUTS-003"
+            title = "Log Viewer Studio visual-system inheritance"
+            status = "UNPROVEN"
+            requiredProof = "Focused Log Viewer Studio screenshots must be adjudicated against Project Vision, FAM-006 family vision, and the Recording family-feature vision instead of passing from screenshot existence or generic shell presence."
+            stopLossReason = "USER reports the Log Viewer UI is generic and not aligned with the established Nexus/FAM-006 visual system."
+            futureGreenCondition = "LV visual adjudication records source-truth-mapped verdicts for Log Viewer Studio chrome, rows, buttons, typography, density, window shape, and state language."
+        }
+        [pscustomobject]@{
+            id = "RETURNED_UTS_USER_VISIBLE_STORAGE_MODEL_GATE"
+            issueId = "FAM006-RUTS-004"
+            title = "User-visible storage/folder model"
+            status = "UNPROVEN"
+            requiredProof = "Native/export folder labels and paths must be inspected for public/user-facing suitability and must not expose worktree, branch, developer, owner-only, or FAM implementation concepts unless source truth explicitly permits it."
+            stopLossReason = "USER reports exported logs expose a FAM-006/worktree-like folder model that may not match client packaging expectations."
+            futureGreenCondition = "LV proof classifies native and exported log paths against accepted storage/package vision and fails closed on internal-path leakage or source-truth ambiguity."
+        }
+        [pscustomobject]@{
+            id = "RETURNED_UTS_RECORDING_STUDIO_UI_ACTIVATION_GATE"
+            issueId = "FAM006-RUTS-005"
+            title = "Recording Studio UI visual proof depends on normal activation"
+            status = "BLOCKED"
+            requiredProof = "Recording Studio UI visual proof must be blocked when the Studio cannot be activated through the normal visible USER path; helper-launched screenshots are supporting evidence only."
+            stopLossReason = "USER cannot verify Recording Studio UI against vision while the manual activation path fails."
+            futureGreenCondition = "Manual visible-button activation passes first, then focused Recording Studio screenshots are visually adjudicated against source truth."
+        }
+    )
+}
+
+function Get-ReturnedUtsDeterminismGateStatus() {
+    $open = @(Get-ReturnedUtsDeterminismGates | Where-Object { $_.status -ne "PASS" })
+    if ($open.Count -eq 0) {
+        return "PASS"
+    }
+    return "BLOCKED"
+}
+
+function Assert-ReturnedUtsDeterminismGatesClear([object]$Paths) {
+    $open = @(Get-ReturnedUtsDeterminismGates | Where-Object { $_.status -ne "PASS" })
+    if ($open.Count -eq 0) {
+        Step $Paths "returned-UTS determinism gates PASS: no open stop-loss gates remain"
+        return
+    }
+    $summary = @($open | ForEach-Object { "$($_.issueId)/$($_.id)=$($_.status)" }) -join "; "
+    throw "Live Validation LV1 UTS export blocked by returned-UTS determinism gates: $summary. Product/runtime fixes are withheld; rerun only after the normal USER-path proof closes these gates."
 }
 
 function Save-UserTestSummaryHandoff([object]$Paths) {
@@ -1480,6 +1550,9 @@ try {
         }
         Step $paths "generated mandatory LV1 short video proof: $($script:ShortVideoProof.path)"
         Step $paths "copied mandatory LV1 user-inspectable short video proof: $($script:ShortVideoProof.userInspectablePath)"
+    }
+    if ($PrepareLiveValidationUserTestSummary) {
+        Assert-ReturnedUtsDeterminismGatesClear $paths
     }
     $script:ManifestStatus = "PASS"
     $exitCode = 0
