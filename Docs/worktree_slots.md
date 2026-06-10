@@ -159,6 +159,14 @@ Same-worktree or same-branch concurrent mutation blocks on `Parallel Worktree Co
 
 Off-worktree or out-of-scope work blocks on `Governance Routing Barrier`. The assigned thread reports the requested work, expected/actual worktree and branch, dirty-file risk, known owner if any, and recommendation to the standing Governance lane. Governance decides whether the current owner continues, an existing slot owner handles it, a new worktree/thread is needed, or a USER waiver is required. New worktree/thread creation and reassignment remain USER-gated by `New Worktree Decision Gate`.
 
+## Shared Surface Overlap And Worktree Mutation Boundary
+
+Shared-file overlap across worktrees is legal when each active branch has its own owning-family reason to touch the shared repo surface and overlap is handled by active external branch planning, Branch Change Intent Ledger evidence, Pre-Rebaseline Impact Audit, PR Readiness, merge sequencing, and post-merge reconciliation. Shared overlap is not automatically cross-worktree work.
+
+Worktree-to-worktree mutation is different and remains blocked by default. A thread assigned to one worktree must not edit, stage, commit, rebase, merge, clean, launch owner-only validation from, or otherwise mutate another active worktree or branch unless USER grants a bounded waiver that names the source worktree, target worktree, branch, write set, expiration or stop condition, validation proof, and return path.
+
+This slot registry may define the durable boundary and reusable slot roles, but it must not track live changed-file state, current active assignment, current branch status, PR state, release-window posture, or mutable dependency queues. Those live facts belong to `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, active external branch plans, USER packets, or Codex digests as routed by source truth.
+
 ## Slot Retirement Receipt
 
 When a branch merges, is abandoned, or becomes historical, the retirement packet must record:

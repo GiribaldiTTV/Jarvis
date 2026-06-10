@@ -253,6 +253,12 @@ VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
 INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE = (
     FIXTURE_DIR / "invalid_merge_stable_source_truth_projection.md"
 )
+VALID_CROSS_FAM_DEPENDENCY_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "valid_cross_fam_dependency_candidate.md"
+)
+INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE = (
+    FIXTURE_DIR / "invalid_cross_fam_dependency_unclassified.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -381,6 +387,9 @@ EXPECTED_BR2_PROOF_ONLY_ROUTE_FAILURE_SNIPPET = (
 )
 EXPECTED_SLC_SLICE_SEAM_FAILURE_SNIPPET = "SLC / Slice / Seam terminology ambiguity"
 EXPECTED_MERGE_STABLE_PROJECTION_FAILURE_SNIPPET = "PR creation pending"
+EXPECTED_CROSS_FAM_UNCLASSIFIED_FAILURE_SNIPPET = (
+    "Cross-FAM Dependency Scope Unclassified"
+)
 
 
 def _collect_failures():
@@ -1332,6 +1341,187 @@ def _validate_implementation_bearing_route_text(text: str) -> list[str]:
         governance._planning_word_count(user_gate) >= 6,
         "Implementation-bearing route must name pending USER action gate posture",
     )
+    return failures
+
+
+def _validate_cross_fam_dependency_packet_text(text: str) -> list[str]:
+    record_starts = list(
+        re.finditer(r"(?im)^\s*(?:-\s*)?Cross-FAM Dependency Map:", text)
+    )
+    if len(record_starts) > 1:
+        failures: list[str] = []
+        for index, record_start in enumerate(record_starts):
+            record_end = (
+                record_starts[index + 1].start()
+                if index + 1 < len(record_starts)
+                else len(text)
+            )
+            record_text = text[record_start.start() : record_end]
+            failures.extend(
+                f"Cross-FAM dependency record {index + 1}: {failure}"
+                for failure in _validate_cross_fam_dependency_packet_text(record_text)
+            )
+        return failures
+
+    failures, require = _collect_failures()
+    required_markers = (
+        "Cross-FAM Dependency Map:",
+        "Dependency ID:",
+        "Originating FAM:",
+        "Originating FFV / Element:",
+        "Affected FAMs:",
+        "Affected FFV / Element or Not Created:",
+        "Dependency Scope Class:",
+        "Carry-In / Deferral / Transfer Decision:",
+        "Required Contract / Capability:",
+        "Suggested Grouping:",
+        "Proof Expectation:",
+        "Durable Disposition:",
+        "Affected FAM Receipt / Fold-Down Target:",
+        "Worktree-To-Worktree Mutation:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"Cross-FAM dependency packet missing {marker}")
+
+    normalized_text = governance._normalized_planning_value(text)
+    scope_class = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Dependency Scope Class")
+    )
+    affected_fams = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Affected FAMs")
+    )
+    affected_ffv = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Affected FFV / Element or Not Created")
+    )
+    disposition = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Durable Disposition")
+    )
+    receipt = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Affected FAM Receipt / Fold-Down Target")
+    )
+    mutation = governance._normalized_planning_value(
+        governance._extract_marker_value(text, "Worktree-To-Worktree Mutation")
+    )
+
+    allowed_scope_classes = {
+        "awareness only",
+        "compatibility default",
+        "future adoption",
+        "local fam only",
+        "cross-fam awareness",
+        "dependency-bounded cross-fam work",
+        "priority carry-in",
+        "platform contract",
+        "coordinated cross-fam patch",
+        "repo-wide migration / halt",
+        "transferred fam work",
+    }
+    require(
+        scope_class in allowed_scope_classes,
+        "Cross-FAM Dependency Scope Unclassified",
+    )
+    require(
+        "fam-" in affected_fams.casefold(),
+        "Cross-FAM dependency packet must name affected FAM ownership",
+    )
+    require(
+        "not created" in affected_ffv.casefold()
+        or re.search(r"\bF\d+-FF\d{2}(?:-E\d{2})?\b", affected_ffv, re.IGNORECASE),
+        "Cross-FAM dependency packet must name affected FFV / element or Not Created",
+    )
+    require(
+        disposition
+        and disposition.casefold()
+        not in {"pending", "todo", "tbd", "none", "n/a", "not applicable"},
+        "Cross-FAM dependency packet requires a durable disposition",
+    )
+    require(
+        receipt
+        and receipt.casefold()
+        not in {"pending", "todo", "tbd", "none", "n/a", "not applicable"},
+        "Cross-FAM dependency packet requires affected-FAM receipt or fold-down target",
+    )
+    require(
+        "blocked" in mutation.casefold()
+        or "not approved" in mutation.casefold()
+        or "none" in mutation.casefold(),
+        "Cross-FAM dependency packet must block direct worktree-to-worktree mutation",
+    )
+    live_repo_ledger_terms = (
+        "current branch status",
+        "active worktree assignment",
+        "selected-next truth",
+        "pending pr",
+        "release-window status",
+        "live dependency queue",
+    )
+    for term in live_repo_ledger_terms:
+        require(
+            term not in normalized_text,
+            f"Cross-FAM dependency packet must not create repo live-state ledger term: {term}",
+        )
+    return failures
+
+
+def _owning_fam_from_ffv(path: Path, text: str) -> str:
+    candidates = (
+        re.search(r"\bFAM-(\d{3})\b", path.name),
+        re.search(r"\bF(\d+)-FF\d{2}\b", path.name, re.IGNORECASE),
+        re.search(r"\bF(\d+)-FF\d{2}\b", text, re.IGNORECASE),
+    )
+    for match in candidates:
+        if not match:
+            continue
+        raw = match.group(1)
+        if len(raw) == 3:
+            return f"FAM-{raw}"
+        return f"FAM-{int(raw):03d}"
+    return ""
+
+
+def _validate_current_worktree_ffv_dependency_records() -> list[str]:
+    """Scan tracked FFVs in the current worktree for loose cross-FAM dependencies."""
+
+    failures: list[str] = []
+    ffv_dir = ROOT / "Docs" / "family_feature_visions"
+    if not ffv_dir.is_dir():
+        return failures
+
+    trigger_terms = (
+        "dependency",
+        "carry-in",
+        "platform contract",
+        "affected fam",
+        "installer",
+        "packaging",
+        "shortcut",
+        "update",
+        "patch",
+    )
+    for path in sorted(ffv_dir.glob("*.md")):
+        if path.name.casefold() == "index.md":
+            continue
+        text = path.read_text(encoding="utf-8")
+        owning_fam = _owning_fam_from_ffv(path, text)
+        mentioned_fams = sorted(set(re.findall(r"\bFAM-\d{3}\b", text)))
+        other_fams = [fam for fam in mentioned_fams if fam != owning_fam]
+        normalized_text = governance._normalized_planning_value(text)
+        if not other_fams:
+            continue
+        if not any(term in normalized_text for term in trigger_terms):
+            continue
+        if "Cross-FAM Dependency" not in text and "Dependency Scope Class:" not in text:
+            failures.append(
+                f"{path.relative_to(ROOT)}: Cross-FAM dependency content mentions "
+                f"{', '.join(other_fams)} but lacks a Cross-FAM Dependency record"
+            )
+            continue
+        record_failures = _validate_cross_fam_dependency_packet_text(text)
+        if record_failures:
+            failures.append(
+                f"{path.relative_to(ROOT)}: Cross-FAM dependency record invalid: "
+                + "; ".join(record_failures[:5])
+            )
     return failures
 
 
@@ -2758,6 +2948,8 @@ def validate() -> list[str]:
         VALID_IMPLEMENTATION_ROUTE_RETARGET_RENAME_FIXTURE,
         VALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
+        VALID_CROSS_FAM_DEPENDENCY_CANDIDATE_FIXTURE,
+        INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -4767,6 +4959,92 @@ line item, not a seam or separate branch.
             "Invalid Merge-Stable Source Truth Projection fixture did not reject "
             "stale PR creation pending wording"
         )
+
+    valid_cross_fam_text = VALID_CROSS_FAM_DEPENDENCY_CANDIDATE_FIXTURE.read_text(
+        encoding="utf-8"
+    )
+    valid_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
+        valid_cross_fam_text
+    )
+    if valid_cross_fam_failures:
+        failures.append(
+            "Valid cross-FAM dependency candidate fixture unexpectedly failed: "
+            + "; ".join(valid_cross_fam_failures[:5])
+        )
+
+    for documented_scope_class in (
+        "Awareness Only",
+        "Compatibility Default",
+        "Future Adoption",
+    ):
+        documented_scope_text = re.sub(
+            r"Dependency Scope Class: .+",
+            f"Dependency Scope Class: {documented_scope_class}",
+            valid_cross_fam_text,
+        )
+        documented_scope_failures = _validate_cross_fam_dependency_packet_text(
+            documented_scope_text
+        )
+        if documented_scope_failures:
+            failures.append(
+                "Documented cross-FAM dependency scope class unexpectedly failed "
+                f"({documented_scope_class}): "
+                + "; ".join(documented_scope_failures[:5])
+            )
+
+    invalid_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
+        INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_CROSS_FAM_UNCLASSIFIED_FAILURE_SNIPPET not in "\n".join(
+        invalid_cross_fam_failures
+    ):
+        failures.append(
+            "Invalid cross-FAM dependency fixture did not reject unclassified "
+            "affected-FAM dependency work"
+        )
+
+    invalid_cross_fam_text = INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE.read_text(
+        encoding="utf-8"
+    )
+    mixed_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
+        invalid_cross_fam_text + "\n\n" + valid_cross_fam_text
+    )
+    if EXPECTED_CROSS_FAM_UNCLASSIFIED_FAILURE_SNIPPET not in "\n".join(
+        mixed_cross_fam_failures
+    ):
+        failures.append(
+            "Mixed cross-FAM dependency fixture did not reject an invalid record "
+            "before a valid record"
+        )
+
+    bulleted_mixed_cross_fam_failures = _validate_cross_fam_dependency_packet_text(
+        invalid_cross_fam_text.replace(
+            "Cross-FAM Dependency Map:", "- Cross-FAM Dependency Map:"
+        )
+        + "\n\n"
+        + valid_cross_fam_text.replace(
+            "Cross-FAM Dependency Map:", "- Cross-FAM Dependency Map:"
+        )
+    )
+    if EXPECTED_CROSS_FAM_UNCLASSIFIED_FAILURE_SNIPPET not in "\n".join(
+        bulleted_mixed_cross_fam_failures
+    ):
+        failures.append(
+            "Bulleted mixed cross-FAM dependency fixture did not reject an invalid "
+            "record before a valid record"
+        )
+
+    compact_ffv_owner = _owning_fam_from_ffv(
+        Path("Docs/family_feature_visions/F8-FF01.md"),
+        "# FAM-008 Packaging Update Visibility\n\n"
+        "Durable feature-category direction for packaging, update, and restart continuity.",
+    )
+    if compact_ffv_owner != "FAM-008":
+        failures.append(
+            "Compact Family Feature Vision filename fixture did not resolve owning FAM"
+        )
+
+    failures.extend(_validate_current_worktree_ffv_dependency_records())
 
     failures.extend(_validate_merge_stable_projection_helpers())
 
