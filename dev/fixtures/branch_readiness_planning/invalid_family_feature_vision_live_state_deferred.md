@@ -16,4 +16,3 @@ Branch Readiness Consumption Notes: `Consume durable category details.`
 BP1 Context Notes: `Digest the feature category.`
 Fold-Down History: `None.`
 Active-State Wording Scan: `FAIL - fixture intentionally includes live state.`
-

@@ -16,4 +16,3 @@ Branch Readiness Consumption Notes: `Continue to BP1.`
 BP1 Context Notes: `Use this Slice.`
 Fold-Down History: `None.`
 Active-State Wording Scan: `PASS.`
-

@@ -16,4 +16,3 @@ Branch Readiness Consumption Notes: `Explain how BR1/BR2 should consume this fil
 BP1 Context Notes: `Explain the branch-vision context BP1 should digest for USER review.`
 Fold-Down History: `None yet; future PR Readiness fold-down may add durable historical receipts.`
 Active-State Wording Scan: `PASS - this template is not an active branch, selected-next, PR, worktree, or release-window ledger.`
-

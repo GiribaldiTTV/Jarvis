@@ -9,4 +9,3 @@ Future content files should use compact IDs such as `F<family>-FF<two digits>` a
 | FFV ID | Parent FAM | Feature Category | File | Registry Disposition | Notes |
 | --- | --- | --- | --- | --- | --- |
 | None admitted | Not applicable | Not applicable | Not applicable | Scaffold only | Future entries require USER-approved feature-vision content admission. |
-

@@ -9,4 +9,3 @@ Recommended grouping: `TBD.`
 Deferred items that remain future-gated: `TBD.`
 Reason future-gated items remain deferred: `TBD.`
 Validation/proof expectations: `TBD.`
-

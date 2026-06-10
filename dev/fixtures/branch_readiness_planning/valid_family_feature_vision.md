@@ -16,4 +16,3 @@ Branch Readiness Consumption Notes: `BR1/BR2 should evaluate options against F7-
 BP1 Context Notes: `BP1 should explain the branch goal, end-state vision, USER-visible surfaces, options, recommendations, and decision questions using this feature category.`
 Fold-Down History: `None for this fixture; future branch fold-down may preserve accepted durable changes.`
 Active-State Wording Scan: `PASS - durable fixture only; no selected-next, PR, worktree, or release-window ledger.`
-
