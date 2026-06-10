@@ -87,6 +87,9 @@ from desktop.ai_provider_state import (  # noqa: E402
     LEARNING_DISABLED,
     SECRET_BOUNDARY_NO_SECRETS,
     CONSENT_ENVELOPE_REQUIRED,
+    SLC005_ENFORCEMENT_HARDENING_HANDOFF_STATE,
+    SLC005_ENFORCEMENT_PROOF_SCHEMA_VERSION,
+    SLC005_ENFORCEMENT_PROOF_STATE,
     AUDIT_ENVELOPE_PLANNED,
     GOLDEN_PROVIDER_STATE_FIXTURES,
     VALIDATOR_EXPANSION_ACTIVE,
@@ -1133,6 +1136,198 @@ def _validate_owner_ai_operational_foundation_gates_state(
     if isinstance(forbidden, dict):
         for field, value in forbidden.items():
             _require(value is False, f"Owner AI forbidden material proof must set {field}=false", failures)
+
+    slc005_proof = state.get("slc005EnforcementProof", {})
+    _require(isinstance(slc005_proof, dict), "SLC-005 enforcement proof missing", failures)
+    if isinstance(slc005_proof, dict):
+        _require(
+            slc005_proof.get("schema") == SLC005_ENFORCEMENT_PROOF_SCHEMA_VERSION,
+            "SLC-005 enforcement proof schema mismatch",
+            failures,
+        )
+        _require(slc005_proof.get("slc") == "SLC-005", "SLC-005 enforcement proof SLC mismatch", failures)
+        _require(
+            slc005_proof.get("state") == SLC005_ENFORCEMENT_PROOF_STATE,
+            "SLC-005 enforcement proof state mismatch",
+            failures,
+        )
+        expected_scope = {
+            "provider-model-execution",
+            "prompt-acceptance-send",
+            "downloads-install-execution",
+            "runtime-cache-behavior",
+            "memory-learning-personalization",
+            "private-developer-owner-setup",
+            "hidden-network-behavior",
+        }
+        _require(
+            set(slc005_proof.get("proofScope", ())) == expected_scope,
+            "SLC-005 enforcement proof scope must cover every blocked behavior",
+            failures,
+        )
+        matrix = slc005_proof.get("blockedBehaviorMatrix", {})
+        _require(isinstance(matrix, dict), "SLC-005 blocked behavior matrix missing", failures)
+        if isinstance(matrix, dict):
+            expected_behaviors = {
+                "providerModelExecution",
+                "promptSend",
+                "downloads",
+                "runtimeCache",
+                "memory",
+                "privateSetup",
+                "hiddenNetworkBehavior",
+            }
+            _require(
+                set(matrix) == expected_behaviors,
+                "SLC-005 blocked behavior matrix must contain exactly the accepted blocked behaviors",
+                failures,
+            )
+            provider_model = matrix.get("providerModelExecution", {})
+            if isinstance(provider_model, dict):
+                _require(
+                    provider_model.get("promptProviderModelExecution") == "disabled",
+                    "SLC-005 provider/model execution must remain disabled",
+                    failures,
+                )
+                _require(
+                    provider_model.get("providerExecutionGateState") == ai_provider_state.PROVIDER_EXECUTION_GATE_DISABLED
+                    and provider_model.get("modelExecutionGateState") == ai_provider_state.MODEL_EXECUTION_GATE_DISABLED,
+                    "SLC-005 provider/model gate states must remain disabled",
+                    failures,
+                )
+                for field in (
+                    "providerSdkIntegrated",
+                    "modelExecutionEnabled",
+                    "modelDownloadsEnabled",
+                    "runtimeProviderExecutionEnabled",
+                ):
+                    _require(provider_model.get(field) is False, f"SLC-005 provider/model proof must set {field}=false", failures)
+            prompt_send = matrix.get("promptSend", {})
+            if isinstance(prompt_send, dict):
+                _require(prompt_send.get("promptAcceptance") == "disabled", "SLC-005 prompt acceptance must remain disabled", failures)
+                _require(
+                    prompt_send.get("promptAcceptanceGateState") == ai_provider_state.PROMPT_ACCEPTANCE_GATE_DISABLED
+                    and prompt_send.get("promptRoutingGateState") == ai_provider_state.PROMPT_ROUTING_GATE_DISABLED
+                    and prompt_send.get("promptSendPosture") == ai_provider_state.PROMPT_SEND_POSTURE_DISABLED,
+                    "SLC-005 prompt gates must remain disabled",
+                    failures,
+                )
+                for field in ("sentToProvider", "canAcceptPrompts"):
+                    _require(prompt_send.get(field) is False, f"SLC-005 prompt proof must set {field}=false", failures)
+                _require(prompt_send.get("providerVisibleData") == "none", "SLC-005 prompt proof must keep provider-visible data none", failures)
+            downloads = matrix.get("downloads", {})
+            if isinstance(downloads, dict):
+                _require(
+                    downloads.get("downloadsNetworkExternalCalls") == "blocked",
+                    "SLC-005 downloads/network/external calls must remain blocked",
+                    failures,
+                )
+                _require(downloads.get("modelDownloadsEnabled") is False, "SLC-005 model downloads must remain disabled", failures)
+                for field in (
+                    "capabilityPackDownloadsBlocked",
+                    "capabilityPackInstallBlocked",
+                    "capabilityPackUpdateBlocked",
+                    "capabilityPackUninstallBlocked",
+                ):
+                    _require(downloads.get(field) is True, f"SLC-005 download/install proof must set {field}=true", failures)
+                _require(
+                    downloads.get("installIntentState") == ai_provider_state.CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+                    "SLC-005 install intent must remain blocked",
+                    failures,
+                )
+            runtime_cache = matrix.get("runtimeCache", {})
+            if isinstance(runtime_cache, dict):
+                _require(runtime_cache.get("cacheIsNotMemory") is True, "SLC-005 cache must remain distinct from memory", failures)
+                _require(
+                    runtime_cache.get("runtimeCacheBehaviorEnabled") is False
+                    and runtime_cache.get("runtimeCacheState") == "inactive",
+                    "SLC-005 runtime cache behavior must remain inactive",
+                    failures,
+                )
+            memory = matrix.get("memory", {})
+            if isinstance(memory, dict):
+                _require(memory.get("memoryContextState") == MEMORY_CONTEXT_DISABLED, "SLC-005 memory context mismatch", failures)
+                _require(memory.get("memoryIndexingState") == MEMORY_INDEXING_DISABLED, "SLC-005 memory indexing mismatch", failures)
+                _require(memory.get("retrievalState") == RETRIEVAL_DISABLED, "SLC-005 retrieval mismatch", failures)
+                _require(memory.get("learningState") == LEARNING_DISABLED, "SLC-005 learning mismatch", failures)
+                _require(memory.get("persistenceState") == PERSISTENCE_DISABLED, "SLC-005 persistence mismatch", failures)
+                for field in ("memoryWriteEnabled", "realOwnerMemoryEnabled", "realOwnerAgentsEnabled"):
+                    _require(memory.get(field) is False, f"SLC-005 memory proof must set {field}=false", failures)
+            private_setup = matrix.get("privateSetup", {})
+            if isinstance(private_setup, dict):
+                _require(
+                    private_setup.get("privateSetupBoundaryState") == PRIVATE_SETUP_BOUNDARY_BLOCKED,
+                    "SLC-005 private setup boundary must remain blocked",
+                    failures,
+                )
+                _require(
+                    private_setup.get("developerLaneBoundaryState") == DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+                    and private_setup.get("ownerLaneBoundaryState") == OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+                    "SLC-005 Developer/Owner lane boundaries must remain blocked",
+                    failures,
+                )
+                for field in (
+                    "privateSetupAuthorized",
+                    "privateMaterialVisible",
+                    "privateRepoCreated",
+                    "privateRootCreated",
+                    "privateRemoteConfigured",
+                ):
+                    _require(private_setup.get(field) is False, f"SLC-005 private setup proof must set {field}=false", failures)
+            hidden_network = matrix.get("hiddenNetworkBehavior", {})
+            if isinstance(hidden_network, dict):
+                _require(
+                    hidden_network.get("networkEgressState") == NETWORK_EGRESS_BLOCKED
+                    and hidden_network.get("networkEgressGateState") == NETWORK_EGRESS_BLOCKED
+                    and hidden_network.get("externalCallReadinessState") == ai_provider_state.EXTERNAL_CALL_READINESS_BLOCKED,
+                    "SLC-005 hidden-network proof must keep egress and external calls blocked",
+                    failures,
+                )
+                for field in ("externalCallsEnabled", "hiddenExternalDependenciesAllowed"):
+                    _require(hidden_network.get(field) is False, f"SLC-005 hidden-network proof must set {field}=false", failures)
+
+        canaries = slc005_proof.get("negativeCanaries", ())
+        _require(isinstance(canaries, (list, tuple)), "SLC-005 negative canaries missing", failures)
+        if isinstance(canaries, (list, tuple)):
+            expected_canaries = {
+                "provider-model-execution-attempt",
+                "prompt-send-attempt",
+                "capability-download-attempt",
+                "runtime-cache-enable-attempt",
+                "memory-indexing-attempt",
+                "private-setup-attempt",
+                "hidden-network-attempt",
+            }
+            actual_canaries = {str(canary.get("caseId", "")) for canary in canaries if isinstance(canary, dict)}
+            _require(actual_canaries == expected_canaries, "SLC-005 negative canaries must cover every blocked behavior", failures)
+            for canary in canaries:
+                if isinstance(canary, dict):
+                    _require(canary.get("expectedOutcome") == "blocked", "SLC-005 negative canaries must expect blocked outcome", failures)
+
+        proof_handoff = slc005_proof.get("hardeningHandoff", {})
+        _require(isinstance(proof_handoff, dict), "SLC-005 proof Hardening handoff missing", failures)
+        if isinstance(proof_handoff, dict):
+            _require(
+                proof_handoff.get("state") == SLC005_ENFORCEMENT_HARDENING_HANDOFF_STATE,
+                "SLC-005 proof Hardening handoff state mismatch",
+                failures,
+            )
+            _require(
+                proof_handoff.get("nextLegalPhase") == "Hardening H1"
+                and proof_handoff.get("workstreamGreenCandidate") is True,
+                "SLC-005 proof must hand off to Hardening H1 as a green candidate",
+                failures,
+            )
+            for field in (
+                "providerModelExecutionAuthorized",
+                "promptSendAuthorized",
+                "downloadsAuthorized",
+                "runtimeCacheBehaviorAuthorized",
+                "memoryLearningPersonalizationAuthorized",
+                "privateSetupAuthorized",
+                "hiddenNetworkBehaviorAuthorized",
+            ):
+                _require(proof_handoff.get(field) is False, f"SLC-005 proof handoff must set {field}=false", failures)
 
     handoff = state.get("hardeningHandoff", {})
     _require(isinstance(handoff, dict), "Owner AI Hardening handoff missing", failures)

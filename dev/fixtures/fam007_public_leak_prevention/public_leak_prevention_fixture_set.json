@@ -1416,6 +1416,149 @@
       "capabilityPackAsset": false,
       "privateHostingSecret": false
     },
+    "slc005EnforcementProof": {
+      "schema": "slc005-enforcement-proof.v1",
+      "slc": "SLC-005",
+      "state": "workstream-enforcement-proof-green",
+      "proofScope": [
+        "provider-model-execution",
+        "prompt-acceptance-send",
+        "downloads-install-execution",
+        "runtime-cache-behavior",
+        "memory-learning-personalization",
+        "private-developer-owner-setup",
+        "hidden-network-behavior"
+      ],
+      "validationSurfaces": [
+        "desktop/ai_provider_state.py",
+        "dev/orin_ai_provider_state_validation.py",
+        "dev/orin_public_leak_prevention_validation.py",
+        "dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json"
+      ],
+      "blockedBehaviorMatrix": {
+        "providerModelExecution": {
+          "promptProviderModelExecution": "disabled",
+          "providerSdkIntegrated": false,
+          "modelExecutionEnabled": false,
+          "modelDownloadsEnabled": false,
+          "runtimeProviderExecutionEnabled": false,
+          "providerExecutionGateState": "provider-execution-disabled",
+          "modelExecutionGateState": "model-execution-disabled",
+          "userGate": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION"
+        },
+        "promptSend": {
+          "promptAcceptance": "disabled",
+          "promptAcceptanceGateState": "prompt-acceptance-disabled",
+          "promptRoutingGateState": "prompt-routing-disabled",
+          "promptSendPosture": "prompt-send-disabled",
+          "sentToProvider": false,
+          "canAcceptPrompts": false,
+          "providerVisibleData": "none"
+        },
+        "downloads": {
+          "downloadsNetworkExternalCalls": "blocked",
+          "capabilityPackDownloadsBlocked": true,
+          "capabilityPackInstallBlocked": true,
+          "capabilityPackUpdateBlocked": true,
+          "capabilityPackUninstallBlocked": true,
+          "installIntentState": "install-intent-blocked",
+          "modelDownloadsEnabled": false
+        },
+        "runtimeCache": {
+          "cacheConsentState": "blocked-pending-user-cache-approval",
+          "cacheIsNotMemory": true,
+          "runtimeCacheBehaviorEnabled": false,
+          "runtimeCacheState": "inactive",
+          "userGate": "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR"
+        },
+        "memory": {
+          "memoryConsentState": "blocked-pending-user-memory-approval",
+          "memoryContextState": "memory-context-disabled",
+          "memoryIndexingState": "memory-indexing-disabled",
+          "retrievalState": "retrieval-disabled",
+          "learningState": "learning-disabled",
+          "persistenceState": "persistence-disabled",
+          "memoryWriteEnabled": false,
+          "realOwnerMemoryEnabled": false,
+          "realOwnerAgentsEnabled": false,
+          "userGate": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION"
+        },
+        "privateSetup": {
+          "privateSetupBoundaryState": "private-setup-blocked",
+          "privateSetupAuthorized": false,
+          "privateMaterialVisible": false,
+          "privateRepoCreated": false,
+          "privateRootCreated": false,
+          "privateRemoteConfigured": false,
+          "developerLaneBoundaryState": "developer-lane-private-setup-blocked",
+          "ownerLaneBoundaryState": "owner-lane-private-setup-blocked"
+        },
+        "hiddenNetworkBehavior": {
+          "networkEgressState": "network-egress-blocked",
+          "networkEgressGateState": "network-egress-blocked",
+          "externalCallsEnabled": false,
+          "externalCallReadinessState": "external-calls-blocked",
+          "hiddenExternalDependenciesAllowed": false,
+          "providerNetworkRequirementPosture": "network-requirement-blocked"
+        }
+      },
+      "negativeCanaries": [
+        {
+          "caseId": "provider-model-execution-attempt",
+          "blockedBehavior": "providerModelExecution",
+          "attemptedEnablement": "providerSdkIntegrated=true",
+          "expectedOutcome": "blocked"
+        },
+        {
+          "caseId": "prompt-send-attempt",
+          "blockedBehavior": "promptSend",
+          "attemptedEnablement": "canAcceptPrompts=true",
+          "expectedOutcome": "blocked"
+        },
+        {
+          "caseId": "capability-download-attempt",
+          "blockedBehavior": "downloads",
+          "attemptedEnablement": "capabilityPackDownloadsBlocked=false",
+          "expectedOutcome": "blocked"
+        },
+        {
+          "caseId": "runtime-cache-enable-attempt",
+          "blockedBehavior": "runtimeCache",
+          "attemptedEnablement": "runtimeCacheBehaviorEnabled=true",
+          "expectedOutcome": "blocked"
+        },
+        {
+          "caseId": "memory-indexing-attempt",
+          "blockedBehavior": "memory",
+          "attemptedEnablement": "memoryWriteEnabled=true",
+          "expectedOutcome": "blocked"
+        },
+        {
+          "caseId": "private-setup-attempt",
+          "blockedBehavior": "privateSetup",
+          "attemptedEnablement": "privateSetupAuthorized=true",
+          "expectedOutcome": "blocked"
+        },
+        {
+          "caseId": "hidden-network-attempt",
+          "blockedBehavior": "hiddenNetworkBehavior",
+          "attemptedEnablement": "hiddenExternalDependenciesAllowed=true",
+          "expectedOutcome": "blocked"
+        }
+      ],
+      "hardeningHandoff": {
+        "state": "ready-for-hardening-h1",
+        "nextLegalPhase": "Hardening H1",
+        "workstreamGreenCandidate": true,
+        "providerModelExecutionAuthorized": false,
+        "promptSendAuthorized": false,
+        "downloadsAuthorized": false,
+        "runtimeCacheBehaviorAuthorized": false,
+        "memoryLearningPersonalizationAuthorized": false,
+        "privateSetupAuthorized": false,
+        "hiddenNetworkBehaviorAuthorized": false
+      }
+    },
     "hardeningHandoff": {
       "state": "ready-for-hardening-h1",
       "nextLegalPhase": "Hardening H1",

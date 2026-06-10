@@ -143,6 +143,9 @@ PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY = "public-lane-local-assist-only"
 DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED = "developer-lane-private-setup-blocked"
 OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED = "owner-lane-private-setup-blocked"
 PRIVATE_SETUP_BOUNDARY_BLOCKED = "private-setup-blocked"
+SLC005_ENFORCEMENT_PROOF_SCHEMA_VERSION = "slc005-enforcement-proof.v1"
+SLC005_ENFORCEMENT_PROOF_STATE = "workstream-enforcement-proof-green"
+SLC005_ENFORCEMENT_HARDENING_HANDOFF_STATE = "ready-for-hardening-h1"
 MODEL_WORKLOAD_METADATA_PLANNED = "model-workload-metadata-planned"
 DATA_CLASSIFICATION_LOCAL_ONLY = "data-classification-local-only"
 DATA_CLASSIFICATION_SCHEMA_VERSION = "data-classification.v1"
@@ -12241,6 +12244,154 @@ def build_local_hardware_capability_state(*, surface_role: str = "hud") -> AIPro
     )
 
 
+def build_slc005_enforcement_proof_contract() -> dict[str, object]:
+    """Build SLC-005 proof that every gated AI/private path remains blocked."""
+
+    return {
+        "schema": SLC005_ENFORCEMENT_PROOF_SCHEMA_VERSION,
+        "slc": "SLC-005",
+        "state": SLC005_ENFORCEMENT_PROOF_STATE,
+        "proofScope": (
+            "provider-model-execution",
+            "prompt-acceptance-send",
+            "downloads-install-execution",
+            "runtime-cache-behavior",
+            "memory-learning-personalization",
+            "private-developer-owner-setup",
+            "hidden-network-behavior",
+        ),
+        "validationSurfaces": (
+            "desktop/ai_provider_state.py",
+            "dev/orin_ai_provider_state_validation.py",
+            "dev/orin_public_leak_prevention_validation.py",
+            "dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json",
+        ),
+        "blockedBehaviorMatrix": {
+            "providerModelExecution": {
+                "promptProviderModelExecution": "disabled",
+                "providerSdkIntegrated": False,
+                "modelExecutionEnabled": False,
+                "modelDownloadsEnabled": False,
+                "runtimeProviderExecutionEnabled": False,
+                "providerExecutionGateState": PROVIDER_EXECUTION_GATE_DISABLED,
+                "modelExecutionGateState": MODEL_EXECUTION_GATE_DISABLED,
+                "userGate": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+            },
+            "promptSend": {
+                "promptAcceptance": "disabled",
+                "promptAcceptanceGateState": PROMPT_ACCEPTANCE_GATE_DISABLED,
+                "promptRoutingGateState": PROMPT_ROUTING_GATE_DISABLED,
+                "promptSendPosture": PROMPT_SEND_POSTURE_DISABLED,
+                "sentToProvider": False,
+                "canAcceptPrompts": False,
+                "providerVisibleData": "none",
+            },
+            "downloads": {
+                "downloadsNetworkExternalCalls": "blocked",
+                "capabilityPackDownloadsBlocked": True,
+                "capabilityPackInstallBlocked": True,
+                "capabilityPackUpdateBlocked": True,
+                "capabilityPackUninstallBlocked": True,
+                "installIntentState": CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+                "modelDownloadsEnabled": False,
+            },
+            "runtimeCache": {
+                "cacheConsentState": "blocked-pending-user-cache-approval",
+                "cacheIsNotMemory": True,
+                "runtimeCacheBehaviorEnabled": False,
+                "runtimeCacheState": "inactive",
+                "userGate": "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR",
+            },
+            "memory": {
+                "memoryConsentState": "blocked-pending-user-memory-approval",
+                "memoryContextState": MEMORY_CONTEXT_DISABLED,
+                "memoryIndexingState": MEMORY_INDEXING_DISABLED,
+                "retrievalState": RETRIEVAL_DISABLED,
+                "learningState": LEARNING_DISABLED,
+                "persistenceState": PERSISTENCE_DISABLED,
+                "memoryWriteEnabled": False,
+                "realOwnerMemoryEnabled": False,
+                "realOwnerAgentsEnabled": False,
+                "userGate": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+            },
+            "privateSetup": {
+                "privateSetupBoundaryState": PRIVATE_SETUP_BOUNDARY_BLOCKED,
+                "privateSetupAuthorized": False,
+                "privateMaterialVisible": False,
+                "privateRepoCreated": False,
+                "privateRootCreated": False,
+                "privateRemoteConfigured": False,
+                "developerLaneBoundaryState": DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+                "ownerLaneBoundaryState": OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+            },
+            "hiddenNetworkBehavior": {
+                "networkEgressState": NETWORK_EGRESS_BLOCKED,
+                "networkEgressGateState": NETWORK_EGRESS_BLOCKED,
+                "externalCallsEnabled": False,
+                "externalCallReadinessState": EXTERNAL_CALL_READINESS_BLOCKED,
+                "hiddenExternalDependenciesAllowed": False,
+                "providerNetworkRequirementPosture": PROVIDER_NETWORK_REQUIREMENT_BLOCKED,
+            },
+        },
+        "negativeCanaries": (
+            {
+                "caseId": "provider-model-execution-attempt",
+                "blockedBehavior": "providerModelExecution",
+                "attemptedEnablement": "providerSdkIntegrated=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "prompt-send-attempt",
+                "blockedBehavior": "promptSend",
+                "attemptedEnablement": "canAcceptPrompts=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "capability-download-attempt",
+                "blockedBehavior": "downloads",
+                "attemptedEnablement": "capabilityPackDownloadsBlocked=false",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "runtime-cache-enable-attempt",
+                "blockedBehavior": "runtimeCache",
+                "attemptedEnablement": "runtimeCacheBehaviorEnabled=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "memory-indexing-attempt",
+                "blockedBehavior": "memory",
+                "attemptedEnablement": "memoryWriteEnabled=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "private-setup-attempt",
+                "blockedBehavior": "privateSetup",
+                "attemptedEnablement": "privateSetupAuthorized=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "hidden-network-attempt",
+                "blockedBehavior": "hiddenNetworkBehavior",
+                "attemptedEnablement": "hiddenExternalDependenciesAllowed=true",
+                "expectedOutcome": "blocked",
+            },
+        ),
+        "hardeningHandoff": {
+            "state": SLC005_ENFORCEMENT_HARDENING_HANDOFF_STATE,
+            "nextLegalPhase": "Hardening H1",
+            "workstreamGreenCandidate": True,
+            "providerModelExecutionAuthorized": False,
+            "promptSendAuthorized": False,
+            "downloadsAuthorized": False,
+            "runtimeCacheBehaviorAuthorized": False,
+            "memoryLearningPersonalizationAuthorized": False,
+            "privateSetupAuthorized": False,
+            "hiddenNetworkBehaviorAuthorized": False,
+        },
+    }
+
+
 def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
     """Build the public-safe FAM-007 Owner AI foundation gate contract."""
 
@@ -12373,6 +12524,7 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
             "capabilityPackAsset": False,
             "privateHostingSecret": False,
         },
+        "slc005EnforcementProof": build_slc005_enforcement_proof_contract(),
         "hardeningHandoff": {
             "state": "ready-for-hardening-h1",
             "nextLegalPhase": "Hardening H1",
