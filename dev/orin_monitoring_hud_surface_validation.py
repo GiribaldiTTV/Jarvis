@@ -296,6 +296,11 @@ def validate() -> list[str]:
         "Proof is only proof when",
         "cannot be proven in a photo or video must be elevated to the USER",
         "exact USER Desktop shortcut path",
+        "Computer Use is available",
+        "required primary Live Validation proof method",
+        "visible_desktop_shortcut_double_clicked",
+        "recording_studio_visible_button_opens_native_window",
+        "log_viewer_studio_visible_button_opens_native_window",
         "Restart-persistence proof must also relaunch through the exact USER Desktop shortcut",
         "action/effect matrix",
         "normal USER-path interaction",
@@ -1479,6 +1484,19 @@ def validate() -> list[str]:
             live_validation,
             needle,
             "FAM-006 returned-UTS deterministic Live Validation stop-loss",
+            failures,
+        )
+
+    for needle in (
+        "visible_desktop_shortcut_double_clicked",
+        "recording_studio_visible_button_opens_native_window",
+        "log_viewer_studio_visible_button_opens_native_window",
+        "Live Validation LV1 UTS export blocked: required visible desktop shortcut / human-client proof is missing or failed",
+    ):
+        _require_contains(
+            live_validation,
+            needle,
+            "FAM-006 LV1 visible shortcut and native-window UTS export gate",
             failures,
         )
 

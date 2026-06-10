@@ -1487,6 +1487,7 @@ Those evidence layers are supporting proof, not final green by themselves.
 
 Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the same user-facing desktop shortcut or equivalent user entrypoint that the user is expected to use.
 For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the user-facing launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, and active-client probes are supporting evidence only; they cannot be called the USER path, cannot replace the real user-facing desktop launcher declared for UTS, and cannot clear UTS handoff by themselves.
+When the entrypoint is a Windows `.lnk`, shell-executing the `.lnk` path, launching the target script directly, or injecting private test environment variables is not enough for final proof. When Codex has Computer Use available, Computer Use is the required primary Live Validation method for desktop USER-path proof: Codex must take visible control of the USER desktop session, visibly click or double-click the exact USER desktop shortcut or an explicitly USER-accepted visible equivalent, then exercise tray/menu/window interactions from that launched runtime. Scripted mouse movement, UIAutomation-only helpers, direct launch helpers, runtime logs, and marker checks are supporting diagnostics unless a USER-approved manual validation blocker explicitly replaces Computer Use for that pass. If Codex cannot visibly prove the shortcut click and resulting UI path in photo or video, it must elevate the gap to USER validation instead of marking the gate green.
 For Nexus Desktop AI, the default desktop shortcut path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares an explicit equivalent.
 
 Named blocker:
@@ -1505,10 +1506,11 @@ Machine-checkable authority-record markers:
 Required proof:
 
 - the declared user-facing shortcut or equivalent entrypoint launches the active branch runtime
+- the exact USER shortcut was visibly clicked or double-clicked when a Windows desktop shortcut is the declared entrypoint
 - startup reaches the expected ready state
 - the user-visible entry surface introduced or changed by the branch is visible or intentionally documented where the user must look for it
 - relevant runtime markers, UI/manual readback, persisted-state checks, and cleanup evidence match the branch validation contract
-- helper-only, direct-Python, WebView-only, sandbox/offscreen, active-client direct-runtime, or harness-only evidence is not treated as a substitute for this final shortcut gate when the shortcut path is feasible
+- helper-only, direct-Python, WebView-only, sandbox/offscreen, active-client direct-runtime, shell-executed `.lnk`, target-script launch, environment-injected self-QA, or harness-only evidence is not treated as a substitute for this final shortcut gate when the shortcut path is feasible
 
 Lift condition:
 
@@ -1525,7 +1527,7 @@ Routing:
 
 For relevant desktop user-facing workstreams, Codex must perform a live-client self-QA pass before handing the feature to the USER for a formal User Test Summary.
 The pass is not a substitute for USER acceptance, but it is Codex-owned product validation: Codex must inspect the launched UI as if it were a user and judge quality, usability, platform uniformity, naming cleanliness, interaction posture, cleanup, and evidence quality before asking the USER to spend time testing.
-For desktop UI branches, this inspection must be human-client faithful when the USER will operate visible tray/menu/window behavior. Codex cannot mark Live Validation Stage 1 green from app-side callbacks, fake/offscreen models, marker-only proof, screenshot-only proof, or direct handler calls. The final LV1 handoff requires a manifest that records visible desktop shortcut launch, visible tray/menu selection, mouse/cursor or UIAutomation-backed interaction evidence, window move/resize/open/close evidence where applicable, screenshot or frame-sequence artifacts, and Codex's own visual review of every issue-grounded UTS item. Missing human-client evidence is a Live Validation failure unless USER explicitly waives it.
+For desktop UI branches, this inspection must be human-client faithful when the USER will operate visible tray/menu/window behavior. Codex cannot mark Live Validation Stage 1 green from app-side callbacks, fake/offscreen models, marker-only proof, screenshot-only proof, direct handler calls, shell-executed shortcuts, direct target launch, private/dev launcher paths, or scripted helper clicks standing in for the Codex desktop-control session. When Computer Use is available, the final LV1 handoff requires a manifest and photo/video evidence from that Computer Use pass: visible exact-shortcut click proof, visible tray/menu selection, mouse/cursor interaction evidence, window move/resize/open/close evidence where applicable, screenshot or frame-sequence artifacts, and Codex's own visual review of every issue-grounded UTS item. UIAutomation and scripted human-client helpers may support or preflight the pass, but they do not replace Computer Use as the primary proof path unless USER explicitly accepts a manual-validation blocker for that run. Missing Computer Use or human-client evidence is a Live Validation failure unless USER explicitly waives it.
 
 Named blocker:
 
