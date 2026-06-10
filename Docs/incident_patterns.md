@@ -238,6 +238,43 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: Direct Runtime Or Marker Proof Was Treated As USER-Facing Proof
+
+- symptom:
+  Live Validation or UTS handoff claims green from logs, markers, helper PASS, direct runtime launch, generated shortcut, troubleshooting launcher, screenshots without adjudication, or Dev Toolkit evidence while the exact normal USER desktop launcher path and visible photo/video proof are missing
+- layer:
+  Live Validation proof hierarchy, launcher parity, USER packet evidence, and UTS handoff
+- root-cause pattern:
+  diagnostic evidence proves that code can run, but Codex treats that evidence as proof that the USER path works and looks correct
+- fix pattern:
+  require exact normal USER desktop runtime launcher proof for user-facing behavior, require photo/video or ordered frame-sequence proof for visible closeout claims, require USER manual validation or waiver for claims that cannot be proven visually, and allow troubleshooting launcher proof as equivalent only after USER consent and `Launcher Parity Proof: PASS`
+- validation pattern:
+  future helpers should fail on `Exact USER Desktop Launcher Proof Missing`, `Launcher Parity Proof Missing`, `Photo Or Video Proof Missing`, `Unphotographable Proof Not Elevated To USER`, `Direct Runtime Proof Misclassified`, `Troubleshooting Consent Missing`, `Live Validation Evidence Packet Incomplete`, or `User-Visible Internal Path Leakage`
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Vision Chain Skipped Or Replaced By Branch-Local Invention
+
+- symptom:
+  BR2, BP1, BP2, BP3, Workstream, Hardening, Live Validation, or USER review packets proceed with generic project/family references, branch-local reasoning, copied-file lists, helper green output, or implementation-specific SLC/slice language while the applicable Project Vision, Family Vision, Family Feature Vision, accepted Branch Vision, deferred carryforward, or UI/proof carrydown is missing, shallow, stale, or not digested
+- layer:
+  Vision Contract, Branch Planning, Live Validation proof, USER review packets, and helper/validator interpretation
+- root-cause pattern:
+  Codex treats the active branch plan or generated packet as the product vision owner, or treats broad Family Vision as enough for a selected feature-bearing route that needs a Family Feature Vision
+- fix pattern:
+  require the vision carrydown chain `Project Vision -> Family Vision -> Family Feature Vision -> Branch Vision Contract Snapshot -> BP2/BP3 engineering plan -> Workstream/Hardening/Live Validation proof`; block BP1 on `Family Feature Vision Required For Selected Feature` when needed; require BP2/BP3 to preserve accepted vision and deferred-item disposition; require Live Validation and USER packets to compare observed behavior against the applied vision chain
+- validation pattern:
+  future helpers should fail on `Vision Carrydown Chain Missing`, `Branch Vision Invented From Local Reasoning`, `Vision Proof Alignment Missing`, `USER Packet Vision Evidence Missing`, `Family Feature Vision Required For Selected Feature`, `Feature Vision Sufficiency Check` failure, or `Family Feature Vision Pointer Migration Missing`
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/family_visions/README.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:

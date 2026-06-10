@@ -21,12 +21,15 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 - Deterministic routing, reliability tiers, capability self-awareness, provider orchestration, and cache replay safety must follow `Docs/ai_runtime_and_trust_architecture.md` before implementation-specific FAM-007 slices can claim readiness.
 - Capability packs should declare what they can do, what they cannot do, what sources they contain, what hardware/storage/provider state they require, what cache/index state they own, and whether they are local-only or provider-assisted.
 - Provider recommendation is allowed when local capability is insufficient, but execution remains permission-gated and provider-visible data must be explicit before anything leaves the machine.
+- AI status shown in tray, HUD, Dashboard, or future AI Command Center surfaces must reflect real permission, provider, local-only, privacy-lockdown, capability-pack, cache, memory, and blocked/degraded posture; UI copy must not overstate runtime capability.
+- A future AI Command Center should be the detailed AI transparency/control surface for provider state, permission state, AI activity, capability-pack posture, Trust Journal entry points, cache/memory boundaries, and privacy controls; the tray may open it, but the tray should not become the AI control room.
 - Owner AI Operational Foundation Gates are accepted as a public-safe control-plane route for artifact exclusion controls, provider/runtime disabled-state consent shells, cache-versus-memory consent gates, capability install-intent gates, Developer/Owner lane readiness gates, and future Owner AI memory/agent prerequisite schemas without activating private setup, provider/model execution, runtime cache behavior, real memory, or real agents.
 - OpenAI Docs or other provider documentation lookups are planning evidence only until digested into the owning repo source truth. OpenAI Developers tooling, API key creation, provider account setup, connector authentication, billing/quota state, model/runtime setup, and provider-visible data routing remain sensitive setup or implementation concerns and require separate USER approval before execution or durable source-truth claims.
 
 ## Implementation Boundaries
 
 - This vision does not admit provider SDK integration, model downloads, external calls, memory/indexing, voice/Core sync, shortcut/installer work, or AI Product Contract import.
+- This vision does not admit AI Command Center implementation, tray AI-status implementation, or a second AI tray icon by itself.
 - This vision does not admit persistent memory, learning, personalization, hidden provider residue, or runtime cache implementation by itself.
 - Active FAM-007 branches must carry accepted Branch Vision Snapshot and provider-state validation proof before Workstream implementation.
 - Active FAM-007 branches that consume AI-native architecture must run the Backlog Taxonomy And Source-Truth Placement Gate, cite `Docs/ai_runtime_and_trust_architecture.md`, and prove provider, cache, permission-state, capability-pack, and local-only boundaries in the USER Branch Plan Review packet before Workstream implementation.
@@ -36,6 +39,7 @@ Local AI and capability packs should make Nexus feel smarter while preserving lo
 
 - Project vision: `Docs/nexus_vision.md`
 - AI runtime and trust architecture: `Docs/ai_runtime_and_trust_architecture.md`
+- Resident access FFV: `Docs/family_feature_visions/F3-FF01.md`
 - Edition capability / trust boundary release plan: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Durable receipt pointer: `Docs/branch_records/feature_fam_007_local_ai_provider_setup_completion_foundation.md`
