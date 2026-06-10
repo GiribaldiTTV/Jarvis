@@ -308,6 +308,9 @@ def validate() -> list[str]:
         "synthetic tray/menu activation",
         "manually and visually locate the intended tray icon or menu item",
         "blind full-desktop, taskbar, tray, hidden-overflow, or notification-area coordinate probing is forbidden",
+        "Live Validation Control-Surface Acquisition Blocked",
+        "USER manual confirmation as supporting evidence, not PASS",
+        "Codex-owned visible user-level input opening the intended menu/control",
         "visible_desktop_shortcut_double_clicked",
         "recording_studio_visible_button_opens_native_window",
         "log_viewer_studio_visible_button_opens_native_window",
@@ -2353,6 +2356,11 @@ def validate() -> list[str]:
         "activeResizeStateCleared",
         "cursorReset",
         "repairSelection = \"proof-path handle/coordinate/timing reacquisition; no product edge-math adjustment\"",
+        "targetAcquisitionStatus = \"PASS-codex-visible-user-level-right-click-opened-menu\"",
+        "manualUserConfirmationDisposition = \"supporting-only-not-pass-proof\"",
+        "Live Validation Control-Surface Acquisition Blocked",
+        "do not probe nearby taskbar coordinates",
+        "tooltip identity or USER manual confirmation is supporting evidence only",
     ):
         _require_contains(human_client_validation, needle, "monitoring HUD human-client validation helper", failures)
     for needle in (

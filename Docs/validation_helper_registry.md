@@ -45,6 +45,14 @@ Repair Owner: current branch owner for branch-local misuse; `Docs/validation_hel
 Repair Path: classify the plugin/connector use, identify the true live or durable owner, remove live operational ledger text from repo docs, move raw evidence to the Codex digest, USER review packet, helper output, live tool surface, or approved external state, and add machine-checkable fixture coverage only after a concrete false-green or false-red defect is proven.
 USER Decision Required: required for plugin/connector execution that mutates source, external state, credentials, provider/API setup, private/Owner/Dev setup, or durable source truth.
 Validation Owner: current phase validators plus the helper/validator that consumes the tool result.
+
+Computer Use / Tray Target-Acquisition Interpretation:
+
+- `Computer Use Screenshot / Tooltip Identity Evidence` means the intended target is probably identified. It is not proof that Codex operated it.
+- `USER Manual Confirmation` that a tray icon or menu works is supporting evidence only; it cannot clear Codex Live Validation control-surface proof. Validators must report USER manual confirmation as supporting evidence, not PASS.
+- `Codex-Operated Tray Proof PASS` requires Codex-owned visible user-level input opening the intended menu/control, followed by photo/video or ordered frame-sequence evidence showing the intended NDAI tray menu or resulting window.
+- `Live Validation Control-Surface Acquisition Blocked` is the required classification when multi-monitor coordinate translation, screenshot-origin drift, physical cursor mismatch, shell/taskbar target ambiguity, or hidden-overflow uncertainty prevents a safe user-equivalent click. Helpers and validators must not downgrade that blocker to PASS by using nearby coordinate probing, direct handler calls, internal signal dispatch, synthetic tray/menu activation, or USER-only confirmation.
+- A product tray/menu defect may be claimed only after target-acquisition proof shows the correct control was operated and runtime/photo/video evidence proves the expected app response did not occur.
 Final Disposition: tool evidence can support a recommendation, but Codex must still state what it independently verified and whether the plugin/connector evidence is durable, live, sensitive, or review-only.
 
 ## Helper Status Values

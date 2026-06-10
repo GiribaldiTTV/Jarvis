@@ -2328,6 +2328,7 @@ function Cleanup-Runtime {
 function Open-HiddenTrayOnNexus {
     $deadline = (Get-Date).AddSeconds(14)
     $notifyIconProbeTimeoutMs = 2000
+    $targetAcquisitionPolicy = "Codex-operated tray proof requires a notify icon rectangle, visible user-level right-click input, and visible NDAI tray menu evidence; USER manual confirmation or tooltip identity is supporting evidence only."
     while ((Get-Date) -lt $deadline) {
         $runtimeProcesses = Find-ProcessesForLogRoot
         foreach ($process in $runtimeProcesses) {
@@ -2345,6 +2346,9 @@ function Open-HiddenTrayOnNexus {
                             attempt = $attempt
                             menuRect = @([int]$existingMenuRect[0], [int]$existingMenuRect[1], [int]$existingMenuRect[2], [int]$existingMenuRect[3])
                             clickMethod = "existing visible popup reused before retry"
+                            targetAcquisitionStatus = "PASS-visible-menu-already-present"
+                            targetAcquisitionPolicy = $targetAcquisitionPolicy
+                            manualUserConfirmationDisposition = "supporting-only-not-pass-proof"
                         }
                     }
                     [CodexHumanClientWin32]::SetCursorPos($x, $y) | Out-Null
@@ -2360,6 +2364,9 @@ function Open-HiddenTrayOnNexus {
                             attempt = $attempt
                             menuRect = @([int]$menuRect[0], [int]$menuRect[1], [int]$menuRect[2], [int]$menuRect[3])
                             clickMethod = "Shell_NotifyIconGetRect + absolute right click"
+                            targetAcquisitionStatus = "PASS-codex-visible-user-level-right-click-opened-menu"
+                            targetAcquisitionPolicy = $targetAcquisitionPolicy
+                            manualUserConfirmationDisposition = "supporting-only-not-pass-proof"
                         }
                     }
                     Send-Key 0x1B
@@ -2373,7 +2380,7 @@ function Open-HiddenTrayOnNexus {
     }
 
     $runtimeProcesses = Find-ProcessesForLogRoot
-    throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', '); notify_icon_probe_timeout_ms=$notifyIconProbeTimeoutMs"
+    throw "Live Validation Control-Surface Acquisition Blocked: Nexus tray menu could not be opened by Codex-owned visible user-level input for runtime process IDs: $($runtimeProcesses.ProcessId -join ', '); notify_icon_probe_timeout_ms=$notifyIconProbeTimeoutMs; tooltip identity or USER manual confirmation is supporting evidence only and cannot clear tray/menu PASS"
 }
 
 function Clear-StrayTrayAvailabilityEffects {
@@ -2449,7 +2456,7 @@ function Click-NexusTrayIcon {
     }
 
     $runtimeProcesses = Find-ProcessesForLogRoot
-    throw "Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', '); notify_icon_probe_timeout_ms=$notifyIconProbeTimeoutMs"
+    throw "Live Validation Control-Surface Acquisition Blocked: Nexus tray icon rectangle not found for runtime process IDs: $($runtimeProcesses.ProcessId -join ', '); notify_icon_probe_timeout_ms=$notifyIconProbeTimeoutMs; do not probe nearby taskbar coordinates or convert USER manual confirmation into PASS"
 }
 
 function Invoke-TrayIconActivation {
@@ -2552,7 +2559,7 @@ function Click-VisibleTrayMenuAction {
         $menuElement = [System.Windows.Automation.AutomationElement]::FromHandle($menuHandle)
     }
     if (-not $coordinateOnlyMenu -and -not $menuElement) {
-        throw "Visible Nexus tray context menu did not appear for action '$ActionName'"
+        throw "Live Validation Control-Surface Acquisition Blocked: visible Nexus tray context menu did not appear for action '$ActionName'; identity evidence is supporting-only until Codex-owned input opens the menu"
     }
 
     if (-not $itemRect -and -not $coordinateOnlyMenu) {
@@ -2763,6 +2770,9 @@ function Click-VisibleTrayMenuAction {
             [int]($itemRect.Y + $itemRect.Height)
         )
         trayOpenEvidence = $trayOpenEvidence
+        targetAcquisitionStatus = "PASS-codex-opened-visible-tray-menu-before-action"
+        targetAcquisitionPolicy = "Codex-operated tray proof must show the menu or resulting window in photo/video or ordered frame proof; coordinate-only evidence remains supporting unless the visible menu/action result is captured."
+        manualUserConfirmationDisposition = "supporting-only-not-pass-proof"
         targetControlType = $targetControlType
         coordinateFallback = $coordinateFallback
         invokedViaAutomation = $invokedViaAutomation
