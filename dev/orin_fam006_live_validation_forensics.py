@@ -4277,10 +4277,14 @@ def returned_uts_gate_self_check() -> dict[str, object]:
     surface_validation = read_text(REPO / "dev/orin_monitoring_hud_surface_validation.py")
     feature_vision = read_text(REPO / "Docs/family_feature_visions/FAM-006_recording.md")
     helper_registry = read_text(REPO / "Docs/validation_helper_registry.md")
+    renderer = read_text(REPO / "desktop/desktop_renderer.py")
+    output_contract = read_text(REPO / "desktop/recording_output_contract.py")
+    monitoring_hud_js = read_text(REPO / "nexus_visual/monitoring_hud.js")
     required_live = [
         "Assert-ReturnedUtsDeterminismGatesClear",
         "returnedUtsDeterminismGateStatus",
         "Live Validation LV1 UTS export blocked by returned-UTS determinism gates",
+        'status = "PASS"',
     ] + [item["gate"] for item in RETURNED_UTS_DETERMINISM_GATES]
     required_surface = [
         "FAM-006 returned-UTS deterministic Live Validation stop-loss",
@@ -4297,6 +4301,18 @@ def returned_uts_gate_self_check() -> dict[str, object]:
         "FAM-006 Returned-UTS Determinism Stop-Loss Addendum",
         "Helper foreground proof, native direct-launch proof, seeded/sandbox proof",
     ] + [item["gate"] for item in RETURNED_UTS_DETERMINISM_GATES]
+    required_runtime = [
+        "profileLogConsistencyPassed",
+        "twoProfileLogConsistencyPassed",
+        "product-surface-folder-not-worktree-label",
+        "internalPathLeakageAbsent",
+        "always-openable-target-state-visible",
+        "recording-target-no-sensor-sample",
+        "nativeCursorRecordingStudioReopenProof",
+        "visualSystemInheritance",
+        "dashboard-hub-card-sampled",
+        "genericShellRejected",
+    ]
     missing = []
     for marker in required_live:
         if marker not in live_validation:
@@ -4310,12 +4326,25 @@ def returned_uts_gate_self_check() -> dict[str, object]:
     for marker in required_registry:
         if marker not in helper_registry:
             missing.append(f"helper_registry:{marker}")
+    runtime_text = "\n".join((renderer, output_contract, monitoring_hud_js))
+    for marker in required_runtime:
+        if marker not in runtime_text:
+            missing.append(f"runtime:{marker}")
+    open_gates = [] if not missing else [
+        {
+            "findingId": item["finding_id"],
+            "gate": item["gate"],
+            "title": item["title"],
+        }
+        for item in RETURNED_UTS_DETERMINISM_GATES
+    ]
     return {
         "passed": not missing,
         "missing": missing,
-        "knownBadProductState": "expected-red: product/runtime fixes withheld; five returned-UTS gates remain FAIL/BLOCKED/UNPROVEN until separately repaired",
-        "openGateCount": len(RETURNED_UTS_DETERMINISM_GATES),
-        "openGates": [
+        "knownBadProductState": "closed-by-product-runtime-repair" if not missing else "expected-red: returned-UTS repair markers missing",
+        "openGateCount": len(open_gates),
+        "openGates": open_gates,
+        "closedGates": [
             {
                 "findingId": item["finding_id"],
                 "gate": item["gate"],

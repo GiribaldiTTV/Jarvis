@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 
-RECORDING_OUTPUT_CONTRACT_VERSION = 3
+RECORDING_OUTPUT_CONTRACT_VERSION = 4
 RECORDING_OUTPUT_CONTRACT_ID = "slc-054-active-overlay-recording-output-contract"
 RECORDING_OUTPUT_FORMAT = "ndai-native-recording-log"
 RECORDING_OUTPUT_EXTENSION = ".ndailog"
@@ -29,7 +29,15 @@ RECORDING_EXPORT_ENV = "NEXUS_MONITORING_HUD_RECORDING_EXPORT_DIR"
 RECORDING_VALIDATION_EXPORT_ENV = "NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR"
 RECORDING_OUTPUT_DIR_NAME = "Recordings"
 RECORDING_EXPORT_DIR_NAME = "Exported Logs"
-RECORDING_OUTPUT_FAMILY_DIR_NAME = "FAM-006"
+RECORDING_OUTPUT_SURFACE_DIR_NAME = "Monitoring HUD"
+RECORDING_OUTPUT_INTERNAL_PATH_TERMS = (
+    "fam-006",
+    "fam006",
+    "feature-fam-006",
+    "feature_fam_006",
+    "worktrees",
+    "nexus governance state",
+)
 RECORDING_OUTPUT_HEADERS = (
     "timestamp_utc",
     "elapsed_ms",
@@ -61,8 +69,8 @@ def recording_output_dir() -> Path:
         return Path(override)
     local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
     if local_app_data:
-        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME / RECORDING_OUTPUT_FAMILY_DIR_NAME
-    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME / RECORDING_OUTPUT_FAMILY_DIR_NAME
+        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME / RECORDING_OUTPUT_SURFACE_DIR_NAME
+    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME / RECORDING_OUTPUT_SURFACE_DIR_NAME
 
 
 def recording_export_dir() -> Path:
@@ -71,8 +79,13 @@ def recording_export_dir() -> Path:
         return Path(override)
     local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
     if local_app_data:
-        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME / RECORDING_OUTPUT_FAMILY_DIR_NAME
-    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME / RECORDING_OUTPUT_FAMILY_DIR_NAME
+        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME / RECORDING_OUTPUT_SURFACE_DIR_NAME
+    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME / RECORDING_OUTPUT_SURFACE_DIR_NAME
+
+
+def _path_has_internal_user_visible_segment(path_value: str | Path) -> bool:
+    normalized = str(path_value or "").replace("\\", "/").casefold()
+    return any(term in normalized for term in RECORDING_OUTPUT_INTERNAL_PATH_TERMS)
 
 
 def recording_output_contract() -> dict[str, Any]:
@@ -96,6 +109,12 @@ def recording_output_contract() -> dict[str, Any]:
         "outputRoot": str(recording_output_dir()),
         "exportRootOwner": "user-requested-export-folder",
         "exportRoot": str(recording_export_dir()),
+        "userVisibleStorageModel": "product-surface-folder-not-worktree-label",
+        "surfaceFolderName": RECORDING_OUTPUT_SURFACE_DIR_NAME,
+        "internalPathLeakageAbsent": not (
+            _path_has_internal_user_visible_segment(recording_output_dir())
+            or _path_has_internal_user_visible_segment(recording_export_dir())
+        ),
         "normalProductSaveCreatesExport": False,
         "csvExportState": "manual-validation-or-future-user-export-only",
         "nativeLogLoaderState": "future-separate-viewer",
@@ -178,14 +197,44 @@ def parse_recording_output_csv(csv_text: str) -> list[dict[str, str]]:
 def readback_recording_output_files(native_log_path: str | Path, manifest_path: str | Path | None = None) -> dict[str, Any]:
     payload = json.loads(Path(native_log_path).read_text(encoding="utf-8"))
     rows = [normalize_recording_output_row(row) for row in payload.get("rows", []) if isinstance(row, dict)]
+    expected_profile_id = str(payload.get("activeOverlayProfileId") or "")
+    expected_profile_name = str(payload.get("activeOverlayProfileName") or "")
+    expected_monitor_ids = sorted({str(monitor_id) for monitor_id in payload.get("targetMonitorIds", []) if str(monitor_id).strip()})
+    row_profile_ids = sorted({row["overlay_profile_id"] for row in rows if row["overlay_profile_id"].strip()})
+    row_profile_names = sorted({row["overlay_profile_name"] for row in rows if row["overlay_profile_name"].strip()})
+    row_monitor_ids = sorted({row["monitor_id"] for row in rows if row["monitor_id"].strip()})
+    profile_log_consistency_passed = (
+        bool(rows)
+        and row_profile_ids == ([expected_profile_id] if expected_profile_id else [])
+        and row_profile_names == ([expected_profile_name] if expected_profile_name else [])
+        and row_monitor_ids == expected_monitor_ids
+    )
+    profile_log_consistency_reason = "profile-and-monitor-rows-match-target-snapshot"
+    if not profile_log_consistency_passed:
+        profile_log_consistency_reason = (
+            "profile/log mismatch: expected "
+            f"profileId={expected_profile_id!r}, profileName={expected_profile_name!r}, "
+            f"monitorIds={expected_monitor_ids!r}; observed "
+            f"profileIds={row_profile_ids!r}, profileNames={row_profile_names!r}, "
+            f"monitorIds={row_monitor_ids!r}"
+        )
     return {
         "passed": (
             bool(rows)
             and payload.get("contractId") == RECORDING_OUTPUT_CONTRACT_ID
             and payload.get("format") == RECORDING_OUTPUT_FORMAT
             and payload.get("nativeLogReadableOnlyByNDAI") is True
+            and profile_log_consistency_passed
         ),
         "rowCount": len(rows),
+        "profileLogConsistencyPassed": profile_log_consistency_passed,
+        "profileLogConsistencyReason": profile_log_consistency_reason,
+        "expectedProfileId": expected_profile_id,
+        "expectedProfileName": expected_profile_name,
+        "targetMonitorIds": expected_monitor_ids,
+        "rowProfileIds": row_profile_ids,
+        "rowProfileNames": row_profile_names,
+        "rowMonitorIds": row_monitor_ids,
         "manifest": payload,
         "rows": rows,
     }
@@ -275,6 +324,12 @@ def write_recording_output_files(
         "nativeLogReadableOnlyByNDAI": True,
         "rowCount": len(rows),
         "readbackPassed": bool(readback.get("passed")),
+        "profileLogConsistencyPassed": bool(readback.get("profileLogConsistencyPassed")),
+        "profileLogConsistencyReason": str(readback.get("profileLogConsistencyReason") or ""),
+        "rowProfileIds": list(readback.get("rowProfileIds") or []),
+        "rowProfileNames": list(readback.get("rowProfileNames") or []),
+        "rowMonitorIds": list(readback.get("rowMonitorIds") or []),
+        "targetMonitorIds": list(readback.get("targetMonitorIds") or []),
         "fileWritingState": "saved-complete",
         "recordingExecutionState": "saved-complete",
         "outputRootOwner": "runtime-local-app-data",
@@ -332,6 +387,60 @@ def validate_recording_output_contract() -> dict[str, Any]:
             output_dir=Path(temp_dir) / "native_logs",
         )
         readback = readback_recording_output_files(write_result["nativeLogPath"])
+        alpha_samples = [
+            {
+                "timestamp_utc": "2026-06-01T20:00:00.000Z",
+                "elapsed_ms": 0,
+                "overlay_profile_id": "overlay-profile-alpha",
+                "overlay_profile_name": "Overlay Profile Alpha",
+                "monitor_id": "cpu",
+                "monitor_name": "CPU Group",
+                "sensor_id": "cpu-load",
+                "sensor_label": "CPU Load",
+                "value": "15.0",
+                "unit": "%",
+                "quality": "ok",
+                "source_state": "sample",
+            }
+        ]
+        beta_samples = [
+            {
+                "timestamp_utc": "2026-06-01T20:00:01.000Z",
+                "elapsed_ms": 0,
+                "overlay_profile_id": "overlay-profile-beta",
+                "overlay_profile_name": "Overlay Profile Beta",
+                "monitor_id": "gpu",
+                "monitor_name": "GPU Group",
+                "sensor_id": "gpu-load",
+                "sensor_label": "GPU Load",
+                "value": "42.0",
+                "unit": "%",
+                "quality": "ok",
+                "source_state": "sample",
+            }
+        ]
+        alpha_write = write_recording_output_files(
+            session_id="validation-alpha",
+            active_overlay_profile_id="overlay-profile-alpha",
+            active_overlay_profile_name="Overlay Profile Alpha",
+            target_monitor_ids=["cpu"],
+            target_state="ready",
+            samples=alpha_samples,
+            started_at_utc="2026-06-01T19:59:59.000Z",
+            stopped_at_utc="2026-06-01T20:00:01.000Z",
+            output_dir=Path(temp_dir) / "native_logs",
+        )
+        beta_write = write_recording_output_files(
+            session_id="validation-beta",
+            active_overlay_profile_id="overlay-profile-beta",
+            active_overlay_profile_name="Overlay Profile Beta",
+            target_monitor_ids=["gpu"],
+            target_state="ready",
+            samples=beta_samples,
+            started_at_utc="2026-06-01T20:00:00.000Z",
+            stopped_at_utc="2026-06-01T20:00:02.000Z",
+            output_dir=Path(temp_dir) / "native_logs",
+        )
         if previous_validation_export_dir is None:
             os.environ.pop(RECORDING_VALIDATION_EXPORT_ENV, None)
         else:
@@ -352,6 +461,20 @@ def validate_recording_output_contract() -> dict[str, Any]:
         "recordingExecutionEnabled": contract["recordingExecutionState"] == "enabled",
         "dashboardStartStopEnabled": contract["startStopState"] == "dashboard-card-enabled",
         "writeReadbackPassed": bool(write_result.get("passed") and readback.get("passed")),
+        "profileLogConsistencyPassed": bool(
+            write_result.get("profileLogConsistencyPassed")
+            and readback.get("profileLogConsistencyPassed")
+        ),
+        "twoProfileLogConsistencyPassed": bool(
+            alpha_write.get("profileLogConsistencyPassed")
+            and beta_write.get("profileLogConsistencyPassed")
+            and alpha_write.get("rowProfileIds") == ["overlay-profile-alpha"]
+            and beta_write.get("rowProfileIds") == ["overlay-profile-beta"]
+            and alpha_write.get("rowMonitorIds") == ["cpu"]
+            and beta_write.get("rowMonitorIds") == ["gpu"]
+        ),
+        "userVisibleStorageModel": contract["userVisibleStorageModel"] == "product-surface-folder-not-worktree-label",
+        "internalPathLeakageAbsent": contract["internalPathLeakageAbsent"] is True,
         "manualValidationExportPassed": bool(write_result.get("validationExportReadbackPassed")),
         "manualValidationExportInRepoStyleArtifactRoot": "manual_validation_exports" in str(write_result.get("validationExportDir") or ""),
         "nativeLogLoaderFutureBoundary": contract["nativeLogLoaderState"] == "future-separate-viewer",
@@ -373,6 +496,10 @@ def validate_recording_output_contract() -> dict[str, Any]:
             "recordingExecutionEnabled",
             "dashboardStartStopEnabled",
             "writeReadbackPassed",
+            "profileLogConsistencyPassed",
+            "twoProfileLogConsistencyPassed",
+            "userVisibleStorageModel",
+            "internalPathLeakageAbsent",
             "manualValidationExportPassed",
             "manualValidationExportInRepoStyleArtifactRoot",
             "nativeLogLoaderFutureBoundary",

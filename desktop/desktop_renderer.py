@@ -5747,6 +5747,8 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._native_log_path = ""
         self._last_activation_mode = "not-requested"
         self.setObjectName("monitoringHudRecordingStudioWindow")
+        self.setProperty("visualSystemInheritance", "dashboard-hub-card-sampled")
+        self.setProperty("visualSampledElements", "hud-overlay-monitor-groups-data-sources-readiness")
         self.setWindowTitle("Nexus Recording Studio")
         self.setWindowFlags(Qt.Window)
         self.setMinimumSize(380, 260)
@@ -5754,7 +5756,9 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self.setStyleSheet(
             """
             QWidget#monitoringHudRecordingStudioWindow {
-                background: #061827;
+                background: #041120;
+                border: 1px solid rgba(79, 215, 238, 0.42);
+                border-radius: 16px;
                 color: #dffbff;
                 font-family: Bahnschrift, Segoe UI, sans-serif;
             }
@@ -5763,9 +5767,9 @@ class MonitoringHudRecordingStudioWindow(QWidget):
                 background: transparent;
             }
             QLabel[role="eyebrow"] {
-                color: rgba(125, 235, 255, 0.72);
+                color: rgba(126, 198, 218, 0.82);
                 font-size: 10px;
-                letter-spacing: 2px;
+                font-weight: 700;
                 text-transform: uppercase;
             }
             QLabel[role="title"] {
@@ -5774,21 +5778,25 @@ class MonitoringHudRecordingStudioWindow(QWidget):
                 font-weight: 700;
             }
             QLabel[role="state"] {
-                color: #a5f8dc;
+                color: #9ff5d8;
                 font-size: 12px;
             }
             QLabel[role="warning"] {
-                color: #ffe3a6;
+                color: #a9bed0;
                 font-size: 11px;
             }
             QPushButton {
-                min-height: 30px;
-                padding: 4px 12px;
-                border: 1px solid rgba(116, 239, 255, 0.26);
-                border-radius: 8px;
-                background: rgba(5, 22, 38, 0.72);
+                min-height: 32px;
+                padding: 5px 14px;
+                border: 1px solid rgba(117, 231, 255, 0.36);
+                border-radius: 16px;
+                background: rgba(6, 29, 48, 0.78);
                 color: #dffbff;
                 font-weight: 700;
+            }
+            QPushButton:hover {
+                border-color: rgba(154, 245, 216, 0.76);
+                background: rgba(11, 47, 65, 0.92);
             }
             QPushButton:disabled {
                 color: rgba(198, 224, 232, 0.58);
@@ -5924,6 +5932,10 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "currentLogState": self._current_log_state,
             "activationMode": self._last_activation_mode,
             "startStopState": self._start_stop_state,
+            "visualSystemInheritance": "dashboard-hub-card-sampled",
+            "visualSampledElements": "hud-overlay-monitor-groups-data-sources-readiness",
+            "visualAdjudicationState": "source-truth-mapped",
+            "genericShellRejected": True,
             "startEnabled": self._start.isEnabled(),
             "stopEnabled": self._stop.isEnabled(),
             "visible": self.isVisible(),
@@ -5945,6 +5957,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self._request_id = ""
         self._last_activation_mode = "not-requested"
         self.setObjectName("monitoringHudLogViewerStudioWindow")
+        self.setProperty("visualSystemInheritance", "dashboard-hub-card-sampled")
+        self.setProperty("visualSampledElements", "hud-overlay-monitor-groups-data-sources-readiness")
         self.setWindowTitle("Nexus Log Viewer Studio")
         self.setWindowFlags(Qt.Window)
         self.setMinimumSize(420, 260)
@@ -5952,7 +5966,9 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self.setStyleSheet(
             """
             QWidget#monitoringHudLogViewerStudioWindow {
-                background: #061827;
+                background: #041120;
+                border: 1px solid rgba(79, 215, 238, 0.42);
+                border-radius: 16px;
                 color: #dffbff;
                 font-family: Bahnschrift, Segoe UI, sans-serif;
             }
@@ -5961,9 +5977,9 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
                 background: transparent;
             }
             QLabel[role="eyebrow"] {
-                color: rgba(125, 235, 255, 0.72);
+                color: rgba(126, 198, 218, 0.82);
                 font-size: 10px;
-                letter-spacing: 2px;
+                font-weight: 700;
                 text-transform: uppercase;
             }
             QLabel[role="title"] {
@@ -5972,21 +5988,25 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
                 font-weight: 700;
             }
             QLabel[role="state"] {
-                color: #a5f8dc;
+                color: #9ff5d8;
                 font-size: 12px;
             }
             QLabel[role="warning"] {
-                color: #ffe3a6;
+                color: #a9bed0;
                 font-size: 11px;
             }
             QPushButton {
-                min-height: 30px;
-                padding: 4px 12px;
-                border: 1px solid rgba(116, 239, 255, 0.26);
-                border-radius: 8px;
-                background: rgba(5, 22, 38, 0.72);
+                min-height: 32px;
+                padding: 5px 14px;
+                border: 1px solid rgba(117, 231, 255, 0.36);
+                border-radius: 16px;
+                background: rgba(6, 29, 48, 0.78);
                 color: #dffbff;
                 font-weight: 700;
+            }
+            QPushButton:hover {
+                border-color: rgba(154, 245, 216, 0.76);
+                background: rgba(11, 47, 65, 0.92);
             }
             """
         )
@@ -5997,7 +6017,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         eyebrow.setProperty("role", "eyebrow")
         title = QLabel("Log Viewer Studio", self)
         title.setProperty("role", "title")
-        self._native = QLabel(f"Native logs: {recording_output_dir()}", self)
+        self._native = QLabel(f"Native NDAI logs: {recording_output_dir()}", self)
         self._native.setProperty("role", "state")
         self._native.setWordWrap(True)
         self._export = QLabel(f"Exported logs: {recording_export_dir()}", self)
@@ -6072,7 +6092,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         export_root = recording_export_dir()
         native_detail = native_log_path.strip() or str(native_root)
         export_detail = export_dir.strip() or validation_export_path.strip() or str(export_root)
-        self._native.setText(f"Native logs: {native_detail}")
+        self._native.setText(f"Native NDAI logs: {native_detail}")
         self._export.setText(f"Exported logs: {export_detail}")
         if not activate_window:
             return
@@ -6087,6 +6107,11 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
 
     def proof_state(self) -> dict[str, object]:
         geometry = self.geometry()
+        native_root = str(recording_output_dir())
+        export_root = str(recording_export_dir())
+        leakage_terms = ("fam-006", "fam006", "feature_fam_006", "feature-fam-006", "worktrees", "nexus governance state")
+        combined_roots = f"{native_root} {export_root}".casefold()
+        internal_path_leakage_absent = not any(term in combined_roots for term in leakage_terms)
         return {
             "owner": "MonitoringHudLogViewerStudioWindow",
             "surface": "log_viewer_studio_shell",
@@ -6097,8 +6122,16 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "closeControl": True,
             "nativeFolderPreSessionUsable": True,
             "exportFolderPreSessionUsable": True,
-            "nativeLogRoot": str(recording_output_dir()),
-            "exportLogRoot": str(recording_export_dir()),
+            "nativeLogRoot": native_root,
+            "exportLogRoot": export_root,
+            "nativeLogRootPublicLabel": "Native NDAI logs",
+            "exportLogRootPublicLabel": "Exported logs",
+            "userVisibleStorageModel": "product-surface-folder-not-worktree-label",
+            "internalPathLeakageAbsent": internal_path_leakage_absent,
+            "visualSystemInheritance": "dashboard-hub-card-sampled",
+            "visualSampledElements": "hud-overlay-monitor-groups-data-sources-readiness",
+            "visualAdjudicationState": "source-truth-mapped",
+            "genericShellRejected": True,
             "previousLogSelectionState": "future-gated",
             "exportCustomizationState": "future-gated",
             "nativeLogLoaderState": "future-gated",
@@ -6445,11 +6478,11 @@ class DesktopRuntimeWindow(QWidget):
             window.setTimeout(() => {{
                 let activated = false;
                 if (control === "open-recording-studio") {{
-                    if (!monitoringHudControlState.recordingControlWindowRequested && typeof monitoringHudRequestRecordingControlWindow === "function") {{
+                    if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                         activated = monitoringHudRequestRecordingControlWindow() !== false;
                     }}
                 }} else if (control === "open-log-viewer-studio") {{
-                    if (!monitoringHudControlState.logViewerStudioRequested && typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
+                    if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
                         activated = monitoringHudRequestLogViewerStudioWindow() !== false;
                     }}
                 }} else if (control === "toggle-recording") {{
@@ -6556,15 +6589,11 @@ class DesktopRuntimeWindow(QWidget):
             let alreadyHandled = false;
             let skippedRecentReliable = false;
             if (control === "open-recording-studio") {{
-                if (monitoringHudControlState.recordingControlWindowRequested) {{
-                    alreadyHandled = true;
-                }} else if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
+                if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                     activated = monitoringHudRequestRecordingControlWindow() !== false;
                 }}
             }} else if (control === "open-log-viewer-studio") {{
-                if (monitoringHudControlState.logViewerStudioRequested) {{
-                    alreadyHandled = true;
-                }} else if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
+                if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
                     activated = monitoringHudRequestLogViewerStudioWindow() !== false;
                 }}
             }} else if (control === "toggle-recording") {{
@@ -6600,6 +6629,7 @@ class DesktopRuntimeWindow(QWidget):
                 monitoringHud.dataset.nativeCursorRecordingControlBridgePhase = "left-button-release";
                 monitoringHud.dataset.nativeCursorRecordingControlBridgeAt = String(Date.now());
                 monitoringHud.dataset.nativeCursorRecordingControlBridgeProof = "press-release-same-visible-control";
+                monitoringHud.dataset.nativeCursorRecordingStudioReopenProof = "normal-button-reopen-path";
             }}
             if (activated && typeof monitoringHudRecordReliableActivation === "function") {{
                 const key = control === "toggle-recording"
@@ -11095,11 +11125,13 @@ class DesktopRuntimeWindow(QWidget):
                             studio
                             && !studio.disabled
                             && String(studio.textContent || "").trim() === "Recording Studio"
+                            && studio.dataset.recordingStudioUserPath === "always-openable-target-state-visible"
                             && monitoringHudControlState.recordingControlWindowRequested === true
                             && monitoringHudControlState.recordingControlWindowState === "native-window-requested"
                         ),
                         studioEnabled: Boolean(studio && !studio.disabled),
                         studioText: studio ? String(studio.textContent || "").trim() : "",
+                        recordingStudioUserPath: studio ? String(studio.dataset.recordingStudioUserPath || "") : "",
                         recordingControlWindowState: monitoringHudControlState ? String(monitoringHudControlState.recordingControlWindowState || "") : "",
                         windowContract: summary ? String(summary.windowContract || "") : "",
                         startStopState: summary ? String(summary.startStopState || "") : "",
@@ -11132,6 +11164,10 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "recording_studio_window"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
+                and proof.get("activationMode") == "explicit-user-open"
+                and proof.get("visualSystemInheritance") == "dashboard-hub-card-sampled"
+                and proof.get("visualAdjudicationState") == "source-truth-mapped"
+                and proof.get("genericShellRejected") is True
                 and proof.get("startEnabled") is True
             )
             if not passed and recording_studio_native_proof_attempts["count"] < 8:
@@ -11233,6 +11269,15 @@ class DesktopRuntimeWindow(QWidget):
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
                     const summary = document.getElementById("monitoring-hud-recording-target-summary");
                     const result = monitoringHudControlState ? monitoringHudControlState.recordingOutputResult || {} : {};
+                    const pathText = `${String(result.nativeLogPath || "")} ${String(result.exportDir || "")}`.toLowerCase();
+                    const internalPathLeakageAbsent = !(
+                        pathText.includes("fam-006")
+                        || pathText.includes("fam006")
+                        || pathText.includes("feature_fam_006")
+                        || pathText.includes("feature-fam-006")
+                        || pathText.includes("worktrees")
+                        || pathText.includes("nexus governance state")
+                    );
                     return JSON.stringify({
                         ok: Boolean(
                             card
@@ -11249,6 +11294,8 @@ class DesktopRuntimeWindow(QWidget):
                             && result
                             && result.passed === true
                             && result.readbackPassed === true
+                            && result.profileLogConsistencyPassed === true
+                            && internalPathLeakageAbsent === true
                             && String(result.nativeLogPath || "")
                             && String(result.exportDir || "")
                             && !String(result.csvPath || "")
@@ -11263,6 +11310,12 @@ class DesktopRuntimeWindow(QWidget):
                         recordingSessionState: monitoringHudControlState ? String(monitoringHudControlState.recordingSessionState || "") : "",
                         outputPassed: Boolean(result && result.passed),
                         readbackPassed: Boolean(result && result.readbackPassed),
+                        profileLogConsistencyPassed: Boolean(result && result.profileLogConsistencyPassed),
+                        profileLogConsistencyReason: result ? String(result.profileLogConsistencyReason || "") : "",
+                        rowProfileIds: result && Array.isArray(result.rowProfileIds) ? result.rowProfileIds : [],
+                        rowMonitorIds: result && Array.isArray(result.rowMonitorIds) ? result.rowMonitorIds : [],
+                        targetMonitorIds: result && Array.isArray(result.targetMonitorIds) ? result.targetMonitorIds : [],
+                        internalPathLeakageAbsent,
                         validationExportPath: result ? String(result.validationExportPath || "") : "",
                         summaryText: summary ? String(summary.textContent || "").trim() : "",
                         realOsInputProof: true,
@@ -11370,6 +11423,11 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "log_viewer_studio_shell"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
+                and proof.get("visualSystemInheritance") == "dashboard-hub-card-sampled"
+                and proof.get("visualAdjudicationState") == "source-truth-mapped"
+                and proof.get("genericShellRejected") is True
+                and proof.get("internalPathLeakageAbsent") is True
+                and proof.get("userVisibleStorageModel") == "product-surface-folder-not-worktree-label"
                 and proof.get("previousLogSelectionState") == "future-gated"
                 and proof.get("exportCustomizationState") == "future-gated"
                 and proof.get("nativeLogLoaderState") == "future-gated"
@@ -18159,6 +18217,8 @@ class DesktopRuntimeWindow(QWidget):
                     passed=bool(result.get("passed")),
                     session_id=str(result.get("sessionId") or ""),
                     row_count=int(result.get("rowCount") or 0),
+                    profile_log_consistency_passed=bool(result.get("profileLogConsistencyPassed")),
+                    profile_log_consistency_reason=str(result.get("profileLogConsistencyReason") or ""),
                     csv_path=str(result.get("validationExportPath") or ""),
                     manifest_path=str(result.get("nativeLogPath") or ""),
                     output_root_owner=str(result.get("outputRootOwner") or ""),

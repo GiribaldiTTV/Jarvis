@@ -301,11 +301,23 @@ USER Returned Issues: `Profile-specific log consistency proof failure; Recording
 Supersedes Earlier Disposition For Active Movement: `Yes - the earlier all-green Live Validation / UTS disposition acceptance remains historical evidence, but these returned UTS issues block PR Readiness until digested and repaired or explicitly waived under current source truth.`
 Validation Harness Repair: `dev/orin_monitoring_hud_live_validation.ps1 now carries returned-UTS determinism gates and blocks UTS export while any gate remains FAIL, BLOCKED, or UNPROVEN; dev/orin_monitoring_hud_surface_validation.py validates those gates and the FAM-006 Recording feature-vision proof expectations.`
 Feature Vision Repair: `Docs/family_feature_visions/FAM-006_recording.md now requires profile-specific log consistency, normal USER-path Studio/Log Viewer activation separation, activation-dependent Studio UI proof, Log Viewer visual-system inheritance, and user-visible native/export folder model checks.`
-Product Runtime Fixes: `Withheld - Recording Studio activation, profile/log consistency, Log Viewer visual design, user-visible path model, and Studio UI activation-dependent visual proof require separate USER product/runtime repair approval.`
-Packet Reviewability State: `Reviewable after returned-UTS failure packet generation under C:\Nexus USER\FAM-006 with timestamped ZIP proof in helper output and Codex digest.`
-USER Gate State: `Pending USER returned-UTS failure review and separate product/runtime repair decision.`
-Boundary: `This receipt does not approve product/runtime fixes, Live Validation acceptance, UTS acceptance, PR Readiness, issue #258 closeout, PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated full Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
-Next Legal Phase: `USER reviews the returned-UTS failure packet and either approves bounded FAM-006 product/runtime repair for FAM006-RUTS-001 through FAM006-RUTS-005, revises the findings, holds the branch, or grants an explicit waiver.`
+Product Runtime Fixes: `Approved by USER and implemented in bounded FAM-006 repair scope: Recording Studio activation/reopen, profile/log consistency, Log Viewer visual-system proof markers, user-visible storage naming, and activation-dependent Studio UI proof gates.`
+Packet Reviewability State: `Returned-UTS failure packet is historical review evidence; current repair proof belongs in validation/helper output, Codex digest, and any refreshed Live Validation / UTS packet.`
+USER Gate State: `Pending refreshed Live Validation / UTS review after repaired validation proof; repair implementation alone is not UTS acceptance or PR Readiness.`
+Boundary: `This receipt does not approve Live Validation acceptance, UTS acceptance, PR Readiness, issue #258 closeout, PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated full Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
+Next Legal Phase: `Run repaired validation and refreshed Live Validation / UTS handoff; USER then accepts, revises, waives, or rejects the refreshed UTS disposition.`
+
+## Returned UTS Product Runtime Repair / Refreshed LV1 Handoff Receipt
+
+Receipt Date: `2026-06-09`
+Receipt Role: `Durable compact receipt only; active UTS returned-results state and exact runtime proof remain owned by C:\Nexus Governance State, helper output, Git, and Codex completion packets.`
+Repair Scope: `Closed FAM006-RUTS-001 through FAM006-RUTS-005 by adding profile-specific native log readback proof, target-monitor no-sensor rows, normal visible Recording Studio open/reopen behavior, Log Viewer visual-system proof markers, product-surface native/export storage naming, and activation-dependent Studio UI proof gates.`
+Validation Proof: `PASS - C:\Nexus Worktrees\FAM-006\dev\logs\fam_006_monitoring_hud_live_validation\20260609_221334_192`
+Returned UTS Determinism Gates: `PASS`
+User Test Summary Handoff: `C:\Nexus USER\UTS - FAM-006.txt`
+User Test Summary Results: `PENDING until USER returns PASS, FAIL, or WAIVED and Codex digests the result.`
+Boundary: `This receipt does not approve UTS acceptance, PR Readiness, issue #258 closeout, PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated full Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
+Next Legal Phase: `USER completes and returns the refreshed UTS for digestion.`
 
 ## Source-Truth Placement
 

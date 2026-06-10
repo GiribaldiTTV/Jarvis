@@ -418,8 +418,10 @@ function monitoringHudBuildRecordingRowsFromTarget(target, startedAt, stoppedAt)
   ids.forEach((monitorId) => {
     const card = Object.assign(monitoringHudCardDefaults(monitorId), cards[monitorId] || {});
     const sensors = Array.isArray(card.sensors) ? card.sensors : [];
-    sensors.forEach((sensorId) => {
+    const recordingSensors = sensors.length ? sensors : ["recording-target-no-sensor-sample"];
+    recordingSensors.forEach((sensorId) => {
       timestamps.forEach((sample) => {
+        const noSensorSample = sensorId === "recording-target-no-sensor-sample";
         rows.push({
           timestamp_utc: sample.timestamp,
           elapsed_ms: sample.elapsedMs,
@@ -428,11 +430,13 @@ function monitoringHudBuildRecordingRowsFromTarget(target, startedAt, stoppedAt)
           monitor_id: String(monitorId || ""),
           monitor_name: String(card.title || monitorId || ""),
           sensor_id: String(sensorId || ""),
-          sensor_label: String(sensorId || "").replace(/-/g, " ").replace(/\b\w/g, (value) => value.toUpperCase()),
+          sensor_label: noSensorSample
+            ? "Recording Target"
+            : String(sensorId || "").replace(/-/g, " ").replace(/\b\w/g, (value) => value.toUpperCase()),
           value: "",
-          unit: sensorId.includes("load") ? "%" : "",
+          unit: noSensorSample ? "" : sensorId.includes("load") ? "%" : "",
           quality: "unavailable",
-          source_state: "provider-required"
+          source_state: noSensorSample ? "no-sensor-sample" : "provider-required"
         });
       });
     });
@@ -460,7 +464,7 @@ function monitoringHudStartRecording() {
     return monitoringHudSetRecordingError("The active Overlay Profile has no usable sensor samples to record.");
   }
   const startedAt = monitoringHudRecordingNowIso();
-  monitoringHudControlState.recordingSessionId = `fam006-recording-${Date.now()}`;
+  monitoringHudControlState.recordingSessionId = `recording-${Date.now()}`;
   monitoringHudControlState.recordingStartedAt = startedAt;
   monitoringHudControlState.recordingStartedAtMs = Date.now();
   monitoringHudControlState.recordingStoppedAt = "";
@@ -491,8 +495,8 @@ function monitoringHudStopRecording() {
   monitoringHudControlState.recordingSamples = allRows;
   monitoringHudControlState.recordingOutputRequestSequence = sequence;
   monitoringHudControlState.recordingOutputRequest = {
-    requestId: `fam006-output-${sequence}-${Date.now()}`,
-    sessionId: monitoringHudControlState.recordingSessionId || `fam006-recording-${Date.now()}`,
+    requestId: `recording-output-${sequence}-${Date.now()}`,
+    sessionId: monitoringHudControlState.recordingSessionId || `recording-${Date.now()}`,
     activeOverlayProfileId: target.activeOverlayProfileId || "",
     activeOverlayProfileName: target.activeOverlayProfileName || "",
     targetMonitorIds: Array.isArray(target.membershipSnapshotCandidate) ? target.membershipSnapshotCandidate.slice() : [],
@@ -687,10 +691,13 @@ function monitoringHudRenderActiveOverlayRecordingTargetPreview() {
         : "Start Recording";
   }
   if (monitoringHudRecordingStudioOpen) {
-    monitoringHudRecordingStudioOpen.disabled = !targetReady;
-    monitoringHudRecordingStudioOpen.setAttribute("aria-disabled", targetReady ? "false" : "true");
-    monitoringHudRecordingStudioOpen.dataset.recordingControlWindowState = targetReady ? "recording-studio-ready" : "target-required";
+    monitoringHudRecordingStudioOpen.disabled = false;
+    monitoringHudRecordingStudioOpen.setAttribute("aria-disabled", "false");
+    monitoringHudRecordingStudioOpen.dataset.recordingControlWindowState = targetReady
+      ? "recording-studio-ready"
+      : "recording-studio-open-target-required";
     monitoringHudRecordingStudioOpen.dataset.recordingControlWindowContract = "recording-studio-focused-control-status";
+    monitoringHudRecordingStudioOpen.dataset.recordingStudioUserPath = "always-openable-target-state-visible";
     monitoringHudRecordingStudioOpen.dataset.nativeWindowContract = "recording-studio-focused-control-status";
     monitoringHudRecordingStudioOpen.dataset.recordingExecutionState = executionState;
     monitoringHudRecordingStudioOpen.dataset.recordingFileWritingState = fileWritingState;
@@ -754,7 +761,7 @@ function monitoringHudRequestLogViewerStudioWindow() {
   const sequence = Number(monitoringHudControlState.logViewerStudioRequestSequence || 0) + 1;
   monitoringHudControlState.logViewerStudioRequestSequence = sequence;
   monitoringHudControlState.logViewerStudioRequested = true;
-  monitoringHudControlState.logViewerStudioRequestId = `fam006-log-viewer-${sequence}-${Date.now()}`;
+  monitoringHudControlState.logViewerStudioRequestId = `recording-log-viewer-${sequence}-${Date.now()}`;
   monitoringHudControlState.logViewerStudioState = "native-window-requested";
   monitoringHudControlState.logViewerStudioSummary = monitoringHudBuildLogViewerStudioSummary(
     monitoringHudControlState.recordingOutputResult || {}

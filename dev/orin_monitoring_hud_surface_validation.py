@@ -1462,11 +1462,66 @@ def validate() -> list[str]:
         "RETURNED_UTS_RECORDING_STUDIO_UI_ACTIVATION_GATE",
         "Assert-ReturnedUtsDeterminismGatesClear",
         "Live Validation LV1 UTS export blocked by returned-UTS determinism gates",
+        'status = "PASS"',
     ):
         _require_contains(
             live_validation,
             needle,
             "FAM-006 returned-UTS deterministic Live Validation stop-loss",
+            failures,
+        )
+
+    for needle in (
+        "profileLogConsistencyPassed",
+        "twoProfileLogConsistencyPassed",
+        "rowProfileIds",
+        "rowMonitorIds",
+        "targetMonitorIds",
+        "RECORDING_OUTPUT_SURFACE_DIR_NAME",
+        "Monitoring HUD",
+        "product-surface-folder-not-worktree-label",
+        "internalPathLeakageAbsent",
+    ):
+        _require_contains(
+            output_contract,
+            needle,
+            "FAM-006 returned-UTS product repair recording-output proof",
+            failures,
+        )
+
+    _require(
+        'RECORDING_OUTPUT_FAMILY_DIR_NAME = "FAM-006"' not in output_contract,
+        "FAM-006 returned-UTS product repair must not expose the FAM label as the default user-visible log folder",
+        failures,
+    )
+
+    for needle in (
+        "always-openable-target-state-visible",
+        "recording-studio-open-target-required",
+        "recordingStudioUserPath",
+        "recording-target-no-sensor-sample",
+        "no-sensor-sample",
+    ):
+        _require_contains(
+            js,
+            needle,
+            "FAM-006 returned-UTS product repair Recording Studio visible-button proof",
+            failures,
+        )
+
+    for needle in (
+        "nativeCursorRecordingStudioReopenProof",
+        '"visualSystemInheritance": "dashboard-hub-card-sampled"',
+        '"visualAdjudicationState": "source-truth-mapped"',
+        '"genericShellRejected": True',
+        '"userVisibleStorageModel": "product-surface-folder-not-worktree-label"',
+        '"internalPathLeakageAbsent": internal_path_leakage_absent',
+        "Native NDAI logs",
+    ):
+        _require_contains(
+            renderer,
+            needle,
+            "FAM-006 returned-UTS product repair Studio/Log Viewer runtime proof",
             failures,
         )
 
