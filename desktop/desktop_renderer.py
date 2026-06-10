@@ -188,6 +188,9 @@ GetSystemMetrics.argtypes = [ctypes.c_int]
 GetSystemMetrics.restype = ctypes.c_int
 SendInput = user32.SendInput
 SendInput.restype = ctypes.c_uint
+VkKeyScanW = user32.VkKeyScanW
+VkKeyScanW.argtypes = [ctypes.c_wchar]
+VkKeyScanW.restype = ctypes.c_short
 PostMessageW = user32.PostMessageW
 PostMessageW.argtypes = [ctypes.wintypes.HWND, ctypes.c_uint, ctypes.wintypes.WPARAM, ctypes.wintypes.LPARAM]
 PostMessageW.restype = ctypes.wintypes.BOOL
@@ -251,6 +254,8 @@ MOUSEEVENTF_VIRTUALDESK = 0x4000
 KEYEVENTF_KEYUP = 0x0002
 KEYEVENTF_UNICODE = 0x0004
 VK_CONTROL = 0x11
+VK_SHIFT = 0x10
+VK_MENU = 0x12
 VK_A = 0x41
 WHEEL_DELTA = 120
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -5746,6 +5751,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._current_log_state = "no-current-log"
         self._native_log_path = ""
         self._last_activation_mode = "not-requested"
+        self._opened_by_explicit_user_path = False
         self.setObjectName("monitoringHudRecordingStudioWindow")
         self.setProperty("visualSystemInheritance", "dashboard-hub-card-sampled")
         self.setProperty("visualSampledElements", "hud-overlay-monitor-groups-data-sources-readiness")
@@ -5850,12 +5856,23 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         available = self.screen_ref.availableGeometry()
         width = 440
         height = 300
-        return QRect(
+        rect = QRect(
             available.x() + max(24, available.width() - width - 80),
             available.y() + max(24, available.height() - height - 110),
             width,
             height,
         )
+        cursor = QCursor.pos()
+        if rect.contains(cursor):
+            candidates = [
+                QRect(available.x() + 80, available.y() + 80, width, height),
+                QRect(available.x() + max(24, available.width() - width - 80), available.y() + 80, width, height),
+                QRect(available.x() + 80, available.y() + max(24, available.height() - height - 110), width, height),
+            ]
+            for candidate in candidates:
+                if available.contains(candidate) and not candidate.contains(cursor):
+                    return candidate
+        return rect
 
     def _request_recording_action(self, action: str) -> None:
         normalized_action = action if action in {"start", "stop"} else "toggle"
@@ -5885,7 +5902,11 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         activate_window: bool = True,
     ) -> None:
         self._request_id = max(self._request_id, int(request_id or 0))
-        self._last_activation_mode = "explicit-user-open" if activate_window else "passive-state-refresh"
+        if activate_window:
+            self._last_activation_mode = "explicit-user-open"
+            self._opened_by_explicit_user_path = True
+        else:
+            self._last_activation_mode = "passive-state-refresh"
         self._recording_session_state = recording_session_state or "ready"
         self._start_stop_state = start_stop_state or "target-required"
         self._native_log_path = native_log_path.strip()
@@ -5931,6 +5952,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "nativeLogPath": self._native_log_path,
             "currentLogState": self._current_log_state,
             "activationMode": self._last_activation_mode,
+            "openedByExplicitUserPath": self._opened_by_explicit_user_path,
             "startStopState": self._start_stop_state,
             "visualSystemInheritance": "dashboard-hub-card-sampled",
             "visualSampledElements": "hud-overlay-monitor-groups-data-sources-readiness",
@@ -6475,9 +6497,26 @@ class DesktopRuntimeWindow(QWidget):
                 logViewerStudioRequested: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested),
                 recordingState: typeof monitoringHudRecordingState === "function" ? monitoringHudRecordingState() : ""
             }};
+            const releasePointerActivatedAt = Number(target.dataset.reliablePointerActivatedAt || 0);
+            const releaseNativeCursorActivatedAt = Number(target.dataset.nativeCursorActivatedAt || 0);
+            const releaseRecentReliable = Boolean(
+                (releasePointerActivatedAt && Date.now() - releasePointerActivatedAt < 1100)
+                || (releaseNativeCursorActivatedAt && Date.now() - releaseNativeCursorActivatedAt < 2200)
+            );
             window.setTimeout(() => {{
                 let activated = false;
-                if (control === "open-recording-studio") {{
+                let alreadyHandled = false;
+                let skippedRecentReliable = false;
+                const pointerActivatedAt = Number(target.dataset.reliablePointerActivatedAt || 0);
+                const nativeCursorActivatedAt = Number(target.dataset.nativeCursorActivatedAt || 0);
+                const recentReliable = Boolean(
+                    (pointerActivatedAt && Date.now() - pointerActivatedAt < 1100)
+                    || (nativeCursorActivatedAt && Date.now() - nativeCursorActivatedAt < 2200)
+                );
+                if (recentReliable) {{
+                    alreadyHandled = true;
+                    skippedRecentReliable = true;
+                }} else if (control === "open-recording-studio") {{
                     if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                         activated = monitoringHudRequestRecordingControlWindow() !== false;
                     }}
@@ -6486,13 +6525,7 @@ class DesktopRuntimeWindow(QWidget):
                         activated = monitoringHudRequestLogViewerStudioWindow() !== false;
                     }}
                 }} else if (control === "toggle-recording") {{
-                    const recentReliable = Boolean(
-                        monitoringHud
-                        && monitoringHud.dataset.lastInteractiveControl === "recording-control:quick-access-start-stop"
-                        && Number(target.dataset.reliablePointerActivatedAt || 0)
-                        && Date.now() - Number(target.dataset.reliablePointerActivatedAt || 0) < 700
-                    );
-                    if (!recentReliable && typeof monitoringHudToggleRecording === "function") {{
+                    if (typeof monitoringHudToggleRecording === "function") {{
                         activated = monitoringHudToggleRecording() !== false;
                     }}
                 }}
@@ -6505,12 +6538,14 @@ class DesktopRuntimeWindow(QWidget):
                     monitoringHudRecordReliableActivation(target, "native-qt-webview-release-bridge", true);
                 }}
             }}, 90);
-            return JSON.stringify({{
-                eligible: true,
-                control,
-                id: String(target.id || ""),
-                x,
-                y,
+                return JSON.stringify({{
+                    eligible: true,
+                    control,
+                    alreadyHandled: releaseRecentReliable,
+                    skippedRecentReliable: releaseRecentReliable,
+                    id: String(target.id || ""),
+                    x,
+                    y,
                 before
             }});
         }})();
@@ -6588,7 +6623,16 @@ class DesktopRuntimeWindow(QWidget):
             let activated = false;
             let alreadyHandled = false;
             let skippedRecentReliable = false;
-            if (control === "open-recording-studio") {{
+            const pointerActivatedAt = Number(releaseTarget.dataset.reliablePointerActivatedAt || 0);
+            const nativeCursorActivatedAt = Number(releaseTarget.dataset.nativeCursorActivatedAt || 0);
+            const recentReliable = Boolean(
+                (pointerActivatedAt && Date.now() - pointerActivatedAt < 1100)
+                || (nativeCursorActivatedAt && Date.now() - nativeCursorActivatedAt < 2200)
+            );
+            if (recentReliable) {{
+                skippedRecentReliable = true;
+                alreadyHandled = true;
+            }} else if (control === "open-recording-studio") {{
                 if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                     activated = monitoringHudRequestRecordingControlWindow() !== false;
                 }}
@@ -6597,16 +6641,7 @@ class DesktopRuntimeWindow(QWidget):
                     activated = monitoringHudRequestLogViewerStudioWindow() !== false;
                 }}
             }} else if (control === "toggle-recording") {{
-                const pointerActivatedAt = Number(releaseTarget.dataset.reliablePointerActivatedAt || 0);
-                const nativeCursorActivatedAt = Number(releaseTarget.dataset.nativeCursorActivatedAt || 0);
-                const recentReliable = Boolean(
-                    (pointerActivatedAt && Date.now() - pointerActivatedAt < 900)
-                    || (nativeCursorActivatedAt && Date.now() - nativeCursorActivatedAt < 2200)
-                );
-                if (recentReliable) {{
-                    skippedRecentReliable = true;
-                    alreadyHandled = true;
-                }} else if (typeof monitoringHudToggleRecording === "function") {{
+                if (typeof monitoringHudToggleRecording === "function") {{
                     activated = monitoringHudToggleRecording() !== false;
                 }}
             }}
@@ -9786,7 +9821,11 @@ class DesktopRuntimeWindow(QWidget):
             "seam": "Dashboard-specific active-client self-QA - no UTS export",
             "proofSlice": "SLC-041",
             "proofSeam": "SLC-041 Overlay Profile validation and live desktop proof",
-            "proofStandard": "focused WebView proof is acceptance evidence; full desktop screenshots are locator/context evidence only",
+            "proofStandard": (
+                "photo/video proof is the only LV1 acceptance proof; "
+                "code, DOM, marker, log, manifest, and helper output are diagnostic evidence only"
+            ),
+            "nonPhotoVideoProofEscalation": "Claims that cannot be proven in a photo or video must be elevated to the USER for manual validation.",
             "formalUserTestSummaryBoundary": "Live Validation Stage 1 only after human-client precheck PASS or USER waiver",
             "overlayProfileProofChain": {
                 "slc037": "Overlay Profile data/state foundation and renderer bridge",
@@ -9987,6 +10026,39 @@ class DesktopRuntimeWindow(QWidget):
             )
             QApplication.processEvents()
             time.sleep(0.018)
+            ok = bool(down_sent and up_sent) and ok
+        return bool(ok)
+
+    def _monitoring_hud_send_virtual_key_text(self, text: str) -> bool:
+        ok = True
+        for char in str(text or ""):
+            mapping = int(VkKeyScanW(char))
+            if mapping == -1:
+                ok = self._monitoring_hud_send_unicode_text(char) and ok
+                continue
+            vk = mapping & 0xFF
+            shift_state = (mapping >> 8) & 0xFF
+            modifiers: list[int] = []
+            if shift_state & 0x01:
+                modifiers.append(VK_SHIFT)
+            if shift_state & 0x02:
+                modifiers.append(VK_CONTROL)
+            if shift_state & 0x04:
+                modifiers.append(VK_MENU)
+            for modifier in modifiers:
+                ok = self._monitoring_hud_send_keyboard_input(vk=modifier) and ok
+                QApplication.processEvents()
+                time.sleep(0.012)
+            down_sent = self._monitoring_hud_send_keyboard_input(vk=vk)
+            QApplication.processEvents()
+            time.sleep(0.018)
+            up_sent = self._monitoring_hud_send_keyboard_input(vk=vk, flags=KEYEVENTF_KEYUP)
+            QApplication.processEvents()
+            time.sleep(0.018)
+            for modifier in reversed(modifiers):
+                ok = self._monitoring_hud_send_keyboard_input(vk=modifier, flags=KEYEVENTF_KEYUP) and ok
+                QApplication.processEvents()
+                time.sleep(0.012)
             ok = bool(down_sent and up_sent) and ok
         return bool(ok)
 
@@ -10553,6 +10625,35 @@ class DesktopRuntimeWindow(QWidget):
                 "logViewerRequestId": str(proof.get("requestId") or ""),
             }
 
+        def native_proof_window_contamination_snapshot(phase: str) -> dict[str, object]:
+            recording_widget = self._monitoring_hud_recording_studio_window
+            log_viewer_widget = self._monitoring_hud_log_viewer_studio_window
+            recording_proof = recording_widget.proof_state() if recording_widget is not None else {}
+            log_viewer_proof = log_viewer_widget.proof_state() if log_viewer_widget is not None else {}
+            return {
+                "phase": phase,
+                **active_window_proof(),
+                "recordingStudioProof": recording_proof,
+                "logViewerProof": log_viewer_proof,
+                "recordingStudioVisible": bool(recording_proof.get("visible")),
+                "recordingStudioActive": bool(recording_proof.get("isActiveWindow")),
+                "logViewerVisible": bool(log_viewer_proof.get("visible")),
+                "logViewerActive": bool(log_viewer_proof.get("isActiveWindow")),
+                "logViewerMinimized": bool(log_viewer_proof.get("isMinimized")),
+            }
+
+        def close_independent_native_proof_windows_for_clean_lane() -> dict[str, object]:
+            recording_widget = self._monitoring_hud_recording_studio_window
+            log_viewer_widget = self._monitoring_hud_log_viewer_studio_window
+            if log_viewer_widget is not None and log_viewer_widget.isVisible():
+                log_viewer_widget.close()
+            if recording_widget is not None and recording_widget.isVisible():
+                recording_widget.close()
+            QApplication.processEvents()
+            time.sleep(0.25)
+            focus_dashboard_for_sequence()
+            return native_proof_window_contamination_snapshot("after-clean-lane-close")
+
         def query(label: str, script: str, callback):
             self._run_javascript_with_result(
                 script,
@@ -10577,6 +10678,12 @@ class DesktopRuntimeWindow(QWidget):
             (function() {{
                 const selector = {json.dumps(selector)};
                 const element = document.querySelector(selector);
+                if (element && typeof element.scrollIntoView === "function") {{
+                    element.scrollIntoView({{ block: "center", inline: "center", behavior: "instant" }});
+                }}
+                if (element) {{
+                    void element.offsetHeight;
+                }}
                 const rect = element ? element.getBoundingClientRect() : null;
                 const centerX = rect ? rect.left + (rect.width / 2) : 0;
                 const centerY = rect ? rect.top + (rect.height / 2) : 0;
@@ -10720,21 +10827,6 @@ class DesktopRuntimeWindow(QWidget):
                         state = {"ok": False, "raw": str(result)}
                     if not isinstance(state, dict):
                         state = {"ok": False, "raw": str(state)}
-                    if not state.get("ok") and native_webview_message_fallback is None and point is not None:
-                        native_webview_message_fallback = self._monitoring_hud_send_webview_native_mouse_click(point)
-                        QApplication.processEvents()
-                        time.sleep(0.25)
-                        cursor_after = self._monitoring_hud_cursor_position()
-                        native_target_after_click = self._monitoring_hud_window_from_point_metadata(cursor_after)
-                        if native_webview_message_fallback.get("sent"):
-                            QTimer.singleShot(
-                                delay(150),
-                                lambda: self._run_javascript_with_result(
-                                    state_script,
-                                    lambda fallback_result: handle_state(fallback_result, sent),
-                                ),
-                            )
-                            return
                     if not state.get("ok") and sent_attempts < 6:
                         retry_sent = send_once()
                         QTimer.singleShot(
@@ -10770,7 +10862,7 @@ class DesktopRuntimeWindow(QWidget):
                     }
                     real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "state-verified-click"})
                     fallback_sent = bool(native_webview_message_fallback and native_webview_message_fallback.get("sent"))
-                    passed = bool((sent or fallback_sent) and state.get("ok"))
+                    passed = bool(sent and state.get("ok") and not fallback_sent)
                     details["realOsInputProof"] = passed
                     add_step(label, passed, details)
                     if not passed:
@@ -10791,6 +10883,10 @@ class DesktopRuntimeWindow(QWidget):
                 if not parsed.get("rect"):
                     add_step(label, False, parsed)
                     finish("FAIL", f"{label} failed to locate target rectangle")
+                    return
+                if not parsed.get("ok"):
+                    add_step(label, False, parsed)
+                    finish("FAIL", f"{label} target is not visible and unobstructed")
                     return
                 click_from_rect(parsed)
 
@@ -10856,42 +10952,12 @@ class DesktopRuntimeWindow(QWidget):
                 QApplication.processEvents()
                 time.sleep(0.12)
                 selected = self._monitoring_hud_send_ctrl_a()
-                typed = self._monitoring_hud_send_unicode_text(text)
+                unicode_typed = self._monitoring_hud_send_unicode_text(text)
                 QApplication.processEvents()
                 time.sleep(0.2)
 
-                def handle_value(result):
-                    try:
-                        state = json.loads(result) if isinstance(result, str) else result
-                    except Exception:
-                        state = {"ok": False, "raw": str(result)}
-                    if not isinstance(state, dict):
-                        state = {"ok": False, "raw": str(state)}
-                    details = {
-                        **parsed,
-                        "state": state,
-                        "screenPoint": point,
-                        "screenRect": screen_rect,
-                        "clickedForFocus": clicked,
-                        "ctrlAProof": selected,
-                        "typedText": text,
-                        "inputProof": "real-os-keyboard-unicode-text-after-real-os-focus-click",
-                        "realOsInputProof": bool(clicked and selected and typed and state.get("ok")),
-                        "directJsClickUsed": False,
-                        "directJsTextMutationUsed": False,
-                        "syntheticDomEventUsed": False,
-                        "qtestKeyboardUsed": False,
-                    }
-                    real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "keyboard-text"})
-                    passed = bool(clicked and selected and typed and state.get("ok"))
-                    add_step(label, passed, details)
-                    if not passed:
-                        finish("FAIL", f"{label} failed real OS keyboard text entry")
-                        return
-                    QTimer.singleShot(delay(), callback)
-
-                self._run_javascript_with_result(
-                    f"""
+                def value_script():
+                    return f"""
                     (function() {{
                         const element = document.querySelector({json.dumps(selector)});
                         const save = document.getElementById("monitoring-hud-overlay-profile-save");
@@ -10905,7 +10971,68 @@ class DesktopRuntimeWindow(QWidget):
                             directJsTextMutationUsed: false
                         }});
                     }})();
-                    """,
+                    """
+
+                def parse_state(result):
+                    try:
+                        state = json.loads(result) if isinstance(result, str) else result
+                    except Exception:
+                        state = {"ok": False, "raw": str(result)}
+                    if not isinstance(state, dict):
+                        state = {"ok": False, "raw": str(state)}
+                    return state
+
+                def finish_text_entry(first_state: dict[str, object], final_state: dict[str, object], final_typed: bool, method: str):
+                    details = {
+                        **parsed,
+                        "firstState": first_state,
+                        "state": final_state,
+                        "screenPoint": point,
+                        "screenRect": screen_rect,
+                        "clickedForFocus": clicked,
+                        "ctrlAProof": selected,
+                        "typedText": text,
+                        "textEntryMethod": method,
+                        "unicodeTextAttempted": True,
+                        "unicodeTextSent": bool(unicode_typed),
+                        "virtualKeyTextFallbackUsed": method == "virtual-key",
+                        "inputProof": "real-os-keyboard-text-after-real-os-focus-click",
+                        "realOsInputProof": bool(clicked and selected and final_typed and final_state.get("ok")),
+                        "directJsClickUsed": False,
+                        "directJsTextMutationUsed": False,
+                        "syntheticDomEventUsed": False,
+                        "qtestKeyboardUsed": False,
+                    }
+                    real_os_actions.append({"label": label, "selector": selector, "screenPoint": point, "kind": "keyboard-text"})
+                    passed = bool(clicked and selected and final_typed and final_state.get("ok"))
+                    add_step(label, passed, details)
+                    if not passed:
+                        finish("FAIL", f"{label} failed real OS keyboard text entry")
+                        return
+                    if "Overlay Profile name" in label:
+                        capture("02_overlay_profile_normal_path_real_os_keyboard_name_edited")
+                    QTimer.singleShot(delay(), callback)
+
+                def handle_fallback_value(first_state: dict[str, object], fallback_typed: bool, result):
+                    fallback_state = parse_state(result)
+                    finish_text_entry(first_state, fallback_state, fallback_typed, "virtual-key")
+
+                def handle_value(result):
+                    first_state = parse_state(result)
+                    if first_state.get("ok"):
+                        finish_text_entry(first_state, first_state, unicode_typed, "unicode")
+                        return
+                    self._monitoring_hud_send_ctrl_a()
+                    fallback_typed = self._monitoring_hud_send_virtual_key_text(text)
+                    QApplication.processEvents()
+                    time.sleep(0.2)
+                    self._run_javascript_with_result(
+                        value_script(),
+                        lambda fallback_result: handle_fallback_value(first_state, fallback_typed, fallback_result),
+                    )
+
+                self._run_javascript_with_result(
+                    value_script(),
                     handle_value,
                 )
 
@@ -11164,11 +11291,14 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "recording_studio_window"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
-                and proof.get("activationMode") == "explicit-user-open"
+                and proof.get("openedByExplicitUserPath") is True
                 and proof.get("visualSystemInheritance") == "dashboard-hub-card-sampled"
                 and proof.get("visualAdjudicationState") == "source-truth-mapped"
                 and proof.get("genericShellRejected") is True
                 and proof.get("startEnabled") is True
+                and proof.get("stopEnabled") is False
+                and proof.get("startStopState") == "start-enabled"
+                and proof.get("currentLogState") == "no-current-log"
             )
             if not passed and recording_studio_native_proof_attempts["count"] < 8:
                 recording_studio_native_proof_attempts["count"] += 1
@@ -11549,13 +11679,16 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(), step_log_viewer_c2_open)
 
         def step_log_viewer_c2_open():
-            os_click_and_assert_state(
-                "#monitoring-hud-recording-open-folder",
-                "C2 real OS click opens Log Viewer before minimize test",
-                """
+            widget = self._monitoring_hud_log_viewer_studio_window
+            previous_request_id = ""
+            if widget is not None:
+                previous_request_id = str((widget.proof_state() or {}).get("requestId") or "")
+            previous_request_id_literal = json.dumps(previous_request_id)
+            state_script = """
                 (function() {
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
                     const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioRequestId || "") : "";
+                    const previousRequestId = __PREVIOUS_LOG_VIEWER_REQUEST_ID__;
                     return JSON.stringify({
                         ok: Boolean(
                             openFolder
@@ -11564,13 +11697,19 @@ class DesktopRuntimeWindow(QWidget):
                             && monitoringHudControlState.logViewerStudioRequested === true
                             && monitoringHudControlState.logViewerStudioState === "native-window-requested"
                             && requestId
+                            && requestId !== previousRequestId
                         ),
+                        previousRequestId,
                         requestId,
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
                 })();
-                """,
+                """.replace("__PREVIOUS_LOG_VIEWER_REQUEST_ID__", previous_request_id_literal)
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-open-folder",
+                "C2 real OS click opens Log Viewer before minimize test",
+                state_script,
                 lambda: QTimer.singleShot(delay(900), step_log_viewer_c2_prepare),
             )
 
@@ -11615,13 +11754,16 @@ class DesktopRuntimeWindow(QWidget):
             QTimer.singleShot(delay(), step_log_viewer_c3_open)
 
         def step_log_viewer_c3_open():
-            os_click_and_assert_state(
-                "#monitoring-hud-recording-open-folder",
-                "C3 real OS click opens Log Viewer before unfocused-open test",
-                """
+            widget = self._monitoring_hud_log_viewer_studio_window
+            previous_request_id = ""
+            if widget is not None:
+                previous_request_id = str((widget.proof_state() or {}).get("requestId") or "")
+            previous_request_id_literal = json.dumps(previous_request_id)
+            state_script = """
                 (function() {
                     const openFolder = document.getElementById("monitoring-hud-recording-open-folder");
                     const requestId = monitoringHudControlState ? String(monitoringHudControlState.logViewerStudioRequestId || "") : "";
+                    const previousRequestId = __PREVIOUS_LOG_VIEWER_REQUEST_ID__;
                     return JSON.stringify({
                         ok: Boolean(
                             openFolder
@@ -11630,13 +11772,19 @@ class DesktopRuntimeWindow(QWidget):
                             && monitoringHudControlState.logViewerStudioRequested === true
                             && monitoringHudControlState.logViewerStudioState === "native-window-requested"
                             && requestId
+                            && requestId !== previousRequestId
                         ),
+                        previousRequestId,
                         requestId,
                         realOsInputProof: true,
                         directJsClickUsed: false
                     });
                 })();
-                """,
+                """.replace("__PREVIOUS_LOG_VIEWER_REQUEST_ID__", previous_request_id_literal)
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-open-folder",
+                "C3 real OS click opens Log Viewer before unfocused-open test",
+                state_script,
                 lambda: QTimer.singleShot(delay(900), step_log_viewer_c3_prepare),
             )
 
@@ -11685,7 +11833,58 @@ class DesktopRuntimeWindow(QWidget):
             if not passed:
                 finish("FAIL", "C3 Log Viewer stole focus after Start/Stop")
                 return
-            QTimer.singleShot(delay(), step_restore_dashboard_viewport_after_folder_open)
+            QTimer.singleShot(delay(), step_close_independent_native_proof_windows_before_overlay_selector)
+
+        def step_close_independent_native_proof_windows_before_overlay_selector():
+            snapshot = close_independent_native_proof_windows_for_clean_lane()
+            passed = bool(
+                snapshot.get("recordingStudioVisible") is False
+                and snapshot.get("recordingStudioActive") is False
+                and snapshot.get("logViewerVisible") is False
+                and snapshot.get("logViewerActive") is False
+            )
+            add_step("Independent Recording Studio and Log Viewer windows are closed before Overlay Profile proof", passed, snapshot)
+            capture("02_native_proof_windows_closed_before_overlay_profile_selector")
+            if not passed:
+                finish("FAIL", "Independent native proof windows contaminated Overlay Profile proof lane")
+                return
+            QTimer.singleShot(delay(), step_reset_dashboard_child_windows_before_overlay_selector)
+
+        def step_reset_dashboard_child_windows_before_overlay_selector():
+            assert_state(
+                "Dashboard child windows are closed before HUD Overlay selector proof",
+                """
+                (function() {
+                    if (typeof monitoringHudCloseChildWindow === "function") {
+                        monitoringHudCloseChildWindow({ force: true });
+                    }
+                    if (typeof monitoringHudSetOverlayProfileDropdownOpen === "function") {
+                        monitoringHudSetOverlayProfileDropdownOpen(false);
+                    }
+                    if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
+                        monitoringHudSetOverlayProfileWindowDropdownOpen(false);
+                    }
+                    if (typeof monitoringHudRenderControls === "function") {
+                        monitoringHudRenderControls();
+                    }
+                    const layer = document.getElementById("monitoring-hud-child-window-layer");
+                    const state = window.getMonitoringHudControlState ? window.getMonitoringHudControlState() : {};
+                    return JSON.stringify({
+                        ok: Boolean(
+                            (!layer || layer.hidden)
+                            && (!monitoringHud || monitoringHud.dataset.activeChildWindow === "none")
+                            && (!state || state.activeChildWindow === "none")
+                        ),
+                        layerHidden: layer ? Boolean(layer.hidden) : true,
+                        activeChildWindow: monitoringHud ? String(monitoringHud.dataset.activeChildWindow || "") : "",
+                        stateActiveChildWindow: state ? String(state.activeChildWindow || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_restore_dashboard_viewport_after_folder_open,
+            )
 
         def step_restore_dashboard_viewport_after_folder_open():
             os_wheel(
@@ -12043,13 +12242,100 @@ class DesktopRuntimeWindow(QWidget):
                     });
                 })();
                 """,
-                step_recording_overlay_profile_switch_default_open,
+                step_recording_overlay_profile_restore_selector_after_settings_close,
             )
 
+        def step_recording_overlay_profile_restore_selector_after_settings_close():
+            os_wheel(
+                "#monitoring-hud",
+                8,
+                "real OS wheel restores HUD Overlay selector after closing Overlay Profile Settings",
+                step_recording_overlay_profile_selector_visible_after_settings_close,
+            )
+
+        def step_recording_overlay_profile_selector_visible_after_settings_close():
+            assert_state(
+                "HUD Overlay card Active Overlay Profile selector is visible after Overlay Profile Settings close",
+                """
+                (function() {
+                    const selector = document.getElementById("monitoring-hud-overlay-profile-selector");
+                    const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                    const layer = document.getElementById("monitoring-hud-child-window-layer");
+                    const rect = toggle ? toggle.getBoundingClientRect() : null;
+                    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+                    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+                    return JSON.stringify({
+                        ok: Boolean(
+                            selector
+                            && toggle
+                            && rect
+                            && rect.width > 0
+                            && rect.height > 0
+                            && rect.top >= 0
+                            && rect.left >= 0
+                            && rect.bottom <= viewportHeight
+                            && rect.right <= viewportWidth
+                            && (!layer || layer.hidden)
+                            && (!monitoringHud || monitoringHud.dataset.activeChildWindow === "none")
+                        ),
+                        rect: rect ? {
+                            left: rect.left,
+                            top: rect.top,
+                            right: rect.right,
+                            bottom: rect.bottom,
+                            width: rect.width,
+                            height: rect.height
+                        } : null,
+                        layerHidden: layer ? Boolean(layer.hidden) : true,
+                        activeChildWindow: monitoringHud ? String(monitoringHud.dataset.activeChildWindow || "") : "",
+                        selectedProfileText: toggle ? String(toggle.textContent || "").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_recording_overlay_profile_capture_selector_after_settings_close,
+            )
+
+        def step_recording_overlay_profile_capture_selector_after_settings_close():
+            capture("02_overlay_profile_selector_visible_after_settings_close")
+            QTimer.singleShot(delay(250), step_recording_overlay_profile_switch_default_open)
+
         def step_recording_overlay_profile_switch_default_open():
-            os_click(
+            os_click_and_assert_state(
                 "#monitoring-hud-overlay-profile-toggle",
                 "real OS click opens Active Overlay Profile selector before default switch",
+                """
+                (function() {
+                    const selector = document.getElementById("monitoring-hud-overlay-profile-selector");
+                    const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                    const option = document.querySelector('[data-overlay-profile-option="default-overlay-profile"]');
+                    const menu = document.getElementById("monitoring-hud-overlay-profile-menu");
+                    const ownerCard = selector && selector.closest ? selector.closest("[data-dashboard-hub-card]") : null;
+                    const optionRect = option ? option.getBoundingClientRect() : null;
+                    return JSON.stringify({
+                        ok: Boolean(
+                            selector
+                            && selector.dataset.dropdownOpen === "true"
+                            && menu
+                            && !menu.hidden
+                            && option
+                            && optionRect
+                            && optionRect.width > 0
+                            && optionRect.height > 0
+                            && ownerCard
+                            && ownerCard.dataset.dropdownLayerOpen === "true"
+                        ),
+                        selectorOpen: selector ? String(selector.dataset.dropdownOpen || "") : "",
+                        menuHidden: menu ? Boolean(menu.hidden) : true,
+                        defaultOptionVisible: Boolean(option && option.offsetWidth > 0),
+                        ownerCardDropdownLayerOpen: ownerCard ? String(ownerCard.dataset.dropdownLayerOpen || "") : "",
+                        toggleText: toggle ? String(toggle.textContent || "").trim() : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
                 step_recording_overlay_profile_switch_default_select,
             )
 
@@ -12090,9 +12376,50 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_recording_overlay_profile_switch_saved_open():
-            os_click(
+            created_id = str(overlay_profile_return_context.get("createdProfileId") or "")
+            if not created_id:
+                add_step(
+                    "real OS click opens Active Overlay Profile selector before saved USER switch",
+                    False,
+                    {"reason": "created profile id missing", "realOsInputProof": False},
+                )
+                finish("FAIL", "saved USER Overlay Profile id was not recorded before selector reopen")
+                return
+            os_click_and_assert_state(
                 "#monitoring-hud-overlay-profile-toggle",
                 "real OS click opens Active Overlay Profile selector before saved USER switch",
+                f"""
+                (function() {{
+                    const selector = document.getElementById("monitoring-hud-overlay-profile-selector");
+                    const toggle = document.getElementById("monitoring-hud-overlay-profile-toggle");
+                    const option = document.querySelector({json.dumps(f'[data-overlay-profile-option="{created_id}"]')});
+                    const menu = document.getElementById("monitoring-hud-overlay-profile-menu");
+                    const ownerCard = selector && selector.closest ? selector.closest("[data-dashboard-hub-card]") : null;
+                    const optionRect = option ? option.getBoundingClientRect() : null;
+                    return JSON.stringify({{
+                        ok: Boolean(
+                            selector
+                            && selector.dataset.dropdownOpen === "true"
+                            && menu
+                            && !menu.hidden
+                            && option
+                            && optionRect
+                            && optionRect.width > 0
+                            && optionRect.height > 0
+                            && ownerCard
+                            && ownerCard.dataset.dropdownLayerOpen === "true"
+                        ),
+                        selectorOpen: selector ? String(selector.dataset.dropdownOpen || "") : "",
+                        menuHidden: menu ? Boolean(menu.hidden) : true,
+                        savedOptionVisible: Boolean(option && option.offsetWidth > 0),
+                        ownerCardDropdownLayerOpen: ownerCard ? String(ownerCard.dataset.dropdownLayerOpen || "") : "",
+                        toggleText: toggle ? String(toggle.textContent || "").trim() : "",
+                        expectedProfileId: {json.dumps(created_id)},
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    }});
+                }})();
+                """,
                 step_recording_overlay_profile_switch_saved_select,
             )
 

@@ -331,7 +331,7 @@ Repo Receipt Role: `This file is a durable branch admission pointer and traceabi
 
 BP1 Route: `Historical/superseded planning receipt - USER_BRANCH_VISION_REVIEW.md generated under C:\Nexus USER\FAM-006 and accepted by USER after Option F planning solidification`
 Packet Reviewability Boundary: `A reviewable BP1 packet starts USER review; it is not USER acceptance.`
-USER Gate Boundary: `Superseded for active gate state - BP1 and BP2 are accepted, BP3 is accepted, Workstream and H1 historical proof are superseded by the expected-red Live Validator First posture, and the active USER decision is bounded repair implementation approval review.`
+USER Gate Boundary: `Superseded for active gate state - BP1 and BP2 are accepted, BP3 is accepted, Workstream and H1 historical proof are superseded by returned-UTS repair proof, and the active USER decision is the refreshed UTS return / digestion gate.`
 
 ## Assigned Worktree Confinement
 

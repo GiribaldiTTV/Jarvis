@@ -1,10 +1,11 @@
 """FAM-006 Live Validation / UTS failure forensic packet generator.
 
-This helper is investigation support only. It does not repair product runtime
-behavior, advance phase state, accept UTS results, close issues, or claim that
-new investigation evidence validates the earlier Live Validation handoff. It
-may attach a later runtime proof rerun as investigation evidence when the
-approved baseline is still an ancestor of the current branch head.
+This helper is FAM-006 investigation and returned-UTS review support only. It
+does not itself repair product runtime behavior, advance phase state, accept UTS
+results, close issues, or claim that new evidence validates an earlier Live
+Validation handoff. It may generate post-repair review packets when the current
+branch proof shows returned-UTS gates have been rerun and the refreshed UTS is
+still pending USER return.
 """
 
 from __future__ import annotations
@@ -50,7 +51,7 @@ REPAIR_RETURN_STATUS = "live-validation-repair-return-review"
 LV_UTS_DISPOSITION_PRIMARY_FILE = "USER Review/LIVE_VALIDATION_UTS_DISPOSITION_REVIEW.md"
 LV_UTS_DISPOSITION_STATUS = "live-validation-uts-disposition-review"
 RETURNED_UTS_DETERMINISM_PRIMARY_FILE = "USER Review/RETURNED_UTS_LIVE_VALIDATION_FAILURE_REVIEW.md"
-RETURNED_UTS_DETERMINISM_STATUS = "returned-uts-live-validation-failure-review"
+RETURNED_UTS_DETERMINISM_STATUS = "returned-uts-live-validation-failure-repair-review"
 ACCEPTED_FINDINGS_ZIP = USER_ROOT / "FAM-006-20260609-124117.zip"
 ACCEPTED_FINDINGS_SHA256 = "18506FB2C0B47E2F7378DCA788558D9F666D2F4B08BAD30677B9735B6A6D71B9"
 REPAIR_PLAN_ZIP = USER_ROOT / "FAM-006-20260609-125215.zip"
@@ -4164,7 +4165,7 @@ def returned_uts_contradiction_map_md() -> str:
                 item["finding_id"],
                 item["latest_lv_claim"],
                 item["contradiction"],
-                "Invalidated or weakened for USER acceptance until the gate is proven through the normal USER path.",
+                "Invalidated or weakened the earlier USER-acceptance claim; current repaired proof closes the deterministic gate while refreshed UTS acceptance remains pending.",
                 item["validator_gap"],
             ]
             for item in RETURNED_UTS_DETERMINISM_GATES
@@ -4179,7 +4180,7 @@ def returned_uts_validation_repairs_md() -> str:
             "Blind spot closed",
             "Old behavior",
             "New behavior",
-            "Expected current result",
+            "Current proof result",
             "Expected future green",
         ],
         [
@@ -4188,7 +4189,7 @@ def returned_uts_validation_repairs_md() -> str:
                 "UTS export could follow a generic manifest PASS without returned-UTS issue gates.",
                 "Manifest PASS could refresh UTS even when returned issue classes were not proven.",
                 "Manifest includes returned-UTS determinism gates and UTS export throws while any gate is FAIL, BLOCKED, or UNPROVEN.",
-                "BLOCKED/UNPROVEN before product repair.",
+                "PASS after bounded product/runtime repair; any regression reopens BLOCKED/UNPROVEN stop-loss.",
                 "PASS only after normal USER-path evidence closes all five returned gates.",
             ],
             [
@@ -4196,7 +4197,7 @@ def returned_uts_validation_repairs_md() -> str:
                 "Recording FFV did not explicitly require profile/log consistency, visual inheritance for Log Viewer, user-visible path checks, and activation-dependent Studio UI proof.",
                 "Source truth could be read as satisfied by broad save/readback, screenshot, or folder-open proof.",
                 "Feature vision now names the specific proof standards Live Validation must satisfy or block.",
-                "UNPROVEN where current product proof lacks those checks.",
+                "PASS for current proof because LV1 now maps those checks to real evidence.",
                 "Green when product proof maps these expectations to real evidence.",
             ],
             [
@@ -4204,7 +4205,7 @@ def returned_uts_validation_repairs_md() -> str:
                 "Static validation did not ensure the returned-UTS stop-loss remained installed.",
                 "A future helper edit could remove gate markers without a static validation failure.",
                 "Surface validator requires the FFV proof expectations and all live-script returned-UTS gate markers.",
-                "PASS for harness installation, not product acceptance.",
+                "PASS for harness installation and current marker coverage; product acceptance remains USER-gated.",
                 "Continues passing while harness stays wired; product green remains separate.",
             ],
             [
@@ -4212,16 +4213,16 @@ def returned_uts_validation_repairs_md() -> str:
                 "Helper registry did not name the five returned-UTS determinism gates.",
                 "The repair contract was easy to lose as hidden script behavior.",
                 "Registry now records the returned-UTS stop-loss ownership and evidence layering rule.",
-                "PASS for helper contract registration.",
+                "PASS for helper contract registration and returned-UTS gate ownership.",
                 "Reusable FAM-006 validators carry the rule into future branches.",
             ],
             [
                 "dev/orin_fam006_live_validation_forensics.py",
                 "Existing packet modes did not represent this exact returned-UTS-after-green-handoff posture.",
                 "Packet generation focused on prior investigation/repair-return/disposition flows.",
-                "New returned-UTS failure-review packet mode preserves the five issues and reports product fixes withheld.",
-                "Reviewable packet; no UTS acceptance.",
-                "Future findings packets can reuse the same deterministic issue-gate layout.",
+                "Returned-UTS repair-review packet mode preserves the five issues, reports the post-repair proof state, and keeps refreshed UTS acceptance pending.",
+                "Reviewable post-repair packet; no UTS acceptance.",
+                "Future findings packets can reuse the same deterministic issue-gate layout without confusing repair proof with USER acceptance.",
             ],
         ],
     )
@@ -4243,12 +4244,12 @@ def returned_uts_durable_rules_md() -> str:
 
 def returned_uts_product_candidates_md() -> str:
     return table(
-        ["Finding ID", "Product/runtime repair candidate", "Approval posture"],
+        ["Finding ID", "Product/runtime repair result", "Current proof posture"],
         [
             [
                 item["finding_id"],
                 item["product_candidate"],
-                "Withheld; requires separate USER product/runtime repair approval.",
+                "Implemented in bounded FAM-006 scope and validated by the refreshed LV1 proof; USER UTS acceptance remains pending.",
             ]
             for item in RETURNED_UTS_DETERMINISM_GATES
         ],
@@ -4408,29 +4409,48 @@ def generate_returned_uts_determinism_review_packet() -> tuple[Path, Path, str]:
             ("USER focused screenshot root", evidence.get("userElementScreenshotRoot", "")),
         ],
     )
+    manifest = evidence.get("manifest") if isinstance(evidence.get("manifest"), dict) else {}
+    interaction = evidence.get("interaction") if isinstance(evidence.get("interaction"), dict) else {}
+    restart_interaction = evidence.get("restartInteraction") if isinstance(evidence.get("restartInteraction"), dict) else {}
+    returned_gate_status = str(manifest.get("returnedUtsDeterminismGateStatus") or "MISSING")
+    manifest_status = str(manifest.get("status") or "MISSING")
+    interaction_status = str(interaction.get("status") or "MISSING")
+    restart_status = str(restart_interaction.get("status") or "MISSING")
+    focused_screenshot_count = ""
+    per_element = manifest.get("perElementUserInspectableScreenshots")
+    if isinstance(per_element, dict):
+        focused_screenshot_count = str(per_element.get("count") or "")
+    short_video = manifest.get("shortVideoProof")
+    short_video_status = str(short_video.get("status") or "MISSING") if isinstance(short_video, dict) else "MISSING"
     next_text = (
-        "I approve bounded FAM-006 product/runtime repair for the returned-UTS Live Validation failure gates "
-        "FAM006-RUTS-001 through FAM006-RUTS-005 on feature/fam-006-dashboard-recording-start-stop-local-file, "
-        "with PR Readiness, issue closeout, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, "
-        "provider/model/private work, and future-gated full Log Viewer/export/tray/keybind/settings/Native Log Loader work still pending separate approval."
+        "I completed the refreshed FAM-006 UTS at C:\\Nexus USER\\UTS - FAM-006.txt and return "
+        "PASS, FAIL, or WAIVED results for Codex digestion. This does not approve PR Readiness, "
+        "issue #258 closeout, PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, "
+        "provider/model/private work, or future-gated full Log Viewer/export/tray/keybind/settings/Native Log Loader work."
     )
     primary = "\n".join(
         [
-            "# FAM-006 Returned UTS Live Validation Failure Review",
+            "# FAM-006 Returned UTS Live Validation Failure Repair Review",
             "",
             f"Packet Status: {RETURNED_UTS_DETERMINISM_STATUS}",
             "Packet Reviewability State: Reviewable",
-            "USER Gate State: Pending USER Returned-UTS Failure Review",
-            "Product/runtime repair: Withheld",
+            "USER Gate State: Pending USER Refreshed UTS Return",
+            "Product/runtime repair: Implemented in bounded FAM-006 scope",
+            f"Live Validation rerun result: {manifest_status}",
+            f"Returned UTS determinism gate result: {returned_gate_status}",
+            f"Interaction self-QA result: {interaction_status}",
+            f"Restart / issue #258 persistence result: {restart_status}",
+            f"Focused screenshot proof count: {focused_screenshot_count or 'MISSING'}",
+            f"Short video proof result: {short_video_status}",
             "Live Validation acceptance: Withheld",
-            "UTS acceptance: Withheld",
+            "UTS acceptance: Pending USER return",
             "PR Readiness: Withheld",
             "",
-            "This packet preserves the returned USER UTS issues and records the FAM-006 validation/proof harness repair. It does not fix product/runtime behavior, accept Live Validation, accept UTS, close issue #258, or advance to PR Readiness.",
+            "This packet preserves the returned USER UTS issues and records the FAM-006 validation/proof harness repair, product/runtime repair, refreshed Live Validation proof, and refreshed UTS handoff. It does not accept Live Validation, accept UTS, close issue #258, or advance to PR Readiness.",
             "",
             section(
                 "Verdict",
-                "REPAIR. The prior Live Validation PASS is contradicted or weakened for USER acceptance by the returned UTS issues. The harness now carries deterministic returned-UTS stop-loss gates, and product/runtime fixes remain pending separate USER approval.",
+                "ACCEPT FOR USER REVIEW. The earlier Live Validation PASS was contradicted for USER acceptance by returned UTS issues; this branch now carries deterministic stop-loss gates, bounded product/runtime repairs, a green refreshed LV1 proof, and a refreshed UTS handoff. UTS acceptance remains pending USER return.",
             ),
             section(
                 "Worktree Identity",
@@ -4456,11 +4476,11 @@ def generate_returned_uts_determinism_review_packet() -> tuple[Path, Path, str]:
             section("Durable Validation Rules Added", returned_uts_durable_rules_md()),
             section("Expected-Red Product-State / Harness Self-Check", self_check_md),
             section("Latest Evidence Pointers", evidence_md),
-            section("Product / Runtime Fixes Withheld", returned_uts_product_candidates_md()),
+            section("Product / Runtime Repair Results", returned_uts_product_candidates_md()),
             section("Project Vision / Governance Follow-Up Candidates", returned_uts_governance_followups_md()),
             section(
                 "Exact Next USER Decision",
-                f"Approve the product/runtime repair only if desired with this exact text:\n\n`{next_text}`",
+                f"Complete and return the refreshed UTS with this exact decision shape:\n\n`{next_text}`",
             ),
         ]
     )
@@ -4469,17 +4489,17 @@ def generate_returned_uts_determinism_review_packet() -> tuple[Path, Path, str]:
         PACKET_ROOT / "START_HERE.md",
         "\n".join(
             [
-                "# Start Here - FAM-006 Returned UTS Live Validation Failure Review",
+                "# Start Here - FAM-006 Returned UTS Live Validation Failure Repair Review",
                 "",
-                "This packet reviews returned USER UTS failures and the validation/proof harness repair.",
-                "It is not Live Validation acceptance, UTS acceptance, PR Readiness, or product/runtime repair.",
+                "This packet reviews returned USER UTS failures, deterministic validation/proof repairs, bounded product/runtime repairs, refreshed LV1 proof, and the refreshed UTS handoff.",
+                "It is not Live Validation acceptance, UTS acceptance, PR Readiness, issue closeout, merge, release, or branch cleanup.",
                 "",
                 f"Primary USER review file: `{RETURNED_UTS_DETERMINISM_PRIMARY_FILE}`",
                 "",
                 "Packet Reviewability State: Reviewable",
-                "USER Gate State: Pending USER Returned-UTS Failure Review",
+                "USER Gate State: Pending USER Refreshed UTS Return",
                 "",
-                "Read the primary USER Review file first. Review Aids include the issue digest, contradiction map, repair summary, product repair candidates, governance follow-up candidates, and raw evidence pointers.",
+                "Read the primary USER Review file first. Review Aids include the issue digest, contradiction map, repair summary, product repair results, governance follow-up candidates, raw evidence, and the refreshed UTS handoff copy.",
                 "",
             ]
         ),
@@ -4495,8 +4515,8 @@ def generate_returned_uts_determinism_review_packet() -> tuple[Path, Path, str]:
             returned_uts_validation_repairs_md(),
         ),
         "DURABLE_VALIDATION_RULES.md": section("Durable Validation Rules", returned_uts_durable_rules_md()),
-        "PRODUCT_RUNTIME_REPAIR_CANDIDATES.md": section(
-            "Product Runtime Repair Candidates",
+        "PRODUCT_RUNTIME_REPAIR_RESULTS.md": section(
+            "Product Runtime Repair Results",
             returned_uts_product_candidates_md(),
         ),
         "GOVERNANCE_FOLLOW_UP_CANDIDATES.md": section(
@@ -4526,10 +4546,14 @@ def validate_returned_uts_determinism_review_packet(packet_root: Path) -> dict[s
     required = [
         f"Packet Status: {RETURNED_UTS_DETERMINISM_STATUS}",
         "Packet Reviewability State: Reviewable",
-        "USER Gate State: Pending USER Returned-UTS Failure Review",
-        "Product/runtime repair: Withheld",
+        "USER Gate State: Pending USER Refreshed UTS Return",
+        "Product/runtime repair: Implemented in bounded FAM-006 scope",
+        "Live Validation rerun result: PASS",
+        "Returned UTS determinism gate result: PASS",
+        "Interaction self-QA result: PASS",
+        "Restart / issue #258 persistence result: PASS",
         "Live Validation acceptance: Withheld",
-        "UTS acceptance: Withheld",
+        "UTS acceptance: Pending USER return",
         "Live Validation PASS Contradiction Map",
         "Repaired Validation / Proof-Harness Behavior",
         "Durable Validation Rules Added",
@@ -4545,7 +4569,11 @@ def validate_returned_uts_determinism_review_packet(packet_root: Path) -> dict[s
         "RETURNED_UTS_RECORDING_STUDIO_UI_ACTIVATION_GATE",
     ]
     forbidden = [
-        "Product/runtime repair: Implemented",
+        "Product/runtime repair: Withheld",
+        "It does not fix product/runtime behavior",
+        "product/runtime fixes remain pending separate USER approval",
+        "Approve the product/runtime repair",
+        "UTS acceptance: Withheld",
         "UTS acceptance: Accepted",
         "PR Readiness: Approved",
         "Issue #258: Closed",
@@ -4560,6 +4588,7 @@ def validate_returned_uts_determinism_review_packet(packet_root: Path) -> dict[s
         and len(user_review_files) == 1
         and (packet_root / "Review Aids" / "RETURNED_UTS_ISSUE_DIGEST.md").exists()
         and (packet_root / "Review Aids" / "LIVE_VALIDATION_PASS_CONTRADICTION_MAP.md").exists()
+        and (packet_root / "Review Aids" / "PRODUCT_RUNTIME_REPAIR_RESULTS.md").exists()
         and (packet_root / "Review Aids" / "EXPECTED_RED_HARNESS_SELF_CHECK.json").exists()
     )
     return {

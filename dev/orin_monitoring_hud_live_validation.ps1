@@ -11,6 +11,7 @@
     [switch]$SupplementalRuntimeProof,
     [switch]$UserConfirmedACSupplementProof,
     [string]$ProofSeam = "",
+    [string]$ExactDesktopShortcutPath = "",
     [int]$InteractionStepDelayMilliseconds = 250,
     [int]$FinalClientHoldSeconds = 0
 )
@@ -21,6 +22,7 @@ $ErrorActionPreference = "Stop"
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $rootDir = Split-Path -Parent $scriptDir
 $script:RuntimeProcess = $null
+$script:RuntimeLauncherProcess = $null
 $script:LastProgressAt = Get-Date
 $script:LastProgress = "start"
 $script:ManifestStatus = "ABORTED"
@@ -53,6 +55,27 @@ $script:SupplementalIssueProof = [ordered]@{
     root = ""
     manifest = ""
     issueFolders = @()
+}
+$script:ShortcutResolution = [ordered]@{
+    path = ""
+    targetPath = ""
+    workingDirectory = ""
+    arguments = ""
+    activeRoot = $rootDir
+    status = "NOT_TESTED"
+    detail = ""
+}
+$script:LaunchProof = [ordered]@{
+    status = "NOT_TESTED"
+    proofClass = "exact-user-desktop-shortcut-launch"
+    exactDesktopShortcutRequired = $true
+    directRuntimeLaunchAllowedForLv1 = $false
+    shortcutPath = ""
+    shortcutResolution = $script:ShortcutResolution
+    runtimeLog = ""
+    restartRuntimeLog = ""
+    launcherProcessId = 0
+    rendererProcessId = 0
 }
 
 function Step([object]$Paths, [string]$Message) {
@@ -346,9 +369,11 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             "02_log_viewer_c3_stop_saved_request_state",
             "02_log_viewer_c3_open_unfocused_after_start_stop",
             "02_log_viewer_c3_shell_open_unfocused_after_start_stop",
+            "02_native_proof_windows_closed_before_overlay_profile_selector",
             "02_hud_overlay_active_profile_selector_real_os_selected",
             "02_recording_card_mirrors_hud_overlay_active_profile_real_os_selection",
             "02_overlay_profile_normal_path_created_draft_recording_mirror",
+            "02_overlay_profile_normal_path_real_os_keyboard_name_edited",
             "02_overlay_profile_normal_path_saved_recording_mirror",
             "02_overlay_profile_normal_path_switch_saved_recording_mirror",
             "02_overlay_profile_restart_persistence_recording_target_mirror"
@@ -588,46 +613,84 @@ function Wait-JsonManifestStatus([object]$Paths, [string]$ManifestPath, [object]
     throw "Timed out waiting for $Label manifest: $ManifestPath"
 }
 
-function Run-RestartInteractionSelfQA([object]$Paths, [string]$PythonExe, [int]$StepDelayMs, [int]$FinalHoldMs) {
-    if ($script:RuntimeProcess -and -not $script:RuntimeProcess.HasExited) {
+function Stop-TrackedDesktopRuntime {
+    param(
+        [object]$Paths,
+        [string]$Reason
+    )
+
+    if ($script:RuntimeLauncherProcess) {
+        try {
+            if (-not $script:RuntimeLauncherProcess.HasExited) {
+                Stop-Process -Id $script:RuntimeLauncherProcess.Id -Force -ErrorAction Stop
+                $script:CleanupNotes.Add("Stopped desktop launcher pid=$($script:RuntimeLauncherProcess.Id) during $Reason")
+                Step $Paths "stopped desktop launcher during $Reason pid=$($script:RuntimeLauncherProcess.Id)"
+            }
+            else {
+                $script:CleanupNotes.Add("Desktop launcher exited before $Reason pid=$($script:RuntimeLauncherProcess.Id)")
+            }
+        }
+        catch {
+            $script:CleanupNotes.Add("Cleanup failed for desktop launcher pid=$($script:RuntimeLauncherProcess.Id): $($_.Exception.Message)")
+        }
+        $script:RuntimeLauncherProcess = $null
+    }
+
+    if ($script:RuntimeProcess) {
+        try {
+            if (-not $script:RuntimeProcess.HasExited) {
+                Stop-Process -Id $script:RuntimeProcess.Id -Force -ErrorAction Stop
+                $script:CleanupNotes.Add("Stopped desktop renderer pid=$($script:RuntimeProcess.Id) during $Reason")
+                Step $Paths "stopped desktop renderer during $Reason pid=$($script:RuntimeProcess.Id)"
+            }
+            else {
+                $script:CleanupNotes.Add("Desktop renderer exited before $Reason pid=$($script:RuntimeProcess.Id)")
+            }
+        }
+        catch {
+            $script:CleanupNotes.Add("Cleanup failed for desktop renderer pid=$($script:RuntimeProcess.Id): $($_.Exception.Message)")
+        }
+        $script:RuntimeProcess = $null
+    }
+}
+
+function Run-RestartInteractionSelfQA([object]$Paths, [string]$ShortcutPath, [int]$StepDelayMs, [int]$FinalHoldMs) {
+    $previousRuntimeLog = [string]$Paths.RuntimeLog
+    $previousRendererPid = 0
+    if ($script:RuntimeProcess) {
+        try {
+            $previousRendererPid = [int]$script:RuntimeProcess.Id
+        }
+        catch {
+            $previousRendererPid = 0
+        }
+    }
+    if (($script:RuntimeProcess -and -not $script:RuntimeProcess.HasExited) -or
+        ($script:RuntimeLauncherProcess -and -not $script:RuntimeLauncherProcess.HasExited)) {
         Start-Sleep -Milliseconds 1200
-        Stop-Process -Id $script:RuntimeProcess.Id -Force -ErrorAction Stop
-        $script:CleanupNotes.Add("Stopped first desktop runtime before restart persistence check pid=$($script:RuntimeProcess.Id)")
-        Step $Paths "stopped first desktop runtime before restart persistence check"
+        Stop-TrackedDesktopRuntime $Paths "restart persistence check"
+        Start-Sleep -Milliseconds 1500
     }
 
     New-Item -ItemType Directory -Force -Path $Paths.RestartInteractionEvidenceRoot | Out-Null
-    $restartArgs = @(
-        "desktop\orin_desktop_main.py",
-        "--runtime-log",
-        $Paths.RestartRuntimeLog,
-        "--startup-abort-signal",
-        $Paths.AbortSignal,
-        "--monitoring-hud-live-self-qa-manifest",
-        $Paths.RestartInteractionManifest,
-        "--monitoring-hud-live-self-qa-root",
-        $Paths.RestartInteractionEvidenceRoot,
-        "--monitoring-hud-live-self-qa-step-delay-ms",
-        ([string]$StepDelayMs),
-        "--monitoring-hud-live-self-qa-final-hold-ms",
-        ([string]$FinalHoldMs),
-        "--monitoring-hud-live-self-qa-lane",
-        "recording-option-c-restart-check"
-    )
-    $argumentLine = ($restartArgs | ForEach-Object { Quote-ProcessArgument $_ }) -join " "
-    $restartParams = @{
-        FilePath = $PythonExe
-        ArgumentList = $argumentLine
-        WorkingDirectory = $rootDir
-        RedirectStandardOutput = $Paths.RestartStdoutLog
-        RedirectStandardError = $Paths.RestartStderrLog
-        PassThru = $true
-        WindowStyle = "Hidden"
-    }
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_MANIFEST = $Paths.RestartInteractionManifest
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_ROOT = $Paths.RestartInteractionEvidenceRoot
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = [string]$StepDelayMs
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = [string]$FinalHoldMs
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_LANE = "recording-option-c-restart-check"
+    $env:NEXUS_HARNESS_LOG_ROOT = $Paths.Root
+    $env:NEXUS_HARNESS_DISABLE_DIAGNOSTICS = "1"
+    $env:NEXUS_HARNESS_DISABLE_VOICE = "1"
+    $env:NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH = "1"
+    $env:NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS = "1"
+    $env:NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS = "20"
 
     $script:RestartInteractionManifestStatus = "PENDING"
-    $script:RuntimeProcess = Start-Process @restartParams
-    Step $Paths "launched restart persistence desktop runtime pid=$($script:RuntimeProcess.Id)"
+    $restartLaunch = Start-ExactDesktopShortcutRuntime -Paths $Paths -ShortcutPath $ShortcutPath -Label "restart persistence" -ExcludedRuntimeLogs @($previousRuntimeLog) -ExcludedRendererProcessIds @($previousRendererPid) | Select-Object -Last 1
+    $script:RuntimeProcess = $restartLaunch.process
+    $script:RuntimeLauncherProcess = $restartLaunch.launcherProcess
+    $Paths.RestartRuntimeLog = $restartLaunch.runtimeLog
+    Step $Paths "launched restart persistence through exact USER Desktop shortcut pid=$($script:RuntimeProcess.Id)"
     $result = Wait-JsonManifestStatus $Paths $Paths.RestartInteractionManifest $script:RuntimeProcess "restart interaction self-QA" | Select-Object -Last 1
     $script:RestartInteractionManifestStatus = [string]$result.status
     if ($script:RestartInteractionManifestStatus -ne "PASS") {
@@ -902,12 +965,16 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = $manifestSeam
-        proofStandard = "Dashboard-specific static/live proof screenshots; ledger-aligned User Test Summary export is Live Validation Stage 1 only; mandatory LV1 short video/frame-sequence proof is required for desktop UI handoff; detailed focused per-element screenshots must be copied to the USER-inspectable OneDrive screenshots folder with the element label/name in each filename; per-element visual inventory and returned issue-form coverage matrix are required; full-desktop screenshots are context only; active-client/direct-runtime proof is supporting only when the real user-facing desktop launcher is feasible"
+        proofStandard = "Photo/video is the only accepted proof class for visible USER-facing Live Validation claims; code, DOM, marker, log, manifest, and helper output are diagnostics only. Claims that cannot be proven in a named photo or video frame must be elevated to USER validation. LV1 must launch through the exact USER Desktop shortcut path, not a direct renderer/private launcher path. A per-element visual inventory and returned issue-form coverage matrix are required for the current/affected USER-facing surfaces."
+        lv1PhotoVideoOnlyProofRule = $true
+        lv1NonVisualClaimUserElevationRequired = $true
+        lv1ExactUserDesktopShortcutRequired = $true
+        exactUserDesktopShortcutLaunchProof = $script:LaunchProof
         returnedUtsDeterminismGateStatus = (Get-ReturnedUtsDeterminismGateStatus)
         returnedUtsDeterminismGates = @(Get-ReturnedUtsDeterminismGates)
         lv1ScreenshotAndShortVideoProofRequired = $true
         lv1DetailedPerElementScreenshotsRequired = $true
-        lv1RealUserFacingDesktopLauncherRequired = [bool]$PrepareLiveValidationUserTestSummary
+        lv1RealUserFacingDesktopLauncherRequired = $true
         primaryInterfaceReleaseSurface = "monitoring-hud-dashboard-control-panel"
         dashboardFirstWorkstreamHandoff = "ws31-dashboard-control-panel-acceptance-baseline"
         dashboardOnlyAcceptanceBaseline = "ws31-dashboard-control-panel"
@@ -929,7 +996,10 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             focusedWebViewProofRequired = $true
             fullDesktopScreenshotsAreContextOnly = $true
             perElementUserInspectableScreenshotsRequired = $true
-            realUserFacingDesktopLauncherIsPrimaryLv1Path = [bool]$PrepareLiveValidationUserTestSummary
+            photoOrVideoProofOnlyForVisibleClaims = $true
+            nonVisualClaimsRequireUserElevation = $true
+            exactUserDesktopShortcutLaunchRequired = $true
+            realUserFacingDesktopLauncherIsPrimaryLv1Path = $true
             formalUserTestSummaryBoundary = "Live Validation Stage 1 only after human-client precheck PASS or USER waiver"
             workstreamAndHardeningNoUtsExport = -not [bool]$PrepareLiveValidationUserTestSummary
             proofChain = @(
@@ -948,8 +1018,9 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
             perElementUserInspectableScreenshots = $script:PerElementScreenshotProof
             userInspectableScreenshotFolder = [bool]$Paths.ScreenshotEvidenceRoot
             userInspectableElementScreenshotFolder = $Paths.ElementScreenshotEvidenceRoot
+            exactUserDesktopShortcutLaunchProof = $script:LaunchProof
             activeUserFacingClient = [bool]$ActiveUserFacingClient
-            activeClientProofClassification = "supporting-only-for-LV1-when-real-shortcut-launcher-is-feasible"
+            activeClientProofClassification = "supporting-only-unless-launched-through-exact-user-desktop-shortcut"
             interactionSelfQA = $script:InteractionManifestStatus
             dashboardOnlyCurrentInterfaceGate = $true
             overlayAcceptanceDeferredNonGating = $true
@@ -1288,6 +1359,202 @@ function Quote-ProcessArgument([string]$Value) {
     '"' + ($Value -replace '"', '\"') + '"'
 }
 
+function Get-ExactUserDesktopShortcutPath {
+    $defaultPath = "C:\Users\anden\OneDrive\Desktop\FAM-006 RED - Nexus Desktop AI Launcher.lnk"
+    if ([string]::IsNullOrWhiteSpace($ExactDesktopShortcutPath)) {
+        return $defaultPath
+    }
+
+    $expected = if (Test-Path -LiteralPath $defaultPath) {
+        (Resolve-Path -LiteralPath $defaultPath).Path
+    } else {
+        $defaultPath
+    }
+    $provided = if (Test-Path -LiteralPath $ExactDesktopShortcutPath) {
+        (Resolve-Path -LiteralPath $ExactDesktopShortcutPath).Path
+    } else {
+        $ExactDesktopShortcutPath
+    }
+    if (-not [string]::Equals($expected, $provided, [System.StringComparison]::OrdinalIgnoreCase)) {
+        throw "Live Validation requires the exact USER Desktop FAM-006 shortcut path: $defaultPath. Provided path is not allowed for LV1 proof: $ExactDesktopShortcutPath"
+    }
+    return $defaultPath
+}
+
+function Resolve-ExactDesktopShortcutForActiveRoot {
+    param([string]$ShortcutPath)
+
+    $result = [ordered]@{
+        path = $ShortcutPath
+        targetPath = ""
+        workingDirectory = ""
+        arguments = ""
+        activeRoot = $rootDir
+        status = "FAIL"
+        detail = ""
+    }
+
+    if (-not (Test-Path -LiteralPath $ShortcutPath)) {
+        $result.detail = "Exact USER Desktop shortcut is missing: $ShortcutPath"
+        return $result
+    }
+
+    try {
+        $shell = New-Object -ComObject WScript.Shell
+        $shortcut = $shell.CreateShortcut($ShortcutPath)
+        $targetPath = [string]$shortcut.TargetPath
+        $workingDirectory = [string]$shortcut.WorkingDirectory
+        $arguments = [string]$shortcut.Arguments
+        $result.targetPath = $targetPath
+        $result.workingDirectory = $workingDirectory
+        $result.arguments = $arguments
+
+        $resolvedRoot = (Resolve-Path -LiteralPath $rootDir).Path.TrimEnd('\')
+        $targetMatches = $false
+        $workingDirectoryMatches = $false
+        if (-not [string]::IsNullOrWhiteSpace($targetPath) -and (Test-Path -LiteralPath $targetPath)) {
+            $resolvedTarget = (Resolve-Path -LiteralPath $targetPath).Path
+            $targetMatches = $resolvedTarget.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)
+        }
+        if (-not [string]::IsNullOrWhiteSpace($workingDirectory) -and (Test-Path -LiteralPath $workingDirectory)) {
+            $resolvedWorkingDirectory = (Resolve-Path -LiteralPath $workingDirectory).Path.TrimEnd('\')
+            $workingDirectoryMatches = $resolvedWorkingDirectory.StartsWith($resolvedRoot, [System.StringComparison]::OrdinalIgnoreCase)
+        }
+
+        if ($targetMatches -and $workingDirectoryMatches) {
+            $result.status = "PASS"
+            $result.detail = "Exact USER Desktop shortcut target and working directory are rooted in the active FAM-006 worktree."
+            return $result
+        }
+
+        $result.detail = "Exact USER Desktop shortcut is not rooted in the active FAM-006 worktree; targetMatches=$targetMatches; workingDirectoryMatches=$workingDirectoryMatches."
+        return $result
+    }
+    catch {
+        $result.detail = "Unable to inspect exact USER Desktop shortcut target: $($_.Exception.Message)"
+        return $result
+    }
+}
+
+function Wait-ExactShortcutRuntimeLog {
+    param(
+        [object]$Paths,
+        [datetime]$LaunchTime,
+        [string]$Label,
+        [string[]]$ExcludedRuntimeLogs = @(),
+        [int[]]$ExcludedRendererProcessIds = @()
+    )
+
+    $deadline = (Get-Date).AddSeconds($MarkerTimeoutSeconds)
+    $excludedRuntimeLogSet = @{}
+    foreach ($excludedPath in @($ExcludedRuntimeLogs)) {
+        if (-not [string]::IsNullOrWhiteSpace($excludedPath)) {
+            $excludedRuntimeLogSet[(Join-Path (Split-Path -Parent $excludedPath) (Split-Path -Leaf $excludedPath)).ToLowerInvariant()] = $true
+        }
+    }
+    $excludedPidSet = @{}
+    foreach ($excludedPid in @($ExcludedRendererProcessIds)) {
+        if ([int]$excludedPid -gt 0) {
+            $excludedPidSet[[string][int]$excludedPid] = $true
+        }
+    }
+    while ((Get-Date) -lt $deadline) {
+        $candidates = @(
+            Get-ChildItem -LiteralPath $Paths.Root -Filter "Runtime_*.txt" -File -ErrorAction SilentlyContinue |
+                Where-Object { $_.LastWriteTime -ge $LaunchTime.AddSeconds(-2) } |
+                Sort-Object LastWriteTime -Descending
+        )
+        foreach ($candidate in $candidates) {
+            try {
+                if ($excludedRuntimeLogSet.ContainsKey($candidate.FullName.ToLowerInvariant())) {
+                    continue
+                }
+                $text = Get-Content -LiteralPath $candidate.FullName -Raw -ErrorAction Stop
+                $pidMatch = [regex]::Match($text, "Renderer PID:\s*(\d+)")
+                if ($pidMatch.Success -and $excludedPidSet.ContainsKey($pidMatch.Groups[1].Value)) {
+                    continue
+                }
+                if ($text -match "RENDERER_MAIN\|START") {
+                    Step $Paths "$Label exact Desktop shortcut runtime log detected: $($candidate.FullName)"
+                    return $candidate.FullName
+                }
+            }
+            catch {}
+        }
+        Check-Progress "waiting for $Label exact Desktop shortcut runtime log"
+        Start-Sleep -Milliseconds 250
+    }
+    throw "Timed out waiting for $Label runtime log created through exact USER Desktop shortcut under $($Paths.Root)."
+}
+
+function Wait-RendererProcessFromRuntimeLog {
+    param(
+        [object]$Paths,
+        [string]$RuntimeLog,
+        [string]$Label
+    )
+
+    $deadline = (Get-Date).AddSeconds([Math]::Max(10, [Math]::Min($MarkerTimeoutSeconds, 30)))
+    while ((Get-Date) -lt $deadline) {
+        if (Test-Path -LiteralPath $RuntimeLog) {
+            try {
+                $text = Get-Content -LiteralPath $RuntimeLog -Raw -ErrorAction Stop
+                $match = [regex]::Match($text, "Renderer PID:\s*(\d+)")
+                if ($match.Success) {
+                    $rendererPid = [int]$match.Groups[1].Value
+                    $rendererProcess = Get-Process -Id $rendererPid -ErrorAction Stop
+                    Step $Paths "$Label exact Desktop shortcut renderer process resolved: pid=$rendererPid"
+                    return $rendererProcess
+                }
+            }
+            catch {
+                Step $Paths "$Label exact Desktop shortcut renderer process resolution pending: $($_.Exception.Message)"
+            }
+        }
+        Check-Progress "waiting for $Label renderer process from exact Desktop shortcut runtime log"
+        Start-Sleep -Milliseconds 250
+    }
+    throw "Timed out resolving $Label renderer process from exact USER Desktop shortcut runtime log: $RuntimeLog"
+}
+
+function Start-ExactDesktopShortcutRuntime {
+    param(
+        [object]$Paths,
+        [string]$ShortcutPath,
+        [string]$Label,
+        [string[]]$ExcludedRuntimeLogs = @(),
+        [int[]]$ExcludedRendererProcessIds = @()
+    )
+
+    $script:ShortcutResolution = Resolve-ExactDesktopShortcutForActiveRoot -ShortcutPath $ShortcutPath
+    $script:LaunchProof.shortcutPath = $ShortcutPath
+    $script:LaunchProof.shortcutResolution = $script:ShortcutResolution
+    if ($script:ShortcutResolution.status -ne "PASS") {
+        $script:LaunchProof.status = "FAIL"
+        throw $script:ShortcutResolution.detail
+    }
+
+    $launchTime = Get-Date
+    $launcherProcess = Start-Process -FilePath $ShortcutPath -PassThru
+    Step $Paths "$Label launched through exact USER Desktop shortcut: $ShortcutPath pid=$($launcherProcess.Id)"
+    $runtimeLog = Wait-ExactShortcutRuntimeLog -Paths $Paths -LaunchTime $launchTime -Label $Label -ExcludedRuntimeLogs $ExcludedRuntimeLogs -ExcludedRendererProcessIds $ExcludedRendererProcessIds | Select-Object -Last 1
+    $rendererProcess = Wait-RendererProcessFromRuntimeLog -Paths $Paths -RuntimeLog $runtimeLog -Label $Label | Select-Object -Last 1
+    $script:LaunchProof.status = "PASS"
+    $script:LaunchProof.launcherProcessId = [int]$launcherProcess.Id
+    $script:LaunchProof.rendererProcessId = [int]$rendererProcess.Id
+    if ($Label -match "restart") {
+        $script:LaunchProof.restartRuntimeLog = $runtimeLog
+    }
+    else {
+        $script:LaunchProof.runtimeLog = $runtimeLog
+    }
+    return [pscustomobject]@{
+        process = $rendererProcess
+        launcherProcess = $launcherProcess
+        runtimeLog = $runtimeLog
+    }
+}
+
 $paths = New-Paths
 $pythonExe = ""
 $exitCode = 1
@@ -1306,54 +1573,56 @@ if ($effectiveRunInteractionSelfQA) {
     $NoProgressTimeoutSeconds = [Math]::Max($NoProgressTimeoutSeconds, 420)
 }
 
-$previousHudStatePath = $env:NEXUS_MONITORING_HUD_STATE_PATH
-$previousRecordingValidationExportDir = $env:NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR
+$environmentNamesToRestore = @(
+    "NEXUS_MONITORING_HUD_STATE_PATH",
+    "NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR",
+    "NEXUS_MONITORING_HUD_LIVE_SELF_QA_MANIFEST",
+    "NEXUS_MONITORING_HUD_LIVE_SELF_QA_ROOT",
+    "NEXUS_MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS",
+    "NEXUS_MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS",
+    "NEXUS_MONITORING_HUD_LIVE_SELF_QA_LANE",
+    "NEXUS_HARNESS_LOG_ROOT",
+    "NEXUS_HARNESS_DISABLE_DIAGNOSTICS",
+    "NEXUS_HARNESS_DISABLE_VOICE",
+    "NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH",
+    "NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS",
+    "NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS"
+)
+$previousEnvironment = @{}
+foreach ($environmentName in $environmentNamesToRestore) {
+    $previousEnvironment[$environmentName] = [Environment]::GetEnvironmentVariable($environmentName, "Process")
+}
 try {
     Step $paths "starting FAM-006 Monitoring/HUD live desktop validation"
     $pythonExe = Resolve-ValidationPython
     Step $paths "resolved Python: $pythonExe"
     Capture-Screen $paths "before_launch"
+    $exactUserDesktopShortcut = Get-ExactUserDesktopShortcutPath
     $env:NEXUS_MONITORING_HUD_STATE_PATH = (Join-Path $paths.Root "monitoring_hud_state.json")
     $env:NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR = (Join-Path $paths.Root "manual_exports")
+    $env:NEXUS_HARNESS_LOG_ROOT = $paths.Root
+    $env:NEXUS_HARNESS_DISABLE_DIAGNOSTICS = "1"
+    $env:NEXUS_HARNESS_DISABLE_VOICE = "1"
+    $env:NEXUS_HARNESS_AUTO_ACCEPT_RELAUNCH = "1"
+    $env:NEXUS_HARNESS_SUPPRESS_ALREADY_RUNNING_DIALOGS = "1"
+    $env:NEXUS_HARNESS_RELAUNCH_WAIT_SECONDS = "20"
 
-    $args = @(
-        "desktop\orin_desktop_main.py",
-        "--runtime-log",
-        $paths.RuntimeLog,
-        "--startup-abort-signal",
-        $paths.AbortSignal
-    )
     if ($effectiveRunInteractionSelfQA) {
         Assert-NoSyntheticLiveValidationInteraction $paths
         New-Item -ItemType Directory -Force -Path $paths.InteractionEvidenceRoot | Out-Null
-        $args += @(
-            "--monitoring-hud-live-self-qa-manifest",
-            $paths.InteractionManifest,
-            "--monitoring-hud-live-self-qa-root",
-            $paths.InteractionEvidenceRoot,
-            "--monitoring-hud-live-self-qa-step-delay-ms",
-            ([string]$effectiveStepDelayMilliseconds),
-            "--monitoring-hud-live-self-qa-final-hold-ms",
-            ([string]$effectiveFinalHoldMilliseconds),
-            "--monitoring-hud-live-self-qa-lane",
-            $effectiveFocusedLane
-        )
         $script:InteractionManifestStatus = "PENDING"
     }
-    $argumentLine = ($args | ForEach-Object { Quote-ProcessArgument $_ }) -join " "
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_MANIFEST = if ($effectiveRunInteractionSelfQA) { $paths.InteractionManifest } else { "" }
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_ROOT = if ($effectiveRunInteractionSelfQA) { $paths.InteractionEvidenceRoot } else { "" }
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_STEP_DELAY_MS = [string]$effectiveStepDelayMilliseconds
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_FINAL_HOLD_MS = [string]$effectiveFinalHoldMilliseconds
+    $env:NEXUS_MONITORING_HUD_LIVE_SELF_QA_LANE = $effectiveFocusedLane
 
-    $startParams = @{
-        FilePath = $pythonExe
-        ArgumentList = $argumentLine
-        WorkingDirectory = $rootDir
-        RedirectStandardOutput = $paths.StdoutLog
-        RedirectStandardError = $paths.StderrLog
-        PassThru = $true
-        WindowStyle = "Hidden"
-    }
-
-    $script:RuntimeProcess = Start-Process @startParams
-    Step $paths "launched desktop runtime pid=$($script:RuntimeProcess.Id)"
+    $launch = Start-ExactDesktopShortcutRuntime -Paths $paths -ShortcutPath $exactUserDesktopShortcut -Label "primary LV1" | Select-Object -Last 1
+    $script:RuntimeProcess = $launch.process
+    $script:RuntimeLauncherProcess = $launch.launcherProcess
+    $paths.RuntimeLog = $launch.runtimeLog
+    Step $paths "primary LV1 runtime log bound to exact USER Desktop shortcut launch: $($paths.RuntimeLog)"
 
     $requiredMarkers = @(
         "RENDERER_MAIN|START",
@@ -1451,9 +1720,10 @@ try {
         }
         if ($interactionManifestRaw -match '"directJsClickUsed"\s*:\s*true' -or
             $interactionManifestRaw -match '"directJsMouseoverUsed"\s*:\s*true' -or
+            $interactionManifestRaw -match '"nativeWebViewMessageFallbackUsed"\s*:\s*true' -or
             $interactionManifestRaw -match '"inputProof"\s*:\s*"automated-supporting-only:' -or
             $interactionManifestRaw -notmatch '"realOsInputProof"\s*:\s*true') {
-            throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
+            throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView native-message fallback, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
         }
         if ($effectiveRecordingFocusedLane) {
             $requiredInteractionLabels = @(
@@ -1481,6 +1751,8 @@ try {
                 "C3 real OS click starts recording after Log Viewer open unfocused",
                 "C3 real OS click stops recording after Log Viewer open unfocused",
                 "C3 Log Viewer remains open and unfocused after Start/Stop",
+                "Independent Recording Studio and Log Viewer windows are closed before Overlay Profile proof",
+                "Dashboard child windows are closed before HUD Overlay selector proof",
                 "HUD Overlay card Active Overlay Profile selector is visible after viewport restore",
                 "real OS click opens HUD Overlay card Active Overlay Profile selector",
                 "real OS click selects HUD Overlay card Active Overlay Profile option",
@@ -1521,7 +1793,7 @@ try {
         Wait-Marker $paths "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY"
         Step $paths "interaction self-QA manifest PASS: $($paths.InteractionManifest)"
         if ($effectiveRecordingFocusedLane) {
-            Run-RestartInteractionSelfQA $paths $pythonExe $effectiveStepDelayMilliseconds $effectiveFinalHoldMilliseconds
+            Run-RestartInteractionSelfQA $paths $exactUserDesktopShortcut $effectiveStepDelayMilliseconds $effectiveFinalHoldMilliseconds
         }
         $script:PerElementScreenshotProof = Copy-FocusedElementScreenshotsToUserEvidence -Paths $paths -FocusedLane $effectiveFocusedLane
         if ($script:PerElementScreenshotProof.status -ne "PASS") {
@@ -1563,32 +1835,16 @@ catch {
     Step $paths "failure: $script:FailureMessage"
 }
 finally {
-    if ($null -eq $previousHudStatePath) {
-        Remove-Item Env:\NEXUS_MONITORING_HUD_STATE_PATH -ErrorAction SilentlyContinue
-    }
-    else {
-        $env:NEXUS_MONITORING_HUD_STATE_PATH = $previousHudStatePath
-    }
-    if ($null -eq $previousRecordingValidationExportDir) {
-        Remove-Item Env:\NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR -ErrorAction SilentlyContinue
-    }
-    else {
-        $env:NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR = $previousRecordingValidationExportDir
-    }
-    if ($script:RuntimeProcess) {
-        try {
-            if (-not $script:RuntimeProcess.HasExited) {
-                Stop-Process -Id $script:RuntimeProcess.Id -Force -ErrorAction Stop
-                $script:CleanupNotes.Add("Stopped desktop runtime pid=$($script:RuntimeProcess.Id)")
-            }
-            else {
-                $script:CleanupNotes.Add("Desktop runtime exited before cleanup pid=$($script:RuntimeProcess.Id)")
-            }
+    foreach ($environmentName in $environmentNamesToRestore) {
+        $previousValue = $previousEnvironment[$environmentName]
+        if ($null -eq $previousValue) {
+            Remove-Item -LiteralPath ("Env:\{0}" -f $environmentName) -ErrorAction SilentlyContinue
         }
-        catch {
-            $script:CleanupNotes.Add("Cleanup failed for desktop runtime pid=$($script:RuntimeProcess.Id): $($_.Exception.Message)")
+        else {
+            [Environment]::SetEnvironmentVariable($environmentName, [string]$previousValue, "Process")
         }
     }
+    Stop-TrackedDesktopRuntime $paths "final cleanup"
     Save-Manifest $paths $pythonExe
     if ($PrepareLiveValidationUserTestSummary -and $script:ManifestStatus -eq "PASS") {
         Save-UserTestSummaryHandoff $paths
