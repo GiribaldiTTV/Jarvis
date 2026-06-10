@@ -298,6 +298,8 @@ def validate() -> list[str]:
         "exact USER Desktop shortcut path",
         "Computer Use is available",
         "required primary Live Validation proof method",
+        "manually and visually locate the intended tray icon or menu item",
+        "blind full-desktop, taskbar, tray, hidden-overflow, or notification-area coordinate probing is forbidden",
         "visible_desktop_shortcut_double_clicked",
         "recording_studio_visible_button_opens_native_window",
         "log_viewer_studio_visible_button_opens_native_window",
