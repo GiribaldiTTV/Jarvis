@@ -300,11 +300,20 @@ REQUIRED_BRANCH_RUNTIME_ENGINEERING_PLAN_MARKERS = (
     "Approval-Boundary Audit:",
     "FAM / Shared-Surface Overlap Forecast:",
     "Open Questions:",
+    "Feature Vision Context:",
+    "Deferred Feature Carryforward Review:",
     "USER Planning Decisions:",
     "Plan Revision History:",
     "Plan-To-Implementation Traceability Table:",
     "Hardening Comparison Checklist:",
     "Live Validation Proof Or Waiver Checklist:",
+    "Runtime Observability Decision Matrix:",
+    "Exact USER Desktop Launcher Path:",
+    "Launcher Parity Proof Plan:",
+    "Photo / Video Proof Plan:",
+    "Manual USER Validation Plan:",
+    "Troubleshooting Mode Decision:",
+    "USER Packet Evidence Plan:",
     "PR Readiness Fold-Down / Retention Checklist:",
     "Release Readiness Public-Scope Translation Checklist:",
     "USER Planning Review:",
@@ -327,9 +336,18 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_DETAIL_MARKERS = (
     "Future-Gated Items:",
     "Approval-Boundary Audit:",
     "FAM / Shared-Surface Overlap Forecast:",
+    "Feature Vision Context:",
+    "Deferred Feature Carryforward Review:",
     "Plan-To-Implementation Traceability Table:",
     "Hardening Comparison Checklist:",
     "Live Validation Proof Or Waiver Checklist:",
+    "Runtime Observability Decision Matrix:",
+    "Exact USER Desktop Launcher Path:",
+    "Launcher Parity Proof Plan:",
+    "Photo / Video Proof Plan:",
+    "Manual USER Validation Plan:",
+    "Troubleshooting Mode Decision:",
+    "USER Packet Evidence Plan:",
     "PR Readiness Fold-Down / Retention Checklist:",
     "Release Readiness Public-Scope Translation Checklist:",
 )
@@ -455,6 +473,24 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_DETAIL_TERMS = {
         "user",
         "separate",
     ),
+    "Feature Vision Context:": (
+        "project vision",
+        "family vision",
+        "family feature vision",
+        "branch vision",
+        "feature vision",
+        "deferred",
+        "proof",
+    ),
+    "Deferred Feature Carryforward Review:": (
+        "deferred",
+        "carryforward",
+        "dependency",
+        "trigger",
+        "grouping",
+        "future-gated",
+        "proof",
+    ),
     "Plan-To-Implementation Traceability Table:": (
         "planned",
         "actual",
@@ -478,6 +514,64 @@ BRANCH_RUNTIME_ENGINEERING_PLAN_DETAIL_TERMS = {
         "user",
         "static",
         "runtime",
+    ),
+    "Runtime Observability Decision Matrix:": (
+        "launcher",
+        "troubleshooting",
+        "parity",
+        "photo",
+        "video",
+        "manual",
+        "packet",
+    ),
+    "Exact USER Desktop Launcher Path:": (
+        "nexus desktop launcher.lnk",
+        "exact",
+        "desktop",
+        "launcher",
+        "user",
+        "waiver",
+    ),
+    "Launcher Parity Proof Plan:": (
+        "parity",
+        "troubleshooting",
+        "same product runtime",
+        "same build",
+        "same data roots",
+        "user consent",
+    ),
+    "Photo / Video Proof Plan:": (
+        "photo",
+        "video",
+        "frame",
+        "screenshot",
+        "visible",
+        "user-facing",
+    ),
+    "Manual USER Validation Plan:": (
+        "manual",
+        "user validation",
+        "waiver",
+        "blocker",
+        "unphotographable",
+        "cannot be proven",
+    ),
+    "Troubleshooting Mode Decision:": (
+        "troubleshooting",
+        "diagnostic",
+        "user consent",
+        "supporting evidence",
+        "parity",
+        "normal launcher",
+    ),
+    "USER Packet Evidence Plan:": (
+        "user packet",
+        "review hub",
+        "evidence",
+        "pass",
+        "fail",
+        "blocked",
+        "unproven",
     ),
     "PR Readiness Fold-Down / Retention Checklist:": (
         "pr readiness",
@@ -9585,6 +9679,219 @@ def _validate_branch_runtime_engineering_plan_substance(
         )
 
 
+def _require_branch_plan_any_term(
+    require,
+    source_path: str,
+    marker: str,
+    value: str,
+    terms: Sequence[str],
+    concept: str,
+) -> None:
+    normalized_value = _normalized_planning_value(value)
+    require(
+        any(term in normalized_value for term in terms),
+        (
+            f"{source_path}: {BRANCH_RUNTIME_ENGINEERING_PLAN_HEADING} marker "
+            f"'{marker}' must name {concept}"
+        ),
+    )
+
+
+def _misclassifies_direct_runtime_as_user_proof(value: str) -> bool:
+    normalized_value = _normalized_planning_value(value)
+    diagnostic_terms = (
+        "supporting evidence only",
+        "supporting diagnosis",
+        "diagnosis only",
+        "diagnostic only",
+        "must not",
+        "not exact",
+        "not formal",
+        "not primary",
+        "cannot substitute",
+        "does not substitute",
+    )
+    if any(term in normalized_value for term in diagnostic_terms):
+        return False
+    direct_terms = (
+        "direct runtime",
+        "helper launch",
+        "webview",
+        "sandbox",
+        "offscreen",
+        "dev toolkit",
+        "marker",
+        "manifest",
+        "runtime log",
+    )
+    proof_terms = (
+        "primary proof",
+        "formal proof",
+        "exact user launcher proof",
+        "exact user desktop launcher proof",
+        "counts as proof",
+        "proof passed",
+        "green proof",
+        "final proof",
+        "acceptance proof",
+    )
+    return any(term in normalized_value for term in direct_terms) and any(
+        term in normalized_value for term in proof_terms
+    )
+
+
+def _validate_runtime_observability_branch_plan_markers(
+    require,
+    source_path: str,
+    plan_section: str,
+) -> None:
+    runtime_matrix = _extract_marker_value(
+        plan_section,
+        "Runtime Observability Decision Matrix:",
+    )
+    exact_launcher = _extract_marker_value(
+        plan_section,
+        "Exact USER Desktop Launcher Path:",
+    )
+    parity_plan = _extract_marker_value(plan_section, "Launcher Parity Proof Plan:")
+    photo_video_plan = _extract_marker_value(plan_section, "Photo / Video Proof Plan:")
+    manual_plan = _extract_marker_value(plan_section, "Manual USER Validation Plan:")
+    troubleshooting_decision = _extract_marker_value(
+        plan_section,
+        "Troubleshooting Mode Decision:",
+    )
+    packet_plan = _extract_marker_value(plan_section, "USER Packet Evidence Plan:")
+
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Runtime Observability Decision Matrix:",
+        runtime_matrix,
+        ("launcher", "troubleshooting", "parity"),
+        "the exact launcher / troubleshooting / parity proof lanes",
+    )
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Runtime Observability Decision Matrix:",
+        runtime_matrix,
+        ("photo", "video", "frame-sequence", "frame sequence"),
+        "the photo/video or ordered frame-sequence proof lane",
+    )
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Runtime Observability Decision Matrix:",
+        runtime_matrix,
+        ("manual user", "user validation", "user waiver", "blocker"),
+        "manual USER validation, waiver, or blocker escalation",
+    )
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Runtime Observability Decision Matrix:",
+        runtime_matrix,
+        ("user packet", "review hub", "evidence packet", "uts"),
+        "the USER packet / UTS evidence surface",
+    )
+
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Exact USER Desktop Launcher Path:",
+        exact_launcher,
+        (
+            "c:\\users\\anden\\onedrive\\desktop\\nexus desktop launcher.lnk",
+            "nexus desktop launcher.lnk",
+            "exact normal user desktop runtime launcher",
+        ),
+        "the exact normal USER desktop runtime launcher path",
+    )
+    require(
+        not _misclassifies_direct_runtime_as_user_proof(exact_launcher),
+        (
+            f"{source_path}: Exact USER Desktop Launcher Path must not classify "
+            "direct runtime, helper, Dev Toolkit, marker, manifest, or log evidence "
+            "as formal exact USER desktop launcher proof"
+        ),
+    )
+
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Launcher Parity Proof Plan:",
+        parity_plan,
+        ("user consent", "consent", "waiver"),
+        "USER consent, waiver, or non-use posture before troubleshooting substitution",
+    )
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Launcher Parity Proof Plan:",
+        parity_plan,
+        ("same product runtime", "same build", "same data roots"),
+        "same-product-runtime, same-build, or same-data-root parity criteria",
+    )
+
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Photo / Video Proof Plan:",
+        photo_video_plan,
+        ("photo", "video", "frame-sequence", "frame sequence", "focused screenshot"),
+        "photo/video, ordered frame-sequence, or focused screenshot proof",
+    )
+    require(
+        "screenshot exists" not in _normalized_planning_value(photo_video_plan),
+        (
+            f"{source_path}: Photo / Video Proof Plan must adjudicate visible claims; "
+            "a screenshot-exists marker is not acceptance proof"
+        ),
+    )
+
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Manual USER Validation Plan:",
+        manual_plan,
+        ("manual user", "user validation", "user waiver", "blocker", "unphotographable"),
+        "manual USER validation, USER waiver, blocker, or unphotographable-claim escalation",
+    )
+
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "Troubleshooting Mode Decision:",
+        troubleshooting_decision,
+        ("diagnostic", "supporting evidence", "troubleshooting", "normal launcher"),
+        "troubleshooting as diagnostic/supporting evidence and its relationship to the normal launcher",
+    )
+    require(
+        not _misclassifies_direct_runtime_as_user_proof(troubleshooting_decision),
+        (
+            f"{source_path}: Troubleshooting Mode Decision must not classify "
+            "diagnostic/direct runtime evidence as formal USER launcher proof"
+        ),
+    )
+
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "USER Packet Evidence Plan:",
+        packet_plan,
+        ("user packet", "review hub", "c:\\nexus user", "uts"),
+        "the USER review packet, USER review hub, or UTS evidence destination",
+    )
+    _require_branch_plan_any_term(
+        require,
+        source_path,
+        "USER Packet Evidence Plan:",
+        packet_plan,
+        ("pass", "fail", "blocked", "unproven", "waived"),
+        "PASS / FAIL / BLOCKED / UNPROVEN / WAIVED evidence disposition",
+    )
+
+
 def _markdown_table_cells(line: str) -> list[str]:
     return [cell.strip() for cell in line.strip().strip("|").split("|")]
 
@@ -10207,6 +10514,11 @@ def _validate_branch_runtime_engineering_plan(
                 marker,
                 value,
             )
+    _validate_runtime_observability_branch_plan_markers(
+        require,
+        source_path,
+        plan_section,
+    )
 
     status = _extract_marker_value(plan_section, "Engineering Plan Status:")
     normalized_status = _normalized_planning_value(status)

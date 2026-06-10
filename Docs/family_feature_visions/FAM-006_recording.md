@@ -1,5 +1,22 @@
 # FAM-006 Recording Family Feature Vision
 
+Family Feature Vision ID: `F6-FF01`
+Parent FAM: `FAM-006`
+Feature Category: `Recording`
+Category-Level Purpose: `Durable Recording feature-category direction for capturing trusted local Monitoring/HUD output through Overlay Profile targets, native NDAI logs, USER-requested exports, and compact user-facing control surfaces.`
+USER-Facing Surfaces: `Dashboard Recording Card; Dashboard quick access when admitted; Recording Studio; Log Viewer Studio shell and later viewer; native log folder; exported-log folder; tray/keybind/settings surfaces when later admitted.`
+Experience Flow: `USER selects or creates an Overlay Profile, sees Recording target/readiness on the Dashboard, starts/stops through an admitted control surface, receives native NDAI output, and later reviews or exports logs through admitted Log Viewer Studio flows.`
+Included Capabilities: `Target/status display; Overlay Profile target mirroring; Start/Stop when admitted; native NDAI output/readback; exported-log access when admitted; Recording Studio planning; Log Viewer Studio planning; tray/keybind/settings planning; Overlay Profile persistence dependency review.`
+Explicit Non-Goals: `Runtime implementation by this file; Workstream approval; PR/merge/release/issue closeout; provider/model work; FAM-007 mutation; Governance worktree mutation; neutral-main mutation; full Native Log Loader implementation; automatic third-party-readable export; separate Recording Profile system.`
+Durable Feature Element Inventory: `F6-FF01-E01 - Dashboard Recording Card target/status surface and visual inheritance proof; F6-FF01-E02 - Recording Studio focused control/status surface and window proof; F6-FF01-E03 - Log Viewer Studio native/export shell and future viewer boundary; F6-FF01-E04 - native NDAI log artifact model and readback proof; F6-FF01-E05 - USER-requested export artifact model and readability proof; F6-FF01-E06 - tray/keybind/settings future-control boundaries; F6-FF01-E07 - Overlay Profile persistence dependency for recording target reliability.`
+Deferred Feature Carryforward: `deferred item rows preserve title, dependency trigger, grouping recommendation, proof expectation, and durable disposition for Recording Studio, Log Viewer Studio, exported logs, tray controls, keybinds, settings, warning dismissal, Overlay Profile persistence dependency, Dashboard quick access, and Native Log Loader relationship.`
+Design Options: `Option F planning solidification before implementation-shape selection; Option C/C-lite Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio shell; Start/Stop ownership options; Studio minimize behavior options; direct log-folder button versus Log Viewer Studio access; native-only versus native-plus-explicit-export artifact options.`
+Proof Expectations: `BP1 must produce a real Recording branch vision; BP2 must translate accepted vision into a concrete engineering plan; BP3 must prove Workstream readiness; Hardening and Live Validation must provide photo/video or ordered-frame proof for admitted controls, windows, actions/effects, visual-system inheritance, native/export boundaries, UTS coverage, rollback, and USER-elevated manual validation where visual proof is impossible.`
+Branch Readiness Consumption Notes: `BR1/BR2 should load this file as feature-category context, present branch-lane options against it, surface applicable deferred carryforward dynamically, and reject issue-shaped or single-slice drift unless USER explicitly selects that path.`
+BP1 Context Notes: `BP1 should decompose Recording by Dashboard access, Recording card, Recording Studio, Log Viewer Studio, tray, keybind, native log model, export model, settings, and Overlay Profile dependency, then return USER-editable options, recommendations, risks, proof expectations, and exact decisions.`
+Fold-Down History: `Created from USER-approved FAM-006 Recording planning/admission evidence and later updated during FAM-006 current-main reconciliation to satisfy the formal Family Feature Vision marker contract.`
+Active-State Wording Scan: `PASS - durable feature-category vision only; not a branch route, selected-next, PR, worktree, or release-window ledger.`
+
 ## Purpose
 
 This Family Feature Vision owns durable product direction for Recording inside

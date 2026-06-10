@@ -179,10 +179,10 @@ def validate() -> list[str]:
             "Overlay Profile",
             "Recording Profile",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md",
-            "Dashboard Recording Option C Workstream implementation",
-            "Recording Studio is implemented as a focused native control/status surface",
-            "full Log Viewer Studio / previous-log selection / export customization / tray / keybind / full settings / Native Log Loader full implementation remain future-gated",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
+            "compact pointer",
+            "monitoring/HUD, active-overlay recording, Recording Studio, Log Viewer Studio",
+            "external/Git/GitHub/helper live truth",
             "canonical detail owners, not this compact backlog registry",
         ):
             _require_contains(
@@ -192,11 +192,12 @@ def validate() -> list[str]:
                 failures,
             )
         for needle in (
-            "Dashboard Recording Option C Workstream implementation",
-            "full Log Viewer Studio, previous-log selection, export customization, tray controls, keybinds, full settings, and Native Log Loader full implementation remain future-gated",
+            "monitoring/HUD and active-overlay recording planning/proof history",
+            "Recording Studio",
+            "Log Viewer Studio",
+            "user-visible proof remain routed through the owning phase and live-truth checks",
             "Docs/family_visions/FAM-006_monitoring_and_hud.md",
-            "Docs/branch_records/feature_fam_006_dashboard_recording_start_stop_local_file.md",
-            "Selected-next, branch-creation, live release-window, live PR, and current worktree assignment truth are not owned by this roadmap",
+            "Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md",
         ):
             _require_contains(
                 prebeta_roadmap,
@@ -316,6 +317,7 @@ def validate() -> list[str]:
         "required primary Live Validation proof method",
         "Computer Use primary, bounded visible coordinate fallback second",
         "visible mouse movement, left-click, right-click, double-click, and keyboard input",
+        "must not use desktop-wide `MinimizeAll`",
         "deterministic visible-target acquisition loop",
         "derive candidate targets from label/icon/proximity/state evidence",
         "USER-assisted coordinate calibration",

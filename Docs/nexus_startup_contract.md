@@ -142,6 +142,20 @@ Plugin and connector output is evidence, not authority. Generated prompts should
 
 Connector auth/session state, API key state, current PR reactions, current review-thread state, temporary plugin output, and raw docs lookup text must not become repo source truth. GitHub and helper checks may own volatile live facts; durable repo docs should keep owner routing, accepted decisions, and historical receipts only.
 
+## Runtime Proof Prompt Anchors
+
+This loader does not own Live Validation law; `Docs/phase_governance.md` owns the phase/proof contract. Prompt generation for runtime, desktop, user-facing, launcher, Dev Toolkit, recording, file/folder, or validation-critical work must preserve these routing anchors when relevant:
+
+- `Exact USER Desktop Launcher Validation:`
+- `Launcher Parity Proof:`
+- `Troubleshooting Runtime Launcher Consent:`
+- `Photo Or Video Proof Missing`
+- `Unphotographable Proof Not Elevated To USER`
+- `Direct Runtime Proof Misclassified`
+- `Live Validation Evidence Packet Incomplete`
+
+Prompts must not convert helper/direct-runtime/troubleshooting evidence into USER-path proof unless source truth records the exact launcher waiver or launcher parity proof path.
+
 ## Machine-Check Routing Anchors
 
 This section preserves validator marker phrases as routing anchors. It does not make this loader the owner of the detailed rules. Load and follow Main plus the current owner docs for the live policy.

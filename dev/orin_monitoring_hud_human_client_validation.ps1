@@ -1059,12 +1059,8 @@ function Invoke-VisibleDesktopShortcutClickLaunch {
 
     $shortcutName = [System.IO.Path]::GetFileNameWithoutExtension($ShortcutPath)
     $beforeShot = Capture-VirtualScreenshot "01a_before_visible_desktop_shortcut_launch"
-    $launchSurface = "desktop-icon"
-    try {
-        $shellApp = New-Object -ComObject Shell.Application
-        $shellApp.MinimizeAll()
-    } catch {}
-    Start-Sleep -Milliseconds 800
+    $launchSurface = "visible-existing-desktop-shell-or-folder"
+    Start-Sleep -Milliseconds 300
 
     $shortcutElement = Find-VisibleElementByName -Name $shortcutName -TimeoutSeconds 4
     if (-not $shortcutElement) {

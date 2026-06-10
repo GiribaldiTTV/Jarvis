@@ -20,6 +20,23 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Deferred actions should be disabled, removed, or clearly labeled; they must not look broken.
 - Monitoring, HUD, telemetry, screenshots, recordings, logs, and support evidence must preserve local file hygiene, clear evidence roots, privacy-safe review posture, and no fake or hidden data collection.
 - Sensitive telemetry, recording, overlay, process, or performance surfaces must make provider/external telemetry boundaries explicit before any external data path is admitted.
+- Resident tray quick access may link to HUD Dashboard, Recording Studio, or Log Viewer Studio after those FAM-006 surfaces exist, but the tray must not own recording state, monitoring state, log-reader internals, or sensor/telemetry truth.
+- Recording Studio and Log Viewer Studio are future FAM-006 user-facing surfaces; tray entries should open them as polished owning surfaces rather than turning the tray menu into a recording or log-control workspace.
+- FAM-006 Live Validation for user-facing UI or runtime behavior must use the exact normal USER desktop runtime launcher path declared for the branch, with direct runtime/helper evidence treated as diagnostics unless USER waives the launcher requirement.
+- Troubleshooting runtime launcher evidence may support diagnosis and may substitute for normal launcher proof only when USER consent and launcher parity proof show the diagnostic profile does not change the behavior being validated.
+- Visible FAM-006 closeout claims require photo/video or ordered frame-sequence proof; claims that cannot be proven visually must be elevated to USER manual validation, explicit waiver, or blocker rather than treated as proven by logs, markers, or helper PASS alone.
+- Runtime logs, Dev Toolkit events, and manifests should prove state consistency, bridge delivery, window lifecycle, recording target/log consistency, and failure diagnosis, but they do not replace USER-facing visual proof.
+
+## Family UI Vision Carrydown
+
+FAM-006 carries the Project UI Vision from `Docs/nexus_vision.md` into monitoring, HUD, Dashboard, overlay, recording, and evidence surfaces.
+
+Family-specific UI requirements:
+
+- Monitoring and HUD surfaces should preserve comfort through calm status hierarchy, readable density, and clear no-data/degraded-state copy.
+- Futuristic styling must stay standardized: underglow, card chrome, gutter spacing, dashboard/HUD/shell/window spacing, row/divider treatment, button effects, hover/focus/disabled states, shadows/glows, scrollbars, and layout density should remain visually related across FAM-006 surfaces.
+- Similar actions such as Start, Stop, Select Folder, Open, Save, Clear, Retry, and Export should inherit the project-wide control grammar unless BP1/BP2/BP3 accepts a FAM-006-specific exception with proof expectations.
+- Proof surfaces should help the USER judge product behavior; they must not turn the product UI into a debug wall or expose internal worktree/branch state as product copy.
 
 ## Recording Vision
 
@@ -54,14 +71,17 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 ## Implementation Boundaries
 
 - This vision does not admit recording runtime, tray recording controls, broad theme/skin work, provider expansion, or external telemetry by itself.
+- This vision does not admit resident tray implementation by itself; FAM-003 owns resident access interaction and `Docs/family_feature_visions/F3-FF01.md` owns the tray doorway category.
 - This vision does not admit hidden monitoring, external telemetry, provider-visible telemetry, support-bundle export, backup/export, or cleanup/deletion behavior by itself.
 - The historical `Recording Profile Runtime Foundation` branch introduced Recording Profile state/UI foundation before this active-overlay-driven recording vision correction. Future FAM-006 planning must reconcile or retire that profile-loaded direction before implementing actual recording runtime.
 - Active FAM-006 branches must use Branch Runtime Engineering Plans, UFD disposition, and visual proof gates before implementation and Live Validation handoff.
 - Implementation must hold itself to this vision contract: any branch that creates or changes FAM-006 user-facing UI must state the existing element(s) it sampled, preserve or intentionally justify differences in color, shape, spacing, typography, effects, interaction states, and layout density, then prove those matches in Workstream, Hardening, and Live Validation. Validator/helper green is not enough when the visible result diverges from this family visual system.
+- Normal product mode should keep recording and monitoring logs minimal and privacy-safe. Troubleshooting-mode diagnostics for FAM-006 are future/branch-gated unless the active branch explicitly admits them with USER consent and clear return-to-normal behavior.
 
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- Resident access FFV: `Docs/family_feature_visions/F3-FF01.md`
 - AI runtime and trust architecture: `Docs/ai_runtime_and_trust_architecture.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Recording Family Feature Vision: `Docs/family_feature_visions/FAM-006_recording.md`

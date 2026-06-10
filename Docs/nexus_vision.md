@@ -19,6 +19,30 @@ Family-specific vision records live under `Docs/family_visions/` when a broad fe
 
 Edition-specific AI deployment planning lives in `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`. That plan records the public-safe Owner / Dev / Public edition capability model, private-repo separation, Public-to-Dev migration direction, GitHub Desktop setup guidance, and release breakpoints without authorizing runtime AI, provider/model execution, memory, packaging, licensing, or private repo implementation.
 
+## Vision Ownership Chain
+
+Project Vision, Family Vision, Family Feature Vision, and Branch Vision are separate source-truth layers.
+
+The required carrydown chain is:
+
+```text
+Project Vision -> Family Vision -> Family Feature Vision -> Branch Vision Contract Snapshot -> BP2/BP3 engineering plan -> Workstream/Hardening/Live Validation proof
+```
+
+Each lower layer must consume and specialize the layer above it. It must not replace the higher-level owner, duplicate broad principles by copy/paste, or invent missing durable feature direction when the correct owner is absent.
+
+Layer ownership:
+
+- `Docs/nexus_vision.md` owns project-wide product direction, experience intent, Project UI Vision, release-stage meaning, and durable product standards that apply across families.
+- `Docs/family_visions/` owns broad durable product direction for one FAM, including family-specific UI/interaction carrydown from the Project Vision.
+- USER-approved `Docs/family_feature_visions/` records, once created, own detailed durable feature-category direction inside one FAM, including deferred carryforward and feature-specific proof expectations.
+- The active external branch plan owns the Branch Vision Contract Snapshot and branch-local implementation choices after USER acceptance or waiver.
+- BP1 consumes the vision chain and turns it into a branch-specific USER review contract.
+- BP2 and BP3 translate the accepted or waived BP1 contract into engineering, orchestration, proof, rollback, and validation plans.
+- Workstream, Hardening, Live Validation, PR Readiness, and Release Readiness must compare claims against the accepted vision chain instead of treating validator output, screenshots, logs, or branch-local prose as product truth by themselves.
+
+Backlog and roadmap files are compact registry, sequencing, and pointer layers. They may point to the vision owners, but they do not own full durable product vision narrative or active Branch Vision state.
+
 ## Core Product Goal
 
 Nexus Desktop AI should eventually feel like the system-facing experience layer, not just a normal desktop app launched after Windows.
@@ -70,6 +94,52 @@ The system should not rely on:
 - hidden state
 - unexplained automation
 - accidental authority drift between launcher, renderer, planning docs, and user-facing reporting
+
+## Project UI Vision
+
+Nexus UI should feel comfortable, reliable, futuristic, and understandable at the same time. It should make the user feel that the system is capable and alive without becoming noisy, cryptic, or fragile.
+
+Durable UI principles:
+
+- comfort: normal operation should feel calm, readable, and safe to leave open for long sessions
+- reliability: surfaces should expose state, failures, disabled paths, and recovery options plainly instead of hiding uncertainty
+- futuristic feel: the UI should look intentional and Nexus-native, but visual ambition must not reduce clarity, accessibility, or task completion
+- understandable interaction: controls, status labels, and assistant messages should explain what they do, what they changed, and what remains blocked
+- consistency: similar actions such as Close, Open, Save, Start, Stop, Select Folder, Clear, Retry, and Export should use consistent placement, labels, affordances, and disabled/degraded states unless BP1/BP2/BP3 accepts a deliberate product-wide exception
+- fail-proof behavior: risky actions should be reversible, confirmed when needed, recoverable, or safely disabled until their prerequisites are proven
+- readability: layout density, contrast, typography, spacing, and state hierarchy should keep operator-facing information legible under normal desktop use
+- versatility and changeability: future configuration, skins, layouts, modes, and edition-specific behavior are valid product goals, but they must be introduced through governed vision/plan/proof layers rather than ad hoc branch styling
+- standard control language: families may specialize controls for their surface, but they should inherit the project-wide control grammar before creating unique widgets, button families, folder pickers, or start/stop flows
+
+Family Vision records carry these principles by reference and specialize them only where the FAM has a real product reason. Family Feature Vision records specialize them further for one durable feature category. Branch Vision, BP2, BP3, Workstream, Hardening, and Live Validation must preserve the accepted UI carrydown or record the exact USER-approved exception and proof path.
+
+## Runtime Observability And USER Proof
+
+Nexus Desktop AI should be observable enough to prove user-facing behavior without becoming a hidden diagnostic collector.
+
+Durable product direction:
+
+- normal desktop runtime mode is the default USER launch profile
+- troubleshooting runtime mode is an explicit USER-consented diagnostic profile
+- normal runtime mode should produce only minimal, privacy-safe product logs needed for reliability, recovery, and basic local troubleshooting
+- troubleshooting mode should be temporary or scoped, locally stored by default, privacy-safe/redacted where needed, and visibly distinct from normal runtime
+- elevated diagnostic logging, Dev Toolkit inspection, provider-visible data, support bundles, or exported evidence must not be enabled silently
+- product UI should present client-like product folders and labels; it should not expose worktree, branch, FAM, developer, owner-only, or internal implementation paths unless a source-truth owner explicitly admits that product-facing concept
+- developer/proof/evidence paths may use worktree, branch, FAM, or validation-lane labels only when they are clearly developer or validation evidence, not product UI
+
+Formal user-facing proof has a stricter bar than internal diagnosis:
+
+- a visible or user-facing behavior claim is closeout-grade only when proved through photo, video, or ordered frame-sequence evidence from the relevant USER-facing runtime path
+- runtime logs, markers, manifests, helper output, and Dev Toolkit events are supporting evidence for diagnosis and consistency; they do not replace photo/video proof for visible USER-facing acceptance
+- if a required claim cannot be proved in photo/video, Codex must elevate that claim to USER manual validation, explicit USER waiver, or a named blocker instead of calling it proven
+- formal Live Validation for desktop/user-facing behavior must use the exact normal USER desktop runtime launcher path declared for the branch unless a launcher parity proof and USER approval allow the troubleshooting runtime launcher to serve as equivalent proof for that exact claim
+
+Future two-launcher model:
+
+- `Normal Desktop Runtime Launcher`: starts normal NDAI for ordinary USER operation and owns default formal Live Validation proof
+- `Troubleshooting Runtime Launcher`: starts NDAI in troubleshooting mode for consented diagnostics, validation, or support
+- `Launcher Parity Proof`: proves both launchers start the same product runtime/build, use the same product data roots and user-visible behavior, and differ only by admitted diagnostic flags, diagnostic evidence roots, log level, and troubleshooting disclosure
+- if launcher parity is missing, fails, or the claim being validated could be affected by troubleshooting-mode differences, Live Validation must use the normal USER desktop runtime launcher or stop for USER waiver/manual validation
 
 ## AI-Native Operating Experience
 
@@ -136,6 +206,21 @@ Current merged truth should still be read as:
 - desktop orchestration first
 - future boot and access planning deferred
 - product trust and resident presence concepts still living at planning level
+
+## Resident Access And Privacy Visibility
+
+Nexus should eventually expose a resident access surface that feels like a doorway into the system-facing assistant experience, not a replacement for the full Dashboard, Settings, NCP, or AI Command Center.
+
+Durable direction:
+
+- the primary resident entry should be one Nexus Desktop AI tray icon by default
+- the tray icon should provide compact status and route the USER to the right full surface instead of becoming a deep command wall
+- privacy-critical AI/provider/permission/cache state should not depend only on Windows tray visibility, because Windows can hide third-party tray icons
+- privacy-critical state should also be visible through a Nexus status panel, HUD/status surface, AI Command Center, or equivalent USER-facing surface when those owners are implemented
+- USER-configurable quick-access slots are valid, but immutable privacy and control entries should remain easy to find
+- future second-icon AI status behavior remains USER-gated and should be justified only if one icon plus status surfaces cannot communicate privacy state safely
+
+The durable feature-category owner is `Docs/family_feature_visions/F3-FF01.md`. FAM-003 owns resident access and quick-action interaction; FAM-002 owns visual presentation; FAM-006 owns Monitoring/HUD, Recording Studio, and Log Viewer surfaces; FAM-007 plus `Docs/ai_runtime_and_trust_architecture.md` own AI/provider/privacy status truth; FAM-008 owns installer/setup education for tray visibility and startup behavior.
 
 ## Local AI And Capability-Pack Vision
 
