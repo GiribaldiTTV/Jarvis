@@ -73,7 +73,15 @@ def validate() -> list[str]:
     output_contract = _read("desktop/recording_output_contract.py")
     workstream_readiness = _read("dev/orin_fam006_workstream_readiness.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
-    tray = _read("desktop/orin_desktop_main.py") + "\n" + _read("desktop/tray_controller.py")
+    tray = (
+        _read("desktop/orin_desktop_main.py")
+        + "\n"
+        + _read("desktop/tray_controller.py")
+        + "\n"
+        + _read("desktop/orin_desktop_launcher.pyw")
+        + "\n"
+        + _read("desktop/single_instance.py")
+    )
     hud_state = _read("desktop/monitoring_hud_state.py")
     telemetry = _read("desktop/monitoring_hud_telemetry.py")
     placement = _read("desktop/monitoring_hud_placement.py")
@@ -228,6 +236,8 @@ def validate() -> list[str]:
         "A helper/validator `PASS` cannot be reported as LV green",
         "Verbal assurance, implementation description, or intent-language is not proof",
         "Codex-owned photo review notes",
+        "must not create, add, or depend on a new user-visible runtime control surface",
+        "Activation-path proof is non-transferable",
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
@@ -237,6 +247,8 @@ def validate() -> list[str]:
         "SLC-041 Overlay Profile focused validation/live-proof readiness",
         "Overlay/display deferred/non-gating proof classification",
         "future Overlay/display proof only when that interface is re-admitted",
+        "Validation-Only Runtime Control Surface",
+        "Activation-Path Proof Non-Transferable",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
     for needle in (
@@ -2401,6 +2413,19 @@ def validate() -> list[str]:
         "command_overlay_action",
     ):
         _require_contains(tray, needle, "desktop launcher Core/HUD failure isolation", failures)
+    for forbidden in (
+        "RuntimeControlSurfaceWindow",
+        "Nexus Desktop AI Runtime Controls",
+        "RUNTIME_CONTROL_SURFACE_SIGNAL_RECEIVED",
+        "RUNTIME_CONTROL_SURFACE_SIGNAL_HANDLED",
+        "RUNTIME_CONTROL_SURFACE_VISIBLE",
+        "ACTIVE_SESSION_CONTROL_SURFACE_SIGNAL_SENT",
+    ):
+        if forbidden in tray:
+            failures.append(
+                "desktop launcher Core/HUD failure isolation must not contain "
+                f"validation-only runtime control surface marker {forbidden!r}"
+            )
 
     for needle in (
         'MONITORING_HUD_STATE_ENV = "NEXUS_MONITORING_HUD_STATE_PATH"',
