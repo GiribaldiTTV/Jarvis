@@ -1263,8 +1263,8 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
         return "Codex Precheck: PASS through human-client mouse/shortcut/tray path - $($details -join '; ')."
     }
 
-    $precheckShortcutAlignment = Format-ShortcutPrecheckLine @("shortcut_targets_active_worktree", "launch_settled_visible_desktop", "launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut/worktree alignment without USER waiver."
-    $precheckStep1 = Format-ShortcutPrecheckLine @("shortcut_targets_active_worktree", "launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut launch without USER waiver."
+    $precheckShortcutAlignment = Format-ShortcutPrecheckLine @("shortcut_targets_active_worktree", "visible_desktop_shortcut_double_clicked", "launch_settled_visible_desktop", "launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut/worktree alignment without visible USER desktop shortcut click proof or USER waiver."
+    $precheckStep1 = Format-ShortcutPrecheckLine @("shortcut_targets_active_worktree", "visible_desktop_shortcut_double_clicked", "launch_settled_tray_available") "LV1 cannot claim unrestricted green handoff for shortcut launch without visible USER desktop shortcut click proof or USER waiver."
     $precheckStep2 = Format-ShortcutPrecheckLine @("enable_hud_opens_dashboard", "close_dashboard_from_tray_before_move", "open_dashboard_from_tray_before_move", "close_dashboard_from_tray", "open_dashboard_from_tray", "disable_hud_recovers") "LV1 cannot claim unrestricted green handoff for tray Dashboard lifecycle without USER waiver."
     $precheckStep3 = Format-ShortcutPrecheckLine @("tray_exit_confirmation_visible", "tray_exit_cancel_preserves_session", "tray_exit_accept_prompt_visible", "tray_exit_accept_shuts_down_promptly") "LV1 cannot claim unrestricted green handoff for tray Exit confirmation without USER waiver."
     $precheckNcpInteraction = Format-ShortcutPrecheckLine @("dashboard_mouse_move", "ncp_tray_icon_left_click_opens", "ncp_tray_menu_state_changes_to_close", "ncp_opens_with_dashboard_visible", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "LV1 cannot claim unrestricted green handoff for Dashboard-visible NCP tray toggle/state interaction without USER waiver."
@@ -1274,7 +1274,19 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckSettingsPanel = Format-ShortcutPrecheckLine @("dashboard_settings_opens_with_real_mouse", "dashboard_settings_double_click_does_not_maximize", "dashboard_settings_done_closes_with_real_mouse") "LV1 cannot claim unrestricted green handoff for Dashboard Settings unless the real mouse Dashboard IA-card path opens and closes the panel without native maximize drift or USER waiver."
     $precheckTopChromeClose = Format-ShortcutPrecheckLine @("dashboard_top_chrome_close_hides_dashboard", "dashboard_reopens_after_top_chrome_close") "LV1 cannot claim unrestricted green handoff for Dashboard window-level Close unless the visible Close control hides only the Dashboard and tray reopen works or USER waiver."
     $precheckHudPersistence = Format-ShortcutPrecheckLine @("hud_feature_enabled_state_persisted") "LV1 cannot claim unrestricted green handoff for HUD Feature state persistence without USER waiver."
-    $precheckHumanClientRun = Format-ShortcutPrecheckLine @("launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "dashboard_first_open_stability_sequence", "dashboard_settings_opens_with_real_mouse", "dashboard_top_chrome_close_hides_dashboard", "ncp_tray_icon_left_click_opens", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
+    $precheckRecordingWindowLaunchers = Format-ShortcutPrecheckLine @("recording_studio_visible_button_opens_native_window", "log_viewer_studio_visible_button_opens_native_window") "LV1 cannot claim the FAM-006 Recording Studio or Log Viewer Studio launch path is green unless visible Dashboard buttons open their standalone native windows from the real shortcut/tray path."
+    $precheckHumanClientRun = Format-ShortcutPrecheckLine @("visible_desktop_shortcut_double_clicked", "launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "recording_studio_visible_button_opens_native_window", "log_viewer_studio_visible_button_opens_native_window", "dashboard_first_open_stability_sequence", "dashboard_settings_opens_with_real_mouse", "dashboard_top_chrome_close_hides_dashboard", "ncp_tray_icon_left_click_opens", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
+    $requiredPrecheckLines = @(
+        $precheckShortcutAlignment,
+        $precheckStep1,
+        $precheckStep2,
+        $precheckRecordingWindowLaunchers,
+        $precheckHumanClientRun
+    )
+    $precheckBlockers = @($requiredPrecheckLines | Where-Object { $_ -match "Codex Precheck: (NOT TESTED|FAIL)" })
+    if ($precheckBlockers.Count -gt 0) {
+        throw "Live Validation LV1 UTS export blocked: required visible desktop shortcut / human-client proof is missing or failed. $($precheckBlockers -join ' | ')"
+    }
     $activeClientPrecheck = "Codex Precheck: PASS as supporting live-helper evidence only - LV1 primary path remains the real user-facing desktop launcher/human-client manifest; direct-runtime or active-client helper proof cannot replace that path when the shortcut is feasible."
     $visualScreenshotPrecheck = "Codex Precheck: PASS as supporting focused screenshot evidence only - detailed per-element screenshots are exported to the USER-inspectable OneDrive screenshot folder and full-desktop screenshots are context only. USER visual confirmation is still required."
     $deferredBoundaryPrecheck = "Codex Precheck: PASS through source-truth, static validation, sandbox validation, and active-client manifest boundary proof - USER is not being asked to accept deferred/future scope."
@@ -1301,6 +1313,8 @@ How To Use This File
 Codex Precheck Summary
 - Red shortcut/worktree validation: PASS through the governed FAM-006 desktop shortcut.
 - Human-client proof: PASS at $precheckManifestPath.
+- Visible desktop shortcut proof: $precheckStep1
+- Recording Studio / Log Viewer Studio button proof: $precheckRecordingWindowLaunchers
 - Live proof root for this handoff: $($Paths.Root)
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)

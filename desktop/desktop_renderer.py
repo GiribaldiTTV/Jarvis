@@ -6559,6 +6559,7 @@ class DesktopRuntimeWindow(QWidget):
                 result=str(result)[:240],
             ),
         )
+        QTimer.singleShot(160, self._sync_monitoring_hud_control_state_from_page)
 
     def _monitoring_hud_webview_local_point_from_screen_point(self, screen_point: QPoint) -> QPoint:
         if screen_point.isNull() or self.webview is None:
@@ -6705,6 +6706,7 @@ class DesktopRuntimeWindow(QWidget):
                 result=str(result)[:320],
             ),
         )
+        QTimer.singleShot(160, self._sync_monitoring_hud_control_state_from_page)
 
     def _poll_monitoring_hud_recording_control_click_bridge(self):
         if (
@@ -9492,6 +9494,8 @@ class DesktopRuntimeWindow(QWidget):
             if not self.webview.isVisible():
                 self.webview.show()
             self.show()
+            if self._page_ready and not self._monitoring_hud_control_sync_timer.isActive():
+                self._monitoring_hud_control_sync_timer.start(500)
         self._emit_runtime_signal(
             "MONITORING_HUD_INTERACTION_MODE_READY",
             package="PKG-006",

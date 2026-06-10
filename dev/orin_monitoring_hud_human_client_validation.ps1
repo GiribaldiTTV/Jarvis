@@ -582,6 +582,7 @@ public static class CodexHumanClientWin32 {
 $RootDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $Stamp = Get-Date -Format "yyyyMMdd_HHmmss_fff"
 $LogRoot = Join-Path $RootDir "dev\logs\fam_006_human_client_validation\$Stamp"
+$DefaultRuntimeLogRoot = Join-Path $RootDir "logs"
 $ScreenshotRoot = Join-Path $LogRoot "screenshots"
 $ShortVideoFrameRoot = Join-Path $LogRoot "short_video_frames"
 $ShortVideoPath = Join-Path $LogRoot "human_client_short_video.mp4"
@@ -610,6 +611,7 @@ $script:Steps = New-Object System.Collections.Generic.List[object]
 $script:Artifacts = New-Object System.Collections.Generic.List[object]
 $script:RuntimeProcessIds = New-Object System.Collections.Generic.List[int]
 $script:RuntimeLogPath = ""
+$script:LaunchStartedAt = $null
 $script:CleanupNotes = New-Object System.Collections.Generic.List[string]
 $script:ShortVideoProof = [ordered]@{
     status = "NOT_REQUESTED"
@@ -1050,6 +1052,61 @@ function Click-ElementCenter {
         [CodexHumanClientWin32]::SendAbsoluteLeftClick($x, $y)
     }
     Start-Sleep -Milliseconds 400
+}
+
+function Invoke-VisibleDesktopShortcutClickLaunch {
+    param([string]$ShortcutPath)
+
+    $shortcutName = [System.IO.Path]::GetFileNameWithoutExtension($ShortcutPath)
+    $beforeShot = Capture-VirtualScreenshot "01a_before_visible_desktop_shortcut_launch"
+    $launchSurface = "desktop-icon"
+    try {
+        $shellApp = New-Object -ComObject Shell.Application
+        $shellApp.MinimizeAll()
+    } catch {}
+    Start-Sleep -Milliseconds 800
+
+    $shortcutElement = Find-VisibleElementByName -Name $shortcutName -TimeoutSeconds 4
+    if (-not $shortcutElement) {
+        $launchSurface = "desktop-folder-selected-shortcut-fallback"
+        $quotedShortcutPath = '"' + $ShortcutPath + '"'
+        Start-Process -FilePath "explorer.exe" -ArgumentList "/select,$quotedShortcutPath"
+        Start-Sleep -Milliseconds 1400
+        $shortcutElement = Find-VisibleElementByName -Name $shortcutName -TimeoutSeconds 8
+    }
+
+    if (-not $shortcutElement) {
+        $missingShot = Capture-VirtualScreenshot "01a_visible_desktop_shortcut_missing"
+        Add-Step -Id "visible_desktop_shortcut_double_clicked" -Title "Visible USER desktop shortcut is double-clicked" -Status "FAIL" -Detail "Shortcut '$shortcutName' was not visible as a desktop shell or selected Desktop-folder item." -Evidence @{
+            beforeScreenshot = $beforeShot
+            missingScreenshot = $missingShot
+            shortcutPath = $ShortcutPath
+            shortcutName = $shortcutName
+        }
+        throw "Visible USER desktop shortcut was not available for click launch: $ShortcutPath"
+    }
+
+    $rect = $shortcutElement.Current.BoundingRectangle
+    $x = [int]($rect.Left + ($rect.Width / 2))
+    $y = [int]($rect.Top + ($rect.Height / 2))
+    $clickEvidence = DoubleClick-ScreenPoint -X $x -Y $y -Label "visible USER desktop shortcut $shortcutName"
+    Start-Sleep -Milliseconds 600
+    $afterShot = Capture-VirtualScreenshot "01b_after_visible_desktop_shortcut_double_click"
+    $rectPayload = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]$rect.Bottom)
+    Add-Step -Id "visible_desktop_shortcut_double_clicked" -Title "Visible USER desktop shortcut is double-clicked" -Status "PASS" -Detail "Double-clicked '$shortcutName' through $launchSurface instead of shell-executing the .lnk path." -Evidence @{
+        beforeScreenshot = $beforeShot
+        afterScreenshot = $afterShot
+        shortcutPath = $ShortcutPath
+        shortcutName = $shortcutName
+        shortcutRect = $rectPayload
+        click = $clickEvidence
+        launchSurface = $launchSurface
+    }
+    Add-Step -Id "shortcut_launch_requested" -Title "Launch through visible USER desktop shortcut click" -Status "PASS" -Detail "Visible shortcut double-click requested runtime launch from $ShortcutPath." -Evidence @{
+        screenshot = $afterShot
+        shortcutRect = $rectPayload
+        launchSurface = $launchSurface
+    }
 }
 
 function Find-VisibleRuntimeElementByName {
@@ -2214,9 +2271,19 @@ function Wait-ForRuntimeLog {
     param([int]$TimeoutSeconds)
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while ((Get-Date) -lt $deadline) {
-        $candidate = Get-ChildItem -Path $LogRoot -Filter "Runtime_*.txt" -File -ErrorAction SilentlyContinue |
-            Sort-Object LastWriteTime -Descending |
-            Select-Object -First 1
+        $roots = @($LogRoot, $DefaultRuntimeLogRoot) | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -Unique
+        $candidate = $null
+        foreach ($root in $roots) {
+            $candidates = @(Get-ChildItem -Path $root -Filter "Runtime_*.txt" -File -ErrorAction SilentlyContinue |
+                Where-Object {
+                    (-not $script:LaunchStartedAt) -or ($_.LastWriteTime -ge $script:LaunchStartedAt.AddSeconds(-5))
+                } |
+                Sort-Object LastWriteTime -Descending)
+            if ($candidates.Count -gt 0) {
+                $candidate = $candidates | Select-Object -First 1
+                break
+            }
+        }
         if ($candidate) {
             $script:RuntimeLogPath = $candidate.FullName
             return $true
@@ -2227,11 +2294,17 @@ function Wait-ForRuntimeLog {
 }
 
 function Find-ProcessesForLogRoot {
-    $escaped = [regex]::Escape($LogRoot)
     $result = @()
     try {
+        $escapedLogRoot = [regex]::Escape($LogRoot)
+        $escapedRuntimeLog = if ($script:RuntimeLogPath) { [regex]::Escape($script:RuntimeLogPath) } else { "" }
+        $escapedRoot = [regex]::Escape($RootDir)
         $processes = Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object {
-            $_.CommandLine -and ($_.CommandLine -match $escaped)
+            $_.CommandLine -and (
+                $_.CommandLine -match $escapedLogRoot -or
+                ($escapedRuntimeLog -and $_.CommandLine -match $escapedRuntimeLog) -or
+                ($_.CommandLine -match $escapedRoot -and $_.CommandLine -match "desktop\\orin_desktop_(launcher\.pyw|main\.py)")
+            )
         }
         foreach ($process in $processes) {
             $result += [ordered]@{ processId = [int]$process.ProcessId; commandLine = [string]$process.CommandLine }
@@ -3475,6 +3548,7 @@ function Save-Manifest {
             focusedPerElementScreenshotProof = if ((@(Get-ChildItem -LiteralPath $UserElementScreenshotRoot -Filter "element_*.png" -File -ErrorAction SilentlyContinue)).Count -gt 0) { "PASS" } else { "PENDING" }
             fullDesktopContextScreenshotProof = if ((@(Get-ChildItem -LiteralPath $UserContextScreenshotRoot -Filter "context_*.png" -File -ErrorAction SilentlyContinue)).Count -gt 0) { "PASS" } else { "PENDING" }
             shortVideoOrFrameSequenceProof = $script:ShortVideoProof.status
+            visibleDesktopShortcutClickProof = if ((@($script:Steps | Where-Object { $_.id -eq "visible_desktop_shortcut_double_clicked" -and $_.status -eq "PASS" })).Count -gt 0) { "PASS" } else { "PENDING" }
         }
         shortVideoProof = $script:ShortVideoProof
         steps = $script:Steps
@@ -3514,11 +3588,11 @@ try {
     $env:NEXUS_MONITORING_HUD_STATE_PATH = (Join-Path $LogRoot "monitoring_hud_state.json")
     $env:NEXUS_SHUTDOWN_CONFIRMATION_TIMEOUT_MS = "15000"
 
-    Start-Process -FilePath $DesktopShortcutPath
-    Add-Step -Id "shortcut_launch_requested" -Title "Launch through desktop shortcut" -Status "PASS" -Detail "Started $DesktopShortcutPath"
+    $script:LaunchStartedAt = Get-Date
+    Invoke-VisibleDesktopShortcutClickLaunch -ShortcutPath $DesktopShortcutPath
 
     if (-not (Wait-ForRuntimeLog -TimeoutSeconds $StartupTimeoutSeconds)) {
-        throw "Runtime log was not created under $LogRoot"
+        throw "Runtime log was not created under $LogRoot or $DefaultRuntimeLogRoot after visible USER shortcut launch"
     }
     if (-not (Wait-ForRuntimeMarker -Marker "DESKTOP_OUTCOME|SETTLED|state=dormant" -TimeoutSeconds $StartupTimeoutSeconds)) {
         throw "Runtime did not settle through the desktop shortcut path"
@@ -3579,6 +3653,9 @@ try {
     $dashboard = Get-DashboardWindow
     Add-Step -Id "open_dashboard_from_tray_before_move" -Title "Tray Open HUD Dashboard shows visible Dashboard before movement/resize" -Status ($(if ($dashboard) { "PASS" } else { "FAIL" })) -Detail "Dashboard visible after open before move: $([bool]$dashboard)" -Evidence @{ screenshot = $earlyOpenShot; trayClick = $earlyOpenEvidence }
     if (-not $dashboard) { throw "Open HUD Dashboard did not show the visible Dashboard before movement/resize" }
+
+    Click-RuntimeButtonAndWaitForCloseableWindow -ButtonName "Recording Studio" -DialogTitle "Nexus Recording Studio" -StepId "recording_studio_visible_button_opens_native_window" -StepTitle "Dashboard Recording Studio button opens the standalone native Recording Studio window" -ExpectedOpenMarker "MONITORING_HUD_RECORDING_STUDIO_READY"
+    Click-RuntimeButtonAndWaitForCloseableWindow -ButtonName "Log Viewer Studio" -DialogTitle "Nexus Log Viewer Studio" -StepId "log_viewer_studio_visible_button_opens_native_window" -StepTitle "Dashboard Log Viewer Studio button opens the standalone native Log Viewer Studio window" -ExpectedOpenMarker "MONITORING_HUD_LOG_VIEWER_STUDIO_READY"
 
     $dashboardHandleForControls = [long]$dashboard.Current.NativeWindowHandle
     $chromePoints = Get-DashboardTopChromeControlPoints -Dashboard $dashboard
