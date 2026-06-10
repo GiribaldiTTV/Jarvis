@@ -22,11 +22,14 @@ Packaging and install work should make Nexus easier to install, launch, update, 
 - Capability-pack setup should make storage, network, hardware, license, integrity, update, removal, and cache/index implications visible before installation.
 - Clear-cache UX should explain what operational cache is cleared, what is not cleared, and which cache categories may rebuild later; it must not claim to delete memory, Trust Journal entries, logs, backups, or separately governed records.
 - Update and migration behavior should preserve user data and make repair paths clear.
+- First-run, settings, or installer education may explain how to keep the Nexus tray icon visible, but it must not claim the app can force permanent placement beside Windows-owned Sound, Network, Battery, or Mic system icons.
+- Tray visibility, startup behavior, shortcut identity, and update/restart continuity must be explicit, reversible, and validation-backed when packaging work admits them.
 
 ## Implementation Boundaries
 
 - This vision does not admit installer creation, shortcut mutation, model/capability-pack downloads, update execution, or release artifact work.
 - This vision does not admit patcher creation, auto-update execution, restart automation, rollback execution, or always-on Owner AI continuity behavior.
+- This vision does not admit tray pinning, resident icon startup registration, or Windows notification-area settings mutation by itself.
 - Active packaging work requires Branch Readiness approval and packaging/install-specific validation proof.
 - Cross-FAM install/update/patch impacts are durable dependency candidates or platform-contract context unless Branch Readiness admits dependency-bounded work, a coordinated cross-FAM patch, or a repo-wide migration / halt through `Docs/phase_governance.md`.
 
@@ -34,6 +37,7 @@ Packaging and install work should make Nexus easier to install, launch, update, 
 
 - Project vision: `Docs/nexus_vision.md`
 - AI runtime and trust architecture: `Docs/ai_runtime_and_trust_architecture.md`
+- Resident access FFV: `Docs/family_feature_visions/F3-FF01.md`
 - Edition capability / trust boundary release plan: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Roadmap posture: `Docs/prebeta_roadmap.md`

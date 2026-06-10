@@ -20,6 +20,8 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Deferred actions should be disabled, removed, or clearly labeled; they must not look broken.
 - Monitoring, HUD, telemetry, screenshots, recordings, logs, and support evidence must preserve local file hygiene, clear evidence roots, privacy-safe review posture, and no fake or hidden data collection.
 - Sensitive telemetry, recording, overlay, process, or performance surfaces must make provider/external telemetry boundaries explicit before any external data path is admitted.
+- Resident tray quick access may link to HUD Dashboard, Recording Studio, or Log Viewer Studio after those FAM-006 surfaces exist, but the tray must not own recording state, monitoring state, log-reader internals, or sensor/telemetry truth.
+- Recording Studio and Log Viewer Studio are future FAM-006 user-facing surfaces; tray entries should open them as polished owning surfaces rather than turning the tray menu into a recording or log-control workspace.
 - FAM-006 Live Validation for user-facing UI or runtime behavior must use the exact normal USER desktop runtime launcher path declared for the branch, with direct runtime/helper evidence treated as diagnostics unless USER waives the launcher requirement.
 - Troubleshooting runtime launcher evidence may support diagnosis and may substitute for normal launcher proof only when USER consent and launcher parity proof show the diagnostic profile does not change the behavior being validated.
 - Visible FAM-006 closeout claims require photo/video or ordered frame-sequence proof; claims that cannot be proven visually must be elevated to USER manual validation, explicit waiver, or blocker rather than treated as proven by logs, markers, or helper PASS alone.
@@ -67,6 +69,7 @@ Family-specific UI requirements:
 ## Implementation Boundaries
 
 - This vision does not admit recording runtime, tray recording controls, broad theme/skin work, provider expansion, or external telemetry by itself.
+- This vision does not admit resident tray implementation by itself; FAM-003 owns resident access interaction and `Docs/family_feature_visions/F3-FF01.md` owns the tray doorway category.
 - This vision does not admit hidden monitoring, external telemetry, provider-visible telemetry, support-bundle export, backup/export, or cleanup/deletion behavior by itself.
 - The historical `Recording Profile Runtime Foundation` branch introduced Recording Profile state/UI foundation before this active-overlay-driven recording vision correction. Future FAM-006 planning must reconcile or retire that profile-loaded direction before implementing actual recording runtime.
 - Active FAM-006 branches must use Branch Runtime Engineering Plans, UFD disposition, and visual proof gates before implementation and Live Validation handoff.
@@ -76,6 +79,7 @@ Family-specific UI requirements:
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- Resident access FFV: `Docs/family_feature_visions/F3-FF01.md`
 - AI runtime and trust architecture: `Docs/ai_runtime_and_trust_architecture.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Durable receipt pointer: `Docs/branch_records/feature_fam_006_overlay_display_acceptance_foundation.md`

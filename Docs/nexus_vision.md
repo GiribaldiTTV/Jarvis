@@ -207,6 +207,21 @@ Current merged truth should still be read as:
 - future boot and access planning deferred
 - product trust and resident presence concepts still living at planning level
 
+## Resident Access And Privacy Visibility
+
+Nexus should eventually expose a resident access surface that feels like a doorway into the system-facing assistant experience, not a replacement for the full Dashboard, Settings, NCP, or AI Command Center.
+
+Durable direction:
+
+- the primary resident entry should be one Nexus Desktop AI tray icon by default
+- the tray icon should provide compact status and route the USER to the right full surface instead of becoming a deep command wall
+- privacy-critical AI/provider/permission/cache state should not depend only on Windows tray visibility, because Windows can hide third-party tray icons
+- privacy-critical state should also be visible through a Nexus status panel, HUD/status surface, AI Command Center, or equivalent USER-facing surface when those owners are implemented
+- USER-configurable quick-access slots are valid, but immutable privacy and control entries should remain easy to find
+- future second-icon AI status behavior remains USER-gated and should be justified only if one icon plus status surfaces cannot communicate privacy state safely
+
+The durable feature-category owner is `Docs/family_feature_visions/F3-FF01.md`. FAM-003 owns resident access and quick-action interaction; FAM-002 owns visual presentation; FAM-006 owns Monitoring/HUD, Recording Studio, and Log Viewer surfaces; FAM-007 plus `Docs/ai_runtime_and_trust_architecture.md` own AI/provider/privacy status truth; FAM-008 owns installer/setup education for tray visibility and startup behavior.
+
 ## Local AI And Capability-Pack Vision
 
 This section records public-safe FAM-007 local AI and capability-pack direction.

@@ -1647,7 +1647,7 @@ def _validate_family_feature_vision_scaffolding_source_truth() -> list[str]:
         "index.md": (
             "Family Feature Vision Index",
             "F<family>-FF<two digits>",
-            "No USER-approved Family Feature Vision content files are admitted yet",
+            "compact durable registry",
         ),
         "TEMPLATE.md": (
             "Family Feature Vision ID:",
