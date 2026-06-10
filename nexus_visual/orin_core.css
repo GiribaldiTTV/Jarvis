@@ -575,6 +575,9 @@ body {
 .ai-provider-status__functional-release,
 .ai-provider-status__capability-eligibility,
 .ai-provider-status__install-intent,
+.ai-provider-status__public-lane,
+.ai-provider-status__developer-lane,
+.ai-provider-status__owner-lane,
 .ai-provider-status__fallback,
 .ai-provider-status__result,
 .ai-provider-status__result-detail,
@@ -651,6 +654,9 @@ body {
 
 .ai-provider-status__capability-eligibility,
 .ai-provider-status__install-intent,
+.ai-provider-status__public-lane,
+.ai-provider-status__developer-lane,
+.ai-provider-status__owner-lane,
 .ai-provider-status__result,
 .ai-provider-status__result-detail {
   white-space: normal;
@@ -724,6 +730,9 @@ body {
 .ai-provider-status__functional-release,
 .ai-provider-status__capability-eligibility,
 .ai-provider-status__install-intent,
+.ai-provider-status__public-lane,
+.ai-provider-status__developer-lane,
+.ai-provider-status__owner-lane,
 .ai-provider-status__result-detail,
 .ai-provider-status__next-action {
   color: rgba(255, 218, 151, 0.9);

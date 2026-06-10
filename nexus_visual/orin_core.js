@@ -121,6 +121,9 @@ const aiProviderStatusExecutionData = document.getElementById("ai-provider-statu
 const aiProviderStatusFunctionalRelease = document.getElementById("ai-provider-status-functional-release");
 const aiProviderStatusCapabilityEligibility = document.getElementById("ai-provider-status-capability-eligibility");
 const aiProviderStatusInstallIntent = document.getElementById("ai-provider-status-install-intent");
+const aiProviderStatusPublicLane = document.getElementById("ai-provider-status-public-lane");
+const aiProviderStatusDeveloperLane = document.getElementById("ai-provider-status-developer-lane");
+const aiProviderStatusOwnerLane = document.getElementById("ai-provider-status-owner-lane");
 const aiProviderStatusAction = document.getElementById("ai-provider-status-action");
 const aiProviderStatusFallback = document.getElementById("ai-provider-status-fallback");
 const aiProviderStatusResult = document.getElementById("ai-provider-status-result");
@@ -576,6 +579,18 @@ let aiProviderState = {
   capabilityPackDiskRequirementPosture: "requirement-unprobed",
   installIntentState: "install-intent-blocked",
   installIntentLabel: "Install intent: blocked; downloads and install execution remain disabled",
+  laneBoundarySchemaVersion: "lane-boundary-state.v1",
+  publicLaneBoundaryState: "public-lane-local-assist-only",
+  publicLaneBoundaryLabel: "Public Edition: local assist only; provider-visible data none",
+  developerLaneBoundaryState: "developer-lane-private-setup-blocked",
+  developerLaneBoundaryLabel: "Developer lane: gated; private setup not configured",
+  ownerLaneBoundaryState: "owner-lane-private-setup-blocked",
+  ownerLaneBoundaryLabel: "Owner lane: gated; private setup not configured",
+  privateSetupBoundaryState: "private-setup-blocked",
+  privateSetupAuthorized: false,
+  privateMaterialVisible: false,
+  ownerMemoryEnabled: false,
+  ownerAgentsEnabled: false,
   capabilityPackDownloadBlockedReason: "download_blocked_user_approval_required",
   capabilityPackInstallBlockedReason: "install_blocked_manifest_or_user_approval_required",
   capabilityPackUpdateBlockedReason: "update_blocked_user_approval_required",
@@ -1868,6 +1883,15 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.capabilityPackCompatibility = state.capabilityPackCompatibilityState || "unknown";
   aiProviderStatus.dataset.capabilityPackEligibility = state.capabilityPackEligibilityState || "unknown";
   aiProviderStatus.dataset.installIntent = state.installIntentState || "unknown";
+  aiProviderStatus.dataset.laneBoundarySchema = state.laneBoundarySchemaVersion || "unknown";
+  aiProviderStatus.dataset.publicLaneBoundary = state.publicLaneBoundaryState || "unknown";
+  aiProviderStatus.dataset.developerLaneBoundary = state.developerLaneBoundaryState || "unknown";
+  aiProviderStatus.dataset.ownerLaneBoundary = state.ownerLaneBoundaryState || "unknown";
+  aiProviderStatus.dataset.privateSetupBoundary = state.privateSetupBoundaryState || "unknown";
+  aiProviderStatus.dataset.privateSetupAuthorized = state.privateSetupAuthorized ? "true" : "false";
+  aiProviderStatus.dataset.privateMaterialVisible = state.privateMaterialVisible ? "true" : "false";
+  aiProviderStatus.dataset.ownerMemoryEnabled = state.ownerMemoryEnabled ? "true" : "false";
+  aiProviderStatus.dataset.ownerAgentsEnabled = state.ownerAgentsEnabled ? "true" : "false";
   aiProviderStatus.dataset.dataClassification = state.dataClassificationState || "unknown";
   aiProviderStatus.dataset.memoryContext = state.memoryContextState || "unknown";
   aiProviderStatus.dataset.memoryIndexing = state.memoryIndexingState || "unknown";
@@ -2304,6 +2328,21 @@ function renderAIProviderState() {
     aiProviderStatusInstallIntent.textContent =
       state.installIntentLabel ||
       "Install intent: blocked; downloads and install execution remain disabled";
+  }
+  if (aiProviderStatusPublicLane) {
+    aiProviderStatusPublicLane.textContent =
+      state.publicLaneBoundaryLabel ||
+      "Public Edition: local assist only; provider-visible data none";
+  }
+  if (aiProviderStatusDeveloperLane) {
+    aiProviderStatusDeveloperLane.textContent =
+      state.developerLaneBoundaryLabel ||
+      "Developer lane: gated; private setup not configured";
+  }
+  if (aiProviderStatusOwnerLane) {
+    aiProviderStatusOwnerLane.textContent =
+      state.ownerLaneBoundaryLabel ||
+      "Owner lane: gated; private setup not configured";
   }
   if (aiProviderStatusAction) {
     aiProviderStatusAction.textContent = state.interactionLabel || "Open local assist";

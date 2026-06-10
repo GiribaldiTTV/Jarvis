@@ -32,6 +32,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     CORE_DESKTOP_COPY_CONTRACT_VERSION,
     CORE_DESKTOP_RUNTIME_STATE_CONTRACT,
     DATA_CLASSIFICATION_SCHEMA_VERSION,
+    DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
     DISABLED_PROMPT_BEHAVIOR_CONTRACT,
     FAM007_FOUNDATION_READINESS_MODE,
     FAM007_FOUNDATION_READINESS_STATE_ID,
@@ -44,6 +45,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     LOCAL_PROVIDER_REGISTRY_MODE,
     LOCAL_PROVIDER_REGISTRY_STATE,
     LOCAL_PROVIDER_REGISTRY_STATE_ID,
+    LANE_BOUNDARY_SCHEMA_VERSION,
     NO_PROVIDER_AVAILABILITY,
     NO_PROVIDER_FALLBACK_SELECTION,
     NO_PROVIDER_ID,
@@ -55,7 +57,9 @@ from desktop.ai_provider_state import (  # noqa: E402
     OWNER_AI_OPERATIONAL_FOUNDATION_GATES_BRANCH,
     OWNER_AI_OPERATIONAL_FOUNDATION_GATES_STATE_ID,
     OWNER_AI_OPERATIONAL_FOUNDATION_GATES_SCHEMA_VERSION,
+    OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
     PACKAGE_ID,
+    PRIVATE_SETUP_BOUNDARY_BLOCKED,
     PROVIDER_CONFIGURATION_UNCONFIGURED,
     PROVIDER_CONSENT_REQUIRED,
     RAM_READINESS_UNPROBED,
@@ -78,6 +82,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     NETWORK_EGRESS_BLOCKED,
     PERSISTENCE_DISABLED,
     PROVIDER_VISIBLE_DATA_GUARANTEE_NONE,
+    PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
     RETRIEVAL_DISABLED,
     LEARNING_DISABLED,
     SECRET_BOUNDARY_NO_SECRETS,
@@ -1084,11 +1089,36 @@ def _validate_owner_ai_operational_foundation_gates_state(
     lanes = state.get("laneReadinessGates", {})
     _require(isinstance(lanes, dict), "Owner AI lane readiness gates missing", failures)
     if isinstance(lanes, dict):
+        public_lane = lanes.get("userPublicLane", {})
+        _require(isinstance(public_lane, dict), "Owner AI userPublicLane gate missing", failures)
+        if isinstance(public_lane, dict):
+            _require(
+                public_lane.get("boundaryDisplayState") == PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
+                "Owner AI public lane boundary display state mismatch",
+                failures,
+            )
+            _require(
+                public_lane.get("privateSetupRequired") is False,
+                "Owner AI public lane must not require private setup",
+                failures,
+            )
         for lane_name in ("developerLane", "ownerLane"):
             lane = lanes.get(lane_name, {})
             _require(isinstance(lane, dict), f"Owner AI {lane_name} gate missing", failures)
             if isinstance(lane, dict):
+                expected_boundary = (
+                    DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+                    if lane_name == "developerLane"
+                    else OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+                )
+                _require(
+                    lane.get("boundaryDisplayState") == expected_boundary,
+                    f"Owner AI {lane_name} boundary display state mismatch",
+                    failures,
+                )
                 for field in ("privateRepoCreated", "privateRootCreated", "privateRemoteConfigured"):
+                    _require(lane.get(field) is False, f"Owner AI {lane_name} must set {field}=false", failures)
+                for field in ("privateSetupAuthorized", "privateMaterialVisible"):
                     _require(lane.get(field) is False, f"Owner AI {lane_name} must set {field}=false", failures)
 
     schemas = state.get("ownerAiMemoryAgentFoundationSchemas", {})
@@ -7941,6 +7971,33 @@ def validate() -> list[str]:
             failures,
         )
         _require(
+            setup_completion_payload["laneBoundarySchemaVersion"] == LANE_BOUNDARY_SCHEMA_VERSION
+            and setup_completion_payload["publicLaneBoundaryState"]
+            == PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY
+            and setup_completion_payload["developerLaneBoundaryState"]
+            == DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+            and setup_completion_payload["ownerLaneBoundaryState"]
+            == OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+            and setup_completion_payload["privateSetupBoundaryState"]
+            == PRIVATE_SETUP_BOUNDARY_BLOCKED
+            and setup_completion_payload["privateSetupAuthorized"] is False
+            and setup_completion_payload["privateMaterialVisible"] is False
+            and setup_completion_payload["ownerMemoryEnabled"] is False
+            and setup_completion_payload["ownerAgentsEnabled"] is False,
+            f"{label} setup-completion fixture must expose public-safe lane boundaries with private setup blocked",
+            failures,
+        )
+        for key, expected in {
+            "publicLaneBoundaryLabel": "Public Edition: local assist only; provider-visible data none",
+            "developerLaneBoundaryLabel": "Developer lane: gated; private setup not configured",
+            "ownerLaneBoundaryLabel": "Owner lane: gated; private setup not configured",
+        }.items():
+            _require(
+                setup_completion_payload[key] == expected,
+                f"{label} setup-completion fixture lane boundary label {key} mismatch",
+                failures,
+            )
+        _require(
             setup_completion_payload["providerSetupCompletionProviderVisibleData"]
             == "none"
             and setup_completion_payload["providerSetupCompletionSentToProvider"]
@@ -8661,6 +8718,15 @@ def validate() -> list[str]:
             'data-capability-pack-compatibility="compatibility-unproven"',
             'data-capability-pack-eligibility="capability-pack-eligibility-blocked"',
             'data-install-intent="install-intent-blocked"',
+            'data-lane-boundary-schema="lane-boundary-state.v1"',
+            'data-public-lane-boundary="public-lane-local-assist-only"',
+            'data-developer-lane-boundary="developer-lane-private-setup-blocked"',
+            'data-owner-lane-boundary="owner-lane-private-setup-blocked"',
+            'data-private-setup-boundary="private-setup-blocked"',
+            'data-private-setup-authorized="false"',
+            'data-private-material-visible="false"',
+            'data-owner-memory-enabled="false"',
+            'data-owner-agents-enabled="false"',
             'id="ai-provider-status-capability-download"',
             "Capability pack downloads: blocked",
             'id="ai-provider-status-capability-recommendation"',
@@ -8711,6 +8777,12 @@ def validate() -> list[str]:
             "Consent required before provider setup",
             "Provider-visible data: none",
             "No prompt, file, screen, memory, or telemetry is sent",
+            'id="ai-provider-status-public-lane"',
+            "Public Edition: local assist only; provider-visible data none",
+            'id="ai-provider-status-developer-lane"',
+            "Developer lane: gated; private setup not configured",
+            'id="ai-provider-status-owner-lane"',
+            "Owner lane: gated; private setup not configured",
             "Consent boundary: provider setup required before prompts",
             'id="ai-provider-status-runtime"',
             "Runtime state: provider setup disabled",
@@ -8836,6 +8908,12 @@ def validate() -> list[str]:
             "Capability-pack eligibility: blocked until local capability proof",
             'id="ai-provider-status-install-intent"',
             "Install intent: blocked; downloads and install execution remain disabled",
+            'id="ai-provider-status-public-lane"',
+            "Public Edition: local assist only; provider-visible data none",
+            'id="ai-provider-status-developer-lane"',
+            "Developer lane: gated; private setup not configured",
+            'id="ai-provider-status-owner-lane"',
+            "Owner lane: gated; private setup not configured",
             'id="ai-provider-status-action"',
             'aria-disabled="false"',
             "Open local assist",
@@ -8912,6 +8990,9 @@ def validate() -> list[str]:
         ".ai-provider-status__hardware-detection",
         ".ai-provider-status__capability-manifest",
         ".ai-provider-status__capability-eligibility",
+        ".ai-provider-status__public-lane",
+        ".ai-provider-status__developer-lane",
+        ".ai-provider-status__owner-lane",
         ".ai-provider-status__memory-contract",
         ".ai-provider-status__copy-contract",
         ".ai-provider-status::after",
@@ -8945,6 +9026,16 @@ def validate() -> list[str]:
         "SLC-003 install-intent row must not remain hidden",
         failures,
     )
+    for selector in (
+        ".ai-provider-status__public-lane",
+        ".ai-provider-status__developer-lane",
+        ".ai-provider-status__owner-lane",
+    ):
+        _require(
+            selector not in hidden_status_block,
+            f"SLC-004 lane boundary row {selector} must not remain hidden",
+            failures,
+        )
 
     for needle in (
         "const aiProviderStatus",
@@ -9151,6 +9242,27 @@ def validate() -> list[str]:
         "capabilityPackEligibilityLabel",
         "installIntentState",
         "installIntentLabel",
+        "laneBoundarySchemaVersion",
+        "publicLaneBoundaryState",
+        "publicLaneBoundaryLabel",
+        "developerLaneBoundaryState",
+        "developerLaneBoundaryLabel",
+        "ownerLaneBoundaryState",
+        "ownerLaneBoundaryLabel",
+        "privateSetupBoundaryState",
+        "privateSetupAuthorized",
+        "privateMaterialVisible",
+        "ownerMemoryEnabled",
+        "ownerAgentsEnabled",
+        "dataset.laneBoundarySchema",
+        "dataset.publicLaneBoundary",
+        "dataset.developerLaneBoundary",
+        "dataset.ownerLaneBoundary",
+        "dataset.privateSetupBoundary",
+        "dataset.privateSetupAuthorized",
+        "dataset.privateMaterialVisible",
+        "dataset.ownerMemoryEnabled",
+        "dataset.ownerAgentsEnabled",
         "dataset.capabilityPackInstall",
         "dataset.capabilityPackUpdate",
         "dataset.capabilityPackUninstall",
@@ -9210,6 +9322,9 @@ def validate() -> list[str]:
         "aiProviderStatusFunctionalRelease",
         "aiProviderStatusCapabilityEligibility",
         "aiProviderStatusInstallIntent",
+        "aiProviderStatusPublicLane",
+        "aiProviderStatusDeveloperLane",
+        "aiProviderStatusOwnerLane",
         "aiProviderStatusResult",
         "aiProviderStatusResultDetail",
         "aiProviderStatusRuntime",

@@ -163,6 +163,15 @@
       data-capability-pack-compatibility="compatibility-unproven"
       data-capability-pack-eligibility="capability-pack-eligibility-blocked"
       data-install-intent="install-intent-blocked"
+      data-lane-boundary-schema="lane-boundary-state.v1"
+      data-public-lane-boundary="public-lane-local-assist-only"
+      data-developer-lane-boundary="developer-lane-private-setup-blocked"
+      data-owner-lane-boundary="owner-lane-private-setup-blocked"
+      data-private-setup-boundary="private-setup-blocked"
+      data-private-setup-authorized="false"
+      data-private-material-visible="false"
+      data-owner-memory-enabled="false"
+      data-owner-agents-enabled="false"
       data-memory-context="memory-context-disabled"
       data-memory-indexing="memory-indexing-disabled"
       data-network-egress="network-egress-blocked"
@@ -283,6 +292,9 @@
       <div id="ai-provider-status-functional-release" class="ai-provider-status__functional-release">Functional-AI release gate: pending; v1.8.0-prebeta release gate: pending functional AI proof</div>
       <div id="ai-provider-status-capability-eligibility" class="ai-provider-status__capability-eligibility">Capability-pack eligibility: blocked until local capability proof</div>
       <div id="ai-provider-status-install-intent" class="ai-provider-status__install-intent">Install intent: blocked; downloads and install execution remain disabled</div>
+      <div id="ai-provider-status-public-lane" class="ai-provider-status__public-lane">Public Edition: local assist only; provider-visible data none</div>
+      <div id="ai-provider-status-developer-lane" class="ai-provider-status__developer-lane">Developer lane: gated; private setup not configured</div>
+      <div id="ai-provider-status-owner-lane" class="ai-provider-status__owner-lane">Owner lane: gated; private setup not configured</div>
       <button
         id="ai-provider-status-action"
         class="ai-provider-status__action"

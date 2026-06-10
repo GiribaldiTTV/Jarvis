@@ -138,6 +138,11 @@ CAPABILITY_PACK_COMPATIBILITY_UNPROVEN = "compatibility-unproven"
 CAPABILITY_PACK_INSTALL_BLOCKED = "install-blocked"
 CAPABILITY_PACK_UPDATE_BLOCKED = "update-blocked"
 CAPABILITY_PACK_UNINSTALL_BLOCKED = "uninstall-blocked"
+LANE_BOUNDARY_SCHEMA_VERSION = "lane-boundary-state.v1"
+PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY = "public-lane-local-assist-only"
+DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED = "developer-lane-private-setup-blocked"
+OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED = "owner-lane-private-setup-blocked"
+PRIVATE_SETUP_BOUNDARY_BLOCKED = "private-setup-blocked"
 MODEL_WORKLOAD_METADATA_PLANNED = "model-workload-metadata-planned"
 DATA_CLASSIFICATION_LOCAL_ONLY = "data-classification-local-only"
 DATA_CLASSIFICATION_SCHEMA_VERSION = "data-classification.v1"
@@ -2215,6 +2220,18 @@ class AIProviderStateSnapshot:
     capability_pack_install_blocked_reason: str = CAPABILITY_PACK_INSTALL_BLOCKED_REASON
     capability_pack_update_blocked_reason: str = CAPABILITY_PACK_UPDATE_BLOCKED_REASON
     capability_pack_uninstall_blocked_reason: str = CAPABILITY_PACK_UNINSTALL_BLOCKED_REASON
+    lane_boundary_schema_version: str = LANE_BOUNDARY_SCHEMA_VERSION
+    public_lane_boundary_state: str = PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY
+    public_lane_boundary_label: str = "Public Edition: local assist only; provider-visible data none"
+    developer_lane_boundary_state: str = DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+    developer_lane_boundary_label: str = "Developer lane: gated; private setup not configured"
+    owner_lane_boundary_state: str = OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+    owner_lane_boundary_label: str = "Owner lane: gated; private setup not configured"
+    private_setup_boundary_state: str = PRIVATE_SETUP_BOUNDARY_BLOCKED
+    private_setup_authorized: bool = False
+    private_material_visible: bool = False
+    owner_memory_enabled: bool = False
+    owner_agents_enabled: bool = False
     action_permission_matrix: tuple[AIReadinessActionPermissionSnapshot, ...] = ()
     provider_activation_state: str = PROVIDER_ACTIVATION_STATE_UNAVAILABLE
     provider_activation_label: str = "Provider activation: unavailable"
@@ -3999,6 +4016,18 @@ class AIProviderStateSnapshot:
             "capabilityPackInstallBlockedReason": self.capability_pack_install_blocked_reason,
             "capabilityPackUpdateBlockedReason": self.capability_pack_update_blocked_reason,
             "capabilityPackUninstallBlockedReason": self.capability_pack_uninstall_blocked_reason,
+            "laneBoundarySchemaVersion": self.lane_boundary_schema_version,
+            "publicLaneBoundaryState": self.public_lane_boundary_state,
+            "publicLaneBoundaryLabel": self.public_lane_boundary_label,
+            "developerLaneBoundaryState": self.developer_lane_boundary_state,
+            "developerLaneBoundaryLabel": self.developer_lane_boundary_label,
+            "ownerLaneBoundaryState": self.owner_lane_boundary_state,
+            "ownerLaneBoundaryLabel": self.owner_lane_boundary_label,
+            "privateSetupBoundaryState": self.private_setup_boundary_state,
+            "privateSetupAuthorized": self.private_setup_authorized,
+            "privateMaterialVisible": self.private_material_visible,
+            "ownerMemoryEnabled": self.owner_memory_enabled,
+            "ownerAgentsEnabled": self.owner_agents_enabled,
             "actionPermissionMatrix": [item.as_renderer_payload() for item in self.action_permission_matrix],
             "providerActivationState": self.provider_activation_state,
             "providerActivationLabel": self.provider_activation_label,
@@ -10522,6 +10551,18 @@ def build_provider_setup_completion_foundation_state(
         install_intent_label=(
             "Install intent: blocked; downloads and install execution remain disabled"
         ),
+        lane_boundary_schema_version=LANE_BOUNDARY_SCHEMA_VERSION,
+        public_lane_boundary_state=PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
+        public_lane_boundary_label="Public Edition: local assist only; provider-visible data none",
+        developer_lane_boundary_state=DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+        developer_lane_boundary_label="Developer lane: gated; private setup not configured",
+        owner_lane_boundary_state=OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+        owner_lane_boundary_label="Owner lane: gated; private setup not configured",
+        private_setup_boundary_state=PRIVATE_SETUP_BOUNDARY_BLOCKED,
+        private_setup_authorized=False,
+        private_material_visible=False,
+        owner_memory_enabled=False,
+        owner_agents_enabled=False,
         interaction_affordance=LOCAL_ASSISTED_INTERACTION_AFFORDANCE,
         interaction_label="Open local assist",
         interaction_disabled_reason=(
@@ -12274,6 +12315,8 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
                 "laneIdentity": "public-user-lane",
                 "privateSetupRequired": False,
                 "readinessState": "public-safe-gates-present",
+                "boundaryDisplayState": PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
+                "boundaryDisplayLabel": "Public Edition: local assist only; provider-visible data none",
             },
             "developerLane": {
                 "laneIdentity": "developer-lane-future-gated",
@@ -12281,6 +12324,10 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
                 "privateRootCreated": False,
                 "privateRemoteConfigured": False,
                 "readinessState": "blocked-pending-user-private-dev-setup-approval",
+                "boundaryDisplayState": DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+                "boundaryDisplayLabel": "Developer lane: gated; private setup not configured",
+                "privateSetupAuthorized": False,
+                "privateMaterialVisible": False,
             },
             "ownerLane": {
                 "laneIdentity": "owner-lane-future-gated",
@@ -12288,6 +12335,10 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
                 "privateRootCreated": False,
                 "privateRemoteConfigured": False,
                 "readinessState": "blocked-pending-user-owner-setup-approval",
+                "boundaryDisplayState": OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+                "boundaryDisplayLabel": "Owner lane: gated; private setup not configured",
+                "privateSetupAuthorized": False,
+                "privateMaterialVisible": False,
             },
         },
         "ownerAiMemoryAgentFoundationSchemas": {

@@ -1605,9 +1605,32 @@ def _validate_owner_ai_operational_foundation_gates(
         _require(install.get(field) is True, failures, f"Owner AI install-intent gate must set {field}=true")
 
     lanes = fixture.get("laneReadinessGates", {})
+    public_lane = lanes.get("userPublicLane", {})
+    _require(
+        public_lane.get("boundaryDisplayState") == "public-lane-local-assist-only",
+        failures,
+        "Owner AI public lane boundary display state mismatch",
+    )
+    _require(
+        public_lane.get("privateSetupRequired") is False,
+        failures,
+        "Owner AI public lane must not require private setup",
+    )
     for lane_name in ("developerLane", "ownerLane"):
         lane = lanes.get(lane_name, {})
+        expected_boundary = (
+            "developer-lane-private-setup-blocked"
+            if lane_name == "developerLane"
+            else "owner-lane-private-setup-blocked"
+        )
+        _require(
+            lane.get("boundaryDisplayState") == expected_boundary,
+            failures,
+            f"Owner AI {lane_name} boundary display state mismatch",
+        )
         for field in ("privateRepoCreated", "privateRootCreated", "privateRemoteConfigured"):
+            _require(lane.get(field) is False, failures, f"Owner AI {lane_name} must set {field}=false")
+        for field in ("privateSetupAuthorized", "privateMaterialVisible"):
             _require(lane.get(field) is False, failures, f"Owner AI {lane_name} must set {field}=false")
 
     schemas = fixture.get("ownerAiMemoryAgentFoundationSchemas", {})
@@ -1934,6 +1957,22 @@ def _validate_provider_boundary(failures: list[str]) -> None:
     payload = state.as_renderer_payload()
     for key, expected in PROVIDER_PAYLOAD_EXPECTATIONS.items():
         _require(payload.get(key) == expected, failures, f"provider payload {key}={payload.get(key)!r}, expected {expected!r}")
+    for key, expected in {
+        "laneBoundarySchemaVersion": "lane-boundary-state.v1",
+        "publicLaneBoundaryState": "public-lane-local-assist-only",
+        "developerLaneBoundaryState": "developer-lane-private-setup-blocked",
+        "ownerLaneBoundaryState": "owner-lane-private-setup-blocked",
+        "privateSetupBoundaryState": "private-setup-blocked",
+        "privateSetupAuthorized": False,
+        "privateMaterialVisible": False,
+        "ownerMemoryEnabled": False,
+        "ownerAgentsEnabled": False,
+    }.items():
+        _require(
+            payload.get(key) == expected,
+            failures,
+            f"provider payload {key}={payload.get(key)!r}, expected {expected!r}",
+        )
 
 
 def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:

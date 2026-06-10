@@ -1357,21 +1357,31 @@
       "userPublicLane": {
         "laneIdentity": "public-user-lane",
         "privateSetupRequired": false,
-        "readinessState": "public-safe-gates-present"
+        "readinessState": "public-safe-gates-present",
+        "boundaryDisplayState": "public-lane-local-assist-only",
+        "boundaryDisplayLabel": "Public Edition: local assist only; provider-visible data none"
       },
       "developerLane": {
         "laneIdentity": "developer-lane-future-gated",
         "privateRepoCreated": false,
         "privateRootCreated": false,
         "privateRemoteConfigured": false,
-        "readinessState": "blocked-pending-user-private-dev-setup-approval"
+        "readinessState": "blocked-pending-user-private-dev-setup-approval",
+        "boundaryDisplayState": "developer-lane-private-setup-blocked",
+        "boundaryDisplayLabel": "Developer lane: gated; private setup not configured",
+        "privateSetupAuthorized": false,
+        "privateMaterialVisible": false
       },
       "ownerLane": {
         "laneIdentity": "owner-lane-future-gated",
         "privateRepoCreated": false,
         "privateRootCreated": false,
         "privateRemoteConfigured": false,
-        "readinessState": "blocked-pending-user-owner-setup-approval"
+        "readinessState": "blocked-pending-user-owner-setup-approval",
+        "boundaryDisplayState": "owner-lane-private-setup-blocked",
+        "boundaryDisplayLabel": "Owner lane: gated; private setup not configured",
+        "privateSetupAuthorized": false,
+        "privateMaterialVisible": false
       }
     },
     "ownerAiMemoryAgentFoundationSchemas": {
