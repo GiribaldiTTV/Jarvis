@@ -226,17 +226,20 @@ Before User Test Summary handoff, the active authority record must declare:
 - `User-Facing Shortcut Validation: FAIL`
 - `User-Facing Shortcut Validation: WAIVED`
 
-Named blocker:
+Named blockers:
 
 - `User-Facing Shortcut Validation Pending`
+- `Exact USER Desktop Launcher Proof Missing`
+- `Launcher Parity Proof Missing`
 
 The expected default path for Nexus Desktop AI desktop work is:
 
 - `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk`
 
-The gate is green only when the declared shortcut or explicitly equivalent user-facing entrypoint launches the active branch, reaches ready state, exposes the relevant user-visible surface, and leaves cleanup/persisted-state evidence consistent with the workstream validation contract before User Test Summary handoff.
-For desktop user-facing branches, the actual desktop shortcut path is mandatory when feasible. A documented equivalent entrypoint may satisfy this gate only when the authority record and proof manifest explain why it is equivalent to the USER-operated path, including tray/menu/window behavior, or when USER explicitly waives the actual shortcut requirement.
-For desktop UI Live Validation, a sandbox/offscreen/direct-runtime/WebView/helper path is never the primary UTS path when the user-facing launcher is feasible. Those paths may supply supporting coverage only; the LV1 handoff must identify the real desktop launcher evidence as the USER-facing path.
+The gate is green only when the declared exact normal USER desktop runtime launcher launches the active branch, reaches ready state, exposes the relevant user-visible surface, and leaves cleanup/persisted-state evidence consistent with the workstream validation contract before User Test Summary handoff.
+For desktop user-facing branches, the exact normal USER desktop runtime launcher path is mandatory unless USER explicitly waives it. A troubleshooting launcher or documented equivalent entrypoint may satisfy this gate only when the authority record and proof manifest record USER consent plus `Launcher Parity Proof: PASS`, including tray/menu/window behavior, or when USER explicitly waives the exact launcher requirement.
+Compatibility wording: the legacy phrase `actual desktop shortcut path is mandatory when feasible` means the exact normal USER desktop runtime launcher path is mandatory unless USER explicitly waives it or an approved launcher parity proof makes an alternate launcher legal for the exact claim.
+For desktop UI Live Validation, a sandbox/offscreen/direct-runtime/WebView/helper path is never the primary UTS path. Those paths may supply supporting coverage only; the LV1 handoff must identify the exact normal USER desktop runtime launcher evidence as the USER-facing path unless USER waiver or launcher parity proof makes an alternate launcher legal for that exact claim.
 Shortcut equivalence must not be inferred from helper success alone. Static proof, sandbox proof, fake/offscreen model proof, callback-only proof, active-client screenshot proof, and real user-operated tray proof are separate proof classes and must be labeled separately when the UTS asks the USER to test real tray or desktop operations.
 Before a Live Validation Stage 1 UTS handoff can be marked green for a desktop UI step, Codex must record a per-step precheck manifest using `Codex Precheck: PASS`, `Codex Precheck: FAIL`, `Codex Precheck: NOT TESTED`, or `Codex Precheck: WAIVED`. If Codex did not test the step through the same USER-facing path or a proven/waived equivalent, the UTS step must say `Codex Precheck: NOT TESTED` and LV1 cannot claim a green handoff without explicit USER waiver.
 If the gate is `PENDING`, keep `User-Facing Shortcut Validation Pending` active.
@@ -274,7 +277,7 @@ The gate is green only when Codex records a live-client review of readability, p
 Screenshot-only or marker-only proof is not enough. Codex must exercise the same visible user-facing interactions it would ask the USER to test, record `Live Interaction Evidence:`, and include an interaction manifest or equivalent evidence when the work adds an interactive UI surface.
 For desktop UI, Codex must also perform a failure-seeking visual adjudication pass over the focused proof artifacts before UTS handoff. That pass must compare every acceptance-critical screenshot or frame sequence against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision/UTS feedback, and package-level UI/UX intent, then record per-element `PASS`, `REPAIR`, `STOP`, or `WAIVED_WITH_REASON` verdicts. Helper PASS, marker PASS, screenshot existence, and manifest existence cannot clear visual acceptability by themselves.
 If Codex can see clipped text, unclear workflow hierarchy, weak hover/click affordance, missing open/disabled/danger/empty/error proof, native/basic controls where Nexus styling is required, unreadable density, confusing window flow, or package-vision mismatch, LV1 must route back to Workstream or Hardening before asking the USER to accept the handoff.
-If the UTS asks the USER to right-click a tray icon, open or close a window through a tray menu, confirm shutdown, move/resize a visible window, or verify a visible state transition, Codex must precheck that same user-facing operation through the actual shortcut/runtime path when feasible. Fake windows, hidden clients, direct callbacks, and offscreen model assertions can support implementation confidence but cannot be recorded as the sole PASS for the same USER-facing step.
+If the UTS asks the USER to right-click a tray icon, open or close a window through a tray menu, confirm shutdown, move/resize a visible window, or verify a visible state transition, Codex must precheck that same user-facing operation through the exact normal USER desktop runtime launcher path or an approved parity/waiver path. Fake windows, hidden clients, direct callbacks, and offscreen model assertions can support implementation confidence but cannot be recorded as the sole PASS for the same USER-facing step.
 For desktop UI, the Live Validation helper must offer an active foreground/user-observable mode; a fast hidden or blink-through run may support automation evidence but does not satisfy USER-visible active-client validation.
 For desktop UI with tray/menu/window operations, app-side precheck code that calls tray handlers directly is not a human-client pass. A green LV1 handoff requires a human-client manifest or explicit USER waiver. The manifest must show visible desktop shortcut launch, visible tray/menu selection, mouse/cursor or UIAutomation-backed click evidence, visible window state evidence, screenshot or frame-sequence artifacts, and Codex inspection of visual/UI quality for every issue-grounded UTS item. If this evidence is missing, the UTS must not be exported as green and the branch routes back to Workstream or Hardening.
 For desktop UI Live Validation, screenshots plus short video proof are mandatory for every acceptance-critical interactive or transient state. The short video may be an MP4 evidence reel generated from ordered focused screenshots or a live frame sequence, but it must be a durable media artifact referenced by the manifest. Screenshot existence alone, manifest text alone, or a single final static state cannot satisfy this gate. If a helper cannot create or cite short video/frame-sequence proof for a relevant UI path, the LV1 handoff is `FAIL` / `REPAIR`, not waiverable by Codex.
@@ -304,7 +307,7 @@ and the user explicitly approves the carry-forward.
 
 ## Self-Validation Before Handoff
 
-Before giving the user a manual `UTS` handoff for a runtime or UI path, Codex should run that same path or the closest faithful equivalent when feasible.
+Before giving the user a manual `UTS` handoff for a runtime or UI path, Codex must run the exact normal USER desktop runtime path when the branch is desktop/user-facing, or record the explicit waiver, approved launcher parity proof, or blocker that keeps that path from being formal proof.
 
 For relevant desktop or operator-facing slices, if the implemented path can be launched and exercised through a real desktop session in the current environment, Codex must treat that interactive OS-level session as the default self-validation gate before recommending normal continuation.
 
@@ -343,7 +346,7 @@ Codex must also perform deeper branch-local internal validation before claiming 
 - add or create the smallest reliable validation infrastructure when meaningful blind spots remain
 - use supporting validation artifacts when needed, such as harnesses, fixtures, scripted helpers, runtime logs, traces, screenshots, or reproducible sample inputs
 - use synthetic or headless validators and harnesses as supporting proof rather than the final continuation gate when a real desktop session is feasible
-- launch and exercise the real desktop or runtime path through an interactive OS-level session when feasible, rather than stopping at simulated reasoning or headless proof
+- launch and exercise the exact normal USER desktop runtime path through an interactive OS-level session when applicable, or record the explicit waiver/blocker that keeps it from being formal proof, rather than stopping at simulated reasoning or headless proof
 - preserve evidence of what was run, what passed or failed, and where the supporting artifacts live
 - produce an explicit judgment about whether the next move is:
   - continue implementation

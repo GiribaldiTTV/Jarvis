@@ -74,6 +74,29 @@ Use this ownership model before creating or updating a governance/source-truth f
 | `Docs/pr_watcher_mode_contract.md` | watcher mode contract and approval default | live PR state beyond explicit watcher proof packets |
 | `Docs/external_operational_state_store_reform_plan.md` | Docs Split implementation plan, target matrix, approved-stage boundaries, migration-map helper posture, annotations, transition sequencing, and future-work checklist | binding migration authority, validator transition authority, active external-state root contents, or migrated branch/worktree/release-window state |
 
+## Document Purpose And Disposition Table
+
+Use this table before recommending consolidation, retirement, archival, deletion, or repurposing. A file being old, large, or rarely edited is not enough to remove it.
+
+| Surface | Purpose | Not For | Disposition Class | Active State Owner | Retirement / Deletion Preflight |
+| --- | --- | --- | --- | --- | --- |
+| `Docs/feature_backlog.md` | compact FAM registry, priority, and canonical pointers | detailed vision narrative, BP/LV/SLC/UTS state, branch lifecycle, PR/release-window state, active dependency queue | durable compact registry | Git/GitHub/helpers, active external branch plan, or `C:\Nexus Governance State` | prove replacement registry owner and pointer preservation before any move/delete |
+| `Docs/prebeta_roadmap.md` | release-stage schedule outline, milestone breakpoints, broad family checkpoints, durable evidence pointers | release ledger, selected-next tracker, active branch diary, package/slice trace table | durable compact roadmap | Git/GitHub/helpers and external operational state | prove milestone routing replacement and release-readiness compatibility before any move/delete |
+| `Docs/nexus_vision.md` | project-wide product vision and durable product/UI/proof standards | family-specific implementation ledger or branch plan | durable canonical vision | not applicable; branch-local application lives in active planning | cannot retire while project vision exists; only amend through source-truth patch |
+| `Docs/family_visions/` | broad FAM vision contracts and family-level UI/proof specialization | active branch authority, package/slice execution diary, another FAM's implementation queue | durable family vision | active branch planning/external state when work is live | fold all durable FAM intent into approved replacement before rename/delete |
+| `Docs/family_feature_visions/index.md` | compact FFV / feature-category registry | active branch state, selected-next state, gate status, live dependency queue | durable compact registry | active external branch plan or Git/GitHub/helper truth | prove all FFV pointers and branch packets migrate before rename/delete |
+| `Docs/family_feature_visions/<id>.md` | detailed durable feature-category vision, FFV elements, deferred carryforward, proof expectations | Slice/SLC identity, branch route, seam checklist, live implementation ledger | durable feature-category contract | active external branch plan, BP2/BP3, workstream proof | replacement FFV and pointer migration proof required before rename/delete |
+| `Docs/branch_records/index.md` | branch-record law, standing Governance exception, durable receipt routing | full active branch operations list | durable routing law | external active authority and Git/GitHub/helpers | governance migration plan and validation required before structural changes |
+| `Docs/branch_records/<branch>.md` | durable branch identity, approval receipts, historical traceability, compact fold-down | current non-standing active authority, live PR/review state, selected-next state, worktree assignment | durable receipt or transition owner | external branch state, Git/GitHub/helpers | exact replacement-owner proof, reference scan, and no-loss fold-down required |
+| `Docs/branch_plans/<branch>.md` | branch-plan schema, transition-approved planning receipt, retired/historical evidence | active external branch plan after fold-down, duplicate live ledger | durable receipt or transition owner | `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md` | retirement index, reference scan, durable receipt preservation, and USER approval required |
+| `Docs/workstreams/index.md` | workstream/dossier routing | per-branch live state | durable routing index | active external planning or Git/GitHub/helpers | prove no dossier routing loss before move/delete |
+| `Docs/workstreams/<id>.md` | durable package trace, slice trace, proof history, reusable continuity | live branch, PR, or release-window state | durable historical/proof record | active external planning or Git/GitHub/helpers | replacement family dossier or branch receipt proof required |
+| `Docs/closeout_index.md` and `Docs/closeouts/` | historical closeout lookup, release/epoch summaries, baseline interpretation | current phase state, release execution authority, live blocker diary | historical receipt | Git/GitHub/releases/helpers for current release truth | reference scan and durable summary replacement required; no deletion by age alone |
+| `Docs/closeout_guidance.md` | closeout policy and closeout-quality expectations | branch-specific closeout evidence ledger | durable governance guidance | active phase packets/helpers | update only through governance owner patch |
+| `Docs/incident_patterns.md` | generalized recurring failure patterns and prevention lessons | one-off branch diary, active blocker queue, detailed PR conversation mirror | reusable pattern library | current branch/external state for active blockers | fold reusable lesson into another owner or mark superseded before deletion |
+| generated governance audits | inventory, review queue, and audit evidence for USER inspection | primary hand-edited source truth, active-state ledger | generated evidence / review aid | source files plus helper output | regenerate or supersede through helper; broad movement/deletion needs USER approval |
+| USER review packets under `C:\Nexus USER` | local USER-facing review aids and upload ZIPs | repo source truth, active operational ledger, durable canon by themselves | local review evidence | repo owners, helpers, external state | refresh/purge per helper rules; do not commit as canon unless explicitly promoted |
+
 ## Docs Source-Truth Reform Model
 
 Docs Source-Truth Reform Model: Compact Pointer Layer.
@@ -102,6 +125,23 @@ Derived live truth comes from Git, GitHub, or approved helpers. Examples include
 Governance receipts are recorded after live truth is checked. Examples include USER assignment decisions, branch admission, release scope interpretation, merge closeout, watcher repair proof, and branch-plan fold-down.
 
 Docs may record historical receipts, but they must not pretend to be live operational truth. When a current operational fact is needed, run a helper or live check and report it as evidence.
+
+## Runtime Observability Evidence Placement Rule
+
+Rule Name: `Runtime Observability Evidence Placement Rule`
+Owner File: `Docs/governance_efficiency_operating_model.md`
+Compact Mirror: `Docs/phase_governance.md` owns the phase/proof gate; `Docs/validation_helper_registry.md` owns helper/validator expectations.
+
+Repo docs own durable runtime-observability rules, source-truth owner boundaries, compact pointers, schemas, and historical receipts. They do not own active raw evidence ledgers for logs, screenshots, videos, Dev Toolkit traces, launcher sessions, UTS packet state, troubleshooting sessions, or current Live Validation status.
+
+Active or raw proof belongs in the appropriate non-canonical evidence owner:
+
+- exact launcher, photo/video, screenshot, interaction, and manifest evidence: helper output, Codex digest, local USER review hub, USER screenshots folder, or approved evidence root
+- active Live Validation / UTS posture: active external branch plan or `C:\Nexus Governance State`
+- Git/GitHub/PR/release facts: Git, GitHub, or approved helper-derived truth
+- durable post-merge interpretation: repo branch receipts, workstream records, family vision fold-down, or release receipts after USER-approved fold-down
+
+`Live Validation Evidence Ledger In Repo` blocks when Codex turns repo docs into a current evidence checklist or active proof status tracker. The repair path is to move raw/current evidence to the external/helper/USER packet owner, then fold down only durable rules, durable receipts, or compact historical pointers.
 
 ## Codex Plugin / Connector Evidence Split Compatibility Contract
 
@@ -670,6 +710,8 @@ The default cleanup sequence is: inventory and classify, review queue and owner 
 
 `Docs/nexus_vision.md` is the Nexus-wide product vision contract. It was promoted from the former `Docs/orin_vision.md` path after focused reference migration so Branch Readiness has a stable project-wide vision owner.
 
+It also owns the Project UI Vision: comfort, reliability, futuristic-but-understandable presentation, consistent controls, fail-safe behavior, readability, future versatility/changeability, and project-wide control grammar. Family Vision and Family Feature Vision records carry those principles by reference and specialize only the family or feature-category details they own.
+
 The vision contract should drive backlog-family planning and Branch Readiness recommendations. A backlog item may need its own family-level vision record or vision section when the product intent is not obvious, but that vision is not a branch plan and should not duplicate per-seam implementation detail. The vision explains what outcome the plan must satisfy; the Branch Runtime Engineering Plan explains how the active branch intends to implement and prove it.
 
 Vision records should support USER/Codex back-and-forth. They may grow as implementation teaches the project, but changes should be explicit USER-reviewed product intent, not accidental branch-local drift.
@@ -694,6 +736,8 @@ Use this layer when product/design assumptions would otherwise become implementa
 - Vision Question Digest is the required packet when product/design uncertainty affects planning or execution.
 - Branch Plan Revision Packet is the required packet when accepted vision or accepted branch scope needs controlled revision.
 - Plan-to-Implementation Traceability proves that implementation followed accepted vision and the branch plan.
+
+USER review and validation packets that prove user-facing or runtime behavior should show which vision layers applied, which selected/deferred elements were tested, what evidence proves them, and which claims remain PASS, FAIL, BLOCKED, or UNPROVEN. Raw evidence and active status remain outside repo docs; durable repo docs own the governing vision contract and folded receipts only.
 
 Design assumption states:
 

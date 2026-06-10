@@ -691,6 +691,14 @@ The default named blockers are:
 - `Backlog Exhaustion User Decision Pending`
 - `Single-Slice Package User Approval Missing`
 - `Package Completion Unproven`
+- `Exact USER Desktop Launcher Proof Missing`
+- `Launcher Parity Proof Missing`
+- `Photo Or Video Proof Missing`
+- `Unphotographable Proof Not Elevated To USER`
+- `Direct Runtime Proof Misclassified`
+- `Troubleshooting Consent Missing`
+- `Live Validation Evidence Packet Incomplete`
+- `User-Visible Internal Path Leakage`
 
 Blockers stop progression immediately and must be reported before any later-phase recommendation.
 
@@ -1459,12 +1467,19 @@ This rule governs operator output packages; it does not remove normal canon requ
 
 ### User-Facing Shortcut Live Validation Gate
 
-For relevant desktop user-facing workstreams, Live Validation may use validators, direct runtime launches, helper launches, synthetic harnesses, and targeted manual probes to build scenario coverage.
+For relevant desktop user-facing workstreams, Live Validation may use validators, direct runtime launches, helper launches, synthetic harnesses, troubleshooting launchers, and targeted manual probes to build scenario coverage.
 Those evidence layers are supporting proof, not final green by themselves.
 
-Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the same user-facing desktop shortcut or equivalent user entrypoint that the user is expected to use.
-For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the user-facing launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, and active-client probes are supporting evidence only; they cannot be called the USER path, cannot replace the real user-facing desktop launcher declared for UTS, and cannot clear UTS handoff by themselves.
-For Nexus Desktop AI, the default desktop shortcut path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares an explicit equivalent.
+Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the exact normal USER desktop runtime launcher path declared for the branch.
+For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the normal USER desktop launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, generated-equivalent shortcuts, active-client probes, and troubleshooting launcher runs are supporting evidence only unless launcher parity proof and USER approval make the troubleshooting launcher equivalent for the exact claim being validated.
+For Nexus Desktop AI, the default normal desktop launcher path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares a different exact USER desktop launcher path. A generated shortcut or non-Desktop equivalent is invalid as final USER-path proof unless USER explicitly grants a waiver with reason.
+
+Two-launcher exception:
+
+- `Normal Desktop Runtime Launcher` owns ordinary USER proof.
+- `Troubleshooting Runtime Launcher` is an explicit USER-consented diagnostic profile.
+- Troubleshooting launcher evidence may count as formal equivalent proof only when `Launcher Parity Proof: PASS` shows both launchers start the same product runtime/build, use the same product data roots and user-visible behavior, and differ only by admitted diagnostic flags, diagnostic evidence roots, log level, and troubleshooting disclosure.
+- If launcher parity is missing, fails, or the validated claim could be affected by troubleshooting-mode differences, Live Validation must use the normal USER desktop runtime launcher, request USER manual validation, or stop on a named blocker.
 
 Named blocker:
 
@@ -1478,18 +1493,33 @@ Machine-checkable authority-record markers:
 - `User-Facing Shortcut Validation: FAIL`
 - `User-Facing Shortcut Validation: WAIVED`
 - `User-Facing Shortcut Waiver Reason:`
+- `Exact USER Desktop Launcher Path:`
+- `Exact USER Desktop Launcher Validation: PENDING`
+- `Exact USER Desktop Launcher Validation: PASS`
+- `Exact USER Desktop Launcher Validation: FAIL`
+- `Exact USER Desktop Launcher Validation: WAIVED`
+- `Exact USER Desktop Launcher Waiver Reason:`
+- `Troubleshooting Runtime Launcher Path:`
+- `Troubleshooting Runtime Launcher Consent: PENDING`
+- `Troubleshooting Runtime Launcher Consent: GRANTED`
+- `Troubleshooting Runtime Launcher Consent: WAIVED`
+- `Launcher Parity Proof: PENDING`
+- `Launcher Parity Proof: PASS`
+- `Launcher Parity Proof: FAIL`
+- `Launcher Parity Proof: WAIVED`
 
 Required proof:
 
-- the declared user-facing shortcut or equivalent entrypoint launches the active branch runtime
+- the declared exact normal USER desktop runtime launcher path launches the active branch runtime
 - startup reaches the expected ready state
 - the user-visible entry surface introduced or changed by the branch is visible or intentionally documented where the user must look for it
 - relevant runtime markers, UI/manual readback, persisted-state checks, and cleanup evidence match the branch validation contract
-- helper-only, direct-Python, WebView-only, sandbox/offscreen, active-client direct-runtime, or harness-only evidence is not treated as a substitute for this final shortcut gate when the shortcut path is feasible
+- helper-only, direct-Python, WebView-only, sandbox/offscreen, active-client direct-runtime, generated-shortcut, troubleshooting-launcher-without-parity, or harness-only evidence is not treated as a substitute for this final launcher gate when the normal USER desktop launcher path is feasible
 
 Lift condition:
 
-- `User-Facing Shortcut Validation: PASS` is recorded with evidence from the declared shortcut path, or `User-Facing Shortcut Validation: WAIVED` is recorded with `User-Facing Shortcut Waiver Reason:` showing the branch is not desktop/user-facing or the shortcut path is explicitly unavailable
+- `User-Facing Shortcut Validation: PASS` and `Exact USER Desktop Launcher Validation: PASS` are recorded with evidence from the declared normal USER desktop launcher path, or both are recorded as `WAIVED` with reasons showing the branch is not desktop/user-facing or the exact normal launcher path is explicitly unavailable
+- if troubleshooting launcher proof is used as equivalent, `Troubleshooting Runtime Launcher Consent: GRANTED` and `Launcher Parity Proof: PASS` are required before it can satisfy the exact claim being validated
 - the blocker state is reevaluated after the result is digested
 
 Routing:
@@ -1497,6 +1527,37 @@ Routing:
 - while `User-Facing Shortcut Validation: PENDING` remains, list `User-Facing Shortcut Validation Pending` under blockers and do not advance
 - if `User-Facing Shortcut Validation: FAIL`, keep an explicit blocker and route back to `Workstream` or `Hardening` before PR Readiness
 - if the shortcut gate passes or is waived, User Test Summary handoff may proceed only if all other Live Validation gates are green
+
+Compatibility wording: the legacy phrase `real user-facing desktop launcher` means the exact normal USER desktop runtime launcher path declared for the branch; it is not a weaker substitute for the exact-launcher requirement.
+
+### Runtime Observability / Live Validation Proof Contract
+
+Rule Name: `Runtime Observability / Live Validation Proof Contract`
+Owner: `Docs/phase_governance.md`
+Applies To: BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, Workstream implementation proof, Hardening H1, Live Validation LV1, User Test Summary handoff, active external branch plans, Live Validation helpers, USER review packets, and Codex return digests for runtime or user-facing desktop work.
+Required State: every admitted feature, surface, control, window, bridge path, file/folder action, user-visible state transition, and validation-critical hidden state must receive an observability and proof decision before Workstream implementation begins. The decision must state whether normal runtime logs, troubleshooting-mode logs, Dev Toolkit instrumentation, exact normal desktop launcher proof, launcher parity proof, photo/video evidence, screenshot manifests, interaction matrices, manual USER validation, UTS coverage, privacy/redaction, user-visible disclosure, or future-gated observability are required.
+Allowed Values: `Normal Runtime Log Required`, `Troubleshooting Log Required`, `Dev Toolkit Instrumentation Required`, `Exact USER Desktop Launcher Proof Required`, `Launcher Parity Proof Required`, `Photo / Video Proof Required`, `Manual USER Validation Required`, `UTS Coverage Required`, `No Log Needed With Reason`, `Privacy / Redaction Constraint`, `User-Visible Disclosure Required`, `Future-Gated Observability`, `Waived By USER With Reason`.
+Invalid Values: `Helper PASS Is Proof`, `Marker PASS Is USER Proof`, `Direct Runtime Equals USER Path`, `Generated Shortcut Equals USER Launcher`, `Troubleshooting Equals Normal Without Parity`, `Screenshot Exists Therefore Accepted`, `Video Exists Without Adjudication`, `Unphotographable But Proven By Codex`, `Troubleshooting Enabled Silently`, `Internal Path Exposed As Product Folder`, `Evidence Packet Omitted`.
+Blocking Condition: `Exact USER Desktop Launcher Proof Missing`, `Launcher Parity Proof Missing`, `Photo Or Video Proof Missing`, `Unphotographable Proof Not Elevated To USER`, `Direct Runtime Proof Misclassified`, `Troubleshooting Consent Missing`, `Live Validation Evidence Packet Incomplete`, `User-Visible Internal Path Leakage`, `Codex Live Client Self-QA Pending`, or `User Test Summary Results Pending` blocks the phase when applicable.
+Repair Owner: current branch owner for product/runtime defects; owning helper/validator for proven tool defects; `Docs/phase_governance.md`, `Docs/branch_plans/README.md`, and `Docs/validation_helper_registry.md` for reusable governance/validation drift; USER for waivers, manual validation, and troubleshooting consent.
+Repair Path: add or repair the observability decision matrix, declare the exact normal USER desktop runtime launcher path, rerun formal LV through that launcher, capture photo/video or ordered frame-sequence evidence for visible claims, adjudicate each artifact against Project Vision / Family Vision / FFV / accepted BP1/BP2 contracts, attach or reference raw evidence in the USER packet, elevate unphotographable claims to USER manual validation or explicit waiver, classify direct-runtime/helper evidence as diagnostic-only when it is not the USER path, and route any implementation defect back to Workstream or Hardening. If a troubleshooting launcher is used as equivalent proof, first prove launcher parity and USER consent; otherwise it remains supporting evidence only.
+USER Decision Required: required to waive exact normal launcher proof, accept troubleshooting launcher proof as equivalent, waive photo/video proof, accept manual validation for unphotographable claims, enable troubleshooting mode, export/share diagnostic logs, or accept a product UI folder/path that exposes internal implementation concepts.
+Validation Owner: active Live Validation helper, `dev/orin_branch_governance_validation.py` when the rule becomes machine-checkable, `dev/orin_user_review_bundle.py` for USER packet completeness, and the relevant family/runtime validators.
+Final Disposition: Live Validation may report green only when exact normal launcher proof or approved parity proof, photo/video proof or USER-elevated waiver, runtime/log consistency, Dev Toolkit or helper evidence, visual adjudication, UTS state, and USER packet evidence are all reconciled. Direct runtime evidence remains diagnostic/supporting proof unless exact USER desktop launcher validation is passed or explicitly waived.
+
+Formal proof hierarchy for user-facing runtime work:
+
+1. Exact normal USER desktop runtime launcher photo/video proof owns visible USER-path acceptance.
+2. Troubleshooting runtime launcher proof may substitute only when USER consent is recorded, launcher parity proof is `PASS`, and the exact claim is not affected by allowed troubleshooting differences.
+3. USER manual validation or explicit USER waiver owns required claims that cannot be proven in photo/video.
+4. Runtime logs, Dev Toolkit events, manifests, validators, and helper output support diagnosis and consistency; they do not replace item 1, item 2, or item 3 for USER-facing acceptance.
+5. Direct runtime, WebView, sandbox/offscreen, generated shortcut, or helper launch proof is diagnostic-only unless USER explicitly waives the exact launcher requirement.
+
+Normal versus troubleshooting runtime mode:
+
+- `Normal Runtime Mode` is the default product launch profile. It uses minimal privacy-safe logs and avoids broad diagnostic capture.
+- `Troubleshooting Mode` is an explicit USER-consented diagnostic launch profile. It must be local by default, temporary/scoped, privacy-safe/redacted where needed, and visibly different from normal runtime.
+- BP2/BP3 must decide whether troubleshooting mode is required for the branch. Workstream may implement instrumentation only when the approved scope admits it. Live Validation may use troubleshooting evidence only as supporting proof unless launcher parity and USER consent make it equivalent for the exact claim being validated.
 
 ### Codex Live Client Self-QA Gate
 
@@ -2474,6 +2535,18 @@ Family Feature Vision and Deferred Feature Carryforward BR2 rule:
 - BR2 output may use active decision language because BR2 is the dynamic option-evaluation gate. The Family Feature Vision file itself must not store active terms such as `active`, `current branch`, `selected next`, `pending PR`, `in progress`, `next branch`, or release-window status.
 - Missing applicable deferred carryforward review blocks on `Deferred Feature Carryforward Review Missing`. Ignoring a relevant deferred item from the selected Family Feature Vision blocks on `Deferred Carryforward Applicability Missing`. Splitting deferred items into tiny branches when dependency and validation proof support one coherent package blocks on `Deferred Carryforward Branch Sprawl`.
 
+Vision Carrydown Contract:
+
+- The governed vision chain is `Project Vision -> Family Vision -> Family Feature Vision -> Branch Vision Contract Snapshot -> BP2/BP3 engineering plan -> Workstream/Hardening/Live Validation proof`.
+- BR1 and BR2 must report which layers apply, which files were loaded, whether a Family Feature Vision exists, whether it is sufficient, and whether any layer is not applicable with a source-truth reason.
+- BP1 must digest the applied Project Vision, Family Vision, and Family Feature Vision into a branch-specific vision. BP1 must not invent feature-category direction from branch-local reasoning when the correct Family Feature Vision is missing, shallow, stale, slice-specific, or pointer-stale.
+- BP2 must translate the accepted or waived BP1 vision into branch-local Slice/SLC/seam engineering work, proof outputs, rollback, risk controls, and deferred-item dispositions. If BP2 changes product direction, user-facing behavior, UI carrydown, surface scope, or deferred/future-gated boundaries, it must route back to BP1 or record an explicit USER waiver before BP3.
+- BP3 must verify that the Workstream package implements the accepted or waived BP1/BP2 vision chain, not merely that markers, fixtures, or command outputs are green.
+- Workstream and Hardening must preserve the same selected Family Feature Vision elements, deferred-item decisions, and UI/proof expectations unless source truth routes a revision back to Branch Planning.
+- Live Validation must compare observed behavior against the Project Vision, Family Vision, applied Family Feature Vision when present, accepted Branch Vision Contract Snapshot, and accepted BP2/BP3 proof plan. Helper output, runtime logs, screenshots, videos, or markers cannot clear a product/user-facing claim unless Codex also adjudicates the claim against that vision chain or records an explicit waiver.
+- USER review packets for BP1, BP2, BP3, Hardening, Live Validation, and UTS handoff must show the applied vision layers, selected/deferred elements, user-facing surfaces, proof gathered, evidence paths, PASS/FAIL/BLOCKED/UNPROVEN disposition, and future-gated scope in a USER-readable way.
+- Missing vision-layer proof blocks on `Vision Carrydown Chain Missing`. Branch-local invention while a Family Feature Vision is required blocks on `Branch Vision Invented From Local Reasoning`. Missing Live Validation comparison blocks on `Vision Proof Alignment Missing`. A USER packet that omits the applied vision/evidence mapping blocks on `USER Packet Vision Evidence Missing`.
+
 For broad implementation family packages, Branch Readiness planning is not complete until the planning packet records USER vision inputs or explicit unanswered-question blockers, project-wide vision alignment, branch-specific vision alignment, Codex product interpretation, Codex implementation recommendation, Codex additional recommendations, USER/ChatGPT review checkpoint, USER critique loop, USER decision ledger, full feature element breakdown, system concept model, entity/profile model, user workflow model, scale/data-volume model, configuration/state model, whole-system interaction map, minimum viable versus full-system boundary, alternatives/tradeoffs reviewed, rejected shallow plan, current-branch versus future-package boundaries, affected files/surfaces, branch reach/package-size proof, expected user-facing outcomes, acceptance criteria, screenshot/live/User Test Summary proof requirements for user-facing work, implementation sequence proposal, deferred ideas/future-package ledger, open USER decision points, and USER decisions needed. Marker-only planning, a one-screen/simple-system plan, scaffold-only proof, or Codex self-assessment that the plan is "simple enough" is insufficient. The same planning proof remains required if the active implementation branch has already moved into Workstream, Hardening, Live Validation, or PR Readiness; later phases must route back to Branch Readiness instead of continuing with shallow planning debt.
 
 The active implementation branch `Product Definition Plan` must include non-empty, concrete, non-placeholder `Project-Wide Vision Alignment:`, `Branch-Specific Vision Alignment:`, `System Concept Model:`, `Entity / Profile Model:`, `User Workflow Model:`, `Scale / Data Volume Model:`, `Configuration And State Model:`, `Expected User-Facing Outcomes:`, `Codex Additional Recommendations:`, `USER Critique Loop:`, `USER Decision Ledger:`, `Deferred Ideas / Future Package Ledger:`, `Planning Adequacy Review:`, `Rejected Shallow Plan:`, `Alternatives And Tradeoffs Reviewed:`, `Whole-System Interaction Map:`, `Minimum Viable vs Full System Boundary:`, and `Open Questions / USER Decision Points:` markers before Workstream, Hardening, Live Validation, or PR Readiness can begin or resume. `Planning Packet Status: Complete` is invalid when those values are placeholder, self-assessed, too shallow, or missing the required USER critique/decision state.
@@ -2554,8 +2627,8 @@ Purpose:
 Branch Planning uses three internal stage gates without changing the canonical phase enum:
 
 - `BP1 - USER Branch Vision Review`: uses `USER_BRANCH_VISION_REVIEW.md` to present Project Vision Context, Family Vision Context, Feature Vision Context, Branch Goal, End-State Vision, user-facing behavior, surface map, design options, Codex recommendations, USER response, Codex digest, accepted Branch Vision, deferred/future-gated ideas, question queue, design assumption ledger, and acceptance/revision/rejection/waiver status. BP1 cannot begin while `Family Feature Vision Required For Selected Feature` is active. When a USER-approved Family Feature Vision exists, `Feature Vision Context` must digest that file and its Deferred Feature Carryforward instead of inventing feature direction from branch-local reasoning. The BP1 artifact must be substantive and branch-specific: it digests source-truth context into an applied branch vision, explains what USER will see/review/decide/rely on, names real design options and tradeoffs, asks decision-driving questions, and cannot pass as a template shell, copied-file list, generic options list, or marker-only packet.
-- `BP2 - USER Branch Plan Review`: uses `USER_BRANCH_PLAN_REVIEW.md` to present the engineering plan derived from accepted or waived BP1, including package summary, branch scope size test, Slice/SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, and exact BP3 approval text. The BP2 artifact must translate the accepted BP1 vision into a branch-specific engineering contract with scope, slice-level deliverables, seams, proof outputs, risk controls, rollback/reversibility posture, options, tradeoffs, and Codex recommendation; it must preserve the BR2/BP1 disposition of applicable deferred carryforward items and cannot merely repeat BP1, list markers, or point USER at copied files.
-- `BP3 - Workstream Entry / Orchestration Validation`: proves BP2 correctly implements BP1, proves package size and Slice/SLC traceability, verifies affected files, validators, helper updates, H1/LV/UTS/rollback/proof paths, preserves future-gated boundaries and deferred-item dispositions, and returns bounded Workstream implementation approval for the admitted same-branch package only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. The BP3 artifact must name the entry seam or initial seam sequence and must be a substantive orchestration-readiness contract with scope, implementation order, validation/proof plan, rollback posture, drift controls, unresolved USER decisions, blockers, and a go/repair/blocked recommendation; it cannot rely on helper-green hygiene or first-seam-only readiness.
+- `BP2 - USER Branch Plan Review`: uses `USER_BRANCH_PLAN_REVIEW.md` to present the engineering plan derived from accepted or waived BP1, including package summary, branch scope size test, Slice/SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, Runtime Observability Decision Matrix when applicable, exact normal USER desktop runtime launcher proof plan, launcher parity proof plan if troubleshooting may substitute, photo/video proof plan, manual USER validation plan, H1 expectations, LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, and exact BP3 approval text. The BP2 artifact must translate the accepted BP1 vision into a branch-specific engineering contract with scope, slice-level deliverables, seams, proof outputs, risk controls, rollback/reversibility posture, options, tradeoffs, and Codex recommendation; it must preserve the BR2/BP1 disposition of applicable deferred carryforward items and cannot merely repeat BP1, list markers, or point USER at copied files.
+- `BP3 - Workstream Entry / Orchestration Validation`: proves BP2 correctly implements BP1, proves package size and Slice/SLC traceability, verifies affected files, validators, helper updates, H1/LV/UTS/rollback/proof paths, validates runtime observability and exact-launcher/photo-video/manual-validation planning when applicable, preserves future-gated boundaries and deferred-item dispositions, and returns bounded Workstream implementation approval for the admitted same-branch package only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. The BP3 artifact must name the entry seam or initial seam sequence and must be a substantive orchestration-readiness contract with scope, implementation order, validation/proof plan, rollback posture, drift controls, unresolved USER decisions, blockers, and a go/repair/blocked recommendation; it cannot rely on helper-green hygiene or first-seam-only readiness.
 
 Allowed:
 
@@ -2699,13 +2772,20 @@ Required evidence:
 
 - required interactive or manual evidence
 - required UI audit evidence when applicable
-- vision-vs-observed-behavior comparison or waiver when a Branch Vision Contract Snapshot is required
+- exact normal USER desktop runtime launcher proof for desktop/user-facing behavior, or explicit USER waiver with reason
+- troubleshooting launcher proof may substitute only with USER consent and `Launcher Parity Proof: PASS`
+- photo/video or ordered frame-sequence proof for every visible USER-facing closeout claim, or USER-elevated manual validation/waiver when photo/video cannot prove the claim
+- runtime log, Dev Toolkit, manifest, screenshot/video, interaction-matrix, and raw-evidence references in the USER packet when those artifacts support Live Validation
+- vision-vs-observed-behavior comparison across the applied Project Vision, Family Vision, Family Feature Vision when present, accepted Branch Vision Contract Snapshot, and accepted BP2/BP3 proof plan, or an explicit waiver when a Branch Vision Contract Snapshot is required
 - evidence digestion into the authority record
 
 Exit:
 
 - required interactive or manual evidence is green
 - required UI audit exists when applicable
+- exact normal USER desktop runtime launcher validation is passing or explicitly waived for desktop/user-facing behavior
+- troubleshooting launcher equivalence, when used, has USER consent and launcher parity proof
+- photo/video proof is adjudicated for visible claims, and any unphotographable required claims are elevated to USER manual validation or explicit waiver
 - required user-facing desktop shortcut validation is `PASS` or explicitly `WAIVED` before User Test Summary handoff; `User-Facing Shortcut Validation Pending` must not remain active
 - returned evidence is digested into canon
 - required User Test Summary results are `PASS` or explicitly `WAIVED`; `User Test Summary Results Pending` must not remain active

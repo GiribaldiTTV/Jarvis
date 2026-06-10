@@ -257,6 +257,11 @@ OWNER_DESCRIPTIONS = {
         "USER-accepted reusable family standards and future package boundaries",
         "active branch implementation checklists or live operational state",
     ),
+    "family feature vision scaffold": (
+        "Family Feature Vision structure, compact index, and template",
+        "durable feature-category vision scaffolding and future USER-approved FFV routing",
+        "FAM-specific feature content, active branch state, selected-next truth, PR state, or release-window state",
+    ),
     "pending fold-source file": (
         "temporary no-loss fold source",
         "source material retained until durable content is folded into existing owners",
@@ -402,6 +407,8 @@ def owner_for(rel: str) -> str:
         return "pending fold-source file"
     if rel.startswith("Docs/family_visions/"):
         return "family vision"
+    if rel.startswith("Docs/family_feature_visions/"):
+        return "family feature vision scaffold"
     if rel == "Docs/nexus_vision.md":
         return "Nexus Vision Contract"
     if rel == "Docs/ai_runtime_and_trust_architecture.md":
@@ -585,6 +592,12 @@ def action_for(
             completed,
             "Receive USER-accepted reusable family product direction; do not absorb branch implementation detail.",
         )
+    if owner == "family feature vision scaffold":
+        return (
+            "Keep as Family Feature Vision scaffold",
+            completed,
+            "Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.",
+        )
     if owner == "pending fold-source file":
         return (
             "Pending fold-source review",
@@ -629,6 +642,8 @@ def validator_need(owner: str) -> str:
         return "Future focused no-loss fold validator may prove the file can be deleted or renamed; current validation keeps it non-authoritative."
     if owner == "AI Runtime And Trust Architecture":
         return "Branch governance validator should require AI-native branches to cite this owner when consuming cross-family AI runtime/trust concepts."
+    if owner == "family feature vision scaffold":
+        return "Branch readiness fixture validation should preserve FFV scaffold shape without treating scaffold files as FAM-specific content."
     return "Covered by existing owner validator or future focused owner check."
 
 
@@ -664,6 +679,8 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         return "Keep as family vision router; use to find durable family vision records."
     if owner == "family vision":
         return "Keep as family-specific product vision owner; move active implementation detail to external branch plans and durable proof to workstreams/branch receipts."
+    if owner == "family feature vision scaffold":
+        return "Keep as the generic Family Feature Vision scaffold; future FAM-specific content files require USER-approved admission."
     if owner == "pending fold-source file":
         return "Temporary source material only; fold durable content into existing family visions and architecture owners before any USER-approved deletion/rename."
     if owner == "Nexus Vision Contract":
@@ -685,6 +702,7 @@ def consolidation_target_for(row: dict[str, object]) -> str:
         "branch plan inventory receipt",
         "branch authority router",
         "workstream index",
+        "family feature vision scaffold",
         "product / architecture reference",
         "Nexus Vision Contract",
         "AI Runtime And Trust Architecture",
@@ -705,6 +723,8 @@ def deletion_posture_for(row: dict[str, object]) -> str:
         return "Transition/current branch-local branch-plan receipt; do not delete, archive, or retire until owning branch fold-down or external replacement proof is USER-approved."
     if owner == "pending fold-source file":
         return "Do not delete now; delete or rename only after USER accepts no-loss fold proof."
+    if owner == "family feature vision scaffold":
+        return "Keep; scaffold deletion or replacement requires USER-approved FFV governance repair."
     if "USER review" in action:
         return "Needs USER decision before delete/retire."
     if "Migrate" in action or "Organize" in action:
@@ -1158,7 +1178,13 @@ def generate() -> None:
         if " -> " in path_text:
             path_text = path_text.split(" -> ", 1)[1].strip()
         if path_text:
-            changed.add(path_text.replace("\\", "/"))
+            normalized_path = path_text.replace("\\", "/")
+            changed.add(normalized_path)
+            candidate_path = ROOT / normalized_path
+            if candidate_path.is_dir():
+                for child in candidate_path.rglob("*"):
+                    if child.is_file():
+                        changed.add(child.relative_to(ROOT).as_posix())
     branch = git_output("branch", "--show-current")
     head = git_output("rev-parse", "HEAD")
     origin_main = git_output("rev-parse", "origin/main")

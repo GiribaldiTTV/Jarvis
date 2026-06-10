@@ -173,6 +173,20 @@ Provider/API behavior must preserve:
 
 Provider recommendation is allowed when local capability is insufficient, but provider execution remains permission-gated.
 
+## AI Transparency Status Surfaces
+
+AI, provider, permission, cache, memory, privacy, and capability-pack status must be visible when those states affect USER trust or behavior.
+
+Durable direction:
+
+- status copy must distinguish local-only, local-network, provider-assisted, no-provider, disabled, blocked, degraded, privacy-lockdown, and USER-consent-required states when those modes exist
+- a tray icon may summarize AI state, but it cannot be the only privacy-critical status surface because Windows may hide third-party notification-area icons
+- future AI Command Center surfaces should own detailed AI/provider/permission/capability-pack state review, while the tray or HUD may open those surfaces
+- privacy-critical status should have at least one non-tray visible route such as Dashboard, HUD/status chip, AI Command Center, Trust Journal, or Settings
+- UI labels must reflect enforced permission/runtime behavior, not promises; if provider execution, memory, cache, desktop vision, microphone, or sensitive capability behavior is not approved or enabled, the UI must say so plainly
+
+`Docs/family_feature_visions/F3-FF01.md` owns the resident-access doorway and quick-action model. This file owns the AI trust/status truth that such surfaces must consume.
+
 ## Owner AI Operational Foundation Gates
 
 Owner AI Operational Foundation Gates are public-safe control-plane scaffolds for future Developer and Owner AI work. They may define disabled states, explicit consent and install-intent states, artifact exclusion checks, lane-readiness gates, and prerequisite schemas before any private Owner/Developer setup or provider/runtime execution exists.
