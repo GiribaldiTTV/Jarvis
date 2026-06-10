@@ -37,7 +37,7 @@ It does not own:
 - branch route identity
 - Slice, SLC, or seam identity
 - active branch state
-- selected-next truth
+- selected-next operational authority
 - BP gate acceptance
 - Workstream implementation approval
 - live validation status
@@ -117,6 +117,36 @@ Deferred elements below are durable planning facts. They are not active branch s
 | `F7-FF01-E09` | Persistent memory, indexing, learning, personalization, or real Owner memory | Memory is durable user-personal state and is separate from operational cache. | `USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION` approval. | FAM-007 memory/personalization branch under AI runtime/trust architecture. | Later memory-specific Branch Readiness path. | Consent, storage boundary, reset/delete/export, no hidden indexing, edition separation, no unapproved training. | This FFV plus AI runtime/trust architecture and future branch plan. |
 | `F7-FF01-E10` | Private Developer or Owner setup | Private roots, repos, remotes, prompts, memory, logs, evals, and assets must not enter public source truth by inertia. | `USER-ACTION-FAM007-DEV-PRIVATE-REPO-CREATE`, `USER-ACTION-FAM007-OWNER-PRIVATE-REPO-CREATE`, or related private setup approval. | FAM-007 edition-boundary/private setup owner. | Separate private setup carrier after USER action gate. | Private origin/public-upstream proof, secret scan posture, protected asset exclusion, no Owner inheritance into Developer or Public. | Edition trust-boundary plan plus future private setup branch plan. |
 | `F7-FF01-E11` | Shortcut, installer, packaging, and edition identity execution | Packaging and install behavior belongs to FAM-008 and changes public release/user setup expectations. | `USER-ACTION-FAM007-PACKAGING-EDITION-IDENTITY` or FAM-008 packaging approval. | FAM-008 packaging/install owner with FAM-007 edition-boundary input. | Later FAM-008 Branch Readiness path. | Installer/shortcut/source proof, distinct data-root proof, update-channel proof, public build exclusion proof. | FAM-008 family vision plus future packaging branch plan. |
+
+## Cross-FAM Dependency Candidate
+
+Cross-FAM Dependency Map: FAM-007 public-safe assisted desktop AI needs future FAM-008 packaging/install lifecycle visibility before actual shortcut, installer, package identity, update, or capability-pack install execution can be planned, but this FFV records dependency ownership only and does not create FAM-008 implementation authority.
+
+Dependency ID: F7-XFAM-D01
+
+Originating FAM: FAM-007
+
+Originating FFV / Element: F7-FF01-E04 capability eligibility with blocked install intent; F7-FF01-E11 deferred shortcut, installer, packaging, and edition identity execution.
+
+Affected FAMs: FAM-008 Packaging and Install Experience.
+
+Affected FFV / Element or Not Created: Not Created.
+
+Dependency Scope Class: Priority Carry-In
+
+Carry-In / Deferral / Transfer Decision: FAM-008 must evaluate the packaging/install lifecycle dependency at its next Branch Readiness pass and group it into the relevant packaging/install FFV or branch package when created; FAM-007 does not create the FAM-008 FFV in this record.
+
+Required Contract / Capability: FAM-008 needs a future installer/package/update lifecycle contract that can expose whether capability-pack setup, repair, shortcut identity, restart continuity, and lane-specific packaging behavior are safe for Public, Developer, and Owner lanes.
+
+Suggested Grouping: Group with the eventual FAM-008 packaging/install lifecycle FFV rather than creating a dependency-only branch.
+
+Proof Expectation: FAM-008 BR1/BR2 must show whether this dependency is a compatibility default, platform contract, or transferred FAM work before installer/package or capability-pack install execution begins.
+
+Durable Disposition: Future Carry-In
+
+Affected FAM Receipt / Fold-Down Target: Fold down to the FAM-008 Family Vision or future FAM-008 FFV dependency candidate section after USER approves the owning FAM-008 content file.
+
+Worktree-To-Worktree Mutation: None; direct mutation of another active worktree is blocked and this FFV records durable dependency context only.
 
 ## BP1 Selection Guidance
 
