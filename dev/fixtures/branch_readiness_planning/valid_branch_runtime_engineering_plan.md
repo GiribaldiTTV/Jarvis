@@ -25,11 +25,20 @@ Future-Gated Items: Future-gated items include provider SDKs, model execution, d
 Approval-Boundary Audit: Approval boundary audit records planning accepted, runtime implementation pending until separate approval, release work blocked, and future provider execution separate.
 FAM / Shared-Surface Overlap Forecast: Shared-surface overlap forecast names desktop renderer, Core visual labels, branch records, backlog, roadmap, and provider validators as coordination surfaces.
 Open Questions: USER questions remain for runtime activation timing, release selection, model download behavior, provider execution policy, and live validation waiver posture.
+Feature Vision Context: Project Vision, Family Vision, Family Feature Vision when present, Branch Vision, deferred feature carryforward, and proof expectations are loaded before BP2/BP3 planning.
+Deferred Feature Carryforward Review: Deferred carryforward items are reviewed for dependency trigger, grouping recommendation, future-gated reason, proof expectation, and branch-fit before implementation approval.
 USER Planning Decisions: USER accepted this plan shape, deferred future-gated execution, preserved pending runtime approval, and requires plan revision if implementation scope changes.
 Plan Revision History: Plan v1 accepted as fixture evidence; later repo truth changes require a revision packet before new runtime behavior is admitted.
 Plan-To-Implementation Traceability Table: Planned rows trace baseline, delta, files, actual implementation, validation proof, user-facing proof, and future-gated decisions before PR Readiness.
 Hardening Comparison Checklist: Hardening compares plan against implementation, extra behavior, skipped items, UI copy integrity, validator coverage, and future-gated boundaries.
 Live Validation Proof Or Waiver Checklist: Live Validation records runtime classification, proof or waiver reason, static proof substitute, user-facing expectation, and UTS posture.
+Runtime Observability Decision Matrix: Exact launcher, troubleshooting parity, photo/video or frame-sequence proof, manual USER validation, USER packet evidence, and future-gated boundaries are mapped before Workstream.
+Exact USER Desktop Launcher Path: Formal proof uses the exact normal USER desktop runtime launcher path C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk unless USER waiver is recorded.
+Launcher Parity Proof Plan: Troubleshooting substitution requires USER consent plus same product runtime, same build, same data roots, same visible behavior, and diagnostic-only differences.
+Photo / Video Proof Plan: Visible user-facing claims require photo, video, ordered frame-sequence, or focused screenshot adjudication instead of screenshot-exists metadata.
+Manual USER Validation Plan: Unphotographable claims route to manual USER validation, USER waiver, or a blocker rather than helper-only proof.
+Troubleshooting Mode Decision: Troubleshooting launcher and direct runtime routes are diagnostic supporting evidence only and do not replace normal launcher proof without parity.
+USER Packet Evidence Plan: C:\Nexus USER review hub and UTS packet record evidence references with PASS, FAIL, BLOCKED, UNPROVEN, or WAIVED disposition.
 PR Readiness Fold-Down / Retention Checklist: PR Readiness fold-down decides retained historical plan detail, compact branch receipt, promoted workstream lessons, and release-scope summary.
 Release Readiness Public-Scope Translation Checklist: Release Readiness public scope translates internal runtime proof into release highlights, excluded work, future-gated language, and user-facing notes.
 USER Planning Review: Accepted - USER reviewed the engineering plan and kept implementation approval separate.

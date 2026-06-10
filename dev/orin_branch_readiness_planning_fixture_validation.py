@@ -259,6 +259,21 @@ VALID_CROSS_FAM_DEPENDENCY_CANDIDATE_FIXTURE = (
 INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE = (
     FIXTURE_DIR / "invalid_cross_fam_dependency_unclassified.md"
 )
+VALID_FAMILY_FEATURE_VISION_FIXTURE = (
+    FIXTURE_DIR / "valid_family_feature_vision.md"
+)
+INVALID_FAMILY_FEATURE_VISION_SLICE_SCOPED_FIXTURE = (
+    FIXTURE_DIR / "invalid_family_feature_vision_slice_scoped.md"
+)
+INVALID_FAMILY_FEATURE_VISION_LIVE_STATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_family_feature_vision_live_state_deferred.md"
+)
+VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
+    FIXTURE_DIR / "valid_br2_deferred_carryforward_matrix.md"
+)
+INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
+    FIXTURE_DIR / "invalid_br2_deferred_carryforward_missing_applicability.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -281,6 +296,18 @@ EXPECTED_BRANCH_RUNTIME_PLAN_FAILURE_SNIPPETS = (
 )
 EXPECTED_BRANCH_RUNTIME_PLAN_MISSING_REVIEW_GATE_FAILURE_SNIPPET = (
     "Workstream Entry planning is missing '## USER Branch Plan Review Gate'"
+)
+EXPECTED_RUNTIME_DIRECT_PROOF_FAILURE_SNIPPET = (
+    "must not classify diagnostic/direct runtime evidence as formal USER launcher proof"
+)
+EXPECTED_RUNTIME_EXACT_LAUNCHER_FAILURE_SNIPPET = (
+    "must name the exact normal USER desktop runtime launcher path"
+)
+EXPECTED_RUNTIME_PHOTO_VIDEO_FAILURE_SNIPPET = (
+    "must name photo/video, ordered frame-sequence, or focused screenshot proof"
+)
+EXPECTED_RUNTIME_PACKET_EVIDENCE_FAILURE_SNIPPET = (
+    "must name the USER review packet, USER review hub, or UTS evidence destination"
 )
 EXPECTED_PROPOSED_VISION_FAILURE_SNIPPET = (
     "Branch Vision Snapshot Status cannot stay Proposed"
@@ -1479,6 +1506,172 @@ def _owning_fam_from_ffv(path: Path, text: str) -> str:
     return ""
 
 
+def _validate_family_feature_vision_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    required_markers = (
+        "Family Feature Vision ID:",
+        "Parent FAM:",
+        "Feature Category:",
+        "Category-Level Purpose:",
+        "USER-Facing Surfaces:",
+        "Experience Flow:",
+        "Included Capabilities:",
+        "Explicit Non-Goals:",
+        "Durable Feature Element Inventory:",
+        "Deferred Feature Carryforward:",
+        "Design Options:",
+        "Proof Expectations:",
+        "Branch Readiness Consumption Notes:",
+        "BP1 Context Notes:",
+        "Fold-Down History:",
+        "Active-State Wording Scan:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"Family Feature Vision missing {marker}")
+        value = governance._extract_marker_value(text, marker)
+        require(bool(value), f"Family Feature Vision must give a real value for {marker}")
+
+    ffv_id = governance._extract_marker_value(text, "Family Feature Vision ID:")
+    parent_fam = governance._extract_marker_value(text, "Parent FAM:")
+    feature_category = governance._extract_marker_value(text, "Feature Category:")
+    normalized_category = governance._normalized_planning_value(feature_category)
+    require(
+        re.search(r"\bF\d+-FF\d{2}\b", ffv_id) is not None,
+        "Family Feature Vision Compact ID Missing",
+    )
+    require(
+        re.search(r"\bFAM-\d{3}\b", parent_fam) is not None,
+        "Family Feature Vision Parent FAM Missing",
+    )
+    require(
+        not any(
+            term in normalized_category
+            for term in (
+                "slice",
+                "slc",
+                "seam",
+                "branch route",
+                "implementation package",
+                "selected next",
+            )
+        ),
+        "Family Feature Vision Slice-Scoped",
+    )
+
+    element_inventory = governance._extract_marker_value(
+        text,
+        "Durable Feature Element Inventory:",
+    )
+    require(
+        re.search(r"\bF\d+-FF\d{2}-E\d{2}\b", element_inventory) is not None,
+        "FFV Element Proof Chain Missing",
+    )
+
+    deferred = governance._extract_marker_value(text, "Deferred Feature Carryforward:")
+    normalized_deferred = governance._normalized_planning_value(deferred)
+    for term in ("deferred item", "dependency trigger", "grouping recommendation", "proof expectation", "durable disposition"):
+        require(
+            term in normalized_deferred,
+            f"Deferred Feature Carryforward missing {term}",
+        )
+    live_state_terms = (
+        "active",
+        "current branch",
+        "selected next",
+        "pending pr",
+        "in progress",
+        "next branch",
+        "release window status",
+    )
+    for term in live_state_terms:
+        require(
+            re.search(rf"\b{re.escape(term)}\b", normalized_deferred) is None,
+            f"FFV Live-State Leakage: Deferred Feature Carryforward contains {term}",
+        )
+
+    return failures
+
+
+def _validate_br2_deferred_carryforward_matrix_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    required_markers = (
+        "Option name:",
+        "Main feature/package objective:",
+        "Applicable deferred carryforward items:",
+        "Reason each deferred item is applicable:",
+        "Dependency trigger:",
+        "Recommended grouping:",
+        "Deferred items that remain future-gated:",
+        "Reason future-gated items remain deferred:",
+        "Validation/proof expectations:",
+    )
+    for marker in required_markers:
+        require(marker in text, f"BR2 Deferred Carryforward matrix missing {marker}")
+        require(
+            bool(governance._extract_marker_value(text, marker)),
+            f"BR2 Deferred Carryforward matrix must give a real value for {marker}",
+        )
+    normalized = governance._normalized_planning_value(text)
+    require(
+        "deferred item" in normalized or "none" in governance._normalized_planning_value(
+            governance._extract_marker_value(text, "Applicable deferred carryforward items:")
+        ),
+        "Deferred Carryforward Applicability Missing",
+    )
+    require(
+        "dependency trigger" in normalized,
+        "Deferred Carryforward Applicability Missing: dependency trigger not explained",
+    )
+    require(
+        "grouping recommendation" in normalized,
+        "Deferred Carryforward Applicability Missing: grouping recommendation not explained",
+    )
+    require(
+        "separate branch for every deferred item" not in normalized
+        and "one branch per deferred item" not in normalized,
+        "Deferred Carryforward Branch Sprawl",
+    )
+    return failures
+
+
+def _validate_family_feature_vision_scaffolding_source_truth() -> list[str]:
+    failures: list[str] = []
+    ffv_dir = ROOT / "Docs" / "family_feature_visions"
+    expected_files = {
+        "README.md": (
+            "Family Feature Vision",
+            "durable feature-category",
+            "Deferred Feature Carryforward",
+            "not active branch state",
+        ),
+        "index.md": (
+            "Family Feature Vision Index",
+            "F<family>-FF<two digits>",
+            "No USER-approved Family Feature Vision content files are admitted yet",
+        ),
+        "TEMPLATE.md": (
+            "Family Feature Vision ID:",
+            "Feature Category:",
+            "Deferred Feature Carryforward:",
+            "Active-State Wording Scan:",
+        ),
+    }
+    if not ffv_dir.is_dir():
+        return ["Missing generic Family Feature Vision scaffolding directory: Docs/family_feature_visions"]
+    for file_name, markers in expected_files.items():
+        path = ffv_dir / file_name
+        if not path.is_file():
+            failures.append(f"Missing generic Family Feature Vision scaffold file: {path.relative_to(ROOT)}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for marker in markers:
+            if marker not in text:
+                failures.append(
+                    f"{path.relative_to(ROOT)} missing Family Feature Vision scaffold marker {marker!r}"
+                )
+    return failures
+
+
 def _validate_current_worktree_ffv_dependency_records() -> list[str]:
     """Scan tracked FFVs in the current worktree for loose cross-FAM dependencies."""
 
@@ -1499,7 +1692,7 @@ def _validate_current_worktree_ffv_dependency_records() -> list[str]:
         "patch",
     )
     for path in sorted(ffv_dir.glob("*.md")):
-        if path.name.casefold() == "index.md":
+        if path.name.casefold() in {"index.md", "readme.md", "template.md"}:
             continue
         text = path.read_text(encoding="utf-8")
         owning_fam = _owning_fam_from_ffv(path, text)
@@ -2950,6 +3143,11 @@ def validate() -> list[str]:
         INVALID_MERGE_STABLE_SOURCE_TRUTH_PROJECTION_FIXTURE,
         VALID_CROSS_FAM_DEPENDENCY_CANDIDATE_FIXTURE,
         INVALID_CROSS_FAM_DEPENDENCY_UNCLASSIFIED_FIXTURE,
+        VALID_FAMILY_FEATURE_VISION_FIXTURE,
+        INVALID_FAMILY_FEATURE_VISION_SLICE_SCOPED_FIXTURE,
+        INVALID_FAMILY_FEATURE_VISION_LIVE_STATE_FIXTURE,
+        VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE,
+        INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE,
     ):
         if not fixture.is_file():
             failures.append(f"Missing Branch Readiness planning fixture: {fixture}")
@@ -3027,6 +3225,67 @@ def validate() -> list[str]:
             "Valid Branch Runtime Engineering Plan fixture unexpectedly failed: "
             + "; ".join(valid_plan_failures[:5])
         )
+
+    valid_plan_text = VALID_BRANCH_RUNTIME_PLAN_FIXTURE.read_text(encoding="utf-8")
+    runtime_negative_cases = (
+        (
+            "direct runtime primary proof",
+            valid_plan_text.replace(
+                (
+                    "Troubleshooting Mode Decision: Troubleshooting launcher and direct runtime "
+                    "routes are diagnostic supporting evidence only and do not replace normal "
+                    "launcher proof without parity."
+                ),
+                (
+                    "Troubleshooting Mode Decision: Direct runtime and Dev Toolkit proof are "
+                    "formal proof passed for exact USER launcher proof."
+                ),
+            ),
+            EXPECTED_RUNTIME_DIRECT_PROOF_FAILURE_SNIPPET,
+        ),
+        (
+            "missing exact USER launcher path",
+            valid_plan_text.replace(
+                (
+                    "Exact USER Desktop Launcher Path: Formal proof uses the exact normal "
+                    "USER desktop runtime launcher path C:\\Users\\anden\\OneDrive\\Desktop\\Nexus Desktop Launcher.lnk "
+                    "unless USER waiver is recorded."
+                ),
+                "Exact USER Desktop Launcher Path: Formal proof uses the current helper launch path unless logs are present.",
+            ),
+            EXPECTED_RUNTIME_EXACT_LAUNCHER_FAILURE_SNIPPET,
+        ),
+        (
+            "missing photo/video proof",
+            valid_plan_text.replace(
+                (
+                    "Photo / Video Proof Plan: Visible user-facing claims require photo, video, "
+                    "ordered frame-sequence, or focused screenshot adjudication instead of "
+                    "screenshot-exists metadata."
+                ),
+                "Photo / Video Proof Plan: Visible user-facing claims are complete when screenshot exists metadata is present.",
+            ),
+            EXPECTED_RUNTIME_PHOTO_VIDEO_FAILURE_SNIPPET,
+        ),
+        (
+            "missing USER packet evidence",
+            valid_plan_text.replace(
+                (
+                    "USER Packet Evidence Plan: C:\\Nexus USER review hub and UTS packet record "
+                    "evidence references with PASS, FAIL, BLOCKED, UNPROVEN, or WAIVED disposition."
+                ),
+                "USER Packet Evidence Plan: Helper output stores proof internally for later review.",
+            ),
+            EXPECTED_RUNTIME_PACKET_EVIDENCE_FAILURE_SNIPPET,
+        ),
+    )
+    for label, text, expected_snippet in runtime_negative_cases:
+        case_failures = _validate_branch_runtime_plan_text(text)
+        if expected_snippet not in "\n".join(case_failures):
+            failures.append(
+                f"Runtime observability negative fixture '{label}' did not report "
+                f"expected failure snippet: {expected_snippet!r}"
+            )
 
     missing_review_gate_failures = _validate_branch_runtime_plan_text(
         _without_user_branch_plan_review_gate(
@@ -5044,6 +5303,54 @@ line item, not a seam or separate branch.
             "Compact Family Feature Vision filename fixture did not resolve owning FAM"
         )
 
+    valid_ffv_failures = _validate_family_feature_vision_text(
+        VALID_FAMILY_FEATURE_VISION_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_ffv_failures:
+        failures.append(
+            "Valid Family Feature Vision fixture unexpectedly failed: "
+            + "; ".join(valid_ffv_failures[:5])
+        )
+
+    slice_scoped_ffv_failures = _validate_family_feature_vision_text(
+        INVALID_FAMILY_FEATURE_VISION_SLICE_SCOPED_FIXTURE.read_text(encoding="utf-8")
+    )
+    if "Family Feature Vision Slice-Scoped" not in "\n".join(slice_scoped_ffv_failures):
+        failures.append(
+            "Invalid Family Feature Vision slice-scoped fixture did not reject "
+            "Slice/SLC/branch-route feature identity"
+        )
+
+    live_state_ffv_failures = _validate_family_feature_vision_text(
+        INVALID_FAMILY_FEATURE_VISION_LIVE_STATE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if "FFV Live-State Leakage" not in "\n".join(live_state_ffv_failures):
+        failures.append(
+            "Invalid Family Feature Vision live-state fixture did not reject "
+            "active branch-state wording in deferred carryforward"
+        )
+
+    valid_deferred_matrix_failures = _validate_br2_deferred_carryforward_matrix_text(
+        VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_deferred_matrix_failures:
+        failures.append(
+            "Valid BR2 Deferred Carryforward matrix fixture unexpectedly failed: "
+            + "; ".join(valid_deferred_matrix_failures[:5])
+        )
+
+    invalid_deferred_matrix_failures = _validate_br2_deferred_carryforward_matrix_text(
+        INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE.read_text(encoding="utf-8")
+    )
+    if "Deferred Carryforward Applicability Missing" not in "\n".join(
+        invalid_deferred_matrix_failures
+    ):
+        failures.append(
+            "Invalid BR2 Deferred Carryforward matrix fixture did not reject "
+            "missing applicability/dependency/grouping proof"
+        )
+
+    failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
     failures.extend(_validate_current_worktree_ffv_dependency_records())
 
     failures.extend(_validate_merge_stable_projection_helpers())

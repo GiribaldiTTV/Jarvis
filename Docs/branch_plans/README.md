@@ -185,6 +185,7 @@ Runtime-focused plans must include:
 - Photo / Video Proof Plan:
 - Manual USER Validation Plan:
 - Troubleshooting Mode Decision:
+- USER Packet Evidence Plan:
 - PR Readiness Fold-Down / Retention Checklist:
 - Release Readiness Public-Scope Translation Checklist:
 - USER Planning Review:
@@ -241,6 +242,7 @@ Rules:
 - If a required claim cannot be proven in photo/video, the plan must set `Manual USER Validation` to `Required` or record `USER Waiver Required`; Codex cannot mark the claim proven by helper output alone.
 - Direct runtime, helper, WebView, sandbox/offscreen, generated-shortcut, marker, manifest, log, or Dev Toolkit proof may support diagnosis and consistency, but it must not be represented as exact USER launcher proof.
 - Any product/user-visible folder or label surfaced by the branch must be checked for client-like language and must not expose worktree, branch, FAM, developer, owner-only, or internal implementation paths unless USER accepts that product-facing concept.
+- `USER Packet Evidence Plan:` must state where the USER can review the evidence, which raw evidence paths remain external/helper-owned, and how PASS / FAIL / BLOCKED / UNPROVEN / WAIVED dispositions will be reported without turning repo docs into a live evidence ledger.
 
 ## Branch Planning Review Packet
 
