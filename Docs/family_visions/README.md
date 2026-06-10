@@ -82,6 +82,8 @@ Family Feature Vision owns durable feature-category direction inside exactly one
 - BP1 context notes
 - fold-down history
 
+Runtime observability carrydown: when a Family Feature Vision contains runtime, desktop, user-facing, file/folder, launcher, bridge, Dev Toolkit, recording, or validation-critical behavior, it must reference the project-wide Runtime Observability and USER Proof direction in `Docs/nexus_vision.md` and specialize only what is feature-specific. It should name expected exact-launcher proof, photo/video proof, manual USER validation needs, user-visible storage/folder boundaries, troubleshooting-mode relevance, and proof expectations without becoming an active Live Validation evidence ledger.
+
 Family Feature Vision must not own:
 
 - backlog family identity

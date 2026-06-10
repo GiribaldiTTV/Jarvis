@@ -934,9 +934,14 @@ Required sequence:
 
 ## Runtime Evidence And Logging
 
-- logs are the source of truth for runtime behavior
+- logs are source-truth evidence for internal runtime behavior, diagnosis, state transitions, and consistency checks; they are not by themselves visible USER acceptance proof
 - do not assume behavior without log or code evidence
 - prefer structured markers over raw output
+- visible USER-facing proof is not complete from logs or markers alone; formal Live Validation must include photo/video or ordered frame-sequence evidence for visible claims
+- if a required acceptance claim cannot be proven in photo/video, elevate it to USER manual validation, explicit USER waiver, or a named blocker instead of treating helper output as proof
+- formal desktop Live Validation must use the exact normal USER desktop runtime launcher path declared for the branch; direct runtime, helper, WebView, sandbox/offscreen, generated-shortcut, troubleshooting-launcher-without-parity, or diagnostic launches are supporting evidence unless USER explicitly waives the launcher requirement
+- troubleshooting-mode logging is opt-in, USER-consented, local by default, privacy-safe/redacted where needed, and distinct from normal runtime logging
+- troubleshooting runtime launcher evidence can substitute for normal launcher proof only when USER consent and launcher parity proof show that troubleshooting differences are diagnostic-only and irrelevant to the validated claim
 - preserve or cite the exact validator outputs, helper scripts or harnesses used, runtime logs reviewed, and any created fixtures, traces, or screenshots that materially support a continuation recommendation
 - when interactive OS-level validation is required and feasible, preserve or cite the exact session evidence that shows the real path was exercised, such as runtime logs, screenshots, structured markers, traces, or durable validation reports
 - when meaningful desktop UI changed and a live launched-process UI audit was required, preserve or cite the audit manifest and the key captured windows as part of the final closeout evidence

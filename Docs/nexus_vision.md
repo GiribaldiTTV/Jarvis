@@ -71,6 +71,34 @@ The system should not rely on:
 - unexplained automation
 - accidental authority drift between launcher, renderer, planning docs, and user-facing reporting
 
+## Runtime Observability And USER Proof
+
+Nexus Desktop AI should be observable enough to prove user-facing behavior without becoming a hidden diagnostic collector.
+
+Durable product direction:
+
+- normal desktop runtime mode is the default USER launch profile
+- troubleshooting runtime mode is an explicit USER-consented diagnostic profile
+- normal runtime mode should produce only minimal, privacy-safe product logs needed for reliability, recovery, and basic local troubleshooting
+- troubleshooting mode should be temporary or scoped, locally stored by default, privacy-safe/redacted where needed, and visibly distinct from normal runtime
+- elevated diagnostic logging, Dev Toolkit inspection, provider-visible data, support bundles, or exported evidence must not be enabled silently
+- product UI should present client-like product folders and labels; it should not expose worktree, branch, FAM, developer, owner-only, or internal implementation paths unless a source-truth owner explicitly admits that product-facing concept
+- developer/proof/evidence paths may use worktree, branch, FAM, or validation-lane labels only when they are clearly developer or validation evidence, not product UI
+
+Formal user-facing proof has a stricter bar than internal diagnosis:
+
+- a visible or user-facing behavior claim is closeout-grade only when proved through photo, video, or ordered frame-sequence evidence from the relevant USER-facing runtime path
+- runtime logs, markers, manifests, helper output, and Dev Toolkit events are supporting evidence for diagnosis and consistency; they do not replace photo/video proof for visible USER-facing acceptance
+- if a required claim cannot be proved in photo/video, Codex must elevate that claim to USER manual validation, explicit USER waiver, or a named blocker instead of calling it proven
+- formal Live Validation for desktop/user-facing behavior must use the exact normal USER desktop runtime launcher path declared for the branch unless a launcher parity proof and USER approval allow the troubleshooting runtime launcher to serve as equivalent proof for that exact claim
+
+Future two-launcher model:
+
+- `Normal Desktop Runtime Launcher`: starts normal NDAI for ordinary USER operation and owns default formal Live Validation proof
+- `Troubleshooting Runtime Launcher`: starts NDAI in troubleshooting mode for consented diagnostics, validation, or support
+- `Launcher Parity Proof`: proves both launchers start the same product runtime/build, use the same product data roots and user-visible behavior, and differ only by admitted diagnostic flags, diagnostic evidence roots, log level, and troubleshooting disclosure
+- if launcher parity is missing, fails, or the claim being validated could be affected by troubleshooting-mode differences, Live Validation must use the normal USER desktop runtime launcher or stop for USER waiver/manual validation
+
 ## AI-Native Operating Experience
 
 Nexus should become an AI-native operating experience layer without pretending that provider/model fluency is the same thing as system reliability.

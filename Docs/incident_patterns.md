@@ -238,6 +238,24 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: Direct Runtime Or Marker Proof Was Treated As USER-Facing Proof
+
+- symptom:
+  Live Validation or UTS handoff claims green from logs, markers, helper PASS, direct runtime launch, generated shortcut, troubleshooting launcher, screenshots without adjudication, or Dev Toolkit evidence while the exact normal USER desktop launcher path and visible photo/video proof are missing
+- layer:
+  Live Validation proof hierarchy, launcher parity, USER packet evidence, and UTS handoff
+- root-cause pattern:
+  diagnostic evidence proves that code can run, but Codex treats that evidence as proof that the USER path works and looks correct
+- fix pattern:
+  require exact normal USER desktop runtime launcher proof for user-facing behavior, require photo/video or ordered frame-sequence proof for visible closeout claims, require USER manual validation or waiver for claims that cannot be proven visually, and allow troubleshooting launcher proof as equivalent only after USER consent and `Launcher Parity Proof: PASS`
+- validation pattern:
+  future helpers should fail on `Exact USER Desktop Launcher Proof Missing`, `Launcher Parity Proof Missing`, `Photo Or Video Proof Missing`, `Unphotographable Proof Not Elevated To USER`, `Direct Runtime Proof Misclassified`, `Troubleshooting Consent Missing`, `Live Validation Evidence Packet Incomplete`, or `User-Visible Internal Path Leakage`
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:

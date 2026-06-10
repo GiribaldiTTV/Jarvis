@@ -103,6 +103,23 @@ Governance receipts are recorded after live truth is checked. Examples include U
 
 Docs may record historical receipts, but they must not pretend to be live operational truth. When a current operational fact is needed, run a helper or live check and report it as evidence.
 
+## Runtime Observability Evidence Placement Rule
+
+Rule Name: `Runtime Observability Evidence Placement Rule`
+Owner File: `Docs/governance_efficiency_operating_model.md`
+Compact Mirror: `Docs/phase_governance.md` owns the phase/proof gate; `Docs/validation_helper_registry.md` owns helper/validator expectations.
+
+Repo docs own durable runtime-observability rules, source-truth owner boundaries, compact pointers, schemas, and historical receipts. They do not own active raw evidence ledgers for logs, screenshots, videos, Dev Toolkit traces, launcher sessions, UTS packet state, troubleshooting sessions, or current Live Validation status.
+
+Active or raw proof belongs in the appropriate non-canonical evidence owner:
+
+- exact launcher, photo/video, screenshot, interaction, and manifest evidence: helper output, Codex digest, local USER review hub, USER screenshots folder, or approved evidence root
+- active Live Validation / UTS posture: active external branch plan or `C:\Nexus Governance State`
+- Git/GitHub/PR/release facts: Git, GitHub, or approved helper-derived truth
+- durable post-merge interpretation: repo branch receipts, workstream records, family vision fold-down, or release receipts after USER-approved fold-down
+
+`Live Validation Evidence Ledger In Repo` blocks when Codex turns repo docs into a current evidence checklist or active proof status tracker. The repair path is to move raw/current evidence to the external/helper/USER packet owner, then fold down only durable rules, durable receipts, or compact historical pointers.
+
 ## Codex Plugin / Connector Evidence Split Compatibility Contract
 
 Rule Name: `Codex Plugin / Connector Evidence Split Compatibility Contract`
