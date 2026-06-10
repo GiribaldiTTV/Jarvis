@@ -104,7 +104,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 | Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 29 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
-| Low-risk reference consolidation | 19 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
+| Low-risk reference consolidation | 18 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
 Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
 Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate exact USER approval.
@@ -233,7 +233,6 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/closeouts/v1.6.0_closeout.md` | release closeout receipt | Keep | Low |
 | `Docs/closeouts/v1.9.0_closeout.md` | release closeout receipt | Keep | Low |
 | `Docs/closeouts/v2.0_closeout.md` | release closeout receipt | Keep | Low |
-| `Docs/family_feature_visions/F3-FF01.md` | family feature vision scaffold | Keep as Family Feature Vision scaffold | Low |
 | `Docs/family_feature_visions/TEMPLATE.md` | family feature vision scaffold | Keep as Family Feature Vision scaffold | Low |
 | `Docs/family_feature_visions/index.md` | family feature vision scaffold | Keep as Family Feature Vision scaffold | Low |
 | `Docs/family_visions/FAM-001_boot_interface.md` | family vision | Keep as family vision owner | Low |
@@ -246,6 +245,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/workspace_layout_plan.md` | product / architecture reference | Keep | Low |
 | `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | workstream durable history | Keep / normalize durable history | Low |
 | `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` | workstream durable history | Keep / normalize durable history | Low |
+| `Docs/workstreams/FB-034_recoverable_diagnostics.md` | workstream durable history | Keep / normalize durable history | Low |
 
 ## Exact USER Decision This Index Supports
 

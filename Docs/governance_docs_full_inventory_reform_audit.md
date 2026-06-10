@@ -62,7 +62,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 | Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 29 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
-| Low-risk reference consolidation | 19 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
+| Low-risk reference consolidation | 18 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
 Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
 Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate exact USER approval.
@@ -172,7 +172,6 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | `Docs/closeouts/v1.6.0_closeout.md` | release closeout receipt | Keep |
 | `Docs/closeouts/v1.9.0_closeout.md` | release closeout receipt | Keep |
 | `Docs/closeouts/v2.0_closeout.md` | release closeout receipt | Keep |
-| `Docs/family_feature_visions/F3-FF01.md` | family feature vision scaffold | Keep as Family Feature Vision scaffold |
 | `Docs/family_feature_visions/TEMPLATE.md` | family feature vision scaffold | Keep as Family Feature Vision scaffold |
 | `Docs/family_feature_visions/index.md` | family feature vision scaffold | Keep as Family Feature Vision scaffold |
 | `Docs/family_visions/FAM-001_boot_interface.md` | family vision | Keep as family vision owner |
@@ -405,7 +404,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 106 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 243 | Keep historical receipt | High | High |
 | 107 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | branch authority / structured receipt | 165 | Keep historical receipt | High | High |
 | 108 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | branch authority / structured receipt | 177 | Keep historical receipt | High | High |
-| 109 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | 302 | Keep active standing authority | High | High |
+| 109 | `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | branch authority / structured receipt | 304 | Keep active standing authority | High | High |
 | 110 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | branch authority / structured receipt | 498 | Organize structured receipt | High | High |
 | 111 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | branch authority / structured receipt | 118 | Keep active bounded repair authority until PR fold-down | Medium | High |
 | 112 | `Docs/branch_records/index.md` | branch authority router | 227 | Keep | High | High |
@@ -428,9 +427,9 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 129 | `Docs/codex_user_guide.md` | operator guide | 859 | Keep | High | High |
 | 130 | `Docs/development_rules.md` | Codex execution rule mirror | 1068 | Keep | High | High |
 | 131 | `Docs/external_operational_state_store_reform_plan.md` | external operational state reform plan | 1312 | Keep | High | High |
-| 132 | `Docs/family_feature_visions/F3-FF01.md` | family feature vision scaffold | 33 | Keep as Family Feature Vision scaffold | Low | High |
+| 132 | `Docs/family_feature_visions/F3-FF01.md` | family feature vision scaffold | 43 | Keep as Family Feature Vision scaffold | Medium | High |
 | 133 | `Docs/family_feature_visions/index.md` | family feature vision scaffold | 10 | Keep as Family Feature Vision scaffold | Low | High |
-| 134 | `Docs/family_feature_visions/README.md` | family feature vision scaffold | 69 | Keep as Family Feature Vision scaffold | Medium | High |
+| 134 | `Docs/family_feature_visions/README.md` | family feature vision scaffold | 83 | Keep as Family Feature Vision scaffold | Medium | High |
 | 135 | `Docs/family_feature_visions/TEMPLATE.md` | family feature vision scaffold | 19 | Keep as Family Feature Vision scaffold | Low | High |
 | 136 | `Docs/family_visions/FAM-001_boot_interface.md` | family vision | 30 | Keep as family vision owner | Low | High |
 | 137 | `Docs/family_visions/FAM-002_desktop_interface.md` | family vision | 34 | Keep as family vision owner | Low | High |
@@ -445,7 +444,7 @@ All remaining Docs reform work stays on this Governance branch as staged interna
 | 146 | `Docs/family_visions/FAM-010_safety_and_privacy.md` | pending fold-source file | 44 | Pending fold-source review | Low | High |
 | 147 | `Docs/family_visions/README.md` | family vision index | 241 | Keep as family vision router | Medium | High |
 | 148 | `Docs/fb_027_overlay_bug_tracker.md` | bug / issue historical tracker | 212 | Keep | Medium | High |
-| 149 | `Docs/feature_backlog.md` | compact product registry | 356 | Keep compact | Critical | High |
+| 149 | `Docs/feature_backlog.md` | compact product registry | 358 | Keep compact | Critical | High |
 | 150 | `Docs/governance_docs_full_inventory_reform_audit.md` | governance support standard | Generated self-reference | Keep | High | High |
 | 151 | `Docs/governance_docs_reform_user_review_index.md` | governance support standard | 252 | Keep | Medium | High |
 | 152 | `Docs/governance_efficiency_operating_model.md` | governance support standard | 887 | Keep | High | High |
@@ -825,7 +824,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | High | `volatile-current-wording=66`; `unclear-ownership-wording=12`; `soft-commitment-wording=1`; `state-ledger-wording=37` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | High | `volatile-current-wording=60`; `unclear-ownership-wording=12`; `state-ledger-wording=29` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | Medium | `volatile-current-wording=45`; `unclear-ownership-wording=9`; `state-ledger-wording=29` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | High | `volatile-current-wording=130`; `unclear-ownership-wording=53`; `soft-commitment-wording=42`; `state-ledger-wording=107` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | High | `volatile-current-wording=130`; `unclear-ownership-wording=59`; `soft-commitment-wording=43`; `state-ledger-wording=110` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | High | `volatile-current-wording=58`; `unclear-ownership-wording=131`; `soft-commitment-wording=16`; `state-ledger-wording=160` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | Medium | `volatile-current-wording=33`; `unclear-ownership-wording=24`; `soft-commitment-wording=1`; `state-ledger-wording=11` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/branch_records/index.md` | High | `volatile-current-wording=212`; `unclear-ownership-wording=100`; `soft-commitment-wording=32`; `state-ledger-wording=120` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -848,9 +847,9 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/codex_user_guide.md` | High | `volatile-current-wording=298`; `unclear-ownership-wording=69`; `soft-commitment-wording=55`; `state-ledger-wording=146` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/development_rules.md` | High | `volatile-current-wording=440`; `unclear-ownership-wording=142`; `soft-commitment-wording=77`; `state-ledger-wording=251` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/external_operational_state_store_reform_plan.md` | High | `volatile-current-wording=243`; `unclear-ownership-wording=109`; `soft-commitment-wording=29`; `state-ledger-wording=474` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/family_feature_visions/F3-FF01.md` | Medium | `volatile-current-wording=2`; `unclear-ownership-wording=5`; `soft-commitment-wording=3`; `state-ledger-wording=40` | Review for ambiguous current/active/latest/pending ownership language. |
+| `Docs/family_feature_visions/F3-FF01.md` | Medium | `volatile-current-wording=3`; `unclear-ownership-wording=9`; `soft-commitment-wording=4`; `state-ledger-wording=56` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/family_feature_visions/index.md` | Low | `soft-commitment-wording=1`; `state-ledger-wording=1` | Low ambiguity; keep owner labels precise when edited. |
-| `Docs/family_feature_visions/README.md` | Medium | `volatile-current-wording=14`; `unclear-ownership-wording=3`; `soft-commitment-wording=6`; `state-ledger-wording=17` | Review for ambiguous current/active/latest/pending ownership language. |
+| `Docs/family_feature_visions/README.md` | Medium | `volatile-current-wording=15`; `unclear-ownership-wording=4`; `soft-commitment-wording=9`; `state-ledger-wording=17` | Review for ambiguous current/active/latest/pending ownership language. |
 | `Docs/family_feature_visions/TEMPLATE.md` | Low | `volatile-current-wording=3`; `soft-commitment-wording=3`; `state-ledger-wording=3` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/family_visions/FAM-001_boot_interface.md` | Low | `volatile-current-wording=3`; `unclear-ownership-wording=1`; `soft-commitment-wording=2`; `state-ledger-wording=1` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/family_visions/FAM-002_desktop_interface.md` | Low | `volatile-current-wording=1`; `unclear-ownership-wording=2`; `soft-commitment-wording=4`; `state-ledger-wording=4` | Low ambiguity; keep owner labels precise when edited. |
@@ -865,7 +864,7 @@ Ambiguity risk flags wording that often causes source-truth drift, especially `c
 | `Docs/family_visions/FAM-010_safety_and_privacy.md` | Low | `volatile-current-wording=5`; `unclear-ownership-wording=3`; `soft-commitment-wording=4`; `state-ledger-wording=5` | Low ambiguity; keep owner labels precise when edited. |
 | `Docs/family_visions/README.md` | High | `volatile-current-wording=44`; `unclear-ownership-wording=15`; `soft-commitment-wording=16`; `state-ledger-wording=34` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/fb_027_overlay_bug_tracker.md` | Medium | `volatile-current-wording=35`; `soft-commitment-wording=3`; `state-ledger-wording=18` | Review for ambiguous current/active/latest/pending ownership language. |
-| `Docs/feature_backlog.md` | High | `volatile-current-wording=64`; `unclear-ownership-wording=66`; `soft-commitment-wording=9`; `state-ledger-wording=95` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/feature_backlog.md` | High | `volatile-current-wording=66`; `unclear-ownership-wording=67`; `soft-commitment-wording=10`; `state-ledger-wording=95` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_docs_full_inventory_reform_audit.md` | Low | None found. | Synthetic self-reference; review the actual generated dossier directly. |
 | `Docs/governance_docs_reform_user_review_index.md` | High | `volatile-current-wording=89`; `unclear-ownership-wording=54`; `soft-commitment-wording=7`; `state-ledger-wording=96` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/governance_efficiency_operating_model.md` | High | `volatile-current-wording=226`; `unclear-ownership-wording=182`; `soft-commitment-wording=85`; `state-ledger-wording=368` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -1243,7 +1242,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/branch_records/feature_pr103_post_merge_closeout_canon_repair.md` | 243 | Branch Authority Record: feature/pr103-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_pr104_watcher_next_prompt_format_repair.md` | 165 | Branch Authority Record: feature/pr104-watcher-next-prompt-format-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_pr105_post_merge_closeout_canon_repair.md` | 177 | Branch Authority Record: feature/pr105-post-merge-closeout-canon-repair | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Keep as historical receipt; remove stale active wording if reopened or edited. | Keep historical receipt | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
-| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | 302 | Branch Authority Record: feature/release-readiness-source-truth-intake | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | Updated in this reform branch. | Keep current markers compact and avoid cycle-ledger closeout-only PRs. | Keep active standing authority | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
+| `Docs/branch_records/feature_release_readiness_source_truth_intake.md` | 304 | Branch Authority Record: feature/release-readiness-source-truth-intake | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | Updated in this reform branch. | Keep current markers compact and avoid cycle-ledger closeout-only PRs. | Keep active standing authority | High | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_repo_wide_source_owner_marker_adoption.md` | 498 | Branch Authority Record: feature/repo-wide-source-owner-marker-adoption | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Future focused pass should organize the long historical ledger into current summary plus inde... | Organize structured receipt | High | High | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/feature_vision_update_decision_matrix.md` | 118 | Branch Authority Record: feature/vision-update-decision-matrix | branch authority / structured receipt | branch authority, approvals, phase history, legal carrier status, and structured traceability... | branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evide... | No direct edit in this branch; classified and governed by this dossier. | Move to historical/no-active posture or otherwise make merge-stable before PR green. | Keep active bounded repair authority until PR fold-down | Medium | Low | Yes | Yes | Yes | Branch governance validator checks active/historical authority, stale active wording, and pha... | _Add notes here._ |
 | `Docs/branch_records/index.md` | 227 | Branch Authority Records Index | branch authority router | active/historical branch authority routing | lists and rules for branch authority records | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1266,9 +1265,9 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/codex_user_guide.md` | 859 | Codex User Guide | operator guide | human-readable guide | operator explanation and examples | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/development_rules.md` | 1068 | Nexus Development Rules | Codex execution rule mirror | developer-facing execution rules and compact governance mirrors | execution reminders and pointers to owners | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/external_operational_state_store_reform_plan.md` | 1312 | External Operational State Store / Release Debt Abolition Reform Plan | external operational state reform plan | external operational state transition plan | Docs split target matrix, staged implementation boundaries, and future-work sequencing | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/family_feature_visions/F3-FF01.md` | 33 | F3-FF01 Nexus Resident Access And Quick Actions | family feature vision scaffold | Family Feature Vision structure, compact index, and template | durable feature-category vision scaffolding and future USER-approved FFV routing | Updated in this reform branch. | Use only for generic FFV structure, compact index routing, and future USER-approved feature-c... | Keep as Family Feature Vision scaffold | Medium | Low | Yes | No | Yes | Branch readiness fixture validation should preserve FFV scaffold shape without treating scaff... | _Add notes here._ |
+| `Docs/family_feature_visions/F3-FF01.md` | 43 | F3-FF01 Nexus Resident Access And Quick Actions | family feature vision scaffold | Family Feature Vision structure, compact index, and template | durable feature-category vision scaffolding and future USER-approved FFV routing | Updated in this reform branch. | Use only for generic FFV structure, compact index routing, and future USER-approved feature-c... | Keep as Family Feature Vision scaffold | Medium | Low | Yes | No | Yes | Branch readiness fixture validation should preserve FFV scaffold shape without treating scaff... | _Add notes here._ |
 | `Docs/family_feature_visions/index.md` | 10 | Family Feature Vision Index | family feature vision scaffold | Family Feature Vision structure, compact index, and template | durable feature-category vision scaffolding and future USER-approved FFV routing | Updated in this reform branch. | Use only for generic FFV structure, compact index routing, and future USER-approved feature-c... | Keep as Family Feature Vision scaffold | Low | Low | Yes | No | Yes | Branch readiness fixture validation should preserve FFV scaffold shape without treating scaff... | _Add notes here._ |
-| `Docs/family_feature_visions/README.md` | 69 | Family Feature Visions | family feature vision scaffold | Family Feature Vision structure, compact index, and template | durable feature-category vision scaffolding and future USER-approved FFV routing | Updated in this reform branch. | Use only for generic FFV structure, compact index routing, and future USER-approved feature-c... | Keep as Family Feature Vision scaffold | Medium | Low | Yes | No | Yes | Branch readiness fixture validation should preserve FFV scaffold shape without treating scaff... | _Add notes here._ |
+| `Docs/family_feature_visions/README.md` | 83 | Family Feature Visions | family feature vision scaffold | Family Feature Vision structure, compact index, and template | durable feature-category vision scaffolding and future USER-approved FFV routing | Updated in this reform branch. | Use only for generic FFV structure, compact index routing, and future USER-approved feature-c... | Keep as Family Feature Vision scaffold | Medium | Low | Yes | No | Yes | Branch readiness fixture validation should preserve FFV scaffold shape without treating scaff... | _Add notes here._ |
 | `Docs/family_feature_visions/TEMPLATE.md` | 19 | Family Feature Vision Template | family feature vision scaffold | Family Feature Vision structure, compact index, and template | durable feature-category vision scaffolding and future USER-approved FFV routing | Updated in this reform branch. | Use only for generic FFV structure, compact index routing, and future USER-approved feature-c... | Keep as Family Feature Vision scaffold | Low | Low | Yes | No | Yes | Branch readiness fixture validation should preserve FFV scaffold shape without treating scaff... | _Add notes here._ |
 | `Docs/family_visions/FAM-001_boot_interface.md` | 30 | FAM-001 Boot Interface Vision | family vision | durable family product direction | USER-accepted reusable family standards and future package boundaries | No direct edit in this branch; classified and governed by this dossier. | Receive USER-accepted reusable family product direction; do not absorb branch implementation... | Keep as family vision owner | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/family_visions/FAM-002_desktop_interface.md` | 34 | FAM-002 Desktop Interface Vision | family vision | durable family product direction | USER-accepted reusable family standards and future package boundaries | Updated in this reform branch. | Receive USER-accepted reusable family product direction; do not absorb branch implementation... | Keep as family vision owner | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1283,7 +1282,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | `Docs/family_visions/FAM-010_safety_and_privacy.md` | 44 | Pending Fold Source: Safety And Privacy | pending fold-source file | temporary no-loss fold source | source material retained until durable content is folded into existing owners | No direct edit in this branch; classified and governed by this dossier. | Retain only until no-loss fold proof shows durable content is preserved in existing owners; n... | Pending fold-source review | Low | Low | Yes | No | Yes | Future focused no-loss fold validator may prove the file can be deleted or renamed; current v... | _Add notes here._ |
 | `Docs/family_visions/README.md` | 241 | Family Vision Records | family vision index | family vision routing | family vision record index, owner relationship, and fold-down rule | Updated in this reform branch. | Keep as the compact index for family vision records and fold-down rules. | Keep as family vision router | High | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/fb_027_overlay_bug_tracker.md` | 212 | FB-027 Overlay Bug Tracker | bug / issue historical tracker | historical bug/issue evidence | closed issue context and durable historical notes | No direct edit in this branch; classified and governed by this dossier. | None unless USER edits this dossier or a future validator flags drift. | Keep | Medium | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
-| `Docs/feature_backlog.md` | 356 | Nexus Feature Backlog | compact product registry | feature-family identity, priority, status, scope, package summary, canonical pointers | FAM registry rows and compact pointers | No direct edit in this branch; classified and governed by this dossier. | Keep pointer-only; do not reintroduce live state or detailed trace tables. | Keep compact | High | Medium | Yes | Yes | Yes | Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan de... | _Add notes here._ |
+| `Docs/feature_backlog.md` | 358 | Nexus Feature Backlog | compact product registry | feature-family identity, priority, status, scope, package summary, canonical pointers | FAM registry rows and compact pointers | Updated in this reform branch. | Keep pointer-only; do not reintroduce live state or detailed trace tables. | Keep compact | High | Medium | Yes | Yes | Yes | Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan de... | _Add notes here._ |
 | `Docs/governance_docs_full_inventory_reform_audit.md` | Generated self-reference | Governance Docs Full Inventory Reform Audit | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | Self-reference is intentionally synthetic so regeneration does not change the dossier by re-s... | Keep | Low | Low | Yes | No | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_docs_reform_user_review_index.md` | 252 | Nexus Docs Reform User Review Index | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Created in this review-surface repair branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
 | `Docs/governance_efficiency_operating_model.md` | 887 | Governance Efficiency Operating Model | governance support standard | supporting governance standard | single-purpose governance rules and pointers | Updated in this reform branch. | None unless USER edits this dossier or a future validator flags drift. | Keep | High | Low | Yes | Yes | Yes | Covered by existing owner validator or future focused owner check. | _Add notes here._ |
@@ -1342,7 +1341,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 
 | Fact Class | Correct Owner | Files Where Detected | Risk |
 | --- | --- | ---: | --- |
-| active branch authority | C:\Nexus Governance State plus Git/GitHub/helper-derived truth; repo keeps only standing Governance exception and historical receipts | 153 | Medium |
+| active branch authority | C:\Nexus Governance State plus Git/GitHub/helper-derived truth; repo keeps only standing Governance exception and historical receipts | 154 | Medium |
 | current branch status | Git/GitHub/helper-derived truth plus external operational branch state | 95 | Medium |
 | next legal phase | phase packet or external operational branch state | 133 | Medium |
 | selected-next | Branch/PR Readiness packet and owning branch record only when USER-approved | 121 | Medium |
@@ -1363,7 +1362,7 @@ Structure risk flags files that are too long for their owner role, have too few 
 | workstream durable history | Docs/workstreams/<id>.md or family dossier | 192 | Medium |
 | family dossier continuity | Docs/workstreams/*_family_dossier.md | 39 | Medium |
 | validator registry | Docs/validation_helper_registry.md | 105 | Medium |
-| helper responsibility | Docs/validation_helper_registry.md | 181 | Medium |
+| helper responsibility | Docs/validation_helper_registry.md | 182 | Medium |
 | phase rules | Docs/phase_governance.md | 182 | Medium |
 | prompt/Codex mode rules | Docs/orin_task_template.md / Docs/codex_modes.md with owner pointers | 177 | Medium |
 | release note/public body rules | Docs/phase_governance.md and dev/orin_release_body_validation.py | 147 | Medium |
@@ -4965,9 +4964,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 109. `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
 
 - File path: `Docs/branch_records/feature_release_readiness_source_truth_intake.md`
-- Line count: 302
+- Line count: 304
 - Current purpose: Branch Authority Record: feature/release-readiness-source-truth-intake
-- Actual observed use: branch authority / structured receipt with markers live=100, pr/release/issue=45, package/slice=2, branch/worktree/phase=306, validator/helper=198.
+- Actual observed use: branch authority / structured receipt with markers live=100, pr/release/issue=45, package/slice=2, branch/worktree/phase=310, validator/helper=196.
 - Correct owner category: branch authority / structured receipt
 - What gets recorded here: branch authority, approvals, phase history, legal carrier status, and structured traceability receipt.
 - What should be recorded here: branch identity, phase markers, approvals, blockers, commits/PRs/releases as historical evidence, and indexed receipt sections.
@@ -4977,7 +4976,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep as structured historical branch receipt..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=130`; `unclear-ownership-wording=53`; `soft-commitment-wording=42`; `state-ledger-wording=107`
+- Ambiguity signals: `volatile-current-wording=130`; `unclear-ownership-wording=59`; `soft-commitment-wording=43`; `state-ledger-wording=110`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
@@ -5701,9 +5700,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 132. `Docs/family_feature_visions/F3-FF01.md`
 
 - File path: `Docs/family_feature_visions/F3-FF01.md`
-- Line count: 33
+- Line count: 43
 - Current purpose: F3-FF01 Nexus Resident Access And Quick Actions
-- Actual observed use: family feature vision scaffold with markers live=0, pr/release/issue=0, package/slice=0, branch/worktree/phase=8, validator/helper=3.
+- Actual observed use: family feature vision scaffold with markers live=0, pr/release/issue=0, package/slice=0, branch/worktree/phase=11, validator/helper=8.
 - Correct owner category: family feature vision scaffold
 - What gets recorded here: Family Feature Vision structure, compact index, and template.
 - What should be recorded here: durable feature-category vision scaffolding and future USER-approved FFV routing.
@@ -5713,17 +5712,17 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep as the generic Family Feature Vision scaffold; future FAM-specific content files require USER-approved admission..
 - Deletion posture: Keep; scaffold deletion or replacement requires USER-approved FFV governance repair..
 - Ambiguity risk: Medium.
-- Ambiguity signals: `volatile-current-wording=2`; `unclear-ownership-wording=5`; `soft-commitment-wording=3`; `state-ledger-wording=40`
+- Ambiguity signals: `volatile-current-wording=3`; `unclear-ownership-wording=9`; `soft-commitment-wording=4`; `state-ledger-wording=56`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
-- Duplicate fact classes found: selected-next, branch receipt, workstream durable history, phase rules, prompt/Codex mode rules.
+- Duplicate fact classes found: active branch authority, selected-next, branch receipt, workstream durable history, helper responsibility, phase rules, prompt/Codex mode rules.
 - Live operational truth fields found: None found.
 - Governance receipt fields found: `Category-Level Purpose: `Define the durable resident tray and quick-access product category as a doorway into Nexus, not the whole command center, while preserving privacy transpar`; `USER-Facing Surfaces: `Nexus tray icon, resident status tooltip/menu, compact Nexus Status panel, Quick Access menu, HUD Dashboard entry, Global Settings entry, AI Status / Command`; `Experience Flow: `The USER sees one primary Nexus resident icon, reads a compact state summary, opens high-value surfaces through short menu entries, configures optional quick-acce`; `Durable Feature Element Inventory: `F3-FF01-E01 - Primary Nexus resident icon and compact status doorway; F3-FF01-E02 - immutable core menu entries for HUD Dashboard, Global Settin`; `Deferred Feature Carryforward: `Deferred item title: AI Status / Command Center surface; origin planning event: resident tray doorway discussion; feature surface: AI status, provid`
 - Repetitive language found: No major repetitive language flagged by scanner.
-- Current-state markers found: `Active-State Wording Scan: `PASS - durable feature-category vision only; no selected-next, PR, worktree, or release-window ledger.``
+- Current-state markers found: `Vision Contract Carrydown Receipt: `Future branches consuming this FFV must carry Project Vision, FAM-003 Family Vision, this FFV, applicable affected-FAM vision context, accepted `; `Active-State Wording Scan: `PASS - durable feature-category vision only; no selected-next, PR, worktree, or release-window ledger.``
 - Package Trace / Slice Trace markers found: None found.
-- Branch/worktree/phase markers found: `Proof Expectations: `BP1 must prove the tray is a doorway, not a command center; BP2 must cap menu depth, map immutable versus configurable entries, and route each linked feature t`; `Branch Readiness Consumption Notes: `BR1/BR2 should treat this as a FAM-003 feature category that coordinates with FAM-002 for visual panel design, FAM-006 for Monitoring/HUD and r`; `Worktree-To-Worktree Mutation: `None; direct worktree-to-worktree mutation is not approved by this FFV.``; `Active-State Wording Scan: `PASS - durable feature-category vision only; no selected-next, PR, worktree, or release-window ledger.``
+- Branch/worktree/phase markers found: `Proof Expectations: `BP1 must prove the tray is a doorway, not a command center; BP2 must cap menu depth, map immutable versus configurable entries, and route each linked feature t`; `Branch Readiness Consumption Notes: `BR1/BR2 should treat this as a FAM-003 feature category that coordinates with FAM-002 for visual panel design, FAM-006 for Monitoring/HUD and r`; `Worktree-To-Worktree Mutation: `None; direct worktree-to-worktree mutation is not approved by this FFV.``; `Governance-Local Commit Scope: `Governance owns the durable F3-FF01 feature-category vision, dependency map, index pointer, resident-access source-truth references, and validator e`; `FAM-006 Dependency Receipt: `FAM-006 depends on F3-FF01 only for tray doorway eligibility for Recording Studio, Log Viewer Studio, HUD Dashboard entry behavior, and proof that tray`
 - Release/PR/issue markers found: None found.
 - Validator rule needed: Branch readiness fixture validation should preserve FFV scaffold shape without treating scaffold files as FAM-specific content.
 - Reform action completed in this branch: Updated in this reform branch.
@@ -5765,9 +5764,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 134. `Docs/family_feature_visions/README.md`
 
 - File path: `Docs/family_feature_visions/README.md`
-- Line count: 69
+- Line count: 83
 - Current purpose: Family Feature Visions
-- Actual observed use: family feature vision scaffold with markers live=0, pr/release/issue=0, package/slice=0, branch/worktree/phase=15, validator/helper=4.
+- Actual observed use: family feature vision scaffold with markers live=0, pr/release/issue=0, package/slice=0, branch/worktree/phase=19, validator/helper=4.
 - Correct owner category: family feature vision scaffold
 - What gets recorded here: Family Feature Vision structure, compact index, and template.
 - What should be recorded here: durable feature-category vision scaffolding and future USER-approved FFV routing.
@@ -5777,13 +5776,13 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep as the generic Family Feature Vision scaffold; future FAM-specific content files require USER-approved admission..
 - Deletion posture: Keep; scaffold deletion or replacement requires USER-approved FFV governance repair..
 - Ambiguity risk: Medium.
-- Ambiguity signals: `volatile-current-wording=14`; `unclear-ownership-wording=3`; `soft-commitment-wording=6`; `state-ledger-wording=17`
+- Ambiguity signals: `volatile-current-wording=15`; `unclear-ownership-wording=4`; `soft-commitment-wording=9`; `state-ledger-wording=17`
 - Ambiguity review action: Review for ambiguous current/active/latest/pending ownership language.
 - Structure risk: Low.
 - Structure action: Structure is acceptable for current owner category.
 - Duplicate fact classes found: active branch authority, selected-next, workstream durable history, helper responsibility, phase rules.
 - Live operational truth fields found: None found.
-- Governance receipt fields found: `This folder is repo source truth for approved Family Feature Vision structure and future USER-approved content files. It is not active branch state, not a live operational state st`; `- user-facing surfaces and experience flow`; `- implementation approval`; `BR2 consumes this section dynamically. For each USER-selectable branch option, BR2 should report which deferred items apply, why the dependency trigger is satisfied, which items re`; `Active operational facts belong to Git, GitHub, approved helpers, USER decision packets, or `C:\Nexus Governance State` as routed by repo source truth.`
+- Governance receipt fields found: `This folder is repo source truth for approved Family Feature Vision structure and future USER-approved content files. It is not active branch state, not a live operational state st`; `- user-facing surfaces and experience flow`; `- implementation approval`; `BR2 consumes this section dynamically. For each USER-selectable branch option, BR2 should report which deferred items apply, why the dependency trigger is satisfied, which items re`; `Affected FAMs consume the record through their own Branch Readiness path. When an affected FAM reaches BR1 or BR2 and the dependency applies to the selected feature category, the b`
 - Repetitive language found: No major repetitive language flagged by scanner.
 - Current-state markers found: `This folder is repo source truth for approved Family Feature Vision structure and future USER-approved content files. It is not active branch state, not a live operational state st`; `Family Feature Vision files preserve detail that is too specific for a broad Family Vision and too durable to live only in an active branch plan. They should help Branch Readiness,`; `- active branch status`; `- current worktree assignment`; `Deferred Feature Carryforward preserves feature ideas, dependencies, grouping recommendations, and proof expectations without turning repo vision canon into active branch state.`
 - Package Trace / Slice Trace markers found: None found.
@@ -6245,9 +6244,9 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 ### 149. `Docs/feature_backlog.md`
 
 - File path: `Docs/feature_backlog.md`
-- Line count: 356
+- Line count: 358
 - Current purpose: Nexus Feature Backlog
-- Actual observed use: compact product registry with markers live=13, pr/release/issue=4, package/slice=47, branch/worktree/phase=97, validator/helper=53.
+- Actual observed use: compact product registry with markers live=13, pr/release/issue=4, package/slice=47, branch/worktree/phase=99, validator/helper=53.
 - Correct owner category: compact product registry
 - What gets recorded here: feature-family identity, priority, status, scope, package summary, canonical pointers.
 - What should be recorded here: FAM registry rows and compact pointers.
@@ -6257,7 +6256,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Consolidation target: Keep here as compact product registry; move detailed trace to branch/workstream/family owners..
 - Deletion posture: Keep; no deletion recommended in this pass..
 - Ambiguity risk: High.
-- Ambiguity signals: `volatile-current-wording=64`; `unclear-ownership-wording=66`; `soft-commitment-wording=9`; `state-ledger-wording=95`
+- Ambiguity signals: `volatile-current-wording=66`; `unclear-ownership-wording=67`; `soft-commitment-wording=10`; `state-ledger-wording=95`
 - Ambiguity review action: Clarify owner, time basis, and whether wording is historical receipt or live truth.
 - Structure risk: Medium.
 - Structure action: Pointer surface is getting long; watch for sprawl.
@@ -6270,7 +6269,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - Branch/worktree/phase markers found: `This file is an index. It owns feature-family identity, priority, durable registry posture, family scope, package posture summary, and canonical pointers. It does not own live Git/`; `Use Git, GitHub, approved helpers, or `C:\Nexus Governance State` for live operational truth. Use branch records, branch plans, workstream records, and family dossiers as durable e`; `- `Registry-only` means tracked identity only; no canonical workstream execution record is required yet.`; `- `Promoted` means a canonical workstream or branch-plan owner is required for execution detail.`; `- `Closed` means the canonical workstream or branch record remains stable historical truth after closure.`
 - Release/PR/issue markers found: `Historical Trace Coverage: `FB-042`, `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`, `FB-049`, PR #86-#107.`; `Historical Trace Coverage: `FB-027`, `FB-036`, `FB-037`, `FB-038`, `FB-041`, PR #109.`; `Historical Trace Coverage: `FB-030`, PR #108.`; `Operational Selection Owner: `C:\Nexus Governance State` plus Git/GitHub/helper live checks own selected-next, branch creation, active/complete status, PR state, review state, watc`
 - Validator rule needed: Governance efficiency validator blocks live-state, Package Trace, Slice Trace, branch-plan detail, and repeated release-window sprawl.
-- Reform action completed in this branch: No direct edit in this branch; classified and governed by this dossier.
+- Reform action completed in this branch: Updated in this reform branch.
 - Remaining action needed after this branch: Keep pointer-only; do not reintroduce live state or detailed trace tables.
 - USER review notes: _Add notes here._
 
@@ -6311,7 +6310,7 @@ Do not maintain these as active docs truth: current `origin/main`, branch `HEAD`
 - File path: `Docs/governance_docs_reform_user_review_index.md`
 - Line count: 252
 - Current purpose: Nexus Docs Reform User Review Index
-- Actual observed use: governance support standard with markers live=14, pr/release/issue=0, package/slice=0, branch/worktree/phase=24, validator/helper=31.
+- Actual observed use: governance support standard with markers live=14, pr/release/issue=0, package/slice=0, branch/worktree/phase=26, validator/helper=31.
 - Correct owner category: governance support standard
 - What gets recorded here: supporting governance standard.
 - What should be recorded here: single-purpose governance rules and pointers.
