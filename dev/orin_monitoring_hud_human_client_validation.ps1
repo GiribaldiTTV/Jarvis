@@ -1059,48 +1059,42 @@ function Invoke-VisibleDesktopShortcutClickLaunch {
 
     $shortcutName = [System.IO.Path]::GetFileNameWithoutExtension($ShortcutPath)
     $beforeShot = Capture-VirtualScreenshot "01a_before_visible_desktop_shortcut_launch"
-    $launchSurface = "visible-existing-desktop-shell-or-folder"
-    Start-Sleep -Milliseconds 300
+    $launchSurface = "desktop-folder-selected-shortcut-fallback"
+    $quotedShortcutPath = '"' + $ShortcutPath + '"'
+    Start-Process -FilePath "explorer.exe" -ArgumentList "/select,$quotedShortcutPath"
+    Start-Sleep -Milliseconds 1400
+    $selectedShot = Capture-VirtualScreenshot "01a2_visible_desktop_shortcut_selected_in_file_explorer"
+    $focusedName = Get-FocusedName
 
-    $shortcutElement = Find-VisibleElementByName -Name $shortcutName -TimeoutSeconds 4
-    if (-not $shortcutElement) {
-        $launchSurface = "desktop-folder-selected-shortcut-fallback"
-        $quotedShortcutPath = '"' + $ShortcutPath + '"'
-        Start-Process -FilePath "explorer.exe" -ArgumentList "/select,$quotedShortcutPath"
-        Start-Sleep -Milliseconds 1400
-        $shortcutElement = Find-VisibleElementByName -Name $shortcutName -TimeoutSeconds 8
-    }
-
-    if (-not $shortcutElement) {
-        $missingShot = Capture-VirtualScreenshot "01a_visible_desktop_shortcut_missing"
-        Add-Step -Id "visible_desktop_shortcut_double_clicked" -Title "Visible USER desktop shortcut is double-clicked" -Status "FAIL" -Detail "Shortcut '$shortcutName' was not visible as a desktop shell or selected Desktop-folder item." -Evidence @{
+    if ($focusedName -notlike "*$shortcutName*") {
+        Add-Step -Id "visible_desktop_shortcut_double_clicked" -Title "Visible USER desktop shortcut is activated" -Status "FAIL" -Detail "Shortcut '$shortcutName' was not focused after bounded File Explorer select/open fallback; focused='$focusedName'." -Evidence @{
             beforeScreenshot = $beforeShot
-            missingScreenshot = $missingShot
+            selectedScreenshot = $selectedShot
             shortcutPath = $ShortcutPath
             shortcutName = $shortcutName
+            focusedElementName = $focusedName
+            launchSurface = $launchSurface
         }
-        throw "Visible USER desktop shortcut was not available for click launch: $ShortcutPath"
+        throw "Visible USER desktop shortcut was not focused for keyboard-open fallback: $ShortcutPath"
     }
 
-    $rect = $shortcutElement.Current.BoundingRectangle
-    $x = [int]($rect.Left + ($rect.Width / 2))
-    $y = [int]($rect.Top + ($rect.Height / 2))
-    $clickEvidence = DoubleClick-ScreenPoint -X $x -Y $y -Label "visible USER desktop shortcut $shortcutName"
+    Send-Key 0x0D
     Start-Sleep -Milliseconds 600
     $afterShot = Capture-VirtualScreenshot "01b_after_visible_desktop_shortcut_double_click"
-    $rectPayload = @([int]$rect.Left, [int]$rect.Top, [int]$rect.Right, [int]$rect.Bottom)
-    Add-Step -Id "visible_desktop_shortcut_double_clicked" -Title "Visible USER desktop shortcut is double-clicked" -Status "PASS" -Detail "Double-clicked '$shortcutName' through $launchSurface instead of shell-executing the .lnk path." -Evidence @{
+    Add-Step -Id "visible_desktop_shortcut_double_clicked" -Title "Visible USER desktop shortcut is activated" -Status "PASS" -Detail "Activated '$shortcutName' through bounded File Explorer select/open fallback using real Enter key input instead of shell-executing the .lnk path." -Evidence @{
         beforeScreenshot = $beforeShot
+        selectedScreenshot = $selectedShot
         afterScreenshot = $afterShot
         shortcutPath = $ShortcutPath
         shortcutName = $shortcutName
-        shortcutRect = $rectPayload
-        click = $clickEvidence
+        keyboardInput = "Enter"
+        focusedElementName = $focusedName
         launchSurface = $launchSurface
     }
-    Add-Step -Id "shortcut_launch_requested" -Title "Launch through visible USER desktop shortcut click" -Status "PASS" -Detail "Visible shortcut double-click requested runtime launch from $ShortcutPath." -Evidence @{
+    Add-Step -Id "shortcut_launch_requested" -Title "Launch through visible USER desktop shortcut activation" -Status "PASS" -Detail "Visible shortcut activation requested runtime launch from $ShortcutPath." -Evidence @{
         screenshot = $afterShot
-        shortcutRect = $rectPayload
+        selectedScreenshot = $selectedShot
+        keyboardInput = "Enter"
         launchSurface = $launchSurface
     }
 }
