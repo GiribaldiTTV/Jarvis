@@ -45,6 +45,10 @@ Durable elements inside a file should use:
 
 The file title and `Feature Category:` must name a durable product feature category. They must not be named after a branch route, Slice/SLC, seam, implementation package, selected-next posture, or temporary branch wording.
 
+`Family Feature Vision`, `Feature Category`, and `Family Feature Vision Element` are the binding source-truth terms. `Sub-feature` may be used only as USER-friendly explanatory language for a durable feature category or element inside one FAM; it is not a separate canonical hierarchy, backlog identity, branch route, or worktree lane.
+
+`Docs/family_feature_visions/index.md` is a compact registry. It may name FFV IDs, parent FAMs, feature-category titles, file paths, registry dispositions, and compact notes. It must not carry branch gate state, selected-next state, active dependency queues, branch lifecycle status, PR state, release-window state, or worktree assignment.
+
 ## Deferred Feature Carryforward
 
 Deferred Feature Carryforward preserves feature ideas, dependencies, grouping recommendations, and proof expectations without turning repo vision canon into active branch state.

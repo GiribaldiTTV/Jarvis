@@ -22,6 +22,26 @@ Use Git, GitHub, approved helpers, or `C:\Nexus Governance State` for live opera
 - `Closed` means the canonical workstream or branch record remains stable historical truth after closure.
 - Backlog entries keep the short registry story, not the full execution story.
 
+## Feature Registry / Vision Contract Boundary
+
+This backlog is the compact `FAM` registry. It names broad product families, priority, compact package pointers, and durable owner paths. It does not own detailed vision contracts, active branch planning, gate state, SLC status, Live Validation state, UTS state, PR state, release-window state, or selected-next truth.
+
+Use this deterministic ladder before adding or editing backlog text:
+
+| Layer | Binding Role | Must Not Become |
+| --- | --- | --- |
+| Project Vision | Project-wide product contract in `Docs/nexus_vision.md` | Family-specific implementation ledger |
+| Backlog FAM row | Compact broad feature-family registry and pointer | Vision narrative, branch ledger, or dependency queue |
+| Family Vision | Broad durable product direction for one FAM | Branch plan, FFV detail dump, or live status owner |
+| Family Feature Vision index | Compact FFV / feature-category registry | Selected-next list, gate tracker, or active dependency queue |
+| Family Feature Vision file | Detailed durable feature-category contract and element inventory | Slice/SLC, seam, branch route, or active implementation ledger |
+| Family Feature Vision element | Durable feature element inside one FFV | Standalone backlog identity or automatic branch |
+| Branch Vision Contract Snapshot | USER-accepted branch-specific product contract in active branch planning | Durable project/family/FFV owner |
+| BP2 / BP3 | Engineering plan and orchestration proof against accepted vision | Product vision source truth |
+| Slice / SLC / Seam | Implementation and proof structure inside an admitted package | Vision identity or backlog family |
+
+Backlog rows may mention historical receipts only as compact pointers. If a row needs BP1/BP2/BP3 state, Workstream/Hardening/LV state, SLC implementation status, UTS posture, release-window interpretation, PR state, or active branch lifecycle detail, route that detail to branch records, branch plans, workstream records, helper output, USER packets, or `C:\Nexus Governance State` instead.
+
 ## Ownership Boundaries
 
 | Fact Class | Owner |
@@ -136,8 +156,8 @@ Current release, current PR, branch cleanliness, branch freshness, and tag truth
 | `FAM-003` | Interaction and Actions | High | Open / aggregation-held | `PKG-003` released baseline / open | `Docs/family_visions/FAM-003_interaction_and_actions.md` | `Docs/workstreams/FB-027_interaction_shared_action_family_dossier.md` |
 | `FAM-004` | Voice and Audio | Medium | Open / released-baseline aggregation | `PKG-004` released baseline / open | `Docs/family_visions/FAM-004_voice_and_audio.md` | `Docs/workstreams/FB-030_orin_voice_audio_direction_refinement.md` |
 | `FAM-005` | External Integrations | Medium | Pending implementation | `PKG-005` released baseline / open | `Docs/family_visions/FAM-005_external_integrations.md` | `Docs/workstreams/FB-039_external_trigger_plugin_integration_architecture.md` |
-| `FAM-006` | Monitoring and HUD | High | Open / Active Overlay Recording Runtime Implementation LV1 Handoff Green | `PKG-006` active-overlay recording implementation carrier is Workstream Green, Hardening H1 Green, and Live Validation LV1 proof/handoff Green; BP1/BP2 are accepted, BP3 is USER Approved, SLC-051 target/session truth is implemented, SLC-052 HUD Overlay target preview is implemented, SLC-053 standalone Recording Control window foundation is implemented, SLC-054 durable output contract schema/readback proof is implemented, SLC-055 validation/live proof readiness is implemented, returned UTS results are pending, and runtime recording implementation remains future-gated; released planning traceability remains preserved in `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md` | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md` |
-| `FAM-007` | Local AI and Capability Packs | High | Open / package admitted | `PKG-007` remains admitted and not package-complete; durable planning pointers preserve FAM-007 Breakpoint 2 Dev/Owner skeleton action-gate readiness context while live operational state remains external/Git/GitHub/helper-derived | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` |
+| `FAM-006` | Monitoring and HUD | High | Open / durable planning pointers | `PKG-006` compact pointer: monitoring/HUD, active-overlay recording, Recording Studio, Log Viewer Studio, and proof expectations route through the family vision, admitted FFV records when created, branch receipts, workstream evidence, and external/Git/GitHub/helper live truth. | `Docs/family_visions/FAM-006_monitoring_and_hud.md` | `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md` |
+| `FAM-007` | Local AI and Capability Packs | High | Open / durable planning pointers | `PKG-007` compact pointer: local AI readiness, capability packs, Dev/Owner boundaries, provider/model gates, and private/public trust posture route through the family vision, admitted FFV records when created, branch receipts, AI runtime/trust architecture, and external/Git/GitHub/helper live truth. | `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md` | `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` |
 | `FAM-008` | Packaging and Install Experience | Medium | Pending architecture/package | `PKG-008` pending | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` |
 
 ### Folded Non-Family Concepts
@@ -236,16 +256,16 @@ Historical Trace Coverage: `FB-039`, Stream Deck and external trigger planning g
 
 ### [ID: FAM-006] Monitoring and HUD
 
-Status: Open / Active Overlay Recording Runtime Implementation LV1 Handoff Green
+Status: Open / durable planning pointers
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
 Family Scope: Monitoring HUD, Dashboard, Sensor Command Center, Sensor Library, monitor configuration, Overlay Profile, Recording Profile, local telemetry presentation, and user-facing performance/health surfaces.
-Package Summary: `PKG-006` active-overlay recording implementation carrier is Workstream Green, Hardening H1 Green, and Live Validation LV1 proof/handoff Green. Active-overlay-driven recording, HUD Overlay launcher/target preview, compact Recording Control window, durable output contract schema/readback proof, validation/live proof readiness, Native Log Loader boundary, and per-overlay effective polling policy remain governed by the family vision and active branch plan; released planning traceability remains preserved in `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_foundation.md`, BP3 is approved, SLC-051 target/session truth is implemented, SLC-052 HUD Overlay target preview is implemented, SLC-053 standalone Recording Control window foundation is implemented, SLC-054 durable output contract schema/readback proof is implemented, SLC-055 validation/live proof readiness is implemented, returned UTS results are pending, and runtime recording implementation remains future-gated.
-Package Admission State: Workstream Green / Hardening H1 Green / Live Validation LV1 proof-handoff Green / BP1 accepted / BP2 accepted / BP3 approved / SLC-051 target-session truth complete / SLC-052 HUD Overlay target preview complete / SLC-053 standalone Recording Control window foundation complete / SLC-054 durable output contract schema-readback proof complete / SLC-055 validation-live proof readiness complete / UTS results pending
-Admitted Slice Count: 5 planned slices in `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md`
-Package Completion State: Complete / Workstream Green / H1 Green / LV1 proof-handoff Green / SLC-051 complete / SLC-052 complete / SLC-053 complete / SLC-054 complete / SLC-055 complete / UTS results pending
+Package Summary: `PKG-006` compact pointer. Monitoring/HUD, active-overlay recording, Recording Studio, Log Viewer Studio, Native Log Loader boundaries, user-visible proof, and runtime recording follow-through route through the family vision, admitted FFV records when created, branch receipts, workstream evidence, and external/Git/GitHub/helper live truth.
+Package Admission State: Compact pointer only; detailed gate and implementation posture is owned by branch/workstream receipts or active external planning.
+Admitted Slice Count: See the canonical detail owner when slice history is needed.
+Package Completion State: Compact pointer only; derive current completion and UTS posture from the owning branch/workstream receipt, USER packet, helper output, or external operational state.
 Single-Slice Package User Approval: Not required - no active single-slice package is admitted; future package admission must have multiple concrete admitted slices or USER waiver.
 Canonical Detail Owner: `Docs/branch_records/feature_fam_006_active_overlay_recording_runtime_implementation.md`
 Family Vision Owner: `Docs/family_visions/FAM-006_monitoring_and_hud.md`
@@ -253,22 +273,22 @@ Historical Trace Coverage: `FB-040`, FAM-006 branch records, family vision, work
 
 ### [ID: FAM-007] Local AI and Capability Packs
 
-Status: Open / package admitted; detailed released-readiness and post-release receipts live in canonical detail owners
+Status: Open / durable planning pointers
 Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
 Family Scope: Local AI, provider setup, provider readiness, consent posture, consent collection, capability packs, model lifecycle, local-only privacy boundaries, provider-visible data, execution gates, memory/future learning boundaries, and Core/Desktop AI state.
-Package Summary: `PKG-007` is admitted with historical and future-gated slices; not package-complete because provider/model execution, downloads, memory/indexing/learning/personalization, voice/Core runtime sync, shortcut/installer work, capability-pack execution, and AI Product Contract import remain USER-gated.
-Package Admission State: Admitted / detailed history is branch-record, branch-plan, workstream, or family-dossier owned
-Admitted Slice Count: see `Docs/branch_records/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md`
-Package Completion State: Open / not package-complete
+Package Summary: `PKG-007` compact pointer. Local AI readiness, capability packs, Dev/Owner boundaries, provider/model gates, memory/cache/privacy boundaries, and private/public trust posture route through the family vision, admitted FFV records when created, AI runtime/trust architecture, branch receipts, and external/Git/GitHub/helper live truth.
+Package Admission State: Compact pointer only; detailed gate and implementation posture is owned by branch/workstream receipts or active external planning.
+Admitted Slice Count: See the canonical detail owner when slice history is needed.
+Package Completion State: Compact pointer only; derive current package completion from the owning branch/workstream receipt, USER packet, helper output, or external operational state.
 Single-Slice Package User Approval: Not required - package history is multi-slice; future scope still requires USER approval.
 Canonical Detail Owner: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
 Family Vision Owner: `Docs/family_visions/FAM-007_local_ai_and_capability_packs.md`
-Future Planning Evidence: FAM-007 Breakpoint 2 private Dev/Owner skeleton setup decision remains durable planning context for the existing FAM-007 backlog family; current branch-local setup proof is recorded by the Breakpoint 2 action-gate readiness branch record and plan.
+Future Planning Evidence: FAM-007 private Dev/Owner skeleton setup decisions remain durable planning context for the existing FAM-007 backlog family; branch-local proof is recorded by the applicable branch receipt, active external branch plan, or USER packet when that phase is active.
 Branch Evidence Pointer: `Docs/branch_records/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md`
-Minimal Scope: FAM-007 runtime action-gate planning slice for Breakpoint 2 private Dev/Owner skeleton setup decision, preserving provider/model/runtime/cache/memory execution as later USER-gated work.
+Minimal Scope: FAM-007 private/public trust-boundary planning pointer, preserving provider/model/runtime/cache/memory execution as later USER-gated work.
 Operational Selection Owner: `C:\Nexus Governance State` plus Git/GitHub/helper live checks own selected-next, branch creation, active/complete status, PR state, review state, watcher state, merge state, release-window posture, and worktree posture.
 Selection / Unblock Boundary: This compact backlog row may name durable family direction and branch evidence pointers, but it must not create a new backlog family, branch, private repo, private remote, provider/model execution path, runtime cache behavior, memory behavior, release action, or live lifecycle state.
 Historical Branch Runtime Engineering Plans: see FAM-007 branch-plan records under `Docs/branch_plans/`.
