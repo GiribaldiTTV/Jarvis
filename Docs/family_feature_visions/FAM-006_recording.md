@@ -245,6 +245,36 @@ This Family Feature Vision does not authorize:
 - broad theme or skin redesign
 - creation of a separate Recording Profile system
 
+## Cross-FAM Dependency Classification
+
+Cross-FAM Dependency Map: FAM-006 Recording names FAM-007 only as an explicit non-goal and ownership boundary for provider/model work and AI capability-pack behavior; Recording does not admit FAM-007 implementation, provider/model mutation, or AI package work.
+
+Dependency ID: F6-XFAM-D01
+
+Originating FAM: FAM-006
+
+Originating FFV / Element: F6-FF01 Recording native/log/control surfaces.
+
+Affected FAMs: FAM-007 Local AI and Capability Packs.
+
+Affected FFV / Element or Not Created: Not Created.
+
+Dependency Scope Class: Transferred FAM Work
+
+Carry-In / Deferral / Transfer Decision: Any provider/model or AI capability-pack behavior discovered while planning or validating Recording must transfer to a legal FAM-007 Branch Readiness carrier or remain future-gated; FAM-006 Recording may only preserve the boundary and must not implement that work.
+
+Required Contract / Capability: FAM-007 would own any future provider/model or AI capability-pack contract that Recording might consume later; no such contract is required for the admitted Recording native/log/control surfaces.
+
+Suggested Grouping: Group future provider/model or AI capability-pack work with the relevant FAM-007 feature vision or branch package rather than with FAM-006 Recording.
+
+Proof Expectation: FAM-006 Recording proof must show provider/model work remains absent or future-gated; any future FAM-007 adoption must provide its own Branch Readiness, BP1/BP2/BP3, validation, and USER review proof.
+
+Durable Disposition: Transferred / Future FAM-007 Owner
+
+Affected FAM Receipt / Fold-Down Target: Fold down to the FAM-007 Family Vision or a future FAM-007 Family Feature Vision dependency candidate if USER later admits provider/model or AI capability-pack work.
+
+Worktree-To-Worktree Mutation: None; direct mutation of another active worktree is blocked unless USER separately approves a bounded cross-worktree waiver.
+
 ## Design Options To Preserve For BP1
 
 ### Planning Solidification Before Scope Selection
