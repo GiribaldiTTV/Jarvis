@@ -1672,13 +1672,33 @@ def _validate_family_feature_vision_scaffolding_source_truth() -> list[str]:
     return failures
 
 
+def _iter_current_worktree_ffv_content_files() -> list[Path]:
+    ffv_dir = ROOT / "Docs" / "family_feature_visions"
+    if not ffv_dir.is_dir():
+        return []
+    scaffold_names = {"index.md", "readme.md", "template.md"}
+    return sorted(
+        path
+        for path in ffv_dir.glob("*.md")
+        if path.name.casefold() not in scaffold_names
+    )
+
+
+def _validate_current_worktree_family_feature_vision_files() -> list[str]:
+    """Apply the binding FFV content standard to admitted repo FFV files."""
+
+    failures: list[str] = []
+    for path in _iter_current_worktree_ffv_content_files():
+        text = path.read_text(encoding="utf-8")
+        for failure in _validate_family_feature_vision_text(text):
+            failures.append(f"{path.relative_to(ROOT)}: {failure}")
+    return failures
+
+
 def _validate_current_worktree_ffv_dependency_records() -> list[str]:
     """Scan tracked FFVs in the current worktree for loose cross-FAM dependencies."""
 
     failures: list[str] = []
-    ffv_dir = ROOT / "Docs" / "family_feature_visions"
-    if not ffv_dir.is_dir():
-        return failures
 
     trigger_terms = (
         "dependency",
@@ -1691,9 +1711,7 @@ def _validate_current_worktree_ffv_dependency_records() -> list[str]:
         "update",
         "patch",
     )
-    for path in sorted(ffv_dir.glob("*.md")):
-        if path.name.casefold() in {"index.md", "readme.md", "template.md"}:
-            continue
+    for path in _iter_current_worktree_ffv_content_files():
         text = path.read_text(encoding="utf-8")
         owning_fam = _owning_fam_from_ffv(path, text)
         mentioned_fams = sorted(set(re.findall(r"\bFAM-\d{3}\b", text)))
@@ -5351,6 +5369,7 @@ line item, not a seam or separate branch.
         )
 
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
+    failures.extend(_validate_current_worktree_family_feature_vision_files())
     failures.extend(_validate_current_worktree_ffv_dependency_records())
 
     failures.extend(_validate_merge_stable_projection_helpers())
