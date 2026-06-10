@@ -85,6 +85,22 @@ Every Slice/SLC must trace to a BP1 accepted Branch Vision requirement and a BP2
 
 For a selected feature-bearing branch route, BP1 entry is blocked on `Family Feature Vision Required For Selected Feature` until the required USER-approved Family Feature Vision exists and passes the `Feature Vision Sufficiency Check`. If the route is governance-only, release-support, pure helper/validator, source-truth-only, or otherwise non-product, the branch planning packet may record `Family Feature Vision Not Applicable` with the reason. When a USER-approved Family Feature Vision exists for the selected implementation route, BP1 must cite it as the durable `Feature Vision Context`. BP2 must carry forward BP1's accepted disposition for applicable deferred feature items, and BP3 must verify that applicable deferrals are either included in the admitted package, explicitly future-gated with reason, or routed to the correct future owner. Branch plans may record active gate state and branch-local choices for those items, but the durable deferred-item facts belong in the Family Feature Vision after USER-approved fold-down.
 
+## Vision Carrydown Chain
+
+Branch Planning consumes vision in this order:
+
+```text
+Project Vision -> Family Vision -> Family Feature Vision -> Branch Vision Contract Snapshot -> BP2/BP3 engineering plan -> Workstream/Hardening/Live Validation proof
+```
+
+BP1 owns the branch-specific vision contract. It must state which source-truth vision layers were loaded, which Family Feature Vision or not-applicable reason applies, which durable elements are selected or deferred, and where the USER can inspect the branch's product outcome, surface map, options, recommendations, and unresolved questions.
+
+BP2 owns the engineering translation of the accepted or waived BP1 contract. It must map selected vision elements to Slice/SLC/seam deliverables, affected files/surfaces, validators/helpers, proof outputs, rollback, risks, and deferred/future-gated boundaries. BP2 is not allowed to become a new product vision owner by changing UI behavior, workflow, feature scope, or deferred-item disposition without returning to BP1 or recording an explicit USER waiver.
+
+BP3 owns orchestration readiness. It must prove the Workstream package implements the accepted or waived BP1/BP2 vision chain and must identify any missing vision layer, weak FFV sufficiency, unplanned deferred item, or unsupported proof path before Workstream implementation can be requested.
+
+Workstream, Hardening, and Live Validation must carry the same selected vision elements forward. Live Validation must compare observed behavior and USER-facing proof against the applied Project Vision, Family Vision, Family Feature Vision when present, accepted Branch Vision Contract Snapshot, and accepted BP2/BP3 proof plan.
+
 ## Family Feature Vision Element Traceability
 
 Family Feature Vision elements are durable vision units. They are not Slices, SLCs, seams, branch routes, or implementation status rows.

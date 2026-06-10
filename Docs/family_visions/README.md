@@ -26,6 +26,16 @@ Family vision records do not own:
 
 Backlog family work stays local to its owning family/worktree. A family vision may preserve durable cross-family dependency candidates, constraints, platform-contract implications, and future carry-in context, but it must not turn another backlog family or context owner into an active implementation dependency queue.
 
+## Vision Carrydown And UI Specialization
+
+Family Vision records consume `Docs/nexus_vision.md` first. They specialize the project-wide product direction and Project UI Vision for one broad FAM without copying the whole project vision into each file.
+
+Family-level UI specialization should name the FAM-specific visual system, interaction model, proof expectations, and safety/recovery posture that branches in that family must inherit. It should not duplicate branch-local layouts, per-seam checklists, current validation status, or temporary USER review packet text.
+
+Family Feature Vision records consume both the Project Vision and the owning Family Vision. They specialize only the durable feature-category layer: feature purpose, surfaces, experience flow, included capabilities, non-goals, durable elements, deferred carryforward, design options, and proof expectations. They should reference the higher-level UI and proof rules, then add the feature-specific details needed for BP1, BP2, BP3, Workstream, Hardening, and Live Validation.
+
+If Family Feature Vision planning discovers new durable UI rules, feature ideas, deferred items, dependency triggers, or proof expectations, the owning pass must fold those facts into the correct durable vision owner or record a durable deferred disposition before BP1 proceeds. Do not leave them only in chat, helper output, a USER packet, active external branch planning, or a branch-local digest.
+
 ## Family Feature Vision Layer
 
 `Family Feature Vision` is the approved name for the durable middle vision layer between `Family Vision` and the active `Branch Vision Contract Snapshot`.
@@ -83,6 +93,8 @@ Family Feature Vision owns durable feature-category direction inside exactly one
 - fold-down history
 
 Runtime observability carrydown: when a Family Feature Vision contains runtime, desktop, user-facing, file/folder, launcher, bridge, Dev Toolkit, recording, or validation-critical behavior, it must reference the project-wide Runtime Observability and USER Proof direction in `Docs/nexus_vision.md` and specialize only what is feature-specific. It should name expected exact-launcher proof, photo/video proof, manual USER validation needs, user-visible storage/folder boundaries, troubleshooting-mode relevance, and proof expectations without becoming an active Live Validation evidence ledger.
+
+UI carrydown: when a Family Feature Vision contains user-visible UI, controls, windows, cards, HUDs, overlays, setup flows, status indicators, folder pickers, or evidence surfaces, it must reference the project-wide Project UI Vision in `Docs/nexus_vision.md` and the owning Family Vision's UI specialization. The FFV should then name the feature-specific control grammar, visual inheritance, allowed exceptions, USER-facing proof surfaces, and photo/video or manual-validation expectations without copying broad UI principles into a second owner.
 
 Family Feature Vision must not own:
 

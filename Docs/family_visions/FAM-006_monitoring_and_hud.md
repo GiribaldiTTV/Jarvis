@@ -25,6 +25,17 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Visible FAM-006 closeout claims require photo/video or ordered frame-sequence proof; claims that cannot be proven visually must be elevated to USER manual validation, explicit waiver, or blocker rather than treated as proven by logs, markers, or helper PASS alone.
 - Runtime logs, Dev Toolkit events, and manifests should prove state consistency, bridge delivery, window lifecycle, recording target/log consistency, and failure diagnosis, but they do not replace USER-facing visual proof.
 
+## Family UI Vision Carrydown
+
+FAM-006 carries the Project UI Vision from `Docs/nexus_vision.md` into monitoring, HUD, Dashboard, overlay, recording, and evidence surfaces.
+
+Family-specific UI requirements:
+
+- Monitoring and HUD surfaces should preserve comfort through calm status hierarchy, readable density, and clear no-data/degraded-state copy.
+- Futuristic styling must stay standardized: underglow, card chrome, gutter spacing, dashboard/HUD/shell/window spacing, row/divider treatment, button effects, hover/focus/disabled states, shadows/glows, scrollbars, and layout density should remain visually related across FAM-006 surfaces.
+- Similar actions such as Start, Stop, Select Folder, Open, Save, Clear, Retry, and Export should inherit the project-wide control grammar unless BP1/BP2/BP3 accepts a FAM-006-specific exception with proof expectations.
+- Proof surfaces should help the USER judge product behavior; they must not turn the product UI into a debug wall or expose internal worktree/branch state as product copy.
+
 ## Recording Vision
 
 - Recording should be intuitive and automatically connected to the currently active Overlay Profile.

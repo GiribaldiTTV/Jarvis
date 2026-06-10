@@ -242,7 +242,7 @@ If the task remains materially ambiguous after that baseline, Codex should ask o
 ## Startup Contract For Every Task
 
 Before planning or execution, Codex should follow the startup loading contract in `Docs/Main.md`, using `Docs/nexus_startup_contract.md` only as the ChatGPT/new-chat loader map when prompt generation is in scope.
-Main is the first repo loader and source-truth router. For product/design/vision work, follow Main to `Docs/nexus_vision.md`, `Docs/family_visions/`, and the active external branch plan instead of treating this guide or a prompt as the final vision owner.
+Main is the first repo loader and source-truth router. For product/design/vision work, follow Main to `Docs/nexus_vision.md`, `Docs/family_visions/`, applicable USER-approved Family Feature Vision records when present or required, and the active external branch plan instead of treating this guide or a prompt as the final vision owner.
 For runtime Workstream Entry with multiple admitted slices or seams, expect whole-package analysis before entry-seam implementation approval; a first-seam-only handoff is not enough.
 Local ChatGPT custom instructions should stay compact; the repo loader/source-truth can hold longer ChatGPT-facing continuity rules, prompt-generation guardrails, and review memory.
 Do not paste the loader doc into Codex prompts. Codex prompts should load `Docs/Main.md` and the owning canon for execution authority, using the loader only when prompt generation, new-chat bootstrapping, or loader/source-truth drift review is in scope.

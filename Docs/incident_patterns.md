@@ -256,6 +256,25 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Vision Chain Skipped Or Replaced By Branch-Local Invention
+
+- symptom:
+  BR2, BP1, BP2, BP3, Workstream, Hardening, Live Validation, or USER review packets proceed with generic project/family references, branch-local reasoning, copied-file lists, helper green output, or implementation-specific SLC/slice language while the applicable Project Vision, Family Vision, Family Feature Vision, accepted Branch Vision, deferred carryforward, or UI/proof carrydown is missing, shallow, stale, or not digested
+- layer:
+  Vision Contract, Branch Planning, Live Validation proof, USER review packets, and helper/validator interpretation
+- root-cause pattern:
+  Codex treats the active branch plan or generated packet as the product vision owner, or treats broad Family Vision as enough for a selected feature-bearing route that needs a Family Feature Vision
+- fix pattern:
+  require the vision carrydown chain `Project Vision -> Family Vision -> Family Feature Vision -> Branch Vision Contract Snapshot -> BP2/BP3 engineering plan -> Workstream/Hardening/Live Validation proof`; block BP1 on `Family Feature Vision Required For Selected Feature` when needed; require BP2/BP3 to preserve accepted vision and deferred-item disposition; require Live Validation and USER packets to compare observed behavior against the applied vision chain
+- validation pattern:
+  future helpers should fail on `Vision Carrydown Chain Missing`, `Branch Vision Invented From Local Reasoning`, `Vision Proof Alignment Missing`, `USER Packet Vision Evidence Missing`, `Family Feature Vision Required For Selected Feature`, `Feature Vision Sufficiency Check` failure, or `Family Feature Vision Pointer Migration Missing`
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/family_visions/README.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:

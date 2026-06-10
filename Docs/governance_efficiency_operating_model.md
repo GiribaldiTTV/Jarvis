@@ -687,6 +687,8 @@ The default cleanup sequence is: inventory and classify, review queue and owner 
 
 `Docs/nexus_vision.md` is the Nexus-wide product vision contract. It was promoted from the former `Docs/orin_vision.md` path after focused reference migration so Branch Readiness has a stable project-wide vision owner.
 
+It also owns the Project UI Vision: comfort, reliability, futuristic-but-understandable presentation, consistent controls, fail-safe behavior, readability, future versatility/changeability, and project-wide control grammar. Family Vision and Family Feature Vision records carry those principles by reference and specialize only the family or feature-category details they own.
+
 The vision contract should drive backlog-family planning and Branch Readiness recommendations. A backlog item may need its own family-level vision record or vision section when the product intent is not obvious, but that vision is not a branch plan and should not duplicate per-seam implementation detail. The vision explains what outcome the plan must satisfy; the Branch Runtime Engineering Plan explains how the active branch intends to implement and prove it.
 
 Vision records should support USER/Codex back-and-forth. They may grow as implementation teaches the project, but changes should be explicit USER-reviewed product intent, not accidental branch-local drift.
@@ -711,6 +713,8 @@ Use this layer when product/design assumptions would otherwise become implementa
 - Vision Question Digest is the required packet when product/design uncertainty affects planning or execution.
 - Branch Plan Revision Packet is the required packet when accepted vision or accepted branch scope needs controlled revision.
 - Plan-to-Implementation Traceability proves that implementation followed accepted vision and the branch plan.
+
+USER review and validation packets that prove user-facing or runtime behavior should show which vision layers applied, which selected/deferred elements were tested, what evidence proves them, and which claims remain PASS, FAIL, BLOCKED, or UNPROVEN. Raw evidence and active status remain outside repo docs; durable repo docs own the governing vision contract and folded receipts only.
 
 Design assumption states:
 
