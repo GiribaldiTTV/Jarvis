@@ -8778,6 +8778,8 @@ def validate() -> list[str]:
         ("desktop Core HTML", desktop_html),
     ):
         for needle in (
+            'href="orin_core.css?v=fam007-lv1-tray-repair"',
+            'src="orin_core.js?v=fam007-lv1-tray-repair"',
             'id="ai-provider-status"',
             'aria-hidden="false"',
             'data-display-suppression="desktop-ai-owned-readiness-display-visible"',
@@ -9119,13 +9121,34 @@ def validate() -> list[str]:
             "Open local assist to produce a deterministic local no-provider result.",
             "Open local assist to review public-safe local status; provider/model execution remains blocked",
             "Local shell only; nothing is sent",
+            'id="ai-provider-tray"',
+            'aria-controls="ai-provider-tray-window"',
+            'data-ai-local-status="active-local-only"',
+            'data-provider-visible-data="none"',
+            'data-prompt-send="prompt-send-disabled"',
+            'data-provider-model-execution="blocked"',
+            'data-network-egress="network-egress-blocked"',
+            'data-memory-indexing="memory-indexing-disabled"',
+            'data-temporary-lv1-repair="true"',
+            'data-next-br1-review-required="true"',
+            'id="ai-provider-tray-window"',
+            'id="ai-provider-tray-provider-visible-data"',
+            'id="ai-provider-tray-provider-execution"',
+            'id="ai-provider-tray-capability-posture"',
+            'id="ai-provider-tray-lane-boundary"',
+            'id="ai-provider-tray-local-assist-action"',
+            'id="ai-provider-tray-review-note"',
+            "ORIN local active",
+            "Active - local-only no-provider mode",
+            "Provider-visible data",
+            "Install and download intent blocked",
+            "Public local assist only; Developer and Owner lanes gated",
+            "Temporary LV1 repair surface. Next BR1 must review the permanent AI tray/window and provider-visible data policy before Beta.",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)
 
     for needle in (
-        'href="orin_core.css"',
-        'href="orin_core_desktop.css"',
-        'src="orin_core.js"',
+        'href="orin_core_desktop.css?v=fam007-lv1-tray-repair"',
         'data-surface-role="core-visualization"',
     ):
         _require(needle in desktop_html, f"desktop Core HTML is missing {needle!r}", failures)
@@ -9138,6 +9161,11 @@ def validate() -> list[str]:
 
     for needle in (
         ".ai-provider-status",
+        ".ai-provider-tray",
+        ".ai-provider-tray-window",
+        ".ai-provider-tray-window[hidden]",
+        ".ai-provider-tray-window__facts",
+        ".ai-provider-tray-window__assist",
         ".ai-provider-status__runtime",
         ".ai-provider-status__readiness",
         ".ai-provider-status__activation",
@@ -9184,10 +9212,6 @@ def validate() -> list[str]:
         ".ai-provider-status__functional-release",
         ".ai-provider-status__hardware-detection",
         ".ai-provider-status__capability-manifest",
-        ".ai-provider-status__capability-eligibility",
-        ".ai-provider-status__public-lane",
-        ".ai-provider-status__developer-lane",
-        ".ai-provider-status__owner-lane",
         ".ai-provider-status__memory-contract",
         ".ai-provider-status__copy-contract",
         ".ai-provider-status::after",
@@ -9212,13 +9236,18 @@ def validate() -> list[str]:
     )
     hidden_status_block = css[hidden_status_start:hidden_status_end]
     _require(
-        ".ai-provider-status__capability-eligibility" not in hidden_status_block,
-        "SLC-003 capability eligibility row must not remain hidden",
+        ".ai-provider-status__disclosure" in hidden_status_block,
+        "returned-UTS repair must move visible provider-data inspection out of the lower status panel",
         failures,
     )
     _require(
-        ".ai-provider-status__install-intent" not in hidden_status_block,
-        "SLC-003 install-intent row must not remain hidden",
+        ".ai-provider-status__capability-eligibility" in hidden_status_block,
+        "returned-UTS repair must expose capability eligibility through the temporary tray window",
+        failures,
+    )
+    _require(
+        ".ai-provider-status__install-intent" in hidden_status_block,
+        "returned-UTS repair must expose install intent through the temporary tray window",
         failures,
     )
     for selector in (
@@ -9227,13 +9256,16 @@ def validate() -> list[str]:
         ".ai-provider-status__owner-lane",
     ):
         _require(
-            selector not in hidden_status_block,
-            f"SLC-004 lane boundary row {selector} must not remain hidden",
+            selector in hidden_status_block,
+            f"returned-UTS repair must expose lane boundary row {selector} through the temporary tray window",
             failures,
         )
 
     for needle in (
         "const aiProviderStatus",
+        "const aiProviderTray",
+        "setAIProviderTrayOpen",
+        "renderAIProviderTrayState",
         "renderAIProviderState",
         "window.setAIProviderState",
         "providerSelectionState",
@@ -9387,6 +9419,13 @@ def validate() -> list[str]:
         "providerConsentHandoffPosture",
         "providerPathHandoffPosture",
         "dataVisibilityConsentPosture",
+        "trayStatusLabel",
+        "trayReviewNote",
+        "temporaryLv1Repair",
+        "nextBr1ReviewRequired",
+        "aiProviderTrayLocalAssistAction.addEventListener",
+        "Temporary LV1 repair surface",
+        "Next BR1 must review",
         "desktopAiOwnedReadinessDisplayState",
         "const displayState",
         "const localActionAvailable",

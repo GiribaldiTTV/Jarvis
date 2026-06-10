@@ -10529,7 +10529,7 @@ def build_provider_setup_completion_foundation_state(
         state_id=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID,
         mode=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_MODE,
         availability=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_AVAILABILITY,
-        status_label="ORIN local assist available",
+        status_label="ORIN local active",
         provider_label="ORIN local assist",
         disabled_reason=(
             "ORIN local assist is public-safe and local-only; SDK/model execution remains pending USER approval"

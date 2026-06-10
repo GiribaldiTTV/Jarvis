@@ -130,6 +130,20 @@ const aiProviderStatusResult = document.getElementById("ai-provider-status-resul
 const aiProviderStatusResultDetail = document.getElementById("ai-provider-status-result-detail");
 const aiProviderStatusNextAction = document.getElementById("ai-provider-status-next-action");
 const aiProviderStatusPrivacy = document.getElementById("ai-provider-status-privacy");
+const aiProviderTray = document.getElementById("ai-provider-tray");
+const aiProviderTrayLabel = document.getElementById("ai-provider-tray-label");
+const aiProviderTrayScope = document.getElementById("ai-provider-tray-scope");
+const aiProviderTrayWindow = document.getElementById("ai-provider-tray-window");
+const aiProviderTrayClose = document.getElementById("ai-provider-tray-close");
+const aiProviderTrayLocalStatus = document.getElementById("ai-provider-tray-local-status");
+const aiProviderTrayProviderVisibleData = document.getElementById("ai-provider-tray-provider-visible-data");
+const aiProviderTrayProviderExecution = document.getElementById("ai-provider-tray-provider-execution");
+const aiProviderTrayCapabilityPosture = document.getElementById("ai-provider-tray-capability-posture");
+const aiProviderTrayLaneBoundary = document.getElementById("ai-provider-tray-lane-boundary");
+const aiProviderTrayLocalAssistAction = document.getElementById("ai-provider-tray-local-assist-action");
+const aiProviderTrayResult = document.getElementById("ai-provider-tray-result");
+const aiProviderTrayResultDetail = document.getElementById("ai-provider-tray-result-detail");
+const aiProviderTrayReviewNote = document.getElementById("ai-provider-tray-review-note");
 
 let w = 0;
 let h = 0;
@@ -159,7 +173,13 @@ let aiProviderState = {
   mode: "no-provider",
   availability: "disabled",
   providerLabel: "ORIN local assist",
-  statusLabel: "ORIN local assist available",
+  statusLabel: "ORIN local active",
+  trayStatusLabel: "ORIN local active",
+  trayScopeLabel: "Local only",
+  trayLocalStatusDetail: "Active - local-only no-provider mode",
+  trayProviderExecutionLabel: "disabled and blocked",
+  trayReviewNote:
+    "Temporary LV1 repair surface. Next BR1 must review the permanent AI tray/window and provider-visible data policy before Beta.",
   selectedProviderId: "no-provider",
   providerSelectionState: "fallback-no-provider",
   providerSelectionLabel: "No-provider fallback active",
@@ -1693,6 +1713,99 @@ function renderCommandOverlay() {
   }
 }
 
+function setTextContent(element, text) {
+  if (element) {
+    element.textContent = text;
+  }
+}
+
+function setAIProviderTrayOpen(open) {
+  if (!aiProviderTray || !aiProviderTrayWindow) return;
+
+  const shouldOpen = Boolean(open);
+  aiProviderTrayWindow.hidden = !shouldOpen;
+  aiProviderTray.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+  aiProviderTray.dataset.aiTrayState = shouldOpen ? "open" : "closed";
+  aiProviderTrayWindow.dataset.aiTrayState = shouldOpen ? "open" : "closed";
+}
+
+function renderAIProviderTrayState(state, displayVisible, localActionAvailable) {
+  const trayVisible = Boolean(displayVisible || localActionAvailable);
+  const providerVisibleData = state.providerVisibleData || "none";
+  const promptSend = state.promptSendPosture || "prompt-send-disabled";
+  const networkEgress = state.networkEgressState || "network-egress-blocked";
+  const memoryIndexing = state.memoryIndexingState || "memory-indexing-disabled";
+  const providerExecution =
+    state.providerExecutionGateState === "provider-execution-disabled" &&
+    state.modelExecutionGateState === "model-execution-disabled"
+      ? "disabled and blocked"
+      : (state.providerExecutionGateLabel || "disabled and blocked");
+  const capabilityPosture =
+    state.installIntentLabel ||
+    "Install intent: blocked; downloads and install execution remain disabled";
+  const laneBoundary =
+    `${state.publicLaneBoundaryLabel || "Public Edition: local assist only"}; ` +
+    `${state.developerLaneBoundaryLabel || "Developer lane: gated; private setup not configured"}; ` +
+    `${state.ownerLaneBoundaryLabel || "Owner lane: gated; private setup not configured"}`;
+
+  if (aiProviderTray) {
+    aiProviderTray.hidden = !trayVisible;
+    aiProviderTray.dataset.aiLocalStatus = "active-local-only";
+    aiProviderTray.dataset.providerVisibleData = providerVisibleData;
+    aiProviderTray.dataset.promptSend = promptSend;
+    aiProviderTray.dataset.providerModelExecution = "blocked";
+    aiProviderTray.dataset.networkEgress = networkEgress;
+    aiProviderTray.dataset.memoryIndexing = memoryIndexing;
+    aiProviderTray.dataset.temporaryLv1Repair = "true";
+    aiProviderTray.dataset.nextBr1ReviewRequired = "true";
+  }
+  if (aiProviderTrayWindow) {
+    if (!trayVisible) {
+      aiProviderTrayWindow.hidden = true;
+    }
+    aiProviderTrayWindow.dataset.providerVisibleData = providerVisibleData;
+    aiProviderTrayWindow.dataset.promptSend = promptSend;
+    aiProviderTrayWindow.dataset.providerModelExecution = "blocked";
+    aiProviderTrayWindow.dataset.networkEgress = networkEgress;
+    aiProviderTrayWindow.dataset.memoryIndexing = memoryIndexing;
+    aiProviderTrayWindow.dataset.temporaryLv1Repair = "true";
+    aiProviderTrayWindow.dataset.nextBr1ReviewRequired = "true";
+  }
+
+  setTextContent(aiProviderTrayLabel, state.trayStatusLabel || "ORIN local active");
+  setTextContent(aiProviderTrayScope, state.trayScopeLabel || "Local only");
+  setTextContent(
+    aiProviderTrayLocalStatus,
+    state.trayLocalStatusDetail || "Active - local-only no-provider mode"
+  );
+  setTextContent(aiProviderTrayProviderVisibleData, providerVisibleData);
+  setTextContent(aiProviderTrayProviderExecution, providerExecution);
+  setTextContent(aiProviderTrayCapabilityPosture, capabilityPosture);
+  setTextContent(aiProviderTrayLaneBoundary, laneBoundary);
+  setTextContent(
+    aiProviderTrayResultDetail,
+    state.providerVisibleDataDetail || "No prompt, file, screen, memory, or telemetry is sent."
+  );
+  setTextContent(
+    aiProviderTrayReviewNote,
+    state.trayReviewNote ||
+      "Temporary LV1 repair surface. Next BR1 must review the permanent AI tray/window and provider-visible data policy before Beta."
+  );
+
+  if (aiProviderTrayLocalAssistAction) {
+    aiProviderTrayLocalAssistAction.textContent = state.interactionLabel || "Open local assist";
+    aiProviderTrayLocalAssistAction.title =
+      state.interactionDisabledReason ||
+      "Local assist opens a guarded no-provider status only; prompts, providers, downloads, memory, and network remain blocked";
+    aiProviderTrayLocalAssistAction.disabled = !localActionAvailable;
+    aiProviderTrayLocalAssistAction.setAttribute(
+      "aria-disabled",
+      localActionAvailable ? "false" : "true"
+    );
+    aiProviderTrayLocalAssistAction.dataset.localActionGuard = "no-provider";
+  }
+}
+
 function renderAIProviderState() {
   if (!aiProviderStatus) return;
 
@@ -1915,7 +2028,7 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.canAcceptPrompts = state.canAcceptPrompts ? "true" : "false";
 
   if (aiProviderStatusState) {
-    aiProviderStatusState.textContent = state.statusLabel || "ORIN local assist available";
+    aiProviderStatusState.textContent = state.statusLabel || "ORIN local active";
   }
   if (aiProviderStatusProvider) {
     aiProviderStatusProvider.textContent = state.providerLabel || "No AI provider; local assist only";
@@ -2372,6 +2485,7 @@ function renderAIProviderState() {
   if (aiProviderStatusPrivacy) {
     aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";
   }
+  renderAIProviderTrayState(state, displayVisible, localActionAvailable);
 }
 
 function handleAIProviderStatusActionClick(event) {
@@ -2428,11 +2542,55 @@ function handleAIProviderStatusActionClick(event) {
       ? resultDetail
       : "Provider boundary mismatch; no local action ran.";
   }
+  if (aiProviderTrayResult) {
+    aiProviderTrayResult.textContent = resultLabel;
+  }
+  if (aiProviderTrayResultDetail) {
+    aiProviderTrayResultDetail.textContent = resultDetail;
+  }
+  if (aiProviderTrayProviderVisibleData) {
+    aiProviderTrayProviderVisibleData.textContent = "none";
+  }
+  if (aiProviderTray) {
+    aiProviderTray.dataset.providerVisibleData = "none";
+    aiProviderTray.dataset.promptSend = "prompt-send-disabled";
+    aiProviderTray.dataset.networkEgress = "network-egress-blocked";
+    aiProviderTray.dataset.memoryIndexing = "memory-indexing-disabled";
+  }
+  if (aiProviderTrayWindow) {
+    aiProviderTrayWindow.dataset.providerVisibleData = "none";
+    aiProviderTrayWindow.dataset.promptSend = "prompt-send-disabled";
+    aiProviderTrayWindow.dataset.networkEgress = "network-egress-blocked";
+    aiProviderTrayWindow.dataset.memoryIndexing = "memory-indexing-disabled";
+  }
 }
 
 if (aiProviderStatusAction) {
   aiProviderStatusAction.addEventListener("click", handleAIProviderStatusActionClick);
 }
+if (aiProviderTray) {
+  aiProviderTray.addEventListener("click", (event) => {
+    event.preventDefault();
+    setAIProviderTrayOpen(aiProviderTrayWindow ? aiProviderTrayWindow.hidden : true);
+  });
+}
+if (aiProviderTrayClose) {
+  aiProviderTrayClose.addEventListener("click", (event) => {
+    event.preventDefault();
+    setAIProviderTrayOpen(false);
+  });
+}
+if (aiProviderTrayLocalAssistAction) {
+  aiProviderTrayLocalAssistAction.addEventListener("click", (event) => {
+    handleAIProviderStatusActionClick(event);
+    setAIProviderTrayOpen(true);
+  });
+}
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    setAIProviderTrayOpen(false);
+  }
+});
 
 function frame(ts) {
   t = ts;
