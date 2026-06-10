@@ -10516,6 +10516,12 @@ def build_provider_setup_completion_foundation_state(
         local_action_result_prompt_send_posture=PROMPT_SEND_POSTURE_DISABLED,
         local_action_result_network_egress_state=NETWORK_EGRESS_BLOCKED,
         local_action_result_memory_indexing_state=MEMORY_INDEXING_DISABLED,
+        capability_pack_eligibility_label=(
+            "Capability-pack eligibility: blocked until local capability proof"
+        ),
+        install_intent_label=(
+            "Install intent: blocked; downloads and install execution remain disabled"
+        ),
         interaction_affordance=LOCAL_ASSISTED_INTERACTION_AFFORDANCE,
         interaction_label="Open local assist",
         interaction_disabled_reason=(

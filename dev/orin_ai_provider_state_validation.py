@@ -7929,6 +7929,18 @@ def validate() -> list[str]:
             failures,
         )
         _require(
+            setup_completion_payload["capabilityPackEligibilityLabel"]
+            == "Capability-pack eligibility: blocked until local capability proof",
+            f"{label} setup-completion fixture must visibly disclose blocked capability-pack eligibility",
+            failures,
+        )
+        _require(
+            setup_completion_payload["installIntentLabel"]
+            == "Install intent: blocked; downloads and install execution remain disabled",
+            f"{label} setup-completion fixture must visibly disclose blocked install intent",
+            failures,
+        )
+        _require(
             setup_completion_payload["providerSetupCompletionProviderVisibleData"]
             == "none"
             and setup_completion_payload["providerSetupCompletionSentToProvider"]
@@ -8641,6 +8653,10 @@ def validate() -> list[str]:
             'id="ai-provider-status-model-metadata"',
             "Model workload metadata: planned; no execution",
             'data-capability-pack-lifecycle="capability-pack-lifecycle-planned"',
+            'data-capability-pack-download="capability-pack-downloads-blocked"',
+            'data-capability-pack-install="install-blocked"',
+            'data-capability-pack-update="update-blocked"',
+            'data-capability-pack-uninstall="uninstall-blocked"',
             'data-capability-pack-manifest="manifest-planned"',
             'data-capability-pack-compatibility="compatibility-unproven"',
             'data-capability-pack-eligibility="capability-pack-eligibility-blocked"',
@@ -8817,9 +8833,9 @@ def validate() -> list[str]:
             'id="ai-provider-status-functional-release"',
             "Functional-AI release gate: pending; v1.8.0-prebeta release gate: pending functional AI proof",
             'id="ai-provider-status-capability-eligibility"',
-            "Capability-pack eligibility: blocked",
+            "Capability-pack eligibility: blocked until local capability proof",
             'id="ai-provider-status-install-intent"',
-            "Install intent: blocked",
+            "Install intent: blocked; downloads and install execution remain disabled",
             'id="ai-provider-status-action"',
             'aria-disabled="false"',
             "Open local assist",
@@ -8912,6 +8928,24 @@ def validate() -> list[str]:
     ):
         _require(needle in css, f"core CSS is missing {needle!r}", failures)
 
+    hidden_status_end = css.find("{\n  display: none;\n}")
+    hidden_status_start = css.rfind(
+        ".ai-provider-status__selection,\n.ai-provider-status__configuration",
+        0,
+        hidden_status_end,
+    )
+    hidden_status_block = css[hidden_status_start:hidden_status_end]
+    _require(
+        ".ai-provider-status__capability-eligibility" not in hidden_status_block,
+        "SLC-003 capability eligibility row must not remain hidden",
+        failures,
+    )
+    _require(
+        ".ai-provider-status__install-intent" not in hidden_status_block,
+        "SLC-003 install-intent row must not remain hidden",
+        failures,
+    )
+
     for needle in (
         "const aiProviderStatus",
         "renderAIProviderState",
@@ -8933,6 +8967,9 @@ def validate() -> list[str]:
         "capabilityRecommendationState",
         "capabilityPackLifecycleState",
         "capabilityPackDownloadState",
+        "capabilityPackInstallState",
+        "capabilityPackUpdateState",
+        "capabilityPackUninstallState",
         "capabilityPackManifestSchemaVersion",
         "capabilityPackManifestState",
         "capabilityPackChecksumState",
@@ -9111,7 +9148,12 @@ def validate() -> list[str]:
         "functionalAiReleaseGateState",
         "v18ReleaseGateState",
         "capabilityPackEligibilityState",
+        "capabilityPackEligibilityLabel",
         "installIntentState",
+        "installIntentLabel",
+        "dataset.capabilityPackInstall",
+        "dataset.capabilityPackUpdate",
+        "dataset.capabilityPackUninstall",
         "aiProviderStatusReadiness",
         "aiProviderStatusSetupEligibility",
         "aiProviderStatusSetupBlocker",

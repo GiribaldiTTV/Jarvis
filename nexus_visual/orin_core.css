@@ -649,6 +649,8 @@ body {
   color: rgba(206, 231, 244, 0.9);
 }
 
+.ai-provider-status__capability-eligibility,
+.ai-provider-status__install-intent,
 .ai-provider-status__result,
 .ai-provider-status__result-detail {
   white-space: normal;
@@ -797,8 +799,6 @@ body {
 .ai-provider-status__execution-data,
 .ai-provider-status__functional-ai,
 .ai-provider-status__functional-release,
-.ai-provider-status__capability-eligibility,
-.ai-provider-status__install-intent,
 .ai-provider-status__action {
   display: none;
 }

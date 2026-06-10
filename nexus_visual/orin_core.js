@@ -563,7 +563,7 @@ let aiProviderState = {
   v18ReleaseGateState: "v1.8.0-prebeta-release-gate-pending-functional-ai",
   v18ReleaseGateLabel: "v1.8.0-prebeta release gate: pending functional AI proof",
   capabilityPackEligibilityState: "capability-pack-eligibility-blocked",
-  capabilityPackEligibilityLabel: "Capability-pack eligibility: blocked",
+  capabilityPackEligibilityLabel: "Capability-pack eligibility: blocked until local capability proof",
   capabilityPackManifestValidityState: "manifest-missing",
   capabilityPackManifestValidityLabel: "Capability manifest: missing",
   capabilityPackSourceTrustState: "source-trust-unverified",
@@ -575,7 +575,7 @@ let aiProviderState = {
   capabilityPackRamRequirementPosture: "requirement-unprobed",
   capabilityPackDiskRequirementPosture: "requirement-unprobed",
   installIntentState: "install-intent-blocked",
-  installIntentLabel: "Install intent: blocked",
+  installIntentLabel: "Install intent: blocked; downloads and install execution remain disabled",
   capabilityPackDownloadBlockedReason: "download_blocked_user_approval_required",
   capabilityPackInstallBlockedReason: "install_blocked_manifest_or_user_approval_required",
   capabilityPackUpdateBlockedReason: "update_blocked_user_approval_required",
@@ -1861,6 +1861,9 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.capabilityRecommendation = state.capabilityRecommendationState || "unknown";
   aiProviderStatus.dataset.capabilityPackLifecycle = state.capabilityPackLifecycleState || "unknown";
   aiProviderStatus.dataset.capabilityPackDownload = state.capabilityPackDownloadState || "unknown";
+  aiProviderStatus.dataset.capabilityPackInstall = state.capabilityPackInstallState || "unknown";
+  aiProviderStatus.dataset.capabilityPackUpdate = state.capabilityPackUpdateState || "unknown";
+  aiProviderStatus.dataset.capabilityPackUninstall = state.capabilityPackUninstallState || "unknown";
   aiProviderStatus.dataset.capabilityPackManifest = state.capabilityPackManifestState || "unknown";
   aiProviderStatus.dataset.capabilityPackCompatibility = state.capabilityPackCompatibilityState || "unknown";
   aiProviderStatus.dataset.capabilityPackEligibility = state.capabilityPackEligibilityState || "unknown";
@@ -2294,10 +2297,13 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusCapabilityEligibility) {
     aiProviderStatusCapabilityEligibility.textContent =
-      state.capabilityPackEligibilityLabel || "Capability-pack eligibility: blocked";
+      state.capabilityPackEligibilityLabel ||
+      "Capability-pack eligibility: blocked until local capability proof";
   }
   if (aiProviderStatusInstallIntent) {
-    aiProviderStatusInstallIntent.textContent = state.installIntentLabel || "Install intent: blocked";
+    aiProviderStatusInstallIntent.textContent =
+      state.installIntentLabel ||
+      "Install intent: blocked; downloads and install execution remain disabled";
   }
   if (aiProviderStatusAction) {
     aiProviderStatusAction.textContent = state.interactionLabel || "Open local assist";

@@ -154,6 +154,10 @@
       data-disk-readiness="disk-unprobed"
       data-model-workload-metadata="model-workload-metadata-planned"
       data-capability-pack-lifecycle="capability-pack-lifecycle-planned"
+      data-capability-pack-download="capability-pack-downloads-blocked"
+      data-capability-pack-install="install-blocked"
+      data-capability-pack-update="update-blocked"
+      data-capability-pack-uninstall="uninstall-blocked"
       data-capability-pack-manifest="manifest-planned"
       data-capability-pack-compatibility="compatibility-unproven"
       data-capability-pack-eligibility="capability-pack-eligibility-blocked"
@@ -275,8 +279,8 @@
       <div id="ai-provider-status-model-execution" class="ai-provider-status__model-execution">Model execution status: disabled; Model workload readiness: disabled</div>
       <div id="ai-provider-status-execution-data" class="ai-provider-status__execution-data">Provider-visible execution data: none; External call readiness: blocked</div>
       <div id="ai-provider-status-functional-release" class="ai-provider-status__functional-release">Functional-AI release gate: pending; v1.8.0-prebeta release gate: pending functional AI proof</div>
-      <div id="ai-provider-status-capability-eligibility" class="ai-provider-status__capability-eligibility">Capability-pack eligibility: blocked</div>
-      <div id="ai-provider-status-install-intent" class="ai-provider-status__install-intent">Install intent: blocked</div>
+      <div id="ai-provider-status-capability-eligibility" class="ai-provider-status__capability-eligibility">Capability-pack eligibility: blocked until local capability proof</div>
+      <div id="ai-provider-status-install-intent" class="ai-provider-status__install-intent">Install intent: blocked; downloads and install execution remain disabled</div>
       <button
         id="ai-provider-status-action"
         class="ai-provider-status__action"
