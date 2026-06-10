@@ -238,6 +238,7 @@ def validate() -> list[str]:
         "Codex-owned photo review notes",
         "must not create, add, or depend on a new user-visible runtime control surface",
         "Activation-path proof is non-transferable",
+        "Manual Validation Request Digest",
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
     for needle in (
@@ -249,6 +250,7 @@ def validate() -> list[str]:
         "future Overlay/display proof only when that interface is re-admitted",
         "Validation-Only Runtime Control Surface",
         "Activation-Path Proof Non-Transferable",
+        "Manual Validation Request Digest",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
     for needle in (
