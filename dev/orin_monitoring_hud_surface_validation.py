@@ -314,6 +314,7 @@ def validate() -> list[str]:
         "exact USER Desktop shortcut path",
         "Computer Use is available",
         "required primary Live Validation proof method",
+        "Computer Use primary, bounded visible coordinate fallback second",
         "visible mouse movement, left-click, right-click, double-click, and keyboard input",
         "deterministic visible-target acquisition loop",
         "derive candidate targets from label/icon/proximity/state evidence",
