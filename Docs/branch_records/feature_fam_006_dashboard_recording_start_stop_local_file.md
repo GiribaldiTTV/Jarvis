@@ -319,6 +319,18 @@ User Test Summary Results: `PENDING until USER returns PASS, FAIL, or WAIVED and
 Boundary: `This receipt does not approve UTS acceptance, PR Readiness, issue #258 closeout, PR creation, merge, release, branch cleanup, Governance/FAM-007/neutral-main mutation, provider/model/private work, or future-gated full Log Viewer/export/tray/keybind/settings/Native Log Loader work.`
 Next Legal Phase: `USER completes and returns the refreshed UTS for digestion.`
 
+## Returned UTS Live Validation Failure / Visual-System And Window Continuity Digest
+
+Receipt Date: `2026-06-11`
+Receipt Role: `Durable compact returned-UTS receipt only; active gate state lives in C:\Nexus Governance State\branches\feature_fam_006_dashboard_recording_start_stop_local_file\branch_plan.md.`
+USER Returned Result: `FAIL - Live Validation remains red because Recording Studio and Log Viewer Studio do not follow the repo-wide Project UI Vision, FAM-006 UI inheritance expectations, or accepted Recording feature vision. Window-open proof does not satisfy visual-system proof.`
+Closed By USER Confirmation: `FAM006-LV1-REC-004 Overlay Profile persistence across sessions; FAM006-LV1-REC-005 Dashboard card-holder equal insets; pre-session native/export folder open behavior and exact Recordings / Exported Logs roots. These items should not be replayed in active failed-issue UTS handoffs unless regression appears.`
+Conditionally Closable With Proof: `FAM006-LV1-REC-002 Recording target mirrors Active Overlay Profile and FAM006-LV1-REC-003 Dashboard Start/Stop saves native NDAI log may close only after focused validation proves the native log/readback contents record the created/selected Overlay Profile and active monitor data, not merely the UI mirror or Start/Stop marker.`
+Validation Cleanup Requirement: `Live Validation may create/edit/delete profiles, monitors, folders, and selections for proof, but it must preserve the USER baseline and restore or delete validation-created state before closeout unless USER explicitly approves retaining it.`
+New Project-Wide Vision Requirement: `All NDAI user-facing windows should retain USER-moved position across sessions where feasible and restore safely when the saved location is unavailable. This was added to Docs/nexus_vision.md as project-wide UI vision carrydown and applies beyond FAM-006.`
+Active Blocker: `Returned USER UTS Failure - Visual System Mismatch`
+Next Legal Phase: `Bounded Workstream repair for Recording Studio and Log Viewer Studio visual-system inheritance, window-position memory, and focused log-content proof; then Hardening and Live Validation rerun before any PR Readiness request.`
+
 ## Source-Truth Placement
 
 Active Operational Owner: `C:\Nexus Governance State\central\active_branch_authority_state.md`

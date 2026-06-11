@@ -109,6 +109,11 @@ Expected direction:
 
 - non-child, exclusive window rather than a Dashboard child panel
 - compact form factor that respects screen space
+- visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
+  color, typography, spacing, buttons, glow/focus/hover/disabled states, and
+  compact density rather than generic utility-window styling
+- window placement continuity by carrying down the Project UI Vision rule for
+  USER-moved windows to restore position safely across sessions where feasible
 - Start/Stop control ownership when the branch admits full studio behavior
 - selected Overlay Profile target display
 - recording state display
@@ -136,6 +141,11 @@ Expected direction:
 
 - non-child, exclusive window
 - independent from the Dashboard child-window system
+- visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
+  color, typography, spacing, buttons, glow/focus/hover/disabled states, and
+  compact density rather than generic utility-window styling
+- window placement continuity by carrying down the Project UI Vision rule for
+  USER-moved windows to restore position safely across sessions where feasible
 - access to the native NDAI log folder
 - access to the exported-log folder
 - previous-log selection after later planning

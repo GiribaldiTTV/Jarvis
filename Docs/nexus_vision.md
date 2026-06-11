@@ -106,6 +106,7 @@ Durable UI principles:
 - futuristic feel: the UI should look intentional and Nexus-native, but visual ambition must not reduce clarity, accessibility, or task completion
 - understandable interaction: controls, status labels, and assistant messages should explain what they do, what they changed, and what remains blocked
 - consistency: similar actions such as Close, Open, Save, Start, Stop, Select Folder, Clear, Retry, and Export should use consistent placement, labels, affordances, and disabled/degraded states unless BP1/BP2/BP3 accepts a deliberate product-wide exception
+- window continuity: user-facing Nexus windows should remember USER-moved placement across sessions where technically feasible, restore safely when a saved location is unavailable or off-screen, and make any product-wide exception explicit in BP1/BP2/BP3
 - fail-proof behavior: risky actions should be reversible, confirmed when needed, recoverable, or safely disabled until their prerequisites are proven
 - readability: layout density, contrast, typography, spacing, and state hierarchy should keep operator-facing information legible under normal desktop use
 - versatility and changeability: future configuration, skins, layouts, modes, and edition-specific behavior are valid product goals, but they must be introduced through governed vision/plan/proof layers rather than ad hoc branch styling
