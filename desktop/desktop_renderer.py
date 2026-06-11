@@ -185,6 +185,17 @@ SendInput.restype = ctypes.c_uint
 ShowWindowW = user32.ShowWindow
 ShowWindowW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
 ShowWindowW.restype = ctypes.c_bool
+SetWindowPos = user32.SetWindowPos
+SetWindowPos.argtypes = [
+    ctypes.wintypes.HWND,
+    ctypes.wintypes.HWND,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_int,
+    ctypes.c_uint,
+]
+SetWindowPos.restype = ctypes.c_bool
 GetWindowLongW = user32.GetWindowLongW
 GetWindowLongW.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
 GetWindowLongW.restype = ctypes.c_long
@@ -216,6 +227,13 @@ DeleteObject = gdi32.DeleteObject
 DeleteObject.argtypes = [HGDIOBJ]
 DeleteObject.restype = ctypes.wintypes.BOOL
 SW_HIDE = 0
+SW_SHOWNORMAL = 1
+SW_SHOW = 5
+SW_RESTORE = 9
+HWND_TOP = ctypes.wintypes.HWND(0)
+SWP_NOZORDER = 0x0004
+SWP_SHOWWINDOW = 0x0040
+SWP_NOOWNERZORDER = 0x0200
 GWL_EXSTYLE = -20
 WS_EX_TRANSPARENT = 0x00000020
 WS_EX_TOOLWINDOW = 0x00000080
@@ -5862,7 +5880,15 @@ class AIControlCenterDialog(QDialog):
         self._provider_payload = {}
         self.setObjectName("fam007AiControlCenter")
         self.setWindowTitle("AI Control Center")
-        self.setWindowFlags(Qt.Window)
+        self.setWindowFlags(
+            Qt.Window
+            | Qt.WindowTitleHint
+            | Qt.WindowSystemMenuHint
+            | Qt.WindowMinimizeButtonHint
+            | Qt.WindowCloseButtonHint
+        )
+        self.setWindowModality(Qt.NonModal)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, False)
         self.setMinimumSize(430, 430)
         self.resize(480, 500)
         self.setProperty("aiControlCenterOwner", "FAM-007")
@@ -6064,12 +6090,94 @@ class AIControlCenterDialog(QDialog):
         if callable(self.event_logger):
             self.event_logger(event)
 
-    def show_from_tray(self) -> None:
-        if not self.isVisible():
+    def _native_hwnd(self) -> int:
+        try:
+            return int(self.winId())
+        except Exception:
+            return 0
+
+    def _native_visibility_state(self) -> dict[str, object]:
+        hwnd = self._native_hwnd()
+        rect = ctypes.wintypes.RECT()
+        rect_ok = bool(hwnd and GetWindowRect(ctypes.wintypes.HWND(hwnd), ctypes.byref(rect)))
+        native_visible = bool(hwnd and IsWindowVisible(ctypes.wintypes.HWND(hwnd)))
+        if rect_ok:
+            x = rect.left
+            y = rect.top
+            w = max(0, rect.right - rect.left)
+            h = max(0, rect.bottom - rect.top)
+        else:
+            geometry = self.geometry()
+            x = geometry.x()
+            y = geometry.y()
+            w = geometry.width()
+            h = geometry.height()
+        return {
+            "hwnd": hwnd,
+            "qtVisible": bool(self.isVisible()),
+            "nativeVisible": native_visible,
+            "x": x,
+            "y": y,
+            "w": w,
+            "h": h,
+        }
+
+    def _promote_native_window(self) -> dict[str, object]:
+        hwnd = self._native_hwnd()
+        if not hwnd:
+            return self._native_visibility_state()
+        native_hwnd = ctypes.wintypes.HWND(hwnd)
+        geometry = self.geometry()
+        try:
+            style = int(GetWindowLongW(native_hwnd, GWL_EXSTYLE))
+            style = (style & ~WS_EX_NOACTIVATE & ~WS_EX_TOOLWINDOW) | WS_EX_APPWINDOW
+            SetWindowLongW(native_hwnd, GWL_EXSTYLE, style)
+            ShowWindowW(native_hwnd, SW_RESTORE)
+            ShowWindowW(native_hwnd, SW_SHOWNORMAL)
+            ShowWindowW(native_hwnd, SW_SHOW)
+            SetWindowPos(
+                native_hwnd,
+                HWND_TOP,
+                int(geometry.x()),
+                int(geometry.y()),
+                int(geometry.width()),
+                int(geometry.height()),
+                SWP_SHOWWINDOW | SWP_NOOWNERZORDER,
+            )
+            BringWindowToTop(native_hwnd)
+            SetActiveWindow(native_hwnd)
+            SetForegroundWindow(native_hwnd)
+            try:
+                SwitchToThisWindow(native_hwnd, True)
+            except Exception:
+                pass
+            QApplication.processEvents()
+        except Exception as exc:
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_NATIVE_SHOW_SKIPPED"
+                    f"|reason={type(exc).__name__}"
+                )
+        state = self._native_visibility_state()
+        if callable(self.event_logger):
+            self.event_logger(
+                "RENDERER_MAIN|AI_CONTROL_CENTER_NATIVE_SHOW_APPLIED"
+                f"|qt_visible={str(state.get('qtVisible')).lower()}"
+                f"|native_visible={str(state.get('nativeVisible')).lower()}"
+                f"|hwnd={state.get('hwnd')}"
+                f"|x={state.get('x')}|y={state.get('y')}|w={state.get('w')}|h={state.get('h')}"
+            )
+        return state
+
+    def show_from_tray(self) -> dict[str, object]:
+        if not self.isVisible() or self.geometry().width() <= 0 or self.geometry().height() <= 0:
             self.setGeometry(self._initial_geometry())
+        self.showNormal()
         self.show()
         self.raise_()
         self.activateWindow()
+        QApplication.processEvents()
+        return self._promote_native_window()
 
 
 class DesktopRuntimeWindow(QWidget):
@@ -17041,21 +17149,31 @@ class DesktopRuntimeWindow(QWidget):
             )
         payload = self._ai_provider_state.as_renderer_payload()
         self._ai_control_center_dialog.update_provider_state(payload)
-        self._ai_control_center_dialog.show_from_tray()
-        self._emit_runtime_signal(
-            "AI_CONTROL_CENTER_VISIBLE",
-            source=source,
-            owner="FAM-007",
-            route="fam007-ai-control-center",
-            carry_in="f3-ff01-narrow-doorway-only",
-            provider_visible_data=payload.get("providerVisibleData", "none"),
-            sent_to_provider=str(payload.get("sentToProvider", False)).lower(),
-            can_accept_prompts=str(payload.get("canAcceptPrompts", False)).lower(),
-            prompt_send=payload.get("promptSendPosture", "prompt-send-disabled"),
-            network_egress=payload.get("networkEgressState", "network-egress-blocked"),
-            memory_indexing=payload.get("memoryIndexingState", "memory-indexing-disabled"),
-            packaging_execution="blocked",
-        )
+        visibility = self._ai_control_center_dialog.show_from_tray()
+        visibility_fields = {
+            "source": source,
+            "owner": "FAM-007",
+            "route": "fam007-ai-control-center",
+            "carry_in": "f3-ff01-narrow-doorway-only",
+            "provider_visible_data": payload.get("providerVisibleData", "none"),
+            "sent_to_provider": str(payload.get("sentToProvider", False)).lower(),
+            "can_accept_prompts": str(payload.get("canAcceptPrompts", False)).lower(),
+            "prompt_send": payload.get("promptSendPosture", "prompt-send-disabled"),
+            "network_egress": payload.get("networkEgressState", "network-egress-blocked"),
+            "memory_indexing": payload.get("memoryIndexingState", "memory-indexing-disabled"),
+            "packaging_execution": "blocked",
+            "qt_visible": str(visibility.get("qtVisible")).lower(),
+            "native_visible": str(visibility.get("nativeVisible")).lower(),
+            "hwnd": visibility.get("hwnd", 0),
+            "x": visibility.get("x", -1),
+            "y": visibility.get("y", -1),
+            "w": visibility.get("w", -1),
+            "h": visibility.get("h", -1),
+        }
+        if visibility.get("qtVisible") and visibility.get("nativeVisible"):
+            self._emit_runtime_signal("AI_CONTROL_CENTER_VISIBLE", **visibility_fields)
+        else:
+            self._emit_runtime_signal("AI_CONTROL_CENTER_VISIBILITY_FAILED", **visibility_fields)
 
     def reload_command_action_catalog(self, source_path=None):
         resolved_source_path = self._saved_action_source_path if source_path is None else source_path
