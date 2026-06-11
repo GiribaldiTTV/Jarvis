@@ -244,12 +244,14 @@ Invalid Values:
 - `Hidden Dependency`
 - `Another FAM As Dependency Queue`
 - `Borrowed Branch Scope`
+- `FAM-002 Generic UI Polish Carrier`
 - `Worktree-To-Worktree Mutation`
 - `Shared Surface Overlap Treated As Mutation`
 - `Live Dependency Ledger In Repo Docs`
 - `Repo File-State Tracking`
 
 Shared Surface Overlap Safe Harbor: Shared-file overlap is not automatically cross-worktree work. Two FAM branches may independently touch the same repo file when each branch has a legal owning-FAM reason, records its intended write set in the active external branch plan, and resolves overlap through Pre-Rebaseline Impact Audit, Branch Change Intent Ledger evidence, PR Readiness, merge sequencing, and post-merge reconciliation. This safe harbor does not authorize one thread to edit another active worktree, assume another branch's scope, or hide cross-FAM dependency work as generic overlap.
+FAM-002 Presentation Consumption Safe Harbor: FAM-002 is the shared Desktop Interface / UI presentation authority and may be consumed by other FAM branches without opening a FAM-002 worktree when the consuming branch owns the feature behavior and the UI work is necessary for its accepted Family Vision, Family Feature Vision, branch plan, and proof path. This safe harbor does not authorize generic app-wide UI polish, broad visual redesign, FAM-002 selected-next truth, another FAM's feature behavior, or direct sibling-worktree mutation. A dedicated FAM-002 branch requires USER admission of a concrete Desktop Interface feature category that no consuming FAM owns.
 Worktree-To-Worktree Mutation Boundary: Worktree-to-worktree mutation means one thread edits, stages, commits, rebases, merges, cleans, validates-as-owner, or otherwise mutates another active worktree or branch. It is blocked by default on `Worktree-To-Worktree Mutation Approval Missing`, `Parallel Worktree Coordination Missing`, or `Governance Routing Barrier` unless USER explicitly approves a bounded waiver with scope, expiration, validation, and return path.
 Dependency-Bounded Work Rule: The owning branch may carry bounded affected-FAM work only when BR1/BR2 prove the work is necessary for the owning route, does not become the affected FAM's whole branch objective, has a clear affected-FAM receipt / carry-in / fold-down target, and does not require direct sibling-worktree mutation. If the work becomes large, user-visible, architecture-defining, package-defining, or independently branch-worthy for the affected FAM, it must be classified as `Transferred FAM Work` and routed to that FAM's Branch Readiness path.
 Priority Carry-In, Not Scope Capture: A platform contract or dependency candidate that creates required future work for an affected FAM must be evaluated by that FAM's next BR1. It does not automatically become the only branch objective; the affected FAM should group the carry-in into the relevant FFV or coherent package when practical and split only when the grouping would blur ownership, weaken proof, or create unsafe release timing.
@@ -257,12 +259,82 @@ Platform Contract Rule: Platform contract work defines a durable contract, compa
 Repo-Wide Migration / Halt Rule: A branch that changes install, update, patch, launch, repo split, external state, validation, reconciliation, or workflow assumptions broadly enough to affect multiple active FAMs must be admitted as `Repo-Wide Migration / Halt` before Workstream. BP3 must prove affected worktrees are neutral, clean, paused, or explicitly waived; Workstream may then perform only the admitted cross-FAM migration work in one carrier branch; Hardening and Live Validation must prove each affected FAM surface and return-digest / reconciliation path.
 Implementation Ownership Split: The branch that introduces a dependency owns the introduced contract, compatibility default, and proof that existing affected families are not broken. The affected FAM owns later feature-specific adoption, FFV creation or repair, polish, expansion, and user-facing follow-through unless the current branch explicitly admits dependency-bounded affected-FAM work.
 Repo / External State Boundary: Repo docs may record durable dependency classes, dependency candidates, source-truth owner rules, FFV element IDs, durable dispositions, fold-down receipts, and review requirements. Repo docs must not track live changed-file state, current branch status, current worktree assignment, selected-next truth, active dependency queues, PR state, release-window state, or mutable validation posture. Live operational state belongs to `C:\Nexus Governance State`, Git/GitHub/helper-derived truth, USER review packets, active external branch plans, or Codex digests as routed by source truth.
-Blocking Conditions: `Cross-FAM Dependency Undocumented`, `Cross-FAM Dependency Scope Unclassified`, `Cross-FAM Carry-In Not Evaluated At BR1`, `Transferred FAM Work Requires Owning Branch`, `Affected FAM Receipt Missing`, `Platform Contract Adoption Matrix Missing`, `Repo-Wide Migration Neutralization Missing`, `Worktree-To-Worktree Mutation Approval Missing`, `FFV Dependency Candidate Missing`, `Cross-FAM Dependency Fold-Down Missing`, `Shared Surface Overlap Misclassified`, and `Repo File-State Tracking Regression`.
+Blocking Conditions: `Cross-FAM Dependency Undocumented`, `Cross-FAM Dependency Scope Unclassified`, `Cross-FAM Carry-In Not Evaluated At BR1`, `Transferred FAM Work Requires Owning Branch`, `Affected FAM Receipt Missing`, `Platform Contract Adoption Matrix Missing`, `Repo-Wide Migration Neutralization Missing`, `Worktree-To-Worktree Mutation Approval Missing`, `FFV Dependency Candidate Missing`, `Cross-FAM Dependency Fold-Down Missing`, `Shared Surface Overlap Misclassified`, `FAM-002 Presentation Consumption Ambiguous`, and `Repo File-State Tracking Regression`.
 Repair Owner: owning branch/worktree for dependency classification and branch-local proof; affected FAM/worktree for future adoption and FFV content repair; standing Governance intake for source-truth rule repair; USER for cross-worktree mutation waivers, repo-wide migration / halt admission, new worktree creation, or transferred FAM branch admission.
-Repair Path: Classify the dependency, identify the owning and affected FAMs, record the dependency candidate or affected-FAM receipt, update BR1/BR2 matrices, move live operational facts to external state or helper evidence, route branch-worthy affected-FAM work to that FAM, or request USER approval for a coordinated cross-FAM patch / repo-wide migration / halt. If direct sibling-worktree mutation would be required, stop and return the exact USER decision needed.
+Repair Path: Classify the dependency, identify the owning and affected FAMs, record the dependency candidate or affected-FAM receipt, update BR1/BR2 matrices, move live operational facts to external state or helper evidence, route branch-worthy affected-FAM work to that FAM, clarify whether FAM-002 is supplying presentation law or attempting to own implementation, or request USER approval for a coordinated cross-FAM patch / repo-wide migration / halt. If direct sibling-worktree mutation would be required, stop and return the exact USER decision needed.
 USER Decision Required: Required for worktree-to-worktree mutation, repo-wide migration / halt admission, transferred FAM branch creation, new worktree creation, external-state mutation beyond approved branch planning, helper/validator implementation, or any waiver that lets dependency-bounded work proceed without the required classification, proof, or affected-FAM receipt.
 Validation Owner: Future helper/validator hardening should extend `dev/orin_branch_governance_validation.py`, `dev/orin_branch_readiness_planning_fixture_validation.py`, `dev/orin_worktree_rebaseline_audit.py`, and `dev/orin_user_review_bundle.py`. Green validation is evidence only; Codex must still inspect dependency scope, overlap classification, active-state leakage, and USER decision state.
 Final Disposition: A branch may proceed only when cross-FAM dependencies are classified, shared-surface overlap is documented without becoming live repo state, direct worktree mutation is absent or USER-waived, affected-FAM receipts / carry-ins are preserved, and any platform contract or repo-wide migration proof required by the selected dependency class is present.
+
+### Runtime Failure / Recovery Carrydown Gate
+
+Rule Name: `Runtime Failure / Recovery Carrydown Gate`
+Owner: `Docs/phase_governance.md` for phase gates and blockers; `Docs/family_visions/FAM-001_boot_interface.md` for fatal launcher/runtime diagnostics and future recovery-surface vision; `Docs/workstreams/FB-034_recoverable_diagnostics.md` for historical bounded `launch_failed` evidence only; `Docs/family_visions/FAM-002_desktop_interface.md` for visible diagnostics/failure panel presentation standards; the consuming FAM / FFV / active external branch plan for feature-specific failure, degraded, blocked, unavailable, and proof behavior.
+Applies To: Branch Readiness Stage 1, Branch Readiness Stage 2, BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, Workstream, Hardening, Live Validation, PR Readiness, Family Vision records, Family Feature Vision records, active external branch plans, USER review packets, helper output, validator output, and future fixtures when a branch creates, changes, exposes, routes, diagnoses, degrades, blocks, launches, recovers, retries, repairs, or validates runtime/user-facing behavior.
+Required State: Every relevant branch must classify how its feature behaves when it fails, degrades, is blocked, is unavailable, or cannot launch. The packet or active external branch plan must name `Failure Class:`, `USER-Facing Failure State:`, `Recovery Option:`, `Fallback Behavior:`, `Support / Log / Bundle Behavior:`, `Privacy / Safety Boundary:`, `Photo / Video Or USER Manual Proof:`, `Owning FAM:`, and `Consumed Failure / Recovery Rules:`. Fatal launcher/runtime diagnostics and recovery surfaces route to FAM-001. Bounded repeated recoverable `launch_failed` evidence routes to FB-034 only as released historical evidence until USER admits a new owner. Visible diagnostics or failure panels consume FAM-002 presentation standards. Feature-specific disabled, degraded, blocked, no-data, unavailable, provider/privacy, setup, repair, or retry behavior remains owned by the FAM whose feature surface is changing.
+Allowed Values:
+
+- `Fatal Launcher / Runtime Failure`
+- `Recoverable Action / Launch Failure`
+- `Degraded But Running`
+- `Blocked By Policy`
+- `Disabled / Deferred Feature`
+- `Unavailable Prerequisite`
+- `No Failure Surface Impact`
+
+Invalid Values:
+
+- `Unclassified Failure Behavior`
+- `FB-034 As Active Product Owner`
+- `Fatal Path Collapsed Into Recoverable Popup`
+- `Recoverable Path Treated As Fatal Crash`
+- `Hidden Failure`
+- `Helper PASS As Recovery Proof`
+- `Logs Only As USER-Facing Proof`
+- `Generic Fallback`
+- `Support Bundle Without Privacy Boundary`
+- `Feature Failure Owned By Another FAM`
+
+Future FAM-001 FFV Route: The actual user-facing diagnostics/recovery/support surface should be admitted through a later USER-approved FAM-001 Family Feature Vision, with candidate titles such as `F1-FF01 Runtime Diagnostics And Recovery Surface` or `F1-FF01 Failure Recovery And Support Reporting`. That future FFV may define fatal launcher failure, repeated recoverable failure, startup abort, recovery exhaustion, support-bundle preparation, manual issue draft, privacy warning, retry/close/repair options, and proof expectations. This gate does not create that FFV file or open a FAM-001 worktree by itself.
+Blocking Conditions: `Runtime Failure / Recovery Carrydown Missing`, `Failure Class Unclassified`, `USER-Facing Failure State Missing`, `Recovery Option Missing`, `Fallback Behavior Missing`, `Support / Log / Bundle Boundary Missing`, `Privacy / Safety Boundary Missing`, `Failure Proof Path Missing`, `FAM-001 Diagnostics Ownership Bypassed`, `FB-034 Historical Evidence Misused As Active Owner`, `FAM-002 Failure Panel Presentation Missing`, and `Feature-Specific Failure Ownership Ambiguous`.
+Repair Owner: The current branch/worktree repairs feature-local failure behavior and proof classification; standing Governance intake repairs reusable phase/source-truth rule drift; FAM-001 owns future diagnostics/recovery surface planning when USER admits it; FAM-002 owns reusable visual/presentation standards; the USER owns any waiver that allows a branch to proceed without the required failure/recovery classification.
+Repair Path: Classify the failure class, identify FAM-001/FAM-002/consuming-FAM responsibilities, route fatal/recovery-surface product work to future FAM-001 FFV planning when needed, keep FB-034 as historical evidence unless a new branch admits a broader recoverable diagnostics scope, add feature-local degraded/blocked/unavailable behavior and proof expectations to the active branch plan, or stop for USER decision when ownership or proof remains ambiguous.
+USER Decision Required: Required for new FAM-001 FFV content-file creation, new diagnostics/recovery implementation, helper/validator enforcement, support-bundle behavior changes, privacy/support reporting behavior changes, broad recoverable diagnostics expansion, fatal launcher/runtime behavior changes, or any waiver of this carrydown gate.
+Validation Owner: Future helper/validator hardening should extend `dev/orin_branch_governance_validation.py`, `dev/orin_branch_readiness_planning_fixture_validation.py`, live-validation helpers, and diagnostics/recoverable-failure validators where machine-checkable. Green validation is evidence only; Codex must still inspect failure/recovery ownership, privacy boundary, and visible proof.
+Final Disposition: Workstream, Hardening, Live Validation, and PR Readiness may proceed only when relevant failure/recovery behavior is classified, owner-routed, user-facing proof is planned or captured, and no branch is silently relying on logs, helper output, historical FB-034 evidence, or another FAM to own its feature-specific failure state.
+
+### Visual Inheritance Matrix Gate
+
+Rule Name: `Visual Inheritance Matrix Gate`
+Owner: `Docs/phase_governance.md` for phase gates and blockers; `Docs/nexus_vision.md` for Project UI Vision; `Docs/family_visions/FAM-002_desktop_interface.md` for reusable presentation standards; the owning Family Vision / Family Feature Vision / active external branch plan for feature-specific UI grammar and proof.
+Applies To: Branch Readiness Stage 1, Branch Readiness Stage 2, BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, Workstream, Hardening, Live Validation, PR Readiness, USER review packets, helper output, validator output, and future fixtures when a branch creates or changes user-facing UI, controls, windows, cards, HUDs, overlays, setup flows, status indicators, folder pickers, evidence surfaces, diagnostics panels, or failure/recovery panels.
+Required State: The branch must include a `Visual Inheritance Matrix` before Workstream implementation when visible UI changes are admitted. Each row must name `New / Changed Element:`, `Inherited Existing Element Or Surface:`, `Owning UI Rule:`, `Shape / Radius Comparison:`, `Spacing / Density Comparison:`, `Typography Comparison:`, `Card / Row / Divider Treatment:`, `Color / Shadow / Glow Treatment:`, `Hover / Focus / Disabled State:`, `Scrollable / Resize / Transient State Proof:`, `Allowed Exception Or New Grammar:`, `Proof Artifact:`, and `Verdict:`. If no existing element is a valid ancestor, the branch must say why and record the USER-approved new visual grammar before implementation.
+Allowed Values:
+
+- `Inherited`
+- `Inherited With Explicit Exception`
+- `New Grammar USER Accepted`
+- `Not Applicable`
+- `Needs Repair`
+- `USER Decision Required`
+
+Invalid Values:
+
+- `Helper Green`
+- `Looks Fine`
+- `Generic Nexus Style`
+- `No Comparison Needed`
+- `Screenshot Exists`
+- `Marker PASS`
+- `Deferred Visual Review`
+- `FAM-002 Owns It`
+
+Blocking Conditions: `Visual Inheritance Matrix Missing`, `Existing Element Sample Missing`, `Visual Exception Not USER Accepted`, `Helper Green Treated As Visual Proof`, `Screenshot Without Adjudication`, `Per-Element Visual Verdict Missing`, `FAM-002 Presentation Consumption Missing`, `Feature UI Ownership Ambiguous`, and `Obvious UI Failure Passed To USER`.
+Repair Owner: The current branch/worktree repairs branch-local UI and proof; FAM-002 supplies reusable presentation law but does not take over the feature implementation; standing Governance intake repairs reusable rule drift; USER decides deliberate new grammar or waiver.
+Repair Path: Identify the inherited element, compare the required visual dimensions, repair mismatches before USER handoff when approval covers repair, route deliberate new grammar through BP1/BP2/BP3 and USER acceptance, or return a blocker instead of asking USER to rediscover obvious UI defects during UTS.
+USER Decision Required: Required for a new visual grammar, broad app-wide redesign, waiver of visual inheritance proof, or FAM-002 branch admission.
+Validation Owner: Future helper/validator hardening should extend branch-readiness fixture validation, USER review bundle validation, visual proof/live-validation helpers, and source-owner checks where machine-checkable. Green validation is evidence only; Codex must still inspect the actual visual artifacts and compare them to the matrix.
+Final Disposition: A user-facing UI branch is not ready for UTS handoff, PR Readiness, or release-facing closeout while unwaived visual matrix rows are missing, unproven, or inconsistent with screenshots/video/frame evidence.
 
 ### Branch / Slice / SLC / Seam Terminology Model
 
