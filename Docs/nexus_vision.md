@@ -35,6 +35,7 @@ Layer ownership:
 
 - `Docs/nexus_vision.md` owns project-wide product direction, experience intent, Project UI Vision, release-stage meaning, and durable product standards that apply across families.
 - `Docs/family_visions/` owns broad durable product direction for one FAM, including family-specific UI/interaction carrydown from the Project Vision.
+- `Docs/family_visions/FAM-002_desktop_interface.md` owns reusable Desktop Interface presentation standards that other FAMs normally consume when implementing their own user-facing surfaces; consuming FAMs still own their feature behavior, feature-specific UI implementation, and proof path.
 - USER-approved `Docs/family_feature_visions/` records, once created, own detailed durable feature-category direction inside one FAM, including deferred carryforward and feature-specific proof expectations.
 - The active external branch plan owns the Branch Vision Contract Snapshot and branch-local implementation choices after USER acceptance or waiver.
 - BP1 consumes the vision chain and turns it into a branch-specific USER review contract.
@@ -65,6 +66,8 @@ The current merged runtime is still a controlled desktop orchestration path:
 That path is foundation work.
 It stabilizes startup, recovery, diagnostics, and lifecycle behavior.
 It is not yet the final boot-first product experience.
+
+FAM-001 owns fatal launcher/runtime diagnostics and recovery surfaces for the current product. Feature-owning FAMs may expose their own degraded, blocked, unavailable, or recoverable states, but they consume the FAM-001 failure/recovery boundary when launcher/runtime recovery, crash diagnostics, support-bundle preparation, manual issue reporting, retry/close/repair choices, startup abort, or recovery exhaustion is involved. The released FB-034 recoverable `launch_failed` path is historical evidence for one bounded non-crashing incident class, not a live backlog owner for new diagnostics scope.
 
 ## Experience Intent
 
@@ -113,6 +116,8 @@ Durable UI principles:
 
 Family Vision records carry these principles by reference and specialize them only where the FAM has a real product reason. Family Feature Vision records specialize them further for one durable feature category. Branch Vision, BP2, BP3, Workstream, Hardening, and Live Validation must preserve the accepted UI carrydown or record the exact USER-approved exception and proof path.
 
+FAM-002 is the shared Desktop Interface presentation authority, not the sole owner of every user-facing UI implementation. A consuming FAM branch may implement FAM-002-aligned UI work when that UI is necessary to complete the consuming FAM's accepted Family Vision, Family Feature Vision, Branch Vision Contract Snapshot, BP2/BP3 plan, and proof path. Project Vision owns the global UI principles; FAM-002 owns reusable presentation contracts and control hierarchy; each FAM owns the UI/UX of its own feature behavior; each FFV owns the concrete surface, user flow, and proof expectations for its feature category.
+
 ## Runtime Observability And USER Proof
 
 Nexus Desktop AI should be observable enough to prove user-facing behavior without becoming a hidden diagnostic collector.
@@ -126,6 +131,7 @@ Durable product direction:
 - elevated diagnostic logging, Dev Toolkit inspection, provider-visible data, support bundles, or exported evidence must not be enabled silently
 - product UI should present client-like product folders and labels; it should not expose worktree, branch, FAM, developer, owner-only, or internal implementation paths unless a source-truth owner explicitly admits that product-facing concept
 - developer/proof/evidence paths may use worktree, branch, FAM, or validation-lane labels only when they are clearly developer or validation evidence, not product UI
+- branches that create runtime/user-facing behavior must classify fatal, recoverable, degraded, blocked, disabled/deferred, and unavailable-prerequisite behavior through the Runtime Failure / Recovery Carrydown Gate in `Docs/phase_governance.md` before treating the feature as closeout-ready
 
 Formal user-facing proof has a stricter bar than internal diagnosis:
 

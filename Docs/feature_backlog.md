@@ -109,6 +109,8 @@ The live backlog-family namespace is broad `FAM-###`, starting at `FAM-001`; the
 
 Backlog Family Worktree Ownership Rule: a backlog family is the local owner for its work. Work related to a backlog family should be planned and implemented inside that family's legal branch/worktree carrier. Backlog families are not dependency work queues for each other. If a branch needs another family's future implementation before it can continue, it must classify the dependency through `Docs/phase_governance.md`, record durable dependency or deferred/carryforward facts through the appropriate Family Vision / Family Feature Vision / active external branch-plan owner, stop or narrow scope when governance requires, and route branch-worthy affected-FAM work through the owning family's Branch Readiness path. A branch must not implement another backlog family's responsibilities merely to unblock itself.
 
+FAM-002 Presentation Authority Consumption Mirror: `FAM-002` remains the Desktop Interface / UI presentation family, but it is normally consumed by other FAM branches instead of opened as its own implementation worktree. A consuming FAM may implement FAM-002-aligned UI only when that UI is necessary for the consuming FAM's admitted feature behavior, FFV/package, branch plan, and proof path. This is not cross-FAM workload theft because FAM-002 supplies reusable presentation law while the consuming FAM owns the feature behavior and implementation proof. A dedicated FAM-002 branch is valid only after USER admits a concrete Desktop Interface feature category that no consuming FAM owns; generic UI polish, visual-contract cleanup, or broad app-wide redesign remains blocked without that admission.
+
 Cross-FAM Dependency Classification Mirror: dependency work is not backlog identity by itself. Branch Readiness must classify cross-FAM relationships as one of `Local FAM Only`, `Cross-FAM Awareness`, `Dependency-Bounded Cross-FAM Work`, `Priority Carry-In`, `Platform Contract`, `Coordinated Cross-FAM Patch`, `Repo-Wide Migration / Halt`, or `Transferred FAM Work` before a branch treats another FAM's surface as relevant scope. Small dependency-bounded affected-FAM work may ride with the owning branch only when `Docs/phase_governance.md` proves it is necessary, bounded, receipt-backed, and not direct worktree-to-worktree mutation. Larger, independent, user-visible, architecture-defining, or package-defining affected-FAM work is `Transferred FAM Work` and requires the affected FAM's own legal carrier.
 
 Shared Surface Overlap Mirror: shared-file overlap is not automatic cross-worktree mutation. Two family branches may independently touch the same repo file when each branch has a legal owning-FAM reason and overlap is handled through active external branch plans, Branch Change Intent Ledger evidence, Pre-Rebaseline Impact Audit, PR Readiness, merge sequencing, and post-merge reconciliation. Direct mutation of another active worktree remains blocked unless USER grants a bounded waiver.
@@ -176,7 +178,7 @@ Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
-Family Scope: Startup, boot, desktop entrypoint, single-instance ownership, launch handoff, relaunch semantics, lifecycle transition proof, and boot-to-runtime trust boundaries.
+Family Scope: Startup, boot, desktop entrypoint, single-instance ownership, launch handoff, relaunch semantics, lifecycle transition proof, boot-to-runtime trust boundaries, fatal launcher/runtime diagnostics, and recovery surfaces.
 Package Summary: `PKG-001` released baseline / open.
 Package Admission State: Historical baseline / no active package admission
 Admitted Slice Count: 0
@@ -185,6 +187,7 @@ Single-Slice Package User Approval: Not required - no active single-slice packag
 Canonical Detail Owner: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 Family Vision Owner: `Docs/family_visions/FAM-001_boot_interface.md`
 Historical Trace Coverage: `FB-042`, `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`, `FB-049`, PR #86-#107.
+Diagnostics/Recovery Carrydown: FAM-001 owns fatal launcher/runtime diagnostics and future recovery-surface vision. FB-034 remains released historical evidence for one bounded recoverable `launch_failed` class only; broad diagnostics or recovery UI must route through FAM-001 Branch Readiness / FFV planning rather than reviving legacy FB identity.
 
 ### [ID: FAM-002] Desktop Interface
 
