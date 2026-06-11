@@ -3624,6 +3624,8 @@ def validate() -> list[str]:
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
+    tray_controller = _read("desktop/tray_controller.py")
+    desktop_main = _read("desktop/orin_desktop_main.py")
     html = _read("nexus_visual/orin_core.html")
     desktop_html = _read("nexus_visual/orin_core_desktop.html")
     css = _read("nexus_visual/orin_core.css")
@@ -8773,20 +8775,65 @@ def validate() -> list[str]:
         _require(needle in renderer, f"desktop renderer is missing {needle!r}", failures)
         _require(needle in core_renderer, f"Core visualization renderer is missing {needle!r}", failures)
 
+    for needle in (
+        "AIControlCenterDialog",
+        "fam007AiControlCenter",
+        "show_ai_control_center_from_tray",
+        "AI_CONTROL_CENTER_VISIBLE",
+        "AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT",
+        "aiControlCenterOwner",
+        "fam007-ai-control-center",
+        "f3-ff01-narrow-doorway-only",
+        "providerVisibleData",
+        "prompt-send-disabled",
+        "network-egress-blocked",
+        "memory-indexing-disabled",
+        "Run Local Assist Check",
+        "Provider-visible data",
+        "Prompt / model / provider",
+        "Capability packs",
+        "Public / Developer / Owner",
+        "Display-only; controls live here",
+        "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none.",
+    ):
+        _require(needle in renderer, f"desktop renderer native AI Control Center is missing {needle!r}", failures)
+
+    for needle in (
+        "ai_control_center_action",
+        "ai_control_center_button",
+        "AI Control Center",
+        "request_ai_control_center_from_tray",
+        "TRAY_AI_CONTROL_CENTER_REQUESTED",
+        "TRAY_AI_CONTROL_CENTER_ROUTED",
+        "90: self.request_ai_control_center_from_tray",
+        "carry_in=f3-ff01-narrow-doorway",
+        "provider_visible_data=none",
+        "provider_execution=blocked",
+    ):
+        _require(needle in tray_controller, f"tray controller native AI doorway is missing {needle!r}", failures)
+
+    for needle in (
+        "show_ai_control_center_from_tray",
+        "AI_CONTROL_CENTER_ABORTED",
+        "desktop_runtime_unavailable",
+    ):
+        _require(needle in desktop_main, f"desktop main fallback AI Control Center path is missing {needle!r}", failures)
+
     for label, markup in (
         ("core HTML", html),
         ("desktop Core HTML", desktop_html),
     ):
         for needle in (
-            'href="orin_core.css?v=fam007-lv1-tray-repair"',
-            'src="orin_core.js?v=fam007-lv1-tray-repair"',
+            'href="orin_core.css?v=fam007-ai-control-center"',
+            'src="orin_core.js?v=fam007-ai-control-center"',
             'id="ai-provider-status"',
             'hidden',
             'aria-hidden="true"',
             'data-display-suppression="tray-owned-status"',
             'data-display-visibility="tray-owned-hidden"',
             'data-local-action-guard="no-provider"',
-            'data-local-action-clickable="true"',
+            'data-status-only="true"',
+            'data-local-action-clickable="false"',
             'data-local-action-result="idle"',
             'data-local-action-result-state="local-action-idle"',
             'data-local-action-result-schema="local-action-result.v1"',
@@ -9113,46 +9160,73 @@ def validate() -> list[str]:
             'id="ai-provider-status-owner-lane"',
             "Owner lane: gated; private setup not configured",
             'id="ai-provider-status-action"',
-            'aria-disabled="false"',
-            "Open local assist",
+            'aria-disabled="true"',
+            "Local assist lives in AI Control Center",
             "No-provider guard active",
             'id="ai-provider-status-result"',
             "Local assist result: waiting for local action",
             'id="ai-provider-status-result-detail"',
             "Open local assist to produce a deterministic local no-provider result.",
-            "Open local assist to review public-safe local status; provider/model execution remains blocked",
+            "Open NDAI for the AI Control Center; provider/model execution remains blocked",
             "Local shell only; nothing is sent",
+            'id="ai-local-status-surface"',
+            'role="status"',
+            'aria-live="polite"',
+            'data-status-only="true"',
+            'data-interactive="false"',
+            'data-opens-control-center="false"',
+            "AI local only",
             'id="ai-provider-tray"',
+            'tabindex="-1"',
             'aria-controls="ai-provider-tray-window"',
-            'aria-label="Open AI usage and settings"',
+            'aria-label="Open AI Control Center"',
+            'data-interactive="false"',
+            'data-desktop-tray-doorway="native-system-tray"',
+            'data-ai-resident-doorway="f3-ff01-narrow-ai-command-center"',
+            'data-ai-control-center-route="fam007-ai-control-center"',
+            'data-status-surface-owner="ai-local-status-surface"',
             'data-ai-local-status="active-local-only"',
             'data-provider-visible-data="none"',
             'data-prompt-send="prompt-send-disabled"',
             'data-provider-model-execution="blocked"',
             'data-network-egress="network-egress-blocked"',
             'data-memory-indexing="memory-indexing-disabled"',
-            'data-temporary-lv1-repair="true"',
-            'data-next-br1-review-required="true"',
+            'data-fam003-carry-in="narrow-doorway-only"',
             'id="ai-provider-tray-window"',
+            'data-ai-control-center="fam007"',
+            'data-ai-control-center-owner="FAM-007"',
+            'data-fam008-packaging-execution="blocked-display-only"',
             'id="ai-provider-tray-provider-visible-data"',
             'id="ai-provider-tray-provider-execution"',
             'id="ai-provider-tray-capability-posture"',
             'id="ai-provider-tray-lane-boundary"',
+            'id="ai-provider-tray-status-boundary"',
             'id="ai-provider-tray-local-assist-action"',
             'id="ai-provider-tray-review-note"',
-            "NDAI tray",
-            "AI usage and settings",
-            "ORIN local active",
-            "Active - local-only no-provider mode",
+            "NDAI doorway",
+            "AI Control Center",
+            "AI local only - no provider configured",
             "Provider-visible data",
             "Install and download intent blocked",
             "Public local assist only; Developer and Owner lanes gated",
-            "Temporary LV1 repair surface. Next BR1 must review the permanent AI tray/window and provider-visible data policy before Beta.",
+            "Display-only; controls live here",
+            "FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only.",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)
+        for forbidden in (
+            'data-local-action-clickable="true"',
+            'aria-label="Open AI usage and settings"',
+            "Temporary LV1 repair surface",
+            "ORIN local active",
+        ):
+            _require(
+                forbidden not in markup,
+                f"{label} must not retain stale temporary/status-interactive marker {forbidden!r}",
+                failures,
+            )
 
     for needle in (
-        'href="orin_core_desktop.css?v=fam007-lv1-tray-repair"',
+        'href="orin_core_desktop.css?v=fam007-ai-control-center"',
         'data-surface-role="core-visualization"',
     ):
         _require(needle in desktop_html, f"desktop Core HTML is missing {needle!r}", failures)
@@ -9166,14 +9240,18 @@ def validate() -> list[str]:
     for needle in (
         ".ai-provider-status",
         "display: none !important",
-        "--ai-tray-left: min(55vw, calc(100vw - 236px))",
-        "--ai-tray-window-left: min(45vw, calc(100vw - 384px))",
+        "--ai-status-left: min(55vw, calc(100vw - 300px))",
+        "--ai-tray-left: min(calc(55vw + 214px), calc(100vw - 76px))",
+        "--ai-tray-window-left: min(45vw, calc(100vw - 432px))",
         "--ai-tray-bottom: clamp(92px, 14vh, 140px)",
+        "left: var(--ai-status-left)",
         "left: var(--ai-tray-left)",
         "left: var(--ai-tray-window-left)",
         "right: auto",
         "bottom: var(--ai-tray-bottom)",
-        "bottom: calc(var(--ai-tray-bottom) + 62px)",
+        "bottom: calc(var(--ai-tray-bottom) + 66px)",
+        ".ai-local-status-surface",
+        ".ai-local-status-surface[data-activity-state=\"active\"] .ai-local-status-surface__activity",
         ".ai-provider-tray",
         ".ai-provider-tray-window",
         ".ai-provider-tray-window[hidden]",
@@ -9240,38 +9318,22 @@ def validate() -> list[str]:
     ):
         _require(needle in css, f"core CSS is missing {needle!r}", failures)
 
-    hidden_status_end = css.find("{\n  display: none;\n}")
-    hidden_status_start = css.rfind(
-        ".ai-provider-status__selection,\n.ai-provider-status__configuration",
-        0,
-        hidden_status_end,
-    )
-    hidden_status_block = css[hidden_status_start:hidden_status_end]
-    _require(
-        ".ai-provider-status__disclosure" in hidden_status_block,
-        "returned-UTS repair must move visible provider-data inspection out of the lower status panel",
-        failures,
-    )
-    _require(
-        ".ai-provider-status__capability-eligibility" in hidden_status_block,
-        "returned-UTS repair must expose capability eligibility through the temporary tray window",
-        failures,
-    )
-    _require(
-        ".ai-provider-status__install-intent" in hidden_status_block,
-        "returned-UTS repair must expose install intent through the temporary tray window",
-        failures,
-    )
-    for selector in (
-        ".ai-provider-status__public-lane",
-        ".ai-provider-status__developer-lane",
-        ".ai-provider-status__owner-lane",
+    for label, markup in (
+        ("core HTML", html),
+        ("desktop Core HTML", desktop_html),
     ):
-        _require(
-            selector in hidden_status_block,
-            f"returned-UTS repair must expose lane boundary row {selector} through the temporary tray window",
-            failures,
-        )
+        for needle in (
+            'id="ai-provider-tray-provider-visible-data"',
+            'id="ai-provider-tray-capability-posture"',
+            'id="ai-provider-tray-lane-boundary"',
+            'id="ai-provider-tray-status-boundary"',
+            'id="ai-provider-tray-local-assist-action"',
+        ):
+            _require(
+                needle in markup,
+                f"{label} must expose {needle!r} in the FAM-007 AI Control Center, not the status-only surface",
+                failures,
+            )
 
     for needle in (
         "const aiProviderStatus",
@@ -9431,21 +9493,46 @@ def validate() -> list[str]:
         "providerConsentHandoffPosture",
         "providerPathHandoffPosture",
         "dataVisibilityConsentPosture",
+        "localStatusSurfaceLabel",
+        "localStatusSurfaceScope",
+        "localStatusActivityLabel",
         "trayStatusLabel",
+        "trayStatusBoundaryLabel",
         "trayReviewNote",
-        "temporaryLv1Repair",
-        "nextBr1ReviewRequired",
-        "aiProviderTrayLocalAssistAction.addEventListener",
-        "Temporary LV1 repair surface",
-        "Next BR1 must review",
+        "aiProviderTray.hidden = true",
+        'aiProviderTray.setAttribute("aria-hidden", "true")',
+        'aiProviderTray.setAttribute("tabindex", "-1")',
+        "aiProviderTray.dataset.interactive",
+        "aiProviderTray.dataset.desktopTrayDoorway",
+        "native-system-tray",
+        "aiProviderTrayWindow.hidden = true",
+        "aiProviderTrayClose.disabled = true",
+        "aiProviderTrayLocalAssistAction.disabled = true",
+        "FAM-007 owns this AI Control Center",
+        "NDAI resident entry is a doorway only",
+        "const aiLocalStatusSurface",
+        "const aiProviderTrayStatusBoundary",
         "desktopAiOwnedReadinessDisplayState",
         "const displayState",
         "const localActionAvailable",
+        "aiLocalStatusSurface.dataset.statusOnly",
+        "aiLocalStatusSurface.dataset.interactive",
+        "aiLocalStatusSurface.dataset.opensControlCenter",
+        "aiProviderTray.dataset.aiResidentDoorway",
+        "aiProviderTray.dataset.aiControlCenterRoute",
+        "aiProviderTray.dataset.statusSurfaceOwner",
+        "aiProviderTray.dataset.fam003CarryIn",
+        "aiProviderTrayWindow.dataset.aiControlCenter",
+        "aiProviderTrayWindow.dataset.aiControlCenterOwner",
+        "aiProviderTrayWindow.dataset.fam003CarryIn",
+        "aiProviderTrayWindow.dataset.fam008PackagingExecution",
+        "aiControlCenterState",
         "aiProviderStatus.hidden = true",
         'aiProviderStatus.setAttribute("aria-hidden", "true")',
         "displaySuppression",
         "displayVisibility",
         "tray-owned-hidden",
+        "aiProviderStatus.dataset.statusOnly",
         "local-assisted-action-available",
         "localActionGuard",
         "providerSetupFutureGatedPosture",
@@ -9588,8 +9675,11 @@ def validate() -> list[str]:
         "localResultMemoryIndexing",
         "guarded-no-provider",
         "blocked-boundary-mismatch",
-        "aiProviderStatusAction.disabled = !localActionAvailable",
-        'aiProviderStatusAction.setAttribute("aria-disabled", localActionAvailable ? "false" : "true")',
+        "Local assist lives in AI Control Center",
+        "aiProviderStatusAction.disabled = true",
+        'aiProviderStatusAction.setAttribute("aria-disabled", "true")',
+        "aiProviderStatusAction.dataset.statusOnly",
+        "aiProviderStatusAction.dataset.aiControlCenterRoute",
         "prompt-send-disabled",
         "network-egress-blocked",
         "memory-indexing-disabled",
@@ -9597,6 +9687,24 @@ def validate() -> list[str]:
         "canAcceptPrompts",
     ):
         _require(needle in js, f"core JS is missing {needle!r}", failures)
+
+    for forbidden in (
+        "aiProviderStatusAction.addEventListener",
+        "aiProviderTray.addEventListener",
+        "aiProviderTrayLocalAssistAction.addEventListener",
+        "setAIProviderTrayOpen(true)",
+        "temporaryLv1Repair",
+        "nextBr1ReviewRequired",
+        "Temporary LV1 repair surface",
+        "Next BR1 must review",
+        "ORIN local active",
+        "AI usage and settings",
+    ):
+        _require(
+            forbidden not in js,
+            f"core JS must not retain stale temporary/status-interactive marker {forbidden!r}",
+            failures,
+        )
 
     for needle in (
         "FAM-007 Local AI Provider Execution Readiness Gates",

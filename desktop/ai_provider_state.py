@@ -10529,13 +10529,13 @@ def build_provider_setup_completion_foundation_state(
         state_id=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID,
         mode=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_MODE,
         availability=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_AVAILABILITY,
-        status_label="ORIN local active",
+        status_label="AI local only",
         provider_label="ORIN local assist",
         disabled_reason=(
             "ORIN local assist is public-safe and local-only; SDK/model execution remains pending USER approval"
         ),
         provider_next_action_label=(
-            "Open local assist to review public-safe local status; provider/model execution remains blocked"
+            "Open NDAI for the AI Control Center; provider/model execution remains blocked"
         ),
         local_action_result_state=LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER,
         local_action_result_label="Local assist result: no provider configured",
@@ -10569,7 +10569,7 @@ def build_provider_setup_completion_foundation_state(
         interaction_affordance=LOCAL_ASSISTED_INTERACTION_AFFORDANCE,
         interaction_label="Open local assist",
         interaction_disabled_reason=(
-            "Local assist opens a guarded no-provider status only; prompts, providers, downloads, memory, and network remain blocked"
+            "Local assist runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked"
         ),
         no_provider_fallback_label="No-provider guard active",
         desktop_ai_owned_readiness_display_state=AI_PROVIDER_STATUS_DISPLAY_VISIBLE,

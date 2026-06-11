@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ORIN Core</title>
-  <link rel="stylesheet" href="orin_core.css?v=fam007-lv1-tray-repair" />
+  <link rel="stylesheet" href="orin_core.css?v=fam007-ai-control-center" />
 </head>
 <body>
   <div id="scene">
@@ -41,53 +41,85 @@
       <div id="core-dot"></div>
     </div>
 
-    <button
-      id="ai-provider-tray"
-      class="ai-provider-tray"
-      type="button"
-      aria-expanded="false"
-      aria-controls="ai-provider-tray-window"
-      aria-label="Open AI usage and settings"
-      data-ai-tray-state="closed"
+    <div
+      id="ai-local-status-surface"
+      class="ai-local-status-surface"
+      role="status"
+      aria-live="polite"
+      data-status-only="true"
+      data-interactive="false"
+      data-opens-control-center="false"
       data-ai-local-status="active-local-only"
       data-provider-visible-data="none"
       data-prompt-send="prompt-send-disabled"
       data-provider-model-execution="blocked"
       data-network-egress="network-egress-blocked"
       data-memory-indexing="memory-indexing-disabled"
-      data-temporary-lv1-repair="true"
-      data-next-br1-review-required="true"
     >
-      <span class="ai-provider-tray__lamp" aria-hidden="true"></span>
-      <span id="ai-provider-tray-label" class="ai-provider-tray__label">ORIN local active</span>
-      <span id="ai-provider-tray-scope" class="ai-provider-tray__scope">Local only</span>
-    </button>
+      <span class="ai-local-status-surface__lamp" aria-hidden="true"></span>
+      <span id="ai-local-status-label" class="ai-local-status-surface__label">AI local only</span>
+      <span id="ai-local-status-scope" class="ai-local-status-surface__scope">No provider</span>
+      <span id="ai-local-status-activity" class="ai-local-status-surface__activity">Idle</span>
+    </div>
 
-    <section
-      id="ai-provider-tray-window"
-      class="ai-provider-tray-window"
-      aria-labelledby="ai-provider-tray-title"
+    <button
+      id="ai-provider-tray"
+      class="ai-provider-tray ai-resident-doorway"
+      type="button"
+      hidden
+      aria-hidden="true"
+      tabindex="-1"
+      aria-expanded="false"
+      aria-controls="ai-provider-tray-window"
+      aria-label="Open AI Control Center"
+      data-interactive="false"
+      data-desktop-tray-doorway="native-system-tray"
       data-ai-tray-state="closed"
+      data-ai-resident-doorway="f3-ff01-narrow-ai-command-center"
+      data-ai-control-center-route="fam007-ai-control-center"
+      data-status-surface-owner="ai-local-status-surface"
+      data-ai-local-status="active-local-only"
       data-provider-visible-data="none"
       data-prompt-send="prompt-send-disabled"
       data-provider-model-execution="blocked"
       data-network-egress="network-egress-blocked"
       data-memory-indexing="memory-indexing-disabled"
-      data-temporary-lv1-repair="true"
-      data-next-br1-review-required="true"
+      data-fam003-carry-in="narrow-doorway-only"
+    >
+      <span class="ai-provider-tray__lamp" aria-hidden="true"></span>
+      <span id="ai-provider-tray-label" class="ai-provider-tray__label">NDAI</span>
+      <span id="ai-provider-tray-scope" class="ai-provider-tray__scope">AI</span>
+    </button>
+
+    <section
+      id="ai-provider-tray-window"
+      class="ai-provider-tray-window ai-control-center"
+      aria-labelledby="ai-provider-tray-title"
+      data-ai-tray-state="closed"
+      data-ai-control-center="fam007"
+      data-ai-control-center-owner="FAM-007"
+      data-ai-control-center-route="fam007-ai-control-center"
+      data-ai-resident-doorway="f3-ff01-narrow-ai-command-center"
+      data-fam003-carry-in="narrow-doorway-only"
+      data-fam008-packaging-execution="blocked-display-only"
+      data-provider-visible-data="none"
+      data-prompt-send="prompt-send-disabled"
+      data-provider-model-execution="blocked"
+      data-network-egress="network-egress-blocked"
+      data-memory-indexing="memory-indexing-disabled"
       hidden
     >
       <div class="ai-provider-tray-window__header">
         <div>
-          <div class="ai-provider-tray-window__kicker">NDAI tray</div>
-          <h2 id="ai-provider-tray-title" class="ai-provider-tray-window__title">AI usage and settings</h2>
+          <div class="ai-provider-tray-window__kicker">NDAI doorway</div>
+          <h2 id="ai-provider-tray-title" class="ai-provider-tray-window__title">AI Control Center</h2>
         </div>
         <button id="ai-provider-tray-close" class="ai-provider-tray-window__close" type="button">Close</button>
       </div>
       <dl class="ai-provider-tray-window__facts">
         <div>
           <dt>ORIN status</dt>
-          <dd id="ai-provider-tray-local-status">Active - local-only no-provider mode</dd>
+          <dd id="ai-provider-tray-local-status">AI local only - no provider configured</dd>
         </div>
         <div>
           <dt>Provider-visible data</dt>
@@ -105,6 +137,10 @@
           <dt>Public / Developer / Owner</dt>
           <dd id="ai-provider-tray-lane-boundary">Public local assist only; Developer and Owner lanes gated</dd>
         </div>
+        <div>
+          <dt>Status surface</dt>
+          <dd id="ai-provider-tray-status-boundary">Display-only; controls live here</dd>
+        </div>
       </dl>
       <button
         id="ai-provider-tray-local-assist-action"
@@ -115,7 +151,7 @@
       >Open local assist</button>
       <div id="ai-provider-tray-result" class="ai-provider-tray-window__result">Local assist result: waiting for local action</div>
       <div id="ai-provider-tray-result-detail" class="ai-provider-tray-window__result-detail">No prompt, file, screen, memory, or telemetry is sent.</div>
-      <div id="ai-provider-tray-review-note" class="ai-provider-tray-window__review">Temporary LV1 repair surface. Next BR1 must review the permanent AI tray/window and provider-visible data policy before Beta.</div>
+      <div id="ai-provider-tray-review-note" class="ai-provider-tray-window__review">FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only.</div>
     </section>
 
     <div
@@ -126,7 +162,8 @@
       data-display-suppression="tray-owned-status"
       data-display-visibility="tray-owned-hidden"
       data-local-action-guard="no-provider"
-      data-local-action-clickable="true"
+      data-status-only="true"
+      data-local-action-clickable="false"
       data-local-action-result="idle"
       data-local-action-result-state="local-action-idle"
       data-local-action-result-schema="local-action-result.v1"
@@ -262,7 +299,7 @@
     >
       <div class="ai-provider-status__topline">
         <span class="ai-provider-status__label">ORIN</span>
-        <span id="ai-provider-status-state" class="ai-provider-status__state">ORIN local active</span>
+        <span id="ai-provider-status-state" class="ai-provider-status__state">AI local only</span>
       </div>
       <div id="ai-provider-status-provider" class="ai-provider-status__provider">No AI provider; local assist only</div>
       <div id="ai-provider-status-selection" class="ai-provider-status__selection">No-provider fallback active</div>
@@ -375,17 +412,18 @@
         id="ai-provider-status-action"
         class="ai-provider-status__action"
         type="button"
-        aria-disabled="false"
+        disabled
+        aria-disabled="true"
         data-local-action-guard="no-provider"
-      >Open local assist</button>
+      >Local assist lives in AI Control Center</button>
       <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider guard active</div>
       <div id="ai-provider-status-result" class="ai-provider-status__result">Local assist result: waiting for local action</div>
       <div id="ai-provider-status-result-detail" class="ai-provider-status__result-detail">Open local assist to produce a deterministic local no-provider result.</div>
-      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Open local assist to review public-safe local status; provider/model execution remains blocked</div>
+      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Open NDAI for the AI Control Center; provider/model execution remains blocked</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>
   </div>
 
-  <script src="orin_core.js?v=fam007-lv1-tray-repair"></script>
+  <script src="orin_core.js?v=fam007-ai-control-center"></script>
 </body>
 </html>

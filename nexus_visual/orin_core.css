@@ -17,8 +17,9 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  --ai-tray-left: min(55vw, calc(100vw - 236px));
-  --ai-tray-window-left: min(45vw, calc(100vw - 384px));
+  --ai-status-left: min(55vw, calc(100vw - 300px));
+  --ai-tray-left: min(calc(55vw + 214px), calc(100vw - 76px));
+  --ai-tray-window-left: min(45vw, calc(100vw - 432px));
   --ai-tray-bottom: clamp(92px, 14vh, 140px);
   background:
     radial-gradient(circle at 51% 48%, rgba(0, 150, 220, 0.035) 0%, rgba(0, 0, 0, 0) 20%),
@@ -414,6 +415,74 @@ body {
   box-shadow: 0 0 14px rgba(180, 245, 255, 0.82);
 }
 
+.ai-local-status-surface {
+  position: absolute;
+  z-index: 16;
+  top: auto;
+  left: var(--ai-status-left);
+  right: auto;
+  bottom: var(--ai-tray-bottom);
+  display: inline-grid;
+  grid-template-columns: 12px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 9px;
+  align-items: center;
+  width: 202px;
+  min-height: 52px;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  border: 1px solid rgba(102, 238, 174, 0.42);
+  border-left: 3px solid rgba(102, 238, 174, 0.92);
+  border-radius: 8px;
+  background: rgba(4, 15, 16, 0.76);
+  color: rgba(236, 255, 247, 0.96);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.34);
+  cursor: default;
+  pointer-events: none;
+}
+
+.ai-local-status-surface[hidden] {
+  display: none !important;
+}
+
+.ai-local-status-surface__lamp {
+  grid-row: 1 / 3;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #66eeae;
+  box-shadow: 0 0 12px rgba(102, 238, 174, 0.88);
+}
+
+.ai-local-status-surface__label,
+.ai-local-status-surface__scope,
+.ai-local-status-surface__activity {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ai-local-status-surface__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.ai-local-status-surface__scope,
+.ai-local-status-surface__activity {
+  color: rgba(190, 229, 222, 0.88);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.ai-local-status-surface__activity {
+  display: none;
+}
+
+.ai-local-status-surface[data-activity-state="active"] .ai-local-status-surface__activity {
+  display: block;
+}
+
 .ai-provider-tray {
   position: absolute;
   z-index: 16;
@@ -421,18 +490,16 @@ body {
   left: var(--ai-tray-left);
   right: auto;
   bottom: var(--ai-tray-bottom);
-  display: inline-grid;
-  grid-template-columns: 12px auto;
+  display: grid;
+  grid-template-columns: 1fr;
   grid-template-rows: auto auto;
-  column-gap: 9px;
-  align-items: center;
-  min-width: 184px;
-  max-width: min(320px, calc(100vw - 44px));
-  min-height: 48px;
+  place-items: center;
+  width: 54px;
+  min-width: 54px;
+  height: 54px;
   box-sizing: border-box;
-  padding: 8px 12px;
+  padding: 8px 7px 7px;
   border: 1px solid rgba(102, 238, 174, 0.42);
-  border-left: 3px solid rgba(102, 238, 174, 0.92);
   border-radius: 8px;
   background: rgba(4, 15, 16, 0.76);
   color: rgba(236, 255, 247, 0.96);
@@ -448,9 +515,11 @@ body {
 }
 
 .ai-provider-tray__lamp {
-  grid-row: 1 / 3;
-  width: 10px;
-  height: 10px;
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #66eeae;
   box-shadow: 0 0 12px rgba(102, 238, 174, 0.88);
@@ -463,16 +532,19 @@ body {
 }
 
 .ai-provider-tray__label {
-  font-size: 12px;
+  align-self: end;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .ai-provider-tray__scope {
   color: rgba(190, 229, 222, 0.88);
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.2;
+  text-align: center;
 }
 
 .ai-provider-tray:hover,
@@ -488,8 +560,8 @@ body {
   top: auto;
   left: var(--ai-tray-window-left);
   right: auto;
-  bottom: calc(var(--ai-tray-bottom) + 62px);
-  width: min(360px, calc(100vw - 44px));
+  bottom: calc(var(--ai-tray-bottom) + 66px);
+  width: min(408px, calc(100vw - 44px));
   max-height: min(62vh, 560px);
   box-sizing: border-box;
   padding: 16px;
@@ -1088,25 +1160,34 @@ body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-def
 
 @media (max-width: 640px) {
   #scene {
-    --ai-tray-left: 14px;
+    --ai-status-left: 14px;
+    --ai-tray-left: auto;
     --ai-tray-window-left: 14px;
     --ai-tray-bottom: 14px;
   }
 
-  .ai-provider-tray {
+  .ai-local-status-surface {
     left: 14px;
+    right: 76px;
+    top: auto;
+    bottom: 14px;
+    width: auto;
+  }
+
+  .ai-provider-tray {
+    left: auto;
     right: 14px;
     top: auto;
     bottom: 14px;
     min-width: 0;
-    width: auto;
+    width: 54px;
   }
 
   .ai-provider-tray-window {
     left: 14px;
     right: 14px;
     top: auto;
-    bottom: 76px;
+    bottom: 82px;
     width: auto;
     max-height: calc(100vh - 106px);
   }

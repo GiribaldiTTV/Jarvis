@@ -130,6 +130,10 @@ const aiProviderStatusResult = document.getElementById("ai-provider-status-resul
 const aiProviderStatusResultDetail = document.getElementById("ai-provider-status-result-detail");
 const aiProviderStatusNextAction = document.getElementById("ai-provider-status-next-action");
 const aiProviderStatusPrivacy = document.getElementById("ai-provider-status-privacy");
+const aiLocalStatusSurface = document.getElementById("ai-local-status-surface");
+const aiLocalStatusLabel = document.getElementById("ai-local-status-label");
+const aiLocalStatusScope = document.getElementById("ai-local-status-scope");
+const aiLocalStatusActivity = document.getElementById("ai-local-status-activity");
 const aiProviderTray = document.getElementById("ai-provider-tray");
 const aiProviderTrayLabel = document.getElementById("ai-provider-tray-label");
 const aiProviderTrayScope = document.getElementById("ai-provider-tray-scope");
@@ -140,6 +144,7 @@ const aiProviderTrayProviderVisibleData = document.getElementById("ai-provider-t
 const aiProviderTrayProviderExecution = document.getElementById("ai-provider-tray-provider-execution");
 const aiProviderTrayCapabilityPosture = document.getElementById("ai-provider-tray-capability-posture");
 const aiProviderTrayLaneBoundary = document.getElementById("ai-provider-tray-lane-boundary");
+const aiProviderTrayStatusBoundary = document.getElementById("ai-provider-tray-status-boundary");
 const aiProviderTrayLocalAssistAction = document.getElementById("ai-provider-tray-local-assist-action");
 const aiProviderTrayResult = document.getElementById("ai-provider-tray-result");
 const aiProviderTrayResultDetail = document.getElementById("ai-provider-tray-result-detail");
@@ -173,13 +178,17 @@ let aiProviderState = {
   mode: "no-provider",
   availability: "disabled",
   providerLabel: "ORIN local assist",
-  statusLabel: "ORIN local active",
-  trayStatusLabel: "ORIN local active",
-  trayScopeLabel: "Local only",
-  trayLocalStatusDetail: "Active - local-only no-provider mode",
+  statusLabel: "AI local only",
+  localStatusSurfaceLabel: "AI local only",
+  localStatusSurfaceScope: "No provider",
+  localStatusActivityLabel: "Idle",
+  trayStatusLabel: "NDAI",
+  trayScopeLabel: "AI",
+  trayLocalStatusDetail: "AI local only - no provider configured",
   trayProviderExecutionLabel: "disabled and blocked",
+  trayStatusBoundaryLabel: "Display-only; controls live here",
   trayReviewNote:
-    "Temporary LV1 repair surface. Next BR1 must review the permanent AI tray/window and provider-visible data policy before Beta.",
+    "FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only.",
   selectedProviderId: "no-provider",
   providerSelectionState: "fallback-no-provider",
   providerSelectionLabel: "No-provider fallback active",
@@ -282,7 +291,7 @@ let aiProviderState = {
   providerVisibleDataDetail: "No prompt, file, screen, memory, or telemetry is sent",
   providerConsentBoundaryLabel: "Consent boundary: provider setup required before prompts",
   providerNextActionLabel:
-    "Open local assist to review public-safe local status; provider/model execution remains blocked",
+    "Open NDAI for the AI Control Center; provider/model execution remains blocked",
   localActionResultSchemaVersion: "local-action-result.v1",
   localActionResultState: "deterministic-no-provider-result",
   localActionResultLabel: "Local assist result: no provider configured",
@@ -618,7 +627,7 @@ let aiProviderState = {
   interactionAffordance: "local-assisted-action-available",
   interactionLabel: "Open local assist",
   interactionDisabledReason:
-    "Local assist opens a guarded no-provider status only; prompts, providers, downloads, memory, and network remain blocked",
+    "Local assist runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked",
   noProviderFallbackLabel: "No-provider guard active",
   sentToProvider: false,
   canAcceptPrompts: false,
@@ -1722,11 +1731,18 @@ function setTextContent(element, text) {
 function setAIProviderTrayOpen(open) {
   if (!aiProviderTray || !aiProviderTrayWindow) return;
 
-  const shouldOpen = Boolean(open);
-  aiProviderTrayWindow.hidden = !shouldOpen;
-  aiProviderTray.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
-  aiProviderTray.dataset.aiTrayState = shouldOpen ? "open" : "closed";
-  aiProviderTrayWindow.dataset.aiTrayState = shouldOpen ? "open" : "closed";
+  const shouldOpen = false;
+  aiProviderTray.hidden = true;
+  aiProviderTrayWindow.hidden = true;
+  aiProviderTray.setAttribute("aria-hidden", "true");
+  aiProviderTray.setAttribute("tabindex", "-1");
+  aiProviderTray.setAttribute("aria-expanded", "false");
+  aiProviderTray.dataset.aiTrayState = "closed";
+  aiProviderTray.dataset.aiControlCenterState = "native-tray-only";
+  aiProviderTray.dataset.desktopTrayDoorway = "native-system-tray";
+  aiProviderTray.dataset.interactive = "false";
+  aiProviderTrayWindow.dataset.aiTrayState = "closed";
+  aiProviderTrayWindow.dataset.aiControlCenterState = shouldOpen ? "open" : "native-tray-only";
 }
 
 function renderAIProviderTrayState(state, displayVisible, localActionAvailable) {
@@ -1748,40 +1764,70 @@ function renderAIProviderTrayState(state, displayVisible, localActionAvailable) 
     `${state.developerLaneBoundaryLabel || "Developer lane: gated; private setup not configured"}; ` +
     `${state.ownerLaneBoundaryLabel || "Owner lane: gated; private setup not configured"}`;
 
+  if (aiLocalStatusSurface) {
+    aiLocalStatusSurface.hidden = !trayVisible;
+    aiLocalStatusSurface.dataset.statusOnly = "true";
+    aiLocalStatusSurface.dataset.interactive = "false";
+    aiLocalStatusSurface.dataset.opensControlCenter = "false";
+    aiLocalStatusSurface.dataset.aiLocalStatus = "active-local-only";
+    aiLocalStatusSurface.dataset.providerVisibleData = providerVisibleData;
+    aiLocalStatusSurface.dataset.promptSend = promptSend;
+    aiLocalStatusSurface.dataset.providerModelExecution = "blocked";
+    aiLocalStatusSurface.dataset.networkEgress = networkEgress;
+    aiLocalStatusSurface.dataset.memoryIndexing = memoryIndexing;
+    aiLocalStatusSurface.dataset.activityState =
+      aiLocalStatusSurface.dataset.activityState || "idle";
+  }
   if (aiProviderTray) {
-    aiProviderTray.hidden = !trayVisible;
+    aiProviderTray.hidden = true;
+    aiProviderTray.setAttribute("aria-hidden", "true");
+    aiProviderTray.setAttribute("tabindex", "-1");
+    aiProviderTray.setAttribute("aria-expanded", "false");
+    aiProviderTray.dataset.interactive = "false";
+    aiProviderTray.dataset.desktopTrayDoorway = "native-system-tray";
+    aiProviderTray.dataset.aiResidentDoorway = "f3-ff01-narrow-ai-command-center";
+    aiProviderTray.dataset.aiControlCenterRoute = "fam007-ai-control-center";
+    aiProviderTray.dataset.statusSurfaceOwner = "ai-local-status-surface";
     aiProviderTray.dataset.aiLocalStatus = "active-local-only";
     aiProviderTray.dataset.providerVisibleData = providerVisibleData;
     aiProviderTray.dataset.promptSend = promptSend;
     aiProviderTray.dataset.providerModelExecution = "blocked";
     aiProviderTray.dataset.networkEgress = networkEgress;
     aiProviderTray.dataset.memoryIndexing = memoryIndexing;
-    aiProviderTray.dataset.temporaryLv1Repair = "true";
-    aiProviderTray.dataset.nextBr1ReviewRequired = "true";
+    aiProviderTray.dataset.fam003CarryIn = "narrow-doorway-only";
   }
   if (aiProviderTrayWindow) {
-    if (!trayVisible) {
-      aiProviderTrayWindow.hidden = true;
-    }
+    aiProviderTrayWindow.hidden = true;
+    aiProviderTrayWindow.dataset.aiControlCenter = "fam007";
+    aiProviderTrayWindow.dataset.aiControlCenterOwner = "FAM-007";
+    aiProviderTrayWindow.dataset.aiControlCenterRoute = "fam007-ai-control-center";
+    aiProviderTrayWindow.dataset.aiResidentDoorway = "f3-ff01-narrow-ai-command-center";
+    aiProviderTrayWindow.dataset.fam003CarryIn = "narrow-doorway-only";
+    aiProviderTrayWindow.dataset.fam008PackagingExecution = "blocked-display-only";
     aiProviderTrayWindow.dataset.providerVisibleData = providerVisibleData;
     aiProviderTrayWindow.dataset.promptSend = promptSend;
     aiProviderTrayWindow.dataset.providerModelExecution = "blocked";
     aiProviderTrayWindow.dataset.networkEgress = networkEgress;
     aiProviderTrayWindow.dataset.memoryIndexing = memoryIndexing;
-    aiProviderTrayWindow.dataset.temporaryLv1Repair = "true";
-    aiProviderTrayWindow.dataset.nextBr1ReviewRequired = "true";
   }
 
-  setTextContent(aiProviderTrayLabel, state.trayStatusLabel || "ORIN local active");
-  setTextContent(aiProviderTrayScope, state.trayScopeLabel || "Local only");
+  setTextContent(aiLocalStatusLabel, state.localStatusSurfaceLabel || "AI local only");
+  setTextContent(aiLocalStatusScope, state.localStatusSurfaceScope || "No provider");
+  setTextContent(aiLocalStatusActivity, state.localStatusActivityLabel || "Idle");
+  setTextContent(aiProviderTrayLabel, state.trayStatusLabel || "NDAI");
+  setTextContent(aiProviderTrayScope, state.trayScopeLabel || "AI");
   setTextContent(
     aiProviderTrayLocalStatus,
-    state.trayLocalStatusDetail || "Active - local-only no-provider mode"
+    state.trayLocalStatusDetail || "AI local only - no provider configured"
   );
   setTextContent(aiProviderTrayProviderVisibleData, providerVisibleData);
   setTextContent(aiProviderTrayProviderExecution, providerExecution);
   setTextContent(aiProviderTrayCapabilityPosture, capabilityPosture);
   setTextContent(aiProviderTrayLaneBoundary, laneBoundary);
+  setTextContent(
+    aiProviderTrayStatusBoundary,
+    state.trayStatusBoundaryLabel || "Display-only; controls live here"
+  );
   setTextContent(
     aiProviderTrayResultDetail,
     state.providerVisibleDataDetail || "No prompt, file, screen, memory, or telemetry is sent."
@@ -1789,14 +1835,14 @@ function renderAIProviderTrayState(state, displayVisible, localActionAvailable) 
   setTextContent(
     aiProviderTrayReviewNote,
     state.trayReviewNote ||
-      "Temporary LV1 repair surface. Next BR1 must review the permanent AI tray/window and provider-visible data policy before Beta."
+      "FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only."
   );
 
   if (aiProviderTrayLocalAssistAction) {
     aiProviderTrayLocalAssistAction.textContent = state.interactionLabel || "Open local assist";
     aiProviderTrayLocalAssistAction.title =
       state.interactionDisabledReason ||
-      "Local assist opens a guarded no-provider status only; prompts, providers, downloads, memory, and network remain blocked";
+      "Local assist runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked";
     aiProviderTrayLocalAssistAction.disabled = !localActionAvailable;
     aiProviderTrayLocalAssistAction.setAttribute(
       "aria-disabled",
@@ -1820,8 +1866,9 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.displaySuppression =
     "tray-owned-status";
   aiProviderStatus.dataset.displayVisibility = "tray-owned-hidden";
+  aiProviderStatus.dataset.statusOnly = "true";
   aiProviderStatus.dataset.localActionGuard = "no-provider";
-  aiProviderStatus.dataset.localActionClickable = localActionAvailable ? "true" : "false";
+  aiProviderStatus.dataset.localActionClickable = "false";
   aiProviderStatus.dataset.localActionResult = aiProviderStatus.dataset.localActionResult || "idle";
   aiProviderStatus.dataset.localActionResultState =
     state.localActionResultState || "local-action-idle";
@@ -2028,7 +2075,7 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.canAcceptPrompts = state.canAcceptPrompts ? "true" : "false";
 
   if (aiProviderStatusState) {
-    aiProviderStatusState.textContent = state.statusLabel || "ORIN local active";
+    aiProviderStatusState.textContent = state.statusLabel || "AI local only";
   }
   if (aiProviderStatusProvider) {
     aiProviderStatusProvider.textContent = state.providerLabel || "No AI provider; local assist only";
@@ -2458,13 +2505,14 @@ function renderAIProviderState() {
       "Owner lane: gated; private setup not configured";
   }
   if (aiProviderStatusAction) {
-    aiProviderStatusAction.textContent = state.interactionLabel || "Open local assist";
+    aiProviderStatusAction.textContent = "Local assist lives in AI Control Center";
     aiProviderStatusAction.title =
-      state.interactionDisabledReason ||
-      "Local assist opens a guarded no-provider status only; prompts, providers, downloads, memory, and network remain blocked";
-    aiProviderStatusAction.disabled = !localActionAvailable;
-    aiProviderStatusAction.setAttribute("aria-disabled", localActionAvailable ? "false" : "true");
+      "Status is display-only; open NDAI for the FAM-007 AI Control Center.";
+    aiProviderStatusAction.disabled = true;
+    aiProviderStatusAction.setAttribute("aria-disabled", "true");
     aiProviderStatusAction.dataset.localActionGuard = "no-provider";
+    aiProviderStatusAction.dataset.statusOnly = "true";
+    aiProviderStatusAction.dataset.aiControlCenterRoute = "fam007-ai-control-center";
   }
   if (aiProviderStatusFallback) {
     aiProviderStatusFallback.textContent = state.noProviderFallbackLabel || "No-provider fallback active";
@@ -2480,7 +2528,7 @@ function renderAIProviderState() {
   if (aiProviderStatusNextAction) {
     aiProviderStatusNextAction.textContent =
       state.providerNextActionLabel ||
-      "Open local assist to review public-safe local status; provider/model execution remains blocked";
+      "Open NDAI for the AI Control Center; provider/model execution remains blocked";
   }
   if (aiProviderStatusPrivacy) {
     aiProviderStatusPrivacy.textContent = state.privacyLabel || "Local shell only; nothing is sent";
@@ -2563,28 +2611,42 @@ function handleAIProviderStatusActionClick(event) {
     aiProviderTrayWindow.dataset.networkEgress = "network-egress-blocked";
     aiProviderTrayWindow.dataset.memoryIndexing = "memory-indexing-disabled";
   }
+  if (aiLocalStatusSurface) {
+    aiLocalStatusSurface.dataset.statusOnly = "true";
+    aiLocalStatusSurface.dataset.interactive = "false";
+    aiLocalStatusSurface.dataset.opensControlCenter = "false";
+    aiLocalStatusSurface.dataset.activityState = guardClosed ? "active" : "blocked";
+    aiLocalStatusSurface.dataset.providerVisibleData = "none";
+    aiLocalStatusSurface.dataset.promptSend = "prompt-send-disabled";
+    aiLocalStatusSurface.dataset.networkEgress = "network-egress-blocked";
+    aiLocalStatusSurface.dataset.memoryIndexing = "memory-indexing-disabled";
+  }
+  setTextContent(
+    aiLocalStatusActivity,
+    guardClosed ? "Checked locally" : "Blocked"
+  );
 }
 
 if (aiProviderStatusAction) {
-  aiProviderStatusAction.addEventListener("click", handleAIProviderStatusActionClick);
+  aiProviderStatusAction.disabled = true;
+  aiProviderStatusAction.setAttribute("aria-disabled", "true");
+  aiProviderStatusAction.dataset.statusOnly = "true";
+  aiProviderStatusAction.dataset.aiControlCenterRoute = "fam007-ai-control-center";
 }
 if (aiProviderTray) {
-  aiProviderTray.addEventListener("click", (event) => {
-    event.preventDefault();
-    setAIProviderTrayOpen(aiProviderTrayWindow ? aiProviderTrayWindow.hidden : true);
-  });
+  aiProviderTray.hidden = true;
+  aiProviderTray.setAttribute("aria-hidden", "true");
+  aiProviderTray.setAttribute("tabindex", "-1");
+  aiProviderTray.dataset.interactive = "false";
+  aiProviderTray.dataset.desktopTrayDoorway = "native-system-tray";
 }
 if (aiProviderTrayClose) {
-  aiProviderTrayClose.addEventListener("click", (event) => {
-    event.preventDefault();
-    setAIProviderTrayOpen(false);
-  });
+  aiProviderTrayClose.disabled = true;
+  aiProviderTrayClose.setAttribute("aria-disabled", "true");
 }
 if (aiProviderTrayLocalAssistAction) {
-  aiProviderTrayLocalAssistAction.addEventListener("click", (event) => {
-    handleAIProviderStatusActionClick(event);
-    setAIProviderTrayOpen(true);
-  });
+  aiProviderTrayLocalAssistAction.disabled = true;
+  aiProviderTrayLocalAssistAction.setAttribute("aria-disabled", "true");
 }
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {

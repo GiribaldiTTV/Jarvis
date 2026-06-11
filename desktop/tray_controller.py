@@ -133,6 +133,7 @@ class DesktopTrayEntry:
         self.tray_menu = None
         self.tray_popup = None
         self.identity_action = None
+        self.ai_control_center_action = None
         self.open_overlay_action = None
         self.create_custom_task_action = None
         self.monitoring_hud_primary_action = None
@@ -143,6 +144,7 @@ class DesktopTrayEntry:
         self.monitoring_hud_dashboard_button = None
         self.monitoring_hud_unanchor_button = None
         self.monitoring_hud_status_label = None
+        self.ai_control_center_button = None
         self.open_overlay_button = None
         self.create_custom_task_button = None
         self.exit_button = None
@@ -175,6 +177,12 @@ class DesktopTrayEntry:
             self.identity_action = QAction(TRAY_IDENTITY_LABEL, self.tray_menu)
             self.identity_action.setEnabled(False)
             self.tray_menu.addAction(self.identity_action)
+            self.tray_menu.addSeparator()
+
+            self.ai_control_center_action = self._add_button_action(
+                "AI Control Center",
+                self.request_ai_control_center_from_tray,
+            )
             self.tray_menu.addSeparator()
 
             self.monitoring_hud_primary_action = self._add_button_action(
@@ -229,6 +237,11 @@ class DesktopTrayEntry:
         self.tray_popup = TrayCommandPopup(self)
         self.monitoring_hud_status_label = QLabel("HUD Dashboard Closed", self.tray_popup)
         self.monitoring_hud_status_label.setAccessibleName("HUD Dashboard status")
+        self.ai_control_center_button = self.tray_popup.add_button(
+            "AI Control Center",
+            self.request_ai_control_center_from_tray,
+        )
+        self.tray_popup.add_separator()
         self.tray_popup.layout.addWidget(self.monitoring_hud_status_label)
         self.monitoring_hud_primary_button = self.tray_popup.add_button(
             "Enable HUD Feature",
@@ -375,6 +388,8 @@ class DesktopTrayEntry:
                 flags = MF_STRING if enabled else (MF_STRING | MF_GRAYED)
                 user32.AppendMenuW(menu, flags, int(command_id), ctypes.c_wchar_p(text))
 
+            append(90, "AI Control Center", True)
+            user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append(100, feature_text, True)
             if feature_enabled:
                 append(101, dashboard_text, True)
@@ -413,6 +428,7 @@ class DesktopTrayEntry:
 
     def _dispatch_native_menu_command(self, command_id):
         commands = {
+            90: self.request_ai_control_center_from_tray,
             100: self.request_monitoring_hud_toggle_from_tray,
             101: self.request_monitoring_hud_dashboard_from_tray,
             102: self.request_monitoring_hud_unanchor_from_tray,
@@ -466,6 +482,23 @@ class DesktopTrayEntry:
     def request_create_custom_task_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source={source}")
         self.window.request_create_custom_task_from_tray(source=source)
+
+    def request_ai_control_center_from_tray(self, source):
+        self._emit(
+            "RENDERER_MAIN|TRAY_AI_CONTROL_CENTER_REQUESTED"
+            f"|source={source}|carry_in=f3-ff01-narrow-doorway|owner=FAM-007"
+        )
+        handler = getattr(self.window, "show_ai_control_center_from_tray", None)
+        if not callable(handler):
+            self._emit(
+                f"RENDERER_MAIN|TRAY_AI_CONTROL_CENTER_ABORTED|source={source}|reason=handler_unavailable"
+            )
+            return
+        handler(source=source)
+        self._emit(
+            "RENDERER_MAIN|TRAY_AI_CONTROL_CENTER_ROUTED"
+            f"|source={source}|provider_visible_data=none|provider_execution=blocked"
+        )
 
     def _monitoring_hud_state(self):
         provider = getattr(self.window, "monitoring_hud_feature_state", None)

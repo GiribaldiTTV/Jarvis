@@ -5854,6 +5854,224 @@ class MonitoringHudRecordingControlWindow(QWidget):
         }
 
 
+class AIControlCenterDialog(QDialog):
+    def __init__(self, screen, event_logger=None):
+        super().__init__(None)
+        self.screen_ref = screen
+        self.event_logger = event_logger
+        self._provider_payload = {}
+        self.setObjectName("fam007AiControlCenter")
+        self.setWindowTitle("AI Control Center")
+        self.setWindowFlags(Qt.Window)
+        self.setMinimumSize(430, 430)
+        self.resize(480, 500)
+        self.setProperty("aiControlCenterOwner", "FAM-007")
+        self.setProperty("aiControlCenterRoute", "fam007-ai-control-center")
+        self.setProperty("fam003CarryIn", "f3-ff01-narrow-doorway-only")
+        self.setProperty("providerVisibleData", "none")
+        self.setProperty("promptSend", "prompt-send-disabled")
+        self.setProperty("providerModelExecution", "blocked")
+        self.setProperty("networkEgress", "network-egress-blocked")
+        self.setProperty("memoryIndexing", "memory-indexing-disabled")
+        self.setStyleSheet(
+            """
+            QWidget#fam007AiControlCenter {
+                background: #071112;
+                color: #e8fbf4;
+                font-family: Bahnschrift, Segoe UI, sans-serif;
+            }
+            QLabel {
+                background: transparent;
+                color: #e8fbf4;
+            }
+            QLabel[role="eyebrow"] {
+                color: #72e6ba;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+            }
+            QLabel[role="title"] {
+                color: #ffffff;
+                font-size: 18px;
+                font-weight: 700;
+            }
+            QLabel[role="factLabel"] {
+                color: rgba(188, 220, 212, 0.8);
+                font-size: 11px;
+                font-weight: 700;
+            }
+            QLabel[role="factValue"] {
+                color: #e8fbf4;
+                font-size: 12px;
+            }
+            QLabel[role="warning"] {
+                color: #ffe3a6;
+                font-size: 11px;
+            }
+            QPushButton {
+                min-height: 30px;
+                padding: 4px 12px;
+                border: 1px solid rgba(114, 230, 186, 0.42);
+                border-radius: 7px;
+                background: rgba(7, 33, 31, 0.86);
+                color: #e8fbf4;
+                font-weight: 700;
+            }
+            QPushButton:hover,
+            QPushButton:focus {
+                background: rgba(14, 58, 51, 0.92);
+            }
+            """
+        )
+
+        root = QVBoxLayout(self)
+        root.setContentsMargins(18, 16, 18, 16)
+        root.setSpacing(10)
+
+        eyebrow = QLabel("NDAI resident doorway", self)
+        eyebrow.setProperty("role", "eyebrow")
+        self._title = QLabel("AI Control Center", self)
+        self._title.setProperty("role", "title")
+        self._summary = QLabel("FAM-007 owned; local-only and no-provider.", self)
+        self._summary.setWordWrap(True)
+
+        facts = QGridLayout()
+        facts.setHorizontalSpacing(14)
+        facts.setVerticalSpacing(8)
+        self._fact_values = {}
+        for row, (key, label, value) in enumerate(
+            (
+                ("status", "ORIN status", "AI local only - no provider configured"),
+                ("visible_data", "Provider-visible data", "none"),
+                ("execution", "Prompt / model / provider", "disabled and blocked"),
+                ("capability", "Capability packs", "Install and download intent blocked"),
+                ("lane", "Public / Developer / Owner", "Public local assist only; Developer and Owner lanes gated"),
+                ("status_boundary", "Status surface", "Display-only; controls live here"),
+            )
+        ):
+            label_widget = QLabel(label, self)
+            label_widget.setProperty("role", "factLabel")
+            value_widget = QLabel(value, self)
+            value_widget.setWordWrap(True)
+            value_widget.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            value_widget.setProperty("role", "factValue")
+            facts.addWidget(label_widget, row, 0)
+            facts.addWidget(value_widget, row, 1)
+            self._fact_values[key] = value_widget
+
+        self._result = QLabel("Local assist result: waiting for local action", self)
+        self._result.setWordWrap(True)
+        self._result.setProperty("role", "factValue")
+        self._result_detail = QLabel("No prompt, file, screen, memory, or telemetry is sent.", self)
+        self._result_detail.setWordWrap(True)
+        self._result_detail.setProperty("role", "warning")
+
+        actions = QHBoxLayout()
+        self._local_assist = QPushButton("Run Local Assist Check", self)
+        self._close = QPushButton("Close", self)
+        self._local_assist.clicked.connect(self.run_local_assist_check)
+        self._close.clicked.connect(self.close)
+        actions.addWidget(self._local_assist)
+        actions.addWidget(self._close)
+
+        root.addWidget(eyebrow)
+        root.addWidget(self._title)
+        root.addWidget(self._summary)
+        root.addLayout(facts)
+        root.addWidget(self._result)
+        root.addWidget(self._result_detail)
+        root.addLayout(actions)
+        self.setGeometry(self._initial_geometry())
+
+    def _initial_geometry(self) -> QRect:
+        available = self.screen_ref.availableGeometry()
+        width = 480
+        height = 500
+        return QRect(
+            available.x() + max(24, available.width() - width - 96),
+            available.y() + max(24, available.height() - height - 126),
+            width,
+            height,
+        )
+
+    def update_provider_state(self, payload: dict[str, object]) -> None:
+        self._provider_payload = dict(payload or {})
+        provider_execution = "disabled and blocked"
+        if (
+            self._provider_payload.get("providerExecutionGateState") != "provider-execution-disabled"
+            or self._provider_payload.get("modelExecutionGateState") != "model-execution-disabled"
+        ):
+            provider_execution = str(
+                self._provider_payload.get("providerExecutionGateLabel") or provider_execution
+            )
+
+        lane_boundary = (
+            f"{self._provider_payload.get('publicLaneBoundaryLabel') or 'Public local assist only'}; "
+            f"{self._provider_payload.get('developerLaneBoundaryLabel') or 'Developer lane gated'}; "
+            f"{self._provider_payload.get('ownerLaneBoundaryLabel') or 'Owner lane gated'}"
+        )
+        fact_text = {
+            "status": "AI local only - no provider configured",
+            "visible_data": str(self._provider_payload.get("providerVisibleData") or "none"),
+            "execution": provider_execution,
+            "capability": str(
+                self._provider_payload.get("installIntentLabel")
+                or "Install intent: blocked; downloads and install execution remain disabled"
+            ),
+            "lane": lane_boundary,
+            "status_boundary": "Display-only; controls live here",
+        }
+        for key, text in fact_text.items():
+            value_widget = self._fact_values.get(key)
+            if value_widget is not None:
+                value_widget.setText(text)
+        self._result.setText("Local assist result: waiting for local action")
+        self._result_detail.setText(
+            str(
+                self._provider_payload.get("providerVisibleDataDetail")
+                or "No prompt, file, screen, memory, or telemetry is sent."
+            )
+        )
+
+    def run_local_assist_check(self) -> None:
+        payload = self._provider_payload or {}
+        guard_closed = (
+            payload.get("sentToProvider") is False
+            and payload.get("canAcceptPrompts") is False
+            and payload.get("providerVisibleData") == "none"
+            and payload.get("promptSendPosture") == "prompt-send-disabled"
+            and payload.get("networkEgressState") == "network-egress-blocked"
+            and payload.get("memoryIndexingState") == "memory-indexing-disabled"
+        )
+        if guard_closed:
+            result = str(payload.get("localActionResultLabel") or "Local assist result: no provider configured")
+            detail = str(
+                payload.get("localActionResultDetail")
+                or "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none."
+            )
+            event = (
+                "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT"
+                "|provider_visible_data=none|sent_to_provider=false|can_accept_prompts=false"
+                "|network_egress=blocked|memory_indexing=disabled"
+            )
+        else:
+            result = "Local assist result: blocked"
+            detail = "Provider boundary mismatch; no local result was produced."
+            event = "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_BLOCKED|reason=boundary_mismatch"
+        self._result.setText(result)
+        self._result_detail.setText(detail)
+        if callable(self.event_logger):
+            self.event_logger(event)
+
+    def show_from_tray(self) -> None:
+        if not self.isVisible():
+            self.setGeometry(self._initial_geometry())
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+
 class DesktopRuntimeWindow(QWidget):
     core_visualization_ready = Signal()
     core_visualization_visible = Signal()
@@ -5921,6 +6139,7 @@ class DesktopRuntimeWindow(QWidget):
             surface_role=self.surface_role,
             durable_consent_store_dir=self._provider_durable_consent_store_dir,
         )
+        self._ai_control_center_dialog = None
         self._result_close_timer = QTimer(self)
         self._result_close_timer.setSingleShot(True)
         self._result_close_timer.timeout.connect(self._close_command_overlay_after_result)
@@ -16806,6 +17025,37 @@ class DesktopRuntimeWindow(QWidget):
             phase=self._command_model.phase,
         )
         QTimer.singleShot(0, self.handle_create_custom_task_requested)
+
+    def show_ai_control_center_from_tray(self, source: str = "tray"):
+        if self._is_shutting_down:
+            self._emit_runtime_signal(
+                "AI_CONTROL_CENTER_ABORTED",
+                source=source,
+                reason="shutdown",
+            )
+            return
+        if self._ai_control_center_dialog is None:
+            self._ai_control_center_dialog = AIControlCenterDialog(
+                self.screen_ref,
+                event_logger=self._log_event,
+            )
+        payload = self._ai_provider_state.as_renderer_payload()
+        self._ai_control_center_dialog.update_provider_state(payload)
+        self._ai_control_center_dialog.show_from_tray()
+        self._emit_runtime_signal(
+            "AI_CONTROL_CENTER_VISIBLE",
+            source=source,
+            owner="FAM-007",
+            route="fam007-ai-control-center",
+            carry_in="f3-ff01-narrow-doorway-only",
+            provider_visible_data=payload.get("providerVisibleData", "none"),
+            sent_to_provider=str(payload.get("sentToProvider", False)).lower(),
+            can_accept_prompts=str(payload.get("canAcceptPrompts", False)).lower(),
+            prompt_send=payload.get("promptSendPosture", "prompt-send-disabled"),
+            network_egress=payload.get("networkEgressState", "network-egress-blocked"),
+            memory_indexing=payload.get("memoryIndexingState", "memory-indexing-disabled"),
+            packaging_execution="blocked",
+        )
 
     def reload_command_action_catalog(self, source_path=None):
         resolved_source_path = self._saved_action_source_path if source_path is None else source_path
