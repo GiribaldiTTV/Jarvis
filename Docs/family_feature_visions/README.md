@@ -47,6 +47,8 @@ The file title and `Feature Category:` must name a durable product feature categ
 
 `Family Feature Vision`, `Feature Category`, and `Family Feature Vision Element` are the binding source-truth terms. `Sub-feature` may be used only as USER-friendly explanatory language for a durable feature category or element inside one FAM; it is not a separate canonical hierarchy, backlog identity, branch route, or worktree lane.
 
+`Feature Category Vision` is allowed as a USER-facing alias for `Family Feature Vision` when readability helps review. It is not a rename migration, not a new file class, and not a replacement for the canonical `Family Feature Vision` / `FFV` term, compact ID pattern, validators, or owner paths.
+
 `Docs/family_feature_visions/index.md` is a compact registry. It may name FFV IDs, parent FAMs, feature-category titles, file paths, registry dispositions, and compact notes. It must not carry branch gate state, selected-next state, active dependency queues, branch lifecycle status, PR state, release-window state, or worktree assignment.
 
 ## Deferred Feature Carryforward
@@ -78,6 +80,12 @@ The originating FAM may record the dependency and may implement bounded work ins
 Affected FAMs consume the record through their own Branch Readiness path. When an affected FAM reaches BR1 or BR2 and the dependency applies to the selected feature category, the branch packet must either include the applicable dependency as a priority carry-in inside the coherent FFV package, future-gate it with reason, or route it to a USER decision when the dependency is too large or independent for the selected branch.
 
 If the affected FAM has no matching Family Feature Vision yet, the dependency remains recorded at the Family Vision or originating FFV layer until the affected FAM admits the relevant FFV. The originating FAM must not create the affected FAM's FFV unless USER explicitly approves that content-file creation through the affected FAM or Governance source-truth carrier.
+
+## UI Carrydown
+
+When a Family Feature Vision contains user-visible UI, controls, windows, cards, HUDs, overlays, setup flows, status indicators, folder pickers, or evidence surfaces, it must reference the project-wide Project UI Vision in `Docs/nexus_vision.md`, the owning Family Vision's UI specialization, and FAM-002 presentation standards when the surface needs shared Desktop Interface guidance.
+
+The consuming FAM still owns the feature behavior and feature-specific UI implementation; FAM-002 supplies reusable presentation law. The FFV should name the feature-specific control grammar, visual inheritance, allowed exceptions, USER-facing proof surfaces, and photo/video or manual-validation expectations without copying broad UI principles into a second owner.
 
 ## Active-State Boundary
 

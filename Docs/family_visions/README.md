@@ -32,6 +32,8 @@ Family Vision records consume `Docs/nexus_vision.md` first. They specialize the 
 
 Family-level UI specialization should name the FAM-specific visual system, interaction model, proof expectations, and safety/recovery posture that branches in that family must inherit. It should not duplicate branch-local layouts, per-seam checklists, current validation status, or temporary USER review packet text.
 
+FAM-002 is the shared Desktop Interface presentation authority. Other FAMs normally consume FAM-002 presentation standards while retaining ownership of their own feature behavior, feature-specific UI implementation, and proof path. A dedicated FAM-002 branch is the exception path and requires USER admission of a concrete Desktop Interface feature category that no consuming FAM owns.
+
 Family Feature Vision records consume both the Project Vision and the owning Family Vision. They specialize only the durable feature-category layer: feature purpose, surfaces, experience flow, included capabilities, non-goals, durable elements, deferred carryforward, design options, and proof expectations. They should reference the higher-level UI and proof rules, then add the feature-specific details needed for BP1, BP2, BP3, Workstream, Hardening, and Live Validation.
 
 If Family Feature Vision planning discovers new durable UI rules, feature ideas, deferred items, dependency triggers, or proof expectations, the owning pass must fold those facts into the correct durable vision owner or record a durable deferred disposition before BP1 proceeds. Do not leave them only in chat, helper output, a USER packet, active external branch planning, or a branch-local digest.
@@ -41,6 +43,8 @@ If Family Feature Vision planning discovers new durable UI rules, feature ideas,
 `Family Feature Vision` is the approved name for the durable middle vision layer between `Family Vision` and the active `Branch Vision Contract Snapshot`.
 
 Do not use `Sub-Family Vision` as current terminology. That wording risks creating hierarchy drift under `FAM` identity and could make detailed feature categories look like new backlog families.
+
+`Feature Category Vision` is a USER-facing alias for `Family Feature Vision` only. It may improve review readability, but it does not rename the source-truth layer, create another hierarchy, or change the canonical FFV file/ID rules.
 
 Family Feature Vision records are recommended under:
 
@@ -94,7 +98,7 @@ Family Feature Vision owns durable feature-category direction inside exactly one
 
 Runtime observability carrydown: when a Family Feature Vision contains runtime, desktop, user-facing, file/folder, launcher, bridge, Dev Toolkit, recording, or validation-critical behavior, it must reference the project-wide Runtime Observability and USER Proof direction in `Docs/nexus_vision.md` and specialize only what is feature-specific. It should name expected exact-launcher proof, photo/video proof, manual USER validation needs, user-visible storage/folder boundaries, troubleshooting-mode relevance, and proof expectations without becoming an active Live Validation evidence ledger.
 
-UI carrydown: when a Family Feature Vision contains user-visible UI, controls, windows, cards, HUDs, overlays, setup flows, status indicators, folder pickers, or evidence surfaces, it must reference the project-wide Project UI Vision in `Docs/nexus_vision.md` and the owning Family Vision's UI specialization. The FFV should then name the feature-specific control grammar, visual inheritance, allowed exceptions, USER-facing proof surfaces, and photo/video or manual-validation expectations without copying broad UI principles into a second owner.
+UI carrydown: when a Family Feature Vision contains user-visible UI, controls, windows, cards, HUDs, overlays, setup flows, status indicators, folder pickers, or evidence surfaces, it must reference the project-wide Project UI Vision in `Docs/nexus_vision.md`, the owning Family Vision's UI specialization, and FAM-002 presentation standards when the surface needs shared Desktop Interface guidance. The consuming FAM still owns the feature behavior and feature-specific UI implementation; FAM-002 supplies reusable presentation law. The FFV should then name the feature-specific control grammar, visual inheritance, allowed exceptions, USER-facing proof surfaces, and photo/video or manual-validation expectations without copying broad UI principles into a second owner.
 
 Family Feature Vision must not own:
 

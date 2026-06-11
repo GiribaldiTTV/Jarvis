@@ -4,6 +4,8 @@
 
 This family vision records durable product direction for the Nexus desktop shell, visual language, operator UI, settings presentation, user-facing desktop interaction surfaces, and coherent UI/UX implementation packages.
 
+FAM-002 is the shared Desktop Interface / UI presentation authority for Nexus. It is normally consumed by other FAM branches when those branches implement their own user-facing surfaces, rather than opened as a standalone worktree by default.
+
 ## Vision Summary
 
 The Desktop Interface should feel intentional, native to Nexus, and visually coherent across windows, cards, controls, settings, and proof surfaces. It should not collapse into generic utility UI or proof-heavy engineering panels.
@@ -16,10 +18,21 @@ The Desktop Interface should feel intentional, native to Nexus, and visually coh
 - Keep dev/proof scaffolding out of production UI unless explicitly admitted.
 - Resident status panels, tray-opened panels, Global Settings, AI Status / Command Center, and quick-access configuration surfaces should follow the Nexus visual hierarchy instead of becoming generic utility popups.
 - Tray-accessible surfaces should keep the tray as a doorway: compact entry in the tray, full explanation and configuration in polished Nexus windows.
+- Consuming FAM branches inherit FAM-002 presentation standards when their accepted Family Vision, FFV, branch plan, and proof path require UI work for their own feature behavior.
+- FAM-003 owns resident tray doorway behavior while consuming FAM-002 presentation standards; FAM-006 owns Recording Studio / Log Viewer behavior and related UI; FAM-007 owns AI Status / Command Center behavior and related UI; FAM-008 owns installer, setup, shortcut, update, patch/restart, and tray-visibility education behavior and related UI.
+
+## Consumption Model
+
+- Default Rule: FAM-002 is consumed-by-default by feature-owning FAM branches.
+- Consuming-FAM Implementation Rule: a consuming FAM may implement FAM-002-aligned UI when the UI is necessary to complete that FAM's accepted feature behavior, Family Feature Vision, branch plan, and validation proof.
+- Branch Exception Rule: a dedicated FAM-002 branch or worktree is allowed only when USER admits a concrete Desktop Interface feature category that no consuming FAM owns.
+- Ownership Split: FAM-002 supplies presentation law; the consuming FAM owns the feature behavior, feature-specific UI implementation, runtime proof, and fold-down receipt.
+- Non-Capture Rule: consuming FAMs must not use FAM-002 as a reason to redesign unrelated app-wide UI, absorb another FAM's feature behavior, or bypass cross-FAM dependency classification.
 
 ## Implementation Boundaries
 
 - This vision does not admit a UI overhaul by itself.
+- This vision does not create a default FAM-002 worktree, selected-next branch, or generic UI-polish carrier.
 - This vision does not admit tray implementation, shortcut mutation, installer behavior, AI Command Center implementation, or privacy-state runtime behavior by itself.
 - Active Desktop Interface branches must carry accepted Branch Vision Snapshot, UFD disposition, and proof expectations before Workstream implementation.
 - Durable implementation history belongs in the relevant workstream or structured branch receipt.
