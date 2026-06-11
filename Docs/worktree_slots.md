@@ -22,6 +22,7 @@ This file owns:
 - USER decision pointer field
 - worktree ownership/collision-prevention requirements
 - off-worktree routing and new-worktree decision gates
+- durable Codex App thread/worktree guard policy for slot-bound mutation boundaries
 
 This file does not own:
 
@@ -36,6 +37,7 @@ This file does not own:
 - latest tag
 - GitHub issue state
 - phase status that is owned by a branch authority record
+- installed Codex hook configuration, per-thread lock files, waiver files, or hook audit logs
 
 Those facts are derived live truth and must come from Git, GitHub, or approved helpers.
 
@@ -158,6 +160,14 @@ An assigned slot has exactly one active Codex thread owner for mutation. A secon
 Same-worktree or same-branch concurrent mutation blocks on `Parallel Worktree Coordination Missing`. Dirty worktree collision recovery is freeze-first: inventory dirty files, identify the owning thread per file, preserve or discard only with USER approval, then resume with one active owner and a validated worktree ownership ledger.
 
 Off-worktree or out-of-scope work blocks on `Governance Routing Barrier`. The assigned thread reports the requested work, expected/actual worktree and branch, dirty-file risk, known owner if any, and recommendation to the standing Governance lane. Governance decides whether the current owner continues, an existing slot owner handles it, a new worktree/thread is needed, or a USER waiver is required. New worktree/thread creation and reassignment remain USER-gated by `New Worktree Decision Gate`.
+
+## Codex App Thread Guard Boundary
+
+Slot assignment may be enforced by a USER-local Codex App hook, but the slot registry remains durable policy only. The lock key is the assigned Git root/worktree, not the current branch name. Branch switching or branch creation inside the assigned worktree may be legal when source truth and USER approval allow it; the hook policy must not freeze a valid thread to one branch by itself.
+
+A thread assigned to one slot may inspect sibling worktrees read-only for audit, overlap, rebaseline, or routing analysis. It must not mutate a sibling slot, neutral main, parked fallback, or external operational state by editing files, staging, committing, pushing, merging, rebasing, cleaning, resetting, branch-switching, generating USER packets, writing external records, or running write-capable helpers unless USER grants a bounded `Worktree Escape User Waiver`.
+
+Installed hook state is external/user-local operational state, not repo source truth. Expected local examples include `C:\Users\anden\.codex\hooks.json`, `C:\Users\anden\.codex\hooks\nexus_thread_worktree_guard.ps1`, `C:\Users\anden\.codex\nexus-thread-locks\*.json`, `C:\Users\anden\.codex\nexus-thread-locks\waivers\*.json`, and `C:\Users\anden\.codex\nexus-thread-locks\audit.log`. Repo docs may own the behavior contract and a future USER-approved reference template path only; they must not track live thread locks, current hook installation state, active waivers, or audit-log rows.
 
 ## Shared Surface Overlap And Worktree Mutation Boundary
 
