@@ -178,7 +178,7 @@ Record State: Registry-only
 Registry Class: Feature Family
 Family Anchor: Self
 Priority: High
-Family Scope: Startup, boot, desktop entrypoint, single-instance ownership, launch handoff, relaunch semantics, lifecycle transition proof, and boot-to-runtime trust boundaries.
+Family Scope: Startup, boot, desktop entrypoint, single-instance ownership, launch handoff, relaunch semantics, lifecycle transition proof, boot-to-runtime trust boundaries, fatal launcher/runtime diagnostics, and recovery surfaces.
 Package Summary: `PKG-001` released baseline / open.
 Package Admission State: Historical baseline / no active package admission
 Admitted Slice Count: 0
@@ -187,6 +187,7 @@ Single-Slice Package User Approval: Not required - no active single-slice packag
 Canonical Detail Owner: `Docs/workstreams/FB-042_desktop_startup_runtime_family_dossier.md`
 Family Vision Owner: `Docs/family_visions/FAM-001_boot_interface.md`
 Historical Trace Coverage: `FB-042`, `FB-043`, `FB-044`, `FB-045`, `FB-046`, `FB-047`, `FB-048`, `FB-049`, PR #86-#107.
+Diagnostics/Recovery Carrydown: FAM-001 owns fatal launcher/runtime diagnostics and future recovery-surface vision. FB-034 remains released historical evidence for one bounded recoverable `launch_failed` class only; broad diagnostics or recovery UI must route through FAM-001 Branch Readiness / FFV planning rather than reviving legacy FB identity.
 
 ### [ID: FAM-002] Desktop Interface
 

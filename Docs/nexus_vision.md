@@ -67,6 +67,8 @@ That path is foundation work.
 It stabilizes startup, recovery, diagnostics, and lifecycle behavior.
 It is not yet the final boot-first product experience.
 
+FAM-001 owns fatal launcher/runtime diagnostics and recovery surfaces for the current product. Feature-owning FAMs may expose their own degraded, blocked, unavailable, or recoverable states, but they consume the FAM-001 failure/recovery boundary when launcher/runtime recovery, crash diagnostics, support-bundle preparation, manual issue reporting, retry/close/repair choices, startup abort, or recovery exhaustion is involved. The released FB-034 recoverable `launch_failed` path is historical evidence for one bounded non-crashing incident class, not a live backlog owner for new diagnostics scope.
+
 ## Experience Intent
 
 The experience should trend toward:
@@ -129,6 +131,7 @@ Durable product direction:
 - elevated diagnostic logging, Dev Toolkit inspection, provider-visible data, support bundles, or exported evidence must not be enabled silently
 - product UI should present client-like product folders and labels; it should not expose worktree, branch, FAM, developer, owner-only, or internal implementation paths unless a source-truth owner explicitly admits that product-facing concept
 - developer/proof/evidence paths may use worktree, branch, FAM, or validation-lane labels only when they are clearly developer or validation evidence, not product UI
+- branches that create runtime/user-facing behavior must classify fatal, recoverable, degraded, blocked, disabled/deferred, and unavailable-prerequisite behavior through the Runtime Failure / Recovery Carrydown Gate in `Docs/phase_governance.md` before treating the feature as closeout-ready
 
 Formal user-facing proof has a stricter bar than internal diagnosis:
 
