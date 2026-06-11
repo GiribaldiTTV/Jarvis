@@ -9213,6 +9213,19 @@ def validate() -> list[str]:
             "FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only.",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)
+        normalized_markup = markup.replace("\r\n", "\n")
+        _require(
+            (
+                'id="ai-provider-tray-local-assist-action"\n'
+                '        class="ai-provider-tray-window__assist"\n'
+                '        type="button"\n'
+                "        disabled\n"
+                '        aria-disabled="true"'
+            )
+            in normalized_markup,
+            f"{label} hidden core-layer local assist doorway must be statically disabled",
+            failures,
+        )
         for forbidden in (
             'data-local-action-clickable="true"',
             'aria-label="Open AI usage and settings"',
@@ -9311,8 +9324,8 @@ def validate() -> list[str]:
         '.ai-provider-status[hidden]',
         '.ai-provider-status[data-display-visibility="suppressed-by-default"]',
         "display: none !important",
-        "pointer-events: auto",
-        "cursor: pointer",
+        "pointer-events: none",
+        "cursor: default",
         'data-availability="ready"',
         "overflow-wrap: anywhere",
     ):

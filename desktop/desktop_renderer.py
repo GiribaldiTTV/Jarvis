@@ -5888,7 +5888,7 @@ class AIControlCenterDialog(QDialog):
                 color: #72e6ba;
                 font-size: 10px;
                 font-weight: 700;
-                letter-spacing: 1px;
+                letter-spacing: 0;
                 text-transform: uppercase;
             }
             QLabel[role="title"] {

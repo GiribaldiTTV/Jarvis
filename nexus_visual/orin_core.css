@@ -504,10 +504,10 @@ body {
   background: rgba(4, 15, 16, 0.76);
   color: rgba(236, 255, 247, 0.96);
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.34);
-  cursor: pointer;
+  cursor: default;
   font: inherit;
   text-align: left;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .ai-provider-tray[hidden] {
