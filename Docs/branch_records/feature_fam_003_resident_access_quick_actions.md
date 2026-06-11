@@ -56,7 +56,7 @@ Sibling Worktree Candidate Exclusion: `FAM-006, FAM-007, FAM-008, Governance, ne
 
 Selected Implementation Route: `FAM-003 Resident Access And Quick Actions`
 Implementation Route Class: `FAM-003 user-facing desktop interaction doorway and menu contract`
-Carrier Purpose: `Prepare a coherent future planning lane for the primary Nexus resident doorway, compact status/tooltip, small menu, immutable core entries, configurable quick-access slots, cross-family launch routing contract, and honest Windows tray visibility limitation wording/proof.`
+Carrier Purpose: `Prepare a coherent future planning lane for the primary Nexus resident doorway, compact status/tooltip, small menu, immutable core entries, configurable quick-access slots, minimal Global Settings foundation/window for Resident Access / Quick Access configuration, cross-family launch routing contract, and honest Windows tray visibility limitation wording/proof.`
 Route Selection Basis: `The USER approved creating the FAM-003 branch/worktree from current origin/main and source truth already contains the USER-approved F3-FF01 family feature vision for Nexus Resident Access And Quick Actions.`
 Branch Planning Route Receipt: `Future movement must pass BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, and separate runtime implementation approval before source implementation.`
 
@@ -100,3 +100,13 @@ Sibling Preservation Receipt: `FAM-006 and FAM-007 remained separate active sibl
 
 Review Boundary Receipt: `The exact BP1 approval text and next-gate digest live in external operational state and the Codex setup packet, not in this durable repo receipt.`
 PR Fold-Down Packet: `Pending future PR Readiness if this branch later receives implementation approval and reaches PR review.`
+
+## BR1/BR2 Global Settings Scope Correction Receipt
+
+Correction Status: `Durable pointer only - active details remain in external operational state`
+Correction Scope: `F3-FF01 and FAM-003 source truth now admit a minimal Global Settings foundation/window only where it enables Resident Access / Quick Access configuration for this branch.`
+First Owned Settings Section: `Resident Access / Quick Access`
+Out-Of-Scope Settings Work: `Full app-wide Global Settings implementation, other-FAM settings internals, AI/provider/runtime/cache/memory settings, FAM-006 HUD/recording/log settings internals, FAM-008 installer/startup/shortcut/update/packaging settings behavior, and any sibling worktree mutation remain outside this durable branch receipt unless later USER approval and source truth admit them.`
+Branch Carrier Decision: `Keep feature/fam-003-resident-access-quick-actions as the legal FAM-003 carrier; do not retarget, rename, split, create a separate Global Settings branch, or create a separate tray/AI branch from this receipt.`
+Traceability Owner: `C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions\branch_plan.md`
+USER Review Aid: `C:\Nexus USER\FAM-003\Review Aids\GLOBAL_SETTINGS_SCOPE_CORRECTION_DIGEST.md`
