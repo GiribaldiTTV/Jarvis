@@ -20,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 
-RECORDING_OUTPUT_CONTRACT_VERSION = 4
+RECORDING_OUTPUT_CONTRACT_VERSION = 5
 RECORDING_OUTPUT_CONTRACT_ID = "slc-054-active-overlay-recording-output-contract"
 RECORDING_OUTPUT_FORMAT = "ndai-native-recording-log"
 RECORDING_OUTPUT_EXTENSION = ".ndailog"
@@ -29,7 +29,6 @@ RECORDING_EXPORT_ENV = "NEXUS_MONITORING_HUD_RECORDING_EXPORT_DIR"
 RECORDING_VALIDATION_EXPORT_ENV = "NEXUS_MONITORING_HUD_RECORDING_VALIDATION_EXPORT_DIR"
 RECORDING_OUTPUT_DIR_NAME = "Recordings"
 RECORDING_EXPORT_DIR_NAME = "Exported Logs"
-RECORDING_OUTPUT_SURFACE_DIR_NAME = "Monitoring HUD"
 RECORDING_OUTPUT_INTERNAL_PATH_TERMS = (
     "fam-006",
     "fam006",
@@ -69,8 +68,8 @@ def recording_output_dir() -> Path:
         return Path(override)
     local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
     if local_app_data:
-        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME / RECORDING_OUTPUT_SURFACE_DIR_NAME
-    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME / RECORDING_OUTPUT_SURFACE_DIR_NAME
+        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME
+    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_OUTPUT_DIR_NAME
 
 
 def recording_export_dir() -> Path:
@@ -79,8 +78,8 @@ def recording_export_dir() -> Path:
         return Path(override)
     local_app_data = os.environ.get("LOCALAPPDATA", "").strip()
     if local_app_data:
-        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME / RECORDING_OUTPUT_SURFACE_DIR_NAME
-    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME / RECORDING_OUTPUT_SURFACE_DIR_NAME
+        return Path(local_app_data) / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME
+    return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / RECORDING_EXPORT_DIR_NAME
 
 
 def _path_has_internal_user_visible_segment(path_value: str | Path) -> bool:
@@ -109,8 +108,10 @@ def recording_output_contract() -> dict[str, Any]:
         "outputRoot": str(recording_output_dir()),
         "exportRootOwner": "user-requested-export-folder",
         "exportRoot": str(recording_export_dir()),
-        "userVisibleStorageModel": "product-surface-folder-not-worktree-label",
-        "surfaceFolderName": RECORDING_OUTPUT_SURFACE_DIR_NAME,
+        "userVisibleStorageModel": "flat-user-recording-and-export-roots",
+        "nativeRootFolderName": RECORDING_OUTPUT_DIR_NAME,
+        "exportRootFolderName": RECORDING_EXPORT_DIR_NAME,
+        "surfaceChildFolderState": "not-used",
         "internalPathLeakageAbsent": not (
             _path_has_internal_user_visible_segment(recording_output_dir())
             or _path_has_internal_user_visible_segment(recording_export_dir())
@@ -473,7 +474,12 @@ def validate_recording_output_contract() -> dict[str, Any]:
             and alpha_write.get("rowMonitorIds") == ["cpu"]
             and beta_write.get("rowMonitorIds") == ["gpu"]
         ),
-        "userVisibleStorageModel": contract["userVisibleStorageModel"] == "product-surface-folder-not-worktree-label",
+        "userVisibleStorageModel": contract["userVisibleStorageModel"] == "flat-user-recording-and-export-roots",
+        "nativeRootFolderExact": Path(contract["outputRoot"]).name == RECORDING_OUTPUT_DIR_NAME,
+        "exportRootFolderExact": Path(contract["exportRoot"]).name == RECORDING_EXPORT_DIR_NAME,
+        "surfaceChildFolderAbsent": contract["surfaceChildFolderState"] == "not-used"
+        and "Monitoring HUD" not in str(contract["outputRoot"])
+        and "Monitoring HUD" not in str(contract["exportRoot"]),
         "internalPathLeakageAbsent": contract["internalPathLeakageAbsent"] is True,
         "manualValidationExportPassed": bool(write_result.get("validationExportReadbackPassed")),
         "manualValidationExportInRepoStyleArtifactRoot": "manual_validation_exports" in str(write_result.get("validationExportDir") or ""),
@@ -499,6 +505,9 @@ def validate_recording_output_contract() -> dict[str, Any]:
             "profileLogConsistencyPassed",
             "twoProfileLogConsistencyPassed",
             "userVisibleStorageModel",
+            "nativeRootFolderExact",
+            "exportRootFolderExact",
+            "surfaceChildFolderAbsent",
             "internalPathLeakageAbsent",
             "manualValidationExportPassed",
             "manualValidationExportInRepoStyleArtifactRoot",

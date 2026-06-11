@@ -199,6 +199,9 @@ Native NDAI log:
 - read by NDAI for future in-app viewing and validation
 - not designed as the default third-party-readable file
 - should preserve local file hygiene and privacy-safe boundaries
+- current default root is the flat product folder `Recordings`; feature-named
+  child folders such as `Monitoring HUD` must not be introduced unless a later
+  USER-accepted export/storage design admits that taxonomy
 
 Exported log:
 
@@ -207,6 +210,9 @@ Exported log:
 - should be validated in a user-forward way so the exported file is easy to
   inspect in the target class of software
 - belongs in an exported-log folder, separate from native NDAI log storage
+- current default root is the flat product folder `Exported Logs`; feature-named
+  child folders must not replace the exact exported-log root without later
+  USER-approved storage planning
 
 Manual validation exports may exist as test artifacts under governed validation
 roots, but they must not become normal product flow.

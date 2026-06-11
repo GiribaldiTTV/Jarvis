@@ -742,8 +742,10 @@ function monitoringHudRequestRecordingControlWindow() {
   monitoringHudNormalizeOverlayProfileState(monitoringHudControlState);
   const target = monitoringHudControlState.activeOverlayRecordingTarget
     || monitoringHudBuildActiveOverlayRecordingTargetSnapshot(monitoringHudControlState);
+  const sequence = Number(monitoringHudControlState.recordingControlWindowRequestSequence || 0) + 1;
+  monitoringHudControlState.recordingControlWindowRequestSequence = sequence;
   monitoringHudControlState.recordingControlWindowRequested = true;
-  monitoringHudControlState.recordingControlWindowRequestId = Date.now();
+  monitoringHudControlState.recordingControlWindowRequestId = sequence;
   monitoringHudControlState.recordingControlWindowContract = "recording-studio-focused-control-status";
   monitoringHudControlState.recordingControlWindowState = "native-window-requested";
   monitoringHudControlState.recordingControlWindowTargetSummary = monitoringHudBuildRecordingStudioTargetSummary(

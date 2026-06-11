@@ -239,7 +239,7 @@ def validate() -> list[str]:
         "Codex-owned photo review notes",
         "must not create, add, or depend on a new user-visible runtime control surface",
         "Activation-path proof is non-transferable",
-        "Visible desktop coordinate fallback",
+        "Visible desktop coordinate control",
         "Manual Validation Request Digest",
     ):
         _require_contains(phase_governance, needle, "interface release boundary governance", failures)
@@ -252,7 +252,7 @@ def validate() -> list[str]:
         "future Overlay/display proof only when that interface is re-admitted",
         "Validation-Only Runtime Control Surface",
         "Activation-Path Proof Non-Transferable",
-        "Visible Desktop Coordinate Fallback",
+        "Visible Desktop Coordinate Control",
         "Manual Validation Request Digest",
     ):
         _require_contains(helper_registry, needle, "monitoring HUD helper registry", failures)
@@ -313,9 +313,12 @@ def validate() -> list[str]:
         "Proof is only proof when",
         "cannot be proven in a photo or video must be elevated to the USER",
         "exact USER Desktop shortcut path",
-        "Computer Use is available",
-        "required primary Live Validation proof method",
-        "Computer Use primary, bounded visible coordinate fallback second",
+        "visible user-level desktop control",
+        "governed human-client helper",
+        "old-style real-cursor movement",
+        "Computer Use is optional supporting tooling only",
+        "optional Computer Use only when target-safe and stable",
+        "Visible Desktop Coordinate Control",
         "visible mouse movement, left-click, right-click, double-click, and keyboard input",
         "must not use desktop-wide `MinimizeAll`",
         "deterministic visible-target acquisition loop",
@@ -1538,9 +1541,11 @@ def validate() -> list[str]:
         "rowProfileIds",
         "rowMonitorIds",
         "targetMonitorIds",
-        "RECORDING_OUTPUT_SURFACE_DIR_NAME",
-        "Monitoring HUD",
-        "product-surface-folder-not-worktree-label",
+        "flat-user-recording-and-export-roots",
+        "nativeRootFolderName",
+        "exportRootFolderName",
+        "surfaceChildFolderState",
+        "surfaceChildFolderAbsent",
         "internalPathLeakageAbsent",
     ):
         _require_contains(
@@ -1553,6 +1558,11 @@ def validate() -> list[str]:
     _require(
         'RECORDING_OUTPUT_FAMILY_DIR_NAME = "FAM-006"' not in output_contract,
         "FAM-006 returned-UTS product repair must not expose the FAM label as the default user-visible log folder",
+        failures,
+    )
+    _require(
+        'RECORDING_OUTPUT_SURFACE_DIR_NAME = "Monitoring HUD"' not in output_contract,
+        "FAM-006 recording output must not create a Monitoring HUD child folder under Recordings or Exported Logs",
         failures,
     )
 
@@ -1575,7 +1585,7 @@ def validate() -> list[str]:
         '"visualSystemInheritance": "dashboard-hub-card-sampled"',
         '"visualAdjudicationState": "source-truth-mapped"',
         '"genericShellRejected": True',
-        '"userVisibleStorageModel": "product-surface-folder-not-worktree-label"',
+        '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',
         '"internalPathLeakageAbsent": internal_path_leakage_absent',
         "Native NDAI logs",
     ):

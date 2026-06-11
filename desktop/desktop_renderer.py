@@ -6148,7 +6148,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "exportLogRoot": export_root,
             "nativeLogRootPublicLabel": "Native NDAI logs",
             "exportLogRootPublicLabel": "Exported logs",
-            "userVisibleStorageModel": "product-surface-folder-not-worktree-label",
+            "userVisibleStorageModel": "flat-user-recording-and-export-roots",
             "internalPathLeakageAbsent": internal_path_leakage_absent,
             "visualSystemInheritance": "dashboard-hub-card-sampled",
             "visualSampledElements": "hud-overlay-monitor-groups-data-sources-readiness",
@@ -6516,6 +6516,25 @@ class DesktopRuntimeWindow(QWidget):
                 if (recentReliable) {{
                     alreadyHandled = true;
                     skippedRecentReliable = true;
+                    const nativeRequestMissing = Boolean(
+                        (control === "open-recording-studio"
+                            && !(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested))
+                        || (control === "open-log-viewer-studio"
+                            && !(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested))
+                    );
+                    if (nativeRequestMissing) {{
+                        alreadyHandled = false;
+                        skippedRecentReliable = false;
+                    }}
+                    if (nativeRequestMissing && control === "open-recording-studio") {{
+                        if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
+                            activated = monitoringHudRequestRecordingControlWindow() !== false;
+                        }}
+                    }} else if (nativeRequestMissing && control === "open-log-viewer-studio") {{
+                        if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
+                            activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+                        }}
+                    }}
                 }} else if (control === "open-recording-studio") {{
                     if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                         activated = monitoringHudRequestRecordingControlWindow() !== false;
@@ -6633,6 +6652,25 @@ class DesktopRuntimeWindow(QWidget):
             if (recentReliable) {{
                 skippedRecentReliable = true;
                 alreadyHandled = true;
+                const nativeRequestMissing = Boolean(
+                    (control === "open-recording-studio"
+                        && !(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested))
+                    || (control === "open-log-viewer-studio"
+                        && !(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested))
+                );
+                if (nativeRequestMissing) {{
+                    skippedRecentReliable = false;
+                    alreadyHandled = false;
+                }}
+                if (nativeRequestMissing && control === "open-recording-studio") {{
+                    if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
+                        activated = monitoringHudRequestRecordingControlWindow() !== false;
+                    }}
+                }} else if (nativeRequestMissing && control === "open-log-viewer-studio") {{
+                    if (typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
+                        activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+                    }}
+                }}
             }} else if (control === "open-recording-studio") {{
                 if (typeof monitoringHudRequestRecordingControlWindow === "function") {{
                     activated = monitoringHudRequestRecordingControlWindow() !== false;
@@ -11561,7 +11599,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("visualAdjudicationState") == "source-truth-mapped"
                 and proof.get("genericShellRejected") is True
                 and proof.get("internalPathLeakageAbsent") is True
-                and proof.get("userVisibleStorageModel") == "product-surface-folder-not-worktree-label"
+                and proof.get("userVisibleStorageModel") == "flat-user-recording-and-export-roots"
                 and proof.get("previousLogSelectionState") == "future-gated"
                 and proof.get("exportCustomizationState") == "future-gated"
                 and proof.get("nativeLogLoaderState") == "future-gated"
