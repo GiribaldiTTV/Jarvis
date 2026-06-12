@@ -1489,6 +1489,9 @@ def validate() -> list[str]:
         "02_recording_studio_native_window_ready_state",
         "02_log_viewer_studio_native_window_shell_state",
         "02_recording_card_log_viewer_studio_opened_state",
+        "pathRowsContained",
+        "contained-middle-elided-readable",
+        "middle-elided-contained",
     ):
         _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
 
@@ -1529,6 +1532,8 @@ def validate() -> list[str]:
         "recording_studio_visible_button_opens_native_window",
         "log_viewer_studio_visible_button_opens_native_window",
         "Live Validation LV1 UTS export blocked: required visible desktop shortcut / human-client proof is missing or failed",
+        "Vision-To-Proof Matrix For This Handoff",
+        "Log Viewer Studio native/export path rows must be readable and contained",
     ):
         _require_contains(
             live_validation,

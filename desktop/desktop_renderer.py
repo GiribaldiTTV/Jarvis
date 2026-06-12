@@ -5821,7 +5821,14 @@ def _monitoring_hud_studio_badge(text: str, parent: QWidget) -> QLabel:
     return badge
 
 
-def _monitoring_hud_studio_row(label: str, value_widget: QLabel, parent: QWidget) -> QFrame:
+def _monitoring_hud_studio_row(
+    label: str,
+    value_widget: QLabel,
+    parent: QWidget,
+    *,
+    value_word_wrap: bool = True,
+    value_role: str = "sectionValue",
+) -> QFrame:
     row = QFrame(parent)
     row.setProperty("role", "studioRow")
     layout = QGridLayout(row)
@@ -5830,13 +5837,31 @@ def _monitoring_hud_studio_row(label: str, value_widget: QLabel, parent: QWidget
     layout.setVerticalSpacing(2)
     label_widget = QLabel(label, row)
     label_widget.setProperty("role", "sectionLabel")
-    value_widget.setProperty("role", "sectionValue")
-    value_widget.setWordWrap(True)
+    value_widget.setProperty("role", value_role)
+    value_widget.setWordWrap(value_word_wrap)
+    if not value_word_wrap:
+        value_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
     layout.addWidget(label_widget, 0, 0)
     layout.addWidget(value_widget, 0, 1)
     layout.setColumnStretch(0, 0)
     layout.setColumnStretch(1, 1)
     return row
+
+
+def _monitoring_hud_compact_path_label_text(full_path: str, label: QLabel) -> str:
+    path_text = os.path.normpath(str(full_path or "").strip())
+    if not path_text:
+        return "Unavailable"
+    available_width = max(190, label.width() or 240)
+    return label.fontMetrics().elidedText(path_text, Qt.ElideMiddle, available_width)
+
+
+def _monitoring_hud_set_contained_path_label(label: QLabel, full_path: str) -> str:
+    display_text = _monitoring_hud_compact_path_label_text(full_path, label)
+    label.setText(display_text)
+    label.setToolTip(os.path.normpath(str(full_path or "").strip()))
+    label.setProperty("pathDisplayMode", "middle-elided-contained")
+    return display_text
 
 
 def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
@@ -5903,6 +5928,11 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
         QLabel[role="sectionValue"] {{
             color: #a9f7db;
             font-size: 11px;
+            font-weight: 700;
+        }}
+        QLabel[role="pathValue"] {{
+            color: #a9f7db;
+            font-size: 10px;
             font-weight: 700;
         }}
         QLabel[role="warning"] {{
@@ -6235,6 +6265,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self._geometry_persistence_key = "log_viewer_studio"
         self._geometry_persistence_ready = False
         self._geometry_restored_from_saved = False
+        self._native_full_path = str(recording_output_dir())
+        self._export_full_path = str(recording_export_dir())
         self._drag_surface = None
         self._drag_active = False
         self._drag_start_global = QPoint()
@@ -6246,8 +6278,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self.setWindowTitle("Nexus Log Viewer Studio")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(420, 260)
-        self.resize(500, 320)
+        self.setMinimumSize(520, 280)
+        self.resize(560, 330)
         self.setStyleSheet(_monitoring_hud_studio_stylesheet("monitoringHudLogViewerStudioWindow"))
         root = QVBoxLayout(self)
         root.setContentsMargins(14, 14, 14, 14)
@@ -6276,10 +6308,27 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         folder_layout = QVBoxLayout(folder_panel)
         folder_layout.setContentsMargins(8, 8, 8, 8)
         folder_layout.setSpacing(6)
-        self._native = QLabel(str(recording_output_dir()), folder_panel)
-        self._export = QLabel(str(recording_export_dir()), folder_panel)
-        folder_layout.addWidget(_monitoring_hud_studio_row("Native NDAI Logs", self._native, folder_panel))
-        folder_layout.addWidget(_monitoring_hud_studio_row("Exported Logs", self._export, folder_panel))
+        self._native = QLabel(folder_panel)
+        self._export = QLabel(folder_panel)
+        folder_layout.addWidget(
+            _monitoring_hud_studio_row(
+                "Native NDAI Logs",
+                self._native,
+                folder_panel,
+                value_word_wrap=False,
+                value_role="pathValue",
+            )
+        )
+        folder_layout.addWidget(
+            _monitoring_hud_studio_row(
+                "Exported Logs",
+                self._export,
+                folder_panel,
+                value_word_wrap=False,
+                value_role="pathValue",
+            )
+        )
+        self._refresh_folder_labels()
         boundary = QLabel(
             "This branch provides folder access only. Previous-log selection, in-app viewing, export customization, and Native Log Loader remain future-gated.",
             self,
@@ -6311,8 +6360,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
-        width = 500
-        height = 320
+        width = 560
+        height = 330
         return QRect(
             available.x() + max(24, available.width() - width - 120),
             available.y() + 96,
@@ -6338,6 +6387,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self._refresh_folder_labels()
         self._save_current_geometry()
 
     def _event_is_in_drag_surface(self, event) -> bool:
@@ -6397,6 +6447,12 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
                     f"folderKind={folder_kind}|error={exc}"
                 )
 
+    def _refresh_folder_labels(self) -> None:
+        if not hasattr(self, "_native") or not hasattr(self, "_export"):
+            return
+        _monitoring_hud_set_contained_path_label(self._native, self._native_full_path)
+        _monitoring_hud_set_contained_path_label(self._export, self._export_full_path)
+
     def update_product_state(
         self,
         *,
@@ -6412,8 +6468,9 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         export_root = recording_export_dir()
         native_detail = native_log_path.strip() or str(native_root)
         export_detail = export_dir.strip() or validation_export_path.strip() or str(export_root)
-        self._native.setText(native_detail)
-        self._export.setText(export_detail)
+        self._native_full_path = native_detail
+        self._export_full_path = export_detail
+        self._refresh_folder_labels()
         if not activate_window:
             return
         if not self.isVisible():
@@ -6432,6 +6489,18 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         leakage_terms = ("fam-006", "fam006", "feature_fam_006", "feature-fam-006", "worktrees", "nexus governance state")
         combined_roots = f"{native_root} {export_root}".casefold()
         internal_path_leakage_absent = not any(term in combined_roots for term in leakage_terms)
+        native_display = self._native.text()
+        export_display = self._export.text()
+        path_rows_contained = (
+            bool(native_display)
+            and bool(export_display)
+            and "\n" not in native_display
+            and "\n" not in export_display
+            and self._native.wordWrap() is False
+            and self._export.wordWrap() is False
+            and self._native.property("pathDisplayMode") == "middle-elided-contained"
+            and self._export.property("pathDisplayMode") == "middle-elided-contained"
+        )
         return {
             "owner": "MonitoringHudLogViewerStudioWindow",
             "surface": "log_viewer_studio_shell",
@@ -6444,6 +6513,18 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "exportFolderPreSessionUsable": True,
             "nativeLogRoot": native_root,
             "exportLogRoot": export_root,
+            "nativeLogFullPath": os.path.normpath(str(self._native_full_path)),
+            "exportLogFullPath": os.path.normpath(str(self._export_full_path)),
+            "nativeLogDisplayText": native_display,
+            "exportLogDisplayText": export_display,
+            "nativeLogPathDisplayMode": self._native.property("pathDisplayMode"),
+            "exportLogPathDisplayMode": self._export.property("pathDisplayMode"),
+            "nativeLogPathTooltip": self._native.toolTip(),
+            "exportLogPathTooltip": self._export.toolTip(),
+            "nativeLogPathWordWrap": self._native.wordWrap(),
+            "exportLogPathWordWrap": self._export.wordWrap(),
+            "pathRowsContained": path_rows_contained,
+            "pathRowsVisualState": "contained-middle-elided-readable",
             "nativeLogRootPublicLabel": "Native NDAI logs",
             "exportLogRootPublicLabel": "Exported logs",
             "userVisibleStorageModel": "flat-user-recording-and-export-roots",
@@ -11949,6 +12030,10 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("internalPathLeakageAbsent") is True
                 and proof.get("userVisibleStorageModel") == "flat-user-recording-and-export-roots"
+                and proof.get("pathRowsContained") is True
+                and proof.get("pathRowsVisualState") == "contained-middle-elided-readable"
+                and proof.get("nativeLogPathDisplayMode") == "middle-elided-contained"
+                and proof.get("exportLogPathDisplayMode") == "middle-elided-contained"
                 and proof.get("previousLogSelectionState") == "future-gated"
                 and proof.get("exportCustomizationState") == "future-gated"
                 and proof.get("nativeLogLoaderState") == "future-gated"
@@ -19084,6 +19169,12 @@ class DesktopRuntimeWindow(QWidget):
                 previous_log_selection_state=proof.get("previousLogSelectionState"),
                 export_customization_state=proof.get("exportCustomizationState"),
                 native_log_loader_state=proof.get("nativeLogLoaderState"),
+                path_rows_visual_state=proof.get("pathRowsVisualState"),
+                path_rows_contained=proof.get("pathRowsContained"),
+                native_log_display_text=proof.get("nativeLogDisplayText"),
+                export_log_display_text=proof.get("exportLogDisplayText"),
+                native_log_path_display_mode=proof.get("nativeLogPathDisplayMode"),
+                export_log_path_display_mode=proof.get("exportLogPathDisplayMode"),
                 activation_mode=proof.get("activationMode"),
                 visible=proof.get("visible"),
                 x=proof.get("x"),
