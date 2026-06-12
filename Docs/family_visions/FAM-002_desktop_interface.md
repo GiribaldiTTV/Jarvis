@@ -30,6 +30,19 @@ The expected presentation is Nexus-native: custom product framing or chrome, coh
 
 Platform exceptions must be explicit. OS file pickers, OS security prompts, provider-auth surfaces, installer/update flows that require platform trust affordances, and temporary troubleshooting-only diagnostics may use platform chrome only when the branch classifies the exception, explains why Nexus-native chrome is not appropriate, and includes the exception in BP2/BP3 proof and Live Validation visual adjudication.
 
+## Reusable Component Grammar
+
+FAM-002 supplies reusable presentation grammar for:
+
+- product window chrome, frame shape, title/header treatment, close/minimize/back/settings affordances, and resize/drag behavior
+- panels, studios, dashboards, command centers, settings windows, status panels, diagnostics panels, and tray-opened product surfaces
+- cards, rows, dividers, page breaks, chips, badges, status fields, empty/error/degraded/blocked states, warning banners, confirmation dialogs, and recovery panels
+- primary, secondary, danger, disabled, hover, focus, selected, dirty, loading, and future-gated control states
+- scrollbars, dropdowns, list rows, input fields, folder/file pickers when Nexus owns the presentation, and compact/expanded layout density
+- USER-facing proof readability, so validation or diagnostics surfaces remain understandable product surfaces instead of debug walls
+
+Consuming FAM branches may specialize this grammar for their own feature surfaces, but they must name the inherited FAM-002 grammar, classify any platform-native exception, and prove visible inheritance before USER handoff. A branch that introduces a new button family, new window frame, new dialog shell, unique glow/color family, or custom layout density must record whether it is inherited, a USER-accepted new grammar, or a repair/blocker.
+
 ## Consumption Model
 
 - Default Rule: FAM-002 is consumed-by-default by feature-owning FAM branches.
