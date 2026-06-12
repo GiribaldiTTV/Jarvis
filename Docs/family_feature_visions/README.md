@@ -20,6 +20,14 @@ Family Feature Vision records own:
 - Branch Readiness and BP1 consumption notes
 - durable fold-down history when a branch promotes accepted feature-category facts
 
+## Product Detail Quality Bar
+
+A Family Feature Vision must contain enough durable product detail for BP1 to create a real branch vision without inventing feature direction from branch-local reasoning. It should describe the feature category outcome, user-visible surfaces, expected workflow, visual/interaction expectations, durable element inventory, design options, proof expectations, non-goals, deferred carryforward, and dependency triggers.
+
+An FFV is not sufficient when it is only a branch route, Slice/SLC plan, seam plan, implementation package, copied-file list, placeholder, or explanation of what an FFV should do. Slices, SLCs, seams, and branch packages are engineering route details under the selected FFV; they are not the durable feature-category vision identity.
+
+When FFV work discovers additional durable feature elements, deferred items, proof expectations, UI expectations, failure/recovery expectations, or cross-FAM dependency facts, the owning pass must record those facts in the FFV or the correct higher owner before BP1 proceeds, or must name the durable deferred disposition. Do not leave durable feature intent only in chat, helper output, generated USER packets, or active external state.
+
 Family Feature Vision records must not own:
 
 - active branch status

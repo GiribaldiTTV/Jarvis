@@ -128,6 +128,8 @@ BP2 and BP3 packets must map every selected FFV element to branch-local Slice/SL
 
 Workstream, Hardening, and Live Validation must carry the same selected FFV element IDs forward. Broad inference, nearby proof, fixture-only proof, validator pass, or a general statement that the branch implemented the feature is not enough for a user-visible, runtime-visible, UI, workflow, provider, helper, validator, or source-truth element. Each such element needs element-specific evidence or a named waiver.
 
+BP2/BP3 proof plans must also identify evidence independence for every material selected element. The plan must name `Claim:`, `Source-Truth Owner:`, `Expected Independent Evidence:`, `Evidence Class:`, `Known Limitation:`, and `Adjudication / Waiver Path:` when the element affects product behavior, UI/UX, runtime behavior, workflow hierarchy, proof-visible output, helper/validator behavior, or source-truth ownership. The branch plan defines expected behavior; it does not prove the behavior by itself. Marker presence, helper green, generated manifests, screenshot existence, copied file lists, or BP2/BP3 prose are supporting evidence only until compared against the applied vision chain and independent proof.
+
 Active implementation status for selected elements belongs in the active external branch plan or approved branch-planning packet. Family Feature Vision records own only the durable `Visioned` inventory, deferred facts, proof expectations, and fold-down receipts.
 
 The active USER hub for Branch Planning packets is:

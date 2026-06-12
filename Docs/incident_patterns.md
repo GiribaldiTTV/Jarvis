@@ -275,6 +275,25 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Circular Proof Or Generic UI Chrome Passed As Vision Green
+
+- symptom:
+  A branch reports BP, Workstream, Hardening, Live Validation, or PR readiness green while vision files are procedural instead of product-specific, Nexus-owned windows use default/native OS title bars or utility chrome without an approved exception, or the evidence only proves that a plan, marker, manifest, screenshot, or helper output exists.
+- layer:
+  Vision Contract, FAM-002 presentation authority, Branch Planning proof plans, Live Validation visual adjudication, USER packets, and helper/validator interpretation
+- root-cause pattern:
+  Codex treats the artifact that makes a claim as the proof of the claim, treats helper green or screenshot existence as product acceptance, or forgets to classify whether a visible surface is a Nexus-owned product surface that must inherit NDAI presentation standards.
+- fix pattern:
+  require product-detail vision content, classify Nexus-owned surfaces and platform exceptions, require a Visual Inheritance Matrix with window chrome/frame treatment, and require independent evidence plus Codex adjudication before a product/UI claim can advance. If a merged standard lands after a branch started, the affected worktree must evaluate adoption at its next legal gate rather than relying on old green proof.
+- validation pattern:
+  future helpers should fail on `Vision Contract Product Detail Missing`, `NDAI Window Chrome Missing`, `Default OS Chrome Used Without Exception`, `Nexus-Owned Surface Classification Missing`, `Circular Validation Detected`, `Claim Proven By Own Plan`, `Independent Evidence Missing`, or `Merged Vision Standard Adoption Missing` when the defect is machine-checkable
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:

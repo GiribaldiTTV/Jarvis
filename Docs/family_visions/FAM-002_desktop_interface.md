@@ -22,6 +22,14 @@ The Desktop Interface should feel intentional, native to Nexus, and visually coh
 - Consuming FAM branches inherit FAM-002 presentation standards when their accepted Family Vision, FFV, branch plan, and proof path require UI work for their own feature behavior.
 - FAM-003 owns resident tray doorway behavior while consuming FAM-002 presentation standards; FAM-006 owns Recording Studio / Log Viewer behavior and related UI; FAM-007 owns AI Status / Command Center behavior and related UI; FAM-008 owns installer, setup, shortcut, update, patch/restart, and tray-visibility education behavior and related UI.
 
+## NDAI Window Chrome And Immersion Contract
+
+FAM-002 owns the reusable presentation law for Nexus-owned windows and panels. Final product surfaces should not expose default Windows title bars, unstyled native utility chrome, generic button rows, or platform-looking popup shells when the surface is meant to be a Nexus product window.
+
+The expected presentation is Nexus-native: custom product framing or chrome, coherent title/header treatment, matching close/minimize/back/settings affordances where applicable, consistent card/button/list/scrollbar language, readable spacing and density, and deliberate disabled/degraded/recovery states. A consuming FAM may specialize the layout for its feature, but it must inherit this presentation grammar or record a USER-approved exception.
+
+Platform exceptions must be explicit. OS file pickers, OS security prompts, provider-auth surfaces, installer/update flows that require platform trust affordances, and temporary troubleshooting-only diagnostics may use platform chrome only when the branch classifies the exception, explains why Nexus-native chrome is not appropriate, and includes the exception in BP2/BP3 proof and Live Validation visual adjudication.
+
 ## Consumption Model
 
 - Default Rule: FAM-002 is consumed-by-default by feature-owning FAM branches.

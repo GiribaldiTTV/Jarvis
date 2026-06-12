@@ -122,6 +122,21 @@ The audit packet must include:
 
 When the USER approves the recommendation, the rebaseline operation must still be constrained to the approved operation type, usually `git merge --ff-only origin/main` for neutral/main or standing-governance sync and an explicit merge/rebase/recreate strategy for active implementation branches. After the operation, `Current-Main Reconciliation Identity Guard` must prove origin/main stayed context, not identity, before validation, commit, push, PR Readiness, Release Readiness, or handoff.
 
+### Merged Vision / Proof Standard Adoption Gate
+
+Rule Name: `Merged Vision / Proof Standard Adoption Gate`
+Owner: `Docs/phase_governance.md` for phase blocking; the affected Project Vision, Family Vision, Family Feature Vision, branch plan, validation registry, or incident-pattern owner for the standard being adopted.
+Applies To: any active, paused, re-entering, or rebased worktree after `origin/main` receives merged source-truth changes that alter product vision, UI/UX standards, FFV sufficiency, deferred carryforward, proof hierarchy, Live Validation expectations, helper/validator interpretation, or USER review packet requirements.
+Required State: The next legal BR1, BR2, BP1, BP2, BP3, Hardening, Live Validation, or PR Readiness packet for the affected worktree must report whether the merged standard applies to its existing branch work, list affected surfaces or claims, and either repair branch-local output, route back to the correct earlier gate, future-gate the impact with reason, or record an explicit USER waiver. This adoption check is a phase packet requirement, not a live-state ledger in repo docs.
+Allowed Values: `Applies - Repair Required`, `Applies - Already Satisfied`, `Applies - Route Back To Earlier Gate`, `Applies - USER Waiver Required`, `Not Applicable With Reason`, `Blocked`.
+Invalid Values: `Ignored Because Branch Started Earlier`, `Validator Green Before Standard`, `Will Reconcile Later Without Gate`, `Sibling Worktree Owns It`, `Repo Docs Track Current Adoption State`.
+Blocking Conditions: `Merged Vision Standard Adoption Missing`, `Merged UI Standard Adoption Missing`, `Merged Proof Standard Adoption Missing`, `Rebaseline Adoption Impact Unclassified`, and `Repo File-State Tracking`.
+Repair Owner: The affected worktree repairs its own branch-local surfaces under its own legal carrier. Standing Governance intake repairs reusable source-truth ambiguity. No worktree may mutate a sibling worktree to perform adoption by convenience.
+Repair Path: During the next legal gate after rebaseline, compare branch output and plans against the new merged standard, name changed files/surfaces/claims, decide whether to repair now or route back, update only the owning branch-local source truth or external operational state allowed for that gate, and validate before advancing.
+USER Decision Required: Required for waiver, route-back acceptance, broad scope expansion, sibling-worktree mutation, or applying the merged standard in a way that changes product/runtime behavior beyond current approval.
+Validation Owner: Future helper/validator hardening should extend rebaseline, branch planning, PR Readiness, and Live Validation checks where machine-checkable. Until then, Codex must perform the comparison in the phase digest.
+Final Disposition: A branch cannot rely on pre-rebaseline green proof when a newly merged vision/UI/proof standard applies and the adoption impact is unclassified.
+
 ## Branch Naming Prefix Rule
 
 Active Nexus branch names and active branch authority records must not use the `codex/` prefix.
@@ -308,7 +323,7 @@ Final Disposition: Workstream, Hardening, Live Validation, and PR Readiness may 
 Rule Name: `Visual Inheritance Matrix Gate`
 Owner: `Docs/phase_governance.md` for phase gates and blockers; `Docs/nexus_vision.md` for Project UI Vision; `Docs/family_visions/FAM-002_desktop_interface.md` for reusable presentation standards; the owning Family Vision / Family Feature Vision / active external branch plan for feature-specific UI grammar and proof.
 Applies To: Branch Readiness Stage 1, Branch Readiness Stage 2, BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, Workstream, Hardening, Live Validation, PR Readiness, USER review packets, helper output, validator output, and future fixtures when a branch creates or changes user-facing UI, controls, windows, cards, HUDs, overlays, setup flows, status indicators, folder pickers, evidence surfaces, diagnostics panels, or failure/recovery panels.
-Required State: The branch must include a `Visual Inheritance Matrix` before Workstream implementation when visible UI changes are admitted. Each row must name `New / Changed Element:`, `Inherited Existing Element Or Surface:`, `Owning UI Rule:`, `Shape / Radius Comparison:`, `Spacing / Density Comparison:`, `Typography Comparison:`, `Card / Row / Divider Treatment:`, `Color / Shadow / Glow Treatment:`, `Hover / Focus / Disabled State:`, `Scrollable / Resize / Transient State Proof:`, `Allowed Exception Or New Grammar:`, `Proof Artifact:`, and `Verdict:`. If no existing element is a valid ancestor, the branch must say why and record the USER-approved new visual grammar before implementation.
+Required State: The branch must include a `Visual Inheritance Matrix` before Workstream implementation when visible UI changes are admitted. Each row must name `New / Changed Element:`, `Inherited Existing Element Or Surface:`, `Owning UI Rule:`, `Window Chrome / Frame Treatment:`, `Shape / Radius Comparison:`, `Spacing / Density Comparison:`, `Typography Comparison:`, `Card / Row / Divider Treatment:`, `Color / Shadow / Glow Treatment:`, `Hover / Focus / Disabled State:`, `Scrollable / Resize / Transient State Proof:`, `Allowed Exception Or New Grammar:`, `Proof Artifact:`, and `Verdict:`. If no existing element is a valid ancestor, the branch must say why and record the USER-approved new visual grammar before implementation.
 Allowed Values:
 
 - `Inherited`
@@ -328,13 +343,47 @@ Invalid Values:
 - `Marker PASS`
 - `Deferred Visual Review`
 - `FAM-002 Owns It`
+- `Default OS Chrome By Accident`
+- `Native Title Bar Accepted By Inertia`
+- `Window Chrome Not Inspected`
 
-Blocking Conditions: `Visual Inheritance Matrix Missing`, `Existing Element Sample Missing`, `Visual Exception Not USER Accepted`, `Helper Green Treated As Visual Proof`, `Screenshot Without Adjudication`, `Per-Element Visual Verdict Missing`, `FAM-002 Presentation Consumption Missing`, `Feature UI Ownership Ambiguous`, and `Obvious UI Failure Passed To USER`.
+Blocking Conditions: `Visual Inheritance Matrix Missing`, `Existing Element Sample Missing`, `Visual Exception Not USER Accepted`, `Helper Green Treated As Visual Proof`, `Screenshot Without Adjudication`, `Per-Element Visual Verdict Missing`, `FAM-002 Presentation Consumption Missing`, `Feature UI Ownership Ambiguous`, `NDAI Window Chrome Missing`, `Default OS Chrome Used Without Exception`, `Nexus-Owned Surface Classification Missing`, and `Obvious UI Failure Passed To USER`.
 Repair Owner: The current branch/worktree repairs branch-local UI and proof; FAM-002 supplies reusable presentation law but does not take over the feature implementation; standing Governance intake repairs reusable rule drift; USER decides deliberate new grammar or waiver.
 Repair Path: Identify the inherited element, compare the required visual dimensions, repair mismatches before USER handoff when approval covers repair, route deliberate new grammar through BP1/BP2/BP3 and USER acceptance, or return a blocker instead of asking USER to rediscover obvious UI defects during UTS.
 USER Decision Required: Required for a new visual grammar, broad app-wide redesign, waiver of visual inheritance proof, or FAM-002 branch admission.
 Validation Owner: Future helper/validator hardening should extend branch-readiness fixture validation, USER review bundle validation, visual proof/live-validation helpers, and source-owner checks where machine-checkable. Green validation is evidence only; Codex must still inspect the actual visual artifacts and compare them to the matrix.
 Final Disposition: A user-facing UI branch is not ready for UTS handoff, PR Readiness, or release-facing closeout while unwaived visual matrix rows are missing, unproven, or inconsistent with screenshots/video/frame evidence.
+
+### Evidence Independence / Anti-Circular Validation Gate
+
+Rule Name: `Evidence Independence / Anti-Circular Validation Gate`
+Owner: `Docs/phase_governance.md` for phase blocking; `Docs/validation_helper_registry.md` for helper/validator interpretation; `Docs/branch_plans/README.md` for branch proof-plan shape; the applicable vision owner for product claim source truth.
+Applies To: BR1, BR2, BP1, BP2, BP3, Workstream, Hardening, Live Validation, PR Readiness, USER packets, helper output, validator output, and Codex closeout claims when a branch claims a product, UI, runtime, vision, proof, or phase-gate result is green.
+Required State: Each gate-relevant claim must name the claim, source-truth owner, independent evidence source, evidence class, limitation, Codex adjudication result, and next disposition. A branch may use its own BP1/BP2/BP3 plan to define expected behavior, but it may not use that same plan, marker presence, helper green, generated manifest, screenshot existence, or Codex assertion as the only proof that the behavior or UI actually satisfies the vision.
+Allowed Values:
+
+- `Independent Evidence Present`
+- `Supporting Evidence Only`
+- `Manual USER Validation Required`
+- `USER Waiver Required`
+- `Not Applicable With Reason`
+- `Repair Required`
+
+Invalid Values:
+
+- `Claim Proven By Own Plan`
+- `Green Because Helper Passed`
+- `Screenshot Exists Therefore Accepted`
+- `Manifest Exists Therefore Accepted`
+- `Vision Cited But Not Compared`
+- `Self-Attested`
+
+Blocking Conditions: `Circular Validation Detected`, `Claim Proven By Own Plan`, `Independent Evidence Missing`, `Vision Proof Alignment Missing`, `Helper Green Treated As Product Proof`, `Screenshot Without Adjudication`, `Manifest Treated As Acceptance Proof`, and `Manual USER Validation Not Elevated`.
+Repair Owner: The current branch/worktree repairs branch-local proof gaps; standing Governance intake repairs reusable rule drift; helper/validator owners repair confirmed false-green or false-red tooling; USER decides waivers or manual validation.
+Repair Path: Identify the claim, cite the source-truth owner, gather independent evidence from runtime behavior, visual artifacts, real user-path interaction, code/diff review, Git/GitHub live truth, helper output, or USER manual validation as appropriate, record limitations, and classify every unresolved claim as `Repair Required`, `Manual USER Validation Required`, `USER Waiver Required`, or `Blocked`.
+USER Decision Required: Required to waive independent proof, accept manual validation as the final evidence layer, approve a deliberate UI/vision exception, or expand helper/validator implementation.
+Validation Owner: Future helper/validator hardening should extend branch governance validation, branch-readiness fixture validation, USER review bundle validation, visual/live-validation helpers, and source-owner checks where machine-checkable. Green validation is evidence only; Codex must still review the actual claim/evidence relationship.
+Final Disposition: Phase advancement, UTS handoff, PR Readiness, and release-facing closeout are invalid when a material claim is circularly proven, unadjudicated, or supported only by the artifact that made the claim.
 
 ### Branch / Slice / SLC / Seam Terminology Model
 
@@ -2610,14 +2659,15 @@ Family Feature Vision and Deferred Feature Carryforward BR2 rule:
 Vision Carrydown Contract:
 
 - The governed vision chain is `Project Vision -> Family Vision -> Family Feature Vision -> Branch Vision Contract Snapshot -> BP2/BP3 engineering plan -> Workstream/Hardening/Live Validation proof`.
+- Every vision layer must satisfy the product-detail quality bar from its owner: vision contracts describe product outcome, user experience, surfaces, UI/UX expectations, trust/recovery posture, non-goals, and proof expectations, not only file purpose, routing procedure, copied context, or future "define later" placeholders.
 - BR1 and BR2 must report which layers apply, which files were loaded, whether a Family Feature Vision exists, whether it is sufficient, and whether any layer is not applicable with a source-truth reason.
 - BP1 must digest the applied Project Vision, Family Vision, and Family Feature Vision into a branch-specific vision. BP1 must not invent feature-category direction from branch-local reasoning when the correct Family Feature Vision is missing, shallow, stale, slice-specific, or pointer-stale.
 - BP2 must translate the accepted or waived BP1 vision into branch-local Slice/SLC/seam engineering work, proof outputs, rollback, risk controls, and deferred-item dispositions. If BP2 changes product direction, user-facing behavior, UI carrydown, surface scope, or deferred/future-gated boundaries, it must route back to BP1 or record an explicit USER waiver before BP3.
 - BP3 must verify that the Workstream package implements the accepted or waived BP1/BP2 vision chain, not merely that markers, fixtures, or command outputs are green.
 - Workstream and Hardening must preserve the same selected Family Feature Vision elements, deferred-item decisions, and UI/proof expectations unless source truth routes a revision back to Branch Planning.
-- Live Validation must compare observed behavior against the Project Vision, Family Vision, applied Family Feature Vision when present, accepted Branch Vision Contract Snapshot, and accepted BP2/BP3 proof plan. Helper output, runtime logs, screenshots, videos, or markers cannot clear a product/user-facing claim unless Codex also adjudicates the claim against that vision chain or records an explicit waiver.
+- Live Validation must compare observed behavior against the Project Vision, Family Vision, applied Family Feature Vision when present, accepted Branch Vision Contract Snapshot, and accepted BP2/BP3 proof plan. Helper output, runtime logs, screenshots, videos, markers, manifests, or branch-plan prose cannot clear a product/user-facing claim unless Codex also adjudicates the claim against that vision chain, verifies independent evidence for the claim, or records an explicit waiver/manual-validation requirement.
 - USER review packets for BP1, BP2, BP3, Hardening, Live Validation, and UTS handoff must show the applied vision layers, selected/deferred elements, user-facing surfaces, proof gathered, evidence paths, PASS/FAIL/BLOCKED/UNPROVEN disposition, and future-gated scope in a USER-readable way.
-- Missing vision-layer proof blocks on `Vision Carrydown Chain Missing`. Branch-local invention while a Family Feature Vision is required blocks on `Branch Vision Invented From Local Reasoning`. Missing Live Validation comparison blocks on `Vision Proof Alignment Missing`. A USER packet that omits the applied vision/evidence mapping blocks on `USER Packet Vision Evidence Missing`.
+- Missing vision-layer proof blocks on `Vision Carrydown Chain Missing`. Branch-local invention while a Family Feature Vision is required blocks on `Branch Vision Invented From Local Reasoning`. Missing Live Validation comparison blocks on `Vision Proof Alignment Missing`. A USER packet that omits the applied vision/evidence mapping blocks on `USER Packet Vision Evidence Missing`. Product-vision files that are mostly procedural, placeholder, slice-route-only, or copied-context-only block on `Vision Contract Product Detail Missing` until repaired or explicitly waived for a non-product branch.
 
 For broad implementation family packages, Branch Readiness planning is not complete until the planning packet records USER vision inputs or explicit unanswered-question blockers, project-wide vision alignment, branch-specific vision alignment, Codex product interpretation, Codex implementation recommendation, Codex additional recommendations, USER/ChatGPT review checkpoint, USER critique loop, USER decision ledger, full feature element breakdown, system concept model, entity/profile model, user workflow model, scale/data-volume model, configuration/state model, whole-system interaction map, minimum viable versus full-system boundary, alternatives/tradeoffs reviewed, rejected shallow plan, current-branch versus future-package boundaries, affected files/surfaces, branch reach/package-size proof, expected user-facing outcomes, acceptance criteria, screenshot/live/User Test Summary proof requirements for user-facing work, implementation sequence proposal, deferred ideas/future-package ledger, open USER decision points, and USER decisions needed. Marker-only planning, a one-screen/simple-system plan, scaffold-only proof, or Codex self-assessment that the plan is "simple enough" is insufficient. The same planning proof remains required if the active implementation branch has already moved into Workstream, Hardening, Live Validation, or PR Readiness; later phases must route back to Branch Readiness instead of continuing with shallow planning debt.
 

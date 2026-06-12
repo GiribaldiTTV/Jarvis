@@ -15,6 +15,14 @@ Family vision records:
 - receive reusable vision updates folded down from PR Readiness when they apply beyond one branch
 - route detailed feature-category direction to USER-approved Family Feature Vision records when a family vision would become too broad or too crowded
 
+## Product Detail Quality Bar
+
+Family Vision records must say what the family is trying to become in product terms. A family vision should preserve the family purpose, expected user-facing outcome, durable surfaces or workflows, UI/UX specialization, trust/recovery posture, feature categories that may need FFV detail, cross-FAM constraints, non-goals, and proof expectations that branches must carry forward.
+
+A Family Vision is insufficient when it mostly explains how to use the file, lists governance routing, repeats backlog rows, describes only active branch plans, or defers the family product meaning to future BP1/BP2 work. Routing language is allowed, but it must support the durable product vision rather than replace it.
+
+When a branch, FFV pass, USER review, Live Validation result, or PR Readiness review exposes reusable family product detail, the owning branch must fold that detail into the correct durable vision owner or record a durable deferred disposition. The family vision must not become a live status ledger while preserving that durable product context.
+
 Family vision records do not own:
 
 - active branch authority
