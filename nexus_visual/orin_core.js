@@ -177,14 +177,14 @@ let commandOverlayState = {
 let aiProviderState = {
   mode: "no-provider",
   availability: "disabled",
-  providerLabel: "ORIN local assist",
-  statusLabel: "AI local only",
-  localStatusSurfaceLabel: "AI local only",
-  localStatusSurfaceScope: "No provider",
+  providerLabel: "No provider/model execution",
+  statusLabel: "No AI executing",
+  localStatusSurfaceLabel: "No AI executing",
+  localStatusSurfaceScope: "Provider/model off",
   localStatusActivityLabel: "Idle",
   trayStatusLabel: "NDAI",
   trayScopeLabel: "AI",
-  trayLocalStatusDetail: "AI local only - no provider configured",
+  trayLocalStatusDetail: "No AI executing; no provider/model active",
   trayProviderExecutionLabel: "disabled and blocked",
   trayStatusBoundaryLabel: "Display-only; controls live here",
   trayReviewNote:
@@ -294,7 +294,7 @@ let aiProviderState = {
     "Open NDAI for the AI Control Center; provider/model execution remains blocked",
   localActionResultSchemaVersion: "local-action-result.v1",
   localActionResultState: "deterministic-no-provider-result",
-  localActionResultLabel: "Local assist result: no provider configured",
+  localActionResultLabel: "No-provider check: no provider configured",
   localActionResultDetail:
     "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none.",
   localActionResultProviderVisibleData: "none",
@@ -555,7 +555,7 @@ let aiProviderState = {
   dataVisibilityConsentPosture: "data-visibility-consent-none-required",
   dataVisibilityConsentLabel: "Data visibility consent: none required for local status",
   desktopAiOwnedReadinessDisplayState: "desktop-ai-owned-readiness-display-visible",
-  desktopAiOwnedReadinessDisplayLabel: "Desktop AI-owned readiness display: visible public local assist",
+  desktopAiOwnedReadinessDisplayLabel: "Desktop AI-owned readiness display: no AI execution active",
   providerSetupFutureGatedPosture: "provider-setup-future-gated",
   providerSetupFutureGatedLabel: "Provider setup: future-gated",
   providerExecutionFutureGatedPosture: "provider-execution-future-gated",
@@ -610,7 +610,7 @@ let aiProviderState = {
   installIntentLabel: "Install intent: blocked; downloads and install execution remain disabled",
   laneBoundarySchemaVersion: "lane-boundary-state.v1",
   publicLaneBoundaryState: "public-lane-local-assist-only",
-  publicLaneBoundaryLabel: "Public Edition: local assist only; provider-visible data none",
+  publicLaneBoundaryLabel: "Public Edition: deterministic no-provider assist; provider-visible data none",
   developerLaneBoundaryState: "developer-lane-private-setup-blocked",
   developerLaneBoundaryLabel: "Developer lane: gated; private setup not configured",
   ownerLaneBoundaryState: "owner-lane-private-setup-blocked",
@@ -625,9 +625,9 @@ let aiProviderState = {
   capabilityPackUpdateBlockedReason: "update_blocked_user_approval_required",
   capabilityPackUninstallBlockedReason: "uninstall_blocked_no_installed_pack",
   interactionAffordance: "local-assisted-action-available",
-  interactionLabel: "Open local assist",
+  interactionLabel: "Run no-provider check",
   interactionDisabledReason:
-    "Local assist runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked",
+    "No-provider check runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked",
   noProviderFallbackLabel: "No-provider guard active",
   sentToProvider: false,
   canAcceptPrompts: false,
@@ -1760,7 +1760,7 @@ function renderAIProviderTrayState(state, displayVisible, localActionAvailable) 
     state.installIntentLabel ||
     "Install intent: blocked; downloads and install execution remain disabled";
   const laneBoundary =
-    `${state.publicLaneBoundaryLabel || "Public Edition: local assist only"}; ` +
+    `${state.publicLaneBoundaryLabel || "Public Edition: deterministic no-provider assist"}; ` +
     `${state.developerLaneBoundaryLabel || "Developer lane: gated; private setup not configured"}; ` +
     `${state.ownerLaneBoundaryLabel || "Owner lane: gated; private setup not configured"}`;
 
@@ -1769,7 +1769,7 @@ function renderAIProviderTrayState(state, displayVisible, localActionAvailable) 
     aiLocalStatusSurface.dataset.statusOnly = "true";
     aiLocalStatusSurface.dataset.interactive = "false";
     aiLocalStatusSurface.dataset.opensControlCenter = "false";
-    aiLocalStatusSurface.dataset.aiLocalStatus = "active-local-only";
+    aiLocalStatusSurface.dataset.aiLocalStatus = "no-ai-execution";
     aiLocalStatusSurface.dataset.providerVisibleData = providerVisibleData;
     aiLocalStatusSurface.dataset.promptSend = promptSend;
     aiLocalStatusSurface.dataset.providerModelExecution = "blocked";
@@ -1788,7 +1788,7 @@ function renderAIProviderTrayState(state, displayVisible, localActionAvailable) 
     aiProviderTray.dataset.aiResidentDoorway = "f3-ff01-narrow-ai-command-center";
     aiProviderTray.dataset.aiControlCenterRoute = "fam007-ai-control-center";
     aiProviderTray.dataset.statusSurfaceOwner = "ai-local-status-surface";
-    aiProviderTray.dataset.aiLocalStatus = "active-local-only";
+    aiProviderTray.dataset.aiLocalStatus = "no-ai-execution";
     aiProviderTray.dataset.providerVisibleData = providerVisibleData;
     aiProviderTray.dataset.promptSend = promptSend;
     aiProviderTray.dataset.providerModelExecution = "blocked";
@@ -1811,14 +1811,14 @@ function renderAIProviderTrayState(state, displayVisible, localActionAvailable) 
     aiProviderTrayWindow.dataset.memoryIndexing = memoryIndexing;
   }
 
-  setTextContent(aiLocalStatusLabel, state.localStatusSurfaceLabel || "AI local only");
-  setTextContent(aiLocalStatusScope, state.localStatusSurfaceScope || "No provider");
+  setTextContent(aiLocalStatusLabel, state.localStatusSurfaceLabel || "No AI executing");
+  setTextContent(aiLocalStatusScope, state.localStatusSurfaceScope || "Provider/model off");
   setTextContent(aiLocalStatusActivity, state.localStatusActivityLabel || "Idle");
   setTextContent(aiProviderTrayLabel, state.trayStatusLabel || "NDAI");
   setTextContent(aiProviderTrayScope, state.trayScopeLabel || "AI");
   setTextContent(
     aiProviderTrayLocalStatus,
-    state.trayLocalStatusDetail || "AI local only - no provider configured"
+    state.trayLocalStatusDetail || "No AI executing; no provider/model active"
   );
   setTextContent(aiProviderTrayProviderVisibleData, providerVisibleData);
   setTextContent(aiProviderTrayProviderExecution, providerExecution);
@@ -1839,10 +1839,10 @@ function renderAIProviderTrayState(state, displayVisible, localActionAvailable) 
   );
 
   if (aiProviderTrayLocalAssistAction) {
-    aiProviderTrayLocalAssistAction.textContent = state.interactionLabel || "Open local assist";
+    aiProviderTrayLocalAssistAction.textContent = state.interactionLabel || "Run no-provider check";
     aiProviderTrayLocalAssistAction.title =
       state.interactionDisabledReason ||
-      "Local assist runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked";
+      "No-provider check runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked";
     aiProviderTrayLocalAssistAction.disabled = !localActionAvailable;
     aiProviderTrayLocalAssistAction.setAttribute(
       "aria-disabled",
@@ -2075,10 +2075,11 @@ function renderAIProviderState() {
   aiProviderStatus.dataset.canAcceptPrompts = state.canAcceptPrompts ? "true" : "false";
 
   if (aiProviderStatusState) {
-    aiProviderStatusState.textContent = state.statusLabel || "AI local only";
+    aiProviderStatusState.textContent = state.statusLabel || "No AI executing";
   }
   if (aiProviderStatusProvider) {
-    aiProviderStatusProvider.textContent = state.providerLabel || "No AI provider; local assist only";
+    aiProviderStatusProvider.textContent =
+      state.providerLabel || "No provider/model execution active";
   }
   if (aiProviderStatusSelection) {
     aiProviderStatusSelection.textContent = state.providerSelectionLabel || "No-provider fallback active";
@@ -2492,7 +2493,7 @@ function renderAIProviderState() {
   if (aiProviderStatusPublicLane) {
     aiProviderStatusPublicLane.textContent =
       state.publicLaneBoundaryLabel ||
-      "Public Edition: local assist only; provider-visible data none";
+      "Public Edition: deterministic no-provider assist; provider-visible data none";
   }
   if (aiProviderStatusDeveloperLane) {
     aiProviderStatusDeveloperLane.textContent =
@@ -2505,7 +2506,7 @@ function renderAIProviderState() {
       "Owner lane: gated; private setup not configured";
   }
   if (aiProviderStatusAction) {
-    aiProviderStatusAction.textContent = "Local assist lives in AI Control Center";
+    aiProviderStatusAction.textContent = "No-provider check lives in AI Control Center";
     aiProviderStatusAction.title =
       "Status is display-only; open NDAI for the FAM-007 AI Control Center.";
     aiProviderStatusAction.disabled = true;
@@ -2519,11 +2520,11 @@ function renderAIProviderState() {
   }
   if (aiProviderStatusResult) {
     aiProviderStatusResult.textContent =
-      "Local assist result: waiting for local action";
+      "No-provider check: waiting for local action";
   }
   if (aiProviderStatusResultDetail) {
     aiProviderStatusResultDetail.textContent =
-      "Open local assist to produce a deterministic local no-provider result.";
+      "Run the check to produce a deterministic no-provider result.";
   }
   if (aiProviderStatusNextAction) {
     aiProviderStatusNextAction.textContent =
@@ -2553,8 +2554,8 @@ function handleAIProviderStatusActionClick(event) {
     ? (state.localActionResultState || "deterministic-no-provider-result")
     : "blocked-boundary-mismatch";
   const resultLabel = guardClosed
-    ? (state.localActionResultLabel || "Local assist result: no provider configured")
-    : "Local assist result: blocked";
+    ? (state.localActionResultLabel || "No-provider check: no provider configured")
+    : "No-provider check: blocked";
   const resultDetail = guardClosed
     ? (state.localActionResultDetail ||
       "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none.")
@@ -2576,8 +2577,8 @@ function handleAIProviderStatusActionClick(event) {
 
   if (aiProviderStatusFallback) {
     aiProviderStatusFallback.textContent = guardClosed
-      ? "Local assist opened; provider-visible data remains none"
-      : "Local assist blocked; provider boundary mismatch";
+      ? "No-provider check complete; provider-visible data remains none"
+      : "No-provider check blocked; provider boundary mismatch";
   }
   if (aiProviderStatusResult) {
     aiProviderStatusResult.textContent = resultLabel;

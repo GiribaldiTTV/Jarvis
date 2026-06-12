@@ -5902,16 +5902,16 @@ class AIControlCenterDialog(QDialog):
         self.setStyleSheet(
             """
             QWidget#fam007AiControlCenter {
-                background: #071112;
-                color: #e8fbf4;
-                font-family: Bahnschrift, Segoe UI, sans-serif;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #051424, stop:1 #020b16);
+                color: #ebfcff;
+                font-family: Bahnschrift, Rajdhani, Segoe UI, sans-serif;
             }
             QLabel {
                 background: transparent;
-                color: #e8fbf4;
+                color: #ebfcff;
             }
             QLabel[role="eyebrow"] {
-                color: #72e6ba;
+                color: #7ae8ff;
                 font-size: 10px;
                 font-weight: 700;
                 letter-spacing: 0;
@@ -5923,12 +5923,12 @@ class AIControlCenterDialog(QDialog):
                 font-weight: 700;
             }
             QLabel[role="factLabel"] {
-                color: rgba(188, 220, 212, 0.8);
+                color: rgba(171, 229, 243, 0.86);
                 font-size: 11px;
                 font-weight: 700;
             }
             QLabel[role="factValue"] {
-                color: #e8fbf4;
+                color: #ebfcff;
                 font-size: 12px;
             }
             QLabel[role="warning"] {
@@ -5936,17 +5936,28 @@ class AIControlCenterDialog(QDialog):
                 font-size: 11px;
             }
             QPushButton {
-                min-height: 30px;
-                padding: 4px 12px;
-                border: 1px solid rgba(114, 230, 186, 0.42);
-                border-radius: 7px;
-                background: rgba(7, 33, 31, 0.86);
-                color: #e8fbf4;
+                min-height: 34px;
+                padding: 6px 16px;
+                border: 1px solid rgba(122, 232, 255, 0.30);
+                border-radius: 17px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
+                color: #ebfcff;
                 font-weight: 700;
+                letter-spacing: 0;
             }
             QPushButton:hover,
             QPushButton:focus {
-                background: rgba(14, 58, 51, 0.92);
+                border-color: rgba(126, 248, 218, 0.56);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.94), stop:1 rgba(4, 24, 40, 0.91));
+            }
+            QPushButton:pressed {
+                border-color: rgba(163, 255, 228, 0.72);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 40, 57, 0.98), stop:1 rgba(3, 18, 32, 0.96));
+            }
+            QPushButton:disabled {
+                color: rgba(235, 252, 255, 0.72);
+                border-color: rgba(122, 232, 255, 0.18);
+                background: rgba(5, 20, 36, 0.62);
             }
             """
         )
@@ -5959,7 +5970,7 @@ class AIControlCenterDialog(QDialog):
         eyebrow.setProperty("role", "eyebrow")
         self._title = QLabel("AI Control Center", self)
         self._title.setProperty("role", "title")
-        self._summary = QLabel("FAM-007 owned; local-only and no-provider.", self)
+        self._summary = QLabel("FAM-007 owned; no provider/model execution is active.", self)
         self._summary.setWordWrap(True)
 
         facts = QGridLayout()
@@ -5968,11 +5979,11 @@ class AIControlCenterDialog(QDialog):
         self._fact_values = {}
         for row, (key, label, value) in enumerate(
             (
-                ("status", "ORIN status", "AI local only - no provider configured"),
+                ("status", "ORIN status", "No AI executing; no provider/model active"),
                 ("visible_data", "Provider-visible data", "none"),
                 ("execution", "Prompt / model / provider", "disabled and blocked"),
                 ("capability", "Capability packs", "Install and download intent blocked"),
-                ("lane", "Public / Developer / Owner", "Public local assist only; Developer and Owner lanes gated"),
+                ("lane", "Public / Developer / Owner", "Public deterministic no-provider assist; Developer and Owner lanes gated"),
                 ("status_boundary", "Status surface", "Display-only; controls live here"),
             )
         ):
@@ -5986,7 +5997,7 @@ class AIControlCenterDialog(QDialog):
             facts.addWidget(value_widget, row, 1)
             self._fact_values[key] = value_widget
 
-        self._result = QLabel("Local assist result: waiting for local action", self)
+        self._result = QLabel("No-provider check: waiting for local action", self)
         self._result.setWordWrap(True)
         self._result.setProperty("role", "factValue")
         self._result_detail = QLabel("No prompt, file, screen, memory, or telemetry is sent.", self)
@@ -5994,7 +6005,7 @@ class AIControlCenterDialog(QDialog):
         self._result_detail.setProperty("role", "warning")
 
         actions = QHBoxLayout()
-        self._local_assist = QPushButton("Run Local Assist Check", self)
+        self._local_assist = QPushButton("Run no-provider check", self)
         self._close = QPushButton("Close", self)
         self._local_assist.clicked.connect(self.run_local_assist_check)
         self._close.clicked.connect(self.close)
@@ -6033,12 +6044,12 @@ class AIControlCenterDialog(QDialog):
             )
 
         lane_boundary = (
-            f"{self._provider_payload.get('publicLaneBoundaryLabel') or 'Public local assist only'}; "
+            f"{self._provider_payload.get('publicLaneBoundaryLabel') or 'Public deterministic no-provider assist'}; "
             f"{self._provider_payload.get('developerLaneBoundaryLabel') or 'Developer lane gated'}; "
             f"{self._provider_payload.get('ownerLaneBoundaryLabel') or 'Owner lane gated'}"
         )
         fact_text = {
-            "status": "AI local only - no provider configured",
+            "status": "No AI executing; no provider/model active",
             "visible_data": str(self._provider_payload.get("providerVisibleData") or "none"),
             "execution": provider_execution,
             "capability": str(
@@ -6052,7 +6063,7 @@ class AIControlCenterDialog(QDialog):
             value_widget = self._fact_values.get(key)
             if value_widget is not None:
                 value_widget.setText(text)
-        self._result.setText("Local assist result: waiting for local action")
+        self._result.setText("No-provider check: waiting for local action")
         self._result_detail.setText(
             str(
                 self._provider_payload.get("providerVisibleDataDetail")
@@ -6071,7 +6082,7 @@ class AIControlCenterDialog(QDialog):
             and payload.get("memoryIndexingState") == "memory-indexing-disabled"
         )
         if guard_closed:
-            result = str(payload.get("localActionResultLabel") or "Local assist result: no provider configured")
+            result = str(payload.get("localActionResultLabel") or "No-provider check: no provider configured")
             detail = str(
                 payload.get("localActionResultDetail")
                 or "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none."
@@ -6082,7 +6093,7 @@ class AIControlCenterDialog(QDialog):
                 "|network_egress=blocked|memory_indexing=disabled"
             )
         else:
-            result = "Local assist result: blocked"
+            result = "No-provider check: blocked"
             detail = "Provider boundary mismatch; no local result was produced."
             event = "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_BLOCKED|reason=boundary_mismatch"
         self._result.setText(result)

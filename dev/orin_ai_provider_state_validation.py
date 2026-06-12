@@ -8127,8 +8127,8 @@ def validate() -> list[str]:
             and setup_completion_payload["interactionAffordance"]
             == ai_provider_state.LOCAL_ASSISTED_INTERACTION_AFFORDANCE
             and setup_completion_payload["interactionLabel"]
-            == "Open local assist",
-            f"{label} setup-completion fixture must publish visible public local-assist status",
+            == "Run no-provider check",
+            f"{label} setup-completion fixture must publish visible no-provider status",
             failures,
         )
         _require(
@@ -8137,7 +8137,7 @@ def validate() -> list[str]:
             and setup_completion_payload["localActionResultState"]
             == LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER
             and setup_completion_payload["localActionResultLabel"]
-            == "Local assist result: no provider configured"
+            == "No-provider check: no provider configured"
             and "provider-visible data remains none"
             in setup_completion_payload["localActionResultDetail"]
             and setup_completion_payload["localActionResultProviderVisibleData"]
@@ -8185,7 +8185,7 @@ def validate() -> list[str]:
             failures,
         )
         for key, expected in {
-            "publicLaneBoundaryLabel": "Public Edition: local assist only; provider-visible data none",
+            "publicLaneBoundaryLabel": "Public Edition: deterministic no-provider assist; provider-visible data none",
             "developerLaneBoundaryLabel": "Developer lane: gated; private setup not configured",
             "ownerLaneBoundaryLabel": "Owner lane: gated; private setup not configured",
         }.items():
@@ -8797,7 +8797,7 @@ def validate() -> list[str]:
         "prompt-send-disabled",
         "network-egress-blocked",
         "memory-indexing-disabled",
-        "Run Local Assist Check",
+        "Run no-provider check",
         "Provider-visible data",
         "Prompt / model / provider",
         "Capability packs",
@@ -9010,7 +9010,7 @@ def validate() -> list[str]:
             'id="ai-provider-status-release-proof"',
             "Release proof: pending future approval",
             'data-consent-state="required-before-provider"',
-            "No AI provider",
+            "No provider/model execution active",
             "No-provider fallback active",
             "Provider configuration: none",
             "Local provider registry: no configured providers",
@@ -9032,7 +9032,7 @@ def validate() -> list[str]:
             "Provider-visible data: none",
             "No prompt, file, screen, memory, or telemetry is sent",
             'id="ai-provider-status-public-lane"',
-            "Public Edition: local assist only; provider-visible data none",
+            "Public Edition: deterministic no-provider assist; provider-visible data none",
             'id="ai-provider-status-developer-lane"',
             "Developer lane: gated; private setup not configured",
             'id="ai-provider-status-owner-lane"',
@@ -9163,19 +9163,19 @@ def validate() -> list[str]:
             'id="ai-provider-status-install-intent"',
             "Install intent: blocked; downloads and install execution remain disabled",
             'id="ai-provider-status-public-lane"',
-            "Public Edition: local assist only; provider-visible data none",
+            "Public Edition: deterministic no-provider assist; provider-visible data none",
             'id="ai-provider-status-developer-lane"',
             "Developer lane: gated; private setup not configured",
             'id="ai-provider-status-owner-lane"',
             "Owner lane: gated; private setup not configured",
             'id="ai-provider-status-action"',
             'aria-disabled="true"',
-            "Local assist lives in AI Control Center",
+            "No-provider check lives in AI Control Center",
             "No-provider guard active",
             'id="ai-provider-status-result"',
-            "Local assist result: waiting for local action",
+            "No-provider check: waiting for local action",
             'id="ai-provider-status-result-detail"',
-            "Open local assist to produce a deterministic local no-provider result.",
+            "Run the check to produce a deterministic no-provider result.",
             "Open NDAI for the AI Control Center; provider/model execution remains blocked",
             "Local shell only; nothing is sent",
             'id="ai-local-status-surface"',
@@ -9184,7 +9184,7 @@ def validate() -> list[str]:
             'data-status-only="true"',
             'data-interactive="false"',
             'data-opens-control-center="false"',
-            "AI local only",
+            "No AI executing",
             'id="ai-provider-tray"',
             'tabindex="-1"',
             'aria-controls="ai-provider-tray-window"',
@@ -9194,7 +9194,7 @@ def validate() -> list[str]:
             'data-ai-resident-doorway="f3-ff01-narrow-ai-command-center"',
             'data-ai-control-center-route="fam007-ai-control-center"',
             'data-status-surface-owner="ai-local-status-surface"',
-            'data-ai-local-status="active-local-only"',
+            'data-ai-local-status="no-ai-execution"',
             'data-provider-visible-data="none"',
             'data-prompt-send="prompt-send-disabled"',
             'data-provider-model-execution="blocked"',
@@ -9214,10 +9214,10 @@ def validate() -> list[str]:
             'id="ai-provider-tray-review-note"',
             "NDAI doorway",
             "AI Control Center",
-            "AI local only - no provider configured",
+            "No AI executing; no provider/model active",
             "Provider-visible data",
             "Install and download intent blocked",
-            "Public local assist only; Developer and Owner lanes gated",
+            "Public deterministic no-provider assist; Developer and Owner lanes gated",
             "Display-only; controls live here",
             "FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only.",
         ):
@@ -9240,6 +9240,11 @@ def validate() -> list[str]:
             'aria-label="Open AI usage and settings"',
             "Temporary LV1 repair surface",
             "ORIN local active",
+            "ORIN local assist",
+            "AI local only",
+            "active-local-only",
+            "Public local assist only",
+            "Public Edition: local assist only",
         ):
             _require(
                 forbidden not in markup,
@@ -9265,7 +9270,11 @@ def validate() -> list[str]:
         "--ai-status-left: min(55vw, calc(100vw - 300px))",
         "--ai-tray-left: min(calc(55vw + 214px), calc(100vw - 76px))",
         "--ai-tray-window-left: min(45vw, calc(100vw - 432px))",
-        "--ai-tray-bottom: clamp(92px, 14vh, 140px)",
+        "--ai-tray-bottom: clamp(242px, calc(14vh + 150px), 290px)",
+        "--ai-control-button-neutral-bg",
+        "--ai-control-button-neutral-hover-bg",
+        "--ai-control-button-neutral-active-bg",
+        "--ai-control-affordance-focus-shadow",
         "left: var(--ai-status-left)",
         "left: var(--ai-tray-left)",
         "left: var(--ai-tray-window-left)",
@@ -9279,6 +9288,11 @@ def validate() -> list[str]:
         ".ai-provider-tray-window[hidden]",
         ".ai-provider-tray-window__facts",
         ".ai-provider-tray-window__assist",
+        ".ai-provider-tray-window__close:focus-visible",
+        ".ai-provider-tray-window__assist:focus-visible",
+        ".ai-provider-tray-window__close:active",
+        ".ai-provider-tray-window__assist:active",
+        ".ai-provider-tray-window__assist:disabled",
         ".ai-provider-status__runtime",
         ".ai-provider-status__readiness",
         ".ai-provider-status__activation",
@@ -9328,7 +9342,7 @@ def validate() -> list[str]:
         ".ai-provider-status__memory-contract",
         ".ai-provider-status__copy-contract",
         ".ai-provider-status::after",
-        "Local assist uses no provider; no prompt, network, memory, or download runs",
+        "No AI is executing; prompts, providers, models, memory, downloads, and network remain blocked",
         'body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-default"]',
         '.ai-provider-status[hidden]',
         '.ai-provider-status[data-display-visibility="suppressed-by-default"]',
@@ -9697,7 +9711,7 @@ def validate() -> list[str]:
         "localResultMemoryIndexing",
         "guarded-no-provider",
         "blocked-boundary-mismatch",
-        "Local assist lives in AI Control Center",
+        "No-provider check lives in AI Control Center",
         "aiProviderStatusAction.disabled = true",
         'aiProviderStatusAction.setAttribute("aria-disabled", "true")',
         "aiProviderStatusAction.dataset.statusOnly",
@@ -9720,6 +9734,11 @@ def validate() -> list[str]:
         "Temporary LV1 repair surface",
         "Next BR1 must review",
         "ORIN local active",
+        "ORIN local assist",
+        "AI local only",
+        "active-local-only",
+        "Public local assist only",
+        "Public Edition: local assist only",
         "AI usage and settings",
     ):
         _require(

@@ -1359,7 +1359,7 @@
         "privateSetupRequired": false,
         "readinessState": "public-safe-gates-present",
         "boundaryDisplayState": "public-lane-local-assist-only",
-        "boundaryDisplayLabel": "Public Edition: local assist only; provider-visible data none"
+        "boundaryDisplayLabel": "Public Edition: deterministic no-provider assist; provider-visible data none"
       },
       "developerLane": {
         "laneIdentity": "developer-lane-future-gated",

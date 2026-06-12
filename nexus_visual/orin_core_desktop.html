@@ -50,7 +50,7 @@
       data-status-only="true"
       data-interactive="false"
       data-opens-control-center="false"
-      data-ai-local-status="active-local-only"
+      data-ai-local-status="no-ai-execution"
       data-provider-visible-data="none"
       data-prompt-send="prompt-send-disabled"
       data-provider-model-execution="blocked"
@@ -58,8 +58,8 @@
       data-memory-indexing="memory-indexing-disabled"
     >
       <span class="ai-local-status-surface__lamp" aria-hidden="true"></span>
-      <span id="ai-local-status-label" class="ai-local-status-surface__label">AI local only</span>
-      <span id="ai-local-status-scope" class="ai-local-status-surface__scope">No provider</span>
+      <span id="ai-local-status-label" class="ai-local-status-surface__label">No AI executing</span>
+      <span id="ai-local-status-scope" class="ai-local-status-surface__scope">Provider/model off</span>
       <span id="ai-local-status-activity" class="ai-local-status-surface__activity">Idle</span>
     </div>
 
@@ -79,7 +79,7 @@
       data-ai-resident-doorway="f3-ff01-narrow-ai-command-center"
       data-ai-control-center-route="fam007-ai-control-center"
       data-status-surface-owner="ai-local-status-surface"
-      data-ai-local-status="active-local-only"
+      data-ai-local-status="no-ai-execution"
       data-provider-visible-data="none"
       data-prompt-send="prompt-send-disabled"
       data-provider-model-execution="blocked"
@@ -120,7 +120,7 @@
       <dl class="ai-provider-tray-window__facts">
         <div>
           <dt>ORIN status</dt>
-          <dd id="ai-provider-tray-local-status">AI local only - no provider configured</dd>
+          <dd id="ai-provider-tray-local-status">No AI executing; no provider/model active</dd>
         </div>
         <div>
           <dt>Provider-visible data</dt>
@@ -136,7 +136,7 @@
         </div>
         <div>
           <dt>Public / Developer / Owner</dt>
-          <dd id="ai-provider-tray-lane-boundary">Public local assist only; Developer and Owner lanes gated</dd>
+          <dd id="ai-provider-tray-lane-boundary">Public deterministic no-provider assist; Developer and Owner lanes gated</dd>
         </div>
         <div>
           <dt>Status surface</dt>
@@ -150,8 +150,8 @@
         disabled
         aria-disabled="true"
         data-local-action-guard="no-provider"
-      >Open local assist</button>
-      <div id="ai-provider-tray-result" class="ai-provider-tray-window__result">Local assist result: waiting for local action</div>
+      >Run no-provider check</button>
+      <div id="ai-provider-tray-result" class="ai-provider-tray-window__result">No-provider check: waiting for local action</div>
       <div id="ai-provider-tray-result-detail" class="ai-provider-tray-window__result-detail">No prompt, file, screen, memory, or telemetry is sent.</div>
       <div id="ai-provider-tray-review-note" class="ai-provider-tray-window__review">FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only.</div>
     </section>
@@ -302,9 +302,9 @@
     >
       <div class="ai-provider-status__topline">
         <span class="ai-provider-status__label">ORIN</span>
-        <span id="ai-provider-status-state" class="ai-provider-status__state">AI local only</span>
+        <span id="ai-provider-status-state" class="ai-provider-status__state">No AI executing</span>
       </div>
-      <div id="ai-provider-status-provider" class="ai-provider-status__provider">No AI provider; local assist only</div>
+      <div id="ai-provider-status-provider" class="ai-provider-status__provider">No provider/model execution active</div>
       <div id="ai-provider-status-selection" class="ai-provider-status__selection">No-provider fallback active</div>
       <div id="ai-provider-status-configuration" class="ai-provider-status__configuration">Provider configuration: none</div>
       <div id="ai-provider-status-registry" class="ai-provider-status__registry">Local provider registry: no configured providers</div>
@@ -408,7 +408,7 @@
       <div id="ai-provider-status-functional-release" class="ai-provider-status__functional-release">Functional-AI release gate: pending; v1.8.0-prebeta release gate: pending functional AI proof</div>
       <div id="ai-provider-status-capability-eligibility" class="ai-provider-status__capability-eligibility">Capability-pack eligibility: blocked until local capability proof</div>
       <div id="ai-provider-status-install-intent" class="ai-provider-status__install-intent">Install intent: blocked; downloads and install execution remain disabled</div>
-      <div id="ai-provider-status-public-lane" class="ai-provider-status__public-lane">Public Edition: local assist only; provider-visible data none</div>
+      <div id="ai-provider-status-public-lane" class="ai-provider-status__public-lane">Public Edition: deterministic no-provider assist; provider-visible data none</div>
       <div id="ai-provider-status-developer-lane" class="ai-provider-status__developer-lane">Developer lane: gated; private setup not configured</div>
       <div id="ai-provider-status-owner-lane" class="ai-provider-status__owner-lane">Owner lane: gated; private setup not configured</div>
       <button
@@ -418,10 +418,10 @@
         disabled
         aria-disabled="true"
         data-local-action-guard="no-provider"
-      >Local assist lives in AI Control Center</button>
+      >No-provider check lives in AI Control Center</button>
       <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider guard active</div>
-      <div id="ai-provider-status-result" class="ai-provider-status__result">Local assist result: waiting for local action</div>
-      <div id="ai-provider-status-result-detail" class="ai-provider-status__result-detail">Open local assist to produce a deterministic local no-provider result.</div>
+      <div id="ai-provider-status-result" class="ai-provider-status__result">No-provider check: waiting for local action</div>
+      <div id="ai-provider-status-result-detail" class="ai-provider-status__result-detail">Run the check to produce a deterministic no-provider result.</div>
       <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Open NDAI for the AI Control Center; provider/model execution remains blocked</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>

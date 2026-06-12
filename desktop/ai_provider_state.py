@@ -2225,7 +2225,7 @@ class AIProviderStateSnapshot:
     capability_pack_uninstall_blocked_reason: str = CAPABILITY_PACK_UNINSTALL_BLOCKED_REASON
     lane_boundary_schema_version: str = LANE_BOUNDARY_SCHEMA_VERSION
     public_lane_boundary_state: str = PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY
-    public_lane_boundary_label: str = "Public Edition: local assist only; provider-visible data none"
+    public_lane_boundary_label: str = "Public Edition: deterministic no-provider assist; provider-visible data none"
     developer_lane_boundary_state: str = DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
     developer_lane_boundary_label: str = "Developer lane: gated; private setup not configured"
     owner_lane_boundary_state: str = OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
@@ -2322,8 +2322,8 @@ class AIProviderStateSnapshot:
     prompt_send_label: str = "Prompt send: disabled"
     local_action_result_schema_version: str = LOCAL_ACTION_RESULT_SCHEMA_VERSION
     local_action_result_state: str = LOCAL_ACTION_RESULT_IDLE
-    local_action_result_label: str = "Local assist result: waiting for local action"
-    local_action_result_detail: str = "Open local assist to produce a local no-provider result."
+    local_action_result_label: str = "No-provider check: waiting for local action"
+    local_action_result_detail: str = "Run the check to produce a deterministic no-provider result."
     local_action_result_provider_visible_data: str = "none"
     local_action_result_sent_to_provider: bool = False
     local_action_result_can_accept_prompts: bool = False
@@ -10529,16 +10529,16 @@ def build_provider_setup_completion_foundation_state(
         state_id=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID,
         mode=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_MODE,
         availability=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_AVAILABILITY,
-        status_label="AI local only",
-        provider_label="ORIN local assist",
+        status_label="No AI executing",
+        provider_label="No provider/model execution",
         disabled_reason=(
-            "ORIN local assist is public-safe and local-only; SDK/model execution remains pending USER approval"
+            "No provider, model, prompt send, downloads, memory, or runtime cache execution is approved"
         ),
         provider_next_action_label=(
             "Open NDAI for the AI Control Center; provider/model execution remains blocked"
         ),
         local_action_result_state=LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER,
-        local_action_result_label="Local assist result: no provider configured",
+        local_action_result_label="No-provider check: no provider configured",
         local_action_result_detail=(
             "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none."
         ),
@@ -10556,7 +10556,7 @@ def build_provider_setup_completion_foundation_state(
         ),
         lane_boundary_schema_version=LANE_BOUNDARY_SCHEMA_VERSION,
         public_lane_boundary_state=PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
-        public_lane_boundary_label="Public Edition: local assist only; provider-visible data none",
+        public_lane_boundary_label="Public Edition: deterministic no-provider assist; provider-visible data none",
         developer_lane_boundary_state=DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
         developer_lane_boundary_label="Developer lane: gated; private setup not configured",
         owner_lane_boundary_state=OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
@@ -10567,14 +10567,14 @@ def build_provider_setup_completion_foundation_state(
         owner_memory_enabled=False,
         owner_agents_enabled=False,
         interaction_affordance=LOCAL_ASSISTED_INTERACTION_AFFORDANCE,
-        interaction_label="Open local assist",
+        interaction_label="Run no-provider check",
         interaction_disabled_reason=(
-            "Local assist runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked"
+            "No-provider check runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked"
         ),
         no_provider_fallback_label="No-provider guard active",
         desktop_ai_owned_readiness_display_state=AI_PROVIDER_STATUS_DISPLAY_VISIBLE,
         desktop_ai_owned_readiness_display_label=(
-            "Desktop AI-owned readiness display: visible public local assist"
+            "Desktop AI-owned readiness display: no AI execution active"
         ),
         **setup_completion_fields,
     )
@@ -12467,7 +12467,7 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
                 "privateSetupRequired": False,
                 "readinessState": "public-safe-gates-present",
                 "boundaryDisplayState": PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
-                "boundaryDisplayLabel": "Public Edition: local assist only; provider-visible data none",
+                "boundaryDisplayLabel": "Public Edition: deterministic no-provider assist; provider-visible data none",
             },
             "developerLane": {
                 "laneIdentity": "developer-lane-future-gated",
