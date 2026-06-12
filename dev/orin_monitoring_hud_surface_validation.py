@@ -1492,8 +1492,23 @@ def validate() -> list[str]:
         "pathRowsContained",
         "contained-middle-elided-readable",
         "middle-elided-contained",
+        "titleHeaderBadgeState",
+        "text-only-product-header-no-rec-log-badge",
+        "dashboard-pill-button-family-sampled",
+        "nativeLogRowsContained",
     ):
         _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
+
+    for forbidden in (
+        '_monitoring_hud_studio_badge("REC"',
+        '_monitoring_hud_studio_badge("LOG"',
+        'header.addWidget(_monitoring_hud_studio_badge',
+    ):
+        _require(
+            forbidden not in renderer,
+            "FAM-006 Studio title/header grammar must not use REC/LOG title badges",
+            failures,
+        )
 
     for needle in (
         "profile-specific log consistency",
@@ -1597,6 +1612,10 @@ def validate() -> list[str]:
         '"standaloneWindowLayout": "not-dashboard-card-clone"',
         '"sharedVisualDna": True',
         '"genericShellRejected": True',
+        '"titleHeaderBadgeState": "removed"',
+        '"standaloneHeaderTreatment": "text-only-product-header-no-rec-log-badge"',
+        '"buttonVisualGrammar": "dashboard-pill-button-family-sampled"',
+        '"nativeLogRowsContained": bool',
         '"windowPlacementMemoryState": "enabled"',
         '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',
         '"internalPathLeakageAbsent": internal_path_leakage_absent',

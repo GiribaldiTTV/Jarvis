@@ -5814,13 +5814,6 @@ def _monitoring_hud_save_window_geometry(widget: QWidget, key: str) -> None:
     settings.sync()
 
 
-def _monitoring_hud_studio_badge(text: str, parent: QWidget) -> QLabel:
-    badge = QLabel(text, parent)
-    badge.setAlignment(Qt.AlignCenter)
-    badge.setProperty("role", "badge")
-    return badge
-
-
 def _monitoring_hud_studio_row(
     label: str,
     value_widget: QLabel,
@@ -5864,6 +5857,22 @@ def _monitoring_hud_set_contained_path_label(label: QLabel, full_path: str) -> s
     return display_text
 
 
+def _monitoring_hud_set_contained_value_label(
+    label: QLabel,
+    value: str,
+    *,
+    tooltip: str = "",
+    mode: str = "single-line-contained",
+) -> str:
+    text = str(value or "").strip() or "Unavailable"
+    available_width = max(190, label.width() or 240)
+    display_text = label.fontMetrics().elidedText(text, Qt.ElideMiddle, available_width)
+    label.setText(display_text)
+    label.setToolTip(str(tooltip or text))
+    label.setProperty("pathDisplayMode", mode)
+    return display_text
+
+
 def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
     return f"""
         QWidget#{object_name} {{
@@ -5875,9 +5884,9 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             letter-spacing: 0px;
         }}
         QFrame[role="studioHeader"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(8, 39, 60, 0.78), stop:0.54 rgba(2, 17, 31, 0.34), stop:1 rgba(4, 13, 25, 0.18));
-            border: 1px solid rgba(117, 228, 255, 0.16);
-            border-radius: 14px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(2, 10, 20, 0.96), stop:0.72 rgba(4, 22, 36, 0.72), stop:1 rgba(2, 10, 20, 0.52));
+            border: 1px solid rgba(117, 228, 255, 0.36);
+            border-radius: 18px;
         }}
         QFrame[role="studioPanel"] {{
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(3, 27, 34, 0.78), stop:1 rgba(1, 14, 24, 0.76));
@@ -5893,18 +5902,6 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
         QLabel {{
             color: #dffbff;
             background: transparent;
-        }}
-        QLabel[role="badge"] {{
-            min-width: 36px;
-            max-width: 36px;
-            min-height: 36px;
-            max-height: 36px;
-            border: 1px solid rgba(118, 239, 255, 0.42);
-            border-radius: 18px;
-            color: #7deaff;
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(8, 66, 83, 0.84), stop:1 rgba(2, 27, 46, 0.72));
-            font-size: 11px;
-            font-weight: 800;
         }}
         QLabel[role="eyebrow"] {{
             color: rgba(126, 198, 218, 0.86);
@@ -5941,11 +5938,11 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             line-height: 1.35;
         }}
         QPushButton {{
-            min-height: 32px;
-            padding: 6px 15px;
-            border: 1px solid rgba(117, 231, 255, 0.40);
-            border-radius: 16px;
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.95), stop:1 rgba(3, 18, 32, 0.92));
+            min-height: 36px;
+            padding: 6px 18px;
+            border: 1px solid rgba(117, 231, 255, 0.50);
+            border-radius: 18px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(8, 45, 65, 0.92), stop:0.54 rgba(4, 27, 45, 0.92), stop:1 rgba(3, 18, 32, 0.92));
             color: #dffbff;
             font-size: 11px;
             font-weight: 800;
@@ -5988,6 +5985,9 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._start_stop_state = "target-required"
         self._current_log_state = "no-current-log"
         self._native_log_path = ""
+        self._native_log_row_count = 0
+        self._native_log_display_text = "None yet."
+        self._native_log_display_mode = "single-line-contained"
         self._last_activation_mode = "not-requested"
         self._opened_by_explicit_user_path = False
         self._geometry_persistence_key = "recording_studio"
@@ -6015,9 +6015,8 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         header_frame.setProperty("role", "studioHeader")
         self._drag_surface = header_frame
         header = QHBoxLayout(header_frame)
-        header.setContentsMargins(10, 9, 10, 9)
-        header.setSpacing(10)
-        header.addWidget(_monitoring_hud_studio_badge("REC", header_frame))
+        header.setContentsMargins(16, 10, 16, 10)
+        header.setSpacing(8)
         header_text = QVBoxLayout()
         header_text.setSpacing(2)
         eyebrow = QLabel("Active Overlay Recording", header_frame)
@@ -6036,10 +6035,18 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         status.setSpacing(6)
         self._target = QLabel("No active overlay profile", status_panel)
         self._summary = QLabel("Ready for local Start/Stop recording.", status_panel)
-        self._native_log = QLabel("Current native log: none yet.", self)
+        self._native_log = QLabel("None yet.", self)
         status.addWidget(_monitoring_hud_studio_row("Target Overlay Profile", self._target, status_panel))
         status.addWidget(_monitoring_hud_studio_row("Recording State", self._summary, status_panel))
-        status.addWidget(_monitoring_hud_studio_row("Native Log", self._native_log, status_panel))
+        status.addWidget(
+            _monitoring_hud_studio_row(
+                "Native Log",
+                self._native_log,
+                status_panel,
+                value_word_wrap=False,
+                value_role="pathValue",
+            )
+        )
 
         self._boundary = QLabel(
             "Dashboard and Studio share the active Overlay Profile target. Tray controls, keybinds, export customization, and provider/model work remain future-gated.",
@@ -6110,6 +6117,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self._refresh_native_log_label()
         self._save_current_geometry()
 
     def _event_is_in_drag_surface(self, event) -> bool:
@@ -6161,6 +6169,27 @@ class MonitoringHudRecordingStudioWindow(QWidget):
                 f"action={normalized_action}|sessionState={self._recording_session_state}"
             )
 
+    def _refresh_native_log_label(self) -> None:
+        if not hasattr(self, "_native_log"):
+            return
+        if self._native_log_path:
+            rows = ""
+            if hasattr(self, "_native_log_row_count") and self._native_log_row_count:
+                rows = f" ({int(self._native_log_row_count)} rows)"
+            display = _monitoring_hud_set_contained_path_label(self._native_log, self._native_log_path)
+            if rows and len(display) + len(rows) <= 44:
+                self._native_log.setText(f"{display}{rows}")
+            self._native_log.setToolTip(f"{self._native_log_path}{rows}")
+            self._native_log_display_mode = "middle-elided-contained"
+        else:
+            if self._recording_session_state == "recording":
+                text = "Pending until recording stops."
+            else:
+                text = "None yet."
+            _monitoring_hud_set_contained_value_label(self._native_log, text)
+            self._native_log_display_mode = "single-line-contained"
+        self._native_log_display_text = self._native_log.text()
+
     def update_product_state(
         self,
         *,
@@ -6187,6 +6216,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._recording_session_state = recording_session_state or "ready"
         self._start_stop_state = start_stop_state or "target-required"
         self._native_log_path = native_log_path.strip()
+        self._native_log_row_count = int(row_count or 0)
         self._current_log_state = current_log_state or "no-current-log"
         profile = active_profile_name.strip() or "No active overlay profile"
         count = max(0, int(target_count or 0))
@@ -6195,12 +6225,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             f"{target_state or 'Target pending'}: {target_names or 'No active monitor targets'}. "
             f"Session state: {self._recording_session_state}."
         )
-        if self._native_log_path:
-            self._native_log.setText(f"Current native log: {self._native_log_path} ({int(row_count or 0)} rows)")
-        elif self._recording_session_state == "recording":
-            self._native_log.setText("Current native log: pending until recording stops.")
-        else:
-            self._native_log.setText("Current native log: none yet.")
+        self._refresh_native_log_label()
         self._start.setEnabled(self._start_stop_state == "start-enabled")
         self._stop.setEnabled(self._start_stop_state == "recording-stop-enabled")
         if not activate_window:
@@ -6227,6 +6252,15 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
+            "nativeLogDisplayText": self._native_log_display_text,
+            "nativeLogPathDisplayMode": self._native_log_display_mode,
+            "nativeLogPathWordWrap": self._native_log.wordWrap(),
+            "nativeLogRowsContained": bool(
+                self._native_log_display_text
+                and "\n" not in self._native_log_display_text
+                and self._native_log.wordWrap() is False
+                and self._native_log.property("pathDisplayMode") in {"middle-elided-contained", "single-line-contained"}
+            ),
             "currentLogState": self._current_log_state,
             "activationMode": self._last_activation_mode,
             "openedByExplicitUserPath": self._opened_by_explicit_user_path,
@@ -6238,6 +6272,9 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "standaloneWindowLayout": "not-dashboard-card-clone",
             "sharedVisualDna": True,
             "genericShellRejected": True,
+            "titleHeaderBadgeState": "removed",
+            "standaloneHeaderTreatment": "text-only-product-header-no-rec-log-badge",
+            "buttonVisualGrammar": "dashboard-pill-button-family-sampled",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "geometryPersistenceKey": self._geometry_persistence_key,
@@ -6289,9 +6326,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         header_frame.setProperty("role", "studioHeader")
         self._drag_surface = header_frame
         header = QHBoxLayout(header_frame)
-        header.setContentsMargins(10, 9, 10, 9)
-        header.setSpacing(10)
-        header.addWidget(_monitoring_hud_studio_badge("LOG", header_frame))
+        header.setContentsMargins(16, 10, 16, 10)
+        header.setSpacing(8)
         header_text = QVBoxLayout()
         header_text.setSpacing(2)
         eyebrow = QLabel("Recording Logs", header_frame)
@@ -6536,6 +6572,9 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "standaloneWindowLayout": "not-dashboard-card-clone",
             "sharedVisualDna": True,
             "genericShellRejected": True,
+            "titleHeaderBadgeState": "removed",
+            "standaloneHeaderTreatment": "text-only-product-header-no-rec-log-badge",
+            "buttonVisualGrammar": "dashboard-pill-button-family-sampled",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "geometryPersistenceKey": self._geometry_persistence_key,
@@ -11762,7 +11801,11 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("standaloneWindowLayout") == "not-dashboard-card-clone"
                 and proof.get("sharedVisualDna") is True
                 and proof.get("genericShellRejected") is True
+                and proof.get("titleHeaderBadgeState") == "removed"
+                and proof.get("standaloneHeaderTreatment") == "text-only-product-header-no-rec-log-badge"
+                and proof.get("buttonVisualGrammar") == "dashboard-pill-button-family-sampled"
                 and proof.get("windowPlacementMemoryState") == "enabled"
+                and proof.get("nativeLogRowsContained") is True
                 and proof.get("startEnabled") is True
                 and proof.get("stopEnabled") is False
                 and proof.get("startStopState") == "start-enabled"
@@ -11937,6 +11980,8 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "recording_studio_window"
                 and proof.get("currentLogState") == "native-log-saved"
                 and str(proof.get("nativeLogPath") or "").strip()
+                and proof.get("nativeLogRowsContained") is True
+                and proof.get("nativeLogPathDisplayMode") == "middle-elided-contained"
                 and proof.get("activationMode") == "passive-state-refresh"
             )
             add_step("Recording Studio compact native/current-log tracking updates after save", passed, proof)
@@ -12027,6 +12072,9 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("standaloneWindowLayout") == "not-dashboard-card-clone"
                 and proof.get("sharedVisualDna") is True
                 and proof.get("genericShellRejected") is True
+                and proof.get("titleHeaderBadgeState") == "removed"
+                and proof.get("standaloneHeaderTreatment") == "text-only-product-header-no-rec-log-badge"
+                and proof.get("buttonVisualGrammar") == "dashboard-pill-button-family-sampled"
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("internalPathLeakageAbsent") is True
                 and proof.get("userVisibleStorageModel") == "flat-user-recording-and-export-roots"

@@ -1136,9 +1136,9 @@ function Get-ReturnedUtsDeterminismGates() {
             issueId = "FAM006-RUTS-003"
             title = "Log Viewer Studio visual-system inheritance"
             status = "PASS"
-            requiredProof = "Focused Log Viewer Studio screenshots must be adjudicated against Project Vision, FAM-006 family vision, and the Recording family-feature vision instead of passing from screenshot existence, generic shell presence, or Dashboard-card-clone markers. Native/export path rows must be visible, contained, non-wrapping, and intentionally middle-elided when full paths are too long."
-            stopLossReason = "Closed only when Log Viewer Studio proves standalone-window shared FAM-006 visual DNA: chrome, opacity, color, typography, rows/dividers, buttons, glow/focus/hover/disabled states, spacing, compact density, non-Dashboard-card layout, and contained native/export folder rows."
-            futureGreenCondition = "LV visual adjudication records source-truth-mapped verdicts for Log Viewer Studio standalone chrome, rows, buttons, typography, density, window shape, state language, and path-row readability."
+            requiredProof = "Focused Log Viewer Studio screenshots must be adjudicated against Project Vision, FAM-006 family vision, and the Recording family-feature vision instead of passing from screenshot existence, generic shell presence, or Dashboard-card-clone markers. Native/export path rows must be visible, contained, non-wrapping, and intentionally middle-elided when full paths are too long. REC/LOG-style title badges are not accepted for the studio window header grammar."
+            stopLossReason = "Closed only when Log Viewer Studio proves standalone-window shared FAM-006 visual DNA: chrome, opacity, color, typography, rows/dividers, Dashboard-family buttons, glow/focus/hover/disabled states, spacing, compact density, non-Dashboard-card layout, title-badge-free text header, and contained native/export folder rows."
+            futureGreenCondition = "LV visual adjudication records source-truth-mapped verdicts for Log Viewer Studio standalone chrome, rows, buttons, typography, density, window shape, state language, title/header treatment, and path-row readability."
         }
         [pscustomobject]@{
             id = "RETURNED_UTS_USER_VISIBLE_STORAGE_MODEL_GATE"
@@ -1154,9 +1154,9 @@ function Get-ReturnedUtsDeterminismGates() {
             issueId = "FAM006-RUTS-005"
             title = "Recording Studio UI visual proof depends on normal activation"
             status = "PASS"
-            requiredProof = "Recording Studio UI visual proof must be blocked when the Studio cannot be activated through the normal visible USER path; helper-launched screenshots are supporting evidence only."
-            stopLossReason = "Closed by requiring explicit-user-open Recording Studio proof before focused Studio screenshots can pass, then requiring standalone-window shared FAM-006 visual DNA instead of Dashboard-card cloning."
-            futureGreenCondition = "Manual visible-button activation passes first, then focused Recording Studio screenshots are visually adjudicated against source truth for standalone chrome, rows, buttons, typography, density, window shape, and state language."
+            requiredProof = "Recording Studio UI visual proof must be blocked when the Studio cannot be activated through the normal visible USER path; helper-launched screenshots are supporting evidence only. Focused screenshots must also prove Dashboard-family button grammar, title-badge-free text header, and contained native-log text."
+            stopLossReason = "Closed by requiring explicit-user-open Recording Studio proof before focused Studio screenshots can pass, then requiring standalone-window shared FAM-006 visual DNA instead of Dashboard-card cloning or REC-title-badge chrome."
+            futureGreenCondition = "Manual visible-button activation passes first, then focused Recording Studio screenshots are visually adjudicated against source truth for standalone chrome, rows, buttons, typography, density, window shape, title/header treatment, native-log text containment, and state language."
         }
     )
 }
@@ -1325,7 +1325,7 @@ Codex Precheck Summary
 
 Vision-To-Proof Matrix For This Handoff
 - Project Vision / FAM-002 window standard -> Recording Studio and Log Viewer Studio must look like polished Nexus standalone windows, not generic utility dialogs. Evidence: focused native-window screenshots and short video.
-- FAM-006 Family Vision -> new FAM-006 windows must inherit color, shape, opacity, typography, row/divider treatment, button states, glow, density, and screenshot proof expectations from the existing visual system. Evidence: Recording Studio and Log Viewer Studio focused screenshots.
+- FAM-006 Family Vision -> new FAM-006 windows must inherit color, shape, opacity, typography, row/divider treatment, button states, glow, density, and screenshot proof expectations from the existing visual system. Evidence: Recording Studio and Log Viewer Studio focused screenshots. REC/LOG-style title badges are not accepted in the standalone studio header grammar for this repair.
 - FAM-006 Recording Feature Vision -> Dashboard card, Recording Studio, Log Viewer Studio shell, native/export boundaries, and active Overlay Profile target mirror must remain branch-specific and future-gated where planned. Evidence: Recording card states, native-log readback, Log Viewer folder shell screenshots, and manifest proof.
 - Live Validation proof rule -> proof must be visible in photo/video or elevated to USER. Evidence: desktop-shortcut human-client manifest, focused screenshots, and this UTS.
 - Current repair focus -> Log Viewer Studio native/export path rows must be readable and contained: no clipped wrapping, no branch/worktree leakage, full path available through tooltip/proof, and visible display intentionally middle-elided when needed.
@@ -1358,11 +1358,11 @@ Expected: The Dashboard card holder gives each card equal left and right visual 
 USER Result / Notes:
 
 FAM006-LV1-REC-006 - Recording Studio Opens And Shares FAM-006 Standalone Window Grammar
-Expected: Clicking the visible Recording Studio button on the Dashboard Recording card opens a real standalone, non-child Recording Studio window. The window does not need Dashboard cards, but it must visibly share FAM-006/HUD visual DNA: dark Nexus chrome, cyan/green glow atmosphere, opacity, typography, button style, row/divider treatment, hover/focus/disabled states, spacing, compact density, and polished non-generic window shape.
+Expected: Clicking the visible Recording Studio button on the Dashboard Recording card opens a real standalone, non-child Recording Studio window. The window does not need Dashboard cards, but it must visibly share FAM-006/HUD visual DNA: dark Nexus chrome, cyan/green glow atmosphere, opacity, typography, Dashboard-family button style, row/divider treatment, hover/focus/disabled states, spacing, compact density, title-badge-free text header, contained native-log text, and polished non-generic window shape.
 USER Result / Notes:
 
 FAM006-LV1-REC-007 - Log Viewer Studio Shares FAM-006 Standalone Window Grammar
-Expected: Clicking Log Viewer Studio opens a real standalone, non-child shell window for native/export log folder access. The shell does not need Dashboard cards, but it must visibly share FAM-006/HUD visual DNA: dark Nexus chrome, cyan/green glow atmosphere, opacity, typography, button style, row/divider treatment, hover/focus/disabled states, spacing, compact density, and polished non-generic window shape. Native/export path rows must be visually contained and readable: no clipped wrapping, no branch/worktree leakage, full path retained as tooltip/proof, and middle-elided display where the full path is too long for the compact window.
+Expected: Clicking Log Viewer Studio opens a real standalone, non-child shell window for native/export log folder access. The shell does not need Dashboard cards, but it must visibly share FAM-006/HUD visual DNA: dark Nexus chrome, cyan/green glow atmosphere, opacity, typography, Dashboard-family button style, row/divider treatment, hover/focus/disabled states, spacing, compact density, title-badge-free text header, and polished non-generic window shape. Native/export path rows must be visually contained and readable: no clipped wrapping, no branch/worktree leakage, full path retained as tooltip/proof, and middle-elided display where the full path is too long for the compact window.
 USER Result / Notes:
 
 Issue Regression Checks, If Any
