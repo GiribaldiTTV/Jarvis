@@ -43,6 +43,8 @@ Repo Docs are durable index/context files. They may contain governance law, prod
 
 Repo Docs must not contain active operational ledger material for branch state, branch plans, UFD rows, Branch Change Intent rows, Element-to-Phase rows, worktree assignment state, PR watcher state, release-window assembly, selected-next posture, review-bundle manifests, rebaseline packets, or temporary Codex handoff state. Those ledgers belong in `C:\Nexus Governance State`, approved worktree-local staging, Git/GitHub/helper-derived truth, or later USER-approved external owners.
 
+Codex App local hook state is also operational state, not repo source truth. Repo docs may own durable policy for assigned-thread/worktree confinement and may name future reference-template expectations, but live `hooks.json` entries, installed hook scripts, thread lock records, waiver records, and hook audit logs belong under USER-local Codex state such as `C:\Users\anden\.codex` unless USER later approves a different external owner. These local records must not be copied into repo docs as current state or used to bypass the repo phase machine.
+
 When a repo doc needs to reference operational work, it may record only a compact evidence pointer such as branch name, branch record path, external-state owner path, workstream/family owner, PR/release receipt, or historical interpretation. It must not record whether the operational item is currently active, complete, pending, blocked, open, mergeable, released, selected-next, or no-branch-created unless the line is clearly labeled as historical receipt evidence.
 
 ## Source-Truth Ownership Matrix

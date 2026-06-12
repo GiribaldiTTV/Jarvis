@@ -3023,6 +3023,21 @@ If the requested work belongs outside the assigned worktree, outside the active 
 
 Assigned Worktree Confinement is mandatory once a thread is assigned to a specific worktree. The thread must treat that worktree root as its boundary for repo mutation, branch operations, runtime launch, shortcut mutation, provider/model install, PR work, release work, and GitHub Desktop handoff.
 
+Codex App Thread Worktree Guard Rule:
+
+- Rule Name: `Codex App Thread Worktree Guard`
+- Owner: `Docs/phase_governance.md`; compact mirrors may live in `Docs/development_rules.md`, `Docs/codex_modes.md`, `Docs/worktree_slots.md`, `Docs/governance_efficiency_operating_model.md`, and `Docs/validation_helper_registry.md`
+- Applies To: Codex App threads, local Codex hook policy, assigned worktree preflight, branch/worktree mutation, Git operations, packet generation, helper execution that writes files, external-state mutation, and GitHub Desktop handoff
+- Required State: a Codex App thread that is assigned to a worktree must bind mutation authority to the assigned Git root/worktree, not to the exact branch. The thread may switch or create branches inside that assigned worktree only when normal source truth and USER approvals allow it. The thread may inspect sibling worktrees read-only for audit, overlap, rebaseline, or routing analysis. It must not mutate a sibling worktree, parked worktree, neutral main, external operational state, or USER-local Codex state unless the current phase and USER approval explicitly admit that target.
+- Allowed Values: `Assigned Root Mutation Allowed`, `Read-Only Cross-Worktree Analysis`, `First Binding Requires USER Confirmation`, `Worktree Escape User Waiver Granted`, `External Hook State Only`, `Reference Hook Template Only`
+- Invalid Values: `Mutate Any Worktree From Current Thread`, `Governance Mutation From Non-Governance Worktree`, `Sibling Worktree Packet Generation`, `Sibling Worktree Git Operation`, `External Lock Ledger In Repo Docs`, `Hook Installed By Repo Patch`, `Branch-Specific Lock Only`
+- Blocking Condition: `Codex Thread Assigned Worktree Mismatch`, `Worktree Escape User Waiver Missing`, `Governance Worktree Mutation From Non-Governance Root`, `Codex Hook Live State In Repo`, or `Thread First Binding Unconfirmed` blocks mutation when the assigned root is missing, current root differs from assigned root, a non-Governance thread attempts Governance-owned mutation, live hook/lock/audit state is being committed as repo truth, or an existing thread has not reported its first binding before mutation.
+- Repair Owner: assigned thread for preflight/reporting; standing Governance intake for durable policy repair; USER for first-binding confirmation, worktree escape waiver, hook installation, live lock storage, or local Codex configuration mutation.
+- Repair Path: stop before mutation, report assigned root, actual root, target root, intended command class, read/write mode, waiver state, and safest routing path. Continue read-only analysis if useful. Mutation may resume only in the assigned worktree, through the standing Governance worktree when Governance owns the repair, or after USER grants a bounded waiver naming source root, target root, branch, command/file scope, expiration or stop condition, validation proof, and return path.
+- USER Decision Required: required before installing or modifying `C:\Users\anden\.codex\hooks.json`, local hook scripts, thread lock files, waiver files, audit logs, external operational state schemas, sibling worktree files, neutral main files, or any reference hook template/code in the repo.
+- Validation Owner: `dev/orin_branch_governance_validation.py --worktree-confinement-gate` owns marker-first source checks after helper updates are approved; any future local hook is USER-local operational enforcement and is not clean-clone repo validation.
+- Final Disposition: repo source truth owns durable policy and optional future reference-template guidance only. Installed hook state, per-thread lock records, waiver records, and audit logs are local Codex operational state outside the repo.
+
 Every assigned branch authority record must carry:
 
 - Assigned Worktree Confinement: Required
