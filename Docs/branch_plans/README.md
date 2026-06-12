@@ -128,7 +128,43 @@ BP2 and BP3 packets must map every selected FFV element to branch-local Slice/SL
 
 Workstream, Hardening, and Live Validation must carry the same selected FFV element IDs forward. Broad inference, nearby proof, fixture-only proof, validator pass, or a general statement that the branch implemented the feature is not enough for a user-visible, runtime-visible, UI, workflow, provider, helper, validator, or source-truth element. Each such element needs element-specific evidence or a named waiver.
 
+BP2/BP3 proof plans must also identify evidence independence for every material selected element. The plan must name `Claim:`, `Claim Class:`, `Source-Truth Owner:`, `Minimum Proof Strength:`, `Expected Independent Evidence:`, `Evidence Class:`, `Known Limitation:`, and `Adjudication / Waiver Path:` when the element affects product behavior, UI/UX, runtime behavior, workflow hierarchy, proof-visible output, helper/validator behavior, source-truth ownership, security/privacy boundary, failure/recovery behavior, external live truth, or subjective USER judgment. The branch plan defines expected behavior; it does not prove the behavior by itself. Marker presence, helper green, generated manifests, screenshot existence, copied file lists, or BP2/BP3 prose are supporting evidence only until compared against the applied vision chain and independent proof. If the minimum proof strength cannot be reached, BP2/BP3 must predeclare `Manual USER Validation`, `USER Waiver`, `Repair Required`, or `Blocked` instead of letting Workstream or Live Validation report an overclaimed green result.
+
+Claim/evidence matrix rows use these governed fields:
+
+- `Claim:`
+- `Claim Class:`
+- `Source-Truth Owner:`
+- `Minimum Proof Strength:`
+- `Expected Independent Evidence:`
+- `Evidence Class:`
+- `Evidence Provided / Expected:`
+- `Known Limitation:`
+- `Codex Adjudication / Waiver Path:`
+- `Disposition:`
+
+Vision-To-Proof Matrix rows carry the same claims into Hardening and Live Validation. Each material accepted requirement must include:
+
+- `Requirement / Claim ID:`
+- `Accepted Vision Source:`
+- `Accepted Requirement:`
+- `Implementation Evidence Expected:`
+- `Observed Runtime Evidence Expected:`
+- `Comparison Evidence Expected:`
+- `Reference Surface / Baseline:`
+- `Codex Adjudication Plan:`
+- `USER Validation Need:`
+- `Final Verdict Path:`
+
+Hardening reviews these rows for proof gaps before Live Validation. Live Validation fills the observed evidence, comparison evidence, adjudication result, USER validation need, and final verdict. A row that only says helper output, marker, manifest, screenshot, video, or log exists is incomplete until it records what accepted requirement the artifact proves and how Codex compared it.
+
+When the selected element creates or changes user-facing UI, BP2/BP3 must classify each visible surface as `Nexus-Owned Product Surface`, `Platform-Native Exception`, `Diagnostic / Developer Surface`, or `External Surface`. `Nexus-Owned Product Surface` rows must name the inherited FAM-002 component grammar and window chrome/frame treatment. `Platform-Native Exception` rows must name the platform reason, why custom NDAI chrome would be wrong or unsafe, and the proof that the exception is deliberate.
+
 Active implementation status for selected elements belongs in the active external branch plan or approved branch-planning packet. Family Feature Vision records own only the durable `Visioned` inventory, deferred facts, proof expectations, and fold-down receipts.
+
+When a branch re-enters planning or proof after merged governance standards land on `origin/main`, the active branch plan or review packet must carry a `Merged Vision Standard Adoption Review:`. The review must name the merged standard source, the rebaseline or re-entry event, affected branch artifacts, affected product surfaces, affected proof claims, adoption disposition, repair/waiver/blocker, and a `No Repo Live-State Tracking:` statement. This review may live in the active external branch plan, BP1/BP2/BP3 packet, Hardening packet, Live Validation packet, PR Readiness packet, or Codex digest according to the current phase; repo historical branch-plan receipts must not be used as live adoption ledgers.
+
+BP1/BP2/BP3 packets created after a rebaseline must not treat old branch packets as green proof when the branch now touches standards merged after those packets were generated. BP1 refreshes the branch vision only when the accepted vision chain changed or was insufficient. BP2 updates engineering/proof-plan matrices when implementation proof, UI inheritance, claim class, minimum proof strength, or USER validation routing changed. BP3 verifies Workstream readiness against the updated adoption review before implementation approval can be requested.
 
 The active USER hub for Branch Planning packets is:
 
@@ -177,6 +213,20 @@ Runtime-focused plans must include:
 - USER Planning Decisions:
 - Plan Revision History:
 - Plan-To-Implementation Traceability Table:
+- Claim / Evidence Matrix:
+- Vision-To-Proof Matrix:
+- Merged Vision Standard Adoption Review:
+- Accepted Vision Source:
+- Accepted Requirement:
+- Claim Class:
+- Minimum Proof Strength:
+- Evidence Provided / Expected:
+- Evidence Independence:
+- Reference Surface / Baseline:
+- Observed Runtime Evidence:
+- Comparison Evidence:
+- Limitation:
+- USER Validation / Waiver Path:
 - Hardening Comparison Checklist:
 - Live Validation Proof Or Waiver Checklist:
 - Runtime Observability Decision Matrix:
@@ -416,7 +466,7 @@ Required review markers:
 
 `Review Status:` must use `Accepted by USER`, `Revised by USER`, `Deferred With Waiver`, `Rejected by USER`, or `Needs USER Decision`. `Contract Status:` is the closed-loop BP2 Branch Plan Contract state and must use `Draft`, `Pending USER Response`, `Pending Codex Digest`, `Pending USER Confirmation`, `Complete`, or `Waived by USER`. `Packet Reviewability State:` must use `Missing`, `Generated`, `Validation Failed`, `Reviewable`, `Stale`, or `Superseded`. `USER Gate State:` must use `Pending USER Review`, `USER Revision Requested`, `USER Accepted`, `USER Approved`, `USER Waived`, `USER Rejected`, `USER Blocked`, or `Superseded`. A packet can be reviewable while the USER gate remains pending; helpers and validators must report those states separately. The packet must give USER answer paths to accept the engineering plan, accept with changes, route back to BP1 because the plan changes the accepted Branch Vision, explicitly waive remaining BP2 questions, reject and request a narrower branch or plan, or pause as unclear. `USER_BRANCH_PLAN_REVIEW.md` is the BP2 USER Branch Plan Review: a required user-facing engineering-plan artifact derived from accepted or waived BP1, not the primary product/design vision contract and not a normal Codex status digest. It must present the accepted Branch Vision summary, implementation package summary, branch scope size test, SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, H1 expectations, LV/UTS expectations, rollback/safety plan, open engineering risks, future-gated boundaries, line-item USER plan review, USER response area, Codex response digest, implementation constraints created from USER response, rejected/deferred ideas, source-truth impact, change log, plan acceptance checklist, and exact BP3 approval text when ready. The primary BP2 decision surface is whether the engineering plan correctly builds the accepted BP1 vision and preserves future-gated boundaries; if the engineering plan changes product direction, user-facing behavior, surfaces, scope, or future-gated boundaries, it must route back to BP1 before implementation approval.
 
-Substantive BP2 artifact rule: `USER_BRANCH_PLAN_REVIEW.md` must translate the accepted or waived BP1 branch vision into an applied engineering plan. It must define the largest safe coherent branch scope, describe seams/SLCs as engineering route details inside the accepted vision, identify likely files, helpers, validators, review artifacts, proof outputs, risk controls, rollback/reversibility posture, implementation options with tradeoffs, and Codex recommendation, and prove alignment to BP1. For runtime, desktop, user-facing, file/folder, launch, bridge, Dev Toolkit, or validation-critical work, BP2 must also include the `Runtime Observability Decision Matrix`, exact USER desktop launcher proof plan, launcher parity proof plan if a troubleshooting launcher may be used, photo/video proof plan, manual USER validation plan for unphotographable claims, troubleshooting-mode decision, privacy/redaction constraints, and USER packet evidence plan. A BP2 packet that merely repeats BP1 vision headings, lists markers, says "see copied files," or presents generic implementation choices blocks on `BP2 Template-Shell Review Artifact` or `USER Review Artifact Substantive Content Missing`. BP2 must keep BP3 and Workstream future-gated until USER accepts or waives BP2 and BP3 validates orchestration.
+Substantive BP2 artifact rule: `USER_BRANCH_PLAN_REVIEW.md` must translate the accepted or waived BP1 branch vision into an applied engineering plan. It must define the largest safe coherent branch scope, describe seams/SLCs as engineering route details inside the accepted vision, identify likely files, helpers, validators, review artifacts, proof outputs, risk controls, rollback/reversibility posture, implementation options with tradeoffs, and Codex recommendation, and prove alignment to BP1. For runtime, desktop, user-facing, file/folder, launch, bridge, Dev Toolkit, or validation-critical work, BP2 must also include the `Runtime Observability Decision Matrix`, `Vision-To-Proof Matrix`, exact USER desktop launcher proof plan, launcher parity proof plan if a troubleshooting launcher may be used, photo/video proof plan, manual USER validation plan for unphotographable claims, troubleshooting-mode decision, privacy/redaction constraints, reference surface / baseline expectations, and USER packet evidence plan. A BP2 packet that merely repeats BP1 vision headings, lists markers, says "see copied files," or presents generic implementation choices blocks on `BP2 Template-Shell Review Artifact` or `USER Review Artifact Substantive Content Missing`. BP2 must keep BP3 and Workstream future-gated until USER accepts or waives BP2 and BP3 validates orchestration.
 
 The BP2 Branch Plan Contract lifecycle is closed loop: Codex proposes the engineering plan derived from BP1, USER responds, Codex digests the response, Codex converts that response into explicit implementation constraints, Codex identifies source-truth and review-packet impact, and any plan-changing digest returns `Contract Status:` to `Pending USER Confirmation`. Codex must update the branch record, branch plan, family vision, backlog, roadmap, validation helper registry, review packet, or other required source truth when USER feedback changes branch direction, feature shape, UI behavior, workflow, end-state vision, implementation scope, future-gated boundaries, or seam order. Codex then refreshes the local USER hub packet and exported ZIP. The cycle repeats until USER explicitly confirms the final contract as `Complete` or explicitly waives the gate. BP3 preparation may proceed only when `Contract Status:` is `Complete` or `Waived by USER` and `USER Gate State:` is `USER Accepted` or `USER Waived`.
 
