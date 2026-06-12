@@ -275,6 +275,43 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Circular Proof Or Generic UI Chrome Passed As Vision Green
+
+- symptom:
+  A branch reports BP, Workstream, Hardening, Live Validation, or PR readiness green while vision files are procedural instead of product-specific, Nexus-owned windows use default/native OS title bars or utility chrome without an approved exception, or the evidence only proves that a plan, marker, manifest, screenshot, or helper output exists.
+- layer:
+  Vision Contract, FAM-002 presentation authority, Branch Planning proof plans, Live Validation visual adjudication, USER packets, and helper/validator interpretation
+- root-cause pattern:
+  Codex treats the artifact that makes a claim as the proof of the claim, treats helper green or screenshot existence as product acceptance, or forgets to classify whether a visible surface is a Nexus-owned product surface that must inherit NDAI presentation standards.
+- fix pattern:
+  require product-detail vision content, classify visible surfaces as `Nexus-Owned Product Surface`, `Platform-Native Exception`, `Diagnostic / Developer Surface`, or `External Surface`, require FAM-002 component grammar for Nexus-owned surfaces, require platform exceptions to name a reason and proof path, require a Visual Inheritance Matrix with window chrome/frame treatment, and require independent evidence plus Codex adjudication before a product/UI claim can advance. Material claims must declare claim class, minimum proof strength, evidence class, limitation, and disposition so supporting diagnostics, helper green, schema/marker presence, generated manifests, screenshot paths, or plan prose cannot be upgraded into direct proof by wording. If a merged standard lands after a branch started, the affected worktree must evaluate adoption at its next legal gate rather than relying on old green proof.
+- validation pattern:
+  future helpers should fail on `Vision Contract Product Detail Missing`, `NDAI Window Chrome Missing`, `Default OS Chrome Used Without Exception`, `Nexus-Owned Surface Classification Missing`, `Platform Exception Unclassified`, `FAM-002 Component Grammar Missing`, `Circular Validation Detected`, `Claim Proven By Own Plan`, `Independent Evidence Missing`, `Claim Class Missing`, `Evidence Class Missing`, `Proof Strength Overstated`, `Supporting Evidence Treated As Direct Proof`, `Plan-Only Proof`, `Marker Or Schema Proof Misclassified`, `Screenshot Path Treated As Visual Acceptance`, `Live Validation Comparison Missing`, `USER Validation Escalation Missing`, or `Merged Vision Standard Adoption Missing` when the defect is machine-checkable
+- source references:
+  - `Docs/nexus_vision.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Live Validation Evidence Without Vision Comparison
+
+- symptom:
+  Live Validation, Hardening, or a USER handoff reports screenshots, videos, runtime logs, helper output, markers, manifests, or interaction artifacts as green evidence while the branch does not show which accepted vision requirement each artifact proves or how Codex compared observed behavior to the accepted vision chain.
+- layer:
+  BP2/BP3 proof planning, Hardening proof-gap review, Live Validation comparative proof, User Test Summary handoff, and helper/validator interpretation
+- root-cause pattern:
+  Codex treats evidence artifacts as self-explanatory proof and skips the row-by-row comparison between accepted Project/Family/Family Feature/Branch Vision requirements, BP2/BP3 proof plan, observed runtime behavior, and reference surfaces.
+- fix pattern:
+  require a `Vision-To-Proof Matrix` that maps every material accepted requirement to claim class, minimum proof strength, implementation evidence, observed runtime evidence, comparison evidence, reference surface/baseline, Codex adjudication, USER validation need, and final verdict. Hardening must find missing proof rows before Live Validation; Live Validation must fill observed/comparison evidence and route subjective or unprovable claims to USER validation or waiver.
+- validation pattern:
+  future helpers should fail on `Vision-To-Proof Matrix Missing`, `Accepted Requirement Missing`, `Observed Runtime Comparison Missing`, `Reference Surface Missing`, `Hardening Proof Gap Not Routed`, `Evidence Input Treated As Comparison`, `Screenshot Or Video Not Adjudicated`, `Runtime Log Treated As Visual Proof`, `Helper Output Treated As Runtime Observation`, `Subjective UX Claim Not USER-Routed`, `Vision-To-Proof Verdict Missing`, or `Live Validation Comparative Proof Missing` when the defect is machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:
@@ -416,3 +453,20 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/orin_task_template.md`
   - `Docs/codex_user_guide.md`
   - `dev/orin_branch_governance_validation.py`
+
+## Pattern: Re-Entering Branch Ignores Merged Vision Standards
+
+- symptom:
+  a branch or worktree rebases onto new governance, then continues from an old BP1/BP2/BP3, Hardening, Live Validation, UTS, or PR Readiness packet without checking whether the merged Project Vision, Family Vision, Family Feature Vision, UI immersion, claim/evidence, Vision-To-Proof, proof-strength, or USER-validation standards now affect the branch
+- layer:
+  rebaseline/reconciliation, Branch Readiness, Branch Planning, Hardening, Live Validation, UTS, and PR Readiness
+- root-cause pattern:
+  rebaseline proves Git freshness but does not separately force an adoption review for merged standards that were created after the active branch packet or proof plan; Codex treats old green packets as still green even when their proof model, UI inheritance, or USER validation path is now incomplete
+- fix pattern:
+  require `Merged Vision Standard Adoption:` at the next legal gate after rebaseline or re-entry, classify affected surfaces/proof claims, repair or waive the branch-local packet/proof plan before the next USER handoff or green gate, and keep current adoption state out of repo docs
+- validation pattern:
+  future validators should fail re-entering branch packets that ignore newly merged standards when the branch touches affected UI, runtime proof, Live Validation proof, failure/recovery behavior, or subjective USER validation, while preserving historical receipts and clean-clone-safe repo validation
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`

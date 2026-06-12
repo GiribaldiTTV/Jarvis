@@ -116,6 +116,39 @@ Durable UI principles:
 
 Family Vision records carry these principles by reference and specialize them only where the FAM has a real product reason. Family Feature Vision records specialize them further for one durable feature category. Branch Vision, BP2, BP3, Workstream, Hardening, and Live Validation must preserve the accepted UI carrydown or record the exact USER-approved exception and proof path.
 
+### Vision Contract Product Detail Quality Bar
+
+Vision contracts are product contracts, not filing instructions. Project Vision, Family Vision, Family Feature Vision, and Branch Vision layers must describe the actual Nexus product outcome, user experience, visible surfaces, trust/recovery behavior, visual standards, interaction model, proof expectations, and non-goals that future work must honor.
+
+A durable vision layer is weak when it only says what the file is for, lists where work should be routed, repeats governance procedure, or says future branches should define the product later. Procedure may appear as compact owner routing, but the durable value of a vision file is the product/design detail it preserves.
+
+Required product-detail anchors for vision work:
+
+- user-visible outcome and end-state experience
+- Nexus fit and family/feature purpose
+- surfaces, windows, controls, status states, and interaction flow when visible UI is involved
+- trust, privacy, failure, recovery, disabled, blocked, or unavailable states when the feature can affect user confidence
+- standard control language and visual inheritance expectations
+- explicit non-goals and future-gated boundaries
+- proof expectations that can later be tested without letting helper output replace product judgment
+
+Invalid vision-only content includes placeholder descriptions, copied source-file lists, branch-local implementation steps without product meaning, SLC/slice/seam labels as the product vision, or "define later" wording for a required product decision. If a lower vision layer discovers durable product detail that the higher layer must own, the branch must route the new fact to the correct vision owner or record a durable deferred disposition before advancing.
+
+### NDAI UI Immersion And Window Chrome Standard
+
+Every Nexus-owned product window, panel, dashboard, studio, command center, settings surface, tray-opened surface, diagnostics surface, and proof-visible user interface should feel like part of Nexus Desktop AI rather than a generic Windows utility.
+
+Nexus-owned product windows must use admitted Nexus / NDAI window presentation: custom product framing or chrome, Nexus control grammar, consistent close/minimize/back/settings affordances, coherent title/header treatment, rounded or intentionally shaped frame behavior where applicable, matching card/button/list/scrollbar style, and visual hierarchy that matches the Project UI Vision and FAM-002 presentation standards.
+
+Surface classification:
+
+- `Nexus-Owned Product Surface`: a window, panel, dashboard, studio, command center, settings surface, tray-opened surface, diagnostics/recovery panel, proof-visible user interface, or persistent/transient product control that Nexus owns and the USER experiences as part of NDAI.
+- `Platform-Native Exception`: an OS, browser, provider, installer, permission, file/folder picker, authentication, or platform-trust surface where native chrome is required or more trustworthy than custom chrome.
+- `Diagnostic / Developer Surface`: a temporary or explicit troubleshooting/proof surface that is not presented as the normal product UI.
+- `External Surface`: a provider, browser, OS, GitHub, or third-party UI surface that Nexus can open or route to but does not visually own.
+
+Default Windows title bars, unstyled native utility windows, generic dialog shells, mismatched button families, and platform-looking popups are invalid for final `Nexus-Owned Product Surface` surfaces unless the branch records an approved platform exception and proof path. Allowed exception candidates include OS file pickers, OS security/permission prompts, installer or update surfaces that must use platform trust affordances, browser/provider-auth surfaces, or temporary troubleshooting-only diagnostics that are explicitly not the product UI. Even then, BP1/BP2/BP3 and Live Validation must classify the exception and prove it is deliberate rather than accidental drift.
+
 FAM-002 is the shared Desktop Interface presentation authority, not the sole owner of every user-facing UI implementation. A consuming FAM branch may implement FAM-002-aligned UI work when that UI is necessary to complete the consuming FAM's accepted Family Vision, Family Feature Vision, Branch Vision Contract Snapshot, BP2/BP3 plan, and proof path. Project Vision owns the global UI principles; FAM-002 owns reusable presentation contracts and control hierarchy; each FAM owns the UI/UX of its own feature behavior; each FFV owns the concrete surface, user flow, and proof expectations for its feature category.
 
 ## Runtime Observability And USER Proof

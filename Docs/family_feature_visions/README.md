@@ -20,6 +20,14 @@ Family Feature Vision records own:
 - Branch Readiness and BP1 consumption notes
 - durable fold-down history when a branch promotes accepted feature-category facts
 
+## Product Detail Quality Bar
+
+A Family Feature Vision must contain enough durable product detail for BP1 to create a real branch vision without inventing feature direction from branch-local reasoning. It should describe the feature category outcome, user-visible surfaces, expected workflow, visual/interaction expectations, durable element inventory, design options, proof expectations, non-goals, deferred carryforward, and dependency triggers.
+
+An FFV is not sufficient when it is only a branch route, Slice/SLC plan, seam plan, implementation package, copied-file list, placeholder, or explanation of what an FFV should do. Slices, SLCs, seams, and branch packages are engineering route details under the selected FFV; they are not the durable feature-category vision identity.
+
+When FFV work discovers additional durable feature elements, deferred items, proof expectations, UI expectations, failure/recovery expectations, or cross-FAM dependency facts, the owning pass must record those facts in the FFV or the correct higher owner before BP1 proceeds, or must name the durable deferred disposition. Do not leave durable feature intent only in chat, helper output, generated USER packets, or active external state.
+
 Family Feature Vision records must not own:
 
 - active branch status
@@ -85,7 +93,9 @@ If the affected FAM has no matching Family Feature Vision yet, the dependency re
 
 When a Family Feature Vision contains user-visible UI, controls, windows, cards, HUDs, overlays, setup flows, status indicators, folder pickers, or evidence surfaces, it must reference the project-wide Project UI Vision in `Docs/nexus_vision.md`, the owning Family Vision's UI specialization, and FAM-002 presentation standards when the surface needs shared Desktop Interface guidance.
 
-The consuming FAM still owns the feature behavior and feature-specific UI implementation; FAM-002 supplies reusable presentation law. The FFV should name the feature-specific control grammar, visual inheritance, allowed exceptions, USER-facing proof surfaces, and photo/video or manual-validation expectations without copying broad UI principles into a second owner.
+The consuming FAM still owns the feature behavior and feature-specific UI implementation; FAM-002 supplies reusable presentation law. The FFV should name the feature-specific control grammar, visual inheritance, surface classification, platform-native exceptions, USER-facing proof surfaces, and photo/video or manual-validation expectations without copying broad UI principles into a second owner.
+
+For every visible window, panel, dialog, status surface, settings surface, or tray-opened surface in the feature category, the FFV should classify it as `Nexus-Owned Product Surface`, `Platform-Native Exception`, `Diagnostic / Developer Surface`, or `External Surface`. `Nexus-Owned Product Surface` items inherit NDAI/FAM-002 window chrome and component grammar by default. `Platform-Native Exception` items must explain why platform chrome is required and what proof keeps the exception from becoming accidental UI drift.
 
 ## Runtime Failure / Recovery Carrydown
 
@@ -97,7 +107,7 @@ FAM-001 owns fatal launcher/runtime diagnostics and future recovery-surface visi
 
 ## Visual Inheritance Matrix
 
-When a Family Feature Vision creates or changes visible UI, BP2/BP3 and later proof should include a Visual Inheritance Matrix that names the existing element or surface inherited from, owning UI rule, shape/radius comparison, spacing/density comparison, typography comparison, card/row/divider treatment, color/shadow/glow treatment, hover/focus/disabled states, scroll/resize/transient-state proof, allowed exception or new grammar, proof artifact, and verdict.
+When a Family Feature Vision creates or changes visible UI, BP2/BP3 and later proof should include a Visual Inheritance Matrix that names the surface classification, existing element or surface inherited from, owning UI rule, window chrome / frame treatment, shape/radius comparison, spacing/density comparison, typography comparison, card/row/divider treatment, color/shadow/glow treatment, hover/focus/disabled states, scroll/resize/transient-state proof, allowed exception or new grammar, proof artifact, and verdict.
 
 `Helper green`, `marker PASS`, or `screenshot exists` is not a visual inheritance verdict. If no valid existing element exists, the branch must route the new grammar through USER acceptance before implementation or stop on the relevant visual inheritance blocker.
 
