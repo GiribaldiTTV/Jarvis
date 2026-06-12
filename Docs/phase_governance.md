@@ -420,6 +420,44 @@ USER Decision Required: Required to waive independent proof, accept manual valid
 Validation Owner: Future helper/validator hardening should extend branch governance validation, branch-readiness fixture validation, USER review bundle validation, visual/live-validation helpers, and source-owner checks where machine-checkable. Green validation is evidence only; Codex must still review the actual claim/evidence relationship.
 Final Disposition: Phase advancement, UTS handoff, PR Readiness, and release-facing closeout are invalid when a material claim is circularly proven, unadjudicated, or supported only by the artifact that made the claim.
 
+### Vision-To-Proof Matrix Gate
+
+Rule Name: `Vision-To-Proof Matrix Gate`
+Owner: `Docs/phase_governance.md` for Live Validation gates, proof requirements, blockers, and comparative-proof disposition; `Docs/branch_plans/README.md` for BP2/BP3 proof-plan fields; `Docs/user_test_summary_guidance.md` for USER validation and UTS interpretation; `Docs/validation_helper_registry.md` for future helper/validator guidance.
+Applies To: BP2, BP3, Workstream, Hardening, Live Validation, UTS handoff, PR Readiness proof review, USER packets, helper output, validator output, and Codex closeout claims when a branch creates or changes runtime behavior, user-facing behavior, UI/UX, workflow, failure/recovery behavior, security/privacy boundaries, helper/validator behavior, source-truth ownership, or any claim that must be proven against accepted vision or branch proof contracts.
+Required State: The branch must maintain a `Vision-To-Proof Matrix` for material claims before Live Validation green or UTS handoff. Each row must name `Requirement / Claim ID:`, `Accepted Vision Source:`, `Accepted Requirement:`, `Claim Class:`, `Minimum Proof Strength:`, `Implementation Evidence:`, `Observed Runtime Evidence:`, `Comparison Evidence:`, `Reference Surface / Baseline:`, `Evidence Class:`, `Known Limitation:`, `Codex Adjudication:`, `USER Validation Need:`, and `Final Verdict:`. Hardening must review the matrix for missing, weak, circular, stale, or unobservable proof before Live Validation handoff.
+Allowed Values:
+
+- `PASS`
+- `REPAIR`
+- `BLOCKED`
+- `UNPROVEN`
+- `WAIVED_WITH_REASON`
+- `Manual USER Validation Required`
+- `Not Applicable With Reason`
+
+Invalid Values:
+
+- `Helper Green`
+- `Marker Green`
+- `Screenshot Exists`
+- `Video Exists`
+- `Manifest Exists`
+- `Log Exists`
+- `Implemented Therefore Proven`
+- `Plan Says It`
+- `Looks Fine`
+- `No Reference Surface Needed`
+- `USER Can Check Later`
+- `Hardening Did Not Inspect`
+
+Blocking Conditions: `Vision-To-Proof Matrix Missing`, `Accepted Requirement Missing`, `Observed Runtime Comparison Missing`, `Reference Surface Missing`, `Hardening Proof Gap Not Routed`, `Evidence Input Treated As Comparison`, `Screenshot Or Video Not Adjudicated`, `Runtime Log Treated As Visual Proof`, `Helper Output Treated As Runtime Observation`, `Subjective UX Claim Not USER-Routed`, `Vision-To-Proof Verdict Missing`, and `Live Validation Comparative Proof Missing`.
+Repair Owner: The current branch/worktree repairs branch-local implementation or proof gaps; Hardening owns pre-Live-Validation proof-gap discovery for the current branch; standing Governance intake repairs reusable rule drift; helper/validator owners repair confirmed tool false-green/false-red behavior; USER owns manual validation, waivers, and subjective acceptance.
+Repair Path: List every material accepted requirement, map it to the claim/evidence class from the Evidence Independence gate, gather implementation evidence, gather runtime or visual evidence through the legal launcher/path, compare the observed evidence to the accepted vision and reference surfaces, adjudicate each row, route any `REPAIR` or `BLOCKED` row back to Workstream or Hardening, and route any objectively unprovable or subjective row to USER manual validation or explicit waiver before UTS/PR green.
+USER Decision Required: Required to waive the matrix, accept subjective/manual validation as the final evidence layer, accept a reference-surface exception, approve a deliberate product/vision mismatch, or allow Live Validation to proceed with a known unproven material claim.
+Validation Owner: Future helper/validator hardening should extend branch governance validation, branch-readiness fixture validation, USER review bundle validation, visual/live-validation helpers, source-owner checks, and family-specific runtime validators where machine-checkable. Green validation remains evidence only; Codex must still inspect the actual matrix and evidence relationship.
+Final Disposition: Live Validation, UTS handoff, PR Readiness, and release-facing closeout are invalid while a material matrix row is missing, unadjudicated, overclaimed, unsupported by observed runtime/comparison evidence, or left for USER discovery without explicit manual-validation routing.
+
 ### Branch / Slice / SLC / Seam Terminology Model
 
 Rule Name: `Branch / Slice / SLC / Seam Terminology Model`
@@ -2697,10 +2735,10 @@ Vision Carrydown Contract:
 - Every vision layer must satisfy the product-detail quality bar from its owner: vision contracts describe product outcome, user experience, surfaces, UI/UX expectations, trust/recovery posture, non-goals, and proof expectations, not only file purpose, routing procedure, copied context, or future "define later" placeholders.
 - BR1 and BR2 must report which layers apply, which files were loaded, whether a Family Feature Vision exists, whether it is sufficient, and whether any layer is not applicable with a source-truth reason.
 - BP1 must digest the applied Project Vision, Family Vision, and Family Feature Vision into a branch-specific vision. BP1 must not invent feature-category direction from branch-local reasoning when the correct Family Feature Vision is missing, shallow, stale, slice-specific, or pointer-stale.
-- BP2 must translate the accepted or waived BP1 vision into branch-local Slice/SLC/seam engineering work, proof outputs, rollback, risk controls, and deferred-item dispositions. If BP2 changes product direction, user-facing behavior, UI carrydown, surface scope, or deferred/future-gated boundaries, it must route back to BP1 or record an explicit USER waiver before BP3.
-- BP3 must verify that the Workstream package implements the accepted or waived BP1/BP2 vision chain, not merely that markers, fixtures, or command outputs are green. BP3 proof planning must classify material claims by `Claim Class:` and `Minimum Proof Strength:` before Workstream implementation is requested.
-- Workstream and Hardening must preserve the same selected Family Feature Vision elements, deferred-item decisions, and UI/proof expectations unless source truth routes a revision back to Branch Planning.
-- Live Validation must compare observed behavior against the Project Vision, Family Vision, applied Family Feature Vision when present, accepted Branch Vision Contract Snapshot, and accepted BP2/BP3 proof plan. Helper output, runtime logs, screenshots, videos, markers, manifests, or branch-plan prose cannot clear a product/user-facing claim unless Codex also adjudicates the claim against that vision chain, verifies independent evidence for the claim, records the proof strength actually achieved, or records an explicit waiver/manual-validation requirement.
+- BP2 must translate the accepted or waived BP1 vision into branch-local Slice/SLC/seam engineering work, proof outputs, rollback, risk controls, deferred-item dispositions, and initial `Vision-To-Proof Matrix` rows. If BP2 changes product direction, user-facing behavior, UI carrydown, surface scope, or deferred/future-gated boundaries, it must route back to BP1 or record an explicit USER waiver before BP3.
+- BP3 must verify that the Workstream package implements the accepted or waived BP1/BP2 vision chain, not merely that markers, fixtures, or command outputs are green. BP3 proof planning must classify material claims by `Claim Class:` and `Minimum Proof Strength:`, confirm the expected `Vision-To-Proof Matrix`, and identify what Workstream, Hardening, and Live Validation evidence must fill before implementation is requested.
+- Workstream and Hardening must preserve the same selected Family Feature Vision elements, deferred-item decisions, UI/proof expectations, and matrix rows unless source truth routes a revision back to Branch Planning. Hardening must identify missing proof, stale references, weak comparison surfaces, and unobservable claims before Live Validation begins.
+- Live Validation must compare observed behavior against the Project Vision, Family Vision, applied Family Feature Vision when present, accepted Branch Vision Contract Snapshot, accepted BP2/BP3 proof plan, and the branch `Vision-To-Proof Matrix`. Helper output, runtime logs, screenshots, videos, markers, manifests, or branch-plan prose cannot clear a product/user-facing claim unless Codex also adjudicates the claim against that vision chain, verifies independent evidence for the claim, records the proof strength actually achieved, records the comparison/reference surface used, or records an explicit waiver/manual-validation requirement.
 - USER review packets for BP1, BP2, BP3, Hardening, Live Validation, and UTS handoff must show the applied vision layers, selected/deferred elements, user-facing surfaces, proof gathered, evidence paths, PASS/FAIL/BLOCKED/UNPROVEN disposition, and future-gated scope in a USER-readable way.
 - Missing vision-layer proof blocks on `Vision Carrydown Chain Missing`. Branch-local invention while a Family Feature Vision is required blocks on `Branch Vision Invented From Local Reasoning`. Missing Live Validation comparison blocks on `Vision Proof Alignment Missing`. A USER packet that omits the applied vision/evidence mapping blocks on `USER Packet Vision Evidence Missing`. Product-vision files that are mostly procedural, placeholder, slice-route-only, or copied-context-only block on `Vision Contract Product Detail Missing` until repaired or explicitly waived for a non-product branch.
 
@@ -2784,7 +2822,7 @@ Purpose:
 Branch Planning uses three internal stage gates without changing the canonical phase enum:
 
 - `BP1 - USER Branch Vision Review`: uses `USER_BRANCH_VISION_REVIEW.md` to present Project Vision Context, Family Vision Context, Feature Vision Context, Branch Goal, End-State Vision, user-facing behavior, surface map, design options, Codex recommendations, USER response, Codex digest, accepted Branch Vision, deferred/future-gated ideas, question queue, design assumption ledger, and acceptance/revision/rejection/waiver status. BP1 cannot begin while `Family Feature Vision Required For Selected Feature` is active. When a USER-approved Family Feature Vision exists, `Feature Vision Context` must digest that file and its Deferred Feature Carryforward instead of inventing feature direction from branch-local reasoning. The BP1 artifact must be substantive and branch-specific: it digests source-truth context into an applied branch vision, explains what USER will see/review/decide/rely on, names real design options and tradeoffs, asks decision-driving questions, and cannot pass as a template shell, copied-file list, generic options list, or marker-only packet.
-- `BP2 - USER Branch Plan Review`: uses `USER_BRANCH_PLAN_REVIEW.md` to present the engineering plan derived from accepted or waived BP1, including package summary, branch scope size test, Slice/SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, Runtime Observability Decision Matrix when applicable, claim/evidence matrix, exact normal USER desktop runtime launcher proof plan, launcher parity proof plan if troubleshooting may substitute, photo/video proof plan, manual USER validation plan, H1 expectations, LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, and exact BP3 approval text. The BP2 artifact must translate the accepted BP1 vision into a branch-specific engineering contract with scope, slice-level deliverables, seams, proof outputs, risk controls, rollback/reversibility posture, options, tradeoffs, and Codex recommendation; it must preserve the BR2/BP1 disposition of applicable deferred carryforward items and cannot merely repeat BP1, list markers, or point USER at copied files. The claim/evidence matrix must name `Claim Class:`, `Minimum Proof Strength:`, `Evidence Class:`, `Expected Independent Evidence:`, `Known Limitation:`, and `Manual USER Validation / Waiver Path:` for every material product, runtime, UI, security/privacy, failure/recovery, helper/validator, external-live-truth, or subjective USER claim.
+- `BP2 - USER Branch Plan Review`: uses `USER_BRANCH_PLAN_REVIEW.md` to present the engineering plan derived from accepted or waived BP1, including package summary, branch scope size test, Slice/SLC/seam plan, affected surfaces, likely files, validators/helpers, proof requirements, Element-to-Phase Proof Matrix, Runtime Observability Decision Matrix when applicable, claim/evidence matrix, Vision-To-Proof Matrix, exact normal USER desktop runtime launcher proof plan, launcher parity proof plan if troubleshooting may substitute, photo/video proof plan, manual USER validation plan, H1 expectations, LV/UTS expectations, rollback/safety plan, risks, future-gated boundaries, and exact BP3 approval text. The BP2 artifact must translate the accepted BP1 vision into a branch-specific engineering contract with scope, slice-level deliverables, seams, proof outputs, risk controls, rollback/reversibility posture, options, tradeoffs, and Codex recommendation; it must preserve the BR2/BP1 disposition of applicable deferred carryforward items and cannot merely repeat BP1, list markers, or point USER at copied files. The claim/evidence matrix and Vision-To-Proof Matrix must name `Accepted Vision Source:`, `Accepted Requirement:`, `Claim Class:`, `Minimum Proof Strength:`, `Evidence Class:`, `Expected Independent Evidence:`, `Reference Surface / Baseline:`, `Known Limitation:`, and `Manual USER Validation / Waiver Path:` for every material product, runtime, UI, security/privacy, failure/recovery, helper/validator, external-live-truth, or subjective USER claim.
 - `BP3 - Workstream Entry / Orchestration Validation`: proves BP2 correctly implements BP1, proves package size and Slice/SLC traceability, verifies affected files, validators, helper updates, H1/LV/UTS/rollback/proof paths, validates runtime observability and exact-launcher/photo-video/manual-validation planning when applicable, preserves future-gated boundaries and deferred-item dispositions, and returns bounded Workstream implementation approval for the admitted same-branch package only when BP1 and BP2 are accepted or explicitly waived and BP3 validation is green. The BP3 artifact must name the entry seam or initial seam sequence and must be a substantive orchestration-readiness contract with scope, implementation order, validation/proof plan, rollback posture, drift controls, unresolved USER decisions, blockers, and a go/repair/blocked recommendation; it cannot rely on helper-green hygiene or first-seam-only readiness.
 
 Allowed:
@@ -2897,6 +2935,7 @@ Required evidence:
 - validator results
 - runtime results when relevant
 - plan-vs-vision comparison when a Branch Vision Contract Snapshot is required
+- `Vision-To-Proof Matrix` proof-gap review for material accepted requirements, including missing observed runtime evidence, missing comparison/reference surfaces, weak proof strength, circular evidence, unobservable claims, and USER validation/waiver routing
 - explicit distinction between product defects, harness defects, environment issues, and canon or contract drift
 
 Exit:
@@ -2904,6 +2943,7 @@ Exit:
 - branch-local hardening gate is green
 - no unresolved first-failing seam remains
 - no truth-drift contradiction remains
+- no unwaived `Vision-To-Proof Matrix` row remains `REPAIR`, `BLOCKED`, `UNPROVEN`, or missing a legal Live Validation / USER validation path
 
 ### Live Validation
 
@@ -2933,6 +2973,7 @@ Required evidence:
 - troubleshooting launcher proof may substitute only with USER consent and `Launcher Parity Proof: PASS`
 - photo/video or ordered frame-sequence proof for every visible USER-facing closeout claim, or USER-elevated manual validation/waiver when photo/video cannot prove the claim
 - runtime log, Dev Toolkit, manifest, screenshot/video, interaction-matrix, and raw-evidence references in the USER packet when those artifacts support Live Validation
+- row-by-row `Vision-To-Proof Matrix` verdicts that compare observed runtime behavior, screenshots/videos, logs, helper output, markers, manifests, and interaction evidence against the accepted Project Vision, Family Vision, Family Feature Vision when present, Branch Vision Contract Snapshot, BP2/BP3 proof plan, and reference surfaces; evidence artifacts are inputs until compared and adjudicated
 - vision-vs-observed-behavior comparison across the applied Project Vision, Family Vision, Family Feature Vision when present, accepted Branch Vision Contract Snapshot, and accepted BP2/BP3 proof plan, or an explicit waiver when a Branch Vision Contract Snapshot is required
 - evidence digestion into the authority record
 
@@ -2945,6 +2986,7 @@ Exit:
 - photo/video proof is adjudicated for visible claims, and any unphotographable required claims are elevated to USER manual validation or explicit waiver
 - required user-facing desktop shortcut validation is `PASS` or explicitly `WAIVED` before User Test Summary handoff; `User-Facing Shortcut Validation Pending` must not remain active
 - returned evidence is digested into canon
+- every material `Vision-To-Proof Matrix` row is `PASS`, `WAIVED_WITH_REASON`, `Manual USER Validation Required`, or `Not Applicable With Reason`; no material row remains missing, `REPAIR`, `BLOCKED`, `UNPROVEN`, or supported only by unadjudicated evidence artifacts
 - required User Test Summary results are `PASS` or explicitly `WAIVED`; `User Test Summary Results Pending` must not remain active
 - no unresolved validation contradiction remains
 

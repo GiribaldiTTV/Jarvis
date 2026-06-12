@@ -294,6 +294,24 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Live Validation Evidence Without Vision Comparison
+
+- symptom:
+  Live Validation, Hardening, or a USER handoff reports screenshots, videos, runtime logs, helper output, markers, manifests, or interaction artifacts as green evidence while the branch does not show which accepted vision requirement each artifact proves or how Codex compared observed behavior to the accepted vision chain.
+- layer:
+  BP2/BP3 proof planning, Hardening proof-gap review, Live Validation comparative proof, User Test Summary handoff, and helper/validator interpretation
+- root-cause pattern:
+  Codex treats evidence artifacts as self-explanatory proof and skips the row-by-row comparison between accepted Project/Family/Family Feature/Branch Vision requirements, BP2/BP3 proof plan, observed runtime behavior, and reference surfaces.
+- fix pattern:
+  require a `Vision-To-Proof Matrix` that maps every material accepted requirement to claim class, minimum proof strength, implementation evidence, observed runtime evidence, comparison evidence, reference surface/baseline, Codex adjudication, USER validation need, and final verdict. Hardening must find missing proof rows before Live Validation; Live Validation must fill observed/comparison evidence and route subjective or unprovable claims to USER validation or waiver.
+- validation pattern:
+  future helpers should fail on `Vision-To-Proof Matrix Missing`, `Accepted Requirement Missing`, `Observed Runtime Comparison Missing`, `Reference Surface Missing`, `Hardening Proof Gap Not Routed`, `Evidence Input Treated As Comparison`, `Screenshot Or Video Not Adjudicated`, `Runtime Log Treated As Visual Proof`, `Helper Output Treated As Runtime Observation`, `Subjective UX Claim Not USER-Routed`, `Vision-To-Proof Verdict Missing`, or `Live Validation Comparative Proof Missing` when the defect is machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:
