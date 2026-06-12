@@ -324,16 +324,21 @@ Rule Name: `Visual Inheritance Matrix Gate`
 Owner: `Docs/phase_governance.md` for phase gates and blockers; `Docs/nexus_vision.md` for Project UI Vision; `Docs/family_visions/FAM-002_desktop_interface.md` for reusable presentation standards; the owning Family Vision / Family Feature Vision / active external branch plan for feature-specific UI grammar and proof.
 Applies To: Branch Readiness Stage 1, Branch Readiness Stage 2, BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, Workstream, Hardening, Live Validation, PR Readiness, USER review packets, helper output, validator output, and future fixtures when a branch creates or changes user-facing UI, controls, windows, cards, HUDs, overlays, setup flows, status indicators, folder pickers, evidence surfaces, diagnostics panels, or failure/recovery panels.
 Required State: The branch must include a `Visual Inheritance Matrix` before Workstream implementation when visible UI changes are admitted. Each row must name `New / Changed Element:`, `Surface Classification:`, `Inherited Existing Element Or Surface:`, `Owning UI Rule:`, `FAM-002 Component Grammar:`, `Window Chrome / Frame Treatment:`, `Platform Exception:`, `Shape / Radius Comparison:`, `Spacing / Density Comparison:`, `Typography Comparison:`, `Card / Row / Divider Treatment:`, `Color / Shadow / Glow Treatment:`, `Hover / Focus / Disabled State:`, `Scrollable / Resize / Transient State Proof:`, `Allowed Exception Or New Grammar:`, `Proof Artifact:`, and `Verdict:`. If no existing element is a valid ancestor, the branch must say why and record the USER-approved new visual grammar before implementation.
-Allowed Values:
+Allowed Values: The matrix uses field-specific allowed values. `Surface Classification:` values and `Verdict:` values are not interchangeable.
 
-- `Inherited`
-- `Inherited With Explicit Exception`
-- `New Grammar USER Accepted`
+Allowed `Surface Classification:` Values:
+
 - `Nexus-Owned Product Surface`
 - `Platform-Native Exception`
 - `Diagnostic / Developer Surface`
 - `External Surface`
 - `Not Applicable`
+
+Allowed `Verdict:` Values:
+
+- `Inherited`
+- `Inherited With Explicit Exception`
+- `New Grammar USER Accepted`
 - `Needs Repair`
 - `USER Decision Required`
 
@@ -388,7 +393,7 @@ Proof Strength Values:
 - `USER Waiver`
 - `Unproven`
 
-Minimum Proof Rule: Supporting diagnostic evidence cannot be upgraded into direct proof by confidence wording, helper success, marker presence, schema conformance, manifest creation, screenshot existence, or plan prose. If the minimum proof strength for the claim class is unavailable, the claim must be marked `Manual USER Validation`, `USER Waiver`, `Repair Required`, or `Blocked` instead of `PASS`.
+Minimum Proof Rule: Supporting diagnostic evidence cannot be upgraded into direct proof by confidence wording, helper success, marker presence, schema conformance, manifest creation, screenshot existence, or plan prose. If the minimum proof strength for the claim class is unavailable, the claim must be marked `Manual USER Validation Required`, `USER Waiver Required`, `Repair Required`, or `Blocked` instead of `PASS`.
 Allowed Values:
 
 - `Independent Evidence Present`
@@ -397,6 +402,7 @@ Allowed Values:
 - `USER Waiver Required`
 - `Not Applicable With Reason`
 - `Repair Required`
+- `Blocked`
 
 Invalid Values:
 
