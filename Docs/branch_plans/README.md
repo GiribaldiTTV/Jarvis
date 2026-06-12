@@ -162,6 +162,10 @@ When the selected element creates or changes user-facing UI, BP2/BP3 must classi
 
 Active implementation status for selected elements belongs in the active external branch plan or approved branch-planning packet. Family Feature Vision records own only the durable `Visioned` inventory, deferred facts, proof expectations, and fold-down receipts.
 
+When a branch re-enters planning or proof after merged governance standards land on `origin/main`, the active branch plan or review packet must carry a `Merged Vision Standard Adoption Review:`. The review must name the merged standard source, the rebaseline or re-entry event, affected branch artifacts, affected product surfaces, affected proof claims, adoption disposition, repair/waiver/blocker, and a `No Repo Live-State Tracking:` statement. This review may live in the active external branch plan, BP1/BP2/BP3 packet, Hardening packet, Live Validation packet, PR Readiness packet, or Codex digest according to the current phase; repo historical branch-plan receipts must not be used as live adoption ledgers.
+
+BP1/BP2/BP3 packets created after a rebaseline must not treat old branch packets as green proof when the branch now touches standards merged after those packets were generated. BP1 refreshes the branch vision only when the accepted vision chain changed or was insufficient. BP2 updates engineering/proof-plan matrices when implementation proof, UI inheritance, claim class, minimum proof strength, or USER validation routing changed. BP3 verifies Workstream readiness against the updated adoption review before implementation approval can be requested.
+
 The active USER hub for Branch Planning packets is:
 
 - Readable packet: `C:\Nexus USER\<label>\`
@@ -211,6 +215,7 @@ Runtime-focused plans must include:
 - Plan-To-Implementation Traceability Table:
 - Claim / Evidence Matrix:
 - Vision-To-Proof Matrix:
+- Merged Vision Standard Adoption Review:
 - Accepted Vision Source:
 - Accepted Requirement:
 - Claim Class:

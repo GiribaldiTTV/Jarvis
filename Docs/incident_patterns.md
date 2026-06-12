@@ -453,3 +453,20 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/orin_task_template.md`
   - `Docs/codex_user_guide.md`
   - `dev/orin_branch_governance_validation.py`
+
+## Pattern: Re-Entering Branch Ignores Merged Vision Standards
+
+- symptom:
+  a branch or worktree rebases onto new governance, then continues from an old BP1/BP2/BP3, Hardening, Live Validation, UTS, or PR Readiness packet without checking whether the merged Project Vision, Family Vision, Family Feature Vision, UI immersion, claim/evidence, Vision-To-Proof, proof-strength, or USER-validation standards now affect the branch
+- layer:
+  rebaseline/reconciliation, Branch Readiness, Branch Planning, Hardening, Live Validation, UTS, and PR Readiness
+- root-cause pattern:
+  rebaseline proves Git freshness but does not separately force an adoption review for merged standards that were created after the active branch packet or proof plan; Codex treats old green packets as still green even when their proof model, UI inheritance, or USER validation path is now incomplete
+- fix pattern:
+  require `Merged Vision Standard Adoption:` at the next legal gate after rebaseline or re-entry, classify affected surfaces/proof claims, repair or waive the branch-local packet/proof plan before the next USER handoff or green gate, and keep current adoption state out of repo docs
+- validation pattern:
+  future validators should fail re-entering branch packets that ignore newly merged standards when the branch touches affected UI, runtime proof, Live Validation proof, failure/recovery behavior, or subjective USER validation, while preserving historical receipts and clean-clone-safe repo validation
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
