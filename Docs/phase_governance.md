@@ -2985,10 +2985,10 @@ Exit:
 - required UI audit exists when applicable
 - exact normal USER desktop runtime launcher validation is passing or explicitly waived for desktop/user-facing behavior
 - troubleshooting launcher equivalence, when used, has USER consent and launcher parity proof
-- photo/video proof is adjudicated for visible claims, and any unphotographable required claims are elevated to USER manual validation or explicit waiver
+- photo/video proof is adjudicated for visible claims, and any unphotographable required claims have returned USER manual validation marked `PASS` or an explicit `WAIVED_WITH_REASON`; a pending `Manual USER Validation Required` route blocks Live Validation exit, UTS handoff, PR Readiness green, and Release Readiness green
 - required user-facing desktop shortcut validation is `PASS` or explicitly `WAIVED` before User Test Summary handoff; `User-Facing Shortcut Validation Pending` must not remain active
 - returned evidence is digested into canon
-- every material `Vision-To-Proof Matrix` row is `PASS`, `WAIVED_WITH_REASON`, `Manual USER Validation Required`, or `Not Applicable With Reason`; no material row remains missing, `REPAIR`, `BLOCKED`, `UNPROVEN`, or supported only by unadjudicated evidence artifacts
+- every material `Vision-To-Proof Matrix` row is `PASS`, `WAIVED_WITH_REASON`, or `Not Applicable With Reason`; `Manual USER Validation Required` is a routing/blocker state and cannot satisfy Live Validation exit until converted by returned USER evidence to `PASS` or `WAIVED_WITH_REASON`; no material row remains missing, `REPAIR`, `BLOCKED`, `UNPROVEN`, `Manual USER Validation Required`, or supported only by unadjudicated evidence artifacts
 - required User Test Summary results are `PASS` or explicitly `WAIVED`; `User Test Summary Results Pending` must not remain active
 - no unresolved validation contradiction remains
 
