@@ -276,6 +276,8 @@ Runtime Failure / Recovery Carrydown Addendum: `USER approved bounded docs-only 
 
 Pre-PR Hardening Addendum: `This seam must review the complete branch diff against origin/main before PR Readiness Stage 1, including source-owner placement, compact mirrors, branch-record posture, stale active-seam wording, helper/validator/fixture scope alignment, sibling-worktree mutation, no-live-state boundaries, PR body firewall risk, and likely Codex Connector review comments. Validation green is evidence only; Codex must still inspect changed text and report any remaining semantic risk before requesting PR Readiness Stage 1.`
 
+Evidence Independence Cycle 3 Addendum: `Cycle 3 records the docs-only claim/evidence class and proof-strength repair for the Vision Contract / Circular Validation / UI Immersion reform. Phase governance owns the binding claim-class/proof-strength model and blockers; branch planning owns BP2/BP3 claim/evidence matrix fields; User Test Summary guidance owns manual-validation labeling; validation registry owns future helper/validator guidance; incident patterns own the reusable failure lesson. This cycle does not mutate helper code, validator code, fixtures, active FAM worktrees, external operational state, runtime/provider/private/cache/memory behavior, PR, merge, release, issue, cleanup, or file movement/deletion.`
+
 ## Initial Workstream Seam Sequence
 
 Seam 1: Standing Governance Intake Bootstrap

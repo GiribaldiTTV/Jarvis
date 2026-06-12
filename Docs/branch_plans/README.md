@@ -128,7 +128,20 @@ BP2 and BP3 packets must map every selected FFV element to branch-local Slice/SL
 
 Workstream, Hardening, and Live Validation must carry the same selected FFV element IDs forward. Broad inference, nearby proof, fixture-only proof, validator pass, or a general statement that the branch implemented the feature is not enough for a user-visible, runtime-visible, UI, workflow, provider, helper, validator, or source-truth element. Each such element needs element-specific evidence or a named waiver.
 
-BP2/BP3 proof plans must also identify evidence independence for every material selected element. The plan must name `Claim:`, `Source-Truth Owner:`, `Expected Independent Evidence:`, `Evidence Class:`, `Known Limitation:`, and `Adjudication / Waiver Path:` when the element affects product behavior, UI/UX, runtime behavior, workflow hierarchy, proof-visible output, helper/validator behavior, or source-truth ownership. The branch plan defines expected behavior; it does not prove the behavior by itself. Marker presence, helper green, generated manifests, screenshot existence, copied file lists, or BP2/BP3 prose are supporting evidence only until compared against the applied vision chain and independent proof.
+BP2/BP3 proof plans must also identify evidence independence for every material selected element. The plan must name `Claim:`, `Claim Class:`, `Source-Truth Owner:`, `Minimum Proof Strength:`, `Expected Independent Evidence:`, `Evidence Class:`, `Known Limitation:`, and `Adjudication / Waiver Path:` when the element affects product behavior, UI/UX, runtime behavior, workflow hierarchy, proof-visible output, helper/validator behavior, source-truth ownership, security/privacy boundary, failure/recovery behavior, external live truth, or subjective USER judgment. The branch plan defines expected behavior; it does not prove the behavior by itself. Marker presence, helper green, generated manifests, screenshot existence, copied file lists, or BP2/BP3 prose are supporting evidence only until compared against the applied vision chain and independent proof. If the minimum proof strength cannot be reached, BP2/BP3 must predeclare `Manual USER Validation`, `USER Waiver`, `Repair Required`, or `Blocked` instead of letting Workstream or Live Validation report an overclaimed green result.
+
+Claim/evidence matrix rows use these governed fields:
+
+- `Claim:`
+- `Claim Class:`
+- `Source-Truth Owner:`
+- `Minimum Proof Strength:`
+- `Expected Independent Evidence:`
+- `Evidence Class:`
+- `Evidence Provided / Expected:`
+- `Known Limitation:`
+- `Codex Adjudication / Waiver Path:`
+- `Disposition:`
 
 When the selected element creates or changes user-facing UI, BP2/BP3 must classify each visible surface as `Nexus-Owned Product Surface`, `Platform-Native Exception`, `Diagnostic / Developer Surface`, or `External Surface`. `Nexus-Owned Product Surface` rows must name the inherited FAM-002 component grammar and window chrome/frame treatment. `Platform-Native Exception` rows must name the platform reason, why custom NDAI chrome would be wrong or unsafe, and the proof that the exception is deliberate.
 
@@ -181,6 +194,13 @@ Runtime-focused plans must include:
 - USER Planning Decisions:
 - Plan Revision History:
 - Plan-To-Implementation Traceability Table:
+- Claim / Evidence Matrix:
+- Claim Class:
+- Minimum Proof Strength:
+- Evidence Provided / Expected:
+- Evidence Independence:
+- Limitation:
+- USER Validation / Waiver Path:
 - Hardening Comparison Checklist:
 - Live Validation Proof Or Waiver Checklist:
 - Runtime Observability Decision Matrix:
