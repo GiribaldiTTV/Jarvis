@@ -95,6 +95,9 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "_dispatch_monitoring_hud_recording_studio_action",
                     "recordingExecutionState",
                     "recordingFileWritingState",
+                    "nexus-hud-card-v2-section-row-button-system",
+                    "source-truth-mapped-section-row-card-system",
+                    "windowPlacementMemoryState",
                 ),
             ),
             "hardeningCheck": "standalone Recording Studio is active while tray/keybind/export customization remains future-gated",
@@ -111,6 +114,9 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "recording_export_dir",
                     "create-or-open-before-session",
                     "exportCustomizationState",
+                    "nexus-hud-card-v2-section-row-button-system",
+                    "source-truth-mapped-section-row-card-system",
+                    "windowPlacementMemoryState",
                 ),
             ),
             "hardeningCheck": "minimal Log Viewer Studio shell opens native/export roots pre-session and keeps full viewer/export customization future-gated",
@@ -122,6 +128,8 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                 and output_contract.get("fileWritingEnabled")
                 and output_contract.get("recordingExecutionEnabled")
                 and output_contract.get("writeReadbackPassed")
+                and output_contract.get("profileLogConsistencyPassed")
+                and output_contract.get("twoProfileLogConsistencyPassed")
                 and _contains_all(
                     output_source,
                     (
@@ -204,6 +212,8 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         "fileWritingEnabled": output_contract["fileWritingEnabled"],
         "recordingExecutionEnabled": output_contract["recordingExecutionEnabled"],
         "writeReadbackPassed": output_contract["writeReadbackPassed"],
+        "profileLogConsistencyPassed": output_contract["profileLogConsistencyPassed"],
+        "twoProfileLogConsistencyPassed": output_contract["twoProfileLogConsistencyPassed"],
         "futureBoundariesPreserved": boundary_trace,
         "liveValidationState": "pending-user-admission-after-h1",
         "utsState": "pending-live-validation-stage-1",
@@ -218,6 +228,8 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         and proof["fileWritingEnabled"]
         and proof["recordingExecutionEnabled"]
         and proof["writeReadbackPassed"]
+        and proof["profileLogConsistencyPassed"]
+        and proof["twoProfileLogConsistencyPassed"]
         and proof["futureBoundariesPreserved"]
         and not proof["formalUtsExported"]
     )

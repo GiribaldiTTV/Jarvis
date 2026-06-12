@@ -1583,8 +1583,11 @@ def validate() -> list[str]:
     for needle in (
         "nativeCursorRecordingStudioReopenProof",
         '"visualSystemInheritance": "dashboard-hub-card-sampled"',
-        '"visualAdjudicationState": "source-truth-mapped"',
+        "nexus-hud-card-v2-section-row-button-system",
+        '"visualContract": MONITORING_HUD_STUDIO_VISUAL_CONTRACT',
+        '"visualAdjudicationState": "source-truth-mapped-section-row-card-system"',
         '"genericShellRejected": True',
+        '"windowPlacementMemoryState": "enabled"',
         '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',
         '"internalPathLeakageAbsent": internal_path_leakage_absent',
         "Native NDAI logs",

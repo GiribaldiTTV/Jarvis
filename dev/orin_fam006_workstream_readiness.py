@@ -112,6 +112,8 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         "fileWritingEnabled": output_contract["fileWritingEnabled"],
         "recordingExecutionEnabled": output_contract["recordingExecutionEnabled"],
         "writeReadbackPassed": output_contract["writeReadbackPassed"],
+        "profileLogConsistencyPassed": output_contract["profileLogConsistencyPassed"],
+        "twoProfileLogConsistencyPassed": output_contract["twoProfileLogConsistencyPassed"],
         "workstreamGreen": False,
     }
     proof["workstreamGreen"] = (
@@ -121,6 +123,8 @@ def build_fam006_workstream_readiness_proof() -> dict[str, Any]:
         and proof["fileWritingEnabled"]
         and proof["recordingExecutionEnabled"]
         and proof["writeReadbackPassed"]
+        and proof["profileLogConsistencyPassed"]
+        and proof["twoProfileLogConsistencyPassed"]
         and proof["hardeningH1State"] == "pending-after-workstream-green"
         and proof["liveValidationLV1State"] == "pending-after-h1"
         and proof["utsState"] == "pending-after-lv1"
