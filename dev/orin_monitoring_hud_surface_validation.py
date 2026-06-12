@@ -1467,6 +1467,7 @@ def validate() -> list[str]:
 
     for needle in (
         "New Dashboard, HUD, Overlay Profile, Monitor Group, Recording, Sensor Command Center, or child-window UI must sample from the existing FAM-006 visual system",
+        "Visual-system inheritance means shared design DNA, not component cloning",
         "The Dashboard Recording card must look and behave like an existing Dashboard hub card",
         "Implementation must hold itself to this vision contract",
     ):
@@ -1494,6 +1495,7 @@ def validate() -> list[str]:
     for needle in (
         "profile-specific log consistency",
         "normal USER-path activation for Recording Studio and Log Viewer Studio",
+        "standalone window layout that is not a Dashboard card clone",
         "Recording Studio visual proof only after the normal visible activation path is",
         "Log Viewer Studio visual-system inheritance",
         "user-visible native/export folder labels and paths",
@@ -1582,10 +1584,13 @@ def validate() -> list[str]:
 
     for needle in (
         "nativeCursorRecordingStudioReopenProof",
-        '"visualSystemInheritance": "dashboard-hub-card-sampled"',
-        "nexus-hud-card-v2-section-row-button-system",
+        "MONITORING_HUD_STUDIO_VISUAL_INHERITANCE",
+        "standalone-window-shared-fam006-visual-dna",
+        "nexus-hud-standalone-studio-window-v1",
         '"visualContract": MONITORING_HUD_STUDIO_VISUAL_CONTRACT',
-        '"visualAdjudicationState": "source-truth-mapped-section-row-card-system"',
+        '"visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION',
+        '"standaloneWindowLayout": "not-dashboard-card-clone"',
+        '"sharedVisualDna": True',
         '"genericShellRejected": True',
         '"windowPlacementMemoryState": "enabled"',
         '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',

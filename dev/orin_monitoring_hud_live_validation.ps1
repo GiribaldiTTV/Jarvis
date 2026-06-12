@@ -1136,9 +1136,9 @@ function Get-ReturnedUtsDeterminismGates() {
             issueId = "FAM006-RUTS-003"
             title = "Log Viewer Studio visual-system inheritance"
             status = "PASS"
-            requiredProof = "Focused Log Viewer Studio screenshots must be adjudicated against Project Vision, FAM-006 family vision, and the Recording family-feature vision instead of passing from screenshot existence or generic shell presence."
-            stopLossReason = "Closed by Log Viewer Studio visual-system markers and focused screenshot proof requiring dashboard-hub-card-sampled inheritance."
-            futureGreenCondition = "LV visual adjudication records source-truth-mapped verdicts for Log Viewer Studio chrome, rows, buttons, typography, density, window shape, and state language."
+            requiredProof = "Focused Log Viewer Studio screenshots must be adjudicated against Project Vision, FAM-006 family vision, and the Recording family-feature vision instead of passing from screenshot existence, generic shell presence, or Dashboard-card-clone markers."
+            stopLossReason = "Closed only when Log Viewer Studio proves standalone-window shared FAM-006 visual DNA: chrome, opacity, color, typography, rows/dividers, buttons, glow/focus/hover/disabled states, spacing, compact density, and non-Dashboard-card layout."
+            futureGreenCondition = "LV visual adjudication records source-truth-mapped verdicts for Log Viewer Studio standalone chrome, rows, buttons, typography, density, window shape, and state language."
         }
         [pscustomobject]@{
             id = "RETURNED_UTS_USER_VISIBLE_STORAGE_MODEL_GATE"
@@ -1155,8 +1155,8 @@ function Get-ReturnedUtsDeterminismGates() {
             title = "Recording Studio UI visual proof depends on normal activation"
             status = "PASS"
             requiredProof = "Recording Studio UI visual proof must be blocked when the Studio cannot be activated through the normal visible USER path; helper-launched screenshots are supporting evidence only."
-            stopLossReason = "Closed by requiring explicit-user-open Recording Studio proof before focused Studio screenshots can pass."
-            futureGreenCondition = "Manual visible-button activation passes first, then focused Recording Studio screenshots are visually adjudicated against source truth."
+            stopLossReason = "Closed by requiring explicit-user-open Recording Studio proof before focused Studio screenshots can pass, then requiring standalone-window shared FAM-006 visual DNA instead of Dashboard-card cloning."
+            futureGreenCondition = "Manual visible-button activation passes first, then focused Recording Studio screenshots are visually adjudicated against source truth for standalone chrome, rows, buttons, typography, density, window shape, and state language."
         }
     )
 }
@@ -1319,14 +1319,14 @@ Codex Precheck Summary
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)
 - USER-inspectable short video: $($script:ShortVideoProof.userInspectablePath)
-- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, native-log saved/readback, Log Viewer Studio pre-session/requested/opened states, target/status mirror, and visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
+- Screenshot rule: review the detailed focused element screenshots, especially the Recording card ready, recording-active, Recording Studio opened/focused states, native-log saved/readback, Log Viewer Studio pre-session/requested/opened states, target/status mirror, and standalone-window visual-system contract states. Full-desktop screenshots are locator/context evidence only and do not satisfy per-element UI acceptance.
 - Step 7 - #137 Dashboard Rounded Corners On Light Background: preserved as precheck/source-truth evidence; no black rectangular native corner extends beyond the visible rounded Dashboard chrome.
 - Overlay/display release acceptance is deferred and non-gating.
 
 Brief Issue List
 - Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.
 - Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
-- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, native NDAI log save/readback, Log Viewer Studio native/export folder shell behavior, issue #258 Overlay Profile persistence, Recording card visual-system inheritance, and active Overlay Profile target mirroring.
+- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, Recording Studio visible-button activation, Recording Studio standalone visual-system inheritance, native NDAI log save/readback, Log Viewer Studio native/export folder shell behavior, Log Viewer Studio standalone visual-system inheritance, issue #258 Overlay Profile persistence, Recording card visual-system inheritance, and active Overlay Profile target mirroring.
 
 Active Issues To Test
 
@@ -1348,6 +1348,14 @@ USER Result / Notes:
 
 FAM006-LV1-REC-005 - Dashboard Card Holder Equal Insets
 Expected: The Dashboard card holder gives each card equal left and right visual inset inside the holder. The scrollbar gutter must not make the cards look offset or leave a wider right-side gap than the left-side gap.
+USER Result / Notes:
+
+FAM006-LV1-REC-006 - Recording Studio Opens And Shares FAM-006 Standalone Window Grammar
+Expected: Clicking the visible Recording Studio button on the Dashboard Recording card opens a real standalone, non-child Recording Studio window. The window does not need Dashboard cards, but it must visibly share FAM-006/HUD visual DNA: dark Nexus chrome, cyan/green glow atmosphere, opacity, typography, button style, row/divider treatment, hover/focus/disabled states, spacing, compact density, and polished non-generic window shape.
+USER Result / Notes:
+
+FAM006-LV1-REC-007 - Log Viewer Studio Shares FAM-006 Standalone Window Grammar
+Expected: Clicking Log Viewer Studio opens a real standalone, non-child shell window for native/export log folder access. The shell does not need Dashboard cards, but it must visibly share FAM-006/HUD visual DNA: dark Nexus chrome, cyan/green glow atmosphere, opacity, typography, button style, row/divider treatment, hover/focus/disabled states, spacing, compact density, and polished non-generic window shape.
 USER Result / Notes:
 
 Issue Regression Checks, If Any

@@ -109,6 +109,7 @@ Expected direction:
 
 - non-child, exclusive window rather than a Dashboard child panel
 - compact form factor that respects screen space
+- standalone window layout that is not a Dashboard card clone
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling
@@ -141,6 +142,7 @@ Expected direction:
 
 - non-child, exclusive window
 - independent from the Dashboard child-window system
+- standalone window layout that is not a Dashboard card clone
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling

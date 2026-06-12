@@ -17,6 +17,7 @@ Monitoring and HUD should give the user clear, trustworthy, polished visibility 
 - Recording should be active-overlay-driven, not a separately loaded Recording Profile. The active Overlay Profile determines what is recorded.
 - Visual proof must include focused per-element review for user-facing changes.
 - Visual proof must also prove visual-system inheritance: new cards, rows, controls, dividers, empty/deferred states, status fields, and child-window surfaces must match established FAM-006 color tokens, shape/radius, spacing, typography, row/divider treatment, button effects, hover/focus/disabled states, shadows/glows, scrollbar treatment, and layout density unless BP1/BP2/BP3 explicitly accepts a new visual grammar.
+- Visual-system inheritance means shared design DNA, not component cloning. Standalone, non-child windows such as Recording Studio and Log Viewer Studio do not need Dashboard card layouts, but they must visibly share the FAM-006/HUD chrome, color, opacity, typography, button, row/divider, glow, state, spacing, and density grammar.
 - Deferred actions should be disabled, removed, or clearly labeled; they must not look broken.
 - Monitoring, HUD, telemetry, screenshots, recordings, logs, and support evidence must preserve local file hygiene, clear evidence roots, privacy-safe review posture, and no fake or hidden data collection.
 - Sensitive telemetry, recording, overlay, process, or performance surfaces must make provider/external telemetry boundaries explicit before any external data path is admitted.
