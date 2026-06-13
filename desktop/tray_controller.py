@@ -1,27 +1,67 @@
 import ctypes
 import ctypes.wintypes
 
-from PySide6.QtGui import QAction, QCursor
+from PySide6.QtGui import QAction, QColor, QCursor, QFont, QIcon, QPainter, QPen, QPixmap
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QFrame,
     QLabel,
     QMenu,
     QPushButton,
-    QStyle,
     QSystemTrayIcon,
     QVBoxLayout,
     QWidget,
     QWidgetAction,
 )
 
-
-TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
-TRAY_DISCOVERY_MESSAGE = (
-    "Nexus Desktop AI is running in the Windows notification area. "
-    "If you do not see the icon, open hidden icons (^)."
+from .resident_access import (
+    TRAY_DISCOVERY_DURATION_MS,
+    TRAY_DISCOVERY_MESSAGE,
+    TRAY_IDENTITY_LABEL,
+    TRAY_ORIN_MARK_LABEL,
+    TRAY_TOOLTIP_TEXT,
+    build_resident_access_menu_plan,
 )
-TRAY_DISCOVERY_DURATION_MS = 4500
+
+QUICK_SLOT_COMMAND_BASE_ID = 200
+
+
+def build_resident_tray_icon() -> QIcon:
+    icon = QIcon()
+    for size in (16, 20, 24, 32, 48, 64):
+        pixmap = QPixmap(size, size)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        margin = max(1, int(size * 0.08))
+        body_rect = pixmap.rect().adjusted(margin, margin, -margin, -margin)
+        radius = max(3, int(size * 0.24))
+        painter.setPen(QPen(QColor("#0f766e"), max(1, int(size * 0.08))))
+        painter.setBrush(QColor("#111827"))
+        painter.drawRoundedRect(body_rect, radius, radius)
+
+        painter.setPen(QPen(QColor("#f8fafc"), max(1, int(size * 0.09))))
+        left_x = int(size * 0.32)
+        right_x = int(size * 0.68)
+        top_y = int(size * 0.28)
+        bottom_y = int(size * 0.72)
+        painter.drawLine(left_x, bottom_y, left_x, top_y)
+        painter.drawLine(left_x, top_y, right_x, bottom_y)
+        painter.drawLine(right_x, bottom_y, right_x, top_y)
+
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor("#22c55e"))
+        dot_size = max(3, int(size * 0.18))
+        painter.drawEllipse(
+            int(size * 0.66),
+            int(size * 0.12),
+            dot_size,
+            dot_size,
+        )
+        painter.end()
+        icon.addPixmap(pixmap)
+    return icon
 
 
 class TrayCommandPopup(QWidget):
@@ -65,9 +105,15 @@ class TrayCommandPopup(QWidget):
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(4, 4, 4, 4)
         self.layout.setSpacing(1)
-        identity = QLabel(TRAY_IDENTITY_LABEL, self)
+        identity = QLabel(f"{TRAY_IDENTITY_LABEL} / {TRAY_ORIN_MARK_LABEL}", self)
         identity.setAccessibleName(TRAY_IDENTITY_LABEL)
+        identity_font = QFont("Segoe UI")
+        identity_font.setWeight(QFont.DemiBold)
+        identity.setFont(identity_font)
         self.layout.addWidget(identity)
+        self.resident_status_label = QLabel("", self)
+        self.resident_status_label.setAccessibleName("Resident access status")
+        self.layout.addWidget(self.resident_status_label)
         self.add_separator()
 
     def add_separator(self):
@@ -135,6 +181,12 @@ class DesktopTrayEntry:
         self.identity_action = None
         self.open_overlay_action = None
         self.create_custom_task_action = None
+        self.global_settings_action = None
+        self.ai_status_action = None
+        self.privacy_lockdown_action = None
+        self.quick_slot_actions = []
+        self.quick_slot_buttons = []
+        self.quick_slot_route_ids = []
         self.monitoring_hud_primary_action = None
         self.monitoring_hud_dashboard_action = None
         self.monitoring_hud_unanchor_action = None
@@ -143,8 +195,12 @@ class DesktopTrayEntry:
         self.monitoring_hud_dashboard_button = None
         self.monitoring_hud_unanchor_button = None
         self.monitoring_hud_status_label = None
+        self.resident_status_label = None
         self.open_overlay_button = None
         self.create_custom_task_button = None
+        self.global_settings_button = None
+        self.ai_status_button = None
+        self.privacy_lockdown_button = None
         self.exit_button = None
         self._discovery_cue_shown = False
         self._popup_guard_active = False
@@ -164,9 +220,7 @@ class DesktopTrayEntry:
                 self._emit("RENDERER_MAIN|TRAY_ENTRY_READY|available=false")
                 return False
 
-            icon = self.app.windowIcon()
-            if icon.isNull():
-                icon = self.app.style().standardIcon(QStyle.SP_ComputerIcon)
+            icon = build_resident_tray_icon()
 
             self.tray_menu = QMenu(TRAY_IDENTITY_LABEL)
             self.tray_menu.setTitle(TRAY_IDENTITY_LABEL)
@@ -191,14 +245,26 @@ class DesktopTrayEntry:
             )
             self.tray_menu.addSeparator()
 
-            self.open_overlay_action = self._add_button_action(
-                "Open Command Overlay",
-                self.request_overlay_from_tray,
+            self.global_settings_action = self._add_button_action(
+                "Global Settings",
+                self.request_global_settings_from_tray,
             )
-            self.create_custom_task_action = self._add_button_action(
-                "Create Custom Task",
-                self.request_create_custom_task_from_tray,
+            self.ai_status_action = self._add_button_action(
+                "AI Status / Command Center",
+                self.request_ai_status_from_tray,
             )
+            self.privacy_lockdown_action = self._add_button_action(
+                "Privacy Lockdown",
+                self.request_privacy_lockdown_from_tray,
+            )
+            self.tray_menu.addSeparator()
+
+            for index in range(5):
+                action = self._add_button_action(
+                    f"Quick Access {index + 1}",
+                    lambda source, slot_index=index: self.request_quick_slot_from_tray(slot_index, source),
+                )
+                self.quick_slot_actions.append(action)
             self.tray_menu.addSeparator()
 
             self.exit_action = self._add_button_action(
@@ -206,16 +272,18 @@ class DesktopTrayEntry:
                 self.request_shutdown_from_tray,
             )
             self._initialize_popup()
+            self.refresh_resident_access_actions("initialize")
             self.refresh_monitoring_hud_actions("initialize")
 
             self.tray_icon = QSystemTrayIcon(icon, self.app)
-            self.tray_icon.setToolTip(TRAY_IDENTITY_LABEL)
+            self.tray_icon.setToolTip(TRAY_TOOLTIP_TEXT)
             self.tray_icon.activated.connect(self._handle_activation)
             self.tray_icon.show()
             self._emit("RENDERER_MAIN|TRAY_ENTRY_READY|available=true")
             self._emit(
                 f"RENDERER_MAIN|TRAY_IDENTITY_READY|label={TRAY_IDENTITY_LABEL}|hidden_overflow_hint=true"
             )
+            self._emit("RENDERER_MAIN|TRAY_RESIDENT_ACCESS_TRAY_ICON_READY|identity=ndai_orin|single_tray_icon=true")
             self._emit("RENDERER_MAIN|TRAY_ICON_SHOWN")
             return True
         except Exception as exc:
@@ -227,6 +295,7 @@ class DesktopTrayEntry:
 
     def _initialize_popup(self):
         self.tray_popup = TrayCommandPopup(self)
+        self.resident_status_label = self.tray_popup.resident_status_label
         self.monitoring_hud_status_label = QLabel("HUD Dashboard Closed", self.tray_popup)
         self.monitoring_hud_status_label.setAccessibleName("HUD Dashboard status")
         self.tray_popup.layout.addWidget(self.monitoring_hud_status_label)
@@ -243,15 +312,25 @@ class DesktopTrayEntry:
             self.request_monitoring_hud_unanchor_from_tray,
         )
         self.tray_popup.add_separator()
-        self.open_overlay_button = self.tray_popup.add_button(
-            "Open Command Overlay",
-            self.request_overlay_from_tray,
+        self.global_settings_button = self.tray_popup.add_button(
+            "Global Settings",
+            self.request_global_settings_from_tray,
         )
-        self.create_custom_task_button = self.tray_popup.add_button(
-            "Create Custom Task",
-            self.request_create_custom_task_from_tray,
+        self.ai_status_button = self.tray_popup.add_button(
+            "AI Status / Command Center",
+            self.request_ai_status_from_tray,
+        )
+        self.privacy_lockdown_button = self.tray_popup.add_button(
+            "Privacy Lockdown",
+            self.request_privacy_lockdown_from_tray,
         )
         self.tray_popup.add_separator()
+        for index in range(5):
+            button = self.tray_popup.add_button(
+                f"Quick Access {index + 1}",
+                lambda source, slot_index=index: self.request_quick_slot_from_tray(slot_index, source),
+            )
+            self.quick_slot_buttons.append(button)
         self.exit_button = self.tray_popup.add_button(
             "Exit Nexus Desktop AI",
             self.request_shutdown_from_tray,
@@ -339,8 +418,10 @@ class DesktopTrayEntry:
         if self.tray_popup is None:
             return
         self._release_mouse_capture_for_tray_popup()
+        self.refresh_resident_access_actions("tray_popup_about_to_show")
         self.refresh_monitoring_hud_actions("tray_popup_about_to_show")
         if self._show_native_tray_menu():
+            self.refresh_resident_access_actions("tray_native_menu_closed")
             self.refresh_monitoring_hud_actions("tray_native_menu_closed")
             return
         self._popup_guard_active = True
@@ -369,7 +450,8 @@ class DesktopTrayEntry:
             overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
             feature_text = "Disable HUD Feature" if feature_enabled else "Enable HUD Feature"
             dashboard_text = "Close HUD Dashboard" if dashboard_visible else "Open HUD Dashboard"
-            command_overlay_text = self._command_overlay_action_text()
+            resident_plan = self._resident_access_plan()
+            quick_slots = list(resident_plan.get("quickSlots", ()) or [])
 
             def append(command_id, text, enabled=True):
                 flags = MF_STRING if enabled else (MF_STRING | MF_GRAYED)
@@ -380,8 +462,17 @@ class DesktopTrayEntry:
                 append(101, dashboard_text, True)
             append(102, "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay", feature_enabled and overlay_anchor_enabled)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
-            append(200, command_overlay_text, True)
-            append(201, "Create Custom Task", True)
+            append(110, "Global Settings", True)
+            append(120, "AI Status / Command Center", True)
+            append(130, "Privacy Lockdown", True)
+            user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+            for index, route in enumerate(quick_slots[:5]):
+                route_id = str(route.get("routeId", ""))
+                append(
+                    QUICK_SLOT_COMMAND_BASE_ID + index,
+                    self._route_label_for_menu(route),
+                    bool(route.get("enabled", True) or route_id in {"ai_status_command_center", "privacy_lockdown"}),
+                )
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append(300, "Exit Nexus Desktop AI", True)
 
@@ -416,10 +507,16 @@ class DesktopTrayEntry:
             100: self.request_monitoring_hud_toggle_from_tray,
             101: self.request_monitoring_hud_dashboard_from_tray,
             102: self.request_monitoring_hud_unanchor_from_tray,
-            200: self.request_overlay_from_tray,
-            201: self.request_create_custom_task_from_tray,
+            110: self.request_global_settings_from_tray,
+            120: self.request_ai_status_from_tray,
+            130: self.request_privacy_lockdown_from_tray,
             300: self.request_shutdown_from_tray,
         }
+        if QUICK_SLOT_COMMAND_BASE_ID <= command_id < QUICK_SLOT_COMMAND_BASE_ID + 5:
+            slot_index = command_id - QUICK_SLOT_COMMAND_BASE_ID
+            self._emit(f"RENDERER_MAIN|TRAY_NATIVE_MENU_QUICK_SLOT_SELECTED|slot={slot_index + 1}")
+            self.request_quick_slot_from_tray(slot_index, "menu")
+            return
         handler = commands.get(command_id)
         if handler is None:
             self._emit(f"RENDERER_MAIN|TRAY_NATIVE_MENU_COMMAND_IGNORED|command_id={command_id}")
@@ -457,6 +554,7 @@ class DesktopTrayEntry:
             handler()
         else:
             self.window.toggle_command_overlay()
+        self.refresh_resident_access_actions(source)
         self.refresh_monitoring_hud_actions(source)
         self._emit(
             "RENDERER_MAIN|TRAY_ACTIVATION_ROUTED_TO_OVERLAY"
@@ -466,6 +564,79 @@ class DesktopTrayEntry:
     def request_create_custom_task_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_REQUESTED|source={source}")
         self.window.request_create_custom_task_from_tray(source=source)
+        self.refresh_resident_access_actions(source)
+
+    def request_global_settings_from_tray(self, source):
+        self._emit(f"RENDERER_MAIN|TRAY_GLOBAL_SETTINGS_REQUESTED|source={source}")
+        handler = getattr(self.window, "open_resident_access_settings", None)
+        if callable(handler):
+            handler(source=source, focus="quick_access")
+            self._emit(f"RENDERER_MAIN|TRAY_GLOBAL_SETTINGS_ROUTED|source={source}|focus=quick_access")
+        else:
+            self._emit(f"RENDERER_MAIN|TRAY_GLOBAL_SETTINGS_UNAVAILABLE|source={source}|reason=handler_unavailable")
+        self.refresh_resident_access_actions(source)
+
+    def request_ai_status_from_tray(self, source):
+        self._emit(f"RENDERER_MAIN|TRAY_AI_STATUS_REQUESTED|source={source}")
+        handler = getattr(self.window, "request_ai_status_from_resident_access", None)
+        if callable(handler):
+            handler(source=source)
+            self._emit(f"RENDERER_MAIN|TRAY_AI_STATUS_ROUTED|source={source}|route_only=true")
+        else:
+            settings_handler = getattr(self.window, "open_resident_access_settings", None)
+            if callable(settings_handler):
+                settings_handler(source=source, focus="ai_status")
+                self._emit(f"RENDERER_MAIN|TRAY_AI_STATUS_ROUTED|source={source}|focus=ai_status")
+            else:
+                self._emit(f"RENDERER_MAIN|TRAY_AI_STATUS_UNAVAILABLE|source={source}|reason=handler_unavailable")
+        self.refresh_resident_access_actions(source)
+
+    def request_privacy_lockdown_from_tray(self, source):
+        self._emit(f"RENDERER_MAIN|TRAY_PRIVACY_LOCKDOWN_REQUESTED|source={source}")
+        handler = getattr(self.window, "request_privacy_lockdown_from_resident_access", None)
+        if callable(handler):
+            handler(source=source)
+            self._emit(f"RENDERER_MAIN|TRAY_PRIVACY_LOCKDOWN_ROUTED|source={source}|route_only=true")
+        else:
+            settings_handler = getattr(self.window, "open_resident_access_settings", None)
+            if callable(settings_handler):
+                settings_handler(source=source, focus="privacy")
+                self._emit(f"RENDERER_MAIN|TRAY_PRIVACY_LOCKDOWN_ROUTED|source={source}|focus=privacy")
+            else:
+                self._emit(f"RENDERER_MAIN|TRAY_PRIVACY_LOCKDOWN_UNAVAILABLE|source={source}|reason=handler_unavailable")
+        self.refresh_resident_access_actions(source)
+
+    def request_quick_slot_from_tray(self, slot_index, source):
+        try:
+            index = int(slot_index)
+        except (TypeError, ValueError):
+            index = -1
+        if index < 0 or index >= len(self.quick_slot_route_ids):
+            self._emit(
+                f"RENDERER_MAIN|TRAY_QUICK_SLOT_IGNORED|source={source}|slot={index + 1}|reason=slot_unavailable"
+            )
+            return
+        route_id = self.quick_slot_route_ids[index]
+        self._emit(
+            f"RENDERER_MAIN|TRAY_QUICK_SLOT_REQUESTED|source={source}|slot={index + 1}|route_id={route_id}"
+        )
+        if route_id == "command_overlay":
+            self.request_overlay_from_tray(source)
+            return
+        if route_id == "create_custom_task":
+            self.request_create_custom_task_from_tray(source)
+            return
+        handler = getattr(self.window, "request_resident_quick_action_from_tray", None)
+        if callable(handler):
+            handler(route_id=route_id, source=source)
+            self._emit(
+                f"RENDERER_MAIN|TRAY_QUICK_SLOT_ROUTED|source={source}|slot={index + 1}|route_id={route_id}"
+            )
+        else:
+            self._emit(
+                f"RENDERER_MAIN|TRAY_QUICK_SLOT_UNAVAILABLE|source={source}|slot={index + 1}|route_id={route_id}|reason=handler_unavailable"
+            )
+        self.refresh_resident_access_actions(source)
 
     def _monitoring_hud_state(self):
         provider = getattr(self.window, "monitoring_hud_feature_state", None)
@@ -499,6 +670,86 @@ class DesktopTrayEntry:
 
     def _command_overlay_action_text(self):
         return "Close Command Overlay" if self._command_overlay_visible() else "Open Command Overlay"
+
+    def _resident_access_plan(self):
+        provider = getattr(self.window, "resident_access_status_snapshot", None)
+        if callable(provider):
+            try:
+                plan = provider()
+                if isinstance(plan, dict):
+                    return plan
+            except Exception:
+                pass
+        return build_resident_access_menu_plan(
+            monitoring_hud_state=self._monitoring_hud_state(),
+            command_overlay_state=self._command_overlay_state(),
+        )
+
+    def _route_label_for_menu(self, route):
+        route_id = str(route.get("routeId", "") if isinstance(route, dict) else "")
+        if route_id == "command_overlay":
+            return self._command_overlay_action_text()
+        return str(route.get("label", "Quick Access") if isinstance(route, dict) else "Quick Access")
+
+    def refresh_resident_access_actions(self, source="runtime"):
+        if not self.quick_slot_actions and not self.quick_slot_buttons:
+            return
+
+        plan = self._resident_access_plan()
+        status_label = str(plan.get("statusLabel") or "Ready - AI local/no provider")
+        if self.resident_status_label is not None:
+            self.resident_status_label.setText(status_label)
+            self.resident_status_label.setAccessibleName(status_label)
+            self.resident_status_label.setVisible(True)
+
+        if self.tray_icon is not None:
+            self.tray_icon.setToolTip(str(plan.get("tooltipText") or TRAY_TOOLTIP_TEXT))
+
+        quick_slots = list(plan.get("quickSlots", ()) or [])
+        self.quick_slot_route_ids = [
+            str(route.get("routeId", "") if isinstance(route, dict) else "")
+            for route in quick_slots[:5]
+        ]
+        self.open_overlay_action = None
+        self.open_overlay_button = None
+        self.create_custom_task_action = None
+        self.create_custom_task_button = None
+
+        for index in range(5):
+            route = quick_slots[index] if index < len(quick_slots) else None
+            visible = route is not None
+            label = self._route_label_for_menu(route) if route is not None else f"Quick Access {index + 1}"
+            enabled = bool(route.get("enabled", True)) if isinstance(route, dict) else False
+            action = self.quick_slot_actions[index] if index < len(self.quick_slot_actions) else None
+            button = self.quick_slot_buttons[index] if index < len(self.quick_slot_buttons) else None
+            if action is not None:
+                self._set_action_text(action, label)
+                self._set_action_visible(action, visible)
+                self._set_action_enabled(action, enabled)
+            if button is not None:
+                self._set_button_text(button, label)
+                self._set_button_visible(button, visible)
+                self._set_button_enabled(button, enabled)
+            route_id = self.quick_slot_route_ids[index] if index < len(self.quick_slot_route_ids) else ""
+            if route_id == "command_overlay":
+                self.open_overlay_action = action
+                self.open_overlay_button = button
+            elif route_id == "create_custom_task":
+                self.create_custom_task_action = action
+                self.create_custom_task_button = button
+
+        menu_budget = plan.get("menuBudget") if isinstance(plan.get("menuBudget"), dict) else {}
+        current_slots = menu_budget.get("currentQuickSlots", len(self.quick_slot_route_ids))
+        maximum_slots = menu_budget.get("maximumQuickSlots", 5)
+        ai_privacy = plan.get("aiPrivacy") if isinstance(plan.get("aiPrivacy"), dict) else {}
+        self._emit(
+            "RENDERER_MAIN|TRAY_RESIDENT_ACCESS_ACTIONS_REFRESHED"
+            f"|source={source}"
+            f"|quick_slot_count={current_slots}"
+            f"|max_quick_slots={maximum_slots}"
+            f"|provider_visible_data={str(ai_privacy.get('providerVisibleDataLabel', 'Provider-visible data: none')).replace('|', '/')}"
+            "|single_tray_icon=true"
+        )
 
     def refresh_monitoring_hud_actions(self, source="runtime"):
         if (
@@ -590,6 +841,7 @@ class DesktopTrayEntry:
         guard = getattr(self.window, "set_monitoring_hud_tray_menu_interaction_guard", None)
         if callable(guard):
             guard(True, source="tray_menu_about_to_show")
+        self.refresh_resident_access_actions("tray_menu_about_to_show")
         self.refresh_monitoring_hud_actions("tray_menu_about_to_show")
 
     def _handle_menu_about_to_hide(self):
@@ -600,6 +852,7 @@ class DesktopTrayEntry:
     def request_monitoring_hud_toggle_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REQUESTED|source={source}")
         self.window.request_monitoring_hud_toggle_from_tray(source=source)
+        self.refresh_resident_access_actions(source)
         self.refresh_monitoring_hud_actions(source)
 
     def request_monitoring_hud_primary_from_tray(self, source):
@@ -619,6 +872,7 @@ class DesktopTrayEntry:
             self._emit(
                 f"RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED|source={source}|reason=feature_disabled"
             )
+            self.refresh_resident_access_actions(source)
             self.refresh_monitoring_hud_actions(source)
             return
         next_visible = (not dashboard_visible) if visible is None else bool(visible)
@@ -633,6 +887,7 @@ class DesktopTrayEntry:
             )
             return
         handler(source=source, visible=next_visible)
+        self.refresh_resident_access_actions(source)
         self.refresh_monitoring_hud_actions(source)
 
     def request_monitoring_hud_unanchor_from_tray(self, source):
@@ -644,6 +899,7 @@ class DesktopTrayEntry:
             return
         self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_REQUESTED|source={source}")
         self.window.request_monitoring_hud_unanchor_from_tray(source=source)
+        self.refresh_resident_access_actions(source)
         self.refresh_monitoring_hud_actions(source)
 
     def request_shutdown_from_tray(self, source):

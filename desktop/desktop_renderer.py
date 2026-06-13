@@ -10,6 +10,7 @@ import datetime
 import time
 import webbrowser
 from html import escape
+from typing import Iterable
 
 from PySide6.QtWidgets import (
     QWidget,
@@ -63,7 +64,20 @@ from .saved_action_authoring import (
     update_saved_action_from_draft,
 )
 from .saved_action_source import SavedActionSourceWriteBlocked
+from .resident_access import (
+    DEFAULT_QUICK_SLOT_ROUTE_IDS,
+    MAX_QUICK_SLOT_COUNT,
+    WINDOWS_TRAY_VISIBILITY_LIMITATION,
+    ResidentAccessSettings,
+    build_resident_access_menu_plan,
+    load_resident_access_settings,
+    normalize_quick_slot_ids,
+    quick_slot_candidate_routes,
+    route_for_id,
+    save_resident_access_settings,
+)
 from .shared_action_model import (
+    DEFAULT_COMMAND_ACTIONS,
     build_callable_group_phrases,
     build_saved_action_callable_phrases,
     default_saved_action_trigger_mode,
@@ -827,6 +841,400 @@ class DialogChromeBar(QFrame):
         self._drag_offset = None
         self.setCursor(Qt.OpenHandCursor)
         super().mouseReleaseEvent(event)
+
+
+class ResidentAccessSettingsDialog(QDialog):
+    def __init__(self, parent=None, runtime=None, focus: str = "quick_access"):
+        super().__init__(parent)
+        self.runtime = runtime or parent
+        self._focus = focus or "quick_access"
+        self._settings = load_resident_access_settings()
+        self._slot_combos: list[QComboBox] = []
+        self._nav_buttons: dict[str, QPushButton] = {}
+        self.setModal(False)
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setWindowTitle("Global Settings")
+        self.setObjectName("residentAccessSettingsDialog")
+        self.setMinimumSize(760, 520)
+
+        root_layout = QVBoxLayout(self)
+        root_layout.setContentsMargins(0, 0, 0, 0)
+        root_layout.setSpacing(0)
+
+        self.shell = QFrame(self)
+        self.shell.setObjectName("residentAccessSettingsShell")
+        root_layout.addWidget(self.shell)
+
+        shell_layout = QVBoxLayout(self.shell)
+        shell_layout.setContentsMargins(0, 0, 0, 0)
+        shell_layout.setSpacing(0)
+
+        self.chrome_bar = DialogChromeBar(
+            "Global Settings",
+            self,
+            object_prefix="residentAccessSettings",
+            parent=self.shell,
+            show_title=True,
+        )
+        shell_layout.addWidget(self.chrome_bar)
+
+        body = QWidget(self.shell)
+        body.setObjectName("residentAccessSettingsBody")
+        shell_layout.addWidget(body, 1)
+
+        body_layout = QHBoxLayout(body)
+        body_layout.setContentsMargins(14, 14, 14, 14)
+        body_layout.setSpacing(14)
+
+        nav = QFrame(body)
+        nav.setObjectName("residentAccessSettingsNav")
+        nav.setFixedWidth(190)
+        nav_layout = QVBoxLayout(nav)
+        nav_layout.setContentsMargins(10, 10, 10, 10)
+        nav_layout.setSpacing(6)
+        body_layout.addWidget(nav)
+
+        for focus_id, label in (
+            ("quick_access", "Resident Access"),
+            ("ai_status", "AI Status"),
+            ("privacy", "Privacy"),
+            ("tray_visibility", "Tray Visibility"),
+            ("owner_routes", "Owner Routes"),
+        ):
+            button = QPushButton(label, nav)
+            button.setCheckable(True)
+            button.clicked.connect(lambda _checked=False, focus_id=focus_id: self.set_focus(focus_id))
+            self._nav_buttons[focus_id] = button
+            nav_layout.addWidget(button)
+        nav_layout.addStretch(1)
+
+        content_shell = QFrame(body)
+        content_shell.setObjectName("residentAccessSettingsContentShell")
+        body_layout.addWidget(content_shell, 1)
+        content_layout = QVBoxLayout(content_shell)
+        content_layout.setContentsMargins(16, 14, 16, 14)
+        content_layout.setSpacing(10)
+
+        self.section_heading = QLabel("Resident Access / Quick Access", content_shell)
+        self.section_heading.setObjectName("residentAccessSettingsHeading")
+        content_layout.addWidget(self.section_heading)
+
+        self.section_detail = QLabel("", content_shell)
+        self.section_detail.setObjectName("residentAccessSettingsDetail")
+        self.section_detail.setWordWrap(True)
+        content_layout.addWidget(self.section_detail)
+
+        self.status_summary = QLabel("", content_shell)
+        self.status_summary.setObjectName("residentAccessSettingsStatus")
+        self.status_summary.setWordWrap(True)
+        content_layout.addWidget(self.status_summary)
+
+        self.quick_slot_container = QFrame(content_shell)
+        self.quick_slot_container.setObjectName("residentAccessQuickSlotContainer")
+        quick_slot_layout = QVBoxLayout(self.quick_slot_container)
+        quick_slot_layout.setContentsMargins(0, 0, 0, 0)
+        quick_slot_layout.setSpacing(8)
+
+        quick_header = QHBoxLayout()
+        quick_label = QLabel("Quick Access Slots", self.quick_slot_container)
+        quick_label.setObjectName("residentAccessSettingsSubheading")
+        quick_header.addWidget(quick_label)
+        quick_header.addStretch(1)
+        self.add_slot_button = QPushButton("Add Slot", self.quick_slot_container)
+        self.add_slot_button.clicked.connect(self._add_slot)
+        quick_header.addWidget(self.add_slot_button)
+        self.reset_slots_button = QPushButton("Reset", self.quick_slot_container)
+        self.reset_slots_button.clicked.connect(self._reset_slots)
+        quick_header.addWidget(self.reset_slots_button)
+        quick_slot_layout.addLayout(quick_header)
+
+        self.quick_slot_rows = QWidget(self.quick_slot_container)
+        self.quick_slot_rows_layout = QVBoxLayout(self.quick_slot_rows)
+        self.quick_slot_rows_layout.setContentsMargins(0, 0, 0, 0)
+        self.quick_slot_rows_layout.setSpacing(6)
+        quick_slot_layout.addWidget(self.quick_slot_rows)
+        content_layout.addWidget(self.quick_slot_container)
+
+        self.route_summary = QLabel("", content_shell)
+        self.route_summary.setObjectName("residentAccessSettingsRouteSummary")
+        self.route_summary.setWordWrap(True)
+        content_layout.addWidget(self.route_summary)
+
+        content_layout.addStretch(1)
+
+        footer = QHBoxLayout()
+        footer.addStretch(1)
+        self.apply_button = QPushButton("Apply", content_shell)
+        self.apply_button.clicked.connect(self._save_settings)
+        footer.addWidget(self.apply_button)
+        self.close_button = QPushButton("Close", content_shell)
+        self.close_button.clicked.connect(self.accept)
+        footer.addWidget(self.close_button)
+        content_layout.addLayout(footer)
+
+        self.setStyleSheet(
+            "#residentAccessSettingsShell {"
+            " background: #f7f8fb;"
+            " border: 1px solid #c9d1d9;"
+            " border-radius: 8px;"
+            "}"
+            "#residentAccessSettingsChromeBar {"
+            " background: #111827;"
+            " border-top-left-radius: 8px;"
+            " border-top-right-radius: 8px;"
+            "}"
+            "#residentAccessSettingsChromeTitle { color: #f8fafc; }"
+            "#residentAccessSettingsChromeClose {"
+            " color: #f8fafc;"
+            " background: transparent;"
+            " border: none;"
+            "}"
+            "#residentAccessSettingsNav {"
+            " background: #ffffff;"
+            " border: 1px solid #d8dee6;"
+            " border-radius: 6px;"
+            "}"
+            "#residentAccessSettingsNav QPushButton {"
+            " border: none;"
+            " color: #202124;"
+            " padding: 8px 10px;"
+            " text-align: left;"
+            " border-radius: 4px;"
+            "}"
+            "#residentAccessSettingsNav QPushButton:checked {"
+            " background: #dff5ef;"
+            " color: #064e3b;"
+            "}"
+            "#residentAccessSettingsContentShell {"
+            " background: #ffffff;"
+            " border: 1px solid #d8dee6;"
+            " border-radius: 6px;"
+            "}"
+            "#residentAccessSettingsHeading {"
+            " color: #111827;"
+            " font-size: 20px;"
+            " font-weight: 700;"
+            "}"
+            "#residentAccessSettingsSubheading {"
+            " color: #202124;"
+            " font-size: 13px;"
+            " font-weight: 700;"
+            "}"
+            "#residentAccessSettingsDetail, #residentAccessSettingsRouteSummary {"
+            " color: #3c4043;"
+            " line-height: 1.25;"
+            "}"
+            "#residentAccessSettingsStatus {"
+            " background: #f0f7ff;"
+            " color: #12324a;"
+            " border: 1px solid #c7ddf5;"
+            " border-radius: 6px;"
+            " padding: 8px;"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton, #residentAccessSettingsContentShell > QPushButton {"
+            " min-height: 28px;"
+            "}"
+            "QComboBox { min-height: 28px; }"
+        )
+
+        self._rebuild_quick_slot_rows()
+        self.set_focus(self._focus)
+
+    def _emit_runtime_signal(self, signal_name: str, **fields):
+        emitter = getattr(self.runtime, "_emit_runtime_signal", None)
+        if callable(emitter):
+            emitter(signal_name, **fields)
+
+    def _plan(self) -> dict[str, object]:
+        provider_state = None
+        provider = getattr(self.runtime, "_ai_provider_state", None)
+        if provider is not None and hasattr(provider, "as_renderer_payload"):
+            try:
+                provider_state = provider.as_renderer_payload()
+            except Exception:
+                provider_state = None
+        monitoring_state = {}
+        hud_provider = getattr(self.runtime, "monitoring_hud_feature_state", None)
+        if callable(hud_provider):
+            try:
+                monitoring_state = hud_provider()
+            except Exception:
+                monitoring_state = {}
+        command_state = {}
+        command_provider = getattr(self.runtime, "command_overlay_state", None)
+        if callable(command_provider):
+            try:
+                command_state = command_provider()
+            except Exception:
+                command_state = {}
+        return build_resident_access_menu_plan(
+            settings=self._settings,
+            ai_provider_state=provider_state,
+            monitoring_hud_state=monitoring_state,
+            command_overlay_state=command_state,
+        )
+
+    def _route_label(self, route) -> str:
+        suffix = "" if route.enabled else " (future-gated)"
+        return f"{route.label}{suffix}"
+
+    def _selected_slot_ids(self) -> tuple[str, ...]:
+        ids = []
+        for combo in self._slot_combos:
+            route_id = combo.currentData()
+            if route_id:
+                ids.append(str(route_id))
+        return normalize_quick_slot_ids(ids)
+
+    def _clear_quick_slot_rows(self):
+        while self.quick_slot_rows_layout.count():
+            item = self.quick_slot_rows_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+        self._slot_combos = []
+
+    def _rebuild_quick_slot_rows(self):
+        self._clear_quick_slot_rows()
+        candidates = quick_slot_candidate_routes()
+        selected_ids = normalize_quick_slot_ids(self._settings.quick_slot_ids)
+        for index, selected_id in enumerate(selected_ids):
+            row = QWidget(self.quick_slot_rows)
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(0, 0, 0, 0)
+            row_layout.setSpacing(6)
+            row_layout.addWidget(QLabel(f"Slot {index + 1}", row))
+            combo = QComboBox(row)
+            for route in candidates:
+                combo.addItem(self._route_label(route), route.route_id)
+                if route.route_id == selected_id:
+                    combo.setCurrentIndex(combo.count() - 1)
+            combo.currentIndexChanged.connect(lambda _idx, index=index: self._update_slot(index))
+            self._slot_combos.append(combo)
+            row_layout.addWidget(combo, 1)
+            up_button = QPushButton("Up", row)
+            up_button.setEnabled(index > 0)
+            up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
+            row_layout.addWidget(up_button)
+            down_button = QPushButton("Down", row)
+            down_button.setEnabled(index < len(selected_ids) - 1)
+            down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
+            row_layout.addWidget(down_button)
+            remove_button = QPushButton("Remove", row)
+            remove_button.setEnabled(len(selected_ids) > 1)
+            remove_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
+            row_layout.addWidget(remove_button)
+            self.quick_slot_rows_layout.addWidget(row)
+        self.add_slot_button.setEnabled(len(selected_ids) < MAX_QUICK_SLOT_COUNT)
+
+    def _replace_quick_slots(self, slot_ids: Iterable[str]):
+        self._settings = ResidentAccessSettings(
+            quick_slot_ids=normalize_quick_slot_ids(slot_ids),
+            menu_budget=self._settings.menu_budget,
+            show_ai_privacy_status=self._settings.show_ai_privacy_status,
+        )
+        self._rebuild_quick_slot_rows()
+        self._refresh_text()
+
+    def _update_slot(self, _index):
+        self._settings = ResidentAccessSettings(
+            quick_slot_ids=self._selected_slot_ids(),
+            menu_budget=self._settings.menu_budget,
+            show_ai_privacy_status=self._settings.show_ai_privacy_status,
+        )
+        self._refresh_text()
+
+    def _move_slot(self, index: int, direction: int):
+        slots = list(self._selected_slot_ids())
+        new_index = index + direction
+        if new_index < 0 or new_index >= len(slots):
+            return
+        slots[index], slots[new_index] = slots[new_index], slots[index]
+        self._replace_quick_slots(slots)
+
+    def _remove_slot(self, index: int):
+        slots = list(self._selected_slot_ids())
+        if len(slots) <= 1 or index < 0 or index >= len(slots):
+            return
+        del slots[index]
+        self._replace_quick_slots(slots)
+
+    def _add_slot(self):
+        slots = list(self._selected_slot_ids())
+        if len(slots) >= MAX_QUICK_SLOT_COUNT:
+            return
+        for route in quick_slot_candidate_routes():
+            if route.route_id not in slots:
+                slots.append(route.route_id)
+                break
+        self._replace_quick_slots(slots)
+
+    def _reset_slots(self):
+        self._replace_quick_slots(DEFAULT_QUICK_SLOT_ROUTE_IDS)
+
+    def _save_settings(self):
+        path = save_resident_access_settings(self._settings)
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_SETTINGS_SAVED",
+            source="global_settings",
+            quick_slot_count=len(self._settings.quick_slot_ids),
+            path=str(path),
+        )
+        self._refresh_text(saved=True)
+
+    def _refresh_text(self, saved: bool = False):
+        plan = self._plan()
+        ai_privacy = plan.get("aiPrivacy") if isinstance(plan.get("aiPrivacy"), dict) else {}
+        status = str(plan.get("statusLabel") or "AI local/no provider")
+        visible_data = str(ai_privacy.get("providerVisibleDataLabel") or "Provider-visible data: none")
+        privacy = str(ai_privacy.get("privacyLabel") or "Local shell only; nothing is sent")
+        route_count = len(plan.get("quickSlots", ()) or ())
+        self.status_summary.setText(f"{status} {visible_data}. {privacy}.")
+        suffix = " Settings saved." if saved else ""
+
+        if self._focus == "ai_status":
+            self.section_heading.setText("AI Status / Command Center")
+            self.section_detail.setText(
+                "AI status is shown from the FAM-007 no-provider contract. Command Center internals remain owner-bounded."
+                + suffix
+            )
+        elif self._focus == "privacy":
+            self.section_heading.setText("Privacy Lockdown")
+            self.section_detail.setText(
+                "Privacy Lockdown is route-only feedback in this branch; provider/runtime enforcement remains FAM-007."
+                + suffix
+            )
+        elif self._focus == "tray_visibility":
+            self.section_heading.setText("Tray Visibility")
+            self.section_detail.setText(WINDOWS_TRAY_VISIBILITY_LIMITATION + suffix)
+        elif self._focus == "owner_routes":
+            self.section_heading.setText("Owner Routes")
+            self.section_detail.setText(
+                "HUD, Recording, Log Viewer, AI Command Center, provider state, installer, startup, and update behavior stay with their owning FAMs."
+                + suffix
+            )
+        else:
+            self.section_heading.setText("Resident Access / Quick Access")
+            self.section_detail.setText(
+                f"The tray menu keeps three default quick slots and allows up to {MAX_QUICK_SLOT_COUNT} compact slots."
+                + suffix
+            )
+
+        self.route_summary.setText(
+            f"Quick slots active: {route_count}. Immutable entries: HUD Dashboard, Global Settings, "
+            "AI Status / Command Center, Privacy Lockdown, Exit Nexus."
+        )
+
+    def set_focus(self, focus: str):
+        self._focus = focus if focus in self._nav_buttons else "quick_access"
+        for focus_id, button in self._nav_buttons.items():
+            button.setChecked(focus_id == self._focus)
+        self.quick_slot_container.setVisible(self._focus == "quick_access")
+        self._refresh_text()
+        self.show()
+        self.raise_()
+        self.activateWindow()
 
 
 class QuickCreateGroupDialog(QDialog):
@@ -5898,6 +6306,7 @@ class DesktopRuntimeWindow(QWidget):
         self._callable_group_create_dialog_factory = CallableGroupCreateDialog
         self._created_groups_dialog_factory = CreatedGroupsDialog
         self._callable_group_edit_dialog_factory = CallableGroupEditDialog
+        self._resident_access_settings_dialog = None
         _DIALOG_RUNTIME_LOGGER = self._log_event
         self._command_model = CommandOverlayModel()
         self._command_panel = CommandOverlayPanel()
@@ -16806,6 +17215,120 @@ class DesktopRuntimeWindow(QWidget):
             phase=self._command_model.phase,
         )
         QTimer.singleShot(0, self.handle_create_custom_task_requested)
+
+    def resident_access_status_snapshot(self) -> dict[str, object]:
+        provider_payload = {}
+        try:
+            provider_payload = self._ai_provider_state.as_renderer_payload()
+        except Exception:
+            provider_payload = {}
+        return build_resident_access_menu_plan(
+            ai_provider_state=provider_payload,
+            monitoring_hud_state=self.monitoring_hud_feature_state(),
+            command_overlay_state=self.command_overlay_state(),
+        )
+
+    def open_resident_access_settings(self, source: str = "tray", focus: str = "quick_access"):
+        if self._is_shutting_down:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_SETTINGS_OPEN_ABORTED",
+                source=source,
+                reason="shutdown",
+            )
+            return
+        if self._resident_access_settings_dialog is None:
+            self._resident_access_settings_dialog = ResidentAccessSettingsDialog(
+                self,
+                runtime=self,
+                focus=focus,
+            )
+        self._resident_access_settings_dialog.set_focus(focus)
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_SETTINGS_OPENED",
+            source=source,
+            focus=focus,
+            shell="minimal-global-settings",
+        )
+
+    def request_ai_status_from_resident_access(self, source: str = "tray"):
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_AI_STATUS_ROUTE_ONLY",
+            source=source,
+            owner="FAM-007",
+            provider_visible_data="none",
+        )
+        self.open_resident_access_settings(source=source, focus="ai_status")
+
+    def request_privacy_lockdown_from_resident_access(self, source: str = "tray"):
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_PRIVACY_LOCKDOWN_ROUTE_ONLY",
+            source=source,
+            owner="FAM-007",
+            effect="no_runtime_privacy_state_changed",
+        )
+        self.open_resident_access_settings(source=source, focus="privacy")
+
+    def _resident_command_action_by_id(self, route_id: str):
+        normalized = (route_id or "").strip().casefold()
+        for action in DEFAULT_COMMAND_ACTIONS:
+            if action.id.casefold() == normalized:
+                return action
+        return None
+
+    def request_resident_quick_action_from_tray(self, route_id: str, source: str = "tray"):
+        route_id = (route_id or "").strip()
+        route = route_for_id(route_id)
+        if route is None:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_QUICK_ACTION_ABORTED",
+                source=source,
+                route_id=route_id,
+                reason="unknown_route",
+            )
+            return
+        if not route.enabled:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_QUICK_ACTION_FUTURE_GATED",
+                source=source,
+                route_id=route_id,
+                owner=route.owner_family,
+                availability=route.availability,
+            )
+            self.open_resident_access_settings(source=source, focus="owner_routes")
+            return
+        if route_id == "tray_visibility_education":
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_TRAY_VISIBILITY_COPY_SHOWN",
+                source=source,
+                route_id=route_id,
+            )
+            self.open_resident_access_settings(source=source, focus="tray_visibility")
+            return
+        action = self._resident_command_action_by_id(route_id)
+        if action is None:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_QUICK_ACTION_ABORTED",
+                source=source,
+                route_id=route_id,
+                reason="launcher_unavailable",
+            )
+            return
+        try:
+            launch_command_action(action)
+        except Exception as exc:
+            self._emit_runtime_signal(
+                "RESIDENT_ACCESS_QUICK_ACTION_FAILED",
+                source=source,
+                route_id=route_id,
+                reason=type(exc).__name__,
+            )
+            return
+        self._emit_runtime_signal(
+            "RESIDENT_ACCESS_QUICK_ACTION_SENT",
+            source=source,
+            route_id=route_id,
+            owner=route.owner_family,
+        )
 
     def reload_command_action_catalog(self, source_path=None):
         resolved_source_path = self._saved_action_source_path if source_path is None else source_path

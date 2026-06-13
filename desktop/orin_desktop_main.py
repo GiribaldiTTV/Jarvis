@@ -19,6 +19,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox
 from desktop.core_visualization_renderer import CoreVisualizationWindow
 from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
 from desktop.monitoring_hud_state import load_monitoring_hud_state
+from desktop.resident_access import build_resident_access_menu_plan
 from desktop.single_instance import NamedSignal
 from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL
 
@@ -94,8 +95,41 @@ class DesktopRuntimeUnavailable(QObject):
     def open_command_overlay(self):
         self.toggle_command_overlay()
 
+    def command_overlay_state(self):
+        return {"visible": False, "phase": "closed"}
+
     def request_create_custom_task_from_tray(self, source="tray"):
         self._emit(f"RENDERER_MAIN|TRAY_CREATE_CUSTOM_TASK_ABORTED|source={source}|reason=desktop_runtime_unavailable")
+
+    def resident_access_status_snapshot(self):
+        return build_resident_access_menu_plan(
+            monitoring_hud_state=self.monitoring_hud_feature_state(),
+            command_overlay_state=self.command_overlay_state(),
+        )
+
+    def open_resident_access_settings(self, source="tray", focus="quick_access"):
+        self._emit(
+            "RENDERER_MAIN|RESIDENT_ACCESS_SETTINGS_OPEN_ABORTED"
+            f"|source={source}|focus={focus}|reason=desktop_runtime_unavailable"
+        )
+
+    def request_ai_status_from_resident_access(self, source="tray"):
+        self._emit(
+            "RENDERER_MAIN|RESIDENT_ACCESS_AI_STATUS_UNAVAILABLE"
+            f"|source={source}|reason=desktop_runtime_unavailable"
+        )
+
+    def request_privacy_lockdown_from_resident_access(self, source="tray"):
+        self._emit(
+            "RENDERER_MAIN|RESIDENT_ACCESS_PRIVACY_LOCKDOWN_UNAVAILABLE"
+            f"|source={source}|reason=desktop_runtime_unavailable"
+        )
+
+    def request_resident_quick_action_from_tray(self, route_id="", source="tray"):
+        self._emit(
+            "RENDERER_MAIN|RESIDENT_ACCESS_QUICK_ACTION_ABORTED"
+            f"|source={source}|route_id={route_id}|reason=desktop_runtime_unavailable"
+        )
 
     def monitoring_hud_feature_state(self):
         return {
