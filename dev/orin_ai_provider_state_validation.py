@@ -8778,6 +8778,19 @@ def validate() -> list[str]:
     for needle in (
         "AIControlCenterDialog",
         "fam007AiControlCenter",
+        "fam007AiControlCenterShell",
+        "fam007AiControlCenterChromeBar",
+        "DialogChromeBar",
+        "Qt.FramelessWindowHint",
+        "Qt.NoDropShadowWindowHint",
+        "WA_TranslucentBackground",
+        "surfaceClassification",
+        "Nexus-Owned Product Surface",
+        "visualInheritance",
+        "FAM-002-HUD",
+        "platformException",
+        "buttonRole",
+        "factRow",
         "show_ai_control_center_from_tray",
         "AI_CONTROL_CENTER_VISIBLE",
         "AI_CONTROL_CENTER_VISIBILITY_FAILED",
@@ -8805,7 +8818,19 @@ def validate() -> list[str]:
         "Display-only; controls live here",
         "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none.",
     ):
-        _require(needle in renderer, f"desktop renderer native AI Control Center is missing {needle!r}", failures)
+        _require(needle in renderer, f"desktop renderer Nexus AI Control Center is missing {needle!r}", failures)
+
+    for forbidden in (
+        "Qt.WindowTitleHint",
+        "Qt.WindowSystemMenuHint",
+        "Qt.WindowMinimizeButtonHint",
+        "Qt.WindowCloseButtonHint",
+    ):
+        _require(
+            forbidden not in renderer,
+            f"desktop renderer AI Control Center must not retain default OS chrome flag {forbidden!r}",
+            failures,
+        )
 
     for needle in (
         "ai_control_center_action",
