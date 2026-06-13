@@ -1209,9 +1209,11 @@ function Invoke-VisibleDesktopShortcutClickLaunch {
 
     [CodexHumanClientWin32]::SetCursorPos($targetX, $targetY) | Out-Null
     Start-Sleep -Milliseconds 180
-    [CodexHumanClientWin32]::SendAbsoluteLeftClick($targetX, $targetY)
+    [CodexHumanClientWin32]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)
+    [CodexHumanClientWin32]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
     Start-Sleep -Milliseconds 120
-    [CodexHumanClientWin32]::SendAbsoluteLeftClick($targetX, $targetY)
+    [CodexHumanClientWin32]::mouse_event(0x0002, 0, 0, 0, [UIntPtr]::Zero)
+    [CodexHumanClientWin32]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
     Start-Sleep -Milliseconds 600
     $afterShot = Capture-VirtualScreenshot "01b_after_visible_desktop_shortcut_double_click"
     Add-Step -Id "visible_desktop_shortcut_double_clicked" -Title "Visible USER desktop shortcut is activated" -Status "PASS" -Detail "Activated '$shortcutName' by double-clicking the physical Desktop shortcut icon; File Explorer fallback was not used." -Evidence @{
@@ -1223,13 +1225,13 @@ function Invoke-VisibleDesktopShortcutClickLaunch {
         windowAtPoint = $windowAtPoint
         targetSource = $targetSource
         desktopTargetEvidence = $desktopTargetEvidence
-        mouseInput = "double-left-click"
+        mouseInput = "SetCursorPos plus mouse_event double-left-click"
         launchSurface = $launchSurface
     }
     Add-Step -Id "shortcut_launch_requested" -Title "Launch through visible USER desktop shortcut activation" -Status "PASS" -Detail "Visible shortcut activation requested runtime launch from $ShortcutPath." -Evidence @{
         screenshot = $afterShot
         clickPoint = @($targetX, $targetY)
-        mouseInput = "double-left-click"
+        mouseInput = "SetCursorPos plus mouse_event double-left-click"
         launchSurface = $launchSurface
     }
 }

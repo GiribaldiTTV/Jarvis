@@ -347,6 +347,7 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             "02_recording_card_target_preview_standard_state_rows",
             "02_dashboard_quick_access_start_stop_ready_state",
             "02_recording_card_log_viewer_studio_pre_session_ready_state",
+            "03_manage_monitors_open_state",
             "02_recording_studio_native_window_ready_state",
             "02_dashboard_quick_access_recording_active_state",
             "02_dashboard_quick_access_stop_saved_request_state",
@@ -969,6 +970,44 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         lv1PhotoVideoOnlyProofRule = $true
         lv1NonVisualClaimUserElevationRequired = $true
         lv1ExactUserDesktopShortcutRequired = $true
+        studioVisualInheritanceMatrix = [pscustomobject]@{
+            status = "REQUIRES_CODEX_PHOTO_VIDEO_ADJUDICATION"
+            proofAuthority = "photo-video-comparison-not-runtime-self-attestation"
+            referenceSurfaces = @("HUD Dashboard", "Overlay Profile Settings", "Manage Monitors")
+            targetSurfaces = @("Recording Studio", "Log Viewer Studio")
+            requiredReferenceLabels = @(
+                "02_recording_card_target_status_visual_contract",
+                "02_overlay_profile_normal_path_created_draft_recording_mirror",
+                "03_manage_monitors_open_state"
+            )
+            requiredTargetLabels = @(
+                "02_recording_studio_native_window_ready_state",
+                "02_recording_studio_native_log_saved_tracking_state",
+                "02_log_viewer_studio_native_window_shell_state",
+                "02_log_viewer_c3_shell_open_unfocused_before_start_stop",
+                "02_log_viewer_c3_shell_open_unfocused_after_start_stop"
+            )
+            requiredComparisonDimensions = @(
+                "window chrome",
+                "full-window body/background continuity",
+                "absence of transparent or see-through void regions",
+                "background color and opacity",
+                "button grammar",
+                "typography",
+                "row and divider treatment",
+                "glow and shadow restraint",
+                "spacing and compact density",
+                "hover focus disabled states"
+            )
+            invalidPassBasis = @(
+                "runtime visual marker",
+                "screenshot existence",
+                "manifest PASS",
+                "helper PASS",
+                "generic standalone window shell",
+                "Dashboard card clone"
+            )
+        }
         exactUserDesktopShortcutLaunchProof = $script:LaunchProof
         returnedUtsDeterminismGateStatus = (Get-ReturnedUtsDeterminismGateStatus)
         returnedUtsDeterminismGates = @(Get-ReturnedUtsDeterminismGates)
@@ -1329,6 +1368,7 @@ Vision-To-Proof Matrix For This Handoff
 - FAM-006 Recording Feature Vision -> Dashboard card, Recording Studio, Log Viewer Studio shell, native/export boundaries, and active Overlay Profile target mirror must remain branch-specific and future-gated where planned. Evidence: Recording card states, native-log readback, Log Viewer folder shell screenshots, and manifest proof.
 - Live Validation proof rule -> proof must be visible in photo/video or elevated to USER. Evidence: desktop-shortcut human-client manifest, focused screenshots, and this UTS.
 - Current repair focus -> Log Viewer Studio native/export path rows must be readable and contained: no clipped wrapping, no branch/worktree leakage, full path available through tooltip/proof, and visible display intentionally middle-elided when needed.
+- Studio Visual Inheritance Matrix -> compare Recording Studio and Log Viewer Studio against HUD Dashboard, Overlay Profile Settings, and Manage Monitors reference screenshots for full-window body/background continuity, absence of transparent void regions, window chrome, color/opacity, typography, row/divider treatment, button grammar, glow/shadow restraint, spacing/density, and hover/focus/disabled states. Runtime markers, manifest PASS, helper PASS, or screenshot existence are not visual acceptance.
 
 Brief Issue List
 - Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.
@@ -1758,14 +1798,14 @@ try {
             $requiredInteractionLabels = @(
                 "Dashboard Recording card target/status visual contract is focused before child windows",
                 "real OS click opens Dashboard Recording Studio",
-                "Recording Studio native window focused screenshot proof",
+                "Recording Studio native window screenshot-capture readiness",
                 "real OS click starts Dashboard Recording",
                 "real OS click stops Dashboard Recording and requests local output",
                 "Dashboard Recording stop writes local output and readback proof",
                 "Recording Studio compact native/current-log tracking updates after save",
                 "real OS click opens Dashboard Recording Log Viewer Studio",
                 "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
-                "Log Viewer Studio native window focused screenshot proof",
+                "Log Viewer Studio native window screenshot-capture readiness",
                 "C1 Log Viewer closed before repeated Start/Stop",
                 "C1 real OS click starts recording after Log Viewer close",
                 "C1 real OS click stops recording after Log Viewer close",

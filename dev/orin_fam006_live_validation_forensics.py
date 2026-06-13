@@ -4310,9 +4310,11 @@ def returned_uts_gate_self_check() -> dict[str, object]:
         "always-openable-target-state-visible",
         "recording-target-no-sensor-sample",
         "nativeCursorRecordingStudioReopenProof",
-        "visualSystemInheritance",
+        "visualSystemInheritanceClaim",
+        "visualProofAuthority",
+        "visualRuntimeSelfAttestation",
         "dashboard-hub-card-sampled",
-        "genericShellRejected",
+        "photo-video-comparison-not-runtime-self-attestation",
     ]
     missing = []
     for marker in required_live:

@@ -5742,7 +5742,16 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
 MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "nexus-hud-standalone-studio-window-v1"
 MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "hud-dashboard-chrome-rows-buttons-density"
 MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "standalone-window-shared-fam006-visual-dna"
-MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "source-truth-mapped-standalone-window-visual-dna"
+MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "photo-video-comparison-required"
+MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY = "photo-video-comparison-not-runtime-self-attestation"
+MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE = "declared-not-proven-by-runtime"
+MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR = "hud-button-family-sampled-requires-photo-adjudication"
+MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "contiguous-dark-glass-window-body-requires-photo-adjudication"
+MONITORING_HUD_STUDIO_REFERENCE_SURFACES = (
+    "HUD Dashboard",
+    "Overlay Profile Settings",
+    "Manage Monitors",
+)
 
 
 def _monitoring_hud_window_settings() -> QSettings:
@@ -5876,85 +5885,89 @@ def _monitoring_hud_set_contained_value_label(
 def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
     return f"""
         QWidget#{object_name} {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #06162a, stop:0.52 #031120, stop:1 #020712);
-            border: 1px solid rgba(117, 228, 255, 0.42);
-            border-radius: 18px;
-            color: #dffbff;
+            background: transparent;
+            color: rgba(235, 252, 255, 0.96);
             font-family: Bahnschrift, Segoe UI, sans-serif;
             letter-spacing: 0px;
         }}
+        QFrame[role="studioShell"] {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #041120, stop:0.58 #020b16, stop:1 #010711);
+            border: 1px solid rgba(125, 235, 255, 0.30);
+            border-radius: 22px;
+            color: rgba(235, 252, 255, 0.96);
+        }}
         QFrame[role="studioHeader"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(2, 10, 20, 0.96), stop:0.72 rgba(4, 22, 36, 0.72), stop:1 rgba(2, 10, 20, 0.52));
-            border: 1px solid rgba(117, 228, 255, 0.36);
-            border-radius: 18px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(5, 23, 39, 0.985), stop:0.70 rgba(2, 10, 20, 0.965), stop:1 rgba(2, 10, 20, 0.78));
+            border: 1px solid rgba(130, 236, 255, 0.14);
+            border-radius: 22px;
         }}
         QFrame[role="studioPanel"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(3, 27, 34, 0.78), stop:1 rgba(1, 14, 24, 0.76));
-            border: 1px solid rgba(119, 228, 248, 0.26);
-            border-radius: 10px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 20, 36, 0.985), stop:1 rgba(2, 11, 22, 0.975));
+            border: 1px solid rgba(116, 240, 255, 0.13);
+            border-radius: 20px;
         }}
         QFrame[role="studioRow"] {{
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.055), stop:0.18 rgba(117, 228, 255, 0.025), stop:1 rgba(2, 15, 24, 0.10));
-            border-top: 1px solid rgba(138, 236, 255, 0.42);
-            border-bottom: 1px solid rgba(20, 49, 63, 0.62);
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.038), stop:0.20 rgba(117, 228, 255, 0.020), stop:1 rgba(2, 15, 24, 0.08));
+            border-top: 1px solid rgba(116, 240, 255, 0.19);
+            border-bottom: 1px solid rgba(2, 8, 14, 0.68);
             border-radius: 0px;
         }}
         QLabel {{
-            color: #dffbff;
+            color: rgba(235, 252, 255, 0.96);
             background: transparent;
         }}
         QLabel[role="eyebrow"] {{
-            color: rgba(126, 198, 218, 0.86);
+            color: rgba(171, 229, 243, 0.86);
             font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
         }}
         QLabel[role="title"] {{
-            color: #f5ffff;
+            color: rgba(245, 255, 255, 0.98);
             font-size: 16px;
             font-weight: 800;
             text-transform: uppercase;
         }}
         QLabel[role="sectionLabel"] {{
             min-width: 132px;
-            color: rgba(126, 198, 218, 0.92);
+            color: rgba(126, 198, 218, 0.86);
             font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
         }}
         QLabel[role="sectionValue"] {{
-            color: #a9f7db;
+            color: rgba(169, 255, 226, 0.92);
             font-size: 11px;
             font-weight: 700;
         }}
         QLabel[role="pathValue"] {{
-            color: #a9f7db;
+            color: rgba(169, 255, 226, 0.92);
             font-size: 10px;
             font-weight: 700;
         }}
         QLabel[role="warning"] {{
-            color: #a9bed0;
+            color: rgba(169, 190, 208, 0.86);
             font-size: 11px;
             line-height: 1.35;
         }}
         QPushButton {{
-            min-height: 36px;
+            min-height: 34px;
             padding: 6px 18px;
-            border: 1px solid rgba(117, 231, 255, 0.50);
-            border-radius: 18px;
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(8, 45, 65, 0.92), stop:0.54 rgba(4, 27, 45, 0.92), stop:1 rgba(3, 18, 32, 0.92));
-            color: #dffbff;
-            font-size: 11px;
+            border: 1px solid rgba(122, 232, 255, 0.26);
+            border-radius: 17px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
+            color: rgba(235, 252, 255, 0.96);
+            font-size: 12px;
             font-weight: 800;
             text-transform: uppercase;
         }}
         QPushButton:hover {{
-            border-color: rgba(154, 245, 216, 0.78);
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.97), stop:1 rgba(4, 24, 40, 0.95));
+            border-color: rgba(126, 248, 218, 0.56);
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.94), stop:1 rgba(4, 24, 40, 0.91));
         }}
         QPushButton:focus {{
             border-color: rgba(165, 255, 234, 0.86);
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(12, 62, 72, 0.96), stop:1 rgba(5, 29, 42, 0.94));
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10, 79, 82, 0.94), stop:1 rgba(4, 35, 52, 0.90));
         }}
         QPushButton:disabled {{
             color: rgba(198, 224, 232, 0.54);
@@ -5998,8 +6011,8 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._drag_start_global = QPoint()
         self._drag_start_geometry = QRect()
         self.setObjectName("monitoringHudRecordingStudioWindow")
-        self.setProperty("visualSystemInheritance", MONITORING_HUD_STUDIO_VISUAL_INHERITANCE)
-        self.setProperty("visualContract", MONITORING_HUD_STUDIO_VISUAL_CONTRACT)
+        self.setProperty("visualSystemInheritanceClaim", MONITORING_HUD_STUDIO_VISUAL_INHERITANCE)
+        self.setProperty("visualContractDeclared", MONITORING_HUD_STUDIO_VISUAL_CONTRACT)
         self.setProperty("visualSampledElements", MONITORING_HUD_STUDIO_VISUAL_SAMPLE)
         self.setWindowTitle("Nexus Recording Studio")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
@@ -6008,10 +6021,18 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self.resize(460, 320)
         self.setStyleSheet(_monitoring_hud_studio_stylesheet("monitoringHudRecordingStudioWindow"))
         root = QVBoxLayout(self)
-        root.setContentsMargins(14, 14, 14, 14)
-        root.setSpacing(12)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+        self._shell = QFrame(self)
+        self._shell.setProperty("role", "studioShell")
+        self._shell.setAttribute(Qt.WA_StyledBackground, True)
+        root.addWidget(self._shell)
 
-        header_frame = QFrame(self)
+        shell_layout = QVBoxLayout(self._shell)
+        shell_layout.setContentsMargins(14, 14, 14, 14)
+        shell_layout.setSpacing(12)
+
+        header_frame = QFrame(self._shell)
         header_frame.setProperty("role", "studioHeader")
         self._drag_surface = header_frame
         header = QHBoxLayout(header_frame)
@@ -6028,14 +6049,14 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         header.addLayout(header_text)
         header.addStretch(1)
 
-        status_panel = QFrame(self)
+        status_panel = QFrame(self._shell)
         status_panel.setProperty("role", "studioPanel")
         status = QVBoxLayout(status_panel)
         status.setContentsMargins(8, 8, 8, 8)
         status.setSpacing(6)
         self._target = QLabel("No active overlay profile", status_panel)
         self._summary = QLabel("Ready for local Start/Stop recording.", status_panel)
-        self._native_log = QLabel("None yet.", self)
+        self._native_log = QLabel("None yet.", self._shell)
         status.addWidget(_monitoring_hud_studio_row("Target Overlay Profile", self._target, status_panel))
         status.addWidget(_monitoring_hud_studio_row("Recording State", self._summary, status_panel))
         status.addWidget(
@@ -6050,26 +6071,26 @@ class MonitoringHudRecordingStudioWindow(QWidget):
 
         self._boundary = QLabel(
             "Dashboard and Studio share the active Overlay Profile target. Tray controls, keybinds, export customization, and provider/model work remain future-gated.",
-            self,
+            self._shell,
         )
         self._boundary.setWordWrap(True)
         self._boundary.setProperty("role", "warning")
         actions = QHBoxLayout()
-        self._start = QPushButton("Start", self)
-        self._stop = QPushButton("Stop", self)
-        self._minimize = QPushButton("Minimize", self)
-        self._close = QPushButton("Close", self)
+        self._start = QPushButton("Start", self._shell)
+        self._stop = QPushButton("Stop", self._shell)
+        self._minimize = QPushButton("Minimize", self._shell)
+        self._close = QPushButton("Close", self._shell)
         self._start.clicked.connect(lambda: self._request_recording_action("start"))
         self._stop.clicked.connect(lambda: self._request_recording_action("stop"))
         self._minimize.clicked.connect(self.showMinimized)
         self._close.clicked.connect(self.close)
         for button in (self._start, self._stop, self._minimize, self._close):
             actions.addWidget(button)
-        root.addWidget(header_frame)
-        root.addWidget(status_panel)
-        root.addWidget(self._boundary)
-        root.addStretch(1)
-        root.addLayout(actions)
+        shell_layout.addWidget(header_frame)
+        shell_layout.addWidget(status_panel)
+        shell_layout.addWidget(self._boundary)
+        shell_layout.addStretch(1)
+        shell_layout.addLayout(actions)
         self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
             self,
             self._geometry_persistence_key,
@@ -6265,16 +6286,21 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "activationMode": self._last_activation_mode,
             "openedByExplicitUserPath": self._opened_by_explicit_user_path,
             "startStopState": self._start_stop_state,
-            "visualContract": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
-            "visualSystemInheritance": MONITORING_HUD_STUDIO_VISUAL_INHERITANCE,
+            "visualContractDeclared": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
+            "visualSystemInheritanceClaim": MONITORING_HUD_STUDIO_VISUAL_INHERITANCE,
             "visualSampledElements": MONITORING_HUD_STUDIO_VISUAL_SAMPLE,
             "visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION,
+            "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
+            "visualRuntimeSelfAttestation": "rejected",
+            "visualMatrixRequired": True,
+            "visualReferenceSurfacesRequired": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "standaloneWindowLayout": "not-dashboard-card-clone",
-            "sharedVisualDna": True,
-            "genericShellRejected": True,
+            "sharedVisualDna": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
+            "genericShellRejected": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "text-only-product-header-no-rec-log-badge",
-            "buttonVisualGrammar": "dashboard-pill-button-family-sampled",
+            "buttonVisualGrammar": MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR,
+            "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "geometryPersistenceKey": self._geometry_persistence_key,
@@ -6309,20 +6335,28 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self._drag_start_global = QPoint()
         self._drag_start_geometry = QRect()
         self.setObjectName("monitoringHudLogViewerStudioWindow")
-        self.setProperty("visualSystemInheritance", MONITORING_HUD_STUDIO_VISUAL_INHERITANCE)
-        self.setProperty("visualContract", MONITORING_HUD_STUDIO_VISUAL_CONTRACT)
+        self.setProperty("visualSystemInheritanceClaim", MONITORING_HUD_STUDIO_VISUAL_INHERITANCE)
+        self.setProperty("visualContractDeclared", MONITORING_HUD_STUDIO_VISUAL_CONTRACT)
         self.setProperty("visualSampledElements", MONITORING_HUD_STUDIO_VISUAL_SAMPLE)
         self.setWindowTitle("Nexus Log Viewer Studio")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(520, 280)
-        self.resize(560, 330)
+        self.setMinimumSize(620, 280)
+        self.resize(640, 330)
         self.setStyleSheet(_monitoring_hud_studio_stylesheet("monitoringHudLogViewerStudioWindow"))
         root = QVBoxLayout(self)
-        root.setContentsMargins(14, 14, 14, 14)
-        root.setSpacing(12)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+        self._shell = QFrame(self)
+        self._shell.setProperty("role", "studioShell")
+        self._shell.setAttribute(Qt.WA_StyledBackground, True)
+        root.addWidget(self._shell)
 
-        header_frame = QFrame(self)
+        shell_layout = QVBoxLayout(self._shell)
+        shell_layout.setContentsMargins(14, 14, 14, 14)
+        shell_layout.setSpacing(12)
+
+        header_frame = QFrame(self._shell)
         header_frame.setProperty("role", "studioHeader")
         self._drag_surface = header_frame
         header = QHBoxLayout(header_frame)
@@ -6339,7 +6373,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         header.addLayout(header_text)
         header.addStretch(1)
 
-        folder_panel = QFrame(self)
+        folder_panel = QFrame(self._shell)
         folder_panel.setProperty("role", "studioPanel")
         folder_layout = QVBoxLayout(folder_panel)
         folder_layout.setContentsMargins(8, 8, 8, 8)
@@ -6367,26 +6401,30 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self._refresh_folder_labels()
         boundary = QLabel(
             "This branch provides folder access only. Previous-log selection, in-app viewing, export customization, and Native Log Loader remain future-gated.",
-            self,
+            self._shell,
         )
         boundary.setProperty("role", "warning")
         boundary.setWordWrap(True)
         actions = QHBoxLayout()
-        self._open_native = QPushButton("Open Native Logs", self)
-        self._open_export = QPushButton("Open Exported Logs", self)
-        self._minimize = QPushButton("Minimize", self)
-        self._close = QPushButton("Close", self)
+        self._open_native = QPushButton("Open Native Logs", self._shell)
+        self._open_export = QPushButton("Open Exported Logs", self._shell)
+        self._minimize = QPushButton("Minimize", self._shell)
+        self._close = QPushButton("Close", self._shell)
         self._open_native.clicked.connect(lambda: self._open_log_folder("native"))
         self._open_export.clicked.connect(lambda: self._open_log_folder("export"))
         self._minimize.clicked.connect(self.showMinimized)
         self._close.clicked.connect(self.close)
+        self._open_native.setMinimumWidth(152)
+        self._open_export.setMinimumWidth(184)
+        self._minimize.setMinimumWidth(104)
+        self._close.setMinimumWidth(92)
         for button in (self._open_native, self._open_export, self._minimize, self._close):
             actions.addWidget(button)
-        root.addWidget(header_frame)
-        root.addWidget(folder_panel)
-        root.addWidget(boundary)
-        root.addStretch(1)
-        root.addLayout(actions)
+        shell_layout.addWidget(header_frame)
+        shell_layout.addWidget(folder_panel)
+        shell_layout.addWidget(boundary)
+        shell_layout.addStretch(1)
+        shell_layout.addLayout(actions)
         self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
             self,
             self._geometry_persistence_key,
@@ -6396,7 +6434,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
-        width = 560
+        width = 640
         height = 330
         return QRect(
             available.x() + max(24, available.width() - width - 120),
@@ -6565,16 +6603,21 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "exportLogRootPublicLabel": "Exported logs",
             "userVisibleStorageModel": "flat-user-recording-and-export-roots",
             "internalPathLeakageAbsent": internal_path_leakage_absent,
-            "visualContract": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
-            "visualSystemInheritance": MONITORING_HUD_STUDIO_VISUAL_INHERITANCE,
+            "visualContractDeclared": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
+            "visualSystemInheritanceClaim": MONITORING_HUD_STUDIO_VISUAL_INHERITANCE,
             "visualSampledElements": MONITORING_HUD_STUDIO_VISUAL_SAMPLE,
             "visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION,
+            "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
+            "visualRuntimeSelfAttestation": "rejected",
+            "visualMatrixRequired": True,
+            "visualReferenceSurfacesRequired": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "standaloneWindowLayout": "not-dashboard-card-clone",
-            "sharedVisualDna": True,
-            "genericShellRejected": True,
+            "sharedVisualDna": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
+            "genericShellRejected": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "text-only-product-header-no-rec-log-badge",
-            "buttonVisualGrammar": "dashboard-pill-button-family-sampled",
+            "buttonVisualGrammar": MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR,
+            "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "geometryPersistenceKey": self._geometry_persistence_key,
@@ -6873,9 +6916,26 @@ class DesktopRuntimeWindow(QWidget):
 
     def eventFilter(self, watched, event):
         if watched is self.webview:
-            self._handle_monitoring_hud_webview_recording_control_bridge(event)
-        if self._handle_monitoring_hud_native_panel_drag_event(event):
-            return True
+            try:
+                self._handle_monitoring_hud_webview_recording_control_bridge(event)
+            except Exception as exc:
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_WEBVIEW_RECORDING_CONTROL_BRIDGE_GUARDED",
+                    package="PKG-006",
+                    slice="SLC-053",
+                    error=type(exc).__name__,
+                )
+        try:
+            if self._handle_monitoring_hud_native_panel_drag_event(event):
+                return True
+        except Exception as exc:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_NATIVE_PANEL_EVENT_FILTER_GUARDED",
+                package="PKG-006",
+                slice="SLC-026",
+                error=type(exc).__name__,
+            )
+            return False
         return super().eventFilter(watched, event)
 
     def moveEvent(self, event):
@@ -11738,7 +11798,45 @@ class DesktopRuntimeWindow(QWidget):
             ]
             for label in labels:
                 capture(label)
-            QTimer.singleShot(delay(), step_recording_studio_click)
+            QTimer.singleShot(delay(), step_recording_reference_surface_captures)
+
+        def step_recording_reference_surface_captures():
+            add_step(
+                "Manage Monitors reference surface screenshot requested for Studio visual inheritance comparison",
+                True,
+                {
+                    "surface": "manage-monitors-reference-surface",
+                    "proofClass": "visual-inheritance-reference-screenshot",
+                    "directJsActivationUsedForReferenceOnly": True,
+                    "visualAcceptanceBasis": "photo-video-adjudication-required",
+                },
+            )
+            self._run_javascript(
+                """
+                (function() {
+                    if (typeof monitoringHudOpenChildWindow === "function") {
+                        monitoringHudOpenChildWindow("monitor-group-edit");
+                    }
+                    if (typeof monitoringHudRenderMonitorManagement === "function") {
+                        monitoringHudRenderMonitorManagement();
+                    }
+                })();
+                """
+            )
+            QTimer.singleShot(delay(), step_recording_reference_surface_capture_result)
+
+        def step_recording_reference_surface_capture_result():
+            capture("03_manage_monitors_open_state")
+            self._run_javascript(
+                """
+                (function() {
+                    if (typeof monitoringHudCloseChildWindow === "function") {
+                        monitoringHudCloseChildWindow({ force: true });
+                    }
+                })();
+                """
+            )
+            QTimer.singleShot(delay(900), step_recording_studio_click)
 
         recording_studio_native_proof_attempts = {"count": 0}
 
@@ -11795,15 +11893,14 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
                 and proof.get("openedByExplicitUserPath") is True
-                and proof.get("visualSystemInheritance") == MONITORING_HUD_STUDIO_VISUAL_INHERITANCE
-                and proof.get("visualContract") == MONITORING_HUD_STUDIO_VISUAL_CONTRACT
                 and proof.get("visualAdjudicationState") == MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION
+                and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
+                and proof.get("visualRuntimeSelfAttestation") == "rejected"
+                and proof.get("visualMatrixRequired") is True
                 and proof.get("standaloneWindowLayout") == "not-dashboard-card-clone"
-                and proof.get("sharedVisualDna") is True
-                and proof.get("genericShellRejected") is True
                 and proof.get("titleHeaderBadgeState") == "removed"
                 and proof.get("standaloneHeaderTreatment") == "text-only-product-header-no-rec-log-badge"
-                and proof.get("buttonVisualGrammar") == "dashboard-pill-button-family-sampled"
+                and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("nativeLogRowsContained") is True
                 and proof.get("startEnabled") is True
@@ -11816,9 +11913,9 @@ class DesktopRuntimeWindow(QWidget):
                 QApplication.processEvents()
                 QTimer.singleShot(delay(500), step_recording_studio_native_window_assert)
                 return
-            add_step("Recording Studio native window focused screenshot proof", passed, proof)
+            add_step("Recording Studio native window screenshot-capture readiness", passed, proof)
             if not passed:
-                finish("FAIL", "Recording Studio native window proof failed before focused screenshot")
+                finish("FAIL", "Recording Studio native window capture-readiness failed before focused screenshot")
                 return
             capture_native_window("02_recording_studio_native_window_ready_state", widget)
             QTimer.singleShot(delay(), step_recording_start_click)
@@ -12066,15 +12163,14 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "log_viewer_studio_shell"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
-                and proof.get("visualSystemInheritance") == MONITORING_HUD_STUDIO_VISUAL_INHERITANCE
-                and proof.get("visualContract") == MONITORING_HUD_STUDIO_VISUAL_CONTRACT
                 and proof.get("visualAdjudicationState") == MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION
+                and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
+                and proof.get("visualRuntimeSelfAttestation") == "rejected"
+                and proof.get("visualMatrixRequired") is True
                 and proof.get("standaloneWindowLayout") == "not-dashboard-card-clone"
-                and proof.get("sharedVisualDna") is True
-                and proof.get("genericShellRejected") is True
                 and proof.get("titleHeaderBadgeState") == "removed"
                 and proof.get("standaloneHeaderTreatment") == "text-only-product-header-no-rec-log-badge"
-                and proof.get("buttonVisualGrammar") == "dashboard-pill-button-family-sampled"
+                and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("internalPathLeakageAbsent") is True
                 and proof.get("userVisibleStorageModel") == "flat-user-recording-and-export-roots"
@@ -12086,9 +12182,9 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("exportCustomizationState") == "future-gated"
                 and proof.get("nativeLogLoaderState") == "future-gated"
             )
-            add_step("Log Viewer Studio native window focused screenshot proof", native_window_passed, proof)
+            add_step("Log Viewer Studio native window screenshot-capture readiness", native_window_passed, proof)
             if not native_window_passed:
-                finish("FAIL", "Log Viewer Studio native window proof failed before focused screenshot")
+                finish("FAIL", "Log Viewer Studio native window capture-readiness failed before focused screenshot")
                 return
             capture_native_window("02_log_viewer_studio_native_window_shell_state", widget)
             capture("02_recording_card_log_viewer_studio_opened_state")
