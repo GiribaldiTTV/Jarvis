@@ -903,6 +903,7 @@ class ResidentAccessSettingsDialog(QDialog):
             ("owner_routes", "Owner Routes"),
         ):
             button = QPushButton(label, nav)
+            button.setAccessibleName(f"Settings section: {label}")
             button.setCheckable(True)
             button.clicked.connect(lambda _checked=False, focus_id=focus_id: self.set_focus(focus_id))
             self._nav_buttons[focus_id] = button
@@ -942,9 +943,11 @@ class ResidentAccessSettingsDialog(QDialog):
         quick_header.addWidget(quick_label)
         quick_header.addStretch(1)
         self.add_slot_button = QPushButton("Add Slot", self.quick_slot_container)
+        self.add_slot_button.setAccessibleName("Add Quick Access Slot")
         self.add_slot_button.clicked.connect(self._add_slot)
         quick_header.addWidget(self.add_slot_button)
         self.reset_slots_button = QPushButton("Reset", self.quick_slot_container)
+        self.reset_slots_button.setAccessibleName("Reset Quick Access Slots")
         self.reset_slots_button.clicked.connect(self._reset_slots)
         quick_header.addWidget(self.reset_slots_button)
         quick_slot_layout.addLayout(quick_header)
@@ -966,9 +969,11 @@ class ResidentAccessSettingsDialog(QDialog):
         footer = QHBoxLayout()
         footer.addStretch(1)
         self.apply_button = QPushButton("Apply", content_shell)
+        self.apply_button.setAccessibleName("Apply Resident Access Settings")
         self.apply_button.clicked.connect(self._save_settings)
         footer.addWidget(self.apply_button)
         self.close_button = QPushButton("Close", content_shell)
+        self.close_button.setAccessibleName("Close Resident Access Settings")
         self.close_button.clicked.connect(self.accept)
         footer.addWidget(self.close_button)
         content_layout.addLayout(footer)
@@ -1104,8 +1109,12 @@ class ResidentAccessSettingsDialog(QDialog):
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(0, 0, 0, 0)
             row_layout.setSpacing(6)
-            row_layout.addWidget(QLabel(f"Slot {index + 1}", row))
+            slot_label = QLabel(f"Slot {index + 1}", row)
+            slot_label.setAccessibleName(f"Quick Access Slot {index + 1} label")
+            row_layout.addWidget(slot_label)
             combo = QComboBox(row)
+            combo.setAccessibleName(f"Quick Access Slot {index + 1} Route")
+            combo.setMinimumWidth(280)
             for route in candidates:
                 combo.addItem(self._route_label(route), route.route_id)
                 if route.route_id == selected_id:
@@ -1114,14 +1123,17 @@ class ResidentAccessSettingsDialog(QDialog):
             self._slot_combos.append(combo)
             row_layout.addWidget(combo, 1)
             up_button = QPushButton("Up", row)
+            up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
             up_button.setEnabled(index > 0)
             up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
             row_layout.addWidget(up_button)
             down_button = QPushButton("Down", row)
+            down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             row_layout.addWidget(down_button)
             remove_button = QPushButton("Remove", row)
+            remove_button.setAccessibleName(f"Remove Quick Access Slot {index + 1}")
             remove_button.setEnabled(len(selected_ids) > 1)
             remove_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             row_layout.addWidget(remove_button)
@@ -1138,12 +1150,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self._refresh_text()
 
     def _update_slot(self, _index):
-        self._settings = ResidentAccessSettings(
-            quick_slot_ids=self._selected_slot_ids(),
-            menu_budget=self._settings.menu_budget,
-            show_ai_privacy_status=self._settings.show_ai_privacy_status,
-        )
-        self._refresh_text()
+        self._replace_quick_slots(self._selected_slot_ids())
 
     def _move_slot(self, index: int, direction: int):
         slots = list(self._selected_slot_ids())
@@ -1174,6 +1181,11 @@ class ResidentAccessSettingsDialog(QDialog):
         self._replace_quick_slots(DEFAULT_QUICK_SLOT_ROUTE_IDS)
 
     def _save_settings(self):
+        self._settings = ResidentAccessSettings(
+            quick_slot_ids=self._selected_slot_ids(),
+            menu_budget=self._settings.menu_budget,
+            show_ai_privacy_status=self._settings.show_ai_privacy_status,
+        )
         path = save_resident_access_settings(self._settings)
         self._emit_runtime_signal(
             "RESIDENT_ACCESS_SETTINGS_SAVED",

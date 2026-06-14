@@ -159,10 +159,24 @@ def validate_static_wiring(failures: list[str]):
         "request_ai_status_from_resident_access",
         "request_privacy_lockdown_from_resident_access",
         "request_resident_quick_action_from_tray",
+        "self._replace_quick_slots(self._selected_slot_ids())",
+        "setAccessibleName(\"Add Quick Access Slot\")",
+        "setMinimumWidth(280)",
         "RESIDENT_ACCESS_PRIVACY_LOCKDOWN_ROUTE_ONLY",
         "Provider-visible data: none",
     ):
         assert_true(token in renderer_text, f"renderer resident access token missing: {token}", failures)
+
+    assert_true(
+        "button.setMinimumWidth(240)" in tray_text,
+        "tray resident action buttons must keep enough width for long labels",
+        failures,
+    )
+    assert_true(
+        'else ""' in tray_text,
+        "hidden unused quick slots must not keep visible placeholder labels",
+        failures,
+    )
 
     for token in (
         "build_resident_access_menu_plan",

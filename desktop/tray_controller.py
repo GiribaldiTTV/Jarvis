@@ -126,7 +126,7 @@ class TrayCommandPopup(QWidget):
     def add_button(self, text, handler):
         button = QPushButton(text, self)
         button.setAccessibleName(text)
-        button.setMinimumWidth(170)
+        button.setMinimumWidth(240)
         button.clicked.connect(lambda _checked=False: self.owner._invoke_button_action(handler))
         self._command_buttons.append((button, handler))
         self.layout.addWidget(button)
@@ -342,7 +342,7 @@ class DesktopTrayEntry:
         button = QPushButton(text, self.tray_menu)
         button.setFlat(True)
         button.setMinimumHeight(24)
-        button.setMinimumWidth(150)
+        button.setMinimumWidth(240)
         button.setAccessibleName(text)
         button.setStyleSheet(
             "QPushButton { text-align: left; padding: 4px 12px; border: none; }"
@@ -718,7 +718,7 @@ class DesktopTrayEntry:
         for index in range(5):
             route = quick_slots[index] if index < len(quick_slots) else None
             visible = route is not None
-            label = self._route_label_for_menu(route) if route is not None else f"Quick Access {index + 1}"
+            label = self._route_label_for_menu(route) if route is not None else ""
             enabled = bool(route.get("enabled", True)) if isinstance(route, dict) else False
             action = self.quick_slot_actions[index] if index < len(self.quick_slot_actions) else None
             button = self.quick_slot_buttons[index] if index < len(self.quick_slot_buttons) else None
