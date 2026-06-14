@@ -1672,7 +1672,16 @@ Those evidence layers are supporting proof, not final green by themselves.
 
 Before User Test Summary handoff, the final Live Validation closeout must launch and exercise the branch through the exact normal USER desktop runtime launcher path declared for the branch.
 For desktop UI Live Validation, no sandbox/offscreen/direct-runtime path can be the primary LV1 path when the normal USER desktop launcher is feasible. Direct runtime launches, WebView harnesses, helper launches, generated-equivalent shortcuts, active-client probes, and troubleshooting launcher runs are supporting evidence only unless launcher parity proof and USER approval make the troubleshooting launcher equivalent for the exact claim being validated.
-For Nexus Desktop AI, the default normal desktop launcher path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares a different exact USER desktop launcher path. A generated shortcut or non-Desktop equivalent is invalid as final USER-path proof unless USER explicitly grants a waiver with reason.
+For Nexus Desktop AI, the default normal desktop launcher path is normally `C:\Users\anden\OneDrive\Desktop\Nexus Desktop Launcher.lnk` unless the active authority record declares a different exact USER desktop launcher path. A generated shortcut or non-Desktop equivalent is invalid as final USER-path proof unless it is the declared worktree-local normal runtime launcher created or repaired under the normal worktree launcher rule, or USER explicitly grants a waiver with reason.
+
+Normal worktree launcher creation / repair:
+
+- if the branch's declared worktree-local normal runtime launcher is missing, Live Validation may create or repair that launcher as validation setup before User Test Summary handoff
+- the created or repaired launcher must target the active branch's normal product runtime entrypoint and working directory
+- the created or repaired launcher must not target a troubleshooting runtime launcher, validation helper, synthetic harness, Dev Toolkit path, or diagnostic-only entrypoint
+- the launcher must not enable troubleshooting mode, broad diagnostic capture, provider/model/cache/memory/private setup, startup registration, installer behavior, packaging/update behavior, or persistent OS integration
+- the active authority record must declare `Normal Worktree Launcher Creation: CREATED`, `Normal Worktree Launcher Path:`, `Normal Worktree Launcher Target:`, `Normal Worktree Launcher Arguments:`, and `Normal Worktree Launcher Validation: PASS` before the created launcher can satisfy the shortcut gate
+- this repair path is not a launcher parity waiver; it is valid only when the resulting launcher is the exact normal runtime path used for LV1 proof
 
 Two-launcher exception:
 
@@ -1684,6 +1693,7 @@ Two-launcher exception:
 Named blocker:
 
 - `User-Facing Shortcut Validation Pending`
+- `Normal Worktree Launcher Validation Pending`
 
 Machine-checkable authority-record markers:
 
@@ -1699,6 +1709,11 @@ Machine-checkable authority-record markers:
 - `Exact USER Desktop Launcher Validation: FAIL`
 - `Exact USER Desktop Launcher Validation: WAIVED`
 - `Exact USER Desktop Launcher Waiver Reason:`
+- `Normal Worktree Launcher Creation: CREATED`
+- `Normal Worktree Launcher Path:`
+- `Normal Worktree Launcher Target:`
+- `Normal Worktree Launcher Arguments:`
+- `Normal Worktree Launcher Validation: PASS`
 - `Troubleshooting Runtime Launcher Path:`
 - `Troubleshooting Runtime Launcher Consent: PENDING`
 - `Troubleshooting Runtime Launcher Consent: GRANTED`
@@ -1711,6 +1726,7 @@ Machine-checkable authority-record markers:
 Required proof:
 
 - the declared exact normal USER desktop runtime launcher path launches the active branch runtime
+- if a missing worktree-local normal runtime launcher was created or repaired during LV, its path, target, arguments, working directory, and normal-runtime posture are recorded and validation is `PASS`
 - startup reaches the expected ready state
 - the user-visible entry surface introduced or changed by the branch is visible or intentionally documented where the user must look for it
 - relevant runtime markers, UI/manual readback, persisted-state checks, and cleanup evidence match the branch validation contract
@@ -1744,6 +1760,8 @@ Repair Path: add or repair the observability decision matrix, declare the exact 
 USER Decision Required: required to waive exact normal launcher proof, accept troubleshooting launcher proof as equivalent, waive photo/video proof, accept manual validation for unphotographable claims, enable troubleshooting mode, export/share diagnostic logs, or accept a product UI folder/path that exposes internal implementation concepts.
 Validation Owner: active Live Validation helper, `dev/orin_branch_governance_validation.py` when the rule becomes machine-checkable, `dev/orin_user_review_bundle.py` for USER packet completeness, and the relevant family/runtime validators.
 Final Disposition: Live Validation may report green only when exact normal launcher proof or approved parity proof, photo/video proof or USER-elevated waiver, runtime/log consistency, Dev Toolkit or helper evidence, visual adjudication, UTS state, and USER packet evidence are all reconciled. Direct runtime evidence remains diagnostic/supporting proof unless exact USER desktop launcher validation is passed or explicitly waived.
+
+If the exact normal worktree-local launcher is missing, Live Validation may create or repair that launcher before rerunning proof only when it remains a normal runtime launcher. This is validation setup, not installer/shortcut/startup/package implementation, and it does not permit troubleshooting mode unless troubleshooting consent and launcher parity are separately recorded.
 
 Formal proof hierarchy for user-facing runtime work:
 
