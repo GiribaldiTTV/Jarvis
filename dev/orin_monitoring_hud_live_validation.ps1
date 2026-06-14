@@ -997,7 +997,8 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
                 "row and divider treatment",
                 "glow and shadow restraint",
                 "spacing and compact density",
-                "hover focus disabled states"
+                "hover focus disabled states",
+                "button focus state must not masquerade as hover after click"
             )
             invalidPassBasis = @(
                 "runtime visual marker",
@@ -1368,7 +1369,7 @@ Vision-To-Proof Matrix For This Handoff
 - FAM-006 Recording Feature Vision -> Dashboard card, Recording Studio, Log Viewer Studio shell, native/export boundaries, and active Overlay Profile target mirror must remain branch-specific and future-gated where planned. Evidence: Recording card states, native-log readback, Log Viewer folder shell screenshots, and manifest proof.
 - Live Validation proof rule -> proof must be visible in photo/video or elevated to USER. Evidence: desktop-shortcut human-client manifest, focused screenshots, and this UTS.
 - Current repair focus -> Log Viewer Studio native/export path rows must be readable and contained: no clipped wrapping, no branch/worktree leakage, full path available through tooltip/proof, and visible display intentionally middle-elided when needed.
-- Studio Visual Inheritance Matrix -> compare Recording Studio and Log Viewer Studio against HUD Dashboard, Overlay Profile Settings, and Manage Monitors reference screenshots for full-window body/background continuity, absence of transparent void regions, window chrome, color/opacity, typography, row/divider treatment, button grammar, glow/shadow restraint, spacing/density, and hover/focus/disabled states. Runtime markers, manifest PASS, helper PASS, or screenshot existence are not visual acceptance.
+- Studio Visual Inheritance Matrix -> compare Recording Studio and Log Viewer Studio against HUD Dashboard, Overlay Profile Settings, and Manage Monitors reference screenshots for full-window body/background continuity, absence of transparent void regions, window chrome, color/opacity, typography, row/divider treatment, button grammar, glow/shadow restraint, spacing/density, hover/focus/disabled states, and proof that button focus does not masquerade as hover after click. Runtime markers, manifest PASS, helper PASS, or screenshot existence are not visual acceptance.
 
 Brief Issue List
 - Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.

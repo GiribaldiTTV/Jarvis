@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QCheckBox,
     QSizeGrip,
+    QGraphicsDropShadowEffect,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent, QSettings
 from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPixmap, QRegion
@@ -5833,21 +5834,46 @@ def _monitoring_hud_studio_row(
 ) -> QFrame:
     row = QFrame(parent)
     row.setProperty("role", "studioRow")
+    row_height = 66 if value_word_wrap else 52
+    row.setMinimumHeight(row_height)
+    row.setMaximumHeight(row_height)
     layout = QGridLayout(row)
-    layout.setContentsMargins(10, 7, 10, 7)
+    layout.setContentsMargins(0, 12, 0, 10)
     layout.setHorizontalSpacing(12)
     layout.setVerticalSpacing(2)
     label_widget = QLabel(label, row)
     label_widget.setProperty("role", "sectionLabel")
+    label_widget.setMinimumHeight(20)
     value_widget.setProperty("role", value_role)
+    value_widget.setMinimumHeight(38 if value_word_wrap else 20)
     value_widget.setWordWrap(value_word_wrap)
     if not value_word_wrap:
         value_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-    layout.addWidget(label_widget, 0, 0)
-    layout.addWidget(value_widget, 0, 1)
+    layout.addWidget(label_widget, 0, 0, Qt.AlignVCenter)
+    layout.addWidget(value_widget, 0, 1, Qt.AlignVCenter)
     layout.setColumnStretch(0, 0)
     layout.setColumnStretch(1, 1)
     return row
+
+
+def _monitoring_hud_prepare_studio_button(button: QPushButton, *, role: str, minimum_width: int) -> None:
+    button.setProperty("actionRole", role)
+    button.setFocusPolicy(Qt.NoFocus)
+    button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+    button.setMinimumWidth(minimum_width)
+    button.setMaximumWidth(max(minimum_width, button.maximumWidth()))
+    button_height = 34 if role == "studioClose" else 38
+    button.setMinimumHeight(button_height)
+    button.setMaximumHeight(button_height)
+    button.setFixedHeight(button_height)
+
+
+def _monitoring_hud_apply_studio_shadow(widget: QWidget) -> None:
+    shadow = QGraphicsDropShadowEffect(widget)
+    shadow.setBlurRadius(40)
+    shadow.setOffset(0, 18)
+    shadow.setColor(QColor(0, 0, 0, 132))
+    widget.setGraphicsEffect(shadow)
 
 
 def _monitoring_hud_compact_path_label_text(full_path: str, label: QLabel) -> str:
@@ -5891,9 +5917,9 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             letter-spacing: 0px;
         }}
         QFrame[role="studioShell"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #041120, stop:0.58 #020b16, stop:1 #010711);
-            border: 1px solid rgba(125, 235, 255, 0.30);
-            border-radius: 22px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 20, 36, 0.985), stop:0.58 rgba(4, 17, 31, 0.985), stop:1 rgba(2, 11, 22, 0.985));
+            border: 1px solid rgba(122, 232, 255, 0.26);
+            border-radius: 8px;
             color: rgba(235, 252, 255, 0.96);
         }}
         QFrame[role="studioHeader"] {{
@@ -5902,14 +5928,15 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             border-radius: 0px;
         }}
         QFrame[role="studioPanel"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 19, 34, 0.94), stop:1 rgba(2, 10, 20, 0.90));
-            border: 1px solid rgba(116, 240, 255, 0.18);
-            border-radius: 14px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 20, 36, 0.985), stop:1 rgba(2, 11, 22, 0.975));
+            border: 1px solid rgba(116, 240, 255, 0.13);
+            border-radius: 20px;
         }}
         QFrame[role="studioRow"] {{
-            background: transparent;
-            border-top: 1px solid rgba(116, 240, 255, 0.28);
-            border-bottom: 1px solid rgba(2, 8, 14, 0.72);
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.060), stop:0.32 rgba(117, 228, 255, 0.035), stop:1 transparent);
+            border-top: 1px solid rgba(138, 236, 255, 0.46);
+            border-bottom: 0px solid transparent;
+            border-left: 0px solid transparent;
             border-radius: 0px;
         }}
         QLabel {{
@@ -5917,32 +5944,37 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             background: transparent;
         }}
         QLabel[role="eyebrow"] {{
-            color: rgba(126, 210, 231, 0.90);
-            font-size: 10px;
-            font-weight: 800;
+            color: rgba(139, 233, 255, 0.86);
+            font-size: 12px;
+            font-weight: 740;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }}
         QLabel[role="title"] {{
-            color: rgba(230, 246, 250, 0.98);
+            color: rgba(234, 253, 255, 0.95);
             font-size: 18px;
-            font-weight: 800;
+            font-weight: 780;
+            letter-spacing: 0.04em;
             text-transform: uppercase;
         }}
         QLabel[role="sectionLabel"] {{
             min-width: 132px;
-            color: rgba(126, 198, 218, 0.86);
-            font-size: 10px;
-            font-weight: 800;
+            padding-left: 8px;
+            border-left: 2px solid rgba(117, 228, 255, 0.30);
+            color: rgba(145, 202, 218, 0.82);
+            font-size: 11px;
+            font-weight: 720;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }}
         QLabel[role="sectionValue"] {{
-            color: rgba(169, 255, 226, 0.92);
-            font-size: 11px;
+            color: rgba(157, 246, 218, 0.90);
+            font-size: 12px;
             font-weight: 700;
         }}
         QLabel[role="pathValue"] {{
-            color: rgba(169, 255, 226, 0.92);
-            font-size: 10px;
+            color: rgba(157, 246, 218, 0.90);
+            font-size: 11px;
             font-weight: 700;
         }}
         QLabel[role="warning"] {{
@@ -5951,35 +5983,49 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             line-height: 1.35;
         }}
         QPushButton {{
-            min-height: 34px;
-            padding: 6px 18px;
-            border: 1px solid rgba(118, 226, 255, 0.32);
-            border-radius: 17px;
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 38, 58, 0.86), stop:1 rgba(3, 17, 31, 0.88));
-            color: rgba(231, 246, 250, 0.96);
-            font-size: 11px;
-            font-weight: 800;
+            min-height: 20px;
+            max-height: 20px;
+            padding: 8px 20px;
+            border: 1px solid rgba(117, 228, 255, 0.22);
+            border-radius: 19px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
+            color: rgba(229, 249, 255, 0.94);
+            font-size: 12px;
+            font-weight: 720;
+            letter-spacing: 0.09em;
             text-transform: uppercase;
         }}
         QPushButton[actionRole="studioClose"] {{
-            min-width: 66px;
-            max-width: 74px;
-            min-height: 30px;
-            max-height: 34px;
-            padding: 4px 13px;
-            border-radius: 16px;
+            min-width: 76px;
+            min-height: 16px;
+            max-height: 16px;
+            padding: 8px 18px;
+            border-radius: 17px;
+            font-size: 12px;
+            font-weight: 760;
+            letter-spacing: 0.08em;
         }}
         QPushButton[actionRole="studioAction"] {{
-            min-height: 34px;
-            max-height: 38px;
+            min-height: 20px;
+            max-height: 20px;
         }}
         QPushButton:hover {{
             border-color: rgba(126, 248, 218, 0.56);
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.94), stop:1 rgba(4, 24, 40, 0.91));
         }}
         QPushButton:focus {{
-            border-color: rgba(165, 255, 234, 0.86);
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(10, 79, 82, 0.94), stop:1 rgba(4, 35, 52, 0.90));
+            border-color: rgba(117, 228, 255, 0.22);
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
+            color: rgba(229, 249, 255, 0.94);
+        }}
+        QPushButton:focus:hover {{
+            border-color: rgba(126, 248, 218, 0.56);
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.94), stop:1 rgba(4, 24, 40, 0.91));
+            color: rgba(241, 255, 252, 0.99);
+        }}
+        QPushButton:pressed {{
+            border-color: rgba(163, 255, 228, 0.72);
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 40, 57, 0.98), stop:1 rgba(3, 18, 32, 0.96));
         }}
         QPushButton:disabled {{
             color: rgba(198, 224, 232, 0.54);
@@ -6029,15 +6075,16 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self.setWindowTitle("Nexus Recording Studio")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(380, 260)
-        self.resize(460, 320)
+        self.setMinimumSize(536, 388)
+        self.resize(576, 404)
         self.setStyleSheet(_monitoring_hud_studio_stylesheet("monitoringHudRecordingStudioWindow"))
         root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
+        root.setContentsMargins(6, 6, 6, 6)
         root.setSpacing(0)
         self._shell = QFrame(self)
         self._shell.setProperty("role", "studioShell")
         self._shell.setAttribute(Qt.WA_StyledBackground, True)
+        _monitoring_hud_apply_studio_shadow(self._shell)
         root.addWidget(self._shell)
 
         shell_layout = QVBoxLayout(self._shell)
@@ -6056,20 +6103,25 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         eyebrow.setProperty("role", "eyebrow")
         self._title = QLabel("Recording Studio", header_frame)
         self._title.setProperty("role", "title")
+        self._title.setMinimumWidth(210)
         header_text.addWidget(eyebrow)
         header_text.addWidget(self._title)
         header.addLayout(header_text)
         header.addStretch(1)
+        self._minimize = QPushButton("Minimize", header_frame)
+        _monitoring_hud_prepare_studio_button(self._minimize, role="studioClose", minimum_width=104)
+        self._minimize.clicked.connect(self.showMinimized)
+        header.addWidget(self._minimize, 0, Qt.AlignTop)
         self._close = QPushButton("Close", header_frame)
-        self._close.setProperty("actionRole", "studioClose")
+        _monitoring_hud_prepare_studio_button(self._close, role="studioClose", minimum_width=76)
         self._close.clicked.connect(self.close)
         header.addWidget(self._close, 0, Qt.AlignTop)
 
         status_panel = QFrame(self._shell)
         status_panel.setProperty("role", "studioPanel")
         status = QVBoxLayout(status_panel)
-        status.setContentsMargins(8, 8, 8, 8)
-        status.setSpacing(6)
+        status.setContentsMargins(14, 10, 14, 10)
+        status.setSpacing(0)
         self._target = QLabel("No active overlay profile", status_panel)
         self._summary = QLabel("Ready for local Start/Stop recording.", status_panel)
         self._native_log = QLabel("None yet.", self._shell)
@@ -6096,18 +6148,12 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         actions.setSpacing(12)
         self._start = QPushButton("Start", self._shell)
         self._stop = QPushButton("Stop", self._shell)
-        self._minimize = QPushButton("Minimize", self._shell)
-        for button in (self._start, self._stop, self._minimize):
-            button.setProperty("actionRole", "studioAction")
-            button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self._start.setMinimumWidth(96)
-        self._stop.setMinimumWidth(96)
-        self._minimize.setMinimumWidth(112)
+        _monitoring_hud_prepare_studio_button(self._start, role="studioAction", minimum_width=96)
+        _monitoring_hud_prepare_studio_button(self._stop, role="studioAction", minimum_width=96)
         self._start.clicked.connect(lambda: self._request_recording_action("start"))
         self._stop.clicked.connect(lambda: self._request_recording_action("stop"))
-        self._minimize.clicked.connect(self.showMinimized)
         actions.addStretch(1)
-        for button in (self._start, self._stop, self._minimize):
+        for button in (self._start, self._stop):
             actions.addWidget(button)
         shell_layout.addWidget(header_frame)
         shell_layout.addWidget(status_panel)
@@ -6123,8 +6169,8 @@ class MonitoringHudRecordingStudioWindow(QWidget):
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
-        width = 460
-        height = 320
+        width = 576
+        height = 404
         rect = QRect(
             available.x() + max(24, available.width() - width - 80),
             available.y() + max(24, available.height() - height - 110),
@@ -6264,10 +6310,15 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._current_log_state = current_log_state or "no-current-log"
         profile = active_profile_name.strip() or "No active overlay profile"
         count = max(0, int(target_count or 0))
+        session_label = {
+            "saved-complete": "saved",
+            "recording": "recording",
+            "ready": "ready",
+        }.get(self._recording_session_state, self._recording_session_state.replace("-", " "))
         self._target.setText(f"{profile} / {count} active monitor{'s' if count != 1 else ''}")
         self._summary.setText(
-            f"{target_state or 'Target pending'}: {target_names or 'No active monitor targets'}. "
-            f"Session state: {self._recording_session_state}."
+            f"{target_state or 'Target pending'}. {target_names or 'No active monitor targets'}. "
+            f"Session: {session_label}."
         )
         self._refresh_native_log_label()
         self._start.setEnabled(self._start_stop_state == "start-enabled")
@@ -6292,6 +6343,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "windowFlag": "normal_window",
             "taskbarRestorable": True,
             "minimizeControl": True,
+            "minimizeControlLocation": "top-right-header",
             "closeControl": True,
             "closeControlLocation": "top-right-header",
             "recordingExecutionState": "enabled",
@@ -6365,15 +6417,16 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self.setWindowTitle("Nexus Log Viewer Studio")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(620, 280)
-        self.resize(640, 330)
+        self.setMinimumSize(676, 356)
+        self.resize(696, 376)
         self.setStyleSheet(_monitoring_hud_studio_stylesheet("monitoringHudLogViewerStudioWindow"))
         root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
+        root.setContentsMargins(6, 6, 6, 6)
         root.setSpacing(0)
         self._shell = QFrame(self)
         self._shell.setProperty("role", "studioShell")
         self._shell.setAttribute(Qt.WA_StyledBackground, True)
+        _monitoring_hud_apply_studio_shadow(self._shell)
         root.addWidget(self._shell)
 
         shell_layout = QVBoxLayout(self._shell)
@@ -6392,20 +6445,25 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         eyebrow.setProperty("role", "eyebrow")
         title = QLabel("Log Viewer Studio", header_frame)
         title.setProperty("role", "title")
+        title.setMinimumWidth(230)
         header_text.addWidget(eyebrow)
         header_text.addWidget(title)
         header.addLayout(header_text)
         header.addStretch(1)
+        self._minimize = QPushButton("Minimize", header_frame)
+        _monitoring_hud_prepare_studio_button(self._minimize, role="studioClose", minimum_width=104)
+        self._minimize.clicked.connect(self.showMinimized)
+        header.addWidget(self._minimize, 0, Qt.AlignTop)
         self._close = QPushButton("Close", header_frame)
-        self._close.setProperty("actionRole", "studioClose")
+        _monitoring_hud_prepare_studio_button(self._close, role="studioClose", minimum_width=76)
         self._close.clicked.connect(self.close)
         header.addWidget(self._close, 0, Qt.AlignTop)
 
         folder_panel = QFrame(self._shell)
         folder_panel.setProperty("role", "studioPanel")
         folder_layout = QVBoxLayout(folder_panel)
-        folder_layout.setContentsMargins(8, 8, 8, 8)
-        folder_layout.setSpacing(6)
+        folder_layout.setContentsMargins(14, 10, 14, 10)
+        folder_layout.setSpacing(0)
         self._native = QLabel(folder_panel)
         self._export = QLabel(folder_panel)
         folder_layout.addWidget(
@@ -6438,18 +6496,12 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         actions.setSpacing(12)
         self._open_native = QPushButton("Open Native Logs", self._shell)
         self._open_export = QPushButton("Open Exported Logs", self._shell)
-        self._minimize = QPushButton("Minimize", self._shell)
-        for button in (self._open_native, self._open_export, self._minimize):
-            button.setProperty("actionRole", "studioAction")
-            button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        _monitoring_hud_prepare_studio_button(self._open_native, role="studioAction", minimum_width=152)
+        _monitoring_hud_prepare_studio_button(self._open_export, role="studioAction", minimum_width=184)
         self._open_native.clicked.connect(lambda: self._open_log_folder("native"))
         self._open_export.clicked.connect(lambda: self._open_log_folder("export"))
-        self._minimize.clicked.connect(self.showMinimized)
-        self._open_native.setMinimumWidth(152)
-        self._open_export.setMinimumWidth(184)
-        self._minimize.setMinimumWidth(104)
         actions.addStretch(1)
-        for button in (self._open_native, self._open_export, self._minimize):
+        for button in (self._open_native, self._open_export):
             actions.addWidget(button)
         shell_layout.addWidget(header_frame)
         shell_layout.addWidget(folder_panel)
@@ -6465,8 +6517,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
-        width = 640
-        height = 330
+        width = 696
+        height = 376
         return QRect(
             available.x() + max(24, available.width() - width - 120),
             available.y() + 96,
@@ -6613,6 +6665,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "windowFlag": "normal_window",
             "taskbarRestorable": True,
             "minimizeControl": True,
+            "minimizeControlLocation": "top-right-header",
             "closeControl": True,
             "closeControlLocation": "top-right-header",
             "nativeFolderPreSessionUsable": True,
@@ -11924,6 +11977,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "recording_studio_window"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
+                and proof.get("minimizeControlLocation") == "top-right-header"
                 and proof.get("closeControlLocation") == "top-right-header"
                 and proof.get("openedByExplicitUserPath") is True
                 and proof.get("visualAdjudicationState") == MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION
@@ -12196,6 +12250,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "log_viewer_studio_shell"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
+                and proof.get("minimizeControlLocation") == "top-right-header"
                 and proof.get("closeControlLocation") == "top-right-header"
                 and proof.get("visualAdjudicationState") == MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION
                 and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
@@ -13135,6 +13190,7 @@ class DesktopRuntimeWindow(QWidget):
 
         def step_recording_overlay_profile_switch_saved_captures():
             capture("02_overlay_profile_normal_path_switch_saved_recording_mirror")
+            finish("PASS")
             self._emit_runtime_signal(
                 "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
                 package="PKG-006",
@@ -13142,12 +13198,12 @@ class DesktopRuntimeWindow(QWidget):
                 lane=self._monitoring_hud_live_self_qa_lane,
                 status="PASS",
             )
-            QTimer.singleShot(delay(650), lambda: finish("PASS"))
 
         def step_recording_overlay_profile_restart_persistence_assert():
             def record(parsed: dict[str, object]):
                 add_step("Restart check reloads saved USER Overlay Profile and Recording target mirror", True, parsed)
                 capture("02_overlay_profile_restart_persistence_recording_target_mirror")
+                finish("PASS")
                 self._emit_runtime_signal(
                     "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
                     package="PKG-006",
@@ -13155,7 +13211,6 @@ class DesktopRuntimeWindow(QWidget):
                     lane=self._monitoring_hud_live_self_qa_lane,
                     status="PASS",
                 )
-                QTimer.singleShot(delay(300), lambda: finish("PASS"))
 
             query(
                 "Restart check reloads saved USER Overlay Profile and Recording target mirror",
