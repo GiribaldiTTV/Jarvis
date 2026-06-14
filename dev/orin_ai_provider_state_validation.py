@@ -8795,9 +8795,9 @@ def validate() -> list[str]:
         "hudTitleGroup",
         "surfaceRole",
         "visualParity",
-        "monitoring-hud__toolbar",
         "monitoring-hud__control-hub",
-        "quickRow",
+        "QGraphicsDropShadowEffect",
+        "_hud_button_font",
         "sectionHeader",
         "sectionNumber",
         "sectionTitle",
@@ -8825,19 +8825,18 @@ def validate() -> list[str]:
         "network-egress-blocked",
         "memory-indexing-disabled",
         "Run no-provider check",
-        "Quick access no-provider check",
         "NO-PROVIDER CHECK",
-        "QUICK ACCESS",
-        "NO PROVIDER / MODEL ACTIVE",
+        "No provider/model execution is active.",
+        "PROVIDER / MODEL OFF",
         "CONTROLS LIVE HERE",
-        "PROVIDER DATA: NONE",
-        "setFixedWidth(250)",
+        "LOCAL ASSIST ONLY",
+        "setFixedSize(250, 36)",
         "PROVIDER-VISIBLE DATA",
         "PROMPT / MODEL / PROVIDER",
         "CAPABILITY PACKS",
         "PUBLIC / DEVELOPER / OWNER",
         "Display-only; controls live here",
-        "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none.",
+        "No prompt was accepted or sent; provider-visible data remains none.",
     ):
         _require(needle in renderer, f"desktop renderer Nexus AI Control Center is missing {needle!r}", failures)
 
@@ -8850,6 +8849,19 @@ def validate() -> list[str]:
         _require(
             forbidden not in renderer,
             f"desktop renderer AI Control Center must not retain default OS chrome flag {forbidden!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "quickRow",
+        "QUICK ACCESS",
+        "Quick access no-provider check",
+        "PROVIDER DATA: NONE",
+        "NO PROVIDER / MODEL ACTIVE",
+    ):
+        _require(
+            forbidden not in renderer,
+            f"desktop renderer AI Control Center must not retain stale Quick Access visual contract {forbidden!r}",
             failures,
         )
 
