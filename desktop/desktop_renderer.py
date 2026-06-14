@@ -5897,19 +5897,19 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             color: rgba(235, 252, 255, 0.96);
         }}
         QFrame[role="studioHeader"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(5, 23, 39, 0.985), stop:0.70 rgba(2, 10, 20, 0.965), stop:1 rgba(2, 10, 20, 0.78));
-            border: 1px solid rgba(130, 236, 255, 0.14);
-            border-radius: 22px;
+            background: transparent;
+            border: none;
+            border-radius: 0px;
         }}
         QFrame[role="studioPanel"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 20, 36, 0.985), stop:1 rgba(2, 11, 22, 0.975));
-            border: 1px solid rgba(116, 240, 255, 0.13);
-            border-radius: 20px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 19, 34, 0.94), stop:1 rgba(2, 10, 20, 0.90));
+            border: 1px solid rgba(116, 240, 255, 0.18);
+            border-radius: 14px;
         }}
         QFrame[role="studioRow"] {{
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.038), stop:0.20 rgba(117, 228, 255, 0.020), stop:1 rgba(2, 15, 24, 0.08));
-            border-top: 1px solid rgba(116, 240, 255, 0.19);
-            border-bottom: 1px solid rgba(2, 8, 14, 0.68);
+            background: transparent;
+            border-top: 1px solid rgba(116, 240, 255, 0.28);
+            border-bottom: 1px solid rgba(2, 8, 14, 0.72);
             border-radius: 0px;
         }}
         QLabel {{
@@ -5917,14 +5917,14 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             background: transparent;
         }}
         QLabel[role="eyebrow"] {{
-            color: rgba(171, 229, 243, 0.86);
+            color: rgba(126, 210, 231, 0.90);
             font-size: 10px;
             font-weight: 800;
             text-transform: uppercase;
         }}
         QLabel[role="title"] {{
-            color: rgba(245, 255, 255, 0.98);
-            font-size: 16px;
+            color: rgba(230, 246, 250, 0.98);
+            font-size: 18px;
             font-weight: 800;
             text-transform: uppercase;
         }}
@@ -5953,13 +5953,25 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
         QPushButton {{
             min-height: 34px;
             padding: 6px 18px;
-            border: 1px solid rgba(122, 232, 255, 0.26);
+            border: 1px solid rgba(118, 226, 255, 0.32);
             border-radius: 17px;
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
-            color: rgba(235, 252, 255, 0.96);
-            font-size: 12px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 38, 58, 0.86), stop:1 rgba(3, 17, 31, 0.88));
+            color: rgba(231, 246, 250, 0.96);
+            font-size: 11px;
             font-weight: 800;
             text-transform: uppercase;
+        }}
+        QPushButton[actionRole="studioClose"] {{
+            min-width: 66px;
+            max-width: 74px;
+            min-height: 30px;
+            max-height: 34px;
+            padding: 4px 13px;
+            border-radius: 16px;
+        }}
+        QPushButton[actionRole="studioAction"] {{
+            min-height: 34px;
+            max-height: 38px;
         }}
         QPushButton:hover {{
             border-color: rgba(126, 248, 218, 0.56);
@@ -6029,15 +6041,15 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         root.addWidget(self._shell)
 
         shell_layout = QVBoxLayout(self._shell)
-        shell_layout.setContentsMargins(14, 14, 14, 14)
+        shell_layout.setContentsMargins(26, 22, 26, 18)
         shell_layout.setSpacing(12)
 
         header_frame = QFrame(self._shell)
         header_frame.setProperty("role", "studioHeader")
         self._drag_surface = header_frame
         header = QHBoxLayout(header_frame)
-        header.setContentsMargins(16, 10, 16, 10)
-        header.setSpacing(8)
+        header.setContentsMargins(0, 0, 0, 0)
+        header.setSpacing(12)
         header_text = QVBoxLayout()
         header_text.setSpacing(2)
         eyebrow = QLabel("Active Overlay Recording", header_frame)
@@ -6048,6 +6060,10 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         header_text.addWidget(self._title)
         header.addLayout(header_text)
         header.addStretch(1)
+        self._close = QPushButton("Close", header_frame)
+        self._close.setProperty("actionRole", "studioClose")
+        self._close.clicked.connect(self.close)
+        header.addWidget(self._close, 0, Qt.AlignTop)
 
         status_panel = QFrame(self._shell)
         status_panel.setProperty("role", "studioPanel")
@@ -6076,15 +6092,22 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._boundary.setWordWrap(True)
         self._boundary.setProperty("role", "warning")
         actions = QHBoxLayout()
+        actions.setContentsMargins(0, 0, 0, 0)
+        actions.setSpacing(12)
         self._start = QPushButton("Start", self._shell)
         self._stop = QPushButton("Stop", self._shell)
         self._minimize = QPushButton("Minimize", self._shell)
-        self._close = QPushButton("Close", self._shell)
+        for button in (self._start, self._stop, self._minimize):
+            button.setProperty("actionRole", "studioAction")
+            button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self._start.setMinimumWidth(96)
+        self._stop.setMinimumWidth(96)
+        self._minimize.setMinimumWidth(112)
         self._start.clicked.connect(lambda: self._request_recording_action("start"))
         self._stop.clicked.connect(lambda: self._request_recording_action("stop"))
         self._minimize.clicked.connect(self.showMinimized)
-        self._close.clicked.connect(self.close)
-        for button in (self._start, self._stop, self._minimize, self._close):
+        actions.addStretch(1)
+        for button in (self._start, self._stop, self._minimize):
             actions.addWidget(button)
         shell_layout.addWidget(header_frame)
         shell_layout.addWidget(status_panel)
@@ -6270,6 +6293,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "taskbarRestorable": True,
             "minimizeControl": True,
             "closeControl": True,
+            "closeControlLocation": "top-right-header",
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
@@ -6353,15 +6377,15 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         root.addWidget(self._shell)
 
         shell_layout = QVBoxLayout(self._shell)
-        shell_layout.setContentsMargins(14, 14, 14, 14)
+        shell_layout.setContentsMargins(26, 22, 26, 18)
         shell_layout.setSpacing(12)
 
         header_frame = QFrame(self._shell)
         header_frame.setProperty("role", "studioHeader")
         self._drag_surface = header_frame
         header = QHBoxLayout(header_frame)
-        header.setContentsMargins(16, 10, 16, 10)
-        header.setSpacing(8)
+        header.setContentsMargins(0, 0, 0, 0)
+        header.setSpacing(12)
         header_text = QVBoxLayout()
         header_text.setSpacing(2)
         eyebrow = QLabel("Recording Logs", header_frame)
@@ -6372,6 +6396,10 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         header_text.addWidget(title)
         header.addLayout(header_text)
         header.addStretch(1)
+        self._close = QPushButton("Close", header_frame)
+        self._close.setProperty("actionRole", "studioClose")
+        self._close.clicked.connect(self.close)
+        header.addWidget(self._close, 0, Qt.AlignTop)
 
         folder_panel = QFrame(self._shell)
         folder_panel.setProperty("role", "studioPanel")
@@ -6406,19 +6434,22 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         boundary.setProperty("role", "warning")
         boundary.setWordWrap(True)
         actions = QHBoxLayout()
+        actions.setContentsMargins(0, 0, 0, 0)
+        actions.setSpacing(12)
         self._open_native = QPushButton("Open Native Logs", self._shell)
         self._open_export = QPushButton("Open Exported Logs", self._shell)
         self._minimize = QPushButton("Minimize", self._shell)
-        self._close = QPushButton("Close", self._shell)
+        for button in (self._open_native, self._open_export, self._minimize):
+            button.setProperty("actionRole", "studioAction")
+            button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self._open_native.clicked.connect(lambda: self._open_log_folder("native"))
         self._open_export.clicked.connect(lambda: self._open_log_folder("export"))
         self._minimize.clicked.connect(self.showMinimized)
-        self._close.clicked.connect(self.close)
         self._open_native.setMinimumWidth(152)
         self._open_export.setMinimumWidth(184)
         self._minimize.setMinimumWidth(104)
-        self._close.setMinimumWidth(92)
-        for button in (self._open_native, self._open_export, self._minimize, self._close):
+        actions.addStretch(1)
+        for button in (self._open_native, self._open_export, self._minimize):
             actions.addWidget(button)
         shell_layout.addWidget(header_frame)
         shell_layout.addWidget(folder_panel)
@@ -6583,6 +6614,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "taskbarRestorable": True,
             "minimizeControl": True,
             "closeControl": True,
+            "closeControlLocation": "top-right-header",
             "nativeFolderPreSessionUsable": True,
             "exportFolderPreSessionUsable": True,
             "nativeLogRoot": native_root,
@@ -11892,6 +11924,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "recording_studio_window"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
+                and proof.get("closeControlLocation") == "top-right-header"
                 and proof.get("openedByExplicitUserPath") is True
                 and proof.get("visualAdjudicationState") == MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION
                 and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
@@ -12163,6 +12196,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("surface") == "log_viewer_studio_shell"
                 and proof.get("standaloneTopLevel") is True
                 and proof.get("windowFlag") == "normal_window"
+                and proof.get("closeControlLocation") == "top-right-header"
                 and proof.get("visualAdjudicationState") == MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION
                 and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
                 and proof.get("visualRuntimeSelfAttestation") == "rejected"
