@@ -852,18 +852,38 @@ class AIControlCenterDeck(QFrame):
         super().paintEvent(event)
         painter = QPainter(self)
         try:
-            painter.setRenderHint(QPainter.Antialiasing, False)
-            rect = self.rect().adjusted(0, 0, -1, -1)
-            painter.fillRect(rect, QColor(3, 27, 34, 34))
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+            path = QPainterPath()
+            path.addRoundedRect(rect, 22, 22)
+            painter.setClipPath(path)
+            painter.fillPath(path, QColor(3, 27, 34, 72))
+
+            grid_rect = self.rect().adjusted(1, 1, -2, -2)
             painter.setPen(QColor(117, 228, 255, 12))
             step = 20
-            for x in range(rect.left(), rect.right() + 1, step):
-                painter.drawLine(x, rect.top(), x, rect.bottom())
+            for x in range(grid_rect.left(), grid_rect.right() + 1, step):
+                painter.drawLine(x, grid_rect.top(), x, grid_rect.bottom())
             painter.setPen(QColor(117, 228, 255, 10))
-            for y in range(rect.top(), rect.bottom() + 1, step):
-                painter.drawLine(rect.left(), y, rect.right(), y)
-            painter.fillRect(rect.left(), rect.top(), rect.width(), 74, QColor(4, 42, 44, 32))
-            painter.fillRect(rect.left(), rect.bottom() - 100, rect.width(), 100, QColor(1, 7, 16, 72))
+            for y in range(grid_rect.top(), grid_rect.bottom() + 1, step):
+                painter.drawLine(grid_rect.left(), y, grid_rect.right(), y)
+            painter.fillRect(
+                grid_rect.left(),
+                grid_rect.top(),
+                grid_rect.width(),
+                74,
+                QColor(4, 42, 44, 28),
+            )
+            painter.fillRect(
+                grid_rect.left(),
+                grid_rect.bottom() - 100,
+                grid_rect.width(),
+                100,
+                QColor(1, 7, 16, 72),
+            )
+            painter.setClipping(False)
+            painter.setPen(QColor(118, 226, 255, 31))
+            painter.drawPath(path)
         finally:
             painter.end()
 
@@ -5905,8 +5925,8 @@ class AIControlCenterDialog(QDialog):
         self.setWindowModality(Qt.NonModal)
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(700, 660)
-        self.resize(780, 760)
+        self.setMinimumSize(720, 740)
+        self.resize(780, 860)
         self.setProperty("aiControlCenterOwner", "FAM-007")
         self.setProperty("aiControlCenterRoute", "fam007-ai-control-center")
         self.setProperty("fam003CarryIn", "f3-ff01-narrow-doorway-only")
@@ -5926,16 +5946,14 @@ class AIControlCenterDialog(QDialog):
                 font-family: Bahnschrift, Rajdhani, Segoe UI, sans-serif;
             }
             QFrame#fam007AiControlCenterShell {
-                border: 1px solid rgba(98, 227, 255, 0.74);
-                border-radius: 24px;
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #020b14, stop:0.50 #031421, stop:1 #020911);
+                border: 1px solid rgba(125, 235, 255, 0.30);
+                border-radius: 28px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(4, 17, 32, 0.96), stop:0.56 rgba(2, 15, 25, 0.95), stop:1 rgba(1, 7, 16, 0.94));
             }
             QFrame#fam007AiControlCenterChromeBar {
-                border: none;
-                border-bottom: 1px solid rgba(98, 227, 255, 0.14);
+                border: 1px solid rgba(130, 236, 255, 0.12);
+                border-radius: 22px;
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 23, 39, 0.98), stop:1 rgba(2, 10, 20, 0.96));
-                border-top-left-radius: 24px;
-                border-top-right-radius: 24px;
             }
             QLabel#fam007AiControlCenterChromeTitle {
                 color: rgba(235, 252, 255, 0.96);
@@ -5963,9 +5981,8 @@ class AIControlCenterDialog(QDialog):
                 background: rgba(11, 52, 70, 0.92);
             }
             QFrame#fam007AiControlCenterContent {
-                border-bottom-left-radius: 24px;
-                border-bottom-right-radius: 24px;
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(2, 18, 27, 0.94), stop:0.34 rgba(4, 31, 38, 0.92), stop:1 rgba(2, 10, 18, 0.96));
+                border-radius: 22px;
+                background: rgba(2, 10, 20, 0.28);
             }
             QWidget#fam007AiControlCenterHeaderText {
                 background: transparent;
@@ -5977,20 +5994,20 @@ class AIControlCenterDialog(QDialog):
             QLabel[role="productEyebrow"],
             QLabel[role="eyebrow"] {
                 color: #7ae8ff;
-                font-size: 12px;
+                font-size: 13px;
                 font-weight: 800;
                 letter-spacing: 0;
                 text-transform: uppercase;
             }
             QLabel[role="title"] {
                 color: #ffffff;
-                font-size: 31px;
-                font-weight: 800;
+                font-size: 34px;
+                font-weight: 750;
             }
             QLabel[role="summary"] {
                 color: rgba(176, 209, 219, 0.92);
-                font-size: 13px;
-                font-weight: 700;
+                font-size: 12px;
+                font-weight: 600;
             }
             QLabel[role="quickLabel"] {
                 color: #7ae8ff;
@@ -5998,46 +6015,64 @@ class AIControlCenterDialog(QDialog):
                 font-weight: 900;
                 text-transform: uppercase;
             }
+            QFrame[role="surfaceRole"] {
+                min-height: 72px;
+                border: 1px solid rgba(130, 236, 255, 0.14);
+                border-radius: 18px;
+                background: rgba(8, 39, 53, 0.42);
+            }
+            QLabel[role="surfaceRoleLabel"] {
+                color: rgba(146, 199, 213, 0.92);
+                font-size: 11px;
+                font-weight: 760;
+                text-transform: uppercase;
+            }
+            QLabel[role="surfaceRoleValue"] {
+                color: rgba(168, 255, 224, 0.96);
+                font-size: 11px;
+                font-weight: 800;
+                text-transform: uppercase;
+            }
             QLabel[role="sectionNumber"] {
                 min-width: 32px;
                 max-width: 32px;
-                min-height: 30px;
-                max-height: 30px;
-                border: 1px solid rgba(122, 232, 255, 0.34);
-                border-radius: 10px;
-                background: rgba(6, 42, 58, 0.72);
+                min-height: 32px;
+                max-height: 32px;
+                border: 1px solid rgba(105, 232, 255, 0.18);
+                border-radius: 12px;
+                background: rgba(12, 44, 61, 0.62);
                 color: #7ae8ff;
-                font-size: 11px;
-                font-weight: 900;
+                font-size: 12px;
+                font-weight: 760;
                 qproperty-alignment: AlignCenter;
             }
             QLabel[role="sectionTitle"] {
                 color: rgba(235, 252, 255, 0.96);
-                font-size: 16px;
-                font-weight: 900;
+                font-size: 15px;
+                font-weight: 780;
                 letter-spacing: 0;
                 text-transform: uppercase;
             }
             QLabel[role="sectionCopy"] {
                 color: rgba(165, 197, 208, 0.92);
-                font-size: 11px;
-                font-weight: 700;
+                font-size: 12px;
+                font-weight: 600;
             }
             QLabel[role="sectionPill"] {
-                min-height: 30px;
-                padding: 0 14px;
-                border: 1px solid rgba(126, 248, 218, 0.32);
-                border-radius: 15px;
-                background: rgba(6, 48, 62, 0.42);
-                color: rgba(168, 255, 224, 0.96);
+                min-height: 34px;
+                padding: 0 16px;
+                border: 1px solid rgba(122, 232, 255, 0.32);
+                border-radius: 17px;
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
+                color: rgba(229, 249, 255, 0.94);
                 font-size: 11px;
-                font-weight: 900;
+                font-weight: 760;
                 qproperty-alignment: AlignCenter;
             }
             QLabel[role="factLabel"] {
-                color: rgba(122, 232, 255, 0.84);
+                color: rgba(139, 190, 206, 0.92);
                 font-size: 11px;
-                font-weight: 900;
+                font-weight: 780;
                 text-transform: uppercase;
             }
             QLabel[role="factValue"] {
@@ -6053,7 +6088,7 @@ class AIControlCenterDialog(QDialog):
             QFrame[role="quickRow"],
             QFrame[role="factsPanel"],
             QFrame[role="resultPanel"] {
-                border: 1px solid rgba(116, 240, 255, 0.17);
+                border: 1px solid rgba(116, 240, 255, 0.13);
                 border-radius: 20px;
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 20, 36, 0.98), stop:1 rgba(2, 11, 22, 0.97));
             }
@@ -6064,16 +6099,15 @@ class AIControlCenterDialog(QDialog):
             }
             QFrame[role="sectionHeader"] {
                 border: none;
-                border-bottom: 1px solid rgba(98, 227, 255, 0.20);
                 background: transparent;
             }
             QFrame[role="factRow"] {
                 border: none;
-                border-bottom: 1px solid rgba(98, 227, 255, 0.18);
-                background: transparent;
+                border-top: 1px solid rgba(138, 236, 255, 0.46);
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.06), stop:0.45 rgba(117, 228, 255, 0.035), stop:1 transparent);
             }
             QFrame[role="factRow"][lastRow="true"] {
-                border-bottom: none;
+                border-top: 1px solid rgba(138, 236, 255, 0.46);
             }
             QFrame[role="rowAccent"] {
                 min-width: 2px;
@@ -6083,17 +6117,19 @@ class AIControlCenterDialog(QDialog):
             }
             QPushButton {
                 min-height: 38px;
-                padding: 6px 22px;
-                border: 1px solid rgba(122, 232, 255, 0.34);
+                max-height: 38px;
+                padding: 0 20px;
+                border: 1px solid rgba(117, 228, 255, 0.22);
                 border-radius: 19px;
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
                 color: #ebfcff;
-                font-weight: 900;
+                font-size: 12px;
+                font-weight: 760;
                 letter-spacing: 0;
             }
             QPushButton[buttonRole="primary"] {
-                border-color: rgba(126, 248, 218, 0.44);
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 58, 78, 0.96), stop:1 rgba(4, 28, 46, 0.94));
+                border-color: rgba(122, 232, 255, 0.32);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
             }
             QPushButton[buttonRole="secondary"] {
                 color: rgba(211, 234, 238, 0.94);
@@ -6133,8 +6169,8 @@ class AIControlCenterDialog(QDialog):
         root.addWidget(self.shell)
 
         shell_layout = QVBoxLayout(self.shell)
-        shell_layout.setContentsMargins(0, 0, 0, 0)
-        shell_layout.setSpacing(0)
+        shell_layout.setContentsMargins(14, 14, 16, 16)
+        shell_layout.setSpacing(14)
 
         self.chrome_bar = DialogChromeBar(
             "AI Control Center",
@@ -6143,11 +6179,12 @@ class AIControlCenterDialog(QDialog):
             parent=self.shell,
             show_title=False,
         )
-        self.chrome_bar.setFixedHeight(132)
+        self.chrome_bar.setProperty("role", "hudTitleGroup")
+        self.chrome_bar.setFixedHeight(222)
         chrome_layout = self.chrome_bar.layout()
         if chrome_layout is not None:
-            chrome_layout.setContentsMargins(34, 22, 14, 16)
-            chrome_layout.setSpacing(18)
+            chrome_layout.setContentsMargins(20, 16, 14, 14)
+            chrome_layout.setSpacing(14)
         self.chrome_bar.close_button.setToolTip("Close AI Control Center")
         self.chrome_bar.close_button.setText("CLOSE")
         self.chrome_bar.close_button.setFixedSize(80, 34)
@@ -6167,7 +6204,7 @@ class AIControlCenterDialog(QDialog):
         self.header_text.setObjectName("fam007AiControlCenterHeaderText")
         header_text_layout = QVBoxLayout(self.header_text)
         header_text_layout.setContentsMargins(0, 0, 0, 0)
-        header_text_layout.setSpacing(4)
+        header_text_layout.setSpacing(5)
         eyebrow = QLabel("Nexus Desktop AI", self.header_text)
         eyebrow.setProperty("role", "productEyebrow")
         self._title = QLabel("AI Control Center", self.header_text)
@@ -6178,36 +6215,72 @@ class AIControlCenterDialog(QDialog):
         header_text_layout.addWidget(eyebrow)
         header_text_layout.addWidget(self._title)
         header_text_layout.addWidget(self._summary)
+        role_surface = QFrame(self.header_text)
+        role_surface.setProperty("role", "surfaceRole")
+        role_surface.setAttribute(Qt.WA_StyledBackground, True)
+        role_surface.setMinimumHeight(72)
+        role_layout = QGridLayout(role_surface)
+        role_layout.setContentsMargins(14, 10, 14, 10)
+        role_layout.setHorizontalSpacing(10)
+        role_layout.setVerticalSpacing(7)
+        role_items = (
+            ("FAM-007", "AI CONTROL CENTER"),
+            ("BOUNDARY", "NO PROVIDER / MODEL ACTIVE"),
+            ("STATUS", "CONTROLS LIVE HERE"),
+        )
+        for column, (label, value) in enumerate(role_items):
+            label_widget = QLabel(label, role_surface)
+            label_widget.setProperty("role", "surfaceRoleLabel")
+            value_widget = QLabel(value, role_surface)
+            value_widget.setProperty("role", "surfaceRoleValue")
+            role_layout.addWidget(label_widget, 0, column * 2, Qt.AlignLeft | Qt.AlignVCenter)
+            role_layout.addWidget(value_widget, 0, column * 2 + 1, Qt.AlignLeft | Qt.AlignVCenter)
+        role_summary = QLabel("AI CONTROL CENTER CONFIGURES LOCAL ASSIST BOUNDARIES WITHOUT EXECUTION", role_surface)
+        role_summary.setProperty("role", "surfaceRoleValue")
+        role_summary.setWordWrap(True)
+        role_status = QLabel("NO PROVIDER ACTIVE", role_surface)
+        role_status.setProperty("role", "sectionPill")
+        role_layout.addWidget(role_summary, 1, 0, 1, 4, Qt.AlignLeft | Qt.AlignVCenter)
+        role_layout.addWidget(role_status, 1, 4, 1, 2, Qt.AlignRight | Qt.AlignVCenter)
+        role_layout.setColumnStretch(3, 1)
+        header_text_layout.addWidget(role_surface)
         if chrome_layout is not None:
             chrome_layout.insertWidget(0, self.header_text, 1, Qt.AlignTop)
         shell_layout.addWidget(self.chrome_bar)
 
+        quick_row = QFrame(self.shell)
+        quick_row.setProperty("role", "quickRow")
+        quick_row.setProperty("visualParity", "monitoring-hud__toolbar")
+        quick_row.setAttribute(Qt.WA_StyledBackground, True)
+        quick_layout = QHBoxLayout(quick_row)
+        quick_layout.setContentsMargins(2, 0, 2, 0)
+        quick_layout.setSpacing(12)
+        quick_label = QLabel("QUICK ACCESS", quick_row)
+        quick_label.setProperty("role", "quickLabel")
+        quick_action = QPushButton("NO-PROVIDER CHECK", quick_row)
+        quick_action.setAccessibleName("Quick access no-provider check")
+        quick_action.setToolTip("Run no-provider check")
+        quick_action.setProperty("buttonRole", "primary")
+        quick_action.setFixedWidth(250)
+        quick_action.clicked.connect(self.run_local_assist_check)
+        quick_state = QLabel("PROVIDER DATA: NONE", quick_row)
+        quick_state.setProperty("role", "sectionPill")
+        quick_layout.addWidget(quick_label, 0, Qt.AlignVCenter)
+        quick_layout.addWidget(quick_action, 0, Qt.AlignVCenter)
+        quick_layout.addStretch(1)
+        quick_layout.addWidget(quick_state, 0, Qt.AlignVCenter)
+        shell_layout.addWidget(quick_row)
+
         self.content = AIControlCenterDeck(self.shell)
         self.content.setObjectName("fam007AiControlCenterContent")
         self.content.setProperty("visualInheritanceGrid", "FAM-002-HUD-card-board")
+        self.content.setProperty("visualParity", "monitoring-hud__control-hub")
         self.content.setAttribute(Qt.WA_StyledBackground, True)
         shell_layout.addWidget(self.content, 1)
 
         content_layout = QVBoxLayout(self.content)
-        content_layout.setContentsMargins(34, 20, 34, 26)
-        content_layout.setSpacing(16)
-
-        quick_row = QFrame(self)
-        quick_row.setProperty("role", "quickRow")
-        quick_row.setAttribute(Qt.WA_StyledBackground, True)
-        quick_layout = QHBoxLayout(quick_row)
-        quick_layout.setContentsMargins(16, 10, 16, 10)
-        quick_layout.setSpacing(12)
-        quick_label = QLabel("LOCAL ASSIST", self)
-        quick_label.setProperty("role", "quickLabel")
-        quick_pill = QLabel("NO-PROVIDER CHECK LIVES HERE", self)
-        quick_pill.setProperty("role", "sectionPill")
-        quick_state = QLabel("PROVIDER DATA: NONE", self)
-        quick_state.setProperty("role", "sectionPill")
-        quick_layout.addWidget(quick_label, 0, Qt.AlignVCenter)
-        quick_layout.addWidget(quick_pill, 0, Qt.AlignVCenter)
-        quick_layout.addStretch(1)
-        quick_layout.addWidget(quick_state, 0, Qt.AlignVCenter)
+        content_layout.setContentsMargins(12, 12, 12, 16)
+        content_layout.setSpacing(12)
 
         facts_panel = QFrame(self)
         facts_panel.setProperty("role", "factsPanel")
@@ -6234,11 +6307,8 @@ class AIControlCenterDialog(QDialog):
         facts_copy.setProperty("role", "sectionCopy")
         facts_title_layout.addWidget(facts_title)
         facts_title_layout.addWidget(facts_copy)
-        facts_pill = QLabel("NO PROVIDER ACTIVE", self)
-        facts_pill.setProperty("role", "sectionPill")
         facts_header_layout.addWidget(facts_number, 0, Qt.AlignVCenter)
         facts_header_layout.addWidget(facts_title_stack, 1, Qt.AlignVCenter)
-        facts_header_layout.addWidget(facts_pill, 0, Qt.AlignVCenter)
         facts.addWidget(facts_header)
         self._fact_values = {}
         fact_rows = (
@@ -6256,7 +6326,7 @@ class AIControlCenterDialog(QDialog):
                 row_frame.setProperty("lastRow", "true")
             row_frame.setAttribute(Qt.WA_StyledBackground, True)
             row_layout = QHBoxLayout(row_frame)
-            row_layout.setContentsMargins(0, 10, 0, 10)
+            row_layout.setContentsMargins(0, 8, 0, 8)
             row_layout.setSpacing(12)
             row_accent = QFrame(self)
             row_accent.setProperty("role", "rowAccent")
@@ -6320,14 +6390,13 @@ class AIControlCenterDialog(QDialog):
         self._local_assist.setAccessibleName("Run no-provider check")
         self._local_assist.setToolTip("Run no-provider check")
         self._local_assist.setProperty("buttonRole", "primary")
-        self._local_assist.setMinimumWidth(226)
+        self._local_assist.setFixedWidth(250)
         self._local_assist.clicked.connect(self.run_local_assist_check)
         result_actions.addStretch(1)
         result_actions.addWidget(self._local_assist)
         result_actions.addWidget(QSizeGrip(self), 0, Qt.AlignRight | Qt.AlignBottom)
         result_layout.addLayout(result_actions)
 
-        content_layout.addWidget(quick_row)
         content_layout.addWidget(facts_panel, 1)
         content_layout.addWidget(result_panel)
         self.setGeometry(self._initial_geometry())
@@ -6335,7 +6404,7 @@ class AIControlCenterDialog(QDialog):
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
         width = 780
-        height = 760
+        height = 860
         return QRect(
             available.x() + max(24, available.width() - width - 96),
             available.y() + max(24, available.height() - height - 126),
