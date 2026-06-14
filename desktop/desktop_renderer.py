@@ -5984,6 +5984,33 @@ class AIControlCenterDialog(QDialog):
                 border-radius: 22px;
                 background: rgba(2, 10, 20, 0.28);
             }
+            QScrollArea#fam007AiControlCenterScroll,
+            QWidget#fam007AiControlCenterScrollBody {
+                border: none;
+                background: transparent;
+            }
+            QScrollBar:vertical {
+                width: 8px;
+                margin: 2px 0;
+                border: none;
+                border-radius: 4px;
+                background: rgba(8, 34, 46, 0.42);
+            }
+            QScrollBar::handle:vertical {
+                min-height: 44px;
+                border-radius: 4px;
+                background: rgba(122, 232, 255, 0.58);
+            }
+            QScrollBar::add-line:vertical,
+            QScrollBar::sub-line:vertical {
+                height: 0;
+                border: none;
+                background: transparent;
+            }
+            QScrollBar::add-page:vertical,
+            QScrollBar::sub-page:vertical {
+                background: transparent;
+            }
             QWidget#fam007AiControlCenterHeaderText {
                 background: transparent;
             }
@@ -6112,6 +6139,8 @@ class AIControlCenterDialog(QDialog):
             QFrame[role="rowAccent"] {
                 min-width: 2px;
                 max-width: 2px;
+                min-height: 22px;
+                max-height: 22px;
                 background: rgba(122, 232, 255, 0.58);
                 border: none;
             }
@@ -6170,7 +6199,7 @@ class AIControlCenterDialog(QDialog):
 
         shell_layout = QVBoxLayout(self.shell)
         shell_layout.setContentsMargins(14, 14, 16, 16)
-        shell_layout.setSpacing(14)
+        shell_layout.setSpacing(12)
 
         self.chrome_bar = DialogChromeBar(
             "AI Control Center",
@@ -6180,7 +6209,7 @@ class AIControlCenterDialog(QDialog):
             show_title=False,
         )
         self.chrome_bar.setProperty("role", "hudTitleGroup")
-        self.chrome_bar.setFixedHeight(222)
+        self.chrome_bar.setFixedHeight(204)
         chrome_layout = self.chrome_bar.layout()
         if chrome_layout is not None:
             chrome_layout.setContentsMargins(20, 16, 14, 14)
@@ -6205,7 +6234,7 @@ class AIControlCenterDialog(QDialog):
         header_text_layout = QVBoxLayout(self.header_text)
         header_text_layout.setContentsMargins(0, 0, 0, 0)
         header_text_layout.setSpacing(5)
-        eyebrow = QLabel("Nexus Desktop AI", self.header_text)
+        eyebrow = QLabel("N E X U S  D E S K T O P  A I", self.header_text)
         eyebrow.setProperty("role", "productEyebrow")
         self._title = QLabel("AI Control Center", self.header_text)
         self._title.setProperty("role", "title")
@@ -6235,7 +6264,7 @@ class AIControlCenterDialog(QDialog):
             value_widget.setProperty("role", "surfaceRoleValue")
             role_layout.addWidget(label_widget, 0, column * 2, Qt.AlignLeft | Qt.AlignVCenter)
             role_layout.addWidget(value_widget, 0, column * 2 + 1, Qt.AlignLeft | Qt.AlignVCenter)
-        role_summary = QLabel("AI CONTROL CENTER CONFIGURES LOCAL ASSIST BOUNDARIES WITHOUT EXECUTION", role_surface)
+        role_summary = QLabel("LOCAL ASSIST ONLY", role_surface)
         role_summary.setProperty("role", "surfaceRoleValue")
         role_summary.setWordWrap(True)
         role_status = QLabel("NO PROVIDER ACTIVE", role_surface)
@@ -6278,8 +6307,22 @@ class AIControlCenterDialog(QDialog):
         self.content.setAttribute(Qt.WA_StyledBackground, True)
         shell_layout.addWidget(self.content, 1)
 
-        content_layout = QVBoxLayout(self.content)
-        content_layout.setContentsMargins(12, 12, 12, 16)
+        deck_layout = QVBoxLayout(self.content)
+        deck_layout.setContentsMargins(12, 12, 12, 16)
+        deck_layout.setSpacing(0)
+        self._content_scroll = QScrollArea(self.content)
+        self._content_scroll.setObjectName("fam007AiControlCenterScroll")
+        self._content_scroll.setFrameShape(QFrame.NoFrame)
+        self._content_scroll.setWidgetResizable(True)
+        self._content_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._content_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self._content_scroll.setAttribute(Qt.WA_StyledBackground, True)
+        self._content_scroll.viewport().setAttribute(Qt.WA_StyledBackground, True)
+        self._content_scroll_body = QFrame(self._content_scroll)
+        self._content_scroll_body.setObjectName("fam007AiControlCenterScrollBody")
+        self._content_scroll_body.setAttribute(Qt.WA_StyledBackground, True)
+        content_layout = QVBoxLayout(self._content_scroll_body)
+        content_layout.setContentsMargins(0, 0, 8, 0)
         content_layout.setSpacing(12)
 
         facts_panel = QFrame(self)
@@ -6374,17 +6417,41 @@ class AIControlCenterDialog(QDialog):
         result_header_layout.addWidget(result_number, 0, Qt.AlignVCenter)
         result_header_layout.addWidget(result_title_stack, 1, Qt.AlignVCenter)
         result_layout.addWidget(result_header)
-        self._result = QLabel("No-provider check: waiting for local action", self)
+        self._result = QLabel("waiting for local action", self)
         self._result.setWordWrap(True)
         self._result.setProperty("role", "factValue")
         self._result_detail = QLabel("No prompt, file, screen, memory, or telemetry is sent.", self)
         self._result_detail.setWordWrap(True)
-        self._result_detail.setProperty("role", "warning")
-        result_layout.addWidget(self._result)
-        result_layout.addWidget(self._result_detail)
+        self._result_detail.setProperty("role", "factValue")
+        result_rows = (
+            ("LOCAL CHECK", self._result),
+            ("PROMPT / FILE / TELEMETRY", self._result_detail),
+        )
+        for row, (label, value_widget) in enumerate(result_rows):
+            row_frame = QFrame(self)
+            row_frame.setProperty("role", "factRow")
+            if row == len(result_rows) - 1:
+                row_frame.setProperty("lastRow", "true")
+            row_frame.setAttribute(Qt.WA_StyledBackground, True)
+            row_layout = QHBoxLayout(row_frame)
+            row_layout.setContentsMargins(0, 8, 0, 8)
+            row_layout.setSpacing(12)
+            row_accent = QFrame(self)
+            row_accent.setProperty("role", "rowAccent")
+            row_accent.setAttribute(Qt.WA_StyledBackground, True)
+            label_widget = QLabel(label, self)
+            label_widget.setProperty("role", "factLabel")
+            label_widget.setMinimumWidth(178)
+            label_widget.setMaximumWidth(208)
+            value_widget.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            value_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+            row_layout.addWidget(row_accent, 0, Qt.AlignTop)
+            row_layout.addWidget(label_widget, 0, Qt.AlignTop)
+            row_layout.addWidget(value_widget, 1, Qt.AlignTop)
+            result_layout.addWidget(row_frame)
 
         result_actions = QHBoxLayout()
-        result_actions.setContentsMargins(0, 8, 0, 0)
+        result_actions.setContentsMargins(0, 2, 0, 0)
         result_actions.setSpacing(12)
         self._local_assist = QPushButton("NO-PROVIDER CHECK", self)
         self._local_assist.setAccessibleName("Run no-provider check")
@@ -6397,8 +6464,11 @@ class AIControlCenterDialog(QDialog):
         result_actions.addWidget(QSizeGrip(self), 0, Qt.AlignRight | Qt.AlignBottom)
         result_layout.addLayout(result_actions)
 
-        content_layout.addWidget(facts_panel, 1)
+        content_layout.addWidget(facts_panel)
         content_layout.addWidget(result_panel)
+        content_layout.addStretch(1)
+        self._content_scroll.setWidget(self._content_scroll_body)
+        deck_layout.addWidget(self._content_scroll)
         self.setGeometry(self._initial_geometry())
 
     def _initial_geometry(self) -> QRect:
@@ -6443,7 +6513,7 @@ class AIControlCenterDialog(QDialog):
             value_widget = self._fact_values.get(key)
             if value_widget is not None:
                 value_widget.setText(text)
-        self._result.setText("No-provider check: waiting for local action")
+        self._result.setText("waiting for local action")
         self._result_detail.setText(
             str(
                 self._provider_payload.get("providerVisibleDataDetail")
@@ -6462,10 +6532,10 @@ class AIControlCenterDialog(QDialog):
             and payload.get("memoryIndexingState") == "memory-indexing-disabled"
         )
         if guard_closed:
-            result = str(payload.get("localActionResultLabel") or "No-provider check: no provider configured")
+            result = str(payload.get("localActionResultLabel") or "no provider configured")
             detail = str(
                 payload.get("localActionResultDetail")
-                or "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none."
+                or "No prompt was accepted or sent; provider-visible data remains none."
             )
             event = (
                 "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT"
