@@ -22,6 +22,12 @@ After the worktrees are idle, rebaseline and reconcile the relevant worktrees ag
 
 This first step is a planning/reconciliation gate. It does not authorize source-truth contract edits, helper code, validator code, PR Readiness, PR creation, merge, release, repo split execution, private repo creation, runtime work, FAM worktree mutation, file movement, file deletion, or file archival.
 
+## Current No-PR Hold - 2026-06-15
+
+Current USER direction supersedes older planning text that treated PR Readiness as the immediate next phase after the docs-only cycles and final hardening. There will be no PR for this broader governance reliability / vision / proof reliability track until the USER confirms that all admitted work for the track is implemented, including any separately admitted template, golden-reference, design-token, shared UI primitive, helper, validator, fixture, or product-worktree adoption work.
+
+When final hardening reaches a blocker such as `Golden Template / Reference Promotion Blocked`, Codex must stop and wait rather than request PR Readiness. This hold does not approve template creation, golden-reference promotion, design-token implementation, shared UI primitive implementation, helper/validator code, FAM worktree mutation, external-state mutation, PR creation, merge, release, or cleanup. Those remain separate USER decisions under current source truth.
+
 ## Purpose
 
 This planning reference preserves candidate improvements for repo-wide governance, source truth, efficiency, reliability, error checking, drift prevention, and future Main / Dev / Owner repo separation.
@@ -50,14 +56,14 @@ Scope Classification:
 
 PR Readiness Posture:
 
-The admitted Governance Reliability / Repo Split Reform cycles and final integration hardening are complete. The next legal phase is PR Readiness Stage 1 analysis after USER approval.
+Historical 2026-05-28 posture: the admitted Governance Reliability / Repo Split Reform cycles and final integration hardening were ready for PR Readiness Stage 1 analysis after USER approval. Current 2026-06-15 posture supersedes that for the broader governance reliability / vision / proof reliability track: PR Readiness is held until all admitted remaining implementation/template/reference work is complete or USER records an explicit limited PR path.
 
 Legal Path Options:
 
 | Path | Meaning | Legal Next Phase | PR Readiness Status |
 | --- | --- | --- | --- |
 | Limited PR path | Superseded by USER approval to complete all admitted reform cycles in this branch | Not current | Not current |
-| Full reform continuation path | Completed admitted docs/source-truth contract cycles before one consolidated PR | PR Readiness Stage 1 after USER approval | Ready for Stage 1 analysis |
+| Full reform continuation path | Completed admitted docs/source-truth contract cycles before one consolidated PR | Held until remaining admitted implementation/template/reference blockers are resolved or USER selects a limited PR path | Held |
 
 USER Preference Captured:
 
@@ -83,7 +89,7 @@ Current Commit Completion Matrix:
 
 Admitted Scope Rule:
 
-Further mutation requires a new legal phase decision. The next legal phase for this branch is PR Readiness Stage 1 analysis; PR creation, merge, release, helper/validator code expansion, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, runtime work, FAM worktree mutation, and main mutation remain separate USER decisions.
+Further mutation requires a new legal phase decision. Current USER direction holds PR Readiness for this broader reform until remaining admitted implementation/template/reference blockers are resolved or USER records an explicit limited PR path. PR creation, merge, release, helper/validator code expansion, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, runtime work, FAM worktree mutation, and main mutation remain separate USER decisions.
 
 ## Cycle 1 BR2 Admission - Taxonomy / Owner Discipline
 
@@ -104,7 +110,7 @@ Cycle 1 Packet State:
 - BP2 Plan Review: `Completed under bounded all-cycles approval`.
 - BP3 Workstream Entry / Orchestration Validation: `Completed under bounded all-cycles approval`.
 - Workstream Implementation: `Completed for docs/source-truth contract only`.
-- PR Readiness: `Ready for Stage 1 analysis after USER approval`.
+- PR Readiness: `Held by current 2026-06-15 USER direction until remaining admitted implementation/template/reference blockers are resolved or USER records an explicit limited PR path`.
 
 Cycle 1 Vision:
 
