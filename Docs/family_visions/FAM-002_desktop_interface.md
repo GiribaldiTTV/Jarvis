@@ -30,6 +30,12 @@ The expected presentation is Nexus-native: custom product framing or chrome, coh
 
 Platform exceptions must be explicit. OS file pickers, OS security prompts, provider-auth surfaces, installer/update flows that require platform trust affordances, and temporary troubleshooting-only diagnostics may use platform chrome only when the branch classifies the exception, explains why Nexus-native chrome is not appropriate, and includes the exception in BP2/BP3 proof and Live Validation visual adjudication.
 
+## Standalone Window Geometry Recovery Standard
+
+FAM-002 owns the reusable presentation and geometry standard for Nexus-owned product windows. Any Nexus-owned standalone, top-level, restorable, independently opened, movable, resizable, or geometry-persisted product window must define safe default position/size behavior and a USER-accessible reset path so the USER can recover from offscreen placement, missing-monitor movement, corrupted saved geometry, too-small/too-large windows, or layout changes.
+
+The reset route must preserve Nexus presentation grammar: clear language, predictable placement, visible recovery feedback, and no debug-looking utility popup unless a platform/native or troubleshooting exception is recorded. Consuming FAM branches own their feature window behavior and proof. FAM-003 owns the resident access / quick-actions / settings route when the reset action is a global or user-accessible Nexus command. Child panels, anchored panels, OS dialogs, temporary dev/proof tools, or non-restorable surfaces may be Not Applicable only when the branch records the reason and proof path.
+
 ## Reusable Component Grammar
 
 FAM-002 supplies reusable presentation grammar for:

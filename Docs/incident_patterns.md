@@ -349,6 +349,26 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/user_test_summary_guidance.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Standalone Product Window Has No Geometry Recovery Path
+
+- symptom:
+  A Nexus-owned standalone, top-level, restorable, independently opened, movable, resizable, or geometry-persisted product window can become offscreen, too small, too large, corrupted, or trapped on a missing monitor, and the branch has no user-accessible reset-window-position/size route or Not Applicable reason.
+- layer:
+  FAM-002 presentation standards, FAM-003 resident/settings/quick-action dependency routing, consuming-FAM window behavior, Branch Planning proof, Hardening, Live Validation, and USER handoff
+- root-cause pattern:
+  a branch proves that a window opens or looks acceptable in the happy path but does not treat geometry persistence and recovery as part of USER trust. The reset route is assumed to be a future settings detail, or packaging/setup is treated as owner by inertia, leaving no deterministic recovery path.
+- fix pattern:
+  require window classification for created/touched/affected product windows, declare safe default geometry, record whether geometry is persisted, route shared user-accessible reset behavior through FAM-003 resident access / Global Settings / quick actions when admitted, keep FAM-002 as presentation grammar owner, keep FAM-008 to setup/education only unless explicitly admitted, and require proof or USER waiver before final green.
+- validation pattern:
+  future helpers should fail on `Window Position / Size Reset Route Missing`, `FAM-003 Window Recovery Dependency Required`, `Child Window Geometry Reset Not Applicable Unproven`, `Offscreen Window Recovery Path Missing`, `Window Geometry Classification Missing`, `FAM-008 Runtime Reset Ownership Drift`, or `Repo File-State Tracking` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/family_visions/FAM-003_interaction_and_actions.md`
+  - `Docs/family_feature_visions/F3-FF01.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:
