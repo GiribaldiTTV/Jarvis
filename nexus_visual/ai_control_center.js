@@ -27,14 +27,14 @@
         maximize.dataset.windowState = "future-gated";
         maximize.setAttribute("aria-disabled", "true");
         maximize.setAttribute("aria-label", "Maximize or restore AI Control Center future-gated");
-        maximize.setAttribute("title", "Maximize/restore future-gated");
+        maximize.removeAttribute("title");
       } else {
         maximize.setAttribute("aria-pressed", normalized === "maximized" ? "true" : "false");
         const label = normalized === "maximized"
           ? "Restore AI Control Center"
           : "Maximize AI Control Center";
         maximize.setAttribute("aria-label", label);
-        maximize.setAttribute("title", label);
+        maximize.removeAttribute("title");
       }
     }
   };

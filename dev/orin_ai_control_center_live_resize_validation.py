@@ -316,6 +316,7 @@ def main() -> int:
             closeClass: close ? close.className : "",
             closeStyle: style(close),
             closeLabel: close ? close.getAttribute("aria-label") : "",
+            closeTitle: close ? close.getAttribute("title") : "",
             maximizeText: maximize ? maximize.textContent.trim() : "",
             maximizeRect: rect(maximize),
             maximizeClass: maximize ? maximize.className : "",
@@ -331,6 +332,7 @@ def main() -> int:
             minimizeClass: minimize ? minimize.className : "",
             minimizeStyle: style(minimize),
             minimizeLabel: minimize ? minimize.getAttribute("aria-label") : "",
+            minimizeTitle: minimize ? minimize.getAttribute("title") : "",
             chromeGap: close && maximize && minimize
               ? Math.round(Math.min(
                   maximize.getBoundingClientRect().left - minimize.getBoundingClientRect().right,
@@ -346,6 +348,27 @@ def main() -> int:
         title_chrome_proof = json.loads(title_chrome_proof_raw) if isinstance(title_chrome_proof_raw, str) else title_chrome_proof_raw
     except json.JSONDecodeError:
         title_chrome_proof = {"ok": False, "raw": title_chrome_proof_raw}
+    hover_proof: dict[str, object] = {}
+    if isinstance(title_chrome_proof, dict):
+        window_rect_for_hover = _native_rect(hwnd)
+        for rect_key, label in (
+            ("minimizeRect", "02_window_control_minimize_hover"),
+            ("maximizeRect", "03_window_control_maximize_disabled_hover"),
+            ("closeRect", "04_window_control_close_hover"),
+        ):
+            control_rect = title_chrome_proof.get(rect_key)
+            if not isinstance(control_rect, dict):
+                hover_proof[label] = {"ok": False, "reason": f"missing-{rect_key}"}
+                continue
+            hover_x = int(window_rect_for_hover["left"] + int(control_rect.get("left") or 0) + (int(control_rect.get("width") or 0) // 2))
+            hover_y = int(window_rect_for_hover["top"] + int(control_rect.get("top") or 0) + (int(control_rect.get("height") or 0) // 2))
+            _move_mouse(app, hover_x, hover_y, 900)
+            hover_proof[label] = {
+                "ok": True,
+                "screenPoint": {"x": hover_x, "y": hover_y},
+                "evidence": _capture(app, dialog, log_root, label),
+            }
+    _move_mouse(app, _native_rect(hwnd)["left"] + 24, _native_rect(hwnd)["top"] + 24, 120)
     minimize_click_raw = _run_js(
         app,
         dialog,
@@ -529,10 +552,30 @@ def main() -> int:
         ),
         "compactWindowControlBordersVisible": (
             isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("minimizeStyle"), dict)
+            and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.34)"
+            and isinstance(title_chrome_proof.get("closeStyle"), dict)
+            and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.34)"
+            and isinstance(title_chrome_proof.get("maximizeStyle"), dict)
+            and title_chrome_proof["maximizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.25)"
+        ),
+        "windowControlNativeTooltipsSuppressed": (
+            isinstance(title_chrome_proof, dict)
+            and not title_chrome_proof.get("minimizeTitle")
+            and not title_chrome_proof.get("maximizeTitle")
+            and not title_chrome_proof.get("closeTitle")
+        ),
+        "windowControlHoverProofCaptured": (
+            isinstance(hover_proof, dict)
             and all(
-                isinstance(title_chrome_proof.get(key), dict)
-                and "rgba(122, 232, 255" in str(title_chrome_proof[key].get("borderColor") or "")
-                for key in ("minimizeStyle", "maximizeStyle", "closeStyle")
+                isinstance(hover_proof.get(label), dict)
+                and hover_proof[label].get("ok") is True
+                and isinstance(hover_proof[label].get("evidence"), dict)
+                for label in (
+                    "02_window_control_minimize_hover",
+                    "03_window_control_maximize_disabled_hover",
+                    "04_window_control_close_hover",
+                )
             )
         ),
         "windowControlAccessibleLabelsPresent": (
@@ -579,6 +622,7 @@ def main() -> int:
         "initialWindowScreenshots": screenshot_evidence["before"],
         "customScrollbarProbe": custom_scrollbar_probe,
         "titleChromeProof": title_chrome_proof,
+        "windowControlHoverProof": hover_proof,
         "windowControlProof": {
             "cluster": "compact-minimize-maximize-close",
             "minimize": "active-native-showMinimized",

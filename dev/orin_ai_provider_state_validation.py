@@ -9010,7 +9010,6 @@ def validate() -> list[str]:
         "Run Local Check",
         "Minimize AI Control Center",
         "Maximize or restore AI Control Center future-gated",
-        "Maximize/restore future-gated",
         "Close AI Control Center",
         "ORIN is not implemented; provider/model execution is not active.",
         "Not implemented; no real AI executing",
@@ -9040,6 +9039,22 @@ def validate() -> list[str]:
             f"AI Control Center card interior must not keep compressed AI-only text/button override {forbidden!r}",
             failures,
         )
+
+    for forbidden in (
+        'title="Minimize AI Control Center"',
+        'title="Maximize/restore future-gated"',
+        'title="Close AI Control Center"',
+    ):
+        _require(
+            forbidden not in ai_control_html,
+            f"AI Control Center compact window controls must suppress native title tooltip {forbidden!r}",
+            failures,
+        )
+    _require(
+        'setAttribute("title"' not in ai_control_js,
+        'AI Control Center compact window controls must not inject native title tooltips from JavaScript',
+        failures,
+    )
 
     for needle in (
         "NEXUS_AI_CONTROL_CENTER_COMMAND:",
