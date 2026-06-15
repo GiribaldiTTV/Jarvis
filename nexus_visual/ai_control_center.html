@@ -8,6 +8,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nexus Desktop AI Control Center</title>
   <link rel="stylesheet" href="monitoring_hud.css" />
+  <style>
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__chrome {
+      padding: 12px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group {
+      padding: 12px 12px 10px;
+      border-radius: 20px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__header {
+      padding-right: 106px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__kicker {
+      font-size: 11px;
+      letter-spacing: 0.20em;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title {
+      margin-top: 4px;
+      font-size: 30px;
+      line-height: 1.02;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__subtitle {
+      margin-top: 6px;
+      line-height: 1.28;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role {
+      margin-top: 12px;
+      padding: 9px 11px;
+      border-radius: 16px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy {
+      gap: 6px 8px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy span,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy strong {
+      font-size: 11px;
+      letter-spacing: 0.07em;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub {
+      margin-top: 12px;
+      gap: 10px;
+      padding: 10px 10px 18px;
+      scroll-padding: 10px 10px 18px;
+      scrollbar-gutter: stable;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card {
+      gap: 8px;
+      padding: 12px;
+      border-radius: 18px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline {
+      gap: 10px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card p {
+      line-height: 1.30;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row {
+      grid-template-columns: minmax(104px, 0.34fr) minmax(0, 1fr);
+      gap: 6px;
+      padding: 5px 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row > span {
+      padding-left: 7px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row span {
+      font-size: 10px;
+      letter-spacing: 0.07em;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row strong {
+      font-size: 11px;
+      line-height: 1.22;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-actions {
+      margin-top: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__dashboard-paired-action {
+      width: 210px;
+    }
+  </style>
 </head>
 <body class="desktop-mode">
   <section
@@ -46,6 +142,9 @@
     data-outer-frame-haze="removed-no-square-layer"
     data-grid-scope="control-hub-cards-only"
     data-deadzone-policy="auto-height-content-no-empty-hit-zones"
+    data-compact-layout-density="ai-control-center-compact-v1"
+    data-default-window-width="562"
+    data-row-density="compact-separated"
     data-sticky-header-mask="opaque-scroll-mask"
     data-dashboard-close-affordance="window-level-close-button"
     data-dashboard-close-layout="window-level-top-right-close-pill"

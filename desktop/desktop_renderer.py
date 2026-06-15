@@ -5914,9 +5914,17 @@ class MonitoringHudRecordingControlWindow(QWidget):
 
 
 class AIControlCenterDialog(QDialog):
-    WINDOW_STATE_SCHEMA_VERSION = 1
+    WINDOW_STATE_SCHEMA_VERSION = 3
     WINDOW_STATE_ENV = "NEXUS_AI_CONTROL_CENTER_STATE_PATH"
     WINDOW_STATE_FILENAME = "ai_control_center_window_state.json"
+    DEFAULT_WIDTH = 562
+    DEFAULT_HEIGHT = 820
+    MINIMUM_WIDTH = 440
+    MINIMUM_HEIGHT = 620
+    RESIZE_MARGIN = 10
+    DRAG_HEADER_HEIGHT = 190
+    CLOSE_CONTROL_WIDTH = 122
+    CLOSE_CONTROL_HEIGHT = 68
 
     def __init__(self, screen, event_logger=None):
         super().__init__(None)
@@ -5934,8 +5942,8 @@ class AIControlCenterDialog(QDialog):
         self.setWindowModality(Qt.NonModal)
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(720, 720)
-        self.resize(780, 820)
+        self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)
+        self.resize(self.DEFAULT_WIDTH, self.DEFAULT_HEIGHT)
         self.setProperty("aiControlCenterOwner", "FAM-007")
         self.setProperty("aiControlCenterRoute", "fam007-ai-control-center")
         self.setProperty("fam003CarryIn", "f3-ff01-narrow-doorway-only")
@@ -6634,8 +6642,8 @@ class AIControlCenterDialog(QDialog):
             event_type = event.type()
             if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
                 pos = event.position().toPoint()
-                close_zone = pos.y() <= 100 and pos.x() >= max(0, self.width() - 170)
-                if pos.y() <= 235 and not close_zone:
+                close_zone = self._ai_control_center_close_zone().contains(pos)
+                if pos.y() <= self.DRAG_HEADER_HEIGHT and not close_zone:
                     self._drag_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
                     event.accept()
                     return True
@@ -6660,6 +6668,65 @@ class AIControlCenterDialog(QDialog):
             elif event_type == QEvent.MouseButtonRelease:
                 self._set_hud_button_glow(watched, "hover" if watched.underMouse() else "default")
         return super().eventFilter(watched, event)
+
+    def _ai_control_center_close_zone(self) -> QRect:
+        return QRect(
+            max(0, self.width() - self.CLOSE_CONTROL_WIDTH),
+            0,
+            self.CLOSE_CONTROL_WIDTH,
+            self.CLOSE_CONTROL_HEIGHT,
+        )
+
+    def _ai_control_center_native_hit_test(self, screen_point: QPoint) -> int:
+        local = self.mapFromGlobal(screen_point)
+        if not QRect(0, 0, self.width(), self.height()).contains(local):
+            return 0
+        margin = self.RESIZE_MARGIN
+        left = local.x() <= margin
+        right = local.x() >= max(0, self.width() - margin)
+        top = local.y() <= margin
+        bottom = local.y() >= max(0, self.height() - margin)
+        if left and top:
+            return HTTOPLEFT
+        if right and top:
+            return HTTOPRIGHT
+        if left and bottom:
+            return HTBOTTOMLEFT
+        if right and bottom:
+            return HTBOTTOMRIGHT
+        if left:
+            return HTLEFT
+        if right:
+            return HTRIGHT
+        if top:
+            return HTTOP
+        if bottom:
+            return HTBOTTOM
+        if self._ai_control_center_close_zone().contains(local):
+            return HTCLIENT
+        if local.y() <= self.DRAG_HEADER_HEIGHT:
+            return HTCAPTION
+        return 0
+
+    def nativeEvent(self, eventType, message):
+        if eventType in ("windows_generic_MSG", "windows_dispatcher_MSG"):
+            try:
+                msg = ctypes.wintypes.MSG.from_address(int(message))
+            except Exception:
+                msg = None
+            if msg is not None:
+                message_id = int(msg.message)
+                if message_id == WM_NCHITTEST:
+                    x = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                    y = ctypes.c_short((int(msg.lParam) >> 16) & 0xFFFF).value
+                    hit_test = self._ai_control_center_native_hit_test(QPoint(x, y))
+                    if hit_test:
+                        return True, hit_test
+                if message_id == WM_NCLBUTTONDBLCLK:
+                    screen_point = QCursor.pos()
+                    if self._ai_control_center_native_hit_test(screen_point) == HTCAPTION:
+                        return True, 0
+        return super().nativeEvent(eventType, message)
 
     def _window_state_path(self) -> Path:
         override = os.environ.get(self.WINDOW_STATE_ENV, "").strip()
@@ -6708,8 +6775,19 @@ class AIControlCenterDialog(QDialog):
             payload = json.loads(path.read_text(encoding="utf-8"))
         except Exception:
             return fallback
-        if not isinstance(payload, dict) or payload.get("schemaVersion") != self.WINDOW_STATE_SCHEMA_VERSION:
+        if not isinstance(payload, dict):
             return fallback
+        if payload.get("schemaVersion") != self.WINDOW_STATE_SCHEMA_VERSION:
+            try:
+                migrated = QRect(
+                    int(payload.get("x")),
+                    int(payload.get("y")),
+                    fallback.width(),
+                    fallback.height(),
+                )
+            except Exception:
+                return fallback
+            return self._bound_geometry_to_available_desktop(migrated)
         try:
             rect = QRect(
                 int(payload.get("x")),
@@ -6758,8 +6836,8 @@ class AIControlCenterDialog(QDialog):
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
-        width = 780
-        height = 820
+        width = self.DEFAULT_WIDTH
+        height = self.DEFAULT_HEIGHT
         return QRect(
             available.x() + max(24, available.width() - width - 96),
             available.y() + max(24, available.height() - height - 126),
