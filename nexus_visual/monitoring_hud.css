@@ -1049,6 +1049,30 @@ body.desktop-mode #monitoring-hud > * {
   padding: 8px 20px;
 }
 
+.monitoring-hud__hub-action--content-fit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: min(100%, 220px);
+  height: 36px;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 16px;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .monitoring-hud__hub-action:disabled,
 .monitoring-hud__hub-action[aria-disabled="true"],
 .monitoring-hud__hub-action--deferred {

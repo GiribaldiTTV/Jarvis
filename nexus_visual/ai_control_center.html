@@ -131,6 +131,7 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-description {
       grid-column: 1 / -1;
       grid-row: 2;
+      font-size: 11px;
       text-indent: 42px;
     }
 
@@ -220,6 +221,7 @@
     data-compact-layout-density="ai-control-center-compact-v1"
     data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"
     data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
+    data-single-action-button-model="content-fit-fixed-height-ellipsis"
     data-default-window-width="570"
     data-default-window-height="610"
     data-default-window-max-height="820"
@@ -333,10 +335,13 @@
             <button
               type="button"
               id="ai-control-center-local-check-action"
-              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action"
+              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
               data-control="run-local-check"
+              data-action-size="content-fit-fixed-height"
+              aria-label="Run Local Check"
+              title="Run Local Check"
             >
-              Run Local Check
+              <span class="monitoring-hud__button-label">Run Local Check</span>
             </button>
           </div>
         </article>

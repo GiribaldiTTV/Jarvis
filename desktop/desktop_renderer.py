@@ -6534,8 +6534,8 @@ class AIControlCenterDialog(QDialog):
         self._local_assist.setToolTip("Run local check")
         self._local_assist.setCursor(Qt.PointingHandCursor)
         self._local_assist.setProperty("buttonRole", "primary")
-        self._local_assist.setFixedSize(250, 36)
         self._local_assist.setFont(self._hud_button_font(point_size=9, weight=760, spacing=109))
+        self._configure_hud_content_fit_button(self._local_assist, max_width=220)
         self._install_hud_button_glow(self._local_assist, kind="action")
         self._local_assist.clicked.connect(self.run_local_assist_check)
         result_actions.addStretch(1)
@@ -6622,6 +6622,22 @@ class AIControlCenterDialog(QDialog):
         except Exception:
             pass
         return font
+
+    @staticmethod
+    def _configure_hud_content_fit_button(
+        button: QPushButton,
+        *,
+        max_width: int,
+        horizontal_padding: int = 32,
+        min_width: int = 0,
+        height: int = 36,
+    ) -> None:
+        button.setProperty("buttonSizeModel", "content-fit-fixed-height")
+        button.setFixedHeight(height)
+        button.setMinimumWidth(min_width)
+        button.setMaximumWidth(max_width)
+        content_width = button.fontMetrics().horizontalAdvance(button.text()) + horizontal_padding
+        button.setFixedWidth(min(max_width, max(min_width, content_width)))
 
     def _install_hud_button_glow(self, button: QPushButton, *, kind: str) -> None:
         effect = QGraphicsDropShadowEffect(button)

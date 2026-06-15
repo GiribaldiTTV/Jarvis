@@ -8913,7 +8913,7 @@ def validate() -> list[str]:
         "AI\", \"ORIN",
         "STATUS\", \"NOT IMPLEMENTED",
         "PROVIDER\", \"BLOCKED",
-        "setFixedSize(250, 36)",
+        "_configure_hud_content_fit_button(self._local_assist, max_width=220)",
         "PROVIDER DATA",
         "PROVIDER / MODEL",
         "PROMPT / MEMORY",
@@ -8946,10 +8946,12 @@ def validate() -> list[str]:
         "monitoring-hud__hub-card-title-copy",
         "monitoring-hud__hub-card-description",
         "monitoring-hud__state-row",
-        "monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action",
+        "monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit",
+        "monitoring-hud__button-label",
         'data-compact-layout-density="ai-control-center-compact-v1"',
         'data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"',
         'data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"',
+        'data-single-action-button-model="content-fit-fixed-height-ellipsis"',
         'data-default-window-width="570"',
         'data-default-window-height="610"',
         'data-default-window-max-height="820"',
@@ -8967,6 +8969,7 @@ def validate() -> list[str]:
         "align-items: flex-start",
         ".monitoring-hud__hub-card-title-copy",
         ".monitoring-hud__hub-card-description",
+        "font-size: 11px",
         "text-indent: 42px",
         "grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr)",
         "padding: 4px 0 2px",
@@ -8996,6 +8999,8 @@ def validate() -> list[str]:
 
     for forbidden in (
         "width: 210px",
+        'id="ai-control-center-local-check-action"\n              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action"',
+        "setFixedSize(250, 36)",
         "line-height: 1.22",
         "font-size: 10px",
     ):
@@ -9049,11 +9054,29 @@ def validate() -> list[str]:
         ".monitoring-hud__hub-card-topline",
         ".monitoring-hud__state-row",
         ".monitoring-hud__hub-action",
+        ".monitoring-hud__hub-action--content-fit",
+        ".monitoring-hud__button-label",
+        "max-width: min(100%, 220px)",
+        "height: 36px",
+        "padding: 0 16px",
         ".monitoring-hud__dashboard-paired-action",
     ):
         _require(
             needle in monitoring_hud_css,
             f"shared Monitoring HUD stylesheet is missing {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        "_configure_hud_content_fit_button(self._local_assist, max_width=220)",
+        'button.setProperty("buttonSizeModel", "content-fit-fixed-height")',
+        "button.setFixedHeight(height)",
+        "button.setMaximumWidth(max_width)",
+        "fontMetrics().horizontalAdvance(button.text()) + horizontal_padding",
+    ):
+        _require(
+            needle in renderer,
+            f"desktop renderer AI Control Center fallback is missing content-fit button support {needle!r}",
             failures,
         )
 
@@ -9074,6 +9097,7 @@ def validate() -> list[str]:
         "DEFAULT_HEIGHT = 652",
         "DEFAULT_HEIGHT = 565",
         "DEFAULT_WIDTH = 562",
+        "self._local_assist.setFixedSize(250, 36)",
         'data-default-window-width="562"',
         'data-default-window-width="780"',
         'data-default-window-height="652"',
