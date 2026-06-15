@@ -553,11 +553,11 @@ def main() -> int:
         "compactWindowControlBordersVisible": (
             isinstance(title_chrome_proof, dict)
             and isinstance(title_chrome_proof.get("minimizeStyle"), dict)
-            and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.34)"
+            and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
             and isinstance(title_chrome_proof.get("closeStyle"), dict)
-            and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.34)"
+            and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
             and isinstance(title_chrome_proof.get("maximizeStyle"), dict)
-            and title_chrome_proof["maximizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.25)"
+            and title_chrome_proof["maximizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.18)"
         ),
         "windowControlNativeTooltipsSuppressed": (
             isinstance(title_chrome_proof, dict)
