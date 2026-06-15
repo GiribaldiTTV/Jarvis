@@ -131,6 +131,7 @@
     );
   };
 
+  byId("ai-control-center-minimize-action")?.addEventListener("click", () => emitCommand("minimize"));
   byId("ai-control-center-close-action")?.addEventListener("click", () => emitCommand("close"));
   byId("ai-control-center-local-check-action")?.addEventListener("click", () => {
     window.nexusAiControlCenterRunLocalCheck();

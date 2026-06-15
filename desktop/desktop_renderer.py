@@ -5914,8 +5914,9 @@ class MonitoringHudRecordingControlWindow(QWidget):
 
 
 class AIControlCenterDialog(QDialog):
-    WINDOW_STATE_SCHEMA_VERSION = 8
+    WINDOW_STATE_SCHEMA_VERSION = 9
     WINDOW_STATE_ENV = "NEXUS_AI_CONTROL_CENTER_STATE_PATH"
+    WINDOW_GEOMETRY_MEMORY_ENV = "NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY"
     WINDOW_STATE_FILENAME = "ai_control_center_window_state.json"
     DEFAULT_WIDTH = 570
     DEFAULT_HEIGHT = 610
@@ -5926,7 +5927,7 @@ class AIControlCenterDialog(QDialog):
     MINIMUM_HEIGHT = 540
     RESIZE_MARGIN = 14
     DRAG_HEADER_HEIGHT = 190
-    CLOSE_CONTROL_WIDTH = 122
+    CLOSE_CONTROL_WIDTH = 224
     CLOSE_CONTROL_HEIGHT = 68
 
     def __init__(self, screen, event_logger=None):
@@ -5958,6 +5959,9 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("providerModelExecution", "blocked")
         self.setProperty("networkEgress", "network-egress-blocked")
         self.setProperty("memoryIndexing", "memory-indexing-disabled")
+        self.setProperty("aiControlCenterWindowMemoryPolicy", "restart-memory-disabled")
+        self.setProperty("fam003ResetDependency", "ai-global-settings-reset-default-location-size")
+        self.setProperty("aiControlCenterMinimizeAffordance", "Minimize AI Control Center")
         self._uses_hud_template = True
         self._page_ready = False
         self._pending_provider_payload = {}
@@ -6561,6 +6565,15 @@ class AIControlCenterDialog(QDialog):
             self.event_logger("RENDERER_MAIN|AI_CONTROL_CENTER_TEMPLATE_LOAD_FAILED")
 
     def _handle_ai_control_center_command(self, command: str) -> None:
+        if command == "minimize":
+            self._reset_ai_control_center_resize_cursor()
+            self.showMinimized()
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_MINIMIZED"
+                    "|memory_policy=restart-memory-disabled"
+                )
+            return
         if command == "close":
             self.close()
             return
@@ -7240,6 +7253,10 @@ class AIControlCenterDialog(QDialog):
             return Path(local_app_data) / "Nexus Desktop AI" / self.WINDOW_STATE_FILENAME
         return Path.home() / "AppData" / "Local" / "Nexus Desktop AI" / self.WINDOW_STATE_FILENAME
 
+    def _window_geometry_memory_enabled(self) -> bool:
+        value = os.environ.get(self.WINDOW_GEOMETRY_MEMORY_ENV, "").strip().lower()
+        return value in {"1", "true", "yes", "on"}
+
     def _available_desktop_geometry(self) -> QRect:
         screens = QApplication.screens()
         if not screens:
@@ -7292,6 +7309,8 @@ class AIControlCenterDialog(QDialog):
 
     def _restored_geometry(self) -> QRect:
         fallback = self._initial_geometry()
+        if not self._window_geometry_memory_enabled():
+            return fallback
         path = self._window_state_path()
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
@@ -7324,7 +7343,7 @@ class AIControlCenterDialog(QDialog):
         return self._bound_geometry_to_available_desktop(rect)
 
     def _persist_window_geometry(self) -> None:
-        if self._restoring_window_geometry:
+        if self._restoring_window_geometry or not self._window_geometry_memory_enabled():
             return
         geometry = self.geometry()
         if not self._saved_geometry_is_usable(geometry):
@@ -7352,7 +7371,11 @@ class AIControlCenterDialog(QDialog):
                 )
 
     def _schedule_window_geometry_persist(self) -> None:
-        if self._restoring_window_geometry or not self.isVisible():
+        if (
+            self._restoring_window_geometry
+            or not self.isVisible()
+            or not self._window_geometry_memory_enabled()
+        ):
             return
         self._geometry_persist_timer.start(350)
 

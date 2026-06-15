@@ -195,7 +195,26 @@ def main() -> int:
     repo_root = Path(__file__).resolve().parents[1]
     log_root = repo_root / "dev" / "logs" / "fam_007_ai_control_center_live_resize" / stamp
     log_root.mkdir(parents=True, exist_ok=True)
-    os.environ["NEXUS_AI_CONTROL_CENTER_STATE_PATH"] = str(log_root / "isolated_ai_control_center_window_state.json")
+    isolated_state_path = log_root / "isolated_ai_control_center_window_state.json"
+    os.environ["NEXUS_AI_CONTROL_CENTER_STATE_PATH"] = str(isolated_state_path)
+    os.environ.pop("NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY", None)
+    isolated_state_path.write_text(
+        json.dumps(
+            {
+                "schemaVersion": 9,
+                "kind": "ai-control-center-window-geometry",
+                "x": 12,
+                "y": 12,
+                "w": 900,
+                "h": 760,
+                "updatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
     app = QApplication.instance() or QApplication(sys.argv)
     screen = QApplication.primaryScreen()
@@ -209,6 +228,13 @@ def main() -> int:
     )
     dialog = AIControlCenterDialog(screen, event_logger=events.append)
     dialog.update_provider_state(provider_state.as_renderer_payload())
+    constructor_default_rect = {
+        "x": int(dialog.geometry().x()),
+        "y": int(dialog.geometry().y()),
+        "width": int(dialog.geometry().width()),
+        "height": int(dialog.geometry().height()),
+    }
+    geometry_memory_enabled = bool(dialog._window_geometry_memory_enabled())
 
     available = screen.availableGeometry()
     initial_width = min(dialog.DEFAULT_WIDTH, max(dialog.minimumWidth() + 80, available.width() - 360))
@@ -232,6 +258,100 @@ def main() -> int:
     screenshot_evidence: dict[str, dict[str, str]] = {}
     initial_native_rect = _native_rect(hwnd)
     screenshot_evidence["before"] = _capture(app, dialog, log_root, "01_before_resize")
+    title_chrome_proof_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const rect = (element) => {
+            if (!element) {
+              return null;
+            }
+            const bounds = element.getBoundingClientRect();
+            return {
+              left: Math.round(bounds.left),
+              top: Math.round(bounds.top),
+              right: Math.round(bounds.right),
+              bottom: Math.round(bounds.bottom),
+              width: Math.round(bounds.width),
+              height: Math.round(bounds.height)
+            };
+          };
+          const style = (element) => {
+            if (!element) {
+              return null;
+            }
+            const computed = window.getComputedStyle(element);
+            return {
+              background: computed.background,
+              borderColor: computed.borderColor,
+              borderRadius: computed.borderRadius,
+              color: computed.color,
+              fontFamily: computed.fontFamily,
+              fontSize: computed.fontSize,
+              fontWeight: computed.fontWeight,
+              height: computed.height,
+              letterSpacing: computed.letterSpacing,
+              lineHeight: computed.lineHeight,
+              paddingLeft: computed.paddingLeft,
+              paddingRight: computed.paddingRight,
+              textTransform: computed.textTransform,
+              width: computed.width
+            };
+          };
+          const subtitle = document.querySelector(".monitoring-hud__subtitle");
+          const close = document.getElementById("ai-control-center-close-action");
+          const minimize = document.getElementById("ai-control-center-minimize-action");
+          return JSON.stringify({
+            subtitleText: subtitle ? subtitle.textContent.trim() : "",
+            subtitleLineCount: subtitle ? subtitle.getClientRects().length : 0,
+            subtitleRect: rect(subtitle),
+            closeText: close ? close.textContent.trim() : "",
+            closeRect: rect(close),
+            closeClass: close ? close.className : "",
+            closeStyle: style(close),
+            minimizeText: minimize ? minimize.textContent.trim() : "",
+            minimizeRect: rect(minimize),
+            minimizeClass: minimize ? minimize.className : "",
+            minimizeStyle: style(minimize),
+            chromeGap: close && minimize
+              ? Math.round(close.getBoundingClientRect().left - minimize.getBoundingClientRect().right)
+              : null
+          });
+        })();
+        """,
+    )
+    try:
+        title_chrome_proof = json.loads(title_chrome_proof_raw) if isinstance(title_chrome_proof_raw, str) else title_chrome_proof_raw
+    except json.JSONDecodeError:
+        title_chrome_proof = {"ok": False, "raw": title_chrome_proof_raw}
+    minimize_click_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const minimize = document.getElementById("ai-control-center-minimize-action");
+          if (!minimize) {
+            return JSON.stringify({ ok: false, reason: "missing-minimize-button" });
+          }
+          minimize.click();
+          return JSON.stringify({ ok: true, text: minimize.textContent.trim(), className: minimize.className });
+        })();
+        """,
+    )
+    try:
+        minimize_click = json.loads(minimize_click_raw) if isinstance(minimize_click_raw, str) else minimize_click_raw
+    except json.JSONDecodeError:
+        minimize_click = {"ok": False, "raw": minimize_click_raw}
+    _pump(app, 360)
+    minimized_after_click = bool(dialog.isMinimized())
+    dialog.showNormal()
+    dialog.raise_()
+    dialog.activateWindow()
+    _pump(app, 360)
+    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
+    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
+    _pump(app, 220)
     custom_scrollbar_probe_raw = _run_js(
         app,
         dialog,
@@ -321,6 +441,10 @@ def main() -> int:
         min(available.bottom() - 24, rect["bottom"] + 66),
     )
     screenshot_evidence["afterBottomEdge"] = _capture(app, dialog, log_root, "04_after_bottom_edge_resize")
+    try:
+        final_state_payload = json.loads(isolated_state_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        final_state_payload = {}
 
     checks = {
         "defaultOpenUsesContentFitHeight": abs(initial_native_rect["height"] - int(initial_height)) <= 4,
@@ -339,6 +463,28 @@ def main() -> int:
         "bottomEdgeFluidGeometrySamples": bottom["uniqueHeightCount"] >= 4,
         "fallbackStartedMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED" in event for event in events),
         "resizeReadyMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_READY" in event for event in events),
+        "restartMemoryDisabled": geometry_memory_enabled is False,
+        "staleGeometryIgnoredAtConstruction": (
+            int(constructor_default_rect["width"]) == int(dialog.DEFAULT_WIDTH)
+            and int(constructor_default_rect["height"]) == int(dialog.DEFAULT_HEIGHT)
+        ),
+        "geometryStateNotPersistedDuringRuntime": (
+            int(final_state_payload.get("w") or 0) == 900
+            and int(final_state_payload.get("h") or 0) == 760
+            and int(final_state_payload.get("x") or 0) == 12
+            and int(final_state_payload.get("y") or 0) == 12
+        ),
+        "titleSubtitleDoesNotWrapTooSoon": (
+            isinstance(title_chrome_proof, dict)
+            and int(title_chrome_proof.get("subtitleLineCount") or 0) <= 1
+        ),
+        "minimizeControlMatchesCloseControlClass": (
+            isinstance(title_chrome_proof, dict)
+            and "monitoring-hud__chrome-button--close" in str(title_chrome_proof.get("closeClass") or "")
+            and "monitoring-hud__chrome-button--close" in str(title_chrome_proof.get("minimizeClass") or "")
+        ),
+        "minimizeCommandMinimizedWindow": minimized_after_click,
+        "minimizeMarkerLogged": any("AI_CONTROL_CENTER_MINIMIZED" in event for event in events),
     }
     status = "PASS" if all(checks.values()) else "FAIL"
     user_evidence_root = _copy_user_evidence(log_root, stamp)
@@ -357,12 +503,28 @@ def main() -> int:
         "initialWindowRect": initial_native_rect,
         "initialWindowScreenshots": screenshot_evidence["before"],
         "customScrollbarProbe": custom_scrollbar_probe,
+        "titleChromeProof": title_chrome_proof,
+        "minimizeClickProof": {
+            "clickResult": minimize_click,
+            "windowMinimizedAfterClick": minimized_after_click,
+            "restoredForResizeProof": bool(not dialog.isMinimized()),
+        },
         "expectedInitialWindowSize": {
             "width": int(initial_width),
             "height": int(initial_height),
             "defaultWidth": int(dialog.DEFAULT_WIDTH),
             "defaultHeight": int(dialog.DEFAULT_HEIGHT),
             "defaultMaxHeight": int(dialog.DEFAULT_MAX_HEIGHT),
+        },
+        "geometryMemoryPolicy": {
+            "env": "NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY",
+            "enabled": geometry_memory_enabled,
+            "restartMemoryDisabled": geometry_memory_enabled is False,
+            "staleStatePath": str(isolated_state_path),
+            "constructorDefaultRect": constructor_default_rect,
+            "ignoredPersistedSize": {"width": 900, "height": 760},
+            "finalStatePayload": final_state_payload,
+            "fam003ResetDependency": "ai-global-settings-reset-default-location-size",
         },
         "scrollbarStyle": "nexus-rounded-custom-overlay",
         "checks": checks,

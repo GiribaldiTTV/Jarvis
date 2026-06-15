@@ -19,7 +19,7 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__header {
-      padding-right: 106px;
+      padding-right: 0;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__kicker {
@@ -52,6 +52,16 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy strong {
       font-size: 11px;
       letter-spacing: 0.07em;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-minimize {
+      position: absolute;
+      top: 12px;
+      right: 104px;
+      z-index: 35;
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.05) inset,
+        0 10px 24px rgba(0, 0, 0, 0.28);
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub {
@@ -225,7 +235,9 @@
     data-default-window-width="570"
     data-default-window-height="610"
     data-default-window-max-height="820"
-    data-window-restore-policy="schema-v8-readable-density-or-safe-reset"
+    data-window-restore-policy="disabled-until-fam003-reset-control"
+    data-window-memory-policy="restart-memory-disabled"
+    data-window-reset-dependency="fam003-ai-global-settings-reset-default-location-size"
     data-row-density="compact-asymmetric-separated"
     data-sticky-header-mask="opaque-scroll-mask"
     data-dashboard-close-affordance="window-level-close-button"
@@ -245,6 +257,16 @@
     aria-label="Nexus Desktop AI Control Center product surface"
   >
     <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Control Center panel">
+      <button
+        type="button"
+        id="ai-control-center-minimize-action"
+        class="monitoring-hud__chrome-button monitoring-hud__chrome-button--close monitoring-hud__window-minimize"
+        data-control="minimize-ai-control-center"
+        aria-label="Minimize AI Control Center"
+        title="Minimize AI Control Center"
+      >
+        Minimize
+      </button>
       <button
         type="button"
         id="ai-control-center-close-action"
