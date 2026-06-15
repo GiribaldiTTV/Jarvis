@@ -101,25 +101,37 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline {
+      display: grid;
       align-items: flex-start;
-      gap: 10px;
+      grid-template-columns: 32px minmax(0, 1fr);
+      column-gap: 10px;
+      row-gap: 2px;
       justify-content: flex-start;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline > span {
       flex: 0 0 auto;
+      grid-column: 1;
+      grid-row: 1 / span 2;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-title-copy {
-      display: grid;
+      display: block;
       flex: 1 1 auto;
-      gap: 6px;
+      grid-column: 2;
+      grid-row: 1;
       min-width: 0;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-title-copy > strong,
-    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-title-copy > p {
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-description {
       min-width: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-description {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      text-indent: 42px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row {
@@ -207,7 +219,7 @@
     data-deadzone-policy="auto-height-content-no-empty-hit-zones"
     data-compact-layout-density="ai-control-center-compact-v1"
     data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"
-    data-card-heading-layout="top-aligned-number-title-description"
+    data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
     data-default-window-width="570"
     data-default-window-height="610"
     data-default-window-max-height="820"
@@ -272,8 +284,8 @@
             <span>01</span>
             <div class="monitoring-hud__hub-card-title-copy">
               <strong>ORIN Status</strong>
-              <p>Truthful inactive ORIN state for provider data, capability packs, and edition lanes.</p>
             </div>
+            <p class="monitoring-hud__hub-card-description">Truthful inactive ORIN state for provider data, capability packs, and edition lanes.</p>
           </div>
           <div class="monitoring-hud__state-row">
             <span>ORIN</span>
@@ -306,8 +318,8 @@
             <span>02</span>
             <div class="monitoring-hud__hub-card-title-copy">
               <strong>Local Safety Check</strong>
-              <p>Runs one local check; no prompt/provider/model path is used.</p>
             </div>
+            <p class="monitoring-hud__hub-card-description">Runs one local check; no prompt/provider/model path is used.</p>
           </div>
           <div class="monitoring-hud__state-row">
             <span>Local check</span>
