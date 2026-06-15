@@ -32,7 +32,7 @@ from PySide6.QtWidgets import (
     QGraphicsDropShadowEffect,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent, QSettings
-from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPixmap, QRegion
+from PySide6.QtGui import QColor, QCursor, QFont, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap, QRegion
 from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
@@ -5859,6 +5859,7 @@ def _monitoring_hud_studio_row(
 def _monitoring_hud_prepare_studio_button(button: QPushButton, *, role: str, minimum_width: int) -> None:
     button.setProperty("actionRole", role)
     button.setFocusPolicy(Qt.NoFocus)
+    button.setCursor(Qt.PointingHandCursor)
     button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
     button.setMinimumWidth(minimum_width)
     button.setMaximumWidth(max(minimum_width, button.maximumWidth()))
@@ -5874,6 +5875,105 @@ def _monitoring_hud_apply_studio_shadow(widget: QWidget) -> None:
     shadow.setOffset(0, 18)
     shadow.setColor(QColor(0, 0, 0, 132))
     widget.setGraphicsEffect(shadow)
+
+
+class MonitoringHudStudioButton(QPushButton):
+    def __init__(self, text: str, parent=None):
+        super().__init__(text, parent)
+        self._visual_hovered = False
+        self._visual_pressed = False
+        self.setAttribute(Qt.WA_Hover, True)
+
+    def enterEvent(self, event):
+        self._visual_hovered = True
+        self.update()
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        self._visual_hovered = False
+        self._visual_pressed = False
+        self.update()
+        super().leaveEvent(event)
+
+    def mousePressEvent(self, event):
+        self._visual_pressed = True
+        self.update()
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._visual_pressed = False
+        self._visual_hovered = self.underMouse()
+        self.update()
+        super().mouseReleaseEvent(event)
+
+    def changeEvent(self, event):
+        super().changeEvent(event)
+        if event.type() in {QEvent.EnabledChange, QEvent.PaletteChange, QEvent.StyleChange}:
+            self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        rect = QRectF(self.rect()).adjusted(2.0, 2.0, -2.0, -2.0)
+        radius = rect.height() / 2.0
+        enabled = self.isEnabled()
+        pressed = enabled and (self._visual_pressed or self.isDown())
+        hovered = enabled and self._visual_hovered and not pressed
+
+        if pressed:
+            border = QColor(163, 255, 228, 184)
+            top = QColor(7, 40, 57, 250)
+            bottom = QColor(3, 18, 32, 245)
+            glow = QColor(103, 255, 210, 41)
+            text = QColor(246, 255, 253, 252)
+        elif hovered:
+            border = QColor(126, 248, 218, 143)
+            top = QColor(9, 49, 70, 240)
+            bottom = QColor(4, 24, 40, 232)
+            glow = QColor(86, 236, 255, 46)
+            text = QColor(241, 255, 252, 252)
+        elif enabled:
+            border = QColor(117, 228, 255, 56)
+            top = QColor(7, 42, 62, 232)
+            bottom = QColor(3, 18, 32, 227)
+            glow = QColor(99, 225, 255, 20)
+            text = QColor(229, 249, 255, 240)
+        else:
+            border = QColor(149, 176, 194, 61)
+            top = QColor(12, 29, 42, 138)
+            bottom = QColor(8, 20, 34, 138)
+            glow = QColor(176, 204, 214, 12)
+            text = QColor(176, 204, 214, 178)
+
+        for inset, alpha_scale in ((-1.5, 0.40), (0.5, 0.26)):
+            glow_rect = rect.adjusted(inset, inset, -inset, -inset)
+            glow_color = QColor(glow)
+            glow_color.setAlpha(max(0, min(255, int(glow.alpha() * alpha_scale))))
+            painter.setPen(QPen(glow_color, 2.0))
+            painter.setBrush(Qt.NoBrush)
+            painter.drawRoundedRect(glow_rect, glow_rect.height() / 2.0, glow_rect.height() / 2.0)
+
+        fill = QLinearGradient(rect.topLeft(), rect.bottomRight())
+        fill.setColorAt(0.0, top)
+        fill.setColorAt(1.0, bottom)
+        painter.setPen(QPen(border, 1.0))
+        painter.setBrush(fill)
+        painter.drawRoundedRect(rect, radius, radius)
+
+        inner = rect.adjusted(1.0, 1.0, -1.0, -1.0)
+        painter.setPen(QPen(QColor(232, 251, 255, 18 if enabled else 10), 1.0))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawRoundedRect(inner, inner.height() / 2.0, inner.height() / 2.0)
+
+        font = QFont("Bahnschrift")
+        font.setStyleHint(QFont.SansSerif)
+        font.setPixelSize(12)
+        font.setWeight(QFont.Weight.DemiBold if enabled else QFont.Weight.Medium)
+        font.setLetterSpacing(QFont.PercentageSpacing, 109)
+        painter.setFont(font)
+        painter.setPen(text)
+        painter.drawText(rect.adjusted(10.0, 0.0, -10.0, 0.0), Qt.AlignCenter, self.text().upper())
 
 
 def _monitoring_hud_compact_path_label_text(full_path: str, label: QLabel) -> str:
@@ -5917,7 +6017,7 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             letter-spacing: 0px;
         }}
         QFrame[role="studioShell"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 20, 36, 0.985), stop:0.58 rgba(4, 17, 31, 0.985), stop:1 rgba(2, 11, 22, 0.985));
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 23, 39, 0.985), stop:0.38 rgba(4, 18, 33, 0.985), stop:1 rgba(2, 10, 20, 0.985));
             border: 1px solid rgba(122, 232, 255, 0.26);
             border-radius: 8px;
             color: rgba(235, 252, 255, 0.96);
@@ -5928,12 +6028,12 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             border-radius: 0px;
         }}
         QFrame[role="studioPanel"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 20, 36, 0.985), stop:1 rgba(2, 11, 22, 0.975));
-            border: 1px solid rgba(116, 240, 255, 0.13);
-            border-radius: 20px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 31, 50, 0.86), stop:1 rgba(3, 18, 32, 0.82));
+            border: 1px solid rgba(117, 228, 255, 0.14);
+            border-radius: 8px;
         }}
         QFrame[role="studioRow"] {{
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.060), stop:0.32 rgba(117, 228, 255, 0.035), stop:1 transparent);
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.060), stop:0.16 rgba(117, 228, 255, 0.035), stop:0.46 rgba(117, 228, 255, 0.010), stop:1 transparent);
             border-top: 1px solid rgba(138, 236, 255, 0.46);
             border-bottom: 0px solid transparent;
             border-left: 0px solid transparent;
@@ -5990,6 +6090,7 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             border-radius: 19px;
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
             color: rgba(229, 249, 255, 0.94);
+            font-family: Bahnschrift, Rajdhani, Segoe UI, sans-serif;
             font-size: 12px;
             font-weight: 720;
             letter-spacing: 0.09em;
@@ -5999,7 +6100,7 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             min-width: 76px;
             min-height: 16px;
             max-height: 16px;
-            padding: 8px 18px;
+            padding: 8px 12px;
             border-radius: 17px;
             font-size: 12px;
             font-weight: 760;
@@ -6088,7 +6189,7 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         root.addWidget(self._shell)
 
         shell_layout = QVBoxLayout(self._shell)
-        shell_layout.setContentsMargins(26, 22, 26, 18)
+        shell_layout.setContentsMargins(14, 14, 14, 14)
         shell_layout.setSpacing(12)
 
         header_frame = QFrame(self._shell)
@@ -6108,11 +6209,11 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         header_text.addWidget(self._title)
         header.addLayout(header_text)
         header.addStretch(1)
-        self._minimize = QPushButton("Minimize", header_frame)
+        self._minimize = MonitoringHudStudioButton("Minimize", header_frame)
         _monitoring_hud_prepare_studio_button(self._minimize, role="studioClose", minimum_width=104)
         self._minimize.clicked.connect(self.showMinimized)
         header.addWidget(self._minimize, 0, Qt.AlignTop)
-        self._close = QPushButton("Close", header_frame)
+        self._close = MonitoringHudStudioButton("Close", header_frame)
         _monitoring_hud_prepare_studio_button(self._close, role="studioClose", minimum_width=76)
         self._close.clicked.connect(self.close)
         header.addWidget(self._close, 0, Qt.AlignTop)
@@ -6146,8 +6247,8 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         actions = QHBoxLayout()
         actions.setContentsMargins(0, 0, 0, 0)
         actions.setSpacing(12)
-        self._start = QPushButton("Start", self._shell)
-        self._stop = QPushButton("Stop", self._shell)
+        self._start = MonitoringHudStudioButton("Start", self._shell)
+        self._stop = MonitoringHudStudioButton("Stop", self._shell)
         _monitoring_hud_prepare_studio_button(self._start, role="studioAction", minimum_width=96)
         _monitoring_hud_prepare_studio_button(self._stop, role="studioAction", minimum_width=96)
         self._start.clicked.connect(lambda: self._request_recording_action("start"))
@@ -6430,7 +6531,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         root.addWidget(self._shell)
 
         shell_layout = QVBoxLayout(self._shell)
-        shell_layout.setContentsMargins(26, 22, 26, 18)
+        shell_layout.setContentsMargins(14, 14, 14, 14)
         shell_layout.setSpacing(12)
 
         header_frame = QFrame(self._shell)
@@ -6450,11 +6551,11 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         header_text.addWidget(title)
         header.addLayout(header_text)
         header.addStretch(1)
-        self._minimize = QPushButton("Minimize", header_frame)
+        self._minimize = MonitoringHudStudioButton("Minimize", header_frame)
         _monitoring_hud_prepare_studio_button(self._minimize, role="studioClose", minimum_width=104)
         self._minimize.clicked.connect(self.showMinimized)
         header.addWidget(self._minimize, 0, Qt.AlignTop)
-        self._close = QPushButton("Close", header_frame)
+        self._close = MonitoringHudStudioButton("Close", header_frame)
         _monitoring_hud_prepare_studio_button(self._close, role="studioClose", minimum_width=76)
         self._close.clicked.connect(self.close)
         header.addWidget(self._close, 0, Qt.AlignTop)
@@ -6494,8 +6595,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         actions = QHBoxLayout()
         actions.setContentsMargins(0, 0, 0, 0)
         actions.setSpacing(12)
-        self._open_native = QPushButton("Open Native Logs", self._shell)
-        self._open_export = QPushButton("Open Exported Logs", self._shell)
+        self._open_native = MonitoringHudStudioButton("Open Native Logs", self._shell)
+        self._open_export = MonitoringHudStudioButton("Open Exported Logs", self._shell)
         _monitoring_hud_prepare_studio_button(self._open_native, role="studioAction", minimum_width=152)
         _monitoring_hud_prepare_studio_button(self._open_export, role="studioAction", minimum_width=184)
         self._open_native.clicked.connect(lambda: self._open_log_folder("native"))
