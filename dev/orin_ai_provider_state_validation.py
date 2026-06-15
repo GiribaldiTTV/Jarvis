@@ -8920,7 +8920,7 @@ def validate() -> list[str]:
         "CAPABILITY PACKS",
         "EDITION LANES",
         "Not implemented; no real AI executing",
-        "install blocked; downloads disabled",
+        "Install blocked; downloads disabled",
         "Developer and Owner gated",
         "Runs one local check; no prompt/provider/model path is used.",
         "No prompt was accepted or sent; provider-visible data remains none.",
@@ -8943,10 +8943,12 @@ def validate() -> list[str]:
         "monitoring-hud__control-hub",
         "monitoring-hud__hub-card",
         "monitoring-hud__hub-card-topline",
+        "monitoring-hud__hub-card-title-copy",
         "monitoring-hud__state-row",
         "monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action",
         'data-compact-layout-density="ai-control-center-compact-v1"',
         'data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"',
+        'data-card-heading-layout="top-aligned-number-title-description"',
         'data-default-window-width="570"',
         'data-default-window-height="610"',
         'data-default-window-max-height="820"',
@@ -8957,6 +8959,9 @@ def validate() -> list[str]:
         "ai-control-center-scrollbar__thumb",
         'data-native-resize-model="os-edge-corner-resize"',
         '[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row',
+        '[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline',
+        "align-items: flex-start",
+        ".monitoring-hud__hub-card-title-copy",
         "grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr)",
         "padding: 4px 0 2px",
         "scrollbar-width: none",
@@ -8969,8 +8974,13 @@ def validate() -> list[str]:
         "Run Local Check",
         "ORIN is not implemented; provider/model execution is not active.",
         "Not implemented; no real AI executing",
+        "None",
+        "Disabled and blocked",
+        "Not accepted, sent, stored, or indexed",
         "Provider data",
+        "Install blocked; downloads disabled",
         "Public only; Developer and Owner gated",
+        "Waiting for local action",
     ):
         _require(
             needle in ai_control_html,
@@ -8997,7 +9007,8 @@ def validate() -> list[str]:
         "customScrollbarVisible",
         "run-local-check",
         "close",
-        "install blocked; downloads disabled",
+        "Install blocked; downloads disabled",
+        "No provider configured",
         "No prompt, file, memory, telemetry, or provider config is sent.",
         "provider-visible data remains none",
     ):
@@ -9009,7 +9020,11 @@ def validate() -> list[str]:
 
     for forbidden in (
         "install intent blocked; downloads disabled",
+        "install blocked; downloads disabled",
         "Public no-provider only; Developer and Owner lanes gated",
+        "not accepted, sent, stored, or indexed",
+        "waiting for local action",
+        ">none<",
         "No prompt, file, screen, memory, or telemetry is sent.",
     ):
         _require(

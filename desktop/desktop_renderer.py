@@ -6424,10 +6424,10 @@ class AIControlCenterDialog(QDialog):
         self._fact_values = {}
         fact_rows = (
             ("orin", "ORIN", "Not implemented; no real AI executing"),
-            ("visible_data", "PROVIDER DATA", "none"),
-            ("execution", "PROVIDER / MODEL", "off; no provider/model execution"),
-            ("prompt_memory", "PROMPT / MEMORY", "not accepted, sent, stored, or indexed"),
-            ("capability_packs", "CAPABILITY PACKS", "install blocked; downloads disabled"),
+            ("visible_data", "PROVIDER DATA", "None"),
+            ("execution", "PROVIDER / MODEL", "Off; no provider/model execution"),
+            ("prompt_memory", "PROMPT / MEMORY", "Not accepted, sent, stored, or indexed"),
+            ("capability_packs", "CAPABILITY PACKS", "Install blocked; downloads disabled"),
             ("edition_lanes", "EDITION LANES", "Public only; Developer and Owner gated"),
         )
         for row, (key, label, value) in enumerate(fact_rows):
@@ -6490,7 +6490,7 @@ class AIControlCenterDialog(QDialog):
         result_header_layout.addWidget(result_number, 0, Qt.AlignVCenter)
         result_header_layout.addWidget(result_title_stack, 1, Qt.AlignVCenter)
         result_layout.addWidget(result_header)
-        self._result = QLabel("waiting for local action", self)
+        self._result = QLabel("Waiting for local action", self)
         self._result.setWordWrap(True)
         self._result.setProperty("role", "factValue")
         self._result.setFont(self._hud_label_font(point_size=9, weight=700))
@@ -7384,7 +7384,7 @@ class AIControlCenterDialog(QDialog):
         if getattr(self, "_uses_hud_template", False):
             self._sync_provider_state_to_web()
             return
-        provider_execution = "disabled and blocked"
+        provider_execution = "Disabled and blocked"
         if (
             self._provider_payload.get("providerExecutionGateState") != "provider-execution-disabled"
             or self._provider_payload.get("modelExecutionGateState") != "model-execution-disabled"
@@ -7395,15 +7395,16 @@ class AIControlCenterDialog(QDialog):
 
         lane_boundary = "Public only; Developer and Owner gated"
         raw_capability_packs = str(self._provider_payload.get("installIntentLabel") or "")
-        capability_packs = raw_capability_packs or "install blocked; downloads disabled"
+        capability_packs = raw_capability_packs or "Install blocked; downloads disabled"
         if (
             "blocked" in str(self._provider_payload.get("installIntentState") or "").lower()
             or "blocked" in raw_capability_packs.lower()
         ):
-            capability_packs = "install blocked; downloads disabled"
+            capability_packs = "Install blocked; downloads disabled"
         if "download" not in capability_packs.lower():
             capability_packs = f"{capability_packs}; downloads disabled"
         visible_data = str(self._provider_payload.get("providerVisibleData") or "none")
+        visible_data_display = "None" if visible_data == "none" else visible_data
         provider_visible_detail = (
             "No prompt, file, memory, telemetry, or provider config is sent."
             if visible_data == "none"
@@ -7414,9 +7415,9 @@ class AIControlCenterDialog(QDialog):
         )
         fact_text = {
             "orin": "Not implemented; no real AI executing",
-            "visible_data": visible_data,
+            "visible_data": visible_data_display,
             "execution": provider_execution,
-            "prompt_memory": "not accepted, sent, stored, or indexed",
+            "prompt_memory": "Not accepted, sent, stored, or indexed",
             "capability_packs": capability_packs,
             "edition_lanes": lane_boundary,
         }
@@ -7424,7 +7425,7 @@ class AIControlCenterDialog(QDialog):
             value_widget = self._fact_values.get(key)
             if value_widget is not None:
                 value_widget.setText(text)
-        self._result.setText("waiting for local action")
+        self._result.setText("Waiting for local action")
         self._result_detail.setText(provider_visible_detail)
 
     def run_local_assist_check(self) -> None:
@@ -7455,7 +7456,11 @@ class AIControlCenterDialog(QDialog):
                 self.event_logger(event)
             return
         if guard_closed:
-            result = str(payload.get("localActionResultLabel") or "no provider configured")
+            result = str(payload.get("localActionResultLabel") or "No provider configured")
+            if result == "No-provider check: no provider configured":
+                result = "No provider configured"
+            else:
+                result = result.replace(": no provider configured", ": No provider configured")
             detail = str(
                 payload.get("localActionResultDetail")
                 or "No prompt was accepted or sent; provider-visible data remains none."

@@ -72,20 +72,21 @@
       providerState.providerExecutionGateState === "provider-execution-disabled"
       && providerState.modelExecutionGateState === "model-execution-disabled"
     )
-      ? "disabled and blocked"
-      : (providerState.providerExecutionGateLabel || "disabled and blocked");
+      ? "Disabled and blocked"
+      : (providerState.providerExecutionGateLabel || "Disabled and blocked");
     const rawCapabilityPacks = String(providerState.installIntentLabel || "");
-    let capabilityPacks = rawCapabilityPacks || "install blocked; downloads disabled";
+    let capabilityPacks = rawCapabilityPacks || "Install blocked; downloads disabled";
     if (
       String(providerState.installIntentState || "").toLowerCase().includes("blocked")
       || rawCapabilityPacks.toLowerCase().includes("blocked")
     ) {
-      capabilityPacks = "install blocked; downloads disabled";
+      capabilityPacks = "Install blocked; downloads disabled";
     }
     if (!String(capabilityPacks).toLowerCase().includes("download")) {
       capabilityPacks = `${capabilityPacks}; downloads disabled`;
     }
     const providerVisibleData = providerState.providerVisibleData || "none";
+    const providerVisibleDataDisplay = providerVisibleData === "none" ? "None" : providerVisibleData;
     const providerVisibleDataDetail = providerVisibleData === "none"
       ? "No prompt, file, memory, telemetry, or provider config is sent."
       : (
@@ -94,12 +95,12 @@
       );
 
     setText("ai-control-center-orin-state", "Not implemented; no real AI executing");
-    setText("ai-control-center-provider-visible-data", providerVisibleData);
+    setText("ai-control-center-provider-visible-data", providerVisibleDataDisplay);
     setText("ai-control-center-provider-model", providerExecution);
-    setText("ai-control-center-prompt-memory", "not accepted, sent, stored, or indexed");
+    setText("ai-control-center-prompt-memory", "Not accepted, sent, stored, or indexed");
     setText("ai-control-center-capability-packs", capabilityPacks);
     setText("ai-control-center-edition-lanes", "Public only; Developer and Owner gated");
-    setText("ai-control-center-local-result", "waiting for local action");
+    setText("ai-control-center-local-result", "Waiting for local action");
     setText(
       "ai-control-center-local-detail",
       providerVisibleDataDetail,
@@ -114,9 +115,13 @@
       && providerState.promptSendPosture === "prompt-send-disabled"
       && providerState.networkEgressState === "network-egress-blocked"
       && providerState.memoryIndexingState === "memory-indexing-disabled";
+    const rawLocalResult = String(providerState.localActionResultLabel || "No provider configured");
+    const localResult = rawLocalResult === "No-provider check: no provider configured"
+      ? "No provider configured"
+      : rawLocalResult.replace(": no provider configured", ": No provider configured");
     setText(
       "ai-control-center-local-result",
-      guardClosed ? (providerState.localActionResultLabel || "no provider configured") : "Local check: blocked",
+      guardClosed ? localResult : "Local check: blocked",
     );
     setText(
       "ai-control-center-local-detail",
