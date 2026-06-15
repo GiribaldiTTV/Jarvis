@@ -5921,7 +5921,7 @@ class AIControlCenterDialog(QDialog):
     DEFAULT_HEIGHT = 820
     MINIMUM_WIDTH = 440
     MINIMUM_HEIGHT = 620
-    RESIZE_MARGIN = 10
+    RESIZE_MARGIN = 14
     DRAG_HEADER_HEIGHT = 190
     CLOSE_CONTROL_WIDTH = 122
     CLOSE_CONTROL_HEIGHT = 68
@@ -5959,9 +5959,33 @@ class AIControlCenterDialog(QDialog):
         self._page_ready = False
         self._pending_provider_payload = {}
         self._drag_offset = None
-        self._resize_edges = ()
-        self._resize_start_global = None
-        self._resize_start_geometry = None
+        self._resize_active = False
+        self._resize_edges = Qt.Edges()
+        self._resize_start_global = QPoint()
+        self._resize_start_geometry = QRect()
+        self._resize_pending_point = QPoint()
+        self._resize_last_geometry = QRect()
+        self._resize_last_apply = 0.0
+        self._resize_frame_interval_ms = 16
+        self._resize_cursor_key = None
+        self._resize_override_cursor_active = False
+        self._resize_poll_timer = QTimer(self)
+        self._resize_poll_timer.setSingleShot(False)
+        try:
+            self._resize_poll_timer.setTimerType(Qt.PreciseTimer)
+        except Exception:
+            pass
+        self._resize_poll_timer.timeout.connect(self._poll_ai_control_center_resize)
+        self._resize_frame_timer = QTimer(self)
+        self._resize_frame_timer.setSingleShot(True)
+        try:
+            self._resize_frame_timer.setTimerType(Qt.PreciseTimer)
+        except Exception:
+            pass
+        self._resize_frame_timer.timeout.connect(self._apply_ai_control_center_queued_resize)
+        self._resize_hover_timer = QTimer(self)
+        self._resize_hover_timer.setInterval(8)
+        self._resize_hover_timer.timeout.connect(self._poll_ai_control_center_resize_hover_cursor)
         self.setStyleSheet("background-color: transparent;")
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -6647,20 +6671,19 @@ class AIControlCenterDialog(QDialog):
                 pos = event.position().toPoint()
                 resize_edges = self._ai_control_center_resize_edges_for_local_pos(pos)
                 if resize_edges:
-                    self._start_ai_control_center_resize(resize_edges, event.globalPosition().toPoint())
-                    event.accept()
-                    return True
+                    if self._start_ai_control_center_resize(
+                        resize_edges,
+                        self._ai_control_center_live_drag_screen_point(event),
+                    ):
+                        event.accept()
+                        return True
                 close_zone = self._ai_control_center_close_zone().contains(pos)
                 if pos.y() <= self.DRAG_HEADER_HEIGHT and not close_zone:
                     self._drag_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
                     event.accept()
                     return True
-            elif (
-                event_type == QEvent.MouseMove
-                and self._resize_start_global is not None
-                and event.buttons() & Qt.LeftButton
-            ):
-                self._resize_ai_control_center_from_global(event.globalPosition().toPoint())
+            elif event_type == QEvent.MouseMove and self._resize_active:
+                self._update_ai_control_center_resize(self._ai_control_center_live_drag_screen_point(event))
                 event.accept()
                 return True
             elif (
@@ -6674,10 +6697,13 @@ class AIControlCenterDialog(QDialog):
             elif event_type == QEvent.MouseMove and not event.buttons():
                 self._update_ai_control_center_resize_cursor(event.position().toPoint())
             elif event_type == QEvent.MouseButtonRelease:
-                self._finish_ai_control_center_resize()
+                if self._resize_active:
+                    self._finish_ai_control_center_resize(self._ai_control_center_live_drag_screen_point(event))
+                    event.accept()
+                    return True
                 self._drag_offset = None
-            elif event_type == QEvent.Leave and self._resize_start_global is None:
-                self.webview.setCursor(Qt.ArrowCursor)
+            elif event_type == QEvent.Leave and not self._resize_active:
+                self._reset_ai_control_center_resize_cursor()
         if watched in self._hud_glow_buttons and isinstance(watched, QPushButton):
             event_type = event.type()
             if event_type in (QEvent.Enter, QEvent.HoverEnter, QEvent.HoverMove, QEvent.FocusIn):
@@ -6698,82 +6724,221 @@ class AIControlCenterDialog(QDialog):
             self.CLOSE_CONTROL_HEIGHT,
         )
 
-    def _ai_control_center_resize_edges_for_local_pos(self, local: QPoint) -> tuple[str, ...]:
+    def _ai_control_center_resize_edges_for_local_pos(self, local: QPoint):
         if not QRect(0, 0, self.width(), self.height()).contains(local):
-            return ()
+            return Qt.Edges()
+        if self._ai_control_center_close_zone().contains(local):
+            return Qt.Edges()
         margin = self.RESIZE_MARGIN
-        edges = []
+        edges = Qt.Edges()
         if local.x() <= margin:
-            edges.append("left")
+            edges |= Qt.LeftEdge
         elif local.x() >= max(0, self.width() - margin):
-            edges.append("right")
+            edges |= Qt.RightEdge
         if local.y() <= margin:
-            edges.append("top")
+            edges |= Qt.TopEdge
         elif local.y() >= max(0, self.height() - margin):
-            edges.append("bottom")
-        return tuple(edges)
+            edges |= Qt.BottomEdge
+        return edges
 
-    def _ai_control_center_resize_cursor(self, edges: tuple[str, ...]):
-        edge_set = set(edges)
-        if edge_set in ({"left", "top"}, {"right", "bottom"}):
+    def _ai_control_center_resize_edges_for_screen_point(self, screen_point: QPoint):
+        if screen_point.isNull():
+            return Qt.Edges()
+        return self._ai_control_center_resize_edges_for_local_pos(self.mapFromGlobal(screen_point))
+
+    def _ai_control_center_resize_edge_key(self, edges) -> tuple[bool, bool, bool, bool]:
+        return (
+            bool(edges & Qt.LeftEdge),
+            bool(edges & Qt.RightEdge),
+            bool(edges & Qt.TopEdge),
+            bool(edges & Qt.BottomEdge),
+        )
+
+    def _ai_control_center_resize_cursor(self, edges):
+        return self._ai_control_center_resize_cursor_for_edges(edges) or Qt.ArrowCursor
+
+    def _ai_control_center_resize_cursor_for_edges(self, edges):
+        left, right, top, bottom = self._ai_control_center_resize_edge_key(edges)
+        if (left and top) or (right and bottom):
             return Qt.SizeFDiagCursor
-        if edge_set in ({"right", "top"}, {"left", "bottom"}):
+        if (right and top) or (left and bottom):
             return Qt.SizeBDiagCursor
-        if edge_set & {"left", "right"}:
+        if left or right:
             return Qt.SizeHorCursor
-        if edge_set & {"top", "bottom"}:
+        if top or bottom:
             return Qt.SizeVerCursor
-        return Qt.ArrowCursor
+        return None
+
+    def _ai_control_center_windows_resize_cursor_id_for_edges(self, edges):
+        if not edges:
+            return IDC_ARROW
+        left, right, top, bottom = self._ai_control_center_resize_edge_key(edges)
+        if (left and top) or (right and bottom):
+            return IDC_SIZENWSE
+        if (right and top) or (left and bottom):
+            return IDC_SIZENESW
+        if left or right:
+            return IDC_SIZEWE
+        if top or bottom:
+            return IDC_SIZENS
+        return IDC_ARROW
+
+    def _apply_ai_control_center_windows_resize_cursor(self, edges) -> None:
+        if os.name != "nt":
+            return
+        try:
+            cursor_handle = LoadCursorW(None, self._ai_control_center_windows_resize_cursor_id_for_edges(edges))
+            if cursor_handle:
+                SetCursor(cursor_handle)
+        except Exception:
+            pass
+
+    def _set_ai_control_center_override_resize_cursor(self, cursor) -> None:
+        try:
+            if cursor is None:
+                if self._resize_override_cursor_active:
+                    QApplication.restoreOverrideCursor()
+                    self._resize_override_cursor_active = False
+                return
+            qt_cursor = QCursor(cursor)
+            if self._resize_override_cursor_active:
+                QApplication.changeOverrideCursor(qt_cursor)
+            else:
+                QApplication.setOverrideCursor(qt_cursor)
+                self._resize_override_cursor_active = True
+        except Exception:
+            self._resize_override_cursor_active = False
+
+    def _set_ai_control_center_resize_cursor(self, edges) -> None:
+        key = self._ai_control_center_resize_edge_key(edges) if edges else None
+        if key == self._resize_cursor_key:
+            if os.name == "nt":
+                self._set_ai_control_center_override_resize_cursor(
+                    self._ai_control_center_resize_cursor_for_edges(edges) if key is not None else None
+                )
+                self._apply_ai_control_center_windows_resize_cursor(edges if key is not None else Qt.Edges())
+            return
+        self._resize_cursor_key = key
+        cursor = self._ai_control_center_resize_cursor_for_edges(edges) if edges else None
+        targets = [self]
+        if hasattr(self, "webview"):
+            targets.append(self.webview)
+            try:
+                targets.extend(self.webview.findChildren(QWidget))
+            except Exception:
+                pass
+        if os.name == "nt":
+            for target in targets:
+                target.unsetCursor()
+            self._set_ai_control_center_override_resize_cursor(cursor)
+            self._apply_ai_control_center_windows_resize_cursor(edges if edges else Qt.Edges())
+            return
+        for target in targets:
+            if cursor is None:
+                target.unsetCursor()
+            else:
+                target.setCursor(QCursor(cursor))
+        self._set_ai_control_center_override_resize_cursor(cursor)
+        self._apply_ai_control_center_windows_resize_cursor(edges if edges else Qt.Edges())
+
+    def _reset_ai_control_center_resize_cursor(self) -> None:
+        self._set_ai_control_center_resize_cursor(Qt.Edges())
 
     def _update_ai_control_center_resize_cursor(self, local: QPoint) -> None:
-        if self._resize_start_global is not None:
+        if self._resize_active:
             return
-        edges = self._ai_control_center_resize_edges_for_local_pos(local)
-        self.webview.setCursor(self._ai_control_center_resize_cursor(edges))
+        self._set_ai_control_center_resize_cursor(self._ai_control_center_resize_edges_for_local_pos(local))
 
-    def _start_ai_control_center_resize(self, edges: tuple[str, ...], screen_point: QPoint) -> None:
-        self._resize_edges = tuple(edges)
-        self._resize_start_global = QPoint(screen_point)
-        self._resize_start_geometry = QRect(self.geometry())
-        self.webview.setCursor(self._ai_control_center_resize_cursor(self._resize_edges))
+    def _ai_control_center_cursor_screen_point(self) -> QPoint:
+        if os.name == "nt":
+            try:
+                point = ctypes.wintypes.POINT()
+                if GetCursorPos(ctypes.byref(point)):
+                    return QPoint(int(point.x), int(point.y))
+            except Exception:
+                pass
+        try:
+            return QCursor.pos()
+        except Exception:
+            return QPoint()
 
-    def _resize_ai_control_center_from_global(self, screen_point: QPoint) -> None:
-        if self._resize_start_global is None or self._resize_start_geometry is None:
+    def _ai_control_center_live_drag_screen_point(self, event) -> QPoint:
+        cursor_point = self._ai_control_center_cursor_screen_point()
+        if not cursor_point.isNull():
+            return cursor_point
+        try:
+            return event.globalPosition().toPoint()
+        except Exception:
+            return QPoint()
+
+    def _ai_control_center_left_mouse_button_down(self) -> bool:
+        try:
+            return bool(GetAsyncKeyState(VK_LBUTTON) & 0x8000)
+        except Exception:
+            return False
+
+    def _ai_control_center_resize_refresh_rate_hz(self) -> float:
+        screens = []
+        try:
+            screens.append(self.screen())
+        except Exception:
+            pass
+        screens.extend([getattr(self, "screen_ref", None), QApplication.primaryScreen()])
+        for screen in screens:
+            if screen is None:
+                continue
+            try:
+                refresh_rate = float(screen.refreshRate())
+            except Exception:
+                continue
+            if 30.0 <= refresh_rate <= 360.0:
+                return refresh_rate
+        return 60.0
+
+    def _ai_control_center_resize_frame_interval_ms(self) -> int:
+        refresh_rate = self._ai_control_center_resize_refresh_rate_hz()
+        return max(4, min(16, int(round(1000.0 / refresh_rate))))
+
+    def _ai_control_center_point_belongs_to_window(self, point: QPoint) -> bool:
+        if point.isNull():
+            return False
+        if os.name != "nt":
+            return self.geometry().adjusted(-2, -2, 2, 2).contains(point)
+        try:
+            probe = ctypes.wintypes.POINT(int(point.x()), int(point.y()))
+            hwnd = int(WindowFromPoint(probe))
+            dialog_hwnd = int(self.winId())
+            while hwnd:
+                if hwnd == dialog_hwnd:
+                    return True
+                hwnd = int(GetParentW(ctypes.wintypes.HWND(hwnd)))
+        except Exception:
+            return self.geometry().adjusted(-2, -2, 2, 2).contains(point)
+        return False
+
+    def _ai_control_center_resize_edges_under_cursor(self) -> tuple[QPoint, Qt.Edges]:
+        if not self.isVisible():
+            return QPoint(), Qt.Edges()
+        screen_point = self._ai_control_center_cursor_screen_point()
+        if screen_point.isNull():
+            return QPoint(), Qt.Edges()
+        if not self.geometry().adjusted(-2, -2, 2, 2).contains(screen_point):
+            return screen_point, Qt.Edges()
+        if not self._ai_control_center_point_belongs_to_window(screen_point):
+            return screen_point, Qt.Edges()
+        return screen_point, self._ai_control_center_resize_edges_for_screen_point(screen_point)
+
+    def _poll_ai_control_center_resize_hover_cursor(self) -> None:
+        if self._resize_active or self._drag_offset is not None:
             return
-        delta = screen_point - self._resize_start_global
-        base = QRect(self._resize_start_geometry)
-        left = base.x()
-        top = base.y()
-        right = base.x() + base.width()
-        bottom = base.y() + base.height()
-        min_width = self.minimumWidth()
-        min_height = self.minimumHeight()
-        if "left" in self._resize_edges:
-            left = min(left + delta.x(), right - min_width)
-        if "right" in self._resize_edges:
-            right = max(right + delta.x(), left + min_width)
-        if "top" in self._resize_edges:
-            top = min(top + delta.y(), bottom - min_height)
-        if "bottom" in self._resize_edges:
-            bottom = max(bottom + delta.y(), top + min_height)
-        self.setGeometry(self._bound_geometry_to_available_desktop(QRect(left, top, right - left, bottom - top)))
+        _, edges = self._ai_control_center_resize_edges_under_cursor()
+        if edges:
+            self._set_ai_control_center_resize_cursor(edges)
+            return
+        self._reset_ai_control_center_resize_cursor()
 
-    def _finish_ai_control_center_resize(self) -> None:
-        self._resize_edges = ()
-        self._resize_start_global = None
-        self._resize_start_geometry = None
-        if hasattr(self, "webview"):
-            self.webview.setCursor(Qt.ArrowCursor)
-
-    def _ai_control_center_native_hit_test(self, screen_point: QPoint) -> int:
-        local = self.mapFromGlobal(screen_point)
-        if not QRect(0, 0, self.width(), self.height()).contains(local):
-            return 0
-        margin = self.RESIZE_MARGIN
-        left = local.x() <= margin
-        right = local.x() >= max(0, self.width() - margin)
-        top = local.y() <= margin
-        bottom = local.y() >= max(0, self.height() - margin)
+    def _ai_control_center_resize_hit_test_for_edges(self, edges) -> int:
+        left, right, top, bottom = self._ai_control_center_resize_edge_key(edges)
         if left and top:
             return HTTOPLEFT
         if right and top:
@@ -6790,8 +6955,197 @@ class AIControlCenterDialog(QDialog):
             return HTTOP
         if bottom:
             return HTBOTTOM
+        return 0
+
+    def _ai_control_center_resize_edges_for_hit_test(self, hit_test: int):
+        edge_map = {
+            HTLEFT: Qt.LeftEdge,
+            HTRIGHT: Qt.RightEdge,
+            HTTOP: Qt.TopEdge,
+            HTBOTTOM: Qt.BottomEdge,
+            HTTOPLEFT: Qt.TopEdge | Qt.LeftEdge,
+            HTTOPRIGHT: Qt.TopEdge | Qt.RightEdge,
+            HTBOTTOMLEFT: Qt.BottomEdge | Qt.LeftEdge,
+            HTBOTTOMRIGHT: Qt.BottomEdge | Qt.RightEdge,
+        }
+        return edge_map.get(int(hit_test), Qt.Edges())
+
+    def _start_ai_control_center_resize(self, edges, screen_point: QPoint) -> bool:
+        if not edges:
+            return False
+        if screen_point.isNull():
+            screen_point = self._ai_control_center_cursor_screen_point()
+        if screen_point.isNull():
+            return False
+        self._resize_active = True
+        self._drag_offset = None
+        self._resize_edges = edges
+        self._resize_start_global = QPoint(screen_point)
+        self._resize_start_geometry = QRect(self.geometry())
+        self._resize_pending_point = QPoint(screen_point)
+        self._resize_last_geometry = QRect(self.geometry())
+        self._resize_last_apply = 0.0
+        self._resize_frame_interval_ms = self._ai_control_center_resize_frame_interval_ms()
+        try:
+            SetCapture(ctypes.wintypes.HWND(int(self.winId())))
+        except Exception:
+            pass
+        self._set_ai_control_center_resize_cursor(edges)
+        if callable(self.event_logger):
+            self.event_logger(
+                "RENDERER_MAIN|AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED"
+                f"|x={screen_point.x()}|y={screen_point.y()}"
+                f"|resize_hit_zone_px={self.RESIZE_MARGIN}"
+                f"|resize_frame_interval_ms={self._resize_frame_interval_ms}"
+                f"|edges={str(edges)}"
+            )
+        self._resize_poll_timer.stop()
+        self._resize_poll_timer.setInterval(self._resize_frame_interval_ms)
+        self._resize_poll_timer.start()
+        self._poll_ai_control_center_resize()
+        return True
+
+    def _poll_ai_control_center_resize(self) -> None:
+        if not self._resize_active:
+            self._resize_poll_timer.stop()
+            return
+        screen_point = self._ai_control_center_cursor_screen_point()
+        if not screen_point.isNull():
+            self._update_ai_control_center_resize(screen_point)
+        if self._ai_control_center_left_mouse_button_down():
+            return
+        self._finish_ai_control_center_resize(screen_point)
+
+    def _update_ai_control_center_resize(self, screen_point: QPoint) -> None:
+        if not self._resize_active or screen_point.isNull():
+            return
+        self._resize_pending_point = QPoint(screen_point)
+        interval_s = max(0.004, self._resize_frame_interval_ms / 1000.0)
+        now = time.monotonic()
+        elapsed = now - self._resize_last_apply
+        if self._resize_last_apply <= 0.0 or elapsed >= interval_s:
+            self._apply_ai_control_center_queued_resize()
+            return
+        if not self._resize_frame_timer.isActive():
+            remaining_ms = max(1, int(round((interval_s - elapsed) * 1000.0)))
+            self._resize_frame_timer.start(remaining_ms)
+
+    def _apply_ai_control_center_queued_resize(self) -> None:
+        if not self._resize_active:
+            return
+        screen_point = QPoint(self._resize_pending_point)
+        if screen_point.isNull():
+            screen_point = self._ai_control_center_cursor_screen_point()
+        if screen_point.isNull():
+            return
+        next_rect = self._ai_control_center_resize_rect_from_global_delta(screen_point)
+        if next_rect == self._resize_last_geometry:
+            self._resize_last_apply = time.monotonic()
+            return
+        self.setGeometry(next_rect)
+        self._resize_last_geometry = QRect(next_rect)
+        self._resize_last_apply = time.monotonic()
+        self._sync_ai_control_center_resize_frame()
+
+    def _resize_ai_control_center_from_global(self, screen_point: QPoint) -> None:
+        self._update_ai_control_center_resize(screen_point)
+
+    def _ai_control_center_resize_rect_from_global_delta(self, screen_point: QPoint) -> QRect:
+        base = self._resize_start_geometry
+        if base.isNull() or not base.isValid():
+            base = QRect(self.geometry())
+        delta = screen_point - self._resize_start_global
+        left_edge, right_edge, top_edge, bottom_edge = self._ai_control_center_resize_edge_key(self._resize_edges)
+        x = base.x()
+        y = base.y()
+        width = base.width()
+        height = base.height()
+        if left_edge:
+            x = base.x() + delta.x()
+            width = base.width() - delta.x()
+        elif right_edge:
+            width = base.width() + delta.x()
+        if top_edge:
+            y = base.y() + delta.y()
+            height = base.height() - delta.y()
+        elif bottom_edge:
+            height = base.height() + delta.y()
+        min_width = self.minimumWidth()
+        min_height = self.minimumHeight()
+        if width < min_width:
+            if left_edge:
+                x = base.right() - min_width + 1
+            width = min_width
+        if height < min_height:
+            if top_edge:
+                y = base.bottom() - min_height + 1
+            height = min_height
+        return self._bound_geometry_to_available_desktop(QRect(x, y, width, height))
+
+    def _sync_ai_control_center_resize_frame(self, *, force: bool = False) -> None:
+        if not hasattr(self, "webview"):
+            return
+        self.webview.setGeometry(self.rect())
+        self.webview.updateGeometry()
+        self.webview.update()
+        self.update()
+        try:
+            self.webview.page().runJavaScript("window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));")
+        except Exception:
+            pass
+        if force:
+            try:
+                QApplication.processEvents()
+            except Exception:
+                pass
+
+    def _finish_ai_control_center_resize(self, screen_point: QPoint = None) -> None:
+        if not self._resize_active:
+            self._reset_ai_control_center_resize_cursor()
+            return
+        self._resize_poll_timer.stop()
+        self._resize_frame_timer.stop()
+        if screen_point is None or screen_point.isNull():
+            screen_point = self._ai_control_center_cursor_screen_point()
+        if screen_point.isNull():
+            screen_point = QPoint(self._resize_start_global)
+        if not screen_point.isNull():
+            next_rect = self._ai_control_center_resize_rect_from_global_delta(screen_point)
+            if next_rect != self._resize_last_geometry:
+                self.setGeometry(next_rect)
+                self._resize_last_geometry = QRect(next_rect)
+        self._sync_ai_control_center_resize_frame(force=True)
+        self._resize_active = False
+        self._resize_edges = Qt.Edges()
+        self._resize_start_global = QPoint()
+        self._resize_start_geometry = QRect()
+        self._resize_pending_point = QPoint()
+        self._resize_last_geometry = QRect()
+        self._resize_last_apply = 0.0
+        try:
+            ReleaseCapture()
+        except Exception:
+            pass
+        self._reset_ai_control_center_resize_cursor()
+        self._schedule_window_geometry_persist()
+        if callable(self.event_logger):
+            geometry = self.geometry()
+            self.event_logger(
+                "RENDERER_MAIN|AI_CONTROL_CENTER_WINDOW_RESIZE_READY"
+                f"|w={geometry.width()}|h={geometry.height()}"
+            )
+
+    def _ai_control_center_native_hit_test(self, screen_point: QPoint) -> int:
+        local = self.mapFromGlobal(screen_point)
+        if not QRect(0, 0, self.width(), self.height()).contains(local):
+            return 0
         if self._ai_control_center_close_zone().contains(local):
             return HTCLIENT
+        hit_test = self._ai_control_center_resize_hit_test_for_edges(
+            self._ai_control_center_resize_edges_for_local_pos(local)
+        )
+        if hit_test:
+            return hit_test
         if local.y() <= self.DRAG_HEADER_HEIGHT:
             return HTCAPTION
         return 0
@@ -6814,6 +7168,48 @@ class AIControlCenterDialog(QDialog):
                     screen_point = QCursor.pos()
                     if self._ai_control_center_native_hit_test(screen_point) == HTCAPTION:
                         return True, 0
+                if message_id == WM_SETCURSOR and not self._resize_active:
+                    hit_test = ctypes.c_short(int(msg.lParam) & 0xFFFF).value
+                    edges = self._ai_control_center_resize_edges_for_hit_test(hit_test)
+                    if edges:
+                        self._set_ai_control_center_resize_cursor(edges)
+                        return True, 1
+                    self._reset_ai_control_center_resize_cursor()
+                if message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE) and not self._resize_active:
+                    if message_id == WM_NCMOUSEMOVE:
+                        edges = self._ai_control_center_resize_edges_for_hit_test(int(msg.wParam))
+                        if edges:
+                            self._set_ai_control_center_resize_cursor(edges)
+                            return True, 0
+                    _, edges = self._ai_control_center_resize_edges_under_cursor()
+                    if edges:
+                        self._set_ai_control_center_resize_cursor(edges)
+                    elif message_id == WM_MOUSEMOVE:
+                        self._reset_ai_control_center_resize_cursor()
+                if message_id == WM_LBUTTONDOWN:
+                    screen_point, edges = self._ai_control_center_resize_edges_under_cursor()
+                    if edges and self._start_ai_control_center_resize(edges, screen_point):
+                        return True, 0
+                if message_id == WM_NCLBUTTONDOWN:
+                    edges = self._ai_control_center_resize_edges_for_hit_test(int(msg.wParam))
+                    screen_point = self._ai_control_center_cursor_screen_point()
+                    if edges and not screen_point.isNull():
+                        self._set_ai_control_center_resize_cursor(edges)
+                        if self._start_ai_control_center_resize(edges, screen_point):
+                            return True, 0
+                if self._resize_active and message_id in (WM_MOUSEMOVE, WM_NCMOUSEMOVE):
+                    screen_point = self._ai_control_center_cursor_screen_point()
+                    if not screen_point.isNull():
+                        self._update_ai_control_center_resize(screen_point)
+                    return True, 0
+                if self._resize_active and message_id in (
+                    WM_LBUTTONUP,
+                    WM_NCLBUTTONUP,
+                    WM_CAPTURECHANGED,
+                    WM_CANCELMODE,
+                ):
+                    self._finish_ai_control_center_resize(self._ai_control_center_cursor_screen_point())
+                    return True, 0
         return super().nativeEvent(eventType, message)
 
     def _window_state_path(self) -> Path:
@@ -6941,7 +7337,23 @@ class AIControlCenterDialog(QDialog):
         super().resizeEvent(event)
         self._schedule_window_geometry_persist()
 
+    def showEvent(self, event):
+        super().showEvent(event)
+        if getattr(self, "_uses_hud_template", False):
+            self._resize_hover_timer.start()
+
+    def hideEvent(self, event):
+        self._resize_hover_timer.stop()
+        if self._resize_active:
+            self._finish_ai_control_center_resize(self._ai_control_center_cursor_screen_point())
+        super().hideEvent(event)
+
     def closeEvent(self, event):
+        self._resize_hover_timer.stop()
+        if self._resize_active:
+            self._finish_ai_control_center_resize(self._ai_control_center_cursor_screen_point())
+        else:
+            self._reset_ai_control_center_resize_cursor()
         self._geometry_persist_timer.stop()
         self._persist_window_geometry()
         super().closeEvent(event)
