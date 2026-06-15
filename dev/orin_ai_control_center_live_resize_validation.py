@@ -527,6 +527,14 @@ def main() -> int:
                 for key in ("minimizeRect", "maximizeRect", "closeRect")
             )
         ),
+        "compactWindowControlBordersVisible": (
+            isinstance(title_chrome_proof, dict)
+            and all(
+                isinstance(title_chrome_proof.get(key), dict)
+                and "rgba(122, 232, 255" in str(title_chrome_proof[key].get("borderColor") or "")
+                for key in ("minimizeStyle", "maximizeStyle", "closeStyle")
+            )
+        ),
         "windowControlAccessibleLabelsPresent": (
             isinstance(title_chrome_proof, dict)
             and title_chrome_proof.get("minimizeLabel") == "Minimize AI Control Center"

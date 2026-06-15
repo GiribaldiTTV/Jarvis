@@ -79,12 +79,13 @@
       height: 30px;
       min-height: 30px;
       padding: 0;
-      border: 1px solid transparent;
+      border: 1px solid rgba(122, 232, 255, 0.24);
       border-radius: 999px;
       background: rgba(5, 22, 36, 0.62);
       color: transparent;
       cursor: pointer;
-      box-shadow: none;
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.04) inset;
       transition:
         border-color 120ms ease,
         background 120ms ease,
@@ -126,11 +127,12 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:disabled,
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"] {
-      opacity: 0.48;
+      opacity: 0.56;
       cursor: default;
-      border-color: rgba(122, 232, 255, 0.10);
+      border-color: rgba(122, 232, 255, 0.18);
       background: rgba(5, 22, 36, 0.34);
-      box-shadow: none;
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.025) inset;
       transform: none;
     }
 
