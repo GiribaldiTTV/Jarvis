@@ -552,12 +552,25 @@ def main() -> int:
         ),
         "compactWindowControlBordersVisible": (
             isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("clusterStyle"), dict)
+            and title_chrome_proof["clusterStyle"].get("borderColor") == "rgba(122, 232, 255, 0.44)"
             and isinstance(title_chrome_proof.get("minimizeStyle"), dict)
             and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
             and isinstance(title_chrome_proof.get("closeStyle"), dict)
             and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
             and isinstance(title_chrome_proof.get("maximizeStyle"), dict)
             and title_chrome_proof["maximizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.18)"
+        ),
+        "windowControlOuterBorderBrighterThanInner": (
+            isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("clusterStyle"), dict)
+            and title_chrome_proof["clusterStyle"].get("borderColor") == "rgba(122, 232, 255, 0.44)"
+            and isinstance(title_chrome_proof.get("minimizeStyle"), dict)
+            and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
+            and isinstance(title_chrome_proof.get("maximizeStyle"), dict)
+            and title_chrome_proof["maximizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.18)"
+            and isinstance(title_chrome_proof.get("closeStyle"), dict)
+            and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
         ),
         "windowControlNativeTooltipsSuppressed": (
             isinstance(title_chrome_proof, dict)
