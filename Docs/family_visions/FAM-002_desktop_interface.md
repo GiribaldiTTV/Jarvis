@@ -30,6 +30,14 @@ The expected presentation is Nexus-native: custom product framing or chrome, coh
 
 Platform exceptions must be explicit. OS file pickers, OS security prompts, provider-auth surfaces, installer/update flows that require platform trust affordances, and temporary troubleshooting-only diagnostics may use platform chrome only when the branch classifies the exception, explains why Nexus-native chrome is not appropriate, and includes the exception in BP2/BP3 proof and Live Validation visual adjudication.
 
+## Top-Level Window Control Grammar Standard
+
+FAM-002 owns the reusable top-level window-control grammar for Nexus-owned product windows. A Nexus-owned top-level, standalone, restorable, independently opened, movable, resizable, or geometry-persisted product window must distinguish window-level controls from content actions. Window-level close, minimize, maximize, restore, drag, and resize behavior must use a compact Nexus-native control cluster or recorded equivalent window-control grammar when those actions are applicable to the window.
+
+A large labeled header `CLOSE` pill is clear and may remain valid for modal dialogs, child windows, footer actions, content-level actions, confirmation flows, temporary proof/dev surfaces, platform-native exceptions, or USER-approved exceptions. It is not the default top-level window-control grammar for standalone Nexus product windows because it can read as a content action, compete with footer buttons, and blur the boundary between closing a window and completing or cancelling work. If a branch keeps a large header `CLOSE` on a top-level product window, it must record why the exception is intentional and prove it does not conflict with footer/content actions.
+
+Top-level control clusters must remain Nexus-native rather than default Windows chrome. Expected behavior includes compact placement, readable icons or symbols, accessible names, hover tooltips, generous hitboxes, keyboard/focus treatment, default/hover/pressed/focus/disabled states, visually secondary minimize/maximize/restore controls, and a close control that is neutral by default unless danger context or hover treatment is intentionally admitted. Consuming FAM branches own their feature-window behavior and proof. FAM-003 owns only user-accessible reset/recovery routes when a global or doorway-level action is admitted; it does not own normal close/minimize/maximize/restore behavior by inference.
+
 ## Standalone Window Geometry Recovery Standard
 
 FAM-002 owns the reusable presentation and geometry standard for Nexus-owned product windows. Any Nexus-owned standalone, top-level, restorable, independently opened, movable, resizable, or geometry-persisted product window must define safe default position/size behavior and a USER-accessible reset path so the USER can recover from offscreen placement, missing-monitor movement, corrupted saved geometry, too-small/too-large windows, or layout changes.

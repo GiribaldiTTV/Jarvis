@@ -369,6 +369,24 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/family_feature_visions/F3-FF01.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Top-Level Product Window Uses Content-Style Header Close Control
+
+- symptom:
+  A mature Nexus-owned top-level, standalone, restorable, independently opened, movable, resizable, or geometry-persisted product window uses a large labeled header `CLOSE` pill as its window-level close control, often while also exposing a footer/content `CLOSE`, `Cancel`, or `Exit` action. The window is technically clear but can read like a content action, compete with footer actions, or blur the difference between window management and workflow completion.
+- layer:
+  FAM-002 presentation standards, Branch Planning UI carrydown, Hardening visual inspection, Live Validation visual proof, and USER review packet clarity
+- root-cause pattern:
+  a branch treats any obvious close affordance as sufficient and validates screenshot presence or clickability, but does not classify whether the control is a top-level window control, content action, modal action, or exception. The branch avoids default Windows chrome but still lacks a mature Nexus-native window-control grammar.
+- fix pattern:
+  require top-level window-control classification, prefer a compact custom NDAI control cluster or recorded equivalent for standalone product windows, keep large labeled close/cancel/exit buttons for content/footer/modal/child/proof/platform exception contexts, classify minimize/maximize/restore applicability, and prove accessibility, hitboxes, hover/focus/pressed states, and header/footer close separation.
+- validation pattern:
+  future helpers should fail on `Top-Level Window Control Grammar Missing`, `Large Header CLOSE Pill Requires Exception`, `Default Windows Chrome Regression`, `Window-Control / Content-Action Boundary Missing`, `Minimize / Maximize / Restore Applicability Missing`, `Window Control Accessibility Proof Missing`, `Header/Footer Close Conflict Unresolved`, or `Visual Window Control Proof Missing` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:
