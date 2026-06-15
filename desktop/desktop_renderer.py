@@ -5914,10 +5914,10 @@ class MonitoringHudRecordingControlWindow(QWidget):
 
 
 class AIControlCenterDialog(QDialog):
-    WINDOW_STATE_SCHEMA_VERSION = 3
+    WINDOW_STATE_SCHEMA_VERSION = 4
     WINDOW_STATE_ENV = "NEXUS_AI_CONTROL_CENTER_STATE_PATH"
     WINDOW_STATE_FILENAME = "ai_control_center_window_state.json"
-    DEFAULT_WIDTH = 562
+    DEFAULT_WIDTH = 780
     DEFAULT_HEIGHT = 820
     MINIMUM_WIDTH = 440
     MINIMUM_HEIGHT = 620
@@ -5959,6 +5959,9 @@ class AIControlCenterDialog(QDialog):
         self._page_ready = False
         self._pending_provider_payload = {}
         self._drag_offset = None
+        self._resize_edges = ()
+        self._resize_start_global = None
+        self._resize_start_geometry = None
         self.setStyleSheet("background-color: transparent;")
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -6642,11 +6645,24 @@ class AIControlCenterDialog(QDialog):
             event_type = event.type()
             if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
                 pos = event.position().toPoint()
+                resize_edges = self._ai_control_center_resize_edges_for_local_pos(pos)
+                if resize_edges:
+                    self._start_ai_control_center_resize(resize_edges, event.globalPosition().toPoint())
+                    event.accept()
+                    return True
                 close_zone = self._ai_control_center_close_zone().contains(pos)
                 if pos.y() <= self.DRAG_HEADER_HEIGHT and not close_zone:
                     self._drag_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
                     event.accept()
                     return True
+            elif (
+                event_type == QEvent.MouseMove
+                and self._resize_start_global is not None
+                and event.buttons() & Qt.LeftButton
+            ):
+                self._resize_ai_control_center_from_global(event.globalPosition().toPoint())
+                event.accept()
+                return True
             elif (
                 event_type == QEvent.MouseMove
                 and self._drag_offset is not None
@@ -6655,8 +6671,13 @@ class AIControlCenterDialog(QDialog):
                 self.move(event.globalPosition().toPoint() - self._drag_offset)
                 event.accept()
                 return True
-            elif event_type in (QEvent.MouseButtonRelease, QEvent.Leave):
+            elif event_type == QEvent.MouseMove and not event.buttons():
+                self._update_ai_control_center_resize_cursor(event.position().toPoint())
+            elif event_type == QEvent.MouseButtonRelease:
+                self._finish_ai_control_center_resize()
                 self._drag_offset = None
+            elif event_type == QEvent.Leave and self._resize_start_global is None:
+                self.webview.setCursor(Qt.ArrowCursor)
         if watched in self._hud_glow_buttons and isinstance(watched, QPushButton):
             event_type = event.type()
             if event_type in (QEvent.Enter, QEvent.HoverEnter, QEvent.HoverMove, QEvent.FocusIn):
@@ -6676,6 +6697,73 @@ class AIControlCenterDialog(QDialog):
             self.CLOSE_CONTROL_WIDTH,
             self.CLOSE_CONTROL_HEIGHT,
         )
+
+    def _ai_control_center_resize_edges_for_local_pos(self, local: QPoint) -> tuple[str, ...]:
+        if not QRect(0, 0, self.width(), self.height()).contains(local):
+            return ()
+        margin = self.RESIZE_MARGIN
+        edges = []
+        if local.x() <= margin:
+            edges.append("left")
+        elif local.x() >= max(0, self.width() - margin):
+            edges.append("right")
+        if local.y() <= margin:
+            edges.append("top")
+        elif local.y() >= max(0, self.height() - margin):
+            edges.append("bottom")
+        return tuple(edges)
+
+    def _ai_control_center_resize_cursor(self, edges: tuple[str, ...]):
+        edge_set = set(edges)
+        if edge_set in ({"left", "top"}, {"right", "bottom"}):
+            return Qt.SizeFDiagCursor
+        if edge_set in ({"right", "top"}, {"left", "bottom"}):
+            return Qt.SizeBDiagCursor
+        if edge_set & {"left", "right"}:
+            return Qt.SizeHorCursor
+        if edge_set & {"top", "bottom"}:
+            return Qt.SizeVerCursor
+        return Qt.ArrowCursor
+
+    def _update_ai_control_center_resize_cursor(self, local: QPoint) -> None:
+        if self._resize_start_global is not None:
+            return
+        edges = self._ai_control_center_resize_edges_for_local_pos(local)
+        self.webview.setCursor(self._ai_control_center_resize_cursor(edges))
+
+    def _start_ai_control_center_resize(self, edges: tuple[str, ...], screen_point: QPoint) -> None:
+        self._resize_edges = tuple(edges)
+        self._resize_start_global = QPoint(screen_point)
+        self._resize_start_geometry = QRect(self.geometry())
+        self.webview.setCursor(self._ai_control_center_resize_cursor(self._resize_edges))
+
+    def _resize_ai_control_center_from_global(self, screen_point: QPoint) -> None:
+        if self._resize_start_global is None or self._resize_start_geometry is None:
+            return
+        delta = screen_point - self._resize_start_global
+        base = QRect(self._resize_start_geometry)
+        left = base.x()
+        top = base.y()
+        right = base.x() + base.width()
+        bottom = base.y() + base.height()
+        min_width = self.minimumWidth()
+        min_height = self.minimumHeight()
+        if "left" in self._resize_edges:
+            left = min(left + delta.x(), right - min_width)
+        if "right" in self._resize_edges:
+            right = max(right + delta.x(), left + min_width)
+        if "top" in self._resize_edges:
+            top = min(top + delta.y(), bottom - min_height)
+        if "bottom" in self._resize_edges:
+            bottom = max(bottom + delta.y(), top + min_height)
+        self.setGeometry(self._bound_geometry_to_available_desktop(QRect(left, top, right - left, bottom - top)))
+
+    def _finish_ai_control_center_resize(self) -> None:
+        self._resize_edges = ()
+        self._resize_start_global = None
+        self._resize_start_geometry = None
+        if hasattr(self, "webview"):
+            self.webview.setCursor(Qt.ArrowCursor)
 
     def _ai_control_center_native_hit_test(self, screen_point: QPoint) -> int:
         local = self.mapFromGlobal(screen_point)
