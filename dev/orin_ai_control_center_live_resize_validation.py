@@ -214,6 +214,7 @@ def main() -> int:
     _pump(app, 300)
 
     screenshot_evidence: dict[str, dict[str, str]] = {}
+    initial_native_rect = _native_rect(hwnd)
     screenshot_evidence["before"] = _capture(app, dialog, log_root, "01_before_resize")
 
     rect = _native_rect(hwnd)
@@ -252,7 +253,27 @@ def main() -> int:
     )
     screenshot_evidence["afterBottomEdge"] = _capture(app, dialog, log_root, "04_after_bottom_edge_resize")
 
+    rect = _native_rect(hwnd)
+    compact = _drag_resize(
+        app,
+        hwnd,
+        "bottom_edge_compact_scrollbar_probe",
+        rect["left"] + rect["width"] // 2,
+        rect["bottom"] - 8,
+        rect["left"] + rect["width"] // 2,
+        rect["top"] + dialog.MINIMUM_HEIGHT,
+        steps=48,
+    )
+    screenshot_evidence["compactScrollbarProbe"] = _capture(
+        app,
+        dialog,
+        log_root,
+        "05_after_compact_scrollbar_probe",
+    )
+
     checks = {
+        "defaultOpenUsesContentFitHeight": abs(initial_native_rect["height"] - int(initial_height)) <= 4,
+        "defaultOpenRespectsMaxHeight": initial_native_rect["height"] <= dialog.DEFAULT_MAX_HEIGHT,
         "cornerResizeChangedWidth": corner["widthDelta"] >= 36,
         "cornerResizeChangedHeight": corner["heightDelta"] >= 28,
         "cornerFluidGeometrySamples": corner["uniqueSizeCount"] >= 6,
@@ -260,6 +281,8 @@ def main() -> int:
         "rightEdgeFluidGeometrySamples": right["uniqueWidthCount"] >= 4,
         "bottomEdgeChangedHeight": bottom["heightDelta"] >= 26,
         "bottomEdgeFluidGeometrySamples": bottom["uniqueHeightCount"] >= 4,
+        "compactProbeShrankHeight": compact["heightDelta"] <= -80,
+        "compactProbeReachedScrollableHeight": compact["after"]["height"] <= dialog.MINIMUM_HEIGHT + 12,
         "fallbackStartedMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED" in event for event in events),
         "resizeReadyMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_READY" in event for event in events),
     }
@@ -277,12 +300,22 @@ def main() -> int:
         "qtestUsed": False,
         "directHandlerMutationUsed": False,
         "nativeGeometrySource": "Win32 GetWindowRect",
-        "initialWindowRect": screenshot_evidence["before"],
+        "initialWindowRect": initial_native_rect,
+        "initialWindowScreenshots": screenshot_evidence["before"],
+        "expectedInitialWindowSize": {
+            "width": int(initial_width),
+            "height": int(initial_height),
+            "defaultWidth": int(dialog.DEFAULT_WIDTH),
+            "defaultHeight": int(dialog.DEFAULT_HEIGHT),
+            "defaultMaxHeight": int(dialog.DEFAULT_MAX_HEIGHT),
+        },
+        "scrollbarStyle": "nexus-rounded-cyan-pulse",
         "checks": checks,
         "drags": {
             "bottomRightCorner": corner,
             "rightEdge": right,
             "bottomEdge": bottom,
+            "compactScrollbarProbe": compact,
         },
         "events": events,
         "screenshots": screenshot_evidence,

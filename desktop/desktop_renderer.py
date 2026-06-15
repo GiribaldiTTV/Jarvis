@@ -5914,11 +5914,14 @@ class MonitoringHudRecordingControlWindow(QWidget):
 
 
 class AIControlCenterDialog(QDialog):
-    WINDOW_STATE_SCHEMA_VERSION = 4
+    WINDOW_STATE_SCHEMA_VERSION = 5
     WINDOW_STATE_ENV = "NEXUS_AI_CONTROL_CENTER_STATE_PATH"
     WINDOW_STATE_FILENAME = "ai_control_center_window_state.json"
     DEFAULT_WIDTH = 780
-    DEFAULT_HEIGHT = 820
+    DEFAULT_HEIGHT = 700
+    DEFAULT_MAX_HEIGHT = 820
+    DEFAULT_SCREEN_MARGIN_X = 96
+    DEFAULT_SCREEN_MARGIN_Y = 126
     MINIMUM_WIDTH = 440
     MINIMUM_HEIGHT = 620
     RESIZE_MARGIN = 14
@@ -7232,6 +7235,19 @@ class AIControlCenterDialog(QDialog):
             return available
         return self.screen_ref.availableGeometry()
 
+    def _default_window_size(self) -> tuple[int, int]:
+        available = self.screen_ref.availableGeometry()
+        width = min(
+            self.DEFAULT_WIDTH,
+            max(self.MINIMUM_WIDTH, available.width() - (self.DEFAULT_SCREEN_MARGIN_X * 2)),
+        )
+        max_height = min(
+            self.DEFAULT_MAX_HEIGHT,
+            max(self.MINIMUM_HEIGHT, available.height() - (self.DEFAULT_SCREEN_MARGIN_Y * 2)),
+        )
+        height = min(self.DEFAULT_HEIGHT, max_height)
+        return int(width), int(max(self.MINIMUM_HEIGHT, height))
+
     def _bound_geometry_to_available_desktop(self, rect: QRect) -> QRect:
         available = self._available_desktop_geometry()
         fallback = self._initial_geometry()
@@ -7249,8 +7265,14 @@ class AIControlCenterDialog(QDialog):
         if not rect.isValid() or rect.width() < self.minimumWidth() or rect.height() < self.minimumHeight():
             return False
         available = self._available_desktop_geometry()
+        if rect.width() > available.width() or rect.height() > available.height():
+            return False
         visible = rect.intersected(available)
-        return bool(visible.isValid() and visible.width() >= 160 and visible.height() >= 120)
+        return bool(
+            visible.isValid()
+            and visible.width() >= rect.width() - 4
+            and visible.height() >= rect.height() - 4
+        )
 
     def _restored_geometry(self) -> QRect:
         fallback = self._initial_geometry()
@@ -7320,11 +7342,10 @@ class AIControlCenterDialog(QDialog):
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
-        width = self.DEFAULT_WIDTH
-        height = self.DEFAULT_HEIGHT
+        width, height = self._default_window_size()
         return QRect(
-            available.x() + max(24, available.width() - width - 96),
-            available.y() + max(24, available.height() - height - 126),
+            available.x() + max(24, available.width() - width - self.DEFAULT_SCREEN_MARGIN_X),
+            available.y() + max(24, available.height() - height - self.DEFAULT_SCREEN_MARGIN_Y),
             width,
             height,
         )
@@ -7526,10 +7547,15 @@ class AIControlCenterDialog(QDialog):
         return state
 
     def show_from_tray(self) -> dict[str, object]:
-        if self.geometry().width() <= 0 or self.geometry().height() <= 0:
+        geometry = self.geometry()
+        if (
+            geometry.width() <= 0
+            or geometry.height() <= 0
+            or not self._saved_geometry_is_usable(geometry)
+        ):
             self.setGeometry(self._restored_geometry())
         else:
-            self.setGeometry(self._bound_geometry_to_available_desktop(self.geometry()))
+            self.setGeometry(self._bound_geometry_to_available_desktop(geometry))
         self.showNormal()
         self.show()
         self.raise_()
