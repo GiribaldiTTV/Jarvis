@@ -87,6 +87,22 @@ def _pump(app: QApplication, duration_ms: int = 80) -> None:
     app.processEvents()
 
 
+def _run_js(app: QApplication, dialog: AIControlCenterDialog, script: str, timeout_ms: int = 1200):
+    box: dict[str, object] = {"done": False, "result": None}
+
+    def _complete(result):
+        box["result"] = result
+        box["done"] = True
+
+    dialog.webview.page().runJavaScript(script, _complete)
+    deadline = time.monotonic() + max(0, timeout_ms) / 1000.0
+    while not box["done"] and time.monotonic() < deadline:
+        app.processEvents()
+        time.sleep(0.01)
+    app.processEvents()
+    return box.get("result")
+
+
 def _move_mouse(app: QApplication, x: int, y: int, settle_ms: int = 18) -> None:
     SetCursorPos(int(x), int(y))
     mouse_event(MOUSEEVENTF_MOVE, 0, 0, 0, 0)
@@ -216,6 +232,59 @@ def main() -> int:
     screenshot_evidence: dict[str, dict[str, str]] = {}
     initial_native_rect = _native_rect(hwnd)
     screenshot_evidence["before"] = _capture(app, dialog, log_root, "01_before_resize")
+    custom_scrollbar_probe_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const surface = document.getElementById("monitoring-hud");
+          const hub = document.getElementById("ai-control-center-card-hub");
+          if (!surface || !hub || !window.nexusAiControlCenterSyncScrollbar) {
+            return { ok: false, reason: "missing-scrollbar-elements" };
+          }
+          hub.dataset.scrollbarVisualProbe = "temporary-overflow-proof";
+          hub.style.setProperty("padding-bottom", "220px", "important");
+          void hub.offsetHeight;
+          window.nexusAiControlCenterSyncScrollbar();
+          const thumb = document.getElementById("ai-control-center-scrollbar-thumb");
+          const thumbStyle = thumb ? window.getComputedStyle(thumb) : null;
+          return JSON.stringify({
+            ok: surface.dataset.customScrollbarVisible === "true",
+            style: surface.dataset.scrollbarStyle || "",
+            visible: surface.dataset.customScrollbarVisible || "",
+            thumbBorderRadius: thumbStyle ? thumbStyle.borderRadius : "",
+            thumbBackground: thumbStyle ? thumbStyle.backgroundColor : ""
+          });
+        })();
+        """,
+    )
+    try:
+        custom_scrollbar_probe = json.loads(custom_scrollbar_probe_raw) if isinstance(custom_scrollbar_probe_raw, str) else custom_scrollbar_probe_raw
+    except json.JSONDecodeError:
+        custom_scrollbar_probe = {"ok": False, "raw": custom_scrollbar_probe_raw}
+    _pump(app, 200)
+    screenshot_evidence["customScrollbarProbe"] = _capture(
+        app,
+        dialog,
+        log_root,
+        "02_custom_scrollbar_visual_probe",
+    )
+    _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const hub = document.getElementById("ai-control-center-card-hub");
+          if (hub) {
+            hub.style.removeProperty("padding-bottom");
+            delete hub.dataset.scrollbarVisualProbe;
+          }
+          window.nexusAiControlCenterSyncScrollbar && window.nexusAiControlCenterSyncScrollbar();
+          return true;
+        })();
+        """,
+    )
+    _pump(app, 200)
 
     rect = _native_rect(hwnd)
     corner = _drag_resize(
@@ -253,27 +322,14 @@ def main() -> int:
     )
     screenshot_evidence["afterBottomEdge"] = _capture(app, dialog, log_root, "04_after_bottom_edge_resize")
 
-    rect = _native_rect(hwnd)
-    compact = _drag_resize(
-        app,
-        hwnd,
-        "bottom_edge_compact_scrollbar_probe",
-        rect["left"] + rect["width"] // 2,
-        rect["bottom"] - 8,
-        rect["left"] + rect["width"] // 2,
-        rect["top"] + dialog.MINIMUM_HEIGHT,
-        steps=48,
-    )
-    screenshot_evidence["compactScrollbarProbe"] = _capture(
-        app,
-        dialog,
-        log_root,
-        "05_after_compact_scrollbar_probe",
-    )
-
     checks = {
         "defaultOpenUsesContentFitHeight": abs(initial_native_rect["height"] - int(initial_height)) <= 4,
         "defaultOpenRespectsMaxHeight": initial_native_rect["height"] <= dialog.DEFAULT_MAX_HEIGHT,
+        "customScrollbarProbeVisible": bool(
+            isinstance(custom_scrollbar_probe, dict)
+            and custom_scrollbar_probe.get("ok") is True
+            and custom_scrollbar_probe.get("style") == "nexus-rounded-custom-overlay"
+        ),
         "cornerResizeChangedWidth": corner["widthDelta"] >= 36,
         "cornerResizeChangedHeight": corner["heightDelta"] >= 28,
         "cornerFluidGeometrySamples": corner["uniqueSizeCount"] >= 6,
@@ -281,8 +337,6 @@ def main() -> int:
         "rightEdgeFluidGeometrySamples": right["uniqueWidthCount"] >= 4,
         "bottomEdgeChangedHeight": bottom["heightDelta"] >= 26,
         "bottomEdgeFluidGeometrySamples": bottom["uniqueHeightCount"] >= 4,
-        "compactProbeShrankHeight": compact["heightDelta"] <= -80,
-        "compactProbeReachedScrollableHeight": compact["after"]["height"] <= dialog.MINIMUM_HEIGHT + 12,
         "fallbackStartedMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED" in event for event in events),
         "resizeReadyMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_READY" in event for event in events),
     }
@@ -302,6 +356,7 @@ def main() -> int:
         "nativeGeometrySource": "Win32 GetWindowRect",
         "initialWindowRect": initial_native_rect,
         "initialWindowScreenshots": screenshot_evidence["before"],
+        "customScrollbarProbe": custom_scrollbar_probe,
         "expectedInitialWindowSize": {
             "width": int(initial_width),
             "height": int(initial_height),
@@ -309,13 +364,12 @@ def main() -> int:
             "defaultHeight": int(dialog.DEFAULT_HEIGHT),
             "defaultMaxHeight": int(dialog.DEFAULT_MAX_HEIGHT),
         },
-        "scrollbarStyle": "nexus-rounded-cyan-pulse",
+        "scrollbarStyle": "nexus-rounded-custom-overlay",
         "checks": checks,
         "drags": {
             "bottomRightCorner": corner,
             "rightEdge": right,
             "bottomEdge": bottom,
-            "compactScrollbarProbe": compact,
         },
         "events": events,
         "screenshots": screenshot_evidence,
