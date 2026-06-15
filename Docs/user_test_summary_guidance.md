@@ -211,6 +211,8 @@ Routing after digestion:
 - if returned results expose mismatch, regression, unclear behavior, cleanup failure, or scope drift, route back to `Workstream` or `Hardening` as appropriate
 - if returned results raise new ideas or requests, keep them out of current scope until carry-forward is explicitly approved
 
+If Live Validation, USER-gated Live Validation, or returned UTS evidence finds defects after a prior Hardening pass, returned USER validation cannot certify the stale pre-repair Hardening state. The next USER-facing handoff or digest must show the final post-repair LV proof, the post-LV-repair Hardening rerun, and any required LV reconfirmation before it can ask USER to accept final green. If any piece is missing, keep USER validation pending or blocked rather than treating helper/validator green as acceptance.
+
 The desktop export is not considered returned evidence by itself. It is the Live Validation handoff artifact; the blocker remains active only in phases where formal UTS results are required until filled results come back or a waiver is documented.
 
 ## User-Facing Shortcut Live Validation Gate

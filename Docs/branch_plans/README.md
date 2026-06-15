@@ -158,6 +158,8 @@ Vision-To-Proof Matrix rows carry the same claims into Hardening and Live Valida
 
 Hardening reviews these rows for proof gaps before Live Validation. Live Validation fills the observed evidence, comparison evidence, adjudication result, USER validation need, and final verdict. A row that only says helper output, marker, manifest, screenshot, video, or log exists is incomplete until it records what accepted requirement the artifact proves and how Codex compared it.
 
+BP2/BP3 proof plans must also carry the Hardening / Live Validation repair-loop route when runtime, desktop, UI, workflow, helper/validator, source-truth, or USER-gated proof can fail after Hardening. The plan must state what LV blockers repair first, what post-LV-repair Hardening rerun must inspect, what LV proof must rerun or reconfirm after Hardening, and what USER validation state counts as final. A pre-repair Hardening pass is planning/evidence history only after LV-driven repairs change branch files or proof surfaces; it cannot be the final PR Readiness basis.
+
 Scope Coverage Manifest rows carry completeness proof into Workstream, Hardening, Live Validation, PR Readiness, and any same-turn repair closeout that claims `green`, `complete`, `LV passed`, `PR-ready`, `accepted`, `no drift`, `all fixed`, or equivalent full-scope success. The active branch plan, USER review packet, helper output, validator output, or Codex digest must include or reference:
 
 - `Coverage Objective:`

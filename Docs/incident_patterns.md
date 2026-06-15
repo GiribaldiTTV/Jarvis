@@ -331,6 +331,24 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/user_test_summary_guidance.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Pre-Repair Hardening Treated As Final After LV Repair
+
+- symptom:
+  Live Validation or USER-gated Live Validation finds defects after a prior Hardening pass, Codex repairs the LV defect, and then PR Readiness or USER handoff relies on the earlier Hardening pass as if it still proves the changed branch.
+- layer:
+  Hardening, Live Validation, UTS/USER validation, PR Readiness, branch planning proof carrydown, and helper/validator interpretation
+- root-cause pattern:
+  the branch treats Hardening and Live Validation as one-way gates instead of a repair loop. LV proves the real runtime/USER path, so LV-discovered repairs can invalidate the prior Hardening inspection. Conversely, rerunning full Hardening before repairing a known-failing LV path can waste effort and create false confidence.
+- fix pattern:
+  repair the known LV blocker first, rerun or reconfirm the affected LV proof path to green, rerun Hardening over the changed files/surfaces/proof rows, then rerun or reconfirm LV after Hardening. USER validation and PR Readiness may rely only on the final post-repair Hardening plus LV-green state, not the stale pre-repair pass.
+- validation pattern:
+  future helpers should fail on `Known-Failing LV Repair First`, `Post-LV-Repair Hardening Rerun Missing`, `Post-Hardening LV Reconfirmation Missing`, `Pre-Repair Hardening Treated As Final`, `Final USER Validation Missing`, or `PR Readiness Uses Superseded Hardening` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:
