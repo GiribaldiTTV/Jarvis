@@ -74,21 +74,35 @@
     )
       ? "disabled and blocked"
       : (providerState.providerExecutionGateLabel || "disabled and blocked");
-    let capabilityPacks = providerState.installIntentLabel || "install intent blocked; downloads disabled";
+    const rawCapabilityPacks = String(providerState.installIntentLabel || "");
+    let capabilityPacks = rawCapabilityPacks || "install blocked; downloads disabled";
+    if (
+      String(providerState.installIntentState || "").toLowerCase().includes("blocked")
+      || rawCapabilityPacks.toLowerCase().includes("blocked")
+    ) {
+      capabilityPacks = "install blocked; downloads disabled";
+    }
     if (!String(capabilityPacks).toLowerCase().includes("download")) {
       capabilityPacks = `${capabilityPacks}; downloads disabled`;
     }
+    const providerVisibleData = providerState.providerVisibleData || "none";
+    const providerVisibleDataDetail = providerVisibleData === "none"
+      ? "No prompt, file, memory, telemetry, or provider config is sent."
+      : (
+        providerState.providerVisibleDataDetail
+        || "Provider-visible data state requires review before any provider path runs."
+      );
 
     setText("ai-control-center-orin-state", "Not implemented; no real AI executing");
-    setText("ai-control-center-provider-visible-data", providerState.providerVisibleData || "none");
+    setText("ai-control-center-provider-visible-data", providerVisibleData);
     setText("ai-control-center-provider-model", providerExecution);
     setText("ai-control-center-prompt-memory", "not accepted, sent, stored, or indexed");
     setText("ai-control-center-capability-packs", capabilityPacks);
-    setText("ai-control-center-edition-lanes", "Public no-provider only; Developer and Owner lanes gated");
+    setText("ai-control-center-edition-lanes", "Public only; Developer and Owner gated");
     setText("ai-control-center-local-result", "waiting for local action");
     setText(
       "ai-control-center-local-detail",
-      providerState.providerVisibleDataDetail || "No prompt, file, screen, memory, or telemetry is sent.",
+      providerVisibleDataDetail,
     );
     requestAnimationFrame(syncCustomScrollbar);
   };

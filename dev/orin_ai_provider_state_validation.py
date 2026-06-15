@@ -8914,14 +8914,14 @@ def validate() -> list[str]:
         "STATUS\", \"NOT IMPLEMENTED",
         "PROVIDER\", \"BLOCKED",
         "setFixedSize(250, 36)",
-        "PROVIDER-VISIBLE DATA",
+        "PROVIDER DATA",
         "PROVIDER / MODEL",
         "PROMPT / MEMORY",
         "CAPABILITY PACKS",
         "EDITION LANES",
         "Not implemented; no real AI executing",
-        "install intent blocked; downloads disabled",
-        "Developer and Owner lanes gated",
+        "install blocked; downloads disabled",
+        "Developer and Owner gated",
         "Runs one local check; no prompt/provider/model path is used.",
         "No prompt was accepted or sent; provider-visible data remains none.",
     ):
@@ -8946,6 +8946,7 @@ def validate() -> list[str]:
         "monitoring-hud__state-row",
         "monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action",
         'data-compact-layout-density="ai-control-center-compact-v1"',
+        'data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"',
         'data-default-window-width="570"',
         'data-default-window-height="610"',
         'data-default-window-max-height="820"',
@@ -8956,16 +8957,8 @@ def validate() -> list[str]:
         "ai-control-center-scrollbar__thumb",
         'data-native-resize-model="os-edge-corner-resize"',
         '[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row',
-        "grid-template-columns: minmax(118px, 0.35fr) minmax(0, 1fr)",
-        "padding: 4px 0 1px",
-        ".monitoring-hud__hub-card p",
-        "color: rgba(181, 218, 229, 0.86)",
-        "font-size: 12px",
-        "font-weight: 600",
-        "line-height: 1.36",
-        "letter-spacing: 0",
-        "font-size: 10px",
-        "line-height: 1.22",
+        "grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr)",
+        "padding: 4px 0 2px",
         "scrollbar-width: none",
         "border-radius: 999px",
         "::-webkit-scrollbar-button",
@@ -8976,12 +8969,23 @@ def validate() -> list[str]:
         "Run Local Check",
         "ORIN is not implemented; provider/model execution is not active.",
         "Not implemented; no real AI executing",
-        "Provider-visible data",
-        "Public no-provider only; Developer and Owner lanes gated",
+        "Provider data",
+        "Public only; Developer and Owner gated",
     ):
         _require(
             needle in ai_control_html,
             f"AI Control Center HUD-derived template is missing {needle!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "width: 210px",
+        "line-height: 1.22",
+        "font-size: 10px",
+    ):
+        _require(
+            forbidden not in ai_control_html,
+            f"AI Control Center card interior must not keep compressed AI-only text/button override {forbidden!r}",
             failures,
         )
 
@@ -8993,11 +8997,24 @@ def validate() -> list[str]:
         "customScrollbarVisible",
         "run-local-check",
         "close",
+        "install blocked; downloads disabled",
+        "No prompt, file, memory, telemetry, or provider config is sent.",
         "provider-visible data remains none",
     ):
         _require(
             needle in ai_control_js,
             f"AI Control Center template script is missing {needle!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "install intent blocked; downloads disabled",
+        "Public no-provider only; Developer and Owner lanes gated",
+        "No prompt, file, screen, memory, or telemetry is sent.",
+    ):
+        _require(
+            forbidden not in ai_control_html and forbidden not in ai_control_js,
+            f"AI Control Center template must not reintroduce stale card wording {forbidden!r}",
             failures,
         )
 

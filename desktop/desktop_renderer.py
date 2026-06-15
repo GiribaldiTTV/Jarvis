@@ -6424,11 +6424,11 @@ class AIControlCenterDialog(QDialog):
         self._fact_values = {}
         fact_rows = (
             ("orin", "ORIN", "Not implemented; no real AI executing"),
-            ("visible_data", "PROVIDER-VISIBLE DATA", "none"),
+            ("visible_data", "PROVIDER DATA", "none"),
             ("execution", "PROVIDER / MODEL", "off; no provider/model execution"),
             ("prompt_memory", "PROMPT / MEMORY", "not accepted, sent, stored, or indexed"),
-            ("capability_packs", "CAPABILITY PACKS", "install intent blocked; downloads disabled"),
-            ("edition_lanes", "EDITION LANES", "Public no-provider only; Developer and Owner lanes gated"),
+            ("capability_packs", "CAPABILITY PACKS", "install blocked; downloads disabled"),
+            ("edition_lanes", "EDITION LANES", "Public only; Developer and Owner gated"),
         )
         for row, (key, label, value) in enumerate(fact_rows):
             row_frame = QFrame(self)
@@ -6494,13 +6494,13 @@ class AIControlCenterDialog(QDialog):
         self._result.setWordWrap(True)
         self._result.setProperty("role", "factValue")
         self._result.setFont(self._hud_label_font(point_size=9, weight=700))
-        self._result_detail = QLabel("No prompt, file, screen, memory, or telemetry is sent.", self)
+        self._result_detail = QLabel("No prompt, file, memory, telemetry, or provider config is sent.", self)
         self._result_detail.setWordWrap(True)
         self._result_detail.setProperty("role", "factValue")
         self._result_detail.setFont(self._hud_label_font(point_size=9, weight=700))
         result_rows = (
             ("LOCAL CHECK", self._result),
-            ("PROMPT / FILE / TELEMETRY", self._result_detail),
+            ("PROMPT / DATA", self._result_detail),
         )
         for row, (label, value_widget) in enumerate(result_rows):
             row_frame = QFrame(self)
@@ -7393,16 +7393,28 @@ class AIControlCenterDialog(QDialog):
                 self._provider_payload.get("providerExecutionGateLabel") or provider_execution
             )
 
-        lane_boundary = "Public no-provider only; Developer and Owner lanes gated"
-        capability_packs = str(
-            self._provider_payload.get("installIntentLabel")
-            or "install intent blocked; downloads disabled"
-        )
+        lane_boundary = "Public only; Developer and Owner gated"
+        raw_capability_packs = str(self._provider_payload.get("installIntentLabel") or "")
+        capability_packs = raw_capability_packs or "install blocked; downloads disabled"
+        if (
+            "blocked" in str(self._provider_payload.get("installIntentState") or "").lower()
+            or "blocked" in raw_capability_packs.lower()
+        ):
+            capability_packs = "install blocked; downloads disabled"
         if "download" not in capability_packs.lower():
             capability_packs = f"{capability_packs}; downloads disabled"
+        visible_data = str(self._provider_payload.get("providerVisibleData") or "none")
+        provider_visible_detail = (
+            "No prompt, file, memory, telemetry, or provider config is sent."
+            if visible_data == "none"
+            else str(
+                self._provider_payload.get("providerVisibleDataDetail")
+                or "Provider-visible data state requires review before any provider path runs."
+            )
+        )
         fact_text = {
             "orin": "Not implemented; no real AI executing",
-            "visible_data": str(self._provider_payload.get("providerVisibleData") or "none"),
+            "visible_data": visible_data,
             "execution": provider_execution,
             "prompt_memory": "not accepted, sent, stored, or indexed",
             "capability_packs": capability_packs,
@@ -7413,12 +7425,7 @@ class AIControlCenterDialog(QDialog):
             if value_widget is not None:
                 value_widget.setText(text)
         self._result.setText("waiting for local action")
-        self._result_detail.setText(
-            str(
-                self._provider_payload.get("providerVisibleDataDetail")
-                or "No prompt, file, screen, memory, or telemetry is sent."
-            )
-        )
+        self._result_detail.setText(provider_visible_detail)
 
     def run_local_assist_check(self) -> None:
         payload = self._provider_payload or {}
