@@ -14,6 +14,32 @@
     console.info(`${commandPrefix}${name}`);
   };
 
+  const syncWindowControlState = (state) => {
+    const surface = byId("monitoring-hud");
+    const maximize = byId("ai-control-center-maximize-action");
+    const normalized = state === "maximized" ? "maximized" : "normal";
+    if (surface) {
+      surface.dataset.windowState = normalized;
+    }
+    if (maximize) {
+      maximize.dataset.windowState = normalized;
+      if (maximize.dataset.control === "maximize-restore-future-gated") {
+        maximize.dataset.windowState = "future-gated";
+        maximize.setAttribute("aria-disabled", "true");
+        maximize.setAttribute("aria-label", "Maximize or restore AI Control Center future-gated");
+        maximize.setAttribute("title", "Maximize/restore future-gated");
+      } else {
+        maximize.setAttribute("aria-pressed", normalized === "maximized" ? "true" : "false");
+        const label = normalized === "maximized"
+          ? "Restore AI Control Center"
+          : "Maximize AI Control Center";
+        maximize.setAttribute("aria-label", label);
+        maximize.setAttribute("title", label);
+      }
+    }
+  };
+  window.nexusAiControlCenterSetWindowState = syncWindowControlState;
+
   const syncCustomScrollbar = () => {
     const surface = byId("monitoring-hud");
     const chrome = surface?.querySelector(".monitoring-hud__chrome");
@@ -169,5 +195,6 @@
   });
   window.addEventListener("resize", syncCustomScrollbar);
   window.addEventListener("load", () => requestAnimationFrame(syncCustomScrollbar));
+  syncWindowControlState("normal");
   requestAnimationFrame(syncCustomScrollbar);
 })();

@@ -5927,8 +5927,8 @@ class AIControlCenterDialog(QDialog):
     MINIMUM_HEIGHT = 540
     RESIZE_MARGIN = 14
     DRAG_HEADER_HEIGHT = 190
-    CLOSE_CONTROL_WIDTH = 224
-    CLOSE_CONTROL_HEIGHT = 68
+    CLOSE_CONTROL_WIDTH = 150
+    CLOSE_CONTROL_HEIGHT = 58
 
     def __init__(self, screen, event_logger=None):
         super().__init__(None)
@@ -5962,6 +5962,8 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("aiControlCenterWindowMemoryPolicy", "restart-memory-disabled")
         self.setProperty("fam003ResetDependency", "ai-global-settings-reset-default-location-size")
         self.setProperty("aiControlCenterMinimizeAffordance", "Minimize AI Control Center")
+        self.setProperty("aiControlCenterMaximizeDisposition", "future-gated-disabled")
+        self.setProperty("aiControlCenterWindowControlCluster", "compact-minimize-maximize-close")
         self._uses_hud_template = True
         self._page_ready = False
         self._pending_provider_payload = {}
@@ -6561,6 +6563,7 @@ class AIControlCenterDialog(QDialog):
         self._page_ready = bool(ok)
         if self._page_ready:
             self._sync_provider_state_to_web()
+            self._sync_ai_control_center_window_controls()
         elif callable(self.event_logger):
             self.event_logger("RENDERER_MAIN|AI_CONTROL_CENTER_TEMPLATE_LOAD_FAILED")
 
@@ -6595,6 +6598,18 @@ class AIControlCenterDialog(QDialog):
         script = (
             "window.nexusAiControlCenterApplyProviderState && "
             f"window.nexusAiControlCenterApplyProviderState({json.dumps(payload)});"
+        )
+        self.webview.page().runJavaScript(script)
+
+    def _sync_ai_control_center_window_controls(self) -> None:
+        if not getattr(self, "_uses_hud_template", False):
+            return
+        if not getattr(self, "_page_ready", False) or not hasattr(self, "webview"):
+            return
+        state = "maximized" if self.isMaximized() else "normal"
+        script = (
+            "window.nexusAiControlCenterSetWindowState && "
+            f"window.nexusAiControlCenterSetWindowState({json.dumps(state)});"
         )
         self.webview.page().runJavaScript(script)
 
@@ -6710,7 +6725,7 @@ class AIControlCenterDialog(QDialog):
                         event.accept()
                         return True
                 close_zone = self._ai_control_center_close_zone().contains(pos)
-                if pos.y() <= self.DRAG_HEADER_HEIGHT and not close_zone:
+                if pos.y() <= self.DRAG_HEADER_HEIGHT and not close_zone and not self.isMaximized():
                     self._drag_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
                     event.accept()
                     return True
@@ -6757,20 +6772,34 @@ class AIControlCenterDialog(QDialog):
         )
 
     def _ai_control_center_resize_edges_for_local_pos(self, local: QPoint):
+        if self.isMaximized():
+            return Qt.Edges()
         if not QRect(0, 0, self.width(), self.height()).contains(local):
             return Qt.Edges()
         if self._ai_control_center_close_zone().contains(local):
             return Qt.Edges()
         margin = self.RESIZE_MARGIN
+        corner_margin = margin * 2
+        width = self.width()
+        height = self.height()
         edges = Qt.Edges()
-        if local.x() <= margin:
-            edges |= Qt.LeftEdge
-        elif local.x() >= max(0, self.width() - margin):
-            edges |= Qt.RightEdge
-        if local.y() <= margin:
-            edges |= Qt.TopEdge
-        elif local.y() >= max(0, self.height() - margin):
-            edges |= Qt.BottomEdge
+        if local.x() <= corner_margin and local.y() <= corner_margin:
+            edges |= Qt.LeftEdge | Qt.TopEdge
+        elif local.x() >= max(0, width - corner_margin) and local.y() <= corner_margin:
+            edges |= Qt.RightEdge | Qt.TopEdge
+        elif local.x() <= corner_margin and local.y() >= max(0, height - corner_margin):
+            edges |= Qt.LeftEdge | Qt.BottomEdge
+        elif local.x() >= max(0, width - corner_margin) and local.y() >= max(0, height - corner_margin):
+            edges |= Qt.RightEdge | Qt.BottomEdge
+        else:
+            if local.x() <= margin:
+                edges |= Qt.LeftEdge
+            elif local.x() >= max(0, width - margin):
+                edges |= Qt.RightEdge
+            if local.y() <= margin:
+                edges |= Qt.TopEdge
+            elif local.y() >= max(0, height - margin):
+                edges |= Qt.BottomEdge
         return edges
 
     def _ai_control_center_resize_edges_for_screen_point(self, screen_point: QPoint):
@@ -7173,6 +7202,8 @@ class AIControlCenterDialog(QDialog):
             return 0
         if self._ai_control_center_close_zone().contains(local):
             return HTCLIENT
+        if self.isMaximized():
+            return HTCLIENT
         hit_test = self._ai_control_center_resize_hit_test_for_edges(
             self._ai_control_center_resize_edges_for_local_pos(local)
         )
@@ -7395,12 +7426,14 @@ class AIControlCenterDialog(QDialog):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self._sync_ai_control_center_window_controls()
         self._schedule_window_geometry_persist()
 
     def showEvent(self, event):
         super().showEvent(event)
         if getattr(self, "_uses_hud_template", False):
             self._resize_hover_timer.start()
+            self._sync_ai_control_center_window_controls()
 
     def hideEvent(self, event):
         self._resize_hover_timer.stop()

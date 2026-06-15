@@ -245,7 +245,8 @@ def main() -> int:
         int(initial_width),
         int(initial_height),
     )
-    dialog.setGeometry(dialog._bound_geometry_to_available_desktop(initial))
+    initial_bounded = dialog._bound_geometry_to_available_desktop(initial)
+    dialog.setGeometry(initial_bounded)
     dialog.show()
     dialog.raise_()
     dialog.activateWindow()
@@ -300,23 +301,43 @@ def main() -> int:
             };
           };
           const subtitle = document.querySelector(".monitoring-hud__subtitle");
+          const cluster = document.querySelector(".monitoring-hud__window-controls");
           const close = document.getElementById("ai-control-center-close-action");
+          const maximize = document.getElementById("ai-control-center-maximize-action");
           const minimize = document.getElementById("ai-control-center-minimize-action");
           return JSON.stringify({
             subtitleText: subtitle ? subtitle.textContent.trim() : "",
             subtitleLineCount: subtitle ? subtitle.getClientRects().length : 0,
             subtitleRect: rect(subtitle),
+            clusterRect: rect(cluster),
+            clusterStyle: style(cluster),
             closeText: close ? close.textContent.trim() : "",
             closeRect: rect(close),
             closeClass: close ? close.className : "",
             closeStyle: style(close),
+            closeLabel: close ? close.getAttribute("aria-label") : "",
+            maximizeText: maximize ? maximize.textContent.trim() : "",
+            maximizeRect: rect(maximize),
+            maximizeClass: maximize ? maximize.className : "",
+            maximizeStyle: style(maximize),
+            maximizeLabel: maximize ? maximize.getAttribute("aria-label") : "",
+            maximizeState: maximize ? maximize.dataset.windowState : "",
+            maximizeControl: maximize ? maximize.dataset.control : "",
+            maximizeDisabled: maximize ? maximize.disabled : false,
+            maximizeAriaDisabled: maximize ? maximize.getAttribute("aria-disabled") : "",
+            maximizeTitle: maximize ? maximize.getAttribute("title") : "",
             minimizeText: minimize ? minimize.textContent.trim() : "",
             minimizeRect: rect(minimize),
             minimizeClass: minimize ? minimize.className : "",
             minimizeStyle: style(minimize),
-            chromeGap: close && minimize
-              ? Math.round(close.getBoundingClientRect().left - minimize.getBoundingClientRect().right)
-              : null
+            minimizeLabel: minimize ? minimize.getAttribute("aria-label") : "",
+            chromeGap: close && maximize && minimize
+              ? Math.round(Math.min(
+                  maximize.getBoundingClientRect().left - minimize.getBoundingClientRect().right,
+                  close.getBoundingClientRect().left - maximize.getBoundingClientRect().right
+                ))
+              : null,
+            compactButtonCount: cluster ? cluster.querySelectorAll(".monitoring-hud__window-control-button").length : 0
           });
         })();
         """,
@@ -346,12 +367,14 @@ def main() -> int:
     _pump(app, 360)
     minimized_after_click = bool(dialog.isMinimized())
     dialog.showNormal()
+    dialog.setGeometry(initial_bounded)
     dialog.raise_()
     dialog.activateWindow()
     _pump(app, 360)
     BringWindowToTop(ctypes.wintypes.HWND(hwnd))
     SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
     _pump(app, 220)
+    post_minimize_restore_rect = _native_rect(hwnd)
     custom_scrollbar_probe_raw = _run_js(
         app,
         dialog,
@@ -387,7 +410,7 @@ def main() -> int:
         app,
         dialog,
         log_root,
-        "02_custom_scrollbar_visual_probe",
+        "04_custom_scrollbar_visual_probe",
     )
     _run_js(
         app,
@@ -407,16 +430,22 @@ def main() -> int:
     _pump(app, 200)
 
     rect = _native_rect(hwnd)
+    corner_offset = max(18, (int(getattr(dialog, "RESIZE_MARGIN", 14)) * 2) - 2)
     corner = _drag_resize(
         app,
         hwnd,
         "bottom_right_corner",
-        rect["right"] - 8,
-        rect["bottom"] - 8,
+        rect["right"] - corner_offset,
+        rect["bottom"] - corner_offset,
         min(available.right() - 24, rect["right"] + 96),
         min(available.bottom() - 24, rect["bottom"] + 72),
     )
-    screenshot_evidence["afterCorner"] = _capture(app, dialog, log_root, "02_after_corner_resize")
+    screenshot_evidence["afterCorner"] = _capture(app, dialog, log_root, "05_after_corner_resize")
+    dialog.setGeometry(initial_bounded)
+    _pump(app, 180)
+    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
+    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
+    _pump(app, 160)
 
     rect = _native_rect(hwnd)
     right = _drag_resize(
@@ -428,7 +457,12 @@ def main() -> int:
         min(available.right() - 24, rect["right"] + 84),
         rect["top"] + max(220, rect["height"] // 2),
     )
-    screenshot_evidence["afterRightEdge"] = _capture(app, dialog, log_root, "03_after_right_edge_resize")
+    screenshot_evidence["afterRightEdge"] = _capture(app, dialog, log_root, "06_after_right_edge_resize")
+    dialog.setGeometry(initial_bounded)
+    _pump(app, 180)
+    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
+    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
+    _pump(app, 160)
 
     rect = _native_rect(hwnd)
     bottom = _drag_resize(
@@ -440,7 +474,7 @@ def main() -> int:
         rect["left"] + rect["width"] // 2,
         min(available.bottom() - 24, rect["bottom"] + 66),
     )
-    screenshot_evidence["afterBottomEdge"] = _capture(app, dialog, log_root, "04_after_bottom_edge_resize")
+    screenshot_evidence["afterBottomEdge"] = _capture(app, dialog, log_root, "07_after_bottom_edge_resize")
     try:
         final_state_payload = json.loads(isolated_state_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -478,12 +512,45 @@ def main() -> int:
             isinstance(title_chrome_proof, dict)
             and int(title_chrome_proof.get("subtitleLineCount") or 0) <= 1
         ),
-        "minimizeControlMatchesCloseControlClass": (
+        "compactWindowControlClusterVisible": (
             isinstance(title_chrome_proof, dict)
-            and "monitoring-hud__chrome-button--close" in str(title_chrome_proof.get("closeClass") or "")
-            and "monitoring-hud__chrome-button--close" in str(title_chrome_proof.get("minimizeClass") or "")
+            and int(title_chrome_proof.get("compactButtonCount") or 0) == 3
+            and isinstance(title_chrome_proof.get("clusterRect"), dict)
+            and int(title_chrome_proof["clusterRect"].get("width") or 0) <= 130
+        ),
+        "compactWindowControlButtonsSized": (
+            isinstance(title_chrome_proof, dict)
+            and all(
+                isinstance(title_chrome_proof.get(key), dict)
+                and int(title_chrome_proof[key].get("width") or 0) <= 34
+                and int(title_chrome_proof[key].get("height") or 0) <= 32
+                for key in ("minimizeRect", "maximizeRect", "closeRect")
+            )
+        ),
+        "windowControlAccessibleLabelsPresent": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("minimizeLabel") == "Minimize AI Control Center"
+            and title_chrome_proof.get("maximizeLabel") == "Maximize or restore AI Control Center future-gated"
+            and title_chrome_proof.get("closeLabel") == "Close AI Control Center"
+        ),
+        "maximizeRestoreFutureGatedDisabled": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("maximizeDisabled") is True
+            and title_chrome_proof.get("maximizeAriaDisabled") == "true"
+            and title_chrome_proof.get("maximizeControl") == "maximize-restore-future-gated"
+            and title_chrome_proof.get("maximizeState") == "future-gated"
+        ),
+        "minimizeMaximizeCloseShareCompactClass": (
+            isinstance(title_chrome_proof, dict)
+            and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("minimizeClass") or "")
+            and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("maximizeClass") or "")
+            and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("closeClass") or "")
         ),
         "minimizeCommandMinimizedWindow": minimized_after_click,
+        "minimizeRestoreReturnedToKnownGeometry": (
+            abs(post_minimize_restore_rect["width"] - initial_native_rect["width"]) <= 4
+            and abs(post_minimize_restore_rect["height"] - initial_native_rect["height"]) <= 4
+        ),
         "minimizeMarkerLogged": any("AI_CONTROL_CENTER_MINIMIZED" in event for event in events),
     }
     status = "PASS" if all(checks.values()) else "FAIL"
@@ -504,10 +571,17 @@ def main() -> int:
         "initialWindowScreenshots": screenshot_evidence["before"],
         "customScrollbarProbe": custom_scrollbar_probe,
         "titleChromeProof": title_chrome_proof,
+        "windowControlProof": {
+            "cluster": "compact-minimize-maximize-close",
+            "minimize": "active-native-showMinimized",
+            "maximizeRestore": "future-gated-disabled",
+            "close": "active-native-close",
+        },
         "minimizeClickProof": {
             "clickResult": minimize_click,
             "windowMinimizedAfterClick": minimized_after_click,
             "restoredForResizeProof": bool(not dialog.isMinimized()),
+            "postMinimizeRestoreRect": post_minimize_restore_rect,
         },
         "expectedInitialWindowSize": {
             "width": int(initial_width),
