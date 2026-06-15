@@ -5920,6 +5920,7 @@ class AIControlCenterDialog(QDialog):
         self.screen_ref = screen
         self.event_logger = event_logger
         self._provider_payload = {}
+        self._hud_glow_buttons = set()
         self.setObjectName("fam007AiControlCenter")
         self.setWindowTitle("AI Control Center")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
@@ -5954,7 +5955,7 @@ class AIControlCenterDialog(QDialog):
             QFrame#fam007AiControlCenterChromeBar {
                 border: 1px solid rgba(130, 236, 255, 0.12);
                 border-radius: 22px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 23, 39, 0.985), stop:1 rgba(2, 10, 20, 0.965));
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(3, 16, 28, 0.99), stop:1 rgba(1, 8, 17, 0.97));
             }
             QLabel#fam007AiControlCenterChromeTitle {
                 color: rgba(235, 252, 255, 0.96);
@@ -5980,6 +5981,7 @@ class AIControlCenterDialog(QDialog):
             QPushButton#fam007AiControlCenterChromeClose:focus {
                 border-color: rgba(126, 248, 218, 0.56);
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.94), stop:1 rgba(4, 24, 40, 0.91));
+                color: rgba(241, 255, 252, 0.99);
             }
             QFrame#fam007AiControlCenterContent {
                 border-radius: 22px;
@@ -6001,7 +6003,10 @@ class AIControlCenterDialog(QDialog):
             QScrollBar::handle:vertical {
                 min-height: 44px;
                 border-radius: 4px;
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(121, 239, 255, 0.62), stop:1 rgba(99, 255, 202, 0.42));
+                background: rgba(108, 232, 255, 0.58);
+            }
+            QScrollBar::handle:vertical:hover {
+                background: rgba(184, 250, 255, 0.82);
             }
             QScrollBar::add-line:vertical,
             QScrollBar::sub-line:vertical {
@@ -6034,15 +6039,19 @@ class AIControlCenterDialog(QDialog):
                 font-weight: 750;
             }
             QLabel[role="summary"] {
-                color: rgba(176, 209, 219, 0.92);
+                color: rgba(174, 226, 240, 0.88);
                 font-size: 12px;
-                font-weight: 600;
+                font-weight: 700;
             }
             QFrame[role="surfaceRole"] {
-                min-height: 92px;
+                min-height: 74px;
                 border: 1px solid rgba(118, 226, 255, 0.16);
                 border-radius: 18px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(7, 31, 42, 0.52), stop:0.58 rgba(3, 14, 27, 0.44), stop:1 rgba(3, 14, 27, 0.44));
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(6, 25, 38, 0.50), stop:0.58 rgba(2, 11, 22, 0.48), stop:1 rgba(2, 11, 22, 0.48));
+            }
+            QFrame[role="surfaceRolePair"] {
+                border: none;
+                background: transparent;
             }
             QLabel[role="surfaceRoleLabel"] {
                 color: rgba(156, 205, 220, 0.82);
@@ -6077,9 +6086,9 @@ class AIControlCenterDialog(QDialog):
                 text-transform: uppercase;
             }
             QLabel[role="sectionCopy"] {
-                color: rgba(165, 197, 208, 0.92);
+                color: rgba(181, 218, 229, 0.88);
                 font-size: 12px;
-                font-weight: 600;
+                font-weight: 640;
             }
             QLabel[role="sectionPill"] {
                 min-height: 34px;
@@ -6143,7 +6152,7 @@ class AIControlCenterDialog(QDialog):
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
                 color: rgba(229, 249, 255, 0.94);
                 font-size: 12px;
-                font-weight: 720;
+                font-weight: 760;
                 letter-spacing: 0;
             }
             QPushButton[buttonRole="primary"] {
@@ -6159,6 +6168,7 @@ class AIControlCenterDialog(QDialog):
             QPushButton:focus {
                 border-color: rgba(126, 248, 218, 0.56);
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.94), stop:1 rgba(4, 24, 40, 0.91));
+                color: rgba(241, 255, 252, 0.99);
             }
             QPushButton:pressed {
                 border-color: rgba(163, 255, 228, 0.72);
@@ -6220,8 +6230,9 @@ class AIControlCenterDialog(QDialog):
         self.chrome_bar.close_button.setFixedSize(76, 34)
         if chrome_layout is not None:
             chrome_layout.setAlignment(self.chrome_bar.close_button, Qt.AlignTop | Qt.AlignRight)
-        close_font = self._hud_button_font(point_size=9, weight=76, spacing=108)
+        close_font = self._hud_button_font(point_size=9, weight=760, spacing=108)
         self.chrome_bar.close_button.setFont(close_font)
+        self._install_hud_button_glow(self.chrome_bar.close_button)
         try:
             self.chrome_bar.close_button.clicked.disconnect()
         except (RuntimeError, TypeError):
@@ -6237,7 +6248,7 @@ class AIControlCenterDialog(QDialog):
         eyebrow.setProperty("role", "productEyebrow")
         self._title = QLabel("AI Control Center", self.header_text)
         self._title.setProperty("role", "title")
-        self._summary = QLabel("No provider/model execution is active.", self.header_text)
+        self._summary = QLabel("ORIN is not implemented; provider/model execution is off.", self.header_text)
         self._summary.setWordWrap(True)
         self._summary.setProperty("role", "summary")
         header_text_layout.addWidget(eyebrow)
@@ -6246,33 +6257,33 @@ class AIControlCenterDialog(QDialog):
         role_surface = QFrame(self.header_text)
         role_surface.setProperty("role", "surfaceRole")
         role_surface.setAttribute(Qt.WA_StyledBackground, True)
-        role_surface.setMinimumHeight(92)
-        role_layout = QGridLayout(role_surface)
+        role_surface.setMinimumHeight(78)
+        role_layout = QHBoxLayout(role_surface)
         role_layout.setContentsMargins(14, 12, 14, 12)
-        role_layout.setHorizontalSpacing(10)
-        role_layout.setVerticalSpacing(10)
+        role_layout.setSpacing(10)
         role_items = (
-            ("AI", "CONTROL CENTER"),
-            ("BOUNDARY", "PROVIDER / MODEL OFF"),
-            ("STATUS", "CONTROLS LIVE HERE"),
+            ("AI", "ORIN"),
+            ("STATUS", "NOT IMPLEMENTED"),
+            ("LOCAL ASSIST", "NO-PROVIDER CHECK"),
         )
-        for column, (label, value) in enumerate(role_items):
-            label_widget = QLabel(label, role_surface)
+        for label, value in role_items:
+            pair = QFrame(role_surface)
+            pair.setProperty("role", "surfaceRolePair")
+            pair.setAttribute(Qt.WA_StyledBackground, True)
+            pair_layout = QVBoxLayout(pair)
+            pair_layout.setContentsMargins(0, 0, 0, 0)
+            pair_layout.setSpacing(2)
+            label_widget = QLabel(label, pair)
             label_widget.setProperty("role", "surfaceRoleLabel")
-            value_widget = QLabel(value, role_surface)
+            value_widget = QLabel(value, pair)
             value_widget.setProperty("role", "surfaceRoleValue")
             value_widget.setWordWrap(True)
-            role_layout.addWidget(label_widget, 0, column * 2, Qt.AlignLeft | Qt.AlignVCenter)
-            role_layout.addWidget(value_widget, 0, column * 2 + 1, Qt.AlignLeft | Qt.AlignVCenter)
-        role_summary = QLabel("LOCAL ASSIST ONLY", role_surface)
-        role_summary.setProperty("role", "surfaceRoleValue")
-        role_summary.setWordWrap(True)
+            pair_layout.addWidget(label_widget)
+            pair_layout.addWidget(value_widget)
+            role_layout.addWidget(pair, 1, Qt.AlignVCenter)
         role_status = QLabel("NO PROVIDER ACTIVE", role_surface)
         role_status.setProperty("role", "sectionPill")
-        role_layout.addWidget(role_summary, 1, 0, 1, 4, Qt.AlignLeft | Qt.AlignVCenter)
-        role_layout.addWidget(role_status, 1, 4, 1, 2, Qt.AlignRight | Qt.AlignVCenter)
-        for column in range(6):
-            role_layout.setColumnStretch(column, 1 if column % 2 else 0)
+        role_layout.addWidget(role_status, 0, Qt.AlignRight | Qt.AlignVCenter)
         header_text_layout.addWidget(role_surface)
         if chrome_layout is not None:
             chrome_layout.insertWidget(0, self.header_text, 1, Qt.AlignTop)
@@ -6286,7 +6297,7 @@ class AIControlCenterDialog(QDialog):
         shell_layout.addWidget(self.content, 1)
 
         deck_layout = QVBoxLayout(self.content)
-        deck_layout.setContentsMargins(12, 12, 12, 16)
+        deck_layout.setContentsMargins(12, 12, 4, 16)
         deck_layout.setSpacing(0)
         self._content_scroll = QScrollArea(self.content)
         self._content_scroll.setObjectName("fam007AiControlCenterScroll")
@@ -6300,7 +6311,7 @@ class AIControlCenterDialog(QDialog):
         self._content_scroll_body.setObjectName("fam007AiControlCenterScrollBody")
         self._content_scroll_body.setAttribute(Qt.WA_StyledBackground, True)
         content_layout = QVBoxLayout(self._content_scroll_body)
-        content_layout.setContentsMargins(0, 0, 8, 0)
+        content_layout.setContentsMargins(0, 0, 0, 0)
         content_layout.setSpacing(12)
 
         facts_panel = QFrame(self)
@@ -6321,9 +6332,9 @@ class AIControlCenterDialog(QDialog):
         facts_title_layout = QVBoxLayout(facts_title_stack)
         facts_title_layout.setContentsMargins(0, 0, 0, 0)
         facts_title_layout.setSpacing(4)
-        facts_title = QLabel("AI boundary", self)
+        facts_title = QLabel("ORIN status", self)
         facts_title.setProperty("role", "sectionTitle")
-        facts_copy = QLabel("Status card stays display-only; controls and transparency live in this window.", self)
+        facts_copy = QLabel("Truthful no-provider state for ORIN, local assist, capability packs, and gated lanes.", self)
         facts_copy.setWordWrap(True)
         facts_copy.setProperty("role", "sectionCopy")
         facts_title_layout.addWidget(facts_title)
@@ -6333,12 +6344,12 @@ class AIControlCenterDialog(QDialog):
         facts.addWidget(facts_header)
         self._fact_values = {}
         fact_rows = (
-            ("status", "ORIN STATUS", "No AI executing; no provider/model active"),
+            ("orin", "ORIN", "Not implemented; no real AI executing"),
+            ("local_assist", "LOCAL ASSIST", "No-provider check only"),
             ("visible_data", "PROVIDER-VISIBLE DATA", "none"),
-            ("execution", "PROMPT / MODEL / PROVIDER", "disabled and blocked"),
-            ("capability", "CAPABILITY PACKS", "Install and download intent blocked"),
-            ("lane", "PUBLIC / DEVELOPER / OWNER", "Public deterministic no-provider assist; Developer and Owner lanes gated"),
-            ("status_boundary", "STATUS SURFACE", "Display-only; controls live here"),
+            ("execution", "PROVIDER / MODEL", "off; no provider/model execution"),
+            ("prompt_memory", "PROMPT / MEMORY", "not accepted, sent, stored, or indexed"),
+            ("capability_lanes", "CAPABILITY / LANES", "Capability install/download blocked; Developer and Owner lanes gated"),
         )
         for row, (key, label, value) in enumerate(fact_rows):
             row_frame = QFrame(self)
@@ -6387,7 +6398,7 @@ class AIControlCenterDialog(QDialog):
         result_title_layout.setSpacing(4)
         result_title = QLabel("No-provider check", self)
         result_title.setProperty("role", "sectionTitle")
-        result_copy = QLabel("Deterministic local response only; provider/model execution remains blocked.", self)
+        result_copy = QLabel("Runs one local no-provider check; no prompt/provider/model path is used.", self)
         result_copy.setWordWrap(True)
         result_copy.setProperty("role", "sectionCopy")
         result_title_layout.addWidget(result_title)
@@ -6436,7 +6447,8 @@ class AIControlCenterDialog(QDialog):
         self._local_assist.setToolTip("Run no-provider check")
         self._local_assist.setProperty("buttonRole", "primary")
         self._local_assist.setFixedSize(250, 36)
-        self._local_assist.setFont(self._hud_button_font(point_size=9, weight=72, spacing=109))
+        self._local_assist.setFont(self._hud_button_font(point_size=9, weight=760, spacing=109))
+        self._install_hud_button_glow(self._local_assist)
         self._local_assist.clicked.connect(self.run_local_assist_check)
         result_actions.addStretch(1)
         result_actions.addWidget(self._local_assist)
@@ -6464,6 +6476,47 @@ class AIControlCenterDialog(QDialog):
         except Exception:
             pass
         return font
+
+    def _install_hud_button_glow(self, button: QPushButton) -> None:
+        effect = QGraphicsDropShadowEffect(button)
+        effect.setOffset(0, 0)
+        button.setGraphicsEffect(effect)
+        button.setProperty("hudButtonGlow", "true")
+        self._hud_glow_buttons.add(button)
+        self._set_hud_button_glow(button, "default")
+        button.installEventFilter(self)
+
+    def _set_hud_button_glow(self, button: QPushButton, state: str) -> None:
+        effect = button.graphicsEffect()
+        if not isinstance(effect, QGraphicsDropShadowEffect):
+            return
+        if not button.isEnabled():
+            effect.setBlurRadius(6)
+            effect.setColor(QColor(176, 204, 214, 18))
+            return
+        if state == "active":
+            effect.setBlurRadius(10)
+            effect.setColor(QColor(103, 255, 210, 42))
+            return
+        if state in {"hover", "focus"}:
+            effect.setBlurRadius(18)
+            effect.setColor(QColor(86, 236, 255, 46))
+            return
+        effect.setBlurRadius(10)
+        effect.setColor(QColor(99, 225, 255, 22))
+
+    def eventFilter(self, watched, event):
+        if watched in self._hud_glow_buttons and isinstance(watched, QPushButton):
+            event_type = event.type()
+            if event_type in (QEvent.Enter, QEvent.FocusIn):
+                self._set_hud_button_glow(watched, "hover")
+            elif event_type in (QEvent.Leave, QEvent.FocusOut):
+                self._set_hud_button_glow(watched, "default")
+            elif event_type == QEvent.MouseButtonPress:
+                self._set_hud_button_glow(watched, "active")
+            elif event_type == QEvent.MouseButtonRelease:
+                self._set_hud_button_glow(watched, "hover" if watched.underMouse() else "default")
+        return super().eventFilter(watched, event)
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
@@ -6493,15 +6546,18 @@ class AIControlCenterDialog(QDialog):
             f"{self._provider_payload.get('ownerLaneBoundaryLabel') or 'Owner lane gated'}"
         )
         fact_text = {
-            "status": "No AI executing; no provider/model active",
+            "orin": "Not implemented; no real AI executing",
+            "local_assist": "No-provider check only",
             "visible_data": str(self._provider_payload.get("providerVisibleData") or "none"),
             "execution": provider_execution,
-            "capability": str(
-                self._provider_payload.get("installIntentLabel")
-                or "Install intent: blocked; downloads and install execution remain disabled"
+            "prompt_memory": "not accepted, sent, stored, or indexed",
+            "capability_lanes": (
+                str(
+                    self._provider_payload.get("installIntentLabel")
+                    or "Capability install/download blocked"
+                )
+                + f"; {lane_boundary}"
             ),
-            "lane": lane_boundary,
-            "status_boundary": "Display-only; controls live here",
         }
         for key, text in fact_text.items():
             value_widget = self._fact_values.get(key)
