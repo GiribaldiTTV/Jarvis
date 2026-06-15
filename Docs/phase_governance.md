@@ -464,6 +464,71 @@ USER Decision Required: Required to waive the matrix, accept subjective/manual v
 Validation Owner: Future helper/validator hardening should extend branch governance validation, branch-readiness fixture validation, USER review bundle validation, visual/live-validation helpers, source-owner checks, and family-specific runtime validators where machine-checkable. Green validation remains evidence only; Codex must still inspect the actual matrix and evidence relationship.
 Final Disposition: Live Validation, UTS handoff, PR Readiness, and release-facing closeout are invalid while a material matrix row is missing, unadjudicated, overclaimed, unsupported by observed runtime/comparison evidence, or left for USER discovery without explicit manual-validation routing.
 
+### Scope Coverage Manifest Gate
+
+Rule Name: `Scope Coverage Manifest Gate`
+Owner: `Docs/phase_governance.md` for phase gates, blockers, success-claim proof, and broad/multi-issue decomposition; `Docs/branch_plans/README.md` for BP2/BP3 and active branch-plan field shape; `Docs/family_visions/FAM-002_desktop_interface.md` for reusable UI component anatomy; `Docs/validation_helper_registry.md` for future helper/validator guidance; `Docs/incident_patterns.md` for recurring failure preservation.
+Applies To: BR1, BR2, BP1, BP2, BP3, Workstream, Hardening, Live Validation, UTS handoff, PR Readiness, Release Readiness, USER packets, helper output, validator output, Codex closeout claims, and Codex repair claims whenever Codex claims `green`, `complete`, `LV passed`, `PR-ready`, `accepted`, `no drift`, `all fixed`, `everything checked`, or an equivalent full-scope success result.
+Required State: A success claim is valid only when the owning phase output includes or references a `Scope Coverage Manifest` for the relevant scope. The manifest must name what was included, what was excluded, what was sampled, what was read directly, what was searched only, what evidence was independently reviewed, which human-judgment areas remain, and the disposition for every relevant file class, surface, claim, defect target, visual element, or element group. A broad or multi-issue USER complaint must be decomposed into atomic repair targets before Codex reports completion.
+Required Manifest Fields:
+
+- `Coverage Objective:`
+- `Phase / Gate:`
+- `Source-Truth Owners Loaded:`
+- `Inventory Roots:`
+- `File Classes Included:`
+- `File Classes Excluded:`
+- `Runtime / UI Surfaces Included:`
+- `Claims Inventoried:`
+- `Visual Elements Or Element Groups Inventoried:`
+- `Files Read Directly:`
+- `Files Searched Only:`
+- `Files Not Read With Reason:`
+- `Validators Run:`
+- `Helpers Run:`
+- `Independent Proof Reviewed:`
+- `Photo / Video Evidence Reviewed:`
+- `USER Packet Evidence Reviewed:`
+- `Human-Judgment Areas:`
+- `Known Blind Spots:`
+- `Sampling Used:`
+- `If Sampling Used, Why:`
+- `Coverage Disposition:`
+
+Allowed Coverage Dispositions:
+
+- `Checked`
+- `Not Applicable`
+- `Deferred With Reason`
+- `Repair Required`
+- `USER Review Required`
+- `Blocked`
+
+Broad / Multi-Issue Decomposition Rule: When USER reports a defect set using broad or quantity-expanding wording such as `all`, `every`, `whole window`, `all text`, `all buttons`, `all dropdowns`, `10 issues`, `multiple issues`, `everything in this window`, or equivalent wording, Codex must classify the complaint as `Single Item`, `Multi Item`, `Broad Class`, `Vague Class`, or `All Surface`. For `Multi Item`, `Broad Class`, `Vague Class`, or `All Surface`, Codex must create an atomic repair ledger that restates the USER complaint, lists every known target, identifies the owning surface/file/code path, expected fix, proof method, and disposition, repairs or blocks each target, reruns the relevant proof for each target, and reports every target as fixed, deferred with reason, blocked, waived, or USER-review-needed. A sample repair cannot be reported as full-class repair unless the manifest records why sampling is sufficient and which remaining items were checked or explicitly deferred.
+Quantity-Insensitive Repair Reliability Rule: Codex must treat one defect and many defects with the same closure discipline. If one named text mismatch would require direct proof after repair, ten text mismatches require ten target rows or a justified complete-class scan that proves all ten and the surrounding class. Partial repair followed by a full-scope success claim is invalid.
+Element-Group UI Acceptance Rule: For desktop/user-facing UI, the manifest must inventory material user-facing element groups rather than decorative atoms only. Acceptance-critical element groups include any group that affects user action, comprehension, immersion, safety, proof, state, navigation, failure, recovery, or trust. Examples include window chrome, close/minimize/back/settings affordances, primary/secondary/danger buttons, dropdowns and option lists, scrollable rows, cards, dividers/page breaks, status fields, empty/error/degraded/blocked states, confirmation dialogs, dirty guards, tray/menu entries, and proof-visible evidence surfaces. Each applicable element group must have a reference surface or accepted grammar, focused screenshot/video or manual-validation route when visible, and a `PASS`, `REPAIR`, `STOP`, `WAIVED_WITH_REASON`, `USER Review Required`, or `Not Applicable With Reason` verdict.
+No-Vague-Final-Acceptance Rule: Vague final verdicts such as `looks good`, `seems fine`, `appears okay`, `validator passed`, `screenshot exists`, `matches style generally`, `NDAI-ish`, `probably fixed`, or `no obvious issue` are not final acceptance. They may appear only as informal observations followed by mapped evidence, coverage disposition, and the exact claim or element group they support. If mapped evidence is missing, the result is `Repair Required`, `USER Review Required`, or `Blocked`.
+Active-Ledger Placement Boundary: Durable source truth owns the rule and required fields. Active coverage rows, defect ledgers, per-element visual inventories, photo/video manifests, current branch proof, and current USER packet evidence belong in the active external branch plan, USER review packet, helper output, validator output, Codex digest, evidence root, or approved transition packet until PR Readiness fold-down decides what durable receipt should remain. Repo backlog, roadmap, branch-record index, Main, and Family/Family Feature Vision files must not become live coverage ledgers.
+Invalid Values:
+
+- `Complete Without Coverage Manifest`
+- `All Fixed Without Target Ledger`
+- `Broad Complaint Sampled Without Justification`
+- `Validator Green Accepted Without Coverage Review`
+- `Generated Artifact Not Checked`
+- `Human Judgment Not Elevated`
+- `Sampling By Convenience`
+- `Looks Good As Final Verdict`
+- `Screenshot Exists Therefore Accepted`
+- `One Item Fixed Therefore All Fixed`
+
+Blocking Conditions: `Completeness Claim Without Coverage Manifest`, `Relevant File Class Not Inventoried`, `USER-Facing Surface Not Inventoried`, `Visual Element Coverage Missing`, `Element Group Coverage Missing`, `Accepted Vision Claim Not Mapped To Proof`, `Validator Green Accepted Without Coverage Review`, `Generated Artifact Not Checked`, `Human-Judgment Surface Not Elevated`, `Coverage Exclusion Not Justified`, `Sampling Used Without Justification`, `Broad Request Decomposition Missing`, `Multi-Issue Repair Ledger Missing`, `Quantity-Sensitive Repair Drift`, `Partial Repair Reported Complete`, `All-Claim Coverage Missing`, and `Unverified Defect Target`.
+Repair Owner: The current branch/worktree repairs branch-local coverage, UI, proof, and defect-target gaps; standing Governance intake repairs reusable rule drift; helper/validator owners repair confirmed false-green/false-red tooling; USER owns manual validation, waivers, and subjective acceptance.
+Repair Path: Build or repair the manifest, decompose broad claims into atomic targets, inventory every relevant file class/surface/claim/element group, record exclusions and sampling rationale, gather independent proof, rerun proof for every repaired target, adjudicate each target, route any `REPAIR` or `BLOCKED` target back to the owning phase, and route human-judgment areas to USER review or waiver before any full-scope success claim.
+USER Decision Required: Required to waive coverage, accept sampling for an all-surface claim, accept manual validation as final evidence, approve a deliberate UI/vision exception, or expand helper/validator/template implementation.
+Validation Owner: Future helper/validator hardening should extend existing governance validation, branch-readiness fixture validation, USER review bundle validation, live-validation helpers, source-owner checks, and family-specific validators where machine-checkable. Green validation remains evidence only; Codex must still inspect the manifest and evidence relationship before claiming complete.
+Final Disposition: Phase advancement, UTS handoff, PR Readiness, Release Readiness, or any final closeout is invalid when a material coverage scope is missing, sampled without justification, overclaimed, unadjudicated, or reported with vague acceptance language instead of mapped evidence and disposition.
+
 ### Branch / Slice / SLC / Seam Terminology Model
 
 Rule Name: `Branch / Slice / SLC / Seam Terminology Model`
@@ -1805,6 +1870,7 @@ Required proof:
 - desktop UI Live Validation must capture the full virtual desktop by default when placement, multi-monitor behavior, window separation, clipping, or frame-of-reference matters; primary-monitor-only screenshots are supporting detail only and cannot clear those proof needs
 - screenshots used for Live Validation closeout must be copied into `C:\Users\anden\OneDrive\Pictures\Screenshots\<project-or-validation-lane>\<timestamp>\` or the active USER-declared screenshots folder, and the raw image path must be surfaced in the Codex chat/handoff for USER inspection; `dev/logs` copies alone are not enough when visual proof is part of the gate
 - desktop UI Live Validation must also create a per-element visual inventory for the active user-facing surface, including every current user-facing window, border/frame, card, row, page break/divider, background treatment, scrollbar, button, dropdown, checkbox, input, chip, status field, confirmation, empty/error/deferred state, and every issue-specific element named by USER feedback
+- desktop UI Live Validation must also carry the `Scope Coverage Manifest Gate` for the active UI proof scope; broad USER complaints such as all text, all buttons, whole window, every dropdown, or multiple named issues must be decomposed into atomic repair targets or element groups before Codex can report the UI fixed, LV passed, no drift, or ready for USER testing
 - desktop UI Live Validation must create detailed focused screenshots for each inventory element and supported state/action, copy them into `C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI\<validation-lane>\<timestamp>\focused_element_screenshots\`, and name each PNG with the element label/name plus state or action, such as `element_<label>_<state>.png`; a full desktop screenshot is locator/context proof only and cannot satisfy this per-element gate
 - desktop UI Live Validation for resizable desktop windows must create and compare focused screenshots for the default usable size and compact legal minimum size for the Dashboard and every Dashboard child window or equivalent nested surface; this is mandatory, not advisory, and the manifest must prove every button, dropdown, checkbox, input, scroll pane, row, confirmation, empty/deferred/error state, and issue-grounded element remains visible, correctly scaled, readable, clickable or correctly disabled, clipped-free, and functionally usable in both sizes before UTS handoff
 - default-versus-compact proof cannot be cleared by source inspection, CSS inspection, marker proof, screenshot existence, or a single-window sample; missing compact/default photos, missing comparison data, unreadable text, clipped controls, unavailable scrolling, unclickable actions, hidden required rows, or a child window that cannot complete its core workflow in either size is a Live Validation `REPAIR`
@@ -1829,6 +1895,7 @@ Required proof:
 - Codex must perform pessimistic visual adjudication after every desktop UI Live Validation run and before any UTS handoff claim: assume the validator missed a defect until Codex has opened and inspected the focused screenshots and short video/frame-sequence artifacts itself. The digest must name any Codex-visible visual, interaction, workflow, compact/default, scroll, clipping, alignment, readability, state, or hierarchy concern even when every helper reports `PASS`.
 - A helper/validator `PASS` cannot be reported as LV green until Codex has independently reviewed the produced images, compared normal and compact states, checked child-window/confirmation/dropdown combinations, and either records no visible concerns or routes every concern to `REPAIR`, `STOP`, or an explicit USER waiver. Any final packet that says `green` while Codex has not inspected the artifacts is invalid.
 - Verbal assurance, implementation description, or intent-language is not proof. If Codex says a UI pattern is implemented, the same turn must either cite the focused screenshot/video artifact that visibly proves the delivered UI matches that description or report `REPAIR`/`BLOCKED`; a mismatch between described behavior and live-client appearance is a Live Validation failure.
+- Vague acceptance language is not proof. `Looks good`, `seems fine`, `appears okay`, `NDAI-ish`, `validator passed`, or `screenshot exists` can never be the final Live Validation verdict unless the same packet maps the statement to the accepted vision requirement, element group, screenshot/video or manual-validation evidence, coverage disposition, and any remaining limitation.
 - Live Validation closeout must include Codex-owned photo review notes, not just helper status: the notes must identify the artifact folder, the specific screenshots reviewed, the expected UI state for each reviewed artifact, the observed UI state, and any mismatch disposition. Missing photo-review notes, or notes that only restate validator output without visual scrutiny, are `REPAIR`.
 - Dirty-change safeguards for user-facing desktop HUD windows must use one shared modal standard wherever a dirty guard is required: the guard must be a direct modal layer owned by the active child window, dim/blur/block the underlying window, hide the normal close control while open, present `Save`, `Discard`, and `Cancel` actions in that order, and stay out of normal form/list/detail layout so it cannot compress, overlap, or scroll as ordinary content. `Save` must persist the draft and continue the queued close/state-change, `Discard` must drop the draft and continue the queued close/state-change, and `Cancel` must interrupt the queued close/state-change without saving or discarding, remove the modal, unsuppress the window, and return the USER to the same window with the same unsaved dirty draft still present. Any branch adding or changing a dirty guard must prove this same format across every affected window with focused screenshots and real user-level input.
 - desktop UI Live Validation must include a failure-seeking visual adjudication pass before UTS handoff; Codex must inspect the focused proof images one by one, compare them against the Product Definition Plan, Runtime Branch Engineering Contract, latest USER vision/UTS feedback, active temporary issue form, and package-level UI/UX intent, and record artifact-by-artifact `PASS`, `REPAIR`, `STOP`, or `WAIVED_WITH_REASON` verdicts for all inventoried elements/states

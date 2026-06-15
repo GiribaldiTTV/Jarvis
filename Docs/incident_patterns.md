@@ -312,6 +312,25 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/user_test_summary_guidance.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Broad Or Multi-Issue Repair Reported Complete Without Coverage
+
+- symptom:
+  USER reports a broad or multi-item defect such as all window text is wrong, every button needs correction, the whole window breaks immersion, ten named visual/text issues exist, or multiple related UI defects need repair. Codex fixes one item or a sampled subset, then reports green, complete, no drift, LV passed, PR-ready, or all fixed without proving every item or element group was addressed.
+- layer:
+  Scope Coverage Manifest, Branch Planning proof, Workstream repair closeout, Hardening, Live Validation visual adjudication, UTS handoff, PR Readiness review-risk analysis, USER packets, helper/validator interpretation, and Codex closeout claims
+- root-cause pattern:
+  Codex treats broad wording as a general instruction instead of a coverage-expanding claim, fails to decompose the complaint into atomic repair targets, accepts validator green or screenshot existence without checking the generated artifacts, or repairs the easiest visible target while leaving the rest of the class uninspected.
+- fix pattern:
+  require a `Scope Coverage Manifest` before any full-scope success claim. Broad or multi-issue complaints must be classified as `Single Item`, `Multi Item`, `Broad Class`, `Vague Class`, or `All Surface`; anything broader than `Single Item` must create a target ledger or complete-class scan with owner, surface, file/code path, expected fix, proof method, evidence reviewed, and disposition for each target. Sampling requires explicit justification. Vague final acceptance such as `looks good`, `seems fine`, `validator passed`, or `screenshot exists` is invalid unless mapped to evidence and coverage disposition.
+- validation pattern:
+  future helpers should fail on `Completeness Claim Without Coverage Manifest`, `Broad Request Decomposition Missing`, `Multi-Issue Repair Ledger Missing`, `Quantity-Sensitive Repair Drift`, `Partial Repair Reported Complete`, `All-Claim Coverage Missing`, `Unverified Defect Target`, `Sampling Used Without Justification`, `Generated Artifact Not Checked`, `Element Group Coverage Missing`, or `Validator Green Accepted Without Coverage Review` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/validation_helper_registry.md`
+
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease
 
 - symptom:

@@ -158,6 +158,33 @@ Vision-To-Proof Matrix rows carry the same claims into Hardening and Live Valida
 
 Hardening reviews these rows for proof gaps before Live Validation. Live Validation fills the observed evidence, comparison evidence, adjudication result, USER validation need, and final verdict. A row that only says helper output, marker, manifest, screenshot, video, or log exists is incomplete until it records what accepted requirement the artifact proves and how Codex compared it.
 
+Scope Coverage Manifest rows carry completeness proof into Workstream, Hardening, Live Validation, PR Readiness, and any same-turn repair closeout that claims `green`, `complete`, `LV passed`, `PR-ready`, `accepted`, `no drift`, `all fixed`, or equivalent full-scope success. The active branch plan, USER review packet, helper output, validator output, or Codex digest must include or reference:
+
+- `Coverage Objective:`
+- `Phase / Gate:`
+- `Source-Truth Owners Loaded:`
+- `Inventory Roots:`
+- `File Classes Included:`
+- `File Classes Excluded:`
+- `Runtime / UI Surfaces Included:`
+- `Claims Inventoried:`
+- `Visual Elements Or Element Groups Inventoried:`
+- `Files Read Directly:`
+- `Files Searched Only:`
+- `Files Not Read With Reason:`
+- `Validators Run:`
+- `Helpers Run:`
+- `Independent Proof Reviewed:`
+- `Photo / Video Evidence Reviewed:`
+- `USER Packet Evidence Reviewed:`
+- `Human-Judgment Areas:`
+- `Known Blind Spots:`
+- `Sampling Used:`
+- `If Sampling Used, Why:`
+- `Coverage Disposition:`
+
+Coverage dispositions must use `Checked`, `Not Applicable`, `Deferred With Reason`, `Repair Required`, `USER Review Required`, or `Blocked`. A branch plan or repair digest that uses broad words such as `all`, `every`, `whole window`, `all text`, `all buttons`, `multiple issues`, or a numbered issue set must convert that scope into atomic repair targets or a justified complete-class scan. Each target needs owner, surface, file/code path, expected fix, proof method, and final disposition. One repaired sample cannot close a broad-class complaint unless the manifest proves why sampling is sufficient and what remains untested.
+
 When the selected element creates or changes user-facing UI, BP2/BP3 must classify each visible surface as `Nexus-Owned Product Surface`, `Platform-Native Exception`, `Diagnostic / Developer Surface`, or `External Surface`. `Nexus-Owned Product Surface` rows must name the inherited FAM-002 component grammar and window chrome/frame treatment. `Platform-Native Exception` rows must name the platform reason, why custom NDAI chrome would be wrong or unsafe, and the proof that the exception is deliberate.
 
 Active implementation status for selected elements belongs in the active external branch plan or approved branch-planning packet. Family Feature Vision records own only the durable `Visioned` inventory, deferred facts, proof expectations, and fold-down receipts.

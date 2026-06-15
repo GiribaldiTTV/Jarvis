@@ -43,6 +43,22 @@ FAM-002 supplies reusable presentation grammar for:
 
 Consuming FAM branches may specialize this grammar for their own feature surfaces, but they must name the inherited FAM-002 grammar, classify any platform-native exception, and prove visible inheritance before USER handoff. A branch that introduces a new button family, new window frame, new dialog shell, unique glow/color family, or custom layout density must record whether it is inherited, a USER-accepted new grammar, or a repair/blocker.
 
+## Component Anatomy And Element-Group Acceptance
+
+FAM-002 treats reusable UI components as visible element groups with anatomy, state, and proof expectations. A component is not accepted merely because a helper marker exists or a screenshot was captured.
+
+For shared UI components such as close/minimize/back/settings affordances, primary/secondary/danger buttons, dropdowns, cards, rows, scrollbars, confirmation dialogs, dirty guards, status chips, and window chrome, consuming FAM branches should identify the component anatomy that matters to the USER experience:
+
+- visible label/icon and purpose
+- placement and relationship to surrounding controls
+- size, spacing, radius, border, shadow, glow, and density
+- typography, color, contrast, and disabled/degraded treatment
+- default, hover, focus, pressed, selected, dirty, loading, disabled, error, empty, and danger states when applicable
+- input behavior for mouse, keyboard, focus, scroll, resize, close, save, discard, cancel, and delete paths when applicable
+- inherited reference surface, accepted grammar, or USER-approved exception
+
+Element-group acceptance must be deterministic enough that a future branch can compare a new component to the inherited Nexus grammar. Vague verdicts such as `looks good`, `NDAI-ish`, `matches generally`, or `seems fine` are not enough. Final visual acceptance requires mapped evidence, reference or exception, inspected state coverage, and a PASS / REPAIR / STOP / WAIVED_WITH_REASON / USER Review Required disposition.
+
 ## Consumption Model
 
 - Default Rule: FAM-002 is consumed-by-default by feature-owning FAM branches.
