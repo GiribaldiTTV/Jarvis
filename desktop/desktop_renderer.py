@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent
 from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPixmap, QRegion
+from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
@@ -869,25 +870,22 @@ class AIControlCenterDeck(QFrame):
             painter.setPen(QColor(117, 228, 255, 10))
             for y in range(grid_rect.top(), grid_rect.bottom() + 1, step):
                 painter.drawLine(grid_rect.left(), y, grid_rect.right(), y)
-            painter.fillRect(
-                grid_rect.left(),
-                grid_rect.top(),
-                grid_rect.width(),
-                74,
-                QColor(4, 42, 44, 28),
-            )
-            painter.fillRect(
-                grid_rect.left(),
-                grid_rect.bottom() - 100,
-                grid_rect.width(),
-                100,
-                QColor(1, 7, 16, 72),
-            )
             painter.setClipping(False)
             painter.setPen(QColor(118, 226, 255, 31))
             painter.drawPath(path)
         finally:
             painter.end()
+
+
+class AIControlCenterTemplatePage(QWebEnginePage):
+    ai_control_center_command = Signal(str)
+
+    def javaScriptConsoleMessage(self, level, message, line_number, source_id):
+        prefix = "NEXUS_AI_CONTROL_CENTER_COMMAND:"
+        if isinstance(message, str) and message.startswith(prefix):
+            self.ai_control_center_command.emit(message[len(prefix):])
+            return
+        super().javaScriptConsoleMessage(level, message, line_number, source_id)
 
 
 class QuickCreateGroupDialog(QDialog):
@@ -5936,8 +5934,8 @@ class AIControlCenterDialog(QDialog):
         self.setWindowModality(Qt.NonModal)
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(720, 740)
-        self.resize(780, 860)
+        self.setMinimumSize(720, 720)
+        self.resize(780, 820)
         self.setProperty("aiControlCenterOwner", "FAM-007")
         self.setProperty("aiControlCenterRoute", "fam007-ai-control-center")
         self.setProperty("fam003CarryIn", "f3-ff01-narrow-doorway-only")
@@ -5949,6 +5947,31 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("providerModelExecution", "blocked")
         self.setProperty("networkEgress", "network-egress-blocked")
         self.setProperty("memoryIndexing", "memory-indexing-disabled")
+        self._uses_hud_template = True
+        self._page_ready = False
+        self._pending_provider_payload = {}
+        self._drag_offset = None
+        self.setStyleSheet("background-color: transparent;")
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+        self.webview = QWebEngineView(self)
+        self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.webview.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.webview.setAutoFillBackground(False)
+        self.webview.setStyleSheet("background-color: transparent; border: none;")
+        self.webview.setContextMenuPolicy(Qt.NoContextMenu)
+        self.webview.setMouseTracking(True)
+        self.webview.installEventFilter(self)
+        self._web_page = AIControlCenterTemplatePage(self.webview)
+        self._web_page.ai_control_center_command.connect(self._handle_ai_control_center_command)
+        self.webview.setPage(self._web_page)
+        self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
+        self.webview.loadFinished.connect(self._on_ai_control_center_template_loaded)
+        self.webview.load(QUrl.fromLocalFile(str(self._ai_control_center_template_path())))
+        root.addWidget(self.webview)
+        self.setGeometry(self._restored_geometry())
+        return
         self.setStyleSheet(
             """
             QWidget#fam007AiControlCenter {
@@ -5964,7 +5987,7 @@ class AIControlCenterDialog(QDialog):
             QFrame#fam007AiControlCenterChromeBar {
                 border: 1px solid rgba(130, 236, 255, 0.12);
                 border-radius: 22px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(3, 16, 28, 0.99), stop:1 rgba(1, 8, 17, 0.97));
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(2, 13, 24, 0.995), stop:1 rgba(1, 7, 15, 0.985));
             }
             QLabel#fam007AiControlCenterChromeTitle {
                 color: rgba(235, 252, 255, 0.96);
@@ -5978,7 +6001,7 @@ class AIControlCenterDialog(QDialog):
                 max-width: 76px;
                 min-height: 34px;
                 max-height: 34px;
-                padding: 8px 18px;
+                padding: 0;
                 border-radius: 17px;
                 border: 1px solid rgba(122, 232, 255, 0.32);
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
@@ -5994,8 +6017,8 @@ class AIControlCenterDialog(QDialog):
                 color: rgba(241, 255, 252, 0.99);
             }
             QPushButton#fam007AiControlCenterChromeClose:pressed {
-                padding-top: 9px;
-                padding-bottom: 7px;
+                padding-top: 1px;
+                padding-bottom: 0;
                 border-color: rgba(163, 255, 228, 0.72);
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 40, 57, 0.98), stop:1 rgba(3, 18, 32, 0.96));
             }
@@ -6060,7 +6083,7 @@ class AIControlCenterDialog(QDialog):
                 font-weight: 560;
             }
             QFrame[role="surfaceRole"] {
-                min-height: 74px;
+                min-height: 52px;
                 border: 1px solid rgba(118, 226, 255, 0.16);
                 border-radius: 18px;
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(6, 25, 38, 0.50), stop:0.58 rgba(2, 11, 22, 0.48), stop:1 rgba(2, 11, 22, 0.48));
@@ -6105,17 +6128,6 @@ class AIControlCenterDialog(QDialog):
                 color: rgba(181, 218, 229, 0.88);
                 font-size: 12px;
                 font-weight: 600;
-            }
-            QLabel[role="sectionPill"] {
-                min-height: 34px;
-                padding: 0 16px;
-                border: 1px solid rgba(122, 232, 255, 0.32);
-                border-radius: 17px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
-                color: rgba(229, 249, 255, 0.94);
-                font-size: 11px;
-                font-weight: 760;
-                qproperty-alignment: AlignCenter;
             }
             QLabel[role="factLabel"] {
                 color: rgba(145, 202, 218, 0.82);
@@ -6163,14 +6175,14 @@ class AIControlCenterDialog(QDialog):
             QPushButton {
                 min-height: 38px;
                 max-height: 38px;
-                padding: 8px 20px;
+                padding: 0 20px;
                 border: 1px solid rgba(117, 228, 255, 0.22);
                 border-radius: 19px;
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
                 color: rgba(229, 249, 255, 0.94);
                 font-family: Bahnschrift, Rajdhani, Segoe UI, sans-serif;
                 font-size: 12px;
-                font-weight: 720;
+                font-weight: 760;
                 letter-spacing: 0.09em;
             }
             QPushButton[buttonRole="primary"] {
@@ -6189,8 +6201,8 @@ class AIControlCenterDialog(QDialog):
                 color: rgba(241, 255, 252, 0.99);
             }
             QPushButton:pressed {
-                padding-top: 9px;
-                padding-bottom: 7px;
+                padding-top: 1px;
+                padding-bottom: 0;
                 border-color: rgba(163, 255, 228, 0.72);
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 40, 57, 0.98), stop:1 rgba(3, 18, 32, 0.96));
             }
@@ -6229,11 +6241,11 @@ class AIControlCenterDialog(QDialog):
             show_title=False,
         )
         self.chrome_bar.setProperty("role", "hudTitleGroup")
-        self.chrome_bar.setFixedHeight(198)
+        self.chrome_bar.setFixedHeight(172)
         chrome_shadow = QGraphicsDropShadowEffect(self.chrome_bar)
-        chrome_shadow.setBlurRadius(34)
-        chrome_shadow.setOffset(0, 18)
-        chrome_shadow.setColor(QColor(3, 72, 72, 104))
+        chrome_shadow.setBlurRadius(24)
+        chrome_shadow.setOffset(0, 12)
+        chrome_shadow.setColor(QColor(3, 72, 72, 72))
         self.chrome_bar.setGraphicsEffect(chrome_shadow)
         chrome_layout = self.chrome_bar.layout()
         if chrome_layout is not None:
@@ -6243,8 +6255,8 @@ class AIControlCenterDialog(QDialog):
                 item = chrome_layout.itemAt(index)
                 if item is not None and item.spacerItem() is not None:
                     chrome_layout.takeAt(index)
-            chrome_layout.setContentsMargins(20, 12, 14, 14)
-            chrome_layout.setSpacing(14)
+            chrome_layout.setContentsMargins(20, 12, 14, 12)
+            chrome_layout.setSpacing(12)
         self.chrome_bar.close_button.setToolTip("Close AI Control Center")
         self.chrome_bar.close_button.setAccessibleName("Close AI Control Center")
         self.chrome_bar.close_button.setCursor(Qt.PointingHandCursor)
@@ -6265,7 +6277,7 @@ class AIControlCenterDialog(QDialog):
         self.header_text.setObjectName("fam007AiControlCenterHeaderText")
         header_text_layout = QVBoxLayout(self.header_text)
         header_text_layout.setContentsMargins(0, 0, 0, 0)
-        header_text_layout.setSpacing(5)
+        header_text_layout.setSpacing(4)
         eyebrow = QLabel("NEXUS DESKTOP AI", self.header_text)
         eyebrow.setProperty("role", "productEyebrow")
         eyebrow.setFont(self._hud_label_font(point_size=10, weight=800, spacing=126, uppercase=True))
@@ -6282,10 +6294,11 @@ class AIControlCenterDialog(QDialog):
         role_surface = QFrame(self.header_text)
         role_surface.setProperty("role", "surfaceRole")
         role_surface.setAttribute(Qt.WA_StyledBackground, True)
-        role_surface.setMinimumHeight(78)
+        role_surface.setObjectName("fam007AiControlCenterRoleSurface")
+        role_surface.setMinimumHeight(52)
         role_layout = QHBoxLayout(role_surface)
-        role_layout.setContentsMargins(14, 12, 14, 12)
-        role_layout.setSpacing(10)
+        role_layout.setContentsMargins(14, 9, 14, 9)
+        role_layout.setSpacing(18)
         role_items = (
             ("AI", "ORIN"),
             ("STATUS", "NOT IMPLEMENTED"),
@@ -6295,23 +6308,20 @@ class AIControlCenterDialog(QDialog):
             pair = QFrame(role_surface)
             pair.setProperty("role", "surfaceRolePair")
             pair.setAttribute(Qt.WA_StyledBackground, True)
-            pair_layout = QVBoxLayout(pair)
+            pair_layout = QHBoxLayout(pair)
             pair_layout.setContentsMargins(0, 0, 0, 0)
-            pair_layout.setSpacing(2)
+            pair_layout.setSpacing(8)
             label_widget = QLabel(label, pair)
             label_widget.setProperty("role", "surfaceRoleLabel")
             label_widget.setFont(self._hud_label_font(point_size=9, weight=760, spacing=108, uppercase=True))
             value_widget = QLabel(value, pair)
             value_widget.setProperty("role", "surfaceRoleValue")
             value_widget.setFont(self._hud_label_font(point_size=9, weight=800, spacing=108, uppercase=True))
-            value_widget.setWordWrap(True)
-            pair_layout.addWidget(label_widget)
-            pair_layout.addWidget(value_widget)
-            role_layout.addWidget(pair, 1, Qt.AlignVCenter)
-        role_status = QLabel("NO PROVIDER", role_surface)
-        role_status.setProperty("role", "sectionPill")
-        role_status.setFont(self._hud_label_font(point_size=8, weight=760, spacing=108, uppercase=True))
-        role_layout.addWidget(role_status, 0, Qt.AlignRight | Qt.AlignVCenter)
+            value_widget.setWordWrap(False)
+            pair_layout.addWidget(label_widget, 0, Qt.AlignVCenter)
+            pair_layout.addWidget(value_widget, 0, Qt.AlignVCenter)
+            role_layout.addWidget(pair, 0, Qt.AlignVCenter)
+        role_layout.addStretch(1)
         header_text_layout.addWidget(role_surface)
         if chrome_layout is not None:
             chrome_layout.insertWidget(0, self.header_text, 1, Qt.AlignTop)
@@ -6325,7 +6335,7 @@ class AIControlCenterDialog(QDialog):
         shell_layout.addWidget(self.content, 1)
 
         deck_layout = QVBoxLayout(self.content)
-        deck_layout.setContentsMargins(12, 12, 4, 16)
+        deck_layout.setContentsMargins(12, 12, 4, 12)
         deck_layout.setSpacing(0)
         self._content_scroll = QScrollArea(self.content)
         self._content_scroll.setObjectName("fam007AiControlCenterScroll")
@@ -6364,7 +6374,7 @@ class AIControlCenterDialog(QDialog):
         facts_title = QLabel("ORIN status", self)
         facts_title.setProperty("role", "sectionTitle")
         facts_title.setFont(self._hud_label_font(point_size=12, weight=780, spacing=108, uppercase=True))
-        facts_copy = QLabel("Truthful no-provider state for ORIN, provider data, capability packs, and edition lanes.", self)
+        facts_copy = QLabel("Truthful inactive ORIN state for provider data, capability packs, and edition lanes.", self)
         facts_copy.setWordWrap(True)
         facts_copy.setProperty("role", "sectionCopy")
         facts_copy.setFont(self._hud_label_font(point_size=9, weight=600))
@@ -6380,7 +6390,7 @@ class AIControlCenterDialog(QDialog):
             ("execution", "PROVIDER / MODEL", "off; no provider/model execution"),
             ("prompt_memory", "PROMPT / MEMORY", "not accepted, sent, stored, or indexed"),
             ("capability_packs", "CAPABILITY PACKS", "install intent blocked; downloads disabled"),
-            ("edition_lanes", "EDITION LANES", "Public no-provider; Developer and Owner lanes gated"),
+            ("edition_lanes", "EDITION LANES", "Public no-provider only; Developer and Owner lanes gated"),
         )
         for row, (key, label, value) in enumerate(fact_rows):
             row_frame = QFrame(self)
@@ -6430,10 +6440,10 @@ class AIControlCenterDialog(QDialog):
         result_title_layout = QVBoxLayout(result_title_stack)
         result_title_layout.setContentsMargins(0, 0, 0, 0)
         result_title_layout.setSpacing(4)
-        result_title = QLabel("No-provider check", self)
+        result_title = QLabel("Local safety check", self)
         result_title.setProperty("role", "sectionTitle")
         result_title.setFont(self._hud_label_font(point_size=12, weight=780, spacing=108, uppercase=True))
-        result_copy = QLabel("Runs one local no-provider check; no prompt/provider/model path is used.", self)
+        result_copy = QLabel("Runs one local check; no prompt/provider/model path is used.", self)
         result_copy.setWordWrap(True)
         result_copy.setProperty("role", "sectionCopy")
         result_copy.setFont(self._hud_label_font(point_size=9, weight=600))
@@ -6481,13 +6491,13 @@ class AIControlCenterDialog(QDialog):
         result_actions = QHBoxLayout()
         result_actions.setContentsMargins(0, 2, 0, 0)
         result_actions.setSpacing(12)
-        self._local_assist = QPushButton("NO-PROVIDER CHECK", self)
-        self._local_assist.setAccessibleName("Run no-provider check")
-        self._local_assist.setToolTip("Run no-provider check")
+        self._local_assist = QPushButton("RUN LOCAL CHECK", self)
+        self._local_assist.setAccessibleName("Run local check")
+        self._local_assist.setToolTip("Run local check")
         self._local_assist.setCursor(Qt.PointingHandCursor)
         self._local_assist.setProperty("buttonRole", "primary")
         self._local_assist.setFixedSize(250, 36)
-        self._local_assist.setFont(self._hud_button_font(point_size=9, weight=720, spacing=109))
+        self._local_assist.setFont(self._hud_button_font(point_size=9, weight=760, spacing=109))
         self._install_hud_button_glow(self._local_assist, kind="action")
         self._local_assist.clicked.connect(self.run_local_assist_check)
         result_actions.addStretch(1)
@@ -6501,6 +6511,41 @@ class AIControlCenterDialog(QDialog):
         self._content_scroll.setWidget(self._content_scroll_body)
         deck_layout.addWidget(self._content_scroll)
         self.setGeometry(self._restored_geometry())
+
+    def _ai_control_center_template_path(self) -> Path:
+        return Path(__file__).resolve().parents[1] / "nexus_visual" / "ai_control_center.html"
+
+    def _on_ai_control_center_template_loaded(self, ok: bool) -> None:
+        self._page_ready = bool(ok)
+        if self._page_ready:
+            self._sync_provider_state_to_web()
+        elif callable(self.event_logger):
+            self.event_logger("RENDERER_MAIN|AI_CONTROL_CENTER_TEMPLATE_LOAD_FAILED")
+
+    def _handle_ai_control_center_command(self, command: str) -> None:
+        if command == "close":
+            self.close()
+            return
+        if command == "run-local-check":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT"
+                    "|provider_visible_data=none|sent_to_provider=false|can_accept_prompts=false"
+                    "|network_egress=blocked|memory_indexing=disabled"
+                )
+
+    def _sync_provider_state_to_web(self) -> None:
+        if not getattr(self, "_uses_hud_template", False):
+            return
+        payload = dict(self._provider_payload or self._pending_provider_payload or {})
+        self._pending_provider_payload = payload
+        if not getattr(self, "_page_ready", False) or not hasattr(self, "webview"):
+            return
+        script = (
+            "window.nexusAiControlCenterApplyProviderState && "
+            f"window.nexusAiControlCenterApplyProviderState({json.dumps(payload)});"
+        )
+        self.webview.page().runJavaScript(script)
 
     @staticmethod
     def _hud_label_font(
@@ -6585,6 +6630,25 @@ class AIControlCenterDialog(QDialog):
         effect.setColor(QColor(99, 225, 255, 0))
 
     def eventFilter(self, watched, event):
+        if getattr(self, "_uses_hud_template", False) and watched is getattr(self, "webview", None):
+            event_type = event.type()
+            if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+                pos = event.position().toPoint()
+                close_zone = pos.y() <= 100 and pos.x() >= max(0, self.width() - 170)
+                if pos.y() <= 235 and not close_zone:
+                    self._drag_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                    event.accept()
+                    return True
+            elif (
+                event_type == QEvent.MouseMove
+                and self._drag_offset is not None
+                and event.buttons() & Qt.LeftButton
+            ):
+                self.move(event.globalPosition().toPoint() - self._drag_offset)
+                event.accept()
+                return True
+            elif event_type in (QEvent.MouseButtonRelease, QEvent.Leave):
+                self._drag_offset = None
         if watched in self._hud_glow_buttons and isinstance(watched, QPushButton):
             event_type = event.type()
             if event_type in (QEvent.Enter, QEvent.HoverEnter, QEvent.HoverMove, QEvent.FocusIn):
@@ -6695,7 +6759,7 @@ class AIControlCenterDialog(QDialog):
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
         width = 780
-        height = 860
+        height = 820
         return QRect(
             available.x() + max(24, available.width() - width - 96),
             available.y() + max(24, available.height() - height - 126),
@@ -6718,6 +6782,9 @@ class AIControlCenterDialog(QDialog):
 
     def update_provider_state(self, payload: dict[str, object]) -> None:
         self._provider_payload = dict(payload or {})
+        if getattr(self, "_uses_hud_template", False):
+            self._sync_provider_state_to_web()
+            return
         provider_execution = "disabled and blocked"
         if (
             self._provider_payload.get("providerExecutionGateState") != "provider-execution-disabled"
@@ -6727,11 +6794,7 @@ class AIControlCenterDialog(QDialog):
                 self._provider_payload.get("providerExecutionGateLabel") or provider_execution
             )
 
-        lane_boundary = (
-            f"{self._provider_payload.get('publicLaneBoundaryLabel') or 'Public deterministic no-provider assist'}; "
-            f"{self._provider_payload.get('developerLaneBoundaryLabel') or 'Developer lane gated'}; "
-            f"{self._provider_payload.get('ownerLaneBoundaryLabel') or 'Owner lane gated'}"
-        )
+        lane_boundary = "Public no-provider only; Developer and Owner lanes gated"
         capability_packs = str(
             self._provider_payload.get("installIntentLabel")
             or "install intent blocked; downloads disabled"
@@ -6768,6 +6831,23 @@ class AIControlCenterDialog(QDialog):
             and payload.get("networkEgressState") == "network-egress-blocked"
             and payload.get("memoryIndexingState") == "memory-indexing-disabled"
         )
+        if getattr(self, "_uses_hud_template", False):
+            if hasattr(self, "webview"):
+                self.webview.page().runJavaScript(
+                    "window.nexusAiControlCenterRunLocalCheck && "
+                    "window.nexusAiControlCenterRunLocalCheck();"
+                )
+            if guard_closed:
+                event = (
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT"
+                    "|provider_visible_data=none|sent_to_provider=false|can_accept_prompts=false"
+                    "|network_egress=blocked|memory_indexing=disabled"
+                )
+            else:
+                event = "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_BLOCKED|reason=boundary_mismatch"
+            if callable(self.event_logger):
+                self.event_logger(event)
+            return
         if guard_closed:
             result = str(payload.get("localActionResultLabel") or "no provider configured")
             detail = str(

@@ -3631,6 +3631,9 @@ def validate() -> list[str]:
     css = _read("nexus_visual/orin_core.css")
     desktop_css = _read("nexus_visual/orin_core_desktop.css")
     js = _read("nexus_visual/orin_core.js")
+    ai_control_html = _read("nexus_visual/ai_control_center.html")
+    ai_control_js = _read("nexus_visual/ai_control_center.js")
+    monitoring_hud_css = _read("nexus_visual/monitoring_hud.css")
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
     active_activation_branch_record = _read(
         "Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md"
@@ -8777,6 +8780,16 @@ def validate() -> list[str]:
 
     for needle in (
         "AIControlCenterDialog",
+        "AIControlCenterTemplatePage",
+        "QWebEnginePage",
+        "QWebEngineView",
+        "ai_control_center.html",
+        "_ai_control_center_template_path",
+        "_sync_provider_state_to_web",
+        "_handle_ai_control_center_command",
+        "NEXUS_AI_CONTROL_CENTER_COMMAND:",
+        "nexusAiControlCenterApplyProviderState",
+        "nexusAiControlCenterRunLocalCheck",
         "fam007AiControlCenter",
         "fam007AiControlCenterShell",
         "fam007AiControlCenterChromeBar",
@@ -8828,7 +8841,6 @@ def validate() -> list[str]:
         "sectionHeader",
         "sectionNumber",
         "sectionTitle",
-        "sectionPill",
         "rowAccent",
         "buttonRole",
         "factRow",
@@ -8851,14 +8863,13 @@ def validate() -> list[str]:
         "prompt-send-disabled",
         "network-egress-blocked",
         "memory-indexing-disabled",
-        "Run no-provider check",
-        "NO-PROVIDER CHECK",
+        "Run local check",
+        "RUN LOCAL CHECK",
         "ORIN is not implemented; provider/model execution is not active.",
         "ORIN status",
         "AI\", \"ORIN",
         "STATUS\", \"NOT IMPLEMENTED",
         "PROVIDER\", \"BLOCKED",
-        "NO PROVIDER",
         "setFixedSize(250, 36)",
         "PROVIDER-VISIBLE DATA",
         "PROVIDER / MODEL",
@@ -8868,10 +8879,75 @@ def validate() -> list[str]:
         "Not implemented; no real AI executing",
         "install intent blocked; downloads disabled",
         "Developer and Owner lanes gated",
-        "Runs one local no-provider check; no prompt/provider/model path is used.",
+        "Runs one local check; no prompt/provider/model path is used.",
         "No prompt was accepted or sent; provider-visible data remains none.",
     ):
         _require(needle in renderer, f"desktop renderer Nexus AI Control Center is missing {needle!r}", failures)
+
+    for needle in (
+        "monitoring_hud.css",
+        'id="monitoring-hud"',
+        'class="monitoring-hud"',
+        "monitoring-hud__chrome",
+        "monitoring-hud__title-group",
+        "monitoring-hud__header",
+        "monitoring-hud__kicker",
+        "monitoring-hud__title",
+        "monitoring-hud__subtitle",
+        "monitoring-hud__chrome-button monitoring-hud__chrome-button--close monitoring-hud__window-close",
+        "monitoring-hud__surface-role",
+        "monitoring-hud__surface-role-copy",
+        "monitoring-hud__control-hub",
+        "monitoring-hud__hub-card",
+        "monitoring-hud__hub-card-topline",
+        "monitoring-hud__state-row",
+        "monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action",
+        "AI Control Center",
+        "ORIN Status",
+        "Local Safety Check",
+        "Run Local Check",
+        "ORIN is not implemented; provider/model execution is not active.",
+        "Not implemented; no real AI executing",
+        "Provider-visible data",
+        "Public no-provider only; Developer and Owner lanes gated",
+    ):
+        _require(
+            needle in ai_control_html,
+            f"AI Control Center HUD-derived template is missing {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        "NEXUS_AI_CONTROL_CENTER_COMMAND:",
+        "nexusAiControlCenterApplyProviderState",
+        "nexusAiControlCenterRunLocalCheck",
+        "run-local-check",
+        "close",
+        "provider-visible data remains none",
+    ):
+        _require(
+            needle in ai_control_js,
+            f"AI Control Center template script is missing {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        ".monitoring-hud__chrome",
+        ".monitoring-hud__title-group",
+        ".monitoring-hud__chrome-button--close",
+        ".monitoring-hud__window-close",
+        ".monitoring-hud__control-hub",
+        ".monitoring-hud__hub-card",
+        ".monitoring-hud__hub-card-topline",
+        ".monitoring-hud__state-row",
+        ".monitoring-hud__hub-action",
+        ".monitoring-hud__dashboard-paired-action",
+    ):
+        _require(
+            needle in monitoring_hud_css,
+            f"shared Monitoring HUD stylesheet is missing {needle!r}",
+            failures,
+        )
 
     for forbidden in (
         "Qt.WindowTitleHint",
@@ -8899,10 +8975,25 @@ def validate() -> list[str]:
         "PROMPT / MODEL / PROVIDER",
         "STATUS SURFACE",
         "Display-only; controls live here",
+        "sectionPill",
+        "role_status = QLabel",
+        "NO-PROVIDER CHECK",
+        "Runs one local no-provider check",
+        "Run no-provider check",
     ):
         _require(
             forbidden not in renderer,
             f"desktop renderer AI Control Center must not retain stale visual/content contract {forbidden!r}",
+            failures,
+        )
+        _require(
+            forbidden not in ai_control_html,
+            f"AI Control Center HUD-derived template must not retain stale visual/content contract {forbidden!r}",
+            failures,
+        )
+        _require(
+            forbidden not in ai_control_js,
+            f"AI Control Center template script must not retain stale visual/content contract {forbidden!r}",
             failures,
         )
 
