@@ -98,12 +98,20 @@ Execution Boundary: non-destructive organization planning and queue clarificatio
 Source Review Surface: `Docs/governance_docs_full_inventory_reform_audit.md`, `Docs/governance_docs_reform_user_review_index.md`, and the local USER hub review packet.
 Next USER Decision: choose one focused cleanup lane before any physical file or history-affecting change.
 
+## Branch Record / Branch Plan / External State Cleanup Receipt
+
+Cleanup Receipt: `Summary recorded in this index; no separate repo-tracked cleanup inventory file is created, so Docs file-count validation remains stable.`
+Receipt Status: `Completed no-loss classification and index repair; no deletion, move, archive, broad rename, external-state schema mutation, or external-state cleanup executed.`
+Inventory Scope: `76 repo branch records, 33 repo branch plans, 9 external branch directories, and 23 external branch markdown files.`
+Safe Repairs Applied: `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` was added to durable branch receipt indexing, and `Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` was added to the branch-plan retirement index.
+No-Loss Boundary: duplicate-looking branch record / branch plan / external state overlaps are not automatic deletion candidates; physical cleanup requires current reference proof, replacement owner proof, and exact USER approval.
+
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
 | --- | ---: | --- | --- |
 | Ambiguous ownership/current-state wording | 157 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
-| Retired branch plan review | 29 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
+| Retired branch plan review | 30 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
 | Low-risk reference consolidation | 18 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
 Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
@@ -111,7 +119,7 @@ Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical
 
 ## Files Needing USER Decision
 
-Total USER decision rows: 29
+Total USER decision rows: 30
 
 | File | Reason | Recommendation |
 | --- | --- | --- |
@@ -131,6 +139,7 @@ Total USER decision rows: 29
 | `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_ai_runtime_trust_boundary_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |

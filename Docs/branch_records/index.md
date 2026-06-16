@@ -243,3 +243,4 @@ This repo-tracked active list is intentionally narrow after External Operational
 ## Durable Branch Receipt Records
 
 - `Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md`
+- `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` - Companion element-validation ledger owned by `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`; preserved as released historical proof, not active branch authority.
