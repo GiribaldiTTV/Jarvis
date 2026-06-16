@@ -43,12 +43,138 @@
     </div>
 
     <div
+      id="ai-local-status-surface"
+      class="ai-local-status-surface"
+      role="status"
+      aria-live="polite"
+      data-status-only="true"
+      data-interactive="false"
+      data-opens-control-center="false"
+      data-ai-local-status="no-ai-execution"
+      data-provider-visible-data="none"
+      data-prompt-send="prompt-send-disabled"
+      data-provider-model-execution="blocked"
+      data-network-egress="network-egress-blocked"
+      data-memory-indexing="memory-indexing-disabled"
+    >
+      <span class="ai-local-status-surface__lamp" aria-hidden="true"></span>
+      <span id="ai-local-status-label" class="ai-local-status-surface__label">No AI executing</span>
+      <span id="ai-local-status-scope" class="ai-local-status-surface__scope">Provider/model off</span>
+      <span id="ai-local-status-activity" class="ai-local-status-surface__activity">Idle</span>
+    </div>
+
+    <button
+      id="ai-provider-tray"
+      class="ai-provider-tray ai-resident-doorway"
+      type="button"
+      hidden
+      aria-hidden="true"
+      tabindex="-1"
+      aria-expanded="false"
+      aria-controls="ai-provider-tray-window"
+      aria-label="Open AI Control Center"
+      data-interactive="false"
+      data-desktop-tray-doorway="native-system-tray"
+      data-ai-tray-state="closed"
+      data-ai-resident-doorway="f3-ff01-narrow-ai-command-center"
+      data-ai-control-center-route="fam007-ai-control-center"
+      data-status-surface-owner="ai-local-status-surface"
+      data-ai-local-status="no-ai-execution"
+      data-provider-visible-data="none"
+      data-prompt-send="prompt-send-disabled"
+      data-provider-model-execution="blocked"
+      data-network-egress="network-egress-blocked"
+      data-memory-indexing="memory-indexing-disabled"
+      data-fam003-carry-in="narrow-doorway-only"
+    >
+      <span class="ai-provider-tray__lamp" aria-hidden="true"></span>
+      <span id="ai-provider-tray-label" class="ai-provider-tray__label">NDAI</span>
+      <span id="ai-provider-tray-scope" class="ai-provider-tray__scope">AI</span>
+    </button>
+
+    <section
+      id="ai-provider-tray-window"
+      class="ai-provider-tray-window ai-control-center"
+      aria-labelledby="ai-provider-tray-title"
+      data-ai-tray-state="closed"
+      data-ai-control-center="fam007"
+      data-ai-control-center-owner="FAM-007"
+      data-ai-control-center-route="fam007-ai-control-center"
+      data-ai-resident-doorway="f3-ff01-narrow-ai-command-center"
+      data-fam003-carry-in="narrow-doorway-only"
+      data-fam008-packaging-execution="blocked-display-only"
+      data-provider-visible-data="none"
+      data-prompt-send="prompt-send-disabled"
+      data-provider-model-execution="blocked"
+      data-network-egress="network-egress-blocked"
+      data-memory-indexing="memory-indexing-disabled"
+      hidden
+    >
+      <div class="ai-provider-tray-window__header">
+        <div>
+          <div class="ai-provider-tray-window__kicker">NDAI doorway</div>
+          <h2 id="ai-provider-tray-title" class="ai-provider-tray-window__title">AI Control Center</h2>
+        </div>
+        <button id="ai-provider-tray-close" class="ai-provider-tray-window__close" type="button">Close</button>
+      </div>
+      <dl class="ai-provider-tray-window__facts">
+        <div>
+          <dt>ORIN status</dt>
+          <dd id="ai-provider-tray-local-status">No AI executing; no provider/model active</dd>
+        </div>
+        <div>
+          <dt>Provider-visible data</dt>
+          <dd id="ai-provider-tray-provider-visible-data">none</dd>
+        </div>
+        <div>
+          <dt>Prompt / model / provider</dt>
+          <dd id="ai-provider-tray-provider-execution">disabled and blocked</dd>
+        </div>
+        <div>
+          <dt>Capability packs</dt>
+          <dd id="ai-provider-tray-capability-posture">Install and download intent blocked</dd>
+        </div>
+        <div>
+          <dt>Public / Developer / Owner</dt>
+          <dd id="ai-provider-tray-lane-boundary">Public deterministic no-provider assist; Developer and Owner lanes gated</dd>
+        </div>
+        <div>
+          <dt>Status surface</dt>
+          <dd id="ai-provider-tray-status-boundary">Display-only; controls live here</dd>
+        </div>
+      </dl>
+      <button
+        id="ai-provider-tray-local-assist-action"
+        class="ai-provider-tray-window__assist"
+        type="button"
+        disabled
+        aria-disabled="true"
+        data-local-action-guard="no-provider"
+      >Run no-provider check</button>
+      <div id="ai-provider-tray-result" class="ai-provider-tray-window__result">No-provider check: waiting for local action</div>
+      <div id="ai-provider-tray-result-detail" class="ai-provider-tray-window__result-detail">No prompt, file, screen, memory, or telemetry is sent.</div>
+      <div id="ai-provider-tray-review-note" class="ai-provider-tray-window__review">FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only.</div>
+    </section>
+
+    <div
       id="ai-provider-status"
       class="ai-provider-status"
       hidden
       aria-hidden="true"
-      data-display-suppression="desktop-ai-owned-readiness-display-suppressed"
-      data-display-visibility="suppressed-by-default"
+      data-display-suppression="tray-owned-status"
+      data-display-visibility="tray-owned-hidden"
+      data-local-action-guard="no-provider"
+      data-status-only="true"
+      data-local-action-clickable="false"
+      data-local-action-result="idle"
+      data-local-action-result-state="local-action-idle"
+      data-local-action-result-schema="local-action-result.v1"
+      data-local-result-provider-visible-data="none"
+      data-local-result-sent-to-provider="false"
+      data-local-result-can-accept-prompts="false"
+      data-local-result-prompt-send="prompt-send-disabled"
+      data-local-result-network-egress="network-egress-blocked"
+      data-local-result-memory-indexing="memory-indexing-disabled"
       data-availability="disabled"
       data-mode="no-provider"
       data-privacy-scope="local-only"
@@ -145,10 +271,23 @@
       data-disk-readiness="disk-unprobed"
       data-model-workload-metadata="model-workload-metadata-planned"
       data-capability-pack-lifecycle="capability-pack-lifecycle-planned"
+      data-capability-pack-download="capability-pack-downloads-blocked"
+      data-capability-pack-install="install-blocked"
+      data-capability-pack-update="update-blocked"
+      data-capability-pack-uninstall="uninstall-blocked"
       data-capability-pack-manifest="manifest-planned"
       data-capability-pack-compatibility="compatibility-unproven"
       data-capability-pack-eligibility="capability-pack-eligibility-blocked"
       data-install-intent="install-intent-blocked"
+      data-lane-boundary-schema="lane-boundary-state.v1"
+      data-public-lane-boundary="public-lane-local-assist-only"
+      data-developer-lane-boundary="developer-lane-private-setup-blocked"
+      data-owner-lane-boundary="owner-lane-private-setup-blocked"
+      data-private-setup-boundary="private-setup-blocked"
+      data-private-setup-authorized="false"
+      data-private-material-visible="false"
+      data-owner-memory-enabled="false"
+      data-owner-agents-enabled="false"
       data-memory-context="memory-context-disabled"
       data-memory-indexing="memory-indexing-disabled"
       data-network-egress="network-egress-blocked"
@@ -162,10 +301,10 @@
       aria-live="polite"
     >
       <div class="ai-provider-status__topline">
-        <span class="ai-provider-status__label">AI</span>
-        <span id="ai-provider-status-state" class="ai-provider-status__state">AI unavailable</span>
+        <span class="ai-provider-status__label">ORIN</span>
+        <span id="ai-provider-status-state" class="ai-provider-status__state">No AI executing</span>
       </div>
-      <div id="ai-provider-status-provider" class="ai-provider-status__provider">No AI provider</div>
+      <div id="ai-provider-status-provider" class="ai-provider-status__provider">No provider/model execution active</div>
       <div id="ai-provider-status-selection" class="ai-provider-status__selection">No-provider fallback active</div>
       <div id="ai-provider-status-configuration" class="ai-provider-status__configuration">Provider configuration: none</div>
       <div id="ai-provider-status-registry" class="ai-provider-status__registry">Local provider registry: no configured providers</div>
@@ -267,17 +406,23 @@
       <div id="ai-provider-status-model-execution" class="ai-provider-status__model-execution">Model execution status: disabled; Model workload readiness: disabled</div>
       <div id="ai-provider-status-execution-data" class="ai-provider-status__execution-data">Provider-visible execution data: none; External call readiness: blocked</div>
       <div id="ai-provider-status-functional-release" class="ai-provider-status__functional-release">Functional-AI release gate: pending; v1.8.0-prebeta release gate: pending functional AI proof</div>
-      <div id="ai-provider-status-capability-eligibility" class="ai-provider-status__capability-eligibility">Capability-pack eligibility: blocked</div>
-      <div id="ai-provider-status-install-intent" class="ai-provider-status__install-intent">Install intent: blocked</div>
+      <div id="ai-provider-status-capability-eligibility" class="ai-provider-status__capability-eligibility">Capability-pack eligibility: blocked until local capability proof</div>
+      <div id="ai-provider-status-install-intent" class="ai-provider-status__install-intent">Install intent: blocked; downloads and install execution remain disabled</div>
+      <div id="ai-provider-status-public-lane" class="ai-provider-status__public-lane">Public Edition: deterministic no-provider assist; provider-visible data none</div>
+      <div id="ai-provider-status-developer-lane" class="ai-provider-status__developer-lane">Developer lane: gated; private setup not configured</div>
+      <div id="ai-provider-status-owner-lane" class="ai-provider-status__owner-lane">Owner lane: gated; private setup not configured</div>
       <button
         id="ai-provider-status-action"
         class="ai-provider-status__action"
         type="button"
         disabled
         aria-disabled="true"
-      >Assisted Desktop unavailable</button>
-      <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider fallback active</div>
-      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Next: provider path and consent readiness remain local-only</div>
+        data-local-action-guard="no-provider"
+      >No-provider check lives in AI Control Center</button>
+      <div id="ai-provider-status-fallback" class="ai-provider-status__fallback">No-provider guard active</div>
+      <div id="ai-provider-status-result" class="ai-provider-status__result">No-provider check: waiting for local action</div>
+      <div id="ai-provider-status-result-detail" class="ai-provider-status__result-detail">Run the check to produce a deterministic no-provider result.</div>
+      <div id="ai-provider-status-next-action" class="ai-provider-status__next-action">Open NDAI for the AI Control Center; provider/model execution remains blocked</div>
       <div id="ai-provider-status-privacy" class="ai-provider-status__privacy">Local shell only; nothing is sent</div>
     </div>
   </div>
