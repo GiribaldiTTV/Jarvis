@@ -1054,11 +1054,11 @@ body.desktop-mode #monitoring-hud > * {
   align-items: center;
   justify-content: center;
   width: auto;
-  max-width: min(100%, 220px);
-  height: 36px;
+  max-width: min(100%, 154px);
+  height: 30px;
   min-width: 0;
-  min-height: 36px;
-  padding: 0 16px;
+  min-height: 30px;
+  padding: 0 11px;
   line-height: 1;
   text-align: center;
   white-space: nowrap;

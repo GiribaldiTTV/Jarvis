@@ -8927,7 +8927,7 @@ def validate() -> list[str]:
         "AI\", \"ORIN",
         "STATUS\", \"NOT IMPLEMENTED",
         "PROVIDER\", \"BLOCKED",
-        "_configure_hud_content_fit_button(self._local_assist, max_width=220)",
+        "_configure_hud_content_fit_button(self._local_assist, max_width=154, horizontal_padding=22, height=30)",
         "PROVIDER DATA",
         "PROVIDER / MODEL",
         "PROMPT / MEMORY",
@@ -8962,6 +8962,8 @@ def validate() -> list[str]:
         "monitoring-hud__window-control-button:disabled",
         "monitoring-hud__surface-role",
         "monitoring-hud__surface-role-copy",
+        "width: fit-content",
+        "max-width: 100%",
         "monitoring-hud__control-hub",
         "monitoring-hud__hub-card",
         "monitoring-hud__hub-card-topline",
@@ -9109,9 +9111,10 @@ def validate() -> list[str]:
         ".monitoring-hud__hub-action",
         ".monitoring-hud__hub-action--content-fit",
         ".monitoring-hud__button-label",
-        "max-width: min(100%, 220px)",
-        "height: 36px",
-        "padding: 0 16px",
+        "max-width: min(100%, 154px)",
+        "height: 30px",
+        "min-height: 30px",
+        "padding: 0 11px",
         ".monitoring-hud__dashboard-paired-action",
     ):
         _require(
@@ -9121,7 +9124,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "_configure_hud_content_fit_button(self._local_assist, max_width=220)",
+        "_configure_hud_content_fit_button(self._local_assist, max_width=154, horizontal_padding=22, height=30)",
         'button.setProperty("buttonSizeModel", "content-fit-fixed-height")',
         "button.setFixedHeight(height)",
         "button.setMaximumWidth(max_width)",

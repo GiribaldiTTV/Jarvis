@@ -287,20 +287,32 @@ def main() -> int:
               background: computed.background,
               borderColor: computed.borderColor,
               borderRadius: computed.borderRadius,
+              boxSizing: computed.boxSizing,
               color: computed.color,
+              display: computed.display,
               fontFamily: computed.fontFamily,
               fontSize: computed.fontSize,
               fontWeight: computed.fontWeight,
               height: computed.height,
               letterSpacing: computed.letterSpacing,
               lineHeight: computed.lineHeight,
+              maxWidth: computed.maxWidth,
+              minHeight: computed.minHeight,
+              minWidth: computed.minWidth,
+              paddingBottom: computed.paddingBottom,
               paddingLeft: computed.paddingLeft,
               paddingRight: computed.paddingRight,
+              paddingTop: computed.paddingTop,
               textTransform: computed.textTransform,
               width: computed.width
             };
           };
+          const titleGroup = document.querySelector(".monitoring-hud__title-group");
           const subtitle = document.querySelector(".monitoring-hud__subtitle");
+          const surfaceRole = document.querySelector(".monitoring-hud__surface-role");
+          const surfaceRoleCopy = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-copy") : null;
+          const surfaceRoleLabel = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-copy span") : null;
+          const surfaceRoleValue = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-copy strong") : null;
           const cluster = document.querySelector(".monitoring-hud__window-controls");
           const close = document.getElementById("ai-control-center-close-action");
           const maximize = document.getElementById("ai-control-center-maximize-action");
@@ -312,9 +324,16 @@ def main() -> int:
           const localCheckButton = document.getElementById("ai-control-center-local-check-action");
           const localCheckButtonLabel = localCheckButton ? localCheckButton.querySelector(".monitoring-hud__button-label") : null;
           return JSON.stringify({
+            titleGroupRect: rect(titleGroup),
             subtitleText: subtitle ? subtitle.textContent.trim() : "",
             subtitleLineCount: subtitle ? subtitle.getClientRects().length : 0,
             subtitleRect: rect(subtitle),
+            surfaceRoleRect: rect(surfaceRole),
+            surfaceRoleStyle: style(surfaceRole),
+            surfaceRoleCopyRect: rect(surfaceRoleCopy),
+            surfaceRoleCopyStyle: style(surfaceRoleCopy),
+            surfaceRoleLabelStyle: style(surfaceRoleLabel),
+            surfaceRoleValueStyle: style(surfaceRoleValue),
             clusterRect: rect(cluster),
             clusterStyle: style(cluster),
             closeText: close ? close.textContent.trim() : "",
@@ -348,6 +367,7 @@ def main() -> int:
             localCheckRowValueText: localCheckRowValue ? localCheckRowValue.textContent.trim() : "",
             localCheckRowValueStyle: style(localCheckRowValue),
             localCheckButtonText: localCheckButton ? localCheckButton.textContent.trim() : "",
+            localCheckButtonRect: rect(localCheckButton),
             localCheckButtonStyle: style(localCheckButton),
             localCheckButtonLabelStyle: style(localCheckButtonLabel),
             chromeGap: close && maximize && minimize
@@ -614,6 +634,28 @@ def main() -> int:
             and title_chrome_proof.get("maximizeLabel") == "Maximize or restore AI Control Center future-gated"
             and title_chrome_proof.get("closeLabel") == "Close AI Control Center"
         ),
+        "surfaceRolePillTypographyReducedOnePoint": (
+            isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("surfaceRoleLabelStyle"), dict)
+            and title_chrome_proof["surfaceRoleLabelStyle"].get("fontSize") == "10px"
+            and isinstance(title_chrome_proof.get("surfaceRoleValueStyle"), dict)
+            and title_chrome_proof["surfaceRoleValueStyle"].get("fontSize") == "10px"
+        ),
+        "surfaceRolePillContentFit": (
+            isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("titleGroupRect"), dict)
+            and isinstance(title_chrome_proof.get("surfaceRoleRect"), dict)
+            and isinstance(title_chrome_proof.get("surfaceRoleCopyRect"), dict)
+            and isinstance(title_chrome_proof.get("surfaceRoleStyle"), dict)
+            and int(title_chrome_proof["surfaceRoleRect"].get("width") or 0) > 0
+            and int(title_chrome_proof["surfaceRoleCopyRect"].get("width") or 0) > 0
+            and int(title_chrome_proof["surfaceRoleRect"].get("width") or 0)
+            <= int(title_chrome_proof["titleGroupRect"].get("width") or 0) - 32
+            and int(title_chrome_proof["surfaceRoleRect"].get("width") or 0)
+            <= int(title_chrome_proof["surfaceRoleCopyRect"].get("width") or 0) + 36
+            and title_chrome_proof["surfaceRoleStyle"].get("boxSizing") == "border-box"
+            and title_chrome_proof["surfaceRoleStyle"].get("maxWidth") == "100%"
+        ),
         "rowTypographyReducedOnePoint": (
             isinstance(title_chrome_proof, dict)
             and isinstance(title_chrome_proof.get("orinRowLabelStyle"), dict)
@@ -631,6 +673,18 @@ def main() -> int:
             and title_chrome_proof["localCheckButtonStyle"].get("fontSize") == "11px"
             and isinstance(title_chrome_proof.get("localCheckButtonLabelStyle"), dict)
             and title_chrome_proof["localCheckButtonLabelStyle"].get("fontSize") == "11px"
+        ),
+        "runLocalCheckButtonStandardCompactSize": (
+            isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("localCheckButtonRect"), dict)
+            and isinstance(title_chrome_proof.get("localCheckButtonStyle"), dict)
+            and title_chrome_proof["localCheckButtonStyle"].get("height") == "30px"
+            and title_chrome_proof["localCheckButtonStyle"].get("minHeight") == "30px"
+            and title_chrome_proof["localCheckButtonStyle"].get("maxWidth") in {"154px", "min(100%, 154px)"}
+            and title_chrome_proof["localCheckButtonStyle"].get("paddingLeft") == "11px"
+            and title_chrome_proof["localCheckButtonStyle"].get("paddingRight") == "11px"
+            and int(title_chrome_proof["localCheckButtonRect"].get("width") or 0) <= 154
+            and int(title_chrome_proof["localCheckButtonRect"].get("height") or 0) <= 32
         ),
         "maximizeRestoreFutureGatedDisabled": (
             isinstance(title_chrome_proof, dict)
