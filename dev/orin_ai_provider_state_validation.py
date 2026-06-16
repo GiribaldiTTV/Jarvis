@@ -9057,6 +9057,18 @@ def validate() -> list[str]:
         'AI Control Center script must not inject native title tooltips from JavaScript',
         failures,
     )
+    for forbidden in (
+        "setAttribute('title'",
+        ".title =",
+        ".title=",
+        "data-tooltip",
+        "aria-describedby",
+    ):
+        _require(
+            forbidden not in ai_control_html and forbidden not in ai_control_js,
+            f"AI Control Center must not define current tooltip hooks; explicit tooltip UX is future-gated: {forbidden!r}",
+            failures,
+        )
 
     for needle in (
         "NEXUS_AI_CONTROL_CENTER_COMMAND:",
