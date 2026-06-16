@@ -305,6 +305,12 @@ def main() -> int:
           const close = document.getElementById("ai-control-center-close-action");
           const maximize = document.getElementById("ai-control-center-maximize-action");
           const minimize = document.getElementById("ai-control-center-minimize-action");
+          const orinRowLabel = document.querySelector('[data-dashboard-hub-card="orin-status"] .monitoring-hud__state-row span');
+          const orinRowValue = document.querySelector('[data-dashboard-hub-card="orin-status"] .monitoring-hud__state-row strong');
+          const localCheckRowLabel = document.querySelector('[data-dashboard-hub-card="local-safety-check"] .monitoring-hud__state-row span');
+          const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="local-safety-check"] .monitoring-hud__state-row strong');
+          const localCheckButton = document.getElementById("ai-control-center-local-check-action");
+          const localCheckButtonLabel = localCheckButton ? localCheckButton.querySelector(".monitoring-hud__button-label") : null;
           return JSON.stringify({
             subtitleText: subtitle ? subtitle.textContent.trim() : "",
             subtitleLineCount: subtitle ? subtitle.getClientRects().length : 0,
@@ -333,6 +339,17 @@ def main() -> int:
             minimizeStyle: style(minimize),
             minimizeLabel: minimize ? minimize.getAttribute("aria-label") : "",
             minimizeTitle: minimize ? minimize.getAttribute("title") : "",
+            orinRowLabelText: orinRowLabel ? orinRowLabel.textContent.trim() : "",
+            orinRowLabelStyle: style(orinRowLabel),
+            orinRowValueText: orinRowValue ? orinRowValue.textContent.trim() : "",
+            orinRowValueStyle: style(orinRowValue),
+            localCheckRowLabelText: localCheckRowLabel ? localCheckRowLabel.textContent.trim() : "",
+            localCheckRowLabelStyle: style(localCheckRowLabel),
+            localCheckRowValueText: localCheckRowValue ? localCheckRowValue.textContent.trim() : "",
+            localCheckRowValueStyle: style(localCheckRowValue),
+            localCheckButtonText: localCheckButton ? localCheckButton.textContent.trim() : "",
+            localCheckButtonStyle: style(localCheckButton),
+            localCheckButtonLabelStyle: style(localCheckButtonLabel),
             chromeGap: close && maximize && minimize
               ? Math.round(Math.min(
                   maximize.getBoundingClientRect().left - minimize.getBoundingClientRect().right,
@@ -596,6 +613,24 @@ def main() -> int:
             and title_chrome_proof.get("minimizeLabel") == "Minimize AI Control Center"
             and title_chrome_proof.get("maximizeLabel") == "Maximize or restore AI Control Center future-gated"
             and title_chrome_proof.get("closeLabel") == "Close AI Control Center"
+        ),
+        "rowTypographyReducedOnePoint": (
+            isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("orinRowLabelStyle"), dict)
+            and title_chrome_proof["orinRowLabelStyle"].get("fontSize") == "10px"
+            and isinstance(title_chrome_proof.get("orinRowValueStyle"), dict)
+            and title_chrome_proof["orinRowValueStyle"].get("fontSize") == "11px"
+            and isinstance(title_chrome_proof.get("localCheckRowLabelStyle"), dict)
+            and title_chrome_proof["localCheckRowLabelStyle"].get("fontSize") == "10px"
+            and isinstance(title_chrome_proof.get("localCheckRowValueStyle"), dict)
+            and title_chrome_proof["localCheckRowValueStyle"].get("fontSize") == "11px"
+        ),
+        "runLocalCheckButtonTypographyReducedOnePoint": (
+            isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("localCheckButtonStyle"), dict)
+            and title_chrome_proof["localCheckButtonStyle"].get("fontSize") == "11px"
+            and isinstance(title_chrome_proof.get("localCheckButtonLabelStyle"), dict)
+            and title_chrome_proof["localCheckButtonLabelStyle"].get("fontSize") == "11px"
         ),
         "maximizeRestoreFutureGatedDisabled": (
             isinstance(title_chrome_proof, dict)

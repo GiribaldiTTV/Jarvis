@@ -6175,14 +6175,14 @@ class AIControlCenterDialog(QDialog):
             }
             QLabel[role="factLabel"] {
                 color: rgba(145, 202, 218, 0.82);
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 720;
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
             }
             QLabel[role="factValue"] {
                 color: rgba(157, 246, 218, 0.90);
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 700;
             }
             QLabel[role="warning"] {
@@ -6225,7 +6225,7 @@ class AIControlCenterDialog(QDialog):
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
                 color: rgba(229, 249, 255, 0.94);
                 font-family: Bahnschrift, Rajdhani, Segoe UI, sans-serif;
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 760;
                 letter-spacing: 0.09em;
             }
@@ -6450,14 +6450,14 @@ class AIControlCenterDialog(QDialog):
             row_accent.setAttribute(Qt.WA_StyledBackground, True)
             label_widget = QLabel(label, self)
             label_widget.setProperty("role", "factLabel")
-            label_widget.setFont(self._hud_label_font(point_size=8, weight=720, spacing=108, uppercase=True))
+            label_widget.setFont(self._hud_label_font(point_size=7, weight=720, spacing=108, uppercase=True))
             label_widget.setMinimumWidth(178)
             label_widget.setMaximumWidth(208)
             value_widget = QLabel(value, self)
             value_widget.setWordWrap(True)
             value_widget.setTextInteractionFlags(Qt.TextSelectableByMouse)
             value_widget.setProperty("role", "factValue")
-            value_widget.setFont(self._hud_label_font(point_size=9, weight=700))
+            value_widget.setFont(self._hud_label_font(point_size=8, weight=700))
             value_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
             row_layout.addWidget(row_accent, 0, Qt.AlignTop)
             row_layout.addWidget(label_widget, 0, Qt.AlignTop)
@@ -6499,11 +6499,11 @@ class AIControlCenterDialog(QDialog):
         self._result = QLabel("Waiting for local action", self)
         self._result.setWordWrap(True)
         self._result.setProperty("role", "factValue")
-        self._result.setFont(self._hud_label_font(point_size=9, weight=700))
+        self._result.setFont(self._hud_label_font(point_size=8, weight=700))
         self._result_detail = QLabel("No prompt, file, memory, telemetry, or provider config is sent.", self)
         self._result_detail.setWordWrap(True)
         self._result_detail.setProperty("role", "factValue")
-        self._result_detail.setFont(self._hud_label_font(point_size=9, weight=700))
+        self._result_detail.setFont(self._hud_label_font(point_size=8, weight=700))
         result_rows = (
             ("LOCAL CHECK", self._result),
             ("PROMPT / DATA", self._result_detail),
@@ -6522,7 +6522,7 @@ class AIControlCenterDialog(QDialog):
             row_accent.setAttribute(Qt.WA_StyledBackground, True)
             label_widget = QLabel(label, self)
             label_widget.setProperty("role", "factLabel")
-            label_widget.setFont(self._hud_label_font(point_size=8, weight=720, spacing=108, uppercase=True))
+            label_widget.setFont(self._hud_label_font(point_size=7, weight=720, spacing=108, uppercase=True))
             label_widget.setMinimumWidth(178)
             label_widget.setMaximumWidth(208)
             value_widget.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -6540,7 +6540,7 @@ class AIControlCenterDialog(QDialog):
         self._local_assist.setToolTip("Run local check")
         self._local_assist.setCursor(Qt.PointingHandCursor)
         self._local_assist.setProperty("buttonRole", "primary")
-        self._local_assist.setFont(self._hud_button_font(point_size=9, weight=760, spacing=109))
+        self._local_assist.setFont(self._hud_button_font(point_size=8, weight=760, spacing=109))
         self._configure_hud_content_fit_button(self._local_assist, max_width=220)
         self._install_hud_button_glow(self._local_assist, kind="action")
         self._local_assist.clicked.connect(self.run_local_assist_check)
