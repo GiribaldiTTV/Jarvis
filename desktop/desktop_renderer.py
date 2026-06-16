@@ -30,7 +30,6 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QCheckBox,
     QSizeGrip,
-    QGraphicsDropShadowEffect,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent
 from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPixmap, QRegion
@@ -848,33 +847,6 @@ class DialogChromeBar(QFrame):
         self._drag_offset = None
         self.setCursor(Qt.OpenHandCursor)
         super().mouseReleaseEvent(event)
-
-
-class AIControlCenterDeck(QFrame):
-    def paintEvent(self, event):
-        super().paintEvent(event)
-        painter = QPainter(self)
-        try:
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
-            path = QPainterPath()
-            path.addRoundedRect(rect, 22, 22)
-            painter.setClipPath(path)
-            painter.fillPath(path, QColor(3, 27, 34, 72))
-
-            grid_rect = self.rect().adjusted(1, 1, -2, -2)
-            painter.setPen(QColor(117, 228, 255, 12))
-            step = 20
-            for x in range(grid_rect.left(), grid_rect.right() + 1, step):
-                painter.drawLine(x, grid_rect.top(), x, grid_rect.bottom())
-            painter.setPen(QColor(117, 228, 255, 10))
-            for y in range(grid_rect.top(), grid_rect.bottom() + 1, step):
-                painter.drawLine(grid_rect.left(), y, grid_rect.right(), y)
-            painter.setClipping(False)
-            painter.setPen(QColor(118, 226, 255, 31))
-            painter.drawPath(path)
-        finally:
-            painter.end()
 
 
 class AIControlCenterCommandPage(QWebEnginePage):
@@ -5929,6 +5901,12 @@ class AIControlCenterDialog(QDialog):
     DRAG_HEADER_HEIGHT = 190
     CLOSE_CONTROL_WIDTH = 150
     CLOSE_CONTROL_HEIGHT = 58
+    WINDOW_CONTROL_ALLOWED_STATES = frozenset({"hidden", "blocked", "active"})
+    WINDOW_CONTROL_WEB_KEYS = {
+        "minimize": "minimize",
+        "maximize-restore": "maximizeRestore",
+        "close": "close",
+    }
     WINDOW_CONTROL_STATES = {
         "minimize": "active",
         "maximize-restore": "hidden",
@@ -5940,7 +5918,6 @@ class AIControlCenterDialog(QDialog):
         self.screen_ref = screen
         self.event_logger = event_logger
         self._provider_payload = {}
-        self._hud_glow_buttons = set()
         self._restoring_window_geometry = False
         self._geometry_persist_timer = QTimer(self)
         self._geometry_persist_timer.setSingleShot(True)
@@ -5972,8 +5949,7 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("aiControlCenterWindowControlStateModel", "hidden-blocked-active")
         self.setProperty("aiControlCenterWindowControlCluster", "compact-minimize-maximize-close")
         self.setProperty("aiControlCenterActiveSpecimen", "webview-hud-specimen")
-        self.setProperty("aiControlCenterNativeMirrorDisposition", "inactive-reference-mirror")
-        self._uses_hud_specimen = True
+        self.setProperty("aiControlCenterNativeMirrorDisposition", "removed-webview-owned-specimen")
         self._page_ready = False
         self._pending_provider_payload = {}
         self._drag_offset = None
@@ -6024,557 +6000,6 @@ class AIControlCenterDialog(QDialog):
         self.webview.load(QUrl.fromLocalFile(str(self._ai_control_center_html_path())))
         root.addWidget(self.webview)
         self.setGeometry(self._restored_geometry())
-        # The accepted specimen is the WebView/HUD-aligned HTML surface above; the native Qt
-        # block below is retained only as an inactive reference mirror.
-        return
-        self.setStyleSheet(
-            """
-            QWidget#fam007AiControlCenter {
-                background: transparent;
-                color: #ebfcff;
-                font-family: Bahnschrift, Rajdhani, Segoe UI, sans-serif;
-            }
-            QFrame#fam007AiControlCenterShell {
-                border: 1px solid rgba(125, 235, 255, 0.30);
-                border-radius: 28px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(4, 17, 32, 0.96), stop:1 rgba(1, 7, 16, 0.94));
-            }
-            QFrame#fam007AiControlCenterChromeBar {
-                border: 1px solid rgba(130, 236, 255, 0.12);
-                border-radius: 22px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(2, 13, 24, 0.995), stop:1 rgba(1, 7, 15, 0.985));
-            }
-            QLabel#fam007AiControlCenterChromeTitle {
-                color: rgba(235, 252, 255, 0.96);
-                font-size: 12px;
-                font-weight: 800;
-                letter-spacing: 0;
-                text-transform: uppercase;
-            }
-            QPushButton#fam007AiControlCenterChromeClose {
-                min-width: 76px;
-                max-width: 76px;
-                min-height: 34px;
-                max-height: 34px;
-                padding: 0;
-                border-radius: 17px;
-                border: 1px solid rgba(122, 232, 255, 0.32);
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
-                color: rgba(235, 252, 255, 0.96);
-                font-family: Bahnschrift, Rajdhani, Segoe UI, sans-serif;
-                font-size: 12px;
-                font-weight: 760;
-            }
-            QPushButton#fam007AiControlCenterChromeClose:hover,
-            QPushButton#fam007AiControlCenterChromeClose:focus {
-                border-color: rgba(126, 248, 218, 0.56);
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.94), stop:1 rgba(4, 24, 40, 0.91));
-                color: rgba(241, 255, 252, 0.99);
-            }
-            QPushButton#fam007AiControlCenterChromeClose:pressed {
-                padding-top: 1px;
-                padding-bottom: 0;
-                border-color: rgba(163, 255, 228, 0.72);
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 40, 57, 0.98), stop:1 rgba(3, 18, 32, 0.96));
-            }
-            QFrame#fam007AiControlCenterContent {
-                border-radius: 22px;
-                border: 1px solid rgba(118, 226, 255, 0.12);
-                background: rgba(2, 10, 20, 0.28);
-            }
-            QScrollArea#fam007AiControlCenterScroll,
-            QWidget#fam007AiControlCenterScrollBody {
-                border: none;
-                background: transparent;
-            }
-            QScrollBar:vertical {
-                width: 8px;
-                margin: 10px 0 14px;
-                border: none;
-                border-radius: 4px;
-                background: transparent;
-            }
-            QScrollBar::handle:vertical {
-                min-height: 44px;
-                border-radius: 4px;
-                background: rgba(108, 232, 255, 0.58);
-            }
-            QScrollBar::handle:vertical:hover {
-                background: rgba(108, 232, 255, 0.58);
-            }
-            QScrollBar::add-line:vertical,
-            QScrollBar::sub-line:vertical {
-                height: 0;
-                border: none;
-                background: transparent;
-            }
-            QScrollBar::add-page:vertical,
-            QScrollBar::sub-page:vertical {
-                background: transparent;
-            }
-            QWidget#fam007AiControlCenterHeaderText {
-                background: transparent;
-            }
-            QLabel {
-                background: transparent;
-                color: #ebfcff;
-            }
-            QLabel[role="productEyebrow"],
-            QLabel[role="eyebrow"] {
-                color: #7ae8ff;
-                font-size: 13px;
-                font-weight: 800;
-                letter-spacing: 0.26em;
-                text-transform: uppercase;
-            }
-            QLabel[role="title"] {
-                color: rgba(240, 252, 255, 0.98);
-                font-size: 34px;
-                font-weight: 750;
-            }
-            QLabel[role="summary"] {
-                color: rgba(174, 226, 240, 0.86);
-                font-size: 12px;
-                font-weight: 560;
-            }
-            QFrame[role="surfaceRole"] {
-                min-height: 52px;
-                border: 1px solid rgba(118, 226, 255, 0.16);
-                border-radius: 18px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(6, 25, 38, 0.50), stop:0.58 rgba(2, 11, 22, 0.48), stop:1 rgba(2, 11, 22, 0.48));
-            }
-            QFrame[role="surfaceRolePair"] {
-                border: none;
-                background: transparent;
-            }
-            QLabel[role="surfaceRoleLabel"] {
-                color: rgba(188, 232, 244, 0.94);
-                font-size: 10px;
-                font-weight: 760;
-                text-transform: uppercase;
-            }
-            QLabel[role="surfaceRoleSeparator"] {
-                color: rgba(188, 232, 244, 0.76);
-                font-size: 10px;
-                font-weight: 760;
-            }
-            QLabel[role="surfaceRoleValue"] {
-                color: rgba(171, 255, 226, 0.96);
-                font-size: 10px;
-                font-weight: 800;
-                text-transform: uppercase;
-            }
-            QLabel[role="sectionNumber"] {
-                min-width: 32px;
-                max-width: 32px;
-                min-height: 32px;
-                max-height: 32px;
-                border: 1px solid rgba(105, 232, 255, 0.18);
-                border-radius: 12px;
-                background: rgba(12, 44, 61, 0.62);
-                color: #7ae8ff;
-                font-size: 12px;
-                font-weight: 760;
-                qproperty-alignment: AlignCenter;
-            }
-            QLabel[role="sectionTitle"] {
-                color: rgba(235, 252, 255, 0.96);
-                font-size: 15px;
-                font-weight: 780;
-                letter-spacing: 0.075em;
-                text-transform: uppercase;
-            }
-            QLabel[role="sectionCopy"] {
-                color: rgba(181, 218, 229, 0.88);
-                font-size: 12px;
-                font-weight: 600;
-            }
-            QLabel[role="factLabel"] {
-                color: rgba(145, 202, 218, 0.82);
-                font-size: 10px;
-                font-weight: 720;
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-            }
-            QLabel[role="factValue"] {
-                color: rgba(157, 246, 218, 0.90);
-                font-size: 11px;
-                font-weight: 700;
-            }
-            QLabel[role="warning"] {
-                color: #ffe3a6;
-                font-size: 11px;
-                font-weight: 750;
-            }
-            QFrame[role="factsPanel"],
-            QFrame[role="resultPanel"] {
-                border: 1px solid rgba(116, 240, 255, 0.13);
-                border-radius: 20px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 20, 36, 0.985), stop:1 rgba(2, 11, 22, 0.975));
-            }
-            QFrame[role="sectionHeader"] {
-                border: none;
-                background: transparent;
-            }
-            QFrame[role="factRow"] {
-                border: none;
-                border-top: 1px solid rgba(138, 236, 255, 0.46);
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.06), stop:0.45 rgba(117, 228, 255, 0.035), stop:1 transparent);
-            }
-            QFrame[role="factRow"][lastRow="true"] {
-                border-top: 1px solid rgba(138, 236, 255, 0.46);
-            }
-            QFrame[role="rowAccent"] {
-                min-width: 2px;
-                max-width: 2px;
-                min-height: 22px;
-                max-height: 22px;
-                background: rgba(122, 232, 255, 0.58);
-                border: none;
-            }
-            QPushButton {
-                min-height: 38px;
-                max-height: 38px;
-                padding: 0 20px;
-                border: 1px solid rgba(117, 228, 255, 0.22);
-                border-radius: 19px;
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
-                color: rgba(229, 249, 255, 0.94);
-                font-family: Bahnschrift, Rajdhani, Segoe UI, sans-serif;
-                font-size: 11px;
-                font-weight: 760;
-                letter-spacing: 0.09em;
-            }
-            QPushButton[buttonRole="primary"] {
-                border-color: rgba(122, 232, 255, 0.32);
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
-            }
-            QPushButton[buttonRole="secondary"] {
-                color: rgba(211, 234, 238, 0.94);
-                border-color: rgba(122, 232, 255, 0.22);
-                background: rgba(5, 20, 36, 0.72);
-            }
-            QPushButton:hover,
-            QPushButton:focus {
-                border-color: rgba(126, 248, 218, 0.56);
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(9, 49, 70, 0.94), stop:1 rgba(4, 24, 40, 0.91));
-                color: rgba(241, 255, 252, 0.99);
-            }
-            QPushButton:pressed {
-                padding-top: 1px;
-                padding-bottom: 0;
-                border-color: rgba(163, 255, 228, 0.72);
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 40, 57, 0.98), stop:1 rgba(3, 18, 32, 0.96));
-            }
-            QPushButton:disabled {
-                color: rgba(235, 252, 255, 0.72);
-                border-color: rgba(122, 232, 255, 0.18);
-                background: rgba(5, 20, 36, 0.62);
-            }
-            QSizeGrip {
-                width: 14px;
-                height: 14px;
-                background: transparent;
-                border: none;
-            }
-            """
-        )
-
-        root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
-
-        self.shell = QFrame(self)
-        self.shell.setObjectName("fam007AiControlCenterShell")
-        self.shell.setAttribute(Qt.WA_StyledBackground, True)
-        root.addWidget(self.shell)
-
-        shell_layout = QVBoxLayout(self.shell)
-        shell_layout.setContentsMargins(14, 14, 16, 16)
-        shell_layout.setSpacing(12)
-
-        self.chrome_bar = DialogChromeBar(
-            "AI Control Center",
-            self,
-            object_prefix="fam007AiControlCenter",
-            parent=self.shell,
-            show_title=False,
-        )
-        self.chrome_bar.setProperty("role", "hudTitleGroup")
-        self.chrome_bar.setFixedHeight(172)
-        chrome_shadow = QGraphicsDropShadowEffect(self.chrome_bar)
-        chrome_shadow.setBlurRadius(24)
-        chrome_shadow.setOffset(0, 12)
-        chrome_shadow.setColor(QColor(3, 72, 72, 72))
-        self.chrome_bar.setGraphicsEffect(chrome_shadow)
-        chrome_layout = self.chrome_bar.layout()
-        if chrome_layout is not None:
-            chrome_layout.removeWidget(self.chrome_bar.title_label)
-            self.chrome_bar.title_label.setParent(None)
-            for index in range(chrome_layout.count() - 1, -1, -1):
-                item = chrome_layout.itemAt(index)
-                if item is not None and item.spacerItem() is not None:
-                    chrome_layout.takeAt(index)
-            chrome_layout.setContentsMargins(20, 12, 14, 12)
-            chrome_layout.setSpacing(12)
-        self.chrome_bar.close_button.setToolTip("Close AI Control Center")
-        self.chrome_bar.close_button.setAccessibleName("Close AI Control Center")
-        self.chrome_bar.close_button.setCursor(Qt.PointingHandCursor)
-        self.chrome_bar.close_button.setText("Close")
-        self.chrome_bar.close_button.setFixedSize(76, 34)
-        if chrome_layout is not None:
-            chrome_layout.setAlignment(self.chrome_bar.close_button, Qt.AlignTop | Qt.AlignRight)
-        close_font = self._hud_button_font(point_size=9, weight=760, spacing=108)
-        self.chrome_bar.close_button.setFont(close_font)
-        self._install_hud_button_glow(self.chrome_bar.close_button, kind="close")
-        try:
-            self.chrome_bar.close_button.clicked.disconnect()
-        except (RuntimeError, TypeError):
-            pass
-        self.chrome_bar.close_button.clicked.connect(self.close)
-
-        self.header_text = QWidget(self.chrome_bar)
-        self.header_text.setObjectName("fam007AiControlCenterHeaderText")
-        header_text_layout = QVBoxLayout(self.header_text)
-        header_text_layout.setContentsMargins(0, 0, 0, 0)
-        header_text_layout.setSpacing(4)
-        eyebrow = QLabel("NEXUS DESKTOP AI", self.header_text)
-        eyebrow.setProperty("role", "productEyebrow")
-        eyebrow.setFont(self._hud_label_font(point_size=10, weight=800, spacing=126, uppercase=True))
-        self._title = QLabel("AI Control Center", self.header_text)
-        self._title.setProperty("role", "title")
-        self._title.setFont(self._hud_label_font(point_size=26, weight=750))
-        self._summary = QLabel("ORIN is not implemented; provider/model execution is not active.", self.header_text)
-        self._summary.setWordWrap(True)
-        self._summary.setProperty("role", "summary")
-        self._summary.setFont(self._hud_label_font(point_size=9, weight=560, spacing=103))
-        header_text_layout.addWidget(eyebrow)
-        header_text_layout.addWidget(self._title)
-        header_text_layout.addWidget(self._summary)
-        role_surface = QFrame(self.header_text)
-        role_surface.setProperty("role", "surfaceRole")
-        role_surface.setAttribute(Qt.WA_StyledBackground, True)
-        role_surface.setObjectName("fam007AiControlCenterRoleSurface")
-        role_surface.setMinimumHeight(52)
-        role_surface.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
-        role_layout = QHBoxLayout(role_surface)
-        role_layout.setContentsMargins(14, 9, 14, 9)
-        role_layout.setSpacing(14)
-        role_items = (
-            ("AI", "ORIN"),
-            ("STATUS", "NOT IMPLEMENTED"),
-            ("PROVIDER", "BLOCKED"),
-        )
-        for label, value in role_items:
-            pair = QFrame(role_surface)
-            pair.setProperty("role", "surfaceRolePair")
-            pair.setAttribute(Qt.WA_StyledBackground, True)
-            pair_layout = QHBoxLayout(pair)
-            pair_layout.setContentsMargins(0, 0, 0, 0)
-            pair_layout.setSpacing(3)
-            label_widget = QLabel(label, pair)
-            label_widget.setProperty("role", "surfaceRoleLabel")
-            label_widget.setFont(self._hud_label_font(point_size=8, weight=760, spacing=106, uppercase=True))
-            separator_widget = QLabel("-", pair)
-            separator_widget.setProperty("role", "surfaceRoleSeparator")
-            separator_widget.setFont(self._hud_label_font(point_size=8, weight=760, spacing=106))
-            value_widget = QLabel(value, pair)
-            value_widget.setProperty("role", "surfaceRoleValue")
-            value_widget.setFont(self._hud_label_font(point_size=8, weight=800, spacing=106, uppercase=True))
-            value_widget.setWordWrap(False)
-            pair_layout.addWidget(label_widget, 0, Qt.AlignVCenter)
-            pair_layout.addWidget(separator_widget, 0, Qt.AlignVCenter)
-            pair_layout.addWidget(value_widget, 0, Qt.AlignVCenter)
-            role_layout.addWidget(pair, 0, Qt.AlignVCenter)
-        header_text_layout.addWidget(role_surface, 0, Qt.AlignLeft)
-        if chrome_layout is not None:
-            chrome_layout.insertWidget(0, self.header_text, 1, Qt.AlignTop)
-        shell_layout.addWidget(self.chrome_bar)
-
-        self.content = AIControlCenterDeck(self.shell)
-        self.content.setObjectName("fam007AiControlCenterContent")
-        self.content.setProperty("visualInheritanceGrid", "FAM-002-HUD-card-board")
-        self.content.setProperty("visualParity", "monitoring-hud__control-hub")
-        self.content.setAttribute(Qt.WA_StyledBackground, True)
-        shell_layout.addWidget(self.content, 1)
-
-        deck_layout = QVBoxLayout(self.content)
-        deck_layout.setContentsMargins(12, 12, 4, 12)
-        deck_layout.setSpacing(0)
-        self._content_scroll = QScrollArea(self.content)
-        self._content_scroll.setObjectName("fam007AiControlCenterScroll")
-        self._content_scroll.setFrameShape(QFrame.NoFrame)
-        self._content_scroll.setWidgetResizable(True)
-        self._content_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self._content_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self._content_scroll.setAttribute(Qt.WA_StyledBackground, True)
-        self._content_scroll.viewport().setAttribute(Qt.WA_StyledBackground, True)
-        self._content_scroll_body = QFrame(self._content_scroll)
-        self._content_scroll_body.setObjectName("fam007AiControlCenterScrollBody")
-        self._content_scroll_body.setAttribute(Qt.WA_StyledBackground, True)
-        content_layout = QVBoxLayout(self._content_scroll_body)
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(12)
-
-        facts_panel = QFrame(self)
-        facts_panel.setProperty("role", "factsPanel")
-        facts_panel.setAttribute(Qt.WA_StyledBackground, True)
-        facts = QVBoxLayout(facts_panel)
-        facts.setContentsMargins(14, 0, 14, 2)
-        facts.setSpacing(0)
-        facts_header = QFrame(self)
-        facts_header.setProperty("role", "sectionHeader")
-        facts_header.setAttribute(Qt.WA_StyledBackground, True)
-        facts_header_layout = QHBoxLayout(facts_header)
-        facts_header_layout.setContentsMargins(0, 14, 0, 12)
-        facts_header_layout.setSpacing(12)
-        facts_number = QLabel("01", self)
-        facts_number.setProperty("role", "sectionNumber")
-        facts_number.setFont(self._hud_label_font(point_size=9, weight=760))
-        facts_title_stack = QWidget(self)
-        facts_title_layout = QVBoxLayout(facts_title_stack)
-        facts_title_layout.setContentsMargins(0, 0, 0, 0)
-        facts_title_layout.setSpacing(4)
-        facts_title = QLabel("ORIN status", self)
-        facts_title.setProperty("role", "sectionTitle")
-        facts_title.setFont(self._hud_label_font(point_size=12, weight=780, spacing=108, uppercase=True))
-        facts_copy = QLabel("Truthful inactive ORIN state for provider data, capability packs, and edition lanes.", self)
-        facts_copy.setWordWrap(True)
-        facts_copy.setProperty("role", "sectionCopy")
-        facts_copy.setFont(self._hud_label_font(point_size=9, weight=600))
-        facts_title_layout.addWidget(facts_title)
-        facts_title_layout.addWidget(facts_copy)
-        facts_header_layout.addWidget(facts_number, 0, Qt.AlignVCenter)
-        facts_header_layout.addWidget(facts_title_stack, 1, Qt.AlignVCenter)
-        facts.addWidget(facts_header)
-        self._fact_values = {}
-        fact_rows = (
-            ("orin", "ORIN", "Not implemented; no real AI executing"),
-            ("visible_data", "PROVIDER DATA", "None"),
-            ("execution", "PROVIDER / MODEL", "Off; no provider/model execution"),
-            ("prompt_memory", "PROMPT / MEMORY", "Not accepted, sent, stored, or indexed"),
-            ("capability_packs", "CAPABILITY PACKS", "Install blocked; downloads disabled"),
-            ("edition_lanes", "EDITION LANES", "Public only; Developer and Owner gated"),
-        )
-        for row, (key, label, value) in enumerate(fact_rows):
-            row_frame = QFrame(self)
-            row_frame.setProperty("role", "factRow")
-            if row == len(fact_rows) - 1:
-                row_frame.setProperty("lastRow", "true")
-            row_frame.setAttribute(Qt.WA_StyledBackground, True)
-            row_layout = QHBoxLayout(row_frame)
-            row_layout.setContentsMargins(0, 8, 0, 8)
-            row_layout.setSpacing(12)
-            row_accent = QFrame(self)
-            row_accent.setProperty("role", "rowAccent")
-            row_accent.setAttribute(Qt.WA_StyledBackground, True)
-            label_widget = QLabel(label, self)
-            label_widget.setProperty("role", "factLabel")
-            label_widget.setFont(self._hud_label_font(point_size=7, weight=720, spacing=108, uppercase=True))
-            label_widget.setMinimumWidth(178)
-            label_widget.setMaximumWidth(208)
-            value_widget = QLabel(value, self)
-            value_widget.setWordWrap(True)
-            value_widget.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            value_widget.setProperty("role", "factValue")
-            value_widget.setFont(self._hud_label_font(point_size=8, weight=700))
-            value_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-            row_layout.addWidget(row_accent, 0, Qt.AlignTop)
-            row_layout.addWidget(label_widget, 0, Qt.AlignTop)
-            row_layout.addWidget(value_widget, 1, Qt.AlignTop)
-            facts.addWidget(row_frame)
-            self._fact_values[key] = value_widget
-
-        result_panel = QFrame(self)
-        result_panel.setProperty("role", "resultPanel")
-        result_panel.setAttribute(Qt.WA_StyledBackground, True)
-        result_layout = QVBoxLayout(result_panel)
-        result_layout.setContentsMargins(14, 0, 14, 12)
-        result_layout.setSpacing(7)
-        result_header = QFrame(self)
-        result_header.setProperty("role", "sectionHeader")
-        result_header.setAttribute(Qt.WA_StyledBackground, True)
-        result_header_layout = QHBoxLayout(result_header)
-        result_header_layout.setContentsMargins(0, 12, 0, 10)
-        result_header_layout.setSpacing(12)
-        result_number = QLabel("02", self)
-        result_number.setProperty("role", "sectionNumber")
-        result_number.setFont(self._hud_label_font(point_size=9, weight=760))
-        result_title_stack = QWidget(self)
-        result_title_layout = QVBoxLayout(result_title_stack)
-        result_title_layout.setContentsMargins(0, 0, 0, 0)
-        result_title_layout.setSpacing(4)
-        result_title = QLabel("Local safety check", self)
-        result_title.setProperty("role", "sectionTitle")
-        result_title.setFont(self._hud_label_font(point_size=12, weight=780, spacing=108, uppercase=True))
-        result_copy = QLabel("Runs one local check; no prompt/provider/model path is used.", self)
-        result_copy.setWordWrap(True)
-        result_copy.setProperty("role", "sectionCopy")
-        result_copy.setFont(self._hud_label_font(point_size=9, weight=600))
-        result_title_layout.addWidget(result_title)
-        result_title_layout.addWidget(result_copy)
-        result_header_layout.addWidget(result_number, 0, Qt.AlignVCenter)
-        result_header_layout.addWidget(result_title_stack, 1, Qt.AlignVCenter)
-        result_layout.addWidget(result_header)
-        self._result = QLabel("Waiting for local action", self)
-        self._result.setWordWrap(True)
-        self._result.setProperty("role", "factValue")
-        self._result.setFont(self._hud_label_font(point_size=8, weight=700))
-        self._result_detail = QLabel("No prompt, file, memory, telemetry, or provider config is sent.", self)
-        self._result_detail.setWordWrap(True)
-        self._result_detail.setProperty("role", "factValue")
-        self._result_detail.setFont(self._hud_label_font(point_size=8, weight=700))
-        result_rows = (
-            ("LOCAL CHECK", self._result),
-            ("PROMPT / DATA", self._result_detail),
-        )
-        for row, (label, value_widget) in enumerate(result_rows):
-            row_frame = QFrame(self)
-            row_frame.setProperty("role", "factRow")
-            if row == len(result_rows) - 1:
-                row_frame.setProperty("lastRow", "true")
-            row_frame.setAttribute(Qt.WA_StyledBackground, True)
-            row_layout = QHBoxLayout(row_frame)
-            row_layout.setContentsMargins(0, 8, 0, 8)
-            row_layout.setSpacing(12)
-            row_accent = QFrame(self)
-            row_accent.setProperty("role", "rowAccent")
-            row_accent.setAttribute(Qt.WA_StyledBackground, True)
-            label_widget = QLabel(label, self)
-            label_widget.setProperty("role", "factLabel")
-            label_widget.setFont(self._hud_label_font(point_size=7, weight=720, spacing=108, uppercase=True))
-            label_widget.setMinimumWidth(178)
-            label_widget.setMaximumWidth(208)
-            value_widget.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            value_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-            row_layout.addWidget(row_accent, 0, Qt.AlignTop)
-            row_layout.addWidget(label_widget, 0, Qt.AlignTop)
-            row_layout.addWidget(value_widget, 1, Qt.AlignTop)
-            result_layout.addWidget(row_frame)
-
-        result_actions = QHBoxLayout()
-        result_actions.setContentsMargins(0, 2, 0, 0)
-        result_actions.setSpacing(12)
-        self._local_assist = QPushButton("RUN LOCAL CHECK", self)
-        self._local_assist.setAccessibleName("Run local check")
-        self._local_assist.setToolTip("Run local check")
-        self._local_assist.setCursor(Qt.PointingHandCursor)
-        self._local_assist.setProperty("buttonRole", "primary")
-        self._local_assist.setFont(self._hud_button_font(point_size=8, weight=760, spacing=109))
-        self._configure_hud_content_fit_button(self._local_assist, max_width=187, horizontal_padding=28, height=31)
-        self._install_hud_button_glow(self._local_assist, kind="action")
-        self._local_assist.clicked.connect(self.run_local_assist_check)
-        result_actions.addStretch(1)
-        result_actions.addWidget(self._local_assist)
-        result_actions.addWidget(QSizeGrip(self), 0, Qt.AlignRight | Qt.AlignBottom)
-        result_layout.addLayout(result_actions)
-
-        content_layout.addWidget(facts_panel)
-        content_layout.addWidget(result_panel)
-        content_layout.addStretch(1)
-        self._content_scroll.setWidget(self._content_scroll_body)
-        deck_layout.addWidget(self._content_scroll)
-        self.setGeometry(self._restored_geometry())
 
     def _ai_control_center_html_path(self) -> Path:
         return Path(__file__).resolve().parents[1] / "nexus_visual" / "ai_control_center.html"
@@ -6588,13 +6013,17 @@ class AIControlCenterDialog(QDialog):
             self.event_logger("RENDERER_MAIN|AI_CONTROL_CENTER_HTML_LOAD_FAILED")
 
     def _ai_control_center_window_control_states(self) -> dict[str, str]:
-        return dict(self.WINDOW_CONTROL_STATES)
+        states: dict[str, str] = {}
+        for command in self.WINDOW_CONTROL_WEB_KEYS:
+            state = self.WINDOW_CONTROL_STATES.get(command, "blocked")
+            states[command] = state if state in self.WINDOW_CONTROL_ALLOWED_STATES else "blocked"
+        return states
 
     def _ai_control_center_window_command_is_active(self, command: str) -> bool:
         return self._ai_control_center_window_control_states().get(command) == "active"
 
     def _handle_ai_control_center_command(self, command: str) -> None:
-        if command in {"minimize", "maximize-restore", "close"} and not self._ai_control_center_window_command_is_active(command):
+        if command in self.WINDOW_CONTROL_WEB_KEYS and not self._ai_control_center_window_command_is_active(command):
             if callable(self.event_logger):
                 self.event_logger(
                     "RENDERER_MAIN|AI_CONTROL_CENTER_WINDOW_CONTROL_BLOCKED"
@@ -6621,16 +6050,10 @@ class AIControlCenterDialog(QDialog):
             self.close()
             return
         if command == "run-local-check":
-            if callable(self.event_logger):
-                self.event_logger(
-                    "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT"
-                    "|provider_visible_data=none|sent_to_provider=false|can_accept_prompts=false"
-                    "|network_egress=blocked|memory_indexing=disabled"
-                )
+            self.run_local_assist_check(sync_web=False)
+            return
 
     def _sync_provider_state_to_web(self) -> None:
-        if not getattr(self, "_uses_hud_specimen", False):
-            return
         payload = dict(self._provider_payload or self._pending_provider_payload or {})
         self._pending_provider_payload = payload
         if not getattr(self, "_page_ready", False) or not hasattr(self, "webview"):
@@ -6642,15 +6065,12 @@ class AIControlCenterDialog(QDialog):
         self.webview.page().runJavaScript(script)
 
     def _sync_ai_control_center_window_controls(self) -> None:
-        if not getattr(self, "_uses_hud_specimen", False):
-            return
         if not getattr(self, "_page_ready", False) or not hasattr(self, "webview"):
             return
         state = "maximized" if self.isMaximized() else "normal"
         control_states = {
-            "minimize": self.WINDOW_CONTROL_STATES["minimize"],
-            "maximizeRestore": self.WINDOW_CONTROL_STATES["maximize-restore"],
-            "close": self.WINDOW_CONTROL_STATES["close"],
+            web_key: self._ai_control_center_window_control_states()[command]
+            for command, web_key in self.WINDOW_CONTROL_WEB_KEYS.items()
         }
         script = (
             "window.nexusAiControlCenterSetWindowState && "
@@ -6658,106 +6078,8 @@ class AIControlCenterDialog(QDialog):
         )
         self.webview.page().runJavaScript(script)
 
-    @staticmethod
-    def _hud_label_font(
-        *,
-        point_size: int,
-        weight: int,
-        spacing: int | None = None,
-        uppercase: bool = False,
-    ) -> QFont:
-        font = QFont("Bahnschrift")
-        font.setPointSize(point_size)
-        try:
-            font.setWeight(QFont.Weight(weight))
-        except Exception:
-            font.setWeight(QFont.Bold)
-        if uppercase:
-            font.setCapitalization(QFont.AllUppercase)
-        if spacing is not None:
-            try:
-                font.setLetterSpacing(QFont.PercentageSpacing, spacing)
-            except Exception:
-                pass
-        return font
-
-    @staticmethod
-    def _hud_button_font(*, point_size: int, weight: int, spacing: int) -> QFont:
-        font = QFont("Bahnschrift")
-        font.setPointSize(point_size)
-        try:
-            font.setWeight(QFont.Weight(weight))
-        except Exception:
-            font.setWeight(QFont.Bold)
-        font.setCapitalization(QFont.AllUppercase)
-        try:
-            font.setLetterSpacing(QFont.PercentageSpacing, spacing)
-        except Exception:
-            pass
-        return font
-
-    @staticmethod
-    def _configure_hud_content_fit_button(
-        button: QPushButton,
-        *,
-        max_width: int,
-        horizontal_padding: int = 32,
-        min_width: int = 0,
-        height: int = 36,
-    ) -> None:
-        button.setProperty("buttonSizeModel", "content-fit-fixed-height")
-        button.setFixedHeight(height)
-        button.setMinimumWidth(min_width)
-        button.setMaximumWidth(max_width)
-        content_width = button.fontMetrics().horizontalAdvance(button.text()) + horizontal_padding
-        button.setFixedWidth(min(max_width, max(min_width, content_width)))
-
-    def _install_hud_button_glow(self, button: QPushButton, *, kind: str) -> None:
-        effect = QGraphicsDropShadowEffect(button)
-        button.setGraphicsEffect(effect)
-        button.setAttribute(Qt.WA_Hover, True)
-        button.setProperty("hudButtonGlow", "true")
-        button.setProperty("hudButtonKind", kind)
-        self._hud_glow_buttons.add(button)
-        self._set_hud_button_glow(button, "default")
-        button.installEventFilter(self)
-
-    def _set_hud_button_glow(self, button: QPushButton, state: str) -> None:
-        effect = button.graphicsEffect()
-        if not isinstance(effect, QGraphicsDropShadowEffect):
-            return
-        kind = str(button.property("hudButtonKind") or "action")
-        if not button.isEnabled():
-            effect.setOffset(0, 0)
-            effect.setBlurRadius(6)
-            effect.setColor(QColor(176, 204, 214, 18))
-            return
-        if state == "active":
-            effect.setOffset(0, 0)
-            effect.setBlurRadius(10)
-            effect.setColor(QColor(103, 255, 210, 42))
-            return
-        if state == "focus":
-            effect.setOffset(0, 0)
-            effect.setBlurRadius(24)
-            effect.setColor(QColor(90, 255, 214, 72))
-            return
-        if state == "hover":
-            effect.setOffset(0, 0)
-            effect.setBlurRadius(22)
-            effect.setColor(QColor(86, 236, 255, 72))
-            return
-        if kind == "close":
-            effect.setOffset(0, 10)
-            effect.setBlurRadius(24)
-            effect.setColor(QColor(0, 0, 0, 72))
-            return
-        effect.setOffset(0, 0)
-        effect.setBlurRadius(0)
-        effect.setColor(QColor(99, 225, 255, 0))
-
     def eventFilter(self, watched, event):
-        if getattr(self, "_uses_hud_specimen", False) and watched is getattr(self, "webview", None):
+        if watched is getattr(self, "webview", None):
             event_type = event.type()
             if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
                 pos = event.position().toPoint()
@@ -6796,16 +6118,6 @@ class AIControlCenterDialog(QDialog):
                 self._drag_offset = None
             elif event_type == QEvent.Leave and not self._resize_active:
                 self._reset_ai_control_center_resize_cursor()
-        if watched in self._hud_glow_buttons and isinstance(watched, QPushButton):
-            event_type = event.type()
-            if event_type in (QEvent.Enter, QEvent.HoverEnter, QEvent.HoverMove, QEvent.FocusIn):
-                self._set_hud_button_glow(watched, "focus" if event_type == QEvent.FocusIn else "hover")
-            elif event_type in (QEvent.Leave, QEvent.HoverLeave, QEvent.FocusOut):
-                self._set_hud_button_glow(watched, "default")
-            elif event_type == QEvent.MouseButtonPress:
-                self._set_hud_button_glow(watched, "active")
-            elif event_type == QEvent.MouseButtonRelease:
-                self._set_hud_button_glow(watched, "hover" if watched.underMouse() else "default")
         return super().eventFilter(watched, event)
 
     def _ai_control_center_close_zone(self) -> QRect:
@@ -7476,9 +6788,8 @@ class AIControlCenterDialog(QDialog):
 
     def showEvent(self, event):
         super().showEvent(event)
-        if getattr(self, "_uses_hud_specimen", False):
-            self._resize_hover_timer.start()
-            self._sync_ai_control_center_window_controls()
+        self._resize_hover_timer.start()
+        self._sync_ai_control_center_window_controls()
 
     def hideEvent(self, event):
         self._resize_hover_timer.stop()
@@ -7498,54 +6809,9 @@ class AIControlCenterDialog(QDialog):
 
     def update_provider_state(self, payload: dict[str, object]) -> None:
         self._provider_payload = dict(payload or {})
-        if getattr(self, "_uses_hud_specimen", False):
-            self._sync_provider_state_to_web()
-            return
-        provider_execution = "Disabled and blocked"
-        if (
-            self._provider_payload.get("providerExecutionGateState") != "provider-execution-disabled"
-            or self._provider_payload.get("modelExecutionGateState") != "model-execution-disabled"
-        ):
-            provider_execution = str(
-                self._provider_payload.get("providerExecutionGateLabel") or provider_execution
-            )
+        self._sync_provider_state_to_web()
 
-        lane_boundary = "Public only; Developer and Owner gated"
-        raw_capability_packs = str(self._provider_payload.get("installIntentLabel") or "")
-        capability_packs = raw_capability_packs or "Install blocked; downloads disabled"
-        if (
-            "blocked" in str(self._provider_payload.get("installIntentState") or "").lower()
-            or "blocked" in raw_capability_packs.lower()
-        ):
-            capability_packs = "Install blocked; downloads disabled"
-        if "download" not in capability_packs.lower():
-            capability_packs = f"{capability_packs}; downloads disabled"
-        visible_data = str(self._provider_payload.get("providerVisibleData") or "none")
-        visible_data_display = "None" if visible_data == "none" else visible_data
-        provider_visible_detail = (
-            "No prompt, file, memory, telemetry, or provider config is sent."
-            if visible_data == "none"
-            else str(
-                self._provider_payload.get("providerVisibleDataDetail")
-                or "Provider-visible data state requires review before any provider path runs."
-            )
-        )
-        fact_text = {
-            "orin": "Not implemented; no real AI executing",
-            "visible_data": visible_data_display,
-            "execution": provider_execution,
-            "prompt_memory": "Not accepted, sent, stored, or indexed",
-            "capability_packs": capability_packs,
-            "edition_lanes": lane_boundary,
-        }
-        for key, text in fact_text.items():
-            value_widget = self._fact_values.get(key)
-            if value_widget is not None:
-                value_widget.setText(text)
-        self._result.setText("Waiting for local action")
-        self._result_detail.setText(provider_visible_detail)
-
-    def run_local_assist_check(self) -> None:
+    def run_local_assist_check(self, *, sync_web: bool = True) -> None:
         payload = self._provider_payload or {}
         guard_closed = (
             payload.get("sentToProvider") is False
@@ -7555,44 +6821,19 @@ class AIControlCenterDialog(QDialog):
             and payload.get("networkEgressState") == "network-egress-blocked"
             and payload.get("memoryIndexingState") == "memory-indexing-disabled"
         )
-        if getattr(self, "_uses_hud_specimen", False):
-            if hasattr(self, "webview"):
-                self.webview.page().runJavaScript(
-                    "window.nexusAiControlCenterRunLocalCheck && "
-                    "window.nexusAiControlCenterRunLocalCheck();"
-                )
-            if guard_closed:
-                event = (
-                    "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT"
-                    "|provider_visible_data=none|sent_to_provider=false|can_accept_prompts=false"
-                    "|network_egress=blocked|memory_indexing=disabled"
-                )
-            else:
-                event = "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_BLOCKED|reason=boundary_mismatch"
-            if callable(self.event_logger):
-                self.event_logger(event)
-            return
         if guard_closed:
-            result = str(payload.get("localActionResultLabel") or "No provider configured")
-            if result == "No-provider check: no provider configured":
-                result = "No provider configured"
-            else:
-                result = result.replace(": no provider configured", ": No provider configured")
-            detail = str(
-                payload.get("localActionResultDetail")
-                or "No prompt was accepted or sent; provider-visible data remains none."
-            )
             event = (
                 "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT"
                 "|provider_visible_data=none|sent_to_provider=false|can_accept_prompts=false"
                 "|network_egress=blocked|memory_indexing=disabled"
             )
         else:
-            result = "No-provider check: blocked"
-            detail = "Provider boundary mismatch; no local result was produced."
             event = "RENDERER_MAIN|AI_CONTROL_CENTER_LOCAL_ASSIST_BLOCKED|reason=boundary_mismatch"
-        self._result.setText(result)
-        self._result_detail.setText(detail)
+        if sync_web and hasattr(self, "webview"):
+            self.webview.page().runJavaScript(
+                "window.nexusAiControlCenterRunLocalCheck && "
+                "window.nexusAiControlCenterRunLocalCheck();"
+            )
         if callable(self.event_logger):
             self.event_logger(event)
 
