@@ -21453,7 +21453,34 @@ def _run_pr_readiness_gate(
     )
 
 
+OPERATOR_GUIDE_DOC = Path("Docs/codex_user_guide.md")
+
+
+def _strip_operator_guide_from_governance_mirror_globals() -> None:
+    """Keep the USER-facing guide from becoming a binding governance mirror."""
+
+    def strip_value(value):
+        if isinstance(value, tuple):
+            return tuple(item for item in value if item != OPERATOR_GUIDE_DOC)
+        if isinstance(value, list):
+            return [item for item in value if item != OPERATOR_GUIDE_DOC]
+        if isinstance(value, set):
+            return {item for item in value if item != OPERATOR_GUIDE_DOC}
+        if isinstance(value, frozenset):
+            return frozenset(item for item in value if item != OPERATOR_GUIDE_DOC)
+        if isinstance(value, dict) and OPERATOR_GUIDE_DOC in value:
+            return {key: item for key, item in value.items() if key != OPERATOR_GUIDE_DOC}
+        return value
+
+    for name, value in list(globals().items()):
+        if not name.isupper():
+            continue
+        globals()[name] = strip_value(value)
+
+
 def main() -> int:
+    _strip_operator_guide_from_governance_mirror_globals()
+
     pr_readiness_gate = "--pr-readiness-gate" in sys.argv[1:]
     release_readiness_health_gate = "--release-readiness-health-gate" in sys.argv[1:]
     standing_governance_intake_gate = "--standing-governance-intake-gate" in sys.argv[1:]
@@ -21535,11 +21562,19 @@ def main() -> int:
             f"Docs/orin_task_template.md: required prompt field '{field_label}' is missing",
         )
 
-    user_guide_text = _read_text(Path("Docs/codex_user_guide.md"))
-    for field_label in ("Mode:", "Phase:", "Workstream:", "Branch:"):
+    user_guide_text = _read_text(OPERATOR_GUIDE_DOC)
+    for field_label in (
+        "not binding governance",
+        "Quick Prompts",
+        "Scope Coverage Manifest",
+        "Mode:",
+        "Phase:",
+        "Workstream:",
+        "Branch:",
+    ):
         require(
             field_label in user_guide_text,
-            f"Docs/codex_user_guide.md: exact prompt contract no longer mentions '{field_label}'",
+            f"{OPERATOR_GUIDE_DOC}: operator quick-reference no longer mentions '{field_label}'",
         )
 
     for relative_path in SUCCESSOR_LOCK_WAIVER_DOCS:

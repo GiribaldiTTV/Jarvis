@@ -65,6 +65,42 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
+
+## Pattern: Backend Runtime Truth Hidden Behind UI Green
+
+- symptom:
+  Codex validates UI shape, screenshots, helper output, or logs while the runtime/backend state owner, deterministic inputs/outputs, lifecycle/state machine, failure/fallback/recovery route, schema/config compatibility, rollback path, or user-facing status/error mapping remains unspecified
+- layer:
+  runtime/backend Branch Readiness, BP2/BP3 engineering plans, Workstream, Hardening, Live Validation, PR Readiness, USER review packets, and branches that expose user-visible state from runtime/backend behavior
+- root-cause pattern:
+  UI/UX proof became more explicit than backend/runtime proof, allowing a surface to appear green, disabled, blocked, successful, recovered, or degraded without proving that runtime truth supports that visible state
+- fix pattern:
+  require a Backend Predictability / Reliability Contract for runtime/backend-affecting work; require frontend/backend contract consistency so every user-visible state label, disabled action, blocked action, recovery option, success claim, failure claim, degraded state, and unavailable state maps to runtime truth, policy truth, or a USER-approved exception; treat backend logs as diagnostic evidence, not USER-facing proof by themselves; if rebaseline/re-entry discovers issues in already-implemented or previous branch output outside the current legal repair scope, prepare a USER-reviewed issue-candidate packet and stop before GitHub mutation
+- validation pattern:
+  future helpers should fail on `Backend Predictability Contract Missing`, `Runtime State Owner Missing`, `Runtime State Machine Missing`, `Nondeterministic Backend Behavior`, `Failure Path Missing`, `Fallback Behavior Hidden`, `Schema Migration Proof Missing`, `Config Compatibility Proof Missing`, `Backend/UI Contract Mismatch`, `User-Facing State Not Backed By Runtime Truth`, `Backend Logs Treated As User Proof`, `Recovery Route Missing`, `Rollback Path Missing`, `Issue Candidate Disposition Missing`, or `Issue Mutation Approval Missing` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/development_rules.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Template Or Golden Reference Claimed Before Promotion
+
+- symptom:
+  Codex treats a good active branch output, ChatGPT example, screenshot, control cluster, design discussion, or current FAM-007 packet as if it were a promoted template, golden reference, shared primitive, or design-token authority
+- layer:
+  FAM-002 presentation governance, UI/UX planning, Visual Inheritance Matrix rows, Scope Coverage Manifest rows, Live Validation visual adjudication, USER packets, and Governance PR-hold decisions
+- root-cause pattern:
+  future template/golden-reference work is needed, but a branch collapses the future USER-reviewed promotion decision into current proof and causes other branches to inherit an unapproved or stale UI surface
+- fix pattern:
+  keep FAM-002 presentation grammar binding now, but keep templates/golden references/design tokens/shared primitives blocked until the dependency chain clears and USER approves promotion; until then, branches must compare against current source-truth grammar, accepted reference surfaces where they already exist, screenshots/video/manual validation, and USER review, not a claimed future template
+- validation pattern:
+  future helpers should fail on `Template Dependency Unresolved`, `Golden Reference Promotion Blocked`, `Shared Primitive Promotion Blocked`, `Limited PR Path USER Approval Missing`, or `Template Treated As Existing Proof` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/governance_reliability_and_repo_split_reform_candidates.md`
+  - `Docs/validation_helper_registry.md`
   - `dev/orin_user_review_bundle.py`
   - `dev/orin_branch_readiness_planning_fixture_validation.py`
   - `dev/orin_branch_governance_validation.py`

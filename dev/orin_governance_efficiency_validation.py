@@ -247,7 +247,6 @@ CORE_GOVERNANCE_MIRROR_DOCS = (
     Path("Docs/development_rules.md"),
     Path("Docs/codex_modes.md"),
     Path("Docs/orin_task_template.md"),
-    Path("Docs/codex_user_guide.md"),
 )
 
 CORE_GOVERNANCE_DUPLICATE_POLICY_FORBIDDEN = (

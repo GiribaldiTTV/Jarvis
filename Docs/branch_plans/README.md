@@ -158,6 +158,8 @@ Vision-To-Proof Matrix rows carry the same claims into Hardening and Live Valida
 
 Hardening reviews these rows for proof gaps before Live Validation. Live Validation fills the observed evidence, comparison evidence, adjudication result, USER validation need, and final verdict. A row that only says helper output, marker, manifest, screenshot, video, or log exists is incomplete until it records what accepted requirement the artifact proves and how Codex compared it.
 
+Runtime/backend-affecting BP2/BP3 proof plans must also carry the Backend Predictability / Reliability Contract from `Docs/phase_governance.md`. The plan must define state owner, deterministic inputs and outputs, lifecycle/state-machine states, config/schema delta, migration or compatibility impact, idempotency, retry behavior, concurrency/reentrancy assumptions, failure/fallback/recovery behavior, logging/observability proof, security/privacy boundary, provider/model/cache/private boundary when applicable, UI/user-visible contract impact, validation/proof path, rollback/reversibility path, degraded/disabled/unavailable behavior, and user-facing status/error mapping. Frontend/backend contract consistency is required when UI exposes runtime/backend state: every visible state label, disabled or blocked action, recovery option, success/failure claim, degraded state, and unavailable state must map to runtime truth, policy truth, or a USER-approved exception. Backend logs support diagnosis; they are not USER-facing proof by themselves.
+
 BP2/BP3 proof plans must also carry the Hardening / Live Validation repair-loop route when runtime, desktop, UI, workflow, helper/validator, source-truth, or USER-gated proof can fail after Hardening. The plan must state what LV blockers repair first, what post-LV-repair Hardening rerun must inspect, what LV proof must rerun or reconfirm after Hardening, and what USER validation state counts as final. A pre-repair Hardening pass is planning/evidence history only after LV-driven repairs change branch files or proof surfaces; it cannot be the final PR Readiness basis.
 
 Scope Coverage Manifest rows carry completeness proof into Workstream, Hardening, Live Validation, PR Readiness, and any same-turn repair closeout that claims `green`, `complete`, `LV passed`, `PR-ready`, `accepted`, `no drift`, `all fixed`, or equivalent full-scope success. The active branch plan, USER review packet, helper output, validator output, or Codex digest must include or reference:
@@ -195,7 +197,7 @@ When the selected element creates, touches, restores, moves, resizes, persists, 
 
 Active implementation status for selected elements belongs in the active external branch plan or approved branch-planning packet. Family Feature Vision records own only the durable `Visioned` inventory, deferred facts, proof expectations, and fold-down receipts.
 
-When a branch re-enters planning or proof after merged governance standards land on `origin/main`, the active branch plan or review packet must carry a `Merged Vision Standard Adoption Review:`. The review must name the merged standard source, the rebaseline or re-entry event, current branch implementation inventory, affected branch artifacts, affected product surfaces, implemented or touched UI/UX surfaces, affected proof claims, merged standard comparison result, current violation findings, adoption disposition, repair/waiver/blocker, and a `No Repo Live-State Tracking:` statement. When UI/UX standards are affected, the review must say what the branch already implemented or touched and whether those surfaces currently violate the Project Vision, FAM-002 presentation grammar, applicable Family Vision / Family Feature Vision, Visual Inheritance Matrix, Scope Coverage Manifest, Vision-To-Proof Matrix, or Live Validation proof rules. This review may live in the active external branch plan, BP1/BP2/BP3 packet, Hardening packet, Live Validation packet, PR Readiness packet, or Codex digest according to the current phase; repo historical branch-plan receipts must not be used as live adoption ledgers.
+When a branch re-enters planning or proof after merged governance standards land on `origin/main`, the active branch plan or review packet must carry a `Merged Vision Standard Adoption Review:`. The review must name the merged standard source, the rebaseline or re-entry event, current branch implementation inventory, affected branch artifacts, affected product surfaces, implemented or touched UI/UX surfaces, implemented or touched runtime/backend surfaces, affected proof claims, merged standard comparison result, frontend/backend contract findings, template/golden-reference dependency result, current violation findings, adoption disposition, repair/waiver/blocker, issue-candidate disposition, and a `No Repo Live-State Tracking:` statement. When UI/UX standards are affected, the review must say what the branch already implemented or touched and whether those surfaces currently violate the Project Vision, FAM-002 presentation grammar, applicable Family Vision / Family Feature Vision, Visual Inheritance Matrix, Scope Coverage Manifest, Vision-To-Proof Matrix, or Live Validation proof rules. When backend/runtime standards are affected, the review must say what the branch already implemented or touched and whether those surfaces currently violate the Backend Predictability / Reliability Contract, Runtime Branch Engineering Contract, state/config/schema delta, failure/fallback/recovery route, frontend/backend truth mapping, logging/observability proof, or rollback/reversibility path. This review may live in the active external branch plan, BP1/BP2/BP3 packet, Hardening packet, Live Validation packet, PR Readiness packet, or Codex digest according to the current phase; repo historical branch-plan receipts must not be used as live adoption ledgers. If already-implemented or previous branch output appears defective but is outside the current branch's legal repair scope, the packet may prepare a GitHub issue candidate for USER review, but issue creation/mutation remains blocked until USER explicitly approves that exact GitHub action.
 
 BP1/BP2/BP3 packets created after a rebaseline must not treat old branch packets as green proof when the branch now touches standards merged after those packets were generated. BP1 refreshes the branch vision only when the accepted vision chain changed or was insufficient. BP2 updates engineering/proof-plan matrices when implementation proof, UI inheritance, claim class, minimum proof strength, or USER validation routing changed. BP3 verifies Workstream readiness against the updated adoption review before implementation approval can be requested.
 
@@ -253,6 +255,41 @@ Runtime-focused plans must include:
 - Claim / Evidence Matrix:
 - Vision-To-Proof Matrix:
 - Merged Vision Standard Adoption Review:
+- Implemented / Touched Runtime-Backend Surfaces:
+- Frontend / Backend Contract Findings:
+- Template / Golden Reference Dependency:
+- Issue Candidate Disposition:
+- Backend Predictability / Reliability Contract:
+- Runtime / Backend Surface:
+- State Owner:
+- Deterministic Inputs:
+- Deterministic Outputs:
+- Lifecycle / State Machine:
+- Config / Schema Delta:
+- Migration / Compatibility Impact:
+- Idempotency Behavior:
+- Retry Behavior:
+- Concurrency / Reentrancy Assumptions:
+- Failure Behavior:
+- Fallback Behavior:
+- Recovery Route:
+- Logging / Observability Proof:
+- Security / Privacy Boundary:
+- Provider / Model / Cache / Private Boundary:
+- UI / User-Visible Contract Impact:
+- Validation / Proof Path:
+- Rollback / Reversibility Path:
+- Degraded / Disabled / Unavailable State Behavior:
+- User-Facing Status / Error Mapping:
+- Rebaseline Issue Candidate Review:
+- Candidate Needed:
+- Candidate Title:
+- Affected FAM / FFV / Surface:
+- Evidence Source:
+- Expected Behavior:
+- Owner Recommendation:
+- Severity:
+- USER Approval Required Before GitHub Mutation:
 - Accepted Vision Source:
 - Accepted Requirement:
 - Claim Class:
