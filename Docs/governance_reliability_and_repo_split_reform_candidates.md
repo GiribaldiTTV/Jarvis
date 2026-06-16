@@ -315,6 +315,18 @@ Blocker Status After USER Decisions:
 - `Future Helper/Validator Enforcement`: still active.
 - PR Readiness remains blocked.
 
+### Template / Golden Reference Missing-Proof / Promotion-Planning Packet Repair - 2026-06-16
+
+Document Status: Non-Binding Packet-Stage Repair Receipt. Binding authority remains with `Docs/development_rules.md`, `Docs/phase_governance.md`, and `Docs/validation_helper_registry.md` for clean USER packet regeneration and timestamped upload ZIP rules; `Docs/nexus_vision.md` and `Docs/family_visions/FAM-002_desktop_interface.md` for current UI vision and presentation law; and any later USER-approved FAM-002 Family Feature Vision or reference catalog for promoted template/reference truth.
+
+Repair Finding: The timestamped upload ZIP `C:\Nexus USER\Governance-20260616-122646.zip` used a valid timestamped name but contained the older `USER Candidate Decision Packet Only` content from the visual-evidence repair. That packet was valid for candidate-decision digestion, but it was stale for the next missing-proof / promotion-planning approval surface after the accepted candidate decisions were recorded.
+
+Required Corrected Packet: The local USER hub must be purged and rebuilt as a `Missing-Proof / Promotion-Planning Approval Packet`, not reused as a candidate-decision packet. It must include a decision summary, source-truth loaded list, missing-proof matrix, carrier recommendation, future owner/location/schema recommendation, blocker table, exact next USER decision text, packet digest, and timestamped ZIP proof reported outside USER-facing packet content.
+
+Packet Boundary: This repair creates USER/ChatGPT review evidence only. It does not create a FAM-002 Family Feature Vision, create `Docs/ui_reference_catalog/`, promote a golden reference, create a template, implement design tokens, implement shared primitives, mutate helpers, mutate validators, mutate fixtures, mutate external state, mutate FAM worktrees, create issues, create a PR, merge, release, move/delete/archive source files, or clear `Current Branch Template Work Incomplete`.
+
+Next Legal Use: USER/ChatGPT should review the corrected packet and decide whether to approve the next bounded template/reference carrier. The recommended next carrier remains staged: first a future FAM-002 Family Feature Vision such as `F2-FF01 Nexus UI Reference System` for durable UI reference-system vision and missing-proof planning, then an optional future `Docs/ui_reference_catalog/` only for USER-promoted reference contracts. PR Readiness remains blocked while `Current Branch Template Work Incomplete` is active unless USER explicitly reclassifies or removes the remaining work from current PR scope.
+
 ### PR #269 Release-Target Repair Closure - 2026-06-16
 
 Repair Closure: `USER approved the bounded Governance intake repair for the PR #269 missing release-target contract. The binding repair lives in Docs/branch_records/feature_fam_007_three_ndai_assisted_ai_function_slice.md as the Merged PR #269 Release Target Contract. That receipt records Release Target v1.7.34-prebeta, Release Floor patch prerelease, Version Rationale, Release Scope, Release Artifacts, and Post-Release Truth. The evaluation rows above remain historical planning evidence; Release Target Undefined is no longer the current PR #269 source-truth-contract blocker after this repair. Release execution remains separately USER-gated.`
