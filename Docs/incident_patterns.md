@@ -69,6 +69,42 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `dev/orin_branch_readiness_planning_fixture_validation.py`
   - `dev/orin_branch_governance_validation.py`
 
+## Pattern: GitHub Issue Live State Must Not Become Repo Ledger
+
+- symptom:
+  Branch Readiness, PR Readiness, or Release Readiness references issue numbers, returned UTS issue forms, diagnostics issue flows, or PR review issue evidence without a deterministic scan/disposition, then repo docs start acting like the current issue queue or Release Readiness misses closeout candidates.
+- layer:
+  Branch Readiness issue intake, PR body generation, Release Readiness closeout, branch records, branch plans, and GitHub issue state.
+- root-cause pattern:
+  GitHub issue state is live operational truth, but source truth only had broad live-state boundary language. Without a named issue intake and closeout gate, Codex could skip relevant open issues, preserve inconsistent receipt field names, or put stale open/closed/current issue posture into repo docs.
+- fix pattern:
+  run the `GitHub Issue Relevance Intake Gate` during Branch Readiness and rebaseline/reconciliation when issue evidence can affect scope; classify each issue as current-FAM, other-FAM, cross-FAM, duplicate/superseded, not applicable, USER triage, or live-state unknown; disposition current/cross-FAM issues; keep temporary scan evidence in helper output, Codex digest, USER packets, or external state; and fold down only durable issue receipts in branch records.
+- validation pattern:
+  future helpers should report missing issue scans, missing dispositions, live-state unknowns, and repo issue-ledger leakage. Green validation is evidence only; Codex must still verify the issue source and disposition.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/branch_records/index.md`
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: PR Auto-Close Keywords Bypass Issue Approval
+
+- symptom:
+  A GitHub PR body says `Fixes #`, `Closes #`, or `Resolves #` and would auto-close an issue on merge even though USER approved PR creation/merge but did not separately approve issue closeout.
+- layer:
+  PR Readiness Stage 2, PR body quality, GitHub issue closeout, and Release Readiness issue closeout inventory.
+- root-cause pattern:
+  PR body governance treated the body as human review text but did not classify GitHub auto-close keywords as a mutation path. That can turn PR merge into unreviewed issue mutation.
+- fix pattern:
+  treat auto-close keywords as issue mutation risk. Use non-closing references such as `Related issue: #123` or `Issue evidence: #123` unless USER explicitly approved the closeout set and the branch intentionally relies on GitHub auto-close.
+- validation pattern:
+  run PR body quality checks before PR creation and after live PR creation; future PR-body helpers should flag auto-close keywords when closeout approval is absent.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_pr_body_quality_audit.py`
+
 ## Pattern: Template-Shell USER Review Artifact Passed Reviewability
 
 - symptom:

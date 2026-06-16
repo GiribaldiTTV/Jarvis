@@ -1763,6 +1763,7 @@ The PR summary/GitHub PR body uses exactly two top-level sections: `## Summary` 
 GitHub PR bodies and PR Summary copy must not include top-level or nested `## Validation`, `## PR posture`, `## Branch Evidence`, `Testing`, `Checks`, `Does not include`, `Not Included`, `Non-Includes`, `Deferred`, `Future-Gated`, generic defensive scope dumps, or phase-digest/operator handoff fields such as `Next Legal Phase`, `Next Safe Move`, `Continue Decision`, `Stop Basis`, `Exact next USER decision`, `Implemented, validated`, or `::git-*`.
 GitHub PR bodies and PR Summary copy must not include `## Validation`, `## PR posture`, `## Branch Evidence`, or defensive scope language.
 Validation commands, command output, byte-proof evidence, mergeability, bot-review state, watcher state, and PR Readiness posture belong in Codex digests, helper output, status checks, or external operational state, not the GitHub PR body.
+GitHub PR bodies and PR Summary copy must not include auto-close keywords such as `Fixes #`, `Closes #`, or `Resolves #` unless USER explicitly approved issue closeout for that issue set and the PR closeout strategy intentionally relies on GitHub auto-close behavior. Without that approval, issue references must use non-closing language such as `Related issue: #123` or `Issue evidence: #123`. `Issue Auto-Close Keyword Not Approved` blocks PR creation or PR body repair when auto-close language would create an unapproved issue mutation at merge.
 Before PR creation, Codex must write the proposed GitHub PR body to a local temporary file and run `python dev\orin_pr_body_quality_audit.py --body-file <path> --body-title "<PR title>"`. If the helper reports `Changed: True` or any warning, PR creation is blocked on `PR Body Drift Check Failed` until Codex reruns the helper with `--apply` or otherwise replaces the proposed body with the normalized body and reruns the check green. After PR creation, Codex must verify the live PR body with `python dev\orin_pr_body_quality_audit.py --limit 1` or a narrower equivalent. All visible PR bodies must be scanned by `dev\orin_pr_body_quality_audit.py`; every nonconforming PR body inside the approved GitHub correction scope must be repaired before the PR-body standard can be reported green. If broad historical PR body mutation is not approved or GitHub access blocks repair, Codex must report the exact blocker instead of calling the all-PR scan green.
 When the conditional `Next Branch` block is included and `May Create Now` is `NO`, the subsection must explain the blocking gate rather than implying branch creation is allowed.
 
@@ -2047,6 +2048,26 @@ Aggregation rule:
 - after release publication, durable post-release closure must clear or move every included `Merged-Unreleased Scope Inventory:` item, not just the last merged branch
 
 The blocker for missing or ambiguous contributor inventory is `Release Window Contributor Inventory Missing`.
+
+### Release Readiness Issue Closeout Candidate Inventory
+
+Release Readiness Stage 1 is read-only and file-frozen, but it must inventory issue closeout candidates when the selected release candidate includes branch records, branch plans, UTS returns, PR review repairs, diagnostics evidence, workstream records, or GitHub issues that claim or imply issue resolution. The inventory must use live GitHub/helper evidence when available and must not turn repo docs into a live issue ledger.
+
+Required RR1 fields for each candidate issue:
+
+- `Issue Number:`
+- `Issue Title:`
+- `Live GitHub State:`
+- `Carried By Branch / Record:`
+- `Completed By PR:`
+- `Release Target:`
+- `Evidence Source:`
+- `Recommended Closeout Action:`
+- `USER Approval Required:`
+
+Allowed `Recommended Closeout Action:` values are `No Action`, `Comment Candidate`, `Close Candidate`, `Label Candidate`, `Milestone Candidate`, `Already Closed`, `Route To Branch Readiness`, and `USER Decision Required`. RR1 must stop on `Release Issue Closeout Inventory Missing`, `Carried GitHub Issue Not Dispositioned`, or `Issue Closeout Live State Unknown` when issue resolution affects release posture, USER-facing validation, or a release note/public claim.
+
+Release Readiness Stage 2 may comment, close, label, milestone, or otherwise mutate GitHub issues only when USER explicitly approves issue closeout for the affected issue set. Without that approval, RR2 records `Issue Closeout Pending USER Approval` and may proceed only if issue closeout is not required for release truth. If issue closeout is required but approval is absent, `Issue Closeout Approval Missing` and `Issue Mutation Approval Missing` block the action.
 
 Post-release closure rule:
 
@@ -2834,6 +2855,10 @@ Before the Stage 1 packet recommends USER-selectable candidates, it must include
 `Post-Release External State Carry-Forward:` is required in Branch Readiness Stage 1 when the previous Release Readiness Stage 2 release has completed and external operational records still point at the just-released branch, PR, release-window, selected-next state, or old source commit. This is a normal BR1 check, not a blocker by itself. Stage 1 must report whether the carry-forward was already reconciled during bounded RR2 post-release closeout or must be reconciled in Branch Readiness Stage 2 before branch/worktree setup or implementation. It becomes `External Operational State Conflict` only when the external state disagrees with Git/GitHub/repo validation in a way that changes the legal next carrier, requires repo source-truth mutation, requires branch/worktree cleanup, or could authorize stale runtime/FAM/private work.
 
 `Post-Merge Release Readiness Handoff:` is required in Branch Readiness Stage 1 when fetched `origin/main` contains release-bearing merged work after the latest public prerelease, when the current worktree just completed PR2/merge/rebaseline for release-bearing work, or when the requested successor BR1 follows a release-bearing branch merge. BR1 must report whether Release Readiness Stage 1 has run for the current candidate anchor or whether USER explicitly deferred Release Readiness before successor selection. If neither proof exists, BR1 stops on `Post-Merge Release Readiness Decision Missing` or `Release Readiness Handoff Skipped` before recommending successor runtime candidates. This handoff does not execute release, tag, GitHub Release, artifact, issue, cleanup, runtime, provider, private, cache, or memory work; it only prevents successor planning from skipping the file-frozen release-readiness decision point.
+
+`GitHub Issue Relevance Intake Gate:` is required in Branch Readiness Stage 1 for FAM/runtime/product branches, issue-bearing repair branches, re-entering branches after rebaseline/reconciliation, and any branch whose prior USER feedback, UTS return, PR review, GitHub issue, diagnostics flow, or release-window evidence names user-facing defects or requested behavior. BR1 must treat live GitHub issue state as Git/GitHub/helper-derived evidence, not repo source truth, and must classify each inspected issue as exactly one of `Relevant To Current FAM`, `Relevant To Other FAM`, `Cross-FAM`, `Duplicate / Superseded`, `Not Applicable`, `Needs USER Triage`, or `Live State Unknown`. For every issue classified `Relevant To Current FAM` or `Cross-FAM`, the packet must record one disposition: `include in branch scope`, `defer with reason`, `route to another owner`, `block pending USER decision`, or `not applicable with reason`. If the scan cannot run, Codex must say `Live State Unknown` and route the decision instead of inventing issue truth from stale repo docs. `GitHub Issue Relevance Scan Missing`, `Relevant Current-FAM Issue Not Dispositioned`, `Cross-FAM Issue Routing Missing`, `Issue Closeout Live State Unknown`, and `Issue State Treated As Repo Truth` block phase progression when the issue evidence affects branch scope, release scope, USER validation, or public/release closeout.
+
+The issue intake gate is not permission to mutate GitHub. Creating, commenting on, labeling, milestone-changing, closing, reopening, or auto-closing GitHub issues requires explicit USER approval for that exact issue action. Repo docs may preserve durable issue receipts only after the live GitHub state has been checked or the evidence source is named; temporary issue scan evidence belongs in helper output, Codex digest, USER review packets, or `C:\Nexus Governance State` when source truth permits.
 
 The top-level `Merged Vision / Proof Standard Adoption Gate` applies to Branch Readiness and Branch Planning. Branch Readiness must report it when a worktree re-enters after merged Project Vision, Family Vision, Family Feature Vision, UI immersion/window chrome, claim/evidence, proof-strength, Vision-To-Proof, Live Validation, UTS, failure/recovery, or USER-validation standards affect the requested branch. The review is next-legal-gate evaluation only; it must not create repo live-state tracking or authorize cross-worktree mutation.
 

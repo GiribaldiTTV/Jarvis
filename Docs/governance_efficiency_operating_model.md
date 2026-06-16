@@ -128,6 +128,16 @@ Governance receipts are recorded after live truth is checked. Examples include U
 
 Docs may record historical receipts, but they must not pretend to be live operational truth. When a current operational fact is needed, run a helper or live check and report it as evidence.
 
+## GitHub Issue State Boundary
+
+Rule Name: `GitHub Issue State Boundary`
+Owner File: `Docs/governance_efficiency_operating_model.md`
+Compact Mirror: `Docs/phase_governance.md` owns issue intake and release closeout gates; `Docs/branch_records/index.md` owns durable branch issue receipt field names; `Docs/validation_helper_registry.md` owns future helper/validator guidance.
+
+GitHub owns live issue state. Git/GitHub connectors, `gh`, approved helpers, Codex digests, USER review packets, and external operational state may carry active issue scan evidence when the current phase permits it. Repo docs may carry durable issue receipts, approved closeout summaries, release interpretation, and compact evidence pointers only after the evidence source is named.
+
+Invalid repo-doc issue state includes live issue queues, manually maintained open/closed/current labels, active closeout checklists, unapproved issue mutation plans, or PR-body auto-close language that would mutate issues without USER approval. `Issue State Treated As Repo Truth` blocks when a repo doc becomes the current source for live issue state. The repair path is to derive live state from GitHub/helper evidence, move active evidence to the correct non-canonical owner, and fold down only durable receipt fields.
+
 ## Runtime Observability Evidence Placement Rule
 
 Rule Name: `Runtime Observability Evidence Placement Rule`

@@ -238,6 +238,10 @@ Runtime-focused plans must include:
 - Per-Seam Validation Checklist:
 - Per-Seam User-Facing Proof Checklist:
 - Future-Gated Items:
+- GitHub Issue Relevance Review:
+- Issue Scan Source:
+- Issue Relevance Classification:
+- Issue Disposition:
 - Approval-Boundary Audit:
 - FAM / Shared-Surface Overlap Forecast:
 - Open Questions:
@@ -756,6 +760,30 @@ Workstream seam closeout updates the matrix with implemented, skipped, deferred,
 If a Branch Vision Contract Snapshot is required, Workstream Entry also proves `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, and accepted stop conditions before implementation begins.
 
 If USER feedback is meaningful to current branch scope, future branch scope, accepted vision, validation proof, or reusable product standards, Workstream Entry and later seam packets must either add or update a UFD item or state the no-action reason.
+
+## GitHub Issue Relevance Review
+
+Active external branch plans, Branch Readiness packets, and rebaseline/reconciliation packets must include `GitHub Issue Relevance Review:` when live GitHub issues, returned UTS issue forms, PR review repairs, diagnostics reports, or release-window evidence could affect branch scope, proof, or closeout.
+
+Required fields:
+
+- `Issue Scan Source:`
+- `Issue Number:`
+- `Issue Title:`
+- `Live GitHub State:`
+- `Issue Relevance Classification:`
+- `Affected FAM / FFV / Branch Surface:`
+- `Issue Disposition:`
+- `Disposition Reason:`
+- `Owner / Route:`
+- `USER Decision Required:`
+- `Durable Receipt Target:`
+
+Allowed `Issue Relevance Classification:` values are `Relevant To Current FAM`, `Relevant To Other FAM`, `Cross-FAM`, `Duplicate / Superseded`, `Not Applicable`, `Needs USER Triage`, and `Live State Unknown`.
+
+Allowed `Issue Disposition:` values are `Include In Branch Scope`, `Defer With Reason`, `Route To Another Owner`, `Block Pending USER Decision`, `Not Applicable With Reason`, `Closeout Candidate`, `Already Closed`, and `USER Decision Required`.
+
+The active branch plan may carry temporary issue scan evidence only while the branch is active. Repo branch-plan receipts after fold-down must preserve only compact durable issue receipts, approved closeout summaries, or pointers to GitHub/helper evidence. They must not become active issue ledgers, live issue queues, or substitutes for GitHub issue truth.
 
 Hardening compares actual implementation against the plan and records extra behavior, skipped items, UI copy integrity, validator coverage, and future-gated item checks.
 
