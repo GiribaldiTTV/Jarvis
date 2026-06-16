@@ -242,6 +242,18 @@ USER Review Requirements Before Promotion:
 
 Admission Result: This cycle can produce the next implementation approval packet. It cannot clear `Current Branch Template Work Incomplete` by itself because actual reference promotion, catalog creation, design tokens, shared primitives, helpers, validators, fixtures, and product-worktree adoption remain unapproved or explicitly reclassified.
 
+### Template / Golden Reference USER Visual Review Packet - 2026-06-16
+
+Packet Status: `Generated For USER Review - Not Promoted`.
+
+Packet Location: `C:\Nexus USER\Governance`.
+
+Packet Purpose: The local USER review packet compares the admitted candidate references against Project UI Vision, FAM-002 presentation grammar, accepted HUD/FAM-006 evidence, PR #269 AI Control Center evidence, Vision-To-Proof Matrix expectations, Scope Coverage Manifest expectations, and USER proof hierarchy. It records USER decision rows for accept, revise, reject, waive gap, or defer.
+
+Packet Boundary: The packet is review evidence only. It does not create a FAM-002 FFV, create `Docs/ui_reference_catalog/`, promote a golden reference, create a template, implement design tokens, implement shared primitives, mutate helpers, mutate validators, mutate fixtures, mutate FAM worktrees, mutate external state, create issues, create a PR, merge, release, move/delete/archive files, or clear `Current Branch Template Work Incomplete`.
+
+Next Legal Use: USER/ChatGPT review should decide which candidate references, if any, advance to the next bounded digestion and promotion-planning packet. Any accepted reference still requires a later USER-approved implementation carrier before durable reference files, catalog records, templates, helper enforcement, validator enforcement, fixtures, or product-worktree adoption can be created.
+
 ### PR #269 Release-Target Repair Closure - 2026-06-16
 
 Repair Closure: `USER approved the bounded Governance intake repair for the PR #269 missing release-target contract. The binding repair lives in Docs/branch_records/feature_fam_007_three_ndai_assisted_ai_function_slice.md as the Merged PR #269 Release Target Contract. That receipt records Release Target v1.7.34-prebeta, Release Floor patch prerelease, Version Rationale, Release Scope, Release Artifacts, and Post-Release Truth. The evaluation rows above remain historical planning evidence; Release Target Undefined is no longer the current PR #269 source-truth-contract blocker after this repair. Release execution remains separately USER-gated.`
