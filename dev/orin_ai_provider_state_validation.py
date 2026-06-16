@@ -8780,11 +8780,12 @@ def validate() -> list[str]:
 
     for needle in (
         "AIControlCenterDialog",
-        "AIControlCenterTemplatePage",
+        "AIControlCenterCommandPage",
         "QWebEnginePage",
         "QWebEngineView",
         "ai_control_center.html",
-        "_ai_control_center_template_path",
+        "_ai_control_center_html_path",
+        "_on_ai_control_center_html_loaded",
         "_sync_provider_state_to_web",
         "_sync_ai_control_center_window_controls",
         "_handle_ai_control_center_command",
@@ -8841,7 +8842,7 @@ def validate() -> list[str]:
         "aiControlCenterWindowControlCluster",
         "compact-minimize-maximize-close",
         "aiControlCenterActiveSpecimen",
-        "webview-hud-template",
+        "webview-hud-specimen",
         "aiControlCenterNativeMirrorDisposition",
         "inactive-reference-mirror",
         "WINDOW_STATE_FILENAME",
@@ -8953,6 +8954,20 @@ def validate() -> list[str]:
     ):
         _require(needle in renderer, f"desktop renderer Nexus AI Control Center is missing {needle!r}", failures)
 
+    for forbidden in (
+        "AIControlCenterTemplatePage",
+        "_ai_control_center_template_path",
+        "_on_ai_control_center_template_loaded",
+        "_uses_hud_template",
+        "webview-hud-template",
+        "AI_CONTROL_CENTER_TEMPLATE_LOAD_FAILED",
+    ):
+        _require(
+            forbidden not in renderer,
+            f"desktop renderer AI Control Center must not retain template-collision marker {forbidden!r}",
+            failures,
+        )
+
     for needle in (
         "monitoring_hud.css",
         'id="monitoring-hud"',
@@ -9048,7 +9063,7 @@ def validate() -> list[str]:
     ):
         _require(
             needle in ai_control_html,
-            f"AI Control Center HUD-derived template is missing {needle!r}",
+            f"AI Control Center HUD-aligned HTML surface is missing {needle!r}",
             failures,
         )
 
@@ -9107,7 +9122,7 @@ def validate() -> list[str]:
     ):
         _require(
             needle in ai_control_js,
-            f"AI Control Center template script is missing {needle!r}",
+            f"AI Control Center script is missing {needle!r}",
             failures,
         )
 
@@ -9122,7 +9137,7 @@ def validate() -> list[str]:
     ):
         _require(
             forbidden not in ai_control_html and forbidden not in ai_control_js,
-            f"AI Control Center template must not reintroduce stale card wording {forbidden!r}",
+            f"AI Control Center HTML/JS must not reintroduce stale card wording {forbidden!r}",
             failures,
         )
 
@@ -9225,12 +9240,12 @@ def validate() -> list[str]:
         )
         _require(
             forbidden not in ai_control_html,
-            f"AI Control Center HUD-derived template must not retain stale visual/content contract {forbidden!r}",
+            f"AI Control Center HUD-aligned HTML surface must not retain stale visual/content contract {forbidden!r}",
             failures,
         )
         _require(
             forbidden not in ai_control_js,
-            f"AI Control Center template script must not retain stale visual/content contract {forbidden!r}",
+            f"AI Control Center script must not retain stale visual/content contract {forbidden!r}",
             failures,
         )
 

@@ -877,7 +877,7 @@ class AIControlCenterDeck(QFrame):
             painter.end()
 
 
-class AIControlCenterTemplatePage(QWebEnginePage):
+class AIControlCenterCommandPage(QWebEnginePage):
     ai_control_center_command = Signal(str)
 
     def javaScriptConsoleMessage(self, level, message, line_number, source_id):
@@ -5971,9 +5971,9 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("aiControlCenterMaximizeDecisionGate", "per-window-relevance-before-inheritance")
         self.setProperty("aiControlCenterWindowControlStateModel", "hidden-blocked-active")
         self.setProperty("aiControlCenterWindowControlCluster", "compact-minimize-maximize-close")
-        self.setProperty("aiControlCenterActiveSpecimen", "webview-hud-template")
+        self.setProperty("aiControlCenterActiveSpecimen", "webview-hud-specimen")
         self.setProperty("aiControlCenterNativeMirrorDisposition", "inactive-reference-mirror")
-        self._uses_hud_template = True
+        self._uses_hud_specimen = True
         self._page_ready = False
         self._pending_provider_payload = {}
         self._drag_offset = None
@@ -6016,15 +6016,15 @@ class AIControlCenterDialog(QDialog):
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setMouseTracking(True)
         self.webview.installEventFilter(self)
-        self._web_page = AIControlCenterTemplatePage(self.webview)
+        self._web_page = AIControlCenterCommandPage(self.webview)
         self._web_page.ai_control_center_command.connect(self._handle_ai_control_center_command)
         self.webview.setPage(self._web_page)
         self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
-        self.webview.loadFinished.connect(self._on_ai_control_center_template_loaded)
-        self.webview.load(QUrl.fromLocalFile(str(self._ai_control_center_template_path())))
+        self.webview.loadFinished.connect(self._on_ai_control_center_html_loaded)
+        self.webview.load(QUrl.fromLocalFile(str(self._ai_control_center_html_path())))
         root.addWidget(self.webview)
         self.setGeometry(self._restored_geometry())
-        # The accepted specimen is the WebView/HUD template above; the native Qt
+        # The accepted specimen is the WebView/HUD-aligned HTML surface above; the native Qt
         # block below is retained only as an inactive reference mirror.
         return
         self.setStyleSheet(
@@ -6576,16 +6576,16 @@ class AIControlCenterDialog(QDialog):
         deck_layout.addWidget(self._content_scroll)
         self.setGeometry(self._restored_geometry())
 
-    def _ai_control_center_template_path(self) -> Path:
+    def _ai_control_center_html_path(self) -> Path:
         return Path(__file__).resolve().parents[1] / "nexus_visual" / "ai_control_center.html"
 
-    def _on_ai_control_center_template_loaded(self, ok: bool) -> None:
+    def _on_ai_control_center_html_loaded(self, ok: bool) -> None:
         self._page_ready = bool(ok)
         if self._page_ready:
             self._sync_provider_state_to_web()
             self._sync_ai_control_center_window_controls()
         elif callable(self.event_logger):
-            self.event_logger("RENDERER_MAIN|AI_CONTROL_CENTER_TEMPLATE_LOAD_FAILED")
+            self.event_logger("RENDERER_MAIN|AI_CONTROL_CENTER_HTML_LOAD_FAILED")
 
     def _ai_control_center_window_control_states(self) -> dict[str, str]:
         return dict(self.WINDOW_CONTROL_STATES)
@@ -6629,7 +6629,7 @@ class AIControlCenterDialog(QDialog):
                 )
 
     def _sync_provider_state_to_web(self) -> None:
-        if not getattr(self, "_uses_hud_template", False):
+        if not getattr(self, "_uses_hud_specimen", False):
             return
         payload = dict(self._provider_payload or self._pending_provider_payload or {})
         self._pending_provider_payload = payload
@@ -6642,7 +6642,7 @@ class AIControlCenterDialog(QDialog):
         self.webview.page().runJavaScript(script)
 
     def _sync_ai_control_center_window_controls(self) -> None:
-        if not getattr(self, "_uses_hud_template", False):
+        if not getattr(self, "_uses_hud_specimen", False):
             return
         if not getattr(self, "_page_ready", False) or not hasattr(self, "webview"):
             return
@@ -6757,7 +6757,7 @@ class AIControlCenterDialog(QDialog):
         effect.setColor(QColor(99, 225, 255, 0))
 
     def eventFilter(self, watched, event):
-        if getattr(self, "_uses_hud_template", False) and watched is getattr(self, "webview", None):
+        if getattr(self, "_uses_hud_specimen", False) and watched is getattr(self, "webview", None):
             event_type = event.type()
             if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
                 pos = event.position().toPoint()
@@ -7476,7 +7476,7 @@ class AIControlCenterDialog(QDialog):
 
     def showEvent(self, event):
         super().showEvent(event)
-        if getattr(self, "_uses_hud_template", False):
+        if getattr(self, "_uses_hud_specimen", False):
             self._resize_hover_timer.start()
             self._sync_ai_control_center_window_controls()
 
@@ -7498,7 +7498,7 @@ class AIControlCenterDialog(QDialog):
 
     def update_provider_state(self, payload: dict[str, object]) -> None:
         self._provider_payload = dict(payload or {})
-        if getattr(self, "_uses_hud_template", False):
+        if getattr(self, "_uses_hud_specimen", False):
             self._sync_provider_state_to_web()
             return
         provider_execution = "Disabled and blocked"
@@ -7555,7 +7555,7 @@ class AIControlCenterDialog(QDialog):
             and payload.get("networkEgressState") == "network-egress-blocked"
             and payload.get("memoryIndexingState") == "memory-indexing-disabled"
         )
-        if getattr(self, "_uses_hud_template", False):
+        if getattr(self, "_uses_hud_specimen", False):
             if hasattr(self, "webview"):
                 self.webview.page().runJavaScript(
                     "window.nexusAiControlCenterRunLocalCheck && "
