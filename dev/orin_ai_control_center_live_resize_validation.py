@@ -352,6 +352,13 @@ def main() -> int:
             closeClass: close ? close.className : "",
             closeStyle: style(close),
             closeLabel: close ? close.getAttribute("aria-label") : "",
+            closeControl: close ? close.dataset.control : "",
+            closeControlState: close ? close.dataset.windowControlState : "",
+            closeControlCommand: close ? close.dataset.windowControlCommand : "",
+            closeHidden: close ? close.hidden : false,
+            closeAriaHidden: close ? close.getAttribute("aria-hidden") : "",
+            closeAriaDisabled: close ? close.getAttribute("aria-disabled") : "",
+            closeTabIndex: close ? close.tabIndex : null,
             closeTitle: close ? close.getAttribute("title") : "",
             maximizeText: maximize ? maximize.textContent.trim() : "",
             maximizeRect: rect(maximize),
@@ -360,6 +367,11 @@ def main() -> int:
             maximizeLabel: maximize ? maximize.getAttribute("aria-label") : "",
             maximizeState: maximize ? maximize.dataset.windowState : "",
             maximizeControl: maximize ? maximize.dataset.control : "",
+            maximizeControlState: maximize ? maximize.dataset.windowControlState : "",
+            maximizeControlCommand: maximize ? maximize.dataset.windowControlCommand : "",
+            maximizeHidden: maximize ? maximize.hidden : false,
+            maximizeAriaHidden: maximize ? maximize.getAttribute("aria-hidden") : "",
+            maximizeTabIndex: maximize ? maximize.tabIndex : null,
             maximizeDisabled: maximize ? maximize.disabled : false,
             maximizeAriaDisabled: maximize ? maximize.getAttribute("aria-disabled") : "",
             maximizeTitle: maximize ? maximize.getAttribute("title") : "",
@@ -368,6 +380,13 @@ def main() -> int:
             minimizeClass: minimize ? minimize.className : "",
             minimizeStyle: style(minimize),
             minimizeLabel: minimize ? minimize.getAttribute("aria-label") : "",
+            minimizeControl: minimize ? minimize.dataset.control : "",
+            minimizeControlState: minimize ? minimize.dataset.windowControlState : "",
+            minimizeControlCommand: minimize ? minimize.dataset.windowControlCommand : "",
+            minimizeHidden: minimize ? minimize.hidden : false,
+            minimizeAriaHidden: minimize ? minimize.getAttribute("aria-hidden") : "",
+            minimizeAriaDisabled: minimize ? minimize.getAttribute("aria-disabled") : "",
+            minimizeTabIndex: minimize ? minimize.tabIndex : null,
             minimizeTitle: minimize ? minimize.getAttribute("title") : "",
             orinRowLabelText: orinRowLabel ? orinRowLabel.textContent.trim() : "",
             orinRowLabelStyle: style(orinRowLabel),
@@ -387,7 +406,8 @@ def main() -> int:
                   close.getBoundingClientRect().left - maximize.getBoundingClientRect().right
                 ))
               : null,
-            compactButtonCount: cluster ? cluster.querySelectorAll(".monitoring-hud__window-control-button").length : 0
+            compactButtonCount: cluster ? cluster.querySelectorAll(".monitoring-hud__window-control-button").length : 0,
+            visibleCompactButtonCount: cluster ? Array.from(cluster.querySelectorAll(".monitoring-hud__window-control-button")).filter((button) => !button.hidden).length : 0
           });
         })();
         """,
@@ -399,12 +419,15 @@ def main() -> int:
     hover_proof: dict[str, object] = {}
     if isinstance(title_chrome_proof, dict):
         window_rect_for_hover = _native_rect(hwnd)
-        for rect_key, label in (
-            ("minimizeRect", "02_window_control_minimize_hover"),
-            ("maximizeRect", "03_window_control_maximize_disabled_hover"),
-            ("closeRect", "04_window_control_close_hover"),
+        for rect_key, state_key, label in (
+            ("minimizeRect", "minimizeControlState", "02_window_control_minimize_hover"),
+            ("maximizeRect", "maximizeControlState", "03_window_control_maximize_hidden"),
+            ("closeRect", "closeControlState", "04_window_control_close_hover"),
         ):
             control_rect = title_chrome_proof.get(rect_key)
+            if title_chrome_proof.get(state_key) == "hidden":
+                hover_proof[label] = {"ok": True, "skipped": True, "reason": "hidden-window-control"}
+                continue
             if not isinstance(control_rect, dict):
                 hover_proof[label] = {"ok": False, "reason": f"missing-{rect_key}"}
                 continue
@@ -606,8 +629,7 @@ def main() -> int:
             and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
             and isinstance(title_chrome_proof.get("closeStyle"), dict)
             and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
-            and isinstance(title_chrome_proof.get("maximizeStyle"), dict)
-            and title_chrome_proof["maximizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.18)"
+            and title_chrome_proof.get("maximizeControlState") == "hidden"
         ),
         "windowControlOuterBorderBrighterThanInner": (
             isinstance(title_chrome_proof, dict)
@@ -615,8 +637,6 @@ def main() -> int:
             and title_chrome_proof["clusterStyle"].get("borderColor") == "rgba(122, 232, 255, 0.44)"
             and isinstance(title_chrome_proof.get("minimizeStyle"), dict)
             and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
-            and isinstance(title_chrome_proof.get("maximizeStyle"), dict)
-            and title_chrome_proof["maximizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.18)"
             and isinstance(title_chrome_proof.get("closeStyle"), dict)
             and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
         ),
@@ -634,15 +654,17 @@ def main() -> int:
                 and isinstance(hover_proof[label].get("evidence"), dict)
                 for label in (
                     "02_window_control_minimize_hover",
-                    "03_window_control_maximize_disabled_hover",
                     "04_window_control_close_hover",
                 )
             )
+            and isinstance(hover_proof.get("03_window_control_maximize_hidden"), dict)
+            and hover_proof["03_window_control_maximize_hidden"].get("ok") is True
+            and hover_proof["03_window_control_maximize_hidden"].get("skipped") is True
         ),
         "windowControlAccessibleLabelsPresent": (
             isinstance(title_chrome_proof, dict)
             and title_chrome_proof.get("minimizeLabel") == "Minimize AI Control Center"
-            and title_chrome_proof.get("maximizeLabel") == "Maximize or restore AI Control Center future-gated"
+            and title_chrome_proof.get("maximizeLabel") == "Maximize or restore AI Control Center hidden until future implementation"
             and title_chrome_proof.get("closeLabel") == "Close AI Control Center"
         ),
         "surfaceRolePillTypographyReducedOnePoint": (
@@ -719,18 +741,38 @@ def main() -> int:
             and int(title_chrome_proof["localCheckButtonRect"].get("width") or 0) <= 187
             and int(title_chrome_proof["localCheckButtonRect"].get("height") or 0) <= 33
         ),
-        "maximizeRestoreFutureGatedDisabled": (
+        "windowControlStateModelHiddenBlockedActive": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("minimizeControlState") == "active"
+            and title_chrome_proof.get("maximizeControlState") == "hidden"
+            and title_chrome_proof.get("closeControlState") == "active"
+            and title_chrome_proof.get("minimizeControlCommand") == "minimize"
+            and title_chrome_proof.get("maximizeControlCommand") == "maximize-restore"
+            and title_chrome_proof.get("closeControlCommand") == "close"
+        ),
+        "maximizeRestoreFutureGatedHidden": (
             isinstance(title_chrome_proof, dict)
             and title_chrome_proof.get("maximizeDisabled") is True
             and title_chrome_proof.get("maximizeAriaDisabled") == "true"
-            and title_chrome_proof.get("maximizeControl") == "maximize-restore-future-gated"
-            and title_chrome_proof.get("maximizeState") == "future-gated"
+            and title_chrome_proof.get("maximizeAriaHidden") == "true"
+            and title_chrome_proof.get("maximizeHidden") is True
+            and title_chrome_proof.get("maximizeTabIndex") == -1
+            and title_chrome_proof.get("maximizeControl") == "maximize-restore-ai-control-center"
+            and title_chrome_proof.get("maximizeState") == "hidden"
+            and isinstance(title_chrome_proof.get("maximizeRect"), dict)
+            and int(title_chrome_proof["maximizeRect"].get("width") or 0) == 0
+            and int(title_chrome_proof["maximizeRect"].get("height") or 0) == 0
         ),
         "minimizeMaximizeCloseShareCompactClass": (
             isinstance(title_chrome_proof, dict)
             and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("minimizeClass") or "")
             and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("maximizeClass") or "")
             and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("closeClass") or "")
+        ),
+        "hiddenMaximizeLeavesTwoVisibleWindowControls": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("compactButtonCount") == 3
+            and title_chrome_proof.get("visibleCompactButtonCount") == 2
         ),
         "minimizeCommandMinimizedWindow": minimized_after_click,
         "minimizeRestoreReturnedToKnownGeometry": (
@@ -761,8 +803,9 @@ def main() -> int:
         "windowControlProof": {
             "cluster": "compact-minimize-maximize-close",
             "minimize": "active-native-showMinimized",
-            "maximizeRestore": "future-gated-disabled",
+            "maximizeRestore": "hidden-future-gated-pending-per-window-relevance-decision",
             "close": "active-native-close",
+            "stateModel": "hidden-blocked-active",
         },
         "minimizeClickProof": {
             "clickResult": minimize_click,

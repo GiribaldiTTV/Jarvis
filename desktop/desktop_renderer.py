@@ -5929,6 +5929,11 @@ class AIControlCenterDialog(QDialog):
     DRAG_HEADER_HEIGHT = 190
     CLOSE_CONTROL_WIDTH = 150
     CLOSE_CONTROL_HEIGHT = 58
+    WINDOW_CONTROL_STATES = {
+        "minimize": "active",
+        "maximize-restore": "hidden",
+        "close": "active",
+    }
 
     def __init__(self, screen, event_logger=None):
         super().__init__(None)
@@ -5962,8 +5967,12 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("aiControlCenterWindowMemoryPolicy", "restart-memory-disabled")
         self.setProperty("fam003ResetDependency", "ai-global-settings-reset-default-location-size")
         self.setProperty("aiControlCenterMinimizeAffordance", "Minimize AI Control Center")
-        self.setProperty("aiControlCenterMaximizeDisposition", "future-gated-disabled")
+        self.setProperty("aiControlCenterMaximizeDisposition", "hidden-future-gated")
+        self.setProperty("aiControlCenterMaximizeDecisionGate", "per-window-relevance-before-inheritance")
+        self.setProperty("aiControlCenterWindowControlStateModel", "hidden-blocked-active")
         self.setProperty("aiControlCenterWindowControlCluster", "compact-minimize-maximize-close")
+        self.setProperty("aiControlCenterActiveSpecimen", "webview-hud-template")
+        self.setProperty("aiControlCenterNativeMirrorDisposition", "inactive-reference-mirror")
         self._uses_hud_template = True
         self._page_ready = False
         self._pending_provider_payload = {}
@@ -6015,6 +6024,8 @@ class AIControlCenterDialog(QDialog):
         self.webview.load(QUrl.fromLocalFile(str(self._ai_control_center_template_path())))
         root.addWidget(self.webview)
         self.setGeometry(self._restored_geometry())
+        # The accepted specimen is the WebView/HUD template above; the native Qt
+        # block below is retained only as an inactive reference mirror.
         return
         self.setStyleSheet(
             """
@@ -6576,7 +6587,20 @@ class AIControlCenterDialog(QDialog):
         elif callable(self.event_logger):
             self.event_logger("RENDERER_MAIN|AI_CONTROL_CENTER_TEMPLATE_LOAD_FAILED")
 
+    def _ai_control_center_window_control_states(self) -> dict[str, str]:
+        return dict(self.WINDOW_CONTROL_STATES)
+
+    def _ai_control_center_window_command_is_active(self, command: str) -> bool:
+        return self._ai_control_center_window_control_states().get(command) == "active"
+
     def _handle_ai_control_center_command(self, command: str) -> None:
+        if command in {"minimize", "maximize-restore", "close"} and not self._ai_control_center_window_command_is_active(command):
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_WINDOW_CONTROL_BLOCKED"
+                    f"|command={command}|state={self._ai_control_center_window_control_states().get(command, 'missing')}"
+                )
+            return
         if command == "minimize":
             self._reset_ai_control_center_resize_cursor()
             self.showMinimized()
@@ -6585,6 +6609,13 @@ class AIControlCenterDialog(QDialog):
                     "RENDERER_MAIN|AI_CONTROL_CENTER_MINIMIZED"
                     "|memory_policy=restart-memory-disabled"
                 )
+            return
+        if command == "maximize-restore":
+            if self.isMaximized():
+                self.showNormal()
+            else:
+                self.showMaximized()
+            self._sync_ai_control_center_window_controls()
             return
         if command == "close":
             self.close()
@@ -6616,9 +6647,14 @@ class AIControlCenterDialog(QDialog):
         if not getattr(self, "_page_ready", False) or not hasattr(self, "webview"):
             return
         state = "maximized" if self.isMaximized() else "normal"
+        control_states = {
+            "minimize": self.WINDOW_CONTROL_STATES["minimize"],
+            "maximizeRestore": self.WINDOW_CONTROL_STATES["maximize-restore"],
+            "close": self.WINDOW_CONTROL_STATES["close"],
+        }
         script = (
             "window.nexusAiControlCenterSetWindowState && "
-            f"window.nexusAiControlCenterSetWindowState({json.dumps(state)});"
+            f"window.nexusAiControlCenterSetWindowState({json.dumps(state)}, {json.dumps(control_states)});"
         )
         self.webview.page().runJavaScript(script)
 

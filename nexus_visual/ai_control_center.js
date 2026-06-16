@@ -2,6 +2,36 @@
   const commandPrefix = "NEXUS_AI_CONTROL_CENTER_COMMAND:";
   let providerState = {};
   let scrollbarDrag = null;
+  const windowControlStates = {
+    minimize: "active",
+    maximizeRestore: "hidden",
+    close: "active",
+  };
+  const windowControlDefaults = {
+    minimize: {
+      id: "ai-control-center-minimize-action",
+      command: "minimize",
+      activeLabel: "Minimize AI Control Center",
+      blockedLabel: "Minimize AI Control Center blocked",
+      hiddenLabel: "Minimize AI Control Center hidden",
+    },
+    maximizeRestore: {
+      id: "ai-control-center-maximize-action",
+      command: "maximize-restore",
+      activeLabel: "Maximize AI Control Center",
+      activeMaximizedLabel: "Restore AI Control Center",
+      blockedLabel: "Maximize or restore AI Control Center blocked",
+      hiddenLabel: "Maximize or restore AI Control Center hidden until future implementation",
+    },
+    close: {
+      id: "ai-control-center-close-action",
+      command: "close",
+      activeLabel: "Close AI Control Center",
+      blockedLabel: "Close AI Control Center blocked",
+      hiddenLabel: "Close AI Control Center hidden",
+    },
+  };
+  const validWindowControlStates = new Set(["hidden", "blocked", "active"]);
 
   const byId = (id) => document.getElementById(id);
   const setText = (id, value) => {
@@ -14,31 +44,93 @@
     console.info(`${commandPrefix}${name}`);
   };
 
-  const syncWindowControlState = (state) => {
+  const normalizeWindowControlState = (value) => (
+    validWindowControlStates.has(value) ? value : "blocked"
+  );
+
+  const hydrateWindowControlStatesFromMarkup = () => {
+    Object.entries(windowControlDefaults).forEach(([key, config]) => {
+      const button = byId(config.id);
+      if (!button) {
+        return;
+      }
+      windowControlStates[key] = normalizeWindowControlState(
+        button.dataset.windowControlState || windowControlStates[key],
+      );
+      button.dataset.windowControlKey = key;
+      button.dataset.windowControlCommand = button.dataset.windowControlCommand || config.command;
+    });
+  };
+
+  const syncSingleWindowControlState = (key, windowState) => {
+    const config = windowControlDefaults[key];
+    const button = config ? byId(config.id) : null;
+    if (!button) {
+      return;
+    }
+    const controlState = normalizeWindowControlState(windowControlStates[key]);
+    button.dataset.windowControlState = controlState;
+    button.removeAttribute("title");
+
+    if (key === "maximizeRestore") {
+      button.dataset.windowState = controlState === "active" ? windowState : controlState;
+    }
+
+    if (controlState === "hidden") {
+      button.hidden = true;
+      button.disabled = true;
+      button.tabIndex = -1;
+      button.setAttribute("aria-hidden", "true");
+      button.setAttribute("aria-disabled", "true");
+      button.setAttribute("aria-label", config.hiddenLabel);
+      button.removeAttribute("aria-pressed");
+      return;
+    }
+
+    button.hidden = false;
+    button.removeAttribute("aria-hidden");
+    if (controlState === "blocked") {
+      button.disabled = true;
+      button.tabIndex = -1;
+      button.setAttribute("aria-disabled", "true");
+      button.setAttribute("aria-label", config.blockedLabel);
+      button.removeAttribute("aria-pressed");
+      return;
+    }
+
+    button.disabled = false;
+    button.tabIndex = 0;
+    button.removeAttribute("aria-disabled");
+    if (key === "maximizeRestore") {
+      button.setAttribute("aria-pressed", windowState === "maximized" ? "true" : "false");
+      button.setAttribute(
+        "aria-label",
+        windowState === "maximized" ? config.activeMaximizedLabel : config.activeLabel,
+      );
+      return;
+    }
+    button.setAttribute("aria-label", config.activeLabel);
+  };
+
+  const syncWindowControlState = (state, controlStateOverrides = null) => {
     const surface = byId("monitoring-hud");
-    const maximize = byId("ai-control-center-maximize-action");
     const normalized = state === "maximized" ? "maximized" : "normal";
+    if (controlStateOverrides && typeof controlStateOverrides === "object") {
+      Object.keys(windowControlDefaults).forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(controlStateOverrides, key)) {
+          windowControlStates[key] = normalizeWindowControlState(controlStateOverrides[key]);
+        }
+      });
+    }
     if (surface) {
       surface.dataset.windowState = normalized;
     }
-    if (maximize) {
-      maximize.dataset.windowState = normalized;
-      if (maximize.dataset.control === "maximize-restore-future-gated") {
-        maximize.dataset.windowState = "future-gated";
-        maximize.setAttribute("aria-disabled", "true");
-        maximize.setAttribute("aria-label", "Maximize or restore AI Control Center future-gated");
-        maximize.removeAttribute("title");
-      } else {
-        maximize.setAttribute("aria-pressed", normalized === "maximized" ? "true" : "false");
-        const label = normalized === "maximized"
-          ? "Restore AI Control Center"
-          : "Maximize AI Control Center";
-        maximize.setAttribute("aria-label", label);
-        maximize.removeAttribute("title");
-      }
-    }
+    Object.keys(windowControlDefaults).forEach((key) => syncSingleWindowControlState(key, normalized));
   };
   window.nexusAiControlCenterSetWindowState = syncWindowControlState;
+  window.nexusAiControlCenterSetWindowControlStates = (states) => {
+    syncWindowControlState(byId("monitoring-hud")?.dataset.windowState || "normal", states);
+  };
 
   const syncCustomScrollbar = () => {
     const surface = byId("monitoring-hud");
@@ -157,8 +249,28 @@
     );
   };
 
-  byId("ai-control-center-minimize-action")?.addEventListener("click", () => emitCommand("minimize"));
-  byId("ai-control-center-close-action")?.addEventListener("click", () => emitCommand("close"));
+  const attachWindowControlHandlers = () => {
+    Object.entries(windowControlDefaults).forEach(([key, config]) => {
+      const button = byId(config.id);
+      if (!button) {
+        return;
+      }
+      button.addEventListener("click", (event) => {
+        if (button.hidden || button.disabled || button.dataset.windowControlState !== "active") {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        const command = button.dataset.windowControlCommand || config.command;
+        if (command) {
+          emitCommand(command);
+        }
+      });
+    });
+  };
+
+  hydrateWindowControlStatesFromMarkup();
+  attachWindowControlHandlers();
   byId("ai-control-center-local-check-action")?.addEventListener("click", () => {
     window.nexusAiControlCenterRunLocalCheck();
     emitCommand("run-local-check");

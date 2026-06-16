@@ -121,6 +121,11 @@
         transform 120ms ease;
     }
 
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[data-window-control-state="hidden"] {
+      display: none;
+      pointer-events: none;
+    }
+
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button::before,
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button::after {
       position: absolute;
@@ -154,7 +159,8 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:disabled,
-    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"] {
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"],
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[data-window-control-state="blocked"] {
       opacity: 0.56;
       cursor: default;
       border-color: rgba(122, 232, 255, 0.18);
@@ -167,7 +173,9 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:disabled::before,
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:disabled::after,
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"]::before,
-    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"]::after {
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"]::after,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[data-window-control-state="blocked"]::before,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[data-window-control-state="blocked"]::after {
       border-color: rgba(179, 226, 238, 0.62);
       background: rgba(179, 226, 238, 0.62);
     }
@@ -408,6 +416,8 @@
     data-dashboard-close-affordance="window-level-control-cluster"
     data-dashboard-close-layout="compact-window-control-cluster"
     data-window-control-cluster="compact-minimize-maximize-close"
+    data-window-control-state-model="hidden-blocked-active"
+    data-window-control-maximize-restore-disposition="hidden-future-gated-pending-per-window-relevance-decision"
     data-dashboard-open-badge="removed"
     data-dashboard-quick-access="not-applicable"
     data-dashboard-global-feature-control="tray-owned"
@@ -429,16 +439,26 @@
           id="ai-control-center-minimize-action"
           class="monitoring-hud__window-control-button monitoring-hud__window-control-button--minimize"
           data-control="minimize-ai-control-center"
+          data-window-control-key="minimize"
+          data-window-control-command="minimize"
+          data-window-control-state="active"
           aria-label="Minimize AI Control Center"
         ></button>
         <button
           type="button"
           id="ai-control-center-maximize-action"
-          class="monitoring-hud__window-control-button monitoring-hud__window-control-button--maximize monitoring-hud__window-control-button--future-gated"
-          data-control="maximize-restore-future-gated"
-          data-window-state="future-gated"
-          aria-label="Maximize or restore AI Control Center future-gated"
+          class="monitoring-hud__window-control-button monitoring-hud__window-control-button--maximize"
+          data-control="maximize-restore-ai-control-center"
+          data-window-control-key="maximizeRestore"
+          data-window-control-command="maximize-restore"
+          data-window-control-state="hidden"
+          data-window-control-reason="future-gated"
+          data-window-state="normal"
+          aria-label="Maximize or restore AI Control Center hidden until future implementation"
+          aria-hidden="true"
           aria-disabled="true"
+          tabindex="-1"
+          hidden
           disabled
         ></button>
         <button
@@ -446,6 +466,9 @@
           id="ai-control-center-close-action"
           class="monitoring-hud__window-control-button monitoring-hud__window-control-button--close"
           data-control="close-ai-control-center"
+          data-window-control-key="close"
+          data-window-control-command="close"
+          data-window-control-state="active"
           aria-label="Close AI Control Center"
         ></button>
       </div>
