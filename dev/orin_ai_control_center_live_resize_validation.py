@@ -311,6 +311,7 @@ def main() -> int:
               width: computed.width
             };
           };
+          const surface = document.getElementById("monitoring-hud");
           const titleGroup = document.querySelector(".monitoring-hud__title-group");
           const subtitle = document.querySelector(".monitoring-hud__subtitle");
           const surfaceRole = document.querySelector(".monitoring-hud__surface-role");
@@ -330,6 +331,13 @@ def main() -> int:
           const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="local-safety-check"] .monitoring-hud__state-row strong');
           const localCheckButton = document.getElementById("ai-control-center-local-check-action");
           const localCheckButtonLabel = localCheckButton ? localCheckButton.querySelector(".monitoring-hud__button-label") : null;
+          const titledElements = surface
+            ? Array.from(surface.querySelectorAll("[title]")).map((element) => ({
+                id: element.id || "",
+                className: element.className || "",
+                title: element.getAttribute("title") || "",
+              }))
+            : [];
           return JSON.stringify({
             titleGroupRect: rect(titleGroup),
             subtitleText: subtitle ? subtitle.textContent.trim() : "",
@@ -400,6 +408,9 @@ def main() -> int:
             localCheckButtonRect: rect(localCheckButton),
             localCheckButtonStyle: style(localCheckButton),
             localCheckButtonLabelStyle: style(localCheckButtonLabel),
+            localCheckButtonTitle: localCheckButton ? localCheckButton.getAttribute("title") : "",
+            nativeTooltipElementCount: titledElements.length,
+            nativeTooltipElements: titledElements,
             chromeGap: close && maximize && minimize
               ? Math.round(Math.min(
                   maximize.getBoundingClientRect().left - minimize.getBoundingClientRect().right,
@@ -438,6 +449,21 @@ def main() -> int:
                 "ok": True,
                 "screenPoint": {"x": hover_x, "y": hover_y},
                 "evidence": _capture(app, dialog, log_root, label),
+            }
+        local_check_rect = title_chrome_proof.get("localCheckButtonRect")
+        if isinstance(local_check_rect, dict):
+            hover_x = int(window_rect_for_hover["left"] + int(local_check_rect.get("left") or 0) + (int(local_check_rect.get("width") or 0) // 2))
+            hover_y = int(window_rect_for_hover["top"] + int(local_check_rect.get("top") or 0) + (int(local_check_rect.get("height") or 0) // 2))
+            _move_mouse(app, hover_x, hover_y, 1100)
+            hover_proof["05_run_local_check_hover_no_tooltip"] = {
+                "ok": True,
+                "screenPoint": {"x": hover_x, "y": hover_y},
+                "evidence": _capture(app, dialog, log_root, "05_run_local_check_hover_no_tooltip"),
+            }
+        else:
+            hover_proof["05_run_local_check_hover_no_tooltip"] = {
+                "ok": False,
+                "reason": "missing-localCheckButtonRect",
             }
     _move_mouse(app, _native_rect(hwnd)["left"] + 24, _native_rect(hwnd)["top"] + 24, 120)
     minimize_click_raw = _run_js(
@@ -657,6 +683,12 @@ def main() -> int:
             and not title_chrome_proof.get("maximizeTitle")
             and not title_chrome_proof.get("closeTitle")
         ),
+        "aiControlCenterNativeTooltipsSuppressed": (
+            isinstance(title_chrome_proof, dict)
+            and int(title_chrome_proof.get("nativeTooltipElementCount") or 0) == 0
+            and not title_chrome_proof.get("nativeTooltipElements")
+            and not title_chrome_proof.get("localCheckButtonTitle")
+        ),
         "windowControlHoverProofCaptured": (
             isinstance(hover_proof, dict)
             and all(
@@ -671,6 +703,11 @@ def main() -> int:
             and isinstance(hover_proof.get("03_window_control_maximize_hidden"), dict)
             and hover_proof["03_window_control_maximize_hidden"].get("ok") is True
             and hover_proof["03_window_control_maximize_hidden"].get("skipped") is True
+        ),
+        "localCheckButtonHoverProofCaptured": (
+            isinstance(hover_proof.get("05_run_local_check_hover_no_tooltip"), dict)
+            and hover_proof["05_run_local_check_hover_no_tooltip"].get("ok") is True
+            and isinstance(hover_proof["05_run_local_check_hover_no_tooltip"].get("evidence"), dict)
         ),
         "windowControlAccessibleLabelsPresent": (
             isinstance(title_chrome_proof, dict)

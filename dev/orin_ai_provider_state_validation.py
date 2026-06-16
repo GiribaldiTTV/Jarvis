@@ -9047,19 +9047,14 @@ def validate() -> list[str]:
             failures,
         )
 
-    for forbidden in (
-        'title="Minimize AI Control Center"',
-        'title="Maximize/restore future-gated"',
-        'title="Close AI Control Center"',
-    ):
-        _require(
-            forbidden not in ai_control_html,
-            f"AI Control Center compact window controls must suppress native title tooltip {forbidden!r}",
-            failures,
-        )
+    _require(
+        "title=" not in ai_control_html,
+        "AI Control Center HTML must not define native title tooltips; explicit tooltip UX is future-gated",
+        failures,
+    )
     _require(
         'setAttribute("title"' not in ai_control_js,
-        'AI Control Center compact window controls must not inject native title tooltips from JavaScript',
+        'AI Control Center script must not inject native title tooltips from JavaScript',
         failures,
     )
 
@@ -9073,6 +9068,9 @@ def validate() -> list[str]:
         "syncSingleWindowControlState",
         "normalizeWindowControlState",
         "hydrateWindowControlStatesFromMarkup",
+        "stripNativeTooltips",
+        "observeNativeTooltipDrift",
+        "MutationObserver",
         "attachWindowControlHandlers",
         "hidden",
         "blocked",

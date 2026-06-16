@@ -43,6 +43,30 @@
   const emitCommand = (name) => {
     console.info(`${commandPrefix}${name}`);
   };
+  const stripNativeTooltips = () => {
+    const surface = byId("monitoring-hud");
+    if (!surface) {
+      return;
+    }
+    surface.querySelectorAll("[title]").forEach((element) => {
+      element.removeAttribute("title");
+    });
+  };
+  const observeNativeTooltipDrift = () => {
+    const surface = byId("monitoring-hud");
+    if (!surface || !window.MutationObserver) {
+      return;
+    }
+    const observer = new MutationObserver(() => {
+      stripNativeTooltips();
+    });
+    observer.observe(surface, {
+      attributes: true,
+      attributeFilter: ["title"],
+      childList: true,
+      subtree: true,
+    });
+  };
 
   const normalizeWindowControlState = (value) => (
     validWindowControlStates.has(value) ? value : "blocked"
@@ -59,6 +83,7 @@
       );
       button.dataset.windowControlKey = key;
       button.dataset.windowControlCommand = button.dataset.windowControlCommand || config.command;
+      button.removeAttribute("title");
     });
   };
 
@@ -270,6 +295,8 @@
   };
 
   hydrateWindowControlStatesFromMarkup();
+  stripNativeTooltips();
+  observeNativeTooltipDrift();
   attachWindowControlHandlers();
   byId("ai-control-center-local-check-action")?.addEventListener("click", () => {
     window.nexusAiControlCenterRunLocalCheck();
