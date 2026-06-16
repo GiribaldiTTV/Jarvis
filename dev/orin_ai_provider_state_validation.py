@@ -32,6 +32,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     CORE_DESKTOP_COPY_CONTRACT_VERSION,
     CORE_DESKTOP_RUNTIME_STATE_CONTRACT,
     DATA_CLASSIFICATION_SCHEMA_VERSION,
+    DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
     DISABLED_PROMPT_BEHAVIOR_CONTRACT,
     FAM007_FOUNDATION_READINESS_MODE,
     FAM007_FOUNDATION_READINESS_STATE_ID,
@@ -44,6 +45,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     LOCAL_PROVIDER_REGISTRY_MODE,
     LOCAL_PROVIDER_REGISTRY_STATE,
     LOCAL_PROVIDER_REGISTRY_STATE_ID,
+    LANE_BOUNDARY_SCHEMA_VERSION,
     NO_PROVIDER_AVAILABILITY,
     NO_PROVIDER_FALLBACK_SELECTION,
     NO_PROVIDER_ID,
@@ -55,7 +57,9 @@ from desktop.ai_provider_state import (  # noqa: E402
     OWNER_AI_OPERATIONAL_FOUNDATION_GATES_BRANCH,
     OWNER_AI_OPERATIONAL_FOUNDATION_GATES_STATE_ID,
     OWNER_AI_OPERATIONAL_FOUNDATION_GATES_SCHEMA_VERSION,
+    OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
     PACKAGE_ID,
+    PRIVATE_SETUP_BOUNDARY_BLOCKED,
     PROVIDER_CONFIGURATION_UNCONFIGURED,
     PROVIDER_CONSENT_REQUIRED,
     RAM_READINESS_UNPROBED,
@@ -78,10 +82,14 @@ from desktop.ai_provider_state import (  # noqa: E402
     NETWORK_EGRESS_BLOCKED,
     PERSISTENCE_DISABLED,
     PROVIDER_VISIBLE_DATA_GUARANTEE_NONE,
+    PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
     RETRIEVAL_DISABLED,
     LEARNING_DISABLED,
     SECRET_BOUNDARY_NO_SECRETS,
     CONSENT_ENVELOPE_REQUIRED,
+    SLC005_ENFORCEMENT_HARDENING_HANDOFF_STATE,
+    SLC005_ENFORCEMENT_PROOF_SCHEMA_VERSION,
+    SLC005_ENFORCEMENT_PROOF_STATE,
     AUDIT_ENVELOPE_PLANNED,
     GOLDEN_PROVIDER_STATE_FIXTURES,
     VALIDATOR_EXPANSION_ACTIVE,
@@ -325,6 +333,8 @@ from desktop.ai_provider_state import (  # noqa: E402
     PROMPT_ROUTING_GATE_DISABLED,
     PROMPT_ROUTING_GATE_FUTURE_GATED,
     PROMPT_SEND_POSTURE_DISABLED,
+    LOCAL_ACTION_RESULT_SCHEMA_VERSION,
+    LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER,
     MODEL_EXECUTION_STATUS_DISABLED,
     MODEL_EXECUTION_STATUS_FUTURE_GATED,
     MODEL_WORKLOAD_READINESS_DISABLED,
@@ -547,6 +557,7 @@ from desktop.ai_provider_state import (  # noqa: E402
     EXECUTION_APPROVAL_GATE_FUTURE_GATED,
     AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
     AI_PROVIDER_STATUS_DISPLAY_ABSENT_FROM_DEFAULT_DESKTOP,
+    AI_PROVIDER_STATUS_DISPLAY_VISIBLE,
     SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION,
     SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION,
     SETUP_CONTRACT_STATE_BLOCKED_BY_CAPABILITY,
@@ -1081,11 +1092,36 @@ def _validate_owner_ai_operational_foundation_gates_state(
     lanes = state.get("laneReadinessGates", {})
     _require(isinstance(lanes, dict), "Owner AI lane readiness gates missing", failures)
     if isinstance(lanes, dict):
+        public_lane = lanes.get("userPublicLane", {})
+        _require(isinstance(public_lane, dict), "Owner AI userPublicLane gate missing", failures)
+        if isinstance(public_lane, dict):
+            _require(
+                public_lane.get("boundaryDisplayState") == PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
+                "Owner AI public lane boundary display state mismatch",
+                failures,
+            )
+            _require(
+                public_lane.get("privateSetupRequired") is False,
+                "Owner AI public lane must not require private setup",
+                failures,
+            )
         for lane_name in ("developerLane", "ownerLane"):
             lane = lanes.get(lane_name, {})
             _require(isinstance(lane, dict), f"Owner AI {lane_name} gate missing", failures)
             if isinstance(lane, dict):
+                expected_boundary = (
+                    DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+                    if lane_name == "developerLane"
+                    else OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+                )
+                _require(
+                    lane.get("boundaryDisplayState") == expected_boundary,
+                    f"Owner AI {lane_name} boundary display state mismatch",
+                    failures,
+                )
                 for field in ("privateRepoCreated", "privateRootCreated", "privateRemoteConfigured"):
+                    _require(lane.get(field) is False, f"Owner AI {lane_name} must set {field}=false", failures)
+                for field in ("privateSetupAuthorized", "privateMaterialVisible"):
                     _require(lane.get(field) is False, f"Owner AI {lane_name} must set {field}=false", failures)
 
     schemas = state.get("ownerAiMemoryAgentFoundationSchemas", {})
@@ -1100,6 +1136,198 @@ def _validate_owner_ai_operational_foundation_gates_state(
     if isinstance(forbidden, dict):
         for field, value in forbidden.items():
             _require(value is False, f"Owner AI forbidden material proof must set {field}=false", failures)
+
+    slc005_proof = state.get("slc005EnforcementProof", {})
+    _require(isinstance(slc005_proof, dict), "SLC-005 enforcement proof missing", failures)
+    if isinstance(slc005_proof, dict):
+        _require(
+            slc005_proof.get("schema") == SLC005_ENFORCEMENT_PROOF_SCHEMA_VERSION,
+            "SLC-005 enforcement proof schema mismatch",
+            failures,
+        )
+        _require(slc005_proof.get("slc") == "SLC-005", "SLC-005 enforcement proof SLC mismatch", failures)
+        _require(
+            slc005_proof.get("state") == SLC005_ENFORCEMENT_PROOF_STATE,
+            "SLC-005 enforcement proof state mismatch",
+            failures,
+        )
+        expected_scope = {
+            "provider-model-execution",
+            "prompt-acceptance-send",
+            "downloads-install-execution",
+            "runtime-cache-behavior",
+            "memory-learning-personalization",
+            "private-developer-owner-setup",
+            "hidden-network-behavior",
+        }
+        _require(
+            set(slc005_proof.get("proofScope", ())) == expected_scope,
+            "SLC-005 enforcement proof scope must cover every blocked behavior",
+            failures,
+        )
+        matrix = slc005_proof.get("blockedBehaviorMatrix", {})
+        _require(isinstance(matrix, dict), "SLC-005 blocked behavior matrix missing", failures)
+        if isinstance(matrix, dict):
+            expected_behaviors = {
+                "providerModelExecution",
+                "promptSend",
+                "downloads",
+                "runtimeCache",
+                "memory",
+                "privateSetup",
+                "hiddenNetworkBehavior",
+            }
+            _require(
+                set(matrix) == expected_behaviors,
+                "SLC-005 blocked behavior matrix must contain exactly the accepted blocked behaviors",
+                failures,
+            )
+            provider_model = matrix.get("providerModelExecution", {})
+            if isinstance(provider_model, dict):
+                _require(
+                    provider_model.get("promptProviderModelExecution") == "disabled",
+                    "SLC-005 provider/model execution must remain disabled",
+                    failures,
+                )
+                _require(
+                    provider_model.get("providerExecutionGateState") == ai_provider_state.PROVIDER_EXECUTION_GATE_DISABLED
+                    and provider_model.get("modelExecutionGateState") == ai_provider_state.MODEL_EXECUTION_GATE_DISABLED,
+                    "SLC-005 provider/model gate states must remain disabled",
+                    failures,
+                )
+                for field in (
+                    "providerSdkIntegrated",
+                    "modelExecutionEnabled",
+                    "modelDownloadsEnabled",
+                    "runtimeProviderExecutionEnabled",
+                ):
+                    _require(provider_model.get(field) is False, f"SLC-005 provider/model proof must set {field}=false", failures)
+            prompt_send = matrix.get("promptSend", {})
+            if isinstance(prompt_send, dict):
+                _require(prompt_send.get("promptAcceptance") == "disabled", "SLC-005 prompt acceptance must remain disabled", failures)
+                _require(
+                    prompt_send.get("promptAcceptanceGateState") == ai_provider_state.PROMPT_ACCEPTANCE_GATE_DISABLED
+                    and prompt_send.get("promptRoutingGateState") == ai_provider_state.PROMPT_ROUTING_GATE_DISABLED
+                    and prompt_send.get("promptSendPosture") == ai_provider_state.PROMPT_SEND_POSTURE_DISABLED,
+                    "SLC-005 prompt gates must remain disabled",
+                    failures,
+                )
+                for field in ("sentToProvider", "canAcceptPrompts"):
+                    _require(prompt_send.get(field) is False, f"SLC-005 prompt proof must set {field}=false", failures)
+                _require(prompt_send.get("providerVisibleData") == "none", "SLC-005 prompt proof must keep provider-visible data none", failures)
+            downloads = matrix.get("downloads", {})
+            if isinstance(downloads, dict):
+                _require(
+                    downloads.get("downloadsNetworkExternalCalls") == "blocked",
+                    "SLC-005 downloads/network/external calls must remain blocked",
+                    failures,
+                )
+                _require(downloads.get("modelDownloadsEnabled") is False, "SLC-005 model downloads must remain disabled", failures)
+                for field in (
+                    "capabilityPackDownloadsBlocked",
+                    "capabilityPackInstallBlocked",
+                    "capabilityPackUpdateBlocked",
+                    "capabilityPackUninstallBlocked",
+                ):
+                    _require(downloads.get(field) is True, f"SLC-005 download/install proof must set {field}=true", failures)
+                _require(
+                    downloads.get("installIntentState") == ai_provider_state.CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+                    "SLC-005 install intent must remain blocked",
+                    failures,
+                )
+            runtime_cache = matrix.get("runtimeCache", {})
+            if isinstance(runtime_cache, dict):
+                _require(runtime_cache.get("cacheIsNotMemory") is True, "SLC-005 cache must remain distinct from memory", failures)
+                _require(
+                    runtime_cache.get("runtimeCacheBehaviorEnabled") is False
+                    and runtime_cache.get("runtimeCacheState") == "inactive",
+                    "SLC-005 runtime cache behavior must remain inactive",
+                    failures,
+                )
+            memory = matrix.get("memory", {})
+            if isinstance(memory, dict):
+                _require(memory.get("memoryContextState") == MEMORY_CONTEXT_DISABLED, "SLC-005 memory context mismatch", failures)
+                _require(memory.get("memoryIndexingState") == MEMORY_INDEXING_DISABLED, "SLC-005 memory indexing mismatch", failures)
+                _require(memory.get("retrievalState") == RETRIEVAL_DISABLED, "SLC-005 retrieval mismatch", failures)
+                _require(memory.get("learningState") == LEARNING_DISABLED, "SLC-005 learning mismatch", failures)
+                _require(memory.get("persistenceState") == PERSISTENCE_DISABLED, "SLC-005 persistence mismatch", failures)
+                for field in ("memoryWriteEnabled", "realOwnerMemoryEnabled", "realOwnerAgentsEnabled"):
+                    _require(memory.get(field) is False, f"SLC-005 memory proof must set {field}=false", failures)
+            private_setup = matrix.get("privateSetup", {})
+            if isinstance(private_setup, dict):
+                _require(
+                    private_setup.get("privateSetupBoundaryState") == PRIVATE_SETUP_BOUNDARY_BLOCKED,
+                    "SLC-005 private setup boundary must remain blocked",
+                    failures,
+                )
+                _require(
+                    private_setup.get("developerLaneBoundaryState") == DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+                    and private_setup.get("ownerLaneBoundaryState") == OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+                    "SLC-005 Developer/Owner lane boundaries must remain blocked",
+                    failures,
+                )
+                for field in (
+                    "privateSetupAuthorized",
+                    "privateMaterialVisible",
+                    "privateRepoCreated",
+                    "privateRootCreated",
+                    "privateRemoteConfigured",
+                ):
+                    _require(private_setup.get(field) is False, f"SLC-005 private setup proof must set {field}=false", failures)
+            hidden_network = matrix.get("hiddenNetworkBehavior", {})
+            if isinstance(hidden_network, dict):
+                _require(
+                    hidden_network.get("networkEgressState") == NETWORK_EGRESS_BLOCKED
+                    and hidden_network.get("networkEgressGateState") == NETWORK_EGRESS_BLOCKED
+                    and hidden_network.get("externalCallReadinessState") == ai_provider_state.EXTERNAL_CALL_READINESS_BLOCKED,
+                    "SLC-005 hidden-network proof must keep egress and external calls blocked",
+                    failures,
+                )
+                for field in ("externalCallsEnabled", "hiddenExternalDependenciesAllowed"):
+                    _require(hidden_network.get(field) is False, f"SLC-005 hidden-network proof must set {field}=false", failures)
+
+        canaries = slc005_proof.get("negativeCanaries", ())
+        _require(isinstance(canaries, (list, tuple)), "SLC-005 negative canaries missing", failures)
+        if isinstance(canaries, (list, tuple)):
+            expected_canaries = {
+                "provider-model-execution-attempt",
+                "prompt-send-attempt",
+                "capability-download-attempt",
+                "runtime-cache-enable-attempt",
+                "memory-indexing-attempt",
+                "private-setup-attempt",
+                "hidden-network-attempt",
+            }
+            actual_canaries = {str(canary.get("caseId", "")) for canary in canaries if isinstance(canary, dict)}
+            _require(actual_canaries == expected_canaries, "SLC-005 negative canaries must cover every blocked behavior", failures)
+            for canary in canaries:
+                if isinstance(canary, dict):
+                    _require(canary.get("expectedOutcome") == "blocked", "SLC-005 negative canaries must expect blocked outcome", failures)
+
+        proof_handoff = slc005_proof.get("hardeningHandoff", {})
+        _require(isinstance(proof_handoff, dict), "SLC-005 proof Hardening handoff missing", failures)
+        if isinstance(proof_handoff, dict):
+            _require(
+                proof_handoff.get("state") == SLC005_ENFORCEMENT_HARDENING_HANDOFF_STATE,
+                "SLC-005 proof Hardening handoff state mismatch",
+                failures,
+            )
+            _require(
+                proof_handoff.get("nextLegalPhase") == "Hardening H1"
+                and proof_handoff.get("workstreamGreenCandidate") is True,
+                "SLC-005 proof must hand off to Hardening H1 as a green candidate",
+                failures,
+            )
+            for field in (
+                "providerModelExecutionAuthorized",
+                "promptSendAuthorized",
+                "downloadsAuthorized",
+                "runtimeCacheBehaviorAuthorized",
+                "memoryLearningPersonalizationAuthorized",
+                "privateSetupAuthorized",
+                "hiddenNetworkBehaviorAuthorized",
+            ):
+                _require(proof_handoff.get(field) is False, f"SLC-005 proof handoff must set {field}=false", failures)
 
     handoff = state.get("hardeningHandoff", {})
     _require(isinstance(handoff, dict), "Owner AI Hardening handoff missing", failures)
@@ -3396,11 +3624,16 @@ def validate() -> list[str]:
     }
     renderer = _read("desktop/desktop_renderer.py")
     core_renderer = _read("desktop/core_visualization_renderer.py")
+    tray_controller = _read("desktop/tray_controller.py")
+    desktop_main = _read("desktop/orin_desktop_main.py")
     html = _read("nexus_visual/orin_core.html")
     desktop_html = _read("nexus_visual/orin_core_desktop.html")
     css = _read("nexus_visual/orin_core.css")
     desktop_css = _read("nexus_visual/orin_core_desktop.css")
     js = _read("nexus_visual/orin_core.js")
+    ai_control_html = _read("nexus_visual/ai_control_center.html")
+    ai_control_js = _read("nexus_visual/ai_control_center.js")
+    monitoring_hud_css = _read("nexus_visual/monitoring_hud.css")
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
     active_activation_branch_record = _read(
         "Docs/branch_records/feature_fam_007_local_ai_provider_activation_foundation.md"
@@ -7887,16 +8120,83 @@ def validate() -> list[str]:
         )
         _require(
             setup_completion_payload["providerSetupCompletionStatusProofState"]
-            == ai_provider_state.SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY
+            == ai_provider_state.SETUP_COMPLETION_STATUS_PROOF_PUBLIC_LOCAL_ASSIST
             and setup_completion_payload[
                 "providerSetupCompletionDesktopDisplayState"
             ]
-            == ai_provider_state.SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED
+            == ai_provider_state.SETUP_COMPLETION_DESKTOP_DISPLAY_VISIBLE
             and setup_completion_payload["desktopAiOwnedReadinessDisplayState"]
-            == AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED,
-            f"{label} setup-completion fixture must publish hidden telemetry and preserve display suppression",
+            == AI_PROVIDER_STATUS_DISPLAY_VISIBLE
+            and setup_completion_payload["interactionAffordance"]
+            == ai_provider_state.LOCAL_ASSISTED_INTERACTION_AFFORDANCE
+            and setup_completion_payload["interactionLabel"]
+            == "Run no-provider check",
+            f"{label} setup-completion fixture must publish visible no-provider status",
             failures,
         )
+        _require(
+            setup_completion_payload["localActionResultSchemaVersion"]
+            == LOCAL_ACTION_RESULT_SCHEMA_VERSION
+            and setup_completion_payload["localActionResultState"]
+            == LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER
+            and setup_completion_payload["localActionResultLabel"]
+            == "No-provider check: no provider configured"
+            and "provider-visible data remains none"
+            in setup_completion_payload["localActionResultDetail"]
+            and setup_completion_payload["localActionResultProviderVisibleData"]
+            == "none"
+            and setup_completion_payload["localActionResultSentToProvider"]
+            is False
+            and setup_completion_payload["localActionResultCanAcceptPrompts"]
+            is False
+            and setup_completion_payload["localActionResultPromptSendPosture"]
+            == PROMPT_SEND_POSTURE_DISABLED
+            and setup_completion_payload["localActionResultNetworkEgressState"]
+            == NETWORK_EGRESS_BLOCKED
+            and setup_completion_payload["localActionResultMemoryIndexingState"]
+            == MEMORY_INDEXING_DISABLED,
+            f"{label} setup-completion fixture must expose deterministic no-provider result proof",
+            failures,
+        )
+        _require(
+            setup_completion_payload["capabilityPackEligibilityLabel"]
+            == "Capability-pack eligibility: blocked until local capability proof",
+            f"{label} setup-completion fixture must visibly disclose blocked capability-pack eligibility",
+            failures,
+        )
+        _require(
+            setup_completion_payload["installIntentLabel"]
+            == "Install intent: blocked; downloads and install execution remain disabled",
+            f"{label} setup-completion fixture must visibly disclose blocked install intent",
+            failures,
+        )
+        _require(
+            setup_completion_payload["laneBoundarySchemaVersion"] == LANE_BOUNDARY_SCHEMA_VERSION
+            and setup_completion_payload["publicLaneBoundaryState"]
+            == PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY
+            and setup_completion_payload["developerLaneBoundaryState"]
+            == DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+            and setup_completion_payload["ownerLaneBoundaryState"]
+            == OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+            and setup_completion_payload["privateSetupBoundaryState"]
+            == PRIVATE_SETUP_BOUNDARY_BLOCKED
+            and setup_completion_payload["privateSetupAuthorized"] is False
+            and setup_completion_payload["privateMaterialVisible"] is False
+            and setup_completion_payload["ownerMemoryEnabled"] is False
+            and setup_completion_payload["ownerAgentsEnabled"] is False,
+            f"{label} setup-completion fixture must expose public-safe lane boundaries with private setup blocked",
+            failures,
+        )
+        for key, expected in {
+            "publicLaneBoundaryLabel": "Public Edition: deterministic no-provider assist; provider-visible data none",
+            "developerLaneBoundaryLabel": "Developer lane: gated; private setup not configured",
+            "ownerLaneBoundaryLabel": "Owner lane: gated; private setup not configured",
+        }.items():
+            _require(
+                setup_completion_payload[key] == expected,
+                f"{label} setup-completion fixture lane boundary label {key} mismatch",
+                failures,
+            )
         _require(
             setup_completion_payload["providerSetupCompletionProviderVisibleData"]
             == "none"
@@ -8478,16 +8778,496 @@ def validate() -> list[str]:
         _require(needle in renderer, f"desktop renderer is missing {needle!r}", failures)
         _require(needle in core_renderer, f"Core visualization renderer is missing {needle!r}", failures)
 
+    for needle in (
+        "AIControlCenterDialog",
+        "AIControlCenterCommandPage",
+        "QWebEnginePage",
+        "QWebEngineView",
+        "ai_control_center.html",
+        "_ai_control_center_html_path",
+        "_on_ai_control_center_html_loaded",
+        "_sync_provider_state_to_web",
+        "_sync_ai_control_center_window_controls",
+        "_handle_ai_control_center_command",
+        "self.run_local_assist_check(sync_web=False)",
+        "NEXUS_AI_CONTROL_CENTER_COMMAND:",
+        "nexusAiControlCenterApplyProviderState",
+        "nexusAiControlCenterRunLocalCheck",
+        "fam007AiControlCenter",
+        "Qt.FramelessWindowHint",
+        "Qt.NoDropShadowWindowHint",
+        "WA_TranslucentBackground",
+        "surfaceClassification",
+        "Nexus-Owned Product Surface",
+        "visualInheritance",
+        "FAM-002-HUD",
+        "platformException",
+        "WINDOW_STATE_ENV",
+        "WINDOW_STATE_SCHEMA_VERSION = 9",
+        "NEXUS_AI_CONTROL_CENTER_STATE_PATH",
+        "WINDOW_GEOMETRY_MEMORY_ENV",
+        "NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY",
+        "_window_geometry_memory_enabled",
+        "aiControlCenterWindowMemoryPolicy",
+        "restart-memory-disabled",
+        "fam003ResetDependency",
+        "ai-global-settings-reset-default-location-size",
+        "aiControlCenterMaximizeDisposition",
+        "hidden-future-gated",
+        "aiControlCenterMaximizeDecisionGate",
+        "per-window-relevance-before-inheritance",
+        "aiControlCenterWindowControlStateModel",
+        "hidden-blocked-active",
+        "WINDOW_CONTROL_ALLOWED_STATES",
+        "WINDOW_CONTROL_WEB_KEYS",
+        "WINDOW_CONTROL_STATES",
+        '"maximize-restore": "hidden"',
+        "_ai_control_center_window_command_is_active",
+        "AI_CONTROL_CENTER_WINDOW_CONTROL_BLOCKED",
+        "aiControlCenterWindowControlCluster",
+        "compact-minimize-maximize-close",
+        "aiControlCenterActiveSpecimen",
+        "webview-hud-specimen",
+        "aiControlCenterNativeMirrorDisposition",
+        "removed-webview-owned-specimen",
+        "WINDOW_STATE_FILENAME",
+        "ai_control_center_window_state.json",
+        "DEFAULT_WIDTH = 570",
+        "DEFAULT_HEIGHT = 610",
+        "DEFAULT_MAX_HEIGHT = 820",
+        "DEFAULT_SCREEN_MARGIN_X = 96",
+        "DEFAULT_SCREEN_MARGIN_Y = 126",
+        "MINIMUM_WIDTH = 440",
+        "MINIMUM_HEIGHT = 540",
+        "RESIZE_MARGIN = 14",
+        "DRAG_HEADER_HEIGHT = 190",
+        "WINDOW_CONTROL_ZONE_TOP = 14",
+        "WINDOW_CONTROL_ZONE_RIGHT = 15",
+        "WINDOW_CONTROL_ZONE_WIDTH = 60",
+        "WINDOW_CONTROL_ZONE_HEIGHT = 30",
+        "_resize_active",
+        "_resize_poll_timer",
+        "_resize_frame_timer",
+        "_resize_hover_timer",
+        "_ai_control_center_resize_edges_for_local_pos",
+        "_ai_control_center_resize_edges_for_screen_point",
+        "_ai_control_center_resize_edges_under_cursor",
+        "_poll_ai_control_center_resize_hover_cursor",
+        "_ai_control_center_resize_hit_test_for_edges",
+        "_start_ai_control_center_resize",
+        "_poll_ai_control_center_resize",
+        "_update_ai_control_center_resize",
+        "_apply_ai_control_center_queued_resize",
+        "_resize_ai_control_center_from_global",
+        "_ai_control_center_resize_rect_from_global_delta",
+        "_sync_ai_control_center_resize_frame",
+        "_finish_ai_control_center_resize",
+        "SetCapture",
+        "ReleaseCapture",
+        "GetAsyncKeyState",
+        "AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED",
+        "AI_CONTROL_CENTER_WINDOW_RESIZE_READY",
+        "self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)",
+        "self.resize(self.DEFAULT_WIDTH, self.DEFAULT_HEIGHT)",
+        "ai-control-center-window-geometry",
+        "_window_state_path",
+        "_available_desktop_geometry",
+        "_default_window_size",
+        "_bound_geometry_to_available_desktop",
+        "_saved_geometry_is_usable",
+        "_restored_geometry",
+        "_persist_window_geometry",
+        "_schedule_window_geometry_persist",
+        "_ai_control_center_close_zone",
+        "self.width() - self.WINDOW_CONTROL_ZONE_RIGHT - self.WINDOW_CONTROL_ZONE_WIDTH",
+        "_ai_control_center_native_hit_test",
+        "WM_NCHITTEST",
+        "WM_NCLBUTTONDBLCLK",
+        "HTCAPTION",
+        "HTTOPLEFT",
+        "HTBOTTOMRIGHT",
+        "HTCLIENT",
+        "AI_CONTROL_CENTER_GEOMETRY_SAVE_FAILED",
+        "QEvent.MouseButtonPress",
+        "show_ai_control_center_from_tray",
+        "AI_CONTROL_CENTER_VISIBLE",
+        "AI_CONTROL_CENTER_VISIBILITY_FAILED",
+        "AI_CONTROL_CENTER_NATIVE_SHOW_APPLIED",
+        "AI_CONTROL_CENTER_MINIMIZED",
+        "native_visible",
+        "qt_visible",
+        "showNormal",
+        "SetWindowPos",
+        "SW_RESTORE",
+        "SWP_SHOWWINDOW",
+        "IsWindowVisible",
+        "AI_CONTROL_CENTER_LOCAL_ASSIST_RESULT",
+        "aiControlCenterOwner",
+        "fam007-ai-control-center",
+        "f3-ff01-narrow-doorway-only",
+        "providerVisibleData",
+        "prompt-send-disabled",
+        "network-egress-blocked",
+        "memory-indexing-disabled",
+    ):
+        _require(needle in renderer, f"desktop renderer Nexus AI Control Center is missing {needle!r}", failures)
+
+    for forbidden in (
+        "AIControlCenterDeck",
+        "fam007AiControlCenterShell",
+        "fam007AiControlCenterChromeBar",
+        "inactive-reference-mirror",
+        "_uses_hud_specimen",
+        "QGraphicsDropShadowEffect",
+        "_hud_button_font",
+        "_install_hud_button_glow",
+        "_set_hud_button_glow",
+        "hudButtonGlow",
+        "hudButtonKind",
+        "_configure_hud_content_fit_button(self._local_assist",
+        "self._local_assist",
+        "self._fact_values",
+        "self._result_detail",
+        "AIControlCenterTemplatePage",
+        "_ai_control_center_template_path",
+        "_on_ai_control_center_template_loaded",
+        "_uses_hud_template",
+        "webview-hud-template",
+        "AI_CONTROL_CENTER_TEMPLATE_LOAD_FAILED",
+    ):
+        _require(
+            forbidden not in renderer,
+            f"desktop renderer AI Control Center must not retain template-collision marker {forbidden!r}",
+            failures,
+        )
+
+    for needle in (
+        "monitoring_hud.css",
+        'id="monitoring-hud"',
+        'class="monitoring-hud"',
+        "monitoring-hud__chrome",
+        "monitoring-hud__title-group",
+        "monitoring-hud__header",
+        "monitoring-hud__kicker",
+        "monitoring-hud__title",
+        "monitoring-hud__subtitle",
+        "monitoring-hud__window-controls",
+        "monitoring-hud__window-control-button monitoring-hud__window-control-button--minimize",
+        "monitoring-hud__window-control-button monitoring-hud__window-control-button--maximize",
+        "monitoring-hud__window-control-button monitoring-hud__window-control-button--close",
+        'data-control="maximize-restore-ai-control-center"',
+        'data-window-control-key="maximizeRestore"',
+        'data-window-control-command="maximize-restore"',
+        'data-window-control-state="hidden"',
+        'data-window-control-state-model="hidden-blocked-active"',
+        'data-window-control-maximize-restore-disposition="hidden-future-gated-pending-per-window-relevance-decision"',
+        'data-window-control-size-model="outer-pill-matches-content-action-height"',
+        "monitoring-hud__window-control-button:hover",
+        "monitoring-hud__window-control-button:focus-visible",
+        "monitoring-hud__window-control-button:active",
+        "monitoring-hud__window-control-button:disabled",
+        'data-window-control-state="hidden"',
+        "monitoring-hud__surface-role",
+        "monitoring-hud__surface-role-copy",
+        "width: fit-content",
+        "max-width: 100%",
+        "monitoring-hud__control-hub",
+        "monitoring-hud__hub-card",
+        "monitoring-hud__hub-card-topline",
+        "monitoring-hud__hub-card-title-copy",
+        "monitoring-hud__hub-card-description",
+        "monitoring-hud__state-row",
+        "monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit",
+        "monitoring-hud__button-label",
+        'data-compact-layout-density="ai-control-center-compact-v1"',
+        'data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"',
+        'data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"',
+        'data-single-action-button-model="content-fit-fixed-height-ellipsis"',
+        'data-default-window-width="570"',
+        'data-default-window-height="610"',
+        'data-default-window-max-height="820"',
+        'data-window-restore-policy="disabled-until-fam003-reset-control"',
+        'data-window-memory-policy="restart-memory-disabled"',
+        'data-window-reset-dependency="fam003-ai-global-settings-reset-default-location-size"',
+        'data-window-control-cluster="compact-minimize-maximize-close"',
+        'data-dashboard-close-layout="compact-window-control-cluster"',
+        'data-dashboard-close-affordance="window-level-control-cluster"',
+        'data-scrollbar-style="nexus-rounded-custom-overlay"',
+        'data-row-density="compact-asymmetric-separated"',
+        "ai-control-center-scrollbar",
+        "ai-control-center-scrollbar__thumb",
+        'data-native-resize-model="os-edge-corner-resize"',
+        '[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row',
+        '[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row span',
+        '[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row strong',
+        '[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline',
+        '[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit',
+        "display: grid",
+        "grid-template-columns: 32px minmax(0, 1fr)",
+        "row-gap: 2px",
+        "align-items: flex-start",
+        ".monitoring-hud__hub-card-title-copy",
+        ".monitoring-hud__hub-card-description",
+        "font-size: 10px",
+        "font-size: 11px",
+        "text-indent: 42px",
+        "grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr)",
+        "padding: 4px 0 2px",
+        "scrollbar-width: none",
+        "border-radius: 999px",
+        "::-webkit-scrollbar-button",
+        "background: rgba(108, 232, 255, 0.58)",
+        "AI Control Center",
+        "ORIN Status",
+        "Local Safety Check",
+        "Run Local Check",
+        "Minimize AI Control Center",
+        "Maximize or restore AI Control Center hidden until future implementation",
+        "Close AI Control Center",
+        "ORIN is not implemented; provider/model execution is not active.",
+        "Not implemented; no real AI executing",
+        "None",
+        "Disabled and blocked",
+        "Not accepted, sent, stored, or indexed",
+        "Provider data",
+        "Install blocked; downloads disabled",
+        "Public only; Developer and Owner gated",
+        "Waiting for local action",
+    ):
+        _require(
+            needle in ai_control_html,
+            f"AI Control Center HUD-aligned HTML surface is missing {needle!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "width: 210px",
+        'id="ai-control-center-local-check-action"\n              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__dashboard-paired-action"',
+        "setFixedSize(250, 36)",
+        "line-height: 1.22",
+    ):
+        _require(
+            forbidden not in ai_control_html,
+            f"AI Control Center card interior must not keep compressed AI-only text/button override {forbidden!r}",
+            failures,
+        )
+
+    _require(
+        "title=" not in ai_control_html,
+        "AI Control Center HTML must not define native title tooltips; explicit tooltip UX is future-gated",
+        failures,
+    )
+    _require(
+        'setAttribute("title"' not in ai_control_js,
+        'AI Control Center script must not inject native title tooltips from JavaScript',
+        failures,
+    )
+    for forbidden in (
+        "setAttribute('title'",
+        ".title =",
+        ".title=",
+        "data-tooltip",
+        "aria-describedby",
+    ):
+        _require(
+            forbidden not in ai_control_html and forbidden not in ai_control_js,
+            f"AI Control Center must not define current tooltip hooks; explicit tooltip UX is future-gated: {forbidden!r}",
+            failures,
+        )
+
+    for needle in (
+        "NEXUS_AI_CONTROL_CENTER_COMMAND:",
+        "nexusAiControlCenterApplyProviderState",
+        "nexusAiControlCenterRunLocalCheck",
+        "nexusAiControlCenterSetWindowState",
+        "nexusAiControlCenterSetWindowControlStates",
+        "syncWindowControlState",
+        "syncSingleWindowControlState",
+        "normalizeWindowControlState",
+        "hydrateWindowControlStatesFromMarkup",
+        "stripNativeTooltips",
+        "observeNativeTooltipDrift",
+        "MutationObserver",
+        "attachWindowControlHandlers",
+        "hidden",
+        "blocked",
+        "active",
+        "syncCustomScrollbar",
+        "customScrollbarVisible",
+        "run-local-check",
+        "minimize",
+        "maximize-restore",
+        "close",
+        "Install blocked; downloads disabled",
+        "No provider configured",
+        "No prompt, file, memory, telemetry, or provider config is sent.",
+        "provider-visible data remains none",
+    ):
+        _require(
+            needle in ai_control_js,
+            f"AI Control Center script is missing {needle!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "install intent blocked; downloads disabled",
+        "install blocked; downloads disabled",
+        "Public no-provider only; Developer and Owner lanes gated",
+        "not accepted, sent, stored, or indexed",
+        "waiting for local action",
+        ">none<",
+        "No prompt, file, screen, memory, or telemetry is sent.",
+    ):
+        _require(
+            forbidden not in ai_control_html and forbidden not in ai_control_js,
+            f"AI Control Center HTML/JS must not reintroduce stale card wording {forbidden!r}",
+            failures,
+        )
+
+    for needle in (
+        ".monitoring-hud__chrome",
+        ".monitoring-hud__title-group",
+        ".monitoring-hud__chrome-button--close",
+        ".monitoring-hud__window-close",
+        ".monitoring-hud__control-hub",
+        ".monitoring-hud__hub-card",
+        ".monitoring-hud__hub-card-topline",
+        ".monitoring-hud__state-row",
+        ".monitoring-hud__hub-action",
+        ".monitoring-hud__hub-action--content-fit",
+        ".monitoring-hud__button-label",
+        "max-width: min(100%, 187px)",
+        "height: 31px",
+        "min-height: 31px",
+        "padding: 0 14px",
+        ".monitoring-hud__dashboard-paired-action",
+    ):
+        _require(
+            needle in monitoring_hud_css,
+            f"shared Monitoring HUD stylesheet is missing {needle!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "Qt.WindowTitleHint",
+        "Qt.WindowSystemMenuHint",
+        "Qt.WindowMinimizeButtonHint",
+        "Qt.WindowCloseButtonHint",
+        "self.setMinimumSize(720, 720)",
+        "self.resize(780, 820)",
+        "WINDOW_STATE_SCHEMA_VERSION = 4",
+        "WINDOW_STATE_SCHEMA_VERSION = 5",
+        "WINDOW_STATE_SCHEMA_VERSION = 6",
+        "WINDOW_STATE_SCHEMA_VERSION = 7",
+        "DEFAULT_WIDTH = 780",
+        "DEFAULT_HEIGHT = 820",
+        "DEFAULT_HEIGHT = 700",
+        "DEFAULT_HEIGHT = 652",
+        "DEFAULT_HEIGHT = 565",
+        "DEFAULT_WIDTH = 562",
+        "self._local_assist.setFixedSize(250, 36)",
+        'data-default-window-width="562"',
+        'data-default-window-width="780"',
+        'data-default-window-height="652"',
+        'data-default-window-height="700"',
+        'data-default-window-height="565"',
+        'data-window-restore-policy="schema-v6-live-size-or-safe-reset"',
+        'data-window-restore-policy="schema-v7-content-fit-or-safe-reset"',
+        'data-window-restore-policy="schema-v5-content-fit-or-safe-reset"',
+        'data-scrollbar-style="nexus-rounded-cyan-pulse"',
+    ):
+        _require(
+            forbidden not in renderer,
+            f"desktop renderer AI Control Center must not retain default OS chrome flag {forbidden!r}",
+            failures,
+        )
+
+    for forbidden in (
+        "quickRow",
+        "QUICK ACCESS",
+        "Quick access no-provider check",
+        "PROVIDER DATA: NONE",
+        "NO PROVIDER / MODEL ACTIVE",
+        "NO PROVIDER ACTIVE",
+        "No provider/model execution is active.",
+        "PROVIDER / MODEL OFF",
+        "CONTROLS LIVE HERE",
+        "LOCAL ASSIST ONLY",
+        "PROMPT / MODEL / PROVIDER",
+        "STATUS SURFACE",
+        "Display-only; controls live here",
+        "sectionPill",
+        "role_status = QLabel",
+        "NO-PROVIDER CHECK",
+        "Runs one local no-provider check",
+        "Run no-provider check",
+        'data-scrollbar-style="nexus-thin-glow"',
+    ):
+        _require(
+            forbidden not in renderer,
+            f"desktop renderer AI Control Center must not retain stale visual/content contract {forbidden!r}",
+            failures,
+        )
+        _require(
+            forbidden not in ai_control_html,
+            f"AI Control Center HUD-aligned HTML surface must not retain stale visual/content contract {forbidden!r}",
+            failures,
+        )
+        _require(
+            forbidden not in ai_control_js,
+            f"AI Control Center script must not retain stale visual/content contract {forbidden!r}",
+            failures,
+        )
+
+    for needle in (
+        "ai_control_center_action",
+        "ai_control_center_button",
+        "AI Control Center",
+        "request_ai_control_center_from_tray",
+        "TRAY_AI_CONTROL_CENTER_REQUESTED",
+        "TRAY_AI_CONTROL_CENTER_ROUTED",
+        "90: self.request_ai_control_center_from_tray",
+        "carry_in=f3-ff01-narrow-doorway",
+        "provider_visible_data=none",
+        "provider_execution=blocked",
+        "result = handler(source=source)",
+        "route_visible",
+        "route_not_visible",
+    ):
+        _require(needle in tray_controller, f"tray controller native AI doorway is missing {needle!r}", failures)
+
+    for needle in (
+        "show_ai_control_center_from_tray",
+        "AI_CONTROL_CENTER_ABORTED",
+        "desktop_runtime_unavailable",
+        '"shown": False',
+    ):
+        _require(needle in desktop_main, f"desktop main fallback AI Control Center path is missing {needle!r}", failures)
+
     for label, markup in (
         ("core HTML", html),
         ("desktop Core HTML", desktop_html),
     ):
         for needle in (
+            'href="orin_core.css"',
+            'src="orin_core.js"',
             'id="ai-provider-status"',
-            "hidden",
+            'hidden',
             'aria-hidden="true"',
-            'data-display-suppression="desktop-ai-owned-readiness-display-suppressed"',
-            'data-display-visibility="suppressed-by-default"',
+            'data-display-suppression="tray-owned-status"',
+            'data-display-visibility="tray-owned-hidden"',
+            'data-local-action-guard="no-provider"',
+            'data-status-only="true"',
+            'data-local-action-clickable="false"',
+            'data-local-action-result="idle"',
+            'data-local-action-result-state="local-action-idle"',
+            'data-local-action-result-schema="local-action-result.v1"',
+            'data-local-result-provider-visible-data="none"',
+            'data-local-result-sent-to-provider="false"',
+            'data-local-result-can-accept-prompts="false"',
+            'data-local-result-prompt-send="prompt-send-disabled"',
+            'data-local-result-network-egress="network-egress-blocked"',
+            'data-local-result-memory-indexing="memory-indexing-disabled"',
             'data-mode="no-provider"',
             'data-privacy-scope="local-only"',
             'data-provider-selection="fallback-no-provider"',
@@ -8600,10 +9380,23 @@ def validate() -> list[str]:
             'id="ai-provider-status-model-metadata"',
             "Model workload metadata: planned; no execution",
             'data-capability-pack-lifecycle="capability-pack-lifecycle-planned"',
+            'data-capability-pack-download="capability-pack-downloads-blocked"',
+            'data-capability-pack-install="install-blocked"',
+            'data-capability-pack-update="update-blocked"',
+            'data-capability-pack-uninstall="uninstall-blocked"',
             'data-capability-pack-manifest="manifest-planned"',
             'data-capability-pack-compatibility="compatibility-unproven"',
             'data-capability-pack-eligibility="capability-pack-eligibility-blocked"',
             'data-install-intent="install-intent-blocked"',
+            'data-lane-boundary-schema="lane-boundary-state.v1"',
+            'data-public-lane-boundary="public-lane-local-assist-only"',
+            'data-developer-lane-boundary="developer-lane-private-setup-blocked"',
+            'data-owner-lane-boundary="owner-lane-private-setup-blocked"',
+            'data-private-setup-boundary="private-setup-blocked"',
+            'data-private-setup-authorized="false"',
+            'data-private-material-visible="false"',
+            'data-owner-memory-enabled="false"',
+            'data-owner-agents-enabled="false"',
             'id="ai-provider-status-capability-download"',
             "Capability pack downloads: blocked",
             'id="ai-provider-status-capability-recommendation"',
@@ -8633,7 +9426,7 @@ def validate() -> list[str]:
             'id="ai-provider-status-release-proof"',
             "Release proof: pending future approval",
             'data-consent-state="required-before-provider"',
-            "No AI provider",
+            "No provider/model execution active",
             "No-provider fallback active",
             "Provider configuration: none",
             "Local provider registry: no configured providers",
@@ -8654,6 +9447,12 @@ def validate() -> list[str]:
             "Consent required before provider setup",
             "Provider-visible data: none",
             "No prompt, file, screen, memory, or telemetry is sent",
+            'id="ai-provider-status-public-lane"',
+            "Public Edition: deterministic no-provider assist; provider-visible data none",
+            'id="ai-provider-status-developer-lane"',
+            "Developer lane: gated; private setup not configured",
+            'id="ai-provider-status-owner-lane"',
+            "Owner lane: gated; private setup not configured",
             "Consent boundary: provider setup required before prompts",
             'id="ai-provider-status-runtime"',
             "Runtime state: provider setup disabled",
@@ -8776,32 +9575,140 @@ def validate() -> list[str]:
             'id="ai-provider-status-functional-release"',
             "Functional-AI release gate: pending; v1.8.0-prebeta release gate: pending functional AI proof",
             'id="ai-provider-status-capability-eligibility"',
-            "Capability-pack eligibility: blocked",
+            "Capability-pack eligibility: blocked until local capability proof",
             'id="ai-provider-status-install-intent"',
-            "Install intent: blocked",
+            "Install intent: blocked; downloads and install execution remain disabled",
+            'id="ai-provider-status-public-lane"',
+            "Public Edition: deterministic no-provider assist; provider-visible data none",
+            'id="ai-provider-status-developer-lane"',
+            "Developer lane: gated; private setup not configured",
+            'id="ai-provider-status-owner-lane"',
+            "Owner lane: gated; private setup not configured",
             'id="ai-provider-status-action"',
-            "Assisted Desktop unavailable",
-            "Next: provider path and consent readiness remain local-only",
+            'aria-disabled="true"',
+            "No-provider check lives in AI Control Center",
+            "No-provider guard active",
+            'id="ai-provider-status-result"',
+            "No-provider check: waiting for local action",
+            'id="ai-provider-status-result-detail"',
+            "Run the check to produce a deterministic no-provider result.",
+            "Open NDAI for the AI Control Center; provider/model execution remains blocked",
             "Local shell only; nothing is sent",
+            'id="ai-local-status-surface"',
+            'role="status"',
+            'aria-live="polite"',
+            'data-status-only="true"',
+            'data-interactive="false"',
+            'data-opens-control-center="false"',
+            "No AI executing",
+            'id="ai-provider-tray"',
+            'tabindex="-1"',
+            'aria-controls="ai-provider-tray-window"',
+            'aria-label="Open AI Control Center"',
+            'data-interactive="false"',
+            'data-desktop-tray-doorway="native-system-tray"',
+            'data-ai-resident-doorway="f3-ff01-narrow-ai-command-center"',
+            'data-ai-control-center-route="fam007-ai-control-center"',
+            'data-status-surface-owner="ai-local-status-surface"',
+            'data-ai-local-status="no-ai-execution"',
+            'data-provider-visible-data="none"',
+            'data-prompt-send="prompt-send-disabled"',
+            'data-provider-model-execution="blocked"',
+            'data-network-egress="network-egress-blocked"',
+            'data-memory-indexing="memory-indexing-disabled"',
+            'data-fam003-carry-in="narrow-doorway-only"',
+            'id="ai-provider-tray-window"',
+            'data-ai-control-center="fam007"',
+            'data-ai-control-center-owner="FAM-007"',
+            'data-fam008-packaging-execution="blocked-display-only"',
+            'id="ai-provider-tray-provider-visible-data"',
+            'id="ai-provider-tray-provider-execution"',
+            'id="ai-provider-tray-capability-posture"',
+            'id="ai-provider-tray-lane-boundary"',
+            'id="ai-provider-tray-status-boundary"',
+            'id="ai-provider-tray-local-assist-action"',
+            'id="ai-provider-tray-review-note"',
+            "NDAI doorway",
+            "AI Control Center",
+            "No AI executing; no provider/model active",
+            "Provider-visible data",
+            "Install and download intent blocked",
+            "Public deterministic no-provider assist; Developer and Owner lanes gated",
+            "Display-only; controls live here",
+            "FAM-007 owns this AI Control Center; the NDAI resident entry is a doorway only.",
         ):
             _require(needle in markup, f"{label} is missing {needle!r}", failures)
+        normalized_markup = markup.replace("\r\n", "\n")
+        _require(
+            (
+                'id="ai-provider-tray-local-assist-action"\n'
+                '        class="ai-provider-tray-window__assist"\n'
+                '        type="button"\n'
+                "        disabled\n"
+                '        aria-disabled="true"'
+            )
+            in normalized_markup,
+            f"{label} hidden core-layer local assist doorway must be statically disabled",
+            failures,
+        )
+        for forbidden in (
+            'data-local-action-clickable="true"',
+            'aria-label="Open AI usage and settings"',
+            "Temporary LV1 repair surface",
+            "ORIN local active",
+            "ORIN local assist",
+            "AI local only",
+            "active-local-only",
+            "Public local assist only",
+            "Public Edition: local assist only",
+        ):
+            _require(
+                forbidden not in markup,
+                f"{label} must not retain stale temporary/status-interactive marker {forbidden!r}",
+                failures,
+            )
 
     for needle in (
-        'href="orin_core.css"',
         'href="orin_core_desktop.css"',
-        'src="orin_core.js"',
         'data-surface-role="core-visualization"',
     ):
         _require(needle in desktop_html, f"desktop Core HTML is missing {needle!r}", failures)
 
     for needle in (
-        "body.desktop-mode .ai-provider-status",
+        'body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-default"]',
         "display: none",
     ):
         _require(needle in desktop_css, f"desktop Core CSS is missing {needle!r}", failures)
 
     for needle in (
         ".ai-provider-status",
+        "display: none !important",
+        "--ai-status-left: min(55vw, calc(100vw - 300px))",
+        "--ai-tray-left: min(calc(55vw + 214px), calc(100vw - 76px))",
+        "--ai-tray-window-left: min(45vw, calc(100vw - 432px))",
+        "--ai-tray-bottom: clamp(242px, calc(14vh + 150px), 290px)",
+        "--ai-control-button-neutral-bg",
+        "--ai-control-button-neutral-hover-bg",
+        "--ai-control-button-neutral-active-bg",
+        "--ai-control-affordance-focus-shadow",
+        "left: var(--ai-status-left)",
+        "left: var(--ai-tray-left)",
+        "left: var(--ai-tray-window-left)",
+        "right: auto",
+        "bottom: var(--ai-tray-bottom)",
+        "bottom: calc(var(--ai-tray-bottom) + 66px)",
+        ".ai-local-status-surface",
+        ".ai-local-status-surface[data-activity-state=\"active\"] .ai-local-status-surface__activity",
+        ".ai-provider-tray",
+        ".ai-provider-tray-window",
+        ".ai-provider-tray-window[hidden]",
+        ".ai-provider-tray-window__facts",
+        ".ai-provider-tray-window__assist",
+        ".ai-provider-tray-window__close:focus-visible",
+        ".ai-provider-tray-window__assist:focus-visible",
+        ".ai-provider-tray-window__close:active",
+        ".ai-provider-tray-window__assist:active",
+        ".ai-provider-tray-window__assist:disabled",
         ".ai-provider-status__runtime",
         ".ai-provider-status__readiness",
         ".ai-provider-status__activation",
@@ -8848,23 +9755,43 @@ def validate() -> list[str]:
         ".ai-provider-status__functional-release",
         ".ai-provider-status__hardware-detection",
         ".ai-provider-status__capability-manifest",
-        ".ai-provider-status__capability-eligibility",
         ".ai-provider-status__memory-contract",
         ".ai-provider-status__copy-contract",
         ".ai-provider-status::after",
-        "max-height: min(34vh, 210px)",
-        "Details held in validation; setup and execution remain gated",
-        "body.desktop-mode .ai-provider-status",
+        "No AI is executing; prompts, providers, models, memory, downloads, and network remain blocked",
+        'body.desktop-mode .ai-provider-status[data-display-visibility="suppressed-by-default"]',
         '.ai-provider-status[hidden]',
         '.ai-provider-status[data-display-visibility="suppressed-by-default"]',
         "display: none !important",
+        "pointer-events: none",
+        "cursor: default",
         'data-availability="ready"',
         "overflow-wrap: anywhere",
     ):
         _require(needle in css, f"core CSS is missing {needle!r}", failures)
 
+    for label, markup in (
+        ("core HTML", html),
+        ("desktop Core HTML", desktop_html),
+    ):
+        for needle in (
+            'id="ai-provider-tray-provider-visible-data"',
+            'id="ai-provider-tray-capability-posture"',
+            'id="ai-provider-tray-lane-boundary"',
+            'id="ai-provider-tray-status-boundary"',
+            'id="ai-provider-tray-local-assist-action"',
+        ):
+            _require(
+                needle in markup,
+                f"{label} must expose {needle!r} in the FAM-007 AI Control Center, not the status-only surface",
+                failures,
+            )
+
     for needle in (
         "const aiProviderStatus",
+        "const aiProviderTray",
+        "setAIProviderTrayOpen",
+        "renderAIProviderTrayState",
         "renderAIProviderState",
         "window.setAIProviderState",
         "providerSelectionState",
@@ -8884,6 +9811,9 @@ def validate() -> list[str]:
         "capabilityRecommendationState",
         "capabilityPackLifecycleState",
         "capabilityPackDownloadState",
+        "capabilityPackInstallState",
+        "capabilityPackUpdateState",
+        "capabilityPackUninstallState",
         "capabilityPackManifestSchemaVersion",
         "capabilityPackManifestState",
         "capabilityPackChecksumState",
@@ -9015,11 +9945,48 @@ def validate() -> list[str]:
         "providerConsentHandoffPosture",
         "providerPathHandoffPosture",
         "dataVisibilityConsentPosture",
+        "localStatusSurfaceLabel",
+        "localStatusSurfaceScope",
+        "localStatusActivityLabel",
+        "trayStatusLabel",
+        "trayStatusBoundaryLabel",
+        "trayReviewNote",
+        "aiProviderTray.hidden = true",
+        'aiProviderTray.setAttribute("aria-hidden", "true")',
+        'aiProviderTray.setAttribute("tabindex", "-1")',
+        "aiProviderTray.dataset.interactive",
+        "aiProviderTray.dataset.desktopTrayDoorway",
+        "native-system-tray",
+        "aiProviderTrayWindow.hidden = true",
+        "aiProviderTrayClose.disabled = true",
+        "aiProviderTrayLocalAssistAction.disabled = true",
+        "FAM-007 owns this AI Control Center",
+        "NDAI resident entry is a doorway only",
+        "const aiLocalStatusSurface",
+        "const aiProviderTrayStatusBoundary",
         "desktopAiOwnedReadinessDisplayState",
+        "const displayState",
+        "const localActionAvailable",
+        "aiLocalStatusSurface.dataset.statusOnly",
+        "aiLocalStatusSurface.dataset.interactive",
+        "aiLocalStatusSurface.dataset.opensControlCenter",
+        "aiProviderTray.dataset.aiResidentDoorway",
+        "aiProviderTray.dataset.aiControlCenterRoute",
+        "aiProviderTray.dataset.statusSurfaceOwner",
+        "aiProviderTray.dataset.fam003CarryIn",
+        "aiProviderTrayWindow.dataset.aiControlCenter",
+        "aiProviderTrayWindow.dataset.aiControlCenterOwner",
+        "aiProviderTrayWindow.dataset.fam003CarryIn",
+        "aiProviderTrayWindow.dataset.fam008PackagingExecution",
+        "aiControlCenterState",
         "aiProviderStatus.hidden = true",
         'aiProviderStatus.setAttribute("aria-hidden", "true")',
         "displaySuppression",
         "displayVisibility",
+        "tray-owned-hidden",
+        "aiProviderStatus.dataset.statusOnly",
+        "local-assisted-action-available",
+        "localActionGuard",
         "providerSetupFutureGatedPosture",
         "providerExecutionFutureGatedPosture",
         "providerPathGateState",
@@ -9057,7 +10024,33 @@ def validate() -> list[str]:
         "functionalAiReleaseGateState",
         "v18ReleaseGateState",
         "capabilityPackEligibilityState",
+        "capabilityPackEligibilityLabel",
         "installIntentState",
+        "installIntentLabel",
+        "laneBoundarySchemaVersion",
+        "publicLaneBoundaryState",
+        "publicLaneBoundaryLabel",
+        "developerLaneBoundaryState",
+        "developerLaneBoundaryLabel",
+        "ownerLaneBoundaryState",
+        "ownerLaneBoundaryLabel",
+        "privateSetupBoundaryState",
+        "privateSetupAuthorized",
+        "privateMaterialVisible",
+        "ownerMemoryEnabled",
+        "ownerAgentsEnabled",
+        "dataset.laneBoundarySchema",
+        "dataset.publicLaneBoundary",
+        "dataset.developerLaneBoundary",
+        "dataset.ownerLaneBoundary",
+        "dataset.privateSetupBoundary",
+        "dataset.privateSetupAuthorized",
+        "dataset.privateMaterialVisible",
+        "dataset.ownerMemoryEnabled",
+        "dataset.ownerAgentsEnabled",
+        "dataset.capabilityPackInstall",
+        "dataset.capabilityPackUpdate",
+        "dataset.capabilityPackUninstall",
         "aiProviderStatusReadiness",
         "aiProviderStatusSetupEligibility",
         "aiProviderStatusSetupBlocker",
@@ -9114,15 +10107,61 @@ def validate() -> list[str]:
         "aiProviderStatusFunctionalRelease",
         "aiProviderStatusCapabilityEligibility",
         "aiProviderStatusInstallIntent",
+        "aiProviderStatusPublicLane",
+        "aiProviderStatusDeveloperLane",
+        "aiProviderStatusOwnerLane",
+        "aiProviderStatusResult",
+        "aiProviderStatusResultDetail",
         "aiProviderStatusRuntime",
         "aiProviderStatusRuntimeReason",
         "aiProviderStatusRuntimeProvenance",
         "aiProviderStatusRuntimeSchema",
+        "handleAIProviderStatusActionClick",
+        "deterministic-no-provider-result",
+        "local-action-result.v1",
+        "localResultProviderVisibleData",
+        "localResultSentToProvider",
+        "localResultCanAcceptPrompts",
+        "localResultPromptSend",
+        "localResultNetworkEgress",
+        "localResultMemoryIndexing",
+        "guarded-no-provider",
+        "blocked-boundary-mismatch",
+        "No-provider check lives in AI Control Center",
         "aiProviderStatusAction.disabled = true",
+        'aiProviderStatusAction.setAttribute("aria-disabled", "true")',
+        "aiProviderStatusAction.dataset.statusOnly",
+        "aiProviderStatusAction.dataset.aiControlCenterRoute",
+        "prompt-send-disabled",
+        "network-egress-blocked",
+        "memory-indexing-disabled",
         "sentToProvider",
         "canAcceptPrompts",
     ):
         _require(needle in js, f"core JS is missing {needle!r}", failures)
+
+    for forbidden in (
+        "aiProviderStatusAction.addEventListener",
+        "aiProviderTray.addEventListener",
+        "aiProviderTrayLocalAssistAction.addEventListener",
+        "setAIProviderTrayOpen(true)",
+        "temporaryLv1Repair",
+        "nextBr1ReviewRequired",
+        "Temporary LV1 repair surface",
+        "Next BR1 must review",
+        "ORIN local active",
+        "ORIN local assist",
+        "AI local only",
+        "active-local-only",
+        "Public local assist only",
+        "Public Edition: local assist only",
+        "AI usage and settings",
+    ):
+        _require(
+            forbidden not in js,
+            f"core JS must not retain stale temporary/status-interactive marker {forbidden!r}",
+            failures,
+        )
 
     for needle in (
         "FAM-007 Local AI Provider Execution Readiness Gates",

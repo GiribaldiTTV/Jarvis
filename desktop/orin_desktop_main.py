@@ -131,6 +131,10 @@ class DesktopRuntimeUnavailable(QObject):
             f"|source={source}|route_id={route_id}|reason=desktop_runtime_unavailable"
         )
 
+    def show_ai_control_center_from_tray(self, source="tray"):
+        self._emit(f"RENDERER_MAIN|AI_CONTROL_CENTER_ABORTED|source={source}|reason=desktop_runtime_unavailable")
+        return {"shown": False, "reason": "desktop_runtime_unavailable"}
+
     def monitoring_hud_feature_state(self):
         return {
             "feature_enabled": False,
