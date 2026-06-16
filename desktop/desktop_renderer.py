@@ -6127,7 +6127,7 @@ class AIControlCenterDialog(QDialog):
                 font-weight: 560;
             }
             QFrame[role="surfaceRole"] {
-                min-height: 38px;
+                min-height: 52px;
                 border: 1px solid rgba(118, 226, 255, 0.16);
                 border-radius: 18px;
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 rgba(6, 25, 38, 0.50), stop:0.58 rgba(2, 11, 22, 0.48), stop:1 rgba(2, 11, 22, 0.48));
@@ -6285,8 +6285,7 @@ class AIControlCenterDialog(QDialog):
             show_title=False,
         )
         self.chrome_bar.setProperty("role", "hudTitleGroup")
-        self.chrome_bar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.chrome_bar.setMinimumHeight(112)
+        self.chrome_bar.setFixedHeight(172)
         chrome_shadow = QGraphicsDropShadowEffect(self.chrome_bar)
         chrome_shadow.setBlurRadius(24)
         chrome_shadow.setOffset(0, 12)
@@ -6336,13 +6335,13 @@ class AIControlCenterDialog(QDialog):
         header_text_layout.addWidget(eyebrow)
         header_text_layout.addWidget(self._title)
         header_text_layout.addWidget(self._summary)
-        role_surface = QFrame(self.shell)
+        role_surface = QFrame(self.header_text)
         role_surface.setProperty("role", "surfaceRole")
         role_surface.setAttribute(Qt.WA_StyledBackground, True)
         role_surface.setObjectName("fam007AiControlCenterRoleSurface")
-        role_surface.setMinimumHeight(38)
+        role_surface.setMinimumHeight(52)
         role_layout = QHBoxLayout(role_surface)
-        role_layout.setContentsMargins(14, 8, 14, 8)
+        role_layout.setContentsMargins(14, 9, 14, 9)
         role_layout.setSpacing(18)
         role_items = (
             ("AI", "ORIN"),
@@ -6367,10 +6366,10 @@ class AIControlCenterDialog(QDialog):
             pair_layout.addWidget(value_widget, 0, Qt.AlignVCenter)
             role_layout.addWidget(pair, 0, Qt.AlignVCenter)
         role_layout.addStretch(1)
+        header_text_layout.addWidget(role_surface)
         if chrome_layout is not None:
             chrome_layout.insertWidget(0, self.header_text, 1, Qt.AlignTop)
         shell_layout.addWidget(self.chrome_bar)
-        shell_layout.addWidget(role_surface, 0, Qt.AlignTop)
 
         self.content = AIControlCenterDeck(self.shell)
         self.content.setObjectName("fam007AiControlCenterContent")

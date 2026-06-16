@@ -39,9 +39,7 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role {
-      align-self: stretch;
-      flex: 0 0 auto;
-      margin: 8px 14px 0;
+      margin-top: 12px;
       padding: 9px 11px;
       border-radius: 16px;
     }
@@ -191,7 +189,7 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub {
-      margin-top: 8px;
+      margin-top: 12px;
       gap: 6px;
       padding: 8px 18px 14px 10px;
       scroll-padding: 8px 18px 14px 10px;
@@ -371,9 +369,6 @@
     data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"
     data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
     data-single-action-button-model="content-fit-fixed-height-ellipsis"
-    data-title-card-sizing="content-auto"
-    data-surface-role-placement="anchored-below-title-card"
-    data-surface-role-visual-separation="separate-strip-between-title-and-cards"
     data-default-window-width="570"
     data-default-window-height="610"
     data-default-window-max-height="820"
@@ -426,7 +421,7 @@
           aria-label="Close AI Control Center"
         ></button>
       </div>
-      <div class="monitoring-hud__title-group" data-title-card-sizing="content-auto">
+      <div class="monitoring-hud__title-group">
         <div class="monitoring-hud__header" id="ai-control-center-drag-handle">
           <div>
             <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
@@ -434,19 +429,15 @@
             <div class="monitoring-hud__subtitle">ORIN is not implemented; provider/model execution is not active.</div>
           </div>
         </div>
-      </div>
-      <div
-        class="monitoring-hud__surface-role"
-        data-dashboard-role="ai-transparency-status-surface"
-        data-title-card-anchor="separate-under-title-card"
-      >
-        <div class="monitoring-hud__surface-role-copy">
-          <span>AI</span>
-          <strong>ORIN</strong>
-          <span>Status</span>
-          <strong>Not implemented</strong>
-          <span>Provider</span>
-          <strong>Blocked</strong>
+        <div class="monitoring-hud__surface-role" data-dashboard-role="ai-transparency-status-surface">
+          <div class="monitoring-hud__surface-role-copy">
+            <span>AI</span>
+            <strong>ORIN</strong>
+            <span>Status</span>
+            <strong>Not implemented</strong>
+            <span>Provider</span>
+            <strong>Blocked</strong>
+          </div>
         </div>
       </div>
       <div
