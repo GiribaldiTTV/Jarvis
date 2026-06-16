@@ -369,13 +369,34 @@ PROVIDER_PAYLOAD_EXPECTATIONS = {
     "providerVisibleDataGuarantee": "provider-visible-data-none-guaranteed",
     "sentToProvider": False,
     "canAcceptPrompts": False,
+    "promptAcceptance": "disabled",
+    "promptExecutionGateState": "prompt-execution-disabled",
+    "promptAcceptanceGateState": "prompt-acceptance-disabled",
+    "promptRoutingGateState": "prompt-routing-disabled",
+    "promptSendPosture": "prompt-send-disabled",
+    "providerExecutionGateState": "provider-execution-disabled",
+    "modelExecutionGateState": "model-execution-disabled",
     "modelExecutionStatus": "model-execution-disabled",
     "modelWorkloadReadinessPosture": "model-workload-readiness-disabled",
+    "capabilityPackDownloadState": "capability-pack-downloads-blocked",
+    "capabilityPackInstallState": "install-blocked",
+    "capabilityPackUpdateState": "update-blocked",
+    "capabilityPackUninstallState": "uninstall-blocked",
+    "installIntentState": "install-intent-blocked",
+    "externalCalls": "blocked",
     "networkEgressState": "network-egress-blocked",
+    "networkEgressGateState": "network-egress-blocked",
+    "externalCallReadinessState": "external-calls-blocked",
     "memoryContextState": "memory-context-disabled",
     "memoryIndexingState": "memory-indexing-disabled",
     "retrievalState": "retrieval-disabled",
     "learningState": "learning-disabled",
+    "persistenceState": "persistence-disabled",
+    "privateSetupBoundaryState": "private-setup-blocked",
+    "privateSetupAuthorized": False,
+    "privateMaterialVisible": False,
+    "ownerMemoryEnabled": False,
+    "ownerAgentsEnabled": False,
     "voiceRuntimeState": "voice-runtime-disabled",
 }
 
@@ -1605,9 +1626,32 @@ def _validate_owner_ai_operational_foundation_gates(
         _require(install.get(field) is True, failures, f"Owner AI install-intent gate must set {field}=true")
 
     lanes = fixture.get("laneReadinessGates", {})
+    public_lane = lanes.get("userPublicLane", {})
+    _require(
+        public_lane.get("boundaryDisplayState") == "public-lane-local-assist-only",
+        failures,
+        "Owner AI public lane boundary display state mismatch",
+    )
+    _require(
+        public_lane.get("privateSetupRequired") is False,
+        failures,
+        "Owner AI public lane must not require private setup",
+    )
     for lane_name in ("developerLane", "ownerLane"):
         lane = lanes.get(lane_name, {})
+        expected_boundary = (
+            "developer-lane-private-setup-blocked"
+            if lane_name == "developerLane"
+            else "owner-lane-private-setup-blocked"
+        )
+        _require(
+            lane.get("boundaryDisplayState") == expected_boundary,
+            failures,
+            f"Owner AI {lane_name} boundary display state mismatch",
+        )
         for field in ("privateRepoCreated", "privateRootCreated", "privateRemoteConfigured"):
+            _require(lane.get(field) is False, failures, f"Owner AI {lane_name} must set {field}=false")
+        for field in ("privateSetupAuthorized", "privateMaterialVisible"):
             _require(lane.get(field) is False, failures, f"Owner AI {lane_name} must set {field}=false")
 
     schemas = fixture.get("ownerAiMemoryAgentFoundationSchemas", {})
@@ -1637,6 +1681,131 @@ def _validate_owner_ai_operational_foundation_gates(
     )
     for field in sorted(expected_forbidden_fields):
         _require(forbidden.get(field) is False, failures, f"Owner AI forbidden material proof must set {field}=false")
+
+    proof = fixture.get("slc005EnforcementProof", {})
+    expected_proof = json.loads(json.dumps(contract.get("slc005EnforcementProof", {})))
+    _require(isinstance(proof, dict), failures, "Owner AI SLC-005 enforcement proof missing")
+    _require(
+        proof == expected_proof,
+        failures,
+        "Owner AI SLC-005 enforcement proof fixture must mirror provider-state contract",
+    )
+    if isinstance(proof, dict):
+        expected_scope = {
+            "provider-model-execution",
+            "prompt-acceptance-send",
+            "downloads-install-execution",
+            "runtime-cache-behavior",
+            "memory-learning-personalization",
+            "private-developer-owner-setup",
+            "hidden-network-behavior",
+        }
+        _require(
+            set(proof.get("proofScope", [])) == expected_scope,
+            failures,
+            "Owner AI SLC-005 proof scope must cover every blocked behavior",
+        )
+        matrix = proof.get("blockedBehaviorMatrix", {})
+        _require(isinstance(matrix, dict), failures, "Owner AI SLC-005 blocked behavior matrix missing")
+        if isinstance(matrix, dict):
+            expected_behaviors = {
+                "providerModelExecution",
+                "promptSend",
+                "downloads",
+                "runtimeCache",
+                "memory",
+                "privateSetup",
+                "hiddenNetworkBehavior",
+            }
+            _require(
+                set(matrix) == expected_behaviors,
+                failures,
+                "Owner AI SLC-005 matrix must contain exactly the accepted blocked behaviors",
+            )
+            for behavior, fields in {
+                "providerModelExecution": (
+                    "providerSdkIntegrated",
+                    "modelExecutionEnabled",
+                    "modelDownloadsEnabled",
+                    "runtimeProviderExecutionEnabled",
+                ),
+                "promptSend": ("sentToProvider", "canAcceptPrompts"),
+                "runtimeCache": ("runtimeCacheBehaviorEnabled",),
+                "memory": ("memoryWriteEnabled", "realOwnerMemoryEnabled", "realOwnerAgentsEnabled"),
+                "privateSetup": (
+                    "privateSetupAuthorized",
+                    "privateMaterialVisible",
+                    "privateRepoCreated",
+                    "privateRootCreated",
+                    "privateRemoteConfigured",
+                ),
+                "hiddenNetworkBehavior": ("externalCallsEnabled", "hiddenExternalDependenciesAllowed"),
+            }.items():
+                behavior_payload = matrix.get(behavior, {})
+                _require(isinstance(behavior_payload, dict), failures, f"Owner AI SLC-005 {behavior} proof missing")
+                if isinstance(behavior_payload, dict):
+                    for field in fields:
+                        _require(
+                            behavior_payload.get(field) is False,
+                            failures,
+                            f"Owner AI SLC-005 {behavior} proof must set {field}=false",
+                        )
+            downloads = matrix.get("downloads", {})
+            if isinstance(downloads, dict):
+                for field in (
+                    "capabilityPackDownloadsBlocked",
+                    "capabilityPackInstallBlocked",
+                    "capabilityPackUpdateBlocked",
+                    "capabilityPackUninstallBlocked",
+                ):
+                    _require(
+                        downloads.get(field) is True,
+                        failures,
+                        f"Owner AI SLC-005 downloads proof must set {field}=true",
+                    )
+                _require(
+                    downloads.get("downloadsNetworkExternalCalls") == "blocked",
+                    failures,
+                    "Owner AI SLC-005 downloads/network/external calls must remain blocked",
+                )
+            hidden_network = matrix.get("hiddenNetworkBehavior", {})
+            if isinstance(hidden_network, dict):
+                _require(
+                    hidden_network.get("networkEgressState") == "network-egress-blocked"
+                    and hidden_network.get("networkEgressGateState") == "network-egress-blocked"
+                    and hidden_network.get("externalCallReadinessState") == "external-calls-blocked",
+                    failures,
+                    "Owner AI SLC-005 hidden-network states must remain blocked",
+                )
+
+        canaries = proof.get("negativeCanaries", [])
+        _require(len(canaries) == 7, failures, "Owner AI SLC-005 must include seven negative canaries")
+        for canary in canaries:
+            _require(
+                isinstance(canary, dict) and canary.get("expectedOutcome") == "blocked",
+                failures,
+                "Owner AI SLC-005 negative canaries must all expect blocked",
+            )
+        proof_handoff = proof.get("hardeningHandoff", {})
+        _require(
+            isinstance(proof_handoff, dict)
+            and proof_handoff.get("state") == "ready-for-hardening-h1"
+            and proof_handoff.get("nextLegalPhase") == "Hardening H1"
+            and proof_handoff.get("workstreamGreenCandidate") is True,
+            failures,
+            "Owner AI SLC-005 proof must hand off to Hardening H1 as green candidate",
+        )
+        if isinstance(proof_handoff, dict):
+            for field in (
+                "providerModelExecutionAuthorized",
+                "promptSendAuthorized",
+                "downloadsAuthorized",
+                "runtimeCacheBehaviorAuthorized",
+                "memoryLearningPersonalizationAuthorized",
+                "privateSetupAuthorized",
+                "hiddenNetworkBehaviorAuthorized",
+            ):
+                _require(proof_handoff.get(field) is False, failures, f"Owner AI SLC-005 proof handoff must set {field}=false")
 
     handoff = fixture.get("hardeningHandoff", {})
     _require(handoff.get("nextLegalPhase") == "Hardening H1", failures, "Owner AI handoff must route to Hardening H1")
@@ -1934,6 +2103,22 @@ def _validate_provider_boundary(failures: list[str]) -> None:
     payload = state.as_renderer_payload()
     for key, expected in PROVIDER_PAYLOAD_EXPECTATIONS.items():
         _require(payload.get(key) == expected, failures, f"provider payload {key}={payload.get(key)!r}, expected {expected!r}")
+    for key, expected in {
+        "laneBoundarySchemaVersion": "lane-boundary-state.v1",
+        "publicLaneBoundaryState": "public-lane-local-assist-only",
+        "developerLaneBoundaryState": "developer-lane-private-setup-blocked",
+        "ownerLaneBoundaryState": "owner-lane-private-setup-blocked",
+        "privateSetupBoundaryState": "private-setup-blocked",
+        "privateSetupAuthorized": False,
+        "privateMaterialVisible": False,
+        "ownerMemoryEnabled": False,
+        "ownerAgentsEnabled": False,
+    }.items():
+        _require(
+            payload.get(key) == expected,
+            failures,
+            f"provider payload {key}={payload.get(key)!r}, expected {expected!r}",
+        )
 
 
 def _validate_workstream_entry_packet_decision_canaries(fixture_set: dict[str, Any], failures: list[str]) -> None:

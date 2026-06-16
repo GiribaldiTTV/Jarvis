@@ -106,6 +106,7 @@ NO_PROVIDER_ID = "no-provider"
 NO_PROVIDER_FALLBACK_SELECTION = "fallback-no-provider"
 PROVIDER_CONSENT_REQUIRED = "required-before-provider"
 NO_PROVIDER_INTERACTION_AFFORDANCE = "disabled-no-provider-interaction"
+LOCAL_ASSISTED_INTERACTION_AFFORDANCE = "local-assisted-action-available"
 PROVIDER_CONFIGURATION_UNCONFIGURED = "unconfigured"
 PROVIDER_CONFIGURATION_FALLBACK_ACTIVE = "fallback-active"
 LOCAL_PROVIDER_REGISTRY_STATE = "local-only-registry"
@@ -137,6 +138,14 @@ CAPABILITY_PACK_COMPATIBILITY_UNPROVEN = "compatibility-unproven"
 CAPABILITY_PACK_INSTALL_BLOCKED = "install-blocked"
 CAPABILITY_PACK_UPDATE_BLOCKED = "update-blocked"
 CAPABILITY_PACK_UNINSTALL_BLOCKED = "uninstall-blocked"
+LANE_BOUNDARY_SCHEMA_VERSION = "lane-boundary-state.v1"
+PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY = "public-lane-local-assist-only"
+DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED = "developer-lane-private-setup-blocked"
+OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED = "owner-lane-private-setup-blocked"
+PRIVATE_SETUP_BOUNDARY_BLOCKED = "private-setup-blocked"
+SLC005_ENFORCEMENT_PROOF_SCHEMA_VERSION = "slc005-enforcement-proof.v1"
+SLC005_ENFORCEMENT_PROOF_STATE = "workstream-enforcement-proof-green"
+SLC005_ENFORCEMENT_HARDENING_HANDOFF_STATE = "ready-for-hardening-h1"
 MODEL_WORKLOAD_METADATA_PLANNED = "model-workload-metadata-planned"
 DATA_CLASSIFICATION_LOCAL_ONLY = "data-classification-local-only"
 DATA_CLASSIFICATION_SCHEMA_VERSION = "data-classification.v1"
@@ -477,6 +486,10 @@ PROMPT_ACCEPTANCE_GATE_FUTURE_GATED = "prompt-acceptance-future-gated"
 PROMPT_ROUTING_GATE_DISABLED = "prompt-routing-disabled"
 PROMPT_ROUTING_GATE_FUTURE_GATED = "prompt-routing-future-gated"
 PROMPT_SEND_POSTURE_DISABLED = "prompt-send-disabled"
+LOCAL_ACTION_RESULT_SCHEMA_VERSION = "local-action-result.v1"
+LOCAL_ACTION_RESULT_IDLE = "local-action-idle"
+LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER = "deterministic-no-provider-result"
+LOCAL_ACTION_RESULT_BLOCKED_BOUNDARY_MISMATCH = "blocked-boundary-mismatch"
 MODEL_EXECUTION_STATUS_DISABLED = "model-execution-disabled"
 MODEL_EXECUTION_STATUS_FUTURE_GATED = "model-execution-future-gated"
 MODEL_WORKLOAD_READINESS_DISABLED = "model-workload-readiness-disabled"
@@ -758,6 +771,7 @@ EXECUTION_APPROVAL_GATE_MISSING = "execution-approval-gate-missing"
 EXECUTION_APPROVAL_GATE_FUTURE_GATED = "execution-approval-gate-future-gated"
 AI_PROVIDER_STATUS_DISPLAY_SUPPRESSED = "desktop-ai-owned-readiness-display-suppressed"
 AI_PROVIDER_STATUS_DISPLAY_ABSENT_FROM_DEFAULT_DESKTOP = "desktop-ai-owned-readiness-display-absent-from-default-surface"
+AI_PROVIDER_STATUS_DISPLAY_VISIBLE = "desktop-ai-owned-readiness-display-visible"
 
 SETUP_CONTRACT_READINESS_STATE_SCHEMA_VERSION = "provider-setup-contract-readiness-state.v1"
 SETUP_CONTRACT_READINESS_CONFIG_SCHEMA_VERSION = "provider-setup-contract-readiness-config.v1"
@@ -1363,8 +1377,14 @@ SETUP_COMPLETION_RESET_REQUESTED = "setup_completion_reset_requested_local_only"
 SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY = (
     "setup-completion-status-hidden-telemetry"
 )
+SETUP_COMPLETION_STATUS_PROOF_PUBLIC_LOCAL_ASSIST = (
+    "setup-completion-status-public-local-assist"
+)
 SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED = (
     "setup-completion-desktop-display-suppressed"
+)
+SETUP_COMPLETION_DESKTOP_DISPLAY_VISIBLE = (
+    "setup-completion-desktop-display-visible"
 )
 SETUP_COMPLETION_PROVIDER_SETUP_GATE_BLOCKED = (
     "setup-completion-provider-setup-gate-blocked"
@@ -2203,6 +2223,18 @@ class AIProviderStateSnapshot:
     capability_pack_install_blocked_reason: str = CAPABILITY_PACK_INSTALL_BLOCKED_REASON
     capability_pack_update_blocked_reason: str = CAPABILITY_PACK_UPDATE_BLOCKED_REASON
     capability_pack_uninstall_blocked_reason: str = CAPABILITY_PACK_UNINSTALL_BLOCKED_REASON
+    lane_boundary_schema_version: str = LANE_BOUNDARY_SCHEMA_VERSION
+    public_lane_boundary_state: str = PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY
+    public_lane_boundary_label: str = "Public Edition: deterministic no-provider assist; provider-visible data none"
+    developer_lane_boundary_state: str = DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+    developer_lane_boundary_label: str = "Developer lane: gated; private setup not configured"
+    owner_lane_boundary_state: str = OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED
+    owner_lane_boundary_label: str = "Owner lane: gated; private setup not configured"
+    private_setup_boundary_state: str = PRIVATE_SETUP_BOUNDARY_BLOCKED
+    private_setup_authorized: bool = False
+    private_material_visible: bool = False
+    owner_memory_enabled: bool = False
+    owner_agents_enabled: bool = False
     action_permission_matrix: tuple[AIReadinessActionPermissionSnapshot, ...] = ()
     provider_activation_state: str = PROVIDER_ACTIVATION_STATE_UNAVAILABLE
     provider_activation_label: str = "Provider activation: unavailable"
@@ -2288,6 +2320,16 @@ class AIProviderStateSnapshot:
     prompt_routing_gate_label: str = "Prompt routing gate: disabled"
     prompt_send_posture: str = PROMPT_SEND_POSTURE_DISABLED
     prompt_send_label: str = "Prompt send: disabled"
+    local_action_result_schema_version: str = LOCAL_ACTION_RESULT_SCHEMA_VERSION
+    local_action_result_state: str = LOCAL_ACTION_RESULT_IDLE
+    local_action_result_label: str = "No-provider check: waiting for local action"
+    local_action_result_detail: str = "Run the check to produce a deterministic no-provider result."
+    local_action_result_provider_visible_data: str = "none"
+    local_action_result_sent_to_provider: bool = False
+    local_action_result_can_accept_prompts: bool = False
+    local_action_result_prompt_send_posture: str = PROMPT_SEND_POSTURE_DISABLED
+    local_action_result_network_egress_state: str = NETWORK_EGRESS_BLOCKED
+    local_action_result_memory_indexing_state: str = MEMORY_INDEXING_DISABLED
     model_execution_status: str = MODEL_EXECUTION_STATUS_DISABLED
     model_execution_status_label: str = "Model execution status: disabled"
     model_workload_readiness_posture: str = MODEL_WORKLOAD_READINESS_DISABLED
@@ -3902,6 +3944,16 @@ class AIProviderStateSnapshot:
             "providerInteractionDetail": self.provider_interaction_detail,
             "providerConsentBoundaryLabel": self.provider_consent_boundary_label,
             "providerNextActionLabel": self.provider_next_action_label,
+            "localActionResultSchemaVersion": self.local_action_result_schema_version,
+            "localActionResultState": self.local_action_result_state,
+            "localActionResultLabel": self.local_action_result_label,
+            "localActionResultDetail": self.local_action_result_detail,
+            "localActionResultProviderVisibleData": self.local_action_result_provider_visible_data,
+            "localActionResultSentToProvider": self.local_action_result_sent_to_provider,
+            "localActionResultCanAcceptPrompts": self.local_action_result_can_accept_prompts,
+            "localActionResultPromptSendPosture": self.local_action_result_prompt_send_posture,
+            "localActionResultNetworkEgressState": self.local_action_result_network_egress_state,
+            "localActionResultMemoryIndexingState": self.local_action_result_memory_indexing_state,
             "localStorage": self.local_storage,
             "consentState": self.consent_state,
             "consentLabel": self.consent_label,
@@ -3967,6 +4019,18 @@ class AIProviderStateSnapshot:
             "capabilityPackInstallBlockedReason": self.capability_pack_install_blocked_reason,
             "capabilityPackUpdateBlockedReason": self.capability_pack_update_blocked_reason,
             "capabilityPackUninstallBlockedReason": self.capability_pack_uninstall_blocked_reason,
+            "laneBoundarySchemaVersion": self.lane_boundary_schema_version,
+            "publicLaneBoundaryState": self.public_lane_boundary_state,
+            "publicLaneBoundaryLabel": self.public_lane_boundary_label,
+            "developerLaneBoundaryState": self.developer_lane_boundary_state,
+            "developerLaneBoundaryLabel": self.developer_lane_boundary_label,
+            "ownerLaneBoundaryState": self.owner_lane_boundary_state,
+            "ownerLaneBoundaryLabel": self.owner_lane_boundary_label,
+            "privateSetupBoundaryState": self.private_setup_boundary_state,
+            "privateSetupAuthorized": self.private_setup_authorized,
+            "privateMaterialVisible": self.private_material_visible,
+            "ownerMemoryEnabled": self.owner_memory_enabled,
+            "ownerAgentsEnabled": self.owner_agents_enabled,
             "actionPermissionMatrix": [item.as_renderer_payload() for item in self.action_permission_matrix],
             "providerActivationState": self.provider_activation_state,
             "providerActivationLabel": self.provider_activation_label,
@@ -10367,14 +10431,14 @@ def _provider_setup_completion_fields(
         "provider_setup_completion_execution_consent_state": execution_consent_state,
         "provider_setup_completion_execution_consent_label": execution_consent_label,
         "provider_setup_completion_status_proof_state": (
-            SETUP_COMPLETION_STATUS_PROOF_HIDDEN_TELEMETRY
+            SETUP_COMPLETION_STATUS_PROOF_PUBLIC_LOCAL_ASSIST
         ),
         "provider_setup_completion_status_proof_label": (
-            "Setup completion status proof: hidden telemetry derived from consent UX "
+            "Setup completion status proof: public local assist derived from consent UX "
             f"and reason {completion_reason}"
         ),
         "provider_setup_completion_desktop_display_state": (
-            SETUP_COMPLETION_DESKTOP_DISPLAY_SUPPRESSED
+            SETUP_COMPLETION_DESKTOP_DISPLAY_VISIBLE
         ),
         "provider_setup_completion_provider_setup_gate_state": setup_gate_state,
         "provider_setup_completion_provider_execution_gate_state": (
@@ -10465,16 +10529,52 @@ def build_provider_setup_completion_foundation_state(
         state_id=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_STATE_ID,
         mode=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_MODE,
         availability=FAM007_PROVIDER_SETUP_COMPLETION_FOUNDATION_AVAILABILITY,
-        status_label=setup_completion_fields["provider_setup_completion_label"],
+        status_label="No AI executing",
+        provider_label="No provider/model execution",
         disabled_reason=(
-            "Provider setup completion foundation is local-only; SDK/model execution remains pending USER approval"
+            "No provider, model, prompt send, downloads, memory, or runtime cache execution is approved"
         ),
         provider_next_action_label=(
-            "Next: validate setup completion foundation before provider SDK/model handoff remains future-gated"
+            "Open NDAI for the AI Control Center; provider/model execution remains blocked"
         ),
-        interaction_label="Provider setup completion foundation only",
+        local_action_result_state=LOCAL_ACTION_RESULT_DETERMINISTIC_NO_PROVIDER,
+        local_action_result_label="No-provider check: no provider configured",
+        local_action_result_detail=(
+            "Deterministic degraded result: no prompt was accepted or sent; provider-visible data remains none."
+        ),
+        local_action_result_provider_visible_data="none",
+        local_action_result_sent_to_provider=False,
+        local_action_result_can_accept_prompts=False,
+        local_action_result_prompt_send_posture=PROMPT_SEND_POSTURE_DISABLED,
+        local_action_result_network_egress_state=NETWORK_EGRESS_BLOCKED,
+        local_action_result_memory_indexing_state=MEMORY_INDEXING_DISABLED,
+        capability_pack_eligibility_label=(
+            "Capability-pack eligibility: blocked until local capability proof"
+        ),
+        install_intent_label=(
+            "Install intent: blocked; downloads and install execution remain disabled"
+        ),
+        lane_boundary_schema_version=LANE_BOUNDARY_SCHEMA_VERSION,
+        public_lane_boundary_state=PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
+        public_lane_boundary_label="Public Edition: deterministic no-provider assist; provider-visible data none",
+        developer_lane_boundary_state=DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+        developer_lane_boundary_label="Developer lane: gated; private setup not configured",
+        owner_lane_boundary_state=OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+        owner_lane_boundary_label="Owner lane: gated; private setup not configured",
+        private_setup_boundary_state=PRIVATE_SETUP_BOUNDARY_BLOCKED,
+        private_setup_authorized=False,
+        private_material_visible=False,
+        owner_memory_enabled=False,
+        owner_agents_enabled=False,
+        interaction_affordance=LOCAL_ASSISTED_INTERACTION_AFFORDANCE,
+        interaction_label="Run no-provider check",
         interaction_disabled_reason=(
-            "Setup completion records local status only and does not enable prompt routing or model execution"
+            "No-provider check runs inside the AI Control Center only; prompts, providers, downloads, memory, and network remain blocked"
+        ),
+        no_provider_fallback_label="No-provider guard active",
+        desktop_ai_owned_readiness_display_state=AI_PROVIDER_STATUS_DISPLAY_VISIBLE,
+        desktop_ai_owned_readiness_display_label=(
+            "Desktop AI-owned readiness display: no AI execution active"
         ),
         **setup_completion_fields,
     )
@@ -12144,6 +12244,154 @@ def build_local_hardware_capability_state(*, surface_role: str = "hud") -> AIPro
     )
 
 
+def build_slc005_enforcement_proof_contract() -> dict[str, object]:
+    """Build SLC-005 proof that every gated AI/private path remains blocked."""
+
+    return {
+        "schema": SLC005_ENFORCEMENT_PROOF_SCHEMA_VERSION,
+        "slc": "SLC-005",
+        "state": SLC005_ENFORCEMENT_PROOF_STATE,
+        "proofScope": (
+            "provider-model-execution",
+            "prompt-acceptance-send",
+            "downloads-install-execution",
+            "runtime-cache-behavior",
+            "memory-learning-personalization",
+            "private-developer-owner-setup",
+            "hidden-network-behavior",
+        ),
+        "validationSurfaces": (
+            "desktop/ai_provider_state.py",
+            "dev/orin_ai_provider_state_validation.py",
+            "dev/orin_public_leak_prevention_validation.py",
+            "dev/fixtures/fam007_public_leak_prevention/public_leak_prevention_fixture_set.json",
+        ),
+        "blockedBehaviorMatrix": {
+            "providerModelExecution": {
+                "promptProviderModelExecution": "disabled",
+                "providerSdkIntegrated": False,
+                "modelExecutionEnabled": False,
+                "modelDownloadsEnabled": False,
+                "runtimeProviderExecutionEnabled": False,
+                "providerExecutionGateState": PROVIDER_EXECUTION_GATE_DISABLED,
+                "modelExecutionGateState": MODEL_EXECUTION_GATE_DISABLED,
+                "userGate": "USER-ACTION-FAM007-PROVIDER-MODEL-EXECUTION",
+            },
+            "promptSend": {
+                "promptAcceptance": "disabled",
+                "promptAcceptanceGateState": PROMPT_ACCEPTANCE_GATE_DISABLED,
+                "promptRoutingGateState": PROMPT_ROUTING_GATE_DISABLED,
+                "promptSendPosture": PROMPT_SEND_POSTURE_DISABLED,
+                "sentToProvider": False,
+                "canAcceptPrompts": False,
+                "providerVisibleData": "none",
+            },
+            "downloads": {
+                "downloadsNetworkExternalCalls": "blocked",
+                "capabilityPackDownloadsBlocked": True,
+                "capabilityPackInstallBlocked": True,
+                "capabilityPackUpdateBlocked": True,
+                "capabilityPackUninstallBlocked": True,
+                "installIntentState": CAPABILITY_PACK_INSTALL_INTENT_BLOCKED,
+                "modelDownloadsEnabled": False,
+            },
+            "runtimeCache": {
+                "cacheConsentState": "blocked-pending-user-cache-approval",
+                "cacheIsNotMemory": True,
+                "runtimeCacheBehaviorEnabled": False,
+                "runtimeCacheState": "inactive",
+                "userGate": "USER-GATE-FAM007-RUNTIME-CACHE-BEHAVIOR",
+            },
+            "memory": {
+                "memoryConsentState": "blocked-pending-user-memory-approval",
+                "memoryContextState": MEMORY_CONTEXT_DISABLED,
+                "memoryIndexingState": MEMORY_INDEXING_DISABLED,
+                "retrievalState": RETRIEVAL_DISABLED,
+                "learningState": LEARNING_DISABLED,
+                "persistenceState": PERSISTENCE_DISABLED,
+                "memoryWriteEnabled": False,
+                "realOwnerMemoryEnabled": False,
+                "realOwnerAgentsEnabled": False,
+                "userGate": "USER-ACTION-FAM007-MEMORY-LEARNING-PERSONALIZATION",
+            },
+            "privateSetup": {
+                "privateSetupBoundaryState": PRIVATE_SETUP_BOUNDARY_BLOCKED,
+                "privateSetupAuthorized": False,
+                "privateMaterialVisible": False,
+                "privateRepoCreated": False,
+                "privateRootCreated": False,
+                "privateRemoteConfigured": False,
+                "developerLaneBoundaryState": DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+                "ownerLaneBoundaryState": OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+            },
+            "hiddenNetworkBehavior": {
+                "networkEgressState": NETWORK_EGRESS_BLOCKED,
+                "networkEgressGateState": NETWORK_EGRESS_BLOCKED,
+                "externalCallsEnabled": False,
+                "externalCallReadinessState": EXTERNAL_CALL_READINESS_BLOCKED,
+                "hiddenExternalDependenciesAllowed": False,
+                "providerNetworkRequirementPosture": PROVIDER_NETWORK_REQUIREMENT_BLOCKED,
+            },
+        },
+        "negativeCanaries": (
+            {
+                "caseId": "provider-model-execution-attempt",
+                "blockedBehavior": "providerModelExecution",
+                "attemptedEnablement": "providerSdkIntegrated=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "prompt-send-attempt",
+                "blockedBehavior": "promptSend",
+                "attemptedEnablement": "canAcceptPrompts=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "capability-download-attempt",
+                "blockedBehavior": "downloads",
+                "attemptedEnablement": "capabilityPackDownloadsBlocked=false",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "runtime-cache-enable-attempt",
+                "blockedBehavior": "runtimeCache",
+                "attemptedEnablement": "runtimeCacheBehaviorEnabled=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "memory-indexing-attempt",
+                "blockedBehavior": "memory",
+                "attemptedEnablement": "memoryWriteEnabled=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "private-setup-attempt",
+                "blockedBehavior": "privateSetup",
+                "attemptedEnablement": "privateSetupAuthorized=true",
+                "expectedOutcome": "blocked",
+            },
+            {
+                "caseId": "hidden-network-attempt",
+                "blockedBehavior": "hiddenNetworkBehavior",
+                "attemptedEnablement": "hiddenExternalDependenciesAllowed=true",
+                "expectedOutcome": "blocked",
+            },
+        ),
+        "hardeningHandoff": {
+            "state": SLC005_ENFORCEMENT_HARDENING_HANDOFF_STATE,
+            "nextLegalPhase": "Hardening H1",
+            "workstreamGreenCandidate": True,
+            "providerModelExecutionAuthorized": False,
+            "promptSendAuthorized": False,
+            "downloadsAuthorized": False,
+            "runtimeCacheBehaviorAuthorized": False,
+            "memoryLearningPersonalizationAuthorized": False,
+            "privateSetupAuthorized": False,
+            "hiddenNetworkBehaviorAuthorized": False,
+        },
+    }
+
+
 def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
     """Build the public-safe FAM-007 Owner AI foundation gate contract."""
 
@@ -12218,6 +12466,8 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
                 "laneIdentity": "public-user-lane",
                 "privateSetupRequired": False,
                 "readinessState": "public-safe-gates-present",
+                "boundaryDisplayState": PUBLIC_LANE_BOUNDARY_LOCAL_ASSIST_ONLY,
+                "boundaryDisplayLabel": "Public Edition: deterministic no-provider assist; provider-visible data none",
             },
             "developerLane": {
                 "laneIdentity": "developer-lane-future-gated",
@@ -12225,6 +12475,10 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
                 "privateRootCreated": False,
                 "privateRemoteConfigured": False,
                 "readinessState": "blocked-pending-user-private-dev-setup-approval",
+                "boundaryDisplayState": DEVELOPER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+                "boundaryDisplayLabel": "Developer lane: gated; private setup not configured",
+                "privateSetupAuthorized": False,
+                "privateMaterialVisible": False,
             },
             "ownerLane": {
                 "laneIdentity": "owner-lane-future-gated",
@@ -12232,6 +12486,10 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
                 "privateRootCreated": False,
                 "privateRemoteConfigured": False,
                 "readinessState": "blocked-pending-user-owner-setup-approval",
+                "boundaryDisplayState": OWNER_LANE_BOUNDARY_PRIVATE_SETUP_BLOCKED,
+                "boundaryDisplayLabel": "Owner lane: gated; private setup not configured",
+                "privateSetupAuthorized": False,
+                "privateMaterialVisible": False,
             },
         },
         "ownerAiMemoryAgentFoundationSchemas": {
@@ -12266,6 +12524,7 @@ def build_owner_ai_operational_foundation_gates_state() -> dict[str, object]:
             "capabilityPackAsset": False,
             "privateHostingSecret": False,
         },
+        "slc005EnforcementProof": build_slc005_enforcement_proof_contract(),
         "hardeningHandoff": {
             "state": "ready-for-hardening-h1",
             "nextLegalPhase": "Hardening H1",

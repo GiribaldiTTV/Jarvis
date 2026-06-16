@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nexus Desktop AI Control Center</title>
+  <link rel="stylesheet" href="monitoring_hud.css" />
+  <style>
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__chrome {
+      padding: 12px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group {
+      padding: 12px 12px 10px;
+      border-radius: 20px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__header {
+      padding-right: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__kicker {
+      font-size: 11px;
+      letter-spacing: 0.20em;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title {
+      margin-top: 4px;
+      font-size: 30px;
+      line-height: 1.02;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__subtitle {
+      margin-top: 6px;
+      line-height: 1.28;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role {
+      width: fit-content;
+      max-width: 100%;
+      box-sizing: border-box;
+      margin-top: 12px;
+      padding: 9px 11px;
+      border-radius: 16px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy {
+      max-width: 100%;
+      gap: 6px 13px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy span,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy strong {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy span {
+      color: rgba(188, 232, 244, 0.94);
+      font-size: 10px;
+      font-weight: 760;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy > .monitoring-hud__surface-role-pair {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy .monitoring-hud__surface-role-separator {
+      color: rgba(188, 232, 244, 0.76);
+      font-weight: 760;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy strong {
+      color: rgba(171, 255, 226, 0.96);
+      font-weight: 800;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-controls {
+      position: absolute;
+      top: 14px;
+      right: 15px;
+      z-index: 35;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid rgba(122, 232, 255, 0.44);
+      border-radius: 999px;
+      background:
+        linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.76));
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.05) inset,
+        0 8px 19px rgba(0, 0, 0, 0.28);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button {
+      position: relative;
+      width: 26px;
+      min-width: 26px;
+      height: 24px;
+      min-height: 24px;
+      padding: 0;
+      border: 1px solid rgba(122, 232, 255, 0.24);
+      border-radius: 999px;
+      background: rgba(5, 22, 36, 0.62);
+      color: transparent;
+      cursor: pointer;
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.04) inset;
+      transition:
+        border-color 120ms ease,
+        background 120ms ease,
+        box-shadow 120ms ease,
+        transform 120ms ease;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[data-window-control-state="hidden"] {
+      display: none;
+      pointer-events: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button::before,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button::after {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      content: "";
+      box-sizing: border-box;
+      border-color: rgba(235, 252, 255, 0.92);
+      background: rgba(235, 252, 255, 0.92);
+      transform: translate(-50%, -50%);
+      transition:
+        border-color 120ms ease,
+        background 120ms ease,
+        box-shadow 120ms ease;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:hover,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:focus-visible {
+      border-color: rgba(126, 248, 218, 0.56);
+      background: rgba(9, 49, 70, 0.78);
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.07) inset,
+        0 0 14px rgba(86, 236, 255, 0.28);
+      outline: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:active {
+      border-color: rgba(163, 255, 228, 0.72);
+      background: rgba(7, 40, 57, 0.86);
+      transform: translateY(1px);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:disabled,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"],
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[data-window-control-state="blocked"] {
+      opacity: 0.56;
+      cursor: default;
+      border-color: rgba(122, 232, 255, 0.18);
+      background: rgba(5, 22, 36, 0.34);
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.025) inset;
+      transform: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:disabled::before,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button:disabled::after,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"]::before,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[aria-disabled="true"]::after,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[data-window-control-state="blocked"]::before,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button[data-window-control-state="blocked"]::after {
+      border-color: rgba(179, 226, 238, 0.62);
+      background: rgba(179, 226, 238, 0.62);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button--minimize::before {
+      width: 10px;
+      height: 2px;
+      border-radius: 999px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button--maximize::before {
+      width: 10px;
+      height: 10px;
+      border: 1.5px solid rgba(235, 252, 255, 0.92);
+      border-radius: 2px;
+      background: transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button--maximize[data-window-state="maximized"]::before {
+      width: 9px;
+      height: 9px;
+      transform: translate(-38%, -62%);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button--maximize[data-window-state="maximized"]::after {
+      width: 9px;
+      height: 9px;
+      border: 1.5px solid rgba(235, 252, 255, 0.74);
+      border-radius: 2px;
+      background: transparent;
+      transform: translate(-62%, -38%);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button--close::before,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button--close::after {
+      width: 11px;
+      height: 2px;
+      border-radius: 999px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button--close::before {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-control-button--close::after {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub {
+      margin-top: 12px;
+      gap: 6px;
+      padding: 8px 18px 14px 10px;
+      scroll-padding: 8px 18px 14px 10px;
+      scrollbar-gutter: auto;
+      scrollbar-width: none;
+      scrollbar-color: transparent transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+      display: none;
+      background: transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub::-webkit-scrollbar-button {
+      width: 0;
+      height: 0;
+      display: none;
+      background: transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub::-webkit-scrollbar-thumb {
+      background: transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub::-webkit-scrollbar-thumb:hover {
+      background: transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card {
+      gap: 6px;
+      padding: 10px;
+      border-radius: 20px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline {
+      display: grid;
+      align-items: flex-start;
+      grid-template-columns: 32px minmax(0, 1fr);
+      column-gap: 10px;
+      row-gap: 2px;
+      justify-content: flex-start;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline > span {
+      flex: 0 0 auto;
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-title-copy {
+      display: block;
+      flex: 1 1 auto;
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-title-copy > strong,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-description {
+      min-width: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-description {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      font-size: 11px;
+      text-indent: 42px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row {
+      grid-template-columns: minmax(142px, 0.39fr) minmax(0, 1fr);
+      gap: 6px;
+      min-height: 0;
+      padding: 4px 0 2px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row span {
+      font-size: 10px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__state-row strong {
+      font-size: 11px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-actions {
+      margin-top: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
+      font-size: 11px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-scrollbar {
+      position: absolute;
+      z-index: 24;
+      width: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 120ms ease;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"][data-custom-scrollbar-visible="true"] .ai-control-center-scrollbar {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-scrollbar__track {
+      position: relative;
+      width: 8px;
+      height: 100%;
+      border-radius: 999px;
+      background: transparent;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-scrollbar__thumb {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 8px;
+      min-height: 44px;
+      border-radius: 999px;
+      background: rgba(108, 232, 255, 0.58);
+      box-shadow: 0 0 8px rgba(88, 225, 255, 0.14);
+      cursor: default;
+    }
+  </style>
+</head>
+<body class="desktop-mode">
+  <section
+    id="monitoring-hud"
+    class="monitoring-hud"
+    data-package="PKG-007"
+    data-slice="SLC-002"
+    data-surface-id="fam007-ai-control-center"
+    data-product-surface-role="ai-transparency-control-surface"
+    data-dashboard-surface="fam007-ai-control-center"
+    data-configures-surface="orin-provider-boundary"
+    data-renderer-owner="DesktopRuntimeWindow"
+    data-native-dashboard-owner="DesktopRuntimeWindow"
+    data-standalone-window-contract="dashboard-overlay-core-independent-native-surfaces"
+    data-split-contract="ai-control-center-status-boundary"
+    data-hud-module="monitoring-hud-shell-module"
+    data-product-surface="nexus-ai-control-center"
+    data-isolation-boundary="standalone-ai-control-center-layer"
+    data-core-failure-isolation="ai-control-center-fail-does-not-hide-core"
+    data-interaction-mode="standalone-dashboard-window"
+    data-anchor-state="unanchored"
+    data-feature-enabled="true"
+    data-overlay-deferred="true"
+    data-visibility-state="visible"
+    data-snap-state="enabled"
+    data-provider-state="no-provider"
+    data-warning-mode="visual-non-invasive"
+    data-live-values="provider-blocked"
+    data-keybind-policy="none"
+    data-drag-smoothing="native-os-window-move"
+    data-native-resize-model="os-edge-corner-resize"
+    data-scrollbar-style="nexus-rounded-custom-overlay"
+    data-frame-ownership="single-rounded-dashboard-chrome"
+    data-scroll-owner="monitoring-hud-control-hub"
+    data-scrollbar-boundary="inner-content-well-gutter"
+    data-outer-frame-haze="removed-no-square-layer"
+    data-grid-scope="control-hub-cards-only"
+    data-deadzone-policy="auto-height-content-no-empty-hit-zones"
+    data-compact-layout-density="ai-control-center-compact-v1"
+    data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"
+    data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
+    data-single-action-button-model="content-fit-fixed-height-ellipsis"
+    data-default-window-width="570"
+    data-default-window-height="610"
+    data-default-window-max-height="820"
+    data-window-restore-policy="disabled-until-fam003-reset-control"
+    data-window-memory-policy="restart-memory-disabled"
+    data-window-reset-dependency="fam003-ai-global-settings-reset-default-location-size"
+    data-row-density="compact-asymmetric-separated"
+    data-sticky-header-mask="opaque-scroll-mask"
+    data-dashboard-close-affordance="window-level-control-cluster"
+    data-dashboard-close-layout="compact-window-control-cluster"
+    data-window-control-cluster="compact-minimize-maximize-close"
+    data-window-control-state-model="hidden-blocked-active"
+    data-window-control-maximize-restore-disposition="hidden-future-gated-pending-per-window-relevance-decision"
+    data-window-control-size-model="outer-pill-matches-content-action-height"
+    data-dashboard-open-badge="removed"
+    data-dashboard-quick-access="not-applicable"
+    data-dashboard-global-feature-control="tray-owned"
+    data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
+    data-dashboard-card-order="orin-status-local-safety-check"
+    data-dashboard-provider-truth="provider-contract-first"
+    data-dashboard-state-model="no-provider-no-prompt-no-memory"
+    data-dashboard-warning-controls="visual-non-invasive-only"
+    data-dashboard-fake-telemetry-policy="blocked"
+    data-interactive-control-affordance="normal-hover-active-focus-visible-disabled-open-selected"
+    data-interactive-control-reliability="first-click-stress-proof-required"
+    data-click-interception-diagnostics="z-index-pointer-events-disabled-aria-dom-focus-timing"
+    aria-label="Nexus Desktop AI Control Center product surface"
+  >
+    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Control Center panel">
+      <div class="monitoring-hud__window-controls" role="group" aria-label="AI Control Center window controls">
+        <button
+          type="button"
+          id="ai-control-center-minimize-action"
+          class="monitoring-hud__window-control-button monitoring-hud__window-control-button--minimize"
+          data-control="minimize-ai-control-center"
+          data-window-control-key="minimize"
+          data-window-control-command="minimize"
+          data-window-control-state="active"
+          aria-label="Minimize AI Control Center"
+        ></button>
+        <button
+          type="button"
+          id="ai-control-center-maximize-action"
+          class="monitoring-hud__window-control-button monitoring-hud__window-control-button--maximize"
+          data-control="maximize-restore-ai-control-center"
+          data-window-control-key="maximizeRestore"
+          data-window-control-command="maximize-restore"
+          data-window-control-state="hidden"
+          data-window-control-reason="future-gated"
+          data-window-state="normal"
+          aria-label="Maximize or restore AI Control Center hidden until future implementation"
+          aria-hidden="true"
+          aria-disabled="true"
+          tabindex="-1"
+          hidden
+          disabled
+        ></button>
+        <button
+          type="button"
+          id="ai-control-center-close-action"
+          class="monitoring-hud__window-control-button monitoring-hud__window-control-button--close"
+          data-control="close-ai-control-center"
+          data-window-control-key="close"
+          data-window-control-command="close"
+          data-window-control-state="active"
+          aria-label="Close AI Control Center"
+        ></button>
+      </div>
+      <div class="monitoring-hud__title-group">
+        <div class="monitoring-hud__header" id="ai-control-center-drag-handle">
+          <div>
+            <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
+            <div class="monitoring-hud__title">AI Control Center</div>
+            <div class="monitoring-hud__subtitle">ORIN is not implemented; provider/model execution is not active.</div>
+          </div>
+        </div>
+        <div class="monitoring-hud__surface-role" data-dashboard-role="ai-transparency-status-surface">
+          <div class="monitoring-hud__surface-role-copy">
+            <span class="monitoring-hud__surface-role-pair" aria-label="AI ORIN">
+              <span class="monitoring-hud__surface-role-label">AI</span>
+              <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
+              <strong>ORIN</strong>
+            </span>
+            <span class="monitoring-hud__surface-role-pair" aria-label="Status not implemented">
+              <span class="monitoring-hud__surface-role-label">Status</span>
+              <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
+              <strong>Not implemented</strong>
+            </span>
+            <span class="monitoring-hud__surface-role-pair" aria-label="Provider blocked">
+              <span class="monitoring-hud__surface-role-label">Provider</span>
+              <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
+              <strong>Blocked</strong>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div
+        class="monitoring-hud__control-hub"
+        id="ai-control-center-card-hub"
+        data-dashboard-content="control-hub-cards"
+        data-child-window-model="hub-actions-standalone-child-windows"
+        aria-label="AI Control Center cards"
+      >
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="orin-status" data-slice="SLC-001">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>01</span>
+            <div class="monitoring-hud__hub-card-title-copy">
+              <strong>ORIN Status</strong>
+            </div>
+            <p class="monitoring-hud__hub-card-description">Truthful inactive ORIN state for provider data, capability packs, and edition lanes.</p>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>ORIN</span>
+            <strong id="ai-control-center-orin-state">Not implemented; no real AI executing</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Provider data</span>
+            <strong id="ai-control-center-provider-visible-data">None</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Provider / model</span>
+            <strong id="ai-control-center-provider-model">Disabled and blocked</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Prompt / memory</span>
+            <strong id="ai-control-center-prompt-memory">Not accepted, sent, stored, or indexed</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Capability packs</span>
+            <strong id="ai-control-center-capability-packs">Install blocked; downloads disabled</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Edition lanes</span>
+            <strong id="ai-control-center-edition-lanes">Public only; Developer and Owner gated</strong>
+          </div>
+        </article>
+
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-safety-check" data-slice="SLC-005">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>02</span>
+            <div class="monitoring-hud__hub-card-title-copy">
+              <strong>Local Safety Check</strong>
+            </div>
+            <p class="monitoring-hud__hub-card-description">Runs one local check; no prompt/provider/model path is used.</p>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Local check</span>
+            <strong id="ai-control-center-local-result">Waiting for local action</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Prompt / data</span>
+            <strong id="ai-control-center-local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong>
+          </div>
+          <div class="monitoring-hud__hub-actions">
+            <button
+              type="button"
+              id="ai-control-center-local-check-action"
+              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+              data-control="run-local-check"
+              data-action-size="content-fit-fixed-height"
+              aria-label="Run Local Check"
+            >
+              <span class="monitoring-hud__button-label">Run Local Check</span>
+            </button>
+          </div>
+        </article>
+      </div>
+      <div class="ai-control-center-scrollbar" id="ai-control-center-scrollbar" aria-hidden="true">
+        <div class="ai-control-center-scrollbar__track" id="ai-control-center-scrollbar-track">
+          <div class="ai-control-center-scrollbar__thumb" id="ai-control-center-scrollbar-thumb"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script src="ai_control_center.js"></script>
+</body>
+</html>
