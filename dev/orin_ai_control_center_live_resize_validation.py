@@ -300,6 +300,9 @@ def main() -> int:
               width: computed.width
             };
           };
+          const titleGroup = document.querySelector(".monitoring-hud__title-group");
+          const surfaceRole = document.querySelector(".monitoring-hud__surface-role");
+          const controlHub = document.getElementById("ai-control-center-card-hub");
           const subtitle = document.querySelector(".monitoring-hud__subtitle");
           const cluster = document.querySelector(".monitoring-hud__window-controls");
           const close = document.getElementById("ai-control-center-close-action");
@@ -315,6 +318,28 @@ def main() -> int:
             subtitleText: subtitle ? subtitle.textContent.trim() : "",
             subtitleLineCount: subtitle ? subtitle.getClientRects().length : 0,
             subtitleRect: rect(subtitle),
+            titleGroupRect: rect(titleGroup),
+            titleGroupStyle: style(titleGroup),
+            titleGroupSizing: titleGroup ? titleGroup.getAttribute("data-title-card-sizing") : "",
+            titleGroupContainsSurfaceRole: titleGroup ? Boolean(titleGroup.querySelector(".monitoring-hud__surface-role")) : null,
+            surfaceRoleRect: rect(surfaceRole),
+            surfaceRoleStyle: style(surfaceRole),
+            surfaceRoleParentClass: surfaceRole && surfaceRole.parentElement ? surfaceRole.parentElement.className : "",
+            surfaceRolePreviousSiblingClass: surfaceRole && surfaceRole.previousElementSibling ? surfaceRole.previousElementSibling.className : "",
+            surfaceRoleNextSiblingClass: surfaceRole && surfaceRole.nextElementSibling ? surfaceRole.nextElementSibling.className : "",
+            surfaceRoleAnchor: surfaceRole ? surfaceRole.getAttribute("data-title-card-anchor") : "",
+            surfaceRoleBelowTitleGroup: surfaceRole && titleGroup
+              ? surfaceRole.getBoundingClientRect().top >= titleGroup.getBoundingClientRect().bottom
+              : false,
+            surfaceRoleAboveCards: surfaceRole && controlHub
+              ? surfaceRole.getBoundingClientRect().bottom <= controlHub.getBoundingClientRect().top
+              : false,
+            surfaceRoleAnchoredGap: surfaceRole && titleGroup
+              ? Math.round(surfaceRole.getBoundingClientRect().top - titleGroup.getBoundingClientRect().bottom)
+              : null,
+            cardsGapAfterSurfaceRole: surfaceRole && controlHub
+              ? Math.round(controlHub.getBoundingClientRect().top - surfaceRole.getBoundingClientRect().bottom)
+              : null,
             clusterRect: rect(cluster),
             clusterStyle: style(cluster),
             closeText: close ? close.textContent.trim() : "",
@@ -551,6 +576,24 @@ def main() -> int:
         "titleSubtitleDoesNotWrapTooSoon": (
             isinstance(title_chrome_proof, dict)
             and int(title_chrome_proof.get("subtitleLineCount") or 0) <= 1
+        ),
+        "titleCardAutoSizedWithoutSurfaceRole": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("titleGroupSizing") == "content-auto"
+            and title_chrome_proof.get("titleGroupContainsSurfaceRole") is False
+            and isinstance(title_chrome_proof.get("titleGroupRect"), dict)
+            and 70 <= int(title_chrome_proof["titleGroupRect"].get("height") or 0) <= 118
+        ),
+        "surfaceRoleAnchoredBetweenTitleAndCards": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("surfaceRoleAnchor") == "separate-under-title-card"
+            and title_chrome_proof.get("surfaceRoleParentClass") == "monitoring-hud__chrome"
+            and title_chrome_proof.get("surfaceRolePreviousSiblingClass") == "monitoring-hud__title-group"
+            and title_chrome_proof.get("surfaceRoleNextSiblingClass") == "monitoring-hud__control-hub"
+            and title_chrome_proof.get("surfaceRoleBelowTitleGroup") is True
+            and title_chrome_proof.get("surfaceRoleAboveCards") is True
+            and 4 <= int(title_chrome_proof.get("surfaceRoleAnchoredGap") or 0) <= 18
+            and 4 <= int(title_chrome_proof.get("cardsGapAfterSurfaceRole") or 0) <= 18
         ),
         "compactWindowControlClusterVisible": (
             isinstance(title_chrome_proof, dict)
