@@ -9240,8 +9240,8 @@ def validate() -> list[str]:
         ("desktop Core HTML", desktop_html),
     ):
         for needle in (
-            'href="orin_core.css?v=fam007-ai-control-center"',
-            'src="orin_core.js?v=fam007-ai-control-center"',
+            'href="orin_core.css"',
+            'src="orin_core.js"',
             'id="ai-provider-status"',
             'hidden',
             'aria-hidden="true"',
@@ -9660,7 +9660,7 @@ def validate() -> list[str]:
             )
 
     for needle in (
-        'href="orin_core_desktop.css?v=fam007-ai-control-center"',
+        'href="orin_core_desktop.css"',
         'data-surface-role="core-visualization"',
     ):
         _require(needle in desktop_html, f"desktop Core HTML is missing {needle!r}", failures)
