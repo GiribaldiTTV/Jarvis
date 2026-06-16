@@ -9,6 +9,7 @@ current repo.
 from __future__ import annotations
 
 import re
+import argparse
 import subprocess
 from pathlib import Path
 
@@ -1161,7 +1162,7 @@ def build_user_review_index(
     return "\n".join(out) + "\n"
 
 
-def generate() -> None:
+def generate(*, write_outputs: bool = True) -> None:
     files = sorted(
         [
             path
@@ -1989,19 +1990,61 @@ def generate() -> None:
         retire_candidates=retire_candidates,
     )
 
-    AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
-    INDEX.write_text(index_text, encoding="utf-8")
-    print(
-        f"Wrote {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
-        f"with {len(file_rows)} file entries"
+    if write_outputs:
+        AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
+        INDEX.write_text(index_text, encoding="utf-8")
+        print(
+            f"Wrote {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
+            f"with {len(file_rows)} file entries"
+        )
+    else:
+        print(
+            "No-write docs inventory audit: "
+            f"would write {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
+            f"with {len(file_rows)} file entries"
+        )
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate or inspect the full Docs source-truth reform audit dossier."
+        )
     )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--write",
+        action="store_true",
+        help=(
+            "Write the generated audit and review index. Normal invocation remains "
+            "write-capable for existing governed regeneration paths."
+        ),
+    )
+    mode.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Build the audit in memory and report target files without writing.",
+    )
+    mode.add_argument(
+        "--read-only",
+        action="store_true",
+        help="Alias for --dry-run; guarantees no tracked repo files are written.",
+    )
+    mode.add_argument(
+        "--report-only",
+        action="store_true",
+        help="Alias for --dry-run; guarantees no tracked repo files are written.",
+    )
+    return parser.parse_args()
 
 
 def main() -> int:
+    args = parse_args()
     if not DOCS.is_dir():
         print("FAIL: Docs directory missing")
         return 1
-    generate()
+    write_outputs = not (args.dry_run or args.read_only or args.report_only)
+    generate(write_outputs=write_outputs)
     return 0
 
 
