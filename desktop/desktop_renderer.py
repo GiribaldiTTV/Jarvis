@@ -5899,8 +5899,10 @@ class AIControlCenterDialog(QDialog):
     MINIMUM_HEIGHT = 540
     RESIZE_MARGIN = 14
     DRAG_HEADER_HEIGHT = 190
-    CLOSE_CONTROL_WIDTH = 150
-    CLOSE_CONTROL_HEIGHT = 58
+    WINDOW_CONTROL_ZONE_TOP = 14
+    WINDOW_CONTROL_ZONE_RIGHT = 15
+    WINDOW_CONTROL_ZONE_WIDTH = 60
+    WINDOW_CONTROL_ZONE_HEIGHT = 30
     WINDOW_CONTROL_ALLOWED_STATES = frozenset({"hidden", "blocked", "active"})
     WINDOW_CONTROL_WEB_KEYS = {
         "minimize": "minimize",
@@ -6122,10 +6124,10 @@ class AIControlCenterDialog(QDialog):
 
     def _ai_control_center_close_zone(self) -> QRect:
         return QRect(
-            max(0, self.width() - self.CLOSE_CONTROL_WIDTH),
-            0,
-            self.CLOSE_CONTROL_WIDTH,
-            self.CLOSE_CONTROL_HEIGHT,
+            max(0, self.width() - self.WINDOW_CONTROL_ZONE_RIGHT - self.WINDOW_CONTROL_ZONE_WIDTH),
+            self.WINDOW_CONTROL_ZONE_TOP,
+            self.WINDOW_CONTROL_ZONE_WIDTH,
+            self.WINDOW_CONTROL_ZONE_HEIGHT,
         )
 
     def _ai_control_center_resize_edges_for_local_pos(self, local: QPoint):
@@ -17895,7 +17897,7 @@ class DesktopRuntimeWindow(QWidget):
                 source=source,
                 reason="shutdown",
             )
-            return
+            return {"shown": False, "reason": "shutdown"}
         if self._ai_control_center_dialog is None:
             self._ai_control_center_dialog = AIControlCenterDialog(
                 self.screen_ref,
@@ -17924,10 +17926,17 @@ class DesktopRuntimeWindow(QWidget):
             "w": visibility.get("w", -1),
             "h": visibility.get("h", -1),
         }
-        if visibility.get("qtVisible") and visibility.get("nativeVisible"):
+        shown = bool(visibility.get("qtVisible") and visibility.get("nativeVisible"))
+        if shown:
             self._emit_runtime_signal("AI_CONTROL_CENTER_VISIBLE", **visibility_fields)
         else:
             self._emit_runtime_signal("AI_CONTROL_CENTER_VISIBILITY_FAILED", **visibility_fields)
+        return {
+            "shown": shown,
+            "reason": "" if shown else "visibility_failed",
+            "qtVisible": bool(visibility.get("qtVisible")),
+            "nativeVisible": bool(visibility.get("nativeVisible")),
+        }
 
     def reload_command_action_catalog(self, source_path=None):
         resolved_source_path = self._saved_action_source_path if source_path is None else source_path

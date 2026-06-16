@@ -8841,6 +8841,10 @@ def validate() -> list[str]:
         "MINIMUM_HEIGHT = 540",
         "RESIZE_MARGIN = 14",
         "DRAG_HEADER_HEIGHT = 190",
+        "WINDOW_CONTROL_ZONE_TOP = 14",
+        "WINDOW_CONTROL_ZONE_RIGHT = 15",
+        "WINDOW_CONTROL_ZONE_WIDTH = 60",
+        "WINDOW_CONTROL_ZONE_HEIGHT = 30",
         "_resize_active",
         "_resize_poll_timer",
         "_resize_frame_timer",
@@ -8875,6 +8879,7 @@ def validate() -> list[str]:
         "_persist_window_geometry",
         "_schedule_window_geometry_persist",
         "_ai_control_center_close_zone",
+        "self.width() - self.WINDOW_CONTROL_ZONE_RIGHT - self.WINDOW_CONTROL_ZONE_WIDTH",
         "_ai_control_center_native_hit_test",
         "WM_NCHITTEST",
         "WM_NCLBUTTONDBLCLK",
@@ -9225,6 +9230,9 @@ def validate() -> list[str]:
         "carry_in=f3-ff01-narrow-doorway",
         "provider_visible_data=none",
         "provider_execution=blocked",
+        "result = handler(source=source)",
+        "route_visible",
+        "route_not_visible",
     ):
         _require(needle in tray_controller, f"tray controller native AI doorway is missing {needle!r}", failures)
 
@@ -9232,6 +9240,7 @@ def validate() -> list[str]:
         "show_ai_control_center_from_tray",
         "AI_CONTROL_CENTER_ABORTED",
         "desktop_runtime_unavailable",
+        '"shown": False',
     ):
         _require(needle in desktop_main, f"desktop main fallback AI Control Center path is missing {needle!r}", failures)
 

@@ -595,6 +595,28 @@ def main() -> int:
         min(available.bottom() - 24, rect["bottom"] + 66),
     )
     screenshot_evidence["afterBottomEdge"] = _capture(app, dialog, log_root, "07_after_bottom_edge_resize")
+    dialog.setGeometry(initial_bounded)
+    _pump(app, 180)
+    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
+    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
+    _pump(app, 160)
+
+    rect = _native_rect(hwnd)
+    top_right = _drag_resize(
+        app,
+        hwnd,
+        "top_right_corner",
+        rect["right"] - 7,
+        rect["top"] + 7,
+        min(available.right() - 24, rect["right"] + 72),
+        max(available.top() + 24, rect["top"] - 56),
+    )
+    screenshot_evidence["afterTopRightCorner"] = _capture(
+        app,
+        dialog,
+        log_root,
+        "08_after_top_right_corner_resize",
+    )
     try:
         final_state_payload = json.loads(isolated_state_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -615,6 +637,9 @@ def main() -> int:
         "rightEdgeFluidGeometrySamples": right["uniqueWidthCount"] >= 4,
         "bottomEdgeChangedHeight": bottom["heightDelta"] >= 26,
         "bottomEdgeFluidGeometrySamples": bottom["uniqueHeightCount"] >= 4,
+        "topRightCornerResizeChangedWidth": top_right["widthDelta"] >= 28,
+        "topRightCornerResizeChangedHeight": top_right["heightDelta"] >= 24,
+        "topRightCornerFluidGeometrySamples": top_right["uniqueSizeCount"] >= 4,
         "fallbackStartedMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED" in event for event in events),
         "resizeReadyMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_READY" in event for event in events),
         "restartMemoryDisabled": geometry_memory_enabled is False,
@@ -884,6 +909,7 @@ def main() -> int:
             "bottomRightCorner": corner,
             "rightEdge": right,
             "bottomEdge": bottom,
+            "topRightCorner": top_right,
         },
         "events": events,
         "screenshots": screenshot_evidence,

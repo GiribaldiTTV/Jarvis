@@ -494,7 +494,23 @@ class DesktopTrayEntry:
                 f"RENDERER_MAIN|TRAY_AI_CONTROL_CENTER_ABORTED|source={source}|reason=handler_unavailable"
             )
             return
-        handler(source=source)
+        result = handler(source=source)
+        if isinstance(result, dict):
+            route_visible = bool(
+                result.get("shown")
+                or result.get("visible")
+                or (result.get("qtVisible") and result.get("nativeVisible"))
+            )
+            route_reason = result.get("reason", "route_not_visible")
+        else:
+            route_visible = result is True
+            route_reason = "route_not_visible"
+        if not route_visible:
+            self._emit(
+                "RENDERER_MAIN|TRAY_AI_CONTROL_CENTER_ABORTED"
+                f"|source={source}|reason={route_reason}"
+            )
+            return
         self._emit(
             "RENDERER_MAIN|TRAY_AI_CONTROL_CENTER_ROUTED"
             f"|source={source}|provider_visible_data=none|provider_execution=blocked"
