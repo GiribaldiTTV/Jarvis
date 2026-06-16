@@ -93,6 +93,8 @@ Element-group acceptance must be deterministic enough that a future branch can c
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- UI reference-system FFV: `Docs/family_feature_visions/F2-FF01.md`
+- Promoted UI reference catalog: `Docs/ui_reference_catalog/`
 - Resident access FFV: `Docs/family_feature_visions/F3-FF01.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Roadmap posture: `Docs/prebeta_roadmap.md`

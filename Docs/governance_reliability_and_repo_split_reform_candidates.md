@@ -1430,16 +1430,64 @@ After final integration hardening, choose:
 
 Helper code, validator code, private/public leak scanners, architecture drift scanners, repo split execution, private repo creation, external-state mutation, FAM worktree mutation, and runtime/provider/model/memory/cache behavior remain separate USER decisions after the docs/source-truth contract work.
 
+## Template / Golden Reference Source-Truth Carrier Implementation - 2026-06-16
+
+Document Status: Non-Binding Planning / Source-Truth Carrier Receipt. Binding authority remains with `Docs/family_visions/FAM-002_desktop_interface.md` for current presentation grammar, `Docs/family_feature_visions/F2-FF01.md` for the UI reference-system feature-category vision and missing-proof rows, `Docs/ui_reference_catalog/` for promoted reference records only after USER-approved promotion, and `Docs/phase_governance.md` for the dependency gate that prevents template/reference claims by inference.
+
+Accepted Packet Evidence: USER accepted `C:\Nexus USER\Governance-20260616-123541.zip` as the Missing-Proof / Promotion-Planning Approval Packet with SHA256 `191D69C96E1457532F94FCD56A96F403EE7B31DB1347824CF4D3DAF3216543E1` and 12 files. That packet approved the source-truth carrier implementation-planning cycle before PR Readiness, not actual template creation, golden-reference promotion, design-token/shared-primitive implementation, helper/validator/fixture mutation, FAM worktree mutation, external-state mutation, PR creation, merge, release, or USER visual acceptance.
+
+Carrier Result:
+
+- Created `Docs/family_feature_visions/F2-FF01.md` as `F2-FF01 Nexus UI Reference System`.
+- Added `F2-FF01` to `Docs/family_feature_visions/index.md`.
+- Created `Docs/ui_reference_catalog/README.md` and `Docs/ui_reference_catalog/index.md` as an empty promoted-reference schema/index with zero promoted references.
+- Routed the new catalog through `Docs/Main.md`, `Docs/governance_efficiency_operating_model.md`, and FAM-002 canonical pointers.
+- Regenerated `Docs/governance_docs_full_inventory_reform_audit.md` and `Docs/governance_docs_reform_user_review_index.md` so generated Docs inventory counts include the new carrier files.
+- Preserved the repo/external-state split: repo docs own durable rules, schemas, pointers, vision, missing-proof facts, and historical receipts; live proof inventories, active adoption state, candidate evidence, helper output, and current operational facts remain outside repo source truth until promoted by USER-approved packet.
+
+Carrier Decision Table:
+
+| Item | Carrier Result | Promotion Status | Blocking / Deferred State |
+| --- | --- | --- | --- |
+| FAM-002 UI Reference System FFV | `Docs/family_feature_visions/F2-FF01.md` created | Durable feature-category vision only | Does not promote any UI reference |
+| UI Reference Catalog | `Docs/ui_reference_catalog/` schema/index created | Empty catalog, `Promoted Reference Count: 0` | No golden reference exists until promotion packet |
+| HUD/FAM-006 evidence | Preserved as candidate evidence in planning | Not promoted | Requires USER visual proof and promotion record |
+| PR #269 AI Control Center evidence | Preserved as candidate evidence in planning | Not promoted | Requires USER visual proof and promotion record |
+| Golden window/control-cluster candidates | Missing-proof rows recorded in F2-FF01 | Not promoted | `Golden Reference Promotion Blocked` |
+| Button/dropdown/dialog/status/tray references | Deferred carryforward recorded in F2-FF01 | Not promoted | Future proof/promotion or implementation approval required |
+| Design tokens/shared primitives | Future-gated in F2-FF01 | Not implemented | `Shared Primitive Promotion Blocked` |
+| Helper/validator/fixture enforcement | Future-gated in F2-FF01 | Not mutated | Future enforcement approval required |
+
+Missing-Proof Rows Preserved:
+
+- Golden window template: full-window visual proof across eligible top-level windows, geometry/resize proof, default/hover/focus/disabled control states, platform-exception classification, and USER visual acceptance.
+- Golden control-cluster reference: close/minimize/maximize/restore applicability matrix, blocked-control behavior, hitbox/accessibility proof, hover/focus/pressed states, and top-level versus child-window distinction.
+- HUD/FAM-006 surface reference: USER-accepted HUD/recording/log visual evidence, state proof, and consuming-FAM ownership confirmation.
+- PR #269 AI Control Center surface reference: Project UI Vision/FAM-002 grammar comparison without treating FAM-007 private/provider/runtime deferrals as implemented AI.
+- Reference surface library schema: zero promoted references until promotion proof is recorded.
+
+Active Blockers Preserved:
+
+- `Current Branch Template Work Incomplete` remains active until the USER either completes admitted reference-promotion/proof work or explicitly reclassifies remaining work out of the current PR scope.
+- `Golden Reference Promotion Blocked` remains active for every candidate without USER-approved promotion proof.
+- `Template Treated As Existing Proof` remains the blocker if any branch treats FAM-002 grammar, candidate evidence, helper output, screenshots, or Live Validation proof as an existing promoted golden reference.
+- `Shared Primitive Promotion Blocked` remains active for design-token/shared-primitive implementation.
+- Future helper/validator enforcement remains deferred until USER approves code/fixture mutation.
+
+Next Legal Use:
+
+The next legal phase is not PR Readiness unless USER explicitly reclassifies all remaining template/reference work out of current PR scope. The normal next step is a bounded Template / Golden Reference visual proof collection and promotion-review packet for named candidate references, or a narrower USER decision to promote a specific reference after evidence is loaded, compared, and accepted.
+
 ## Recommended Next USER Decision
 
-The admitted Governance Reliability / Repo Split Reform source-truth contract cycles and final integration hardening are complete, but USER later clarified that the planned Template / Reference work must be completed on the current Governance branch before PR Readiness. The Template / Golden Reference admission, USER candidate packet repair, and USER decision digestion are now recorded. The next legal USER decision is a bounded Template / Golden Reference missing-proof and promotion-planning implementation packet on the current branch, not PR Readiness Stage 1.
+The admitted Governance Reliability / Repo Split Reform source-truth contract cycles and final integration hardening are complete, but USER later clarified that the planned Template / Reference work must be completed on the current Governance branch before PR Readiness. The Template / Golden Reference admission, USER candidate packet repair, USER decision digestion, and source-truth carrier implementation-planning cycle are now recorded. `F2-FF01 Nexus UI Reference System` and the empty `Docs/ui_reference_catalog/` schema/index exist, but no golden references, templates, design tokens, shared primitives, helper/validator checks, fixtures, or active FAM adoption work have been promoted. The next legal USER decision is a bounded visual proof collection and promotion-review packet, or an explicit reclassification of remaining template/reference work out of current PR scope.
 
 Suggested exact decision shape:
 
 ```text
-I approve a bounded Template / Golden Reference missing-proof and promotion-planning implementation packet on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake before PR Readiness.
+I approve a bounded Template / Golden Reference visual proof collection and promotion-review packet on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake before PR Readiness.
 
-Current approval covers creating the next USER-reviewable implementation packet for the accepted/revise/defer Template / Golden Reference candidate decisions; deciding the exact source-truth owner plan for a future FAM-002 Family Feature Vision and future Docs/ui_reference_catalog carrier; recording missing visual-proof requirements for advanced candidates; preserving deferred candidates and blockers; enforcing clean USER packet regeneration and timestamped upload ZIP rules; running validation; committing and pushing if green; and returning the exact approval text for any later FFV/catalog creation, proof collection, or reference promotion. This does not approve PR Readiness, PR creation, merge, release, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, FAM-006/FAM-007/main mutation, runtime/provider/model/shortcut/installer work, issue mutation, cleanup, Private Dev ORIN import, AI Product Contract import, helper/validator code mutation, fixture mutation, design-token/shared-primitive implementation, actual template creation, actual golden-reference promotion, or USER visual acceptance unless the returned packet is separately approved.
+Current approval covers loading the F2-FF01 and UI Reference Catalog carrier, collecting or copying existing candidate visual evidence from approved/read-only sources, comparing HUD/FAM-006 and PR #269 AI Control Center evidence against Project UI Vision, FAM-002 grammar, and F2-FF01 missing-proof rows, producing a USER-reviewable promotion packet with named promote/revise/defer/reject options, preserving deferred candidates and blockers, enforcing clean USER packet regeneration and timestamped upload ZIP rules, running validation, committing and pushing docs/review-packet updates if green, and returning the exact approval text for any later specific reference promotion. This does not approve PR Readiness, PR creation, merge, release, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, FAM-006/FAM-007/main mutation, runtime/provider/model/shortcut/installer work, issue mutation, cleanup, Private Dev ORIN import, AI Product Contract import, helper/validator code mutation, fixture mutation, design-token/shared-primitive implementation, shared UI primitive implementation, actual template creation, actual golden-reference promotion, or USER visual acceptance unless the returned packet is separately approved.
 ```
 
 Other legal USER responses:
