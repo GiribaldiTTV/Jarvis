@@ -244,7 +244,7 @@ Admission Result: This cycle can produce the next implementation approval packet
 
 ### Template / Golden Reference USER Visual Review Packet - 2026-06-16
 
-Packet Status: `Generated For USER Review - Not Promoted`.
+Packet Status: `Repaired - USER Candidate Decision Packet Only`.
 
 Packet Location: `C:\Nexus USER\Governance`.
 
@@ -252,7 +252,11 @@ Packet Purpose: The local USER review packet compares the admitted candidate ref
 
 Packet Boundary: The packet is review evidence only. It does not create a FAM-002 FFV, create `Docs/ui_reference_catalog/`, promote a golden reference, create a template, implement design tokens, implement shared primitives, mutate helpers, mutate validators, mutate fixtures, mutate FAM worktrees, mutate external state, create issues, create a PR, merge, release, move/delete/archive files, or clear `Current Branch Template Work Incomplete`.
 
-Next Legal Use: USER/ChatGPT review should decide which candidate references, if any, advance to the next bounded digestion and promotion-planning packet. Any accepted reference still requires a later USER-approved implementation carrier before durable reference files, catalog records, templates, helper enforcement, validator enforcement, fixtures, or product-worktree adoption can be created.
+Visual-Evidence Repair: USER/ChatGPT review found that the initial packet was text-only and therefore not valid as a visual-review packet. Governance repaired the packet by including selected visual artifacts for FAM-007 H4 AI Control Center and FAM-006 HUD/Dashboard candidate evidence, adding explicit proof pointers, adding a missing-proof list, and reclassifying the packet as a candidate decision packet rather than a completed visual acceptance packet.
+
+Candidate Disposition: Visual-dependent candidate rows must remain `REVISE` or `DEFER` until the selected candidate has focused screenshot, video, ordered frame-sequence, or USER-validated proof that covers the relevant element groups, states, applicability, non-applicability, and exception rules. FAM-002 component anatomy remains binding presentation grammar, but candidate screenshots do not become promoted templates or golden references without a later USER-approved promotion carrier.
+
+Next Legal Use: USER/ChatGPT review should decide which candidate references, if any, advance to the next bounded digestion and promotion-planning packet. Any accepted candidate still requires a later USER-approved implementation carrier before durable reference files, catalog records, templates, helper enforcement, validator enforcement, fixtures, or product-worktree adoption can be created. PR Readiness remains blocked while `Current Branch Template Work Incomplete` is active.
 
 ### PR #269 Release-Target Repair Closure - 2026-06-16
 
