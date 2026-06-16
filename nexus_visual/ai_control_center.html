@@ -49,7 +49,7 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy {
       max-width: 100%;
-      gap: 6px 8px;
+      gap: 6px 13px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy span,
@@ -60,7 +60,20 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy span {
       color: rgba(188, 232, 244, 0.94);
-      font-size: 11px;
+      font-size: 10px;
+      font-weight: 760;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy > .monitoring-hud__surface-role-pair {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy .monitoring-hud__surface-role-separator {
+      color: rgba(188, 232, 244, 0.76);
       font-weight: 760;
     }
 
@@ -446,12 +459,21 @@
         </div>
         <div class="monitoring-hud__surface-role" data-dashboard-role="ai-transparency-status-surface">
           <div class="monitoring-hud__surface-role-copy">
-            <span>AI</span>
-            <strong>ORIN</strong>
-            <span>Status</span>
-            <strong>Not implemented</strong>
-            <span>Provider</span>
-            <strong>Blocked</strong>
+            <span class="monitoring-hud__surface-role-pair" aria-label="AI ORIN">
+              <span class="monitoring-hud__surface-role-label">AI</span>
+              <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
+              <strong>ORIN</strong>
+            </span>
+            <span class="monitoring-hud__surface-role-pair" aria-label="Status not implemented">
+              <span class="monitoring-hud__surface-role-label">Status</span>
+              <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
+              <strong>Not implemented</strong>
+            </span>
+            <span class="monitoring-hud__surface-role-pair" aria-label="Provider blocked">
+              <span class="monitoring-hud__surface-role-label">Provider</span>
+              <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
+              <strong>Blocked</strong>
+            </span>
           </div>
         </div>
       </div>

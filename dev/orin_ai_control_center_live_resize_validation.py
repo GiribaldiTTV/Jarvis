@@ -293,6 +293,7 @@ def main() -> int:
               fontFamily: computed.fontFamily,
               fontSize: computed.fontSize,
               fontWeight: computed.fontWeight,
+              gap: computed.gap,
               height: computed.height,
               letterSpacing: computed.letterSpacing,
               lineHeight: computed.lineHeight,
@@ -303,7 +304,10 @@ def main() -> int:
               paddingLeft: computed.paddingLeft,
               paddingRight: computed.paddingRight,
               paddingTop: computed.paddingTop,
+              columnGap: computed.columnGap,
+              rowGap: computed.rowGap,
               textTransform: computed.textTransform,
+              whiteSpace: computed.whiteSpace,
               width: computed.width
             };
           };
@@ -311,8 +315,11 @@ def main() -> int:
           const subtitle = document.querySelector(".monitoring-hud__subtitle");
           const surfaceRole = document.querySelector(".monitoring-hud__surface-role");
           const surfaceRoleCopy = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-copy") : null;
-          const surfaceRoleLabel = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-copy span") : null;
-          const surfaceRoleValue = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-copy strong") : null;
+          const surfaceRolePairs = surfaceRole ? Array.from(surfaceRole.querySelectorAll(".monitoring-hud__surface-role-pair")) : [];
+          const surfaceRolePair = surfaceRolePairs.length ? surfaceRolePairs[0] : null;
+          const surfaceRoleLabel = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-label") : null;
+          const surfaceRoleSeparator = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-separator") : null;
+          const surfaceRoleValue = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-pair strong") : null;
           const cluster = document.querySelector(".monitoring-hud__window-controls");
           const close = document.getElementById("ai-control-center-close-action");
           const maximize = document.getElementById("ai-control-center-maximize-action");
@@ -332,7 +339,11 @@ def main() -> int:
             surfaceRoleStyle: style(surfaceRole),
             surfaceRoleCopyRect: rect(surfaceRoleCopy),
             surfaceRoleCopyStyle: style(surfaceRoleCopy),
+            surfaceRolePairTexts: surfaceRolePairs.map((pair) => pair.textContent.replace(/\\s+/g, " ").trim()),
+            surfaceRolePairStyle: style(surfaceRolePair),
             surfaceRoleLabelStyle: style(surfaceRoleLabel),
+            surfaceRoleSeparatorText: surfaceRoleSeparator ? surfaceRoleSeparator.textContent.trim() : "",
+            surfaceRoleSeparatorStyle: style(surfaceRoleSeparator),
             surfaceRoleValueStyle: style(surfaceRoleValue),
             clusterRect: rect(cluster),
             clusterStyle: style(cluster),
@@ -637,7 +648,7 @@ def main() -> int:
         "surfaceRolePillTypographyReducedOnePoint": (
             isinstance(title_chrome_proof, dict)
             and isinstance(title_chrome_proof.get("surfaceRoleLabelStyle"), dict)
-            and title_chrome_proof["surfaceRoleLabelStyle"].get("fontSize") == "11px"
+            and title_chrome_proof["surfaceRoleLabelStyle"].get("fontSize") == "10px"
             and isinstance(title_chrome_proof.get("surfaceRoleValueStyle"), dict)
             and title_chrome_proof["surfaceRoleValueStyle"].get("fontSize") == "10px"
         ),
@@ -649,6 +660,19 @@ def main() -> int:
             and isinstance(title_chrome_proof.get("surfaceRoleValueStyle"), dict)
             and title_chrome_proof["surfaceRoleValueStyle"].get("color") == "rgba(171, 255, 226, 0.96)"
             and str(title_chrome_proof["surfaceRoleValueStyle"].get("fontWeight") or "") in {"700", "800"}
+        ),
+        "surfaceRolePillDeterministicNaturalSeparator": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("surfaceRolePairTexts")
+            == ["AI - ORIN", "Status - Not implemented", "Provider - Blocked"]
+            and title_chrome_proof.get("surfaceRoleSeparatorText") == "-"
+            and isinstance(title_chrome_proof.get("surfaceRolePairStyle"), dict)
+            and title_chrome_proof["surfaceRolePairStyle"].get("display") == "flex"
+            and title_chrome_proof["surfaceRolePairStyle"].get("columnGap") == "3px"
+            and title_chrome_proof["surfaceRolePairStyle"].get("whiteSpace") == "nowrap"
+            and isinstance(title_chrome_proof.get("surfaceRoleSeparatorStyle"), dict)
+            and title_chrome_proof["surfaceRoleSeparatorStyle"].get("fontSize") == "10px"
+            and title_chrome_proof["surfaceRoleSeparatorStyle"].get("color") == "rgba(188, 232, 244, 0.76)"
         ),
         "surfaceRolePillContentFit": (
             isinstance(title_chrome_proof, dict)

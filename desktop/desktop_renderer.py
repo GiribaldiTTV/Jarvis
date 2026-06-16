@@ -6138,9 +6138,14 @@ class AIControlCenterDialog(QDialog):
             }
             QLabel[role="surfaceRoleLabel"] {
                 color: rgba(188, 232, 244, 0.94);
-                font-size: 11px;
+                font-size: 10px;
                 font-weight: 760;
                 text-transform: uppercase;
+            }
+            QLabel[role="surfaceRoleSeparator"] {
+                color: rgba(188, 232, 244, 0.76);
+                font-size: 10px;
+                font-weight: 760;
             }
             QLabel[role="surfaceRoleValue"] {
                 color: rgba(171, 255, 226, 0.96);
@@ -6343,7 +6348,7 @@ class AIControlCenterDialog(QDialog):
         role_surface.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
         role_layout = QHBoxLayout(role_surface)
         role_layout.setContentsMargins(14, 9, 14, 9)
-        role_layout.setSpacing(18)
+        role_layout.setSpacing(14)
         role_items = (
             ("AI", "ORIN"),
             ("STATUS", "NOT IMPLEMENTED"),
@@ -6355,15 +6360,19 @@ class AIControlCenterDialog(QDialog):
             pair.setAttribute(Qt.WA_StyledBackground, True)
             pair_layout = QHBoxLayout(pair)
             pair_layout.setContentsMargins(0, 0, 0, 0)
-            pair_layout.setSpacing(8)
+            pair_layout.setSpacing(3)
             label_widget = QLabel(label, pair)
             label_widget.setProperty("role", "surfaceRoleLabel")
-            label_widget.setFont(self._hud_label_font(point_size=9, weight=760, spacing=106, uppercase=True))
+            label_widget.setFont(self._hud_label_font(point_size=8, weight=760, spacing=106, uppercase=True))
+            separator_widget = QLabel("-", pair)
+            separator_widget.setProperty("role", "surfaceRoleSeparator")
+            separator_widget.setFont(self._hud_label_font(point_size=8, weight=760, spacing=106))
             value_widget = QLabel(value, pair)
             value_widget.setProperty("role", "surfaceRoleValue")
             value_widget.setFont(self._hud_label_font(point_size=8, weight=800, spacing=106, uppercase=True))
             value_widget.setWordWrap(False)
             pair_layout.addWidget(label_widget, 0, Qt.AlignVCenter)
+            pair_layout.addWidget(separator_widget, 0, Qt.AlignVCenter)
             pair_layout.addWidget(value_widget, 0, Qt.AlignVCenter)
             role_layout.addWidget(pair, 0, Qt.AlignVCenter)
         header_text_layout.addWidget(role_surface, 0, Qt.AlignLeft)
