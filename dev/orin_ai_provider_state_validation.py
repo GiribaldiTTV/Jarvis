@@ -8973,6 +8973,7 @@ def validate() -> list[str]:
         'data-window-control-state="hidden"',
         'data-window-control-state-model="hidden-blocked-active"',
         'data-window-control-maximize-restore-disposition="hidden-future-gated-pending-per-window-relevance-decision"',
+        'data-window-control-size-model="outer-pill-matches-content-action-height"',
         "monitoring-hud__window-control-button:hover",
         "monitoring-hud__window-control-button:focus-visible",
         "monitoring-hud__window-control-button:active",

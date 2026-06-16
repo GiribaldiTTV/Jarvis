@@ -616,10 +616,21 @@ def main() -> int:
             isinstance(title_chrome_proof, dict)
             and all(
                 isinstance(title_chrome_proof.get(key), dict)
-                and int(title_chrome_proof[key].get("width") or 0) <= 34
-                and int(title_chrome_proof[key].get("height") or 0) <= 32
+                and int(title_chrome_proof[key].get("width") or 0) <= 28
+                and int(title_chrome_proof[key].get("height") or 0) <= 26
                 for key in ("minimizeRect", "maximizeRect", "closeRect")
             )
+        ),
+        "windowControlPillReducedAndActionHeightMatched": (
+            isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("clusterRect"), dict)
+            and isinstance(title_chrome_proof.get("localCheckButtonRect"), dict)
+            and 58 <= int(title_chrome_proof["clusterRect"].get("width") or 0) <= 62
+            and 28 <= int(title_chrome_proof["clusterRect"].get("height") or 0) <= 32
+            and abs(
+                int(title_chrome_proof["clusterRect"].get("height") or 0)
+                - int(title_chrome_proof["localCheckButtonRect"].get("height") or 0)
+            ) <= 2
         ),
         "compactWindowControlBordersVisible": (
             isinstance(title_chrome_proof, dict)
