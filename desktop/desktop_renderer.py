@@ -6137,14 +6137,14 @@ class AIControlCenterDialog(QDialog):
                 background: transparent;
             }
             QLabel[role="surfaceRoleLabel"] {
-                color: rgba(156, 205, 220, 0.82);
+                color: rgba(188, 232, 244, 0.94);
                 font-size: 11px;
                 font-weight: 760;
                 text-transform: uppercase;
             }
             QLabel[role="surfaceRoleValue"] {
-                color: rgba(171, 255, 226, 0.92);
-                font-size: 11px;
+                color: rgba(171, 255, 226, 0.96);
+                font-size: 10px;
                 font-weight: 800;
                 text-transform: uppercase;
             }
@@ -6358,10 +6358,10 @@ class AIControlCenterDialog(QDialog):
             pair_layout.setSpacing(8)
             label_widget = QLabel(label, pair)
             label_widget.setProperty("role", "surfaceRoleLabel")
-            label_widget.setFont(self._hud_label_font(point_size=8, weight=760, spacing=108, uppercase=True))
+            label_widget.setFont(self._hud_label_font(point_size=9, weight=760, spacing=106, uppercase=True))
             value_widget = QLabel(value, pair)
             value_widget.setProperty("role", "surfaceRoleValue")
-            value_widget.setFont(self._hud_label_font(point_size=8, weight=800, spacing=108, uppercase=True))
+            value_widget.setFont(self._hud_label_font(point_size=8, weight=800, spacing=106, uppercase=True))
             value_widget.setWordWrap(False)
             pair_layout.addWidget(label_widget, 0, Qt.AlignVCenter)
             pair_layout.addWidget(value_widget, 0, Qt.AlignVCenter)
@@ -6541,7 +6541,7 @@ class AIControlCenterDialog(QDialog):
         self._local_assist.setCursor(Qt.PointingHandCursor)
         self._local_assist.setProperty("buttonRole", "primary")
         self._local_assist.setFont(self._hud_button_font(point_size=8, weight=760, spacing=109))
-        self._configure_hud_content_fit_button(self._local_assist, max_width=154, horizontal_padding=22, height=30)
+        self._configure_hud_content_fit_button(self._local_assist, max_width=187, horizontal_padding=28, height=31)
         self._install_hud_button_glow(self._local_assist, kind="action")
         self._local_assist.clicked.connect(self.run_local_assist_check)
         result_actions.addStretch(1)

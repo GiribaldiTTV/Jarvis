@@ -8927,7 +8927,7 @@ def validate() -> list[str]:
         "AI\", \"ORIN",
         "STATUS\", \"NOT IMPLEMENTED",
         "PROVIDER\", \"BLOCKED",
-        "_configure_hud_content_fit_button(self._local_assist, max_width=154, horizontal_padding=22, height=30)",
+        "_configure_hud_content_fit_button(self._local_assist, max_width=187, horizontal_padding=28, height=31)",
         "PROVIDER DATA",
         "PROVIDER / MODEL",
         "PROMPT / MEMORY",
@@ -9111,10 +9111,10 @@ def validate() -> list[str]:
         ".monitoring-hud__hub-action",
         ".monitoring-hud__hub-action--content-fit",
         ".monitoring-hud__button-label",
-        "max-width: min(100%, 154px)",
-        "height: 30px",
-        "min-height: 30px",
-        "padding: 0 11px",
+        "max-width: min(100%, 187px)",
+        "height: 31px",
+        "min-height: 31px",
+        "padding: 0 14px",
         ".monitoring-hud__dashboard-paired-action",
     ):
         _require(
@@ -9124,7 +9124,7 @@ def validate() -> list[str]:
         )
 
     for needle in (
-        "_configure_hud_content_fit_button(self._local_assist, max_width=154, horizontal_padding=22, height=30)",
+        "_configure_hud_content_fit_button(self._local_assist, max_width=187, horizontal_padding=28, height=31)",
         'button.setProperty("buttonSizeModel", "content-fit-fixed-height")',
         "button.setFixedHeight(height)",
         "button.setMaximumWidth(max_width)",

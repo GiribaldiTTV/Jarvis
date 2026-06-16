@@ -637,9 +637,18 @@ def main() -> int:
         "surfaceRolePillTypographyReducedOnePoint": (
             isinstance(title_chrome_proof, dict)
             and isinstance(title_chrome_proof.get("surfaceRoleLabelStyle"), dict)
-            and title_chrome_proof["surfaceRoleLabelStyle"].get("fontSize") == "10px"
+            and title_chrome_proof["surfaceRoleLabelStyle"].get("fontSize") == "11px"
             and isinstance(title_chrome_proof.get("surfaceRoleValueStyle"), dict)
             and title_chrome_proof["surfaceRoleValueStyle"].get("fontSize") == "10px"
+        ),
+        "surfaceRolePillLabelsReadable": (
+            isinstance(title_chrome_proof, dict)
+            and isinstance(title_chrome_proof.get("surfaceRoleLabelStyle"), dict)
+            and title_chrome_proof["surfaceRoleLabelStyle"].get("color") == "rgba(188, 232, 244, 0.94)"
+            and str(title_chrome_proof["surfaceRoleLabelStyle"].get("fontWeight") or "") in {"700", "720", "760"}
+            and isinstance(title_chrome_proof.get("surfaceRoleValueStyle"), dict)
+            and title_chrome_proof["surfaceRoleValueStyle"].get("color") == "rgba(171, 255, 226, 0.96)"
+            and str(title_chrome_proof["surfaceRoleValueStyle"].get("fontWeight") or "") in {"700", "800"}
         ),
         "surfaceRolePillContentFit": (
             isinstance(title_chrome_proof, dict)
@@ -678,13 +687,13 @@ def main() -> int:
             isinstance(title_chrome_proof, dict)
             and isinstance(title_chrome_proof.get("localCheckButtonRect"), dict)
             and isinstance(title_chrome_proof.get("localCheckButtonStyle"), dict)
-            and title_chrome_proof["localCheckButtonStyle"].get("height") == "30px"
-            and title_chrome_proof["localCheckButtonStyle"].get("minHeight") == "30px"
-            and title_chrome_proof["localCheckButtonStyle"].get("maxWidth") in {"154px", "min(100%, 154px)"}
-            and title_chrome_proof["localCheckButtonStyle"].get("paddingLeft") == "11px"
-            and title_chrome_proof["localCheckButtonStyle"].get("paddingRight") == "11px"
-            and int(title_chrome_proof["localCheckButtonRect"].get("width") or 0) <= 154
-            and int(title_chrome_proof["localCheckButtonRect"].get("height") or 0) <= 32
+            and title_chrome_proof["localCheckButtonStyle"].get("height") == "31px"
+            and title_chrome_proof["localCheckButtonStyle"].get("minHeight") == "31px"
+            and title_chrome_proof["localCheckButtonStyle"].get("maxWidth") in {"187px", "min(100%, 187px)"}
+            and title_chrome_proof["localCheckButtonStyle"].get("paddingLeft") == "14px"
+            and title_chrome_proof["localCheckButtonStyle"].get("paddingRight") == "14px"
+            and int(title_chrome_proof["localCheckButtonRect"].get("width") or 0) <= 187
+            and int(title_chrome_proof["localCheckButtonRect"].get("height") or 0) <= 33
         ),
         "maximizeRestoreFutureGatedDisabled": (
             isinstance(title_chrome_proof, dict)
