@@ -258,6 +258,63 @@ Candidate Disposition: Visual-dependent candidate rows must remain `REVISE` or `
 
 Next Legal Use: USER/ChatGPT review should decide which candidate references, if any, advance to the next bounded digestion and promotion-planning packet. Any accepted candidate still requires a later USER-approved implementation carrier before durable reference files, catalog records, templates, helper enforcement, validator enforcement, fixtures, or product-worktree adoption can be created. PR Readiness remains blocked while `Current Branch Template Work Incomplete` is active.
 
+### Template / Golden Reference Candidate Decision Digestion - 2026-06-16
+
+Document Status: Non-Binding Candidate-Decision Receipt. Binding authority remains with the named owner files: `Docs/nexus_vision.md` for Project UI Vision, `Docs/family_visions/FAM-002_desktop_interface.md` for current presentation grammar, phase/branch-planning owners for proof gates, `Docs/validation_helper_registry.md` and `dev/orin_user_review_bundle.py` for USER review packet helper expectations, and any later USER-approved FAM-002 FFV or reference catalog for future promoted references.
+
+Reviewed Packet:
+
+- Packet path: `C:\Nexus USER\Governance`
+- Reviewed ZIP: `C:\Nexus USER\Governance.zip`
+- Reviewed ZIP SHA256: `4EFBD274552803A1F8E505FCBC0B0D1CA3BD62878F563ED10A006E9EBAF26BD8`
+- File count: `26`
+- Packet disposition: `USER Candidate Decision Packet Only`
+
+Applied USER Decisions:
+
+| Candidate / Work Item | USER Decision | Recorded Disposition | Missing Proof / Requirement | Current Blocker Result |
+| --- | --- | --- | --- | --- |
+| FAM-002 component anatomy | Accept as binding grammar only | `Accepted As Binding Grammar - Not Promoted Visual Proof` | None for grammar; future visual references still need proof and USER promotion | Does not clear template/reference blockers |
+| HUD/FAM-006 surface reference | Advance to promotion planning with REVISE requirements | `Advance To Promotion Planning - REVISE` | USER side-by-side adjudication, exact accepted surface list, state coverage, known limitations, and class applicability | `Golden Reference Promotion Blocked` remains active |
+| PR #269 AI Control Center surface reference | Advance to promotion planning with REVISE requirements | `Advance To Promotion Planning - REVISE` | USER visual adjudication against Project UI Vision/FAM-002, side-by-side with FAM-006, accepted pieces, state coverage, known limitations | `Golden Reference Promotion Blocked` remains active |
+| Golden window reference | Advance to promotion planning with REVISE requirements | `Advance To Promotion Planning - REVISE` | Top-level, child, modal, tray-opened, status/failure, platform-exception, geometry, resize, and visual-inheritance comparison | `Golden Reference Promotion Blocked` remains active |
+| Golden control-cluster reference | Advance to promotion planning with REVISE requirements | `Advance To Promotion Planning - REVISE` | Close/minimize/maximize/restore applicability by window class, hidden/disabled/focus/keyboard/tooltip/hitbox states, child/modal exceptions | `Golden Reference Promotion Blocked` remains active |
+| Close/minimize/maximize cluster reference | Advance to promotion planning with REVISE requirements | `Advance To Promotion Planning - REVISE` | Maximize/restore proof, disabled states, child/modal/platform exceptions, accessibility/focus states, and class-by-class applicability | `Golden Reference Promotion Blocked` remains active |
+| Full golden button set | Defer until full proof exists | `Deferred - Missing Button-State Proof` | Primary, secondary, danger, disabled, hover, focus, pressed, loading, blocked/future-gated, compact/default states across surfaces | Future proof/promotion required |
+| Dropdown/menu reference | Defer until full proof exists | `Deferred - Missing Dropdown/Menu Proof` | Trigger, open, hover, selected, disabled, scrolling, clipping, keyboard/mouse, close/reopen, stale-highlight, checkbox/filter rows | Future proof/promotion required |
+| Modal/dialog template | Defer until visual proof exists | `Deferred - Missing Modal/Dialog Proof` | Modal, child window, confirmation, footer/content close, platform exception screenshots and proof | Future proof/promotion required |
+| Status/failure panel template | Defer until taxonomy proof exists | `Deferred - Missing Status/Failure Taxonomy Proof` | Failure, degraded, blocked, unavailable, disabled, recovery, privacy, support/log/bundle, and severity examples | Future proof/promotion required |
+| Tray/menu doorway template | Defer until FAM-003/FAM-008 proof exists | `Deferred - Missing Tray/Menu Doorway Proof` | Actual tray/menu doorway screenshots, quick-access layout, privacy/status routes, settings/AI/HUD doorway examples | Future proof/promotion required |
+| Design-token implementation | Defer | `Deferred - Implementation Not Admitted` | USER-approved implementation carrier after accepted references | `Shared Primitive Promotion Blocked` remains active |
+| Shared UI primitive implementation | Defer | `Deferred - Implementation Not Admitted` | USER-approved implementation carrier after accepted references | `Shared Primitive Promotion Blocked` remains active |
+| Negative fixtures / bad examples | Defer | `Deferred - Fixture Mutation Not Admitted` | USER-approved fixture/helper/validator hardening carrier | `Future Helper/Validator Enforcement` remains active |
+| Helper/validator enforcement | Defer | `Deferred - Code Mutation Not Admitted` | USER-approved helper/validator mutation after references are selected | `Future Helper/Validator Enforcement` remains active |
+| FAM-006/FAM-007 adoption mutation | Defer | `Deferred - Active FAM Mutation Not Admitted` | Each FAM worktree evaluates merged standards at its next legal gate after rebaseline | FAM mutation remains blocked |
+
+Packet-Generation Governance Drift Review:
+
+- Current source truth already requires local USER packets to be regenerated from a clean worktree-labeled folder under `C:\Nexus USER\<label>`.
+- Current source truth already requires `START_HERE.md`, exactly one primary current-gate file under `USER Review`, supporting review aids under `Review Aids`, copied repo context under `Source Truth Context`, and no stale folder contents.
+- Current source truth already requires a mandatory timestamped upload ZIP shaped `C:\Nexus USER\<label>-YYYYMMDD-HHMMSS.zip`, plus removal of legacy same-name `C:\Nexus USER\<label>.zip` and previous same-label timestamped zips.
+- The reviewed `C:\Nexus USER\Governance.zip` is accepted as the artifact USER/ChatGPT verified for this manual repaired packet only. It must not become the canonical future generated-upload shape, because `dev/orin_user_review_bundle.py` and `Docs/validation_helper_registry.md` already require timestamped upload zips.
+- Next generated USER packets for this branch must use the helper-shaped packet and timestamped ZIP contract or explicitly record a USER waiver. Any future stable `Governance.zip` upload must be treated as stale/legacy unless a prompt explicitly approves a one-off manual review artifact.
+
+Future Carrier Recommendation:
+
+- Recommended next carrier model: `Both, staged`.
+- A future FAM-002 Family Feature Vision, likely `F2-FF01 Nexus UI Reference System`, should own durable feature-category vision for the UI reference system, element-group classes, missing-proof requirements, candidate grouping, deferred reference items, and promotion criteria.
+- A future `Docs/ui_reference_catalog/` surface should exist only if USER approves durable promoted reference contracts. It should store accepted reference IDs, applicability, non-applicability, accepted visual baseline pointers, proof artifacts, USER acceptance receipts, known limitations, adoption rules, and validator guidance.
+- The future catalog must not store active proof ledgers, current defect rows, live branch status, current adoption status, PR status, release-window state, temporary LV artifacts, or mutable screenshot inventories. Those remain in USER packets, helper output, validator output, Codex digests, evidence roots, Git/GitHub, or external operational state.
+- Do not create the FAM-002 FFV or `Docs/ui_reference_catalog/` in this digestion pass. Creation requires the next exact USER approval.
+
+Blocker Status After USER Decisions:
+
+- `Current Branch Template Work Incomplete`: still active.
+- `Golden Reference Promotion Blocked`: still active.
+- `Shared Primitive Promotion Blocked`: still active.
+- `Future Helper/Validator Enforcement`: still active.
+- PR Readiness remains blocked.
+
 ### PR #269 Release-Target Repair Closure - 2026-06-16
 
 Repair Closure: `USER approved the bounded Governance intake repair for the PR #269 missing release-target contract. The binding repair lives in Docs/branch_records/feature_fam_007_three_ndai_assisted_ai_function_slice.md as the Merged PR #269 Release Target Contract. That receipt records Release Target v1.7.34-prebeta, Release Floor patch prerelease, Version Rationale, Release Scope, Release Artifacts, and Post-Release Truth. The evaluation rows above remain historical planning evidence; Release Target Undefined is no longer the current PR #269 source-truth-contract blocker after this repair. Release execution remains separately USER-gated.`
@@ -1363,14 +1420,14 @@ Helper code, validator code, private/public leak scanners, architecture drift sc
 
 ## Recommended Next USER Decision
 
-The admitted Governance Reliability / Repo Split Reform source-truth contract cycles and final integration hardening are complete, but USER later clarified that the planned Template / Reference work must be completed on the current Governance branch before PR Readiness. The next legal USER decision is a bounded Template / Golden Reference Promotion admission cycle on the current branch, not PR Readiness Stage 1.
+The admitted Governance Reliability / Repo Split Reform source-truth contract cycles and final integration hardening are complete, but USER later clarified that the planned Template / Reference work must be completed on the current Governance branch before PR Readiness. The Template / Golden Reference admission, USER candidate packet repair, and USER decision digestion are now recorded. The next legal USER decision is a bounded Template / Golden Reference missing-proof and promotion-planning implementation packet on the current branch, not PR Readiness Stage 1.
 
 Suggested exact decision shape:
 
 ```text
-I approve a bounded Template / Golden Reference Promotion admission cycle on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake before PR Readiness.
+I approve a bounded Template / Golden Reference missing-proof and promotion-planning implementation packet on C:\Nexus Worktrees\Governance / feature/release-readiness-source-truth-intake before PR Readiness.
 
-Current approval covers admitting and planning the remaining current-branch Template / Reference work, deciding owner/location/schema, deciding which candidate references may proceed to USER review, deciding whether design tokens/shared primitives/helper/validator/fixture/product-worktree adoption are included now or explicitly reclassified, and returning the exact implementation approval packet. This does not approve PR Readiness, PR creation, merge, release, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, FAM-006/FAM-007/main mutation, runtime/provider/model/shortcut/installer work, issue mutation, cleanup, Private Dev ORIN import, AI Product Contract import, helper/validator code mutation, fixture mutation, design-token/shared-primitive implementation, or actual template/golden-reference promotion unless the returned packet is separately approved.
+Current approval covers creating the next USER-reviewable implementation packet for the accepted/revise/defer Template / Golden Reference candidate decisions; deciding the exact source-truth owner plan for a future FAM-002 Family Feature Vision and future Docs/ui_reference_catalog carrier; recording missing visual-proof requirements for advanced candidates; preserving deferred candidates and blockers; enforcing clean USER packet regeneration and timestamped upload ZIP rules; running validation; committing and pushing if green; and returning the exact approval text for any later FFV/catalog creation, proof collection, or reference promotion. This does not approve PR Readiness, PR creation, merge, release, external-state mutation, repo split execution, file movement/deletion/archival, private repo creation, FAM-006/FAM-007/main mutation, runtime/provider/model/shortcut/installer work, issue mutation, cleanup, Private Dev ORIN import, AI Product Contract import, helper/validator code mutation, fixture mutation, design-token/shared-primitive implementation, actual template creation, actual golden-reference promotion, or USER visual acceptance unless the returned packet is separately approved.
 ```
 
 Other legal USER responses:
