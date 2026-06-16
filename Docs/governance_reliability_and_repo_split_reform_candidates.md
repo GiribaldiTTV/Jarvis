@@ -265,7 +265,7 @@ Document Status: Non-Binding Candidate-Decision Receipt. Binding authority remai
 Reviewed Packet:
 
 - Packet path: `C:\Nexus USER\Governance`
-- Reviewed ZIP: `C:\Nexus USER\Governance.zip`
+- Reviewed ZIP: `C:\Nexus USER\Governance-20260616-122646.zip`
 - Reviewed ZIP SHA256: `4EFBD274552803A1F8E505FCBC0B0D1CA3BD62878F563ED10A006E9EBAF26BD8`
 - File count: `26`
 - Packet disposition: `USER Candidate Decision Packet Only`
@@ -296,8 +296,8 @@ Packet-Generation Governance Drift Review:
 - Current source truth already requires local USER packets to be regenerated from a clean worktree-labeled folder under `C:\Nexus USER\<label>`.
 - Current source truth already requires `START_HERE.md`, exactly one primary current-gate file under `USER Review`, supporting review aids under `Review Aids`, copied repo context under `Source Truth Context`, and no stale folder contents.
 - Current source truth already requires a mandatory timestamped upload ZIP shaped `C:\Nexus USER\<label>-YYYYMMDD-HHMMSS.zip`, plus removal of legacy same-name `C:\Nexus USER\<label>.zip` and previous same-label timestamped zips.
-- The reviewed `C:\Nexus USER\Governance.zip` is accepted as the artifact USER/ChatGPT verified for this manual repaired packet only. It must not become the canonical future generated-upload shape, because `dev/orin_user_review_bundle.py` and `Docs/validation_helper_registry.md` already require timestamped upload zips.
-- Next generated USER packets for this branch must use the helper-shaped packet and timestamped ZIP contract or explicitly record a USER waiver. Any future stable `Governance.zip` upload must be treated as stale/legacy unless a prompt explicitly approves a one-off manual review artifact.
+- Packet drift correction: the stable `C:\Nexus USER\Governance.zip` artifact was drift because source truth already requires timestamped upload zips. It was removed as a legacy same-name artifact and replaced with `C:\Nexus USER\Governance-20260616-122646.zip`.
+- Next generated USER packets for this branch must use the helper-shaped packet and timestamped ZIP contract or explicitly record a USER waiver. Any future stable `Governance.zip` upload must be treated as stale/legacy unless USER explicitly approves a one-off waiver before packet generation.
 
 Future Carrier Recommendation:
 
