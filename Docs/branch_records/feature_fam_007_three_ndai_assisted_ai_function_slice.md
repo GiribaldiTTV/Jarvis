@@ -152,3 +152,23 @@ Memory / Learning / Personalization: `blocked until later USER approval`
 Developer Lane / Owner Lane Private Setup: `blocked until later USER approval`
 
 Release / PR / Cleanup: `blocked until later USER approval`
+
+## Merged PR #269 Release Target Contract
+
+This section is a durable release-target receipt for merged PR #269. It does not reopen active branch state, authorize release execution, create tags, create GitHub Releases, create artifacts, promote templates/golden references, or mutate FAM worktrees.
+
+Merged-Unreleased Release-Debt Owner: `PR #269 - feature/fam-007-three-ndai-assisted-ai-function-slice`
+
+Repo State: `No Active Branch`
+
+Release Target: `v1.7.34-prebeta`
+
+Release Floor: `patch prerelease`
+
+Version Rationale: `Latest public prerelease is v1.7.33-prebeta. PR #269 delivers public-safe FAM-007 AI Control Center boundary UI/status, deterministic no-provider assist behavior, provider-visible-data none posture, capability-pack eligibility with blocked install intent, and public Developer/Owner boundary explanation. It does not implement provider/model execution, prompt acceptance or prompt send, downloads, runtime cache behavior, memory/learning/personalization, private Developer/Owner setup, Owner agents, packaging/installer execution, or v1.8.0 work. Because the FAM-007 v1.8.0 Functional AI Gate is not satisfied, the correct floor is patch prerelease on the v1.7.x public prebeta line.`
+
+Release Scope: `PR #269 merged FAM-007 AI Control Center public-safe boundary flow, including visible AI/ORIN status, local-only assisted action, deterministic no-provider result flow, provider-state boundary enforcement, capability-pack eligibility display with blocked install intent, edition-boundary copy, tray/desktop entry points, provider-state validation, public-leak prevention validation, tooltip suppression proof, compact window-control proof, resize proof, and FAM-007 source-owner proof.`
+
+Release Artifacts: `Future USER-approved GitHub prerelease tag/body for v1.7.34-prebeta only. No installer, package, model, capability-pack artifact, private repo artifact, provider key, runtime cache, memory store, design token, shared primitive, or golden template/reference artifact is authorized by this receipt.`
+
+Post-Release Truth: `After v1.7.34-prebeta publication, PR #269 folds from merged-unreleased release-target contract into released/closed historical FAM-007 evidence. The v1.8.0-prebeta functional AI milestone remains future-gated until functional public AI behavior and edition-boundary validation pass current source-truth gates.`
