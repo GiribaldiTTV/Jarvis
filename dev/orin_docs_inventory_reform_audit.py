@@ -263,6 +263,11 @@ OWNER_DESCRIPTIONS = {
         "durable feature-category vision scaffolding and future USER-approved FFV routing",
         "FAM-specific feature content, active branch state, selected-next truth, PR state, or release-window state",
     ),
+    "promoted UI reference catalog": (
+        "USER-promoted UI reference contract catalog",
+        "promoted reference schema, zero-or-more USER-approved reference records, applicability, limitations, and adoption rules",
+        "candidate evidence, live proof ledgers, helper green status, or inferred golden references",
+    ),
     "pending fold-source file": (
         "temporary no-loss fold source",
         "source material retained until durable content is folded into existing owners",
@@ -410,6 +415,8 @@ def owner_for(rel: str) -> str:
         return "family vision"
     if rel.startswith("Docs/family_feature_visions/"):
         return "family feature vision scaffold"
+    if rel.startswith("Docs/ui_reference_catalog/"):
+        return "promoted UI reference catalog"
     if rel == "Docs/nexus_vision.md":
         return "Nexus Vision Contract"
     if rel == "Docs/ai_runtime_and_trust_architecture.md":
@@ -598,6 +605,12 @@ def action_for(
             "Keep as Family Feature Vision scaffold",
             completed,
             "Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.",
+        )
+    if owner == "promoted UI reference catalog":
+        return (
+            "Keep as promoted UI reference catalog",
+            completed,
+            "Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.",
         )
     if owner == "pending fold-source file":
         return (

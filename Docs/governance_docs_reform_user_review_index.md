@@ -102,16 +102,16 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 | --- | ---: | --- | --- |
 | Ambiguous ownership/current-state wording | 162 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
-| Migration / organization candidates | 2 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
+| Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 30 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
-| Low-risk reference consolidation | 17 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
+| Low-risk reference consolidation | 19 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
 Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
 Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate exact USER approval.
 
 ## Files Needing USER Decision
 
-Total USER decision rows: 32
+Total USER decision rows: 30
 
 | File | Reason | Recommendation |
 | --- | --- | --- |
@@ -145,8 +145,6 @@ Total USER decision rows: 32
 | `Docs/branch_plans/feature_fam_007_v1_7_23_post_release_canon_closure.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_repo_wide_source_owner_marker_adoption_inventory.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
-| `Docs/ui_reference_catalog/index.md` | purpose not clearly owned by current model | needs USER decision |
-| `Docs/ui_reference_catalog/README.md` | purpose not clearly owned by current model | needs USER decision |
 
 ## Ambiguity Review Queue
 
@@ -225,8 +223,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 
 | File | Owner | Recommendation | Risk |
 | --- | --- | --- | --- |
-| `Docs/ui_reference_catalog/README.md` | unknown docs reference | USER review needed | Low |
-| `Docs/ui_reference_catalog/index.md` | unknown docs reference | USER review needed | Low |
+| None | N/A | N/A | N/A |
 
 ## Safe To Leave For Now
 
@@ -245,10 +242,11 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/family_visions/FAM-005_external_integrations.md` | family vision | Keep as family vision owner | Low |
 | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | family vision | Keep as family vision owner | Low |
 | `Docs/orin_display_naming_guidance.md` | product / architecture reference | Keep | Low |
+| `Docs/ui_reference_catalog/README.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
+| `Docs/ui_reference_catalog/index.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
 | `Docs/workspace_layout_plan.md` | product / architecture reference | Keep | Low |
 | `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | workstream durable history | Keep / normalize durable history | Low |
 | `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` | workstream durable history | Keep / normalize durable history | Low |
-| `Docs/workstreams/FB-034_recoverable_diagnostics.md` | workstream durable history | Keep / normalize durable history | Low |
 
 ## Exact USER Decision This Index Supports
 
