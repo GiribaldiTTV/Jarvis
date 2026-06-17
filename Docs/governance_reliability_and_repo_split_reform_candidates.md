@@ -2276,6 +2276,59 @@ Next Legal Use:
 
 The next legal phase remains blocker-disposition digestion for Packages A-E. Runtime evidence makes AI Control Center the strongest candidate seed, but the branch remains blocked until USER either continues proof collection, supplies USER evidence, routes later FAM/runtime proof, explicitly waives/reclassifies named lanes, rejects/defers named lanes, or keeps the branch blocked.
 
+## Template / Golden Reference Consolidated Package A-E Green Completion - 2026-06-17
+
+Document Status: Non-Binding Planning / Source-Truth Receipt. Binding authority remains with `Docs/ui_reference_catalog/` for promoted reference records, `Docs/family_feature_visions/F2-FF01.md` for the UI reference-system feature vision, `Docs/family_visions/FAM-002_desktop_interface.md` for reusable presentation grammar, and `Docs/phase_governance.md` / `Docs/branch_plans/README.md` for phase and proof boundaries.
+
+USER Decision Applied:
+
+- USER approved bounded continuation until all Package A-E lanes are green.
+- Governance may promote durable UI reference catalog records when the record includes USER acceptance/waiver, source evidence, applicability, known limitations, adoption rule, and final disposition.
+- Missing runtime states must not be rewritten as proven; they must be recorded as known limitations or future consuming-branch proof obligations.
+- FAM worktree mutation, runtime UI implementation, issue mutation, PR creation, merge, release, external-state mutation, and code-level helper/validator/fixture/shared-primitive implementation remain outside this completion pass.
+
+Package Green Table:
+
+| Package | Green Disposition | Source-Truth Record | What Is Green Now | What Remains Future-Owned |
+| --- | --- | --- | --- | --- |
+| A | `GREEN - promoted with known limitations` | `UIREF-001`, `UIREF-002` | Top-level window frame grammar and compact window-control cluster grammar are promoted as durable references. | Consuming branches still prove their own control states, accessibility, geometry/reset behavior, and exceptions. |
+| B | `GREEN - promoted with known limitations` | `UIREF-003` | Baseline button/control/selector grammar is promoted. | Dropdown/menu/list/filter open states, keyboard accessibility, disabled/loading/error states, and branch-specific controls remain proof obligations. |
+| C | `GREEN - promoted with known limitations` | `UIREF-004` | Dialog/status/recovery/doorway surface grammar is promoted. | FAM-001/FAM-003/FAM-006/FAM-007/FAM-008 runtime adoption and visual proof remain owned by those legal carriers. |
+| D | `GREEN - source-truth baseline accepted; implementation deferred` | `UIREF-005` | Design-token and shared-rule baseline is promoted as durable source-truth reference. | Code-level design-token/shared-primitive implementation, migration, rollback, and visual parity proof remain future implementation work. |
+| E | `GREEN - enforcement contract accepted; code deferred` | `UIREF-006` | Negative-example and enforcement contract is promoted as durable guidance. | Executable fixtures, helper code, validator code, and false-positive review remain future implementation work. |
+
+Promoted Catalog Result:
+
+- `Docs/ui_reference_catalog/index.md` now records `Promoted Reference Count: 6`.
+- `UIREF-001` and `UIREF-002` are Package A references.
+- `UIREF-003` is the Package B reference.
+- `UIREF-004` is the Package C reference.
+- `UIREF-005` is the Package D baseline record.
+- `UIREF-006` is the Package E enforcement contract record.
+
+No-Overclaim Guard:
+
+- Promoted-with-known-limitations does not mean every screenshot, runtime state, or FAM implementation is accepted.
+- Candidate FAM-006/FAM-007 evidence remains evidence; catalog records own the durable reference contract, not live proof inventories.
+- Consuming branches must cite the applicable UIREF record and still prove their own UI/UX implementation against Project Vision, FAM-002 grammar, the relevant Family/Family Feature Vision, BP2/BP3 proof plan, Hardening, Live Validation, and USER review where required.
+- A future branch must not claim code-level design tokens, shared primitives, helper enforcement, validator enforcement, or fixture coverage exists until that code/fixture work is separately implemented and validated.
+
+Blocker Disposition Table:
+
+| Prior Blocker | Current Disposition | Why |
+| --- | --- | --- |
+| `Current Branch Template Work Incomplete` | `Cleared for Package A-E source-truth scope` | All current Package A-E lanes now have a durable green disposition or accepted future-owned implementation boundary. |
+| `Golden Reference Promotion Blocked` | `Cleared for UIREF-001 through UIREF-006` | USER-approved completion allowed promoted records with known limitations and explicit adoption boundaries. |
+| `Package A proof incomplete` | `Cleared by UIREF-001/UIREF-002 with known limitations` | Missing states remain consuming-branch proof obligations instead of blocking Governance source-truth promotion. |
+| `Package B proof incomplete` | `Cleared by UIREF-003 with known limitations` | Baseline control grammar is promoted; state-specific proof remains per branch. |
+| `Package C proof incomplete` | `Cleared by UIREF-004 with known limitations` | Grammar is promoted; runtime/status/tray/settings implementation proof remains with owning FAMs. |
+| `Package D implementation/proof incomplete` | `Cleared by UIREF-005 as source-truth baseline; implementation deferred` | Governance promoted the design-rule baseline but did not implement code-level tokens/shared primitives. |
+| `Package E enforcement implementation incomplete` | `Cleared by UIREF-006 as enforcement contract; code deferred` | Governance promoted the enforcement contract but did not mutate helpers, validators, or fixtures. |
+
+PR Readiness Impact:
+
+Package A-E source-truth completion is no longer the current PR hold. PR Readiness Stage 1 may be the next legal analysis phase after validation, but PR Readiness, PR creation, merge, release, FAM adoption, runtime implementation, code-level design-token/shared-primitive work, helper/validator/fixture work, issue mutation, external-state mutation, and cleanup remain separate USER decisions.
+
 ## Final Recommendation
 
 ChatGPT's strongest insight is correct: the next governance risk is ownership duplication. The best repair is not "more governance everywhere"; it is better owner classification before new concepts become FAMs, architecture systems, policies, experience layers, or implementation work.

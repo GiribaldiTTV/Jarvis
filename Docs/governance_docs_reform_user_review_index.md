@@ -7,7 +7,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 207
+- Docs files covered: 213
 - Source branch: not stored in this docs review index; derive current branch from Git/helper output at review time.
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
@@ -104,7 +104,7 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 | Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
 | Retired branch plan review | 30 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
-| Low-risk reference consolidation | 19 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
+| Low-risk reference consolidation | 21 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
 Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
 Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate exact USER approval.
@@ -243,10 +243,10 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | family vision | Keep as family vision owner | Low |
 | `Docs/orin_display_naming_guidance.md` | product / architecture reference | Keep | Low |
 | `Docs/ui_reference_catalog/README.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
+| `Docs/ui_reference_catalog/UIREF-005_design_token_and_shared_rule_baseline.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
+| `Docs/ui_reference_catalog/UIREF-006_negative_example_and_enforcement_contract.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
 | `Docs/ui_reference_catalog/index.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
 | `Docs/workspace_layout_plan.md` | product / architecture reference | Keep | Low |
-| `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | workstream durable history | Keep / normalize durable history | Low |
-| `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` | workstream durable history | Keep / normalize durable history | Low |
 
 ## Exact USER Decision This Index Supports
 

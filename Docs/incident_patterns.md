@@ -95,7 +95,7 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - fix pattern:
   keep FAM-002 presentation grammar binding now, but keep templates/golden references/design tokens/shared primitives blocked until the dependency chain clears and USER approves promotion; until then, branches must compare against current source-truth grammar, accepted reference surfaces where they already exist, screenshots/video/manual validation, and USER review, not a claimed future template
 - validation pattern:
-  future helpers should fail on `Template Dependency Unresolved`, `Golden Reference Promotion Blocked`, `Shared Primitive Promotion Blocked`, `Limited PR Path USER Approval Missing`, or `Template Treated As Existing Proof` when machine-checkable
+  future helpers should fail on `Template Dependency Unresolved`, `Golden Reference Promotion Blocked`, `Shared Primitive Promotion Blocked`, `Limited PR Path USER Approval Missing`, or `Template Treated As Existing Proof` when a branch claims a reference without a valid promoted `Docs/ui_reference_catalog/UIREF-*` record. When a UIREF record exists, helpers should enforce the record's known limitations and adoption rule rather than keeping the entire reference class blocked.
 - source references:
   - `Docs/phase_governance.md`
   - `Docs/family_visions/FAM-002_desktop_interface.md`
