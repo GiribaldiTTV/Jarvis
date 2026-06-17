@@ -2734,6 +2734,24 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
                 + "; ".join(result.failures[:5])
             )
 
+        changed_aid = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "FIXTURE_AID.md"
+        changed_aid.write_text(
+            "# Fixture Aid\n\nChanged after ZIP creation; same filename, stale ZIP content.\n",
+            encoding="utf-8",
+        )
+        stale_content_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("content hash mismatch" in failure for failure in stale_content_result.failures):
+            failures.append("Local USER packet validation did not reject stale ZIP content with matching file names")
+        changed_aid.write_text(
+            "# Fixture Aid\n\nSupporting review aid.\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
         stale_zip = review_root / "Governance-20260617-101010.zip"
         stale_zip.write_text("stale fixture", encoding="utf-8")
         stale_result = review_bundle.validate_local_user_packet(

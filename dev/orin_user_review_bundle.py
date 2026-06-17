@@ -11,6 +11,7 @@ It never edits repo files.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import shutil
@@ -896,6 +897,23 @@ def _zip_file_entries(export_zip: Path) -> set[str]:
         return {entry.filename for entry in archive.infolist() if not entry.is_dir()}
 
 
+def _folder_file_hashes(packet_dir: Path) -> dict[str, str]:
+    file_hashes: dict[str, str] = {}
+    for path in sorted(_bundle_files(packet_dir)):
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        file_hashes[path.relative_to(packet_dir).as_posix()] = digest
+    return file_hashes
+
+
+def _zip_file_hashes(export_zip: Path) -> dict[str, str]:
+    with zipfile.ZipFile(export_zip, "r") as archive:
+        return {
+            entry.filename: hashlib.sha256(archive.read(entry)).hexdigest()
+            for entry in archive.infolist()
+            if not entry.is_dir()
+        }
+
+
 def _same_label_export_zip_paths(review_root: Path, label: str) -> set[Path]:
     safe_label = _sanitize_folder_name(label)
     timestamped_name = re.compile(rf"^{re.escape(safe_label)}-\d{{8}}-\d{{6}}\.zip$")
@@ -1004,11 +1022,14 @@ def validate_local_user_packet(
     if stable_zip.exists():
         failures.append(f"Stable-name USER packet ZIP is not allowed: {stable_zip}")
 
-    folder_entries = {path.relative_to(packet_dir).as_posix() for path in _bundle_files(packet_dir)}
+    folder_hashes = _folder_file_hashes(packet_dir)
+    folder_entries = set(folder_hashes)
     try:
-        zip_entries = _zip_file_entries(export_zip)
+        zip_hashes = _zip_file_hashes(export_zip)
+        zip_entries = set(zip_hashes)
     except zipfile.BadZipFile as exc:
         failures.append(f"Review export ZIP is not readable: {export_zip}: {exc}")
+        zip_hashes = {}
         zip_entries = set()
 
     if folder_entries != zip_entries:
@@ -1018,6 +1039,17 @@ def validate_local_user_packet(
             "Folder/ZIP parity failed: "
             f"missing from ZIP={missing or 'none'} extra in ZIP={extra or 'none'}"
         )
+    else:
+        content_mismatches = sorted(
+            entry
+            for entry in folder_entries
+            if folder_hashes.get(entry) != zip_hashes.get(entry)
+        )
+        if content_mismatches:
+            failures.append(
+                "Folder/ZIP parity failed: matching file list but content hash mismatch "
+                f"for entries={content_mismatches}"
+            )
 
     layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, folder_entries)
     failures.extend(layout_failures)
@@ -1051,6 +1083,7 @@ def validate_local_user_packet(
 
 
 def _format_local_user_packet_validation_result(result: LocalUserPacketValidationResult) -> str:
+    parity_failed = any("Folder/ZIP parity failed" in failure for failure in result.failures)
     lines = [
         f"USER Review Packet Finding: {'FAIL' if result.failures else 'PASS'}",
         f"Packet Folder: {result.packet_dir}",
@@ -1061,13 +1094,20 @@ def _format_local_user_packet_validation_result(result: LocalUserPacketValidatio
         "Primary USER Review Files: "
         + (", ".join(result.primary_user_review_files) if result.primary_user_review_files else "none"),
         "Timestamped ZIP: " + ("FAIL" if _timestamped_export_zip_name_failures(result.export_zip, result.label) else "PASS"),
-        "Folder/ZIP Parity: " + ("PASS" if result.folder_file_count == result.zip_file_count else "CHECK REQUIRED"),
+        "Folder/ZIP Parity: "
+        + (
+            "FAIL"
+            if parity_failed
+            else "PASS"
+            if result.folder_file_count == result.zip_file_count
+            else "CHECK REQUIRED"
+        ),
     ]
     if result.failures:
         lines.append("Failures:")
         lines.extend(f"- {failure}" for failure in result.failures)
     else:
-        lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, and folder/ZIP parity are validated.")
+        lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, and folder/ZIP file-list plus content-hash parity are validated.")
     return "\n".join(lines)
 
 
