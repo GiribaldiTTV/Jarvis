@@ -2735,6 +2735,25 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
                 + "; ".join(result.failures[:5])
             )
 
+        bad_metadata_aid = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "BAD_METADATA_AID.md"
+        bad_metadata_aid.write_text(
+            "# Bad Metadata Aid\n\nSource HEAD: 0123456789012345678901234567890123456789\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        bad_metadata_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any(
+            "BAD_METADATA_AID.md" in failure and "technical metadata" in failure
+            for failure in bad_metadata_result.failures
+        ):
+            failures.append("Local USER packet validation did not reject technical metadata in Review Aids")
+        bad_metadata_aid.unlink()
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
         changed_aid = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "FIXTURE_AID.md"
         changed_aid.write_text(
             "# Fixture Aid\n\nChanged after ZIP creation; same filename, stale ZIP content.\n",

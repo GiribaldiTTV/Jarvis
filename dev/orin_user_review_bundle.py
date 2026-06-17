@@ -182,6 +182,7 @@ BUNDLE_COUNT_FIELDS: tuple[str, ...] = (
     "Copied File Count",
     "Extra Bundle File Count",
 )
+REVIEW_AID_ALLOWED_TECHNICAL_METADATA_LABELS = {"validation-status"}
 USER_FACING_GENERATED_FILES: tuple[str, ...] = (
     "START_HERE.md",
     USER_BRANCH_VISION_REVIEW_FILE,
@@ -935,9 +936,18 @@ def _generic_user_facing_technical_metadata_failures(
     failures: list[str] = []
     for file_name, text in sorted(packet_files.items()):
         normalized = file_name.replace("\\", "/")
-        if normalized != "START_HERE.md" and not normalized.startswith(f"{USER_REVIEW_DIR_NAME}/"):
+        if (
+            normalized != "START_HERE.md"
+            and not normalized.startswith(f"{USER_REVIEW_DIR_NAME}/")
+            and not normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
+        ):
             continue
         for label, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
+            if (
+                normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
+                and label in REVIEW_AID_ALLOWED_TECHNICAL_METADATA_LABELS
+            ):
+                continue
             if pattern.search(text):
                 failures.append(f"{file_name}: USER-facing file contains technical metadata: {label}")
     return failures
