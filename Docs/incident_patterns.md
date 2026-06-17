@@ -65,9 +65,99 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `Docs/branch_plans/README.md`
   - `Docs/validation_helper_registry.md`
+
+## Pattern: USER Packet Folder/ZIP Drift Can Hide Stale Review Evidence
+
+- symptom:
+  a USER review packet folder looks current, but `C:\Nexus USER` still contains a previous same-label timestamped ZIP, a legacy stable-name ZIP such as `Governance.zip`, a ZIP whose contents no longer match the folder, more than one primary review file, stale stage wording, or manually assembled packet files outside the approved layout
+- layer:
+  local USER review hub, Governance review/evidence packets, Branch Planning packets, PR Readiness packet proof, helper/validator interpretation, and ChatGPT upload artifacts
+- root-cause pattern:
+  Codex manually assembled or regenerated a packet without running the same deterministic cleanup and validation path as `dev/orin_user_review_bundle.py`, so folder readability, timestamped filename, or successful upload was mistaken for proof that stale same-label artifacts and wrong-stage surfaces were gone
+- fix pattern:
+  treat `C:\Nexus USER\<worktree-label>` as a clean-regenerated packet root, not an incremental folder. Before USER review or PR Readiness, prove root `START_HERE.md`, `USER Review` / `Review Aids` / `Source Truth Context` layout, exactly one current-gate primary file under `USER Review`, mandatory timestamped ZIP `C:\Nexus USER\<worktree-label>-YYYYMMDD-HHMMSS.zip`, no legacy stable `C:\Nexus USER\<worktree-label>.zip`, no previous same-label timestamped ZIPs, ZIP-beside-folder placement, duplicate ZIP entry rejection, folder/ZIP file-list plus content-hash parity, unresolved-placeholder absence, stale-stage scan, and final packet proof reporting. If a packet was assembled outside the normal build path, run `dev/orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip>` before treating it as current.
+- validation pattern:
+  run `python dev\orin_user_review_bundle.py --validate-local-user-packet <folder> --review-export-zip <timestamped-zip> --worktree-label <label>` for existing local packets, `python dev\orin_branch_readiness_planning_fixture_validation.py` for regression fixtures, and the normal governance-efficiency validation. Any stale same-label ZIP, stable-name ZIP, copied ZIP outside the packet folder parent, duplicate ZIP entry, layout drift, primary-file count drift, folder/ZIP file-list mismatch, or folder/ZIP content-hash mismatch blocks on `USER Review Packet Stale`.
+- source references:
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/development_rules.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_user_review_bundle.py`
+
+## Pattern: Backend Runtime Truth Hidden Behind UI Green
+
+- symptom:
+  Codex validates UI shape, screenshots, helper output, or logs while the runtime/backend state owner, deterministic inputs/outputs, lifecycle/state machine, failure/fallback/recovery route, schema/config compatibility, rollback path, or user-facing status/error mapping remains unspecified
+- layer:
+  runtime/backend Branch Readiness, BP2/BP3 engineering plans, Workstream, Hardening, Live Validation, PR Readiness, USER review packets, and branches that expose user-visible state from runtime/backend behavior
+- root-cause pattern:
+  UI/UX proof became more explicit than backend/runtime proof, allowing a surface to appear green, disabled, blocked, successful, recovered, or degraded without proving that runtime truth supports that visible state
+- fix pattern:
+  require a Backend Predictability / Reliability Contract for runtime/backend-affecting work; require frontend/backend contract consistency so every user-visible state label, disabled action, blocked action, recovery option, success claim, failure claim, degraded state, and unavailable state maps to runtime truth, policy truth, or a USER-approved exception; treat backend logs as diagnostic evidence, not USER-facing proof by themselves; if rebaseline/re-entry discovers issues in already-implemented or previous branch output outside the current legal repair scope, prepare a USER-reviewed issue-candidate packet and stop before GitHub mutation
+- validation pattern:
+  future helpers should fail on `Backend Predictability Contract Missing`, `Runtime State Owner Missing`, `Runtime State Machine Missing`, `Nondeterministic Backend Behavior`, `Failure Path Missing`, `Fallback Behavior Hidden`, `Schema Migration Proof Missing`, `Config Compatibility Proof Missing`, `Backend/UI Contract Mismatch`, `User-Facing State Not Backed By Runtime Truth`, `Backend Logs Treated As User Proof`, `Recovery Route Missing`, `Rollback Path Missing`, `Issue Candidate Disposition Missing`, or `Issue Mutation Approval Missing` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/development_rules.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Template Or Golden Reference Claimed Before Promotion
+
+- symptom:
+  Codex treats a good active branch output, ChatGPT example, screenshot, control cluster, design discussion, or current FAM-007 packet as if it were a promoted template, golden reference, shared primitive, or design-token authority
+- layer:
+  FAM-002 presentation governance, UI/UX planning, Visual Inheritance Matrix rows, Scope Coverage Manifest rows, Live Validation visual adjudication, USER packets, and Governance PR-hold decisions
+- root-cause pattern:
+  future template/golden-reference work is needed, but a branch collapses the future USER-reviewed promotion decision into current proof and causes other branches to inherit an unapproved or stale UI surface
+- fix pattern:
+  keep FAM-002 presentation grammar binding now, but keep templates/golden references/design tokens/shared primitives blocked until the dependency chain clears and USER approves promotion; until then, branches must compare against current source-truth grammar, accepted reference surfaces where they already exist, screenshots/video/manual validation, and USER review, not a claimed future template
+- validation pattern:
+  future helpers should fail on `Template Dependency Unresolved`, `Golden Reference Promotion Blocked`, `Shared Primitive Promotion Blocked`, `Limited PR Path USER Approval Missing`, or `Template Treated As Existing Proof` when a branch claims a reference without a valid promoted `Docs/ui_reference_catalog/UIREF-*` record. When a UIREF record exists, helpers should enforce the record's known limitations and adoption rule rather than keeping the entire reference class blocked.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/governance_reliability_and_repo_split_reform_candidates.md`
+  - `Docs/validation_helper_registry.md`
   - `dev/orin_user_review_bundle.py`
   - `dev/orin_branch_readiness_planning_fixture_validation.py`
   - `dev/orin_branch_governance_validation.py`
+
+## Pattern: GitHub Issue Live State Must Not Become Repo Ledger
+
+- symptom:
+  Branch Readiness, PR Readiness, or Release Readiness references issue numbers, returned UTS issue forms, diagnostics issue flows, or PR review issue evidence without a deterministic scan/disposition, then repo docs start acting like the current issue queue or Release Readiness misses closeout candidates.
+- layer:
+  Branch Readiness issue intake, PR body generation, Release Readiness closeout, branch records, branch plans, and GitHub issue state.
+- root-cause pattern:
+  GitHub issue state is live operational truth, but source truth only had broad live-state boundary language. Without a named issue intake and closeout gate, Codex could skip relevant open issues, preserve inconsistent receipt field names, or put stale open/closed/current issue posture into repo docs.
+- fix pattern:
+  run the `GitHub Issue Relevance Intake Gate` during Branch Readiness and rebaseline/reconciliation when issue evidence can affect scope; classify each issue as current-FAM, other-FAM, cross-FAM, duplicate/superseded, not applicable, USER triage, or live-state unknown; disposition current/cross-FAM issues; keep temporary scan evidence in helper output, Codex digest, USER packets, or external state; and fold down only durable issue receipts in branch records.
+- validation pattern:
+  future helpers should report missing issue scans, missing dispositions, live-state unknowns, and repo issue-ledger leakage. Green validation is evidence only; Codex must still verify the issue source and disposition.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/branch_records/index.md`
+  - `Docs/governance_efficiency_operating_model.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: PR Auto-Close Keywords Bypass Issue Approval
+
+- symptom:
+  A GitHub PR body says `Fixes #`, `Closes #`, or `Resolves #` and would auto-close an issue on merge even though USER approved PR creation/merge but did not separately approve issue closeout.
+- layer:
+  PR Readiness Stage 2, PR body quality, GitHub issue closeout, and Release Readiness issue closeout inventory.
+- root-cause pattern:
+  PR body governance treated the body as human review text but did not classify GitHub auto-close keywords as a mutation path. That can turn PR merge into unreviewed issue mutation.
+- fix pattern:
+  treat auto-close keywords as issue mutation risk. Use non-closing references such as `Related issue: #123` or `Issue evidence: #123` unless USER explicitly approved the closeout set and the branch intentionally relies on GitHub auto-close.
+- validation pattern:
+  run PR body quality checks before PR creation and after live PR creation; future PR-body helpers should flag auto-close keywords when closeout approval is absent.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/validation_helper_registry.md`
+  - `dev/orin_pr_body_quality_audit.py`
 
 ## Pattern: Template-Shell USER Review Artifact Passed Reviewability
 
@@ -310,6 +400,81 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/phase_governance.md`
   - `Docs/branch_plans/README.md`
   - `Docs/user_test_summary_guidance.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Broad Or Multi-Issue Repair Reported Complete Without Coverage
+
+- symptom:
+  USER reports a broad or multi-item defect such as all window text is wrong, every button needs correction, the whole window breaks immersion, ten named visual/text issues exist, or multiple related UI defects need repair. Codex fixes one item or a sampled subset, then reports green, complete, no drift, LV passed, PR-ready, or all fixed without proving every item or element group was addressed.
+- layer:
+  Scope Coverage Manifest, Branch Planning proof, Workstream repair closeout, Hardening, Live Validation visual adjudication, UTS handoff, PR Readiness review-risk analysis, USER packets, helper/validator interpretation, and Codex closeout claims
+- root-cause pattern:
+  Codex treats broad wording as a general instruction instead of a coverage-expanding claim, fails to decompose the complaint into atomic repair targets, accepts validator green or screenshot existence without checking the generated artifacts, or repairs the easiest visible target while leaving the rest of the class uninspected.
+- fix pattern:
+  require a `Scope Coverage Manifest` before any full-scope success claim. Broad or multi-issue complaints must be classified as `Single Item`, `Multi Item`, `Broad Class`, `Vague Class`, or `All Surface`; anything broader than `Single Item` must create a target ledger or complete-class scan with owner, surface, file/code path, expected fix, proof method, evidence reviewed, and disposition for each target. Sampling requires explicit justification. Vague final acceptance such as `looks good`, `seems fine`, `validator passed`, or `screenshot exists` is invalid unless mapped to evidence and coverage disposition.
+- validation pattern:
+  future helpers should fail on `Completeness Claim Without Coverage Manifest`, `Broad Request Decomposition Missing`, `Multi-Issue Repair Ledger Missing`, `Quantity-Sensitive Repair Drift`, `Partial Repair Reported Complete`, `All-Claim Coverage Missing`, `Unverified Defect Target`, `Sampling Used Without Justification`, `Generated Artifact Not Checked`, `Element Group Coverage Missing`, or `Validator Green Accepted Without Coverage Review` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Pre-Repair Hardening Treated As Final After LV Repair
+
+- symptom:
+  Live Validation or USER-gated Live Validation finds defects after a prior Hardening pass, Codex repairs the LV defect, and then PR Readiness or USER handoff relies on the earlier Hardening pass as if it still proves the changed branch.
+- layer:
+  Hardening, Live Validation, UTS/USER validation, PR Readiness, branch planning proof carrydown, and helper/validator interpretation
+- root-cause pattern:
+  the branch treats Hardening and Live Validation as one-way gates instead of a repair loop. LV proves the real runtime/USER path, so LV-discovered repairs can invalidate the prior Hardening inspection. Conversely, rerunning full Hardening before repairing a known-failing LV path can waste effort and create false confidence.
+- fix pattern:
+  repair the known LV blocker first, rerun or reconfirm the affected LV proof path to green, rerun Hardening over the changed files/surfaces/proof rows, then rerun or reconfirm LV after Hardening. USER validation and PR Readiness may rely only on the final post-repair Hardening plus LV-green state, not the stale pre-repair pass.
+- validation pattern:
+  future helpers should fail on `Known-Failing LV Repair First`, `Post-LV-Repair Hardening Rerun Missing`, `Post-Hardening LV Reconfirmation Missing`, `Pre-Repair Hardening Treated As Final`, `Final USER Validation Missing`, or `PR Readiness Uses Superseded Hardening` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/user_test_summary_guidance.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Standalone Product Window Has No Geometry Recovery Path
+
+- symptom:
+  A Nexus-owned standalone, top-level, restorable, independently opened, movable, resizable, or geometry-persisted product window can become offscreen, too small, too large, corrupted, or trapped on a missing monitor, and the branch has no user-accessible reset-window-position/size route or Not Applicable reason.
+- layer:
+  FAM-002 presentation standards, FAM-003 resident/settings/quick-action dependency routing, consuming-FAM window behavior, Branch Planning proof, Hardening, Live Validation, and USER handoff
+- root-cause pattern:
+  a branch proves that a window opens or looks acceptable in the happy path but does not treat geometry persistence and recovery as part of USER trust. The reset route is assumed to be a future settings detail, or packaging/setup is treated as owner by inertia, leaving no deterministic recovery path.
+- fix pattern:
+  require window classification for created/touched/affected product windows, declare safe default geometry, record whether geometry is persisted, route shared user-accessible reset behavior through FAM-003 resident access / Global Settings / quick actions when admitted, keep FAM-002 as presentation grammar owner, keep FAM-008 to setup/education only unless explicitly admitted, and require proof or USER waiver before final green.
+- validation pattern:
+  future helpers should fail on `Window Position / Size Reset Route Missing`, `FAM-003 Window Recovery Dependency Required`, `Child Window Geometry Reset Not Applicable Unproven`, `Offscreen Window Recovery Path Missing`, `Window Geometry Classification Missing`, `FAM-008 Runtime Reset Ownership Drift`, or `Repo File-State Tracking` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+  - `Docs/family_visions/FAM-003_interaction_and_actions.md`
+  - `Docs/family_feature_visions/F3-FF01.md`
+  - `Docs/validation_helper_registry.md`
+
+## Pattern: Top-Level Product Window Uses Content-Style Header Close Control
+
+- symptom:
+  A mature Nexus-owned top-level, standalone, restorable, independently opened, movable, resizable, or geometry-persisted product window uses a large labeled header `CLOSE` pill as its window-level close control, often while also exposing a footer/content `CLOSE`, `Cancel`, or `Exit` action. The window is technically clear but can read like a content action, compete with footer actions, or blur the difference between window management and workflow completion.
+- layer:
+  FAM-002 presentation standards, Branch Planning UI carrydown, Hardening visual inspection, Live Validation visual proof, and USER review packet clarity
+- root-cause pattern:
+  a branch treats any obvious close affordance as sufficient and validates screenshot presence or clickability, but does not classify whether the control is a top-level window control, content action, modal action, or exception. The branch avoids default Windows chrome but still lacks a mature Nexus-native window-control grammar.
+- fix pattern:
+  require top-level window-control classification, prefer a compact custom NDAI control cluster or recorded equivalent for standalone product windows, keep large labeled close/cancel/exit buttons for content/footer/modal/child/proof/platform exception contexts, classify minimize/maximize/restore applicability, and prove accessibility, hitboxes, hover/focus/pressed states, and header/footer close separation.
+- validation pattern:
+  future helpers should fail on `Top-Level Window Control Grammar Missing`, `Large Header CLOSE Pill Requires Exception`, `Default Windows Chrome Regression`, `Window-Control / Content-Action Boundary Missing`, `Minimize / Maximize / Restore Applicability Missing`, `Window Control Accessibility Proof Missing`, `Header/Footer Close Conflict Unresolved`, or `Visual Window Control Proof Missing` when machine-checkable
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
   - `Docs/validation_helper_registry.md`
 
 ## Pattern: Released-Canon Fallback Must Not Use The Highest Planned Prerelease

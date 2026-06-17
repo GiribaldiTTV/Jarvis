@@ -7,7 +7,7 @@ This is the short review index for the full Docs source-truth reform. Use it to 
 ## Review Proof
 
 - Full dossier: `Docs/governance_docs_full_inventory_reform_audit.md`
-- Docs files covered: 204
+- Docs files covered: 213
 - Source branch: not stored in this docs review index; derive current branch from Git/helper output at review time.
 - Git proof: derive live `HEAD`, `origin/main`, and merge-base with git at review/validation time.
 - Generated hash fields: intentionally not maintained in this docs review index.
@@ -100,18 +100,18 @@ Next USER Decision: choose one focused cleanup lane before any physical file or 
 
 | Cleanup Lane | Current Queue Size | Safe Current Action | USER-Gated Later Action |
 | --- | ---: | --- | --- |
-| Ambiguous ownership/current-state wording | 158 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
+| Ambiguous ownership/current-state wording | 162 | Keep queued with owner/review action visible. | Focused wording repair or source-truth owner migration. |
 | Structure and indexability risks | 40 | Keep queued with structure action visible. | Focused organization pass for one owner family or receipt set. |
 | Migration / organization candidates | 0 | Keep candidate rows visible in this dossier. | Move durable content only after replacement owner and validation proof. |
-| Retired branch plan review | 29 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
-| Low-risk reference consolidation | 18 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
+| Retired branch plan review | 30 | Keep retired posture and lookup paths. | Delete or archive only after reference proof and USER approval. |
+| Low-risk reference consolidation | 21 | Leave in place unless USER selects a consolidation lane. | Collapse/delete only after reference scan and replacement owner proof. |
 
 Recommended First Cleanup Lane: organize oversized historical branch records into current-summary plus indexed historical sections, without deleting evidence or changing source-truth ownership.
 Do Not Start Yet: branch-plan deletion, broad directory/file renames, historical receipt rewrites, runtime/FAM/release mutation, or archive/delete work. Those require separate exact USER approval.
 
 ## Files Needing USER Decision
 
-Total USER decision rows: 29
+Total USER decision rows: 30
 
 | File | Reason | Recommendation |
 | --- | --- | --- |
@@ -131,6 +131,7 @@ Total USER decision rows: 29
 | `Docs/branch_plans/feature_fam_007_ai_edition_dev_owner_skeleton_readiness_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_ai_edition_public_leak_prevention_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_ai_runtime_trust_boundary_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
+| `Docs/branch_plans/feature_fam_007_breakpoint_2_dev_owner_skeleton_action_gate_readiness.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_consent_collection_implementation_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
 | `Docs/branch_plans/feature_fam_007_local_ai_provider_durable_consent_persistence_foundation.md` | branch plan is retired from active planning posture and preserved for lookup | delete only after USER approval plus reference proof; do not delete by default |
@@ -153,7 +154,7 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | --- | --- | --- | --- |
 | `Docs/Main.md` | High | `volatile-current-wording=343`; `unclear-ownership-wording=159`; `soft-commitment-wording=65`; `state-ledger-wording=243` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/ai_runtime_and_trust_architecture.md` | High | `volatile-current-wording=12`; `unclear-ownership-wording=23`; `soft-commitment-wording=44`; `state-ledger-wording=51` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
-| `Docs/branch_plans/README.md` | High | `volatile-current-wording=109`; `unclear-ownership-wording=99`; `soft-commitment-wording=40`; `state-ledger-wording=128` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
+| `Docs/branch_plans/README.md` | High | `volatile-current-wording=122`; `unclear-ownership-wording=107`; `soft-commitment-wording=45`; `state-ledger-wording=165` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_compact_ai_status_card.md` | High | `volatile-current-wording=30`; `unclear-ownership-wording=18`; `soft-commitment-wording=4`; `state-ledger-wording=52` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md` | High | `volatile-current-wording=187`; `unclear-ownership-wording=151`; `soft-commitment-wording=17`; `state-ledger-wording=109` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
 | `Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_implementation.md` | High | `volatile-current-wording=305`; `unclear-ownership-wording=201`; `soft-commitment-wording=22`; `state-ledger-wording=128` | Clarify owner, time basis, and whether wording is historical receipt or live truth. |
@@ -236,16 +237,16 @@ Queue Status: Future USER-gated organization queue; not a PR blocker unless vali
 | `Docs/family_feature_visions/TEMPLATE.md` | family feature vision scaffold | Keep as Family Feature Vision scaffold | Low |
 | `Docs/family_feature_visions/index.md` | family feature vision scaffold | Keep as Family Feature Vision scaffold | Low |
 | `Docs/family_visions/FAM-001_boot_interface.md` | family vision | Keep as family vision owner | Low |
-| `Docs/family_visions/FAM-002_desktop_interface.md` | family vision | Keep as family vision owner | Low |
 | `Docs/family_visions/FAM-003_interaction_and_actions.md` | family vision | Keep as family vision owner | Low |
 | `Docs/family_visions/FAM-004_voice_and_audio.md` | family vision | Keep as family vision owner | Low |
 | `Docs/family_visions/FAM-005_external_integrations.md` | family vision | Keep as family vision owner | Low |
 | `Docs/family_visions/FAM-008_packaging_and_install_experience.md` | family vision | Keep as family vision owner | Low |
 | `Docs/orin_display_naming_guidance.md` | product / architecture reference | Keep | Low |
+| `Docs/ui_reference_catalog/README.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
+| `Docs/ui_reference_catalog/UIREF-005_design_token_and_shared_rule_baseline.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
+| `Docs/ui_reference_catalog/UIREF-006_negative_example_and_enforcement_contract.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
+| `Docs/ui_reference_catalog/index.md` | promoted UI reference catalog | Keep as promoted UI reference catalog | Low |
 | `Docs/workspace_layout_plan.md` | product / architecture reference | Keep | Low |
-| `Docs/workstreams/FB-025_boot_desktop_milestone_taxonomy_clarification.md` | workstream durable history | Keep / normalize durable history | Low |
-| `Docs/workstreams/FB-033_startup_snapshot_harness_follow_through.md` | workstream durable history | Keep / normalize durable history | Low |
-| `Docs/workstreams/FB-034_recoverable_diagnostics.md` | workstream durable history | Keep / normalize durable history | Low |
 
 ## Exact USER Decision This Index Supports
 

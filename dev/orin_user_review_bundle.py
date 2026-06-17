@@ -11,6 +11,7 @@ It never edits repo files.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import shutil
@@ -45,6 +46,12 @@ USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
+LOCAL_USER_PACKET_ROOT_FILES = {"START_HERE.md"}
+LOCAL_USER_PACKET_REQUIRED_DIRS = (
+    USER_REVIEW_DIR_NAME,
+    REVIEW_AIDS_DIR_NAME,
+    SOURCE_TRUTH_CONTEXT_DIR_NAME,
+)
 
 
 PRIVATE_REVIEW_BUNDLE_PATH_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
@@ -368,6 +375,19 @@ class WorkstreamEntryPacketDecisionPathResult:
             DECISION_STATUS_REPAIR_REVALIDATION,
             DECISION_STATUS_UNKNOWN,
         }
+
+
+@dataclass(frozen=True)
+class LocalUserPacketValidationResult:
+    """Machine-readable result for local USER hub folder/ZIP validation."""
+
+    packet_dir: Path
+    export_zip: Path
+    label: str
+    folder_file_count: int
+    zip_file_count: int
+    primary_user_review_files: tuple[str, ...]
+    failures: list[str]
 
 
 def _desktop_path() -> Path:
@@ -859,6 +879,257 @@ def _validate_export_zip(
             "Review export zip cannot request implementation approval while "
             "USER_BRANCH_PLAN_REVIEW.md Contract Status is blocking"
         )
+
+
+def _packet_text_files(packet_dir: Path) -> dict[str, str]:
+    packet_files: dict[str, str] = {}
+    for path in sorted(_bundle_files(packet_dir)):
+        if path.suffix.lower() not in {".md", ".txt", ".json"}:
+            continue
+        packet_files[path.relative_to(packet_dir).as_posix()] = path.read_text(
+            encoding="utf-8"
+        )
+    return packet_files
+
+
+def _zip_file_entries(export_zip: Path) -> set[str]:
+    with zipfile.ZipFile(export_zip, "r") as archive:
+        return {entry.filename for entry in archive.infolist() if not entry.is_dir()}
+
+
+def _folder_file_hashes(packet_dir: Path) -> dict[str, str]:
+    file_hashes: dict[str, str] = {}
+    for path in sorted(_bundle_files(packet_dir)):
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        file_hashes[path.relative_to(packet_dir).as_posix()] = digest
+    return file_hashes
+
+
+def _zip_file_hashes(export_zip: Path) -> tuple[dict[str, str], tuple[str, ...]]:
+    with zipfile.ZipFile(export_zip, "r") as archive:
+        entries = [entry for entry in archive.infolist() if not entry.is_dir()]
+        entry_counts = Counter(entry.filename for entry in entries)
+        duplicate_entries = tuple(
+            sorted(name for name, count in entry_counts.items() if count > 1)
+        )
+        file_hashes = {
+            entry.filename: hashlib.sha256(archive.read(entry)).hexdigest()
+            for entry in entries
+        }
+        return file_hashes, duplicate_entries
+
+
+def _same_label_export_zip_paths(review_root: Path, label: str) -> set[Path]:
+    safe_label = _sanitize_folder_name(label)
+    timestamped_name = re.compile(rf"^{re.escape(safe_label)}-\d{{8}}-\d{{6}}\.zip$")
+    paths = {_legacy_stable_export_zip_path(review_root, label).resolve()}
+    paths.update(path.resolve() for path in review_root.glob("*.zip") if timestamped_name.fullmatch(path.name))
+    return paths
+
+
+def _generic_user_facing_technical_metadata_failures(
+    packet_files: Mapping[str, str],
+) -> list[str]:
+    """Check only generated USER-facing surfaces, not copied source-truth context."""
+
+    failures: list[str] = []
+    for file_name, text in sorted(packet_files.items()):
+        normalized = file_name.replace("\\", "/")
+        if (
+            normalized != "START_HERE.md"
+            and not normalized.startswith(f"{USER_REVIEW_DIR_NAME}/")
+            and not normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
+        ):
+            continue
+        for label, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
+            if pattern.search(text):
+                failures.append(f"{file_name}: USER-facing file contains technical metadata: {label}")
+    return failures
+
+
+def _local_user_packet_layout_failures(
+    packet_dir: Path,
+    folder_entries: set[str],
+) -> tuple[list[str], tuple[str, ...]]:
+    failures: list[str] = []
+    if "START_HERE.md" not in folder_entries:
+        failures.append("START_HERE.md is missing from the packet root")
+
+    for directory_name in LOCAL_USER_PACKET_REQUIRED_DIRS:
+        directory = packet_dir / directory_name
+        if not directory.is_dir():
+            failures.append(f"{directory_name}/ folder is missing from the packet")
+
+    allowed_top_level = set(LOCAL_USER_PACKET_REQUIRED_DIRS) | LOCAL_USER_PACKET_ROOT_FILES
+    for entry in sorted(folder_entries):
+        first_part = PurePosixPath(entry).parts[0]
+        if first_part not in allowed_top_level:
+            failures.append(f"{entry}: file is outside approved USER packet layout")
+
+    primary_files = tuple(
+        sorted(
+            entry
+            for entry in folder_entries
+            if entry.startswith(f"{USER_REVIEW_DIR_NAME}/")
+        )
+    )
+    if len(primary_files) != 1:
+        failures.append(
+            f"{USER_REVIEW_DIR_NAME}/ must contain exactly one primary USER review file; "
+            f"found {len(primary_files)}"
+        )
+    elif PurePosixPath(primary_files[0]).suffix.lower() != ".md":
+        failures.append(f"{primary_files[0]}: primary USER review file must be Markdown")
+    return failures, primary_files
+
+
+def validate_local_user_packet(
+    packet_dir: Path,
+    *,
+    export_zip: Path,
+    worktree_label: str | None = None,
+) -> LocalUserPacketValidationResult:
+    label = _sanitize_folder_name(worktree_label or packet_dir.name)
+    packet_dir = packet_dir.resolve()
+    export_zip = export_zip.resolve()
+    failures: list[str] = []
+
+    if not packet_dir.is_dir():
+        failures.append(f"Local USER packet folder is missing: {packet_dir}")
+        return LocalUserPacketValidationResult(
+            packet_dir=packet_dir,
+            export_zip=export_zip,
+            label=label,
+            folder_file_count=0,
+            zip_file_count=0,
+            primary_user_review_files=(),
+            failures=failures,
+        )
+    if not export_zip.is_file():
+        failures.append(f"Timestamped USER packet ZIP is missing: {export_zip}")
+        return LocalUserPacketValidationResult(
+            packet_dir=packet_dir,
+            export_zip=export_zip,
+            label=label,
+            folder_file_count=len(_bundle_files(packet_dir)),
+            zip_file_count=0,
+            primary_user_review_files=(),
+            failures=failures,
+        )
+
+    review_root = packet_dir.parent.resolve()
+    if export_zip.parent.resolve() != review_root:
+        failures.append(
+            "Timestamped USER packet ZIP must live beside the packet folder: "
+            f"expected parent={review_root} actual parent={export_zip.parent.resolve()}"
+        )
+    name_failures = _timestamped_export_zip_name_failures(export_zip, label)
+    failures.extend(name_failures)
+
+    same_label_paths = _same_label_export_zip_paths(review_root, label)
+    stale_siblings = sorted(path for path in same_label_paths if path != export_zip)
+    for stale_zip in stale_siblings:
+        if stale_zip.exists():
+            failures.append(f"Stale same-label USER packet ZIP remains: {stale_zip}")
+
+    stable_zip = _legacy_stable_export_zip_path(review_root, label)
+    if stable_zip.exists():
+        failures.append(f"Stable-name USER packet ZIP is not allowed: {stable_zip}")
+
+    folder_hashes = _folder_file_hashes(packet_dir)
+    folder_entries = set(folder_hashes)
+    try:
+        zip_hashes, duplicate_zip_entries = _zip_file_hashes(export_zip)
+        zip_entries = set(zip_hashes)
+    except zipfile.BadZipFile as exc:
+        failures.append(f"Review export ZIP is not readable: {export_zip}: {exc}")
+        zip_hashes = {}
+        duplicate_zip_entries = ()
+        zip_entries = set()
+
+    if duplicate_zip_entries:
+        failures.append(
+            "Folder/ZIP parity failed: duplicate ZIP entries are not allowed "
+            f"entries={list(duplicate_zip_entries)}"
+        )
+
+    if folder_entries != zip_entries:
+        missing = sorted(folder_entries - zip_entries)
+        extra = sorted(zip_entries - folder_entries)
+        failures.append(
+            "Folder/ZIP parity failed: "
+            f"missing from ZIP={missing or 'none'} extra in ZIP={extra or 'none'}"
+        )
+    else:
+        content_mismatches = sorted(
+            entry
+            for entry in folder_entries
+            if folder_hashes.get(entry) != zip_hashes.get(entry)
+        )
+        if content_mismatches:
+            failures.append(
+                "Folder/ZIP parity failed: matching file list but content hash mismatch "
+                f"for entries={content_mismatches}"
+            )
+
+    layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, folder_entries)
+    failures.extend(layout_failures)
+
+    packet_files = _packet_text_files(packet_dir)
+    generated_packet_files = {
+        name: text
+        for name, text in packet_files.items()
+        if not name.startswith(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/")
+    }
+    failures.extend(_unresolved_template_placeholder_failures(generated_packet_files))
+    failures.extend(_packet_count_consistency_failures(packet_files, actual_file_count=len(folder_entries)))
+    failures.extend(_generic_user_facing_technical_metadata_failures(packet_files))
+    failures.extend(_user_facing_technical_metadata_failures(generated_packet_files))
+    failures.extend(_user_branch_plan_stale_bp1_wording_failures(generated_packet_files))
+    failures.extend(_fam007_bp2_plan_substantive_failures(generated_packet_files))
+    failures.extend(_fam007_bp2_support_bp1_context_failures(generated_packet_files))
+    failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
+    failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
+    failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
+
+    return LocalUserPacketValidationResult(
+        packet_dir=packet_dir,
+        export_zip=export_zip,
+        label=label,
+        folder_file_count=len(folder_entries),
+        zip_file_count=len(zip_entries),
+        primary_user_review_files=primary_files,
+        failures=failures,
+    )
+
+
+def _format_local_user_packet_validation_result(result: LocalUserPacketValidationResult) -> str:
+    parity_failed = any("Folder/ZIP parity failed" in failure for failure in result.failures)
+    lines = [
+        f"USER Review Packet Finding: {'FAIL' if result.failures else 'PASS'}",
+        f"Packet Folder: {result.packet_dir}",
+        f"Review Export Zip: {result.export_zip}",
+        f"Worktree Label: {result.label}",
+        f"Folder File Count: {result.folder_file_count}",
+        f"ZIP File Count: {result.zip_file_count}",
+        "Primary USER Review Files: "
+        + (", ".join(result.primary_user_review_files) if result.primary_user_review_files else "none"),
+        "Timestamped ZIP: " + ("FAIL" if _timestamped_export_zip_name_failures(result.export_zip, result.label) else "PASS"),
+        "Folder/ZIP Parity: "
+        + (
+            "FAIL"
+            if parity_failed
+            else "PASS"
+            if result.folder_file_count == result.zip_file_count
+            else "CHECK REQUIRED"
+        ),
+    ]
+    if result.failures:
+        lines.append("Failures:")
+        lines.extend(f"- {failure}" for failure in result.failures)
+    else:
+        lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, and folder/ZIP file-list plus content-hash parity are validated.")
+    return "\n".join(lines)
 
 
 def _section(text: str, heading: str) -> str:
@@ -8699,6 +8970,16 @@ def main() -> int:
         type=Path,
         help="Validate an existing Branch Planning / Workstream Entry packet decision path.",
     )
+    parser.add_argument(
+        "--validate-local-user-packet",
+        type=Path,
+        help="Validate an existing local USER hub packet folder against deterministic folder/ZIP rules.",
+    )
+    parser.add_argument(
+        "--review-export-zip",
+        type=Path,
+        help="Timestamped upload ZIP to validate with --validate-local-user-packet.",
+    )
     parser.add_argument("--expected-branch", help="Expected source branch for Workstream Entry packet validation.")
     parser.add_argument("--expected-head", help="Expected source HEAD for Workstream Entry packet validation.")
     parser.add_argument("--expected-origin-main", help="Expected main baseline for Workstream Entry packet validation.")
@@ -8709,6 +8990,17 @@ def main() -> int:
     )
     parser.add_argument("files", nargs="*", help="Repo-relative files to copy into the local USER hub packet.")
     args = parser.parse_args()
+
+    if args.validate_local_user_packet:
+        if args.review_export_zip is None:
+            parser.error("--review-export-zip is required with --validate-local-user-packet")
+        result = validate_local_user_packet(
+            args.validate_local_user_packet,
+            export_zip=args.review_export_zip,
+            worktree_label=args.worktree_label or args.folder_name,
+        )
+        print(_format_local_user_packet_validation_result(result))
+        return 1 if result.failures else 0
 
     if args.validate_workstream_entry_packet:
         for field_name in ("expected_branch", "expected_head", "expected_origin_main"):

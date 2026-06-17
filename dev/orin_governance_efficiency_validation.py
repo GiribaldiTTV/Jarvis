@@ -234,6 +234,9 @@ USER_REVIEW_HUB_TIMESTAMPED_ZIP_REQUIRED_PHRASES = (
     "timestamped",
     "YYYYMMDD-HHMMSS",
     "legacy same-name",
+    "folder/ZIP parity",
+    "stable ZIP rejection",
+    "stale same-label ZIP",
 )
 
 WORKSTREAM_INDEX_REQUIRED = (
@@ -247,7 +250,6 @@ CORE_GOVERNANCE_MIRROR_DOCS = (
     Path("Docs/development_rules.md"),
     Path("Docs/codex_modes.md"),
     Path("Docs/orin_task_template.md"),
-    Path("Docs/codex_user_guide.md"),
 )
 
 CORE_GOVERNANCE_DUPLICATE_POLICY_FORBIDDEN = (

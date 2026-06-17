@@ -9,6 +9,7 @@ current repo.
 from __future__ import annotations
 
 import re
+import argparse
 import subprocess
 from pathlib import Path
 
@@ -262,6 +263,11 @@ OWNER_DESCRIPTIONS = {
         "durable feature-category vision scaffolding and future USER-approved FFV routing",
         "FAM-specific feature content, active branch state, selected-next truth, PR state, or release-window state",
     ),
+    "promoted UI reference catalog": (
+        "USER-promoted UI reference contract catalog",
+        "promoted reference schema, zero-or-more USER-approved reference records, applicability, limitations, and adoption rules",
+        "candidate evidence, live proof ledgers, helper green status, or inferred golden references",
+    ),
     "pending fold-source file": (
         "temporary no-loss fold source",
         "source material retained until durable content is folded into existing owners",
@@ -409,6 +415,8 @@ def owner_for(rel: str) -> str:
         return "family vision"
     if rel.startswith("Docs/family_feature_visions/"):
         return "family feature vision scaffold"
+    if rel.startswith("Docs/ui_reference_catalog/"):
+        return "promoted UI reference catalog"
     if rel == "Docs/nexus_vision.md":
         return "Nexus Vision Contract"
     if rel == "Docs/ai_runtime_and_trust_architecture.md":
@@ -597,6 +605,12 @@ def action_for(
             "Keep as Family Feature Vision scaffold",
             completed,
             "Use only for generic FFV structure, compact index routing, and future USER-approved feature-category content admission.",
+        )
+    if owner == "promoted UI reference catalog":
+        return (
+            "Keep as promoted UI reference catalog",
+            completed,
+            "Keep as the USER-promoted UI reference catalog; candidate evidence remains outside this catalog until USER-approved promotion records exist.",
         )
     if owner == "pending fold-source file":
         return (
@@ -1161,7 +1175,7 @@ def build_user_review_index(
     return "\n".join(out) + "\n"
 
 
-def generate() -> None:
+def generate(*, write_outputs: bool = True) -> None:
     files = sorted(
         [
             path
@@ -1989,19 +2003,61 @@ def generate() -> None:
         retire_candidates=retire_candidates,
     )
 
-    AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
-    INDEX.write_text(index_text, encoding="utf-8")
-    print(
-        f"Wrote {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
-        f"with {len(file_rows)} file entries"
+    if write_outputs:
+        AUDIT.write_text("\n".join(out) + "\n", encoding="utf-8")
+        INDEX.write_text(index_text, encoding="utf-8")
+        print(
+            f"Wrote {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
+            f"with {len(file_rows)} file entries"
+        )
+    else:
+        print(
+            "No-write docs inventory audit: "
+            f"would write {AUDIT.relative_to(ROOT)} and {INDEX.relative_to(ROOT)} "
+            f"with {len(file_rows)} file entries"
+        )
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Generate or inspect the full Docs source-truth reform audit dossier."
+        )
     )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--write",
+        action="store_true",
+        help=(
+            "Write the generated audit and review index. Normal invocation remains "
+            "write-capable for existing governed regeneration paths."
+        ),
+    )
+    mode.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Build the audit in memory and report target files without writing.",
+    )
+    mode.add_argument(
+        "--read-only",
+        action="store_true",
+        help="Alias for --dry-run; guarantees no tracked repo files are written.",
+    )
+    mode.add_argument(
+        "--report-only",
+        action="store_true",
+        help="Alias for --dry-run; guarantees no tracked repo files are written.",
+    )
+    return parser.parse_args()
 
 
 def main() -> int:
+    args = parse_args()
     if not DOCS.is_dir():
         print("FAIL: Docs directory missing")
         return 1
-    generate()
+    write_outputs = not (args.dry_run or args.read_only or args.report_only)
+    generate(write_outputs=write_outputs)
     return 0
 
 

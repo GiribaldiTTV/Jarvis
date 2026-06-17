@@ -158,11 +158,46 @@ Vision-To-Proof Matrix rows carry the same claims into Hardening and Live Valida
 
 Hardening reviews these rows for proof gaps before Live Validation. Live Validation fills the observed evidence, comparison evidence, adjudication result, USER validation need, and final verdict. A row that only says helper output, marker, manifest, screenshot, video, or log exists is incomplete until it records what accepted requirement the artifact proves and how Codex compared it.
 
+Runtime/backend-affecting BP2/BP3 proof plans must also carry the Backend Predictability / Reliability Contract from `Docs/phase_governance.md`. The plan must define state owner, deterministic inputs and outputs, lifecycle/state-machine states, config/schema delta, migration or compatibility impact, idempotency, retry behavior, concurrency/reentrancy assumptions, failure/fallback/recovery behavior, logging/observability proof, security/privacy boundary, provider/model/cache/private boundary when applicable, UI/user-visible contract impact, validation/proof path, rollback/reversibility path, degraded/disabled/unavailable behavior, and user-facing status/error mapping. Frontend/backend contract consistency is required when UI exposes runtime/backend state: every visible state label, disabled or blocked action, recovery option, success/failure claim, degraded state, and unavailable state must map to runtime truth, policy truth, or a USER-approved exception. Backend logs support diagnosis; they are not USER-facing proof by themselves.
+
+BP2/BP3 proof plans must also carry the Hardening / Live Validation repair-loop route when runtime, desktop, UI, workflow, helper/validator, source-truth, or USER-gated proof can fail after Hardening. The plan must state what LV blockers repair first, what post-LV-repair Hardening rerun must inspect, what LV proof must rerun or reconfirm after Hardening, and what USER validation state counts as final. A pre-repair Hardening pass is planning/evidence history only after LV-driven repairs change branch files or proof surfaces; it cannot be the final PR Readiness basis.
+
+Scope Coverage Manifest rows carry completeness proof into Workstream, Hardening, Live Validation, PR Readiness, and any same-turn repair closeout that claims `green`, `complete`, `LV passed`, `PR-ready`, `accepted`, `no drift`, `all fixed`, or equivalent full-scope success. The active branch plan, USER review packet, helper output, validator output, or Codex digest must include or reference:
+
+- `Coverage Objective:`
+- `Phase / Gate:`
+- `Source-Truth Owners Loaded:`
+- `Inventory Roots:`
+- `File Classes Included:`
+- `File Classes Excluded:`
+- `Runtime / UI Surfaces Included:`
+- `Claims Inventoried:`
+- `Visual Elements Or Element Groups Inventoried:`
+- `Files Read Directly:`
+- `Files Searched Only:`
+- `Files Not Read With Reason:`
+- `Validators Run:`
+- `Helpers Run:`
+- `Independent Proof Reviewed:`
+- `Photo / Video Evidence Reviewed:`
+- `USER Packet Evidence Reviewed:`
+- `Human-Judgment Areas:`
+- `Known Blind Spots:`
+- `Sampling Used:`
+- `If Sampling Used, Why:`
+- `Coverage Disposition:`
+
+Coverage dispositions must use `Checked`, `Not Applicable`, `Deferred With Reason`, `Repair Required`, `USER Review Required`, or `Blocked`. A branch plan or repair digest that uses broad words such as `all`, `every`, `whole window`, `all text`, `all buttons`, `multiple issues`, or a numbered issue set must convert that scope into atomic repair targets or a justified complete-class scan. Each target needs owner, surface, file/code path, expected fix, proof method, and final disposition. One repaired sample cannot close a broad-class complaint unless the manifest proves why sampling is sufficient and what remains untested.
+
 When the selected element creates or changes user-facing UI, BP2/BP3 must classify each visible surface as `Nexus-Owned Product Surface`, `Platform-Native Exception`, `Diagnostic / Developer Surface`, or `External Surface`. `Nexus-Owned Product Surface` rows must name the inherited FAM-002 component grammar and window chrome/frame treatment. `Platform-Native Exception` rows must name the platform reason, why custom NDAI chrome would be wrong or unsafe, and the proof that the exception is deliberate.
+
+When the selected element creates, changes, or visually accepts a Nexus-owned top-level, standalone, restorable, independently opened, movable, resizable, or geometry-persisted product window, BP1/BP2/BP3 must include an `NDAI Top-Level Window Control Grammar Matrix:` or equivalent section. The matrix must name `Window Name:`, `Window Role:`, `Window Class:`, `Control Placement:`, `Window-Level Control Set:`, `Close Control Treatment:`, `Minimize Applicability:`, `Maximize / Restore Applicability:`, `Large Labeled Close Button Disposition:`, `Content/Footer Close Actions:`, `Accessibility / Tooltip / Keyboard Treatment:`, `Hitbox / Focus / Hover / Pressed State Coverage:`, `FAM-002 Control Grammar Consumed:`, `FAM-003 Recovery Route Dependency:`, `Exception Reason:`, and `Proof Method:`. A large labeled header `CLOSE` button on a top-level product window must be recorded as an exception, not accepted as the default mature window-control grammar. Modal dialogs, child windows, footer/content actions, platform-native exceptions, and temporary proof/dev surfaces may use larger explicit close/cancel/exit actions only with a reason and proof path.
+
+When the selected element creates, touches, restores, moves, resizes, persists, or proves a standalone/top-level/restorable Nexus-owned product window, BP1/BP2/BP3 must include a `Standalone Window Geometry Recovery Matrix:` or equivalent branch-plan section. The matrix must name `Window Name:`, `Owning FAM:`, `Surface Type:`, `Window Class:`, `Geometry Persistence Behavior:`, `Default Position / Size Behavior:`, `Reset Position / Size Route:`, `FAM-003 Dependency Status:`, `FAM-002 Presentation Standard Consumed:`, `FAM-008 Setup / Education Dependency:`, `Troubleshooting / Fallback Behavior:`, `Proof Method:`, and `Not Applicable Reason:`. Child windows, anchored child panels, platform-native dialogs, temporary dev/proof tools, and non-restorable surfaces may be `Not Applicable` only with a reason and proof path. A persisted or independently restorable product window without an offscreen/corrupt/missing-monitor recovery route blocks branch advancement on `Window Position / Size Reset Route Missing` or `Offscreen Window Recovery Path Missing`.
 
 Active implementation status for selected elements belongs in the active external branch plan or approved branch-planning packet. Family Feature Vision records own only the durable `Visioned` inventory, deferred facts, proof expectations, and fold-down receipts.
 
-When a branch re-enters planning or proof after merged governance standards land on `origin/main`, the active branch plan or review packet must carry a `Merged Vision Standard Adoption Review:`. The review must name the merged standard source, the rebaseline or re-entry event, affected branch artifacts, affected product surfaces, affected proof claims, adoption disposition, repair/waiver/blocker, and a `No Repo Live-State Tracking:` statement. This review may live in the active external branch plan, BP1/BP2/BP3 packet, Hardening packet, Live Validation packet, PR Readiness packet, or Codex digest according to the current phase; repo historical branch-plan receipts must not be used as live adoption ledgers.
+When a branch re-enters planning or proof after merged governance standards land on `origin/main`, the active branch plan or review packet must carry a `Merged Vision Standard Adoption Review:`. The review must name the merged standard source, the rebaseline or re-entry event, current branch implementation inventory, affected branch artifacts, affected product surfaces, implemented or touched UI/UX surfaces, implemented or touched runtime/backend surfaces, affected proof claims, merged standard comparison result, frontend/backend contract findings, template/golden-reference dependency result, current violation findings, adoption disposition, repair/waiver/blocker, issue-candidate disposition, and a `No Repo Live-State Tracking:` statement. When UI/UX standards are affected, the review must say what the branch already implemented or touched and whether those surfaces currently violate the Project Vision, FAM-002 presentation grammar, applicable Family Vision / Family Feature Vision, Visual Inheritance Matrix, Scope Coverage Manifest, Vision-To-Proof Matrix, or Live Validation proof rules. When backend/runtime standards are affected, the review must say what the branch already implemented or touched and whether those surfaces currently violate the Backend Predictability / Reliability Contract, Runtime Branch Engineering Contract, state/config/schema delta, failure/fallback/recovery route, frontend/backend truth mapping, logging/observability proof, or rollback/reversibility path. This review may live in the active external branch plan, BP1/BP2/BP3 packet, Hardening packet, Live Validation packet, PR Readiness packet, or Codex digest according to the current phase; repo historical branch-plan receipts must not be used as live adoption ledgers. If already-implemented or previous branch output appears defective but is outside the current branch's legal repair scope, the packet may prepare a GitHub issue candidate for USER review, but issue creation/mutation remains blocked until USER explicitly approves that exact GitHub action.
 
 BP1/BP2/BP3 packets created after a rebaseline must not treat old branch packets as green proof when the branch now touches standards merged after those packets were generated. BP1 refreshes the branch vision only when the accepted vision chain changed or was insufficient. BP2 updates engineering/proof-plan matrices when implementation proof, UI inheritance, claim class, minimum proof strength, or USER validation routing changed. BP3 verifies Workstream readiness against the updated adoption review before implementation approval can be requested.
 
@@ -205,6 +240,10 @@ Runtime-focused plans must include:
 - Per-Seam Validation Checklist:
 - Per-Seam User-Facing Proof Checklist:
 - Future-Gated Items:
+- GitHub Issue Relevance Review:
+- Issue Scan Source:
+- Issue Relevance Classification:
+- Issue Disposition:
 - Approval-Boundary Audit:
 - FAM / Shared-Surface Overlap Forecast:
 - Open Questions:
@@ -216,6 +255,41 @@ Runtime-focused plans must include:
 - Claim / Evidence Matrix:
 - Vision-To-Proof Matrix:
 - Merged Vision Standard Adoption Review:
+- Implemented / Touched Runtime-Backend Surfaces:
+- Frontend / Backend Contract Findings:
+- Template / Golden Reference Dependency:
+- Issue Candidate Disposition:
+- Backend Predictability / Reliability Contract:
+- Runtime / Backend Surface:
+- State Owner:
+- Deterministic Inputs:
+- Deterministic Outputs:
+- Lifecycle / State Machine:
+- Config / Schema Delta:
+- Migration / Compatibility Impact:
+- Idempotency Behavior:
+- Retry Behavior:
+- Concurrency / Reentrancy Assumptions:
+- Failure Behavior:
+- Fallback Behavior:
+- Recovery Route:
+- Logging / Observability Proof:
+- Security / Privacy Boundary:
+- Provider / Model / Cache / Private Boundary:
+- UI / User-Visible Contract Impact:
+- Validation / Proof Path:
+- Rollback / Reversibility Path:
+- Degraded / Disabled / Unavailable State Behavior:
+- User-Facing Status / Error Mapping:
+- Rebaseline Issue Candidate Review:
+- Candidate Needed:
+- Candidate Title:
+- Affected FAM / FFV / Surface:
+- Evidence Source:
+- Expected Behavior:
+- Owner Recommendation:
+- Severity:
+- USER Approval Required Before GitHub Mutation:
 - Accepted Vision Source:
 - Accepted Requirement:
 - Claim Class:
@@ -723,6 +797,30 @@ Workstream seam closeout updates the matrix with implemented, skipped, deferred,
 If a Branch Vision Contract Snapshot is required, Workstream Entry also proves `Branch Vision Snapshot Status: Accepted`, `Open Vision Questions: None` or `Deferred With Waiver`, `USER Vision Green: Yes`, accepted implementation scope, accepted seam map, and accepted stop conditions before implementation begins.
 
 If USER feedback is meaningful to current branch scope, future branch scope, accepted vision, validation proof, or reusable product standards, Workstream Entry and later seam packets must either add or update a UFD item or state the no-action reason.
+
+## GitHub Issue Relevance Review
+
+Active external branch plans, Branch Readiness packets, and rebaseline/reconciliation packets must include `GitHub Issue Relevance Review:` when live GitHub issues, returned UTS issue forms, PR review repairs, diagnostics reports, or release-window evidence could affect branch scope, proof, or closeout.
+
+Required fields:
+
+- `Issue Scan Source:`
+- `Issue Number:`
+- `Issue Title:`
+- `Live GitHub State:`
+- `Issue Relevance Classification:`
+- `Affected FAM / FFV / Branch Surface:`
+- `Issue Disposition:`
+- `Disposition Reason:`
+- `Owner / Route:`
+- `USER Decision Required:`
+- `Durable Receipt Target:`
+
+Allowed `Issue Relevance Classification:` values are `Relevant To Current FAM`, `Relevant To Other FAM`, `Cross-FAM`, `Duplicate / Superseded`, `Not Applicable`, `Needs USER Triage`, and `Live State Unknown`.
+
+Allowed `Issue Disposition:` values are `Include In Branch Scope`, `Defer With Reason`, `Route To Another Owner`, `Block Pending USER Decision`, `Not Applicable With Reason`, `Closeout Candidate`, `Already Closed`, and `USER Decision Required`.
+
+The active branch plan may carry temporary issue scan evidence only while the branch is active. Repo branch-plan receipts after fold-down must preserve only compact durable issue receipts, approved closeout summaries, or pointers to GitHub/helper evidence. They must not become active issue ledgers, live issue queues, or substitutes for GitHub issue truth.
 
 Hardening compares actual implementation against the plan and records extra behavior, skipped items, UI copy integrity, validator coverage, and future-gated item checks.
 

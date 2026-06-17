@@ -12,6 +12,7 @@ from __future__ import annotations
 import inspect
 import re
 import tempfile
+import warnings
 import zipfile
 from pathlib import Path
 
@@ -2672,6 +2673,207 @@ def _validate_user_review_bundle_export_zip_cleanup_guard() -> list[str]:
             failures.append(
                 "USER review zip cleanup removed a non-timestamped same-prefix file"
             )
+    return failures
+
+
+def _write_local_user_packet_fixture(packet_dir: Path) -> None:
+    (packet_dir / review_bundle.USER_REVIEW_DIR_NAME).mkdir(parents=True, exist_ok=True)
+    (packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME).mkdir(parents=True, exist_ok=True)
+    (packet_dir / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME).mkdir(parents=True, exist_ok=True)
+    (packet_dir / "START_HERE.md").write_text(
+        "# START HERE\n\n"
+        "Review Purpose: fixture packet validation.\n"
+        "Local USER Hub Folder: fixture local hub.\n"
+        "Review Order: open USER Review/FIXTURE_REVIEW.md first.\n"
+        "USER Decision This Packet Supports: fixture review only.\n"
+        "Pending USER Decisions: none for fixture.\n"
+        "Bundle File Count: 5\n"
+        "Expected File Count: 2\n"
+        "Copied File Count: 2\n"
+        "Extra Bundle File Count: 2\n",
+        encoding="utf-8",
+    )
+    (packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "FIXTURE_REVIEW.md").write_text(
+        "# Fixture Review\n\n"
+        "This is the only primary USER review file for the current fixture gate.\n",
+        encoding="utf-8",
+    )
+    (packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "FIXTURE_AID.md").write_text(
+        "# Fixture Aid\n\nSupporting review aid.\n",
+        encoding="utf-8",
+    )
+    (packet_dir / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME / "Main.md").write_text(
+        "# Fixture Source Truth Context\n\nCopied context only.\n",
+        encoding="utf-8",
+    )
+    (
+        packet_dir
+        / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
+        / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+    ).write_text(
+        "# Historical Branch Plan Review Context\n\n"
+        "Source HEAD: 0123456789012345678901234567890123456789\n",
+        encoding="utf-8",
+    )
+
+
+def _zip_local_user_packet_fixture(packet_dir: Path, export_zip: Path) -> None:
+    with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(packet_dir.rglob("*")):
+            if path.is_file():
+                archive.write(path, path.relative_to(packet_dir).as_posix())
+
+
+def _validate_local_user_packet_folder_zip_guard() -> list[str]:
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "Governance"
+        export_zip = review_root / "Governance-20260617-111111.zip"
+        _write_local_user_packet_fixture(packet_dir)
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
+        result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if result.failures:
+            failures.append(
+                "Valid local USER packet folder/ZIP fixture unexpectedly failed: "
+                + "; ".join(result.failures[:5])
+            )
+
+        bad_metadata_aid = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "BAD_METADATA_AID.md"
+        bad_metadata_aid.write_text(
+            "# Bad Metadata Aid\n\nSource HEAD: 0123456789012345678901234567890123456789\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        bad_metadata_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any(
+            "BAD_METADATA_AID.md" in failure and "technical metadata" in failure
+            for failure in bad_metadata_result.failures
+        ):
+            failures.append("Local USER packet validation did not reject technical metadata in Review Aids")
+        bad_metadata_aid.unlink()
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
+        bad_validation_aid = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "BAD_VALIDATION_STATUS_AID.md"
+        bad_validation_aid.write_text(
+            "# Bad Validation Status Aid\n\nValidation Summary: green-by-helper-output.\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        bad_validation_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any(
+            "BAD_VALIDATION_STATUS_AID.md" in failure and "technical metadata" in failure
+            for failure in bad_validation_result.failures
+        ):
+            failures.append("Local USER packet validation did not reject validation status in Review Aids")
+        bad_validation_aid.unlink()
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
+        changed_aid = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "FIXTURE_AID.md"
+        changed_aid.write_text(
+            "# Fixture Aid\n\nChanged after ZIP creation; same filename, stale ZIP content.\n",
+            encoding="utf-8",
+        )
+        stale_content_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("content hash mismatch" in failure for failure in stale_content_result.failures):
+            failures.append("Local USER packet validation did not reject stale ZIP content with matching file names")
+        changed_aid.write_text(
+            "# Fixture Aid\n\nSupporting review aid.\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
+        copied_zip_dir = review_root / "Copied Zip Outside User Hub"
+        copied_zip_dir.mkdir()
+        copied_zip = copied_zip_dir / export_zip.name
+        copied_zip.write_bytes(export_zip.read_bytes())
+        copied_zip_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=copied_zip,
+            worktree_label="Governance",
+        )
+        if not any("must live beside the packet folder" in failure for failure in copied_zip_result.failures):
+            failures.append("Local USER packet validation did not reject ZIP outside packet folder parent")
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            with zipfile.ZipFile(export_zip, "a", compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr(
+                    f"{review_bundle.REVIEW_AIDS_DIR_NAME}/FIXTURE_AID.md",
+                    "# Fixture Aid\n\nDuplicate ZIP member fixture.\n",
+                )
+        duplicate_zip_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("duplicate ZIP entries" in failure for failure in duplicate_zip_result.failures):
+            failures.append("Local USER packet validation did not reject duplicate ZIP member names")
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
+        stale_zip = review_root / "Governance-20260617-101010.zip"
+        stale_zip.write_text("stale fixture", encoding="utf-8")
+        stale_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("Stale same-label USER packet ZIP remains" in failure for failure in stale_result.failures):
+            failures.append("Local USER packet validation did not reject stale same-label timestamped ZIP")
+        stale_zip.unlink()
+
+        stable_zip = review_root / "Governance.zip"
+        stable_zip.write_text("legacy stable fixture", encoding="utf-8")
+        stable_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("Stable-name USER packet ZIP is not allowed" in failure for failure in stable_result.failures):
+            failures.append("Local USER packet validation did not reject stable-name Governance.zip")
+        stable_zip.unlink()
+
+        extra_primary = packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "SECOND_REVIEW.md"
+        extra_primary.write_text("# Second Review\n\nInvalid extra primary file.\n", encoding="utf-8")
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        multi_primary_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("exactly one primary USER review file" in failure for failure in multi_primary_result.failures):
+            failures.append("Local USER packet validation did not reject multiple primary USER review files")
+        extra_primary.unlink()
+
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        (packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "ZIP_MISMATCH.md").write_text(
+            "# ZIP Mismatch\n\nThis file was added after ZIP creation.\n",
+            encoding="utf-8",
+        )
+        mismatch_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("Folder/ZIP parity failed" in failure for failure in mismatch_result.failures):
+            failures.append("Local USER packet validation did not reject folder/ZIP parity drift")
     return failures
 
 
@@ -5380,6 +5582,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
     failures.extend(_validate_user_review_bundle_export_zip_cleanup_guard())
+    failures.extend(_validate_local_user_packet_folder_zip_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
     failures.extend(_validate_fam007_bp3_packet_generation_guard())
