@@ -8,4 +8,5 @@ Binding terms are `Family Feature Vision`, `Feature Category`, and `Family Featu
 
 | FFV ID | Parent FAM | Feature Category | File | Registry Disposition | Notes |
 | --- | --- | --- | --- | --- | --- |
+| `F2-FF01` | `FAM-002` | Nexus UI Reference System | `Docs/family_feature_visions/F2-FF01.md` | USER-approved durable planning | Source-truth carrier for UI reference-system vision, missing-proof rows, promotion criteria, and catalog relationship; no references are promoted by this index row. |
 | `F3-FF01` | `FAM-003` | Nexus Resident Access And Quick Actions | `Docs/family_feature_visions/F3-FF01.md` | USER-approved durable planning | Resident tray doorway, compact quick-access menu, privacy-visible status fallback, and cross-family surface routing. |

@@ -140,6 +140,25 @@ Do not use this layer to replace:
 - Package Trace and Slice Trace detail belongs in canonical workstreams, family dossiers, external active branch plans, repo branch-plan historical receipts, or explicitly folded structured receipts. Backlog and roadmap must only point to those owners.
 - PR Readiness fold-down must decide what detailed branch-plan content moves into this branch receipt layer, what promotes durable lessons to workstreams/family dossiers, and when the branch plan is retired from active planning posture.
 
+## Durable Branch Issue Receipt Fields
+
+Branch records may preserve issue evidence only as durable receipts after live GitHub truth is checked or the evidence source is named. They must not become live GitHub issue ledgers.
+
+Use these field names when a branch needs durable issue traceability:
+
+- `Carried GitHub Issues:`
+- `Held GitHub Issues:`
+- `Completed GitHub Issues:`
+- `Issue Closeout Candidate Inventory:`
+- `Issue Closeout Status:`
+- `Issue Closeout Approval:`
+- `Issue Closeout Receipt:`
+- `Issue Evidence Source:`
+
+Allowed `Issue Closeout Status:` values are `Not Applicable`, `Pending USER Approval`, `Approved For RR2`, `Closed In GitHub`, `Already Closed`, `Routed To Future Branch`, and `USER Decision Required`.
+
+Historical branch records may name issue numbers, PRs, release tags, closeout approval, and evidence pointers when they are receipt facts. Current live issue state remains owned by GitHub, Git/GitHub connectors, helpers, Codex digests, USER review packets, or external operational state according to phase rules.
+
 ## Active Branch Authority Records
 
 This repo-tracked active list is intentionally narrow after External Operational State Store Stage 6C. It preserves the single standing Governance intake routing exception only; that exception is durable governance routing law, not a general live operations ledger. No non-standing runtime, implementation, release-packaging, repair, selected-next, PR, watcher, release-window, worktree, temporary handoff active state, or active branch-plan row may be tracked as repo source truth. Repo records and repo branch-plan files may keep durable branch/document pointers and historical receipts, but live lifecycle posture and active branch planning must be read from `C:\Nexus Governance State\central\active_branch_authority_state.md`, `C:\Nexus Governance State\branches\<branch_slug>\branch_plan.md`, branch-specific external records, and Git/GitHub/helper live checks.
@@ -226,3 +245,4 @@ This repo-tracked active list is intentionally narrow after External Operational
 - `Docs/branch_records/feature_fam_003_resident_access_quick_actions.md`
 - `Docs/branch_records/feature_fam_007_three_ndai_assisted_ai_function_slice.md`
 - `Docs/branch_records/feature_fam_007_owner_ai_operational_foundation_gates.md`
+- `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface_element_ledger.md` - Companion element-validation ledger owned by `Docs/branch_records/feature_fam_006_monitoring_hud_product_surface.md`; preserved as released historical proof, not active branch authority.
