@@ -28,6 +28,27 @@ Current USER direction supersedes older planning text that treated PR Readiness 
 
 When final hardening reaches a blocker such as `Golden Template / Reference Promotion Blocked`, Codex must stop and wait rather than request PR Readiness. This hold does not approve template creation, golden-reference promotion, design-token implementation, shared UI primitive implementation, helper/validator code, FAM worktree mutation, external-state mutation, PR creation, merge, release, or cleanup. Those remain separate USER decisions under current source truth. The template/reference plan-completion portion is completed by the 2026-06-16 planning completion below, but USER later clarified that all planned template/reference work belongs to the current branch/current PR. Therefore plan completion alone does not permit PR Readiness for this branch.
 
+## Template / Golden Reference Visual Proof Promotion Review Packet - 2026-06-17
+
+Document Status: Non-Binding Evidence Receipt. Binding authority remains with `Docs/nexus_vision.md` for Project UI Vision and proof hierarchy, `Docs/family_visions/FAM-002_desktop_interface.md` for reusable presentation grammar, `Docs/family_feature_visions/F2-FF01.md` for UI reference-system missing-proof rows and promotion-planning boundaries, and `Docs/ui_reference_catalog/` for promoted UI reference records only after explicit USER promotion approval.
+
+Packet: `C:\Nexus USER\Governance`
+
+Timestamped ZIP: `C:\Nexus USER\Governance-20260617-095237.zip`
+
+Disposition: `Evidence reviewable / no promotion`. Existing FAM-006 HUD and PR #269 FAM-007 AI Control Center evidence are useful candidate evidence for later reference promotion, but the packet does not promote any catalog record, create any template, implement design tokens/shared primitives, mutate helpers/validators/fixtures, mutate FAM worktrees, mutate external state, create a PR, merge, release, create issues, move/delete/archive files, or clear `Current Branch Template Work Incomplete`.
+
+Candidate disposition summary:
+
+- HUD/FAM-006 surface reference: `REVISE`.
+- PR #269 AI Control Center surface reference: `REVISE`.
+- Golden window reference: `REVISE`.
+- Golden control-cluster reference: `REVISE`.
+- Close/minimize/maximize cluster reference: `REVISE`.
+- Full button set, dropdown/menu/list/filter reference, modal/dialog template, status/failure/recovery panel template, tray/menu doorway template, design tokens, shared primitives, negative fixtures/bad examples, helper/validator enforcement, and active FAM-006/FAM-007 adoption mutation: `DEFERRED`.
+
+Catalog result: `Docs/ui_reference_catalog/index.md` remains at `Promoted Reference Count: 0`. No golden reference exists until a future USER-approved promotion record is written.
+
 ## Template / Reference PR-Hold Posture Repair - 2026-06-16
 
 Document Status: Non-Binding Planning Posture Repair. Binding authority remains with `Docs/phase_governance.md` for the dependency gate, `Docs/family_visions/FAM-002_desktop_interface.md` for current presentation law, and the future USER-approved template/reference carrier for any actual template, golden-reference, design-token, or shared UI primitive promotion.
