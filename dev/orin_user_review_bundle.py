@@ -182,7 +182,6 @@ BUNDLE_COUNT_FIELDS: tuple[str, ...] = (
     "Copied File Count",
     "Extra Bundle File Count",
 )
-REVIEW_AID_ALLOWED_TECHNICAL_METADATA_LABELS = {"validation-status"}
 USER_FACING_GENERATED_FILES: tuple[str, ...] = (
     "START_HERE.md",
     USER_BRANCH_VISION_REVIEW_FILE,
@@ -943,11 +942,6 @@ def _generic_user_facing_technical_metadata_failures(
         ):
             continue
         for label, pattern in USER_FACING_TECHNICAL_METADATA_PATTERNS:
-            if (
-                normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
-                and label in REVIEW_AID_ALLOWED_TECHNICAL_METADATA_LABELS
-            ):
-                continue
             if pattern.search(text):
                 failures.append(f"{file_name}: USER-facing file contains technical metadata: {label}")
     return failures
@@ -1090,7 +1084,7 @@ def validate_local_user_packet(
     failures.extend(_unresolved_template_placeholder_failures(generated_packet_files))
     failures.extend(_packet_count_consistency_failures(packet_files, actual_file_count=len(folder_entries)))
     failures.extend(_generic_user_facing_technical_metadata_failures(packet_files))
-    failures.extend(_user_facing_technical_metadata_failures(packet_files))
+    failures.extend(_user_facing_technical_metadata_failures(generated_packet_files))
     failures.extend(_user_branch_plan_stale_bp1_wording_failures(generated_packet_files))
     failures.extend(_fam007_bp2_plan_substantive_failures(generated_packet_files))
     failures.extend(_fam007_bp2_support_bp1_context_failures(generated_packet_files))

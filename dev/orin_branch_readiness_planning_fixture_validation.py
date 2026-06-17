@@ -2687,9 +2687,9 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
         "Review Order: open USER Review/FIXTURE_REVIEW.md first.\n"
         "USER Decision This Packet Supports: fixture review only.\n"
         "Pending USER Decisions: none for fixture.\n"
-        "Bundle File Count: 4\n"
-        "Expected File Count: 1\n"
-        "Copied File Count: 1\n"
+        "Bundle File Count: 5\n"
+        "Expected File Count: 2\n"
+        "Copied File Count: 2\n"
         "Extra Bundle File Count: 2\n",
         encoding="utf-8",
     )
@@ -2704,6 +2704,15 @@ def _write_local_user_packet_fixture(packet_dir: Path) -> None:
     )
     (packet_dir / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME / "Main.md").write_text(
         "# Fixture Source Truth Context\n\nCopied context only.\n",
+        encoding="utf-8",
+    )
+    (
+        packet_dir
+        / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME
+        / review_bundle.USER_BRANCH_PLAN_REVIEW_FILE
+    ).write_text(
+        "# Historical Branch Plan Review Context\n\n"
+        "Source HEAD: 0123456789012345678901234567890123456789\n",
         encoding="utf-8",
     )
 
@@ -2752,6 +2761,25 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
         ):
             failures.append("Local USER packet validation did not reject technical metadata in Review Aids")
         bad_metadata_aid.unlink()
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
+        bad_validation_aid = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "BAD_VALIDATION_STATUS_AID.md"
+        bad_validation_aid.write_text(
+            "# Bad Validation Status Aid\n\nValidation Summary: green-by-helper-output.\n",
+            encoding="utf-8",
+        )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        bad_validation_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any(
+            "BAD_VALIDATION_STATUS_AID.md" in failure and "technical metadata" in failure
+            for failure in bad_validation_result.failures
+        ):
+            failures.append("Local USER packet validation did not reject validation status in Review Aids")
+        bad_validation_aid.unlink()
         _zip_local_user_packet_fixture(packet_dir, export_zip)
 
         changed_aid = packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "FIXTURE_AID.md"
