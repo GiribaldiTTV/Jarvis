@@ -234,6 +234,9 @@ USER_REVIEW_HUB_TIMESTAMPED_ZIP_REQUIRED_PHRASES = (
     "timestamped",
     "YYYYMMDD-HHMMSS",
     "legacy same-name",
+    "folder/ZIP parity",
+    "stable ZIP rejection",
+    "stale same-label ZIP",
 )
 
 WORKSTREAM_INDEX_REQUIRED = (

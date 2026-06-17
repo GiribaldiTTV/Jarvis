@@ -2675,6 +2675,114 @@ def _validate_user_review_bundle_export_zip_cleanup_guard() -> list[str]:
     return failures
 
 
+def _write_local_user_packet_fixture(packet_dir: Path) -> None:
+    (packet_dir / review_bundle.USER_REVIEW_DIR_NAME).mkdir(parents=True, exist_ok=True)
+    (packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME).mkdir(parents=True, exist_ok=True)
+    (packet_dir / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME).mkdir(parents=True, exist_ok=True)
+    (packet_dir / "START_HERE.md").write_text(
+        "# START HERE\n\n"
+        "Review Purpose: fixture packet validation.\n"
+        "Local USER Hub Folder: fixture local hub.\n"
+        "Review Order: open USER Review/FIXTURE_REVIEW.md first.\n"
+        "USER Decision This Packet Supports: fixture review only.\n"
+        "Pending USER Decisions: none for fixture.\n"
+        "Bundle File Count: 4\n"
+        "Expected File Count: 1\n"
+        "Copied File Count: 1\n"
+        "Extra Bundle File Count: 2\n",
+        encoding="utf-8",
+    )
+    (packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "FIXTURE_REVIEW.md").write_text(
+        "# Fixture Review\n\n"
+        "This is the only primary USER review file for the current fixture gate.\n",
+        encoding="utf-8",
+    )
+    (packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "FIXTURE_AID.md").write_text(
+        "# Fixture Aid\n\nSupporting review aid.\n",
+        encoding="utf-8",
+    )
+    (packet_dir / review_bundle.SOURCE_TRUTH_CONTEXT_DIR_NAME / "Main.md").write_text(
+        "# Fixture Source Truth Context\n\nCopied context only.\n",
+        encoding="utf-8",
+    )
+
+
+def _zip_local_user_packet_fixture(packet_dir: Path, export_zip: Path) -> None:
+    with zipfile.ZipFile(export_zip, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(packet_dir.rglob("*")):
+            if path.is_file():
+                archive.write(path, path.relative_to(packet_dir).as_posix())
+
+
+def _validate_local_user_packet_folder_zip_guard() -> list[str]:
+    failures: list[str] = []
+    with tempfile.TemporaryDirectory() as temp_dir:
+        review_root = Path(temp_dir)
+        packet_dir = review_root / "Governance"
+        export_zip = review_root / "Governance-20260617-111111.zip"
+        _write_local_user_packet_fixture(packet_dir)
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
+        result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if result.failures:
+            failures.append(
+                "Valid local USER packet folder/ZIP fixture unexpectedly failed: "
+                + "; ".join(result.failures[:5])
+            )
+
+        stale_zip = review_root / "Governance-20260617-101010.zip"
+        stale_zip.write_text("stale fixture", encoding="utf-8")
+        stale_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("Stale same-label USER packet ZIP remains" in failure for failure in stale_result.failures):
+            failures.append("Local USER packet validation did not reject stale same-label timestamped ZIP")
+        stale_zip.unlink()
+
+        stable_zip = review_root / "Governance.zip"
+        stable_zip.write_text("legacy stable fixture", encoding="utf-8")
+        stable_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("Stable-name USER packet ZIP is not allowed" in failure for failure in stable_result.failures):
+            failures.append("Local USER packet validation did not reject stable-name Governance.zip")
+        stable_zip.unlink()
+
+        extra_primary = packet_dir / review_bundle.USER_REVIEW_DIR_NAME / "SECOND_REVIEW.md"
+        extra_primary.write_text("# Second Review\n\nInvalid extra primary file.\n", encoding="utf-8")
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        multi_primary_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("exactly one primary USER review file" in failure for failure in multi_primary_result.failures):
+            failures.append("Local USER packet validation did not reject multiple primary USER review files")
+        extra_primary.unlink()
+
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+        (packet_dir / review_bundle.REVIEW_AIDS_DIR_NAME / "ZIP_MISMATCH.md").write_text(
+            "# ZIP Mismatch\n\nThis file was added after ZIP creation.\n",
+            encoding="utf-8",
+        )
+        mismatch_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("Folder/ZIP parity failed" in failure for failure in mismatch_result.failures):
+            failures.append("Local USER packet validation did not reject folder/ZIP parity drift")
+    return failures
+
+
 def _validate_active_overlay_user_branch_plan_review_metadata_guard() -> list[str]:
     source_path = "Docs/branch_plans/feature_fam_006_active_overlay_recording_runtime_foundation.md"
     failures: list[str] = []
@@ -5380,6 +5488,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())
     failures.extend(_validate_user_review_bundle_export_zip_identity_guard())
     failures.extend(_validate_user_review_bundle_export_zip_cleanup_guard())
+    failures.extend(_validate_local_user_packet_folder_zip_guard())
     failures.extend(_validate_active_overlay_user_branch_plan_review_metadata_guard())
     failures.extend(_validate_fam007_workstream_approval_packet_metadata_guard())
     failures.extend(_validate_fam007_bp3_packet_generation_guard())
