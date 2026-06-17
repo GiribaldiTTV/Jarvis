@@ -30,6 +30,20 @@ The expected presentation is Nexus-native: custom product framing or chrome, coh
 
 Platform exceptions must be explicit. OS file pickers, OS security prompts, provider-auth surfaces, installer/update flows that require platform trust affordances, and temporary troubleshooting-only diagnostics may use platform chrome only when the branch classifies the exception, explains why Nexus-native chrome is not appropriate, and includes the exception in BP2/BP3 proof and Live Validation visual adjudication.
 
+## Top-Level Window Control Grammar Standard
+
+FAM-002 owns the reusable top-level window-control grammar for Nexus-owned product windows. A Nexus-owned top-level, standalone, restorable, independently opened, movable, resizable, or geometry-persisted product window must distinguish window-level controls from content actions. Window-level close, minimize, maximize, restore, drag, and resize behavior must use a compact Nexus-native control cluster or recorded equivalent window-control grammar when those actions are applicable to the window.
+
+A large labeled header `CLOSE` pill is clear and may remain valid for modal dialogs, child windows, footer actions, content-level actions, confirmation flows, temporary proof/dev surfaces, platform-native exceptions, or USER-approved exceptions. It is not the default top-level window-control grammar for standalone Nexus product windows because it can read as a content action, compete with footer buttons, and blur the boundary between closing a window and completing or cancelling work. If a branch keeps a large header `CLOSE` on a top-level product window, it must record why the exception is intentional and prove it does not conflict with footer/content actions.
+
+Top-level control clusters must remain Nexus-native rather than default Windows chrome. Expected behavior includes compact placement, readable icons or symbols, accessible names, hover tooltips, generous hitboxes, keyboard/focus treatment, default/hover/pressed/focus/disabled states, visually secondary minimize/maximize/restore controls, and a close control that is neutral by default unless danger context or hover treatment is intentionally admitted. Consuming FAM branches own their feature-window behavior and proof. FAM-003 owns only user-accessible reset/recovery routes when a global or doorway-level action is admitted; it does not own normal close/minimize/maximize/restore behavior by inference.
+
+## Standalone Window Geometry Recovery Standard
+
+FAM-002 owns the reusable presentation and geometry standard for Nexus-owned product windows. Any Nexus-owned standalone, top-level, restorable, independently opened, movable, resizable, or geometry-persisted product window must define safe default position/size behavior and a USER-accessible reset path so the USER can recover from offscreen placement, missing-monitor movement, corrupted saved geometry, too-small/too-large windows, or layout changes.
+
+The reset route must preserve Nexus presentation grammar: clear language, predictable placement, visible recovery feedback, and no debug-looking utility popup unless a platform/native or troubleshooting exception is recorded. Consuming FAM branches own their feature window behavior and proof. FAM-003 owns the resident access / quick-actions / settings route when the reset action is a global or user-accessible Nexus command. Child panels, anchored panels, OS dialogs, temporary dev/proof tools, or non-restorable surfaces may be Not Applicable only when the branch records the reason and proof path.
+
 ## Reusable Component Grammar
 
 FAM-002 supplies reusable presentation grammar for:
@@ -42,6 +56,22 @@ FAM-002 supplies reusable presentation grammar for:
 - USER-facing proof readability, so validation or diagnostics surfaces remain understandable product surfaces instead of debug walls
 
 Consuming FAM branches may specialize this grammar for their own feature surfaces, but they must name the inherited FAM-002 grammar, classify any platform-native exception, and prove visible inheritance before USER handoff. A branch that introduces a new button family, new window frame, new dialog shell, unique glow/color family, or custom layout density must record whether it is inherited, a USER-accepted new grammar, or a repair/blocker.
+
+## Component Anatomy And Element-Group Acceptance
+
+FAM-002 treats reusable UI components as visible element groups with anatomy, state, and proof expectations. A component is not accepted merely because a helper marker exists or a screenshot was captured.
+
+For shared UI components such as close/minimize/back/settings affordances, primary/secondary/danger buttons, dropdowns, cards, rows, scrollbars, confirmation dialogs, dirty guards, status chips, and window chrome, consuming FAM branches should identify the component anatomy that matters to the USER experience:
+
+- visible label/icon and purpose
+- placement and relationship to surrounding controls
+- size, spacing, radius, border, shadow, glow, and density
+- typography, color, contrast, and disabled/degraded treatment
+- default, hover, focus, pressed, selected, dirty, loading, disabled, error, empty, and danger states when applicable
+- input behavior for mouse, keyboard, focus, scroll, resize, close, save, discard, cancel, and delete paths when applicable
+- inherited reference surface, accepted grammar, or USER-approved exception
+
+Element-group acceptance must be deterministic enough that a future branch can compare a new component to the inherited Nexus grammar. Vague verdicts such as `looks good`, `NDAI-ish`, `matches generally`, or `seems fine` are not enough. Final visual acceptance requires mapped evidence, reference or exception, inspected state coverage, and a PASS / REPAIR / STOP / WAIVED_WITH_REASON / USER Review Required disposition.
 
 ## Consumption Model
 
@@ -63,6 +93,8 @@ Consuming FAM branches may specialize this grammar for their own feature surface
 ## Canonical Pointers
 
 - Project vision: `Docs/nexus_vision.md`
+- UI reference-system FFV: `Docs/family_feature_visions/F2-FF01.md`
+- Promoted UI reference catalog: `Docs/ui_reference_catalog/`
 - Resident access FFV: `Docs/family_feature_visions/F3-FF01.md`
 - Backlog registry: `Docs/feature_backlog.md`
 - Roadmap posture: `Docs/prebeta_roadmap.md`

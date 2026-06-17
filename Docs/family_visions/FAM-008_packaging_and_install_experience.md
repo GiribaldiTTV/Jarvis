@@ -24,6 +24,7 @@ Packaging and install work should make Nexus easier to install, launch, update, 
 - Update and migration behavior should preserve user data and make repair paths clear.
 - First-run, settings, or installer education may explain how to keep the Nexus tray icon visible, but it must not claim the app can force permanent placement beside Windows-owned Sound, Network, Battery, or Mic system icons.
 - Tray visibility, startup behavior, shortcut identity, and update/restart continuity must be explicit, reversible, and validation-backed when packaging work admits them.
+- Setup or installer education may point the USER to approved recovery actions such as reset-window-position/size when those actions exist, but the product runtime reset route belongs to the owning FAM-003 resident/settings/quick-action path and the consuming feature FAM, not to packaging by inference.
 
 ## Implementation Boundaries
 
