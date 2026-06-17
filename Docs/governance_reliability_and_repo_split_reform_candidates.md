@@ -2215,6 +2215,67 @@ Next Legal Use:
 
 The next legal phase is still not PR Readiness. USER should decide whether to continue proof collection, provide USER evidence, route later owning-FAM/runtime proof, explicitly waive/reclassify named lanes, reject/defer named lanes, or keep the branch blocked. If USER wants AI Control Center to become the reference seed, the next legal route is a named Package A proof/USER visual acceptance path; promotion still requires explicit USER approval and a later catalog record.
 
+## Template / Golden Reference Consolidated Package A-E Runtime Proof Collection - 2026-06-17
+
+Document Status: Non-Binding Planning / Source-Truth Receipt. Binding authority remains with `Docs/family_visions/FAM-002_desktop_interface.md`, `Docs/family_feature_visions/F2-FF01.md`, `Docs/ui_reference_catalog/`, `Docs/phase_governance.md`, and `Docs/branch_plans/README.md`.
+
+Accepted Evidence Posture:
+
+- USER accepted the consolidated Package A-E proof collection execution corridor as reported.
+- USER approved bounded runtime proof collection using FAM-003/FAM-006/FAM-007 surfaces as evidence sources only.
+- FAM-007 AI Control Center remains the strongest Package A seed but is not promoted.
+- HUD/FAM-006 remains comparison evidence and possible future adoption/refit target but is not promoted.
+- Package E enforcement remains future-gated until visual proof/reference lanes are clearer.
+- `Docs/ui_reference_catalog/index.md` remains `Promoted Reference Count: 0`.
+
+Proof-Source Identity Result:
+
+| Source | Worktree / Evidence Root | Branch / State | Runtime Capture Decision |
+| --- | --- | --- | --- |
+| FAM-003 | `C:\Nexus Worktrees\FAM-003`; `C:\Nexus USER\FAM-003`; `dev\logs\desktop_entrypoint_validation` | Clean; upstream-aligned feature branch; ahead of origin/main | No new runtime capture. Existing logs are runtime/log context only; no visual tray/settings proof found. |
+| FAM-006 | `C:\Nexus Worktrees\FAM-006`; `C:\Nexus USER\FAM-006`; `dev\logs\fam_006_human_client_validation` | Clean; upstream-aligned feature branch; ahead of origin/main | No new runtime capture required. Existing human-client screenshots, short video, and manifests are copied as evidence. |
+| FAM-007 | `C:\Nexus Worktrees\FAM-007`; `C:\Nexus USER\FAM-007`; `dev\logs\fam_007_ai_control_center_live_resize` | Clean; upstream-aligned historical feature branch; behind current origin/main | No new runtime capture. Existing AI Control Center live-resize proof is copied as candidate evidence only. |
+
+Runtime Proof Table:
+
+| Package | Candidate | Required State / Proof | Evidence Collected | Source | Independent? | Sufficient? | Visual/Product Notes | Remaining Gap | Next Legal Route |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| A | AI Control Center top-level window | Default, resize, geometry, frame/chrome, multi-surface comparison, USER visual acceptance | FAM-007 live-resize focused/full-desktop screenshots for default, close-hover, scrollbar, run-local-check hover, corner/right/bottom/top-right resize plus manifest | Existing FAM-007 USER/log evidence | Mostly yes | No | Strongest current Package A seed; runtime evidence is useful but still source-candidate only | Independent minimize-hover, maximize/restore applicability, platform exception classification, accessibility/hitbox proof, USER acceptance | Later Package A proof/USER visual acceptance path |
+| A | Compact window-control cluster | Close/minimize/maximize/restore applicability, hover/focus/pressed/blocked/disabled states | FAM-007 close-hover proof plus duplicate default/minimize-hover proof | Existing FAM-007 USER/log evidence | Mixed | No | Close-hover remains useful; minimize-hover remains duplicate by SHA256 | Independent minimize-hover, maximize/restore, disabled/blocked/focus/pressed/hitbox proof | Later focused control-cluster proof |
+| A | HUD/FAM-006 dashboard/window comparison | User-facing HUD/Dashboard surface, tray open/close, geometry context, video proof | FAM-006 human-client screenshots, short videos, manifests, HUD launch/open/close/resize/tray menu evidence | Existing FAM-006 dev log and USER evidence | Yes as comparison | No | Strong runtime comparison evidence; visually not promoted and UTS acceptance remains separate | USER acceptance and any adoption/refit proof after reference promotion | Later FAM-006 adoption/evaluation path |
+| B | Buttons/dropdowns/menus/lists/filters | Button, selector, menu, list/filter states, keyboard/accessibility, hover/focus/disabled/loading/error | FAM-006 tray menu, HUD quick actions, selector evidence; FAM-007 Run Local Check hover and scrollbar evidence | Existing FAM-006/FAM-007 evidence | Partial | No | Gives better runtime coverage than the prior packet but still not full state taxonomy | Open dropdown/menu/list/filter matrices, keyboard/accessibility, disabled/loading/error proof, USER acceptance | Continue proof collection or later FAM/runtime proof |
+| C | Modal/dialog, status/failure/recovery, tray/settings doorway | Modal/dialog taxonomy, status/failure/recovery sequence, resident tray/menu doorway, settings surfaces | FAM-006 returned UTS/failure context, FAM-006 tray-menu screenshots, FAM-003 desktop-entrypoint logs, F3-FF01 context | Existing FAM-003/FAM-006 evidence | Partial | No | Runtime logs and tray screenshots are useful, but FAM-003 lacks visual proof and modal/status taxonomy remains incomplete | FAM-003 tray/settings visual proof, FAM-001/FAM-006 status/failure proof, focus/keyboard/accessibility, USER acceptance | Later owning-FAM/runtime proof |
+| D | Design tokens/shared UI rules | Token taxonomy, accepted ranges, source-to-visual trace, reusable primitive boundary | FAM-002 grammar plus FAM-006/FAM-007 visual comparison evidence | Source truth and copied evidence | Partial | No | Candidate extraction input only; no shared primitive or token implementation approved | Accepted values, code-to-visual trace, contrast proof, migration/adoption plan, USER acceptance | Future implementation-planning carrier |
+| E | Anti-pattern/helper/validator expectations | Negative examples, false-green prevention, helper/validator/fixture proof | Existing no-overclaim rules and current runtime proof gaps | Governance source-truth context | Yes as planning evidence | No | The proof gaps are useful future fixture examples, but no helper/validator/fixture mutation is approved | USER approval for fixture/helper/validator work and false-positive review | Future enforcement carrier |
+
+Promotion-Readiness Table:
+
+| Package | Candidate | Promotion Readiness | Reason | Can Move To USER Promotion Review? | Later Approval Needed |
+| --- | --- | --- | --- | --- | --- |
+| A | AI Control Center top-level window | Strongest seed, still proof-blocked | Runtime evidence improved, but acceptance, state coverage, and applicability matrix remain incomplete | Not yet as promotion; yes as focused proof target | USER evidence or later FAM/runtime proof plus USER visual acceptance |
+| A | Compact window-control cluster | Strong seed, proof-blocked | Independent minimize-hover and control applicability are still missing | Not yet | Focused state proof and USER visual acceptance |
+| A | HUD/FAM-006 comparison/adoption target | Comparison only | Runtime proof is useful but not accepted as standard | No | Later consuming-FAM adoption/evaluation |
+| B | Controls/dropdowns/menus/lists/filters | Better evidence, insufficient | Runtime examples exist but state taxonomy is incomplete | No | More proof or later owning-FAM/runtime evidence |
+| C | Modal/status/tray/settings | Better context, insufficient | FAM-003 visual tray/settings proof is missing; FAM-006 status/failure proof is not a promoted reference | No | Later owning-FAM/runtime proof |
+| D | Tokens/shared rules | Not ready | Requires implementation-planning carrier after references stabilize | No | Separate implementation approval |
+| E | Negative fixtures/helper/validator checks | Not ready | Requires code/fixture approval and false-positive review | No | Separate enforcement approval |
+
+Blocker Ledger:
+
+| Blocker | Current Status | Cleared By This Cycle? | Reason | Next Legal Action |
+| --- | --- | --- | --- | --- |
+| `Current Branch Template Work Incomplete` | Active | No | Runtime proof improves evidence but Packages A-E remain unresolved | USER chooses more proof, USER evidence, later FAM/runtime proof, waiver/reclassification, reject/defer, or blocked posture |
+| `Golden Reference Promotion Blocked` | Active | No | No USER visual acceptance or catalog record exists | Collect proof and request explicit later promotion approval |
+| `Package A proof incomplete` | Active | No | Strongest seed remains missing key state/accessibility/acceptance proof | Focused Package A proof or USER evidence |
+| `Package B proof incomplete` | Active | No | Runtime control evidence is partial | Additional proof or later owning-FAM proof |
+| `Package C proof incomplete` | Active | No | FAM-003 visual tray/settings proof and failure/status taxonomy are incomplete | Later owning-FAM/runtime proof |
+| `Package D implementation/proof incomplete` | Active | No | Token/shared-primitive carrier is future-gated | Separate implementation-planning approval |
+| `Package E enforcement implementation incomplete` | Active | No | Helper/validator/fixture mutation is future-gated | Separate enforcement approval |
+
+Next Legal Use:
+
+The next legal phase remains blocker-disposition digestion for Packages A-E. Runtime evidence makes AI Control Center the strongest candidate seed, but the branch remains blocked until USER either continues proof collection, supplies USER evidence, routes later FAM/runtime proof, explicitly waives/reclassifies named lanes, rejects/defers named lanes, or keeps the branch blocked.
+
 ## Final Recommendation
 
 ChatGPT's strongest insight is correct: the next governance risk is ownership duplication. The best repair is not "more governance everywhere"; it is better owner classification before new concepts become FAMs, architecture systems, policies, experience layers, or implementation work.
