@@ -905,13 +905,18 @@ def _folder_file_hashes(packet_dir: Path) -> dict[str, str]:
     return file_hashes
 
 
-def _zip_file_hashes(export_zip: Path) -> dict[str, str]:
+def _zip_file_hashes(export_zip: Path) -> tuple[dict[str, str], tuple[str, ...]]:
     with zipfile.ZipFile(export_zip, "r") as archive:
-        return {
+        entries = [entry for entry in archive.infolist() if not entry.is_dir()]
+        entry_counts = Counter(entry.filename for entry in entries)
+        duplicate_entries = tuple(
+            sorted(name for name, count in entry_counts.items() if count > 1)
+        )
+        file_hashes = {
             entry.filename: hashlib.sha256(archive.read(entry)).hexdigest()
-            for entry in archive.infolist()
-            if not entry.is_dir()
+            for entry in entries
         }
+        return file_hashes, duplicate_entries
 
 
 def _same_label_export_zip_paths(review_root: Path, label: str) -> set[Path]:
@@ -1008,7 +1013,12 @@ def validate_local_user_packet(
             failures=failures,
         )
 
-    review_root = export_zip.parent.resolve()
+    review_root = packet_dir.parent.resolve()
+    if export_zip.parent.resolve() != review_root:
+        failures.append(
+            "Timestamped USER packet ZIP must live beside the packet folder: "
+            f"expected parent={review_root} actual parent={export_zip.parent.resolve()}"
+        )
     name_failures = _timestamped_export_zip_name_failures(export_zip, label)
     failures.extend(name_failures)
 
@@ -1025,12 +1035,19 @@ def validate_local_user_packet(
     folder_hashes = _folder_file_hashes(packet_dir)
     folder_entries = set(folder_hashes)
     try:
-        zip_hashes = _zip_file_hashes(export_zip)
+        zip_hashes, duplicate_zip_entries = _zip_file_hashes(export_zip)
         zip_entries = set(zip_hashes)
     except zipfile.BadZipFile as exc:
         failures.append(f"Review export ZIP is not readable: {export_zip}: {exc}")
         zip_hashes = {}
+        duplicate_zip_entries = ()
         zip_entries = set()
+
+    if duplicate_zip_entries:
+        failures.append(
+            "Folder/ZIP parity failed: duplicate ZIP entries are not allowed "
+            f"entries={list(duplicate_zip_entries)}"
+        )
 
     if folder_entries != zip_entries:
         missing = sorted(folder_entries - zip_entries)

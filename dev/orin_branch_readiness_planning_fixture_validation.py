@@ -12,6 +12,7 @@ from __future__ import annotations
 import inspect
 import re
 import tempfile
+import warnings
 import zipfile
 from pathlib import Path
 
@@ -2750,6 +2751,34 @@ def _validate_local_user_packet_folder_zip_guard() -> list[str]:
             "# Fixture Aid\n\nSupporting review aid.\n",
             encoding="utf-8",
         )
+        _zip_local_user_packet_fixture(packet_dir, export_zip)
+
+        copied_zip_dir = review_root / "Copied Zip Outside User Hub"
+        copied_zip_dir.mkdir()
+        copied_zip = copied_zip_dir / export_zip.name
+        copied_zip.write_bytes(export_zip.read_bytes())
+        copied_zip_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=copied_zip,
+            worktree_label="Governance",
+        )
+        if not any("must live beside the packet folder" in failure for failure in copied_zip_result.failures):
+            failures.append("Local USER packet validation did not reject ZIP outside packet folder parent")
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            with zipfile.ZipFile(export_zip, "a", compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr(
+                    f"{review_bundle.REVIEW_AIDS_DIR_NAME}/FIXTURE_AID.md",
+                    "# Fixture Aid\n\nDuplicate ZIP member fixture.\n",
+                )
+        duplicate_zip_result = review_bundle.validate_local_user_packet(
+            packet_dir,
+            export_zip=export_zip,
+            worktree_label="Governance",
+        )
+        if not any("duplicate ZIP entries" in failure for failure in duplicate_zip_result.failures):
+            failures.append("Local USER packet validation did not reject duplicate ZIP member names")
         _zip_local_user_packet_fixture(packet_dir, export_zip)
 
         stale_zip = review_root / "Governance-20260617-101010.zip"
