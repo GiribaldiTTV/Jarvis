@@ -666,6 +666,30 @@ Corridor Result: `CONSOLIDATED PACKET GENERATED - NO PROMOTION`. Governance cons
 
 Next Legal Use: USER reviews the consolidated A-E proof-intake packet and chooses a blocker-disposition path. The recommended next decision is bounded blocker-disposition digestion for Packages A-E. PR Readiness remains blocked until all current-PR package lanes are completed, promoted, waived, rejected, deferred/reclassified by explicit USER decision, or otherwise legally removed from current PR scope. This receipt does not authorize PR Readiness, PR creation, merge, release, FAM-003/FAM-006/FAM-007/main mutation, runtime proof generation, external-state mutation, catalog promotion, promoted-reference record creation, template creation, design-token/shared-primitive implementation, helper/validator/fixture mutation, issue mutation, cleanup, USER visual acceptance, or USER waiver.
 
+## Template / Golden Reference Consolidated Package A-E USER-Provided Proof Intake And Promotion-Route Packet - 2026-06-17
+
+Document Status: Non-Binding Consolidated Proof-Intake / Promotion-Route Receipt. Binding authority remains with `Docs/nexus_vision.md`, `Docs/family_visions/FAM-002_desktop_interface.md`, `Docs/family_feature_visions/F2-FF01.md`, `Docs/ui_reference_catalog/`, `Docs/phase_governance.md`, `Docs/user_test_summary_guidance.md`, and `Docs/validation_helper_registry.md`.
+
+Packet Result: `PACKET GENERATED - NO PROMOTION`. Governance regenerated `C:\Nexus USER\Governance` as a consolidated Package A-E USER-provided proof intake and promotion-route packet with required proof-item rows, promotion-route rows, blocker rows, copied evidence inventory, source-truth context, and exact next USER decision text. `Docs/ui_reference_catalog/index.md` remains `Promoted Reference Count: 0`; no promoted catalog records exist. FAM-003, FAM-006, and FAM-007 remain consumer/context evidence only and are not mutation targets.
+
+| Package | Candidate | Current Proof Classification | Promotion-Route Result |
+| --- | --- | --- | --- |
+| A | AI Control Center / HUD top-level window reference | `INSUFFICIENT` | Strong future seed only; cannot promote until full state/class/accessibility and USER visual acceptance proof exists |
+| A | Window-control cluster | `INSUFFICIENT / DUPLICATE` | FAM-007 default and minimize-hover screenshots are duplicate by SHA256; close-hover is useful but state matrix remains incomplete |
+| B | Buttons | `INSUFFICIENT` | Existing FAM-006/FAM-007 button evidence is comparison proof only |
+| B | Dropdowns, menus, lists, filters | `MISSING / INSUFFICIENT` | Closed selected selector and scrollbar context do not prove open menus, filters, list state matrix, or USER acceptance |
+| C | Modal/dialog surfaces | `INSUFFICIENT / WRONG CANDIDATE FOR PROMOTION` | Child/window context does not prove modal/dialog taxonomy or focus/keyboard behavior |
+| C | Status/failure/recovery panels | `INSUFFICIENT` | Returned UTS/FAM-007 status context is evidence, but acceptance and full recovery-state proof are missing |
+| C | Tray/menu doorway and settings surfaces | `MISSING` | F3-FF01 is planning context only; real tray/menu/settings proof requires later FAM/runtime or USER evidence |
+| D | Design tokens and shared UI rules | `DEFERRED / INSUFFICIENT` | Token/shared-primitive implementation and proof remain unapproved |
+| E | Negative examples, bad fixtures, helper expectations, validator expectations | `DEFERRED / NO CODE MUTATION` | Executable fixtures and helper/validator changes remain unapproved |
+
+Promotion-Route Determination: No named Package A-E candidate can move to promotion now. Package A top-level/window-control candidates are the strongest later promotion seeds, but only after missing proof and USER visual acceptance exist. Packages B and C require more USER evidence and likely later FAM/runtime proof for several lanes. Package D requires a later implementation-planning carrier. Package E requires later helper/validator/fixture mutation approval after reference rules are specific enough.
+
+Blocker Result: `Current Branch Template Work Incomplete`, `Golden Reference Promotion Blocked`, Package A proof incomplete, Package B proof incomplete, Package C proof incomplete, Package D implementation/proof incomplete, Package E enforcement implementation incomplete, and PR Readiness blocked all remain active. This receipt does not authorize PR Readiness, PR creation, merge, release, FAM-003/FAM-006/FAM-007/main mutation, runtime proof generation, external-state mutation, catalog promotion, promoted-reference record creation, template creation, design-token/shared-primitive implementation, helper/validator/fixture mutation, issue mutation, cleanup, USER visual acceptance, or USER waiver.
+
+Next Legal Use: USER reviews the consolidated Package A-E USER-provided proof intake and promotion-route packet and chooses a blocker-disposition path: continue proof collection, provide USER evidence, route later FAM/runtime proof, reclassify named lanes out of current PR scope, reject/defer named lanes, or keep the branch blocked.
+
 ## Template / Reference PR-Hold Posture Repair - 2026-06-16
 
 Document Status: Non-Binding Planning Posture Repair. Binding authority remains with `Docs/phase_governance.md` for the dependency gate, `Docs/family_visions/FAM-002_desktop_interface.md` for current presentation law, and the future USER-approved template/reference carrier for any actual template, golden-reference, design-token, or shared UI primitive promotion.
