@@ -1860,9 +1860,12 @@ def _write_user_branch_vision_review(
         and not current_bp1_review_packet
     )
     bp3_context_packet = (
-        "bp3" in decision_text
-        or "workstream entry / orchestration" in decision_text
-        or "orchestration validation" in decision_text
+        not current_bp1_review_packet
+        and (
+            "bp3" in decision_text
+            or "workstream entry / orchestration" in decision_text
+            or "orchestration validation" in decision_text
+        )
     )
     hardening_h1_context_packet = (
         "approve bounded hardening h1" in decision_text
