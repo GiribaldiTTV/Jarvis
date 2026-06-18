@@ -1842,9 +1842,14 @@ def _write_user_branch_vision_review(
     if not copied_context:
         copied_context = "the selected source-truth files"
     decision_text = exact_user_decision.casefold()
+    review_profile_text = " ".join([title, review_purpose, exact_user_decision]).casefold()
     current_bp1_review_packet = (
-        "bp1 branch vision review" in decision_text
-        and "authorize bp2 user branch plan review only if bp1" in decision_text
+        "bp1 branch vision review" in review_profile_text
+        and (
+            "authorize bp2 user branch plan review only if bp1" in decision_text
+            or "authorize bp2 user branch plan review preparation only" in decision_text
+            or "authorize bp2 preparation only" in decision_text
+        )
     )
     pr_readiness_context_packet = "pr readiness stage 1 analysis" in decision_text
     bp2_context_packet = (
