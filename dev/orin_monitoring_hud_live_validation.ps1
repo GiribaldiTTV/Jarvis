@@ -1315,7 +1315,8 @@ function Save-UserTestSummaryHandoff([object]$Paths) {
     $precheckTopChromeClose = Format-ShortcutPrecheckLine @("dashboard_top_chrome_close_hides_dashboard", "dashboard_reopens_after_top_chrome_close") "LV1 cannot claim unrestricted green handoff for Dashboard window-level Close unless the visible Close control hides only the Dashboard and tray reopen works or USER waiver."
     $precheckHudPersistence = Format-ShortcutPrecheckLine @("hud_feature_enabled_state_persisted") "LV1 cannot claim unrestricted green handoff for HUD Feature state persistence without USER waiver."
     $precheckRecordingWindowLaunchers = Format-ShortcutPrecheckLine @("recording_studio_visible_button_opens_native_window", "log_viewer_studio_visible_button_opens_native_window") "LV1 cannot claim the FAM-006 Recording Studio or Log Viewer Studio launch path is green unless visible Dashboard buttons open their standalone native windows from the real shortcut/tray path."
-    $precheckHumanClientRun = Format-ShortcutPrecheckLine @("visible_desktop_shortcut_double_clicked", "launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "recording_studio_visible_button_opens_native_window", "log_viewer_studio_visible_button_opens_native_window", "dashboard_first_open_stability_sequence", "dashboard_settings_opens_with_real_mouse", "dashboard_top_chrome_close_hides_dashboard", "ncp_tray_icon_left_click_opens", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff without real-human client precheck coverage or USER waiver."
+    $precheckHumanClientRun = Format-ShortcutPrecheckLine @("visible_desktop_shortcut_double_clicked", "launch_settled_visible_desktop", "launch_settled_tray_available", "enable_hud_opens_dashboard", "recording_studio_visible_button_opens_native_window", "log_viewer_studio_visible_button_opens_native_window", "dashboard_first_open_stability_sequence", "dashboard_settings_opens_with_real_mouse", "dashboard_top_chrome_close_hides_dashboard", "tray_exit_confirmation_visible") "LV1 cannot claim unrestricted green handoff for FAM-006 Recording/HUD affected surfaces without real-human client precheck coverage or USER waiver."
+    $precheckNcpAdvisory = Format-ShortcutPrecheckLine @("ncp_tray_icon_left_click_opens", "ncp_tray_icon_left_click_closes", "ncp_create_custom_task_clickable_with_dashboard_open", "ncp_create_custom_group_clickable_with_dashboard_open", "ncp_manage_custom_tasks_clickable_with_dashboard_open", "ncp_manage_custom_groups_clickable_with_dashboard_open") "NCP tray/authoring coverage is advisory for this FAM-006 Recording UTS unless current branch diff/source truth marks NCP as an affected surface."
     $requiredPrecheckLines = @(
         $precheckShortcutAlignment,
         $precheckStep1,
@@ -1355,6 +1356,7 @@ Codex Precheck Summary
 - Human-client proof: PASS at $precheckManifestPath.
 - Visible desktop shortcut proof: $precheckStep1
 - Recording Studio / Log Viewer Studio button proof: $precheckRecordingWindowLaunchers
+- NCP tray/authoring advisory, not active Recording UTS blocker: $precheckNcpAdvisory
 - Live proof root for this handoff: $($Paths.Root)
 - USER-inspectable screenshot folder: $($Paths.ScreenshotEvidenceRoot)
 - USER-inspectable per-element screenshot folder: $($Paths.ElementScreenshotEvidenceRoot)

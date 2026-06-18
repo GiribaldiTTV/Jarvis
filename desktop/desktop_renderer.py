@@ -5864,12 +5864,12 @@ def _monitoring_hud_studio_row(
 ) -> QFrame:
     row = QFrame(parent)
     row.setProperty("role", "studioRow")
-    row_height = 66 if value_word_wrap else 52
+    row_height = 64 if value_word_wrap else 50
     row.setMinimumHeight(row_height)
     row.setMaximumHeight(row_height)
     layout = QGridLayout(row)
-    layout.setContentsMargins(0, 12, 0, 10)
-    layout.setHorizontalSpacing(12)
+    layout.setContentsMargins(0, 10, 0, 10)
+    layout.setHorizontalSpacing(14)
     layout.setVerticalSpacing(2)
     label_widget = QLabel(label, row)
     label_widget.setProperty("role", "sectionLabel")
@@ -5928,13 +5928,19 @@ class MonitoringHudStudioButton(QPushButton):
 
     def mouseReleaseEvent(self, event):
         self._visual_pressed = False
-        self._visual_hovered = self.underMouse()
+        try:
+            self._visual_hovered = self.rect().contains(self.mapFromGlobal(QCursor.pos()))
+        except Exception:
+            self._visual_hovered = self.underMouse()
         self.update()
         super().mouseReleaseEvent(event)
 
     def changeEvent(self, event):
         super().changeEvent(event)
-        if event.type() in {QEvent.EnabledChange, QEvent.PaletteChange, QEvent.StyleChange}:
+        if event.type() in {QEvent.EnabledChange, QEvent.PaletteChange, QEvent.StyleChange, QEvent.ActivationChange}:
+            if not self.isActiveWindow():
+                self._visual_hovered = False
+                self._visual_pressed = False
             self.update()
 
     def paintEvent(self, event):
@@ -5943,6 +5949,7 @@ class MonitoringHudStudioButton(QPushButton):
 
         rect = QRectF(self.rect()).adjusted(2.0, 2.0, -2.0, -2.0)
         radius = rect.height() / 2.0
+        role = str(self.property("actionRole") or "")
         enabled = self.isEnabled()
         pressed = enabled and (self._visual_pressed or self.isDown())
         hovered = enabled and self._visual_hovered and not pressed
@@ -5951,28 +5958,29 @@ class MonitoringHudStudioButton(QPushButton):
             border = QColor(163, 255, 228, 184)
             top = QColor(7, 40, 57, 250)
             bottom = QColor(3, 18, 32, 245)
-            glow = QColor(103, 255, 210, 41)
+            glow = QColor(103, 255, 210, 34)
             text = QColor(246, 255, 253, 252)
         elif hovered:
             border = QColor(126, 248, 218, 143)
             top = QColor(9, 49, 70, 240)
             bottom = QColor(4, 24, 40, 232)
-            glow = QColor(86, 236, 255, 46)
+            glow = QColor(86, 236, 255, 38)
             text = QColor(241, 255, 252, 252)
         elif enabled:
-            border = QColor(117, 228, 255, 56)
+            border = QColor(117, 228, 255, 66)
             top = QColor(7, 42, 62, 232)
             bottom = QColor(3, 18, 32, 227)
-            glow = QColor(99, 225, 255, 20)
+            glow = QColor(99, 225, 255, 14)
             text = QColor(229, 249, 255, 240)
         else:
             border = QColor(149, 176, 194, 61)
             top = QColor(12, 29, 42, 138)
             bottom = QColor(8, 20, 34, 138)
-            glow = QColor(176, 204, 214, 12)
+            glow = QColor(176, 204, 214, 8)
             text = QColor(176, 204, 214, 178)
 
-        for inset, alpha_scale in ((-1.5, 0.40), (0.5, 0.26)):
+        glow_passes = ((-1.0, 0.28), (0.75, 0.18)) if (hovered or pressed) else ((0.75, 0.12),)
+        for inset, alpha_scale in glow_passes:
             glow_rect = rect.adjusted(inset, inset, -inset, -inset)
             glow_color = QColor(glow)
             glow_color.setAlpha(max(0, min(255, int(glow.alpha() * alpha_scale))))
@@ -5995,11 +6003,14 @@ class MonitoringHudStudioButton(QPushButton):
         font = QFont("Bahnschrift")
         font.setStyleHint(QFont.SansSerif)
         font.setPixelSize(12)
-        font.setWeight(QFont.Weight.DemiBold if enabled else QFont.Weight.Medium)
-        font.setLetterSpacing(QFont.PercentageSpacing, 109)
+        if enabled:
+            font.setWeight(QFont.Weight.ExtraBold if role == "studioClose" else QFont.Weight.Bold)
+        else:
+            font.setWeight(QFont.Weight.DemiBold)
+        font.setLetterSpacing(QFont.PercentageSpacing, 108 if role == "studioClose" else 109)
         painter.setFont(font)
         painter.setPen(text)
-        painter.drawText(rect.adjusted(10.0, 0.0, -10.0, 0.0), Qt.AlignCenter, self.text().upper())
+        painter.drawText(rect.adjusted(12.0, 0.0, -12.0, 0.0), Qt.AlignCenter, self.text().upper())
 
 
 def _monitoring_hud_compact_path_label_text(full_path: str, label: QLabel) -> str:
@@ -6043,7 +6054,7 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             letter-spacing: 0px;
         }}
         QFrame[role="studioShell"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 23, 39, 0.985), stop:0.38 rgba(4, 18, 33, 0.985), stop:1 rgba(2, 10, 20, 0.985));
+            background: qradialgradient(cx:0.18, cy:0.10, radius:0.55, fx:0.18, fy:0.10, stop:0 rgba(116, 240, 255, 0.055), stop:0.58 rgba(5, 23, 39, 0.985), stop:1 rgba(2, 10, 20, 0.985));
             border: 1px solid rgba(122, 232, 255, 0.26);
             border-radius: 8px;
             color: rgba(235, 252, 255, 0.96);
@@ -6054,13 +6065,13 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             border-radius: 0px;
         }}
         QFrame[role="studioPanel"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 31, 50, 0.86), stop:1 rgba(3, 18, 32, 0.82));
-            border: 1px solid rgba(117, 228, 255, 0.14);
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(6, 28, 48, 0.74), stop:1 rgba(3, 18, 32, 0.70));
+            border: 1px solid rgba(117, 228, 255, 0.18);
             border-radius: 8px;
         }}
         QFrame[role="studioRow"] {{
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.060), stop:0.16 rgba(117, 228, 255, 0.035), stop:0.46 rgba(117, 228, 255, 0.010), stop:1 transparent);
-            border-top: 1px solid rgba(138, 236, 255, 0.46);
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.050), stop:0.17 rgba(117, 228, 255, 0.027), stop:0.52 rgba(117, 228, 255, 0.008), stop:1 transparent);
+            border-top: 1px solid rgba(138, 236, 255, 0.38);
             border-bottom: 0px solid transparent;
             border-left: 0px solid transparent;
             border-radius: 0px;
@@ -6089,19 +6100,19 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             border-left: 2px solid rgba(117, 228, 255, 0.30);
             color: rgba(145, 202, 218, 0.82);
             font-size: 11px;
-            font-weight: 720;
+            font-weight: 740;
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }}
         QLabel[role="sectionValue"] {{
             color: rgba(157, 246, 218, 0.90);
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 720;
         }}
         QLabel[role="pathValue"] {{
             color: rgba(157, 246, 218, 0.90);
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 720;
         }}
         QLabel[role="warning"] {{
             color: rgba(169, 190, 208, 0.86);
