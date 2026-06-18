@@ -157,7 +157,7 @@ Release / PR / Cleanup: `blocked until later USER approval`
 
 This section is a durable release-target receipt for merged PR #269. It does not reopen active branch state, authorize release execution, create tags, create GitHub Releases, create artifacts, promote templates/golden references, or mutate FAM worktrees.
 
-Merged-Unreleased Release-Debt Owner: `PR #269 - feature/fam-007-three-ndai-assisted-ai-function-slice`
+Merged-Unreleased Release-Debt Owner: `Historical pre-release snapshot evidence - PR #269 - feature/fam-007-three-ndai-assisted-ai-function-slice`
 
 Repo State: `No Active Branch`
 
@@ -171,4 +171,4 @@ Release Scope: `PR #269 merged FAM-007 AI Control Center public-safe boundary fl
 
 Release Artifacts: `Future USER-approved GitHub prerelease tag/body for v1.7.34-prebeta only. No installer, package, model, capability-pack artifact, private repo artifact, provider key, runtime cache, memory store, design token, shared primitive, or golden template/reference artifact is authorized by this receipt.`
 
-Post-Release Truth: `After v1.7.34-prebeta publication, PR #269 folds from merged-unreleased release-target contract into released/closed historical FAM-007 evidence. The v1.8.0-prebeta functional AI milestone remains future-gated until functional public AI behavior and edition-boundary validation pass current source-truth gates.`
+Post-Release Truth: `Historical pre-release snapshot evidence only. After v1.7.34-prebeta publication, PR #269 folds from its PR-time merged-unreleased release-target contract into released/closed historical FAM-007 evidence. The v1.8.0-prebeta functional AI milestone remains future-gated until functional public AI behavior and edition-boundary validation pass current source-truth gates.`
