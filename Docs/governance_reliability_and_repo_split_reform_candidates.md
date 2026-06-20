@@ -28,6 +28,23 @@ Current USER direction supersedes older planning text that treated PR Readiness 
 
 When final hardening reaches a blocker such as `Golden Template / Reference Promotion Blocked`, Codex must stop and wait rather than request PR Readiness. This hold does not approve template creation, golden-reference promotion, design-token implementation, shared UI primitive implementation, helper/validator code, FAM worktree mutation, external-state mutation, PR creation, merge, release, or cleanup. Those remain separate USER decisions under current source truth. The template/reference plan-completion portion is completed by the 2026-06-16 planning completion below, but USER later clarified that all planned template/reference work belongs to the current branch/current PR. Therefore plan completion alone does not permit PR Readiness for this branch.
 
+## Rebaseline Adoption & Reconciliation Phase Planning Intake - 2026-06-20
+
+Document Status: Non-Binding Planning Receipt. Binding authority is in `Docs/phase_governance.md` for the RAR phase gate, `Docs/branch_plans/README.md` for active plan / packet fields, `Docs/governance_efficiency_operating_model.md` for repo-doc versus external-state placement, `Docs/validation_helper_registry.md` for future helper/validator expectations, `Docs/user_test_summary_guidance.md` for Live Validation interpretation, and `Docs/incident_patterns.md` for the recurring failure lesson.
+
+Observed failure class: after rebaseline and merged UIREF / vision / proof standards, FAM worktrees could repair one visible defect or report helper/validator green while broader owned-surface drift, previous-branch issue candidates, accepted-reference comparison, code-to-visual trace, and USER packet proof remained incomplete.
+
+RAR planning direction:
+
+- Define `Rebaseline Adoption & Reconciliation Phase` (`RAR`) as a named refinement of the merged-standard adoption gate.
+- Keep normal phase progression blocked while RAR triggers are unresolved.
+- Require owned-surface inventory, code-to-visual trace, accepted reference / template comparator, visual element-group ledger, repair-versus-issue boundary, and USER packet path when USER decisions are needed.
+- Treat AI Control Center / promoted UIREF surfaces as accepted reference seeds where source truth says they apply, while preserving known limitations and avoiding false claims that shared code templates/primitives exist before they are implemented.
+- Require issue-candidate rows for previous, historical, or out-of-current-scope owned defects; GitHub issue creation remains USER-gated.
+- Keep active RAR findings in `C:\Nexus Governance State`, USER packets, helper output, Codex digest, Git/GitHub evidence, or screenshot/video evidence roots, not repo live ledgers.
+
+Future hardening recommendation: add helper/validator/fixture support after the docs contract settles. Priority checks are `Owned Surface Nonconformance Ledger Missing`, `Accepted Reference Comparator Missing`, `Code-To-Visual Trace Missing`, `RAR USER Packet Missing`, `Owned Surface Issue Candidate Missing`, `Circular Validation Evidence`, and `Partial Repair Reported Complete`.
+
 ## Template / Golden Reference Visual Proof Promotion Review Packet - 2026-06-17
 
 Document Status: Non-Binding Evidence Receipt. Binding authority remains with `Docs/nexus_vision.md` for Project UI Vision and proof hierarchy, `Docs/family_visions/FAM-002_desktop_interface.md` for reusable presentation grammar, `Docs/family_feature_visions/F2-FF01.md` for UI reference-system missing-proof rows and promotion-planning boundaries, and `Docs/ui_reference_catalog/` for promoted UI reference records only after explicit USER promotion approval.
