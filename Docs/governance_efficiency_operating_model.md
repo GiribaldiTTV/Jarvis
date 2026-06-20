@@ -163,17 +163,18 @@ Rule Name: `Rebaseline Adoption & Reconciliation Evidence Placement Rule`
 Owner File: `Docs/governance_efficiency_operating_model.md`
 Compact Mirror: `Docs/phase_governance.md` owns the RAR phase gate; `Docs/branch_plans/README.md` owns packet fields; `Docs/validation_helper_registry.md` owns future helper/validator expectations.
 
-Repo docs may own durable RAR rules, field schemas, blocker names, source-owner placement, compact folded receipts, and issue-candidate boundary language. They must not own active per-branch adoption findings, current visual comparator ledgers, code-to-visual row inventories, current screenshot/video inventories, issue creation status, selected repair decisions, or live RAR gate status for a non-standing branch.
+Repo docs may own durable RAR rules, field schemas, blocker names, source-owner placement, compact folded receipts, USER-packet requirements, code-to-visual schema, accepted-reference comparator schema, and issue-candidate boundary language. They must not own active per-branch adoption findings, current visual comparator ledgers, code-to-visual row inventories, current screenshot/video/contact-sheet inventories, issue creation status, selected repair decisions, or live RAR gate status for a non-standing branch.
 
 Active RAR evidence belongs in the active branch's external operational state, USER packet, helper output, Codex digest, Git/GitHub evidence, or screenshot/video evidence root according to fact class:
 
 - active adoption ledger: `C:\Nexus Governance State\branches\<branch_slug>\adoption_reconciliation.md` or the active external branch plan
 - USER-facing RAR packet: `C:\Nexus USER\<worktree-label>\` plus timestamped `C:\Nexus USER\<worktree-label>-YYYYMMDD-HHMMSS.zip`
 - raw visual proof: USER screenshots/video evidence roots or helper proof roots
+- RAR code-to-visual rows, UI element inventories, nonconformance ledgers, and issue-candidate tables: active external branch state, USER packets, or helper output until USER-approved fold-down
 - live issue state: GitHub / `gh` / connector evidence until USER approves issue mutation and a durable receipt is folded down
 - durable post-merge interpretation: branch records, workstream records, family vision fold-down, or UI reference catalog records only after USER-approved fold-down or promotion
 
-`RAR Live Adoption Ledger In Repo` blocks when Codex stores active RAR rows in backlog, roadmap, branch records, family visions, FFVs, UIREF files, or repo branch plans instead of external state or USER review evidence. `RAR Evidence Lost To Chat Digest` blocks when RAR findings exist but no active external ledger or USER packet is produced for USER-reviewable decisions.
+`RAR Live Adoption Ledger In Repo` blocks when Codex stores active RAR rows in backlog, roadmap, branch records, family visions, FFVs, UIREF files, or repo branch plans instead of external state or USER review evidence. `RAR Evidence Lost To Chat Digest` blocks when RAR findings exist but no active external ledger or USER packet is produced for USER-reviewable decisions. `RAR Packet Missing For USER Judgment` blocks when RAR needs USER visual/product judgment but provides only a chat digest, validator output, or helper log instead of a clean local USER packet plus timestamped ZIP.
 
 ## Codex Plugin / Connector Evidence Split Compatibility Contract
 
