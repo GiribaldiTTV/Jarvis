@@ -95,11 +95,12 @@ Retarget / Rename Receipt: `No retarget or rename is needed; USER named the fres
 
 BP1 must carry forward these adoption/compliance findings:
 
-- `FAM007-COMP-001`: cite UIREF-001, UIREF-002, UIREF-003, and UIREF-004; treat the released AI Control Center as accepted FAM-007 feature evidence and a promoted-with-known-limitations UI reference seed only, not a blanket global UI template.
+- `FAM007-COMP-001`: cite UIREF-001, UIREF-002, UIREF-003, UIREF-004, UIREF-005, and UIREF-006; treat the released AI Control Center as accepted FAM-007 feature evidence and a promoted-with-known-limitations UI reference seed only, not a blanket global UI template. UIREF-005 is a source-truth design-rule baseline with code-level token/shared-primitive implementation deferred; UIREF-006 is an enforcement contract with helper/validator/fixture implementation deferred.
 - `FAM007-COMP-002`: require BP2 to define backend predictability and failure/fallback/recovery state maps for provider unavailable, provider blocked, no provider configured, stale state, failed check, retry, recovery, blocked action, unavailable capability, degraded no-provider path, UI copy for each state, deterministic result behavior, and validation/proof for each material state.
 - `FAM007-COMP-003`: require Live Validation planning for exact normal desktop launcher proof, per-element focused screenshots, locator clarity, ordered-frame or short video proof for interactive/transient states, and image openability.
 - `FAM007-COMP-004`: require deterministic USER packet generation: clean regeneration, one active ZIP, one primary decision file, folder/ZIP parity, image openability, no stale active files, no stale same-label ZIPs, and no packet-validation-as-USER-acceptance wording.
 - `FAM007-COMP-005`: keep FAM-003 resident/tray doorway work narrow, proportional, coordinated, and stopped if it becomes majority FAM-003 work; keep FAM-008 packaging/install/shortcut execution dependency-only.
+- `FAM007-COMP-006`: do not call the adoption/compliance review complete unless both ledgers exist: a Current Branch Active Repair Ledger and a Historical / Previous Branch Issue Candidate Ledger. If one ledger has no entries, it must still exist and explicitly state `None`. Any owned or touched UI surface reviewed after this point must include a Scope Coverage Manifest, element-group inventory, and code-to-visual trace; missing trace is a blocker for a green UI claim.
 
 ## Future Workstream Scope
 
