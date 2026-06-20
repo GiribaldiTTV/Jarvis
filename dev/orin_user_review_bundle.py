@@ -860,6 +860,7 @@ def _validate_export_zip(
             "pending user response",
             "pending codex digest",
             "pending user confirmation",
+            "future preview only",
             "complete",
             "waived by user",
         )
@@ -869,7 +870,13 @@ def _validate_export_zip(
         )
     exact_decision = _section(user_review, "Exact USER Decision Supported").casefold()
     if contract_status.startswith(
-        ("draft", "pending user response", "pending codex digest", "pending user confirmation")
+        (
+            "draft",
+            "pending user response",
+            "pending codex digest",
+            "pending user confirmation",
+            "future preview only",
+        )
     ) and (
         "approve bounded slc" in exact_decision
         or "approve workstream implementation" in exact_decision
@@ -2986,7 +2993,14 @@ def _write_user_branch_plan_review(
     )
     bp1_branch_vision_packet = (
         "bp1 branch vision" in normalized_decision
-        and "authorize bp2 user branch plan review only" in normalized_decision
+        and any(
+            marker in normalized_decision
+            for marker in (
+                "authorize bp2 user branch plan review only",
+                "authorize bp2 user branch plan review preparation only",
+                "authorize bp2 preparation only",
+            )
+        )
     )
     bp3_orchestration_packet = (
         not workstream_package_approval_packet
@@ -4178,6 +4192,98 @@ def _write_user_branch_plan_review(
             "Does USER require any change to PR Readiness Stage 1 inspection criteria before analysis?",
             "Does USER confirm PR creation, merge, release, cleanup, runtime/provider/cache/memory/private actions, and artifact-model changes remain pending?",
         ]
+        if bp1_branch_vision_packet:
+            contract_status = (
+                "Future Preview Only - BP1 Branch Vision remains pending USER acceptance, "
+                "revision, waiver, rejection, or hold. BP2 review is not active."
+            )
+            contract_version = "v2 - Future BP2 preview aid for BP1 packet; not active BP2 review."
+            what_user_sees = (
+                "USER should use USER_BRANCH_VISION_REVIEW.md as the only primary decision file. "
+                "This supporting aid previews the kind of engineering-plan questions that may be "
+                "asked later if BP1 is accepted or waived; it does not make BP2 reviewable."
+            )
+            why_nexus = (
+                "This keeps Branch Vision and Branch Plan gates separate so a readable preview "
+                "cannot be mistaken for USER acceptance, implementation approval, or Workstream readiness."
+            )
+            design_ballot = [
+                "Do not decide BP2 from this preview.",
+                "Use this preview to note BP2 questions after BP1.",
+                "Route back to BP1 if the preview changes the Branch Vision.",
+                "Pause / unclear.",
+            ]
+            user_decisions_intro = (
+                "USER should decide only the BP1 Branch Vision from this packet. "
+                "Any BP2 notes are future preview feedback and do not make BP2 active."
+            )
+            implementation_constraints = [
+                "BP1 is the only active USER decision in this packet.",
+                "BP2 review, BP3, Workstream implementation, PR, merge, release, and runtime/provider/private/cache/memory actions remain blocked.",
+                "This preview must not be treated as USER acceptance or waiver."
+            ]
+            rejected_deferred = [
+                "BP2 acceptance is deferred until BP1 acceptance or waiver exists and a later USER-approved BP2 packet is generated.",
+                "BP3 and Workstream implementation remain deferred to later gates.",
+            ]
+            source_truth_impact = [
+                "No source-truth owner should treat this BP1 packet as accepted or implementation-ready.",
+                "Any later BP2 packet must regenerate from current source truth after BP1 is accepted or waived.",
+            ]
+            contract_change_log = [
+                "v2 - Generated as a future BP2 preview aid inside a BP1 packet to preserve validator compatibility without implying BP2 reviewability."
+            ]
+            completion_checklist = [
+                "BP1 acceptance or waiver exists before any later BP2 packet becomes active.",
+                "Later BP2 packet regenerates from current source truth and names affected surfaces, validators/helpers, proof requirements, H1/LV/UTS expectations, rollback/safety plan, risks, and future-gated boundaries.",
+                "Helper output verifies packet freshness while USER-facing files keep packet reviewability separate from USER acceptance.",
+                "BP3 / Workstream Entry may approve implementation only after BP1 and BP2 are accepted or explicitly waived and BP3 is separately approved or waived.",
+            ]
+            plain_english_summary = (
+                "This is not the active BP2 review. It is a supporting preview included in a BP1 "
+                "packet so USER can see what engineering-plan questions may come later after the "
+                "Branch Vision is accepted or waived."
+            )
+            end_state_vision = (
+                "If BP1 is later accepted or waived, a regenerated BP2 packet should make the "
+                "implementation surfaces, validators, risks, proof path, rollback plan, and blocked "
+                "future gates clear before any BP3 or Workstream decision."
+            )
+            walkthrough = [
+                "Read USER_BRANCH_VISION_REVIEW.md first and decide BP1.",
+                "Use this supporting aid only to preview later BP2 engineering-plan concerns.",
+                "Do not treat this supporting aid as BP2 acceptance, BP3 approval, or implementation approval.",
+            ]
+            surface_map = [
+                "USER_BRANCH_VISION_REVIEW.md: active BP1 decision file.",
+                "USER_BRANCH_PLAN_REVIEW.md: supporting future BP2 preview only.",
+                "Source Truth Context: copied source-truth references for USER inspection.",
+            ]
+            implementation_options = [
+                "Option A - Decide BP1 first. Pros: keeps gates deterministic; Cons: BP2 waits; Risk: low.",
+                "Option B - Revise BP1 before BP2. Pros: fixes vision drift early; Cons: requires packet repair; Risk: low.",
+                "Option C - Hold BP1. Pros: preserves caution; Cons: blocks BP2; Risk: low.",
+            ]
+            recommended_direction = (
+                "Codex recommends deciding BP1 first, then regenerating a later BP2 packet only "
+                "after BP1 acceptance or waiver is recorded."
+            )
+            current_scope = [
+                "BP1 Branch Vision Review only.",
+                "Supporting BP2 preview aid is not an active decision.",
+            ]
+            future_scope = [
+                "BP2, BP3, Workstream implementation, PR, merge, release, runtime/provider/private/cache/memory actions, and cleanup remain pending USER decisions.",
+            ]
+            slc_package_plan = [
+                "SLCs remain candidate Slice-level planning details for later BP2/BP3.",
+                "No SLC or seam is implementation-approved by this BP1 packet.",
+            ]
+            user_decisions = [
+                "Does USER accept, revise, waive, reject, or hold the BP1 Branch Vision?",
+                "Does USER want any previewed BP2 concern considered before a later BP2 packet is generated?",
+                "Does USER confirm BP2, BP3, Workstream implementation, and all runtime/provider/private/cache/memory gates remain blocked?",
+            ]
     if is_fam007_private_boundary_setup:
         plain_english_summary = (
             "This BP2 support file is preview/context only because BP1 is still pending. "
@@ -6841,7 +6947,14 @@ def _write_workstream_entry_packet_digests(
     )
     bp1_packet = (
         "bp1 branch vision" in normalized_decision
-        and "authorize bp2 user branch plan review only" in normalized_decision
+        and any(
+            marker in normalized_decision
+            for marker in (
+                "authorize bp2 user branch plan review only",
+                "authorize bp2 user branch plan review preparation only",
+                "authorize bp2 preparation only",
+            )
+        )
     )
     bp2_packet = (
         not bp1_packet
@@ -8658,8 +8771,15 @@ def build_bundle(
         )
     )
     bp1_packet = (
-        "bp1 branch vision" in exact_user_decision.casefold()
-        and "authorize bp2 user branch plan review only" in exact_user_decision.casefold()
+        "bp1 branch vision" in normalized_decision
+        and any(
+            marker in normalized_decision
+            for marker in (
+                "authorize bp2 user branch plan review only",
+                "authorize bp2 user branch plan review preparation only",
+                "authorize bp2 preparation only",
+            )
+        )
     )
     bp2_packet = (
         not bp1_packet
