@@ -4168,7 +4168,7 @@ function monitoringHudRenderMonitorManagement() {
     monitoringHud.dataset.dashboardSettingsModel = "hud-overlay-monitor-groups-provider-warning";
     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
     monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
-    monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill";
+    monitoringHud.dataset.dashboardCloseLayout = "uiref-002-compact-top-right-symbol-control";
     monitoringHud.dataset.dashboardOpenBadge = "removed";
     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-recording-start-stop";
@@ -4410,7 +4410,7 @@ function monitoringHudUpdateSurfaceSplit() {
     monitoringHud.dataset.dashboardChildWindowScope = "monitor-groups-manage-create-edit-delete-sensor-windows-overlay-profile-settings";
     monitoringHud.dataset.dashboardIaModel = "branch2-ia-controls-followthrough";
     monitoringHud.dataset.dashboardCloseAffordance = "window-level-close-button";
-    monitoringHud.dataset.dashboardCloseLayout = "window-level-top-right-close-pill";
+    monitoringHud.dataset.dashboardCloseLayout = "uiref-002-compact-top-right-symbol-control";
     monitoringHud.dataset.dashboardOpenBadge = "removed";
     monitoringHud.dataset.dashboardMonitorSelectionPlacement = "edit-child-window-only";
     monitoringHud.dataset.dashboardQuickAccess = "warning-notifications-recording-start-stop";
