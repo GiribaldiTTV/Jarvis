@@ -21495,6 +21495,9 @@ def main() -> int:
     branch_record_index_text = _read_text(BRANCH_RECORD_INDEX)
     main_text = _read_text(Path("Docs/Main.md"))
     development_rules_text = _read_text(Path("Docs/development_rules.md"))
+    phase_governance_text = _read_text(Path("Docs/phase_governance.md"))
+    branch_plans_readme_text = _read_text(Path("Docs/branch_plans/README.md"))
+    validation_helper_registry_text = _read_text(Path("Docs/validation_helper_registry.md"))
     main_canonical_workstream_routes = _subsection(main_text, "Canonical Workstream Records")
     compact_source_truth_reform = _docs_source_truth_reform_active(backlog_text, roadmap_text)
 
@@ -21506,6 +21509,28 @@ def main() -> int:
 
     current_git_branch = _git_current_branch()
     outside_lane_merge_stable_findings: list[str] = []
+
+    rar_substantive_docs = {
+        Path("Docs/phase_governance.md"): phase_governance_text,
+        Path("Docs/branch_plans/README.md"): branch_plans_readme_text,
+        Path("Docs/validation_helper_registry.md"): validation_helper_registry_text,
+    }
+    rar_substantive_phrases = (
+        "RAR Shallow Audit",
+        "RAR Ledger Pair Missing",
+        "Current Branch Active Repair Ledger",
+        "Historical / Previous Branch Issue Candidate Ledger",
+        "RAR Element Group Rows Missing",
+        "RAR Sampling Justification Missing",
+        "RAR Comparator Classification Missing",
+        "RAR Row Disposition Missing",
+    )
+    for relative_path, text in rar_substantive_docs.items():
+        for required_phrase in rar_substantive_phrases:
+            require(
+                required_phrase in text,
+                f"{relative_path}: RAR substantive/exhaustive gate is missing '{required_phrase}'",
+            )
 
     for occurrence in _tracked_repo_legacy_product_name_occurrences():
         require(False, f"Tracked repo sterilization: {occurrence}")
