@@ -2855,6 +2855,12 @@ def validate() -> list[str]:
         "modalGuard",
         "closeSuppressed",
         "Active child window prevents Dashboard click-through under overlapping controls",
+        "UIREF-002-compact-window-control-cluster",
+        "compact-symbol-visible-accessible-label-tooltip",
+        "default-hover-focus-pressed-disabled-keyboard-accessible",
+        "controls-focusable-accessible-names-tooltips",
+        "folder-open-blocked-status-visible",
+        "Log Viewer Studio folder action status",
     ):
         _require_contains(renderer, needle, "monitoring HUD renderer live interaction proof", failures)
 

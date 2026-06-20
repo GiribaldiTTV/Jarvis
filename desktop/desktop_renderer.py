@@ -5886,17 +5886,49 @@ def _monitoring_hud_studio_row(
     return row
 
 
-def _monitoring_hud_prepare_studio_button(button: QPushButton, *, role: str, minimum_width: int) -> None:
+def _monitoring_hud_prepare_studio_button(
+    button: QPushButton,
+    *,
+    role: str,
+    minimum_width: int,
+    accessible_name: str = "",
+    tooltip: str = "",
+) -> None:
     button.setProperty("actionRole", role)
-    button.setFocusPolicy(Qt.NoFocus)
+    button.setFocusPolicy(Qt.StrongFocus)
     button.setCursor(Qt.PointingHandCursor)
     button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-    button.setMinimumWidth(minimum_width)
-    button.setMaximumWidth(max(minimum_width, button.maximumWidth()))
-    button_height = 34 if role == "studioClose" else 38
+    if accessible_name:
+        button.setAccessibleName(accessible_name)
+    if tooltip or accessible_name:
+        button.setToolTip(tooltip or accessible_name)
+    compact_window_control = role == "studioWindowControl"
+    button_width = 34 if compact_window_control else minimum_width
+    button.setMinimumWidth(button_width)
+    button.setMaximumWidth(button_width)
+    button_height = 34 if compact_window_control else 38
     button.setMinimumHeight(button_height)
     button.setMaximumHeight(button_height)
     button.setFixedHeight(button_height)
+    button.setProperty(
+        "controlStateProof",
+        "default-hover-focus-pressed-disabled-keyboard-accessible",
+    )
+
+
+def _monitoring_hud_studio_button_proof(button: QPushButton) -> dict[str, object]:
+    return {
+        "text": button.text(),
+        "actionRole": str(button.property("actionRole") or ""),
+        "accessibleName": button.accessibleName(),
+        "tooltip": button.toolTip(),
+        "enabled": button.isEnabled(),
+        "focusPolicy": "StrongFocus" if button.focusPolicy() == Qt.StrongFocus else str(button.focusPolicy()),
+        "keyboardReachable": button.focusPolicy() == Qt.StrongFocus,
+        "controlStateProof": str(button.property("controlStateProof") or ""),
+        "width": button.width(),
+        "height": button.height(),
+    }
 
 
 def _monitoring_hud_apply_studio_shadow(widget: QWidget) -> None:
@@ -5920,6 +5952,15 @@ class MonitoringHudStudioButton(QPushButton):
         self._visual_pressed = False
         self.update()
         super().leaveEvent(event)
+
+    def focusInEvent(self, event):
+        self.update()
+        super().focusInEvent(event)
+
+    def focusOutEvent(self, event):
+        self._visual_pressed = False
+        self.update()
+        super().focusOutEvent(event)
 
     def mousePressEvent(self, event):
         self._visual_pressed = True
@@ -5953,6 +5994,7 @@ class MonitoringHudStudioButton(QPushButton):
         enabled = self.isEnabled()
         pressed = enabled and (self._visual_pressed or self.isDown())
         hovered = enabled and self._visual_hovered and not pressed
+        focused = enabled and self.hasFocus()
 
         if pressed:
             border = QColor(163, 255, 228, 184)
@@ -5966,6 +6008,12 @@ class MonitoringHudStudioButton(QPushButton):
             bottom = QColor(4, 24, 40, 232)
             glow = QColor(86, 236, 255, 38)
             text = QColor(241, 255, 252, 252)
+        elif focused:
+            border = QColor(117, 228, 255, 112)
+            top = QColor(7, 42, 62, 232)
+            bottom = QColor(3, 18, 32, 227)
+            glow = QColor(123, 246, 255, 30)
+            text = QColor(235, 252, 255, 246)
         elif enabled:
             border = QColor(117, 228, 255, 66)
             top = QColor(7, 42, 62, 232)
@@ -5979,7 +6027,11 @@ class MonitoringHudStudioButton(QPushButton):
             glow = QColor(176, 204, 214, 8)
             text = QColor(176, 204, 214, 178)
 
-        glow_passes = ((-1.0, 0.28), (0.75, 0.18)) if (hovered or pressed) else ((0.75, 0.12),)
+        glow_passes = (
+            ((-1.0, 0.28), (0.75, 0.18))
+            if (hovered or pressed)
+            else ((-1.0, 0.20), (0.75, 0.12)) if focused else ((0.75, 0.12),)
+        )
         for inset, alpha_scale in glow_passes:
             glow_rect = rect.adjusted(inset, inset, -inset, -inset)
             glow_color = QColor(glow)
@@ -6002,15 +6054,16 @@ class MonitoringHudStudioButton(QPushButton):
 
         font = QFont("Bahnschrift")
         font.setStyleHint(QFont.SansSerif)
-        font.setPixelSize(12)
+        font.setPixelSize(14 if role == "studioWindowControl" else 12)
         if enabled:
-            font.setWeight(QFont.Weight.ExtraBold if role == "studioClose" else QFont.Weight.Bold)
+            font.setWeight(QFont.Weight.ExtraBold if role == "studioWindowControl" else QFont.Weight.Bold)
         else:
             font.setWeight(QFont.Weight.DemiBold)
-        font.setLetterSpacing(QFont.PercentageSpacing, 108 if role == "studioClose" else 109)
+        font.setLetterSpacing(QFont.PercentageSpacing, 100 if role == "studioWindowControl" else 109)
         painter.setFont(font)
         painter.setPen(text)
-        painter.drawText(rect.adjusted(12.0, 0.0, -12.0, 0.0), Qt.AlignCenter, self.text().upper())
+        text_inset = 0.0 if role == "studioWindowControl" else 12.0
+        painter.drawText(rect.adjusted(text_inset, 0.0, -text_inset, 0.0), Qt.AlignCenter, self.text().upper())
 
 
 def _monitoring_hud_compact_path_label_text(full_path: str, label: QLabel) -> str:
@@ -6119,6 +6172,12 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             font-size: 11px;
             line-height: 1.35;
         }}
+        QLabel[folderActionState="opened"] {{
+            color: rgba(157, 246, 218, 0.90);
+        }}
+        QLabel[folderActionState="blocked"] {{
+            color: rgba(255, 194, 138, 0.92);
+        }}
         QPushButton {{
             min-height: 20px;
             max-height: 20px;
@@ -6133,15 +6192,15 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             letter-spacing: 0.09em;
             text-transform: uppercase;
         }}
-        QPushButton[actionRole="studioClose"] {{
-            min-width: 76px;
-            min-height: 16px;
-            max-height: 16px;
-            padding: 8px 12px;
+        QPushButton[actionRole="studioWindowControl"] {{
+            min-width: 18px;
+            min-height: 18px;
+            max-height: 18px;
+            padding: 8px;
             border-radius: 17px;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 760;
-            letter-spacing: 0.08em;
+            letter-spacing: 0em;
         }}
         QPushButton[actionRole="studioAction"] {{
             min-height: 20px;
@@ -6246,12 +6305,24 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         header_text.addWidget(self._title)
         header.addLayout(header_text)
         header.addStretch(1)
-        self._minimize = MonitoringHudStudioButton("Minimize", header_frame)
-        _monitoring_hud_prepare_studio_button(self._minimize, role="studioClose", minimum_width=104)
+        self._minimize = MonitoringHudStudioButton("-", header_frame)
+        _monitoring_hud_prepare_studio_button(
+            self._minimize,
+            role="studioWindowControl",
+            minimum_width=34,
+            accessible_name="Minimize Recording Studio",
+            tooltip="Minimize Recording Studio",
+        )
         self._minimize.clicked.connect(self.showMinimized)
         header.addWidget(self._minimize, 0, Qt.AlignTop)
-        self._close = MonitoringHudStudioButton("Close", header_frame)
-        _monitoring_hud_prepare_studio_button(self._close, role="studioClose", minimum_width=76)
+        self._close = MonitoringHudStudioButton("X", header_frame)
+        _monitoring_hud_prepare_studio_button(
+            self._close,
+            role="studioWindowControl",
+            minimum_width=34,
+            accessible_name="Close Recording Studio",
+            tooltip="Close Recording Studio",
+        )
         self._close.clicked.connect(self.close)
         header.addWidget(self._close, 0, Qt.AlignTop)
 
@@ -6286,8 +6357,20 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         actions.setSpacing(12)
         self._start = MonitoringHudStudioButton("Start", self._shell)
         self._stop = MonitoringHudStudioButton("Stop", self._shell)
-        _monitoring_hud_prepare_studio_button(self._start, role="studioAction", minimum_width=96)
-        _monitoring_hud_prepare_studio_button(self._stop, role="studioAction", minimum_width=96)
+        _monitoring_hud_prepare_studio_button(
+            self._start,
+            role="studioAction",
+            minimum_width=96,
+            accessible_name="Start active overlay recording",
+            tooltip="Start active overlay recording",
+        )
+        _monitoring_hud_prepare_studio_button(
+            self._stop,
+            role="studioAction",
+            minimum_width=96,
+            accessible_name="Stop active overlay recording",
+            tooltip="Stop active overlay recording",
+        )
         self._start.clicked.connect(lambda: self._request_recording_action("start"))
         self._stop.clicked.connect(lambda: self._request_recording_action("stop"))
         actions.addStretch(1)
@@ -6482,8 +6565,12 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "taskbarRestorable": True,
             "minimizeControl": True,
             "minimizeControlLocation": "top-right-header",
+            "minimizeControlProof": _monitoring_hud_studio_button_proof(self._minimize),
             "closeControl": True,
             "closeControlLocation": "top-right-header",
+            "closeControlProof": _monitoring_hud_studio_button_proof(self._close),
+            "windowControlCluster": "UIREF-002-compact-window-control-cluster",
+            "windowControlVisibleTextPolicy": "compact-symbol-visible-accessible-label-tooltip",
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
@@ -6520,7 +6607,11 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
             "startEnabled": self._start.isEnabled(),
+            "startControlProof": _monitoring_hud_studio_button_proof(self._start),
             "stopEnabled": self._stop.isEnabled(),
+            "stopControlProof": _monitoring_hud_studio_button_proof(self._stop),
+            "controlStateProof": "default-hover-focus-pressed-disabled-keyboard-accessible",
+            "accessibilityKeyboardProofState": "controls-focusable-accessible-names-tooltips",
             "visible": self.isVisible(),
             "isActiveWindow": self.isActiveWindow(),
             "isMinimized": self.isMinimized(),
@@ -6588,12 +6679,24 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         header_text.addWidget(title)
         header.addLayout(header_text)
         header.addStretch(1)
-        self._minimize = MonitoringHudStudioButton("Minimize", header_frame)
-        _monitoring_hud_prepare_studio_button(self._minimize, role="studioClose", minimum_width=104)
+        self._minimize = MonitoringHudStudioButton("-", header_frame)
+        _monitoring_hud_prepare_studio_button(
+            self._minimize,
+            role="studioWindowControl",
+            minimum_width=34,
+            accessible_name="Minimize Log Viewer Studio",
+            tooltip="Minimize Log Viewer Studio",
+        )
         self._minimize.clicked.connect(self.showMinimized)
         header.addWidget(self._minimize, 0, Qt.AlignTop)
-        self._close = MonitoringHudStudioButton("Close", header_frame)
-        _monitoring_hud_prepare_studio_button(self._close, role="studioClose", minimum_width=76)
+        self._close = MonitoringHudStudioButton("X", header_frame)
+        _monitoring_hud_prepare_studio_button(
+            self._close,
+            role="studioWindowControl",
+            minimum_width=34,
+            accessible_name="Close Log Viewer Studio",
+            tooltip="Close Log Viewer Studio",
+        )
         self._close.clicked.connect(self.close)
         header.addWidget(self._close, 0, Qt.AlignTop)
 
@@ -6629,13 +6732,29 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         )
         boundary.setProperty("role", "warning")
         boundary.setWordWrap(True)
+        self._folder_status = QLabel("Native and exported log folders are ready to open.", self._shell)
+        self._folder_status.setProperty("role", "warning")
+        self._folder_status.setWordWrap(True)
+        self._folder_status.setAccessibleName("Log Viewer Studio folder action status")
         actions = QHBoxLayout()
         actions.setContentsMargins(0, 0, 0, 0)
         actions.setSpacing(12)
         self._open_native = MonitoringHudStudioButton("Open Native Logs", self._shell)
         self._open_export = MonitoringHudStudioButton("Open Exported Logs", self._shell)
-        _monitoring_hud_prepare_studio_button(self._open_native, role="studioAction", minimum_width=152)
-        _monitoring_hud_prepare_studio_button(self._open_export, role="studioAction", minimum_width=184)
+        _monitoring_hud_prepare_studio_button(
+            self._open_native,
+            role="studioAction",
+            minimum_width=152,
+            accessible_name="Open native NDAI logs folder",
+            tooltip="Open native NDAI logs folder",
+        )
+        _monitoring_hud_prepare_studio_button(
+            self._open_export,
+            role="studioAction",
+            minimum_width=184,
+            accessible_name="Open exported logs folder",
+            tooltip="Open exported logs folder",
+        )
         self._open_native.clicked.connect(lambda: self._open_log_folder("native"))
         self._open_export.clicked.connect(lambda: self._open_log_folder("export"))
         actions.addStretch(1)
@@ -6644,6 +6763,7 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         shell_layout.addWidget(header_frame)
         shell_layout.addWidget(folder_panel)
         shell_layout.addWidget(boundary)
+        shell_layout.addWidget(self._folder_status)
         shell_layout.addStretch(1)
         shell_layout.addLayout(actions)
         self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
@@ -6730,12 +6850,24 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         try:
             os.makedirs(target_folder, exist_ok=True)
             os.startfile(target_folder)
+            status = "Native NDAI logs folder opened." if folder_kind == "native" else "Exported logs folder opened."
+            self._folder_status.setText(status)
+            self._folder_status.setToolTip(target_folder)
+            self._folder_status.setProperty("folderActionState", "opened")
+            self._folder_status.style().unpolish(self._folder_status)
+            self._folder_status.style().polish(self._folder_status)
             if callable(self.event_logger):
                 self.event_logger(
                     "MONITORING_HUD_LOG_VIEWER_STUDIO_FOLDER_OPENED|"
                     f"folderKind={folder_kind}|outputDir={target_folder}"
                 )
         except Exception as exc:
+            status = "Native NDAI logs folder could not be opened." if folder_kind == "native" else "Exported logs folder could not be opened."
+            self._folder_status.setText(status)
+            self._folder_status.setToolTip(str(exc))
+            self._folder_status.setProperty("folderActionState", "blocked")
+            self._folder_status.style().unpolish(self._folder_status)
+            self._folder_status.style().polish(self._folder_status)
             if callable(self.event_logger):
                 self.event_logger(
                     "MONITORING_HUD_LOG_VIEWER_STUDIO_FOLDER_BLOCKED|"
@@ -6804,8 +6936,12 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "taskbarRestorable": True,
             "minimizeControl": True,
             "minimizeControlLocation": "top-right-header",
+            "minimizeControlProof": _monitoring_hud_studio_button_proof(self._minimize),
             "closeControl": True,
             "closeControlLocation": "top-right-header",
+            "closeControlProof": _monitoring_hud_studio_button_proof(self._close),
+            "windowControlCluster": "UIREF-002-compact-window-control-cluster",
+            "windowControlVisibleTextPolicy": "compact-symbol-visible-accessible-label-tooltip",
             "nativeFolderPreSessionUsable": True,
             "exportFolderPreSessionUsable": True,
             "nativeLogRoot": native_root,
@@ -6822,6 +6958,14 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "exportLogPathWordWrap": self._export.wordWrap(),
             "pathRowsContained": path_rows_contained,
             "pathRowsVisualState": "contained-middle-elided-readable",
+            "folderActionStatusText": self._folder_status.text(),
+            "folderActionStatusState": str(self._folder_status.property("folderActionState") or "ready"),
+            "folderActionStatusAccessibleName": self._folder_status.accessibleName(),
+            "openNativeControlProof": _monitoring_hud_studio_button_proof(self._open_native),
+            "openExportControlProof": _monitoring_hud_studio_button_proof(self._open_export),
+            "controlStateProof": "default-hover-focus-pressed-disabled-keyboard-accessible",
+            "accessibilityKeyboardProofState": "controls-focusable-accessible-names-tooltips",
+            "errorBlockedStateProof": "folder-open-blocked-status-visible",
             "nativeLogRootPublicLabel": "Native NDAI logs",
             "exportLogRootPublicLabel": "Exported logs",
             "userVisibleStorageModel": "flat-user-recording-and-export-roots",
