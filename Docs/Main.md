@@ -174,7 +174,7 @@ Main routes Codex to:
 
 - execution posture: `Docs/development_rules.md`, `Docs/phase_governance.md`, and `Docs/codex_modes.md`
 - ChatGPT prompt-generation guardrails: `Docs/nexus_startup_contract.md`
-- project-wide product/design vision: `Docs/nexus_vision.md`
+- project-wide product/design vision, including the NDAI Product Experience Contract for deterministic, intuitive, immersive, predictable, reliable, and consistent behavior: `Docs/nexus_vision.md`
 - AI runtime/trust architecture, permission-state, deterministic-routing, Trust Journal, AI operational cache, and cross-family AI-native placement: `Docs/ai_runtime_and_trust_architecture.md`
 - public-safe AI edition/trust-boundary planning: `Docs/family_visions/FAM-007_ai_edition_capability_trust_boundary_release_plan.md`
 - reusable family vision: `Docs/family_visions/`

@@ -4,6 +4,10 @@ This index lists USER-promoted durable UI reference contracts. It does not list 
 
 Promoted Reference Count: `6`
 
+Promoted Implementation Template Count: `0`
+
+Promoted Shared Primitive Count: `0`
+
 | Reference ID | Reference Name | Reference Class | Owner | Source Record | Promotion Result | Disposition |
 | --- | --- | --- | --- | --- | --- | --- |
 | `UIREF-001` | `Nexus Top-Level Window Frame` | `Top-Level Window` | FAM-002 / F2-FF01 | `Docs/ui_reference_catalog/UIREF-001_top_level_window_frame.md` | `PROMOTED_WITH_KNOWN_LIMITATIONS` | Package A green; consuming branches still prove their own window class and adoption. |
