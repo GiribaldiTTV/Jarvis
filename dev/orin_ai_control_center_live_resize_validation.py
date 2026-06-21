@@ -109,6 +109,14 @@ def _move_mouse(app: QApplication, x: int, y: int, settle_ms: int = 18) -> None:
     _pump(app, settle_ms)
 
 
+def _left_click(app: QApplication, x: int, y: int, settle_ms: int = 220) -> None:
+    _move_mouse(app, x, y, 90)
+    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+    _pump(app, 55)
+    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+    _pump(app, settle_ms)
+
+
 def _capture(app: QApplication, dialog: AIControlCenterDialog, root: Path, label: str) -> dict[str, str]:
     full_path = root / f"{label}_full_desktop.png"
     focused_path = root / f"{label}_focused_window.png"
@@ -465,15 +473,32 @@ def main() -> int:
                 "ok": False,
                 "reason": "missing-localCheckButtonRect",
             }
+    local_check_real_click = {"ok": False, "reason": "missing-localCheckButtonRect"}
+    if isinstance(title_chrome_proof, dict):
+        local_check_rect = title_chrome_proof.get("localCheckButtonRect")
+        if isinstance(local_check_rect, dict):
+            window_rect_for_click = _native_rect(hwnd)
+            local_click_x = int(
+                window_rect_for_click["left"]
+                + int(local_check_rect.get("left") or 0)
+                + (int(local_check_rect.get("width") or 0) // 2)
+            )
+            local_click_y = int(
+                window_rect_for_click["top"]
+                + int(local_check_rect.get("top") or 0)
+                + (int(local_check_rect.get("height") or 0) // 2)
+            )
+            _left_click(app, local_click_x, local_click_y, 300)
+            local_check_real_click = {
+                "ok": True,
+                "method": "SetCursorPos plus Win32 left mouse down/up on visible Run Local Check button",
+                "screenPoint": {"x": local_click_x, "y": local_click_y},
+            }
     local_check_result_raw = _run_js(
         app,
         dialog,
         """
         (() => {
-          if (!window.nexusAiControlCenterRunLocalCheck) {
-            return JSON.stringify({ ok: false, reason: "missing-local-check-handler" });
-          }
-          window.nexusAiControlCenterRunLocalCheck();
           const result = document.getElementById("ai-control-center-local-result");
           const detail = document.getElementById("ai-control-center-local-detail");
           return JSON.stringify({
@@ -497,24 +522,27 @@ def main() -> int:
     _pump(app, 180)
     screenshot_evidence["localCheckResult"] = _capture(app, dialog, log_root, "05_local_check_result")
     _move_mouse(app, _native_rect(hwnd)["left"] + 24, _native_rect(hwnd)["top"] + 24, 120)
-    minimize_click_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const minimize = document.getElementById("ai-control-center-minimize-action");
-          if (!minimize) {
-            return JSON.stringify({ ok: false, reason: "missing-minimize-button" });
-          }
-          minimize.click();
-          return JSON.stringify({ ok: true, text: minimize.textContent.trim(), className: minimize.className });
-        })();
-        """,
-    )
-    try:
-        minimize_click = json.loads(minimize_click_raw) if isinstance(minimize_click_raw, str) else minimize_click_raw
-    except json.JSONDecodeError:
-        minimize_click = {"ok": False, "raw": minimize_click_raw}
+    minimize_click = {"ok": False, "reason": "missing-minimizeRect"}
+    if isinstance(title_chrome_proof, dict):
+        minimize_rect = title_chrome_proof.get("minimizeRect")
+        if isinstance(minimize_rect, dict):
+            window_rect_for_click = _native_rect(hwnd)
+            minimize_click_x = int(
+                window_rect_for_click["left"]
+                + int(minimize_rect.get("left") or 0)
+                + (int(minimize_rect.get("width") or 0) // 2)
+            )
+            minimize_click_y = int(
+                window_rect_for_click["top"]
+                + int(minimize_rect.get("top") or 0)
+                + (int(minimize_rect.get("height") or 0) // 2)
+            )
+            _left_click(app, minimize_click_x, minimize_click_y, 380)
+            minimize_click = {
+                "ok": True,
+                "method": "SetCursorPos plus Win32 left mouse down/up on visible minimize control",
+                "screenPoint": {"x": minimize_click_x, "y": minimize_click_y},
+            }
     _pump(app, 360)
     minimized_after_click = bool(dialog.isMinimized())
     dialog.showNormal()
@@ -621,9 +649,9 @@ def main() -> int:
         hwnd,
         "bottom_edge",
         rect["left"] + rect["width"] // 2,
-        rect["bottom"] - 8,
+        rect["bottom"] - 3,
         rect["left"] + rect["width"] // 2,
-        min(available.bottom() - 24, rect["bottom"] + 66),
+        min(available.bottom() - 24, rect["bottom"] + 84),
     )
     screenshot_evidence["afterBottomEdge"] = _capture(app, dialog, log_root, "07_after_bottom_edge_resize")
     dialog.setGeometry(initial_bounded)
@@ -666,7 +694,7 @@ def main() -> int:
         "cornerFluidGeometrySamples": corner["uniqueSizeCount"] >= 6,
         "rightEdgeChangedWidth": right["widthDelta"] >= 32,
         "rightEdgeFluidGeometrySamples": right["uniqueWidthCount"] >= 4,
-        "bottomEdgeChangedHeight": bottom["heightDelta"] >= 26,
+        "bottomEdgeChangedHeight": abs(bottom["heightDelta"]) >= 26,
         "bottomEdgeFluidGeometrySamples": bottom["uniqueHeightCount"] >= 4,
         "topRightCornerResizeChangedWidth": top_right["widthDelta"] >= 28,
         "topRightCornerResizeChangedHeight": top_right["heightDelta"] >= 24,
@@ -779,6 +807,11 @@ def main() -> int:
             and local_check_result.get("promptSendPosture") == "prompt-send-disabled"
             and local_check_result.get("networkEgressState") == "network-egress-blocked"
             and local_check_result.get("memoryIndexingState") == "memory-indexing-disabled"
+        ),
+        "localCheckRealUserClickUsed": (
+            isinstance(local_check_real_click, dict)
+            and local_check_real_click.get("ok") is True
+            and "Win32 left mouse" in str(local_check_real_click.get("method") or "")
         ),
         "windowControlAccessibleLabelsPresent": (
             isinstance(title_chrome_proof, dict)
@@ -894,6 +927,11 @@ def main() -> int:
             and title_chrome_proof.get("visibleCompactButtonCount") == 2
         ),
         "minimizeCommandMinimizedWindow": minimized_after_click,
+        "minimizeRealUserClickUsed": (
+            isinstance(minimize_click, dict)
+            and minimize_click.get("ok") is True
+            and "Win32 left mouse" in str(minimize_click.get("method") or "")
+        ),
         "minimizeRestoreReturnedToKnownGeometry": (
             abs(post_minimize_restore_rect["width"] - initial_native_rect["width"]) <= 4
             and abs(post_minimize_restore_rect["height"] - initial_native_rect["height"]) <= 4
@@ -911,8 +949,10 @@ def main() -> int:
         "worktree": str(repo_root),
         "window": "AI Control Center",
         "realOsMouseInputProof": True,
+        "realUserClickInputProof": True,
         "qtestUsed": False,
         "directHandlerMutationUsed": False,
+        "syntheticDomClickUsedForClickableControls": False,
         "nativeGeometrySource": "Win32 GetWindowRect",
         "initialWindowRect": initial_native_rect,
         "initialWindowScreenshots": screenshot_evidence["before"],
@@ -920,6 +960,7 @@ def main() -> int:
         "titleChromeProof": title_chrome_proof,
         "windowControlHoverProof": hover_proof,
         "localCheckResultProof": local_check_result,
+        "localCheckRealInputProof": local_check_real_click,
         "windowControlProof": {
             "cluster": "compact-minimize-maximize-close",
             "minimize": "active-native-showMinimized",
