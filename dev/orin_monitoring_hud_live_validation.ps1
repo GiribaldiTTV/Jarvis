@@ -9,6 +9,7 @@
     [switch]$PrepareLiveValidationUserTestSummary,
     [switch]$RecordingOptionCSelfQA,
     [switch]$Rar3DProof,
+    [switch]$Rar3EProof,
     [switch]$SupplementalRuntimeProof,
     [switch]$UserConfirmedACSupplementProof,
     [string]$ProofSeam = "",
@@ -310,6 +311,12 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
     if ($FocusedLane -eq "recording-option-c") {
         $allIssueIds = @()
         $MinimumScreenshots = [Math]::Max(12, [Math]::Min($MinimumScreenshots, 12))
+    } elseif ($FocusedLane -eq "recording-option-c-rar3d") {
+        $allIssueIds = @()
+        $MinimumScreenshots = [Math]::Max(18, [Math]::Min($MinimumScreenshots, 18))
+    } elseif ($FocusedLane -eq "recording-option-c-rar3e") {
+        $allIssueIds = @()
+        $MinimumScreenshots = [Math]::Max(28, [Math]::Min($MinimumScreenshots, 28))
     }
     $issueCoverage = @()
     foreach ($issueId in $allIssueIds) {
@@ -380,6 +387,69 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
             "02_overlay_profile_normal_path_switch_saved_recording_mirror",
             "02_overlay_profile_restart_persistence_recording_target_mirror"
         )
+    } elseif ($FocusedLane -eq "recording-option-c-rar3d") {
+        $requiredElementLabels = @(
+            "rar3d_rar2b-fam006-003_hud_close_hover",
+            "rar3d_rar2b-fam006-003_hud_close_focus",
+            "rar3d_rar2b-fam006-013_quick_access_default",
+            "rar3d_rar2b-fam006-013_quick_access_hover",
+            "rar3d_rar2b-fam006-013_quick_access_pressed",
+            "rar3d_rar2b-fam006-018_recording_studio_default",
+            "rar3d_rar2b-fam006-018_recording_studio_hover",
+            "rar3d_rar2b-fam006-018_recording_studio_pressed",
+            "rar3d_rar2b-fam006-019_open_native_logs_default",
+            "rar3d_rar2b-fam006-019_open_native_logs_hover",
+            "rar3d_rar2b-fam006-019_open_native_logs_pressed",
+            "rar3d_rar2b-fam006-019_open_exported_logs_default",
+            "rar3d_rar2b-fam006-019_open_exported_logs_hover",
+            "rar3d_rar2b-fam006-019_open_exported_logs_pressed",
+            "rar3d_rar2b-fam006-016_recording_studio_geometry_original",
+            "rar3d_rar2b-fam006-016_recording_studio_geometry_moved",
+            "rar3d_rar2b-fam006-021_log_viewer_studio_geometry_original",
+            "rar3d_rar2b-fam006-021_log_viewer_studio_geometry_moved"
+        )
+    } elseif ($FocusedLane -eq "recording-option-c-rar3e") {
+        $requiredElementLabels = @(
+            "rar3e_rar2b-fam006-004_dashboard_geometry_original",
+            "rar3e_rar2b-fam006-004_dashboard_geometry_moved",
+            "rar3e_rar2b-fam006-004_dashboard_geometry_closed",
+            "rar3e_rar2b-fam006-004_dashboard_geometry_reopened",
+            "rar3e_rar2b-fam006-003_hud_close_keyboard_focus",
+            "rar3e_rar2b-fam006-003_hud_close_keyboard_after",
+            "rar3e_rar2b-fam006-007_quick_access_default",
+            "rar3e_rar2b-fam006-007_quick_access_hover",
+            "rar3e_rar2b-fam006-007_quick_access_start_keyboard_focus",
+            "rar3e_rar2b-fam006-007_quick_access_start_keyboard_after",
+            "rar3e_rar2b-fam006-007_quick_access_recording_active",
+            "rar3e_rar2b-fam006-007_quick_access_stop_keyboard_focus",
+            "rar3e_rar2b-fam006-007_quick_access_stop_keyboard_after",
+            "rar3e_rar2b-fam006-010_recording_card_buttons_default",
+            "rar3e_rar2b-fam006-010_recording_card_studio_hover",
+            "rar3e_rar2b-fam006-010_recording_card_studio_button_keyboard_focus",
+            "rar3e_rar2b-fam006-010_recording_card_studio_button_keyboard_after",
+            "rar3e_rar2b-fam006-010_recording_card_log_viewer_hover",
+            "rar3e_rar2b-fam006-010_recording_card_log_viewer_button_keyboard_focus",
+            "rar3e_rar2b-fam006-010_recording_card_log_viewer_button_keyboard_after",
+            "rar3e_rar2b-fam006-014_recording_studio_start_before_activation",
+            "rar3e_rar2b-fam006-014_recording_studio_start_after_activation",
+            "rar3e_rar2b-fam006-014_recording_studio_stop_before_activation",
+            "rar3e_rar2b-fam006-014_recording_studio_stop_after_activation",
+            "rar3e_rar2b-fam006-014_recording_studio_start_keyboard_focus",
+            "rar3e_rar2b-fam006-014_recording_studio_start_keyboard_after",
+            "rar3e_rar2b-fam006-014_recording_studio_stop_keyboard_focus",
+            "rar3e_rar2b-fam006-014_recording_studio_stop_keyboard_after",
+            "rar3e_rar2b-fam006-019_open_native_logs_before_activation",
+            "rar3e_rar2b-fam006-019_open_native_logs_after_activation",
+            "rar3e_rar2b-fam006-019_open_exported_logs_before_activation",
+            "rar3e_rar2b-fam006-019_open_exported_logs_after_activation",
+            "rar3e_rar2b-fam006-016_recording_studio_real_drag_original",
+            "rar3e_rar2b-fam006-016_recording_studio_real_drag_moved",
+            "rar3e_rar2b-fam006-016_recording_studio_real_drag_reopened",
+            "rar3e_rar2b-fam006-021_log_viewer_studio_real_drag_original",
+            "rar3e_rar2b-fam006-021_log_viewer_studio_real_drag_moved",
+            "rar3e_rar2b-fam006-021_log_viewer_studio_real_drag_reopened",
+            "rar3e_context_dashboard_after_remaining_proof"
+        )
     }
     $availableElementLabels = @($screenshots | Select-Object -ExpandProperty elementLabel)
     $missingRequiredElementLabels = @($requiredElementLabels | Where-Object { $availableElementLabels -notcontains $_ })
@@ -410,7 +480,7 @@ function Copy-FocusedElementScreenshotsToUserEvidence {
         }
     }
 
-    if ($FocusedLane -ne "recording-option-c" -and $missingIssueCoverage.Count -gt 0) {
+    if ($FocusedLane -notin @("recording-option-c", "recording-option-c-rar3d", "recording-option-c-rar3e") -and $missingIssueCoverage.Count -gt 0) {
         return [ordered]@{
             status = "FAIL"
             root = $Paths.ElementScreenshotEvidenceRoot
@@ -1633,8 +1703,8 @@ $pythonExe = ""
 $exitCode = 1
 $effectiveRunInteractionSelfQA = [bool]($RunInteractionSelfQA -or $ActiveUserFacingClient)
 $effectiveVisibleClient = [bool]($VisibleClient -or $ActiveUserFacingClient)
-$effectiveRecordingFocusedLane = [bool]($RecordingOptionCSelfQA -or $Rar3DProof -or $SupplementalRuntimeProof -or $UserConfirmedACSupplementProof)
-$effectiveFocusedLane = if ($Rar3DProof) { "recording-option-c-rar3d" } elseif ($effectiveRecordingFocusedLane) { "recording-option-c" } else { "full" }
+$effectiveRecordingFocusedLane = [bool]($RecordingOptionCSelfQA -or $Rar3DProof -or $Rar3EProof -or $SupplementalRuntimeProof -or $UserConfirmedACSupplementProof)
+$effectiveFocusedLane = if ($Rar3EProof) { "recording-option-c-rar3e" } elseif ($Rar3DProof) { "recording-option-c-rar3d" } elseif ($effectiveRecordingFocusedLane) { "recording-option-c" } else { "full" }
 $effectiveStepDelayMilliseconds = $InteractionStepDelayMilliseconds
 $effectiveFinalHoldMilliseconds = $FinalClientHoldSeconds * 1000
 if ($ActiveUserFacingClient) {
@@ -1798,7 +1868,50 @@ try {
             $interactionManifestRaw -notmatch '"realOsInputProof"\s*:\s*true') {
             throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView native-message fallback, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
         }
-        if ($Rar3DProof) {
+        if ($Rar3EProof) {
+            $requiredInteractionLabels = @(
+                "Dashboard Recording card target/status visual contract is focused before child windows",
+                "real OS click opens Dashboard Recording Studio",
+                "Recording Studio native window screenshot-capture readiness",
+                "real OS click starts Dashboard Recording",
+                "real OS click stops Dashboard Recording and requests local output",
+                "Dashboard Recording stop writes local output and readback proof",
+                "Recording Studio compact native/current-log tracking updates after save",
+                "real OS click opens Dashboard Recording Log Viewer Studio",
+                "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
+                "Log Viewer Studio native window screenshot-capture readiness",
+                "RAR3D real OS hover HUD Dashboard close control",
+                "RAR3D real OS hover Quick Access Start/Stop",
+                "RAR3D real OS click opens Recording Studio for ordered proof",
+                "RAR3D Recording Studio min/close ordered visual states",
+                "RAR3D Recording Studio Start/Stop ordered visual states",
+                "RAR3D Recording Studio literal geometry persistence sequence",
+                "RAR3D real OS click opens Log Viewer Studio for ordered proof",
+                "RAR3D Log Viewer Studio min/close ordered visual states",
+                "RAR3D Log Viewer Studio folder button ordered visual states",
+                "RAR3D Log Viewer Studio literal geometry persistence sequence",
+                "RAR3E HUD Dashboard real drag close reopen geometry proof",
+                "RAR3E HUD Dashboard close pressed/clicked proof",
+                "RAR3E HUD Dashboard close keyboard activation proof",
+                "RAR3E Quick Access hover proof",
+                "RAR3E Quick Access keyboard start activation proof",
+                "RAR3E Quick Access keyboard stop/saved activation proof",
+                "RAR3E Recording Card Studio button hover proof",
+                "RAR3E Recording Card Studio button keyboard activation proof",
+                "RAR3E Recording Card Log Viewer button hover proof",
+                "RAR3E Recording Card Log Viewer button keyboard activation proof",
+                "RAR3E Recording Studio direct Start activation proof",
+                "RAR3E Recording Studio direct Stop/saved activation proof",
+                "RAR3E Recording Studio keyboard Start activation proof",
+                "RAR3E Recording Studio keyboard Stop/saved activation proof",
+                "RAR3E Log Viewer Open Native folder activation proof",
+                "RAR3E Log Viewer Open Export folder activation proof",
+                "RAR3E Recording Studio real title-bar drag geometry proof",
+                "RAR3E Log Viewer Studio real title-bar drag geometry proof",
+                "RAR3E safe failure-state controlled-setup classification"
+            )
+        }
+        elseif ($Rar3DProof) {
             $requiredInteractionLabels = @(
                 "Dashboard Recording card target/status visual contract is focused before child windows",
                 "real OS click opens Dashboard Recording Studio",

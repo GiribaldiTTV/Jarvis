@@ -2793,6 +2793,13 @@ function monitoringHudWireReliableControl(element, key, handler, options = {}) {
     element.addEventListener("pointerup", (event) => activate(event, "pointerup"));
   }
   element.addEventListener("pointerleave", () => monitoringHudApplyPressedState(element, false));
+  element.addEventListener("keydown", (event) => {
+    const keyName = event && typeof event.key === "string" ? event.key : "";
+    if (keyName !== "Enter" && keyName !== " ") return;
+    monitoringHudApplyPressedState(element, true);
+    activate(event, keyName === "Enter" ? "keyboard-enter" : "keyboard-space");
+  });
+  element.addEventListener("keyup", () => monitoringHudApplyPressedState(element, false));
   element.addEventListener("click", (event) => {
     if (options.activateOnPointerUp || options.activateOnPointerDown) {
       const pointerActivatedAt = Number(element.dataset.reliablePointerActivatedAt || 0);

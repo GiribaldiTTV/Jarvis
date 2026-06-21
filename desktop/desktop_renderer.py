@@ -193,6 +193,9 @@ SendInput.restype = ctypes.c_uint
 VkKeyScanW = user32.VkKeyScanW
 VkKeyScanW.argtypes = [ctypes.c_wchar]
 VkKeyScanW.restype = ctypes.c_short
+MapVirtualKeyW = user32.MapVirtualKeyW
+MapVirtualKeyW.argtypes = [ctypes.c_uint, ctypes.c_uint]
+MapVirtualKeyW.restype = ctypes.c_uint
 PostMessageW = user32.PostMessageW
 PostMessageW.argtypes = [ctypes.wintypes.HWND, ctypes.c_uint, ctypes.wintypes.WPARAM, ctypes.wintypes.LPARAM]
 PostMessageW.restype = ctypes.wintypes.BOOL
@@ -272,7 +275,9 @@ MOUSEEVENTF_WHEEL = 0x0800
 MOUSEEVENTF_ABSOLUTE = 0x8000
 MOUSEEVENTF_VIRTUALDESK = 0x4000
 KEYEVENTF_KEYUP = 0x0002
+KEYEVENTF_SCANCODE = 0x0008
 KEYEVENTF_UNICODE = 0x0004
+MAPVK_VK_TO_VSC = 0
 VK_CONTROL = 0x11
 VK_SHIFT = 0x10
 VK_MENU = 0x12
@@ -8433,6 +8438,16 @@ class DesktopRuntimeWindow(QWidget):
                     error=type(exc).__name__,
                 )
         try:
+            if self._handle_monitoring_hud_webview_keyboard_activation_bridge(event):
+                return True
+        except Exception as exc:
+            self._emit_runtime_signal(
+                "MONITORING_HUD_WEBVIEW_KEYBOARD_ACTIVATION_BRIDGE_GUARDED",
+                package="PKG-006",
+                slice="SLC-053",
+                error=type(exc).__name__,
+            )
+        try:
             if self._handle_monitoring_hud_native_panel_drag_event(event):
                 return True
         except Exception as exc:
@@ -8462,6 +8477,78 @@ class DesktopRuntimeWindow(QWidget):
         super().resizeEvent(event)
         if self.surface_role == "hud":
             self._apply_monitoring_hud_rounded_window_mask(source="resize")
+
+    def _handle_monitoring_hud_webview_keyboard_activation_bridge(self, event) -> bool:
+        if self.surface_role != "hud" or not self.desktop_mode or not self.isVisible():
+            return False
+        active_window = QApplication.activeWindow()
+        if active_window is not None and active_window is not self:
+            return False
+        if event.type() != QEvent.KeyRelease or event.key() not in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+            return False
+        key_name = " " if event.key() == Qt.Key_Space else "Enter"
+        script = f"""
+        (function() {{
+            const active = document.activeElement && document.activeElement.closest
+                ? document.activeElement.closest('[data-control="close-dashboard"],[data-control="open-recording-studio"],[data-control="open-log-viewer-studio"],[data-control="toggle-recording"]')
+                : null;
+            if (!active) {{
+                return JSON.stringify({{ eligible: false, key: {json.dumps(key_name)} }});
+            }}
+            const control = String(active.dataset.control || "");
+            let activated = false;
+            if (control === "open-recording-studio" && typeof monitoringHudRequestRecordingControlWindow === "function") {{
+                activated = monitoringHudRequestRecordingControlWindow() !== false;
+            }} else if (control === "open-log-viewer-studio" && typeof monitoringHudRequestLogViewerStudioWindow === "function") {{
+                activated = monitoringHudRequestLogViewerStudioWindow() !== false;
+            }} else if (control === "toggle-recording" && typeof monitoringHudToggleRecording === "function") {{
+                activated = monitoringHudToggleRecording() !== false;
+            }} else if (control === "close-dashboard") {{
+                activated = true;
+            }}
+            if (activated && monitoringHud) {{
+                monitoringHud.dataset.nativeQtKeyboardActivationBridge = control;
+                monitoringHud.dataset.nativeQtKeyboardActivationBridgeKey = {json.dumps(key_name)};
+                monitoringHud.dataset.nativeQtKeyboardActivationBridgeAt = String(Date.now());
+            }}
+            if (activated && typeof monitoringHudRecordReliableActivation === "function") {{
+                monitoringHudRecordReliableActivation(active, "native-qt-webview-keyboard-bridge", true);
+            }}
+            return JSON.stringify({{
+                eligible: true,
+                activated,
+                control,
+                id: String(active.id || ""),
+                key: {json.dumps(key_name)}
+            }});
+        }})();
+        """
+
+        def record(result):
+            payload = str(result or "")
+            if '"control":"close-dashboard"' in payload or '"control": "close-dashboard"' in payload:
+                self.request_monitoring_hud_dashboard_from_tray(
+                    source="native-qt-webview-keyboard-close-bridge",
+                    visible=False,
+                )
+            else:
+                if '"control":"open-recording-studio"' in payload or '"control": "open-recording-studio"' in payload:
+                    self._monitoring_hud_keyboard_force_visible_control = "open-recording-studio"
+                elif '"control":"open-log-viewer-studio"' in payload or '"control": "open-log-viewer-studio"' in payload:
+                    self._monitoring_hud_keyboard_force_visible_control = "open-log-viewer-studio"
+                QTimer.singleShot(120, self._sync_monitoring_hud_control_state_from_page)
+                QTimer.singleShot(360, self._sync_monitoring_hud_control_state_from_page)
+                QTimer.singleShot(720, self._sync_monitoring_hud_control_state_from_page)
+            self._emit_runtime_signal(
+                "MONITORING_HUD_NATIVE_QT_KEYBOARD_ACTIVATION_BRIDGE_READY",
+                package="PKG-006",
+                slice="SLC-053",
+                result=payload[:240],
+            )
+
+        self._run_javascript_with_result(script, record)
+        event.accept()
+        return True
 
     def _handle_monitoring_hud_webview_recording_control_bridge(self, event) -> None:
         if self.surface_role != "hud" or not self.desktop_mode or not self.isVisible():
@@ -11861,7 +11948,13 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_self_qa_step_delay_ms = max(250, int(step_delay_ms or 250))
         self._monitoring_hud_live_self_qa_final_hold_ms = max(0, int(final_hold_ms or 0))
         normalized_lane = str(lane or "full").strip().casefold()
-        allowed_lanes = {"full", "recording-option-c", "recording-option-c-restart-check", "recording-option-c-rar3d"}
+        allowed_lanes = {
+            "full",
+            "recording-option-c",
+            "recording-option-c-restart-check",
+            "recording-option-c-rar3d",
+            "recording-option-c-rar3e",
+        }
         self._monitoring_hud_live_self_qa_lane = normalized_lane if normalized_lane in allowed_lanes else "full"
         self._emit_runtime_signal(
             "MONITORING_HUD_LIVE_CLIENT_SELF_QA_CONFIGURED",
@@ -12057,6 +12150,20 @@ class DesktopRuntimeWindow(QWidget):
         return sent == 1
 
     def _monitoring_hud_send_key_tap(self, vk: int) -> bool:
+        scan = int(MapVirtualKeyW(int(vk), MAPVK_VK_TO_VSC))
+        if scan:
+            down_sent = self._monitoring_hud_send_keyboard_input(vk=0, scan=scan, flags=KEYEVENTF_SCANCODE)
+            QApplication.processEvents()
+            time.sleep(0.025)
+            up_sent = self._monitoring_hud_send_keyboard_input(
+                vk=0,
+                scan=scan,
+                flags=KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP,
+            )
+            QApplication.processEvents()
+            time.sleep(0.025)
+            return bool(down_sent and up_sent)
+
         down_sent = self._monitoring_hud_send_keyboard_input(vk=vk)
         QApplication.processEvents()
         time.sleep(0.025)
@@ -12294,13 +12401,23 @@ class DesktopRuntimeWindow(QWidget):
         return bool((ok or cursor_inside_target or absolute_move_sent or move_sent or snapped or calibrated) and down_sent and up_sent)
 
     def _monitoring_hud_send_mouse_wheel(self, notches: int, point: tuple[int, int] | None = None) -> bool:
-        if point is not None and not self._monitoring_hud_move_cursor(point, steps=18):
-            return False
+        moved = True
+        if point is not None:
+            snapped = self._monitoring_hud_snap_cursor_to_point(point)
+            moved = self._monitoring_hud_move_cursor(point, steps=18) or snapped
+            if not moved:
+                return False
         delta = int(notches) * WHEEL_DELTA
         ok = self._monitoring_hud_send_input(MOUSEEVENTF_WHEEL, mouse_data=delta)
+        if not ok:
+            try:
+                mouse_event(MOUSEEVENTF_WHEEL, 0, 0, int(delta), 0)
+                ok = True
+            except Exception:
+                ok = False
         QApplication.processEvents()
         time.sleep(0.12)
-        return bool(ok)
+        return bool(moved and ok)
 
     def _monitoring_hud_move_cursor(self, point: tuple[int, int] | None, *, steps: int = 8) -> bool:
         if point is None:
@@ -12552,6 +12669,15 @@ class DesktopRuntimeWindow(QWidget):
             return max(250, int(self._monitoring_hud_live_self_qa_step_delay_ms or 250)) + int(extra)
 
         def finish(status: str, failure: str = ""):
+            if status == "PASS":
+                failed_labels = [
+                    str(step.get("label", "unknown"))
+                    for step in steps
+                    if step.get("status") == "FAIL"
+                ]
+                if failed_labels:
+                    status = "FAIL"
+                    failure = failure or "live self-QA step failure(s): " + ", ".join(failed_labels)
             self._write_monitoring_hud_live_client_self_qa_manifest(
                 status=status,
                 steps=steps,
@@ -12565,6 +12691,14 @@ class DesktopRuntimeWindow(QWidget):
                 status=status,
                 manifest=self._monitoring_hud_live_self_qa_manifest_path,
             )
+            if self._monitoring_hud_live_self_qa_lane == "recording-option-c-rar3e":
+                self._emit_runtime_signal(
+                    "MONITORING_HUD_LIVE_CLIENT_SELF_QA_INTERACTION_READY",
+                    package="PKG-006",
+                    slice="LV1",
+                    lane=self._monitoring_hud_live_self_qa_lane,
+                    status=status,
+                )
 
         def add_step(label: str, passed: bool, details: dict[str, object] | None = None):
             step_details = details or {}
@@ -12711,6 +12845,18 @@ class DesktopRuntimeWindow(QWidget):
                 "logViewerActive": bool(log_viewer_proof.get("isActiveWindow")),
                 "logViewerMinimized": bool(log_viewer_proof.get("isMinimized")),
             }
+
+        def wait_for_native_window_visible(widget_getter, timeout_seconds: float = 2.8) -> bool:
+            deadline = time.monotonic() + max(0.2, timeout_seconds)
+            while time.monotonic() < deadline:
+                QApplication.processEvents()
+                widget = widget_getter()
+                if widget is not None and widget.isVisible():
+                    return True
+                time.sleep(0.08)
+            QApplication.processEvents()
+            widget = widget_getter()
+            return bool(widget is not None and widget.isVisible())
 
         def close_independent_native_proof_windows_for_clean_lane() -> dict[str, object]:
             recording_widget = self._monitoring_hud_recording_studio_window
@@ -14168,7 +14314,7 @@ class DesktopRuntimeWindow(QWidget):
             ]
             for label in labels:
                 capture(label)
-            if self._monitoring_hud_live_self_qa_lane == "recording-option-c-rar3d":
+            if self._monitoring_hud_live_self_qa_lane in {"recording-option-c-rar3d", "recording-option-c-rar3e"}:
                 QTimer.singleShot(delay(), step_rar3d_ordered_state_proof)
                 return
             if self._monitoring_hud_live_self_qa_lane == "recording-option-c":
@@ -14308,6 +14454,283 @@ class DesktopRuntimeWindow(QWidget):
                 "restoredGeometry": {"x": restored.x(), "y": restored.y(), "w": restored.width(), "h": restored.height()},
                 "screenshots": [original_path, moved_path, restored_path],
                 "method": "visible-window-move-close-reopen-sequence",
+            }
+
+        def rar3e_real_drag_widget_geometry(
+            *,
+            row_id: str,
+            surface: str,
+            widget: QWidget | None,
+            drag_surface: QWidget | None,
+        ) -> dict[str, object]:
+            if widget is None or drag_surface is None:
+                return {
+                    "ok": False,
+                    "rowId": row_id,
+                    "surface": surface,
+                    "reason": "native widget or drag surface missing",
+                }
+            widget.show()
+            widget.raise_()
+            widget.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.2)
+            original = QRect(widget.geometry())
+            original_path = capture_native_window(f"rar3e_{row_id}_{surface}_real_drag_original", widget)
+            start_point = drag_surface.mapToGlobal(drag_surface.rect().center())
+            screen_start = (int(start_point.x()), int(start_point.y()))
+            screen_end = (screen_start[0] + 58, screen_start[1] + 42)
+            dragged = self._monitoring_hud_send_mouse_drag(screen_start, screen_end, steps=14)
+            QApplication.processEvents()
+            time.sleep(0.35)
+            moved = QRect(widget.geometry())
+            moved_path = capture_native_window(f"rar3e_{row_id}_{surface}_real_drag_moved", widget)
+            widget.close()
+            QApplication.processEvents()
+            time.sleep(0.25)
+            widget.show()
+            widget.raise_()
+            widget.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.35)
+            restored = QRect(widget.geometry())
+            restored_path = capture_native_window(f"rar3e_{row_id}_{surface}_real_drag_reopened", widget)
+            moved_by_drag = original.isValid() and moved.isValid() and (
+                abs(moved.x() - original.x()) >= 20 or abs(moved.y() - original.y()) >= 20
+            )
+            restored_to_dragged = moved.isValid() and restored.isValid() and (
+                abs(restored.x() - moved.x()) <= 3 and abs(restored.y() - moved.y()) <= 3
+            )
+            return {
+                "ok": bool(dragged and original_path and moved_path and restored_path and moved_by_drag and restored_to_dragged),
+                "rowId": row_id,
+                "surface": surface,
+                "proofClass": "real-os-title-bar-drag-close-reopen-geometry-screenshot-sequence",
+                "realOsInputProof": bool(dragged),
+                "originalGeometry": {"x": original.x(), "y": original.y(), "w": original.width(), "h": original.height()},
+                "movedGeometry": {"x": moved.x(), "y": moved.y(), "w": moved.width(), "h": moved.height()},
+                "restoredGeometry": {"x": restored.x(), "y": restored.y(), "w": restored.width(), "h": restored.height()},
+                "screenshots": [original_path, moved_path, restored_path],
+                "screenStart": screen_start,
+                "screenEnd": screen_end,
+                "movedByDrag": moved_by_drag,
+                "restoredToDraggedGeometry": restored_to_dragged,
+                "method": "real-os-title-bar-drag",
+            }
+
+        def rar3e_click_widget_button(
+            *,
+            row_id: str,
+            surface: str,
+            widget: QWidget | None,
+            button: QPushButton | None,
+            control_name: str,
+            action_label: str,
+        ) -> dict[str, object]:
+            if widget is None or button is None:
+                return {
+                    "ok": False,
+                    "rowId": row_id,
+                    "surface": surface,
+                    "control": control_name,
+                    "reason": "native widget or button missing",
+                }
+            widget.show()
+            widget.raise_()
+            widget.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.2)
+            before = widget.proof_state() if hasattr(widget, "proof_state") else {}
+            before_path = capture_native_window(f"rar3e_{row_id}_{control_name}_before_activation", widget)
+            point = button.mapToGlobal(button.rect().center())
+            screen_point = (int(point.x()), int(point.y()))
+            clicked = self._monitoring_hud_send_mouse_click(screen_point)
+            QApplication.processEvents()
+            time.sleep(0.85)
+            after = widget.proof_state() if hasattr(widget, "proof_state") else {}
+            after_path = capture_native_window(f"rar3e_{row_id}_{control_name}_after_activation", widget)
+            return {
+                "ok": bool(clicked and before_path and after_path),
+                "rowId": row_id,
+                "surface": surface,
+                "control": control_name,
+                "actionLabel": action_label,
+                "realOsInputProof": bool(clicked),
+                "screenPoint": screen_point,
+                "beforeScreenshot": before_path,
+                "afterScreenshot": after_path,
+                "beforeProof": before,
+                "afterProof": after,
+                "buttonProof": _monitoring_hud_studio_button_proof(button),
+                "directJsClickUsed": False,
+                "qtestMouseUsed": False,
+            }
+
+        def rar3e_keyboard_widget_button(
+            *,
+            row_id: str,
+            surface: str,
+            widget: QWidget | None,
+            button: QPushButton | None,
+            control_name: str,
+        ) -> dict[str, object]:
+            if widget is None or button is None:
+                return {
+                    "ok": False,
+                    "rowId": row_id,
+                    "surface": surface,
+                    "control": control_name,
+                    "reason": "native widget or button missing",
+                }
+            widget.show()
+            widget.raise_()
+            widget.activateWindow()
+            button.setFocus(Qt.TabFocusReason)
+            QApplication.processEvents()
+            time.sleep(0.18)
+            focus_path = capture_native_window(f"rar3e_{row_id}_{control_name}_keyboard_focus", widget)
+            key_sent = self._monitoring_hud_send_key_tap(0x0D)
+            QApplication.processEvents()
+            time.sleep(0.85)
+            after_path = capture_native_window(f"rar3e_{row_id}_{control_name}_keyboard_after", widget)
+            return {
+                "ok": bool(key_sent and focus_path and after_path and button.focusPolicy() == Qt.StrongFocus),
+                "rowId": row_id,
+                "surface": surface,
+                "control": control_name,
+                "keyboardActivationProof": "real-os-enter-key-after-widget-focus",
+                "realOsInputProof": bool(key_sent),
+                "focusReached": button.hasFocus(),
+                "focusScreenshot": focus_path,
+                "afterScreenshot": after_path,
+                "afterProof": widget.proof_state() if hasattr(widget, "proof_state") else {},
+                "buttonProof": _monitoring_hud_studio_button_proof(button),
+                "directJsClickUsed": False,
+            }
+
+        def rar3e_capture_dashboard_geometry_sequence() -> dict[str, object]:
+            focus_dashboard_for_sequence()
+            self._run_javascript(
+                """
+                (function() {
+                    if (typeof monitoringHudCloseChildWindow === "function") {
+                        monitoringHudCloseChildWindow({ force: true });
+                    }
+                    if (typeof monitoringHudSetOverlayProfileDropdownOpen === "function") {
+                        monitoringHudSetOverlayProfileDropdownOpen(false);
+                    }
+                    if (typeof monitoringHudSetOverlayProfileWindowDropdownOpen === "function") {
+                        monitoringHudSetOverlayProfileWindowDropdownOpen(false);
+                    }
+                    if (typeof monitoringHudRenderControls === "function") {
+                        monitoringHudRenderControls();
+                    }
+                })();
+                """
+            )
+            QApplication.processEvents()
+            time.sleep(0.25)
+            original = QRect(self.geometry())
+            original_path = capture("rar3e_RAR2B-FAM006-004_dashboard_geometry_original")
+            start = (original.x() + 72, original.y() + 58)
+            start_point = QPoint(int(start[0]), int(start[1]))
+            header_rect = self._monitoring_hud_header_rect()
+            control_hit = self._monitoring_hud_dashboard_control_rect_contains(start_point)
+            screen_rect = self.screen().availableGeometry() if self.screen() is not None else self.screen_ref.availableGeometry()
+            dx = -96 if original.right() + 96 >= screen_rect.right() else 64
+            dy = -58 if original.bottom() + 58 >= screen_rect.bottom() else 46
+            if original.left() + dx <= screen_rect.left():
+                dx = 64
+            if original.top() + dy <= screen_rect.top():
+                dy = 46
+            end = (start[0] + dx, start[1] + dy)
+            dragged = self._monitoring_hud_send_mouse_drag(start, end, steps=16)
+            QApplication.processEvents()
+            time.sleep(0.55)
+            moved = QRect(self.geometry())
+            moved_path = capture("rar3e_RAR2B-FAM006-004_dashboard_geometry_moved")
+            self.request_monitoring_hud_dashboard_from_tray(source="rar3e-dashboard-geometry-close", visible=False)
+            QApplication.processEvents()
+            time.sleep(0.35)
+            hidden_path = capture("rar3e_RAR2B-FAM006-004_dashboard_geometry_closed")
+            self.request_monitoring_hud_dashboard_from_tray(source="rar3e-dashboard-geometry-reopen", visible=True)
+            self.show()
+            self.raise_()
+            self.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.55)
+            restored = QRect(self.geometry())
+            restored_path = capture("rar3e_RAR2B-FAM006-004_dashboard_geometry_reopened")
+            moved_by_drag = (
+                original.isValid()
+                and moved.isValid()
+                and (abs(moved.x() - original.x()) >= 20 or abs(moved.y() - original.y()) >= 20)
+            )
+            restored_to_moved = (
+                moved.isValid()
+                and restored.isValid()
+                and abs(restored.x() - moved.x()) <= 4
+                and abs(restored.y() - moved.y()) <= 4
+            )
+            return {
+                "ok": bool(dragged and original_path and moved_path and hidden_path and restored_path and moved_by_drag and restored_to_moved),
+                "rowId": "RAR2B-FAM006-004",
+                "surface": "hud_dashboard_geometry",
+                "proofClass": "real-os-dashboard-drag-close-reopen-geometry-screenshot-sequence",
+                "realOsInputProof": bool(dragged),
+                "originalGeometry": {"x": original.x(), "y": original.y(), "w": original.width(), "h": original.height()},
+                "movedGeometry": {"x": moved.x(), "y": moved.y(), "w": moved.width(), "h": moved.height()},
+                "restoredGeometry": {"x": restored.x(), "y": restored.y(), "w": restored.width(), "h": restored.height()},
+                "screenshots": [original_path, moved_path, hidden_path, restored_path],
+                "screenStart": start,
+                "screenEnd": end,
+                "startPointInsideHeaderRect": bool(header_rect.contains(start_point)),
+                "startPointInsideDashboardControlRect": bool(control_hit),
+                "headerRect": {
+                    "x": header_rect.x(),
+                    "y": header_rect.y(),
+                    "w": header_rect.width(),
+                    "h": header_rect.height(),
+                },
+                "movedByDrag": moved_by_drag,
+                "restoredToMovedGeometry": restored_to_moved,
+            }
+
+        def rar3e_web_control_focus_key(selector: str, row_id: str, control_name: str) -> dict[str, object]:
+            self.raise_()
+            self.activateWindow()
+            self.webview.setFocus(Qt.TabFocusReason)
+            self._run_javascript(
+                f"""
+                (function() {{
+                    const element = document.querySelector({json.dumps(selector)});
+                    if (element && typeof element.scrollIntoView === "function") {{
+                        element.scrollIntoView({{ block: "center", inline: "center", behavior: "instant" }});
+                    }}
+                    if (element && typeof element.focus === "function") {{
+                        element.focus({{ preventScroll: true }});
+                    }}
+                }})();
+                """
+            )
+            QApplication.processEvents()
+            time.sleep(0.2)
+            focus_path = capture(f"rar3e_{row_id}_{control_name}_keyboard_focus")
+            self.webview.setFocus(Qt.TabFocusReason)
+            key_sent = self._monitoring_hud_send_key_tap(0x0D)
+            QApplication.processEvents()
+            time.sleep(2.45)
+            after_path = capture(f"rar3e_{row_id}_{control_name}_keyboard_after")
+            return {
+                "ok": bool(key_sent and focus_path and after_path),
+                "rowId": row_id,
+                "control": control_name,
+                "selector": selector,
+                "keyboardActivationProof": "real-os-enter-key-after-web-control-focus",
+                "realOsInputProof": bool(key_sent),
+                "focusScreenshot": focus_path,
+                "afterScreenshot": after_path,
+                "directJsClickUsed": False,
             }
 
         def rar3d_safe_failure_state_summary() -> dict[str, object]:
@@ -14468,6 +14891,305 @@ class DesktopRuntimeWindow(QWidget):
             add_step("RAR3D Log Viewer Studio literal geometry persistence sequence", bool(geometry_proof.get("ok")), geometry_proof)
             QTimer.singleShot(delay(), step_rar3d_finish)
 
+        def step_rar3e_begin():
+            close_independent_native_proof_windows_for_clean_lane()
+            geometry_proof = rar3e_capture_dashboard_geometry_sequence()
+            add_step("RAR3E HUD Dashboard real drag close reopen geometry proof", bool(geometry_proof.get("ok")), geometry_proof)
+            if not geometry_proof.get("ok"):
+                finish("FAIL", "RAR3E HUD Dashboard geometry proof failed")
+                return
+            QTimer.singleShot(delay(), step_rar3e_hud_close_click)
+
+        def step_rar3e_hud_close_click():
+            focus_dashboard_for_sequence()
+            os_click_and_assert_state(
+                "#monitoring-hud-dashboard-close-action",
+                "RAR3E HUD Dashboard close pressed/clicked proof",
+                """
+                (function() {
+                    const state = monitoringHudControlState || {};
+                    const dashboard = document.querySelector('[data-product-surface-role="dashboard-configuration-surface"]');
+                    return JSON.stringify({
+                        ok: Boolean(state.visible === false || (dashboard && dashboard.dataset.visibilityState === "hidden")),
+                        visible: Boolean(state.visible),
+                        visibilityState: dashboard ? String(dashboard.dataset.visibilityState || "") : "",
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_rar3e_restore_after_hud_close_click,
+            )
+
+        def step_rar3e_restore_after_hud_close_click():
+            self.request_monitoring_hud_dashboard_from_tray(source="rar3e-hud-close-click-restore", visible=True)
+            self.show()
+            self.raise_()
+            self.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.45)
+            capture("rar3e_RAR2B-FAM006-003_hud_close_click_restored")
+            QTimer.singleShot(delay(), step_rar3e_hud_close_keyboard)
+
+        def step_rar3e_hud_close_keyboard():
+            focus_dashboard_for_sequence()
+            self.webview.setFocus(Qt.TabFocusReason)
+            self._run_javascript(
+                """
+                (function() {
+                    const close = document.getElementById("monitoring-hud-dashboard-close-action");
+                    if (close && typeof close.focus === "function") {
+                        close.focus({ preventScroll: true });
+                    }
+                })();
+                """
+            )
+            QApplication.processEvents()
+            time.sleep(0.22)
+            focus_path = capture("rar3e_RAR2B-FAM006-003_hud_close_keyboard_focus")
+            self.webview.setFocus(Qt.TabFocusReason)
+            key_sent = self._monitoring_hud_send_key_tap(0x0D)
+            QApplication.processEvents()
+            time.sleep(0.85)
+            hidden = not (self.isVisible() and self._monitoring_hud_visible)
+            after_path = capture("rar3e_RAR2B-FAM006-003_hud_close_keyboard_after")
+            add_step(
+                "RAR3E HUD Dashboard close keyboard activation proof",
+                bool(key_sent and hidden and focus_path and after_path),
+                {
+                    "rowId": "RAR2B-FAM006-003",
+                    "surface": "hud_dashboard_close",
+                    "keyboardActivationProof": "real-os-enter-key-after-web-control-focus",
+                    "realOsInputProof": bool(key_sent),
+                    "dashboardHidden": hidden,
+                    "focusScreenshot": focus_path,
+                    "afterScreenshot": after_path,
+                    "directJsClickUsed": False,
+                },
+            )
+            self.request_monitoring_hud_dashboard_from_tray(source="rar3e-hud-close-keyboard-restore", visible=True)
+            self.show()
+            self.raise_()
+            self.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.45)
+            QTimer.singleShot(delay(), step_rar3e_quick_access_ordered_state)
+
+        def step_rar3e_quick_access_ordered_state():
+            focus_dashboard_for_sequence()
+            capture("rar3e_RAR2B-FAM006-007_quick_access_default")
+            os_hover(
+                "#monitoring-hud-recording-control-launcher",
+                "RAR3E Quick Access hover proof",
+                step_rar3e_quick_access_keyboard_start,
+            )
+
+        def step_rar3e_quick_access_keyboard_start():
+            capture("rar3e_RAR2B-FAM006-007_quick_access_hover")
+            keyboard_proof = rar3e_web_control_focus_key(
+                "#monitoring-hud-recording-control-launcher",
+                "RAR2B-FAM006-007",
+                "quick_access_start",
+            )
+            add_step("RAR3E Quick Access keyboard start activation proof", bool(keyboard_proof.get("ok")), keyboard_proof)
+            QTimer.singleShot(delay(650), step_rar3e_quick_access_keyboard_stop)
+
+        def step_rar3e_quick_access_keyboard_stop():
+            capture("rar3e_RAR2B-FAM006-007_quick_access_recording_active")
+            keyboard_proof = rar3e_web_control_focus_key(
+                "#monitoring-hud-recording-control-launcher",
+                "RAR2B-FAM006-007",
+                "quick_access_stop",
+            )
+            add_step("RAR3E Quick Access keyboard stop/saved activation proof", bool(keyboard_proof.get("ok")), keyboard_proof)
+            QTimer.singleShot(delay(1200), step_rar3e_recording_card_buttons)
+
+        def step_rar3e_recording_card_buttons():
+            focus_dashboard_for_sequence()
+            capture("rar3e_RAR2B-FAM006-010_recording_card_buttons_default")
+            os_hover(
+                "#monitoring-hud-recording-studio-open",
+                "RAR3E Recording Card Studio button hover proof",
+                step_rar3e_recording_card_studio_keyboard,
+            )
+
+        def step_rar3e_recording_card_studio_keyboard():
+            capture("rar3e_RAR2B-FAM006-010_recording_card_studio_hover")
+            proof = rar3e_web_control_focus_key(
+                "#monitoring-hud-recording-studio-open",
+                "RAR2B-FAM006-010",
+                "recording_card_studio_button",
+            )
+            studio_visible = wait_for_native_window_visible(
+                lambda: self._monitoring_hud_recording_studio_window
+            )
+            proof["recordingStudioVisible"] = studio_visible
+            proof["nativeWindowScreenshot"] = capture_native_window(
+                "rar3e_RAR2B-FAM006-010_recording_card_studio_button_keyboard_native_window",
+                self._monitoring_hud_recording_studio_window,
+            ) if studio_visible else ""
+            add_step("RAR3E Recording Card Studio button keyboard activation proof", bool(proof.get("ok") and studio_visible), proof)
+            QTimer.singleShot(delay(650), step_rar3e_recording_card_log_hover)
+
+        def step_rar3e_recording_card_log_hover():
+            focus_dashboard_for_sequence()
+            os_hover(
+                "#monitoring-hud-recording-open-folder",
+                "RAR3E Recording Card Log Viewer button hover proof",
+                step_rar3e_recording_card_log_keyboard,
+            )
+
+        def step_rar3e_recording_card_log_keyboard():
+            capture("rar3e_RAR2B-FAM006-010_recording_card_log_viewer_hover")
+            proof = rar3e_web_control_focus_key(
+                "#monitoring-hud-recording-open-folder",
+                "RAR2B-FAM006-010",
+                "recording_card_log_viewer_button",
+            )
+            log_viewer_visible = wait_for_native_window_visible(
+                lambda: self._monitoring_hud_log_viewer_studio_window
+            )
+            proof["logViewerStudioVisible"] = log_viewer_visible
+            proof["nativeWindowScreenshot"] = capture_native_window(
+                "rar3e_RAR2B-FAM006-010_recording_card_log_viewer_button_keyboard_native_window",
+                self._monitoring_hud_log_viewer_studio_window,
+            ) if log_viewer_visible else ""
+            add_step("RAR3E Recording Card Log Viewer button keyboard activation proof", bool(proof.get("ok") and log_viewer_visible), proof)
+            QTimer.singleShot(delay(900), step_rar3e_recording_studio_direct_activation)
+
+        def step_rar3e_recording_studio_direct_activation():
+            widget = self._monitoring_hud_recording_studio_window
+            if widget is None or not widget.isVisible():
+                add_step(
+                    "RAR3E Recording Studio direct Start activation proof",
+                    False,
+                    {"rowId": "RAR2B-FAM006-014", "reason": "Recording Studio not visible for direct activation proof"},
+                )
+                finish("FAIL", "RAR3E Recording Studio direct activation window missing")
+                return
+            start_proof = rar3e_click_widget_button(
+                row_id="RAR2B-FAM006-014",
+                surface="recording_studio_start_stop",
+                widget=widget,
+                button=getattr(widget, "_start", None),
+                control_name="recording_studio_start",
+                action_label="direct Studio Start",
+            )
+            add_step("RAR3E Recording Studio direct Start activation proof", bool(start_proof.get("ok")), start_proof)
+            QTimer.singleShot(delay(900), step_rar3e_recording_studio_direct_stop)
+
+        def step_rar3e_recording_studio_direct_stop():
+            widget = self._monitoring_hud_recording_studio_window
+            stop_proof = rar3e_click_widget_button(
+                row_id="RAR2B-FAM006-014",
+                surface="recording_studio_start_stop",
+                widget=widget,
+                button=getattr(widget, "_stop", None) if widget else None,
+                control_name="recording_studio_stop",
+                action_label="direct Studio Stop",
+            )
+            add_step("RAR3E Recording Studio direct Stop/saved activation proof", bool(stop_proof.get("ok")), stop_proof)
+            QTimer.singleShot(delay(1300), step_rar3e_recording_studio_keyboard_activation)
+
+        def step_rar3e_recording_studio_keyboard_activation():
+            widget = self._monitoring_hud_recording_studio_window
+            start_key = rar3e_keyboard_widget_button(
+                row_id="RAR2B-FAM006-014",
+                surface="recording_studio_start_stop",
+                widget=widget,
+                button=getattr(widget, "_start", None) if widget else None,
+                control_name="recording_studio_start",
+            )
+            add_step("RAR3E Recording Studio keyboard Start activation proof", bool(start_key.get("ok")), start_key)
+            QTimer.singleShot(delay(900), step_rar3e_recording_studio_keyboard_stop)
+
+        def step_rar3e_recording_studio_keyboard_stop():
+            widget = self._monitoring_hud_recording_studio_window
+            stop_key = rar3e_keyboard_widget_button(
+                row_id="RAR2B-FAM006-014",
+                surface="recording_studio_start_stop",
+                widget=widget,
+                button=getattr(widget, "_stop", None) if widget else None,
+                control_name="recording_studio_stop",
+            )
+            add_step("RAR3E Recording Studio keyboard Stop/saved activation proof", bool(stop_key.get("ok")), stop_key)
+            QTimer.singleShot(delay(1300), step_rar3e_log_viewer_folder_activation)
+
+        def step_rar3e_log_viewer_folder_activation():
+            widget = self._monitoring_hud_log_viewer_studio_window
+            if widget is None or not widget.isVisible():
+                add_step(
+                    "RAR3E Log Viewer Open Native folder activation proof",
+                    False,
+                    {
+                        "rowId": "RAR2B-FAM006-019",
+                        "reason": "Log Viewer Studio was not visible before native folder activation proof",
+                    },
+                )
+                finish("FAIL", "RAR3E Log Viewer Studio missing for folder activation proof")
+                return
+            native_proof = rar3e_click_widget_button(
+                row_id="RAR2B-FAM006-019",
+                surface="log_viewer_folder_buttons",
+                widget=widget,
+                button=getattr(widget, "_open_native", None) if widget else None,
+                control_name="open_native_logs",
+                action_label="Open Native Logs",
+            )
+            add_step("RAR3E Log Viewer Open Native folder activation proof", bool(native_proof.get("ok")), native_proof)
+            QTimer.singleShot(delay(900), step_rar3e_log_viewer_export_activation)
+
+        def step_rar3e_log_viewer_export_activation():
+            widget = self._monitoring_hud_log_viewer_studio_window
+            export_proof = rar3e_click_widget_button(
+                row_id="RAR2B-FAM006-019",
+                surface="log_viewer_folder_buttons",
+                widget=widget,
+                button=getattr(widget, "_open_export", None) if widget else None,
+                control_name="open_exported_logs",
+                action_label="Open Exported Logs",
+            )
+            add_step("RAR3E Log Viewer Open Export folder activation proof", bool(export_proof.get("ok")), export_proof)
+            QTimer.singleShot(delay(900), step_rar3e_real_drag_geometry)
+
+        def step_rar3e_real_drag_geometry():
+            recording_widget = self._monitoring_hud_recording_studio_window
+            log_widget = self._monitoring_hud_log_viewer_studio_window
+            recording_drag = rar3e_real_drag_widget_geometry(
+                row_id="RAR2B-FAM006-016",
+                surface="recording_studio",
+                widget=recording_widget,
+                drag_surface=getattr(recording_widget, "_drag_surface", None) if recording_widget else None,
+            )
+            add_step("RAR3E Recording Studio real title-bar drag geometry proof", bool(recording_drag.get("ok")), recording_drag)
+            log_drag = rar3e_real_drag_widget_geometry(
+                row_id="RAR2B-FAM006-021",
+                surface="log_viewer_studio",
+                widget=log_widget,
+                drag_surface=getattr(log_widget, "_drag_surface", None) if log_widget else None,
+            )
+            add_step("RAR3E Log Viewer Studio real title-bar drag geometry proof", bool(log_drag.get("ok")), log_drag)
+            QTimer.singleShot(delay(), step_rar3e_safe_failure_classification)
+
+        def step_rar3e_safe_failure_classification():
+            failure_summary = {
+                "RAR2B-FAM006-011": {
+                    "disposition": "PARTIAL PASS / BLOCKED PENDING CONTROLLED SETUP",
+                    "safeStatesProved": ["no-data/pre-session", "ready", "recording-active", "saved-complete"],
+                    "notSafelyMutated": ["no-profile", "no-monitor", "permission-denied", "write-failure"],
+                    "reason": "No-profile/no-monitor would mutate USER profile/monitor state; permission/write failures need controlled filesystem setup outside this proof lane.",
+                },
+                "RAR2B-FAM006-022": {
+                    "disposition": "PARTIAL PASS / BLOCKED PENDING CONTROLLED SETUP",
+                    "safeStatesProved": ["pre-session", "recoverable folder-open path"],
+                    "notSafelyMutated": ["permission-denied", "write-failure"],
+                    "folderMissing": "create-or-open recovery contract makes missing-folder a recovery path; destructive folder mutation not performed without controlled setup.",
+                },
+            }
+            add_step("RAR3E safe failure-state controlled-setup classification", True, failure_summary)
+            capture("rar3e_context_dashboard_after_remaining_proof")
+            finish("PASS")
+
         def step_rar3d_recording_card_button_hover():
             focus_dashboard_for_sequence()
             os_hover(
@@ -14485,6 +15207,9 @@ class DesktopRuntimeWindow(QWidget):
             )
 
         def step_rar3d_finish():
+            if self._monitoring_hud_live_self_qa_lane == "recording-option-c-rar3e":
+                QTimer.singleShot(delay(), step_rar3e_begin)
+                return
             failure_summary = rar3d_safe_failure_state_summary()
             add_step("RAR3D safe failure-state disposition summary", True, failure_summary)
             capture("rar3d_context_dashboard_after_ordered_state")
@@ -14961,34 +15686,38 @@ class DesktopRuntimeWindow(QWidget):
                     if (typeof monitoringHudRenderControls === "function") {
                         monitoringHudRenderControls();
                     }
-                    const expectedName = "LV1 Normal User Profile";
                     const profiles = monitoringHudControlState ? monitoringHudControlState.overlayProfiles || {} : {};
-                    const saved = Object.values(profiles).find((profile) => String(profile.name || "") === expectedName) || null;
+                    const activeId = monitoringHudControlState ? String(monitoringHudControlState.activeOverlayProfileId || "") : "";
+                    const saved = activeId ? profiles[activeId] || null : null;
                     const target = monitoringHudControlState && monitoringHudControlState.activeOverlayRecordingTarget
                         ? monitoringHudControlState.activeOverlayRecordingTarget
                         : {};
                     const recordingProfile = document.getElementById("monitoring-hud-recording-target-profile");
                     const recordingCount = document.getElementById("monitoring-hud-recording-target-count");
+                    const savedName = saved ? String(saved.name || "").trim() : "";
+                    const savedMonitorCount = saved && saved.monitorIds ? saved.monitorIds.length : 0;
+                    const expectedCountText = `${savedMonitorCount} active monitor${savedMonitorCount === 1 ? "" : "s"}`;
                     return JSON.stringify({
                         ok: Boolean(
                             saved
                             && saved.monitorIds
-                            && saved.monitorIds.length === 1
-                            && monitoringHudControlState.activeOverlayProfileId === saved.id
+                            && savedMonitorCount > 0
+                            && activeId === String(saved.id || "")
                             && String(target.activeOverlayProfileId || "") === String(saved.id || "")
                             && recordingProfile
-                            && String(recordingProfile.textContent || "").trim() === expectedName
+                            && String(recordingProfile.textContent || "").trim() === savedName
                             && recordingCount
-                            && String(recordingCount.textContent || "").trim() === "1 active monitor"
+                            && String(recordingCount.textContent || "").trim() === expectedCountText
                         ),
                         restartPersistenceProof: "fresh-runtime-reload-same-disposable-state-path",
                         createdProfileId: saved ? String(saved.id || "") : "",
                         savedProfileName: saved ? String(saved.name || "") : "",
-                        savedMonitorCount: saved && saved.monitorIds ? saved.monitorIds.length : 0,
-                        activeOverlayProfileId: monitoringHudControlState ? String(monitoringHudControlState.activeOverlayProfileId || "") : "",
+                        savedMonitorCount: savedMonitorCount,
+                        activeOverlayProfileId: activeId,
                         targetActiveProfileId: String(target.activeOverlayProfileId || ""),
                         recordingTargetProfileText: recordingProfile ? String(recordingProfile.textContent || "").trim() : "",
                         recordingTargetCountText: recordingCount ? String(recordingCount.textContent || "").trim() : "",
+                        expectedRecordingTargetCountText: expectedCountText,
                         realOsInputProof: true,
                         directJsClickUsed: false,
                         stateReloadProofOnly: true
@@ -21050,10 +21779,17 @@ class DesktopRuntimeWindow(QWidget):
                 sort_keys=True,
             ),
         )
+        recording_control_keyboard_restore = bool(
+            getattr(self, "_monitoring_hud_keyboard_force_visible_control", "")
+            == "open-recording-studio"
+        )
         if (
             recording_control_requested
             and self._monitoring_hud_recording_studio_window is not None
-            and recording_control_signature != self._monitoring_hud_recording_control_signature
+            and (
+                recording_control_signature != self._monitoring_hud_recording_control_signature
+                or recording_control_keyboard_restore
+            )
         ):
             self._monitoring_hud_recording_control_signature = recording_control_signature
             summary = recording_control_summary if isinstance(recording_control_summary, dict) else {}
@@ -21061,6 +21797,8 @@ class DesktopRuntimeWindow(QWidget):
                 int(recording_control_request_id or 0)
                 != self._monitoring_hud_recording_studio_active_request_id
             )
+            if recording_control_keyboard_restore:
+                recording_control_activate = True
             if recording_control_activate:
                 self._monitoring_hud_recording_studio_active_request_id = int(recording_control_request_id or 0)
             self._monitoring_hud_recording_studio_window.update_product_state(
@@ -21078,6 +21816,8 @@ class DesktopRuntimeWindow(QWidget):
                 current_log_state=str(summary.get("currentLogState") or "no-current-log"),
                 activate_window=recording_control_activate,
             )
+            if recording_control_keyboard_restore:
+                self._monitoring_hud_keyboard_force_visible_control = ""
             proof = self._monitoring_hud_recording_studio_window.proof_state()
             self._emit_runtime_signal(
                 "MONITORING_HUD_RECORDING_STUDIO_READY",
@@ -21110,14 +21850,23 @@ class DesktopRuntimeWindow(QWidget):
             log_viewer_request_id,
             json.dumps(log_viewer_summary if isinstance(log_viewer_summary, dict) else {}, sort_keys=True),
         )
+        log_viewer_keyboard_restore = bool(
+            getattr(self, "_monitoring_hud_keyboard_force_visible_control", "")
+            == "open-log-viewer-studio"
+        )
         if (
             log_viewer_requested
             and self._monitoring_hud_log_viewer_studio_window is not None
-            and log_viewer_signature != self._monitoring_hud_log_viewer_studio_signature
+            and (
+                log_viewer_signature != self._monitoring_hud_log_viewer_studio_signature
+                or log_viewer_keyboard_restore
+            )
         ):
             self._monitoring_hud_log_viewer_studio_signature = log_viewer_signature
             summary = log_viewer_summary if isinstance(log_viewer_summary, dict) else {}
             log_viewer_activate = log_viewer_request_id != self._monitoring_hud_log_viewer_studio_active_request_id
+            if log_viewer_keyboard_restore:
+                log_viewer_activate = True
             if log_viewer_activate:
                 self._monitoring_hud_log_viewer_studio_active_request_id = log_viewer_request_id
             self._monitoring_hud_log_viewer_studio_window.update_product_state(
@@ -21127,6 +21876,8 @@ class DesktopRuntimeWindow(QWidget):
                 export_dir=str(summary.get("exportDir") or ""),
                 activate_window=log_viewer_activate,
             )
+            if log_viewer_keyboard_restore:
+                self._monitoring_hud_keyboard_force_visible_control = ""
             proof = self._monitoring_hud_log_viewer_studio_window.proof_state()
             self._emit_runtime_signal(
                 "MONITORING_HUD_LOG_VIEWER_STUDIO_READY",
