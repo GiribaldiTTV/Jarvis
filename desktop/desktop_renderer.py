@@ -33,7 +33,7 @@ from PySide6.QtWidgets import (
     QSizeGrip,
 )
 from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent
-from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPixmap, QRegion
+from PySide6.QtGui import QColor, QCursor, QFont, QPainter, QPainterPath, QPalette, QPixmap, QRegion
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtTest import QTest
 from PySide6.QtWebEngineWidgets import QWebEngineView
@@ -874,9 +874,11 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setModal(False)
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_StyledBackground, True)
         self.setWindowTitle("Global Settings")
         self.setObjectName("residentAccessSettingsDialog")
         self.setMinimumSize(760, 520)
+        self._apply_native_settings_palette()
 
         root_layout = QVBoxLayout(self)
         root_layout.setContentsMargins(0, 0, 0, 0)
@@ -884,6 +886,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         self.shell = QFrame(self)
         self.shell.setObjectName("residentAccessSettingsShell")
+        self.shell.setAttribute(Qt.WA_StyledBackground, True)
         root_layout.addWidget(self.shell)
 
         shell_layout = QVBoxLayout(self.shell)
@@ -901,6 +904,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         body = QWidget(self.shell)
         body.setObjectName("residentAccessSettingsBody")
+        body.setAttribute(Qt.WA_StyledBackground, True)
         shell_layout.addWidget(body, 1)
 
         body_layout = QHBoxLayout(body)
@@ -909,6 +913,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         nav = QFrame(body)
         nav.setObjectName("residentAccessSettingsNav")
+        nav.setAttribute(Qt.WA_StyledBackground, True)
         nav.setFixedWidth(190)
         nav_layout = QVBoxLayout(nav)
         nav_layout.setContentsMargins(10, 10, 10, 10)
@@ -933,6 +938,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         content_shell = QFrame(body)
         content_shell.setObjectName("residentAccessSettingsContentShell")
+        content_shell.setAttribute(Qt.WA_StyledBackground, True)
         body_layout.addWidget(content_shell, 1)
         content_layout = QVBoxLayout(content_shell)
         content_layout.setContentsMargins(16, 14, 16, 14)
@@ -954,6 +960,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         self.quick_slot_container = QFrame(content_shell)
         self.quick_slot_container.setObjectName("residentAccessQuickSlotContainer")
+        self.quick_slot_container.setAttribute(Qt.WA_StyledBackground, True)
         quick_slot_layout = QVBoxLayout(self.quick_slot_container)
         quick_slot_layout.setContentsMargins(0, 0, 0, 0)
         quick_slot_layout.setSpacing(8)
@@ -976,6 +983,8 @@ class ResidentAccessSettingsDialog(QDialog):
         quick_slot_layout.addLayout(quick_header)
 
         self.quick_slot_rows = QWidget(self.quick_slot_container)
+        self.quick_slot_rows.setObjectName("residentAccessQuickSlotRows")
+        self.quick_slot_rows.setAttribute(Qt.WA_StyledBackground, True)
         self.quick_slot_rows_layout = QVBoxLayout(self.quick_slot_rows)
         self.quick_slot_rows_layout.setContentsMargins(0, 0, 0, 0)
         self.quick_slot_rows_layout.setSpacing(6)
@@ -1004,10 +1013,19 @@ class ResidentAccessSettingsDialog(QDialog):
         content_layout.addLayout(footer)
 
         self.setStyleSheet(
+            "#residentAccessSettingsDialog {"
+            " background: #07111f;"
+            " color: #f8fafc;"
+            " font-family: 'Segoe UI';"
+            " font-size: 10pt;"
+            "}"
             "#residentAccessSettingsShell {"
             " background: #07111f;"
             " border: 1px solid #25636c;"
             " border-radius: 8px;"
+            "}"
+            "#residentAccessSettingsBody {"
+            " background: #07111f;"
             "}"
             "#residentAccessSettingsChromeBar {"
             " background: #101b2d;"
@@ -1089,6 +1107,10 @@ class ResidentAccessSettingsDialog(QDialog):
             "#residentAccessQuickSlotContainer QLabel {"
             " color: #dbeafe;"
             "}"
+            "#residentAccessQuickSlotContainer, #residentAccessQuickSlotRows, #residentAccessQuickSlotRow {"
+            " background: transparent;"
+            " border: none;"
+            "}"
             "#residentAccessQuickSlotContainer QPushButton, #residentAccessSettingsContentShell QPushButton {"
             " background: #132238;"
             " color: #e5f0ff;"
@@ -1141,6 +1163,26 @@ class ResidentAccessSettingsDialog(QDialog):
 
         self._rebuild_quick_slot_rows()
         self.set_focus(self._focus)
+
+    def _apply_native_settings_palette(self):
+        base_font = QFont("Segoe UI")
+        base_font.setPointSize(10)
+        self.setFont(base_font)
+
+        palette = self.palette()
+        palette.setColor(QPalette.Window, QColor("#07111f"))
+        palette.setColor(QPalette.WindowText, QColor("#f8fafc"))
+        palette.setColor(QPalette.Base, QColor("#0b1220"))
+        palette.setColor(QPalette.AlternateBase, QColor("#0f172a"))
+        palette.setColor(QPalette.Text, QColor("#f8fafc"))
+        palette.setColor(QPalette.Button, QColor("#132238"))
+        palette.setColor(QPalette.ButtonText, QColor("#e5f0ff"))
+        palette.setColor(QPalette.ToolTipBase, QColor("#101b2d"))
+        palette.setColor(QPalette.ToolTipText, QColor("#f8fafc"))
+        palette.setColor(QPalette.PlaceholderText, QColor("#8293a8"))
+        palette.setColor(QPalette.Highlight, QColor("#0f766e"))
+        palette.setColor(QPalette.HighlightedText, QColor("#ffffff"))
+        self.setPalette(palette)
 
     def _emit_runtime_signal(self, signal_name: str, **fields):
         emitter = getattr(self.runtime, "_emit_runtime_signal", None)
@@ -1202,6 +1244,8 @@ class ResidentAccessSettingsDialog(QDialog):
         selected_ids = normalize_quick_slot_ids(self._settings.quick_slot_ids)
         for index, selected_id in enumerate(selected_ids):
             row = QWidget(self.quick_slot_rows)
+            row.setObjectName("residentAccessQuickSlotRow")
+            row.setAttribute(Qt.WA_StyledBackground, True)
             row_layout = QHBoxLayout(row)
             row_layout.setContentsMargins(0, 0, 0, 0)
             row_layout.setSpacing(6)
