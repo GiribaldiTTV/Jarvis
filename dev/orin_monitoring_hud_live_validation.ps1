@@ -1580,6 +1580,90 @@ function Resolve-ExactDesktopShortcutForActiveRoot {
     }
 }
 
+function Get-ForeignNexusRuntimeProcesses {
+    param(
+        [string]$ActiveRoot
+    )
+
+    $resolvedActiveRoot = ""
+    if (-not [string]::IsNullOrWhiteSpace($ActiveRoot) -and (Test-Path -LiteralPath $ActiveRoot)) {
+        $resolvedActiveRoot = (Resolve-Path -LiteralPath $ActiveRoot).Path.TrimEnd('\')
+    }
+    $processes = @()
+    try {
+        $processes = @(
+            Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction SilentlyContinue |
+                Where-Object {
+                    $cmd = [string]$_.CommandLine
+                    $cmd -match "\\Nexus Worktrees\\" -and
+                    ($cmd -match "desktop\\orin_desktop_main\.py" -or $cmd -match "desktop\\desktop_renderer\.py")
+                }
+        )
+    }
+    catch {
+        return @()
+    }
+
+    $foreign = @()
+    foreach ($process in $processes) {
+        $cmd = [string]$process.CommandLine
+        $isActiveRootProcess = (-not [string]::IsNullOrWhiteSpace($resolvedActiveRoot)) -and
+            ($cmd.IndexOf($resolvedActiveRoot, [System.StringComparison]::OrdinalIgnoreCase) -ge 0)
+        if (-not $isActiveRootProcess) {
+            $foreign += $process
+        }
+    }
+    return $foreign
+}
+
+function Assert-NoForeignNexusRuntimeCollision {
+    param(
+        [object]$Paths,
+        [string]$Label
+    )
+
+    $foreign = @(Get-ForeignNexusRuntimeProcesses -ActiveRoot $rootDir)
+    if ($foreign.Count -gt 0) {
+        $summaries = @()
+        foreach ($process in $foreign) {
+            $cmd = ([string]$process.CommandLine).Trim()
+            if ($cmd.Length -gt 260) {
+                $cmd = $cmd.Substring(0, 260) + "..."
+            }
+            $summaries += "pid=$($process.ProcessId) name=$($process.Name) command=$cmd"
+        }
+        $detail = "$Label exact USER Desktop shortcut Live Validation blocked: another Nexus worktree runtime is active, so single-instance relaunch proof would not be attributable to FAM-006. Close or explicitly approve stopping the foreign runtime before renewed LV1. Foreign runtime(s): $($summaries -join ' | ')"
+        Step $Paths $detail
+        throw $detail
+    }
+}
+
+function Assert-NoSingleInstanceRelaunchCollision {
+    param(
+        [object]$Paths,
+        [string]$RuntimeLog,
+        [string]$Label
+    )
+
+    if (-not (Test-Path -LiteralPath $RuntimeLog)) {
+        return
+    }
+    try {
+        $text = Get-Content -LiteralPath $RuntimeLog -Raw -ErrorAction Stop
+        if ($text -match "SINGLE_INSTANCE_CONFLICT_DETECTED|RELAUNCH_SIGNAL_SENT|RELAUNCH_REPLACEMENT_SESSION_CONFIRMED") {
+            $detail = "$Label exact USER Desktop shortcut Live Validation blocked: runtime log shows single-instance relaunch/replacement flow. This cannot be accepted as clean FAM-006 visual proof while another runtime may own the visible session. Runtime log: $RuntimeLog"
+            Step $Paths $detail
+            throw $detail
+        }
+    }
+    catch {
+        if ($_.Exception.Message -match "single-instance relaunch|Live Validation blocked") {
+            throw
+        }
+        Step $Paths "$Label single-instance collision scan could not read runtime log: $($_.Exception.Message)"
+    }
+}
+
 function Wait-ExactShortcutRuntimeLog {
     param(
         [object]$Paths,
@@ -1619,6 +1703,7 @@ function Wait-ExactShortcutRuntimeLog {
                     continue
                 }
                 if ($text -match "RENDERER_MAIN\|START") {
+                    Assert-NoSingleInstanceRelaunchCollision -Paths $Paths -RuntimeLog $candidate.FullName -Label $Label
                     Step $Paths "$Label exact Desktop shortcut runtime log detected: $($candidate.FullName)"
                     return $candidate.FullName
                 }
@@ -1678,10 +1763,12 @@ function Start-ExactDesktopShortcutRuntime {
         throw $script:ShortcutResolution.detail
     }
 
+    Assert-NoForeignNexusRuntimeCollision -Paths $Paths -Label $Label
     $launchTime = Get-Date
     $launcherProcess = Start-Process -FilePath $ShortcutPath -PassThru
     Step $Paths "$Label launched through exact USER Desktop shortcut: $ShortcutPath pid=$($launcherProcess.Id)"
     $runtimeLog = Wait-ExactShortcutRuntimeLog -Paths $Paths -LaunchTime $launchTime -Label $Label -ExcludedRuntimeLogs $ExcludedRuntimeLogs -ExcludedRendererProcessIds $ExcludedRendererProcessIds | Select-Object -Last 1
+    Assert-NoForeignNexusRuntimeCollision -Paths $Paths -Label $Label
     $rendererProcess = Wait-RendererProcessFromRuntimeLog -Paths $Paths -RuntimeLog $runtimeLog -Label $Label | Select-Object -Last 1
     $script:LaunchProof.status = "PASS"
     $script:LaunchProof.launcherProcessId = [int]$launcherProcess.Id

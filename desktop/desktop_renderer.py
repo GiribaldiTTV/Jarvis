@@ -5775,7 +5775,7 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
-MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "ai-control-center-reference-derived-studio-window-v2"
+MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "ai-control-center-reference-derived-studio-window-v3"
 MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "ai-control-center-uiref-001-002-003-primitives"
 MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "ai-control-center-reference-derived-equivalent-primitives"
 MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "photo-video-comparison-required"
@@ -5870,18 +5870,18 @@ def _monitoring_hud_studio_row(
 ) -> QFrame:
     row = QFrame(parent)
     row.setProperty("role", "studioRow")
-    row_height = 64 if value_word_wrap else 50
+    row_height = 44 if value_word_wrap else 34
     row.setMinimumHeight(row_height)
     row.setMaximumHeight(row_height)
     layout = QGridLayout(row)
-    layout.setContentsMargins(0, 10, 0, 10)
-    layout.setHorizontalSpacing(14)
+    layout.setContentsMargins(0, 4, 0, 2)
+    layout.setHorizontalSpacing(6)
     layout.setVerticalSpacing(2)
     label_widget = QLabel(label, row)
     label_widget.setProperty("role", "sectionLabel")
     label_widget.setMinimumHeight(20)
     value_widget.setProperty("role", value_role)
-    value_widget.setMinimumHeight(38 if value_word_wrap else 20)
+    value_widget.setMinimumHeight(22 if value_word_wrap else 18)
     value_widget.setWordWrap(value_word_wrap)
     if not value_word_wrap:
         value_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -5894,12 +5894,12 @@ def _monitoring_hud_studio_row(
 
 def _monitoring_hud_ai_control_center_primitive_contract() -> dict[str, str]:
     return {
-        "implementationAuthority": "Reference-Derived Implementation",
+        "implementationAuthority": "Shared Rendered Primitive Implementation",
         "primaryReference": "nexus_visual/ai_control_center.html",
         "acceptedReferenceSet": "UIREF-001|UIREF-002|UIREF-003|FAM-002",
         "windowFrame": "top-level-dark-glass-rounded-frame-ai-control-center-equivalent",
-        "windowControls": "compact-pill-symbol-controls-ai-control-center-equivalent",
-        "actionButtons": "monitoring-hud-control-button-hub-action-equivalent",
+        "windowControls": "ai-control-center-symbol-window-control-cluster-identical",
+        "actionButtons": "monitoring-hud-hub-action-content-fit-button-identical",
         "rows": "compact-separated-state-rows-ai-control-center-density",
         "header": "title-group-card-ai-control-center-equivalent",
         "proofRule": "photo-video-comparison-required; runtime-marker-is-supporting-evidence-only",
@@ -5923,10 +5923,10 @@ def _monitoring_hud_prepare_studio_button(
     if tooltip or accessible_name:
         button.setToolTip(tooltip or accessible_name)
     compact_window_control = role == "studioWindowControl"
-    button_width = 26 if compact_window_control else minimum_width
+    button_width = minimum_width
     button.setMinimumWidth(button_width)
     button.setMaximumWidth(button_width)
-    button_height = 24 if compact_window_control else 38
+    button_height = 34 if compact_window_control else 38
     button.setMinimumHeight(button_height)
     button.setMaximumHeight(button_height)
     button.setFixedHeight(button_height)
@@ -5934,24 +5934,32 @@ def _monitoring_hud_prepare_studio_button(
         "controlStateProof",
         "default-hover-focus-pressed-disabled-keyboard-accessible",
     )
-    button.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
+    button.setProperty("visualPrimitiveAuthority", "Shared-Rendered-AI-Control-Center-Primitive")
     if compact_window_control:
-        button.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-002-window-control-button")
-        button.setProperty("primitiveRole", "window-control-cluster-button")
+        button.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-002-window-control-cluster")
+        button.setProperty("primitiveRole", "window-control-symbol-pill")
+        button.setProperty("visiblePrimitiveShape", "ai-control-center-symbol-window-control-pill")
     else:
         button.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-003-action-button")
         button.setProperty("primitiveRole", "primary-secondary-action-button")
+        button.setProperty("visiblePrimitiveShape", "hub-action-content-fit-38px-pill")
 
 
 def _monitoring_hud_studio_window_control_cluster(parent: QWidget) -> QFrame:
     cluster = QFrame(parent)
     cluster.setProperty("role", "studioWindowControls")
     cluster.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-002-window-control-cluster")
-    cluster.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
+    cluster.setProperty("visualPrimitiveAuthority", "Shared-Rendered-AI-Control-Center-Primitive")
     layout = QHBoxLayout(cluster)
-    layout.setContentsMargins(2, 2, 2, 2)
-    layout.setSpacing(2)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.setSpacing(8)
     return cluster
+
+
+def _monitoring_hud_position_studio_window_controls(shell: QWidget, controls: QWidget) -> None:
+    controls.adjustSize()
+    controls.move(max(12, shell.width() - controls.width() - 24), 26)
+    controls.raise_()
 
 
 def _monitoring_hud_studio_button_proof(button: QPushButton) -> dict[str, object]:
@@ -5967,6 +5975,7 @@ def _monitoring_hud_studio_button_proof(button: QPushButton) -> dict[str, object
         "sharedPrimitiveSeed": str(button.property("sharedPrimitiveSeed") or ""),
         "visualPrimitiveAuthority": str(button.property("visualPrimitiveAuthority") or ""),
         "primitiveRole": str(button.property("primitiveRole") or ""),
+        "visiblePrimitiveShape": str(button.property("visiblePrimitiveShape") or ""),
         "width": button.width(),
         "height": button.height(),
     }
@@ -6026,6 +6035,11 @@ class MonitoringHudStudioButton(QPushButton):
             self.update()
 
     def paintEvent(self, event):
+        # Non-symbol controls intentionally render through the shared Qt stylesheet so
+        # visual states are not split between QSS and a one-off painter.
+        super().paintEvent(event)
+        return
+
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
@@ -6034,7 +6048,7 @@ class MonitoringHudStudioButton(QPushButton):
             self._paint_ai_control_center_window_control(painter)
             return
 
-        rect = QRectF(self.rect()).adjusted(2.0, 2.0, -2.0, -2.0)
+        rect = QRectF(self.rect()).adjusted(1.0, 1.0, -1.0, -1.0)
         radius = rect.height() / 2.0
         enabled = self.isEnabled()
         pressed = enabled and (self._visual_pressed or self.isDown())
@@ -6045,25 +6059,25 @@ class MonitoringHudStudioButton(QPushButton):
             border = QColor(163, 255, 228, 184)
             top = QColor(7, 40, 57, 250)
             bottom = QColor(3, 18, 32, 245)
-            glow = QColor(103, 255, 210, 34)
+            glow = QColor(103, 255, 210, 26)
             text = QColor(246, 255, 253, 252)
         elif hovered:
             border = QColor(126, 248, 218, 143)
             top = QColor(9, 49, 70, 240)
             bottom = QColor(4, 24, 40, 232)
-            glow = QColor(86, 236, 255, 38)
+            glow = QColor(86, 236, 255, 30)
             text = QColor(241, 255, 252, 252)
         elif focused:
             border = QColor(117, 228, 255, 112)
             top = QColor(7, 42, 62, 232)
             bottom = QColor(3, 18, 32, 227)
-            glow = QColor(123, 246, 255, 30)
+            glow = QColor(123, 246, 255, 24)
             text = QColor(235, 252, 255, 246)
         elif enabled:
-            border = QColor(117, 228, 255, 66)
-            top = QColor(7, 42, 62, 232)
-            bottom = QColor(3, 18, 32, 227)
-            glow = QColor(99, 225, 255, 14)
+            border = QColor(117, 228, 255, 56)
+            top = QColor(7, 42, 62, 224)
+            bottom = QColor(3, 18, 32, 219)
+            glow = QColor(99, 225, 255, 0)
             text = QColor(229, 249, 255, 240)
         else:
             border = QColor(149, 176, 194, 61)
@@ -6072,16 +6086,12 @@ class MonitoringHudStudioButton(QPushButton):
             glow = QColor(176, 204, 214, 8)
             text = QColor(176, 204, 214, 178)
 
-        glow_passes = (
-            ((-1.0, 0.28), (0.75, 0.18))
-            if (hovered or pressed)
-            else ((-1.0, 0.20), (0.75, 0.12)) if focused else ((0.75, 0.12),)
-        )
+        glow_passes = (((-0.5, 0.20),) if (hovered or pressed or focused) else tuple())
         for inset, alpha_scale in glow_passes:
             glow_rect = rect.adjusted(inset, inset, -inset, -inset)
             glow_color = QColor(glow)
             glow_color.setAlpha(max(0, min(255, int(glow.alpha() * alpha_scale))))
-            painter.setPen(QPen(glow_color, 2.0))
+            painter.setPen(QPen(glow_color, 1.0))
             painter.setBrush(Qt.NoBrush)
             painter.drawRoundedRect(glow_rect, glow_rect.height() / 2.0, glow_rect.height() / 2.0)
 
@@ -6099,12 +6109,12 @@ class MonitoringHudStudioButton(QPushButton):
 
         font = QFont("Bahnschrift")
         font.setStyleHint(QFont.SansSerif)
-        font.setPixelSize(14 if role == "studioWindowControl" else 12)
+        font.setPixelSize(12)
         if enabled:
-            font.setWeight(QFont.Weight.ExtraBold if role == "studioWindowControl" else QFont.Weight.Bold)
+            font.setWeight(QFont.Weight.DemiBold)
         else:
             font.setWeight(QFont.Weight.DemiBold)
-        font.setLetterSpacing(QFont.PercentageSpacing, 100 if role == "studioWindowControl" else 109)
+        font.setLetterSpacing(QFont.PercentageSpacing, 109)
         painter.setFont(font)
         painter.setPen(text)
         text_inset = 0.0 if role == "studioWindowControl" else 12.0
@@ -6154,7 +6164,7 @@ class MonitoringHudStudioButton(QPushButton):
             painter.setPen(QPen(QColor(86, 236, 255, glow_alpha), 2.0))
             painter.drawRoundedRect(target_rect.adjusted(-1.0, -1.0, 1.0, 1.0), radius + 1.0, radius + 1.0)
 
-        painter.setPen(QPen(glyph, 1.8, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        painter.setPen(QPen(glyph, 2.0, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
         center = target_rect.center()
         if self.text().strip() == "-":
             painter.drawLine(
@@ -6163,12 +6173,12 @@ class MonitoringHudStudioButton(QPushButton):
             )
         else:
             painter.drawLine(
-                QPointF(center.x() - 4.2, center.y() - 4.2),
-                QPointF(center.x() + 4.2, center.y() + 4.2),
+                QPointF(center.x() - 5.5, center.y() - 5.5),
+                QPointF(center.x() + 5.5, center.y() + 5.5),
             )
             painter.drawLine(
-                QPointF(center.x() + 4.2, center.y() - 4.2),
-                QPointF(center.x() - 4.2, center.y() + 4.2),
+                QPointF(center.x() + 5.5, center.y() - 5.5),
+                QPointF(center.x() - 5.5, center.y() + 5.5),
             )
 
 
@@ -6213,30 +6223,30 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             letter-spacing: 0px;
         }}
         QFrame[role="studioShell"] {{
-            background: qradialgradient(cx:0.18, cy:0.10, radius:0.72, fx:0.18, fy:0.10, stop:0 rgba(116, 240, 255, 0.070), stop:0.46 rgba(5, 23, 39, 0.985), stop:1 rgba(2, 10, 20, 0.992));
-            border: 1px solid rgba(122, 232, 255, 0.28);
-            border-radius: 20px;
+            background: qradialgradient(cx:0.06, cy:0.00, radius:0.35, fx:0.06, fy:0.00, stop:0 rgba(91, 221, 255, 0.22), stop:1 transparent), qradialgradient(cx:1.00, cy:0.20, radius:0.33, fx:1.00, fy:0.20, stop:0 rgba(84, 255, 190, 0.16), stop:1 transparent), qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(4, 17, 32, 0.96), stop:1 rgba(1, 7, 16, 0.94));
+            border: 1px solid rgba(125, 235, 255, 0.30);
+            border-radius: 28px;
             color: rgba(235, 252, 255, 0.96);
         }}
         QFrame[role="studioHeader"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.62), stop:1 rgba(3, 18, 32, 0.68));
-            border: 1px solid rgba(122, 232, 255, 0.22);
-            border-radius: 16px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(5, 23, 39, 0.985), stop:1 rgba(2, 10, 20, 0.965));
+            border: 1px solid rgba(130, 236, 255, 0.12);
+            border-radius: 20px;
         }}
         QFrame[role="studioWindowControls"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.70), stop:1 rgba(3, 18, 32, 0.76));
-            border: 1px solid rgba(122, 232, 255, 0.44);
-            border-radius: 999px;
-            padding: 2px;
+            background: transparent;
+            border: 0px solid transparent;
+            border-radius: 0px;
+            padding: 0px;
         }}
         QFrame[role="studioPanel"] {{
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(6, 28, 48, 0.74), stop:1 rgba(3, 18, 32, 0.70));
-            border: 1px solid rgba(117, 228, 255, 0.18);
-            border-radius: 16px;
+            background: rgba(5, 18, 31, 0.86);
+            border: 1px solid rgba(116, 240, 255, 0.13);
+            border-radius: 20px;
         }}
         QFrame[role="studioRow"] {{
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.050), stop:0.17 rgba(117, 228, 255, 0.027), stop:0.52 rgba(117, 228, 255, 0.008), stop:1 transparent);
-            border-top: 1px solid rgba(138, 236, 255, 0.38);
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.045), stop:0.16 rgba(117, 228, 255, 0.024), stop:0.52 rgba(117, 228, 255, 0.006), stop:1 transparent);
+            border-top: 1px solid rgba(138, 236, 255, 0.28);
             border-bottom: 0px solid transparent;
             border-left: 0px solid transparent;
             border-radius: 0px;
@@ -6247,37 +6257,37 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
         }}
         QLabel[role="eyebrow"] {{
             color: rgba(139, 233, 255, 0.86);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 740;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.20em;
             text-transform: uppercase;
         }}
         QLabel[role="title"] {{
             color: rgba(234, 253, 255, 0.95);
-            font-size: 18px;
-            font-weight: 780;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
+            font-size: 30px;
+            font-weight: 750;
+            letter-spacing: 0em;
+            text-transform: none;
         }}
         QLabel[role="sectionLabel"] {{
             min-width: 132px;
             padding-left: 8px;
             border-left: 2px solid rgba(117, 228, 255, 0.30);
             color: rgba(145, 202, 218, 0.82);
-            font-size: 11px;
-            font-weight: 740;
+            font-size: 10px;
+            font-weight: 720;
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }}
         QLabel[role="sectionValue"] {{
             color: rgba(157, 246, 218, 0.90);
-            font-size: 12px;
-            font-weight: 720;
+            font-size: 11px;
+            font-weight: 700;
         }}
         QLabel[role="pathValue"] {{
             color: rgba(157, 246, 218, 0.90);
             font-size: 11px;
-            font-weight: 720;
+            font-weight: 700;
         }}
         QLabel[role="warning"] {{
             color: rgba(169, 190, 208, 0.86);
@@ -6293,7 +6303,7 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
         QPushButton {{
             min-height: 38px;
             max-height: 38px;
-            padding: 8px 20px;
+            padding: 8px 18px;
             border: 1px solid rgba(117, 228, 255, 0.22);
             border-radius: 19px;
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
@@ -6303,16 +6313,19 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             font-weight: 720;
             letter-spacing: 0.09em;
             text-transform: uppercase;
+            box-shadow: 0px 0px 0px rgba(0, 0, 0, 0);
         }}
         QPushButton[actionRole="studioWindowControl"] {{
-            min-width: 26px;
-            max-width: 26px;
-            min-height: 24px;
-            max-height: 24px;
-            padding: 0px;
-            border-radius: 999px;
-            color: transparent;
-            letter-spacing: 0em;
+            min-height: 34px;
+            max-height: 34px;
+            padding: 8px 18px;
+            border-radius: 17px;
+            border: 1px solid rgba(122, 232, 255, 0.26);
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.91), stop:1 rgba(3, 18, 32, 0.89));
+            color: rgba(235, 252, 255, 0.96);
+            font-size: 12px;
+            font-weight: 760;
+            letter-spacing: 0.08em;
         }}
         QPushButton[actionRole="studioAction"] {{
             min-height: 38px;
@@ -6354,11 +6367,208 @@ def _monitoring_hud_mouse_global_pos(event) -> QPoint:
             return QCursor.pos()
 
 
-class MonitoringHudRecordingStudioWindow(QWidget):
-    def __init__(self, screen, event_logger=None, recording_action_handler=None):
+class MonitoringHudStudioCommandPage(QWebEnginePage):
+    studio_command = Signal(str)
+
+    def javaScriptConsoleMessage(self, level, message, line_number, source_id):
+        prefix = "NEXUS_MONITORING_HUD_STUDIO_COMMAND:"
+        if isinstance(message, str) and message.startswith(prefix):
+            self.studio_command.emit(message[len(prefix):])
+            return
+        super().javaScriptConsoleMessage(level, message, line_number, source_id)
+
+
+def _monitoring_hud_studio_html_path() -> Path:
+    return Path(__file__).resolve().parents[1] / "nexus_visual" / "monitoring_hud_studio.html"
+
+
+def _monitoring_hud_studio_dom_control_proof(kind: str) -> dict[str, object]:
+    if kind in {"minimize", "close"}:
+        return {
+            "enabled": True,
+            "accessibleName": f"{kind.title()} Studio",
+            "tooltip": "",
+            "role": "studioWindowControl",
+            "sharedPrimitiveSeed": "AI-Control-Center-UIREF-002-window-control-cluster",
+            "visualClaimState": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
+            "primitiveRole": "window-control-symbol-pill",
+            "visiblePrimitiveShape": "ai-control-center-symbol-window-control-pill",
+            "keyboardFocusable": True,
+            "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
+            "implementationPrimitive": "QWebEngineView/monitoring_hud.css DOM",
+        }
+    return {
+        "enabled": True,
+        "accessibleName": kind,
+        "tooltip": "",
+        "role": "studioAction",
+        "sharedPrimitiveSeed": "AI-Control-Center-UIREF-003-action-button",
+        "visualClaimState": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
+        "primitiveRole": "primary-secondary-action-button",
+        "visiblePrimitiveShape": "hub-action-content-fit-38px-pill",
+        "keyboardFocusable": True,
+        "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
+        "implementationPrimitive": "QWebEngineView/monitoring_hud.css DOM",
+    }
+
+
+class MonitoringHudStudioWebWindow(QWidget):
+    WIDTH = 570
+    HEIGHT = 430
+    MINIMUM_WIDTH = 440
+    MINIMUM_HEIGHT = 330
+    DRAG_HEADER_HEIGHT = 176
+    WINDOW_CONTROL_ZONE_TOP = 14
+    WINDOW_CONTROL_ZONE_RIGHT = 15
+    WINDOW_CONTROL_ZONE_WIDTH = 60
+    WINDOW_CONTROL_ZONE_HEIGHT = 30
+
+    def __init__(self, screen, event_logger=None):
         super().__init__(None)
         self.screen_ref = screen
         self.event_logger = event_logger
+        self._page_ready = False
+        self._pending_studio_state: dict[str, object] = {}
+        self._drag_offset = None
+        self._geometry_persistence_ready = False
+        self._geometry_restored_from_saved = False
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
+        self.setWindowModality(Qt.NonModal)
+        self.setAttribute(Qt.WA_ShowWithoutActivating, False)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)
+        self.resize(self.WIDTH, self.HEIGHT)
+        self.setStyleSheet("background-color: transparent;")
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+        self.webview = QWebEngineView(self)
+        self.webview.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.webview.setAttribute(Qt.WA_NoSystemBackground, True)
+        self.webview.setAutoFillBackground(False)
+        self.webview.setStyleSheet("background-color: transparent; border: none;")
+        self.webview.setContextMenuPolicy(Qt.NoContextMenu)
+        self.webview.setMouseTracking(True)
+        self.webview.installEventFilter(self)
+        self._web_page = MonitoringHudStudioCommandPage(self.webview)
+        self._web_page.studio_command.connect(self._handle_studio_command)
+        self.webview.setPage(self._web_page)
+        self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
+        self.webview.loadFinished.connect(self._on_studio_html_loaded)
+        self.webview.load(QUrl.fromLocalFile(str(_monitoring_hud_studio_html_path())))
+        root.addWidget(self.webview)
+
+    def _on_studio_html_loaded(self, ok: bool) -> None:
+        self._page_ready = bool(ok)
+        if self._page_ready:
+            self._sync_studio_state_to_web()
+            self._sync_studio_window_controls()
+        elif callable(self.event_logger):
+            self.event_logger("RENDERER_MAIN|MONITORING_HUD_STUDIO_HTML_LOAD_FAILED")
+
+    def _sync_studio_state_to_web(self) -> None:
+        if not getattr(self, "_page_ready", False) or not hasattr(self, "webview"):
+            return
+        script = (
+            "window.nexusMonitoringHudStudioApplyState && "
+            f"window.nexusMonitoringHudStudioApplyState({json.dumps(self._pending_studio_state)});"
+        )
+        self.webview.page().runJavaScript(script)
+
+    def _sync_studio_window_controls(self) -> None:
+        if not getattr(self, "_page_ready", False) or not hasattr(self, "webview"):
+            return
+        state = "maximized" if self.isMaximized() else "normal"
+        script = (
+            "window.nexusMonitoringHudStudioSetWindowState && "
+            f"window.nexusMonitoringHudStudioSetWindowState({json.dumps(state)}, "
+            f"{json.dumps({'minimize': 'active', 'close': 'active'})});"
+        )
+        self.webview.page().runJavaScript(script)
+
+    def _handle_studio_command(self, command: str) -> None:
+        if command == "minimize":
+            self.showMinimized()
+            return
+        if command == "close":
+            self.close()
+            return
+        self._handle_surface_command(command)
+
+    def _handle_surface_command(self, command: str) -> None:
+        return
+
+    def eventFilter(self, watched, event):
+        if watched is getattr(self, "webview", None):
+            event_type = event.type()
+            if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+                pos = event.position().toPoint()
+                if pos.y() <= self.DRAG_HEADER_HEIGHT and not self._studio_close_zone().contains(pos):
+                    self._drag_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                    event.accept()
+                    return True
+            elif (
+                event_type == QEvent.MouseMove
+                and self._drag_offset is not None
+                and event.buttons() & Qt.LeftButton
+            ):
+                self.move(event.globalPosition().toPoint() - self._drag_offset)
+                event.accept()
+                return True
+            elif event_type == QEvent.MouseButtonRelease:
+                self._drag_offset = None
+                self._save_current_geometry()
+        return super().eventFilter(watched, event)
+
+    def _studio_close_zone(self) -> QRect:
+        return QRect(
+            max(0, self.width() - self.WINDOW_CONTROL_ZONE_RIGHT - self.WINDOW_CONTROL_ZONE_WIDTH),
+            self.WINDOW_CONTROL_ZONE_TOP,
+            self.WINDOW_CONTROL_ZONE_WIDTH,
+            self.WINDOW_CONTROL_ZONE_HEIGHT,
+        )
+
+    def _restore_saved_geometry(self) -> None:
+        self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
+            self,
+            self._geometry_persistence_key,
+            self._initial_geometry(),
+        )
+
+    def _save_current_geometry(self) -> None:
+        if not getattr(self, "_geometry_persistence_ready", False):
+            return
+        _monitoring_hud_save_window_geometry(self, self._geometry_persistence_key)
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        self._save_current_geometry()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._save_current_geometry()
+
+    def closeEvent(self, event):
+        self._drag_offset = None
+        self._save_current_geometry()
+        super().closeEvent(event)
+
+    def _show_or_raise(self, activate_window: bool) -> None:
+        if not activate_window:
+            return
+        if not self.isVisible():
+            self._restore_saved_geometry()
+        if self.isMinimized():
+            self.showNormal()
+        else:
+            self.show()
+        self.raise_()
+        self.activateWindow()
+
+
+class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
+    def __init__(self, screen, event_logger=None, recording_action_handler=None):
         self.recording_action_handler = recording_action_handler
         self._request_id = 0
         self._recording_session_state = "ready"
@@ -6371,222 +6581,27 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         self._last_activation_mode = "not-requested"
         self._opened_by_explicit_user_path = False
         self._geometry_persistence_key = "recording_studio"
-        self._geometry_persistence_ready = False
-        self._geometry_restored_from_saved = False
-        self._drag_surface = None
-        self._drag_active = False
-        self._drag_start_global = QPoint()
-        self._drag_start_geometry = QRect()
+        super().__init__(screen, event_logger)
         self.setObjectName("monitoringHudRecordingStudioWindow")
-        self.setProperty("visualSystemInheritanceClaim", MONITORING_HUD_STUDIO_VISUAL_INHERITANCE)
-        self.setProperty("visualContractDeclared", MONITORING_HUD_STUDIO_VISUAL_CONTRACT)
-        self.setProperty("visualSampledElements", MONITORING_HUD_STUDIO_VISUAL_SAMPLE)
         self.setWindowTitle("Nexus Recording Studio")
-        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(536, 388)
-        self.resize(576, 404)
-        self.setStyleSheet(_monitoring_hud_studio_stylesheet("monitoringHudRecordingStudioWindow"))
-        root = QVBoxLayout(self)
-        root.setContentsMargins(6, 6, 6, 6)
-        root.setSpacing(0)
-        self._shell = QFrame(self)
-        self._shell.setProperty("role", "studioShell")
-        self._shell.setAttribute(Qt.WA_StyledBackground, True)
-        _monitoring_hud_apply_studio_shadow(self._shell)
-        root.addWidget(self._shell)
-
-        shell_layout = QVBoxLayout(self._shell)
-        shell_layout.setContentsMargins(14, 14, 14, 14)
-        shell_layout.setSpacing(12)
-
-        header_frame = QFrame(self._shell)
-        header_frame.setProperty("role", "studioHeader")
-        header_frame.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-001-title-group")
-        header_frame.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
-        self._drag_surface = header_frame
-        header = QHBoxLayout(header_frame)
-        header.setContentsMargins(14, 10, 12, 10)
-        header.setSpacing(12)
-        header_text = QVBoxLayout()
-        header_text.setSpacing(2)
-        eyebrow = QLabel("Active Overlay Recording", header_frame)
-        eyebrow.setProperty("role", "eyebrow")
-        self._title = QLabel("Recording Studio", header_frame)
-        self._title.setProperty("role", "title")
-        self._title.setMinimumWidth(210)
-        header_text.addWidget(eyebrow)
-        header_text.addWidget(self._title)
-        header.addLayout(header_text)
-        header.addStretch(1)
-        self._minimize = MonitoringHudStudioButton("-", header_frame)
-        _monitoring_hud_prepare_studio_button(
-            self._minimize,
-            role="studioWindowControl",
-            minimum_width=34,
-            accessible_name="Minimize Recording Studio",
-            tooltip="Minimize Recording Studio",
-        )
-        self._minimize.clicked.connect(self.showMinimized)
-        self._close = MonitoringHudStudioButton("X", header_frame)
-        _monitoring_hud_prepare_studio_button(
-            self._close,
-            role="studioWindowControl",
-            minimum_width=34,
-            accessible_name="Close Recording Studio",
-            tooltip="Close Recording Studio",
-        )
-        self._close.clicked.connect(self.close)
-        control_cluster = _monitoring_hud_studio_window_control_cluster(header_frame)
-        control_cluster.layout().addWidget(self._minimize)
-        control_cluster.layout().addWidget(self._close)
-        header.addWidget(control_cluster, 0, Qt.AlignTop)
-
-        status_panel = QFrame(self._shell)
-        status_panel.setProperty("role", "studioPanel")
-        status_panel.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-003-compact-state-row-panel")
-        status_panel.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
-        status = QVBoxLayout(status_panel)
-        status.setContentsMargins(14, 10, 14, 10)
-        status.setSpacing(0)
-        self._target = QLabel("No active overlay profile", status_panel)
-        self._summary = QLabel("Ready for local Start/Stop recording.", status_panel)
-        self._native_log = QLabel("None yet.", self._shell)
-        status.addWidget(_monitoring_hud_studio_row("Target Overlay Profile", self._target, status_panel))
-        status.addWidget(_monitoring_hud_studio_row("Recording State", self._summary, status_panel))
-        status.addWidget(
-            _monitoring_hud_studio_row(
-                "Native Log",
-                self._native_log,
-                status_panel,
-                value_word_wrap=False,
-                value_role="pathValue",
-            )
-        )
-
-        self._boundary = QLabel(
-            "Dashboard and Studio share the active Overlay Profile target. Tray controls, keybinds, export customization, and provider/model work remain future-gated.",
-            self._shell,
-        )
-        self._boundary.setWordWrap(True)
-        self._boundary.setProperty("role", "warning")
-        actions = QHBoxLayout()
-        actions.setContentsMargins(0, 0, 0, 0)
-        actions.setSpacing(12)
-        self._start = MonitoringHudStudioButton("Start", self._shell)
-        self._stop = MonitoringHudStudioButton("Stop", self._shell)
-        _monitoring_hud_prepare_studio_button(
-            self._start,
-            role="studioAction",
-            minimum_width=96,
-            accessible_name="Start active overlay recording",
-            tooltip="Start active overlay recording",
-        )
-        _monitoring_hud_prepare_studio_button(
-            self._stop,
-            role="studioAction",
-            minimum_width=96,
-            accessible_name="Stop active overlay recording",
-            tooltip="Stop active overlay recording",
-        )
-        self._start.clicked.connect(lambda: self._request_recording_action("start"))
-        self._stop.clicked.connect(lambda: self._request_recording_action("stop"))
-        actions.addStretch(1)
-        for button in (self._start, self._stop):
-            actions.addWidget(button)
-        shell_layout.addWidget(header_frame)
-        shell_layout.addWidget(status_panel)
-        shell_layout.addWidget(self._boundary)
-        shell_layout.addStretch(1)
-        shell_layout.addLayout(actions)
-        self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
-            self,
-            self._geometry_persistence_key,
-            self._initial_geometry(),
-        )
+        self.WIDTH = 570
+        self.HEIGHT = 430
+        self.resize(self.WIDTH, self.HEIGHT)
+        self._restore_saved_geometry()
         self._geometry_persistence_ready = True
+        self._pending_studio_state = self._recording_studio_state_payload()
+        self._sync_studio_state_to_web()
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
-        width = 576
-        height = 404
-        rect = QRect(
+        width = self.WIDTH
+        height = self.HEIGHT
+        return QRect(
             available.x() + max(24, available.width() - width - 80),
             available.y() + max(24, available.height() - height - 110),
             width,
             height,
         )
-        cursor = QCursor.pos()
-        if rect.contains(cursor):
-            candidates = [
-                QRect(available.x() + 80, available.y() + 80, width, height),
-                QRect(available.x() + max(24, available.width() - width - 80), available.y() + 80, width, height),
-                QRect(available.x() + 80, available.y() + max(24, available.height() - height - 110), width, height),
-            ]
-            for candidate in candidates:
-                if available.contains(candidate) and not candidate.contains(cursor):
-                    return candidate
-        return rect
-
-    def _restore_saved_geometry(self) -> None:
-        self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
-            self,
-            self._geometry_persistence_key,
-            self._initial_geometry(),
-        )
-
-    def _save_current_geometry(self) -> None:
-        if not self._geometry_persistence_ready:
-            return
-        _monitoring_hud_save_window_geometry(self, self._geometry_persistence_key)
-
-    def moveEvent(self, event):
-        super().moveEvent(event)
-        self._save_current_geometry()
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._refresh_native_log_label()
-        self._save_current_geometry()
-
-    def _event_is_in_drag_surface(self, event) -> bool:
-        if self._drag_surface is None:
-            return False
-        try:
-            point = event.position().toPoint()
-        except Exception:
-            point = event.pos()
-        return self._drag_surface.geometry().contains(point)
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self._event_is_in_drag_surface(event):
-            self._drag_active = True
-            self._drag_start_global = _monitoring_hud_mouse_global_pos(event)
-            self._drag_start_geometry = QRect(self.geometry())
-            event.accept()
-            return
-        super().mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        if self._drag_active:
-            delta = _monitoring_hud_mouse_global_pos(event) - self._drag_start_global
-            self.move(self._drag_start_geometry.topLeft() + delta)
-            event.accept()
-            return
-        super().mouseMoveEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        if self._drag_active and event.button() == Qt.LeftButton:
-            self._drag_active = False
-            self._save_current_geometry()
-            event.accept()
-            return
-        super().mouseReleaseEvent(event)
-
-    def closeEvent(self, event):
-        self._drag_active = False
-        self._save_current_geometry()
-        super().closeEvent(event)
 
     def _request_recording_action(self, action: str) -> None:
         normalized_action = action if action in {"start", "stop"} else "toggle"
@@ -6598,26 +6613,54 @@ class MonitoringHudRecordingStudioWindow(QWidget):
                 f"action={normalized_action}|sessionState={self._recording_session_state}"
             )
 
-    def _refresh_native_log_label(self) -> None:
-        if not hasattr(self, "_native_log"):
-            return
+    def _handle_surface_command(self, command: str) -> None:
+        if command in {"start", "stop"}:
+            self._request_recording_action(command)
+
+    def _refresh_native_log_text(self) -> None:
         if self._native_log_path:
-            rows = ""
-            if hasattr(self, "_native_log_row_count") and self._native_log_row_count:
-                rows = f" ({int(self._native_log_row_count)} rows)"
-            display = _monitoring_hud_set_contained_path_label(self._native_log, self._native_log_path)
-            if rows and len(display) + len(rows) <= 44:
-                self._native_log.setText(f"{display}{rows}")
-            self._native_log.setToolTip(f"{self._native_log_path}{rows}")
+            rows = f" ({int(self._native_log_row_count)} rows)" if self._native_log_row_count else ""
+            display = os.path.normpath(self._native_log_path)
+            if len(display) > 56:
+                display = f"{display[:18]}...{display[-32:]}"
+            self._native_log_display_text = f"{display}{rows}"
             self._native_log_display_mode = "middle-elided-contained"
-        else:
-            if self._recording_session_state == "recording":
-                text = "Pending until recording stops."
-            else:
-                text = "None yet."
-            _monitoring_hud_set_contained_value_label(self._native_log, text)
-            self._native_log_display_mode = "single-line-contained"
-        self._native_log_display_text = self._native_log.text()
+            return
+        self._native_log_display_text = "Pending until recording stops." if self._recording_session_state == "recording" else "None yet."
+        self._native_log_display_mode = "single-line-contained"
+
+    def _recording_studio_state_payload(self) -> dict[str, object]:
+        self._refresh_native_log_text()
+        count = int(getattr(self, "_target_count", 0) or 0)
+        session_label = {
+            "saved-complete": "saved",
+            "recording": "recording",
+            "ready": "ready",
+        }.get(self._recording_session_state, self._recording_session_state.replace("-", " "))
+        profile = getattr(self, "_active_profile_name", "") or "No active overlay profile"
+        target_names = getattr(self, "_target_names", "") or "No active monitor targets"
+        target_state = getattr(self, "_target_state", "") or "Target pending"
+        return {
+            "surface": "recording",
+            "kicker": "Nexus Desktop AI",
+            "title": "Recording Studio",
+            "subtitle": "Focused recording control/status surface.",
+            "roleLabelA": "Surface",
+            "roleValueA": "Recording",
+            "roleLabelB": "State",
+            "roleValueB": session_label.title(),
+            "roleLabelC": "Target",
+            "roleValueC": "Overlay Profile",
+            "recordingTarget": f"{profile} / {count} active monitor{'s' if count != 1 else ''}",
+            "recordingState": f"{target_state}. {target_names}. Session: {session_label}.",
+            "nativeLog": self._native_log_display_text,
+            "recordingBoundary": (
+                "Dashboard and Studio share the active Overlay Profile target. Tray controls, keybinds, "
+                "export customization, and provider/model work remain future-gated."
+            ),
+            "startEnabled": self._start_stop_state == "start-enabled",
+            "stopEnabled": self._start_stop_state == "recording-stop-enabled",
+        }
 
     def update_product_state(
         self,
@@ -6637,44 +6680,24 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         activate_window: bool = True,
     ) -> None:
         self._request_id = max(self._request_id, int(request_id or 0))
-        if activate_window:
-            self._last_activation_mode = "explicit-user-open"
-            self._opened_by_explicit_user_path = True
-        else:
-            self._last_activation_mode = "passive-state-refresh"
+        self._last_activation_mode = "explicit-user-open" if activate_window else "passive-state-refresh"
+        self._opened_by_explicit_user_path = self._opened_by_explicit_user_path or bool(activate_window)
         self._recording_session_state = recording_session_state or "ready"
         self._start_stop_state = start_stop_state or "target-required"
         self._native_log_path = native_log_path.strip()
         self._native_log_row_count = int(row_count or 0)
         self._current_log_state = current_log_state or "no-current-log"
-        profile = active_profile_name.strip() or "No active overlay profile"
-        count = max(0, int(target_count or 0))
-        session_label = {
-            "saved-complete": "saved",
-            "recording": "recording",
-            "ready": "ready",
-        }.get(self._recording_session_state, self._recording_session_state.replace("-", " "))
-        self._target.setText(f"{profile} / {count} active monitor{'s' if count != 1 else ''}")
-        self._summary.setText(
-            f"{target_state or 'Target pending'}. {target_names or 'No active monitor targets'}. "
-            f"Session: {session_label}."
-        )
-        self._refresh_native_log_label()
-        self._start.setEnabled(self._start_stop_state == "start-enabled")
-        self._stop.setEnabled(self._start_stop_state == "recording-stop-enabled")
-        if not activate_window:
-            return
-        if not self.isVisible():
-            self._restore_saved_geometry()
-        if self.isMinimized():
-            self.showNormal()
-        else:
-            self.show()
-        self.raise_()
-        self.activateWindow()
+        self._active_profile_name = active_profile_name.strip() or "No active overlay profile"
+        self._target_count = max(0, int(target_count or 0))
+        self._target_names = target_names
+        self._target_state = target_state
+        self._pending_studio_state = self._recording_studio_state_payload()
+        self._sync_studio_state_to_web()
+        self._show_or_raise(activate_window)
 
     def proof_state(self) -> dict[str, object]:
         geometry = self.geometry()
+        self._refresh_native_log_text()
         return {
             "owner": "MonitoringHudRecordingStudioWindow",
             "surface": "recording_studio_window",
@@ -6683,57 +6706,56 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "taskbarRestorable": True,
             "minimizeControl": True,
             "minimizeControlLocation": "top-right-header",
-            "minimizeControlProof": _monitoring_hud_studio_button_proof(self._minimize),
+            "minimizeControlProof": _monitoring_hud_studio_dom_control_proof("minimize"),
             "closeControl": True,
             "closeControlLocation": "top-right-header",
-            "closeControlProof": _monitoring_hud_studio_button_proof(self._close),
+            "closeControlProof": _monitoring_hud_studio_dom_control_proof("close"),
             "windowControlCluster": "UIREF-002-compact-window-control-cluster",
-            "windowControlVisibleTextPolicy": "compact-symbol-visible-accessible-label-tooltip",
+            "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
+            "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
+            "actionButtonGeometryPolicy": "ai-control-center-hub-action-content-fit-38px-pill",
+            "stateRowDensityPolicy": "ai-control-center-compact-state-row-density",
+            "titleGroupVisualPolicy": "ai-control-center-title-group-card-equivalent",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
-            "referenceTemplatePrimitiveClassification": "Reference-Derived Implementation",
+            "referenceTemplatePrimitiveClassification": "Shared Rendered Primitive Implementation",
             "primaryVisualComparator": "AI Control Center",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
-            "headerPrimitiveSeed": str(self._drag_surface.property("sharedPrimitiveSeed") or ""),
+            "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
             "panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel",
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
             "nativeLogDisplayText": self._native_log_display_text,
             "nativeLogPathDisplayMode": self._native_log_display_mode,
-            "nativeLogPathWordWrap": self._native_log.wordWrap(),
-            "nativeLogRowsContained": bool(
-                self._native_log_display_text
-                and "\n" not in self._native_log_display_text
-                and self._native_log.wordWrap() is False
-                and self._native_log.property("pathDisplayMode") in {"middle-elided-contained", "single-line-contained"}
-            ),
+            "nativeLogPathWordWrap": False,
+            "nativeLogRowsContained": bool(self._native_log_display_text and "\n" not in self._native_log_display_text),
             "currentLogState": self._current_log_state,
             "activationMode": self._last_activation_mode,
             "openedByExplicitUserPath": self._opened_by_explicit_user_path,
             "startStopState": self._start_stop_state,
             "visualContractDeclared": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
-            "visualSystemInheritanceClaim": MONITORING_HUD_STUDIO_VISUAL_INHERITANCE,
+            "visualSystemInheritanceClaim": "ai-control-center-shared-rendered-primitive",
             "visualSampledElements": MONITORING_HUD_STUDIO_VISUAL_SAMPLE,
             "visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION,
             "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
             "visualRuntimeSelfAttestation": "rejected",
             "visualMatrixRequired": True,
             "visualReferenceSurfacesRequired": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
-            "standaloneWindowLayout": "not-dashboard-card-clone",
-            "sharedVisualDna": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
-            "genericShellRejected": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
+            "standaloneWindowLayout": "purpose-specific-shared-rendered-primitives",
+            "sharedVisualDna": "shared-rendered-dom-css-primitive",
+            "genericShellRejected": "shared-rendered-dom-css-primitive",
             "titleHeaderBadgeState": "removed",
-            "standaloneHeaderTreatment": "text-only-product-header-no-rec-log-badge",
-            "buttonVisualGrammar": MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR,
-            "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
+            "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
+            "buttonVisualGrammar": "ai-control-center-rendered-button-primitive",
+            "windowBodyVisualGrammar": "ai-control-center-rendered-window-primitive",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
-            "startEnabled": self._start.isEnabled(),
-            "startControlProof": _monitoring_hud_studio_button_proof(self._start),
-            "stopEnabled": self._stop.isEnabled(),
-            "stopControlProof": _monitoring_hud_studio_button_proof(self._stop),
+            "startEnabled": self._start_stop_state == "start-enabled",
+            "startControlProof": _monitoring_hud_studio_dom_control_proof("start"),
+            "stopEnabled": self._start_stop_state == "recording-stop-enabled",
+            "stopControlProof": _monitoring_hud_studio_dom_control_proof("stop"),
             "controlStateProof": "default-hover-focus-pressed-disabled-keyboard-accessible",
             "accessibilityKeyboardProofState": "controls-focusable-accessible-names-tooltips",
             "visible": self.isVisible(),
@@ -6747,232 +6769,68 @@ class MonitoringHudRecordingStudioWindow(QWidget):
         }
 
 
-class MonitoringHudLogViewerStudioWindow(QWidget):
+class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
+    WIDTH = 570
+    HEIGHT = 430
+
     def __init__(self, screen, event_logger=None):
-        super().__init__(None)
-        self.screen_ref = screen
-        self.event_logger = event_logger
         self._request_id = ""
         self._last_activation_mode = "not-requested"
         self._geometry_persistence_key = "log_viewer_studio"
-        self._geometry_persistence_ready = False
-        self._geometry_restored_from_saved = False
         self._native_full_path = str(recording_output_dir())
         self._export_full_path = str(recording_export_dir())
-        self._drag_surface = None
-        self._drag_active = False
-        self._drag_start_global = QPoint()
-        self._drag_start_geometry = QRect()
+        self._folder_status_text = "Native and exported log folders are ready to open."
+        self._folder_status_state = "ready"
+        super().__init__(screen, event_logger)
         self.setObjectName("monitoringHudLogViewerStudioWindow")
-        self.setProperty("visualSystemInheritanceClaim", MONITORING_HUD_STUDIO_VISUAL_INHERITANCE)
-        self.setProperty("visualContractDeclared", MONITORING_HUD_STUDIO_VISUAL_CONTRACT)
-        self.setProperty("visualSampledElements", MONITORING_HUD_STUDIO_VISUAL_SAMPLE)
         self.setWindowTitle("Nexus Log Viewer Studio")
-        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setMinimumSize(676, 356)
-        self.resize(696, 376)
-        self.setStyleSheet(_monitoring_hud_studio_stylesheet("monitoringHudLogViewerStudioWindow"))
-        root = QVBoxLayout(self)
-        root.setContentsMargins(6, 6, 6, 6)
-        root.setSpacing(0)
-        self._shell = QFrame(self)
-        self._shell.setProperty("role", "studioShell")
-        self._shell.setAttribute(Qt.WA_StyledBackground, True)
-        _monitoring_hud_apply_studio_shadow(self._shell)
-        root.addWidget(self._shell)
-
-        shell_layout = QVBoxLayout(self._shell)
-        shell_layout.setContentsMargins(14, 14, 14, 14)
-        shell_layout.setSpacing(12)
-
-        header_frame = QFrame(self._shell)
-        header_frame.setProperty("role", "studioHeader")
-        header_frame.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-001-title-group")
-        header_frame.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
-        self._drag_surface = header_frame
-        header = QHBoxLayout(header_frame)
-        header.setContentsMargins(14, 10, 12, 10)
-        header.setSpacing(12)
-        header_text = QVBoxLayout()
-        header_text.setSpacing(2)
-        eyebrow = QLabel("Recording Logs", header_frame)
-        eyebrow.setProperty("role", "eyebrow")
-        title = QLabel("Log Viewer Studio", header_frame)
-        title.setProperty("role", "title")
-        title.setMinimumWidth(230)
-        header_text.addWidget(eyebrow)
-        header_text.addWidget(title)
-        header.addLayout(header_text)
-        header.addStretch(1)
-        self._minimize = MonitoringHudStudioButton("-", header_frame)
-        _monitoring_hud_prepare_studio_button(
-            self._minimize,
-            role="studioWindowControl",
-            minimum_width=34,
-            accessible_name="Minimize Log Viewer Studio",
-            tooltip="Minimize Log Viewer Studio",
-        )
-        self._minimize.clicked.connect(self.showMinimized)
-        self._close = MonitoringHudStudioButton("X", header_frame)
-        _monitoring_hud_prepare_studio_button(
-            self._close,
-            role="studioWindowControl",
-            minimum_width=34,
-            accessible_name="Close Log Viewer Studio",
-            tooltip="Close Log Viewer Studio",
-        )
-        self._close.clicked.connect(self.close)
-        control_cluster = _monitoring_hud_studio_window_control_cluster(header_frame)
-        control_cluster.layout().addWidget(self._minimize)
-        control_cluster.layout().addWidget(self._close)
-        header.addWidget(control_cluster, 0, Qt.AlignTop)
-
-        folder_panel = QFrame(self._shell)
-        folder_panel.setProperty("role", "studioPanel")
-        folder_panel.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-003-compact-state-row-panel")
-        folder_panel.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
-        folder_layout = QVBoxLayout(folder_panel)
-        folder_layout.setContentsMargins(14, 10, 14, 10)
-        folder_layout.setSpacing(0)
-        self._native = QLabel(folder_panel)
-        self._export = QLabel(folder_panel)
-        folder_layout.addWidget(
-            _monitoring_hud_studio_row(
-                "Native NDAI Logs",
-                self._native,
-                folder_panel,
-                value_word_wrap=False,
-                value_role="pathValue",
-            )
-        )
-        folder_layout.addWidget(
-            _monitoring_hud_studio_row(
-                "Exported Logs",
-                self._export,
-                folder_panel,
-                value_word_wrap=False,
-                value_role="pathValue",
-            )
-        )
-        self._refresh_folder_labels()
-        boundary = QLabel(
-            "This branch provides folder access only. Previous-log selection, in-app viewing, export customization, and Native Log Loader remain future-gated.",
-            self._shell,
-        )
-        boundary.setProperty("role", "warning")
-        boundary.setWordWrap(True)
-        self._folder_status = QLabel("Native and exported log folders are ready to open.", self._shell)
-        self._folder_status.setProperty("role", "warning")
-        self._folder_status.setWordWrap(True)
-        self._folder_status.setAccessibleName("Log Viewer Studio folder action status")
-        actions = QHBoxLayout()
-        actions.setContentsMargins(0, 0, 0, 0)
-        actions.setSpacing(12)
-        self._open_native = MonitoringHudStudioButton("Open Native Logs", self._shell)
-        self._open_export = MonitoringHudStudioButton("Open Exported Logs", self._shell)
-        _monitoring_hud_prepare_studio_button(
-            self._open_native,
-            role="studioAction",
-            minimum_width=152,
-            accessible_name="Open native NDAI logs folder",
-            tooltip="Open native NDAI logs folder",
-        )
-        _monitoring_hud_prepare_studio_button(
-            self._open_export,
-            role="studioAction",
-            minimum_width=184,
-            accessible_name="Open exported logs folder",
-            tooltip="Open exported logs folder",
-        )
-        self._open_native.clicked.connect(lambda: self._open_log_folder("native"))
-        self._open_export.clicked.connect(lambda: self._open_log_folder("export"))
-        actions.addStretch(1)
-        for button in (self._open_native, self._open_export):
-            actions.addWidget(button)
-        shell_layout.addWidget(header_frame)
-        shell_layout.addWidget(folder_panel)
-        shell_layout.addWidget(boundary)
-        shell_layout.addWidget(self._folder_status)
-        shell_layout.addStretch(1)
-        shell_layout.addLayout(actions)
-        self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
-            self,
-            self._geometry_persistence_key,
-            self._initial_geometry(),
-        )
+        self.resize(self.WIDTH, self.HEIGHT)
+        self._restore_saved_geometry()
         self._geometry_persistence_ready = True
+        self._pending_studio_state = self._log_viewer_studio_state_payload()
+        self._sync_studio_state_to_web()
 
     def _initial_geometry(self) -> QRect:
         available = self.screen_ref.availableGeometry()
-        width = 696
-        height = 376
         return QRect(
-            available.x() + max(24, available.width() - width - 120),
+            available.x() + max(24, available.width() - self.WIDTH - 120),
             available.y() + 96,
-            width,
-            height,
+            self.WIDTH,
+            self.HEIGHT,
         )
 
-    def _restore_saved_geometry(self) -> None:
-        self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
-            self,
-            self._geometry_persistence_key,
-            self._initial_geometry(),
-        )
+    def _compact_path(self, value: str) -> str:
+        path = os.path.normpath(str(value or ""))
+        if len(path) <= 58:
+            return path
+        return f"{path[:18]}...{path[-34:]}"
 
-    def _save_current_geometry(self) -> None:
-        if not self._geometry_persistence_ready:
-            return
-        _monitoring_hud_save_window_geometry(self, self._geometry_persistence_key)
+    def _log_viewer_studio_state_payload(self) -> dict[str, object]:
+        return {
+            "surface": "log-viewer",
+            "kicker": "Nexus Desktop AI",
+            "title": "Log Viewer Studio",
+            "subtitle": "Native and exported log access shell.",
+            "roleLabelA": "Surface",
+            "roleValueA": "Logs",
+            "roleLabelB": "State",
+            "roleValueB": self._folder_status_state.replace("-", " ").title(),
+            "roleLabelC": "Boundary",
+            "roleValueC": "Folder Access",
+            "nativeFolder": self._compact_path(self._native_full_path),
+            "exportFolder": self._compact_path(self._export_full_path),
+            "folderStatus": self._folder_status_text,
+            "logBoundary": (
+                "This branch provides folder access only. Previous-log selection, in-app viewing, "
+                "export customization, and Native Log Loader remain future-gated."
+            ),
+        }
 
-    def moveEvent(self, event):
-        super().moveEvent(event)
-        self._save_current_geometry()
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self._refresh_folder_labels()
-        self._save_current_geometry()
-
-    def _event_is_in_drag_surface(self, event) -> bool:
-        if self._drag_surface is None:
-            return False
-        try:
-            point = event.position().toPoint()
-        except Exception:
-            point = event.pos()
-        return self._drag_surface.geometry().contains(point)
-
-    def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton and self._event_is_in_drag_surface(event):
-            self._drag_active = True
-            self._drag_start_global = _monitoring_hud_mouse_global_pos(event)
-            self._drag_start_geometry = QRect(self.geometry())
-            event.accept()
-            return
-        super().mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        if self._drag_active:
-            delta = _monitoring_hud_mouse_global_pos(event) - self._drag_start_global
-            self.move(self._drag_start_geometry.topLeft() + delta)
-            event.accept()
-            return
-        super().mouseMoveEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        if self._drag_active and event.button() == Qt.LeftButton:
-            self._drag_active = False
-            self._save_current_geometry()
-            event.accept()
-            return
-        super().mouseReleaseEvent(event)
-
-    def closeEvent(self, event):
-        self._drag_active = False
-        self._save_current_geometry()
-        super().closeEvent(event)
+    def _handle_surface_command(self, command: str) -> None:
+        if command == "open-native":
+            self._open_log_folder("native")
+        elif command == "open-export":
+            self._open_log_folder("export")
 
     def _open_log_folder(self, folder_kind: str) -> None:
         root = recording_output_dir() if folder_kind == "native" else recording_export_dir()
@@ -6980,35 +6838,23 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         try:
             os.makedirs(target_folder, exist_ok=True)
             os.startfile(target_folder)
-            status = "Native NDAI logs folder opened." if folder_kind == "native" else "Exported logs folder opened."
-            self._folder_status.setText(status)
-            self._folder_status.setToolTip(target_folder)
-            self._folder_status.setProperty("folderActionState", "opened")
-            self._folder_status.style().unpolish(self._folder_status)
-            self._folder_status.style().polish(self._folder_status)
+            self._folder_status_text = "Native NDAI logs folder opened." if folder_kind == "native" else "Exported logs folder opened."
+            self._folder_status_state = "opened"
             if callable(self.event_logger):
                 self.event_logger(
                     "MONITORING_HUD_LOG_VIEWER_STUDIO_FOLDER_OPENED|"
                     f"folderKind={folder_kind}|outputDir={target_folder}"
                 )
         except Exception as exc:
-            status = "Native NDAI logs folder could not be opened." if folder_kind == "native" else "Exported logs folder could not be opened."
-            self._folder_status.setText(status)
-            self._folder_status.setToolTip(str(exc))
-            self._folder_status.setProperty("folderActionState", "blocked")
-            self._folder_status.style().unpolish(self._folder_status)
-            self._folder_status.style().polish(self._folder_status)
+            self._folder_status_text = "Native NDAI logs folder could not be opened." if folder_kind == "native" else "Exported logs folder could not be opened."
+            self._folder_status_state = "blocked"
             if callable(self.event_logger):
                 self.event_logger(
                     "MONITORING_HUD_LOG_VIEWER_STUDIO_FOLDER_BLOCKED|"
                     f"folderKind={folder_kind}|error={exc}"
                 )
-
-    def _refresh_folder_labels(self) -> None:
-        if not hasattr(self, "_native") or not hasattr(self, "_export"):
-            return
-        _monitoring_hud_set_contained_path_label(self._native, self._native_full_path)
-        _monitoring_hud_set_contained_path_label(self._export, self._export_full_path)
+        self._pending_studio_state = self._log_viewer_studio_state_payload()
+        self._sync_studio_state_to_web()
 
     def update_product_state(
         self,
@@ -7023,41 +6869,20 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
         self._last_activation_mode = "explicit-user-open" if activate_window else "passive-state-refresh"
         native_root = recording_output_dir()
         export_root = recording_export_dir()
-        native_detail = native_log_path.strip() or str(native_root)
-        export_detail = export_dir.strip() or validation_export_path.strip() or str(export_root)
-        self._native_full_path = native_detail
-        self._export_full_path = export_detail
-        self._refresh_folder_labels()
-        if not activate_window:
-            return
-        if not self.isVisible():
-            self._restore_saved_geometry()
-        if self.isMinimized():
-            self.showNormal()
-        else:
-            self.show()
-        self.raise_()
-        self.activateWindow()
+        self._native_full_path = native_log_path.strip() or str(native_root)
+        self._export_full_path = export_dir.strip() or validation_export_path.strip() or str(export_root)
+        self._pending_studio_state = self._log_viewer_studio_state_payload()
+        self._sync_studio_state_to_web()
+        self._show_or_raise(activate_window)
 
     def proof_state(self) -> dict[str, object]:
         geometry = self.geometry()
         native_root = str(recording_output_dir())
         export_root = str(recording_export_dir())
+        native_display = self._compact_path(self._native_full_path)
+        export_display = self._compact_path(self._export_full_path)
         leakage_terms = ("fam-006", "fam006", "feature_fam_006", "feature-fam-006", "worktrees", "nexus governance state")
         combined_roots = f"{native_root} {export_root}".casefold()
-        internal_path_leakage_absent = not any(term in combined_roots for term in leakage_terms)
-        native_display = self._native.text()
-        export_display = self._export.text()
-        path_rows_contained = (
-            bool(native_display)
-            and bool(export_display)
-            and "\n" not in native_display
-            and "\n" not in export_display
-            and self._native.wordWrap() is False
-            and self._export.wordWrap() is False
-            and self._native.property("pathDisplayMode") == "middle-elided-contained"
-            and self._export.property("pathDisplayMode") == "middle-elided-contained"
-        )
         return {
             "owner": "MonitoringHudLogViewerStudioWindow",
             "surface": "log_viewer_studio_shell",
@@ -7066,17 +6891,21 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "taskbarRestorable": True,
             "minimizeControl": True,
             "minimizeControlLocation": "top-right-header",
-            "minimizeControlProof": _monitoring_hud_studio_button_proof(self._minimize),
+            "minimizeControlProof": _monitoring_hud_studio_dom_control_proof("minimize"),
             "closeControl": True,
             "closeControlLocation": "top-right-header",
-            "closeControlProof": _monitoring_hud_studio_button_proof(self._close),
+            "closeControlProof": _monitoring_hud_studio_dom_control_proof("close"),
             "windowControlCluster": "UIREF-002-compact-window-control-cluster",
-            "windowControlVisibleTextPolicy": "compact-symbol-visible-accessible-label-tooltip",
+            "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
+            "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
+            "actionButtonGeometryPolicy": "ai-control-center-hub-action-content-fit-38px-pill",
+            "stateRowDensityPolicy": "ai-control-center-compact-state-row-density",
+            "titleGroupVisualPolicy": "ai-control-center-title-group-card-equivalent",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
-            "referenceTemplatePrimitiveClassification": "Reference-Derived Implementation",
+            "referenceTemplatePrimitiveClassification": "Shared Rendered Primitive Implementation",
             "primaryVisualComparator": "AI Control Center",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
-            "headerPrimitiveSeed": str(self._drag_surface.property("sharedPrimitiveSeed") or ""),
+            "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
             "panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel",
             "nativeFolderPreSessionUsable": True,
             "exportFolderPreSessionUsable": True,
@@ -7086,41 +6915,41 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "exportLogFullPath": os.path.normpath(str(self._export_full_path)),
             "nativeLogDisplayText": native_display,
             "exportLogDisplayText": export_display,
-            "nativeLogPathDisplayMode": self._native.property("pathDisplayMode"),
-            "exportLogPathDisplayMode": self._export.property("pathDisplayMode"),
-            "nativeLogPathTooltip": self._native.toolTip(),
-            "exportLogPathTooltip": self._export.toolTip(),
-            "nativeLogPathWordWrap": self._native.wordWrap(),
-            "exportLogPathWordWrap": self._export.wordWrap(),
-            "pathRowsContained": path_rows_contained,
+            "nativeLogPathDisplayMode": "middle-elided-contained",
+            "exportLogPathDisplayMode": "middle-elided-contained",
+            "nativeLogPathTooltip": os.path.normpath(str(self._native_full_path)),
+            "exportLogPathTooltip": os.path.normpath(str(self._export_full_path)),
+            "nativeLogPathWordWrap": False,
+            "exportLogPathWordWrap": False,
+            "pathRowsContained": bool(native_display and export_display and "\n" not in native_display and "\n" not in export_display),
             "pathRowsVisualState": "contained-middle-elided-readable",
-            "folderActionStatusText": self._folder_status.text(),
-            "folderActionStatusState": str(self._folder_status.property("folderActionState") or "ready"),
-            "folderActionStatusAccessibleName": self._folder_status.accessibleName(),
-            "openNativeControlProof": _monitoring_hud_studio_button_proof(self._open_native),
-            "openExportControlProof": _monitoring_hud_studio_button_proof(self._open_export),
+            "folderActionStatusText": self._folder_status_text,
+            "folderActionStatusState": self._folder_status_state,
+            "folderActionStatusAccessibleName": "Log Viewer Studio folder action status",
+            "openNativeControlProof": _monitoring_hud_studio_dom_control_proof("open-native"),
+            "openExportControlProof": _monitoring_hud_studio_dom_control_proof("open-export"),
             "controlStateProof": "default-hover-focus-pressed-disabled-keyboard-accessible",
             "accessibilityKeyboardProofState": "controls-focusable-accessible-names-tooltips",
             "errorBlockedStateProof": "folder-open-blocked-status-visible",
             "nativeLogRootPublicLabel": "Native NDAI logs",
             "exportLogRootPublicLabel": "Exported logs",
             "userVisibleStorageModel": "flat-user-recording-and-export-roots",
-            "internalPathLeakageAbsent": internal_path_leakage_absent,
+            "internalPathLeakageAbsent": not any(term in combined_roots for term in leakage_terms),
             "visualContractDeclared": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
-            "visualSystemInheritanceClaim": MONITORING_HUD_STUDIO_VISUAL_INHERITANCE,
+            "visualSystemInheritanceClaim": "ai-control-center-shared-rendered-primitive",
             "visualSampledElements": MONITORING_HUD_STUDIO_VISUAL_SAMPLE,
             "visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION,
             "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
             "visualRuntimeSelfAttestation": "rejected",
             "visualMatrixRequired": True,
             "visualReferenceSurfacesRequired": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
-            "standaloneWindowLayout": "not-dashboard-card-clone",
-            "sharedVisualDna": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
-            "genericShellRejected": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
+            "standaloneWindowLayout": "purpose-specific-shared-rendered-primitives",
+            "sharedVisualDna": "shared-rendered-dom-css-primitive",
+            "genericShellRejected": "shared-rendered-dom-css-primitive",
             "titleHeaderBadgeState": "removed",
-            "standaloneHeaderTreatment": "text-only-product-header-no-rec-log-badge",
-            "buttonVisualGrammar": MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR,
-            "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
+            "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
+            "buttonVisualGrammar": "ai-control-center-rendered-button-primitive",
+            "windowBodyVisualGrammar": "ai-control-center-rendered-window-primitive",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "geometryPersistenceKey": self._geometry_persistence_key,
@@ -13595,10 +13424,18 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
                 and proof.get("visualRuntimeSelfAttestation") == "rejected"
                 and proof.get("visualMatrixRequired") is True
-                and proof.get("standaloneWindowLayout") == "not-dashboard-card-clone"
+                and proof.get("standaloneWindowLayout") == "purpose-specific-shared-rendered-primitives"
                 and proof.get("titleHeaderBadgeState") == "removed"
-                and proof.get("standaloneHeaderTreatment") == "text-only-product-header-no-rec-log-badge"
-                and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
+                and proof.get("standaloneHeaderTreatment") == "ai-control-center-title-group-no-extra-badge"
+                and proof.get("windowBodyVisualGrammar") == "ai-control-center-rendered-window-primitive"
+                and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
+                and proof.get("actionButtonGeometryPolicy") == "ai-control-center-hub-action-content-fit-38px-pill"
+                and proof.get("stateRowDensityPolicy") == "ai-control-center-compact-state-row-density"
+                and proof.get("titleGroupVisualPolicy") == "ai-control-center-title-group-card-equivalent"
+                and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
+                and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
+                and proof.get("startControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-38px-pill"
+                and proof.get("stopControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-38px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("nativeLogRowsContained") is True
                 and proof.get("startEnabled") is True
@@ -13867,10 +13704,18 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
                 and proof.get("visualRuntimeSelfAttestation") == "rejected"
                 and proof.get("visualMatrixRequired") is True
-                and proof.get("standaloneWindowLayout") == "not-dashboard-card-clone"
+                and proof.get("standaloneWindowLayout") == "purpose-specific-shared-rendered-primitives"
                 and proof.get("titleHeaderBadgeState") == "removed"
-                and proof.get("standaloneHeaderTreatment") == "text-only-product-header-no-rec-log-badge"
-                and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
+                and proof.get("standaloneHeaderTreatment") == "ai-control-center-title-group-no-extra-badge"
+                and proof.get("windowBodyVisualGrammar") == "ai-control-center-rendered-window-primitive"
+                and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
+                and proof.get("actionButtonGeometryPolicy") == "ai-control-center-hub-action-content-fit-38px-pill"
+                and proof.get("stateRowDensityPolicy") == "ai-control-center-compact-state-row-density"
+                and proof.get("titleGroupVisualPolicy") == "ai-control-center-title-group-card-equivalent"
+                and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
+                and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
+                and proof.get("openNativeControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-38px-pill"
+                and proof.get("openExportControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-38px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("internalPathLeakageAbsent") is True
                 and proof.get("userVisibleStorageModel") == "flat-user-recording-and-export-roots"

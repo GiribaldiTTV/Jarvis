@@ -67,6 +67,9 @@ def validate() -> list[str]:
     html = _read("nexus_visual/monitoring_hud.html")
     css = _read("nexus_visual/monitoring_hud.css")
     js = _read("nexus_visual/monitoring_hud.js")
+    studio_html = _read("nexus_visual/monitoring_hud_studio.html")
+    studio_js = _read("nexus_visual/monitoring_hud_studio.js")
+    studio_source = studio_html + "\n" + studio_js
     renderer = _read("desktop/desktop_renderer.py")
     family_vision = _read("Docs/family_visions/FAM-006_monitoring_and_hud.md")
     recording_feature_vision = _read("Docs/family_feature_visions/FAM-006_recording.md")
@@ -1359,7 +1362,7 @@ def validate() -> list[str]:
         '"taskbarRestorable": True',
         '"recordingExecutionState": "enabled"',
         '"recordingFileWritingState": "enabled"',
-        '"startEnabled": self._start.isEnabled()',
+        '"startEnabled": self._start_stop_state == "start-enabled"',
         "recording_action_handler",
         "_dispatch_monitoring_hud_recording_studio_action",
     ):
@@ -1495,13 +1498,14 @@ def validate() -> list[str]:
         "contained-middle-elided-readable",
         "middle-elided-contained",
         "titleHeaderBadgeState",
-        "text-only-product-header-no-rec-log-badge",
+        "ai-control-center-title-group-no-extra-badge",
         "top-right-header",
-        "ai-control-center-uiref-003-button-equivalent-requires-photo-adjudication",
-        "ai-control-center-uiref-001-top-level-frame-equivalent-requires-photo-adjudication",
-        "ai-control-center-reference-derived-studio-window-v2",
-        "ai-control-center-reference-derived-equivalent-primitives",
-        "AI-Control-Center-Reference-Derived",
+        "ai-control-center-reference-derived-studio-window-v3",
+        "ai-control-center-shared-rendered-primitive",
+        "Shared Rendered Primitive Implementation",
+        "ai-control-center-symbol-window-control-cluster",
+        "ai-control-center-symbol-window-control-pill",
+        "QWebEngineView/monitoring_hud.css DOM",
         "studioVisualInheritanceMatrix",
         "REQUIRES_CODEX_PHOTO_VIDEO_ADJUDICATION",
         "photo-video-comparison-not-runtime-self-attestation",
@@ -1518,6 +1522,14 @@ def validate() -> list[str]:
         "nativeLogRowsContained",
     ):
         _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
+
+    for needle in (
+        ".monitoring-hud__hub-card[hidden]",
+        "display: none !important",
+        "nexusMonitoringHudStudioApplyState",
+        "data-product-surface=\"nexus-ai-control-center\"",
+    ):
+        _require_contains(studio_source, needle, "FAM-006 rendered Studio visual primitive source", failures)
 
     for forbidden in (
         '_monitoring_hud_studio_badge("REC"',
@@ -1626,36 +1638,41 @@ def validate() -> list[str]:
         "nativeCursorRecordingStudioReopenProof",
         "MONITORING_HUD_STUDIO_VISUAL_INHERITANCE",
         "ai-control-center-reference-derived-equivalent-primitives",
-        "ai-control-center-reference-derived-studio-window-v2",
+        "ai-control-center-reference-derived-studio-window-v3",
         "ai-control-center-uiref-001-002-003-primitives",
-        "AI-Control-Center-Reference-Derived",
-        "Reference-Derived Implementation",
+        "Shared Rendered Primitive Implementation",
         '"primaryVisualComparator": "AI Control Center"',
         '"visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract()',
         '"acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES)',
-        '"headerPrimitiveSeed": str(self._drag_surface.property("sharedPrimitiveSeed") or "")',
+        '"headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group"',
         '"panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel"',
         '"visualContractDeclared": MONITORING_HUD_STUDIO_VISUAL_CONTRACT',
         '"visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION',
         '"visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY',
         '"visualRuntimeSelfAttestation": "rejected"',
         '"visualMatrixRequired": True',
-        '"standaloneWindowLayout": "not-dashboard-card-clone"',
-        '"sharedVisualDna": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE',
-        '"genericShellRejected": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE',
+        '"standaloneWindowLayout": "purpose-specific-shared-rendered-primitives"',
+        '"sharedVisualDna": "shared-rendered-dom-css-primitive"',
+        '"genericShellRejected": "shared-rendered-dom-css-primitive"',
         '"titleHeaderBadgeState": "removed"',
-        '"standaloneHeaderTreatment": "text-only-product-header-no-rec-log-badge"',
+        '"standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge"',
         '"minimizeControlLocation": "top-right-header"',
         '"closeControlLocation": "top-right-header"',
-        '"buttonVisualGrammar": MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR',
-        '"windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR',
-        "AI-Control-Center-UIREF-002-window-control-button",
+        '"buttonVisualGrammar": "ai-control-center-rendered-button-primitive"',
+        '"windowBodyVisualGrammar": "ai-control-center-rendered-window-primitive"',
+        "AI-Control-Center-UIREF-002-window-control-cluster",
         "AI-Control-Center-UIREF-003-action-button",
         "AI-Control-Center-UIREF-001-title-group",
+        '"windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster"',
+        '"actionButtonGeometryPolicy": "ai-control-center-hub-action-content-fit-38px-pill"',
+        '"stateRowDensityPolicy": "ai-control-center-compact-state-row-density"',
+        '"titleGroupVisualPolicy": "ai-control-center-title-group-card-equivalent"',
+        "ai-control-center-symbol-window-control-pill",
+        "hub-action-content-fit-38px-pill",
         '"nativeLogRowsContained": bool',
         '"windowPlacementMemoryState": "enabled"',
         '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',
-        '"internalPathLeakageAbsent": internal_path_leakage_absent',
+        '"internalPathLeakageAbsent": not any(term in combined_roots for term in leakage_terms)',
         "Native NDAI logs",
     ):
         _require_contains(
@@ -2872,7 +2889,7 @@ def validate() -> list[str]:
         "closeSuppressed",
         "Active child window prevents Dashboard click-through under overlapping controls",
         "UIREF-002-compact-window-control-cluster",
-        "compact-symbol-visible-accessible-label-tooltip",
+        "ai-control-center-symbol-visible-accessible-label",
         "default-hover-focus-pressed-disabled-keyboard-accessible",
         "controls-focusable-accessible-names-tooltips",
         "folder-open-blocked-status-visible",
