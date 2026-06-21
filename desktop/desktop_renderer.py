@@ -31,7 +31,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QSizeGrip,
 )
-from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QEvent, QSettings
+from PySide6.QtCore import Qt, QTimer, QUrl, QRect, QRectF, Signal, QPoint, QPointF, QEvent, QSettings
 from PySide6.QtGui import QColor, QCursor, QFont, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap, QRegion
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtTest import QTest
@@ -5903,10 +5903,10 @@ def _monitoring_hud_prepare_studio_button(
     if tooltip or accessible_name:
         button.setToolTip(tooltip or accessible_name)
     compact_window_control = role == "studioWindowControl"
-    button_width = 34 if compact_window_control else minimum_width
+    button_width = 26 if compact_window_control else minimum_width
     button.setMinimumWidth(button_width)
     button.setMaximumWidth(button_width)
-    button_height = 34 if compact_window_control else 38
+    button_height = 24 if compact_window_control else 38
     button.setMinimumHeight(button_height)
     button.setMaximumHeight(button_height)
     button.setFixedHeight(button_height)
@@ -5914,6 +5914,18 @@ def _monitoring_hud_prepare_studio_button(
         "controlStateProof",
         "default-hover-focus-pressed-disabled-keyboard-accessible",
     )
+    if compact_window_control:
+        button.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-002-window-control-button")
+
+
+def _monitoring_hud_studio_window_control_cluster(parent: QWidget) -> QFrame:
+    cluster = QFrame(parent)
+    cluster.setProperty("role", "studioWindowControls")
+    cluster.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-002-window-control-cluster")
+    layout = QHBoxLayout(cluster)
+    layout.setContentsMargins(2, 2, 2, 2)
+    layout.setSpacing(2)
+    return cluster
 
 
 def _monitoring_hud_studio_button_proof(button: QPushButton) -> dict[str, object]:
@@ -5926,6 +5938,7 @@ def _monitoring_hud_studio_button_proof(button: QPushButton) -> dict[str, object
         "focusPolicy": "StrongFocus" if button.focusPolicy() == Qt.StrongFocus else str(button.focusPolicy()),
         "keyboardReachable": button.focusPolicy() == Qt.StrongFocus,
         "controlStateProof": str(button.property("controlStateProof") or ""),
+        "sharedPrimitiveSeed": str(button.property("sharedPrimitiveSeed") or ""),
         "width": button.width(),
         "height": button.height(),
     }
@@ -5988,9 +6001,13 @@ class MonitoringHudStudioButton(QPushButton):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
+        role = str(self.property("actionRole") or "")
+        if role == "studioWindowControl":
+            self._paint_ai_control_center_window_control(painter)
+            return
+
         rect = QRectF(self.rect()).adjusted(2.0, 2.0, -2.0, -2.0)
         radius = rect.height() / 2.0
-        role = str(self.property("actionRole") or "")
         enabled = self.isEnabled()
         pressed = enabled and (self._visual_pressed or self.isDown())
         hovered = enabled and self._visual_hovered and not pressed
@@ -6065,6 +6082,67 @@ class MonitoringHudStudioButton(QPushButton):
         text_inset = 0.0 if role == "studioWindowControl" else 12.0
         painter.drawText(rect.adjusted(text_inset, 0.0, -text_inset, 0.0), Qt.AlignCenter, self.text().upper())
 
+    def _paint_ai_control_center_window_control(self, painter: QPainter) -> None:
+        enabled = self.isEnabled()
+        pressed = enabled and (self._visual_pressed or self.isDown())
+        hovered = enabled and self._visual_hovered and not pressed
+        focused = enabled and self.hasFocus()
+        rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        radius = rect.height() / 2.0
+
+        if pressed:
+            border = QColor(163, 255, 228, 184)
+            fill = QColor(7, 40, 57, 219)
+            glyph = QColor(235, 252, 255, 235)
+            translate_y = 1.0
+            glow_alpha = 0
+        elif hovered or focused:
+            border = QColor(126, 248, 218, 143)
+            fill = QColor(9, 49, 70, 199)
+            glyph = QColor(235, 252, 255, 235)
+            translate_y = 0.0
+            glow_alpha = 71
+        elif enabled:
+            border = QColor(122, 232, 255, 61)
+            fill = QColor(5, 22, 36, 158)
+            glyph = QColor(235, 252, 255, 235)
+            translate_y = 0.0
+            glow_alpha = 0
+        else:
+            border = QColor(122, 232, 255, 46)
+            fill = QColor(5, 22, 36, 87)
+            glyph = QColor(179, 226, 238, 158)
+            translate_y = 0.0
+            glow_alpha = 0
+
+        target_rect = rect.translated(0.0, translate_y)
+        painter.setPen(QPen(border, 1.0))
+        painter.setBrush(fill)
+        painter.drawRoundedRect(target_rect, radius, radius)
+        painter.setPen(QPen(QColor(230, 251, 255, 18 if enabled else 7), 1.0))
+        painter.setBrush(Qt.NoBrush)
+        painter.drawRoundedRect(target_rect.adjusted(1.0, 1.0, -1.0, -1.0), radius - 1.0, radius - 1.0)
+        if glow_alpha:
+            painter.setPen(QPen(QColor(86, 236, 255, glow_alpha), 2.0))
+            painter.drawRoundedRect(target_rect.adjusted(-1.0, -1.0, 1.0, 1.0), radius + 1.0, radius + 1.0)
+
+        painter.setPen(QPen(glyph, 1.8, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        center = target_rect.center()
+        if self.text().strip() == "-":
+            painter.drawLine(
+                QPointF(center.x() - 5.0, center.y()),
+                QPointF(center.x() + 5.0, center.y()),
+            )
+        else:
+            painter.drawLine(
+                QPointF(center.x() - 4.2, center.y() - 4.2),
+                QPointF(center.x() + 4.2, center.y() + 4.2),
+            )
+            painter.drawLine(
+                QPointF(center.x() + 4.2, center.y() - 4.2),
+                QPointF(center.x() - 4.2, center.y() + 4.2),
+            )
+
 
 def _monitoring_hud_compact_path_label_text(full_path: str, label: QLabel) -> str:
     path_text = os.path.normpath(str(full_path or "").strip())
@@ -6116,6 +6194,12 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             background: transparent;
             border: none;
             border-radius: 0px;
+        }}
+        QFrame[role="studioWindowControls"] {{
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.70), stop:1 rgba(3, 18, 32, 0.76));
+            border: 1px solid rgba(122, 232, 255, 0.44);
+            border-radius: 999px;
+            padding: 2px;
         }}
         QFrame[role="studioPanel"] {{
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(6, 28, 48, 0.74), stop:1 rgba(3, 18, 32, 0.70));
@@ -6193,13 +6277,13 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             text-transform: uppercase;
         }}
         QPushButton[actionRole="studioWindowControl"] {{
-            min-width: 18px;
-            min-height: 18px;
-            max-height: 18px;
-            padding: 8px;
-            border-radius: 17px;
-            font-size: 14px;
-            font-weight: 760;
+            min-width: 26px;
+            max-width: 26px;
+            min-height: 24px;
+            max-height: 24px;
+            padding: 0px;
+            border-radius: 999px;
+            color: transparent;
             letter-spacing: 0em;
         }}
         QPushButton[actionRole="studioAction"] {{
@@ -6314,7 +6398,6 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             tooltip="Minimize Recording Studio",
         )
         self._minimize.clicked.connect(self.showMinimized)
-        header.addWidget(self._minimize, 0, Qt.AlignTop)
         self._close = MonitoringHudStudioButton("X", header_frame)
         _monitoring_hud_prepare_studio_button(
             self._close,
@@ -6324,7 +6407,10 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             tooltip="Close Recording Studio",
         )
         self._close.clicked.connect(self.close)
-        header.addWidget(self._close, 0, Qt.AlignTop)
+        control_cluster = _monitoring_hud_studio_window_control_cluster(header_frame)
+        control_cluster.layout().addWidget(self._minimize)
+        control_cluster.layout().addWidget(self._close)
+        header.addWidget(control_cluster, 0, Qt.AlignTop)
 
         status_panel = QFrame(self._shell)
         status_panel.setProperty("role", "studioPanel")
@@ -6688,7 +6774,6 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             tooltip="Minimize Log Viewer Studio",
         )
         self._minimize.clicked.connect(self.showMinimized)
-        header.addWidget(self._minimize, 0, Qt.AlignTop)
         self._close = MonitoringHudStudioButton("X", header_frame)
         _monitoring_hud_prepare_studio_button(
             self._close,
@@ -6698,7 +6783,10 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             tooltip="Close Log Viewer Studio",
         )
         self._close.clicked.connect(self.close)
-        header.addWidget(self._close, 0, Qt.AlignTop)
+        control_cluster = _monitoring_hud_studio_window_control_cluster(header_frame)
+        control_cluster.layout().addWidget(self._minimize)
+        control_cluster.layout().addWidget(self._close)
+        header.addWidget(control_cluster, 0, Qt.AlignTop)
 
         folder_panel = QFrame(self._shell)
         folder_panel.setProperty("role", "studioPanel")
