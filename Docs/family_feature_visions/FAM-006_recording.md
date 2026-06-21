@@ -113,6 +113,12 @@ Expected direction:
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling
+- shared rendered primitive inheritance for same-class window chrome, title/header,
+  action buttons, row/divider panels, state text, hover/focus/pressed/disabled
+  states, and compact body background. If a promoted global primitive does not
+  exist but an accepted rendered Nexus surface does, Recording Studio must reuse
+  that rendered CSS/DOM primitive path or stop for side-by-side USER visual
+  adjudication; reference-derived approximation is not a closeout-grade substitute.
 - window placement continuity by carrying down the Project UI Vision rule for
   USER-moved windows to restore position safely across sessions where feasible
 - Start/Stop control ownership when the branch admits full studio behavior
@@ -146,6 +152,12 @@ Expected direction:
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling
+- shared rendered primitive inheritance for same-class window chrome, title/header,
+  action buttons, row/divider panels, state text, hover/focus/pressed/disabled
+  states, and compact body background. If a promoted global primitive does not
+  exist but an accepted rendered Nexus surface does, Log Viewer Studio must reuse
+  that rendered CSS/DOM primitive path or stop for side-by-side USER visual
+  adjudication; reference-derived approximation is not a closeout-grade substitute.
 - window placement continuity by carrying down the Project UI Vision rule for
   USER-moved windows to restore position safely across sessions where feasible
 - access to the native NDAI log folder
@@ -451,6 +463,11 @@ Branches consuming this feature vision should prove:
 - Log Viewer Studio visual-system inheritance against Project Vision, this
   family vision, and this feature vision; generic/plain UI cannot pass from
   screenshot existence or window-shell markers alone
+- Recording Studio and Log Viewer Studio shared element groups must prove shared
+  rendered primitive adoption, not merely reference-derived similarity. The
+  focused proof set must include a side-by-side visual adjudication basis against
+  the accepted reference surface or a direct rendered-primitive code path showing
+  the same CSS/DOM visual source is consumed.
 - user-visible native/export folder labels and paths that avoid exposing
   worktree, branch, developer, owner-only, FAM, or other internal implementation
   concepts unless source truth explicitly permits that client-facing model

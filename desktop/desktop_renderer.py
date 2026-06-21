@@ -5775,9 +5775,9 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
-MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "ai-control-center-reference-derived-studio-window-v3"
+MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "ai-control-center-shared-rendered-studio-window-v4"
 MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "ai-control-center-uiref-001-002-003-primitives"
-MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "ai-control-center-reference-derived-equivalent-primitives"
+MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "shared-rendered-dom-css-primitive"
 MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "photo-video-comparison-required"
 MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY = "photo-video-comparison-not-runtime-self-attestation"
 MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE = "declared-not-proven-by-runtime"
