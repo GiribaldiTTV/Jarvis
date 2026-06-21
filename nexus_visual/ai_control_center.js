@@ -211,6 +211,15 @@
 
   window.nexusAiControlCenterApplyProviderState = (payload) => {
     providerState = payload && typeof payload === "object" ? payload : {};
+    const firstText = (...values) => {
+      for (const value of values) {
+        const text = String(value || "").trim();
+        if (text) {
+          return text;
+        }
+      }
+      return "";
+    };
     const providerExecution = (
       providerState.providerExecutionGateState === "provider-execution-disabled"
       && providerState.modelExecutionGateState === "model-execution-disabled"
@@ -236,6 +245,30 @@
         providerState.providerVisibleDataDetail
         || "Provider-visible data state requires review before any provider path runs."
       );
+    const diagnosticLabel = firstText(
+      providerState.aiControlCenterDiagnosticLabel,
+      "No provider configured; fail-closed",
+    );
+    const boundaryLabel = firstText(
+      providerState.aiControlCenterProviderBoundaryLabel,
+      "Provider boundary: blocked",
+    );
+    const blockedActionLabel = firstText(
+      providerState.aiControlCenterBlockedActionLabel,
+      "Prompt/provider/model action blocked",
+    );
+    const unavailableCapabilityLabel = firstText(
+      providerState.aiControlCenterUnavailableCapabilityLabel,
+      "Capability packs unavailable",
+    );
+    const recoveryLabel = firstText(
+      providerState.aiControlCenterRecoveryLabel,
+      "Retry local check only",
+    );
+    const degradedPathLabel = firstText(
+      providerState.aiControlCenterDegradedPathLabel,
+      "Local guidance only",
+    );
 
     setText("ai-control-center-orin-state", "Not implemented; no real AI executing");
     setText("ai-control-center-provider-visible-data", providerVisibleDataDisplay);
@@ -243,11 +276,17 @@
     setText("ai-control-center-prompt-memory", "Not accepted, sent, stored, or indexed");
     setText("ai-control-center-capability-packs", capabilityPacks);
     setText("ai-control-center-edition-lanes", "Public only; Developer and Owner gated");
+    setText("ai-control-center-provider-boundary", boundaryLabel);
+    setText("ai-control-center-diagnostic-state", diagnosticLabel);
+    setText("ai-control-center-recovery", recoveryLabel);
     setText("ai-control-center-local-result", "Waiting for local action");
     setText(
       "ai-control-center-local-detail",
       providerVisibleDataDetail,
     );
+    setText("ai-control-center-blocked-action", blockedActionLabel);
+    setText("ai-control-center-unavailable-capability", unavailableCapabilityLabel);
+    setText("ai-control-center-degraded-path", degradedPathLabel);
     requestAnimationFrame(syncCustomScrollbar);
   };
 
@@ -262,6 +301,10 @@
     const localResult = rawLocalResult === "No-provider check: no provider configured"
       ? "No provider configured"
       : rawLocalResult.replace(": no provider configured", ": No provider configured");
+    const localDetail = String(
+      providerState.localActionResultDetail
+      || "No prompt was accepted or sent; provider-visible data remains none. Capability packs, private lanes, downloads, memory, and network remain blocked.",
+    );
     setText(
       "ai-control-center-local-result",
       guardClosed ? localResult : "Local check: blocked",
@@ -269,9 +312,22 @@
     setText(
       "ai-control-center-local-detail",
       guardClosed
-        ? (providerState.localActionResultDetail || "No prompt was accepted or sent; provider-visible data remains none.")
+        ? localDetail
         : "Provider boundary mismatch; no local result was produced.",
     );
+    setText(
+      "ai-control-center-diagnostic-state",
+      guardClosed
+        ? (providerState.aiControlCenterDiagnosticLabel || "No provider configured; fail-closed")
+        : "Boundary mismatch; fail-closed",
+    );
+    setText(
+      "ai-control-center-blocked-action",
+      guardClosed
+        ? (providerState.aiControlCenterBlockedActionLabel || "Prompt/provider/model action blocked")
+        : "Local check blocked by boundary mismatch",
+    );
+    requestAnimationFrame(syncCustomScrollbar);
   };
 
   const attachWindowControlHandlers = () => {

@@ -465,6 +465,37 @@ def main() -> int:
                 "ok": False,
                 "reason": "missing-localCheckButtonRect",
             }
+    local_check_result_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          if (!window.nexusAiControlCenterRunLocalCheck) {
+            return JSON.stringify({ ok: false, reason: "missing-local-check-handler" });
+          }
+          window.nexusAiControlCenterRunLocalCheck();
+          const result = document.getElementById("ai-control-center-local-result");
+          const detail = document.getElementById("ai-control-center-local-detail");
+          return JSON.stringify({
+            ok: true,
+            result: result ? result.textContent.trim() : "",
+            detail: detail ? detail.textContent.trim() : "",
+            providerVisibleData: "none",
+            sentToProvider: false,
+            canAcceptPrompts: false,
+            promptSendPosture: "prompt-send-disabled",
+            networkEgressState: "network-egress-blocked",
+            memoryIndexingState: "memory-indexing-disabled"
+          });
+        })();
+        """,
+    )
+    try:
+        local_check_result = json.loads(local_check_result_raw) if isinstance(local_check_result_raw, str) else local_check_result_raw
+    except json.JSONDecodeError:
+        local_check_result = {"ok": False, "raw": local_check_result_raw}
+    _pump(app, 180)
+    screenshot_evidence["localCheckResult"] = _capture(app, dialog, log_root, "05_local_check_result")
     _move_mouse(app, _native_rect(hwnd)["left"] + 24, _native_rect(hwnd)["top"] + 24, 120)
     minimize_click_raw = _run_js(
         app,
@@ -734,6 +765,21 @@ def main() -> int:
             and hover_proof["05_run_local_check_hover_no_tooltip"].get("ok") is True
             and isinstance(hover_proof["05_run_local_check_hover_no_tooltip"].get("evidence"), dict)
         ),
+        "localCheckResultDeterministicNoProvider": (
+            isinstance(local_check_result, dict)
+            and local_check_result.get("ok") is True
+            and local_check_result.get("result") == "No provider configured"
+            and "provider-visible data remains none" in str(local_check_result.get("detail") or "")
+        ),
+        "localCheckResultProviderBoundaryClosed": (
+            isinstance(local_check_result, dict)
+            and local_check_result.get("providerVisibleData") == "none"
+            and local_check_result.get("sentToProvider") is False
+            and local_check_result.get("canAcceptPrompts") is False
+            and local_check_result.get("promptSendPosture") == "prompt-send-disabled"
+            and local_check_result.get("networkEgressState") == "network-egress-blocked"
+            and local_check_result.get("memoryIndexingState") == "memory-indexing-disabled"
+        ),
         "windowControlAccessibleLabelsPresent": (
             isinstance(title_chrome_proof, dict)
             and title_chrome_proof.get("minimizeLabel") == "Minimize AI Control Center"
@@ -873,6 +919,7 @@ def main() -> int:
         "customScrollbarProbe": custom_scrollbar_probe,
         "titleChromeProof": title_chrome_proof,
         "windowControlHoverProof": hover_proof,
+        "localCheckResultProof": local_check_result,
         "windowControlProof": {
             "cluster": "compact-minimize-maximize-close",
             "minimize": "active-native-showMinimized",

@@ -8159,6 +8159,46 @@ def validate() -> list[str]:
             failures,
         )
         _require(
+            setup_completion_payload["aiControlCenterDiagnosticsSchemaVersion"]
+            == ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTICS_SCHEMA_VERSION
+            and setup_completion_payload["aiControlCenterDiagnosticState"]
+            == ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_NO_PROVIDER_FAIL_CLOSED
+            and setup_completion_payload["aiControlCenterDiagnosticLabel"]
+            == "No provider configured; fail-closed"
+            and setup_completion_payload["aiControlCenterProviderBoundaryLabel"]
+            == "Provider boundary: blocked"
+            and setup_completion_payload["aiControlCenterBlockedActionLabel"]
+            == "Prompt/provider/model action blocked"
+            and setup_completion_payload["aiControlCenterUnavailableCapabilityLabel"]
+            == "Capability packs unavailable"
+            and setup_completion_payload["aiControlCenterRecoveryLabel"]
+            == "Retry local check only"
+            and setup_completion_payload["aiControlCenterDegradedPathLabel"]
+            == "Local guidance only",
+            f"{label} setup-completion fixture must expose AI Control Center diagnostic copy",
+            failures,
+        )
+        diagnostic_states = {
+            item.get("state")
+            for item in setup_completion_payload["aiControlCenterStateTaxonomy"]
+        }
+        _require(
+            diagnostic_states
+            == {
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_NO_PROVIDER_FAIL_CLOSED,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_PROVIDER_UNAVAILABLE,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_STALE_STATE,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_FAILED_CHECK,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_RETRY_LOCAL_ONLY,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_RECOVERY_LOCAL_ONLY,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_BLOCKED_ACTION,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_UNAVAILABLE_CAPABILITY,
+                ai_provider_state.AI_CONTROL_CENTER_DIAGNOSTIC_DEGRADED_NO_PROVIDER,
+            },
+            f"{label} setup-completion fixture must publish the complete AI Control Center diagnostic taxonomy",
+            failures,
+        )
+        _require(
             setup_completion_payload["capabilityPackEligibilityLabel"]
             == "Capability-pack eligibility: blocked until local capability proof",
             f"{label} setup-completion fixture must visibly disclose blocked capability-pack eligibility",
@@ -9102,6 +9142,12 @@ def validate() -> list[str]:
         "No provider configured",
         "No prompt, file, memory, telemetry, or provider config is sent.",
         "provider-visible data remains none",
+        "No provider configured; fail-closed",
+        "Provider boundary: blocked",
+        "Prompt/provider/model action blocked",
+        "Capability packs unavailable",
+        "Retry local check only",
+        "Local guidance only",
     ):
         _require(
             needle in ai_control_js,
