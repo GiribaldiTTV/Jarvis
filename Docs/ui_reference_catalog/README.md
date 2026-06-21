@@ -20,7 +20,7 @@ Promotion may include known limitations when the USER explicitly accepts or waiv
 
 ## Reference, Template, Primitive, And Comparative Synthesis Model
 
-Nexus UI reuse has four distinct authority levels.
+Nexus UI reuse has five distinct model terms. `Accepted Reference`, `Implementation Template`, and `Shared Primitive` are reusable reference or implementation authority levels. `Accepted Reference Set` and `Comparative Synthesis` are comparison/proof structures that determine how those authorities apply to a specific branch surface.
 
 - `Accepted Reference`: a USER-promoted visual, behavior, or proof grammar record. It tells Codex what accepted output should resemble, but it is not reusable implementation code and does not prove a consuming branch adopted the grammar correctly.
 - `Implementation Template`: a USER-approved scaffold or starting implementation with a named source path, applicability, required states, known limitations, and proof artifacts. A template may be copied or instantiated, but the consuming branch must still prove the result and classify any differences.
@@ -28,7 +28,7 @@ Nexus UI reuse has four distinct authority levels.
 - `Accepted Reference Set`: the set of applicable USER-accepted references for the same element class or product behavior. It may include UIREF records, FAM-002 grammar, AI Control Center where a UIREF names it as the strongest seed, and later USER-accepted windows or surfaces.
 - `Comparative Synthesis`: the deterministic comparison step that identifies invariant traits across the Accepted Reference Set, feature-specific traits that may differ, conflicts or missing proof, and the required disposition for a new or repaired surface.
 
-Codex must not collapse these levels. A UIREF record is not an Implementation Template by itself. A screenshot, branch packet, helper result, or attractive accepted window is not a Shared Primitive. A branch that says it "used the template" must name the actual template or primitive source. If no approved template or primitive exists, the branch must classify the work as `Reference-Derived Implementation` and prove element-by-element parity against the Accepted Reference Set.
+Codex must not collapse these terms. A UIREF record is not an Implementation Template by itself. A screenshot, branch packet, helper result, or attractive accepted window is not a Shared Primitive. A branch that says it "used the template" must name the actual template or primitive source. If no approved template or primitive exists, the branch must classify the work as `Reference-Derived Implementation` and prove element-by-element parity against the Accepted Reference Set.
 
 Required implementation classification values:
 
