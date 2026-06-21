@@ -30,6 +30,7 @@ def validate_resident_model(failures: list[str]):
         MAX_QUICK_SLOT_COUNT,
         TRAY_DISCOVERY_MESSAGE,
         TRAY_IDENTITY_LABEL,
+        TRAY_TOOLTIP_TEXT,
         WINDOWS_TRAY_VISIBILITY_LIMITATION,
         build_resident_access_menu_plan,
         normalize_resident_access_settings,
@@ -41,6 +42,12 @@ def validate_resident_model(failures: list[str]):
     route_owner = {route["routeId"]: route["ownerFamily"] for route in plan["immutableRoutes"]}
 
     assert_true(TRAY_IDENTITY_LABEL == "Nexus Desktop AI", "tray identity label drifted", failures)
+    assert_true(
+        TRAY_TOOLTIP_TEXT.startswith("Nexus Desktop AI - ")
+        and "Provider-visible data: none" in TRAY_TOOLTIP_TEXT,
+        "tray tooltip must include compact AI/privacy status, not identity only",
+        failures,
+    )
     assert_true(tuple(immutable_ids) == IMMUTABLE_ROUTE_IDS, "immutable route order drifted", failures)
     assert_true(
         set(IMMUTABLE_ROUTE_IDS)
@@ -100,6 +107,12 @@ def validate_resident_model(failures: list[str]):
         "AI/privacy status must preserve provider-visible data none",
         failures,
     )
+    assert_true(
+        str(plan.get("tooltipText", "")).startswith("Nexus Desktop AI - ")
+        and "Provider-visible data: none" in str(plan.get("tooltipText", "")),
+        "resident access plan tooltip must carry compact AI/privacy status",
+        failures,
+    )
 
     normalized = normalize_resident_access_settings(
         {
@@ -146,11 +159,30 @@ def validate_static_wiring(failures: list[str]):
         "TRAY_RESIDENT_ACCESS_TRAY_ICON_READY",
         "request_global_settings_from_tray",
         "request_ai_status_from_tray",
+        "TRAY_AI_STATUS_COMMAND_CENTER_ROUTED",
         "request_privacy_lockdown_from_tray",
         "request_quick_slot_from_tray",
         "TRAY_RESIDENT_ACCESS_ACTIONS_REFRESHED",
+        "_native_menu_status_text",
+        "nexusDesktopTrayStatus",
+        "#07111f",
     ):
         assert_true(token in tray_text, f"tray resident access token missing: {token}", failures)
+    assert_true(
+        'self.ai_control_center_action = self._add_button_action(' not in tray_text,
+        "tray menu must not expose a duplicate top-level AI Control Center action",
+        failures,
+    )
+    assert_true(
+        'self.ai_control_center_button = self.tray_popup.add_button(' not in tray_text,
+        "resident popup must not expose a duplicate AI Control Center button",
+        failures,
+    )
+    assert_true(
+        'append(90, "AI Control Center"' not in tray_text,
+        "native tray menu must not expose a duplicate AI Control Center command",
+        failures,
+    )
 
     for token in (
         "class ResidentAccessSettingsDialog",

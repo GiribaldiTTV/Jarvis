@@ -7368,16 +7368,23 @@ def run_validation():
         f"initialized={tray_identity_result['initialized']}",
     )
     checks["tray_identity_tooltip"] = line_status(
-        tray_identity_result["tooltip"] == "Nexus Desktop AI",
+        tray_identity_result["tooltip"].startswith("Nexus Desktop AI - ")
+        and "Provider-visible data: none" in tray_identity_result["tooltip"],
         f"tooltip={tray_identity_result['tooltip']}",
     )
     action_texts = tray_identity_result["action_texts"]
-    expected_resident_prefixes = (
-        ["Nexus Desktop AI", "Enable HUD Feature", "Open HUD Dashboard"],
-        ["Nexus Desktop AI", "AI Control Center", "Enable HUD Feature", "Open HUD Dashboard"],
-    )
     checks["tray_identity_menu_header"] = line_status(
-        any(action_texts[: len(prefix)] == prefix for prefix in expected_resident_prefixes),
+        bool(action_texts)
+        and action_texts[0].startswith("Nexus Desktop AI - ")
+        and "Provider-visible data: none" in action_texts[0],
+        f"action_texts={action_texts}",
+    )
+    checks["tray_ai_control_center_duplicate_absent"] = line_status(
+        "AI Control Center" not in action_texts,
+        f"action_texts={action_texts}",
+    )
+    checks["tray_ai_status_command_center_present"] = line_status(
+        "AI Status / Command Center" in action_texts,
         f"action_texts={action_texts}",
     )
     checks["tray_exit_action_present"] = line_status(

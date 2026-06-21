@@ -72,32 +72,56 @@ class TrayCommandPopup(QWidget):
         self.owner = owner
         self.setWindowTitle("Nexus Desktop AI Tray")
         self.setObjectName("nexusDesktopTrayPopup")
+        self.setMinimumWidth(320)
         self._command_buttons = []
         self.setStyleSheet(
             "#nexusDesktopTrayPopup {"
-            " background: #ffffff;"
-            " border: 1px solid #bababa;"
+            " background: #07111f;"
+            " border: 1px solid #25636c;"
+            " border-radius: 6px;"
             "}"
-            "QLabel {"
-            " color: #202124;"
-            " padding: 5px 10px;"
+            "#nexusDesktopTrayIdentity {"
+            " color: #f8fafc;"
+            " font-size: 12px;"
+            " min-height: 18px;"
+            " padding: 7px 10px 2px 10px;"
+            "}"
+            "#nexusDesktopTrayStatus {"
+            " background: #082f49;"
+            " border: 1px solid #38bdf8;"
+            " border-radius: 5px;"
+            " color: #e0f2fe;"
+            " font-size: 12px;"
+            " margin: 2px 8px 7px 8px;"
+            " min-height: 34px;"
+            " padding: 6px 8px;"
             "}"
             "QPushButton {"
-            " background: transparent;"
-            " border: none;"
-            " color: #202124;"
-            " min-height: 24px;"
-            " padding: 4px 12px;"
+            " background: #0f172a;"
+            " border: 1px solid transparent;"
+            " border-radius: 5px;"
+            " color: #f8fafc;"
+            " min-height: 26px;"
+            " padding: 5px 12px;"
             " text-align: left;"
             "}"
             "QPushButton:hover {"
-            " background: #e8f0fe;"
+            " background: #173b52;"
+            " border-color: #38bdf8;"
+            "}"
+            "QPushButton:focus {"
+            " border-color: #7dd3fc;"
+            "}"
+            "QPushButton:pressed {"
+            " background: #0f766e;"
             "}"
             "QPushButton:disabled {"
-            " color: #8a8f98;"
+            " background: #101827;"
+            " border-color: #1f2937;"
+            " color: #64748b;"
             "}"
             "QFrame {"
-            " background: #d7d7d7;"
+            " background: #244454;"
             " max-height: 1px;"
             " min-height: 1px;"
             "}"
@@ -106,13 +130,16 @@ class TrayCommandPopup(QWidget):
         self.layout.setContentsMargins(4, 4, 4, 4)
         self.layout.setSpacing(1)
         identity = QLabel(f"{TRAY_IDENTITY_LABEL} / {TRAY_ORIN_MARK_LABEL}", self)
+        identity.setObjectName("nexusDesktopTrayIdentity")
         identity.setAccessibleName(TRAY_IDENTITY_LABEL)
         identity_font = QFont("Segoe UI")
         identity_font.setWeight(QFont.DemiBold)
         identity.setFont(identity_font)
         self.layout.addWidget(identity)
         self.resident_status_label = QLabel("", self)
+        self.resident_status_label.setObjectName("nexusDesktopTrayStatus")
         self.resident_status_label.setAccessibleName("Resident access status")
+        self.resident_status_label.setWordWrap(True)
         self.layout.addWidget(self.resident_status_label)
         self.add_separator()
 
@@ -233,12 +260,6 @@ class DesktopTrayEntry:
             self.tray_menu.addAction(self.identity_action)
             self.tray_menu.addSeparator()
 
-            self.ai_control_center_action = self._add_button_action(
-                "AI Control Center",
-                self.request_ai_control_center_from_tray,
-            )
-            self.tray_menu.addSeparator()
-
             self.monitoring_hud_primary_action = self._add_button_action(
                 "Enable HUD Feature",
                 self.request_monitoring_hud_toggle_from_tray,
@@ -306,11 +327,6 @@ class DesktopTrayEntry:
         self.resident_status_label = self.tray_popup.resident_status_label
         self.monitoring_hud_status_label = QLabel("HUD Dashboard Closed", self.tray_popup)
         self.monitoring_hud_status_label.setAccessibleName("HUD Dashboard status")
-        self.ai_control_center_button = self.tray_popup.add_button(
-            "AI Control Center",
-            self.request_ai_control_center_from_tray,
-        )
-        self.tray_popup.add_separator()
         self.tray_popup.layout.addWidget(self.monitoring_hud_status_label)
         self.monitoring_hud_primary_button = self.tray_popup.add_button(
             "Enable HUD Feature",
@@ -470,7 +486,7 @@ class DesktopTrayEntry:
                 flags = MF_STRING if enabled else (MF_STRING | MF_GRAYED)
                 user32.AppendMenuW(menu, flags, int(command_id), ctypes.c_wchar_p(text))
 
-            append(90, "AI Control Center", True)
+            append(80, self._native_menu_status_text(resident_plan), False)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append(100, feature_text, True)
             if feature_enabled:
@@ -519,7 +535,6 @@ class DesktopTrayEntry:
 
     def _dispatch_native_menu_command(self, command_id):
         commands = {
-            90: self.request_ai_control_center_from_tray,
             100: self.request_monitoring_hud_toggle_from_tray,
             101: self.request_monitoring_hud_dashboard_from_tray,
             102: self.request_monitoring_hud_unanchor_from_tray,
@@ -594,6 +609,32 @@ class DesktopTrayEntry:
 
     def request_ai_status_from_tray(self, source):
         self._emit(f"RENDERER_MAIN|TRAY_AI_STATUS_REQUESTED|source={source}")
+        command_center_handler = getattr(self.window, "show_ai_control_center_from_tray", None)
+        if callable(command_center_handler):
+            result = command_center_handler(source=source)
+            if isinstance(result, dict):
+                route_visible = bool(
+                    result.get("shown")
+                    or result.get("visible")
+                    or (result.get("qtVisible") and result.get("nativeVisible"))
+                )
+                route_reason = str(result.get("reason") or "route_not_visible")
+            else:
+                route_visible = result is True
+                route_reason = "route_not_visible"
+            if route_visible:
+                self._emit(
+                    "RENDERER_MAIN|TRAY_AI_STATUS_COMMAND_CENTER_ROUTED"
+                    f"|source={source}|owner=FAM-007|route=fam007-ai-control-center"
+                    "|provider_visible_data=none|provider_execution=blocked"
+                )
+                self.refresh_resident_access_actions(source)
+                return
+            self._emit(
+                "RENDERER_MAIN|TRAY_AI_STATUS_COMMAND_CENTER_UNAVAILABLE"
+                f"|source={source}|reason={route_reason}"
+            )
+
         handler = getattr(self.window, "request_ai_status_from_resident_access", None)
         if callable(handler):
             handler(source=source)
@@ -740,12 +781,20 @@ class DesktopTrayEntry:
             return self._command_overlay_action_text()
         return str(route.get("label", "Quick Access") if isinstance(route, dict) else "Quick Access")
 
+    def _native_menu_status_text(self, plan):
+        status = str(plan.get("statusLabel") if isinstance(plan, dict) else "").strip()
+        if not status:
+            status = "AI local/no provider; Provider-visible data: none"
+        return f"{TRAY_IDENTITY_LABEL} - {status.rstrip('.')}"
+
     def refresh_resident_access_actions(self, source="runtime"):
         if not self.quick_slot_actions and not self.quick_slot_buttons:
             return
 
         plan = self._resident_access_plan()
         status_label = str(plan.get("statusLabel") or "Ready - AI local/no provider")
+        if self.identity_action is not None:
+            self._set_action_text(self.identity_action, self._native_menu_status_text(plan))
         if self.resident_status_label is not None:
             self.resident_status_label.setText(status_label)
             self.resident_status_label.setAccessibleName(status_label)

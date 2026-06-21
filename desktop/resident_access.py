@@ -16,7 +16,8 @@ from typing import Iterable
 RESIDENT_ACCESS_SETTINGS_SCHEMA_VERSION = "resident-access-settings.v1"
 TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
 TRAY_ORIN_MARK_LABEL = "ORIN"
-TRAY_TOOLTIP_TEXT = TRAY_IDENTITY_LABEL
+RESIDENT_STATUS_LOCAL_NO_PROVIDER = "AI local/no provider; Provider-visible data: none"
+TRAY_TOOLTIP_TEXT = f"{TRAY_IDENTITY_LABEL} - {RESIDENT_STATUS_LOCAL_NO_PROVIDER}"
 TRAY_DISCOVERY_DURATION_MS = 4500
 WINDOWS_TRAY_VISIBILITY_LIMITATION = (
     "Windows controls whether app notification icons stay pinned or move under hidden icons. "
@@ -27,7 +28,6 @@ TRAY_DISCOVERY_MESSAGE = (
     "If you do not see the icon, open hidden icons (^). "
     + WINDOWS_TRAY_VISIBILITY_LIMITATION
 )
-RESIDENT_STATUS_LOCAL_NO_PROVIDER = "Ready - AI local/no provider; provider-visible data: none."
 DEFAULT_QUICK_SLOT_ROUTE_IDS = (
     "command_overlay",
     "create_custom_task",
@@ -329,6 +329,13 @@ def build_ai_privacy_summary(ai_provider_state: dict[str, object] | None = None)
     }
 
 
+def build_tray_tooltip_text(ai_summary: dict[str, str] | None = None) -> str:
+    ai_summary = ai_summary if isinstance(ai_summary, dict) else {}
+    compact_status = str(ai_summary.get("compactLabel") or RESIDENT_STATUS_LOCAL_NO_PROVIDER).strip()
+    compact_status = compact_status.rstrip(".")
+    return f"{TRAY_IDENTITY_LABEL} - {compact_status}"
+
+
 def build_resident_access_menu_plan(
     *,
     settings: ResidentAccessSettings | None = None,
@@ -345,7 +352,7 @@ def build_resident_access_menu_plan(
         "schemaVersion": RESIDENT_ACCESS_SETTINGS_SCHEMA_VERSION,
         "identityLabel": TRAY_IDENTITY_LABEL,
         "orinMarkLabel": TRAY_ORIN_MARK_LABEL,
-        "tooltipText": TRAY_TOOLTIP_TEXT,
+        "tooltipText": build_tray_tooltip_text(ai_summary),
         "statusLabel": ai_summary["compactLabel"],
         "windowsTrayVisibilityLimitation": WINDOWS_TRAY_VISIBILITY_LIMITATION,
         "menuBudget": {

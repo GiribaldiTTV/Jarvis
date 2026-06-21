@@ -924,6 +924,7 @@ class ResidentAccessSettingsDialog(QDialog):
         ):
             button = QPushButton(label, nav)
             button.setAccessibleName(f"Settings section: {label}")
+            button.setToolTip(f"Open the {label} settings section.")
             button.setCheckable(True)
             button.clicked.connect(lambda _checked=False, focus_id=focus_id: self.set_focus(focus_id))
             self._nav_buttons[focus_id] = button
@@ -964,10 +965,12 @@ class ResidentAccessSettingsDialog(QDialog):
         quick_header.addStretch(1)
         self.add_slot_button = QPushButton("Add Slot", self.quick_slot_container)
         self.add_slot_button.setAccessibleName("Add Quick Access Slot")
+        self.add_slot_button.setToolTip("Add one compact quick-access slot.")
         self.add_slot_button.clicked.connect(self._add_slot)
         quick_header.addWidget(self.add_slot_button)
         self.reset_slots_button = QPushButton("Reset", self.quick_slot_container)
         self.reset_slots_button.setAccessibleName("Reset Quick Access Slots")
+        self.reset_slots_button.setToolTip("Restore the default quick-access slots.")
         self.reset_slots_button.clicked.connect(self._reset_slots)
         quick_header.addWidget(self.reset_slots_button)
         quick_slot_layout.addLayout(quick_header)
@@ -990,22 +993,25 @@ class ResidentAccessSettingsDialog(QDialog):
         footer.addStretch(1)
         self.apply_button = QPushButton("Apply", content_shell)
         self.apply_button.setAccessibleName("Apply Resident Access Settings")
+        self.apply_button.setToolTip("Save Resident Access quick-slot settings.")
         self.apply_button.clicked.connect(self._save_settings)
         footer.addWidget(self.apply_button)
         self.close_button = QPushButton("Close", content_shell)
         self.close_button.setAccessibleName("Close Resident Access Settings")
+        self.close_button.setToolTip("Close Global Settings.")
         self.close_button.clicked.connect(self.accept)
         footer.addWidget(self.close_button)
         content_layout.addLayout(footer)
 
         self.setStyleSheet(
             "#residentAccessSettingsShell {"
-            " background: #f7f8fb;"
-            " border: 1px solid #c9d1d9;"
+            " background: #07111f;"
+            " border: 1px solid #25636c;"
             " border-radius: 8px;"
             "}"
             "#residentAccessSettingsChromeBar {"
-            " background: #111827;"
+            " background: #101b2d;"
+            " border-bottom: 1px solid #244454;"
             " border-top-left-radius: 8px;"
             " border-top-right-radius: 8px;"
             "}"
@@ -1015,52 +1021,122 @@ class ResidentAccessSettingsDialog(QDialog):
             " background: transparent;"
             " border: none;"
             "}"
+            "#residentAccessSettingsChromeClose:hover, #residentAccessSettingsChromeClose:focus {"
+            " background: #173348;"
+            " border: 1px solid #66d9e8;"
+            " border-radius: 4px;"
+            "}"
+            "#residentAccessSettingsChromeClose:pressed {"
+            " background: #7f1d1d;"
+            " color: #ffffff;"
+            "}"
             "#residentAccessSettingsNav {"
-            " background: #ffffff;"
-            " border: 1px solid #d8dee6;"
+            " background: #0b1727;"
+            " border: 1px solid #1f3c4a;"
             " border-radius: 6px;"
             "}"
             "#residentAccessSettingsNav QPushButton {"
-            " border: none;"
-            " color: #202124;"
+            " background: transparent;"
+            " border: 1px solid transparent;"
+            " color: #c7d2fe;"
             " padding: 8px 10px;"
             " text-align: left;"
             " border-radius: 4px;"
             "}"
+            "#residentAccessSettingsNav QPushButton:hover {"
+            " background: #10243b;"
+            " border-color: #2f6371;"
+            " color: #f8fafc;"
+            "}"
+            "#residentAccessSettingsNav QPushButton:focus {"
+            " border-color: #7dd3fc;"
+            " color: #ffffff;"
+            "}"
+            "#residentAccessSettingsNav QPushButton:pressed {"
+            " background: #164e63;"
+            "}"
             "#residentAccessSettingsNav QPushButton:checked {"
-            " background: #dff5ef;"
-            " color: #064e3b;"
+            " background: #0f766e;"
+            " border-color: #5eead4;"
+            " color: #f8fafc;"
             "}"
             "#residentAccessSettingsContentShell {"
-            " background: #ffffff;"
-            " border: 1px solid #d8dee6;"
+            " background: #0f172a;"
+            " border: 1px solid #25435a;"
             " border-radius: 6px;"
             "}"
             "#residentAccessSettingsHeading {"
-            " color: #111827;"
+            " color: #f8fafc;"
             " font-size: 20px;"
             " font-weight: 700;"
             "}"
             "#residentAccessSettingsSubheading {"
-            " color: #202124;"
+            " color: #dbeafe;"
             " font-size: 13px;"
             " font-weight: 700;"
             "}"
             "#residentAccessSettingsDetail, #residentAccessSettingsRouteSummary {"
-            " color: #3c4043;"
+            " color: #b6c5d8;"
             " line-height: 1.25;"
             "}"
             "#residentAccessSettingsStatus {"
-            " background: #f0f7ff;"
-            " color: #12324a;"
-            " border: 1px solid #c7ddf5;"
+            " background: #082f49;"
+            " color: #e0f2fe;"
+            " border: 1px solid #38bdf8;"
             " border-radius: 6px;"
             " padding: 8px;"
             "}"
-            "#residentAccessQuickSlotContainer QPushButton, #residentAccessSettingsContentShell > QPushButton {"
+            "#residentAccessQuickSlotContainer QLabel {"
+            " color: #dbeafe;"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton, #residentAccessSettingsContentShell QPushButton {"
+            " background: #132238;"
+            " color: #e5f0ff;"
+            " border: 1px solid #2b4d63;"
+            " border-radius: 5px;"
+            " padding: 4px 12px;"
             " min-height: 28px;"
             "}"
-            "QComboBox { min-height: 28px; }"
+            "#residentAccessQuickSlotContainer QPushButton:hover, #residentAccessSettingsContentShell QPushButton:hover {"
+            " background: #173b52;"
+            " border-color: #38bdf8;"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton:focus, #residentAccessSettingsContentShell QPushButton:focus {"
+            " border-color: #7dd3fc;"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton:pressed, #residentAccessSettingsContentShell QPushButton:pressed {"
+            " background: #0f766e;"
+            " color: #ffffff;"
+            "}"
+            "#residentAccessQuickSlotContainer QPushButton:disabled, #residentAccessSettingsContentShell QPushButton:disabled {"
+            " background: #101827;"
+            " color: #64748b;"
+            " border-color: #1f2937;"
+            "}"
+            "QComboBox {"
+            " background: #0b1220;"
+            " color: #f8fafc;"
+            " border: 1px solid #2b4d63;"
+            " border-radius: 5px;"
+            " padding: 4px 30px 4px 8px;"
+            " min-height: 28px;"
+            "}"
+            "QComboBox:hover { border-color: #38bdf8; }"
+            "QComboBox:focus { border-color: #7dd3fc; }"
+            "QComboBox:disabled { color: #64748b; background: #101827; border-color: #1f2937; }"
+            "QComboBox::drop-down {"
+            " width: 24px;"
+            " border-left: 1px solid #2b4d63;"
+            " background: #10243b;"
+            "}"
+            "QComboBox QAbstractItemView {"
+            " background: #0b1220;"
+            " color: #f8fafc;"
+            " border: 1px solid #38bdf8;"
+            " selection-background-color: #0f766e;"
+            " selection-color: #ffffff;"
+            " outline: none;"
+            "}"
         )
 
         self._rebuild_quick_slot_rows()
@@ -1134,6 +1210,7 @@ class ResidentAccessSettingsDialog(QDialog):
             row_layout.addWidget(slot_label)
             combo = QComboBox(row)
             combo.setAccessibleName(f"Quick Access Slot {index + 1} Route")
+            combo.setToolTip(f"Select the route for quick-access slot {index + 1}.")
             combo.setMinimumWidth(280)
             for route in candidates:
                 combo.addItem(self._route_label(route), route.route_id)
@@ -1144,16 +1221,19 @@ class ResidentAccessSettingsDialog(QDialog):
             row_layout.addWidget(combo, 1)
             up_button = QPushButton("Up", row)
             up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
+            up_button.setToolTip(f"Move quick-access slot {index + 1} up.")
             up_button.setEnabled(index > 0)
             up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
             row_layout.addWidget(up_button)
             down_button = QPushButton("Down", row)
             down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
+            down_button.setToolTip(f"Move quick-access slot {index + 1} down.")
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             row_layout.addWidget(down_button)
             remove_button = QPushButton("Remove", row)
             remove_button.setAccessibleName(f"Remove Quick Access Slot {index + 1}")
+            remove_button.setToolTip(f"Remove quick-access slot {index + 1}.")
             remove_button.setEnabled(len(selected_ids) > 1)
             remove_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             row_layout.addWidget(remove_button)
@@ -1215,6 +1295,19 @@ class ResidentAccessSettingsDialog(QDialog):
         )
         self._refresh_text(saved=True)
 
+    def _status_banner_text(self, status: str, visible_data: str, privacy: str) -> str:
+        parts: list[str] = []
+        combined = ""
+        for value in (status, visible_data, privacy):
+            text = str(value or "").strip().rstrip(".")
+            if not text:
+                continue
+            if text.casefold() in combined.casefold():
+                continue
+            parts.append(text)
+            combined = ". ".join(parts)
+        return ". ".join(parts) + "." if parts else "AI local/no provider. Provider-visible data: none."
+
     def _refresh_text(self, saved: bool = False):
         plan = self._plan()
         ai_privacy = plan.get("aiPrivacy") if isinstance(plan.get("aiPrivacy"), dict) else {}
@@ -1222,7 +1315,9 @@ class ResidentAccessSettingsDialog(QDialog):
         visible_data = str(ai_privacy.get("providerVisibleDataLabel") or "Provider-visible data: none")
         privacy = str(ai_privacy.get("privacyLabel") or "Local shell only; nothing is sent")
         route_count = len(plan.get("quickSlots", ()) or ())
-        self.status_summary.setText(f"{status} {visible_data}. {privacy}.")
+        status_banner_text = self._status_banner_text(status, visible_data, privacy)
+        self.status_summary.setText(status_banner_text)
+        self.status_summary.setAccessibleName(status_banner_text)
         suffix = " Settings saved." if saved else ""
 
         if self._focus == "ai_status":
