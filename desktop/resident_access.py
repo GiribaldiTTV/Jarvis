@@ -42,6 +42,67 @@ IMMUTABLE_ROUTE_IDS = (
     "privacy_lockdown",
     "exit_nexus",
 )
+OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE = "enabled_available"
+OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED = "enabled_temporarily_blocked"
+OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED = "enabled_errored"
+OPTIONAL_FEATURE_ROUTE_ENABLED_NOT_READY = "enabled_not_ready"
+OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER = "disabled_by_user"
+OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED = "not_installed"
+OPTIONAL_FEATURE_ROUTE_UNSUPPORTED = "unsupported"
+OPTIONAL_FEATURE_ROUTE_UNKNOWN = "unknown"
+OPTIONAL_FEATURE_ROUTE_VISIBLE_ENABLED_STATES = (OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE,)
+OPTIONAL_FEATURE_ROUTE_VISIBLE_DISABLED_STATES = (
+    OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED,
+    OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED,
+    OPTIONAL_FEATURE_ROUTE_ENABLED_NOT_READY,
+)
+OPTIONAL_FEATURE_ROUTE_HIDDEN_STATES = (
+    OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER,
+    OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED,
+    OPTIONAL_FEATURE_ROUTE_UNSUPPORTED,
+    OPTIONAL_FEATURE_ROUTE_UNKNOWN,
+)
+OPTIONAL_FEATURE_ROUTE_STATES = (
+    OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE,
+    *OPTIONAL_FEATURE_ROUTE_VISIBLE_DISABLED_STATES,
+    *OPTIONAL_FEATURE_ROUTE_HIDDEN_STATES,
+)
+_OPTIONAL_FEATURE_ROUTE_STATE_ALIASES = {
+    "available": OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE,
+    "enabled": OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE,
+    "enabled_available": OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE,
+    "enabled_and_available": OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE,
+    "blocked": OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED,
+    "temporarily_blocked": OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED,
+    "temporarily_unavailable": OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED,
+    "enabled_blocked": OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED,
+    "enabled_temporarily_blocked": OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED,
+    "error": OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED,
+    "errored": OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED,
+    "enabled_error": OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED,
+    "enabled_errored": OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED,
+    "not_ready": OPTIONAL_FEATURE_ROUTE_ENABLED_NOT_READY,
+    "enabled_not_ready": OPTIONAL_FEATURE_ROUTE_ENABLED_NOT_READY,
+    "disabled": OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER,
+    "user_disabled": OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER,
+    "disabled_by_user": OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER,
+    "opted_out": OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER,
+    "not_installed": OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED,
+    "missing": OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED,
+    "uninstalled": OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED,
+    "unsupported": OPTIONAL_FEATURE_ROUTE_UNSUPPORTED,
+    "unknown": OPTIONAL_FEATURE_ROUTE_UNKNOWN,
+}
+_OPTIONAL_FEATURE_ROUTE_DEFAULT_REASONS = {
+    OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE: "",
+    OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED: "HUD is temporarily unavailable",
+    OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED: "HUD reported an error",
+    OPTIONAL_FEATURE_ROUTE_ENABLED_NOT_READY: "HUD is not ready yet",
+    OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER: "HUD is off in settings",
+    OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED: "HUD is not installed",
+    OPTIONAL_FEATURE_ROUTE_UNSUPPORTED: "HUD is unsupported on this device",
+    OPTIONAL_FEATURE_ROUTE_UNKNOWN: "HUD route state is not confirmed",
+}
 
 
 @dataclass(frozen=True)
@@ -91,9 +152,9 @@ ROUTE_CATALOG: tuple[ResidentAccessRoute, ...] = (
         "hud_dashboard",
         "HUD Dashboard",
         "FAM-006",
-        "available-through-existing-hud-route",
+        "state-dependent-optional-owner-route",
         "owner-surface",
-        "Routes to the FAM-006 HUD Dashboard without taking ownership of HUD internals.",
+        "Routes to the FAM-006 HUD Dashboard only when the optional HUD route is admitted by state.",
         immutable=True,
     ),
     ResidentAccessRoute(
@@ -292,6 +353,78 @@ def _payload_value(payload: dict[str, object] | None, *keys: str, default: str =
     return default
 
 
+def _normalize_route_state_token(value: object) -> str:
+    return str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+
+
+def normalize_optional_feature_route_state(
+    raw_state: object = None,
+    *,
+    feature_enabled: bool | None = None,
+) -> str:
+    token = _normalize_route_state_token(raw_state)
+    if token in _OPTIONAL_FEATURE_ROUTE_STATE_ALIASES:
+        return _OPTIONAL_FEATURE_ROUTE_STATE_ALIASES[token]
+    if feature_enabled is True:
+        return OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE
+    if feature_enabled is False:
+        return OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER
+    return OPTIONAL_FEATURE_ROUTE_UNKNOWN
+
+
+def _bounded_optional_feature_reason(route_state: str, reason: object = None) -> str:
+    text = str(reason or "").strip().replace("|", "/").replace("\r", " ").replace("\n", " ")
+    if not text:
+        text = _OPTIONAL_FEATURE_ROUTE_DEFAULT_REASONS.get(route_state, "Route state is not confirmed")
+    return text[:96]
+
+
+def build_optional_feature_route_state_model(
+    *,
+    raw_state: object = None,
+    feature_enabled: bool | None = None,
+    reason: object = None,
+) -> dict[str, object]:
+    route_state = normalize_optional_feature_route_state(raw_state, feature_enabled=feature_enabled)
+    visible_enabled = route_state in OPTIONAL_FEATURE_ROUTE_VISIBLE_ENABLED_STATES
+    visible_disabled = route_state in OPTIONAL_FEATURE_ROUTE_VISIBLE_DISABLED_STATES
+    visible = visible_enabled or visible_disabled
+    return {
+        "routeState": route_state,
+        "visibleInActiveMenu": visible,
+        "enabledInActiveMenu": visible_enabled,
+        "disabledWithReason": visible_disabled,
+        "ownerBoundedReason": _bounded_optional_feature_reason(route_state, reason),
+    }
+
+
+def build_monitoring_hud_route_model(monitoring_hud_state: dict[str, object] | None = None) -> dict[str, object]:
+    state = monitoring_hud_state if isinstance(monitoring_hud_state, dict) else {}
+    feature_enabled = bool(state.get("feature_enabled")) if "feature_enabled" in state else None
+    raw_state = _payload_value(
+        state,
+        "resident_route_state",
+        "route_state",
+        "dashboard_route_state",
+        "availability_state",
+        default="",
+    )
+    reason = _payload_value(
+        state,
+        "resident_route_reason",
+        "route_reason",
+        "dashboard_route_reason",
+        "availability_reason",
+        "reason",
+        default="",
+    )
+    return build_optional_feature_route_state_model(
+        raw_state=raw_state,
+        feature_enabled=feature_enabled,
+        reason=reason,
+    )
+
+
 def build_ai_privacy_summary(ai_provider_state: dict[str, object] | None = None) -> dict[str, str]:
     provider_label = _payload_value(
         ai_provider_state,
@@ -347,6 +480,7 @@ def build_resident_access_menu_plan(
     ai_summary = build_ai_privacy_summary(ai_provider_state)
     quick_slots = configured_quick_slot_routes(settings)
     hud_state = monitoring_hud_state if isinstance(monitoring_hud_state, dict) else {}
+    hud_route = build_monitoring_hud_route_model(hud_state)
     overlay_state = command_overlay_state if isinstance(command_overlay_state, dict) else {}
     return {
         "schemaVersion": RESIDENT_ACCESS_SETTINGS_SCHEMA_VERSION,
@@ -365,6 +499,11 @@ def build_resident_access_menu_plan(
             "featureEnabled": bool(hud_state.get("feature_enabled")),
             "dashboardVisible": bool(hud_state.get("dashboard_visible")),
             "overlayDeferred": hud_state.get("overlay_deferred", True) is not False,
+            "routeState": hud_route["routeState"],
+            "visibleInActiveMenu": hud_route["visibleInActiveMenu"],
+            "enabledInActiveMenu": hud_route["enabledInActiveMenu"],
+            "disabledWithReason": hud_route["disabledWithReason"],
+            "ownerBoundedReason": hud_route["ownerBoundedReason"],
         },
         "commandOverlay": {
             "visible": bool(overlay_state.get("visible")),

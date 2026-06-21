@@ -20,6 +20,7 @@ from .resident_access import (
     TRAY_IDENTITY_LABEL,
     TRAY_ORIN_MARK_LABEL,
     TRAY_TOOLTIP_TEXT,
+    build_monitoring_hud_route_model,
     build_resident_access_menu_plan,
 )
 
@@ -261,8 +262,8 @@ class DesktopTrayEntry:
             self.tray_menu.addSeparator()
 
             self.monitoring_hud_primary_action = self._add_button_action(
-                "Enable HUD Feature",
-                self.request_monitoring_hud_toggle_from_tray,
+                "HUD Feature Settings",
+                self.request_global_settings_from_tray,
             )
             self.monitoring_hud_dashboard_action = self._add_button_action(
                 "Open HUD Dashboard",
@@ -329,8 +330,8 @@ class DesktopTrayEntry:
         self.monitoring_hud_status_label.setAccessibleName("HUD Dashboard status")
         self.tray_popup.layout.addWidget(self.monitoring_hud_status_label)
         self.monitoring_hud_primary_button = self.tray_popup.add_button(
-            "Enable HUD Feature",
-            self.request_monitoring_hud_toggle_from_tray,
+            "HUD Feature Settings",
+            self.request_global_settings_from_tray,
         )
         self.monitoring_hud_dashboard_button = self.tray_popup.add_button(
             "Open HUD Dashboard",
@@ -473,12 +474,14 @@ class DesktopTrayEntry:
             WM_NULL = 0x0000
 
             state = self._monitoring_hud_state()
+            hud_route = self._monitoring_hud_route_model(state)
+            hud_route_visible = bool(hud_route.get("visibleInActiveMenu"))
+            hud_route_enabled = bool(hud_route.get("enabledInActiveMenu"))
             feature_enabled = bool(state.get("feature_enabled"))
-            dashboard_visible = bool(state.get("dashboard_visible"))
+            dashboard_visible = bool(state.get("dashboard_visible")) and hud_route_enabled
             overlay_deferred = state.get("overlay_deferred", True) is not False
             overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
-            feature_text = "Disable HUD Feature" if feature_enabled else "Enable HUD Feature"
-            dashboard_text = "Close HUD Dashboard" if dashboard_visible else "Open HUD Dashboard"
+            dashboard_text = self._monitoring_hud_dashboard_menu_text(state, hud_route)
             resident_plan = self._resident_access_plan()
             quick_slots = list(resident_plan.get("quickSlots", ()) or [])
 
@@ -488,11 +491,15 @@ class DesktopTrayEntry:
 
             append(80, self._native_menu_status_text(resident_plan), False)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
-            append(100, feature_text, True)
-            if feature_enabled:
-                append(101, dashboard_text, True)
-            append(102, "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay", feature_enabled and overlay_anchor_enabled)
-            user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+            if hud_route_visible:
+                append(101, dashboard_text, hud_route_enabled)
+                if hud_route_enabled:
+                    append(
+                        102,
+                        "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay",
+                        feature_enabled and overlay_anchor_enabled,
+                    )
+                user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append(110, "Global Settings", True)
             append(120, "AI Status / Command Center", True)
             append(130, "Privacy Lockdown", True)
@@ -535,7 +542,6 @@ class DesktopTrayEntry:
 
     def _dispatch_native_menu_command(self, command_id):
         commands = {
-            100: self.request_monitoring_hud_toggle_from_tray,
             101: self.request_monitoring_hud_dashboard_from_tray,
             102: self.request_monitoring_hud_unanchor_from_tray,
             110: self.request_global_settings_from_tray,
@@ -742,7 +748,29 @@ class DesktopTrayEntry:
             "dashboard_visible": False,
             "overlay_deferred": True,
             "overlay_anchor_enabled": False,
+            "resident_route_state": "unknown",
+            "resident_route_reason": "HUD route state is not confirmed",
         }
+
+    def _monitoring_hud_route_model(self, state=None):
+        return build_monitoring_hud_route_model(state if isinstance(state, dict) else self._monitoring_hud_state())
+
+    def _monitoring_hud_dashboard_menu_text(self, state, route_model):
+        dashboard_visible = bool(state.get("dashboard_visible")) and bool(route_model.get("enabledInActiveMenu"))
+        if dashboard_visible:
+            return "Close HUD Dashboard"
+        if bool(route_model.get("disabledWithReason")):
+            reason = str(route_model.get("ownerBoundedReason") or "HUD is not ready yet").strip()
+            return f"Open HUD Dashboard - {reason}"
+        return "Open HUD Dashboard"
+
+    def _monitoring_hud_status_text(self, state, route_model):
+        if not bool(route_model.get("visibleInActiveMenu")):
+            return ""
+        if bool(route_model.get("enabledInActiveMenu")):
+            return "HUD Dashboard Open" if bool(state.get("dashboard_visible")) else "HUD Dashboard Ready"
+        reason = str(route_model.get("ownerBoundedReason") or "HUD is not ready yet").strip()
+        return f"HUD Dashboard unavailable - {reason}"
 
     def _command_overlay_state(self):
         provider = getattr(self.window, "command_overlay_state", None)
@@ -857,51 +885,38 @@ class DesktopTrayEntry:
         ):
             return
         state = self._monitoring_hud_state()
+        hud_route = self._monitoring_hud_route_model(state)
+        hud_route_visible = bool(hud_route.get("visibleInActiveMenu"))
+        hud_route_enabled = bool(hud_route.get("enabledInActiveMenu"))
+        hud_route_state = str(hud_route.get("routeState") or "unknown")
         feature_enabled = bool(state.get("feature_enabled"))
-        dashboard_visible = bool(state.get("dashboard_visible"))
+        dashboard_visible = bool(state.get("dashboard_visible")) and hud_route_enabled
         overlay_deferred = state.get("overlay_deferred", True) is not False
         overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
-        open_enabled = feature_enabled and not dashboard_visible
-        close_enabled = feature_enabled and dashboard_visible
+        open_enabled = hud_route_enabled and not dashboard_visible
+        close_enabled = hud_route_enabled and dashboard_visible
         command_overlay_visible = self._command_overlay_visible()
         command_overlay_text = "Close Command Overlay" if command_overlay_visible else "Open Command Overlay"
 
-        if not feature_enabled:
-            self._set_action_text(self.monitoring_hud_primary_action, "Enable HUD Feature")
-            self._set_button_text(self.monitoring_hud_primary_button, "Enable HUD Feature")
-            self._set_action_text(self.monitoring_hud_dashboard_action, "Open HUD Dashboard")
-            self._set_button_text(self.monitoring_hud_dashboard_button, "Open HUD Dashboard")
-            self._set_label_text_visible(
-                self.monitoring_hud_status_label,
-                "HUD Dashboard Closed",
-                False,
-            )
-        elif dashboard_visible:
-            self._set_action_text(self.monitoring_hud_primary_action, "Disable HUD Feature")
-            self._set_button_text(self.monitoring_hud_primary_button, "Disable HUD Feature")
-            self._set_action_text(self.monitoring_hud_dashboard_action, "Close HUD Dashboard")
-            self._set_button_text(self.monitoring_hud_dashboard_button, "Close HUD Dashboard")
-            self._set_label_text_visible(
-                self.monitoring_hud_status_label,
-                "HUD Dashboard Open",
-                True,
-            )
-        else:
-            self._set_action_text(self.monitoring_hud_primary_action, "Disable HUD Feature")
-            self._set_button_text(self.monitoring_hud_primary_button, "Disable HUD Feature")
-            self._set_action_text(self.monitoring_hud_dashboard_action, "Open HUD Dashboard")
-            self._set_button_text(self.monitoring_hud_dashboard_button, "Open HUD Dashboard")
-            self._set_label_text_visible(
-                self.monitoring_hud_status_label,
-                "HUD Dashboard Closed",
-                True,
-            )
-        self._set_action_enabled(self.monitoring_hud_primary_action, True)
-        self._set_button_enabled(self.monitoring_hud_primary_button, True)
-        self._set_action_visible(self.monitoring_hud_dashboard_action, feature_enabled)
-        self._set_action_enabled(self.monitoring_hud_dashboard_action, feature_enabled)
-        self._set_button_visible(self.monitoring_hud_dashboard_button, feature_enabled)
-        self._set_button_enabled(self.monitoring_hud_dashboard_button, feature_enabled)
+        self._set_action_text(self.monitoring_hud_primary_action, "HUD Feature Settings")
+        self._set_button_text(self.monitoring_hud_primary_button, "HUD Feature Settings")
+        self._set_action_visible(self.monitoring_hud_primary_action, False)
+        self._set_button_visible(self.monitoring_hud_primary_button, False)
+        self._set_action_enabled(self.monitoring_hud_primary_action, False)
+        self._set_button_enabled(self.monitoring_hud_primary_button, False)
+
+        dashboard_text = self._monitoring_hud_dashboard_menu_text(state, hud_route)
+        self._set_action_text(self.monitoring_hud_dashboard_action, dashboard_text)
+        self._set_button_text(self.monitoring_hud_dashboard_button, dashboard_text)
+        self._set_action_visible(self.monitoring_hud_dashboard_action, hud_route_visible)
+        self._set_action_enabled(self.monitoring_hud_dashboard_action, hud_route_enabled)
+        self._set_button_visible(self.monitoring_hud_dashboard_button, hud_route_visible)
+        self._set_button_enabled(self.monitoring_hud_dashboard_button, hud_route_enabled)
+        self._set_label_text_visible(
+            self.monitoring_hud_status_label,
+            self._monitoring_hud_status_text(state, hud_route),
+            hud_route_visible,
+        )
         self._set_action_text(
             self.monitoring_hud_unanchor_action,
             "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay",
@@ -912,18 +927,23 @@ class DesktopTrayEntry:
         )
         self._set_action_enabled(
             self.monitoring_hud_unanchor_action,
-            feature_enabled and overlay_anchor_enabled,
+            hud_route_enabled and overlay_anchor_enabled,
         )
         self._set_button_enabled(
             self.monitoring_hud_unanchor_button,
-            feature_enabled and overlay_anchor_enabled,
+            hud_route_enabled and overlay_anchor_enabled,
         )
+        self._set_action_visible(self.monitoring_hud_unanchor_action, hud_route_enabled)
+        self._set_button_visible(self.monitoring_hud_unanchor_button, hud_route_enabled)
         if self.open_overlay_action is not None:
             self._set_action_text(self.open_overlay_action, command_overlay_text)
         self._set_button_text(self.open_overlay_button, command_overlay_text)
         self._emit(
             "RENDERER_MAIN|TRAY_MONITORING_HUD_ACTIONS_REFRESHED"
             f"|source={source}"
+            f"|route_state={hud_route_state}"
+            f"|route_visible={str(hud_route_visible).lower()}"
+            f"|route_enabled={str(hud_route_enabled).lower()}"
             f"|feature_enabled={str(feature_enabled).lower()}"
             f"|dashboard_visible={str(dashboard_visible).lower()}"
             f"|dashboard_action_enabled={str((open_enabled or close_enabled)).lower()}"
@@ -948,27 +968,43 @@ class DesktopTrayEntry:
             QTimer.singleShot(80, lambda: guard(False, source="tray_menu_about_to_hide"))
 
     def request_monitoring_hud_toggle_from_tray(self, source):
-        self._emit(f"RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REQUESTED|source={source}")
-        self.window.request_monitoring_hud_toggle_from_tray(source=source)
+        self._emit(
+            "RENDERER_MAIN|TRAY_MONITORING_HUD_TOGGLE_REDIRECTED"
+            f"|source={source}|reason=settings_owned_optional_feature_configuration"
+        )
+        self.request_global_settings_from_tray(source)
         self.refresh_resident_access_actions(source)
         self.refresh_monitoring_hud_actions(source)
 
     def request_monitoring_hud_primary_from_tray(self, source):
         state = self._monitoring_hud_state()
-        feature_enabled = bool(state.get("feature_enabled"))
-        dashboard_visible = bool(state.get("dashboard_visible"))
-        if not feature_enabled:
-            self.request_monitoring_hud_toggle_from_tray(source)
+        hud_route = self._monitoring_hud_route_model(state)
+        if not bool(hud_route.get("enabledInActiveMenu")):
+            self.request_global_settings_from_tray(source)
             return
+        dashboard_visible = bool(state.get("dashboard_visible"))
         self.request_monitoring_hud_dashboard_from_tray(source, visible=not dashboard_visible)
 
     def request_monitoring_hud_dashboard_from_tray(self, source, visible=None):
         state = self._monitoring_hud_state()
-        feature_enabled = bool(state.get("feature_enabled"))
-        dashboard_visible = bool(state.get("dashboard_visible"))
-        if not feature_enabled:
+        hud_route = self._monitoring_hud_route_model(state)
+        route_state = str(hud_route.get("routeState") or "unknown")
+        route_visible = bool(hud_route.get("visibleInActiveMenu"))
+        route_enabled = bool(hud_route.get("enabledInActiveMenu"))
+        dashboard_visible = bool(state.get("dashboard_visible")) and route_enabled
+        if not route_visible:
             self._emit(
-                f"RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED|source={source}|reason=feature_disabled"
+                "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED"
+                f"|source={source}|reason=route_hidden|route_state={route_state}"
+            )
+            self.refresh_resident_access_actions(source)
+            self.refresh_monitoring_hud_actions(source)
+            return
+        if not route_enabled:
+            reason = str(hud_route.get("ownerBoundedReason") or "HUD is not ready yet").replace("|", "/")
+            self._emit(
+                "RENDERER_MAIN|TRAY_MONITORING_HUD_DASHBOARD_ABORTED"
+                f"|source={source}|reason=route_unavailable|route_state={route_state}|owner_reason={reason}"
             )
             self.refresh_resident_access_actions(source)
             self.refresh_monitoring_hud_actions(source)
@@ -990,6 +1026,15 @@ class DesktopTrayEntry:
 
     def request_monitoring_hud_unanchor_from_tray(self, source):
         state = self._monitoring_hud_state()
+        hud_route = self._monitoring_hud_route_model(state)
+        if not bool(hud_route.get("enabledInActiveMenu")):
+            self._emit(
+                "RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_DEFERRED"
+                f"|source={source}|reason=route_unavailable|route_state={hud_route.get('routeState', 'unknown')}"
+            )
+            self.refresh_resident_access_actions(source)
+            self.refresh_monitoring_hud_actions(source)
+            return
         if state.get("overlay_deferred", True) is not False:
             self._emit(
                 f"RENDERER_MAIN|TRAY_MONITORING_HUD_UNANCHOR_DEFERRED|source={source}|reason=overlay_deferred"

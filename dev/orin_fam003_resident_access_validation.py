@@ -28,10 +28,20 @@ def validate_resident_model(failures: list[str]):
         DEFAULT_QUICK_SLOT_ROUTE_IDS,
         IMMUTABLE_ROUTE_IDS,
         MAX_QUICK_SLOT_COUNT,
+        OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER,
+        OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE,
+        OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED,
+        OPTIONAL_FEATURE_ROUTE_ENABLED_NOT_READY,
+        OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED,
+        OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED,
+        OPTIONAL_FEATURE_ROUTE_UNKNOWN,
+        OPTIONAL_FEATURE_ROUTE_UNSUPPORTED,
         TRAY_DISCOVERY_MESSAGE,
         TRAY_IDENTITY_LABEL,
         TRAY_TOOLTIP_TEXT,
         WINDOWS_TRAY_VISIBILITY_LIMITATION,
+        build_monitoring_hud_route_model,
+        build_optional_feature_route_state_model,
         build_resident_access_menu_plan,
         normalize_resident_access_settings,
     )
@@ -62,6 +72,17 @@ def validate_resident_model(failures: list[str]):
         failures,
     )
     assert_true(route_owner.get("hud_dashboard") == "FAM-006", "HUD Dashboard owner must remain FAM-006", failures)
+    assert_true(
+        plan["hudState"]["routeState"] == OPTIONAL_FEATURE_ROUTE_UNKNOWN,
+        f"default missing HUD route state must hide as unknown optional route: {plan['hudState']}",
+        failures,
+    )
+    assert_true(
+        plan["hudState"]["visibleInActiveMenu"] is False
+        and plan["hudState"]["enabledInActiveMenu"] is False,
+        f"default HUD route must be hidden from active menu: {plan['hudState']}",
+        failures,
+    )
     assert_true(
         route_owner.get("ai_status_command_center") == "FAM-007",
         "AI Status / Command Center owner must remain FAM-007",
@@ -142,6 +163,64 @@ def validate_resident_model(failures: list[str]):
     )
     assert_true(normalized.menu_budget == 5, "quick-slot menu budget did not clamp to five", failures)
 
+    state_matrix = {
+        OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE: (True, True),
+        OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED: (True, False),
+        OPTIONAL_FEATURE_ROUTE_ENABLED_ERRORED: (True, False),
+        OPTIONAL_FEATURE_ROUTE_ENABLED_NOT_READY: (True, False),
+        OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER: (False, False),
+        OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED: (False, False),
+        OPTIONAL_FEATURE_ROUTE_UNSUPPORTED: (False, False),
+        OPTIONAL_FEATURE_ROUTE_UNKNOWN: (False, False),
+    }
+    for state_id, (expected_visible, expected_enabled) in state_matrix.items():
+        model = build_optional_feature_route_state_model(
+            raw_state=state_id,
+            feature_enabled=state_id.startswith("enabled"),
+            reason="Owner-bounded reason",
+        )
+        assert_true(
+            model["visibleInActiveMenu"] is expected_visible
+            and model["enabledInActiveMenu"] is expected_enabled,
+            f"optional feature state model drifted for {state_id}: {model}",
+            failures,
+        )
+
+    for state_id in (
+        OPTIONAL_FEATURE_ROUTE_DISABLED_BY_USER,
+        OPTIONAL_FEATURE_ROUTE_NOT_INSTALLED,
+        OPTIONAL_FEATURE_ROUTE_UNSUPPORTED,
+        OPTIONAL_FEATURE_ROUTE_UNKNOWN,
+    ):
+        hud_model = build_monitoring_hud_route_model(
+            {
+                "feature_enabled": False,
+                "resident_route_state": state_id,
+                "resident_route_reason": "Owner-bounded reason",
+            }
+        )
+        assert_true(
+            hud_model["visibleInActiveMenu"] is False,
+            f"HUD {state_id} must hide tray/menu rows: {hud_model}",
+            failures,
+        )
+
+    blocked_hud_model = build_monitoring_hud_route_model(
+        {
+            "feature_enabled": True,
+            "resident_route_state": OPTIONAL_FEATURE_ROUTE_ENABLED_TEMPORARILY_BLOCKED,
+            "resident_route_reason": "Dashboard is warming up",
+        }
+    )
+    assert_true(
+        blocked_hud_model["visibleInActiveMenu"] is True
+        and blocked_hud_model["enabledInActiveMenu"] is False
+        and blocked_hud_model["disabledWithReason"] is True
+        and blocked_hud_model["ownerBoundedReason"] == "Dashboard is warming up",
+        f"temporarily blocked HUD route must show disabled with reason: {blocked_hud_model}",
+        failures,
+    )
+
 
 def validate_static_wiring(failures: list[str]):
     tray_text = read("desktop/tray_controller.py")
@@ -157,6 +236,10 @@ def validate_static_wiring(failures: list[str]):
     for token in (
         "build_resident_tray_icon",
         "TRAY_RESIDENT_ACCESS_TRAY_ICON_READY",
+        "_monitoring_hud_route_model",
+        "_monitoring_hud_dashboard_menu_text",
+        "route_hidden",
+        "route_unavailable",
         "request_global_settings_from_tray",
         "request_ai_status_from_tray",
         "TRAY_AI_STATUS_COMMAND_CENTER_ROUTED",
@@ -181,6 +264,17 @@ def validate_static_wiring(failures: list[str]):
     assert_true(
         'append(90, "AI Control Center"' not in tray_text,
         "native tray menu must not expose a duplicate AI Control Center command",
+        failures,
+    )
+    assert_true(
+        'append(100, "Enable HUD Feature"' not in tray_text
+        and "append(100, feature_text" not in tray_text,
+        "native tray menu must not expose a forced Enable HUD Feature row",
+        failures,
+    )
+    assert_true(
+        "settings_owned_optional_feature_configuration" in tray_text,
+        "tray HUD toggle fallback must redirect to settings-owned optional feature configuration",
         failures,
     )
 

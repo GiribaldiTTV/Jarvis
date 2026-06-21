@@ -716,6 +716,16 @@ def main():
                     return {"error": f"{type(exc).__name__}: {exc}"}
             return {"error": "monitoring_hud_feature_state unavailable"}
 
+        def visible_tray_action_texts():
+            try:
+                return [
+                    action.text()
+                    for action in tray_entry.tray_menu.actions()
+                    if not action.isSeparator() and action.isVisible()
+                ]
+            except Exception:
+                return []
+
         def record_step(step_id, title, ok, detail, proof_class="active-client-tray-precheck"):
             steps.append(
                 {
@@ -766,21 +776,36 @@ def main():
             initial_state = current_state()
             record_step(
                 "launch_settled_tray_available",
-                "Desktop shortcut runtime settled with tray available",
-                tray_entry.tray_icon is not None and not bool(initial_state.get("feature_enabled")),
-                "tray icon exists and HUD feature starts disabled",
+                "Desktop shortcut runtime settled with tray available and USER-disabled HUD rows hidden",
+                tray_entry.tray_icon is not None
+                and not bool(initial_state.get("feature_enabled"))
+                and "Open HUD Dashboard" not in visible_tray_action_texts()
+                and "HUD Overlay Deferred" not in visible_tray_action_texts(),
+                (
+                    "tray icon exists, HUD feature starts disabled, "
+                    f"visible_actions={visible_tray_action_texts()}"
+                ),
             )
 
-            tray_entry.request_monitoring_hud_toggle_from_tray("real_client_precheck_enable")
+            settings_setup = getattr(window, "_set_monitoring_hud_feature_enabled", None)
+            if callable(settings_setup):
+                settings_setup(True, source="real_client_precheck_settings_setup")
+            tray_entry.refresh_monitoring_hud_actions("real_client_precheck_settings_setup")
             pump(700)
             enabled_state = current_state()
             record_step(
-                "enable_hud_opens_dashboard",
-                "Tray Enable HUD Feature opens the real HUD Dashboard",
+                "settings_setup_admits_hud_route",
+                "Settings/setup-owned HUD admission makes the dashboard route available for tray proof",
                 bool(enabled_state.get("feature_enabled"))
-                and bool(enabled_state.get("dashboard_visible"))
-                and bool(window.isVisible()),
-                f"feature_enabled={enabled_state.get('feature_enabled')} dashboard_visible={enabled_state.get('dashboard_visible')} window_visible={window.isVisible()}",
+                and (
+                    "Open HUD Dashboard" in visible_tray_action_texts()
+                    or "Close HUD Dashboard" in visible_tray_action_texts()
+                ),
+                (
+                    f"feature_enabled={enabled_state.get('feature_enabled')} "
+                    f"dashboard_visible={enabled_state.get('dashboard_visible')} "
+                    f"window_visible={window.isVisible()} visible_actions={visible_tray_action_texts()}"
+                ),
             )
 
             tray_entry.request_monitoring_hud_dashboard_from_tray("real_client_precheck_close")
@@ -807,17 +832,26 @@ def main():
                 f"feature_enabled={reopened_state.get('feature_enabled')} dashboard_visible={reopened_state.get('dashboard_visible')} window_visible={window.isVisible()}",
             )
 
-            tray_entry.request_monitoring_hud_toggle_from_tray("real_client_precheck_disable")
+            if callable(settings_setup):
+                settings_setup(False, source="real_client_precheck_settings_disable")
+            tray_entry.refresh_monitoring_hud_actions("real_client_precheck_settings_disable")
             pump(500)
             disabled_state = current_state()
             record_step(
-                "disable_hud_recovers",
-                "Tray Disable HUD Feature hides Dashboard and leaves runtime recoverable",
+                "settings_disable_hides_hud_rows",
+                "Settings/setup-owned HUD disable hides HUD rows and leaves runtime recoverable",
                 not bool(disabled_state.get("feature_enabled"))
                 and not bool(disabled_state.get("dashboard_visible"))
                 and not bool(window.isVisible())
+                and "Open HUD Dashboard" not in visible_tray_action_texts()
+                and "HUD Overlay Deferred" not in visible_tray_action_texts()
                 and not shutdown_started,
-                f"feature_enabled={disabled_state.get('feature_enabled')} dashboard_visible={disabled_state.get('dashboard_visible')} window_visible={window.isVisible()} shutdown_started={shutdown_started}",
+                (
+                    f"feature_enabled={disabled_state.get('feature_enabled')} "
+                    f"dashboard_visible={disabled_state.get('dashboard_visible')} "
+                    f"window_visible={window.isVisible()} shutdown_started={shutdown_started} "
+                    f"visible_actions={visible_tray_action_texts()}"
+                ),
             )
 
             tray_entry.request_shutdown_from_tray("real_client_precheck_exit")
