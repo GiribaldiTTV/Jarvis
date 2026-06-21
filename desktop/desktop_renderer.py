@@ -5775,18 +5775,19 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
-MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "nexus-hud-standalone-studio-window-v1"
-MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "hud-dashboard-chrome-rows-buttons-density"
-MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "standalone-window-shared-fam006-visual-dna"
+MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "ai-control-center-reference-derived-studio-window-v2"
+MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "ai-control-center-uiref-001-002-003-primitives"
+MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "ai-control-center-reference-derived-equivalent-primitives"
 MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "photo-video-comparison-required"
 MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY = "photo-video-comparison-not-runtime-self-attestation"
 MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE = "declared-not-proven-by-runtime"
-MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR = "hud-button-family-sampled-requires-photo-adjudication"
-MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "contiguous-dark-glass-window-body-requires-photo-adjudication"
+MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR = "ai-control-center-uiref-003-button-equivalent-requires-photo-adjudication"
+MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "ai-control-center-uiref-001-top-level-frame-equivalent-requires-photo-adjudication"
 MONITORING_HUD_STUDIO_REFERENCE_SURFACES = (
-    "HUD Dashboard",
-    "Overlay Profile Settings",
-    "Manage Monitors",
+    "AI Control Center",
+    "UIREF-001 Top-Level Window Frame",
+    "UIREF-002 Compact Window Control Cluster",
+    "UIREF-003 Control State And Selector Grammar",
 )
 
 
@@ -5891,6 +5892,20 @@ def _monitoring_hud_studio_row(
     return row
 
 
+def _monitoring_hud_ai_control_center_primitive_contract() -> dict[str, str]:
+    return {
+        "implementationAuthority": "Reference-Derived Implementation",
+        "primaryReference": "nexus_visual/ai_control_center.html",
+        "acceptedReferenceSet": "UIREF-001|UIREF-002|UIREF-003|FAM-002",
+        "windowFrame": "top-level-dark-glass-rounded-frame-ai-control-center-equivalent",
+        "windowControls": "compact-pill-symbol-controls-ai-control-center-equivalent",
+        "actionButtons": "monitoring-hud-control-button-hub-action-equivalent",
+        "rows": "compact-separated-state-rows-ai-control-center-density",
+        "header": "title-group-card-ai-control-center-equivalent",
+        "proofRule": "photo-video-comparison-required; runtime-marker-is-supporting-evidence-only",
+    }
+
+
 def _monitoring_hud_prepare_studio_button(
     button: QPushButton,
     *,
@@ -5919,14 +5934,20 @@ def _monitoring_hud_prepare_studio_button(
         "controlStateProof",
         "default-hover-focus-pressed-disabled-keyboard-accessible",
     )
+    button.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
     if compact_window_control:
         button.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-002-window-control-button")
+        button.setProperty("primitiveRole", "window-control-cluster-button")
+    else:
+        button.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-003-action-button")
+        button.setProperty("primitiveRole", "primary-secondary-action-button")
 
 
 def _monitoring_hud_studio_window_control_cluster(parent: QWidget) -> QFrame:
     cluster = QFrame(parent)
     cluster.setProperty("role", "studioWindowControls")
     cluster.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-002-window-control-cluster")
+    cluster.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
     layout = QHBoxLayout(cluster)
     layout.setContentsMargins(2, 2, 2, 2)
     layout.setSpacing(2)
@@ -5944,6 +5965,8 @@ def _monitoring_hud_studio_button_proof(button: QPushButton) -> dict[str, object
         "keyboardReachable": button.focusPolicy() == Qt.StrongFocus,
         "controlStateProof": str(button.property("controlStateProof") or ""),
         "sharedPrimitiveSeed": str(button.property("sharedPrimitiveSeed") or ""),
+        "visualPrimitiveAuthority": str(button.property("visualPrimitiveAuthority") or ""),
+        "primitiveRole": str(button.property("primitiveRole") or ""),
         "width": button.width(),
         "height": button.height(),
     }
@@ -6190,15 +6213,15 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             letter-spacing: 0px;
         }}
         QFrame[role="studioShell"] {{
-            background: qradialgradient(cx:0.18, cy:0.10, radius:0.55, fx:0.18, fy:0.10, stop:0 rgba(116, 240, 255, 0.055), stop:0.58 rgba(5, 23, 39, 0.985), stop:1 rgba(2, 10, 20, 0.985));
-            border: 1px solid rgba(122, 232, 255, 0.26);
-            border-radius: 8px;
+            background: qradialgradient(cx:0.18, cy:0.10, radius:0.72, fx:0.18, fy:0.10, stop:0 rgba(116, 240, 255, 0.070), stop:0.46 rgba(5, 23, 39, 0.985), stop:1 rgba(2, 10, 20, 0.992));
+            border: 1px solid rgba(122, 232, 255, 0.28);
+            border-radius: 20px;
             color: rgba(235, 252, 255, 0.96);
         }}
         QFrame[role="studioHeader"] {{
-            background: transparent;
-            border: none;
-            border-radius: 0px;
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.62), stop:1 rgba(3, 18, 32, 0.68));
+            border: 1px solid rgba(122, 232, 255, 0.22);
+            border-radius: 16px;
         }}
         QFrame[role="studioWindowControls"] {{
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.70), stop:1 rgba(3, 18, 32, 0.76));
@@ -6209,7 +6232,7 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
         QFrame[role="studioPanel"] {{
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(6, 28, 48, 0.74), stop:1 rgba(3, 18, 32, 0.70));
             border: 1px solid rgba(117, 228, 255, 0.18);
-            border-radius: 8px;
+            border-radius: 16px;
         }}
         QFrame[role="studioRow"] {{
             background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 rgba(117, 228, 255, 0.050), stop:0.17 rgba(117, 228, 255, 0.027), stop:0.52 rgba(117, 228, 255, 0.008), stop:1 transparent);
@@ -6268,8 +6291,8 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             color: rgba(255, 194, 138, 0.92);
         }}
         QPushButton {{
-            min-height: 20px;
-            max-height: 20px;
+            min-height: 38px;
+            max-height: 38px;
             padding: 8px 20px;
             border: 1px solid rgba(117, 228, 255, 0.22);
             border-radius: 19px;
@@ -6292,8 +6315,8 @@ def _monitoring_hud_studio_stylesheet(object_name: str) -> str:
             letter-spacing: 0em;
         }}
         QPushButton[actionRole="studioAction"] {{
-            min-height: 20px;
-            max-height: 20px;
+            min-height: 38px;
+            max-height: 38px;
         }}
         QPushButton:hover {{
             border-color: rgba(126, 248, 218, 0.56);
@@ -6379,9 +6402,11 @@ class MonitoringHudRecordingStudioWindow(QWidget):
 
         header_frame = QFrame(self._shell)
         header_frame.setProperty("role", "studioHeader")
+        header_frame.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-001-title-group")
+        header_frame.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
         self._drag_surface = header_frame
         header = QHBoxLayout(header_frame)
-        header.setContentsMargins(0, 0, 0, 0)
+        header.setContentsMargins(14, 10, 12, 10)
         header.setSpacing(12)
         header_text = QVBoxLayout()
         header_text.setSpacing(2)
@@ -6419,6 +6444,8 @@ class MonitoringHudRecordingStudioWindow(QWidget):
 
         status_panel = QFrame(self._shell)
         status_panel.setProperty("role", "studioPanel")
+        status_panel.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-003-compact-state-row-panel")
+        status_panel.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
         status = QVBoxLayout(status_panel)
         status.setContentsMargins(14, 10, 14, 10)
         status.setSpacing(0)
@@ -6662,6 +6689,12 @@ class MonitoringHudRecordingStudioWindow(QWidget):
             "closeControlProof": _monitoring_hud_studio_button_proof(self._close),
             "windowControlCluster": "UIREF-002-compact-window-control-cluster",
             "windowControlVisibleTextPolicy": "compact-symbol-visible-accessible-label-tooltip",
+            "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
+            "referenceTemplatePrimitiveClassification": "Reference-Derived Implementation",
+            "primaryVisualComparator": "AI Control Center",
+            "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
+            "headerPrimitiveSeed": str(self._drag_surface.property("sharedPrimitiveSeed") or ""),
+            "panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel",
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
@@ -6755,9 +6788,11 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
 
         header_frame = QFrame(self._shell)
         header_frame.setProperty("role", "studioHeader")
+        header_frame.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-001-title-group")
+        header_frame.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
         self._drag_surface = header_frame
         header = QHBoxLayout(header_frame)
-        header.setContentsMargins(0, 0, 0, 0)
+        header.setContentsMargins(14, 10, 12, 10)
         header.setSpacing(12)
         header_text = QVBoxLayout()
         header_text.setSpacing(2)
@@ -6795,6 +6830,8 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
 
         folder_panel = QFrame(self._shell)
         folder_panel.setProperty("role", "studioPanel")
+        folder_panel.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-003-compact-state-row-panel")
+        folder_panel.setProperty("visualPrimitiveAuthority", "AI-Control-Center-Reference-Derived")
         folder_layout = QVBoxLayout(folder_panel)
         folder_layout.setContentsMargins(14, 10, 14, 10)
         folder_layout.setSpacing(0)
@@ -7035,6 +7072,12 @@ class MonitoringHudLogViewerStudioWindow(QWidget):
             "closeControlProof": _monitoring_hud_studio_button_proof(self._close),
             "windowControlCluster": "UIREF-002-compact-window-control-cluster",
             "windowControlVisibleTextPolicy": "compact-symbol-visible-accessible-label-tooltip",
+            "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
+            "referenceTemplatePrimitiveClassification": "Reference-Derived Implementation",
+            "primaryVisualComparator": "AI Control Center",
+            "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
+            "headerPrimitiveSeed": str(self._drag_surface.property("sharedPrimitiveSeed") or ""),
+            "panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel",
             "nativeFolderPreSessionUsable": True,
             "exportFolderPreSessionUsable": True,
             "nativeLogRoot": native_root,
