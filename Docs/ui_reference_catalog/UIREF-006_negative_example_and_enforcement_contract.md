@@ -13,7 +13,7 @@ Applicable Surface Classes: `USER review packets, BP1/BP2/BP3 planning packets, 
 
 Non-Applicable Surface Classes: `Runtime UI implementation, external operational state ledgers, GitHub issue mutation, and FAM worktree adoption work unless separately approved.`
 
-Required Element Groups: `bad examples, missing-proof examples, overclaim examples, template/golden-reference inference failures, weak visual proof, duplicate screenshot proof, helper false-green findings, validator guidance, and USER visual-judgment escalation.`
+Required Element Groups: `bad examples, missing-proof examples, overclaim examples, reference/template/primitive inference failures, weak visual proof, duplicate screenshot proof, helper false-green findings, validator guidance, and USER visual-judgment escalation.`
 
 Required States: `candidate-only, promoted, waived with reason, rejected, deferred to owning FAM, future helper/validator enforcement, blocked, and PR-ready after blocker clearance.`
 
