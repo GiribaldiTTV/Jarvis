@@ -56,7 +56,7 @@ Sibling Worktree Candidate Exclusion: `FAM-006, FAM-007, FAM-008, Governance, ne
 
 Selected Implementation Route: `FAM-003 Resident Access And Quick Actions`
 Implementation Route Class: `FAM-003 user-facing desktop interaction doorway and menu contract`
-Carrier Purpose: `Prepare a coherent future planning lane for the primary Nexus resident doorway, compact status/tooltip, small menu, immutable core entries, configurable quick-access slots, minimal Global Settings foundation/window for Resident Access / Quick Access configuration, cross-family launch routing contract, and honest Windows tray visibility limitation wording/proof.`
+Carrier Purpose: `Prepare a coherent future planning lane for the primary Nexus resident doorway, compact status/tooltip, small menu, state-dependent core/status/optional route contract, configurable quick-access slots, minimal Global Settings foundation/window for Resident Access / Quick Access configuration, cross-family launch routing contract, and honest Windows tray visibility limitation wording/proof.`
 Route Selection Basis: `The USER approved creating the FAM-003 branch/worktree from current origin/main and source truth already contains the USER-approved F3-FF01 family feature vision for Nexus Resident Access And Quick Actions.`
 Branch Planning Route Receipt: `Future movement must pass BP1 USER Branch Vision Review, BP2 USER Branch Plan Review, BP3 Workstream Entry / Orchestration Validation, and separate runtime implementation approval before source implementation.`
 
@@ -110,3 +110,10 @@ Out-Of-Scope Settings Work: `Full app-wide Global Settings implementation, other
 Branch Carrier Decision: `Keep feature/fam-003-resident-access-quick-actions as the legal FAM-003 carrier; do not retarget, rename, split, create a separate Global Settings branch, or create a separate tray/AI branch from this receipt.`
 Traceability Owner: `C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions\branch_plan.md`
 USER Review Aid: `C:\Nexus USER\FAM-003\Review Aids\GLOBAL_SETTINGS_SCOPE_CORRECTION_DIGEST.md`
+
+## Optional Feature Route Visibility Source-Truth Repair Receipt
+
+Repair Status: `Durable source-truth pointer only - active RAR state remains in external operational state`
+Repair Scope: `F3-FF01 and FAM-003 family vision now clarify that immutable/unremovable resident routes mean stable identity/order/behavior when admitted or enabled, not forced visibility after USER opt-out. Optional feature doorways are state-dependent: enabled-and-available routes show enabled, enabled-but-temporarily-blocked/error/not-ready routes may show disabled with owner-bounded reason, USER-disabled/not-installed/unsupported routes hide from active tray/menu UI, and unknown state routes avoid overclaiming by routing to settings or owner status.`
+HUD Route Rule: `HUD Dashboard is an optional FAM-006-owned resident doorway from FAM-003's perspective. Open HUD Dashboard is visible when HUD is enabled/admitted and hidden when USER disables HUD or HUD is not installed/unsupported. Enable HUD Feature belongs in settings/setup or another source-truth-approved re-enable path; HUD Overlay Deferred is state/explanation, not a replacement dashboard doorway.`
+Traceability Owner: `C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions\branch_plan.md`
