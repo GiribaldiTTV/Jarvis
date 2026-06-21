@@ -767,6 +767,28 @@ def validate() -> list[str]:
     ):
         _require_contains(hud_section, needle, "monitoring HUD HTML", failures)
 
+    _require(
+        html.count('data-window-control-class="child-window-compact-symbol-close"') >= 6,
+        "FAM-006 child-window header close controls must use the compact symbol window-control marker",
+        failures,
+    )
+    for child_close_visual in (
+        ".monitoring-hud__child-window-close::before",
+        ".monitoring-hud__child-window-close::after",
+        "color: transparent;",
+        "font-size: 0;",
+        "text-indent: -999px;",
+        ".monitoring-hud__child-window-close:hover",
+        ".monitoring-hud__child-window-close:focus-visible",
+        ".monitoring-hud__child-window-close:active",
+    ):
+        _require_contains(
+            css,
+            child_close_visual,
+            "FAM-006 child-window compact symbol close visual primitive CSS",
+            failures,
+        )
+
     for interactive_control_markup in (
         'id="monitoring-hud-monitor-detail-note"',
         'id="monitoring-hud-monitor-detail-actions"',

@@ -1710,9 +1710,72 @@ body.desktop-mode .monitoring-hud__child-window--overlay-profile[data-overlay-pr
 .monitoring-hud__child-window-close {
   position: relative;
   z-index: 5;
-  padding: 8px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  min-width: 34px;
+  max-width: 34px;
+  height: 30px;
+  min-height: 30px;
+  max-height: 30px;
+  padding: 0;
   flex: 0 0 auto;
   pointer-events: auto;
+  border-color: rgba(122, 232, 255, 0.36);
+  background:
+    linear-gradient(180deg, rgba(10, 49, 74, 0.78), rgba(6, 24, 39, 0.9)),
+    rgba(5, 22, 36, 0.84);
+  color: transparent;
+  font-size: 0;
+  letter-spacing: 0;
+  text-indent: -999px;
+  box-shadow:
+    0 0 18px rgba(95, 221, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -10px 18px rgba(2, 12, 22, 0.24);
+}
+
+.monitoring-hud__child-window-close::before,
+.monitoring-hud__child-window-close::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(235, 252, 255, 0.94);
+  box-shadow: 0 0 8px rgba(122, 232, 255, 0.26);
+  transform-origin: center;
+}
+
+.monitoring-hud__child-window-close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.monitoring-hud__child-window-close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.monitoring-hud__child-window-close:hover,
+.monitoring-hud__child-window-close:focus-visible {
+  border-color: rgba(122, 232, 255, 0.72);
+  background:
+    linear-gradient(180deg, rgba(16, 64, 92, 0.92), rgba(8, 34, 54, 0.96)),
+    rgba(7, 30, 48, 0.9);
+  box-shadow:
+    0 0 22px rgba(95, 221, 255, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    inset 0 -10px 18px rgba(2, 12, 22, 0.22);
+  outline: none;
+}
+
+.monitoring-hud__child-window-close:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 0 12px rgba(95, 221, 255, 0.16),
+    inset 0 0 14px rgba(0, 0, 0, 0.24);
 }
 
 .monitoring-hud__child-window[data-hud-unsaved-state="open"] .monitoring-hud__child-window-close {
