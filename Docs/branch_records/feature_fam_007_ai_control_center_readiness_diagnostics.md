@@ -8,6 +8,8 @@ Receipt Class: `BR2 durable branch-admission receipt`
 
 Admission Summary: `USER approved FAM-007 Branch Readiness Stage 2 execution for the fresh successor carrier feature/fam-007-ai-control-center-readiness-diagnostics from origin/main@84a83adbba43c008a8ac39409c307e72f078e564 after v1.7.34-prebeta released PR #269. This record preserves the approved implementation-bearing route, source-truth owners, BP1 review posture, post-rebaseline adoption/compliance carry-ins, external-state pointers, and explicit non-includes. Live branch lifecycle, branch plan rows, worktree assignment truth, and review packet state belong to C:\Nexus Governance State, Git/GitHub/helper truth, and C:\Nexus USER.`
 
+Corrected Classification Receipt: `2026-06-21 USER rejected the prior runtime-carrier legality audit standard and approved repair. The active external branch state now classifies this carrier as bounded foundation / trust-readiness / diagnostic infrastructure, with no concrete USER-facing runtime feature delivered under the stricter classification gate. PR Readiness is blocked, BP hold is active, and BP1 / BP planning re-entry must identify the next concrete runtime carrier or receive explicit USER foundation-only PR consideration approval. The AI Control Center diagnostics/no-provider/status/trust-boundary work, validators, proof helpers, USER packet/UTS/LV evidence, and RAR/UIREF carry-ins are preserved as foundation evidence only, not feature completion.`
+
 ## Branch Identity
 
 - Branch: `feature/fam-007-ai-control-center-readiness-diagnostics`
