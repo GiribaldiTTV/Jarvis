@@ -98,6 +98,25 @@ The system should not rely on:
 - unexplained automation
 - accidental authority drift between launcher, renderer, planning docs, and user-facing reporting
 
+## NDAI Product Experience Contract
+
+Every Nexus feature, window, control, status surface, runtime behavior, assistant interaction, and proof path should preserve a product experience that is deterministic, intuitive, immersive, predictable, reliable, and consistent.
+
+These six qualities are project-wide product standards, not optional style preferences:
+
+- deterministic: the same visible state plus the same user action should produce the same result, with explicit state ownership, known inputs/outputs, no hidden surprise behavior, and a named exception when nondeterminism is intentional or unavoidable
+- intuitive: the USER should understand what a surface does, what state it is in, what actions are available or blocked, why they are available or blocked, what will happen next, and where to recover without needing developer knowledge
+- immersive: Nexus-owned surfaces should feel like one coherent NDAI product layer, not disconnected Windows utilities, mismatched branch-made widgets, generic native shells, or visually unrelated tools
+- predictable: controls, layouts, state labels, assistant responses, recovery paths, disabled paths, confirmation flows, geometry behavior, and handoff behavior should follow recognizable patterns across the product
+- reliable: the product should truthfully expose what works, what failed, what is unavailable, what is deferred, what is blocked, what can be retried, what needs setup, and what requires USER decision or waiver
+- consistent: same-class Nexus-owned elements should share visual grammar, placement logic, state behavior, proof expectations, and backend truth mapping across families and windows unless a source-truth owner records a deliberate USER-approved exception
+
+The contract applies to both visible product experience and supporting runtime truth. A visually polished surface that hides failed or unavailable backend state is not reliable. A backend path that works only through hidden state, branch-local assumptions, or inconsistent UI labels is not deterministic or intuitive. A control that looks unrelated to the accepted Nexus grammar breaks immersion and consistency even if it technically functions.
+
+Text labels, feature-specific data, and backend ownership may differ by family. The underlying control family, interaction grammar, state mapping, recovery behavior, and proof expectation should remain recognizable unless BP1/BP2/BP3 accepts a deliberate exception and defines how that exception will be proved.
+
+Family Vision, Family Feature Vision, Branch Vision, BP2/BP3 engineering plans, Workstream implementation, Hardening, Live Validation, UTS, PR Readiness, Release Readiness, and Rebaseline Adoption & Reconciliation must compare applicable claims against this contract. When a branch cannot prove one of these qualities for an in-scope feature, surface, runtime state, or assistant interaction, it must classify the result as repaired, waived by USER, deferred with owner/trigger/proof expectation, issue-candidate, source-truth gap, reference gap, or blocker instead of reporting green by validator output, screenshots, or prose alone.
+
 ## Project UI Vision
 
 Nexus UI should feel comfortable, reliable, futuristic, and understandable at the same time. It should make the user feel that the system is capable and alive without becoming noisy, cryptic, or fragile.

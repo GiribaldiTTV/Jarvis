@@ -95,6 +95,8 @@ Project Vision -> Family Vision -> Family Feature Vision -> Branch Vision Contra
 
 BP1 owns the branch-specific vision contract. It must state which source-truth vision layers were loaded, which Family Feature Vision or not-applicable reason applies, which durable elements are selected or deferred, and where the USER can inspect the branch's product outcome, surface map, options, recommendations, and unresolved questions.
 
+Project Vision includes the NDAI Product Experience Contract: deterministic, intuitive, immersive, predictable, reliable, and consistent. BP1 must summarize how the selected route is expected to preserve those qualities for in-scope user-facing behavior, runtime-visible state, assistant interaction, recovery behavior, and proof surfaces. BP2 must translate the applicable qualities into engineering/proof requirements. BP3, Workstream, Hardening, Live Validation, UTS, PR Readiness, Release Readiness, and RAR must compare observed or planned behavior against those accepted requirements instead of treating helper/validator green, marker presence, or attractive screenshots as sufficient proof.
+
 BP2 owns the engineering translation of the accepted or waived BP1 contract. It must map selected vision elements to Slice/SLC/seam deliverables, affected files/surfaces, validators/helpers, proof outputs, rollback, risks, and deferred/future-gated boundaries. BP2 is not allowed to become a new product vision owner by changing UI behavior, workflow, feature scope, or deferred-item disposition without returning to BP1 or recording an explicit USER waiver.
 
 BP3 owns orchestration readiness. It must prove the Workstream package implements the accepted or waived BP1/BP2 vision chain and must identify any missing vision layer, weak FFV sufficiency, unplanned deferred item, or unsupported proof path before Workstream implementation can be requested.
@@ -257,6 +259,7 @@ Runtime-focused plans must include:
 - Claim / Evidence Matrix:
 - Vision-To-Proof Matrix:
 - Merged Vision Standard Adoption Review:
+- NDAI Product Experience Contract Comparison:
 - RAR Stage:
 - Trigger Reason:
 - Source-Truth Files Loaded:
