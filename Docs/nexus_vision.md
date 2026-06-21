@@ -100,20 +100,41 @@ The system should not rely on:
 
 ## NDAI Product Experience Contract
 
-Every Nexus feature, window, control, status surface, runtime behavior, assistant interaction, and proof path should preserve a product experience that is deterministic, intuitive, immersive, predictable, reliable, and consistent.
+Every Nexus feature, window, control, status surface, runtime behavior, assistant interaction, and proof path should preserve a product experience that is deterministic, intuitive, immersive, predictable, reliable, and consistent. This contract applies to both the USER-facing experience and the implementation behavior behind it.
 
 These six qualities are project-wide product standards, not optional style preferences:
 
 - deterministic: the same visible state plus the same user action should produce the same result, with explicit state ownership, known inputs/outputs, no hidden surprise behavior, and a named exception when nondeterminism is intentional or unavoidable
 - intuitive: the USER should understand what a surface does, what state it is in, what actions are available or blocked, why they are available or blocked, what will happen next, and where to recover without needing developer knowledge
-- immersive: Nexus-owned surfaces should feel like one coherent NDAI product layer, not disconnected Windows utilities, mismatched branch-made widgets, generic native shells, or visually unrelated tools
+- immersive: Nexus-owned surfaces should feel like one coherent NDAI product layer, not disconnected Windows utilities, mismatched branch-made widgets, generic native shells, visually unrelated tools, or feature-specific one-off control systems
 - predictable: controls, layouts, state labels, assistant responses, recovery paths, disabled paths, confirmation flows, geometry behavior, and handoff behavior should follow recognizable patterns across the product
 - reliable: the product should truthfully expose what works, what failed, what is unavailable, what is deferred, what is blocked, what can be retried, what needs setup, and what requires USER decision or waiver
 - consistent: same-class Nexus-owned elements should share visual grammar, placement logic, state behavior, proof expectations, and backend truth mapping across families and windows unless a source-truth owner records a deliberate USER-approved exception
 
 The contract applies to both visible product experience and supporting runtime truth. A visually polished surface that hides failed or unavailable backend state is not reliable. A backend path that works only through hidden state, branch-local assumptions, or inconsistent UI labels is not deterministic or intuitive. A control that looks unrelated to the accepted Nexus grammar breaks immersion and consistency even if it technically functions.
 
-Text labels, feature-specific data, and backend ownership may differ by family. The underlying control family, interaction grammar, state mapping, recovery behavior, and proof expectation should remain recognizable unless BP1/BP2/BP3 accepts a deliberate exception and defines how that exception will be proved.
+Text labels, feature-specific data, feature-owned state payloads, and backend ownership may differ by family. The underlying control family, interaction grammar, state mapping, recovery behavior, and proof expectation should remain recognizable unless BP1/BP2/BP3 accepts a deliberate exception and defines how that exception will be proved.
+
+### Implementation And Experience Parity Standard
+
+Nexus should behave as one product. Same-class elements and same-purpose behaviors should be as identical as practical across the entire NDAI program, using shared primitives, shared templates, shared state-machine patterns, shared labels, shared failure/recovery grammar, and shared proof expectations when those owners exist.
+
+The expected parity is not blind copy/paste of every feature. It is product and implementation sameness where the USER experiences the same kind of thing:
+
+- a Nexus window frame should feel and behave like the Nexus window frame everywhere it appears
+- a close, minimize, back, settings, start, stop, retry, save, open-folder, select, dropdown, filter, toggle, list, status badge, warning, blocked-state, and recovery action should use the same visual grammar and interaction-state grammar unless an admitted source-truth exception says otherwise
+- a button should not silently change size, border language, hover glow, focus behavior, disabled style, typography, or placement logic simply because a different branch created it
+- a status line should not claim ready, blocked, unavailable, deferred, failed, or successful unless the backend/runtime truth that owns that state can prove the same meaning
+- a recovery or fallback action should follow the same user-understandable pattern across windows even when the feature-specific recovery code differs
+- an assistant or AI-facing status should separate implemented, not implemented, provider blocked, local-only, deferred, failed, and user-action-required states with the same plain-language trust posture across all relevant surfaces
+
+Backend and runtime parity means same-purpose product behavior should use comparable state ownership, inputs, outputs, lifecycle transitions, error/fallback/recovery routes, logging/proof hooks, and UI-visible status mapping. Different features may own different data, but they should not invent incompatible state names, hidden transitions, success semantics, retry behavior, or failure meanings for the same class of product action.
+
+USER-facing parity means same-class visual elements should match or intentionally inherit the accepted Nexus grammar for dimensions, spacing, border weight, glow, typography, color roles, icon/text treatment, hover/focus/pressed/disabled states, keyboard accessibility, tooltip/status wording, placement, and motion/transition behavior. If a template or promoted UI reference exists, the new element should consume it or explain why it cannot. If no template exists, the branch must compare against the best accepted Nexus reference and elevate any judgment-dependent differences for USER review.
+
+Immersion is explicit: the USER should be able to move between the AI Control Center, HUD Dashboard, Recording Studio, Log Viewer Studio, Global Settings, tray-opened surfaces, diagnostics/recovery surfaces, and future Nexus windows without feeling that each was built by a different product. A surface breaks immersion when it uses default Windows title bars for Nexus-owned product UI, mismatched control clusters, inconsistent button/card/list/dropdown grammar, unexplained status wording, hidden backend truth, or branch-specific styling that makes the USER relearn the product.
+
+Permitted differences must be deliberate, visible in the planning/proof chain, and bounded. A branch may vary content, domain-specific layout, density, feature-specific data, edition-specific copy, or platform-native surfaces when the difference improves clarity, trust, accessibility, or platform safety. The branch must name the exception, name the owner, explain the USER-facing reason, map the backend/runtime truth, and define the visual/proof comparison that will keep the exception from becoming drift.
 
 Family Vision, Family Feature Vision, Branch Vision, BP2/BP3 engineering plans, Workstream implementation, Hardening, Live Validation, UTS, PR Readiness, Release Readiness, and Rebaseline Adoption & Reconciliation must compare applicable claims against this contract. When a branch cannot prove one of these qualities for an in-scope feature, surface, runtime state, or assistant interaction, it must classify the result as repaired, waived by USER, deferred with owner/trigger/proof expectation, issue-candidate, source-truth gap, reference gap, or blocker instead of reporting green by validator output, screenshots, or prose alone.
 
