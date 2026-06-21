@@ -8,6 +8,7 @@
     [switch]$ActiveUserFacingClient,
     [switch]$PrepareLiveValidationUserTestSummary,
     [switch]$RecordingOptionCSelfQA,
+    [switch]$Rar3DProof,
     [switch]$SupplementalRuntimeProof,
     [switch]$UserConfirmedACSupplementProof,
     [string]$ProofSeam = "",
@@ -1632,8 +1633,8 @@ $pythonExe = ""
 $exitCode = 1
 $effectiveRunInteractionSelfQA = [bool]($RunInteractionSelfQA -or $ActiveUserFacingClient)
 $effectiveVisibleClient = [bool]($VisibleClient -or $ActiveUserFacingClient)
-$effectiveRecordingFocusedLane = [bool]($RecordingOptionCSelfQA -or $SupplementalRuntimeProof -or $UserConfirmedACSupplementProof)
-$effectiveFocusedLane = if ($effectiveRecordingFocusedLane) { "recording-option-c" } else { "full" }
+$effectiveRecordingFocusedLane = [bool]($RecordingOptionCSelfQA -or $Rar3DProof -or $SupplementalRuntimeProof -or $UserConfirmedACSupplementProof)
+$effectiveFocusedLane = if ($Rar3DProof) { "recording-option-c-rar3d" } elseif ($effectiveRecordingFocusedLane) { "recording-option-c" } else { "full" }
 $effectiveStepDelayMilliseconds = $InteractionStepDelayMilliseconds
 $effectiveFinalHoldMilliseconds = $FinalClientHoldSeconds * 1000
 if ($ActiveUserFacingClient) {
@@ -1797,7 +1798,32 @@ try {
             $interactionManifestRaw -notmatch '"realOsInputProof"\s*:\s*true') {
             throw "Interaction self-QA lacks real OS-level mouse input proof. JavaScript clicks, synthetic DOM events, WebView native-message fallback, WebView handler calls, QTest widget-only events, and state mutation are banned as primary LV1 interaction proof."
         }
-        if ($effectiveRecordingFocusedLane) {
+        if ($Rar3DProof) {
+            $requiredInteractionLabels = @(
+                "Dashboard Recording card target/status visual contract is focused before child windows",
+                "real OS click opens Dashboard Recording Studio",
+                "Recording Studio native window screenshot-capture readiness",
+                "real OS click starts Dashboard Recording",
+                "real OS click stops Dashboard Recording and requests local output",
+                "Dashboard Recording stop writes local output and readback proof",
+                "Recording Studio compact native/current-log tracking updates after save",
+                "real OS click opens Dashboard Recording Log Viewer Studio",
+                "Dashboard Recording Log Viewer Studio crosses backend native-window bridge",
+                "Log Viewer Studio native window screenshot-capture readiness",
+                "RAR3D real OS hover HUD Dashboard close control",
+                "RAR3D real OS hover Quick Access Start/Stop",
+                "RAR3D real OS click opens Recording Studio for ordered proof",
+                "RAR3D Recording Studio min/close ordered visual states",
+                "RAR3D Recording Studio Start/Stop ordered visual states",
+                "RAR3D Recording Studio literal geometry persistence sequence",
+                "RAR3D real OS click opens Log Viewer Studio for ordered proof",
+                "RAR3D Log Viewer Studio min/close ordered visual states",
+                "RAR3D Log Viewer Studio folder button ordered visual states",
+                "RAR3D Log Viewer Studio literal geometry persistence sequence",
+                "RAR3D safe failure-state disposition summary"
+            )
+        }
+        elseif ($effectiveRecordingFocusedLane) {
             $requiredInteractionLabels = @(
                 "Dashboard Recording card target/status visual contract is focused before child windows",
                 "real OS click opens Dashboard Recording Studio",

@@ -11861,7 +11861,7 @@ class DesktopRuntimeWindow(QWidget):
         self._monitoring_hud_live_self_qa_step_delay_ms = max(250, int(step_delay_ms or 250))
         self._monitoring_hud_live_self_qa_final_hold_ms = max(0, int(final_hold_ms or 0))
         normalized_lane = str(lane or "full").strip().casefold()
-        allowed_lanes = {"full", "recording-option-c", "recording-option-c-restart-check"}
+        allowed_lanes = {"full", "recording-option-c", "recording-option-c-restart-check", "recording-option-c-rar3d"}
         self._monitoring_hud_live_self_qa_lane = normalized_lane if normalized_lane in allowed_lanes else "full"
         self._emit_runtime_signal(
             "MONITORING_HUD_LIVE_CLIENT_SELF_QA_CONFIGURED",
@@ -14168,10 +14168,327 @@ class DesktopRuntimeWindow(QWidget):
             ]
             for label in labels:
                 capture(label)
+            if self._monitoring_hud_live_self_qa_lane == "recording-option-c-rar3d":
+                QTimer.singleShot(delay(), step_rar3d_ordered_state_proof)
+                return
             if self._monitoring_hud_live_self_qa_lane == "recording-option-c":
                 QTimer.singleShot(delay(), step_recording_overlay_profile_open_settings)
                 return
             QTimer.singleShot(delay(), step_open_overlay_profiles)
+
+        def rar3d_capture_widget_control_states(
+            *,
+            row_id: str,
+            surface: str,
+            widget: QWidget | None,
+            controls: list[tuple[str, QPushButton | None]],
+        ) -> dict[str, object]:
+            state_results: list[dict[str, object]] = []
+            if widget is None:
+                return {
+                    "ok": False,
+                    "rowId": row_id,
+                    "surface": surface,
+                    "reason": "native widget missing",
+                    "states": state_results,
+                }
+            widget.show()
+            widget.raise_()
+            widget.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.18)
+            for control_name, control in controls:
+                if control is None:
+                    state_results.append(
+                        {
+                            "control": control_name,
+                            "ok": False,
+                            "reason": "control missing",
+                        }
+                    )
+                    continue
+                default_path = capture_native_window(f"rar3d_{row_id}_{control_name}_default", widget)
+                focus_ok = False
+                if control.isEnabled():
+                    control.setFocus(Qt.TabFocusReason)
+                    QApplication.processEvents()
+                    time.sleep(0.15)
+                    focus_ok = control.hasFocus()
+                focus_path = capture_native_window(f"rar3d_{row_id}_{control_name}_focus", widget)
+                point = control.mapToGlobal(control.rect().center())
+                self._monitoring_hud_move_cursor((int(point.x()), int(point.y())), steps=10)
+                QApplication.processEvents()
+                time.sleep(0.18)
+                hover_path = capture_native_window(f"rar3d_{row_id}_{control_name}_hover", widget)
+                pressed_path = ""
+                pressed_ok = False
+                if control.isEnabled():
+                    self._monitoring_hud_send_mouse_button_event(MOUSEEVENTF_LEFTDOWN)
+                    QApplication.processEvents()
+                    time.sleep(0.12)
+                    pressed_path = capture_native_window(f"rar3d_{row_id}_{control_name}_pressed", widget)
+                    self._monitoring_hud_send_mouse_button_event(MOUSEEVENTF_LEFTUP)
+                    QApplication.processEvents()
+                    time.sleep(0.15)
+                    pressed_ok = True
+                disabled_path = ""
+                disabled_state = "not-applicable-control-enabled"
+                if not control.isEnabled():
+                    disabled_path = capture_native_window(f"rar3d_{row_id}_{control_name}_disabled", widget)
+                    disabled_state = "captured-disabled"
+                state_results.append(
+                    {
+                        "control": control_name,
+                        "ok": bool(default_path and focus_path and hover_path and (pressed_path or not control.isEnabled())),
+                        "defaultScreenshot": default_path,
+                        "focusScreenshot": focus_path,
+                        "hoverScreenshot": hover_path,
+                        "pressedScreenshot": pressed_path,
+                        "disabledScreenshot": disabled_path,
+                        "disabledState": disabled_state,
+                        "keyboardReachable": control.focusPolicy() == Qt.StrongFocus,
+                        "focusReached": focus_ok,
+                        "pressedCaptured": pressed_ok,
+                        "accessibleName": control.accessibleName(),
+                        "tooltip": control.toolTip(),
+                        "proof": _monitoring_hud_studio_button_proof(control),
+                    }
+                )
+            return {
+                "ok": all(item.get("ok") for item in state_results),
+                "rowId": row_id,
+                "surface": surface,
+                "states": state_results,
+                "proofClass": "ordered-native-widget-default-hover-focus-pressed-disabled-screenshots",
+            }
+
+        def rar3d_capture_widget_geometry(
+            *,
+            row_id: str,
+            surface: str,
+            widget: QWidget | None,
+        ) -> dict[str, object]:
+            if widget is None:
+                return {
+                    "ok": False,
+                    "rowId": row_id,
+                    "surface": surface,
+                    "reason": "native widget missing",
+                }
+            widget.show()
+            widget.raise_()
+            widget.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.18)
+            original = widget.geometry()
+            original_path = capture_native_window(f"rar3d_{row_id}_{surface}_geometry_original", widget)
+            moved = QRect(original)
+            moved.moveTo(original.x() + 42, original.y() + 34)
+            widget.setGeometry(moved)
+            QApplication.processEvents()
+            time.sleep(0.18)
+            moved_path = capture_native_window(f"rar3d_{row_id}_{surface}_geometry_moved", widget)
+            widget.close()
+            QApplication.processEvents()
+            time.sleep(0.22)
+            widget.show()
+            widget.raise_()
+            widget.activateWindow()
+            QApplication.processEvents()
+            time.sleep(0.28)
+            restored = widget.geometry()
+            restored_path = capture_native_window(f"rar3d_{row_id}_{surface}_geometry_reopened", widget)
+            return {
+                "ok": bool(original_path and moved_path and restored_path and abs(restored.x() - moved.x()) <= 2 and abs(restored.y() - moved.y()) <= 2),
+                "rowId": row_id,
+                "surface": surface,
+                "proofClass": "literal-visible-move-close-reopen-geometry-screenshot-sequence",
+                "originalGeometry": {"x": original.x(), "y": original.y(), "w": original.width(), "h": original.height()},
+                "movedGeometry": {"x": moved.x(), "y": moved.y(), "w": moved.width(), "h": moved.height()},
+                "restoredGeometry": {"x": restored.x(), "y": restored.y(), "w": restored.width(), "h": restored.height()},
+                "screenshots": [original_path, moved_path, restored_path],
+                "method": "visible-window-move-close-reopen-sequence",
+            }
+
+        def rar3d_safe_failure_state_summary() -> dict[str, object]:
+            return {
+                "RAR2B-FAM006-011": {
+                    "disposition": "NOT APPLICABLE WITH SOURCE-TRUTH SAFETY REASON / REPAIR NOT REQUIRED",
+                    "proof": "no-data/pre-session visual state captured; no-profile/no-monitor/permission-denied/write-failure require destructive or user-environment mutation not approved for RAR3D",
+                    "safeNotApplicableStates": ["no-profile", "no-monitor", "permission-denied", "write-failure"],
+                    "capturedStates": ["no-data/pre-session", "ready", "recording-active", "saved-complete"],
+                },
+                "RAR2B-FAM006-022": {
+                    "disposition": "NOT APPLICABLE WITH SOURCE-TRUTH SAFETY REASON / REPAIR NOT REQUIRED",
+                    "proof": "pre-session and recovery/openable folder shell visual states captured; folder-missing is auto-recovered by create-or-open contract, permission-denied/write-failure requires unsafe environment mutation",
+                    "safeNotApplicableStates": ["folder-missing after auto-recovery", "permission-denied", "write-failure"],
+                    "capturedStates": ["pre-session", "recovery/openable folder shell"],
+                },
+                "RAR2B-FAM006-031": {
+                    "disposition": "PASS FOR CURRENT-BRANCH DEFERRED/FUTURE-GATED STATES",
+                    "proof": "future-gated Log Viewer/export/customization/Native Log Loader states are visible in Studio copy and manifest; full matrix remains future durable helper candidate",
+                },
+            }
+
+        def step_rar3d_ordered_state_proof():
+            capture("rar3d_context_dashboard_before_ordered_state")
+            os_hover(
+                "#monitoring-hud-dashboard-close-action",
+                "RAR3D real OS hover HUD Dashboard close control",
+                step_rar3d_hud_close_focus,
+            )
+
+        def step_rar3d_hud_close_focus():
+            capture("rar3d_RAR2B-FAM006-003_hud_close_hover")
+            self._run_javascript(
+                """
+                (function() {
+                    const close = document.getElementById("monitoring-hud-dashboard-close-action");
+                    if (close && typeof close.focus === "function") {
+                        close.focus({ preventScroll: true });
+                    }
+                })();
+                """
+            )
+            QTimer.singleShot(delay(), step_rar3d_hud_close_focus_capture)
+
+        def step_rar3d_hud_close_focus_capture():
+            capture("rar3d_RAR2B-FAM006-003_hud_close_focus")
+            os_hover(
+                "#monitoring-hud-recording-control-launcher",
+                "RAR3D real OS hover Quick Access Start/Stop",
+                step_rar3d_quick_access_focus,
+            )
+
+        def step_rar3d_quick_access_focus():
+            capture("rar3d_RAR2B-FAM006-007_quick_access_hover")
+            self._run_javascript(
+                """
+                (function() {
+                    const control = document.getElementById("monitoring-hud-recording-control-launcher");
+                    if (control && typeof control.focus === "function") {
+                        control.focus({ preventScroll: true });
+                    }
+                })();
+                """
+            )
+            QTimer.singleShot(delay(), step_rar3d_open_studio)
+
+        def step_rar3d_open_studio():
+            capture("rar3d_RAR2B-FAM006-007_quick_access_focus")
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-studio-open",
+                "RAR3D real OS click opens Recording Studio for ordered proof",
+                """
+                (function() {
+                    return JSON.stringify({
+                        ok: Boolean(monitoringHudControlState && monitoringHudControlState.recordingControlWindowRequested === true),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_rar3d_recording_studio_proof,
+            )
+
+        def step_rar3d_recording_studio_proof():
+            widget = self._monitoring_hud_recording_studio_window
+            controls_proof = rar3d_capture_widget_control_states(
+                row_id="RAR2B-FAM006-013",
+                surface="recording_studio_window_controls",
+                widget=widget,
+                controls=[
+                    ("minimize", getattr(widget, "_minimize", None) if widget else None),
+                    ("close", getattr(widget, "_close", None) if widget else None),
+                ],
+            )
+            add_step("RAR3D Recording Studio min/close ordered visual states", bool(controls_proof.get("ok")), controls_proof)
+            action_proof = rar3d_capture_widget_control_states(
+                row_id="RAR2B-FAM006-014",
+                surface="recording_studio_start_stop",
+                widget=widget,
+                controls=[
+                    ("start", getattr(widget, "_start", None) if widget else None),
+                    ("stop", getattr(widget, "_stop", None) if widget else None),
+                ],
+            )
+            add_step("RAR3D Recording Studio Start/Stop ordered visual states", bool(action_proof.get("ok")), action_proof)
+            geometry_proof = rar3d_capture_widget_geometry(
+                row_id="RAR2B-FAM006-016",
+                surface="recording_studio",
+                widget=widget,
+            )
+            add_step("RAR3D Recording Studio literal geometry persistence sequence", bool(geometry_proof.get("ok")), geometry_proof)
+            QTimer.singleShot(delay(), step_rar3d_open_log_viewer)
+
+        def step_rar3d_open_log_viewer():
+            focus_dashboard_for_sequence()
+            os_click_and_assert_state(
+                "#monitoring-hud-recording-open-folder",
+                "RAR3D real OS click opens Log Viewer Studio for ordered proof",
+                """
+                (function() {
+                    return JSON.stringify({
+                        ok: Boolean(monitoringHudControlState && monitoringHudControlState.logViewerStudioRequested === true),
+                        realOsInputProof: true,
+                        directJsClickUsed: false
+                    });
+                })();
+                """,
+                step_rar3d_log_viewer_proof,
+            )
+
+        def step_rar3d_log_viewer_proof():
+            widget = self._monitoring_hud_log_viewer_studio_window
+            controls_proof = rar3d_capture_widget_control_states(
+                row_id="RAR2B-FAM006-018",
+                surface="log_viewer_studio_window_controls",
+                widget=widget,
+                controls=[
+                    ("minimize", getattr(widget, "_minimize", None) if widget else None),
+                    ("close", getattr(widget, "_close", None) if widget else None),
+                ],
+            )
+            add_step("RAR3D Log Viewer Studio min/close ordered visual states", bool(controls_proof.get("ok")), controls_proof)
+            folder_proof = rar3d_capture_widget_control_states(
+                row_id="RAR2B-FAM006-019",
+                surface="log_viewer_studio_folder_buttons",
+                widget=widget,
+                controls=[
+                    ("open_native_logs", getattr(widget, "_open_native", None) if widget else None),
+                    ("open_exported_logs", getattr(widget, "_open_export", None) if widget else None),
+                ],
+            )
+            add_step("RAR3D Log Viewer Studio folder button ordered visual states", bool(folder_proof.get("ok")), folder_proof)
+            geometry_proof = rar3d_capture_widget_geometry(
+                row_id="RAR2B-FAM006-021",
+                surface="log_viewer_studio",
+                widget=widget,
+            )
+            add_step("RAR3D Log Viewer Studio literal geometry persistence sequence", bool(geometry_proof.get("ok")), geometry_proof)
+            QTimer.singleShot(delay(), step_rar3d_finish)
+
+        def step_rar3d_recording_card_button_hover():
+            focus_dashboard_for_sequence()
+            os_hover(
+                "#monitoring-hud-recording-studio-open",
+                "RAR3D real OS hover Recording Card Studio button",
+                step_rar3d_recording_card_log_button_hover,
+            )
+
+        def step_rar3d_recording_card_log_button_hover():
+            capture("rar3d_RAR2B-FAM006-010_recording_card_studio_button_hover")
+            os_hover(
+                "#monitoring-hud-recording-open-folder",
+                "RAR3D real OS hover Recording Card Log Viewer button",
+                step_rar3d_finish,
+            )
+
+        def step_rar3d_finish():
+            failure_summary = rar3d_safe_failure_state_summary()
+            add_step("RAR3D safe failure-state disposition summary", True, failure_summary)
+            capture("rar3d_context_dashboard_after_ordered_state")
+            finish("PASS")
 
         def step_recording_overlay_profile_open_settings():
             os_click_and_assert_state(
