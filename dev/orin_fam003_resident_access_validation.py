@@ -53,8 +53,9 @@ def validate_resident_model(failures: list[str]):
 
     assert_true(TRAY_IDENTITY_LABEL == "Nexus Desktop AI", "tray identity label drifted", failures)
     assert_true(
-        TRAY_TOOLTIP_TEXT == "",
-        "tray hover tooltip must stay disabled until FAM-003 admits readable tooltip styling",
+        TRAY_TOOLTIP_TEXT.startswith("Nexus Desktop AI - ")
+        and "Provider-visible data: none" in TRAY_TOOLTIP_TEXT,
+        "tray icon hover tooltip must carry compact FAM-003 resident AI/privacy status",
         failures,
     )
     assert_true(tuple(immutable_ids) == IMMUTABLE_ROUTE_IDS, "immutable route order drifted", failures)
@@ -127,9 +128,10 @@ def validate_resident_model(failures: list[str]):
         failures,
     )
     assert_true(
-        str(plan.get("tooltipText", "")) == ""
+        str(plan.get("tooltipText", "")).startswith("Nexus Desktop AI - ")
+        and "Provider-visible data: none" in str(plan.get("tooltipText", ""))
         and "Provider-visible data: none" in str(plan.get("statusLabel", "")),
-        "resident access plan must disable hover tooltip and carry compact AI/privacy status in the visible status label",
+        "resident access plan must carry compact AI/privacy status in both tray icon hover tooltip and visible status label",
         failures,
     )
 

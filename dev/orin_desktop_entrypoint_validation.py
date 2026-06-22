@@ -7420,8 +7420,9 @@ def run_validation():
         tray_identity_result["initialized"] is True,
         f"initialized={tray_identity_result['initialized']}",
     )
-    checks["tray_identity_hover_tooltip_disabled"] = line_status(
-        tray_identity_result["tooltip"] == "",
+    checks["tray_identity_hover_tooltip_status_present"] = line_status(
+        tray_identity_result["tooltip"].startswith("Nexus Desktop AI - ")
+        and "Provider-visible data: none" in tray_identity_result["tooltip"],
         f"tooltip={tray_identity_result['tooltip']}",
     )
     action_texts = tray_identity_result["action_texts"]

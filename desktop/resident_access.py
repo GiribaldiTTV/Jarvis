@@ -17,7 +17,7 @@ RESIDENT_ACCESS_SETTINGS_SCHEMA_VERSION = "resident-access-settings.v1"
 TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
 TRAY_ORIN_MARK_LABEL = "ORIN"
 RESIDENT_STATUS_LOCAL_NO_PROVIDER = "AI local/no provider; Provider-visible data: none"
-TRAY_TOOLTIP_TEXT = ""
+TRAY_TOOLTIP_TEXT = f"{TRAY_IDENTITY_LABEL} - {RESIDENT_STATUS_LOCAL_NO_PROVIDER}"
 TRAY_DISCOVERY_DURATION_MS = 4500
 WINDOWS_TRAY_VISIBILITY_LIMITATION = (
     "Windows controls whether app notification icons stay pinned or move under hidden icons. "
@@ -462,7 +462,10 @@ def build_ai_privacy_summary(ai_provider_state: dict[str, object] | None = None)
 
 
 def build_tray_tooltip_text(ai_summary: dict[str, str] | None = None) -> str:
-    return TRAY_TOOLTIP_TEXT
+    ai_summary = ai_summary if isinstance(ai_summary, dict) else {}
+    compact_status = str(ai_summary.get("compactLabel") or RESIDENT_STATUS_LOCAL_NO_PROVIDER).strip()
+    compact_status = compact_status.rstrip(".")
+    return f"{TRAY_IDENTITY_LABEL} - {compact_status}"
 
 
 def build_resident_access_menu_plan(
