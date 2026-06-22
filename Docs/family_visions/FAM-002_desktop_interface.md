@@ -57,6 +57,8 @@ FAM-002 supplies reusable presentation grammar for:
 
 Consuming FAM branches may specialize this grammar for their own feature surfaces, but they must name the inherited FAM-002 grammar, classify any platform-native exception, and prove visible inheritance before USER handoff. A branch that introduces a new button family, new window frame, new dialog shell, unique glow/color family, or custom layout density must record whether it is inherited, a USER-accepted new grammar, or a repair/blocker.
 
+Bounded carry-in exception: when an active consuming FAM branch exposes a returned-UTS visual-system failure caused by missing shared primitive code, that branch may implement the smallest required branch-local shared primitive candidate if the USER explicitly approves that carrier, the primitive is scoped to the active failure, and the branch records the source path, UIREF/FAM-002 seed, consuming surfaces, proof obligations, rollback posture, and non-promotion boundary. This does not globally promote the primitive or authorize sibling worktree mutation.
+
 ## Component Anatomy And Element-Group Acceptance
 
 FAM-002 treats reusable UI components as visible element groups with anatomy, state, and proof expectations. A component is not accepted merely because a helper marker exists or a screenshot was captured.
@@ -71,7 +73,9 @@ For shared UI components such as close/minimize/back/settings affordances, prima
 - input behavior for mouse, keyboard, focus, scroll, resize, close, save, discard, cancel, and delete paths when applicable
 - inherited reference surface, accepted grammar, or USER-approved exception
 
-Element-group acceptance must be deterministic enough that a future branch can compare a new component to the inherited Nexus grammar. Vague verdicts such as `looks good`, `NDAI-ish`, `matches generally`, or `seems fine` are not enough. Final visual acceptance requires mapped evidence, reference or exception, inspected state coverage, and a PASS / REPAIR / STOP / WAIVED_WITH_REASON / USER Review Required disposition.
+Element-group acceptance must be deterministic enough that a future branch can compare a new component to the inherited Nexus grammar. Vague verdicts such as `looks good`, `NDAI-ish`, `matches generally`, `better`, `closer`, `improved`, `looks acceptable`, `good enough`, or `seems fine` are not enough. Final visual acceptance requires mapped evidence, reference or exception, inspected state coverage, and a PASS / REPAIR / STOP / WAIVED_WITH_REASON / USER Review Required disposition.
+
+Same-class shared elements should be implemented through the same primitive path where source truth admits one. If a branch must vary only the inline text, the code should preserve identical height, gutter symmetry, typography, radius, border, glow, hover, focus, pressed, disabled, and accessibility behavior rather than restyling each instance by eye.
 
 ## Consumption Model
 

@@ -24,6 +24,17 @@
     target.addEventListener("click", () => emitCommand(command));
   };
 
+  const bindRecordingToggle = () => {
+    const target = byId("monitoring-hud-studio-recording-toggle-action");
+    if (!target) {
+      return;
+    }
+    target.addEventListener("click", () => {
+      const command = target.dataset.recordingCommand === "stop" ? "stop" : "start";
+      emitCommand(command);
+    });
+  };
+
   const setActionState = (id, enabled) => {
     const target = byId(id);
     if (!target) {
@@ -43,6 +54,10 @@
     surface.dataset.surfaceId = mode === "log-viewer"
       ? "fam006-log-viewer-studio"
       : "fam006-recording-studio";
+    surface.dataset.productSurfaceRole = mode === "log-viewer"
+      ? "compact-current-branch-log-access-shell"
+      : "ultra-lightweight-detached-recording-controller";
+    surface.dataset.featureStudioPurpose = surface.dataset.productSurfaceRole;
     surface.setAttribute(
       "aria-label",
       mode === "log-viewer"
@@ -66,11 +81,23 @@
     const state = payload && typeof payload === "object" ? payload : {};
     applySurface(state);
     setText("monitoring-hud-studio-recording-target", state.recordingTarget || "No active overlay profile");
-    setText("monitoring-hud-studio-recording-state", state.recordingState || "Ready for local Start/Stop recording.");
-    setText("monitoring-hud-studio-native-log", state.nativeLog || "None yet.");
+    setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Ready for local recording.");
     setText("monitoring-hud-studio-recording-boundary", state.recordingBoundary || "");
-    setActionState("monitoring-hud-studio-start-action", state.startEnabled === true);
-    setActionState("monitoring-hud-studio-stop-action", state.stopEnabled === true);
+    const toggle = byId("monitoring-hud-studio-recording-toggle-action");
+    const isRecording = state.stopEnabled === true;
+    if (toggle) {
+      const label = isRecording ? "Stop Recording" : "Start Recording";
+      toggle.dataset.recordingCommand = isRecording ? "stop" : "start";
+      toggle.dataset.recordingState = isRecording ? "recording-active" : "recording-ready";
+      toggle.setAttribute("aria-label", label);
+      const labelTarget = toggle.querySelector(".monitoring-hud__button-label");
+      if (labelTarget) {
+        labelTarget.textContent = label;
+      } else {
+        toggle.textContent = label;
+      }
+    }
+    setActionState("monitoring-hud-studio-recording-toggle-action", isRecording || state.startEnabled === true);
     setText("monitoring-hud-studio-native-folder", state.nativeFolder || "");
     setText("monitoring-hud-studio-export-folder", state.exportFolder || "");
     setText("monitoring-hud-studio-log-boundary", state.logBoundary || "");
@@ -107,8 +134,8 @@
 
   bindCommand("monitoring-hud-studio-minimize-action", "minimize");
   bindCommand("monitoring-hud-studio-close-action", "close");
-  bindCommand("monitoring-hud-studio-start-action", "start");
-  bindCommand("monitoring-hud-studio-stop-action", "stop");
+  bindRecordingToggle();
+  bindCommand("monitoring-hud-studio-open-log-viewer-action", "open-log-viewer");
   bindCommand("monitoring-hud-studio-open-native-action", "open-native");
   bindCommand("monitoring-hud-studio-open-export-action", "open-export");
   window.nexusMonitoringHudStudioApplyState(window.NEXUS_MONITORING_HUD_STUDIO_INITIAL_STATE || {});

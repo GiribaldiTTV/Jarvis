@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$PythonPath = $env:NEXUS_VALIDATION_PYTHON,
     [string]$ArtifactRoot = "",
     [int]$MarkerTimeoutSeconds = 25,
@@ -1037,10 +1037,44 @@ function Save-Manifest([object]$Paths, [string]$PythonExe) {
         package = "PKG-006"
         slice = "SLC-029"
         seam = $manifestSeam
-        proofStandard = "Photo/video is the only accepted proof class for visible USER-facing Live Validation claims; code, DOM, marker, log, manifest, and helper output are diagnostics only. Claims that cannot be proven in a named photo or video frame must be elevated to USER validation. LV1 must launch through the exact USER Desktop shortcut path, not a direct renderer/private launcher path. A per-element visual inventory and returned issue-form coverage matrix are required for the current/affected USER-facing surfaces."
+        proofStandard = "Photo/video is the only accepted proof class for visible USER-facing Live Validation claims; code, DOM, marker, log, manifest, and helper output are diagnostics only. Claims that cannot be proven in a named photo or video frame must be elevated to USER validation. LV1 must launch through the exact USER Desktop shortcut path, not a direct renderer/private launcher path. A per-element visual inventory and returned issue-form coverage matrix are required for the current/affected USER-facing surfaces. Pre-LV Visual Purpose Conformance must prove the window looks like its accepted vision/purpose contract before LV functional proof starts."
         lv1PhotoVideoOnlyProofRule = $true
         lv1NonVisualClaimUserElevationRequired = $true
         lv1ExactUserDesktopShortcutRequired = $true
+        preLiveVisualPurposeConformanceGate = [pscustomobject]@{
+            status = "REQUIRED_BEFORE_FUNCTIONAL_LV"
+            purpose = "prove-window-looks-like-accepted-vision-contract-before-proving-behavior"
+            proofOrder = @(
+                "source-truth-purpose-contract",
+                "photo-video-element-group-visual-adjudication",
+                "shared-primitive-reference-comparison",
+                "state-and-affordance-visual-adjudication",
+                "functional-interaction-proof"
+            )
+            requiredElementGroups = @(
+                "title/header group",
+                "window control cluster",
+                "primary and secondary buttons",
+                "body/background fill and opacity",
+                "state rows and dividers",
+                "copy/typography",
+                "hover/focus/pressed/disabled states",
+                "error/empty/blocked states",
+                "resize/placement affordances",
+                "purpose-specific composition"
+            )
+            allowedDispositions = @("PASS", "REPAIR", "BLOCKED", "WAIVED_WITH_REASON")
+            invalidPassBasis = @(
+                "helper PASS",
+                "manifest PASS",
+                "runtime marker",
+                "DOM marker",
+                "code says control exists",
+                "screenshot exists without visual adjudication",
+                "functional click proof before visual-purpose proof"
+            )
+            requiredStopCondition = "Any missing or non-green unwaived element-group row blocks UTS handoff and routes to repair before functional LV closeout."
+        }
         studioVisualInheritanceMatrix = [pscustomobject]@{
             status = "REQUIRES_CODEX_PHOTO_VIDEO_ADJUDICATION"
             proofAuthority = "photo-video-comparison-not-runtime-self-attestation"
@@ -1245,10 +1279,10 @@ function Get-ReturnedUtsDeterminismGates() {
         [pscustomobject]@{
             id = "RETURNED_UTS_LOG_VIEWER_VISUAL_SYSTEM_GATE"
             issueId = "FAM006-RUTS-003"
-            title = "Log Viewer Studio AI Control Center primitive adoption"
+            title = "Log Viewer Studio FAM-006 feature-studio primitive adoption"
             status = "PASS"
             requiredProof = "Focused Log Viewer Studio screenshots must be adjudicated against AI Control Center / UIREF-001 / UIREF-002 / UIREF-003 primitive grammar instead of passing from screenshot existence, generic shell presence, Dashboard-card-clone markers, or FAM-006 self-comparison. Native/export path rows must be visible, contained, non-wrapping, and intentionally middle-elided when full paths are too long. REC/LOG-style title badges are not accepted for the studio window header grammar."
-            stopLossReason = "Closed only when Log Viewer Studio proves AI-Control-Center shared-rendered chrome, opacity, color, typography, rows/dividers, buttons, glow/focus/hover/disabled states, spacing, compact density, non-Dashboard-card layout, title-badge-free text header, and contained native/export folder rows, or direct code-to-visual proof that the same rendered DOM/CSS primitive path is consumed."
+            stopLossReason = "Closed only when Log Viewer Studio proves FAM-006 compact log access shell composition, AI-Control-Center shared primitive geometry/state behavior, native/export folder rows, title-badge-free text header, and contained native/export folder rows, or direct code-to-visual proof that the same rendered DOM/CSS primitive path is consumed."
             futureGreenCondition = "LV visual adjudication records source-truth-mapped verdicts for Log Viewer Studio standalone chrome, rows, buttons, typography, density, window shape, state language, title/header treatment, and path-row readability against AI Control Center / UIREF references."
         }
         [pscustomobject]@{
@@ -1266,8 +1300,8 @@ function Get-ReturnedUtsDeterminismGates() {
             title = "Recording Studio UI visual proof depends on normal activation"
             status = "PASS"
             requiredProof = "Recording Studio UI visual proof must be blocked when the Studio cannot be activated through the normal visible USER path; helper-launched screenshots are supporting evidence only. Focused screenshots must also prove AI-Control-Center shared-rendered button grammar, title-badge-free text header, and contained native-log text, or direct code-to-visual proof that the same rendered DOM/CSS primitive path is consumed."
-            stopLossReason = "Closed by requiring explicit-user-open Recording Studio proof before focused Studio screenshots can pass, then requiring AI Control Center / UIREF primitive parity instead of Dashboard-card cloning, FAM-006 self-comparison, or REC-title-badge chrome."
-            futureGreenCondition = "Manual visible-button activation passes first, then focused Recording Studio screenshots are visually adjudicated against AI Control Center / UIREF source truth for standalone chrome, rows, buttons, typography, density, window shape, title/header treatment, native-log text containment, and state language."
+            stopLossReason = "Closed by requiring explicit-user-open Recording Studio proof before focused Studio screenshots can pass, then requiring FAM-006 detached controller composition plus UIREF/shared primitive parity instead of Dashboard-card or main-window cloning, FAM-006 self-comparison, or REC-title-badge chrome."
+            futureGreenCondition = "Manual visible-button activation passes first, then focused Recording Studio screenshots are visually adjudicated against FAM-006 feature-studio source truth plus UIREF shared primitives for compact controller chrome, rows, buttons, typography, density, window shape, title/header treatment, native-log text containment, and state language."
         }
     )
 }
@@ -1438,17 +1472,17 @@ Codex Precheck Summary
 
 Vision-To-Proof Matrix For This Handoff
 - Project Vision / FAM-002 window standard -> Recording Studio and Log Viewer Studio must look like polished Nexus standalone windows, not generic utility dialogs. Evidence: focused native-window screenshots and short video.
-- AI Control Center / UIREF primitive adoption -> Recording Studio and Log Viewer Studio shared/global element groups must be code/visual equivalent to the accepted AI Control Center grammar for UIREF-001 top-level frame, UIREF-002 compact window controls, and UIREF-003 control-state/button grammar. FAM-006/HUD windows may provide secondary context only after their element groups are independently classified conforming.
-- FAM-006 Family Vision -> new FAM-006 windows may specialize composition for Recording and Log Viewer purpose, but shared primitives such as frame, header, controls, buttons, rows, typography, color, glow, opacity, density, and state behavior must be AI-Control-Center shared-rendered or direct rendered-primitive-consumed rather than merely "similar enough." REC/LOG-style title badges are not accepted in the standalone studio header grammar for this repair.
+- Feature-studio primitive adoption -> Recording Studio and Log Viewer Studio composition must match their FAM-006 compact controller/log-shell purpose while same-class shared/global element groups consume accepted AI Control Center/UIREF geometry, state, typography, button, row, and compact control primitives. FAM-006/HUD windows provide compact-studio context, not self-acceptance.
+- FAM-006 Family Vision -> new FAM-006 windows may specialize composition for Recording and Log Viewer purpose, but shared primitives such as frame, header, controls, buttons, rows, typography, color, glow, opacity, density, and state behavior must consume accepted shared primitives or direct rendered-primitive paths where same-class, while composition follows Recording controller / Log Viewer shell purpose rather than AI Control Center main-window cloning. REC/LOG-style title badges are not accepted in the standalone studio header grammar for this repair.
 - FAM-006 Recording Feature Vision -> Dashboard card, Recording Studio, Log Viewer Studio shell, native/export boundaries, and active Overlay Profile target mirror must remain branch-specific and future-gated where planned. Evidence: Recording card states, native-log readback, Log Viewer folder shell screenshots, and manifest proof.
 - Live Validation proof rule -> proof must be visible in photo/video or elevated to USER. Evidence: desktop-shortcut human-client manifest, focused screenshots, and this UTS.
 - Current repair focus -> Log Viewer Studio native/export path rows must be readable and contained: no clipped wrapping, no branch/worktree leakage, full path available through tooltip/proof, and visible display intentionally middle-elided when needed.
-- Studio Visual Primitive Comparator Matrix -> compare Recording Studio and Log Viewer Studio first against AI Control Center / UIREF-001 / UIREF-002 / UIREF-003 for full-window body/background continuity, absence of transparent void regions, window chrome, color/opacity, typography, row/divider treatment, button grammar, glow/shadow restraint, spacing/density, hover/focus/disabled states, and proof that button focus does not masquerade as hover after click. Compare HUD Dashboard, Overlay Profile Settings, and Manage Monitors only as secondary context, not as self-acceptance baselines. Runtime markers, manifest PASS, helper PASS, or screenshot existence are not visual acceptance.
+- Studio Visual Primitive Comparator Matrix -> compare Recording Studio and Log Viewer Studio first against the FAM-006 feature-studio purpose contract, then against AI Control Center / UIREF-001 / UIREF-002 / UIREF-003 for same-class shared primitives for full-window body/background continuity, absence of transparent void regions, window chrome, color/opacity, typography, row/divider treatment, button grammar, glow/shadow restraint, spacing/density, hover/focus/disabled states, and proof that button focus does not masquerade as hover after click. Compare HUD Dashboard, Overlay Profile Settings, and Manage Monitors only as secondary context, not as self-acceptance baselines. Runtime markers, manifest PASS, helper PASS, or screenshot existence are not visual acceptance.
 
 Brief Issue List
 - Closed by USER confirmation: prior Overlay Profiles / HUD sizing issue IDs remain closed unless regression appears during this retest.
 - Deferred/source-truth-carried: UTS-HUD-009 Polling Rate live provider cadence, because external/provider telemetry cadence remains outside this HUD repair.
-- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, Recording Studio visible-button activation, Recording Studio AI Control Center primitive adoption, native NDAI log save/readback, Log Viewer Studio native/export folder shell behavior, Log Viewer Studio AI Control Center primitive adoption, issue #258 Overlay Profile persistence, Recording card Dashboard-card visual-system inheritance, and active Overlay Profile target mirroring.
+- Active repaired seam requiring focused USER retest: Dashboard Recording Start/Stop, Recording Studio visible-button activation, Recording Studio FAM-006 feature-studio primitive adoption, native NDAI log save/readback, Log Viewer Studio native/export folder shell behavior, Log Viewer Studio FAM-006 feature-studio primitive adoption, issue #258 Overlay Profile persistence, Recording card Dashboard-card visual-system inheritance, and active Overlay Profile target mirroring.
 
 Active Issues To Test
 
@@ -1473,11 +1507,11 @@ Expected: The Dashboard card holder gives each card equal left and right visual 
 USER Result / Notes:
 
 FAM006-LV1-REC-006 - Recording Studio Opens And Adopts AI Control Center Shared Primitives
-Expected: Clicking the visible Recording Studio button on the Dashboard Recording card opens a real standalone, non-child Recording Studio window. The window does not need Dashboard cards, but its shared element groups must be AI-Control-Center shared-rendered / direct rendered-primitive-consumed: dark Nexus top-level frame, compact title/header treatment, compact min/close control cluster, primary/secondary button grammar, row/divider treatment, hover/focus/pressed/disabled states, typography, color/opacity, glow/shadow restraint, spacing, compact density, title-badge-free text header, contained native-log text, and polished non-generic window shape.
+Expected: Clicking the visible Recording Studio button on the Dashboard Recording card opens a real standalone, non-child Recording Studio window. The window does not need Dashboard cards, but its composition must be an ultra-lightweight detached recording controller while shared element groups must be AI-Control-Center/UIREF shared-rendered or direct rendered-primitive-consumed: compact dark Nexus frame, compact title/header treatment, compact min/close control cluster, primary/secondary button grammar, row/divider treatment, hover/focus/pressed/disabled states, typography, color/opacity, glow/shadow restraint, spacing, compact density, title-badge-free text header, contained native-log text, and polished non-generic window shape.
 USER Result / Notes:
 
 FAM006-LV1-REC-007 - Log Viewer Studio Adopts AI Control Center Shared Primitives
-Expected: Clicking Log Viewer Studio opens a real standalone, non-child shell window for native/export log folder access. The shell does not need Dashboard cards, but its shared element groups must be AI-Control-Center shared-rendered / direct rendered-primitive-consumed: dark Nexus top-level frame, compact title/header treatment, compact min/close control cluster, primary/secondary button grammar, row/divider treatment, hover/focus/pressed/disabled states, typography, color/opacity, glow/shadow restraint, spacing, compact density, title-badge-free text header, and polished non-generic window shape. Native/export path rows must be visually contained and readable: no clipped wrapping, no branch/worktree leakage, full path retained as tooltip/proof, and middle-elided display where the full path is too long for the compact window.
+Expected: Clicking Log Viewer Studio opens a real standalone, non-child shell window for native/export log folder access. The shell does not need Dashboard cards, but its composition must be an ultra-lightweight detached recording controller while shared element groups must be AI-Control-Center/UIREF shared-rendered or direct rendered-primitive-consumed: compact dark Nexus frame, compact title/header treatment, compact min/close control cluster, primary/secondary button grammar, row/divider treatment, hover/focus/pressed/disabled states, typography, color/opacity, glow/shadow restraint, spacing, compact density, title-badge-free text header, and polished non-generic window shape. Native/export path rows must be visually contained and readable: no clipped wrapping, no branch/worktree leakage, full path retained as tooltip/proof, and middle-elided display where the full path is too long for the compact window.
 USER Result / Notes:
 
 Issue Regression Checks, If Any
@@ -1796,8 +1830,14 @@ $effectiveFocusedLane = if ($Rar3EProof) { "recording-option-c-rar3e" } elseif (
 $effectiveStepDelayMilliseconds = $InteractionStepDelayMilliseconds
 $effectiveFinalHoldMilliseconds = $FinalClientHoldSeconds * 1000
 if ($ActiveUserFacingClient) {
-    $effectiveStepDelayMilliseconds = [Math]::Max($effectiveStepDelayMilliseconds, 2500)
-    $effectiveFinalHoldMilliseconds = [Math]::Max($effectiveFinalHoldMilliseconds, 20000)
+    if ($effectiveRecordingFocusedLane) {
+        $effectiveStepDelayMilliseconds = [Math]::Max($effectiveStepDelayMilliseconds, 750)
+        $effectiveFinalHoldMilliseconds = [Math]::Max($effectiveFinalHoldMilliseconds, 1000)
+    }
+    else {
+        $effectiveStepDelayMilliseconds = [Math]::Max($effectiveStepDelayMilliseconds, 2500)
+        $effectiveFinalHoldMilliseconds = [Math]::Max($effectiveFinalHoldMilliseconds, 20000)
+    }
 }
 if ($effectiveRunInteractionSelfQA) {
     $MarkerTimeoutSeconds = [Math]::Max($MarkerTimeoutSeconds, 420)

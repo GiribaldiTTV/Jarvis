@@ -11,7 +11,8 @@ Explicit Non-Goals: `Runtime implementation by this file; Workstream approval; P
 Durable Feature Element Inventory: `F6-FF01-E01 - Dashboard Recording Card target/status surface and visual inheritance proof; F6-FF01-E02 - Recording Studio focused control/status surface and window proof; F6-FF01-E03 - Log Viewer Studio native/export shell and future viewer boundary; F6-FF01-E04 - native NDAI log artifact model and readback proof; F6-FF01-E05 - USER-requested export artifact model and readability proof; F6-FF01-E06 - tray/keybind/settings future-control boundaries; F6-FF01-E07 - Overlay Profile persistence dependency for recording target reliability.`
 Deferred Feature Carryforward: `deferred item rows preserve title, dependency trigger, grouping recommendation, proof expectation, and durable disposition for Recording Studio, Log Viewer Studio, exported logs, tray controls, keybinds, settings, warning dismissal, Overlay Profile persistence dependency, Dashboard quick access, and Native Log Loader relationship.`
 Design Options: `Option F planning solidification before implementation-shape selection; Option C/C-lite Dashboard Recording Card plus Recording Studio plus minimal Log Viewer Studio shell; Start/Stop ownership options; Studio minimize behavior options; direct log-folder button versus Log Viewer Studio access; native-only versus native-plus-explicit-export artifact options.`
-Proof Expectations: `BP1 must produce a real Recording branch vision; BP2 must translate accepted vision into a concrete engineering plan; BP3 must prove Workstream readiness; Hardening and Live Validation must provide photo/video or ordered-frame proof for admitted controls, windows, actions/effects, visual-system inheritance, native/export boundaries, UTS coverage, rollback, and USER-elevated manual validation where visual proof is impossible.`
+Proof Expectations: `BP1 must produce a real Recording branch vision; BP2 must translate accepted vision into a concrete engineering plan; BP3 must prove Workstream readiness; Hardening and Live Validation must provide photo/video or ordered-frame proof for admitted controls, windows, actions/effects, visual-system inheritance, native/export boundaries, UTS coverage, rollback, and USER-elevated manual validation where visual proof is impossible. Before formal Live Validation or UTS handoff, Recording UI must pass a Pre-LV Visual Purpose Conformance Gate that proves the window looks like its accepted purpose and vision contract requires; Live Validation then proves it functions.`
+Pre-Live Visual Gate: `Before any formal Live Validation pass or UTS handoff for Recording Studio, Log Viewer Studio, Dashboard Recording Card, or other admitted Recording UI, Codex must inspect recorded photo/video evidence against the window's accepted purpose and vision contract, inventory every visible element group, compare shared primitives to the admitted reference surfaces, record PASS/REPAIR/BLOCKED/WAIVED_WITH_REASON for each group, and only then run functional interaction proof. Live Validation proves the already-inspected UI and then proves behavior; it must not be the first place obvious visual drift is discovered.`
 Branch Readiness Consumption Notes: `BR1/BR2 should load this file as feature-category context, present branch-lane options against it, surface applicable deferred carryforward dynamically, and reject issue-shaped or single-slice drift unless USER explicitly selects that path.`
 BP1 Context Notes: `BP1 should decompose Recording by Dashboard access, Recording card, Recording Studio, Log Viewer Studio, tray, keybind, native log model, export model, settings, and Overlay Profile dependency, then return USER-editable options, recommendations, risks, proof expectations, and exact decisions.`
 Fold-Down History: `Created from USER-approved FAM-006 Recording planning/admission evidence and later updated during FAM-006 current-main reconciliation to satisfy the formal Family Feature Vision marker contract.`
@@ -49,6 +50,14 @@ native NDAI output, and a later export path for third-party-readable files.
 
 Recording must feel like part of the Monitoring and HUD product surface, not a
 debug panel, proof panel, or disconnected logging utility.
+
+Visual acceptance is binary for admitted Recording UI. `Better`, `closer`,
+`looks acceptable`, `feels good`, or helper-green without Codex visual
+adjudication is not green. A visible Recording surface may enter formal Live
+Validation only after its shared primitives, purpose-specific layout, and
+element states are proven as `PASS`, explicitly `WAIVED_WITH_REASON`, or
+`Not Applicable With Reason` against the accepted vision chain and reference
+surfaces.
 
 ## Relationship To FAM-006
 
@@ -97,9 +106,11 @@ It should not:
 
 ### Recording Studio
 
-Recording Studio is the compact Recording control surface when a branch admits
-it. The current Option C carrier admits a bounded focused control/status Studio
-that owns the focused/full Start/Stop control and recording status surface.
+Recording Studio is the ultra-lightweight detached Recording controller when a
+branch admits it. The current Option C carrier admits a bounded compact
+standalone-capable controller that owns Start/Stop, recording truth, target
+truth, native-log status, and a route to Log Viewer Studio without requiring the
+USER to reopen HUD Dashboard.
 Dashboard Quick Access may provide a compact Start/Stop shortcut when branch
 planning and implementation proof admit it. Tray integration, keybind behavior,
 close-while-recording warnings, and bulky settings remain separate future gates
@@ -107,9 +118,14 @@ until accepted by later planning.
 
 Expected direction:
 
-- non-child, exclusive window rather than a Dashboard child panel
-- compact form factor that respects screen space
-- standalone window layout that is not a Dashboard card clone
+- non-child, exclusive, standalone-capable window rather than a Dashboard child
+  panel
+- compact form factor that behaves like a small detached media-control panel
+- standalone window layout that is not a Dashboard card clone and not an AI
+  Control Center / command-center clone
+- independent lifecycle while Nexus Desktop AI is running: it may launch from HUD
+  Dashboard, but it must remain open, truthful, and useful if HUD Dashboard is
+  closed where source truth permits
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling
@@ -119,13 +135,24 @@ Expected direction:
   exist but an accepted rendered Nexus surface does, Recording Studio must reuse
   that rendered CSS/DOM primitive path or stop for side-by-side USER visual
   adjudication; reference-derived approximation is not a closeout-grade substitute.
+- bounded shared primitive carry-in for the active returned-UTS repair:
+  Recording Studio and Log Viewer Studio may consume
+  `nexus_visual/nexus_window_primitives.css` as a FAM-006-carried
+  `nexus-window-primitives-v1` implementation candidate for UIREF-001,
+  UIREF-002, UIREF-003, and compact feature-studio body primitives. This is not
+  broad FAM-002 promotion or proof that other worktrees have adopted the
+  primitive. It is the required branch-local code path that prevents this branch
+  from recreating AI Control Center / UIREF shared element groups by eye.
 - window placement continuity by carrying down the Project UI Vision rule for
   USER-moved windows to restore position safely across sessions where feasible
 - Start/Stop control ownership when the branch admits full studio behavior
 - selected Overlay Profile target display
 - recording state display
-- minimal proof/status copy
+- native log status
+- Log Viewer Studio doorway/action
+- minimal status copy that does not dominate the controller
 - close and minimize affordances
+- move/resize/default-position/reopen/offscreen-recovery behavior where required
 
 Close behavior needs explicit BP1/BP2 acceptance before implementation. The
 preferred warning model is: closing the Studio while recording warns that the
@@ -138,17 +165,20 @@ Recording tray icon to avoid taskbar clutter.
 
 ### Log Viewer Studio
 
-Log Viewer Studio is the Recording log review and export surface when a branch
-admits it. The current Option C carrier admits only a minimal launch/folder
-shell for native and exported log folder access; previous-log selection, in-app
-log viewing, export customization, and Native Log Loader integration remain
-future gates until accepted by later planning.
+Log Viewer Studio is the Recording log access shell and future expandable log
+workspace when a branch admits it. The current Option C carrier admits only a
+compact current-branch shell for native and exported log folder access;
+previous-log selection, graph/log viewing, in-app log viewing, export
+customization, user-selected export file types, and Native Log Loader
+integration remain future gates until accepted by later planning.
 
 Expected direction:
 
 - non-child, exclusive window
 - independent from the Dashboard child-window system
-- standalone window layout that is not a Dashboard card clone
+- standalone window layout that is not a Dashboard card clone and not an AI
+  Control Center / command-center clone
+- compact folder-access shell composition for the current branch
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling
@@ -158,6 +188,11 @@ Expected direction:
   exist but an accepted rendered Nexus surface does, Log Viewer Studio must reuse
   that rendered CSS/DOM primitive path or stop for side-by-side USER visual
   adjudication; reference-derived approximation is not a closeout-grade substitute.
+- bounded shared primitive carry-in for the active returned-UTS repair:
+  Log Viewer Studio may consume `nexus_visual/nexus_window_primitives.css` as
+  the same FAM-006-carried `nexus-window-primitives-v1` path used by Recording
+  Studio for same-class chrome, title strip, row, body, and control-state
+  primitives while keeping its compact log-access-shell composition.
 - window placement continuity by carrying down the Project UI Vision rule for
   USER-moved windows to restore position safely across sessions where feasible
 - access to the native NDAI log folder
@@ -165,6 +200,7 @@ Expected direction:
 - previous-log selection after later planning
 - in-app log viewing after later planning
 - export flow after later planning
+- move/resize/default-position/reopen/offscreen-recovery behavior where required
 
 Log Viewer Studio should distinguish native NDAI logs from exported files.
 Native logs are the product artifact. Exported files are USER-requested
@@ -440,6 +476,30 @@ integration, tray controls, keybinds, and full settings remain future-gated.
 
 Branches consuming this feature vision should prove:
 
+- returned-UTS visual repair contract: a USER-returned visual failure routes to
+  bounded Workstream repair first; bounded Hardening checks may run during the
+  repair, but formal H1, exact-launcher Live Validation, and UTS handoff must be
+  renewed after the repair is visually green
+- pre-Live Validation visual purpose conformance before formal LV/UTS: the
+  window must first be visually adjudicated from recorded screenshots or video
+  against its accepted purpose, the Project Vision, FAM-006 vision, this feature
+  vision, and admitted UIREF/reference surfaces; only after that gate is clean
+  may Codex use Live Validation to prove behavior and interaction
+- element-group visual rows for every visible shared or purpose-specific group,
+  including title/header, window controls, buttons, rows, body/background,
+  dividers, copy, hover/focus/pressed/disabled/error/empty states, spacing,
+  density, radius, glow/shadow/underglow, and resize/placement affordances
+- PASS/REPAIR/BLOCKED/WAIVED_WITH_REASON disposition for every inspected
+  element group; screenshot existence, helper PASS, runtime markers, logs, DOM
+  markers, and code claims are not accepted as visual conformance by themselves
+- shared action buttons use a single content-fit primitive: same height,
+  typography, radius, border, glow/hover/focus/pressed/disabled behavior, and
+  equal left/right inline gutters, with text inserted into the primitive rather
+  than per-window stretched grid columns
+- Recording Studio uses one stateful Start/Stop control (`Start Recording` when
+  ready and `Stop Recording` while active) plus a Log Viewer Studio route; two
+  separate visible Start and Stop buttons are stale for the current Option C
+  controller contract
 - Dashboard Recording card visual-system inheritance with focused screenshots
 - selected Overlay Profile target mirroring
 - readiness, recording, saved, disabled, and error states

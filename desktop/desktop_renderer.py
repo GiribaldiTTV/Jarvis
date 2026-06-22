@@ -5775,16 +5775,18 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
-MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "ai-control-center-shared-rendered-studio-window-v4"
+MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "fam006-compact-feature-studio-controller-shell-v1"
 MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "ai-control-center-uiref-001-002-003-primitives"
-MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "shared-rendered-dom-css-primitive"
+MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "nexus-window-primitives-v1-rendered-dom-css"
 MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "photo-video-comparison-required"
 MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY = "photo-video-comparison-not-runtime-self-attestation"
 MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE = "declared-not-proven-by-runtime"
-MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR = "ai-control-center-uiref-003-button-equivalent-requires-photo-adjudication"
-MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "ai-control-center-uiref-001-top-level-frame-equivalent-requires-photo-adjudication"
+MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR = "shared-uiref-003-button-primitive-with-fam006-feature-studio-composition"
+MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "fam006-compact-feature-studio-shell-v2-requires-photo-adjudication"
 MONITORING_HUD_STUDIO_REFERENCE_SURFACES = (
-    "AI Control Center",
+    "AI Control Center shared primitives",
+    "Overlay Profile Settings",
+    "Manage Monitors",
     "UIREF-001 Top-Level Window Frame",
     "UIREF-002 Compact Window Control Cluster",
     "UIREF-003 Control State And Selector Grammar",
@@ -5895,13 +5897,14 @@ def _monitoring_hud_studio_row(
 def _monitoring_hud_ai_control_center_primitive_contract() -> dict[str, str]:
     return {
         "implementationAuthority": "Shared Rendered Primitive Implementation",
-        "primaryReference": "nexus_visual/ai_control_center.html",
+        "primaryReference": "nexus_visual/ai_control_center.html for shared primitives only",
+        "compositionReference": "FAM-006 compact feature-studio controller/shell contract",
         "acceptedReferenceSet": "UIREF-001|UIREF-002|UIREF-003|FAM-002",
-        "windowFrame": "top-level-dark-glass-rounded-frame-ai-control-center-equivalent",
+        "windowFrame": "fam006-compact-feature-studio-dark-glass-rounded-frame",
         "windowControls": "ai-control-center-symbol-window-control-cluster-identical",
         "actionButtons": "monitoring-hud-hub-action-content-fit-button-identical",
-        "rows": "compact-separated-state-rows-ai-control-center-density",
-        "header": "title-group-card-ai-control-center-equivalent",
+        "rows": "fam006-compact-feature-studio-separated-state-rows",
+        "header": "single-compact-feature-studio-title-strip",
         "proofRule": "photo-video-comparison-required; runtime-marker-is-supporting-evidence-only",
     }
 
@@ -5942,7 +5945,7 @@ def _monitoring_hud_prepare_studio_button(
     else:
         button.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-003-action-button")
         button.setProperty("primitiveRole", "primary-secondary-action-button")
-        button.setProperty("visiblePrimitiveShape", "hub-action-content-fit-38px-pill")
+        button.setProperty("visiblePrimitiveShape", "hub-action-content-fit-equal-gutter-38px-pill")
 
 
 def _monitoring_hud_studio_window_control_cluster(parent: QWidget) -> QFrame:
@@ -6405,7 +6408,7 @@ def _monitoring_hud_studio_dom_control_proof(kind: str) -> dict[str, object]:
         "sharedPrimitiveSeed": "AI-Control-Center-UIREF-003-action-button",
         "visualClaimState": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
         "primitiveRole": "primary-secondary-action-button",
-        "visiblePrimitiveShape": "hub-action-content-fit-38px-pill",
+        "visiblePrimitiveShape": "hub-action-content-fit-equal-gutter-38px-pill",
         "keyboardFocusable": True,
         "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
         "implementationPrimitive": "QWebEngineView/monitoring_hud.css DOM",
@@ -6458,6 +6461,11 @@ class MonitoringHudStudioWebWindow(QWidget):
         self.webview.loadFinished.connect(self._on_studio_html_loaded)
         self.webview.load(QUrl.fromLocalFile(str(_monitoring_hud_studio_html_path())))
         root.addWidget(self.webview)
+        self._resize_grip = QSizeGrip(self)
+        self._resize_grip.setObjectName("monitoringHudStudioResizeGrip")
+        self._resize_grip.setToolTip("Resize Studio")
+        self._resize_grip.setFixedSize(20, 20)
+        self._resize_grip.raise_()
 
     def _on_studio_html_loaded(self, ok: bool) -> None:
         self._page_ready = bool(ok)
@@ -6547,6 +6555,9 @@ class MonitoringHudStudioWebWindow(QWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        if hasattr(self, "_resize_grip"):
+            self._resize_grip.move(max(0, self.width() - self._resize_grip.width() - 8), max(0, self.height() - self._resize_grip.height() - 8))
+            self._resize_grip.raise_()
         self._save_current_geometry()
 
     def closeEvent(self, event):
@@ -6568,8 +6579,15 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
-    def __init__(self, screen, event_logger=None, recording_action_handler=None):
+    WIDTH = 430
+    HEIGHT = 334
+    MINIMUM_WIDTH = 360
+    MINIMUM_HEIGHT = 304
+    DRAG_HEADER_HEIGHT = 82
+
+    def __init__(self, screen, event_logger=None, recording_action_handler=None, log_viewer_handler=None):
         self.recording_action_handler = recording_action_handler
+        self.log_viewer_handler = log_viewer_handler
         self._request_id = 0
         self._recording_session_state = "ready"
         self._start_stop_state = "target-required"
@@ -6580,12 +6598,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         self._native_log_display_mode = "single-line-contained"
         self._last_activation_mode = "not-requested"
         self._opened_by_explicit_user_path = False
-        self._geometry_persistence_key = "recording_studio"
+        self._geometry_persistence_key = "recording_studio_feature_studio_v2"
         super().__init__(screen, event_logger)
         self.setObjectName("monitoringHudRecordingStudioWindow")
         self.setWindowTitle("Nexus Recording Studio")
-        self.WIDTH = 570
-        self.HEIGHT = 430
         self.resize(self.WIDTH, self.HEIGHT)
         self._restore_saved_geometry()
         self._geometry_persistence_ready = True
@@ -6616,6 +6632,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     def _handle_surface_command(self, command: str) -> None:
         if command in {"start", "stop"}:
             self._request_recording_action(command)
+        elif command == "open-log-viewer" and callable(self.log_viewer_handler):
+            self.log_viewer_handler()
+            if callable(self.event_logger):
+                self.event_logger("MONITORING_HUD_RECORDING_STUDIO_LOG_VIEWER_REQUESTED")
 
     def _refresh_native_log_text(self) -> None:
         if self._native_log_path:
@@ -6652,12 +6672,8 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "roleLabelC": "Target",
             "roleValueC": "Overlay Profile",
             "recordingTarget": f"{profile} / {count} active monitor{'s' if count != 1 else ''}",
-            "recordingState": f"{target_state}. {target_names}. Session: {session_label}.",
-            "nativeLog": self._native_log_display_text,
-            "recordingBoundary": (
-                "Dashboard and Studio share the active Overlay Profile target. Tray controls, keybinds, "
-                "export customization, and provider/model work remain future-gated."
-            ),
+            "recordingStatus": f"{target_state}. {target_names}. Session: {session_label}.",
+            "recordingBoundary": "Controls the current Recording target from the active Overlay Profile.",
             "startEnabled": self._start_stop_state == "start-enabled",
             "stopEnabled": self._start_stop_state == "recording-stop-enabled",
         }
@@ -6713,12 +6729,13 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlCluster": "UIREF-002-compact-window-control-cluster",
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
-            "actionButtonGeometryPolicy": "ai-control-center-hub-action-content-fit-38px-pill",
-            "stateRowDensityPolicy": "ai-control-center-compact-state-row-density",
-            "titleGroupVisualPolicy": "ai-control-center-title-group-card-equivalent",
+            "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+            "stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density",
+            "titleGroupVisualPolicy": "fam006-compact-feature-studio-title-strip",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
-            "referenceTemplatePrimitiveClassification": "Shared Rendered Primitive Implementation",
-            "primaryVisualComparator": "AI Control Center",
+            "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
+            "primaryVisualComparator": "FAM-006 compact feature-studio grammar",
+            "compositionModel": "ultra-lightweight-detached-recording-controller",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
             "panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel",
@@ -6734,28 +6751,36 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "openedByExplicitUserPath": self._opened_by_explicit_user_path,
             "startStopState": self._start_stop_state,
             "visualContractDeclared": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
-            "visualSystemInheritanceClaim": "ai-control-center-shared-rendered-primitive",
+            "visualSystemInheritanceClaim": "nexus-window-primitives-v1-rendered-dom-css",
             "visualSampledElements": MONITORING_HUD_STUDIO_VISUAL_SAMPLE,
             "visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION,
             "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
             "visualRuntimeSelfAttestation": "rejected",
             "visualMatrixRequired": True,
             "visualReferenceSurfacesRequired": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
-            "standaloneWindowLayout": "purpose-specific-shared-rendered-primitives",
-            "sharedVisualDna": "shared-rendered-dom-css-primitive",
-            "genericShellRejected": "shared-rendered-dom-css-primitive",
+            "standaloneWindowLayout": "ultra-lightweight-detached-recording-controller",
+            "dashboardLifecycleDependency": "independent-while-runtime-active",
+            "logViewerRoute": "recording-studio-open-log-viewer-action",
+            "recordingToggleRoute": "recording-studio-toggle-action",
+            "recordingStudioVisibleActionModel": "single-stateful-start-stop-button-plus-log-viewer-route",
+            "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
+            "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
+            "featureStudioPrimitive": "fam006-compact-controller-shell-v2",
+            "sharedVisualDna": "nexus-window-primitives-v1-rendered-dom-css",
+            "genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css",
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
-            "buttonVisualGrammar": "ai-control-center-rendered-button-primitive",
-            "windowBodyVisualGrammar": "ai-control-center-rendered-window-primitive",
+            "buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-button-primitive",
+            "windowBodyVisualGrammar": "fam006-compact-feature-studio-shell-v2-rendered-window-primitive",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
+            "resizeBehavior": "qsizegrip-bottom-right-enabled",
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
             "startEnabled": self._start_stop_state == "start-enabled",
-            "startControlProof": _monitoring_hud_studio_dom_control_proof("start"),
             "stopEnabled": self._start_stop_state == "recording-stop-enabled",
-            "stopControlProof": _monitoring_hud_studio_dom_control_proof("stop"),
+            "recordingToggleControlProof": _monitoring_hud_studio_dom_control_proof("recording-toggle"),
+            "logViewerRouteControlProof": _monitoring_hud_studio_dom_control_proof("open-log-viewer"),
             "controlStateProof": "default-hover-focus-pressed-disabled-keyboard-accessible",
             "accessibilityKeyboardProofState": "controls-focusable-accessible-names-tooltips",
             "visible": self.isVisible(),
@@ -6770,13 +6795,16 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 570
-    HEIGHT = 430
+    WIDTH = 520
+    HEIGHT = 318
+    MINIMUM_WIDTH = 430
+    MINIMUM_HEIGHT = 292
+    DRAG_HEADER_HEIGHT = 82
 
     def __init__(self, screen, event_logger=None):
         self._request_id = ""
         self._last_activation_mode = "not-requested"
-        self._geometry_persistence_key = "log_viewer_studio"
+        self._geometry_persistence_key = "log_viewer_studio_feature_studio_v2"
         self._native_full_path = str(recording_output_dir())
         self._export_full_path = str(recording_export_dir())
         self._folder_status_text = "Native and exported log folders are ready to open."
@@ -6898,12 +6926,13 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlCluster": "UIREF-002-compact-window-control-cluster",
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
-            "actionButtonGeometryPolicy": "ai-control-center-hub-action-content-fit-38px-pill",
-            "stateRowDensityPolicy": "ai-control-center-compact-state-row-density",
-            "titleGroupVisualPolicy": "ai-control-center-title-group-card-equivalent",
+            "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+            "stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density",
+            "titleGroupVisualPolicy": "fam006-compact-feature-studio-title-strip",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
-            "referenceTemplatePrimitiveClassification": "Shared Rendered Primitive Implementation",
-            "primaryVisualComparator": "AI Control Center",
+            "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
+            "primaryVisualComparator": "FAM-006 compact feature-studio grammar",
+            "compositionModel": "compact-current-branch-log-access-shell",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
             "panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel",
@@ -6936,22 +6965,26 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "userVisibleStorageModel": "flat-user-recording-and-export-roots",
             "internalPathLeakageAbsent": not any(term in combined_roots for term in leakage_terms),
             "visualContractDeclared": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
-            "visualSystemInheritanceClaim": "ai-control-center-shared-rendered-primitive",
+            "visualSystemInheritanceClaim": "nexus-window-primitives-v1-rendered-dom-css",
             "visualSampledElements": MONITORING_HUD_STUDIO_VISUAL_SAMPLE,
             "visualAdjudicationState": MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION,
             "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
             "visualRuntimeSelfAttestation": "rejected",
             "visualMatrixRequired": True,
             "visualReferenceSurfacesRequired": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
-            "standaloneWindowLayout": "purpose-specific-shared-rendered-primitives",
-            "sharedVisualDna": "shared-rendered-dom-css-primitive",
-            "genericShellRejected": "shared-rendered-dom-css-primitive",
+            "standaloneWindowLayout": "compact-current-branch-log-access-shell",
+            "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
+            "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
+            "featureStudioPrimitive": "fam006-compact-controller-shell-v2",
+            "sharedVisualDna": "nexus-window-primitives-v1-rendered-dom-css",
+            "genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css",
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
             "buttonVisualGrammar": "ai-control-center-rendered-button-primitive",
-            "windowBodyVisualGrammar": "ai-control-center-rendered-window-primitive",
+            "windowBodyVisualGrammar": "fam006-compact-feature-studio-shell-v2-rendered-window-primitive",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
+            "resizeBehavior": "qsizegrip-bottom-right-enabled",
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
             "previousLogSelectionState": "future-gated",
@@ -8236,6 +8269,7 @@ class DesktopRuntimeWindow(QWidget):
                 screen,
                 event_logger,
                 recording_action_handler=self._dispatch_monitoring_hud_recording_studio_action,
+                log_viewer_handler=self._open_monitoring_hud_log_viewer_studio_from_recording,
             )
             if self.surface_role == "hud"
             else None
@@ -9197,6 +9231,34 @@ class DesktopRuntimeWindow(QWidget):
         else:
             script = "if (typeof monitoringHudToggleRecording === 'function') { monitoringHudToggleRecording(); }"
         self._run_javascript(script)
+
+    def _open_monitoring_hud_log_viewer_studio_from_recording(self) -> None:
+        if self._monitoring_hud_log_viewer_studio_window is None:
+            return
+        state = getattr(self, "_monitoring_hud_live_page_state", {}) or {}
+        summary = state.get("logViewerStudioSummary") if isinstance(state, dict) else {}
+        if not isinstance(summary, dict):
+            summary = {}
+        request_id = f"recording-studio-route-{int(time.time() * 1000)}"
+        self._monitoring_hud_log_viewer_studio_window.update_product_state(
+            request_id=request_id,
+            native_log_path=str(summary.get("nativeLogPath") or ""),
+            validation_export_path=str(summary.get("validationExportPath") or ""),
+            export_dir=str(summary.get("exportDir") or ""),
+            activate_window=True,
+        )
+        proof = self._monitoring_hud_log_viewer_studio_window.proof_state()
+        self._emit_runtime_signal(
+            "MONITORING_HUD_RECORDING_STUDIO_LOG_VIEWER_ROUTE_READY",
+            package="PKG-006",
+            slice="SLC-054",
+            seam="Live Validation",
+            request_id=request_id,
+            surface=proof.get("surface"),
+            visible=proof.get("visible"),
+            standalone=proof.get("standaloneTopLevel"),
+            route="recording-studio-open-log-viewer-action",
+        )
 
     def _run_javascript_with_result(self, script, callback):
         page = self.webview.page()
@@ -13424,19 +13486,24 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
                 and proof.get("visualRuntimeSelfAttestation") == "rejected"
                 and proof.get("visualMatrixRequired") is True
-                and proof.get("standaloneWindowLayout") == "purpose-specific-shared-rendered-primitives"
+                and proof.get("standaloneWindowLayout") == "ultra-lightweight-detached-recording-controller"
+                and proof.get("compositionModel") == "ultra-lightweight-detached-recording-controller"
+                and proof.get("dashboardLifecycleDependency") == "independent-while-runtime-active"
+                and proof.get("logViewerRoute") == "recording-studio-open-log-viewer-action"
                 and proof.get("titleHeaderBadgeState") == "removed"
                 and proof.get("standaloneHeaderTreatment") == "ai-control-center-title-group-no-extra-badge"
-                and proof.get("windowBodyVisualGrammar") == "ai-control-center-rendered-window-primitive"
+                and proof.get("windowBodyVisualGrammar") == "fam006-compact-feature-studio-shell-v2-rendered-window-primitive"
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
-                and proof.get("actionButtonGeometryPolicy") == "ai-control-center-hub-action-content-fit-38px-pill"
-                and proof.get("stateRowDensityPolicy") == "ai-control-center-compact-state-row-density"
-                and proof.get("titleGroupVisualPolicy") == "ai-control-center-title-group-card-equivalent"
+                and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
+                and proof.get("stateRowDensityPolicy") == "fam006-compact-feature-studio-state-row-density"
+                and proof.get("titleGroupVisualPolicy") == "fam006-compact-feature-studio-title-strip"
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
-                and proof.get("startControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-38px-pill"
-                and proof.get("stopControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-38px-pill"
+                and proof.get("recordingStudioVisibleActionModel") == "single-stateful-start-stop-button-plus-log-viewer-route"
+                and proof.get("recordingToggleControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
+                and proof.get("logViewerRouteControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
+                and proof.get("resizeBehavior") == "qsizegrip-bottom-right-enabled"
                 and proof.get("nativeLogRowsContained") is True
                 and proof.get("startEnabled") is True
                 and proof.get("stopEnabled") is False
@@ -13704,19 +13771,21 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("visualProofAuthority") == MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY
                 and proof.get("visualRuntimeSelfAttestation") == "rejected"
                 and proof.get("visualMatrixRequired") is True
-                and proof.get("standaloneWindowLayout") == "purpose-specific-shared-rendered-primitives"
+                and proof.get("standaloneWindowLayout") == "compact-current-branch-log-access-shell"
+                and proof.get("compositionModel") == "compact-current-branch-log-access-shell"
                 and proof.get("titleHeaderBadgeState") == "removed"
                 and proof.get("standaloneHeaderTreatment") == "ai-control-center-title-group-no-extra-badge"
-                and proof.get("windowBodyVisualGrammar") == "ai-control-center-rendered-window-primitive"
+                and proof.get("windowBodyVisualGrammar") == "fam006-compact-feature-studio-shell-v2-rendered-window-primitive"
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
-                and proof.get("actionButtonGeometryPolicy") == "ai-control-center-hub-action-content-fit-38px-pill"
-                and proof.get("stateRowDensityPolicy") == "ai-control-center-compact-state-row-density"
-                and proof.get("titleGroupVisualPolicy") == "ai-control-center-title-group-card-equivalent"
+                and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
+                and proof.get("stateRowDensityPolicy") == "fam006-compact-feature-studio-state-row-density"
+                and proof.get("titleGroupVisualPolicy") == "fam006-compact-feature-studio-title-strip"
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
-                and proof.get("openNativeControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-38px-pill"
-                and proof.get("openExportControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-38px-pill"
+                and proof.get("openNativeControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
+                and proof.get("openExportControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
+                and proof.get("resizeBehavior") == "qsizegrip-bottom-right-enabled"
                 and proof.get("internalPathLeakageAbsent") is True
                 and proof.get("userVisibleStorageModel") == "flat-user-recording-and-export-roots"
                 and proof.get("pathRowsContained") is True

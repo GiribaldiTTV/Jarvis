@@ -69,8 +69,11 @@ def validate() -> list[str]:
     js = _read("nexus_visual/monitoring_hud.js")
     studio_html = _read("nexus_visual/monitoring_hud_studio.html")
     studio_js = _read("nexus_visual/monitoring_hud_studio.js")
-    studio_source = studio_html + "\n" + studio_js
+    studio_primitives = _read("nexus_visual/nexus_window_primitives.css")
+    studio_source = studio_html + "\n" + studio_js + "\n" + studio_primitives
     renderer = _read("desktop/desktop_renderer.py")
+    phase_governance = _read("Docs/phase_governance.md")
+    helper_registry = _read("Docs/validation_helper_registry.md")
     family_vision = _read("Docs/family_visions/FAM-006_monitoring_and_hud.md")
     recording_feature_vision = _read("Docs/family_feature_visions/FAM-006_recording.md")
     output_contract = _read("desktop/recording_output_contract.py")
@@ -1522,13 +1525,22 @@ def validate() -> list[str]:
         "titleHeaderBadgeState",
         "ai-control-center-title-group-no-extra-badge",
         "top-right-header",
-        "ai-control-center-shared-rendered-studio-window-v4",
-        "ai-control-center-shared-rendered-primitive",
-        "Shared Rendered Primitive Implementation",
+        "fam006-compact-feature-studio-controller-shell-v1",
+        "nexus-window-primitives-v1-rendered-dom-css",
+        "Bounded FAM-006 Shared Primitive Carry-In",
+        "nexus_visual/nexus_window_primitives.css",
         "ai-control-center-symbol-window-control-cluster",
         "ai-control-center-symbol-window-control-pill",
+        "sharedPrimitiveConsumer",
+        "featureStudioPrimitive",
         "QWebEngineView/monitoring_hud.css DOM",
         "studioVisualInheritanceMatrix",
+        "preLiveVisualPurposeConformanceGate",
+        "REQUIRED_BEFORE_FUNCTIONAL_LV",
+        "prove-window-looks-like-accepted-vision-contract-before-proving-behavior",
+        "photo-video-element-group-visual-adjudication",
+        "functional click proof before visual-purpose proof",
+        "Any missing or non-green unwaived element-group row blocks UTS handoff",
         "REQUIRES_CODEX_PHOTO_VIDEO_ADJUDICATION",
         "photo-video-comparison-not-runtime-self-attestation",
         "requiredReferenceLabels",
@@ -1546,12 +1558,75 @@ def validate() -> list[str]:
         _require_contains(renderer + "\n" + live_validation, needle, "SLC-052 live validation visual-system inheritance proof", failures)
 
     for needle in (
-        ".monitoring-hud__hub-card[hidden]",
+        "Pre-Live Visual Purpose Conformance Gate",
+        "before Live Validation begins",
+        "first visual-purpose conformance from recorded evidence, then functional behavior and interaction proof",
+        "supported only by screenshot existence, helper output, runtime marker, DOM marker, code assertion, or unadjudicated photo/video evidence",
+        "Returned UTS FAIL / Bounded Workstream Repair Required",
+        "Returned UTS Workstream Repair Missing",
+        "Returned UTS Renewed H1 Missing",
+        "Returned UTS Renewed LV Missing",
+        "returned USER UTS `FAIL` / `REPAIR` / equivalent rejection, reopen a bounded Workstream repair",
+    ):
+        _require_contains(
+            phase_governance,
+            needle,
+            "repo-wide Pre-Live Visual Purpose Conformance phase governance",
+            failures,
+        )
+
+    for needle in (
+        "Pre-Live Visual Purpose Conformance validator guidance",
+        "required precondition for visible user-facing UI",
+        "runs functional interaction proof before visual-purpose conformance is adjudicated",
+        "source-truth purpose contract, recorded photo/video element-group visual adjudication",
+        "Returned UTS failure routing validator guidance",
+        "legal route back to bounded Workstream repair",
+        "bounded Hardening checks may run alongside repair seams/slices",
+        "Returned UTS Renewed UTS Handoff Missing",
+    ):
+        _require_contains(
+            helper_registry,
+            needle,
+            "repo-wide Pre-Live Visual Purpose Conformance helper registry",
+            failures,
+        )
+
+    for needle in (
+        "nexus_window_primitives.css",
+        'data-shared-primitive-consumer="nexus-window-primitives-v1"',
+        'data-feature-studio-primitive="fam006-compact-controller-shell-v2"',
+        'data-window-control-primitive="nexus-uiref-002-compact-cluster-v1"',
+        ".monitoring-hud__feature-studio-panel[hidden]",
         "display: none !important",
         "nexusMonitoringHudStudioApplyState",
-        "data-product-surface=\"nexus-ai-control-center\"",
+        "data-product-surface=\"fam006-feature-studio\"",
+        "data-feature-studio-purpose=\"ultra-lightweight-detached-recording-controller\"",
+        "monitoring-hud-studio-open-log-viewer-action",
+        "monitoring-hud-studio-recording-toggle-action",
+        "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+        'data-button-layout="content-fit"',
+        "Start Recording",
+        "Stop Recording",
+        "Log Viewer Studio",
     ):
         _require_contains(studio_source, needle, "FAM-006 rendered Studio visual primitive source", failures)
+
+    for forbidden in (
+        "monitoring-hud-studio-start-action",
+        "monitoring-hud-studio-stop-action",
+        "grid-template-columns: repeat(3, minmax(0, 1fr))",
+        "grid-template-columns: repeat(2, minmax(0, 1fr))",
+        "monitoring-hud-hub-action-content-fit-v1",
+        "<span>Target Overlay Profile</span>",
+        "<span>Recording State</span>",
+        "<span>Native Log</span>",
+    ):
+        _require(
+            forbidden not in studio_source,
+            f"FAM-006 Recording Studio returned-UTS repair must reject stale UI primitive/content: {forbidden}",
+            failures,
+        )
 
     for forbidden in (
         '_monitoring_hud_studio_badge("REC"',
@@ -1567,6 +1642,8 @@ def validate() -> list[str]:
     for needle in (
         "profile-specific log consistency",
         "normal USER-path activation for Recording Studio and Log Viewer Studio",
+        "ultra-lightweight detached Recording controller",
+        "compact current-branch shell",
         "standalone window layout that is not a Dashboard card clone",
         "Recording Studio visual proof only after the normal visible activation path is",
         "Log Viewer Studio visual-system inheritance",
@@ -1659,11 +1736,13 @@ def validate() -> list[str]:
     for needle in (
         "nativeCursorRecordingStudioReopenProof",
         "MONITORING_HUD_STUDIO_VISUAL_INHERITANCE",
-        "shared-rendered-dom-css-primitive",
-        "ai-control-center-shared-rendered-studio-window-v4",
+        "nexus-window-primitives-v1-rendered-dom-css",
+        "fam006-compact-feature-studio-controller-shell-v1",
         "ai-control-center-uiref-001-002-003-primitives",
-        "Shared Rendered Primitive Implementation",
-        '"primaryVisualComparator": "AI Control Center"',
+        "Bounded FAM-006 Shared Primitive Carry-In",
+        '"primaryVisualComparator": "FAM-006 compact feature-studio grammar"',
+        '"compositionModel": "ultra-lightweight-detached-recording-controller"',
+        '"compositionModel": "compact-current-branch-log-access-shell"',
         '"visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract()',
         '"acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES)',
         '"headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group"',
@@ -1673,24 +1752,34 @@ def validate() -> list[str]:
         '"visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY',
         '"visualRuntimeSelfAttestation": "rejected"',
         '"visualMatrixRequired": True',
-        '"standaloneWindowLayout": "purpose-specific-shared-rendered-primitives"',
-        '"sharedVisualDna": "shared-rendered-dom-css-primitive"',
-        '"genericShellRejected": "shared-rendered-dom-css-primitive"',
+        '"standaloneWindowLayout": "ultra-lightweight-detached-recording-controller"',
+        '"standaloneWindowLayout": "compact-current-branch-log-access-shell"',
+        '"dashboardLifecycleDependency": "independent-while-runtime-active"',
+        '"logViewerRoute": "recording-studio-open-log-viewer-action"',
+        '"sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css"',
+        '"sharedPrimitiveConsumer": "nexus-window-primitives-v1"',
+        '"featureStudioPrimitive": "fam006-compact-controller-shell-v2"',
+        '"sharedVisualDna": "nexus-window-primitives-v1-rendered-dom-css"',
+        '"genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css"',
         '"titleHeaderBadgeState": "removed"',
         '"standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge"',
         '"minimizeControlLocation": "top-right-header"',
         '"closeControlLocation": "top-right-header"',
-        '"buttonVisualGrammar": "ai-control-center-rendered-button-primitive"',
-        '"windowBodyVisualGrammar": "ai-control-center-rendered-window-primitive"',
+        '"buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-button-primitive"',
+        '"windowBodyVisualGrammar": "fam006-compact-feature-studio-shell-v2-rendered-window-primitive"',
         "AI-Control-Center-UIREF-002-window-control-cluster",
         "AI-Control-Center-UIREF-003-action-button",
         "AI-Control-Center-UIREF-001-title-group",
         '"windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster"',
-        '"actionButtonGeometryPolicy": "ai-control-center-hub-action-content-fit-38px-pill"',
-        '"stateRowDensityPolicy": "ai-control-center-compact-state-row-density"',
-        '"titleGroupVisualPolicy": "ai-control-center-title-group-card-equivalent"',
+        '"actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2"',
+        '"stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density"',
+        '"titleGroupVisualPolicy": "fam006-compact-feature-studio-title-strip"',
         "ai-control-center-symbol-window-control-pill",
-        "hub-action-content-fit-38px-pill",
+        "hub-action-content-fit-equal-gutter-38px-pill",
+        '"recordingStudioVisibleActionModel": "single-stateful-start-stop-button-plus-log-viewer-route"',
+        '"recordingToggleControlProof": _monitoring_hud_studio_dom_control_proof("recording-toggle")',
+        '"logViewerRouteControlProof": _monitoring_hud_studio_dom_control_proof("open-log-viewer")',
+        '"resizeBehavior": "qsizegrip-bottom-right-enabled"',
         '"nativeLogRowsContained": bool',
         '"windowPlacementMemoryState": "enabled"',
         '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',

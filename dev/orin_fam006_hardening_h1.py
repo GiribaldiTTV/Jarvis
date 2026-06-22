@@ -47,6 +47,8 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
     hud_state = _read_repo_text("desktop/monitoring_hud_state.py")
     hud_js = _read_repo_text("nexus_visual/monitoring_hud.js")
     hud_html = _read_repo_text("nexus_visual/monitoring_hud.html")
+    studio_html = _read_repo_text("nexus_visual/monitoring_hud_studio.html")
+    studio_css = _read_repo_text("nexus_visual/nexus_window_primitives.css")
     renderer = _read_repo_text("desktop/desktop_renderer.py")
     main_entry = _read_repo_text("desktop/orin_desktop_main.py")
     output_source = _read_repo_text("desktop/recording_output_contract.py")
@@ -87,7 +89,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         {
             "slice": "SLC-053",
             "result": _contains_all(
-                renderer + hud_js,
+                renderer + hud_js + studio_html + studio_css,
                 (
                     "Recording Studio",
                     "recording_studio_window",
@@ -95,9 +97,12 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "_dispatch_monitoring_hud_recording_studio_action",
                     "recordingExecutionState",
                     "recordingFileWritingState",
-                    "ai-control-center-shared-rendered-studio-window-v4",
-                    "shared-rendered-dom-css-primitive",
-                    "Shared Rendered Primitive Implementation",
+                    "fam006-compact-feature-studio-controller-shell-v1",
+                    "nexus-window-primitives-v1-rendered-dom-css",
+                    "Bounded FAM-006 Shared Primitive Carry-In",
+                    "nexus_visual/nexus_window_primitives.css",
+                    "sharedPrimitiveConsumer",
+                    "featureStudioPrimitive",
                     "primaryVisualComparator",
                     "visualPrimitiveAdoptionContract",
                     "acceptedReferenceSet",
@@ -105,7 +110,14 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "photo-video-comparison-not-runtime-self-attestation",
                     "visualRuntimeSelfAttestation",
                     "visualMatrixRequired",
-                    "purpose-specific-shared-rendered-primitives",
+                    "ultra-lightweight-detached-recording-controller",
+                    "dashboardLifecycleDependency",
+                    "recording-studio-open-log-viewer-action",
+                    "recording-studio-toggle-action",
+                    "single-stateful-start-stop-button-plus-log-viewer-route",
+                    "monitoring-hud-studio-recording-toggle-action",
+                    "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+                    "qsizegrip-bottom-right-enabled",
                     "windowPlacementMemoryState",
                     "titleHeaderBadgeState",
                     "ai-control-center-title-group-no-extra-badge",
@@ -114,9 +126,9 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "AI-Control-Center-UIREF-002-window-control-cluster",
                     "AI-Control-Center-UIREF-003-action-button",
                     "ai-control-center-symbol-window-control-cluster",
-                    "ai-control-center-hub-action-content-fit-38px-pill",
-                    "ai-control-center-compact-state-row-density",
-                    "ai-control-center-title-group-card-equivalent",
+                    "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+                    "fam006-compact-feature-studio-state-row-density",
+                    "fam006-compact-feature-studio-title-strip",
                     "ai-control-center-symbol-window-control-pill",
                     "nativeLogRowsContained",
                 ),
@@ -126,7 +138,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         {
             "slice": "SLC-054-SHELL",
             "result": _contains_all(
-                renderer + hud_js,
+                renderer + hud_js + studio_html + studio_css,
                 (
                     "Log Viewer Studio",
                     "log_viewer_studio_shell",
@@ -135,9 +147,12 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "recording_export_dir",
                     "create-or-open-before-session",
                     "exportCustomizationState",
-                    "ai-control-center-shared-rendered-studio-window-v4",
-                    "shared-rendered-dom-css-primitive",
-                    "Shared Rendered Primitive Implementation",
+                    "fam006-compact-feature-studio-controller-shell-v1",
+                    "nexus-window-primitives-v1-rendered-dom-css",
+                    "Bounded FAM-006 Shared Primitive Carry-In",
+                    "nexus_visual/nexus_window_primitives.css",
+                    "sharedPrimitiveConsumer",
+                    "featureStudioPrimitive",
                     "primaryVisualComparator",
                     "visualPrimitiveAdoptionContract",
                     "acceptedReferenceSet",
@@ -145,7 +160,8 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "photo-video-comparison-not-runtime-self-attestation",
                     "visualRuntimeSelfAttestation",
                     "visualMatrixRequired",
-                    "purpose-specific-shared-rendered-primitives",
+                    "compact-current-branch-log-access-shell",
+                    "qsizegrip-bottom-right-enabled",
                     "windowPlacementMemoryState",
                     "middle-elided-contained",
                     "pathRowsContained",
@@ -157,9 +173,9 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "AI-Control-Center-UIREF-002-window-control-cluster",
                     "AI-Control-Center-UIREF-003-action-button",
                     "ai-control-center-symbol-window-control-cluster",
-                    "ai-control-center-hub-action-content-fit-38px-pill",
-                    "ai-control-center-compact-state-row-density",
-                    "ai-control-center-title-group-card-equivalent",
+                    "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+                    "fam006-compact-feature-studio-state-row-density",
+                    "fam006-compact-feature-studio-title-strip",
                     "ai-control-center-symbol-window-control-pill",
                 ),
             ),
@@ -243,6 +259,19 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         "FAM-007 mutation",
     )
     boundary_trace = all(boundary in branch_record for boundary in future_boundaries)
+    stale_recording_studio_model_absent = not any(
+        marker in studio_html + studio_css
+        for marker in (
+            "monitoring-hud-studio-start-action",
+            "monitoring-hud-studio-stop-action",
+            "grid-template-columns: repeat(3, minmax(0, 1fr))",
+            "grid-template-columns: repeat(2, minmax(0, 1fr))",
+            "monitoring-hud-hub-action-content-fit-v1",
+            "<span>Target Overlay Profile</span>",
+            "<span>Recording State</span>",
+            "<span>Native Log</span>",
+        )
+    )
 
     proof = {
         "hardeningH1Id": HARDENING_H1_ID,
@@ -259,6 +288,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         "profileLogConsistencyPassed": output_contract["profileLogConsistencyPassed"],
         "twoProfileLogConsistencyPassed": output_contract["twoProfileLogConsistencyPassed"],
         "futureBoundariesPreserved": boundary_trace,
+        "staleRecordingStudioModelAbsent": stale_recording_studio_model_absent,
         "liveValidationState": "pending-user-admission-after-h1",
         "utsState": "pending-live-validation-stage-1",
         "formalUtsExported": False,
@@ -275,6 +305,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         and proof["profileLogConsistencyPassed"]
         and proof["twoProfileLogConsistencyPassed"]
         and proof["futureBoundariesPreserved"]
+        and proof["staleRecordingStudioModelAbsent"]
         and not proof["formalUtsExported"]
     )
     return deepcopy(proof)
