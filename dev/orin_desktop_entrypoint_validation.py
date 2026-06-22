@@ -7459,6 +7459,10 @@ def run_validation():
         ),
         f"action_texts={action_texts}; quick_access={submenu_action_texts.get('Quick Access', [])}",
     )
+    checks["tray_quick_access_second_after_global_settings"] = line_status(
+        len(action_texts) > 1 and action_texts[0] == "Global Settings" and action_texts[1] == "Quick Access",
+        f"action_texts={action_texts}",
+    )
     checks["tray_ai_submenu_present"] = line_status(
         "AI" in action_texts and submenu_action_texts.get("AI") == ["AI Status / Command Center"],
         f"action_texts={action_texts}; ai={submenu_action_texts.get('AI', [])}",
@@ -7567,6 +7571,14 @@ def run_validation():
         "Open HUD Dashboard" in tray_hud_result["enabled_available"].get("texts", ())
         and tray_hud_result["enabled_available"].get("dashboard_open_enabled") is True,
         f"enabled_available={tray_hud_result['enabled_available']}",
+    )
+    checks["tray_hud_quick_access_stays_second"] = line_status(
+        tray_hud_result["enabled_available"].get("texts", ())[:2] == ["Global Settings", "Quick Access"]
+        and tray_hud_result["temporarily_blocked"].get("texts", ())[:2] == ["Global Settings", "Quick Access"],
+        (
+            f"enabled_available={tray_hud_result['enabled_available']}; "
+            f"temporarily_blocked={tray_hud_result['temporarily_blocked']}"
+        ),
     )
     checks["fallback_hud_enabled_available_dashboard_button"] = line_status(
         any(

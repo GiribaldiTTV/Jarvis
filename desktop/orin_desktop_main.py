@@ -21,7 +21,7 @@ from desktop.hotkeys import ShutdownBus, GlobalHotkeyManager
 from desktop.monitoring_hud_state import load_monitoring_hud_state
 from desktop.resident_access import build_resident_access_menu_plan
 from desktop.single_instance import NamedSignal
-from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL
+from desktop.tray_controller import DesktopTrayEntry, TRAY_IDENTITY_LABEL, build_resident_tray_icon
 
 try:
     from desktop.desktop_renderer import DesktopRuntimeWindow
@@ -497,6 +497,7 @@ def main():
 
     app = QApplication(sys.argv)
     app.setApplicationName(TRAY_IDENTITY_LABEL)
+    app.setWindowIcon(build_resident_tray_icon())
     app.setQuitOnLastWindowClosed(False)
     try:
         app.setApplicationDisplayName(TRAY_IDENTITY_LABEL)

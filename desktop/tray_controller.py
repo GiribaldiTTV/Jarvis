@@ -271,20 +271,6 @@ class DesktopTrayEntry:
             )
             self.tray_menu.addSeparator()
 
-            self.monitoring_hud_primary_action = self._add_button_action(
-                "HUD Feature Settings",
-                self.request_global_settings_from_tray,
-            )
-            self.monitoring_hud_dashboard_action = self._add_button_action(
-                "Open HUD Dashboard",
-                self.request_monitoring_hud_dashboard_from_tray,
-            )
-            self.monitoring_hud_unanchor_action = self._add_button_action(
-                "HUD Overlay Deferred",
-                self.request_monitoring_hud_unanchor_from_tray,
-            )
-            self.tray_menu.addSeparator()
-
             self.quick_access_menu = self.tray_menu.addMenu("Quick Access")
             self.quick_access_menu_action = self.quick_access_menu.menuAction()
             for index in range(5):
@@ -302,6 +288,20 @@ class DesktopTrayEntry:
                 "AI Status / Command Center",
                 self.request_ai_status_from_tray,
                 parent_menu=self.ai_menu,
+            )
+            self.tray_menu.addSeparator()
+
+            self.monitoring_hud_primary_action = self._add_button_action(
+                "HUD Feature Settings",
+                self.request_global_settings_from_tray,
+            )
+            self.monitoring_hud_dashboard_action = self._add_button_action(
+                "Open HUD Dashboard",
+                self.request_monitoring_hud_dashboard_from_tray,
+            )
+            self.monitoring_hud_unanchor_action = self._add_button_action(
+                "HUD Overlay Deferred",
+                self.request_monitoring_hud_unanchor_from_tray,
             )
             self.tray_menu.addSeparator()
 
@@ -339,6 +339,18 @@ class DesktopTrayEntry:
             self.request_global_settings_from_tray,
         )
         self.tray_popup.add_separator()
+        for index in range(5):
+            button = self.tray_popup.add_button(
+                f"Quick Access {index + 1}",
+                lambda source, slot_index=index: self.request_quick_slot_from_tray(slot_index, source),
+            )
+            self.quick_slot_buttons.append(button)
+        self.tray_popup.add_separator()
+        self.ai_status_button = self.tray_popup.add_button(
+            "AI Status / Command Center",
+            self.request_ai_status_from_tray,
+        )
+        self.tray_popup.add_separator()
         self.monitoring_hud_status_label = QLabel("HUD Dashboard Closed", self.tray_popup)
         self.monitoring_hud_status_label.setAccessibleName("HUD Dashboard status")
         self.tray_popup.layout.addWidget(self.monitoring_hud_status_label)
@@ -355,17 +367,6 @@ class DesktopTrayEntry:
             self.request_monitoring_hud_unanchor_from_tray,
         )
         self.tray_popup.add_separator()
-        self.ai_status_button = self.tray_popup.add_button(
-            "AI Status / Command Center",
-            self.request_ai_status_from_tray,
-        )
-        self.tray_popup.add_separator()
-        for index in range(5):
-            button = self.tray_popup.add_button(
-                f"Quick Access {index + 1}",
-                lambda source, slot_index=index: self.request_quick_slot_from_tray(slot_index, source),
-            )
-            self.quick_slot_buttons.append(button)
         self.exit_button = self.tray_popup.add_button(
             "Exit Nexus Desktop AI",
             self.request_shutdown_from_tray,
@@ -503,17 +504,6 @@ class DesktopTrayEntry:
                 user32.AppendMenuW(parent_menu, flags, int(submenu), ctypes.c_wchar_p(text))
 
             append(menu, 110, "Global Settings", True)
-            if hud_route_visible:
-                user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
-                append(menu, 101, dashboard_text, hud_route_enabled)
-                if hud_route_enabled:
-                    append(
-                        menu,
-                        102,
-                        "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay",
-                        feature_enabled and overlay_anchor_enabled,
-                    )
-
             quick_access_menu = user32.CreatePopupMenu()
             quick_slot_count = 0
             for index, route in enumerate(quick_slots[:5]):
@@ -535,6 +525,16 @@ class DesktopTrayEntry:
             append(ai_menu, 120, "AI Status / Command Center", True)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append_submenu(menu, ai_menu, "AI", True)
+            if hud_route_visible:
+                user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+                append(menu, 101, dashboard_text, hud_route_enabled)
+                if hud_route_enabled:
+                    append(
+                        menu,
+                        102,
+                        "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay",
+                        feature_enabled and overlay_anchor_enabled,
+                    )
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append(menu, 300, "Exit Nexus Desktop AI", True)
 

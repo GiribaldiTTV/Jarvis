@@ -307,10 +307,28 @@ def validate_static_wiring(failures: list[str]):
     assert_true(
         'self.global_settings_action = self._add_button_action(' in tray_text
         and tray_text.index('self.global_settings_action = self._add_button_action(')
+        < tray_text.index('self.quick_access_menu = self.tray_menu.addMenu("Quick Access")')
+        < tray_text.index('self.ai_menu = self.tray_menu.addMenu("AI")')
         < tray_text.index('self.monitoring_hud_primary_action = self._add_button_action(')
         and tray_text.index('append(menu, 110, "Global Settings", True)')
+        < tray_text.index('append_submenu(menu, quick_access_menu, "Quick Access", True)')
+        < tray_text.index('append_submenu(menu, ai_menu, "AI", True)')
         < tray_text.index('if hud_route_visible:'),
-        "Global Settings must be the first native tray/menu command",
+        "Global Settings and Quick Access must lead the native tray/menu command order",
+        failures,
+    )
+    assert_true(
+        'self.global_settings_button = self.tray_popup.add_button(' in tray_text
+        and tray_text.index('self.global_settings_button = self.tray_popup.add_button(')
+        < tray_text.index('self.quick_slot_buttons.append(button)')
+        < tray_text.index('self.ai_status_button = self.tray_popup.add_button(')
+        < tray_text.index('self.monitoring_hud_status_label = QLabel('),
+        "Global Settings and Quick Access must lead the resident fallback popup order",
+        failures,
+    )
+    assert_true(
+        "app.setWindowIcon(build_resident_tray_icon())" in main_text,
+        "runtime QApplication must bind the branch-local resident icon for taskbar/window identity proof",
         failures,
     )
     assert_true(
