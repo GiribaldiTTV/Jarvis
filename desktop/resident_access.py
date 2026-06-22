@@ -17,7 +17,7 @@ RESIDENT_ACCESS_SETTINGS_SCHEMA_VERSION = "resident-access-settings.v1"
 TRAY_IDENTITY_LABEL = "Nexus Desktop AI"
 TRAY_ORIN_MARK_LABEL = "ORIN"
 RESIDENT_STATUS_LOCAL_NO_PROVIDER = "AI local/no provider; Provider-visible data: none"
-TRAY_TOOLTIP_TEXT = f"{TRAY_IDENTITY_LABEL} - {RESIDENT_STATUS_LOCAL_NO_PROVIDER}"
+TRAY_TOOLTIP_TEXT = ""
 TRAY_DISCOVERY_DURATION_MS = 4500
 WINDOWS_TRAY_VISIBILITY_LIMITATION = (
     "Windows controls whether app notification icons stay pinned or move under hidden icons. "
@@ -36,10 +36,9 @@ DEFAULT_QUICK_SLOT_ROUTE_IDS = (
 MAX_QUICK_SLOT_COUNT = 5
 DEFAULT_QUICK_SLOT_COUNT = 3
 IMMUTABLE_ROUTE_IDS = (
-    "hud_dashboard",
     "global_settings",
+    "hud_dashboard",
     "ai_status_command_center",
-    "privacy_lockdown",
     "exit_nexus",
 )
 OPTIONAL_FEATURE_ROUTE_ENABLED_AVAILABLE = "enabled_available"
@@ -149,21 +148,21 @@ class ResidentAccessSettings:
 
 ROUTE_CATALOG: tuple[ResidentAccessRoute, ...] = (
     ResidentAccessRoute(
-        "hud_dashboard",
-        "HUD Dashboard",
-        "FAM-006",
-        "state-dependent-optional-owner-route",
-        "owner-surface",
-        "Routes to the FAM-006 HUD Dashboard only when the optional HUD route is admitted by state.",
-        immutable=True,
-    ),
-    ResidentAccessRoute(
         "global_settings",
         "Global Settings",
         "FAM-003",
         "available-minimal-shell",
         "local-shell",
         "Opens the minimal Resident Access / Quick Access settings shell.",
+        immutable=True,
+    ),
+    ResidentAccessRoute(
+        "hud_dashboard",
+        "HUD Dashboard",
+        "FAM-006",
+        "state-dependent-optional-owner-route",
+        "owner-surface",
+        "Routes to the FAM-006 HUD Dashboard only when the optional HUD route is admitted by state.",
         immutable=True,
     ),
     ResidentAccessRoute(
@@ -179,10 +178,10 @@ ROUTE_CATALOG: tuple[ResidentAccessRoute, ...] = (
         "privacy_lockdown",
         "Privacy Lockdown",
         "FAM-007",
-        "route-only-feedback",
+        "future-gated-owner-action",
         "owner-bounded-route",
-        "Shows privacy route feedback only; provider/runtime privacy enforcement remains FAM-007.",
-        immutable=True,
+        "Future-gated immediate privacy action; current tray path routes trust detail through AI Status / Command Center.",
+        enabled=False,
     ),
     ResidentAccessRoute(
         "exit_nexus",
@@ -463,10 +462,7 @@ def build_ai_privacy_summary(ai_provider_state: dict[str, object] | None = None)
 
 
 def build_tray_tooltip_text(ai_summary: dict[str, str] | None = None) -> str:
-    ai_summary = ai_summary if isinstance(ai_summary, dict) else {}
-    compact_status = str(ai_summary.get("compactLabel") or RESIDENT_STATUS_LOCAL_NO_PROVIDER).strip()
-    compact_status = compact_status.rstrip(".")
-    return f"{TRAY_IDENTITY_LABEL} - {compact_status}"
+    return TRAY_TOOLTIP_TEXT
 
 
 def build_resident_access_menu_plan(

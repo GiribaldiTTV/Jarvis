@@ -261,6 +261,12 @@ class DesktopTrayEntry:
             self.tray_menu.addAction(self.identity_action)
             self.tray_menu.addSeparator()
 
+            self.global_settings_action = self._add_button_action(
+                "Global Settings",
+                self.request_global_settings_from_tray,
+            )
+            self.tray_menu.addSeparator()
+
             self.monitoring_hud_primary_action = self._add_button_action(
                 "HUD Feature Settings",
                 self.request_global_settings_from_tray,
@@ -275,17 +281,9 @@ class DesktopTrayEntry:
             )
             self.tray_menu.addSeparator()
 
-            self.global_settings_action = self._add_button_action(
-                "Global Settings",
-                self.request_global_settings_from_tray,
-            )
             self.ai_status_action = self._add_button_action(
                 "AI Status / Command Center",
                 self.request_ai_status_from_tray,
-            )
-            self.privacy_lockdown_action = self._add_button_action(
-                "Privacy Lockdown",
-                self.request_privacy_lockdown_from_tray,
             )
             self.tray_menu.addSeparator()
 
@@ -326,6 +324,11 @@ class DesktopTrayEntry:
     def _initialize_popup(self):
         self.tray_popup = TrayCommandPopup(self)
         self.resident_status_label = self.tray_popup.resident_status_label
+        self.global_settings_button = self.tray_popup.add_button(
+            "Global Settings",
+            self.request_global_settings_from_tray,
+        )
+        self.tray_popup.add_separator()
         self.monitoring_hud_status_label = QLabel("HUD Dashboard Closed", self.tray_popup)
         self.monitoring_hud_status_label.setAccessibleName("HUD Dashboard status")
         self.tray_popup.layout.addWidget(self.monitoring_hud_status_label)
@@ -342,17 +345,9 @@ class DesktopTrayEntry:
             self.request_monitoring_hud_unanchor_from_tray,
         )
         self.tray_popup.add_separator()
-        self.global_settings_button = self.tray_popup.add_button(
-            "Global Settings",
-            self.request_global_settings_from_tray,
-        )
         self.ai_status_button = self.tray_popup.add_button(
             "AI Status / Command Center",
             self.request_ai_status_from_tray,
-        )
-        self.privacy_lockdown_button = self.tray_popup.add_button(
-            "Privacy Lockdown",
-            self.request_privacy_lockdown_from_tray,
         )
         self.tray_popup.add_separator()
         for index in range(5):
@@ -491,6 +486,8 @@ class DesktopTrayEntry:
 
             append(80, self._native_menu_status_text(resident_plan), False)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+            append(110, "Global Settings", True)
+            user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             if hud_route_visible:
                 append(101, dashboard_text, hud_route_enabled)
                 if hud_route_enabled:
@@ -500,16 +497,14 @@ class DesktopTrayEntry:
                         feature_enabled and overlay_anchor_enabled,
                     )
                 user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
-            append(110, "Global Settings", True)
             append(120, "AI Status / Command Center", True)
-            append(130, "Privacy Lockdown", True)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             for index, route in enumerate(quick_slots[:5]):
                 route_id = str(route.get("routeId", ""))
                 append(
                     QUICK_SLOT_COMMAND_BASE_ID + index,
                     self._route_label_for_menu(route),
-                    bool(route.get("enabled", True) or route_id in {"ai_status_command_center", "privacy_lockdown"}),
+                    bool(route.get("enabled", True) or route_id in {"ai_status_command_center"}),
                 )
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append(300, "Exit Nexus Desktop AI", True)
@@ -546,7 +541,6 @@ class DesktopTrayEntry:
             102: self.request_monitoring_hud_unanchor_from_tray,
             110: self.request_global_settings_from_tray,
             120: self.request_ai_status_from_tray,
-            130: self.request_privacy_lockdown_from_tray,
             300: self.request_shutdown_from_tray,
         }
         if QUICK_SLOT_COMMAND_BASE_ID <= command_id < QUICK_SLOT_COMMAND_BASE_ID + 5:

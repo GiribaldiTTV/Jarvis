@@ -900,6 +900,7 @@ class ResidentAccessSettingsDialog(QDialog):
             parent=self.shell,
             show_title=True,
         )
+        self.chrome_bar.close_button.setToolTip("")
         shell_layout.addWidget(self.chrome_bar)
 
         body = QWidget(self.shell)
@@ -923,13 +924,12 @@ class ResidentAccessSettingsDialog(QDialog):
         for focus_id, label in (
             ("quick_access", "Resident Access"),
             ("ai_status", "AI Status"),
-            ("privacy", "Privacy"),
+            ("privacy", "Privacy / Trust"),
             ("tray_visibility", "Tray Visibility"),
             ("owner_routes", "Owner Routes"),
         ):
             button = QPushButton(label, nav)
             button.setAccessibleName(f"Settings section: {label}")
-            button.setToolTip(f"Open the {label} settings section.")
             button.setCheckable(True)
             button.clicked.connect(lambda _checked=False, focus_id=focus_id: self.set_focus(focus_id))
             self._nav_buttons[focus_id] = button
@@ -972,12 +972,10 @@ class ResidentAccessSettingsDialog(QDialog):
         quick_header.addStretch(1)
         self.add_slot_button = QPushButton("Add Slot", self.quick_slot_container)
         self.add_slot_button.setAccessibleName("Add Quick Access Slot")
-        self.add_slot_button.setToolTip("Add one compact quick-access slot.")
         self.add_slot_button.clicked.connect(self._add_slot)
         quick_header.addWidget(self.add_slot_button)
         self.reset_slots_button = QPushButton("Reset", self.quick_slot_container)
         self.reset_slots_button.setAccessibleName("Reset Quick Access Slots")
-        self.reset_slots_button.setToolTip("Restore the default quick-access slots.")
         self.reset_slots_button.clicked.connect(self._reset_slots)
         quick_header.addWidget(self.reset_slots_button)
         quick_slot_layout.addLayout(quick_header)
@@ -1002,12 +1000,10 @@ class ResidentAccessSettingsDialog(QDialog):
         footer.addStretch(1)
         self.apply_button = QPushButton("Apply", content_shell)
         self.apply_button.setAccessibleName("Apply Resident Access Settings")
-        self.apply_button.setToolTip("Save Resident Access quick-slot settings.")
         self.apply_button.clicked.connect(self._save_settings)
         footer.addWidget(self.apply_button)
         self.close_button = QPushButton("Close", content_shell)
         self.close_button.setAccessibleName("Close Resident Access Settings")
-        self.close_button.setToolTip("Close Global Settings.")
         self.close_button.clicked.connect(self.accept)
         footer.addWidget(self.close_button)
         content_layout.addLayout(footer)
@@ -1254,7 +1250,6 @@ class ResidentAccessSettingsDialog(QDialog):
             row_layout.addWidget(slot_label)
             combo = QComboBox(row)
             combo.setAccessibleName(f"Quick Access Slot {index + 1} Route")
-            combo.setToolTip(f"Select the route for quick-access slot {index + 1}.")
             combo.setMinimumWidth(280)
             for route in candidates:
                 combo.addItem(self._route_label(route), route.route_id)
@@ -1265,19 +1260,16 @@ class ResidentAccessSettingsDialog(QDialog):
             row_layout.addWidget(combo, 1)
             up_button = QPushButton("Up", row)
             up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
-            up_button.setToolTip(f"Move quick-access slot {index + 1} up.")
             up_button.setEnabled(index > 0)
             up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
             row_layout.addWidget(up_button)
             down_button = QPushButton("Down", row)
             down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
-            down_button.setToolTip(f"Move quick-access slot {index + 1} down.")
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             row_layout.addWidget(down_button)
             remove_button = QPushButton("Remove", row)
             remove_button.setAccessibleName(f"Remove Quick Access Slot {index + 1}")
-            remove_button.setToolTip(f"Remove quick-access slot {index + 1}.")
             remove_button.setEnabled(len(selected_ids) > 1)
             remove_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             row_layout.addWidget(remove_button)
@@ -1371,9 +1363,9 @@ class ResidentAccessSettingsDialog(QDialog):
                 + suffix
             )
         elif self._focus == "privacy":
-            self.section_heading.setText("Privacy Lockdown")
+            self.section_heading.setText("Privacy / Trust")
             self.section_detail.setText(
-                "Privacy Lockdown is route-only feedback in this branch; provider/runtime enforcement remains FAM-007."
+                "Top-level Privacy Lockdown stays future-gated until FAM-007 admits a real immediate lockdown action. Current privacy truth routes through AI Status / Command Center."
                 + suffix
             )
         elif self._focus == "tray_visibility":
@@ -1393,8 +1385,8 @@ class ResidentAccessSettingsDialog(QDialog):
             )
 
         self.route_summary.setText(
-            f"Quick slots active: {route_count}. Immutable entries: HUD Dashboard, Global Settings, "
-            "AI Status / Command Center, Privacy Lockdown, Exit Nexus."
+            f"Quick slots active: {route_count}. Core entries: Global Settings, AI Status / Command Center, Exit Nexus. "
+            "HUD appears only when enabled or owner-blocked; Privacy Lockdown is future-gated."
         )
 
     def set_focus(self, focus: str):

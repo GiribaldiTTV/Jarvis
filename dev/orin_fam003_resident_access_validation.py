@@ -53,22 +53,25 @@ def validate_resident_model(failures: list[str]):
 
     assert_true(TRAY_IDENTITY_LABEL == "Nexus Desktop AI", "tray identity label drifted", failures)
     assert_true(
-        TRAY_TOOLTIP_TEXT.startswith("Nexus Desktop AI - ")
-        and "Provider-visible data: none" in TRAY_TOOLTIP_TEXT,
-        "tray tooltip must include compact AI/privacy status, not identity only",
+        TRAY_TOOLTIP_TEXT == "",
+        "tray hover tooltip must stay disabled until FAM-003 admits readable tooltip styling",
         failures,
     )
     assert_true(tuple(immutable_ids) == IMMUTABLE_ROUTE_IDS, "immutable route order drifted", failures)
     assert_true(
         set(IMMUTABLE_ROUTE_IDS)
         == {
-            "hud_dashboard",
             "global_settings",
+            "hud_dashboard",
             "ai_status_command_center",
-            "privacy_lockdown",
             "exit_nexus",
         },
         "immutable route set is incomplete",
+        failures,
+    )
+    assert_true(
+        immutable_ids[0] == "global_settings",
+        f"Global Settings must be the first immutable command route: {immutable_ids}",
         failures,
     )
     assert_true(route_owner.get("hud_dashboard") == "FAM-006", "HUD Dashboard owner must remain FAM-006", failures)
@@ -86,11 +89,6 @@ def validate_resident_model(failures: list[str]):
     assert_true(
         route_owner.get("ai_status_command_center") == "FAM-007",
         "AI Status / Command Center owner must remain FAM-007",
-        failures,
-    )
-    assert_true(
-        route_owner.get("privacy_lockdown") == "FAM-007",
-        "Privacy Lockdown owner must remain FAM-007",
         failures,
     )
     assert_true(
@@ -129,9 +127,9 @@ def validate_resident_model(failures: list[str]):
         failures,
     )
     assert_true(
-        str(plan.get("tooltipText", "")).startswith("Nexus Desktop AI - ")
-        and "Provider-visible data: none" in str(plan.get("tooltipText", "")),
-        "resident access plan tooltip must carry compact AI/privacy status",
+        str(plan.get("tooltipText", "")) == ""
+        and "Provider-visible data: none" in str(plan.get("statusLabel", "")),
+        "resident access plan must disable hover tooltip and carry compact AI/privacy status in the visible status label",
         failures,
     )
 
@@ -267,6 +265,23 @@ def validate_static_wiring(failures: list[str]):
         failures,
     )
     assert_true(
+        'self.global_settings_action = self._add_button_action(' in tray_text
+        and tray_text.index('self.global_settings_action = self._add_button_action(')
+        < tray_text.index('self.monitoring_hud_primary_action = self._add_button_action(')
+        and tray_text.index('append(110, "Global Settings", True)')
+        < tray_text.index('if hud_route_visible:'),
+        "Global Settings must be the first tray/menu command after the status header",
+        failures,
+    )
+    assert_true(
+        'self.privacy_lockdown_action = self._add_button_action(' not in tray_text
+        and 'self.privacy_lockdown_button = self.tray_popup.add_button(' not in tray_text
+        and 'append(130, "Privacy Lockdown"' not in tray_text
+        and "130: self.request_privacy_lockdown_from_tray" not in tray_text,
+        "Privacy Lockdown must not appear as a top-level tray/menu action until FAM-007 admits a real immediate action",
+        failures,
+    )
+    assert_true(
         'append(100, "Enable HUD Feature"' not in tray_text
         and "append(100, feature_text" not in tray_text,
         "native tray menu must not expose a forced Enable HUD Feature row",
@@ -290,8 +305,26 @@ def validate_static_wiring(failures: list[str]):
         "setMinimumWidth(280)",
         "RESIDENT_ACCESS_PRIVACY_LOCKDOWN_ROUTE_ONLY",
         "Provider-visible data: none",
+        "Top-level Privacy Lockdown stays future-gated",
     ):
         assert_true(token in renderer_text, f"renderer resident access token missing: {token}", failures)
+
+    resident_settings_tooltip_tokens = (
+        "Open the {label} settings section.",
+        "Add one compact quick-access slot.",
+        "Restore the default quick-access slots.",
+        "Save Resident Access quick-slot settings.",
+        "Close Global Settings.",
+        "Select the route for quick-access slot",
+        "Move quick-access slot",
+        "Remove quick-access slot",
+    )
+    for token in resident_settings_tooltip_tokens:
+        assert_true(
+            token not in renderer_text,
+            f"FAM-003 resident settings tooltip text must stay suppressed until readable tooltip styling is admitted: {token}",
+            failures,
+        )
 
     assert_true(
         "button.setMinimumWidth(240)" in tray_text,

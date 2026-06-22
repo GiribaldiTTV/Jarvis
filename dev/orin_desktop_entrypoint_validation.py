@@ -7420,9 +7420,8 @@ def run_validation():
         tray_identity_result["initialized"] is True,
         f"initialized={tray_identity_result['initialized']}",
     )
-    checks["tray_identity_tooltip"] = line_status(
-        tray_identity_result["tooltip"].startswith("Nexus Desktop AI - ")
-        and "Provider-visible data: none" in tray_identity_result["tooltip"],
+    checks["tray_identity_hover_tooltip_disabled"] = line_status(
+        tray_identity_result["tooltip"] == "",
         f"tooltip={tray_identity_result['tooltip']}",
     )
     action_texts = tray_identity_result["action_texts"]
@@ -7438,6 +7437,14 @@ def run_validation():
     )
     checks["tray_ai_status_command_center_present"] = line_status(
         "AI Status / Command Center" in action_texts,
+        f"action_texts={action_texts}",
+    )
+    checks["tray_global_settings_first_command"] = line_status(
+        len(action_texts) > 1 and action_texts[1] == "Global Settings",
+        f"action_texts={action_texts}",
+    )
+    checks["tray_privacy_lockdown_top_level_absent"] = line_status(
+        "Privacy Lockdown" not in action_texts,
         f"action_texts={action_texts}",
     )
     checks["tray_exit_action_present"] = line_status(
