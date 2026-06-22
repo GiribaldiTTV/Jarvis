@@ -61,6 +61,7 @@
     surface.dataset.resizeContract = mode === "log-viewer"
       ? "resizable-log-access-shell"
       : "not-resizable-position-memory-only";
+    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "238";
     surface.setAttribute(
       "aria-label",
       mode === "log-viewer"

@@ -6590,9 +6590,9 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 430
-    HEIGHT = 334
+    HEIGHT = 238
     MINIMUM_WIDTH = 360
-    MINIMUM_HEIGHT = 304
+    MINIMUM_HEIGHT = 238
     DRAG_HEADER_HEIGHT = 82
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
