@@ -1605,6 +1605,10 @@ def validate() -> list[str]:
         "monitoring-hud-studio-open-log-viewer-action",
         "monitoring-hud-studio-recording-toggle-action",
         "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+        "detached-child-window-title-row",
+        "titleCardState",
+        "category-line-plus-strong-title",
+        "background: transparent",
         "overflow: visible",
         "text-overflow: clip",
         'data-control="log-viewer-open-export"',
@@ -1628,9 +1632,10 @@ def validate() -> list[str]:
         "<span>Target Overlay Profile</span>",
         "<span>Recording State</span>",
         "<span>Native Log</span>",
+        "--nexus-feature-studio-title-bg",
     ):
         _require(
-            forbidden not in studio_source,
+            forbidden not in studio_html + "\n" + studio_js,
             f"FAM-006 Recording Studio returned-UTS repair must reject stale UI primitive/content: {forbidden}",
             failures,
         )
@@ -1780,7 +1785,7 @@ def validate() -> list[str]:
         '"windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster"',
         '"actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2"',
         '"stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density"',
-        '"titleGroupVisualPolicy": "fam006-compact-feature-studio-title-strip"',
+        '"titleGroupVisualPolicy": "fam006-detached-child-window-title-row"',
         "ai-control-center-symbol-window-control-pill",
         "hub-action-content-fit-equal-gutter-38px-pill",
         '"recordingStudioVisibleActionModel": "single-stateful-start-stop-button-plus-log-viewer-route"',

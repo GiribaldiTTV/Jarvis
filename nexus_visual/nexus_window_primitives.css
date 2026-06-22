@@ -151,26 +151,38 @@ body.desktop-mode #monitoring-hud[data-window-control-primitive="nexus-uiref-002
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__title-group {
-  padding: 9px 12px 10px;
-  border-radius: 17px;
-  background: var(--nexus-feature-studio-title-bg);
+  padding: 2px 48px 5px 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__header {
+  padding: 0;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__kicker {
-  font-size: 11px;
-  letter-spacing: 0.20em;
+  color: rgba(139, 233, 255, 0.86);
+  font-size: 12px;
+  font-weight: 740;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__title {
-  margin-top: 3px;
+  margin-top: 4px;
+  color: rgba(234, 253, 255, 0.95);
   font-size: 18px;
-  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.08;
+  text-transform: uppercase;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__subtitle {
-  margin-top: 4px;
-  font-size: 11px;
-  line-height: 1.2;
+  display: none;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__surface-role {

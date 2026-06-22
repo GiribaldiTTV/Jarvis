@@ -129,6 +129,10 @@ Expected direction:
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling
+- detached child-window title grammar: Recording Studio is independent and
+  taskbar/minimize-capable, but its title/header treatment follows the FAM-006
+  child-window header pattern of category line plus strong title; it must not
+  render a separate rounded title card or main-window hero/title card
 - shared rendered primitive inheritance for same-class window chrome, title/header,
   action buttons, row/divider panels, state text, hover/focus/pressed/disabled
   states, and compact body background. If a promoted global primitive does not
@@ -188,6 +192,10 @@ Expected direction:
 - visual-system inheritance from existing Nexus/FAM-006 windows, including chrome,
   color, typography, spacing, buttons, glow/focus/hover/disabled states, and
   compact density rather than generic utility-window styling
+- detached child-window title grammar: Log Viewer Studio is independent and
+  resizable, but its title/header treatment follows the FAM-006 child-window
+  header pattern of category line plus strong title; it must not render a
+  separate rounded title card or main-window hero/title card
 - shared rendered primitive inheritance for same-class window chrome, title/header,
   action buttons, row/divider panels, state text, hover/focus/pressed/disabled
   states, and compact body background. If a promoted global primitive does not
@@ -533,12 +541,18 @@ Branches consuming this feature vision should prove:
   monitor membership: Live Validation must prove selected profile identity,
   selected monitor set, recording target snapshot, generated native log
   contents, and consistency between the snapshot and log contents
-- normal USER-path activation for Recording Studio and Log Viewer Studio:
-  helper foreground, native direct-launch, seeded/sandbox, or callback proof is
-  supporting evidence only and cannot clear the visible manual button path
+- normal USER-path activation for Recording Studio and Log Viewer Studio remains
+  mandatory for formal Live Validation: helper foreground, native direct-launch,
+  seeded/sandbox, or callback proof is supporting evidence only and cannot clear
+  the formal visible manual button path
+- Pre-Live visual conformance may use sandbox or rendered proof before formal
+  runtime Live Validation. It must be labeled as pre-Live/sandbox evidence,
+  inspect the actual rendered element groups against the vision contract, and
+  must not substitute for formal Live Validation through the normal runtime path.
 - Recording Studio visual proof only after the normal visible activation path is
-  proven; if activation is blocked, Studio UI visual validation is blocked or
-  unproven rather than passed from helper-launched screenshots
+  proven for formal Live Validation; if activation is blocked, Studio UI visual
+  validation is blocked or unproven rather than passed from helper-launched
+  screenshots
 - Log Viewer Studio visual-system inheritance against Project Vision, this
   family vision, and this feature vision; generic/plain UI cannot pass from
   screenshot existence or window-shell markers alone

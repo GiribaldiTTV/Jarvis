@@ -6674,7 +6674,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         target_state = getattr(self, "_target_state", "") or "Target pending"
         return {
             "surface": "recording",
-            "kicker": "Nexus Desktop AI",
+            "kicker": "Recording",
             "title": "Recording Studio",
             "subtitle": "Focused recording control/status surface.",
             "roleLabelA": "Surface",
@@ -6743,7 +6743,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
             "stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density",
-            "titleGroupVisualPolicy": "fam006-compact-feature-studio-title-strip",
+            "titleGroupVisualPolicy": "fam006-detached-child-window-title-row",
+            "titleTreatment": "detached-child-window-title-row",
+            "titleCardState": "absent",
+            "childWindowTitleGrammar": "category-line-plus-strong-title",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
             "primaryVisualComparator": "FAM-006 compact feature-studio grammar",
@@ -6850,7 +6853,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     def _log_viewer_studio_state_payload(self) -> dict[str, object]:
         return {
             "surface": "log-viewer",
-            "kicker": "Nexus Desktop AI",
+            "kicker": "Recording Logs",
             "title": "Log Viewer Studio",
             "subtitle": "Native and exported log access shell.",
             "roleLabelA": "Surface",
@@ -6942,7 +6945,10 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
             "stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density",
-            "titleGroupVisualPolicy": "fam006-compact-feature-studio-title-strip",
+            "titleGroupVisualPolicy": "fam006-detached-child-window-title-row",
+            "titleTreatment": "detached-child-window-title-row",
+            "titleCardState": "absent",
+            "childWindowTitleGrammar": "category-line-plus-strong-title",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
             "primaryVisualComparator": "FAM-006 compact feature-studio grammar",
@@ -13510,7 +13516,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
                 and proof.get("stateRowDensityPolicy") == "fam006-compact-feature-studio-state-row-density"
-                and proof.get("titleGroupVisualPolicy") == "fam006-compact-feature-studio-title-strip"
+                and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("recordingStudioVisibleActionModel") == "single-stateful-start-stop-button-plus-log-viewer-route"
@@ -13793,7 +13799,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
                 and proof.get("stateRowDensityPolicy") == "fam006-compact-feature-studio-state-row-density"
-                and proof.get("titleGroupVisualPolicy") == "fam006-compact-feature-studio-title-strip"
+                and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("openNativeControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"

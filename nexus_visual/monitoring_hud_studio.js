@@ -62,13 +62,16 @@
       ? "resizable-log-access-shell"
       : "not-resizable-position-memory-only";
     surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "238";
+    surface.dataset.titleTreatment = "detached-child-window-title-row";
+    surface.dataset.titleCardState = "absent";
+    surface.dataset.childWindowTitleGrammar = "category-line-plus-strong-title";
     surface.setAttribute(
       "aria-label",
       mode === "log-viewer"
         ? "Nexus Desktop AI Log Viewer Studio"
         : "Nexus Desktop AI Recording Studio",
     );
-    setText("monitoring-hud-studio-kicker", payload.kicker || "Nexus Desktop AI");
+    setText("monitoring-hud-studio-kicker", payload.kicker || (mode === "log-viewer" ? "Recording Logs" : "Recording"));
     setText("monitoring-hud-studio-title", payload.title || "");
     setText("monitoring-hud-studio-subtitle", payload.subtitle || "");
     setText("monitoring-hud-studio-role-label-a", payload.roleLabelA || "Surface");
