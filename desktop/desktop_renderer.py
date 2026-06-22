@@ -6764,7 +6764,14 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         }.get(self._recording_session_state, self._recording_session_state.replace("-", " "))
         profile = getattr(self, "_active_profile_name", "") or "No active overlay profile"
         target_names = getattr(self, "_target_names", "") or "No active monitor targets"
-        target_state = getattr(self, "_target_state", "") or "Target pending"
+        if self._recording_session_state == "recording":
+            status_text = f"Recording. {target_names} active."
+        elif self._recording_session_state == "saved-complete":
+            status_text = "Saved. Native log is ready."
+        elif self._start_stop_state == "start-enabled":
+            status_text = f"Ready to record. {target_names} active."
+        else:
+            status_text = "Select an active overlay target."
         return {
             "surface": "recording",
             "kicker": "Recording",
@@ -6777,7 +6784,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "roleLabelC": "Target",
             "roleValueC": "Overlay Profile",
             "recordingTarget": f"{profile} / {count} active monitor{'s' if count != 1 else ''}",
-            "recordingStatus": f"{target_state}. {target_names}. Session: {session_label}.",
+            "recordingStatus": status_text,
             "recordingBoundary": "Controls the current Recording target from the active Overlay Profile.",
             "startEnabled": self._start_stop_state == "start-enabled",
             "stopEnabled": self._start_stop_state == "recording-stop-enabled",

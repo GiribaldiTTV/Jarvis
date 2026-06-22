@@ -41,12 +41,12 @@ AI_CONTROL_CENTER_RESIZE_COMPARATOR = (
 FAM006_PRE_LV_ROOT = (
     PROOF_ROOT
     / "fam_006_pre_live_visual_conformance"
-    / "20260622_145149_179_feature_studio_visual_quality_repair_clean_geometry"
+    / "20260622_151821_428_feature_studio_visual_perfection_repair"
 )
 FAM006_STATE_ROOT = (
     PROOF_ROOT
     / "fam_006_pre_live_visual_conformance"
-    / "20260622_145149_179_feature_studio_visual_quality_repair_clean_geometry"
+    / "20260622_151821_428_feature_studio_visual_perfection_repair"
 )
 FAM006_LV_ROOT = (
     PROOF_ROOT
@@ -65,6 +65,7 @@ SCREENSHOTS = {
     "log_resize": FAM006_PRE_LV_ROOT / "log_viewer_edge_resize_width_proof.png",
     "log_hover_focus": FAM006_STATE_ROOT / "log_viewer_hover_focus.png",
     "log_disabled": FAM006_STATE_ROOT / "log_viewer_disabled_blocked.png",
+    "comparator_contact_sheet": FAM006_PRE_LV_ROOT / "side_by_side_comparator_contact_sheet.png",
     "dashboard_full": FAM006_LV_ROOT / "monitoring_hud_full_virtual_desktop_after_launch.png",
     "dashboard_recording_card": FAM006_LV_FOCUSED / "element_02_recording_card_target_status_visual_contract.png",
     "quick_access_ready": FAM006_LV_FOCUSED / "element_02_dashboard_quick_access_start_stop_ready_state.png",
@@ -490,6 +491,9 @@ def build_rows() -> list[VisualLedgerRow]:
 def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
     failures: list[str] = []
     seen: set[str] = set()
+    contact_sheet = SCREENSHOTS["comparator_contact_sheet"]
+    if not contact_sheet.exists():
+        failures.append(f"required comparator contact sheet missing: {contact_sheet}")
     if len(rows) < 60:
         failures.append(f"exhaustive visual ledger row count too low: {len(rows)}")
     duplicate_fields = ("visual_difference", "state_coverage", "proof_quality")

@@ -154,13 +154,14 @@ body.desktop-mode #monitoring-hud[data-window-control-primitive="nexus-uiref-002
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title-group {
   display: block;
-  min-height: 38px;
-  padding: 2px 84px 4px 7px;
+  min-height: 34px;
+  padding: 0 84px 2px 7px;
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
   backdrop-filter: none;
+  position: relative;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title-group::before {
@@ -192,9 +193,9 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title {
-  margin-top: 3px;
+  margin-top: 2px;
   color: rgba(234, 253, 255, 0.95);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: 0.035em;
   line-height: 1.08;
@@ -215,6 +216,15 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.025) inset,
     0 10px 22px rgba(0, 0, 0, 0.14);
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__feature-studio-panel {
+  gap: 12px;
+  padding: 12px;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="log-viewer"] .monitoring-hud__feature-studio-panel {
+  align-content: start;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-stack,
@@ -242,6 +252,16 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.025) inset,
     0 8px 18px rgba(0, 0, 0, 0.10);
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__controller-target,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__controller-status {
+  min-height: 28px;
+  padding: 5px 9px;
+  border-color: rgba(91, 204, 229, 0.14);
+  border-radius: 10px;
+  background: rgba(3, 17, 30, 0.38);
+  box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.018) inset;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-target span,
@@ -275,6 +295,12 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   white-space: normal;
 }
 
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item strong,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status strong {
+  font-size: 12px;
+  text-align: left;
+}
+
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__controller-stack {
   border-bottom: 0;
 }
@@ -288,6 +314,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   margin-top: 0;
 }
 
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__feature-studio-actions {
+  order: -1;
+}
+
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit {
   flex: 0 0 auto;
   width: auto;
@@ -298,6 +328,23 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   padding-inline: 16px;
   overflow: visible;
   white-space: nowrap;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit {
+  height: 40px;
+  min-height: 40px;
+  padding-inline: 20px;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit[data-control="recording-studio-toggle"] {
+  min-width: 172px;
+  border-color: rgba(116, 255, 223, 0.42);
+  background:
+    linear-gradient(180deg, rgba(13, 66, 83, 0.62), rgba(6, 30, 48, 0.74)),
+    rgba(4, 22, 38, 0.82);
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.05) inset,
+    0 0 18px rgba(80, 231, 232, 0.16);
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
