@@ -55,6 +55,10 @@ SetForegroundWindow.restype = ctypes.c_bool
 BringWindowToTop = user32.BringWindowToTop
 BringWindowToTop.argtypes = [ctypes.wintypes.HWND]
 BringWindowToTop.restype = ctypes.c_bool
+ShowWindow = user32.ShowWindow
+ShowWindow.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
+ShowWindow.restype = ctypes.c_bool
+SW_RESTORE = 9
 
 
 def _timestamp() -> str:
@@ -339,6 +343,11 @@ def main() -> int:
           const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="local-safety-check"] .monitoring-hud__state-row strong');
           const localCheckButton = document.getElementById("ai-control-center-local-check-action");
           const localCheckButtonLabel = localCheckButton ? localCheckButton.querySelector(".monitoring-hud__button-label") : null;
+          const reportCard = document.querySelector('[data-dashboard-hub-card="local-ai-readiness-report"]');
+          const reportGenerateButton = document.getElementById("ai-control-center-generate-report-action");
+          const reportCopyButton = document.getElementById("ai-control-center-copy-report-action");
+          const reportState = document.getElementById("ai-control-center-report-state");
+          const reportSummary = document.getElementById("ai-control-center-report-summary");
           const titledElements = surface
             ? Array.from(surface.querySelectorAll("[title]")).map((element) => ({
                 id: element.id || "",
@@ -417,6 +426,17 @@ def main() -> int:
             localCheckButtonStyle: style(localCheckButton),
             localCheckButtonLabelStyle: style(localCheckButtonLabel),
             localCheckButtonTitle: localCheckButton ? localCheckButton.getAttribute("title") : "",
+            reportCardRect: rect(reportCard),
+            reportGenerateButtonText: reportGenerateButton ? reportGenerateButton.textContent.trim() : "",
+            reportGenerateButtonRect: rect(reportGenerateButton),
+            reportGenerateButtonStyle: style(reportGenerateButton),
+            reportCopyButtonText: reportCopyButton ? reportCopyButton.textContent.trim() : "",
+            reportCopyButtonRect: rect(reportCopyButton),
+            reportCopyButtonStyle: style(reportCopyButton),
+            reportCopyButtonDisabled: reportCopyButton ? reportCopyButton.disabled : null,
+            reportCopyButtonAriaDisabled: reportCopyButton ? reportCopyButton.getAttribute("aria-disabled") : "",
+            reportStateText: reportState ? reportState.textContent.trim() : "",
+            reportSummaryText: reportSummary ? reportSummary.textContent.trim() : "",
             nativeTooltipElementCount: titledElements.length,
             nativeTooltipElements: titledElements,
             chromeGap: close && maximize && minimize
@@ -521,6 +541,218 @@ def main() -> int:
         local_check_result = {"ok": False, "raw": local_check_result_raw}
     _pump(app, 180)
     screenshot_evidence["localCheckResult"] = _capture(app, dialog, log_root, "05_local_check_result")
+    report_scroll_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const hub = document.getElementById("ai-control-center-card-hub");
+          const button = document.getElementById("ai-control-center-generate-report-action");
+          if (!hub || !button) {
+            return JSON.stringify({ok: false, reason: "missing-report-button-or-hub"});
+          }
+          const hubRect = hub.getBoundingClientRect();
+          const buttonRect = button.getBoundingClientRect();
+          hub.scrollTop += buttonRect.top - hubRect.top - 36;
+          window.nexusAiControlCenterSyncScrollbar && window.nexusAiControlCenterSyncScrollbar();
+          return JSON.stringify({ok: true, scrollTop: hub.scrollTop});
+        })();
+        """,
+    )
+    try:
+        report_scroll = json.loads(report_scroll_raw) if isinstance(report_scroll_raw, str) else report_scroll_raw
+    except json.JSONDecodeError:
+        report_scroll = {"ok": False, "raw": report_scroll_raw}
+    _pump(app, 220)
+    report_button_proof_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const rect = (element) => {
+            if (!element) {
+              return null;
+            }
+            const box = element.getBoundingClientRect();
+            return {
+              left: Math.round(box.left),
+              top: Math.round(box.top),
+              right: Math.round(box.right),
+              bottom: Math.round(box.bottom),
+              width: Math.round(box.width),
+              height: Math.round(box.height)
+            };
+          };
+          const button = document.getElementById("ai-control-center-generate-report-action");
+          const copy = document.getElementById("ai-control-center-copy-report-action");
+          return JSON.stringify({
+            ok: !!button,
+            reportGenerateButtonRect: rect(button),
+            reportGenerateButtonText: button ? button.textContent.trim() : "",
+            reportCopyButtonDisabledBefore: copy ? copy.disabled : null,
+            reportCopyButtonAriaDisabledBefore: copy ? copy.getAttribute("aria-disabled") : ""
+          });
+        })();
+        """,
+    )
+    try:
+        report_button_proof = json.loads(report_button_proof_raw) if isinstance(report_button_proof_raw, str) else report_button_proof_raw
+    except json.JSONDecodeError:
+        report_button_proof = {"ok": False, "raw": report_button_proof_raw}
+    readiness_report_real_click = {"ok": False, "reason": "missing-reportGenerateButtonRect"}
+    if isinstance(report_button_proof, dict):
+        report_rect = report_button_proof.get("reportGenerateButtonRect")
+        if isinstance(report_rect, dict):
+            window_rect_for_report_click = _native_rect(hwnd)
+            report_click_x = int(
+                window_rect_for_report_click["left"]
+                + int(report_rect.get("left") or 0)
+                + (int(report_rect.get("width") or 0) // 2)
+            )
+            report_click_y = int(
+                window_rect_for_report_click["top"]
+                + int(report_rect.get("top") or 0)
+                + (int(report_rect.get("height") or 0) // 2)
+            )
+            _left_click(app, report_click_x, report_click_y, 360)
+            readiness_report_real_click = {
+                "ok": True,
+                "method": "SetCursorPos plus Win32 left mouse down/up on visible Generate Readiness Report button",
+                "screenPoint": {"x": report_click_x, "y": report_click_y},
+            }
+    readiness_report_result_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const text = (id) => {
+            const element = document.getElementById(id);
+            return element ? element.textContent.trim() : "";
+          };
+          const body = document.getElementById("ai-control-center-report-body");
+          const copy = document.getElementById("ai-control-center-copy-report-action");
+          return JSON.stringify({
+            ok: true,
+            reportState: text("ai-control-center-report-state"),
+            summary: text("ai-control-center-report-summary"),
+            ready: text("ai-control-center-report-ready"),
+            missing: text("ai-control-center-report-missing"),
+            blocked: text("ai-control-center-report-blocked"),
+            evidence: text("ai-control-center-report-evidence"),
+            next: text("ai-control-center-report-next"),
+            boundary: text("ai-control-center-report-boundary"),
+            bodyVisible: body ? !body.hidden : false,
+            copyButtonDisabled: copy ? copy.disabled : null,
+            copyButtonAriaDisabled: copy ? copy.getAttribute("aria-disabled") : ""
+          });
+        })();
+        """,
+    )
+    try:
+        readiness_report_result = json.loads(readiness_report_result_raw) if isinstance(readiness_report_result_raw, str) else readiness_report_result_raw
+    except json.JSONDecodeError:
+        readiness_report_result = {"ok": False, "raw": readiness_report_result_raw}
+    _pump(app, 180)
+    screenshot_evidence["readinessReportResult"] = _capture(app, dialog, log_root, "06_readiness_report_result")
+    readiness_report_copy_click = {"ok": False, "reason": "missing-copy-button-rect"}
+    readiness_report_copy_result = {"ok": False, "reason": "copy-not-attempted"}
+    _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const hub = document.getElementById("ai-control-center-card-hub");
+          const button = document.getElementById("ai-control-center-copy-report-action");
+          if (hub && button) {
+            const hubRect = hub.getBoundingClientRect();
+            const buttonRect = button.getBoundingClientRect();
+            hub.scrollTop += buttonRect.top - hubRect.top - 46;
+            window.nexusAiControlCenterSyncScrollbar && window.nexusAiControlCenterSyncScrollbar();
+          }
+          return true;
+        })();
+        """,
+    )
+    _pump(app, 180)
+    readiness_report_copy_button_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const button = document.getElementById("ai-control-center-copy-report-action");
+          if (!button) {
+            return JSON.stringify({ok: false, reason: "missing-copy-button"});
+          }
+          const box = button.getBoundingClientRect();
+          return JSON.stringify({
+            ok: true,
+            rect: {
+              left: Math.round(box.left),
+              top: Math.round(box.top),
+              width: Math.round(box.width),
+              height: Math.round(box.height)
+            },
+            disabled: button.disabled,
+            ariaDisabled: button.getAttribute("aria-disabled")
+          });
+        })();
+        """,
+    )
+    try:
+        readiness_report_copy_button = (
+            json.loads(readiness_report_copy_button_raw)
+            if isinstance(readiness_report_copy_button_raw, str)
+            else readiness_report_copy_button_raw
+        )
+    except json.JSONDecodeError:
+        readiness_report_copy_button = {"ok": False, "raw": readiness_report_copy_button_raw}
+    if isinstance(readiness_report_copy_button, dict):
+        copy_rect = readiness_report_copy_button.get("rect")
+        if isinstance(copy_rect, dict) and readiness_report_copy_button.get("disabled") is False:
+            window_rect_for_copy_click = _native_rect(hwnd)
+            copy_click_x = int(
+                window_rect_for_copy_click["left"]
+                + int(copy_rect.get("left") or 0)
+                + (int(copy_rect.get("width") or 0) // 2)
+            )
+            copy_click_y = int(
+                window_rect_for_copy_click["top"]
+                + int(copy_rect.get("top") or 0)
+                + (int(copy_rect.get("height") or 0) // 2)
+            )
+            _left_click(app, copy_click_x, copy_click_y, 360)
+            readiness_report_copy_click = {
+                "ok": True,
+                "method": "SetCursorPos plus Win32 left mouse down/up on visible Copy Report button",
+                "screenPoint": {"x": copy_click_x, "y": copy_click_y},
+            }
+    _pump(app, 520)
+    readiness_report_copy_result_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const state = document.getElementById("ai-control-center-report-state");
+          const copy = document.getElementById("ai-control-center-copy-report-action");
+          return JSON.stringify({
+            ok: true,
+            reportState: state ? state.textContent.trim() : "",
+            copyButtonDisabled: copy ? copy.disabled : null,
+            copyButtonAriaDisabled: copy ? copy.getAttribute("aria-disabled") : ""
+          });
+        })();
+        """,
+    )
+    try:
+        readiness_report_copy_result = (
+            json.loads(readiness_report_copy_result_raw)
+            if isinstance(readiness_report_copy_result_raw, str)
+            else readiness_report_copy_result_raw
+        )
+    except json.JSONDecodeError:
+        readiness_report_copy_result = {"ok": False, "raw": readiness_report_copy_result_raw}
+    _pump(app, 180)
+    screenshot_evidence["readinessReportCopyResult"] = _capture(app, dialog, log_root, "07_readiness_report_copy_result")
     _move_mouse(app, _native_rect(hwnd)["left"] + 24, _native_rect(hwnd)["top"] + 24, 120)
     minimize_click = {"ok": False, "reason": "missing-minimizeRect"}
     if isinstance(title_chrome_proof, dict):
@@ -545,14 +777,19 @@ def main() -> int:
             }
     _pump(app, 360)
     minimized_after_click = bool(dialog.isMinimized())
-    dialog.showNormal()
-    dialog.setGeometry(initial_bounded)
-    dialog.raise_()
-    dialog.activateWindow()
-    _pump(app, 360)
-    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
-    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
-    _pump(app, 220)
+    for _ in range(5):
+        ShowWindow(ctypes.wintypes.HWND(hwnd), SW_RESTORE)
+        dialog.showNormal()
+        dialog.setGeometry(initial_bounded)
+        dialog.raise_()
+        dialog.activateWindow()
+        _pump(app, 240)
+        BringWindowToTop(ctypes.wintypes.HWND(hwnd))
+        SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
+        _pump(app, 160)
+        restore_probe = _native_rect(hwnd)
+        if restore_probe["left"] > -1000 and restore_probe["top"] > -1000:
+            break
     post_minimize_restore_rect = _native_rect(hwnd)
     custom_scrollbar_probe_raw = _run_js(
         app,
@@ -813,6 +1050,49 @@ def main() -> int:
             and local_check_real_click.get("ok") is True
             and "Win32 left mouse" in str(local_check_real_click.get("method") or "")
         ),
+        "readinessReportButtonPresentAndInitiallyCopyDisabled": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("reportGenerateButtonText") == "Generate Readiness Report"
+            and title_chrome_proof.get("reportCopyButtonText") == "Copy Report"
+            and title_chrome_proof.get("reportCopyButtonDisabled") is True
+            and title_chrome_proof.get("reportCopyButtonAriaDisabled") == "true"
+        ),
+        "readinessReportScrolledIntoView": (
+            isinstance(report_scroll, dict)
+            and report_scroll.get("ok") is True
+            and isinstance(report_button_proof, dict)
+            and report_button_proof.get("ok") is True
+            and isinstance(report_button_proof.get("reportGenerateButtonRect"), dict)
+        ),
+        "readinessReportRealUserClickUsed": (
+            isinstance(readiness_report_real_click, dict)
+            and readiness_report_real_click.get("ok") is True
+            and "Win32 left mouse" in str(readiness_report_real_click.get("method") or "")
+        ),
+        "readinessReportUsefulLocalOutcome": (
+            isinstance(readiness_report_result, dict)
+            and readiness_report_result.get("ok") is True
+            and readiness_report_result.get("reportState") == "Generated locally"
+            and readiness_report_result.get("bodyVisible") is True
+            and "local boundary proof is ready" in str(readiness_report_result.get("summary") or "")
+            and "Provider-visible data is none" in str(readiness_report_result.get("ready") or "")
+            and "Provider setup approval is not granted" in str(readiness_report_result.get("missing") or "")
+            and "Provider/model execution" in str(readiness_report_result.get("blocked") or "")
+            and "provider boundary payload" in str(readiness_report_result.get("evidence") or "")
+            and "future-gated" in str(readiness_report_result.get("next") or "")
+            and "No provider or model executes" in str(readiness_report_result.get("boundary") or "")
+        ),
+        "readinessReportCopyBoundaryUserInitiatedNoFileExport": (
+            isinstance(readiness_report_result, dict)
+            and readiness_report_result.get("copyButtonDisabled") is False
+            and readiness_report_result.get("copyButtonAriaDisabled") == "false"
+            and isinstance(readiness_report_real_click, dict)
+            and readiness_report_real_click.get("ok") is True
+            and isinstance(readiness_report_copy_click, dict)
+            and readiness_report_copy_click.get("ok") is True
+            and isinstance(readiness_report_copy_result, dict)
+            and readiness_report_copy_result.get("reportState") == "Copied locally"
+        ),
         "windowControlAccessibleLabelsPresent": (
             isinstance(title_chrome_proof, dict)
             and title_chrome_proof.get("minimizeLabel") == "Minimize AI Control Center"
@@ -961,6 +1241,13 @@ def main() -> int:
         "windowControlHoverProof": hover_proof,
         "localCheckResultProof": local_check_result,
         "localCheckRealInputProof": local_check_real_click,
+        "readinessReportScrollProof": report_scroll,
+        "readinessReportButtonProof": report_button_proof,
+        "readinessReportResultProof": readiness_report_result,
+        "readinessReportRealInputProof": readiness_report_real_click,
+        "readinessReportCopyButtonProof": readiness_report_copy_button,
+        "readinessReportCopyResultProof": readiness_report_copy_result,
+        "readinessReportCopyRealInputProof": readiness_report_copy_click,
         "windowControlProof": {
             "cluster": "compact-minimize-maximize-close",
             "minimize": "active-native-showMinimized",

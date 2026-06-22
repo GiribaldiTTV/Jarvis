@@ -960,6 +960,76 @@ def _require(condition: bool, message: str, failures: list[str]) -> None:
         failures.append(message)
 
 
+def _validate_local_ai_readiness_report(payload: dict[str, object], failures: list[str]) -> None:
+    report = payload.get("localAiReadinessReport")
+    _require(isinstance(report, dict), "local AI readiness report payload must exist", failures)
+    if not isinstance(report, dict):
+        return
+    _require(
+        report.get("schemaVersion") == ai_provider_state.LOCAL_AI_READINESS_REPORT_SCHEMA_VERSION,
+        "local AI readiness report schema mismatch",
+        failures,
+    )
+    _require(
+        report.get("state") == ai_provider_state.LOCAL_AI_READINESS_REPORT_STATE_READY,
+        "local AI readiness report must be report-ready",
+        failures,
+    )
+    _require(report.get("providerVisibleData") == "none", "local AI readiness report provider-visible data must be none", failures)
+    _require(report.get("sentToProvider") is False, "local AI readiness report must not send to provider", failures)
+    _require(report.get("canAcceptPrompts") is False, "local AI readiness report must not accept prompts", failures)
+    _require(
+        report.get("promptSendPosture") == ai_provider_state.PROMPT_SEND_POSTURE_DISABLED,
+        "local AI readiness report prompt send must remain disabled",
+        failures,
+    )
+    _require(
+        report.get("networkEgressState") == ai_provider_state.NETWORK_EGRESS_BLOCKED,
+        "local AI readiness report network egress must remain blocked",
+        failures,
+    )
+    _require(
+        report.get("memoryIndexingState") == ai_provider_state.MEMORY_INDEXING_DISABLED,
+        "local AI readiness report memory indexing must remain disabled",
+        failures,
+    )
+    _require(
+        report.get("copyMode") == ai_provider_state.LOCAL_AI_READINESS_REPORT_COPY_MODE,
+        "local AI readiness report copy mode must be clipboard-only and USER initiated",
+        failures,
+    )
+    _require(
+        report.get("persistence") == ai_provider_state.LOCAL_AI_READINESS_REPORT_PERSISTENCE,
+        "local AI readiness report must be view-only with no file persistence",
+        failures,
+    )
+    for key, minimum in (
+        ("readyConditions", 3),
+        ("missingRequirements", 3),
+        ("blockedPaths", 4),
+        ("localEvidenceChecked", 4),
+        ("safeNextSteps", 3),
+        ("trustBoundaries", 4),
+    ):
+        value = report.get(key)
+        _require(
+            isinstance(value, (list, tuple)) and len(value) >= minimum,
+            f"local AI readiness report {key} must include at least {minimum} item(s)",
+            failures,
+        )
+    useful_outcome = str(report.get("usefulOutcome", ""))
+    _require("USER can decide" in useful_outcome, "local AI readiness report must state a useful USER outcome", failures)
+    blocked_text = " ".join(str(item) for item in report.get("blockedPaths", ()))
+    for needle in (
+        "Provider/model execution",
+        "Prompt send",
+        "Downloads",
+        "Runtime cache",
+        "Private Developer/Owner setup",
+    ):
+        _require(needle in blocked_text, f"local AI readiness report blocked paths missing {needle}", failures)
+
+
 def _validate_owner_ai_operational_foundation_gates_state(
     state: dict[str, object], failures: list[str]
 ) -> None:
@@ -3181,6 +3251,7 @@ def validate() -> list[str]:
         omit_record=True,
         omit_config=True,
     )
+    _validate_local_ai_readiness_report(default_setup_completion_snapshot.as_renderer_payload(), failures)
     missing_config_setup_completion_snapshot = _setup_completion_snapshot(
         _durable_consent_record(setup_consent_granted=True),
         setup_completion_config=None,

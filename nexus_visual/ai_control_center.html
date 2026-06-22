@@ -324,6 +324,56 @@
       margin-top: 0;
     }
 
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report {
+      display: grid;
+      gap: 7px;
+      margin-top: 3px;
+      padding-top: 2px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__status {
+      color: rgba(171, 255, 226, 0.96);
+      font-size: 11px;
+      font-weight: 820;
+      line-height: 1.32;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__body {
+      display: grid;
+      gap: 6px;
+      color: rgba(217, 245, 250, 0.94);
+      font-size: 11px;
+      font-weight: 720;
+      line-height: 1.32;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__body[hidden] {
+      display: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__section {
+      display: grid;
+      grid-template-columns: minmax(118px, 0.34fr) minmax(0, 1fr);
+      gap: 6px;
+      padding-top: 5px;
+      border-top: 1px solid rgba(94, 207, 229, 0.22);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__section span {
+      color: rgba(103, 224, 255, 0.95);
+      font-size: 10px;
+      font-weight: 820;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-report__section strong {
+      color: rgba(235, 252, 255, 0.96);
+      font-size: 11px;
+      font-weight: 760;
+      line-height: 1.32;
+    }
+
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit,
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
       font-size: 11px;
@@ -568,6 +618,77 @@
               aria-label="Run Local Check"
             >
               <span class="monitoring-hud__button-label">Run Local Check</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-ai-readiness-report" data-slice="SLC-A1">
+          <div class="monitoring-hud__hub-card-topline">
+            <span>03</span>
+            <div class="monitoring-hud__hub-card-title-copy">
+              <strong>Readiness Report</strong>
+            </div>
+            <p class="monitoring-hud__hub-card-description">Generates a local report with ready, missing, blocked, evidence, and safe next-step sections.</p>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Report state</span>
+            <strong id="ai-control-center-report-state">Not generated</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Persistence</span>
+            <strong id="ai-control-center-report-persistence">View-only; copy is USER initiated</strong>
+          </div>
+          <div class="ai-control-center-report" data-report-surface="local-ai-readiness-report">
+            <div class="ai-control-center-report__status" id="ai-control-center-report-summary">Generate the report to inspect local readiness.</div>
+            <div class="ai-control-center-report__body" id="ai-control-center-report-body" hidden>
+              <div class="ai-control-center-report__section">
+                <span>Ready</span>
+                <strong id="ai-control-center-report-ready">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Missing</span>
+                <strong id="ai-control-center-report-missing">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Blocked</span>
+                <strong id="ai-control-center-report-blocked">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Evidence</span>
+                <strong id="ai-control-center-report-evidence">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Next</span>
+                <strong id="ai-control-center-report-next">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Boundary</span>
+                <strong id="ai-control-center-report-boundary">Not generated</strong>
+              </div>
+            </div>
+          </div>
+          <div class="monitoring-hud__hub-actions">
+            <button
+              type="button"
+              id="ai-control-center-generate-report-action"
+              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+              data-control="generate-local-ai-readiness-report"
+              data-action-size="content-fit-fixed-height"
+              aria-label="Generate Readiness Report"
+            >
+              <span class="monitoring-hud__button-label">Generate Readiness Report</span>
+            </button>
+            <button
+              type="button"
+              id="ai-control-center-copy-report-action"
+              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+              data-control="copy-local-ai-readiness-report"
+              data-action-size="content-fit-fixed-height"
+              aria-label="Copy Readiness Report"
+              disabled
+              aria-disabled="true"
+            >
+              <span class="monitoring-hud__button-label">Copy Report</span>
             </button>
           </div>
         </article>

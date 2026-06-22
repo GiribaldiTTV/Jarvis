@@ -6054,6 +6054,36 @@ class AIControlCenterDialog(QDialog):
         if command == "run-local-check":
             self.run_local_assist_check(sync_web=False)
             return
+        if command == "generate-readiness-report":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_GENERATED"
+                    "|provider_visible_data=none|sent_to_provider=false|can_accept_prompts=false"
+                    "|prompt_send=disabled|network_egress=blocked|memory_indexing=disabled"
+                    "|persistence=view_only|copy_mode=clipboard_only_user_initiated"
+                )
+            return
+        if command == "generate-readiness-report-blocked":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_BLOCKED"
+                    "|reason=boundary_mismatch"
+                )
+            return
+        if command == "copy-readiness-report":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_COPIED"
+                    "|mode=clipboard_only_user_initiated|file_export=false"
+                )
+            return
+        if command == "copy-readiness-report-blocked":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_COPY_BLOCKED"
+                    "|reason=report_not_generated_or_clipboard_unavailable"
+                )
+            return
 
     def _sync_provider_state_to_web(self) -> None:
         payload = dict(self._provider_payload or self._pending_provider_payload or {})

@@ -2,6 +2,7 @@
   const commandPrefix = "NEXUS_AI_CONTROL_CENTER_COMMAND:";
   let providerState = {};
   let scrollbarDrag = null;
+  let currentReadinessReportText = "";
   const windowControlStates = {
     minimize: "active",
     maximizeRestore: "hidden",
@@ -42,6 +43,143 @@
   };
   const emitCommand = (name) => {
     console.info(`${commandPrefix}${name}`);
+  };
+  const formatReportItems = (items, keys = ["label"]) => {
+    const list = Array.isArray(items) ? items : [];
+    if (!list.length) {
+      return "None";
+    }
+    return list
+      .map((item) => {
+        if (item && typeof item === "object") {
+          return keys
+            .map((key) => String(item[key] || "").trim())
+            .filter(Boolean)
+            .join(" - ");
+        }
+        return String(item || "").trim();
+      })
+      .filter(Boolean)
+      .join("; ");
+  };
+  const buildReportText = (report) => {
+    const title = String(report.title || "Local AI Readiness Report");
+    const lines = [
+      title,
+      "",
+      `Summary: ${String(report.summary || "No local readiness report is available.")}`,
+      `Useful outcome: ${String(report.usefulOutcome || "Not available")}`,
+      `Provider-visible data: ${String(report.providerVisibleData || "none")}`,
+      `Copy/persistence: ${String(report.copyMode || "clipboard-only-user-initiated")} / ${String(report.persistence || "view-only-no-file-persistence")}`,
+      "",
+      `Ready: ${formatReportItems(report.readyConditions, ["label", "evidence"])}`,
+      `Missing: ${formatReportItems(report.missingRequirements, ["label", "reason"])}`,
+      `Blocked: ${formatReportItems(report.blockedPaths, ["label", "state", "gate"])}`,
+      `Evidence checked: ${formatReportItems(report.localEvidenceChecked)}`,
+      `Safe next steps: ${formatReportItems(report.safeNextSteps)}`,
+      `Trust boundaries: ${formatReportItems(report.trustBoundaries)}`,
+    ];
+    return lines.join("\n");
+  };
+  const setReportCopyEnabled = (enabled) => {
+    const button = byId("ai-control-center-copy-report-action");
+    if (!button) {
+      return;
+    }
+    button.disabled = !enabled;
+    button.setAttribute("aria-disabled", enabled ? "false" : "true");
+  };
+  const copyTextThroughLocalSurface = (text) => {
+    const copySurface = document.createElement("textarea");
+    copySurface.value = text;
+    copySurface.setAttribute("readonly", "");
+    copySurface.style.position = "fixed";
+    copySurface.style.left = "-9999px";
+    copySurface.style.top = "0";
+    document.body.appendChild(copySurface);
+    copySurface.focus();
+    copySurface.select();
+    const copied = document.execCommand("copy");
+    copySurface.remove();
+    return copied;
+  };
+  const renderReadinessReport = (report) => {
+    const normalized = report && typeof report === "object" ? report : {};
+    const guardClosed = (
+      normalized.providerVisibleData === "none"
+      && normalized.sentToProvider === false
+      && normalized.canAcceptPrompts === false
+      && normalized.promptSendPosture === "prompt-send-disabled"
+      && normalized.networkEgressState === "network-egress-blocked"
+      && normalized.memoryIndexingState === "memory-indexing-disabled"
+    );
+    const body = byId("ai-control-center-report-body");
+    if (!guardClosed) {
+      currentReadinessReportText = "";
+      setText("ai-control-center-report-state", "Blocked by boundary mismatch");
+      setText("ai-control-center-report-summary", "Report blocked because local trust-boundary proof is inconsistent.");
+      if (body) {
+        body.hidden = true;
+      }
+      setReportCopyEnabled(false);
+      requestAnimationFrame(syncCustomScrollbar);
+      return false;
+    }
+
+    currentReadinessReportText = buildReportText(normalized);
+    setText("ai-control-center-report-state", "Generated locally");
+    setText("ai-control-center-report-persistence", "View-only; copy is USER initiated");
+    setText("ai-control-center-report-summary", normalized.summary || "Local readiness report generated.");
+    setText("ai-control-center-report-ready", formatReportItems(normalized.readyConditions, ["label", "evidence"]));
+    setText("ai-control-center-report-missing", formatReportItems(normalized.missingRequirements, ["label", "reason"]));
+    setText("ai-control-center-report-blocked", formatReportItems(normalized.blockedPaths, ["label", "state", "gate"]));
+    setText("ai-control-center-report-evidence", formatReportItems(normalized.localEvidenceChecked));
+    setText("ai-control-center-report-next", formatReportItems(normalized.safeNextSteps));
+    setText("ai-control-center-report-boundary", formatReportItems(normalized.trustBoundaries));
+    if (body) {
+      body.hidden = false;
+    }
+    setReportCopyEnabled(true);
+    requestAnimationFrame(syncCustomScrollbar);
+    return true;
+  };
+  const copyReadinessReport = async () => {
+    if (!currentReadinessReportText) {
+      setText("ai-control-center-report-state", "Generate report before copying");
+      return false;
+    }
+    try {
+      if (copyTextThroughLocalSurface(currentReadinessReportText)) {
+        setText("ai-control-center-report-state", "Copied locally");
+        return true;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(currentReadinessReportText);
+      } else {
+        throw new Error("clipboard unavailable");
+      }
+      setText("ai-control-center-report-state", "Copied locally");
+      return true;
+    } catch (error) {
+      setText("ai-control-center-report-state", "Copy unavailable; report remains visible");
+      return false;
+    }
+  };
+  const attachActivationHandler = (element, handler) => {
+    if (!element || typeof handler !== "function") {
+      return;
+    }
+    let lastActivationAt = 0;
+    const activate = (event) => {
+      const now = Date.now();
+      if (now - lastActivationAt < 90) {
+        return;
+      }
+      lastActivationAt = now;
+      handler(event);
+    };
+    element.addEventListener("click", activate);
+    element.addEventListener("pointerup", activate);
   };
   const stripNativeTooltips = () => {
     const surface = byId("monitoring-hud");
@@ -287,6 +425,12 @@
     setText("ai-control-center-blocked-action", blockedActionLabel);
     setText("ai-control-center-unavailable-capability", unavailableCapabilityLabel);
     setText("ai-control-center-degraded-path", degradedPathLabel);
+    currentReadinessReportText = "";
+    setText("ai-control-center-report-state", "Not generated");
+    setText("ai-control-center-report-persistence", "View-only; copy is USER initiated");
+    setText("ai-control-center-report-summary", "Generate the report to inspect local readiness.");
+    byId("ai-control-center-report-body")?.setAttribute("hidden", "");
+    setReportCopyEnabled(false);
     requestAnimationFrame(syncCustomScrollbar);
   };
 
@@ -329,6 +473,10 @@
     );
     requestAnimationFrame(syncCustomScrollbar);
   };
+  window.nexusAiControlCenterGenerateReadinessReport = () => (
+    renderReadinessReport(providerState.localAiReadinessReport || {})
+  );
+  window.nexusAiControlCenterCopyReadinessReport = copyReadinessReport;
 
   const attachWindowControlHandlers = () => {
     Object.entries(windowControlDefaults).forEach(([key, config]) => {
@@ -354,9 +502,18 @@
   stripNativeTooltips();
   observeNativeTooltipDrift();
   attachWindowControlHandlers();
-  byId("ai-control-center-local-check-action")?.addEventListener("click", () => {
+  attachActivationHandler(byId("ai-control-center-local-check-action"), () => {
     window.nexusAiControlCenterRunLocalCheck();
     emitCommand("run-local-check");
+  });
+  attachActivationHandler(byId("ai-control-center-generate-report-action"), () => {
+    const generated = window.nexusAiControlCenterGenerateReadinessReport();
+    emitCommand(generated ? "generate-readiness-report" : "generate-readiness-report-blocked");
+  });
+  attachActivationHandler(byId("ai-control-center-copy-report-action"), () => {
+    window.nexusAiControlCenterCopyReadinessReport().then((copied) => {
+      emitCommand(copied ? "copy-readiness-report" : "copy-readiness-report-blocked");
+    });
   });
 
   byId("ai-control-center-card-hub")?.addEventListener("scroll", syncCustomScrollbar, { passive: true });
