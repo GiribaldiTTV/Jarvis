@@ -337,6 +337,13 @@ def main() -> int:
           const close = document.getElementById("ai-control-center-close-action");
           const maximize = document.getElementById("ai-control-center-maximize-action");
           const minimize = document.getElementById("ai-control-center-minimize-action");
+          const diagnosticsGroup = document.querySelector('[data-dashboard-hub-group="ai-diagnostics-readiness-trust"]');
+          const diagnosticsHeading = document.getElementById("ai-control-center-diagnostics-heading");
+          const diagnosticsEyebrow = diagnosticsGroup ? diagnosticsGroup.querySelector(".ai-control-center-group__eyebrow") : null;
+          const diagnosticsDescription = diagnosticsGroup ? diagnosticsGroup.querySelector(".ai-control-center-group__description") : null;
+          const diagnosticsCards = diagnosticsGroup
+            ? Array.from(diagnosticsGroup.querySelectorAll("[data-dashboard-hub-card]")).map((card) => card.dataset.dashboardHubCard || "")
+            : [];
           const orinRowLabel = document.querySelector('[data-dashboard-hub-card="orin-status"] .monitoring-hud__state-row span');
           const orinRowValue = document.querySelector('[data-dashboard-hub-card="orin-status"] .monitoring-hud__state-row strong');
           const localCheckRowLabel = document.querySelector('[data-dashboard-hub-card="local-safety-check"] .monitoring-hud__state-row span');
@@ -413,6 +420,18 @@ def main() -> int:
             minimizeAriaDisabled: minimize ? minimize.getAttribute("aria-disabled") : "",
             minimizeTabIndex: minimize ? minimize.tabIndex : null,
             minimizeTitle: minimize ? minimize.getAttribute("title") : "",
+            dashboardCardOrder: surface ? surface.dataset.dashboardCardOrder : "",
+            dashboardIaModel: surface ? surface.dataset.dashboardIaModel : "",
+            diagnosticsGroupRect: rect(diagnosticsGroup),
+            diagnosticsGroupStyle: style(diagnosticsGroup),
+            diagnosticsGroupLabelledBy: diagnosticsGroup ? diagnosticsGroup.getAttribute("aria-labelledby") : "",
+            diagnosticsGroupEyebrowText: diagnosticsEyebrow ? diagnosticsEyebrow.textContent.trim() : "",
+            diagnosticsGroupEyebrowStyle: style(diagnosticsEyebrow),
+            diagnosticsGroupHeadingText: diagnosticsHeading ? diagnosticsHeading.textContent.trim() : "",
+            diagnosticsGroupHeadingStyle: style(diagnosticsHeading),
+            diagnosticsGroupDescriptionText: diagnosticsDescription ? diagnosticsDescription.textContent.trim() : "",
+            diagnosticsGroupDescriptionStyle: style(diagnosticsDescription),
+            diagnosticsGroupCards: diagnosticsCards,
             orinRowLabelText: orinRowLabel ? orinRowLabel.textContent.trim() : "",
             orinRowLabelStyle: style(orinRowLabel),
             orinRowValueText: orinRowValue ? orinRowValue.textContent.trim() : "",
@@ -493,9 +512,44 @@ def main() -> int:
                 "ok": False,
                 "reason": "missing-localCheckButtonRect",
             }
+    local_check_scroll_raw = _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const hub = document.getElementById("ai-control-center-card-hub");
+          const button = document.getElementById("ai-control-center-local-check-action");
+          if (!hub || !button) {
+            return JSON.stringify({ok: false, reason: "missing-local-check-button-or-hub"});
+          }
+          const hubRect = hub.getBoundingClientRect();
+          const buttonRect = button.getBoundingClientRect();
+          hub.scrollTop += buttonRect.bottom - hubRect.bottom + 28;
+          window.nexusAiControlCenterSyncScrollbar && window.nexusAiControlCenterSyncScrollbar();
+          const updated = button.getBoundingClientRect();
+          return JSON.stringify({
+            ok: true,
+            scrollTop: hub.scrollTop,
+            buttonRect: {
+              left: Math.round(updated.left),
+              top: Math.round(updated.top),
+              right: Math.round(updated.right),
+              bottom: Math.round(updated.bottom),
+              width: Math.round(updated.width),
+              height: Math.round(updated.height)
+            }
+          });
+        })();
+        """,
+    )
+    try:
+        local_check_scroll = json.loads(local_check_scroll_raw) if isinstance(local_check_scroll_raw, str) else local_check_scroll_raw
+    except json.JSONDecodeError:
+        local_check_scroll = {"ok": False, "raw": local_check_scroll_raw}
+    _pump(app, 220)
     local_check_real_click = {"ok": False, "reason": "missing-localCheckButtonRect"}
-    if isinstance(title_chrome_proof, dict):
-        local_check_rect = title_chrome_proof.get("localCheckButtonRect")
+    if isinstance(local_check_scroll, dict):
+        local_check_rect = local_check_scroll.get("buttonRect")
         if isinstance(local_check_rect, dict):
             window_rect_for_click = _native_rect(hwnd)
             local_click_x = int(
@@ -513,6 +567,7 @@ def main() -> int:
                 "ok": True,
                 "method": "SetCursorPos plus Win32 left mouse down/up on visible Run Local Check button",
                 "screenPoint": {"x": local_click_x, "y": local_click_y},
+                "scrollProof": local_check_scroll,
             }
     local_check_result_raw = _run_js(
         app,
@@ -1056,6 +1111,26 @@ def main() -> int:
             and title_chrome_proof.get("reportCopyButtonText") == "Copy Report"
             and title_chrome_proof.get("reportCopyButtonDisabled") is True
             and title_chrome_proof.get("reportCopyButtonAriaDisabled") == "true"
+        ),
+        "iaGroupingDiagnosticsReadinessTrustVisible": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("dashboardCardOrder") == "orin-status-diagnostics-readiness-trust"
+            and title_chrome_proof.get("dashboardIaModel") == "top-level-orin-status-then-diagnostics-readiness-trust-group"
+            and title_chrome_proof.get("diagnosticsGroupLabelledBy") == "ai-control-center-diagnostics-heading"
+            and title_chrome_proof.get("diagnosticsGroupEyebrowText") == "AI Diagnostics / Readiness / Trust"
+            and title_chrome_proof.get("diagnosticsGroupHeadingText") == "Local proof and safe next steps"
+            and "future diagnostics remain child or drill-down" in str(
+                title_chrome_proof.get("diagnosticsGroupDescriptionText") or ""
+            )
+        ),
+        "iaGroupingContainsLocalCheckAndReadinessReport": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("diagnosticsGroupCards")
+            == ["local-safety-check", "local-ai-readiness-report"]
+            and isinstance(title_chrome_proof.get("diagnosticsGroupRect"), dict)
+            and (title_chrome_proof["diagnosticsGroupRect"].get("height") or 0) > 0
+            and isinstance(title_chrome_proof.get("diagnosticsGroupStyle"), dict)
+            and title_chrome_proof["diagnosticsGroupStyle"].get("display") == "grid"
         ),
         "readinessReportScrolledIntoView": (
             isinstance(report_scroll, dict)

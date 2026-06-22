@@ -270,6 +270,58 @@
       border-radius: 20px;
     }
 
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group {
+      display: grid;
+      min-width: 0;
+      gap: 8px;
+      padding: 9px;
+      border: 1px solid rgba(116, 240, 255, 0.11);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(116, 240, 255, 0.045), transparent 32%),
+        rgba(2, 10, 20, 0.18);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.018);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__header {
+      display: grid;
+      gap: 2px;
+      padding: 1px 2px 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__eyebrow {
+      color: rgba(103, 224, 255, 0.95);
+      font-size: 10px;
+      font-weight: 820;
+      letter-spacing: 0.10em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__title {
+      color: rgba(234, 253, 255, 0.96);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.075em;
+      line-height: 1.18;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__description {
+      margin: 0;
+      color: rgba(181, 218, 229, 0.86);
+      font-size: 11px;
+      font-weight: 650;
+      line-height: 1.32;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-group__cards {
+      display: grid;
+      min-width: 0;
+      gap: 6px;
+    }
+
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline {
       display: grid;
       align-items: flex-start;
@@ -473,7 +525,8 @@
     data-dashboard-quick-access="not-applicable"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
-    data-dashboard-card-order="orin-status-local-safety-check"
+    data-dashboard-card-order="orin-status-diagnostics-readiness-trust"
+    data-dashboard-ia-model="top-level-orin-status-then-diagnostics-readiness-trust-group"
     data-dashboard-provider-truth="provider-contract-first"
     data-dashboard-state-model="no-provider-no-prompt-no-memory"
     data-dashboard-warning-controls="visual-non-invasive-only"
@@ -592,106 +645,119 @@
           </div>
         </article>
 
-        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-safety-check" data-slice="SLC-005">
-          <div class="monitoring-hud__hub-card-topline">
-            <span>02</span>
-            <div class="monitoring-hud__hub-card-title-copy">
-              <strong>Local Safety Check</strong>
-            </div>
-            <p class="monitoring-hud__hub-card-description">Runs one local check; no prompt/provider/model path is used.</p>
+        <section
+          class="ai-control-center-group"
+          data-dashboard-hub-group="ai-diagnostics-readiness-trust"
+          aria-labelledby="ai-control-center-diagnostics-heading"
+        >
+          <div class="ai-control-center-group__header">
+            <div class="ai-control-center-group__eyebrow">AI Diagnostics / Readiness / Trust</div>
+            <div class="ai-control-center-group__title" id="ai-control-center-diagnostics-heading">Local proof and safe next steps</div>
+            <p class="ai-control-center-group__description">Local checks and reports stay grouped here; heavier future diagnostics remain child or drill-down work.</p>
           </div>
-          <div class="monitoring-hud__state-row">
-            <span>Local check</span>
-            <strong id="ai-control-center-local-result">Waiting for local action</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Prompt / data</span>
-            <strong id="ai-control-center-local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong>
-          </div>
-          <div class="monitoring-hud__hub-actions">
-            <button
-              type="button"
-              id="ai-control-center-local-check-action"
-              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-              data-control="run-local-check"
-              data-action-size="content-fit-fixed-height"
-              aria-label="Run Local Check"
-            >
-              <span class="monitoring-hud__button-label">Run Local Check</span>
-            </button>
-          </div>
-        </article>
+          <div class="ai-control-center-group__cards">
+            <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-safety-check" data-slice="SLC-005">
+              <div class="monitoring-hud__hub-card-topline">
+                <span>02</span>
+                <div class="monitoring-hud__hub-card-title-copy">
+                  <strong>Local Safety Check</strong>
+                </div>
+                <p class="monitoring-hud__hub-card-description">Runs one local check; no prompt/provider/model path is used.</p>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Local check</span>
+                <strong id="ai-control-center-local-result">Waiting for local action</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Prompt / data</span>
+                <strong id="ai-control-center-local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong>
+              </div>
+              <div class="monitoring-hud__hub-actions">
+                <button
+                  type="button"
+                  id="ai-control-center-local-check-action"
+                  class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+                  data-control="run-local-check"
+                  data-action-size="content-fit-fixed-height"
+                  aria-label="Run Local Check"
+                >
+                  <span class="monitoring-hud__button-label">Run Local Check</span>
+                </button>
+              </div>
+            </article>
 
-        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-ai-readiness-report" data-slice="SLC-A1">
-          <div class="monitoring-hud__hub-card-topline">
-            <span>03</span>
-            <div class="monitoring-hud__hub-card-title-copy">
-              <strong>Readiness Report</strong>
-            </div>
-            <p class="monitoring-hud__hub-card-description">Generates a local report with ready, missing, blocked, evidence, and safe next-step sections.</p>
+            <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-ai-readiness-report" data-slice="SLC-A1">
+              <div class="monitoring-hud__hub-card-topline">
+                <span>03</span>
+                <div class="monitoring-hud__hub-card-title-copy">
+                  <strong>Readiness Report</strong>
+                </div>
+                <p class="monitoring-hud__hub-card-description">Generates a local report with ready, missing, blocked, evidence, and safe next-step sections.</p>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Report state</span>
+                <strong id="ai-control-center-report-state">Not generated</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Persistence</span>
+                <strong id="ai-control-center-report-persistence">View-only; copy is USER initiated</strong>
+              </div>
+              <div class="ai-control-center-report" data-report-surface="local-ai-readiness-report">
+                <div class="ai-control-center-report__status" id="ai-control-center-report-summary">Generate the report to inspect local readiness.</div>
+                <div class="ai-control-center-report__body" id="ai-control-center-report-body" hidden>
+                  <div class="ai-control-center-report__section">
+                    <span>Ready</span>
+                    <strong id="ai-control-center-report-ready">Not generated</strong>
+                  </div>
+                  <div class="ai-control-center-report__section">
+                    <span>Missing</span>
+                    <strong id="ai-control-center-report-missing">Not generated</strong>
+                  </div>
+                  <div class="ai-control-center-report__section">
+                    <span>Blocked</span>
+                    <strong id="ai-control-center-report-blocked">Not generated</strong>
+                  </div>
+                  <div class="ai-control-center-report__section">
+                    <span>Evidence</span>
+                    <strong id="ai-control-center-report-evidence">Not generated</strong>
+                  </div>
+                  <div class="ai-control-center-report__section">
+                    <span>Next</span>
+                    <strong id="ai-control-center-report-next">Not generated</strong>
+                  </div>
+                  <div class="ai-control-center-report__section">
+                    <span>Boundary</span>
+                    <strong id="ai-control-center-report-boundary">Not generated</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="monitoring-hud__hub-actions">
+                <button
+                  type="button"
+                  id="ai-control-center-generate-report-action"
+                  class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+                  data-control="generate-local-ai-readiness-report"
+                  data-action-size="content-fit-fixed-height"
+                  aria-label="Generate Readiness Report"
+                >
+                  <span class="monitoring-hud__button-label">Generate Readiness Report</span>
+                </button>
+                <button
+                  type="button"
+                  id="ai-control-center-copy-report-action"
+                  class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+                  data-control="copy-local-ai-readiness-report"
+                  data-action-size="content-fit-fixed-height"
+                  aria-label="Copy Readiness Report"
+                  disabled
+                  aria-disabled="true"
+                >
+                  <span class="monitoring-hud__button-label">Copy Report</span>
+                </button>
+              </div>
+            </article>
           </div>
-          <div class="monitoring-hud__state-row">
-            <span>Report state</span>
-            <strong id="ai-control-center-report-state">Not generated</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Persistence</span>
-            <strong id="ai-control-center-report-persistence">View-only; copy is USER initiated</strong>
-          </div>
-          <div class="ai-control-center-report" data-report-surface="local-ai-readiness-report">
-            <div class="ai-control-center-report__status" id="ai-control-center-report-summary">Generate the report to inspect local readiness.</div>
-            <div class="ai-control-center-report__body" id="ai-control-center-report-body" hidden>
-              <div class="ai-control-center-report__section">
-                <span>Ready</span>
-                <strong id="ai-control-center-report-ready">Not generated</strong>
-              </div>
-              <div class="ai-control-center-report__section">
-                <span>Missing</span>
-                <strong id="ai-control-center-report-missing">Not generated</strong>
-              </div>
-              <div class="ai-control-center-report__section">
-                <span>Blocked</span>
-                <strong id="ai-control-center-report-blocked">Not generated</strong>
-              </div>
-              <div class="ai-control-center-report__section">
-                <span>Evidence</span>
-                <strong id="ai-control-center-report-evidence">Not generated</strong>
-              </div>
-              <div class="ai-control-center-report__section">
-                <span>Next</span>
-                <strong id="ai-control-center-report-next">Not generated</strong>
-              </div>
-              <div class="ai-control-center-report__section">
-                <span>Boundary</span>
-                <strong id="ai-control-center-report-boundary">Not generated</strong>
-              </div>
-            </div>
-          </div>
-          <div class="monitoring-hud__hub-actions">
-            <button
-              type="button"
-              id="ai-control-center-generate-report-action"
-              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-              data-control="generate-local-ai-readiness-report"
-              data-action-size="content-fit-fixed-height"
-              aria-label="Generate Readiness Report"
-            >
-              <span class="monitoring-hud__button-label">Generate Readiness Report</span>
-            </button>
-            <button
-              type="button"
-              id="ai-control-center-copy-report-action"
-              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-              data-control="copy-local-ai-readiness-report"
-              data-action-size="content-fit-fixed-height"
-              aria-label="Copy Readiness Report"
-              disabled
-              aria-disabled="true"
-            >
-              <span class="monitoring-hud__button-label">Copy Report</span>
-            </button>
-          </div>
-        </article>
+        </section>
       </div>
       <div class="ai-control-center-scrollbar" id="ai-control-center-scrollbar" aria-hidden="true">
         <div class="ai-control-center-scrollbar__track" id="ai-control-center-scrollbar-track">
