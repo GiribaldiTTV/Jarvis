@@ -6439,6 +6439,7 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._resize_edges = ""
         self._resize_origin = QPoint()
         self._resize_geometry = QRect()
+        self._native_resize_interaction_state = "not-started"
         self._geometry_persistence_ready = False
         self._geometry_restored_from_saved = False
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
@@ -6544,6 +6545,48 @@ class MonitoringHudStudioWebWindow(QWidget):
             return Qt.SizeVerCursor
         return Qt.ArrowCursor
 
+    def _hit_test_for_resize_edges(self, edges: str) -> int:
+        return {
+            "l": HTLEFT,
+            "r": HTRIGHT,
+            "t": HTTOP,
+            "b": HTBOTTOM,
+            "lt": HTTOPLEFT,
+            "rt": HTTOPRIGHT,
+            "lb": HTBOTTOMLEFT,
+            "rb": HTBOTTOMRIGHT,
+        }.get(edges, HTCLIENT)
+
+    def _screen_point_from_windows_message(self, message) -> QPoint:
+        lparam = int(message.lParam)
+        x = ctypes.c_short(lparam & 0xFFFF).value
+        y = ctypes.c_short((lparam >> 16) & 0xFFFF).value
+        return QPoint(x, y)
+
+    def _resize_edges_for_global_pos(self, global_pos: QPoint) -> str:
+        return self._resize_edges_for_pos(self.mapFromGlobal(global_pos))
+
+    def _begin_native_edge_resize(self, edges: str, global_pos: QPoint) -> None:
+        if not edges:
+            return
+        self._resize_edges = edges
+        self._resize_origin = QPoint(global_pos)
+        self._resize_geometry = QRect(self.geometry())
+        self._native_resize_interaction_state = f"dragging-{edges}"
+        self.setCursor(self._cursor_for_resize_edges(edges))
+        self.grabMouse(self._cursor_for_resize_edges(edges))
+
+    def _finish_native_edge_resize(self) -> None:
+        if self._resize_edges:
+            self._native_resize_interaction_state = "completed"
+        self._resize_edges = ""
+        self.unsetCursor()
+        try:
+            self.releaseMouse()
+        except RuntimeError:
+            pass
+        self._save_current_geometry()
+
     def _apply_edge_resize(self, global_pos: QPoint) -> None:
         if not self._resize_edges:
             return
@@ -6620,6 +6663,35 @@ class MonitoringHudStudioWebWindow(QWidget):
                 return True
         return super().eventFilter(watched, event)
 
+    def nativeEvent(self, eventType, message):
+        if not self.STUDIO_RESIZABLE:
+            return super().nativeEvent(eventType, message)
+        msg = ctypes.wintypes.MSG.from_address(int(message))
+        if msg.message == WM_NCHITTEST:
+            global_pos = self._screen_point_from_windows_message(msg)
+            local_pos = self.mapFromGlobal(global_pos)
+            if self._studio_close_zone().contains(local_pos):
+                return True, HTCLIENT
+            edges = self._resize_edges_for_pos(local_pos)
+            if edges:
+                return True, self._hit_test_for_resize_edges(edges)
+            if 0 <= local_pos.y() <= self.DRAG_HEADER_HEIGHT:
+                return True, HTCAPTION
+            return True, HTCLIENT
+        if msg.message == WM_NCLBUTTONDOWN:
+            global_pos = QCursor.pos()
+            edges = self._resize_edges_for_global_pos(global_pos)
+            if edges:
+                self._begin_native_edge_resize(edges, global_pos)
+                return True, 0
+        if msg.message in {WM_MOUSEMOVE, WM_NCMOUSEMOVE} and self._resize_edges:
+            self._apply_edge_resize(QCursor.pos())
+            return True, 0
+        if msg.message in {WM_LBUTTONUP, WM_NCLBUTTONUP, WM_CANCELMODE, WM_CAPTURECHANGED} and self._resize_edges:
+            self._finish_native_edge_resize()
+            return True, 0
+        return super().nativeEvent(eventType, message)
+
     def _studio_close_zone(self) -> QRect:
         return QRect(
             max(0, self.width() - self.WINDOW_CONTROL_ZONE_RIGHT - self.WINDOW_CONTROL_ZONE_WIDTH),
@@ -6691,9 +6763,9 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 480
-    HEIGHT = 260
+    HEIGHT = 330
     MINIMUM_WIDTH = 480
-    MINIMUM_HEIGHT = 260
+    MINIMUM_HEIGHT = 330
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
@@ -6711,7 +6783,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         self._native_log_display_mode = "single-line-contained"
         self._last_activation_mode = "not-requested"
         self._opened_by_explicit_user_path = False
-        self._geometry_persistence_key = "recording_studio_feature_studio_v3"
+        self._geometry_persistence_key = "recording_studio_feature_studio_v4"
         super().__init__(screen, event_logger)
         self.setObjectName("monitoringHudRecordingStudioWindow")
         self.setWindowTitle("Nexus Recording Studio")
@@ -6774,20 +6846,28 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         target_names = getattr(self, "_target_names", "") or "No active monitor targets"
         if self._recording_session_state == "recording":
             state_label = "Recording"
-            status_text = "Recording"
-            detail_text = "Capturing the active overlay target."
+            status_text = "Recording now"
+            detail_text = "Capturing this Overlay Profile target."
+            log_state = "Log pending"
+            log_detail = "Native log appears after Stop Recording."
         elif self._recording_session_state == "saved-complete":
             state_label = "Saved"
-            status_text = "Saved"
-            detail_text = "Native log is ready in Recording files."
+            status_text = "Log ready"
+            detail_text = "Recording saved as a native NDAI log."
+            log_state = "Log ready"
+            log_detail = "Open Log Viewer Studio for the native log."
         elif self._start_stop_state == "start-enabled":
             state_label = "Ready"
             status_text = "Ready to record"
             detail_text = "Uses the active Overlay Profile."
+            log_state = "No saved log yet"
+            log_detail = "Start then stop recording to create a log."
         else:
-            state_label = "Needs target"
+            state_label = "Blocked"
             status_text = "Choose a target"
             detail_text = "Select an active Overlay Profile before recording."
+            log_state = "No log"
+            log_detail = "Choose a target before recording."
         target_detail = f"{count} active monitor{'s' if count != 1 else ''}"
         if target_names and target_names != "No active monitor targets":
             target_detail = f"{target_detail} - {target_names}"
@@ -6807,6 +6887,8 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "recordingTargetDetail": target_detail,
             "recordingStatus": status_text,
             "recordingDetail": detail_text,
+            "recordingLogState": log_state,
+            "recordingLogDetail": log_detail,
             "recordingBoundary": "Controls the current Recording target from the active Overlay Profile.",
             "startEnabled": self._start_stop_state == "start-enabled",
             "stopEnabled": self._start_stop_state == "recording-stop-enabled",
@@ -6940,10 +7022,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 620
-    HEIGHT = 310
-    MINIMUM_WIDTH = 540
-    MINIMUM_HEIGHT = 310
+    WIDTH = 560
+    HEIGHT = 380
+    MINIMUM_WIDTH = 520
+    MINIMUM_HEIGHT = 360
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"
@@ -6951,7 +7033,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     def __init__(self, screen, event_logger=None):
         self._request_id = ""
         self._last_activation_mode = "not-requested"
-        self._geometry_persistence_key = "log_viewer_studio_feature_studio_v3"
+        self._geometry_persistence_key = "log_viewer_studio_feature_studio_v4"
         self._native_full_path = str(recording_output_dir())
         self._export_full_path = str(recording_export_dir())
         self._folder_status_text = "Native and exported log folders are ready to open."
@@ -6994,6 +7076,8 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "roleValueC": "Folder Access",
             "nativeFolder": self._compact_path(self._native_full_path),
             "exportFolder": self._compact_path(self._export_full_path),
+            "nativeFolderState": "Native destination ready",
+            "exportFolderState": "Export destination ready",
             "folderStatus": self._folder_status_text,
             "logBoundary": (
                 "This branch provides folder access only. Previous-log selection, in-app viewing, "
@@ -7144,6 +7228,9 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "resizeBehavior": self.RESIZE_BEHAVIOR,
+            "nativeEdgeResizeHitTest": "WM_NCHITTEST+manual-fallback-geometry-resize",
+            "nativeResizeInteractionState": self._native_resize_interaction_state,
+            "runtimeResizeProofRequired": "ordered-frame-edge-drag",
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
             "previousLogSelectionState": "future-gated",

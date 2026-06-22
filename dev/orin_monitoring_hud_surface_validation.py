@@ -1618,6 +1618,7 @@ def validate() -> list[str]:
         "monitoring-hud-hub-action-content-fit-equal-gutter-v3",
         "monitoring-hud__controller-hero",
         "monitoring-hud__controller-summary",
+        "monitoring-hud__controller-log-card",
         "monitoring-hud__log-destination-card",
         "detached-child-window-header-no-title-card",
         "titleCardState",
@@ -1631,9 +1632,11 @@ def validate() -> list[str]:
         "Stop Recording",
         "Log Viewer Studio",
         'data-resize-contract="not-resizable-position-memory-only"',
-        'data-fixed-controller-height="260"',
+        'data-fixed-controller-height="330"',
         "edge-resizable-log-access-shell",
         "edge-resize-native-top-level",
+        "Open Native Logs",
+        "Open Exported Logs",
         "hub-action-content-fit-equal-gutter-32px-pill",
     ):
         _require_contains(studio_source, needle, "FAM-006 rendered Studio visual primitive source", failures)
@@ -1676,8 +1679,9 @@ def validate() -> list[str]:
     for needle in (
         "monitoringHudStudioNativeDragHandle",
         "DRAG_HEADER_HEIGHT = 64",
-        "HEIGHT = 260",
-        "HEIGHT = 310",
+        "HEIGHT = 330",
+        "HEIGHT = 380",
+        "WM_NCHITTEST+manual-fallback-geometry-resize",
         "hub-action-content-fit-equal-gutter-32px-pill",
     ):
         _require_contains(renderer, needle, "FAM-006 native Studio geometry and drag contract", failures)

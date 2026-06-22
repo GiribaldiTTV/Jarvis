@@ -550,11 +550,14 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "finished-folder-access-shell",
         "monitoring-hud__controller-hero",
         "monitoring-hud__controller-summary",
+        "monitoring-hud__controller-log-card",
         "monitoring-hud__log-destination-card",
         "monitoring-hud-hub-action-content-fit-equal-gutter-v3",
         "hub-action-content-fit-equal-gutter-32px-pill",
         "not-resizable-position-memory-only",
         "edge-resize-native-top-level",
+        "WM_NCHITTEST+manual-fallback-geometry-resize",
+        'data-fixed-controller-height="330"',
     )
     for marker in required_source_markers:
         if marker not in source_text:

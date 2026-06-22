@@ -253,13 +253,15 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary > div,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card > div {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-log-card > div,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-copy {
   display: grid;
   gap: 4px;
   min-width: 0;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-log-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -274,6 +276,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state span,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary span,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-log-card span,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card span {
   color: rgba(133, 218, 238, 0.9);
   font-size: 10px;
@@ -293,6 +296,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary strong,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-log-card strong,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card strong {
   color: rgba(161, 255, 226, 0.96);
   font-size: 12px;
@@ -320,11 +324,11 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 12px;
-  min-height: 74px;
-  padding: 11px 12px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  min-height: 88px;
+  padding: 11px 12px 12px;
   border: 1px solid rgba(91, 204, 229, 0.19);
   border-radius: 15px;
   background:
@@ -333,6 +337,22 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.024) inset,
     0 10px 20px rgba(0, 0, 0, 0.13);
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card small {
+  display: block;
+  color: rgba(157, 255, 226, 0.88);
+  font-size: 10.5px;
+  font-weight: 740;
+  letter-spacing: 0.018em;
+  line-height: 1.18;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status {
@@ -393,9 +413,9 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-destination-action {
-  height: 32px;
-  min-height: 32px;
-  padding-inline: 15px;
+  height: 34px;
+  min-height: 34px;
+  padding-inline: 14px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
@@ -411,11 +431,11 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-native"] {
-  min-width: 0;
+  min-width: 146px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-export"] {
-  min-width: 0;
+  min-width: 164px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="log-viewer"] .monitoring-hud__log-access-stack {

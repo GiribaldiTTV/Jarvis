@@ -65,7 +65,7 @@
     surface.dataset.resizeContract = mode === "log-viewer"
       ? "edge-resizable-log-access-shell"
       : "not-resizable-position-memory-only";
-    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "260";
+    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "330";
     surface.dataset.titleTreatment = "detached-child-window-header-no-title-card";
     surface.dataset.titleCardState = "absent";
     surface.dataset.childWindowTitleGrammar = "category-line-plus-strong-title-no-title-card";
@@ -96,6 +96,8 @@
     setText("monitoring-hud-studio-recording-target-detail", state.recordingTargetDetail || "No active monitors.");
     setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Ready to record");
     setText("monitoring-hud-studio-recording-detail", state.recordingDetail || "Uses the active Overlay Profile.");
+    setText("monitoring-hud-studio-recording-log-state", state.recordingLogState || "No saved log yet");
+    setText("monitoring-hud-studio-recording-log-detail", state.recordingLogDetail || "Start then stop recording to create a log.");
     setText("monitoring-hud-studio-recording-boundary", state.recordingBoundary || "");
     const toggle = byId("monitoring-hud-studio-recording-toggle-action");
     const isRecording = state.stopEnabled === true;
@@ -114,6 +116,8 @@
     setActionState("monitoring-hud-studio-recording-toggle-action", isRecording || state.startEnabled === true);
     setText("monitoring-hud-studio-native-folder", state.nativeFolder || "");
     setText("monitoring-hud-studio-export-folder", state.exportFolder || "");
+    setText("monitoring-hud-studio-native-folder-state", state.nativeFolderState || "Native destination ready");
+    setText("monitoring-hud-studio-export-folder-state", state.exportFolderState || "Export destination ready");
     setText("monitoring-hud-studio-log-boundary", state.logBoundary || "");
     setText("monitoring-hud-studio-folder-status", state.folderStatus || "Native and exported log folders are ready to open.");
   };
