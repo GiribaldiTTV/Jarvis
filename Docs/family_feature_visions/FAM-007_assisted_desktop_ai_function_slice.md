@@ -90,6 +90,34 @@ This FFV category is broader than one branch route. It covers the public-safe as
 
 The branch route label `Three-NDAI Assisted Desktop AI Function Slice` is a selected grouped implementation route that may consume a subset of this FFV's elements. It is not the FFV category title and must not turn this FFV into a branch plan or live-state ledger.
 
+## AI Control Center Ontology And Placement Contract
+
+Visible Product Surface Name: `AI Control Center`
+
+Internal Product Model: `AI Home / Control Foyer`
+
+Durable Definition: `AI Control Center is the FAM-007-owned top-level AI orientation and control-entry surface. It tells the USER what AI exists, what state it is in, what is safe or blocked, and where to go for each AI subsystem.`
+
+Top-Level Admission Rule: top-level AI Control Center content must be compact, orienting, trust-critical, or navigational. The top level may show AI truth summaries, category doorway cards, and narrowly scoped actions that route to the correct focused surface. Permanent stacked top-level report bodies, setup flows, logs, selectors, provider internals, capability-pack detail tables, memory/cache/private setup content, and long diagnostics are disallowed unless source truth and USER approval create an explicit exception.
+
+Placement Role Vocabulary:
+
+- `Top-level summary`: compact truth about active AI, readiness, trust/provider, capability, lane, or recovery posture.
+- `Top-level action`: a bounded action that starts or opens an approved focused surface without executing future-gated behavior by implication.
+- `Category doorway`: a card or control that routes to a grouped AI subsystem such as Active AI, AI Readiness, AI Diagnostics, Trust & Provider, Capabilities, Developer / Owner, Activity / Recovery, or AI Settings handoff.
+- `Focused surface / child surface / drill-down detail`: a separate approved window, page, panel, or modal that owns detailed reports, selectors, settings, logs, setup, diagnostics, or recovery flows.
+- `Diagnostic / status / trust-boundary`: truthful provider, prompt, model, download, cache, memory, private-lane, or capability state explanation that does not count as a concrete feature by itself.
+- `Concrete USER-facing feature`: a useful outcome the USER can intentionally produce beyond blocked-state explanation, status, or proof. The packet must say what the USER can now do, what useful result they receive, and why the result is more than unavailable/blocked-path explanation.
+- `Future-gated placeholder`: honest disabled or deferred route that does not imply implementation.
+- `Cross-FAM dependency support`: narrow dependency context for FAM-002, FAM-003, FAM-006, FAM-008, Governance, or another owner without transferring branch ownership.
+- `Out-of-scope`: any content requiring unapproved provider/model execution, prompt send, downloads, runtime cache behavior, memory/learning/personalization, private Developer/Owner setup, installer/shortcut/packaging execution, sibling worktree mutation, issue mutation, PR, merge, release, imports, or v1.8.0 work.
+
+Recommended Category Taxonomy: `Active AI`, `AI Readiness`, `AI Diagnostics`, `Trust & Provider`, `Capabilities`, `Developer / Owner`, `Activity / Recovery`, and `AI Settings` only when an owning settings route is approved.
+
+Readiness Report Placement: the local AI readiness report remains a valid concrete local decision-aid behavior when it gives the USER ready/missing/blocked conditions, evidence checked, safe next steps, provider-visible-data `none`, and enforced trust boundaries. Its detailed body belongs behind an `AI Readiness` and/or `AI Diagnostics` doorway or focused surface. The AI Control Center top level may show a compact readiness summary and an action such as `Open Readiness Report`, but must not treat the full report body as permanent top-level stacked content.
+
+Visual Proof Carry-In: future visible FAM-007 surfaces must classify whether they use the accepted rendered DOM/CSS path, a future approved template/shared primitive, a reference-derived implementation, or a USER-approved exception. Reference-derived implementations remain unproven until side-by-side element-group visual adjudication, code-to-visual trace, proof artifacts, and USER acceptance or waiver are recorded.
+
 ## User-Facing Surfaces
 
 - ORIN / AI status surface in the desktop visual layer.

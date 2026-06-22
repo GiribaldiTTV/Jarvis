@@ -12,6 +12,8 @@ Corrected Classification Receipt: `2026-06-21 USER rejected the prior runtime-ca
 
 Option A Workstream Completion Receipt: `2026-06-22 USER approved and Codex implemented the bounded Option A Local AI Readiness Report Export carrier. The concrete USER-facing outcome is that USER can generate a local AI readiness report in AI Control Center that reports ready conditions, missing requirements, blocked paths, local evidence checked, safe next steps, provider-visible-data none, and enforced trust boundaries. The report remains local/view-only and supports USER-initiated clipboard copy only; no file export, prompt send, provider/model execution, downloads, runtime cache behavior, memory/learning/personalization, private Developer/Owner setup, packaging, sibling/Governance mutation, PR Readiness, PR creation, merge, release, cleanup, issue mutation, imports, or v1.8.0 work is included. Active lifecycle details remain in C:\Nexus Governance State.`
 
+AI Control Center Ontology Codification Receipt: `2026-06-22 USER accepted the AI Control Center product-ontology direction as a major product-model shift requiring source-truth codification and BP Entry analysis before IA/runtime repair. The FAM-007 family vision and F7-FF01 now codify the visible product name AI Control Center, internal AI Home / Control Foyer model, compact top-level orientation/doorway rule, anti-stacked-detail rule, placement role vocabulary, readiness-report placement, concrete-feature classification gate, and FAM-006 shared-rendered primitive visual-proof carry-in. This receipt is branch-local durability evidence only; active phase/gate state remains in C:\Nexus Governance State and C:\Nexus USER.`
+
 ## Branch Identity
 
 - Branch: `feature/fam-007-ai-control-center-readiness-diagnostics`
@@ -119,6 +121,16 @@ Planned grouped slices for later USER-reviewed BP2/BP3 planning:
 SLC is shorthand for Slice and remains a Slice-level deliverable, not a seam or separate branch.
 
 Same-Branch Grouping Receipt: `The slices share one FAM, one package objective, one AI Control Center diagnostics route, one FAM-007 worktree, one provider-state boundary, and one validation/proof path. A split is not required at BR2.`
+
+## AI Control Center Ontology Carry-In
+
+Ontology Carry-In: `AI Control Center remains the visible product surface name unless a later USER-approved source-truth change renames it. The accepted internal product model is AI Home / Control Foyer: a top-level AI orientation and control-entry surface with compact AI truth and category doorways. Detailed reports, diagnostics, setup flows, logs, selectors, provider internals, capability details, memory/cache/private setup, and long workflows route behind categories, focused surfaces, child/drill-down surfaces, or future-gated placeholders unless source truth and USER approval create an exception.`
+
+Placement Role Vocabulary: `top-level summary; top-level action; category doorway; focused surface / child surface / drill-down detail; diagnostic/status/trust-boundary; concrete USER-facing feature; future-gated placeholder; cross-FAM dependency support; out-of-scope.`
+
+Option A Placement Decision: `The local AI readiness report remains a valid concrete local decision-aid behavior only if it gives the USER a useful local outcome beyond blocked-state explanation. Its detailed body should move behind AI Readiness and/or AI Diagnostics. The AI Control Center top level may show a compact readiness summary and doorway/action, but not a permanent full report body.`
+
+BP Re-Entry Requirement: `Because USER accepted this ontology as a major product-model shift, the branch must re-enter BP Entry analysis before any IA/runtime implementation repair. BP Entry must decide whether current branch remains the legal carrier, which artifacts remain carry-in, which are invalidated, whether BP1/BP2/BP3 repair or Workstream re-entry is required, what proof is needed, and the exact USER decision before LV1 can resume.`
 
 ## Explicit Non-Includes
 
