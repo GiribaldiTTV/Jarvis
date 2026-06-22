@@ -73,12 +73,12 @@
     data-feature-studio-purpose="ultra-lightweight-detached-recording-controller"
     data-frame-ownership="fam006-compact-feature-studio-chrome"
     data-shared-primitive-consumer="nexus-window-primitives-v1"
-    data-feature-studio-primitive="fam006-compact-controller-shell-v2"
+    data-feature-studio-primitive="fam006-detached-child-studio-shell-v3"
     data-window-control-primitive="nexus-uiref-002-compact-cluster-v1"
     data-window-control-cluster="compact-minimize-close"
     data-window-control-state-model="hidden-blocked-active"
     data-resize-contract="not-resizable-position-memory-only"
-    data-fixed-controller-height="204"
+    data-fixed-controller-height="224"
     data-title-treatment="detached-child-window-title-row"
     data-title-card-state="absent"
     data-child-window-title-grammar="category-line-plus-strong-title"
@@ -89,7 +89,7 @@
         <button type="button" id="monitoring-hud-studio-minimize-action" class="monitoring-hud__window-control-button monitoring-hud__window-control-button--minimize" data-control="minimize-studio" data-window-control-key="minimize" data-window-control-command="minimize" data-window-control-state="active" aria-label="Minimize Studio"></button>
         <button type="button" id="monitoring-hud-studio-close-action" class="monitoring-hud__window-control-button monitoring-hud__window-control-button--close" data-control="close-studio" data-window-control-key="close" data-window-control-command="close" data-window-control-state="active" aria-label="Close Studio"></button>
       </div>
-      <div class="monitoring-hud__title-group">
+      <div class="monitoring-hud__title-group monitoring-hud__child-window-header monitoring-hud__detached-child-studio-header">
         <div class="monitoring-hud__header" id="monitoring-hud-studio-drag-handle">
           <div>
             <div class="monitoring-hud__kicker" id="monitoring-hud-studio-kicker">Nexus Desktop AI</div>
@@ -98,7 +98,7 @@
           </div>
         </div>
       </div>
-      <div class="monitoring-hud__control-hub" data-feature-studio-content="compact-controller-shell" aria-label="Studio controls">
+      <div class="monitoring-hud__control-hub" data-feature-studio-content="compact-controller-shell" data-feature-studio-body-primitive="child-window-row-stack" aria-label="Studio controls">
         <article id="monitoring-hud-studio-recording-card" class="monitoring-hud__feature-studio-panel" data-feature-studio-panel="recording-controller">
           <p class="monitoring-hud__feature-studio-summary" id="monitoring-hud-studio-recording-boundary">Controls the current Recording target from the active Overlay Profile.</p>
           <div class="monitoring-hud__state-row"><span>Target</span><strong id="monitoring-hud-studio-recording-target">No active overlay profile</strong></div>

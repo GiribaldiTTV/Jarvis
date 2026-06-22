@@ -5775,14 +5775,14 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
-MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "fam006-compact-feature-studio-controller-shell-v1"
+MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "fam006-detached-child-studio-shell-v3"
 MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "ai-control-center-uiref-001-002-003-primitives"
 MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "nexus-window-primitives-v1-rendered-dom-css"
 MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "photo-video-comparison-required"
 MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY = "photo-video-comparison-not-runtime-self-attestation"
 MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE = "declared-not-proven-by-runtime"
 MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR = "shared-uiref-003-button-primitive-with-fam006-feature-studio-composition"
-MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "fam006-compact-feature-studio-shell-v2-requires-photo-adjudication"
+MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "fam006-detached-child-window-row-stack-v3-requires-photo-adjudication"
 MONITORING_HUD_STUDIO_REFERENCE_SURFACES = (
     "AI Control Center shared primitives",
     "Overlay Profile Settings",
@@ -5898,12 +5898,12 @@ def _monitoring_hud_ai_control_center_primitive_contract() -> dict[str, str]:
     return {
         "implementationAuthority": "Shared Rendered Primitive Implementation",
         "primaryReference": "nexus_visual/ai_control_center.html for shared primitives only",
-        "compositionReference": "FAM-006 compact feature-studio controller/shell contract",
+        "compositionReference": "FAM-006 detached child feature-studio contract",
         "acceptedReferenceSet": "UIREF-001|UIREF-002|UIREF-003|FAM-002",
         "windowFrame": "fam006-compact-feature-studio-dark-glass-rounded-frame",
         "windowControls": "ai-control-center-symbol-window-control-cluster-identical",
         "actionButtons": "monitoring-hud-hub-action-content-fit-button-identical",
-        "rows": "fam006-compact-feature-studio-separated-state-rows",
+        "rows": "fam006-detached-child-window-divider-state-rows",
         "header": "detached-child-window-title-row",
         "proofRule": "photo-video-comparison-required; runtime-marker-is-supporting-evidence-only",
     }
@@ -6626,10 +6626,10 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 430
-    HEIGHT = 204
-    MINIMUM_WIDTH = 360
-    MINIMUM_HEIGHT = 204
+    WIDTH = 448
+    HEIGHT = 224
+    MINIMUM_WIDTH = 448
+    MINIMUM_HEIGHT = 224
     DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
@@ -6779,18 +6779,18 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-            "stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density",
+            "stateRowDensityPolicy": "fam006-detached-child-window-divider-state-row-density",
             "titleGroupVisualPolicy": "fam006-detached-child-window-title-row",
             "titleTreatment": "detached-child-window-title-row",
             "titleCardState": "absent",
             "childWindowTitleGrammar": "category-line-plus-strong-title",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
-            "primaryVisualComparator": "FAM-006 compact feature-studio grammar",
+            "primaryVisualComparator": "FAM-006 detached child-window Studio grammar",
             "compositionModel": "ultra-lightweight-detached-recording-controller",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
-            "panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel",
+            "panelPrimitiveSeed": "FAM-006 child-window divider row stack",
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
@@ -6817,13 +6817,13 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "recordingStudioVisibleActionModel": "single-stateful-start-stop-button-plus-log-viewer-route",
             "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
             "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
-            "featureStudioPrimitive": "fam006-compact-controller-shell-v2",
+            "featureStudioPrimitive": "fam006-detached-child-studio-shell-v3",
             "sharedVisualDna": "nexus-window-primitives-v1-rendered-dom-css",
             "genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css",
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
             "buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-button-primitive",
-            "windowBodyVisualGrammar": "fam006-compact-feature-studio-shell-v2-rendered-window-primitive",
+            "windowBodyVisualGrammar": "fam006-detached-child-window-row-stack-v3-rendered-window-primitive",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "resizeBehavior": self.RESIZE_BEHAVIOR,
@@ -6981,18 +6981,18 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-            "stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density",
+            "stateRowDensityPolicy": "fam006-detached-child-window-divider-state-row-density",
             "titleGroupVisualPolicy": "fam006-detached-child-window-title-row",
             "titleTreatment": "detached-child-window-title-row",
             "titleCardState": "absent",
             "childWindowTitleGrammar": "category-line-plus-strong-title",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
-            "primaryVisualComparator": "FAM-006 compact feature-studio grammar",
+            "primaryVisualComparator": "FAM-006 detached child-window Studio grammar",
             "compositionModel": "compact-current-branch-log-access-shell",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
-            "panelPrimitiveSeed": "AI-Control-Center-UIREF-003-compact-state-row-panel",
+            "panelPrimitiveSeed": "FAM-006 child-window divider row stack",
             "nativeFolderPreSessionUsable": True,
             "exportFolderPreSessionUsable": True,
             "nativeLogRoot": native_root,
@@ -7032,13 +7032,13 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "standaloneWindowLayout": "compact-current-branch-log-access-shell",
             "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
             "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
-            "featureStudioPrimitive": "fam006-compact-controller-shell-v2",
+            "featureStudioPrimitive": "fam006-detached-child-studio-shell-v3",
             "sharedVisualDna": "nexus-window-primitives-v1-rendered-dom-css",
             "genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css",
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
             "buttonVisualGrammar": "ai-control-center-rendered-button-primitive",
-            "windowBodyVisualGrammar": "fam006-compact-feature-studio-shell-v2-rendered-window-primitive",
+            "windowBodyVisualGrammar": "fam006-detached-child-window-row-stack-v3-rendered-window-primitive",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "resizeBehavior": self.RESIZE_BEHAVIOR,
@@ -13549,10 +13549,10 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("logViewerRoute") == "recording-studio-open-log-viewer-action"
                 and proof.get("titleHeaderBadgeState") == "removed"
                 and proof.get("standaloneHeaderTreatment") == "ai-control-center-title-group-no-extra-badge"
-                and proof.get("windowBodyVisualGrammar") == "fam006-compact-feature-studio-shell-v2-rendered-window-primitive"
+                and proof.get("windowBodyVisualGrammar") == "fam006-detached-child-window-row-stack-v3-rendered-window-primitive"
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
-                and proof.get("stateRowDensityPolicy") == "fam006-compact-feature-studio-state-row-density"
+                and proof.get("stateRowDensityPolicy") == "fam006-detached-child-window-divider-state-row-density"
                 and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
@@ -13832,10 +13832,10 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("compositionModel") == "compact-current-branch-log-access-shell"
                 and proof.get("titleHeaderBadgeState") == "removed"
                 and proof.get("standaloneHeaderTreatment") == "ai-control-center-title-group-no-extra-badge"
-                and proof.get("windowBodyVisualGrammar") == "fam006-compact-feature-studio-shell-v2-rendered-window-primitive"
+                and proof.get("windowBodyVisualGrammar") == "fam006-detached-child-window-row-stack-v3-rendered-window-primitive"
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
-                and proof.get("stateRowDensityPolicy") == "fam006-compact-feature-studio-state-row-density"
+                and proof.get("stateRowDensityPolicy") == "fam006-detached-child-window-divider-state-row-density"
                 and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
