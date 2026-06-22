@@ -5775,14 +5775,14 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
-MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "fam006-unique-child-studio-shell-v4"
+MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "fam006-unique-child-studio-shell-v5"
 MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "ai-control-center-uiref-001-002-003-primitives"
 MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "nexus-window-primitives-v1-rendered-dom-css"
 MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "photo-video-comparison-required"
 MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY = "photo-video-comparison-not-runtime-self-attestation"
 MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE = "declared-not-proven-by-runtime"
 MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR = "shared-uiref-003-button-primitive-with-fam006-feature-studio-composition"
-MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "fam006-unique-child-purpose-stack-v4-requires-photo-adjudication"
+MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "fam006-unique-child-purpose-stack-v5-requires-photo-adjudication"
 MONITORING_HUD_STUDIO_REFERENCE_SURFACES = (
     "AI Control Center shared primitives",
     "Overlay Profile Settings",
@@ -5904,7 +5904,7 @@ def _monitoring_hud_ai_control_center_primitive_contract() -> dict[str, str]:
         "windowControls": "ai-control-center-symbol-window-control-cluster-identical",
         "actionButtons": "monitoring-hud-hub-action-content-fit-button-identical",
         "rows": "fam006-detached-child-window-divider-state-rows",
-        "header": "detached-child-window-title-row",
+        "header": "detached-child-window-header-no-title-card",
         "proofRule": "photo-video-comparison-required; runtime-marker-is-supporting-evidence-only",
     }
 
@@ -6683,9 +6683,9 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 448
-    HEIGHT = 184
+    HEIGHT = 176
     MINIMUM_WIDTH = 448
-    MINIMUM_HEIGHT = 184
+    MINIMUM_HEIGHT = 176
     DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
@@ -6835,11 +6835,11 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-            "stateRowDensityPolicy": "rejected-dense-row-stack-not-used",
-            "titleGroupVisualPolicy": "fam006-detached-child-window-title-row",
-            "titleTreatment": "detached-child-window-title-row",
+            "stateRowDensityPolicy": "divider-rows-no-boxed-table",
+            "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
+            "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
-            "childWindowTitleGrammar": "category-line-plus-strong-title",
+            "childWindowTitleGrammar": "category-line-plus-strong-title-no-title-card",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
             "primaryVisualComparator": "FAM-006 unique child feature-studio grammar",
@@ -6884,6 +6884,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-button-primitive",
             "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
             "denseValidatorStatusPanelRejected": True,
+            "boxedTablePanelRejected": True,
             "cardInCardHierarchyAbsent": True,
             "attachedChildCornerResizeGripAbsent": True,
             "windowPlacementMemoryState": "enabled",
@@ -6910,7 +6911,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 520
-    HEIGHT = 250
+    HEIGHT = 238
     MINIMUM_WIDTH = 430
     MINIMUM_HEIGHT = 224
     DRAG_HEADER_HEIGHT = 56
@@ -7043,11 +7044,11 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-            "stateRowDensityPolicy": "rejected-dense-row-stack-not-used",
-            "titleGroupVisualPolicy": "fam006-detached-child-window-title-row",
-            "titleTreatment": "detached-child-window-title-row",
+            "stateRowDensityPolicy": "divider-rows-no-boxed-table",
+            "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
+            "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
-            "childWindowTitleGrammar": "category-line-plus-strong-title",
+            "childWindowTitleGrammar": "category-line-plus-strong-title-no-title-card",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
             "primaryVisualComparator": "FAM-006 unique child feature-studio grammar",
@@ -7105,6 +7106,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "buttonVisualGrammar": "ai-control-center-rendered-button-primitive",
             "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
             "denseValidatorStatusPanelRejected": True,
+            "boxedTablePanelRejected": True,
             "futureScopeVisualLeakageAbsent": True,
             "attachedChildCornerResizeGripAbsent": True,
             "edgeResizeProofRequired": True,
@@ -13622,9 +13624,10 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
-                and proof.get("stateRowDensityPolicy") == "rejected-dense-row-stack-not-used"
-                and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
+                and proof.get("stateRowDensityPolicy") == "divider-rows-no-boxed-table"
+                and proof.get("titleGroupVisualPolicy") == "detached-child-window-header-no-title-card"
                 and proof.get("denseValidatorStatusPanelRejected") is True
+                and proof.get("boxedTablePanelRejected") is True
                 and proof.get("cardInCardHierarchyAbsent") is True
                 and proof.get("attachedChildCornerResizeGripAbsent") is True
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
@@ -13909,8 +13912,9 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
-                and proof.get("stateRowDensityPolicy") == "rejected-dense-row-stack-not-used"
-                and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
+                and proof.get("stateRowDensityPolicy") == "divider-rows-no-boxed-table"
+                and proof.get("titleGroupVisualPolicy") == "detached-child-window-header-no-title-card"
+                and proof.get("boxedTablePanelRejected") is True
                 and proof.get("futureScopeVisualLeakageAbsent") is True
                 and proof.get("attachedChildCornerResizeGripAbsent") is True
                 and proof.get("edgeResizeProofRequired") is True

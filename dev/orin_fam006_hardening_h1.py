@@ -1,4 +1,4 @@
-"""FAM-006 Hardening H1 proof for the active-overlay recording package.
+﻿"""FAM-006 Hardening H1 proof for the active-overlay recording package.
 
 This helper is non-mutating. It compares SLC-051 through SLC-055 against the
 accepted BP1/BP2/BP3 route and verifies that Live Validation and UTS remain
@@ -18,6 +18,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from desktop.recording_output_contract import validate_recording_output_contract
+from dev.orin_fam006_visual_conformance_ledger import build_rows as build_visual_ledger_rows
+from dev.orin_fam006_visual_conformance_ledger import validate_rows as validate_visual_ledger_rows
 from dev.orin_fam006_workstream_readiness import build_fam006_workstream_readiness_proof
 
 
@@ -97,7 +99,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "_dispatch_monitoring_hud_recording_studio_action",
                     "recordingExecutionState",
                     "recordingFileWritingState",
-                    "fam006-unique-child-studio-shell-v4",
+                    "fam006-unique-child-studio-shell-v5",
                     "unique-child-standalone-feature-studio",
                     "no-resize-recording-edge-resize-log-viewer",
                     "attachedChildCornerResizeGripAbsent",
@@ -121,16 +123,16 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "single-stateful-start-stop-button-plus-log-viewer-route",
                     "monitoring-hud-studio-recording-toggle-action",
                     "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-                    "detached-child-window-title-row",
+                    "detached-child-window-header-no-title-card",
                     "titleCardState",
-                    "category-line-plus-strong-title",
+                    "category-line-plus-strong-title-no-title-card",
                     "overflow: visible",
                     "text-overflow: clip",
                     "not-resizable-position-memory-only",
                     "data-resize-contract=\"not-resizable-position-memory-only\"",
-                    "data-fixed-controller-height=\"184\"",
-                    "HEIGHT = 184",
-                    "HEIGHT = 250",
+                    "data-fixed-controller-height=\"176\"",
+                    "HEIGHT = 176",
+                    "HEIGHT = 238",
                     "monitoringHudStudioNativeDragHandle",
                     "hub-action-content-fit-equal-gutter-32px-pill",
                     "windowPlacementMemoryState",
@@ -144,11 +146,10 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
                     "text-overflow: clip",
                     "log-viewer-open-export",
-                    "rejected-dense-row-stack-not-used",
-                    "unique-child-purpose-stack-v4",
+                    "divider-rows-no-boxed-table",
+                    "unique-child-purpose-stack-v5",
                     "ultra-light-recording-controller",
                     "purpose-built compact controller stack",
-                    "fam006-detached-child-window-title-row",
                     "ai-control-center-symbol-window-control-pill",
                     "nativeLogRowsContained",
                 ),
@@ -167,7 +168,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "recording_export_dir",
                     "create-or-open-before-session",
                     "exportCustomizationState",
-                    "fam006-unique-child-studio-shell-v4",
+                    "fam006-unique-child-studio-shell-v5",
                     "unique-child-standalone-feature-studio",
                     "attachedChildCornerResizeGripAbsent",
                     "nexus-window-primitives-v1-rendered-dom-css",
@@ -196,13 +197,18 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
                     "AI-Control-Center-UIREF-003-action-button",
                     "ai-control-center-symbol-window-control-cluster",
                     "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-                    "detached-child-window-title-row",
+                    "detached-child-window-header-no-title-card",
                     "titleCardState",
-                    "category-line-plus-strong-title",
+                    "category-line-plus-strong-title-no-title-card",
                     "hub-action-content-fit-equal-gutter-32px-pill",
-                    "rejected-dense-row-stack-not-used",
+                    "divider-rows-no-boxed-table",
                     "compact folder-access shell stack",
-                    "fam006-detached-child-window-title-row",
+                    "nativeFolderPreSessionUsable",
+                    "exportFolderPreSessionUsable",
+                    "openNativeControlProof",
+                    "openExportControlProof",
+                    "data-control=\"log-viewer-open-native\"",
+                    "data-control=\"log-viewer-open-export\"",
                     "ai-control-center-symbol-window-control-pill",
                 ),
             ),
@@ -303,6 +309,18 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
             "qsizegrip-bottom-right-enabled",
         )
     )
+    visual_ledger_source = "\n".join(
+        [
+            _read_repo_text("desktop/desktop_renderer.py"),
+            _read_repo_text("nexus_visual/monitoring_hud_studio.html"),
+            _read_repo_text("nexus_visual/monitoring_hud_studio.js"),
+            _read_repo_text("nexus_visual/nexus_window_primitives.css"),
+        ]
+    )
+    visual_ledger_failures = validate_visual_ledger_rows(
+        build_visual_ledger_rows(),
+        visual_ledger_source,
+    )
 
     proof = {
         "hardeningH1Id": HARDENING_H1_ID,
@@ -320,6 +338,8 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         "twoProfileLogConsistencyPassed": output_contract["twoProfileLogConsistencyPassed"],
         "futureBoundariesPreserved": boundary_trace,
         "staleRecordingStudioModelAbsent": stale_recording_studio_model_absent,
+        "visualConformanceLedgerGreen": not visual_ledger_failures,
+        "visualConformanceLedgerFailures": visual_ledger_failures,
         "liveValidationState": "pending-user-admission-after-h1",
         "utsState": "pending-live-validation-stage-1",
         "formalUtsExported": False,
@@ -337,6 +357,7 @@ def build_fam006_hardening_h1_proof() -> dict[str, Any]:
         and proof["twoProfileLogConsistencyPassed"]
         and proof["futureBoundariesPreserved"]
         and proof["staleRecordingStudioModelAbsent"]
+        and proof["visualConformanceLedgerGreen"]
         and not proof["formalUtsExported"]
     )
     return deepcopy(proof)

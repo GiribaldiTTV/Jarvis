@@ -58,17 +58,17 @@
       ? "compact-current-branch-log-access-shell"
       : "ultra-lightweight-detached-recording-controller";
     surface.dataset.featureStudioPurpose = surface.dataset.productSurfaceRole;
-    surface.dataset.featureStudioPrimitive = "fam006-unique-child-studio-shell-v4";
+    surface.dataset.featureStudioPrimitive = "fam006-unique-child-studio-shell-v5";
     surface.dataset.windowTaxonomy = "unique-child-standalone-feature-studio";
     surface.dataset.windowResizeTaxonomy = "no-resize-recording-edge-resize-log-viewer";
     surface.dataset.attachedChildResizeGrip = "absent";
     surface.dataset.resizeContract = mode === "log-viewer"
       ? "edge-resizable-log-access-shell"
       : "not-resizable-position-memory-only";
-    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "184";
-    surface.dataset.titleTreatment = "detached-child-window-title-row";
+    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "176";
+    surface.dataset.titleTreatment = "detached-child-window-header-no-title-card";
     surface.dataset.titleCardState = "absent";
-    surface.dataset.childWindowTitleGrammar = "category-line-plus-strong-title";
+    surface.dataset.childWindowTitleGrammar = "category-line-plus-strong-title-no-title-card";
     surface.setAttribute(
       "aria-label",
       mode === "log-viewer"

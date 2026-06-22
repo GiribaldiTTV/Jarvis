@@ -11,9 +11,6 @@ body.desktop-mode #monitoring-hud[data-shared-primitive-consumer="nexus-window-p
     radial-gradient(circle at 6% 0%, rgba(91, 221, 255, 0.16), transparent 34%),
     radial-gradient(circle at 100% 20%, rgba(84, 255, 190, 0.10), transparent 32%),
     linear-gradient(145deg, rgba(4, 17, 32, 0.97), rgba(1, 7, 16, 0.96));
-  --nexus-feature-studio-title-bg:
-    linear-gradient(150deg, rgba(5, 23, 39, 0.985), rgba(2, 10, 20, 0.965)),
-    linear-gradient(90deg, rgba(116, 240, 255, 0.08), transparent 58%);
   --nexus-feature-studio-panel-bg:
     linear-gradient(180deg, rgba(8, 34, 51, 0.82), rgba(4, 18, 31, 0.92)),
     rgba(3, 16, 29, 0.9);
@@ -154,17 +151,17 @@ body.desktop-mode #monitoring-hud[data-window-control-primitive="nexus-uiref-002
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__title-group {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title-group {
   display: block;
-  min-height: 39px;
-  padding: 2px 76px 4px 4px;
+  min-height: 38px;
+  padding: 1px 78px 4px 3px;
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__detached-child-studio-header {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__detached-child-studio-header {
   align-items: flex-start;
   margin: 0;
   border: 0;
@@ -172,13 +169,13 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   box-shadow: none;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__header {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__header {
   padding: 0;
   min-height: 0;
   cursor: move;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__kicker {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__kicker {
   color: rgba(139, 233, 255, 0.86);
   font-size: 12px;
   font-weight: 740;
@@ -187,7 +184,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   text-transform: uppercase;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__title {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title {
   margin-top: 4px;
   color: rgba(234, 253, 255, 0.95);
   font-size: 18px;
@@ -197,13 +194,13 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   text-transform: uppercase;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__subtitle {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__subtitle {
   display: none;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__feature-studio-panel {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-panel {
   display: grid;
-  gap: 0;
+  gap: 8px;
   padding: 0;
   border: 0;
   border-radius: 0;
@@ -211,33 +208,33 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   box-shadow: none;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__controller-stack,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__log-access-stack {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-stack,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-stack {
   display: grid;
-  gap: 0;
-  border-top: 1px solid var(--monitoring-hud-divider-line);
+  gap: 6px;
+  border: 0;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__controller-target,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__controller-status,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__log-access-item,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__log-access-status {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-target,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-status,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status {
   display: grid;
-  gap: 3px;
+  grid-template-columns: minmax(86px, 0.34fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
   min-height: 0;
-  padding: 6px 8px 5px;
-  border-bottom: 1px solid rgba(83, 182, 203, 0.38);
-  background:
-    linear-gradient(180deg, rgba(38, 142, 156, 0.13), rgba(5, 29, 43, 0.0) 46%),
-    rgba(2, 18, 29, 0.18);
-  box-shadow:
-    0 -1px 0 rgba(120, 228, 255, 0.2),
-    inset 0 1px 0 rgba(0, 4, 8, 0.32);
+  padding: 5px 0 4px;
+  border-top: 1px solid var(--monitoring-hud-divider-line);
+  border-bottom: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__controller-target span,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__log-access-item span,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__log-access-status span {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-target span,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-status span:first-child,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item span,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status span {
   color: rgba(133, 218, 238, 0.9);
   font-size: 10px;
   font-weight: 820;
@@ -246,10 +243,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   text-transform: uppercase;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__controller-target strong,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__controller-status span,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__log-access-item strong,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__log-access-status strong {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-target strong,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-status span:last-child,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item strong,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status strong {
   color: rgba(161, 255, 226, 0.96);
   font-size: 11px;
   font-weight: 820;
@@ -259,57 +256,57 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   white-space: nowrap;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__controller-status span {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-status span:last-child {
   color: rgba(190, 226, 238, 0.94);
   font-weight: 720;
   white-space: normal;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"][data-studio-surface="recording"] .monitoring-hud__controller-stack {
-  border-bottom: 1px solid rgba(83, 182, 203, 0.3);
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__controller-stack {
+  border-bottom: 0;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__feature-studio-actions {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 2px;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__hub-action--content-fit {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit {
   flex: 0 0 auto;
   width: auto;
   max-width: none;
   min-width: 0;
-  height: 32px;
-  min-height: 32px;
-  padding-inline: 16px;
+  height: 34px;
+  min-height: 34px;
+  padding-inline: 14px;
   overflow: visible;
   white-space: nowrap;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
   display: block;
   width: max-content;
   max-width: none;
   overflow: visible;
   text-overflow: clip;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   line-height: 1;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-native"] {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-native"] {
   min-width: 0;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-export"] {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-export"] {
   min-width: 0;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v4"] .monitoring-hud__feature-studio-panel[hidden] {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-panel[hidden] {
   display: none !important;
 }
