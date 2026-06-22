@@ -5775,14 +5775,14 @@ class MonitoringHudOverlayDisplayWindow(QWidget):
         self.close()
 
 
-MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "fam006-detached-child-studio-shell-v3"
+MONITORING_HUD_STUDIO_VISUAL_CONTRACT = "fam006-unique-child-studio-shell-v4"
 MONITORING_HUD_STUDIO_VISUAL_SAMPLE = "ai-control-center-uiref-001-002-003-primitives"
 MONITORING_HUD_STUDIO_VISUAL_INHERITANCE = "nexus-window-primitives-v1-rendered-dom-css"
 MONITORING_HUD_STUDIO_VISUAL_ADJUDICATION = "photo-video-comparison-required"
 MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY = "photo-video-comparison-not-runtime-self-attestation"
 MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE = "declared-not-proven-by-runtime"
 MONITORING_HUD_STUDIO_BUTTON_VISUAL_GRAMMAR = "shared-uiref-003-button-primitive-with-fam006-feature-studio-composition"
-MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "fam006-detached-child-window-row-stack-v3-requires-photo-adjudication"
+MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR = "fam006-unique-child-purpose-stack-v4-requires-photo-adjudication"
 MONITORING_HUD_STUDIO_REFERENCE_SURFACES = (
     "AI Control Center shared primitives",
     "Overlay Profile Settings",
@@ -6422,7 +6422,8 @@ class MonitoringHudStudioWebWindow(QWidget):
     MINIMUM_HEIGHT = 330
     DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = True
-    RESIZE_BEHAVIOR = "qsizegrip-bottom-right-enabled"
+    RESIZE_BEHAVIOR = "edge-resize-native-top-level"
+    RESIZE_EDGE_MARGIN = 8
     WINDOW_CONTROL_ZONE_TOP = 14
     WINDOW_CONTROL_ZONE_RIGHT = 15
     WINDOW_CONTROL_ZONE_WIDTH = 60
@@ -6435,6 +6436,9 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._page_ready = False
         self._pending_studio_state: dict[str, object] = {}
         self._drag_offset = None
+        self._resize_edges = ""
+        self._resize_origin = QPoint()
+        self._resize_geometry = QRect()
         self._geometry_persistence_ready = False
         self._geometry_restored_from_saved = False
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
@@ -6473,12 +6477,6 @@ class MonitoringHudStudioWebWindow(QWidget):
         self._drag_handle.installEventFilter(self)
         self._drag_handle.raise_()
         self._position_studio_drag_handle()
-        if self.STUDIO_RESIZABLE:
-            self._resize_grip = QSizeGrip(self)
-            self._resize_grip.setObjectName("monitoringHudStudioResizeGrip")
-            self._resize_grip.setToolTip("Resize Studio")
-            self._resize_grip.setFixedSize(20, 20)
-            self._resize_grip.raise_()
 
     def _on_studio_html_loaded(self, ok: bool) -> None:
         self._page_ready = bool(ok)
@@ -6520,25 +6518,86 @@ class MonitoringHudStudioWebWindow(QWidget):
     def _handle_surface_command(self, command: str) -> None:
         return
 
+    def _resize_edges_for_pos(self, pos: QPoint) -> str:
+        if not self.STUDIO_RESIZABLE:
+            return ""
+        margin = self.RESIZE_EDGE_MARGIN
+        edges = ""
+        if pos.x() <= margin:
+            edges += "l"
+        elif pos.x() >= self.width() - margin:
+            edges += "r"
+        if pos.y() <= margin:
+            edges += "t"
+        elif pos.y() >= self.height() - margin:
+            edges += "b"
+        return edges
+
+    def _cursor_for_resize_edges(self, edges: str):
+        if edges in {"lt", "rb"}:
+            return Qt.SizeFDiagCursor
+        if edges in {"rt", "lb"}:
+            return Qt.SizeBDiagCursor
+        if edges in {"l", "r"}:
+            return Qt.SizeHorCursor
+        if edges in {"t", "b"}:
+            return Qt.SizeVerCursor
+        return Qt.ArrowCursor
+
+    def _apply_edge_resize(self, global_pos: QPoint) -> None:
+        if not self._resize_edges:
+            return
+        delta = global_pos - self._resize_origin
+        rect = QRect(self._resize_geometry)
+        min_width = max(int(self.minimumWidth() or 0), self.MINIMUM_WIDTH)
+        min_height = max(int(self.minimumHeight() or 0), self.MINIMUM_HEIGHT)
+        if "l" in self._resize_edges:
+            new_left = min(rect.right() - min_width + 1, rect.left() + delta.x())
+            rect.setLeft(new_left)
+        if "r" in self._resize_edges:
+            rect.setRight(max(rect.left() + min_width - 1, rect.right() + delta.x()))
+        if "t" in self._resize_edges:
+            new_top = min(rect.bottom() - min_height + 1, rect.top() + delta.y())
+            rect.setTop(new_top)
+        if "b" in self._resize_edges:
+            rect.setBottom(max(rect.top() + min_height - 1, rect.bottom() + delta.y()))
+        self.setGeometry(rect)
+
     def eventFilter(self, watched, event):
         if watched is getattr(self, "webview", None):
             event_type = event.type()
             if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
                 pos = event.position().toPoint()
+                resize_edges = self._resize_edges_for_pos(pos)
+                if resize_edges:
+                    self._resize_edges = resize_edges
+                    self._resize_origin = event.globalPosition().toPoint()
+                    self._resize_geometry = QRect(self.geometry())
+                    self.webview.setCursor(self._cursor_for_resize_edges(resize_edges))
+                    event.accept()
+                    return True
                 if pos.y() <= self.DRAG_HEADER_HEIGHT and not self._studio_close_zone().contains(pos):
                     self._drag_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
                     event.accept()
                     return True
             elif (
                 event_type == QEvent.MouseMove
-                and self._drag_offset is not None
                 and event.buttons() & Qt.LeftButton
             ):
-                self.move(event.globalPosition().toPoint() - self._drag_offset)
-                event.accept()
-                return True
+                if self._resize_edges:
+                    self._apply_edge_resize(event.globalPosition().toPoint())
+                    event.accept()
+                    return True
+                if self._drag_offset is not None:
+                    self.move(event.globalPosition().toPoint() - self._drag_offset)
+                    event.accept()
+                    return True
+            elif event_type == QEvent.MouseMove and self.STUDIO_RESIZABLE:
+                self.webview.setCursor(self._cursor_for_resize_edges(self._resize_edges_for_pos(event.position().toPoint())))
             elif event_type == QEvent.MouseButtonRelease:
+                self._resize_edges = ""
                 self._drag_offset = None
+                self.webview.unsetCursor()
                 self._save_current_geometry()
         if watched is getattr(self, "_drag_handle", None):
             event_type = event.type()
@@ -6602,9 +6661,6 @@ class MonitoringHudStudioWebWindow(QWidget):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         self._position_studio_drag_handle()
-        if hasattr(self, "_resize_grip"):
-            self._resize_grip.move(max(0, self.width() - self._resize_grip.width() - 8), max(0, self.height() - self._resize_grip.height() - 8))
-            self._resize_grip.raise_()
         self._save_current_geometry()
 
     def closeEvent(self, event):
@@ -6627,9 +6683,9 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 448
-    HEIGHT = 224
+    HEIGHT = 184
     MINIMUM_WIDTH = 448
-    MINIMUM_HEIGHT = 224
+    MINIMUM_HEIGHT = 184
     DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
@@ -6779,18 +6835,21 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-            "stateRowDensityPolicy": "fam006-detached-child-window-divider-state-row-density",
+            "stateRowDensityPolicy": "rejected-dense-row-stack-not-used",
             "titleGroupVisualPolicy": "fam006-detached-child-window-title-row",
             "titleTreatment": "detached-child-window-title-row",
             "titleCardState": "absent",
             "childWindowTitleGrammar": "category-line-plus-strong-title",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
-            "primaryVisualComparator": "FAM-006 detached child-window Studio grammar",
+            "primaryVisualComparator": "FAM-006 unique child feature-studio grammar",
             "compositionModel": "ultra-lightweight-detached-recording-controller",
+            "windowTaxonomy": "unique-child-standalone-feature-studio",
+            "attachedChildResizeGrip": False,
+            "uniqueChildResizePolicy": "no-resize-recording-edge-resize-log-viewer",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
-            "panelPrimitiveSeed": "FAM-006 child-window divider row stack",
+            "panelPrimitiveSeed": "FAM-006 purpose-built compact controller stack",
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
@@ -6817,13 +6876,16 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "recordingStudioVisibleActionModel": "single-stateful-start-stop-button-plus-log-viewer-route",
             "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
             "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
-            "featureStudioPrimitive": "fam006-detached-child-studio-shell-v3",
+            "featureStudioPrimitive": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
             "sharedVisualDna": "nexus-window-primitives-v1-rendered-dom-css",
             "genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css",
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
             "buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-button-primitive",
-            "windowBodyVisualGrammar": "fam006-detached-child-window-row-stack-v3-rendered-window-primitive",
+            "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
+            "denseValidatorStatusPanelRejected": True,
+            "cardInCardHierarchyAbsent": True,
+            "attachedChildCornerResizeGripAbsent": True,
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "resizeBehavior": self.RESIZE_BEHAVIOR,
@@ -6848,12 +6910,12 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 520
-    HEIGHT = 224
+    HEIGHT = 250
     MINIMUM_WIDTH = 430
     MINIMUM_HEIGHT = 224
     DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = True
-    RESIZE_BEHAVIOR = "qsizegrip-bottom-right-enabled"
+    RESIZE_BEHAVIOR = "edge-resize-native-top-level"
 
     def __init__(self, screen, event_logger=None):
         self._request_id = ""
@@ -6981,18 +7043,21 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-            "stateRowDensityPolicy": "fam006-detached-child-window-divider-state-row-density",
+            "stateRowDensityPolicy": "rejected-dense-row-stack-not-used",
             "titleGroupVisualPolicy": "fam006-detached-child-window-title-row",
             "titleTreatment": "detached-child-window-title-row",
             "titleCardState": "absent",
             "childWindowTitleGrammar": "category-line-plus-strong-title",
             "visualPrimitiveAdoptionContract": _monitoring_hud_ai_control_center_primitive_contract(),
             "referenceTemplatePrimitiveClassification": "Bounded FAM-006 Shared Primitive Carry-In",
-            "primaryVisualComparator": "FAM-006 detached child-window Studio grammar",
+            "primaryVisualComparator": "FAM-006 unique child feature-studio grammar",
             "compositionModel": "compact-current-branch-log-access-shell",
+            "windowTaxonomy": "unique-child-standalone-feature-studio",
+            "attachedChildResizeGrip": False,
+            "uniqueChildResizePolicy": "no-resize-recording-edge-resize-log-viewer",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
-            "panelPrimitiveSeed": "FAM-006 child-window divider row stack",
+            "panelPrimitiveSeed": "FAM-006 compact folder-access shell stack",
             "nativeFolderPreSessionUsable": True,
             "exportFolderPreSessionUsable": True,
             "nativeLogRoot": native_root,
@@ -7032,13 +7097,17 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "standaloneWindowLayout": "compact-current-branch-log-access-shell",
             "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
             "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
-            "featureStudioPrimitive": "fam006-detached-child-studio-shell-v3",
+            "featureStudioPrimitive": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
             "sharedVisualDna": "nexus-window-primitives-v1-rendered-dom-css",
             "genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css",
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
             "buttonVisualGrammar": "ai-control-center-rendered-button-primitive",
-            "windowBodyVisualGrammar": "fam006-detached-child-window-row-stack-v3-rendered-window-primitive",
+            "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
+            "denseValidatorStatusPanelRejected": True,
+            "futureScopeVisualLeakageAbsent": True,
+            "attachedChildCornerResizeGripAbsent": True,
+            "edgeResizeProofRequired": True,
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
             "resizeBehavior": self.RESIZE_BEHAVIOR,
@@ -13549,11 +13618,15 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("logViewerRoute") == "recording-studio-open-log-viewer-action"
                 and proof.get("titleHeaderBadgeState") == "removed"
                 and proof.get("standaloneHeaderTreatment") == "ai-control-center-title-group-no-extra-badge"
-                and proof.get("windowBodyVisualGrammar") == "fam006-detached-child-window-row-stack-v3-rendered-window-primitive"
+                and proof.get("windowTaxonomy") == "unique-child-standalone-feature-studio"
+                and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
-                and proof.get("stateRowDensityPolicy") == "fam006-detached-child-window-divider-state-row-density"
+                and proof.get("stateRowDensityPolicy") == "rejected-dense-row-stack-not-used"
                 and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
+                and proof.get("denseValidatorStatusPanelRejected") is True
+                and proof.get("cardInCardHierarchyAbsent") is True
+                and proof.get("attachedChildCornerResizeGripAbsent") is True
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("recordingStudioVisibleActionModel") == "single-stateful-start-stop-button-plus-log-viewer-route"
@@ -13832,17 +13905,21 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("compositionModel") == "compact-current-branch-log-access-shell"
                 and proof.get("titleHeaderBadgeState") == "removed"
                 and proof.get("standaloneHeaderTreatment") == "ai-control-center-title-group-no-extra-badge"
-                and proof.get("windowBodyVisualGrammar") == "fam006-detached-child-window-row-stack-v3-rendered-window-primitive"
+                and proof.get("windowTaxonomy") == "unique-child-standalone-feature-studio"
+                and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
-                and proof.get("stateRowDensityPolicy") == "fam006-detached-child-window-divider-state-row-density"
+                and proof.get("stateRowDensityPolicy") == "rejected-dense-row-stack-not-used"
                 and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
+                and proof.get("futureScopeVisualLeakageAbsent") is True
+                and proof.get("attachedChildCornerResizeGripAbsent") is True
+                and proof.get("edgeResizeProofRequired") is True
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("openNativeControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("openExportControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
-                and proof.get("resizeBehavior") == "qsizegrip-bottom-right-enabled"
+                and proof.get("resizeBehavior") == "edge-resize-native-top-level"
                 and proof.get("internalPathLeakageAbsent") is True
                 and proof.get("userVisibleStorageModel") == "flat-user-recording-and-export-roots"
                 and proof.get("pathRowsContained") is True

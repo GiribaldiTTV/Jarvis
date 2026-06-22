@@ -523,6 +523,12 @@ Branches consuming this feature vision should prove:
   current compact-controller contract; Log Viewer Studio is moveable and
   resizable; maximize remains future-gated unless later source truth admits the
   loaded-log graph inside Log Viewer Studio
+- unique child / standalone-capable feature-studio resize taxonomy: Recording
+  Studio and Log Viewer Studio are not exclusive attached Dashboard children;
+  Recording Studio must expose no resize affordance in the current compact
+  controller contract, while Log Viewer Studio must use independent edge resize
+  behavior like a top-level window. A bottom-right attached-child corner grip is
+  stale for these unique child feature-studio windows and must fail visual proof.
 - Recording Studio uses one stateful Start/Stop control (`Start Recording` when
   ready and `Stop Recording` while active) plus a Log Viewer Studio route; two
   separate visible Start and Stop buttons are stale for the current Option C
