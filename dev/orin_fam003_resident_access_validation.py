@@ -38,6 +38,7 @@ def validate_resident_model(failures: list[str]):
         OPTIONAL_FEATURE_ROUTE_UNSUPPORTED,
         TRAY_DISCOVERY_MESSAGE,
         TRAY_IDENTITY_LABEL,
+        TRAY_MENU_STRUCTURE,
         TRAY_TOOLTIP_TEXT,
         WINDOWS_TRAY_VISIBILITY_LIMITATION,
         build_monitoring_hud_route_model,
@@ -50,6 +51,7 @@ def validate_resident_model(failures: list[str]):
     immutable_ids = [route["routeId"] for route in plan["immutableRoutes"]]
     quick_ids = [route["routeId"] for route in plan["quickSlots"]]
     route_owner = {route["routeId"]: route["ownerFamily"] for route in plan["immutableRoutes"]}
+    menu_structure = plan["menuStructure"]
 
     assert_true(TRAY_IDENTITY_LABEL == "Nexus Desktop AI", "tray identity label drifted", failures)
     assert_true(
@@ -132,6 +134,35 @@ def validate_resident_model(failures: list[str]):
         and "Provider-visible data: none" in str(plan.get("tooltipText", ""))
         and "Provider-visible data: none" in str(plan.get("statusLabel", "")),
         "resident access plan must carry compact AI/privacy status in both tray icon hover tooltip and visible status label",
+        failures,
+    )
+    assert_true(
+        TRAY_MENU_STRUCTURE["nativeStatusRow"] is False
+        and menu_structure["nativeStatusRow"] is False,
+        "native tray menu must not carry a long status/header row",
+        failures,
+    )
+    assert_true(
+        tuple(menu_structure["topLevel"]) == ("Global Settings", "Quick Access", "AI", "Exit Nexus Desktop AI"),
+        f"native tray menu top-level structure drifted: {menu_structure['topLevel']}",
+        failures,
+    )
+    assert_true(
+        tuple(menu_structure["quickAccessMenu"]) == DEFAULT_QUICK_SLOT_ROUTE_IDS
+        or tuple(menu_structure["quickAccessMenu"])
+        == ("Open Command Overlay", "Create Custom Task", "Open Saved Actions Folder"),
+        f"Quick Access submenu structure drifted: {menu_structure['quickAccessMenu']}",
+        failures,
+    )
+    assert_true(
+        tuple(menu_structure["aiMenu"]) == ("AI Status / Command Center",),
+        f"AI submenu structure drifted: {menu_structure['aiMenu']}",
+        failures,
+    )
+    assert_true(
+        tuple(menu_structure["deferredOwnerMenus"]) == ("Developer", "Owner")
+        and "Deferred to FAM-007" in menu_structure["developerOwnerDisposition"],
+        "Developer/Owner tray categories must remain deferred to FAM-007 planning",
         failures,
     )
 
@@ -246,7 +277,14 @@ def validate_static_wiring(failures: list[str]):
         "request_privacy_lockdown_from_tray",
         "request_quick_slot_from_tray",
         "TRAY_RESIDENT_ACCESS_ACTIONS_REFRESHED",
-        "_native_menu_status_text",
+        "_resident_menu_identity_text",
+        "self.quick_access_menu = self.tray_menu.addMenu(\"Quick Access\")",
+        "self.ai_menu = self.tray_menu.addMenu(\"AI\")",
+        "parent_menu=self.quick_access_menu",
+        "parent_menu=self.ai_menu",
+        "MF_POPUP",
+        "append_submenu(menu, quick_access_menu, \"Quick Access\", True)",
+        "append_submenu(menu, ai_menu, \"AI\", True)",
         "nexusDesktopTrayStatus",
         "#07111f",
     ):
@@ -270,9 +308,16 @@ def validate_static_wiring(failures: list[str]):
         'self.global_settings_action = self._add_button_action(' in tray_text
         and tray_text.index('self.global_settings_action = self._add_button_action(')
         < tray_text.index('self.monitoring_hud_primary_action = self._add_button_action(')
-        and tray_text.index('append(110, "Global Settings", True)')
+        and tray_text.index('append(menu, 110, "Global Settings", True)')
         < tray_text.index('if hud_route_visible:'),
-        "Global Settings must be the first tray/menu command after the status header",
+        "Global Settings must be the first native tray/menu command",
+        failures,
+    )
+    assert_true(
+        "_native_menu_status_text" not in tray_text
+        and "append(80," not in tray_text
+        and "nativeStatusRow\": False" not in tray_text,
+        "native tray menu must not keep a long status/header row implementation",
         failures,
     )
     assert_true(

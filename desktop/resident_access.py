@@ -35,6 +35,17 @@ DEFAULT_QUICK_SLOT_ROUTE_IDS = (
 )
 MAX_QUICK_SLOT_COUNT = 5
 DEFAULT_QUICK_SLOT_COUNT = 3
+TRAY_MENU_STRUCTURE = {
+    "nativeStatusRow": False,
+    "topLevel": ("Global Settings", "Quick Access", "AI", "Exit Nexus Desktop AI"),
+    "quickAccessMenu": (
+        "Open Command Overlay",
+        "Create Custom Task",
+        "Open Saved Actions Folder",
+    ),
+    "aiMenu": ("AI Status / Command Center",),
+    "deferredOwnerMenus": ("Developer", "Owner"),
+}
 IMMUTABLE_ROUTE_IDS = (
     "global_settings",
     "hud_dashboard",
@@ -512,8 +523,20 @@ def build_resident_access_menu_plan(
         "quickSlots": [route.as_dict() for route in quick_slots],
         "candidateRoutes": [route.as_dict() for route in quick_slot_candidate_routes()],
         "settings": settings.as_dict(),
+        "menuStructure": {
+            "nativeStatusRow": TRAY_MENU_STRUCTURE["nativeStatusRow"],
+            "topLevel": list(TRAY_MENU_STRUCTURE["topLevel"]),
+            "quickAccessMenu": list(TRAY_MENU_STRUCTURE["quickAccessMenu"]),
+            "aiMenu": list(TRAY_MENU_STRUCTURE["aiMenu"]),
+            "deferredOwnerMenus": list(TRAY_MENU_STRUCTURE["deferredOwnerMenus"]),
+            "statusPlacement": "tray-icon-hover-tooltip-and-owner-status-surfaces",
+            "developerOwnerDisposition": (
+                "Deferred to FAM-007 Dev/Owner model planning; no visible tray category is admitted "
+                "until FAM-007 owns the runtime/status semantics."
+            ),
+        },
         "singleTrayIconContract": (
             "FAM-003 owns the resident doorway identity and menu routing; FAM-007 status appears inside "
-            "the same single tray icon/menu instead of creating a second tray icon."
+            "the same single tray icon, hover tooltip, and AI menu doorway instead of creating a second tray icon."
         ),
     }

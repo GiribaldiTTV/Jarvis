@@ -212,6 +212,10 @@ class DesktopTrayEntry:
         self.create_custom_task_action = None
         self.global_settings_action = None
         self.ai_status_action = None
+        self.quick_access_menu = None
+        self.quick_access_menu_action = None
+        self.ai_menu = None
+        self.ai_menu_action = None
         self.privacy_lockdown_action = None
         self.quick_slot_actions = []
         self.quick_slot_buttons = []
@@ -258,8 +262,8 @@ class DesktopTrayEntry:
             self.tray_menu.aboutToHide.connect(self._handle_menu_about_to_hide)
             self.identity_action = QAction(TRAY_IDENTITY_LABEL, self.tray_menu)
             self.identity_action.setEnabled(False)
+            self.identity_action.setVisible(False)
             self.tray_menu.addAction(self.identity_action)
-            self.tray_menu.addSeparator()
 
             self.global_settings_action = self._add_button_action(
                 "Global Settings",
@@ -281,18 +285,24 @@ class DesktopTrayEntry:
             )
             self.tray_menu.addSeparator()
 
-            self.ai_status_action = self._add_button_action(
-                "AI Status / Command Center",
-                self.request_ai_status_from_tray,
-            )
-            self.tray_menu.addSeparator()
-
+            self.quick_access_menu = self.tray_menu.addMenu("Quick Access")
+            self.quick_access_menu_action = self.quick_access_menu.menuAction()
             for index in range(5):
                 action = self._add_button_action(
                     f"Quick Access {index + 1}",
                     lambda source, slot_index=index: self.request_quick_slot_from_tray(slot_index, source),
+                    parent_menu=self.quick_access_menu,
                 )
                 self.quick_slot_actions.append(action)
+            self.tray_menu.addSeparator()
+
+            self.ai_menu = self.tray_menu.addMenu("AI")
+            self.ai_menu_action = self.ai_menu.menuAction()
+            self.ai_status_action = self._add_button_action(
+                "AI Status / Command Center",
+                self.request_ai_status_from_tray,
+                parent_menu=self.ai_menu,
+            )
             self.tray_menu.addSeparator()
 
             self.exit_action = self._add_button_action(
@@ -361,10 +371,11 @@ class DesktopTrayEntry:
             self.request_shutdown_from_tray,
         )
 
-    def _add_button_action(self, text, handler):
-        action = QWidgetAction(self.tray_menu)
+    def _add_button_action(self, text, handler, parent_menu=None):
+        target_menu = parent_menu or self.tray_menu
+        action = QWidgetAction(target_menu)
         action.setText(text)
-        button = QPushButton(text, self.tray_menu)
+        button = QPushButton(text, target_menu)
         button.setFlat(True)
         button.setMinimumHeight(24)
         button.setMinimumWidth(240)
@@ -375,7 +386,7 @@ class DesktopTrayEntry:
         )
         button.clicked.connect(lambda _checked=False: self._invoke_button_action(handler))
         action.setDefaultWidget(button)
-        self.tray_menu.addAction(action)
+        target_menu.addAction(action)
         return action
 
     def _set_action_text(self, action, text):
@@ -463,6 +474,7 @@ class DesktopTrayEntry:
 
             MF_STRING = 0x0000
             MF_GRAYED = 0x0001
+            MF_POPUP = 0x0010
             MF_SEPARATOR = 0x0800
             TPM_RIGHTBUTTON = 0x0002
             TPM_RETURNCMD = 0x0100
@@ -476,38 +488,55 @@ class DesktopTrayEntry:
             dashboard_visible = bool(state.get("dashboard_visible")) and hud_route_enabled
             overlay_deferred = state.get("overlay_deferred", True) is not False
             overlay_anchor_enabled = bool(state.get("overlay_anchor_enabled")) and not overlay_deferred
-            dashboard_text = self._monitoring_hud_dashboard_menu_text(state, hud_route)
+            dashboard_text = self._monitoring_hud_dashboard_menu_text(state, hud_route, compact=True)
             resident_plan = self._resident_access_plan()
             quick_slots = list(resident_plan.get("quickSlots", ()) or [])
 
-            def append(command_id, text, enabled=True):
+            def append(target_menu, command_id, text, enabled=True):
                 flags = MF_STRING if enabled else (MF_STRING | MF_GRAYED)
-                user32.AppendMenuW(menu, flags, int(command_id), ctypes.c_wchar_p(text))
+                user32.AppendMenuW(target_menu, flags, int(command_id), ctypes.c_wchar_p(text))
 
-            append(80, self._native_menu_status_text(resident_plan), False)
-            user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
-            append(110, "Global Settings", True)
-            user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+            def append_submenu(parent_menu, submenu, text, enabled=True):
+                flags = MF_STRING | MF_POPUP
+                if not enabled:
+                    flags |= MF_GRAYED
+                user32.AppendMenuW(parent_menu, flags, int(submenu), ctypes.c_wchar_p(text))
+
+            append(menu, 110, "Global Settings", True)
             if hud_route_visible:
-                append(101, dashboard_text, hud_route_enabled)
+                user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+                append(menu, 101, dashboard_text, hud_route_enabled)
                 if hud_route_enabled:
                     append(
+                        menu,
                         102,
                         "HUD Overlay Deferred" if overlay_deferred else "Unanchor HUD Overlay",
                         feature_enabled and overlay_anchor_enabled,
                     )
-                user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
-            append(120, "AI Status / Command Center", True)
-            user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+
+            quick_access_menu = user32.CreatePopupMenu()
+            quick_slot_count = 0
             for index, route in enumerate(quick_slots[:5]):
                 route_id = str(route.get("routeId", ""))
                 append(
+                    quick_access_menu,
                     QUICK_SLOT_COMMAND_BASE_ID + index,
                     self._route_label_for_menu(route),
                     bool(route.get("enabled", True) or route_id in {"ai_status_command_center"}),
                 )
+                quick_slot_count += 1
+            if quick_slot_count:
+                user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+                append_submenu(menu, quick_access_menu, "Quick Access", True)
+            else:
+                user32.DestroyMenu(quick_access_menu)
+
+            ai_menu = user32.CreatePopupMenu()
+            append(ai_menu, 120, "AI Status / Command Center", True)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
-            append(300, "Exit Nexus Desktop AI", True)
+            append_submenu(menu, ai_menu, "AI", True)
+            user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
+            append(menu, 300, "Exit Nexus Desktop AI", True)
 
             pos = QCursor.pos()
             owner_hwnd = int(self.window.winId()) if hasattr(self.window, "winId") else 0
@@ -749,11 +778,13 @@ class DesktopTrayEntry:
     def _monitoring_hud_route_model(self, state=None):
         return build_monitoring_hud_route_model(state if isinstance(state, dict) else self._monitoring_hud_state())
 
-    def _monitoring_hud_dashboard_menu_text(self, state, route_model):
+    def _monitoring_hud_dashboard_menu_text(self, state, route_model, *, compact=False):
         dashboard_visible = bool(state.get("dashboard_visible")) and bool(route_model.get("enabledInActiveMenu"))
         if dashboard_visible:
             return "Close HUD Dashboard"
         if bool(route_model.get("disabledWithReason")):
+            if compact:
+                return "HUD Dashboard unavailable"
             reason = str(route_model.get("ownerBoundedReason") or "HUD is not ready yet").strip()
             return f"Open HUD Dashboard - {reason}"
         return "Open HUD Dashboard"
@@ -803,11 +834,8 @@ class DesktopTrayEntry:
             return self._command_overlay_action_text()
         return str(route.get("label", "Quick Access") if isinstance(route, dict) else "Quick Access")
 
-    def _native_menu_status_text(self, plan):
-        status = str(plan.get("statusLabel") if isinstance(plan, dict) else "").strip()
-        if not status:
-            status = "AI local/no provider; Provider-visible data: none"
-        return f"{TRAY_IDENTITY_LABEL} - {status.rstrip('.')}"
+    def _resident_menu_identity_text(self):
+        return TRAY_IDENTITY_LABEL
 
     def refresh_resident_access_actions(self, source="runtime"):
         if not self.quick_slot_actions and not self.quick_slot_buttons:
@@ -816,7 +844,8 @@ class DesktopTrayEntry:
         plan = self._resident_access_plan()
         status_label = str(plan.get("statusLabel") or "Ready - AI local/no provider")
         if self.identity_action is not None:
-            self._set_action_text(self.identity_action, self._native_menu_status_text(plan))
+            self._set_action_text(self.identity_action, self._resident_menu_identity_text())
+            self._set_action_visible(self.identity_action, False)
         if self.resident_status_label is not None:
             self.resident_status_label.setText(status_label)
             self.resident_status_label.setAccessibleName(status_label)
@@ -826,6 +855,8 @@ class DesktopTrayEntry:
             self.tray_icon.setToolTip(str(plan.get("tooltipText") or TRAY_TOOLTIP_TEXT))
 
         quick_slots = list(plan.get("quickSlots", ()) or [])
+        if self.quick_access_menu_action is not None:
+            self.quick_access_menu_action.setVisible(bool(quick_slots))
         self.quick_slot_route_ids = [
             str(route.get("routeId", "") if isinstance(route, dict) else "")
             for route in quick_slots[:5]

@@ -1218,6 +1218,16 @@ def validate_tray_identity_initialization():
             ]
             visible_actions = [action for action in actions if action.isVisible()]
             action_texts = [action.text() for action in visible_actions]
+            submenu_action_texts = {}
+            for action in visible_actions:
+                submenu = action.menu() if hasattr(action, "menu") else None
+                if submenu is None:
+                    continue
+                submenu_action_texts[action.text()] = [
+                    child_action.text()
+                    for child_action in submenu.actions()
+                    if not child_action.isSeparator() and child_action.isVisible()
+                ]
             identity_action_enabled = actions[0].isEnabled() if actions else None
             hud_overlay_deferred_action_enabled = None
             hud_dashboard_action_enabled = False
@@ -1245,6 +1255,7 @@ def validate_tray_identity_initialization():
             "initialized": initialized,
             "events": events,
             "action_texts": action_texts,
+            "submenu_action_texts": submenu_action_texts,
             "identity_action_enabled": identity_action_enabled,
             "hud_overlay_deferred_action_enabled": hud_overlay_deferred_action_enabled,
             "hud_dashboard_action_enabled": hud_dashboard_action_enabled,
@@ -1261,6 +1272,7 @@ def validate_tray_identity_initialization():
             "initialized": False,
             "events": [],
             "action_texts": [],
+            "submenu_action_texts": {},
             "identity_action_enabled": None,
             "hud_overlay_deferred_action_enabled": None,
             "hud_dashboard_action_enabled": None,
@@ -7426,51 +7438,66 @@ def run_validation():
         f"tooltip={tray_identity_result['tooltip']}",
     )
     action_texts = tray_identity_result["action_texts"]
-    checks["tray_identity_menu_header"] = line_status(
+    submenu_action_texts = tray_identity_result["submenu_action_texts"]
+    flat_menu_action_texts = list(action_texts)
+    for child_texts in submenu_action_texts.values():
+        flat_menu_action_texts.extend(child_texts)
+    checks["tray_identity_menu_status_row_absent"] = line_status(
         bool(action_texts)
-        and action_texts[0].startswith("Nexus Desktop AI - ")
-        and "Provider-visible data: none" in action_texts[0],
-        f"action_texts={action_texts}",
+        and action_texts[0] == "Global Settings"
+        and not any("Provider-visible data:" in text for text in flat_menu_action_texts),
+        f"action_texts={action_texts}; submenu_action_texts={submenu_action_texts}",
     )
     checks["tray_ai_control_center_duplicate_absent"] = line_status(
-        "AI Control Center" not in action_texts,
-        f"action_texts={action_texts}",
+        "AI Control Center" not in flat_menu_action_texts,
+        f"flat_menu_action_texts={flat_menu_action_texts}",
+    )
+    checks["tray_quick_access_submenu_present"] = line_status(
+        "Quick Access" in action_texts
+        and {"Open Command Overlay", "Create Custom Task", "Open Saved Actions Folder"}.issubset(
+            set(submenu_action_texts.get("Quick Access", []))
+        ),
+        f"action_texts={action_texts}; quick_access={submenu_action_texts.get('Quick Access', [])}",
+    )
+    checks["tray_ai_submenu_present"] = line_status(
+        "AI" in action_texts and submenu_action_texts.get("AI") == ["AI Status / Command Center"],
+        f"action_texts={action_texts}; ai={submenu_action_texts.get('AI', [])}",
     )
     checks["tray_ai_status_command_center_present"] = line_status(
-        "AI Status / Command Center" in action_texts,
-        f"action_texts={action_texts}",
+        "AI Status / Command Center" in submenu_action_texts.get("AI", []),
+        f"submenu_action_texts={submenu_action_texts}",
     )
     checks["tray_global_settings_first_command"] = line_status(
-        len(action_texts) > 1 and action_texts[1] == "Global Settings",
+        len(action_texts) > 0 and action_texts[0] == "Global Settings",
         f"action_texts={action_texts}",
     )
     checks["tray_privacy_lockdown_top_level_absent"] = line_status(
-        "Privacy Lockdown" not in action_texts,
-        f"action_texts={action_texts}",
+        "Privacy Lockdown" not in flat_menu_action_texts,
+        f"flat_menu_action_texts={flat_menu_action_texts}",
     )
     checks["tray_exit_action_present"] = line_status(
         "Exit Nexus Desktop AI" in tray_identity_result["action_texts"],
         f"action_texts={tray_identity_result['action_texts']}",
     )
     checks["tray_hud_feature_toggle_absent_when_user_disabled"] = line_status(
-        "Enable HUD Feature" not in tray_identity_result["action_texts"],
-        f"action_texts={tray_identity_result['action_texts']}",
+        "Enable HUD Feature" not in flat_menu_action_texts,
+        f"flat_menu_action_texts={flat_menu_action_texts}",
     )
     checks["tray_overlay_deferred_hidden_when_user_disabled"] = line_status(
-        "HUD Overlay Deferred" not in tray_identity_result["action_texts"],
-        f"action_texts={tray_identity_result['action_texts']}",
+        "HUD Overlay Deferred" not in flat_menu_action_texts,
+        f"flat_menu_action_texts={flat_menu_action_texts}",
     )
     checks["tray_overlay_deferred_action_disabled"] = line_status(
         tray_identity_result["hud_overlay_deferred_action_enabled"] is None,
         f"hud_overlay_deferred_action_enabled={tray_identity_result['hud_overlay_deferred_action_enabled']}",
     )
     checks["tray_dashboard_hidden_when_user_disabled"] = line_status(
-        "Open HUD Dashboard" not in tray_identity_result["action_texts"],
-        f"action_texts={tray_identity_result['action_texts']}",
+        "Open HUD Dashboard" not in flat_menu_action_texts,
+        f"flat_menu_action_texts={flat_menu_action_texts}",
     )
     checks["tray_dashboard_close_hidden_when_user_disabled"] = line_status(
-        "Close HUD Dashboard" not in tray_identity_result["action_texts"],
-        f"action_texts={tray_identity_result['action_texts']}",
+        "Close HUD Dashboard" not in flat_menu_action_texts,
+        f"flat_menu_action_texts={flat_menu_action_texts}",
     )
     checks["tray_dashboard_action_absent_when_feature_off"] = line_status(
         tray_identity_result["hud_dashboard_action_enabled"] is False
@@ -7821,6 +7848,7 @@ def run_validation():
         "tray_route_events": tray_events,
         "tray_identity_events": tray_identity_events,
         "tray_identity_actions": tray_identity_result["action_texts"],
+        "tray_identity_submenus": tray_identity_result["submenu_action_texts"],
         "tray_identity_messages": tray_identity_messages,
         "real_client_tray_precheck": real_client_tray_result,
         "tray_failure_events": tray_failure_events,
@@ -7859,6 +7887,11 @@ def build_report_text(report_path, result, overall_ok):
     if result.get("tray_identity_actions"):
         lines.extend(["", "Tray identity menu actions:"])
         lines.extend(f"  {action}" for action in result["tray_identity_actions"])
+    if result.get("tray_identity_submenus"):
+        lines.extend(["", "Tray identity submenu actions:"])
+        for menu_label, actions in sorted(result["tray_identity_submenus"].items()):
+            lines.append(f"  {menu_label}:")
+            lines.extend(f"    {action}" for action in actions)
     if result.get("tray_identity_events"):
         lines.extend(["", "Tray identity events:"])
         lines.extend(f"  {event}" for event in result["tray_identity_events"])
