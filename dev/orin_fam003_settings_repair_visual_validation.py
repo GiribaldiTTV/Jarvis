@@ -177,15 +177,15 @@ def main() -> int:
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 800 <= width <= 850 and 510 <= height <= 545,
+            default_ok and 850 <= width <= 880 and 550 <= height <= 585,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "global settings shell geometry",
-            800 <= width <= 850 and 510 <= height <= 545,
-            f"window={width}x{height}; required left-nav shell must not collapse to old Quick Access-only dialog",
+            850 <= width <= 880 and 550 <= height <= 585,
+            f"window={width}x{height}; required AI-Control-Center-derived header and left-nav shell must not collapse to old utility dialog",
         )
     )
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
@@ -201,12 +201,23 @@ def main() -> int:
         (
             "top-level chrome/control cluster",
             chrome_ok
+            and dialog.chrome_bar.property("headerAnatomy") == "ai-control-center-reference-derived"
             and dialog.chrome_bar.control_cluster.objectName() == "residentAccessSettingsWindowControls"
             and dialog.chrome_bar.minimize_button.isVisible()
             and dialog.chrome_bar.close_button.isVisible()
             and not dialog.chrome_bar.maximize_button.isVisible()
             and dialog.chrome_bar.close_button.accessibleName() == "Close Global Settings",
-            f"{chrome_path} ({chrome_width}x{chrome_height}); cluster={dialog.chrome_bar.control_cluster.objectName()!r}; minimize={dialog.chrome_bar.minimize_button.isVisible()}; close={dialog.chrome_bar.close_button.isVisible()}; maximize_visible={dialog.chrome_bar.maximize_button.isVisible()}",
+            f"{chrome_path} ({chrome_width}x{chrome_height}); anatomy={dialog.chrome_bar.property('headerAnatomy')!r}; cluster={dialog.chrome_bar.control_cluster.objectName()!r}; minimize={dialog.chrome_bar.minimize_button.isVisible()}; close={dialog.chrome_bar.close_button.isVisible()}; maximize_visible={dialog.chrome_bar.maximize_button.isVisible()}",
+        )
+    )
+    rows.append(
+        (
+            "reference-derived header/title role band",
+            dialog.chrome_bar.kicker_label.text() == "NEXUS DESKTOP AI"
+            and dialog.chrome_bar.title_label.text() == "Global Settings"
+            and "Quick Access settings" in dialog.chrome_bar.subtitle_label.text()
+            and [label.text() for label in dialog.chrome_bar.role_labels] == ["PAGE - QUICK ACCESS", "SCOPE - TRAY MENU"],
+            f"kicker={dialog.chrome_bar.kicker_label.text()!r}; title={dialog.chrome_bar.title_label.text()!r}; subtitle={dialog.chrome_bar.subtitle_label.text()!r}; role_pairs={[label.text() for label in dialog.chrome_bar.role_labels]}",
         )
     )
     nav_path = log_dir / "01b_left_settings_organizer.png"
@@ -224,7 +235,8 @@ def main() -> int:
             and dialog.nav_shell.isVisible()
             and dialog.quick_access_nav_button.isChecked()
             and set(dialog._nav_buttons) == {"quick_access"}
-            and "Only active settings are shown." in dialog.nav_detail.text(),
+            and dialog.nav_title.text() == "Sections"
+            and "Active sections only." in dialog.nav_detail.text(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; checked={dialog.quick_access_nav_button.isChecked()}",
         )
     )
@@ -246,7 +258,8 @@ def main() -> int:
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
             and "Connected Surfaces" not in button_texts
             and "Connected Surfaces" not in dialog.section_detail.text()
-            and "Connected Surfaces" not in dialog.route_summary.text(),
+            and "Connected Surfaces" not in dialog.route_summary.text()
+            and "Saved changes update only the tray Quick Access submenu." in dialog.route_summary.text(),
             f"heading={dialog.section_heading.text()!r}; badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}",
         )
     )
