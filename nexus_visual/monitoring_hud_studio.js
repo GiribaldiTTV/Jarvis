@@ -91,8 +91,11 @@
   window.nexusMonitoringHudStudioApplyState = (payload) => {
     const state = payload && typeof payload === "object" ? payload : {};
     applySurface(state);
+    setText("monitoring-hud-studio-recording-state-label", state.recordingStateLabel || "Ready");
     setText("monitoring-hud-studio-recording-target", state.recordingTarget || "No active overlay profile");
-    setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Ready for local recording.");
+    setText("monitoring-hud-studio-recording-target-detail", state.recordingTargetDetail || "No active monitors.");
+    setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Ready to record");
+    setText("monitoring-hud-studio-recording-detail", state.recordingDetail || "Uses the active Overlay Profile.");
     setText("monitoring-hud-studio-recording-boundary", state.recordingBoundary || "");
     const toggle = byId("monitoring-hud-studio-recording-toggle-action");
     const isRecording = state.stopEnabled === true;

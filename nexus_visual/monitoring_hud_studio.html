@@ -35,6 +35,12 @@
       scrollbar-gutter: auto;
       scrollbar-width: none;
       scrollbar-color: transparent transparent;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      background-size: auto;
+      flex: 0 0 auto;
+      overflow: visible;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"] .monitoring-hud__hub-actions {
@@ -86,39 +92,44 @@
       </div>
       <div class="monitoring-hud__control-hub" data-feature-studio-content="purpose-built-studio-shell" data-feature-studio-body-primitive="unique-child-purpose-stack-v5" aria-label="Studio controls">
         <article id="monitoring-hud-studio-recording-card" class="monitoring-hud__feature-studio-panel" data-feature-studio-panel="recording-controller">
-          <div class="monitoring-hud__controller-stack" data-controller-primitive="ultra-light-recording-controller">
-            <div class="monitoring-hud__controller-target" data-element-group="recording-target-truth">
+          <div class="monitoring-hud__controller-hero" data-controller-primitive="finished-recording-controller">
+            <div class="monitoring-hud__controller-state" data-element-group="recording-controller-state">
+              <span id="monitoring-hud-studio-recording-state-label">Ready</span>
+              <strong id="monitoring-hud-studio-recording-status">Ready to record</strong>
+              <em id="monitoring-hud-studio-recording-detail">Uses the active Overlay Profile.</em>
+            </div>
+            <button type="button" id="monitoring-hud-studio-recording-toggle-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-primary-action" data-control="recording-studio-toggle" data-recording-command="start" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v3" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Start Recording</span></button>
+          </div>
+          <div class="monitoring-hud__controller-summary" data-element-group="recording-target-truth">
+            <div>
               <span>Target</span>
               <strong id="monitoring-hud-studio-recording-target">No active overlay profile</strong>
+              <em id="monitoring-hud-studio-recording-target-detail">No active monitors.</em>
             </div>
-            <div class="monitoring-hud__controller-status" data-element-group="recording-status-truth">
-              <span>Status</span>
-              <span id="monitoring-hud-studio-recording-status">Ready for local recording.</span>
-            </div>
-          </div>
-          <div class="monitoring-hud__feature-studio-actions" data-button-layout="content-fit">
-            <button type="button" id="monitoring-hud-studio-recording-toggle-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit" data-control="recording-studio-toggle" data-recording-command="start" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v2" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Start Recording</span></button>
-            <button type="button" id="monitoring-hud-studio-open-log-viewer-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit" data-control="recording-studio-open-log-viewer" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v2" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Log Viewer Studio</span></button>
+            <button type="button" id="monitoring-hud-studio-open-log-viewer-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-secondary-action" data-control="recording-studio-open-log-viewer" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v3" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Log Viewer Studio</span></button>
           </div>
         </article>
         <article id="monitoring-hud-studio-log-card" class="monitoring-hud__feature-studio-panel" data-feature-studio-panel="log-access-shell" hidden>
-          <div class="monitoring-hud__log-access-stack" data-log-shell-primitive="compact-folder-access-shell">
-            <div class="monitoring-hud__log-access-item" data-element-group="native-log-folder-access">
-              <span>Native Logs</span>
-              <strong id="monitoring-hud-studio-native-folder"></strong>
-            </div>
-            <div class="monitoring-hud__log-access-item" data-element-group="exported-log-folder-access">
-              <span>Exported Logs</span>
-              <strong id="monitoring-hud-studio-export-folder"></strong>
-            </div>
+          <div class="monitoring-hud__log-access-stack" data-log-shell-primitive="finished-folder-access-shell">
+            <section class="monitoring-hud__log-destination-card" data-element-group="native-log-folder-access">
+              <div>
+                <span>Native logs</span>
+                <strong>NDAI recording files</strong>
+                <em id="monitoring-hud-studio-native-folder"></em>
+              </div>
+              <button type="button" id="monitoring-hud-studio-open-native-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-destination-action" data-control="log-viewer-open-native" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v3" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Open</span></button>
+            </section>
+            <section class="monitoring-hud__log-destination-card" data-element-group="exported-log-folder-access">
+              <div>
+                <span>Exported logs</span>
+                <strong>USER-readable exports</strong>
+                <em id="monitoring-hud-studio-export-folder"></em>
+              </div>
+              <button type="button" id="monitoring-hud-studio-open-export-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-destination-action" data-control="log-viewer-open-export" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v3" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Open</span></button>
+            </section>
             <div class="monitoring-hud__log-access-status" data-element-group="log-folder-action-status">
-              <span>Status</span>
-              <strong id="monitoring-hud-studio-folder-status">Native and exported log folders are ready to open.</strong>
+              <span id="monitoring-hud-studio-folder-status">Native and exported log folders are ready.</span>
             </div>
-          </div>
-          <div class="monitoring-hud__feature-studio-actions" data-button-layout="content-fit">
-            <button type="button" id="monitoring-hud-studio-open-native-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit" data-control="log-viewer-open-native" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v2" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Open Native Logs</span></button>
-            <button type="button" id="monitoring-hud-studio-open-export-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit" data-control="log-viewer-open-export" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v2" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Open Exported Logs</span></button>
           </div>
         </article>
       </div>

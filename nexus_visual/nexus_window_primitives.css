@@ -209,7 +209,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-panel {
   display: grid;
   gap: 10px;
-  padding: 10px 12px 12px;
+  padding: 11px 12px 12px;
   border: 1px solid rgba(88, 203, 229, 0.24);
   border-radius: 16px;
   background: var(--nexus-feature-studio-panel-bg);
@@ -219,7 +219,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__feature-studio-panel {
-  gap: 12px;
+  gap: 9px;
   padding: 12px;
 }
 
@@ -234,40 +234,47 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   border: 0;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-target,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-status,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-hero {
   display: grid;
-  grid-template-columns: minmax(92px, 0.32fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 78px;
+  padding: 12px;
+  border: 1px solid rgba(106, 230, 244, 0.24);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(111, 255, 225, 0.16), transparent 48%),
+    linear-gradient(135deg, rgba(6, 32, 50, 0.82), rgba(3, 17, 31, 0.78));
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.035) inset,
+    0 14px 24px rgba(0, 0, 0, 0.16);
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary > div,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  min-height: 34px;
-  padding: 7px 10px 6px;
-  border: 1px solid rgba(91, 204, 229, 0.20);
-  border-radius: 12px;
+  padding: 9px 11px;
+  border: 1px solid rgba(91, 204, 229, 0.16);
+  border-radius: 14px;
   background:
-    linear-gradient(90deg, rgba(84, 212, 236, 0.09), transparent 46%),
-    rgba(3, 17, 30, 0.58);
-  box-shadow:
-    0 0 0 1px rgba(230, 251, 255, 0.025) inset,
-    0 8px 18px rgba(0, 0, 0, 0.10);
+    linear-gradient(90deg, rgba(84, 212, 236, 0.06), transparent 60%),
+    rgba(3, 17, 30, 0.42);
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__controller-target,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__controller-status {
-  min-height: 28px;
-  padding: 5px 9px;
-  border-color: rgba(91, 204, 229, 0.14);
-  border-radius: 10px;
-  background: rgba(3, 17, 30, 0.38);
-  box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.018) inset;
-}
-
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-target span,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-status span:first-child,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item span,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status span {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state span,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary span,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card span {
   color: rgba(133, 218, 238, 0.9);
   font-size: 10px;
   font-weight: 820;
@@ -276,12 +283,19 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   text-transform: uppercase;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-target strong,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-status span:last-child,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item strong,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status strong {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state strong {
+  color: rgba(237, 253, 255, 0.98);
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: 0.015em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary strong,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card strong {
   color: rgba(161, 255, 226, 0.96);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 820;
   line-height: 1.22;
   overflow: hidden;
@@ -289,20 +303,44 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   white-space: nowrap;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-status span:last-child {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state em,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary em,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card em,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status span {
+  display: block;
   color: rgba(190, 226, 238, 0.94);
-  font-weight: 720;
-  white-space: normal;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 680;
+  line-height: 1.22;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item strong,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status strong {
-  font-size: 12px;
-  text-align: left;
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 74px;
+  padding: 11px 12px;
+  border: 1px solid rgba(91, 204, 229, 0.19);
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(80, 225, 255, 0.10), transparent 48%),
+    linear-gradient(135deg, rgba(5, 28, 45, 0.72), rgba(3, 17, 30, 0.64));
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.024) inset,
+    0 10px 20px rgba(0, 0, 0, 0.13);
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__controller-stack {
-  border-bottom: 0;
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status {
+  min-height: 24px;
+  padding: 4px 2px 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-actions {
@@ -315,7 +353,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__feature-studio-actions {
-  order: -1;
+  justify-content: flex-start;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit {
@@ -331,13 +369,13 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit {
-  height: 40px;
-  min-height: 40px;
+  height: 38px;
+  min-height: 38px;
   padding-inline: 20px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit[data-control="recording-studio-toggle"] {
-  min-width: 172px;
+  min-width: 176px;
   border-color: rgba(116, 255, 223, 0.42);
   background:
     linear-gradient(180deg, rgba(13, 66, 83, 0.62), rgba(6, 30, 48, 0.74)),
@@ -345,6 +383,19 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.05) inset,
     0 0 18px rgba(80, 231, 232, 0.16);
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__studio-secondary-action {
+  height: 34px;
+  min-height: 34px;
+  padding-inline: 14px;
+  opacity: 0.94;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__studio-destination-action {
+  height: 32px;
+  min-height: 32px;
+  padding-inline: 15px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit > .monitoring-hud__button-label {
@@ -365,6 +416,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-export"] {
   min-width: 0;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="log-viewer"] .monitoring-hud__log-access-stack {
+  grid-template-columns: 1fr;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-panel[hidden] {

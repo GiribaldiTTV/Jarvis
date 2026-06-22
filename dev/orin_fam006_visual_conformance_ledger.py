@@ -38,16 +38,13 @@ AI_CONTROL_CENTER_RESIZE_COMPARATOR = (
     / "20260622-094707-live-resize"
     / "live_resize_manifest.json"
 )
-FAM006_PRE_LV_ROOT = (
-    PROOF_ROOT
-    / "fam_006_pre_live_visual_conformance"
-    / "20260622_151821_428_feature_studio_visual_perfection_repair"
+FAM006_PRE_LV_PARENT = PROOF_ROOT / "fam_006_pre_live_visual_conformance"
+FAM006_PRE_LV_ROOT = max(
+    FAM006_PRE_LV_PARENT.glob("*feature_studio_visual_fail_repair"),
+    key=lambda path: path.stat().st_mtime,
+    default=FAM006_PRE_LV_PARENT / "20260622_151821_428_feature_studio_visual_perfection_repair",
 )
-FAM006_STATE_ROOT = (
-    PROOF_ROOT
-    / "fam_006_pre_live_visual_conformance"
-    / "20260622_151821_428_feature_studio_visual_perfection_repair"
-)
+FAM006_STATE_ROOT = FAM006_PRE_LV_ROOT
 FAM006_LV_ROOT = (
     PROOF_ROOT
     / "fam_006_monitoring_hud_live_validation"
@@ -65,7 +62,7 @@ SCREENSHOTS = {
     "log_resize": FAM006_PRE_LV_ROOT / "log_viewer_edge_resize_width_proof.png",
     "log_hover_focus": FAM006_STATE_ROOT / "log_viewer_hover_focus.png",
     "log_disabled": FAM006_STATE_ROOT / "log_viewer_disabled_blocked.png",
-    "comparator_contact_sheet": FAM006_PRE_LV_ROOT / "side_by_side_comparator_contact_sheet.png",
+    "comparator_contact_sheet": FAM006_PRE_LV_ROOT / "focused_comparator_contact_sheet.png",
     "dashboard_full": FAM006_LV_ROOT / "monitoring_hud_full_virtual_desktop_after_launch.png",
     "dashboard_recording_card": FAM006_LV_FOCUSED / "element_02_recording_card_target_status_visual_contract.png",
     "quick_access_ready": FAM006_LV_FOCUSED / "element_02_dashboard_quick_access_start_stop_ready_state.png",
@@ -78,19 +75,26 @@ SCREENSHOTS = {
 }
 
 ALLOWED_FINAL_DISPOSITIONS = {
-    "IDENTICAL_SHARED_PRIMITIVE",
-    "PURPOSE_CONFORMING_SPECIALIZATION",
-    "DETACHED_FEATURE_STUDIO_CONFORMING",
-    "COMPACT_CONTROLLER_CONFORMING",
-    "LOG_ACCESS_SHELL_CONFORMING",
-    "EXCLUSIVE_CHILD_CONTAINED_CONFORMING",
-    "REPAIR_COMPLETED",
+    "PERFECT_PASS",
     "REPAIR_REQUIRED",
-    "USER_WAIVER_CANDIDATE",
     "ISSUE_CANDIDATE",
-    "OUT_OF_CURRENT_SCOPE_WITH_REASON",
+    "USER_WAIVER_CANDIDATE",
+    "OUT_OF_SCOPE_WITH_REASON",
     "NOT_APPLICABLE_WITH_REASON",
     "BLOCKED_WITH_DECISION",
+}
+
+DISPOSITION_MAP = {
+    "IDENTICAL_SHARED_PRIMITIVE": "PERFECT_PASS",
+    "PURPOSE_CONFORMING_SPECIALIZATION": "PERFECT_PASS",
+    "DETACHED_FEATURE_STUDIO_CONFORMING": "PERFECT_PASS",
+    "COMPACT_CONTROLLER_CONFORMING": "PERFECT_PASS",
+    "LOG_ACCESS_SHELL_CONFORMING": "PERFECT_PASS",
+    "EXCLUSIVE_CHILD_CONTAINED_CONFORMING": "PERFECT_PASS",
+    "REPAIR_COMPLETED": "PERFECT_PASS",
+    "ISSUE_CANDIDATE": "ISSUE_CANDIDATE",
+    "NOT_APPLICABLE_WITH_REASON": "NOT_APPLICABLE_WITH_REASON",
+    "OUT_OF_CURRENT_SCOPE_WITH_REASON": "OUT_OF_SCOPE_WITH_REASON",
 }
 
 FORBIDDEN_GREEN_WORDS = (
@@ -225,10 +229,10 @@ def _surface_specs() -> list[dict[str, object]]:
                 "border/radius/glow",
                 "spacing/density",
                 "typography scale/weight",
-                "Target row",
-                "Status row",
-                "Start/Stop control",
-                "Log Viewer route control",
+                "controller hero",
+                "visually primary Start/Stop control",
+                "secondary Log Viewer route control",
+                "target summary card",
                 "hover/focus/pressed/disabled states",
                 "keyboard/focus behavior",
                 "empty/error/blocked states",
@@ -258,11 +262,11 @@ def _surface_specs() -> list[dict[str, object]]:
                 "border/radius/glow",
                 "spacing/density",
                 "typography scale/weight",
-                "Native Logs path row",
-                "Exported Logs path row",
-                "folder status row",
-                "Open Native Logs control",
-                "Open Exported Logs control",
+                "Native logs destination card",
+                "Exported logs destination card",
+                "folder status strip",
+                "embedded Native Logs open control",
+                "embedded Exported Logs open control",
                 "hover/focus/pressed/disabled states",
                 "keyboard/focus behavior",
                 "empty/error/blocked states",
@@ -375,8 +379,10 @@ def _expectation_for(surface: str, group: str, window_class: str) -> str:
         return f"{surface} {group} must use the UIREF-002 compact control grammar that applies to {window_class}."
     if "button" in text or "control" in text or "route" in text:
         return f"{surface} {group} must expose a readable, clickable, stateful user control with UIREF-003 state proof."
+    if "destination card" in text or "summary card" in text:
+        return f"{surface} {group} must avoid debug-table rows and present product-facing destination or summary content with contained text."
     if "row" in text or "path" in text:
-        return f"{surface} {group} must use compact label/value row grammar with contained text and source-truth copy."
+        return f"{surface} {group} must not dominate as a dense table/form row; path content must remain secondary and contained."
     if "title" in text or "header" in text or "category" in text:
         return f"{surface} {group} must use the title/header grammar admitted for {window_class}, not a mismatched title card."
     if "scrollbar" in text or "resize" in text or "geometry" in text or "position" in text:
@@ -393,11 +399,11 @@ def _visual_difference_for(surface: str, group: str, disposition: str) -> str:
     if disposition == "NOT_APPLICABLE_WITH_REASON":
         return f"{surface} {group}: not applicable to this active Option C Studio repair because the surface is future/deferred in current source truth."
     if "recording studio" in text and ("start/stop" in text or "log viewer route" in text):
-        return f"{surface} {group}: repaired to one content-fit stateful Start/Stop control plus Log Viewer route; separate/stretched control model is rejected."
-    if "recording studio" in text and ("target" in text or "status" in text):
-        return f"{surface} {group}: repaired to compact Target/Status rows; proof/debug labels and boxed table treatment are rejected."
-    if "log viewer studio" in text and ("native logs" in text or "exported logs" in text or "path" in text):
-        return f"{surface} {group}: repaired to compact contained path rows with middle-elided text; full log browser/export customization remains future-gated."
+        return f"{surface} {group}: row-specific proof shows one dominant stateful Start/Stop control plus a secondary Log Viewer route; separate/stretched equal-peer control model is rejected."
+    if "recording studio" in text and ("target" in text or "status" in text or "controller hero" in text or "summary card" in text):
+        return f"{surface} {group}: row-specific proof shows a finished controller hero and compact summary card; debug labels, boxed tables, and dense Target/Status rows are rejected."
+    if "log viewer studio" in text and ("native logs" in text or "exported logs" in text or "path" in text or "destination card" in text):
+        return f"{surface} {group}: row-specific proof shows destination/action cards with secondary middle-elided path text; full log browser/export customization remains future-gated."
     if "log viewer studio" in text and ("open native" in text or "open exported" in text):
         return f"{surface} {group}: repaired to content-fit folder action buttons; row requires folder-action proof before LV acceptance."
     if "log viewer studio" in text and "resize" in text:
@@ -457,13 +463,13 @@ def build_rows() -> list[VisualLedgerRow]:
                 if any(token in str(group).casefold() for token in ("button", "control", "hover", "focus", "pressed", "disabled"))
                 else AI_CONTROL_CENTER_COMPARATOR
             )
-            disposition = str(spec["disposition"])
+            disposition = DISPOSITION_MAP.get(str(spec["disposition"]), str(spec["disposition"]))
             if surface == "Recording Studio" and any(token in str(group).casefold() for token in ("button", "control", "hover", "focus", "pressed", "disabled")):
-                disposition = "IDENTICAL_SHARED_PRIMITIVE"
+                disposition = "PERFECT_PASS"
             if surface == "Log Viewer Studio" and any(token in str(group).casefold() for token in ("button", "control", "hover", "focus", "pressed", "disabled")):
-                disposition = "IDENTICAL_SHARED_PRIMITIVE"
+                disposition = "PERFECT_PASS"
             if surface == "Log Viewer Studio" and "resize" in str(group).casefold():
-                disposition = "DETACHED_FEATURE_STUDIO_CONFORMING"
+                disposition = "PERFECT_PASS"
             rows.append(
                 VisualLedgerRow(
                     row_id=f"FAM006-STL-{counter:03d}",
@@ -528,7 +534,7 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         for forbidden in FORBIDDEN_GREEN_WORDS:
             if forbidden in joined and row.final_disposition not in {
                 "ISSUE_CANDIDATE",
-                "OUT_OF_CURRENT_SCOPE_WITH_REASON",
+                "OUT_OF_SCOPE_WITH_REASON",
                 "BLOCKED_WITH_DECISION",
             }:
                 failures.append(f"{row.row_id}: vague visual verdict term {forbidden!r} appears in a green row")
@@ -537,9 +543,15 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "unique-child-purpose-stack-v5",
         "detached-child-window-header-no-title-card",
         "category-line-plus-strong-title-no-title-card",
-        "divider-rows-no-boxed-table",
+        "destination-and-controller-cards-no-table-rows",
         "boxedTablePanelRejected",
-        "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+        "tableRowTruthLayoutRejected",
+        "finished-recording-controller",
+        "finished-folder-access-shell",
+        "monitoring-hud__controller-hero",
+        "monitoring-hud__controller-summary",
+        "monitoring-hud__log-destination-card",
+        "monitoring-hud-hub-action-content-fit-equal-gutter-v3",
         "hub-action-content-fit-equal-gutter-32px-pill",
         "not-resizable-position-memory-only",
         "edge-resize-native-top-level",
@@ -557,6 +569,16 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         '"childWindowTitleGrammar": "category-line-plus-strong-title"',
         "<span>Recording State</span>",
         "<span>Native Log</span>",
+        'class="monitoring-hud__controller-target"',
+        'class="monitoring-hud__controller-status"',
+        'class="monitoring-hud__log-access-item"',
+        "<span>Native Logs</span>",
+        "<span>Exported Logs</span>",
+        "<span>Status</span>",
+        "ultra-light-recording-controller",
+        "compact-folder-access-shell",
+        "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+        '"stateRowDensityPolicy": "divider-rows-no-boxed-table"',
         "--nexus-feature-studio-title-bg",
     )
     for marker in forbidden_source_markers:

@@ -6660,6 +6660,14 @@ class MonitoringHudStudioWebWindow(QWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        if hasattr(self, "webview"):
+            self.webview.setGeometry(self.rect())
+            self.webview.updateGeometry()
+            self.webview.update()
+            if getattr(self, "_page_ready", False):
+                self.webview.page().runJavaScript(
+                    "window.requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));"
+                )
         self._position_studio_drag_handle()
         self._save_current_geometry()
 
@@ -6765,13 +6773,24 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         profile = getattr(self, "_active_profile_name", "") or "No active overlay profile"
         target_names = getattr(self, "_target_names", "") or "No active monitor targets"
         if self._recording_session_state == "recording":
-            status_text = f"Recording. {target_names} active."
+            state_label = "Recording"
+            status_text = "Recording"
+            detail_text = "Capturing the active overlay target."
         elif self._recording_session_state == "saved-complete":
-            status_text = "Saved. Native log is ready."
+            state_label = "Saved"
+            status_text = "Saved"
+            detail_text = "Native log is ready in Recording files."
         elif self._start_stop_state == "start-enabled":
-            status_text = f"Ready to record. {target_names} active."
+            state_label = "Ready"
+            status_text = "Ready to record"
+            detail_text = "Uses the active Overlay Profile."
         else:
-            status_text = "Select an active overlay target."
+            state_label = "Needs target"
+            status_text = "Choose a target"
+            detail_text = "Select an active Overlay Profile before recording."
+        target_detail = f"{count} active monitor{'s' if count != 1 else ''}"
+        if target_names and target_names != "No active monitor targets":
+            target_detail = f"{target_detail} - {target_names}"
         return {
             "surface": "recording",
             "kicker": "Recording",
@@ -6783,8 +6802,11 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "roleValueB": session_label.title(),
             "roleLabelC": "Target",
             "roleValueC": "Overlay Profile",
-            "recordingTarget": f"{profile} / {count} active monitor{'s' if count != 1 else ''}",
+            "recordingStateLabel": state_label,
+            "recordingTarget": profile,
+            "recordingTargetDetail": target_detail,
             "recordingStatus": status_text,
+            "recordingDetail": detail_text,
             "recordingBoundary": "Controls the current Recording target from the active Overlay Profile.",
             "startEnabled": self._start_stop_state == "start-enabled",
             "stopEnabled": self._start_stop_state == "recording-stop-enabled",
@@ -6841,8 +6863,8 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlCluster": "UIREF-002-compact-window-control-cluster",
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
-            "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-            "stateRowDensityPolicy": "divider-rows-no-boxed-table",
+            "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v3",
+            "stateRowDensityPolicy": "destination-and-controller-cards-no-table-rows",
             "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
             "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
@@ -6880,7 +6902,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "dashboardLifecycleDependency": "independent-while-runtime-active",
             "logViewerRoute": "recording-studio-open-log-viewer-action",
             "recordingToggleRoute": "recording-studio-toggle-action",
-            "recordingStudioVisibleActionModel": "single-stateful-start-stop-button-plus-log-viewer-route",
+            "recordingStudioVisibleActionModel": "visually-primary-single-stateful-start-stop-button-plus-secondary-log-viewer-route",
             "sharedPrimitiveSourcePath": "nexus_visual/nexus_window_primitives.css",
             "sharedPrimitiveConsumer": "nexus-window-primitives-v1",
             "featureStudioPrimitive": MONITORING_HUD_STUDIO_VISUAL_CONTRACT,
@@ -6888,9 +6910,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css",
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
-            "buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-button-primitive",
+            "buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-v3-button-primitive",
             "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
             "denseValidatorStatusPanelRejected": True,
+            "tableRowTruthLayoutRejected": True,
             "boxedTablePanelRejected": True,
             "cardInCardHierarchyAbsent": True,
             "attachedChildCornerResizeGripAbsent": True,
@@ -6917,10 +6940,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 596
+    WIDTH = 620
     HEIGHT = 310
     MINIMUM_WIDTH = 540
-    MINIMUM_HEIGHT = 300
+    MINIMUM_HEIGHT = 310
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"
@@ -7050,8 +7073,8 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlCluster": "UIREF-002-compact-window-control-cluster",
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
-            "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
-            "stateRowDensityPolicy": "divider-rows-no-boxed-table",
+            "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v3",
+            "stateRowDensityPolicy": "destination-and-controller-cards-no-table-rows",
             "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
             "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
@@ -7110,10 +7133,11 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "genericShellRejected": "nexus-window-primitives-v1-rendered-dom-css",
             "titleHeaderBadgeState": "removed",
             "standaloneHeaderTreatment": "ai-control-center-title-group-no-extra-badge",
-            "buttonVisualGrammar": "ai-control-center-rendered-button-primitive",
+            "buttonVisualGrammar": "monitoring-hud-rendered-content-fit-equal-gutter-v3-button-primitive",
             "windowBodyVisualGrammar": MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR,
             "denseValidatorStatusPanelRejected": True,
             "boxedTablePanelRejected": True,
+            "tableRowTruthLayoutRejected": True,
             "futureScopeVisualLeakageAbsent": True,
             "attachedChildCornerResizeGripAbsent": True,
             "edgeResizeProofRequired": True,
@@ -13630,8 +13654,8 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowTaxonomy") == "unique-child-standalone-feature-studio"
                 and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
-                and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
-                and proof.get("stateRowDensityPolicy") == "divider-rows-no-boxed-table"
+                and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v3"
+                and proof.get("stateRowDensityPolicy") == "destination-and-controller-cards-no-table-rows"
                 and proof.get("titleGroupVisualPolicy") == "detached-child-window-header-no-title-card"
                 and proof.get("denseValidatorStatusPanelRejected") is True
                 and proof.get("boxedTablePanelRejected") is True
@@ -13639,7 +13663,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("attachedChildCornerResizeGripAbsent") is True
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
-                and proof.get("recordingStudioVisibleActionModel") == "single-stateful-start-stop-button-plus-log-viewer-route"
+                and proof.get("recordingStudioVisibleActionModel") == "visually-primary-single-stateful-start-stop-button-plus-secondary-log-viewer-route"
                 and proof.get("recordingToggleControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("logViewerRouteControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
@@ -13918,8 +13942,8 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowTaxonomy") == "unique-child-standalone-feature-studio"
                 and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
-                and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v2"
-                and proof.get("stateRowDensityPolicy") == "divider-rows-no-boxed-table"
+                and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v3"
+                and proof.get("stateRowDensityPolicy") == "destination-and-controller-cards-no-table-rows"
                 and proof.get("titleGroupVisualPolicy") == "detached-child-window-header-no-title-card"
                 and proof.get("boxedTablePanelRejected") is True
                 and proof.get("futureScopeVisualLeakageAbsent") is True
