@@ -322,6 +322,78 @@
       gap: 6px;
     }
 
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-foyer-grid {
+      display: grid;
+      min-width: 0;
+      gap: 6px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card {
+      min-width: 0;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-status {
+      display: grid;
+      gap: 5px;
+      padding-top: 1px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-compact-status {
+      color: rgba(171, 255, 226, 0.96);
+      font-size: 11px;
+      font-weight: 820;
+      line-height: 1.32;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-future-note {
+      color: rgba(181, 218, 229, 0.82);
+      font-size: 10px;
+      font-weight: 680;
+      line-height: 1.32;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail {
+      display: grid;
+      min-width: 0;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid rgba(116, 240, 255, 0.18);
+      border-radius: 20px;
+      background:
+        radial-gradient(circle at 14% 8%, rgba(116, 240, 255, 0.055), transparent 32%),
+        rgba(2, 10, 20, 0.26);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail[hidden] {
+      display: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__header {
+      display: grid;
+      gap: 2px;
+      padding: 0 2px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__eyebrow {
+      color: rgba(103, 224, 255, 0.95);
+      font-size: 10px;
+      font-weight: 820;
+      letter-spacing: 0.10em;
+      line-height: 1.2;
+      text-transform: uppercase;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__title {
+      color: rgba(234, 253, 255, 0.96);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.075em;
+      line-height: 1.18;
+      text-transform: uppercase;
+    }
+
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline {
       display: grid;
       align-items: flex-start;
@@ -525,8 +597,8 @@
     data-dashboard-quick-access="not-applicable"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
-    data-dashboard-card-order="orin-status-diagnostics-readiness-trust"
-    data-dashboard-ia-model="top-level-orin-status-then-diagnostics-readiness-trust-group"
+    data-dashboard-card-order="orin-status-ai-persona-ai-diagnostics-ai-readiness-ai-trust-capability-dev-owner"
+    data-dashboard-ia-model="ai-home-control-foyer-category-doorways-focused-readiness-detail"
     data-dashboard-provider-truth="provider-contract-first"
     data-dashboard-state-model="no-provider-no-prompt-no-memory"
     data-dashboard-warning-controls="visual-non-invasive-only"
@@ -611,13 +683,18 @@
         data-child-window-model="hub-actions-standalone-child-windows"
         aria-label="AI Control Center cards"
       >
-        <article class="monitoring-hud__hub-card" data-dashboard-hub-card="orin-status" data-slice="SLC-001">
+        <div
+          class="ai-control-center-foyer-grid"
+          data-dashboard-hub-group="ai-home-control-foyer"
+          aria-label="AI Home and Control Foyer category doorways"
+        >
+        <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="orin-status" data-slice="SLC-R1">
           <div class="monitoring-hud__hub-card-topline">
             <span>01</span>
             <div class="monitoring-hud__hub-card-title-copy">
               <strong>ORIN Status</strong>
             </div>
-            <p class="monitoring-hud__hub-card-description">Truthful inactive ORIN state for provider data, capability packs, and edition lanes.</p>
+            <p class="monitoring-hud__hub-card-description">Top-level AI truth before any category doorway is used.</p>
           </div>
           <div class="monitoring-hud__state-row">
             <span>ORIN</span>
@@ -627,42 +704,29 @@
             <span>Provider data</span>
             <strong id="ai-control-center-provider-visible-data">None</strong>
           </div>
-          <div class="monitoring-hud__state-row">
-            <span>Provider / model</span>
-            <strong id="ai-control-center-provider-model">Disabled and blocked</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Prompt / memory</span>
-            <strong id="ai-control-center-prompt-memory">Not accepted, sent, stored, or indexed</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Capability packs</span>
-            <strong id="ai-control-center-capability-packs">Install blocked; downloads disabled</strong>
-          </div>
-          <div class="monitoring-hud__state-row">
-            <span>Edition lanes</span>
-            <strong id="ai-control-center-edition-lanes">Public only; Developer and Owner gated</strong>
-          </div>
         </article>
 
-        <section
-          class="ai-control-center-group"
-          data-dashboard-hub-group="ai-diagnostics-readiness-trust"
-          aria-labelledby="ai-control-center-diagnostics-heading"
-        >
-          <div class="ai-control-center-group__header">
-            <div class="ai-control-center-group__eyebrow">AI Diagnostics / Readiness / Trust</div>
-            <div class="ai-control-center-group__title" id="ai-control-center-diagnostics-heading">Local proof and safe next steps</div>
-            <p class="ai-control-center-group__description">Local checks and reports stay grouped here; heavier future diagnostics remain child or drill-down work.</p>
-          </div>
-          <div class="ai-control-center-group__cards">
-            <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-safety-check" data-slice="SLC-005">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-persona" data-slice="SLC-R1" data-category-doorway-state="future-gated">
+            <div class="monitoring-hud__hub-card-topline">
+              <span>02</span>
+              <div class="monitoring-hud__hub-card-title-copy">
+                <strong>AI Persona</strong>
+              </div>
+              <p class="monitoring-hud__hub-card-description">Persona selection and persona settings are category doorways for later focused surfaces.</p>
+            </div>
+            <div class="ai-control-center-card-status">
+              <div class="ai-control-center-compact-status">Future-gated</div>
+              <div class="ai-control-center-future-note">No persona system is implemented or selected in this public-safe repair.</div>
+            </div>
+          </article>
+
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-diagnostics" data-slice="SLC-R2">
               <div class="monitoring-hud__hub-card-topline">
-                <span>02</span>
+                <span>03</span>
                 <div class="monitoring-hud__hub-card-title-copy">
-                  <strong>Local Safety Check</strong>
+                  <strong>AI Diagnostics</strong>
                 </div>
-                <p class="monitoring-hud__hub-card-description">Runs one local check; no prompt/provider/model path is used.</p>
+                <p class="monitoring-hud__hub-card-description">Local Safety Check is a compact signal and boundary-aware diagnostic doorway.</p>
               </div>
               <div class="monitoring-hud__state-row">
                 <span>Local check</span>
@@ -686,13 +750,13 @@
               </div>
             </article>
 
-            <article class="monitoring-hud__hub-card" data-dashboard-hub-card="local-ai-readiness-report" data-slice="SLC-A1">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-readiness" data-slice="SLC-R3">
               <div class="monitoring-hud__hub-card-topline">
-                <span>03</span>
+                <span>04</span>
                 <div class="monitoring-hud__hub-card-title-copy">
-                  <strong>Readiness Report</strong>
+                  <strong>AI Readiness</strong>
                 </div>
-                <p class="monitoring-hud__hub-card-description">Generates a local report with ready, missing, blocked, evidence, and safe next-step sections.</p>
+                <p class="monitoring-hud__hub-card-description">Generates the Local AI Readiness Report in a focused detail surface.</p>
               </div>
               <div class="monitoring-hud__state-row">
                 <span>Report state</span>
@@ -701,35 +765,6 @@
               <div class="monitoring-hud__state-row">
                 <span>Persistence</span>
                 <strong id="ai-control-center-report-persistence">View-only; copy is USER initiated</strong>
-              </div>
-              <div class="ai-control-center-report" data-report-surface="local-ai-readiness-report">
-                <div class="ai-control-center-report__status" id="ai-control-center-report-summary">Generate the report to inspect local readiness.</div>
-                <div class="ai-control-center-report__body" id="ai-control-center-report-body" hidden>
-                  <div class="ai-control-center-report__section">
-                    <span>Ready</span>
-                    <strong id="ai-control-center-report-ready">Not generated</strong>
-                  </div>
-                  <div class="ai-control-center-report__section">
-                    <span>Missing</span>
-                    <strong id="ai-control-center-report-missing">Not generated</strong>
-                  </div>
-                  <div class="ai-control-center-report__section">
-                    <span>Blocked</span>
-                    <strong id="ai-control-center-report-blocked">Not generated</strong>
-                  </div>
-                  <div class="ai-control-center-report__section">
-                    <span>Evidence</span>
-                    <strong id="ai-control-center-report-evidence">Not generated</strong>
-                  </div>
-                  <div class="ai-control-center-report__section">
-                    <span>Next</span>
-                    <strong id="ai-control-center-report-next">Not generated</strong>
-                  </div>
-                  <div class="ai-control-center-report__section">
-                    <span>Boundary</span>
-                    <strong id="ai-control-center-report-boundary">Not generated</strong>
-                  </div>
-                </div>
               </div>
               <div class="monitoring-hud__hub-actions">
                 <button
@@ -756,6 +791,101 @@
                 </button>
               </div>
             </article>
+
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-trust-boundary" data-slice="SLC-R4">
+            <div class="monitoring-hud__hub-card-topline">
+              <span>05</span>
+              <div class="monitoring-hud__hub-card-title-copy">
+                <strong>AI Trust Boundary</strong>
+              </div>
+              <p class="monitoring-hud__hub-card-description">Provider, prompt, memory, and recovery truth stay public-safe and fail-closed.</p>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Provider / model</span>
+              <strong id="ai-control-center-provider-model">Disabled and blocked</strong>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Prompt / memory</span>
+              <strong id="ai-control-center-prompt-memory">Not accepted, sent, stored, or indexed</strong>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Boundary</span>
+              <strong id="ai-control-center-provider-boundary">Provider boundary: blocked</strong>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Recovery</span>
+              <strong id="ai-control-center-recovery">Retry local check only</strong>
+            </div>
+          </article>
+
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="capability-dev-owner-boundary" data-slice="SLC-R4">
+            <div class="monitoring-hud__hub-card-topline">
+              <span>06</span>
+              <div class="monitoring-hud__hub-card-title-copy">
+                <strong>Capability And Owner Gates</strong>
+              </div>
+              <p class="monitoring-hud__hub-card-description">Capability packs, Developer lane, and Owner lane remain explicit future-gated doorways.</p>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Capability packs</span>
+              <strong id="ai-control-center-capability-packs">Install blocked; downloads disabled</strong>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Edition lanes</span>
+              <strong id="ai-control-center-edition-lanes">Public only; Developer and Owner gated</strong>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Blocked action</span>
+              <strong id="ai-control-center-blocked-action">Prompt/provider/model action blocked</strong>
+            </div>
+            <div class="monitoring-hud__state-row">
+              <span>Unavailable</span>
+              <strong id="ai-control-center-unavailable-capability">Capability packs unavailable</strong>
+            </div>
+          </article>
+        </div>
+
+        <section
+          class="ai-control-center-focused-detail"
+          id="ai-control-center-readiness-detail"
+          data-focused-surface="local-ai-readiness-report"
+          data-dashboard-hub-card="local-ai-readiness-report"
+          data-slice="SLC-R3"
+          aria-labelledby="ai-control-center-readiness-detail-heading"
+          hidden
+        >
+          <div class="ai-control-center-focused-detail__header">
+            <div class="ai-control-center-focused-detail__eyebrow">AI Readiness / Focused Detail</div>
+            <div class="ai-control-center-focused-detail__title" id="ai-control-center-readiness-detail-heading">Local AI Readiness Report</div>
+          </div>
+          <div class="ai-control-center-report" data-report-surface="local-ai-readiness-report">
+            <div class="ai-control-center-report__status" id="ai-control-center-report-summary">Generate the report to inspect local readiness.</div>
+            <div class="ai-control-center-report__body" id="ai-control-center-report-body" hidden>
+              <div class="ai-control-center-report__section">
+                <span>Ready</span>
+                <strong id="ai-control-center-report-ready">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Missing</span>
+                <strong id="ai-control-center-report-missing">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Blocked</span>
+                <strong id="ai-control-center-report-blocked">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Evidence</span>
+                <strong id="ai-control-center-report-evidence">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Next</span>
+                <strong id="ai-control-center-report-next">Not generated</strong>
+              </div>
+              <div class="ai-control-center-report__section">
+                <span>Boundary</span>
+                <strong id="ai-control-center-report-boundary">Not generated</strong>
+              </div>
+            </div>
           </div>
         </section>
       </div>

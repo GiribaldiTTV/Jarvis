@@ -89,6 +89,14 @@
     button.disabled = !enabled;
     button.setAttribute("aria-disabled", enabled ? "false" : "true");
   };
+  const setReadinessDetailOpen = (open) => {
+    const detail = byId("ai-control-center-readiness-detail");
+    if (!detail) {
+      return;
+    }
+    detail.hidden = !open;
+    detail.dataset.focusedSurfaceState = open ? "open" : "closed";
+  };
   const copyTextThroughLocalSurface = (text) => {
     const copySurface = document.createElement("textarea");
     copySurface.value = text;
@@ -121,6 +129,7 @@
       if (body) {
         body.hidden = true;
       }
+      setReadinessDetailOpen(true);
       setReportCopyEnabled(false);
       requestAnimationFrame(syncCustomScrollbar);
       return false;
@@ -139,6 +148,8 @@
     if (body) {
       body.hidden = false;
     }
+    setReadinessDetailOpen(true);
+    byId("ai-control-center-readiness-detail")?.scrollIntoView({ block: "nearest" });
     setReportCopyEnabled(true);
     requestAnimationFrame(syncCustomScrollbar);
     return true;
@@ -430,6 +441,7 @@
     setText("ai-control-center-report-persistence", "View-only; copy is USER initiated");
     setText("ai-control-center-report-summary", "Generate the report to inspect local readiness.");
     byId("ai-control-center-report-body")?.setAttribute("hidden", "");
+    setReadinessDetailOpen(false);
     setReportCopyEnabled(false);
     requestAnimationFrame(syncCustomScrollbar);
   };

@@ -337,17 +337,17 @@ def main() -> int:
           const close = document.getElementById("ai-control-center-close-action");
           const maximize = document.getElementById("ai-control-center-maximize-action");
           const minimize = document.getElementById("ai-control-center-minimize-action");
-          const diagnosticsGroup = document.querySelector('[data-dashboard-hub-group="ai-diagnostics-readiness-trust"]');
-          const diagnosticsHeading = document.getElementById("ai-control-center-diagnostics-heading");
-          const diagnosticsEyebrow = diagnosticsGroup ? diagnosticsGroup.querySelector(".ai-control-center-group__eyebrow") : null;
-          const diagnosticsDescription = diagnosticsGroup ? diagnosticsGroup.querySelector(".ai-control-center-group__description") : null;
-          const diagnosticsCards = diagnosticsGroup
-            ? Array.from(diagnosticsGroup.querySelectorAll("[data-dashboard-hub-card]")).map((card) => card.dataset.dashboardHubCard || "")
+          const foyerGroup = document.querySelector('[data-dashboard-hub-group="ai-home-control-foyer"]');
+          const categoryCards = foyerGroup
+            ? Array.from(foyerGroup.querySelectorAll("[data-dashboard-hub-card]")).map((card) => card.dataset.dashboardHubCard || "")
             : [];
+          const focusedDetail = document.getElementById("ai-control-center-readiness-detail");
+          const focusedHeading = document.getElementById("ai-control-center-readiness-detail-heading");
+          const focusedEyebrow = focusedDetail ? focusedDetail.querySelector(".ai-control-center-focused-detail__eyebrow") : null;
           const orinRowLabel = document.querySelector('[data-dashboard-hub-card="orin-status"] .monitoring-hud__state-row span');
           const orinRowValue = document.querySelector('[data-dashboard-hub-card="orin-status"] .monitoring-hud__state-row strong');
-          const localCheckRowLabel = document.querySelector('[data-dashboard-hub-card="local-safety-check"] .monitoring-hud__state-row span');
-          const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="local-safety-check"] .monitoring-hud__state-row strong');
+          const localCheckRowLabel = document.querySelector('[data-dashboard-hub-card="ai-diagnostics"] .monitoring-hud__state-row span');
+          const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="ai-diagnostics"] .monitoring-hud__state-row strong');
           const localCheckButton = document.getElementById("ai-control-center-local-check-action");
           const localCheckButtonLabel = localCheckButton ? localCheckButton.querySelector(".monitoring-hud__button-label") : null;
           const reportCard = document.querySelector('[data-dashboard-hub-card="local-ai-readiness-report"]');
@@ -422,16 +422,18 @@ def main() -> int:
             minimizeTitle: minimize ? minimize.getAttribute("title") : "",
             dashboardCardOrder: surface ? surface.dataset.dashboardCardOrder : "",
             dashboardIaModel: surface ? surface.dataset.dashboardIaModel : "",
-            diagnosticsGroupRect: rect(diagnosticsGroup),
-            diagnosticsGroupStyle: style(diagnosticsGroup),
-            diagnosticsGroupLabelledBy: diagnosticsGroup ? diagnosticsGroup.getAttribute("aria-labelledby") : "",
-            diagnosticsGroupEyebrowText: diagnosticsEyebrow ? diagnosticsEyebrow.textContent.trim() : "",
-            diagnosticsGroupEyebrowStyle: style(diagnosticsEyebrow),
-            diagnosticsGroupHeadingText: diagnosticsHeading ? diagnosticsHeading.textContent.trim() : "",
-            diagnosticsGroupHeadingStyle: style(diagnosticsHeading),
-            diagnosticsGroupDescriptionText: diagnosticsDescription ? diagnosticsDescription.textContent.trim() : "",
-            diagnosticsGroupDescriptionStyle: style(diagnosticsDescription),
-            diagnosticsGroupCards: diagnosticsCards,
+            foyerGroupRect: rect(foyerGroup),
+            foyerGroupStyle: style(foyerGroup),
+            foyerGroupCards: categoryCards,
+            focusedDetailRect: rect(focusedDetail),
+            focusedDetailStyle: style(focusedDetail),
+            focusedDetailHidden: focusedDetail ? focusedDetail.hidden : null,
+            focusedDetailState: focusedDetail ? focusedDetail.dataset.focusedSurfaceState : "",
+            focusedDetailLabelledBy: focusedDetail ? focusedDetail.getAttribute("aria-labelledby") : "",
+            focusedDetailEyebrowText: focusedEyebrow ? focusedEyebrow.textContent.trim() : "",
+            focusedDetailEyebrowStyle: style(focusedEyebrow),
+            focusedDetailHeadingText: focusedHeading ? focusedHeading.textContent.trim() : "",
+            focusedDetailHeadingStyle: style(focusedHeading),
             orinRowLabelText: orinRowLabel ? orinRowLabel.textContent.trim() : "",
             orinRowLabelStyle: style(orinRowLabel),
             orinRowValueText: orinRowValue ? orinRowValue.textContent.trim() : "",
@@ -685,6 +687,7 @@ def main() -> int:
             return element ? element.textContent.trim() : "";
           };
           const body = document.getElementById("ai-control-center-report-body");
+          const detail = document.getElementById("ai-control-center-readiness-detail");
           const copy = document.getElementById("ai-control-center-copy-report-action");
           return JSON.stringify({
             ok: true,
@@ -697,6 +700,8 @@ def main() -> int:
             next: text("ai-control-center-report-next"),
             boundary: text("ai-control-center-report-boundary"),
             bodyVisible: body ? !body.hidden : false,
+            focusedDetailVisible: detail ? !detail.hidden : false,
+            focusedDetailState: detail ? detail.dataset.focusedSurfaceState : "",
             copyButtonDisabled: copy ? copy.disabled : null,
             copyButtonAriaDisabled: copy ? copy.getAttribute("aria-disabled") : ""
           });
@@ -1112,25 +1117,33 @@ def main() -> int:
             and title_chrome_proof.get("reportCopyButtonDisabled") is True
             and title_chrome_proof.get("reportCopyButtonAriaDisabled") == "true"
         ),
-        "iaGroupingDiagnosticsReadinessTrustVisible": (
+        "aiHomeControlFoyerCategoryDoorwaysVisible": (
             isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("dashboardCardOrder") == "orin-status-diagnostics-readiness-trust"
-            and title_chrome_proof.get("dashboardIaModel") == "top-level-orin-status-then-diagnostics-readiness-trust-group"
-            and title_chrome_proof.get("diagnosticsGroupLabelledBy") == "ai-control-center-diagnostics-heading"
-            and title_chrome_proof.get("diagnosticsGroupEyebrowText") == "AI Diagnostics / Readiness / Trust"
-            and title_chrome_proof.get("diagnosticsGroupHeadingText") == "Local proof and safe next steps"
-            and "future diagnostics remain child or drill-down" in str(
-                title_chrome_proof.get("diagnosticsGroupDescriptionText") or ""
-            )
+            and title_chrome_proof.get("dashboardCardOrder")
+            == "orin-status-ai-persona-ai-diagnostics-ai-readiness-ai-trust-capability-dev-owner"
+            and title_chrome_proof.get("dashboardIaModel")
+            == "ai-home-control-foyer-category-doorways-focused-readiness-detail"
+            and title_chrome_proof.get("foyerGroupCards")
+            == [
+                "orin-status",
+                "ai-persona",
+                "ai-diagnostics",
+                "ai-readiness",
+                "ai-trust-boundary",
+                "capability-dev-owner-boundary",
+            ]
+            and isinstance(title_chrome_proof.get("foyerGroupRect"), dict)
+            and (title_chrome_proof["foyerGroupRect"].get("height") or 0) > 0
+            and isinstance(title_chrome_proof.get("foyerGroupStyle"), dict)
+            and title_chrome_proof["foyerGroupStyle"].get("display") == "grid"
         ),
-        "iaGroupingContainsLocalCheckAndReadinessReport": (
+        "readinessFocusedDetailPresentAndInitiallyClosed": (
             isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("diagnosticsGroupCards")
-            == ["local-safety-check", "local-ai-readiness-report"]
-            and isinstance(title_chrome_proof.get("diagnosticsGroupRect"), dict)
-            and (title_chrome_proof["diagnosticsGroupRect"].get("height") or 0) > 0
-            and isinstance(title_chrome_proof.get("diagnosticsGroupStyle"), dict)
-            and title_chrome_proof["diagnosticsGroupStyle"].get("display") == "grid"
+            and title_chrome_proof.get("focusedDetailLabelledBy") == "ai-control-center-readiness-detail-heading"
+            and title_chrome_proof.get("focusedDetailEyebrowText") == "AI Readiness / Focused Detail"
+            and title_chrome_proof.get("focusedDetailHeadingText") == "Local AI Readiness Report"
+            and title_chrome_proof.get("focusedDetailHidden") is True
+            and title_chrome_proof.get("focusedDetailState") in {"", "closed"}
         ),
         "readinessReportScrolledIntoView": (
             isinstance(report_scroll, dict)
@@ -1149,6 +1162,8 @@ def main() -> int:
             and readiness_report_result.get("ok") is True
             and readiness_report_result.get("reportState") == "Generated locally"
             and readiness_report_result.get("bodyVisible") is True
+            and readiness_report_result.get("focusedDetailVisible") is True
+            and readiness_report_result.get("focusedDetailState") == "open"
             and "local boundary proof is ready" in str(readiness_report_result.get("summary") or "")
             and "Provider-visible data is none" in str(readiness_report_result.get("ready") or "")
             and "Provider setup approval is not granted" in str(readiness_report_result.get("missing") or "")
