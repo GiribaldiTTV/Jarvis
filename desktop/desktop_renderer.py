@@ -6421,6 +6421,8 @@ class MonitoringHudStudioWebWindow(QWidget):
     MINIMUM_WIDTH = 440
     MINIMUM_HEIGHT = 330
     DRAG_HEADER_HEIGHT = 176
+    STUDIO_RESIZABLE = True
+    RESIZE_BEHAVIOR = "qsizegrip-bottom-right-enabled"
     WINDOW_CONTROL_ZONE_TOP = 14
     WINDOW_CONTROL_ZONE_RIGHT = 15
     WINDOW_CONTROL_ZONE_WIDTH = 60
@@ -6440,8 +6442,11 @@ class MonitoringHudStudioWebWindow(QWidget):
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_NoSystemBackground, True)
-        self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)
-        self.resize(self.WIDTH, self.HEIGHT)
+        if self.STUDIO_RESIZABLE:
+            self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)
+            self.resize(self.WIDTH, self.HEIGHT)
+        else:
+            self.setFixedSize(self.WIDTH, self.HEIGHT)
         self.setStyleSheet("background-color: transparent;")
         root = QVBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
@@ -6461,11 +6466,12 @@ class MonitoringHudStudioWebWindow(QWidget):
         self.webview.loadFinished.connect(self._on_studio_html_loaded)
         self.webview.load(QUrl.fromLocalFile(str(_monitoring_hud_studio_html_path())))
         root.addWidget(self.webview)
-        self._resize_grip = QSizeGrip(self)
-        self._resize_grip.setObjectName("monitoringHudStudioResizeGrip")
-        self._resize_grip.setToolTip("Resize Studio")
-        self._resize_grip.setFixedSize(20, 20)
-        self._resize_grip.raise_()
+        if self.STUDIO_RESIZABLE:
+            self._resize_grip = QSizeGrip(self)
+            self._resize_grip.setObjectName("monitoringHudStudioResizeGrip")
+            self._resize_grip.setToolTip("Resize Studio")
+            self._resize_grip.setFixedSize(20, 20)
+            self._resize_grip.raise_()
 
     def _on_studio_html_loaded(self, ok: bool) -> None:
         self._page_ready = bool(ok)
@@ -6543,6 +6549,10 @@ class MonitoringHudStudioWebWindow(QWidget):
             self._geometry_persistence_key,
             self._initial_geometry(),
         )
+        if not self.STUDIO_RESIZABLE:
+            restored_position = self.geometry().topLeft()
+            self.setFixedSize(self.WIDTH, self.HEIGHT)
+            self.move(restored_position)
 
     def _save_current_geometry(self) -> None:
         if not getattr(self, "_geometry_persistence_ready", False):
@@ -6584,6 +6594,8 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     MINIMUM_WIDTH = 360
     MINIMUM_HEIGHT = 304
     DRAG_HEADER_HEIGHT = 82
+    STUDIO_RESIZABLE = False
+    RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
 
     def __init__(self, screen, event_logger=None, recording_action_handler=None, log_viewer_handler=None):
         self.recording_action_handler = recording_action_handler
@@ -6774,7 +6786,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "windowBodyVisualGrammar": "fam006-compact-feature-studio-shell-v2-rendered-window-primitive",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
-            "resizeBehavior": "qsizegrip-bottom-right-enabled",
+            "resizeBehavior": self.RESIZE_BEHAVIOR,
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
             "startEnabled": self._start_stop_state == "start-enabled",
@@ -6800,6 +6812,8 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     MINIMUM_WIDTH = 430
     MINIMUM_HEIGHT = 292
     DRAG_HEADER_HEIGHT = 82
+    STUDIO_RESIZABLE = True
+    RESIZE_BEHAVIOR = "qsizegrip-bottom-right-enabled"
 
     def __init__(self, screen, event_logger=None):
         self._request_id = ""
@@ -6984,7 +6998,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowBodyVisualGrammar": "fam006-compact-feature-studio-shell-v2-rendered-window-primitive",
             "windowPlacementMemoryState": "enabled",
             "windowPlacementPolicy": "restore-saved-user-geometry-or-safe-screen-default",
-            "resizeBehavior": "qsizegrip-bottom-right-enabled",
+            "resizeBehavior": self.RESIZE_BEHAVIOR,
             "geometryPersistenceKey": self._geometry_persistence_key,
             "geometryRestoredFromSaved": self._geometry_restored_from_saved,
             "previousLogSelectionState": "future-gated",
@@ -13503,7 +13517,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("recordingToggleControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
                 and proof.get("logViewerRouteControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
-                and proof.get("resizeBehavior") == "qsizegrip-bottom-right-enabled"
+                and proof.get("resizeBehavior") == "not-resizable-position-memory-only"
                 and proof.get("nativeLogRowsContained") is True
                 and proof.get("startEnabled") is True
                 and proof.get("stopEnabled") is False

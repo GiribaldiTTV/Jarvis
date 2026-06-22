@@ -1609,6 +1609,9 @@ def validate() -> list[str]:
         "Start Recording",
         "Stop Recording",
         "Log Viewer Studio",
+        'data-resize-contract="not-resizable-position-memory-only"',
+        "resizable-log-access-shell",
+        "monitoring-hud__resize-corner",
     ):
         _require_contains(studio_source, needle, "FAM-006 rendered Studio visual primitive source", failures)
 
@@ -1779,7 +1782,9 @@ def validate() -> list[str]:
         '"recordingStudioVisibleActionModel": "single-stateful-start-stop-button-plus-log-viewer-route"',
         '"recordingToggleControlProof": _monitoring_hud_studio_dom_control_proof("recording-toggle")',
         '"logViewerRouteControlProof": _monitoring_hud_studio_dom_control_proof("open-log-viewer")',
-        '"resizeBehavior": "qsizegrip-bottom-right-enabled"',
+        '"resizeBehavior": self.RESIZE_BEHAVIOR',
+        'RESIZE_BEHAVIOR = "not-resizable-position-memory-only"',
+        'RESIZE_BEHAVIOR = "qsizegrip-bottom-right-enabled"',
         '"nativeLogRowsContained": bool',
         '"windowPlacementMemoryState": "enabled"',
         '"userVisibleStorageModel": "flat-user-recording-and-export-roots"',

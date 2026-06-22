@@ -152,7 +152,13 @@ Expected direction:
 - Log Viewer Studio doorway/action
 - minimal status copy that does not dominate the controller
 - close and minimize affordances
-- move/resize/default-position/reopen/offscreen-recovery behavior where required
+- moveable window behavior with safe position memory across launches where
+  feasible
+- no active resize affordance in the current compact Recording Studio contract;
+  Recording Studio should keep its compact controller size while preserving the
+  USER-moved position
+- reset-to-default position behavior remains future-gated until the global
+  settings/reset-default-window-position surface is admitted
 
 Close behavior needs explicit BP1/BP2 acceptance before implementation. The
 preferred warning model is: closing the Studio while recording warns that the
@@ -200,7 +206,15 @@ Expected direction:
 - previous-log selection after later planning
 - in-app log viewing after later planning
 - export flow after later planning
-- move/resize/default-position/reopen/offscreen-recovery behavior where required
+- moveable window behavior with safe position memory across launches where
+  feasible
+- resize affordance for the admitted Log Viewer Studio shell because later log
+  review content and path/status readability need screen-space flexibility
+- maximize/fullscreen remains future-gated until source truth decides whether
+  loaded-log graph viewing lives inside Log Viewer Studio or opens a separate
+  loaded-log viewer window
+- reset-to-default position behavior remains future-gated until the global
+  settings/reset-default-window-position surface is admitted
 
 Log Viewer Studio should distinguish native NDAI logs from exported files.
 Native logs are the product artifact. Exported files are USER-requested
@@ -496,6 +510,11 @@ Branches consuming this feature vision should prove:
   typography, radius, border, glow/hover/focus/pressed/disabled behavior, and
   equal left/right inline gutters, with text inserted into the primitive rather
   than per-window stretched grid columns
+- purpose-specific geometry affordances are part of visual conformance:
+  Recording Studio is moveable with remembered position but not resizable in the
+  current compact-controller contract; Log Viewer Studio is moveable and
+  resizable; maximize remains future-gated unless later source truth admits the
+  loaded-log graph inside Log Viewer Studio
 - Recording Studio uses one stateful Start/Stop control (`Start Recording` when
   ready and `Stop Recording` while active) plus a Log Viewer Studio route; two
   separate visible Start and Stop buttons are stale for the current Option C

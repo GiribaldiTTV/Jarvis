@@ -38,6 +38,7 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"] .monitoring-hud__resize-corner {
+      display: none;
       position: absolute;
       right: 10px;
       bottom: 10px;
@@ -48,6 +49,10 @@
       border-radius: 0 0 9px 0;
       opacity: 0.72;
       pointer-events: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"][data-resize-contract="resizable-log-access-shell"] .monitoring-hud__resize-corner {
+      display: block;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="fam006-feature-studio"] .monitoring-hud__hub-actions {
@@ -72,6 +77,7 @@
     data-window-control-primitive="nexus-uiref-002-compact-cluster-v1"
     data-window-control-cluster="compact-minimize-close"
     data-window-control-state-model="hidden-blocked-active"
+    data-resize-contract="not-resizable-position-memory-only"
     aria-label="Nexus Desktop AI Recording Studio"
   >
     <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Studio panel">

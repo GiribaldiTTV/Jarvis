@@ -58,6 +58,9 @@
       ? "compact-current-branch-log-access-shell"
       : "ultra-lightweight-detached-recording-controller";
     surface.dataset.featureStudioPurpose = surface.dataset.productSurfaceRole;
+    surface.dataset.resizeContract = mode === "log-viewer"
+      ? "resizable-log-access-shell"
+      : "not-resizable-position-memory-only";
     surface.setAttribute(
       "aria-label",
       mode === "log-viewer"
