@@ -22,9 +22,20 @@ def _configure_qt_environment(log_dir: Path) -> None:
     os.environ["NEXUS_RESIDENT_ACCESS_SETTINGS_PATH"] = str(log_dir / "resident_access_settings.json")
 
 
-def _capture(widget, path: Path) -> tuple[bool, int, int]:
+def _capture(widget, path: Path, artifacts: list[dict[str, str]] | None = None, *, surface: str = "", state: str = "") -> tuple[bool, int, int]:
     image = widget.grab()
     ok = image.save(str(path))
+    if artifacts is not None:
+        artifacts.append(
+            {
+                "path": str(path),
+                "surface": surface or widget.objectName() or widget.__class__.__name__,
+                "state": state or "default",
+                "width": str(image.width()),
+                "height": str(image.height()),
+                "saved": str(bool(ok)),
+            }
+        )
     return bool(ok), image.width(), image.height()
 
 
@@ -72,6 +83,54 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
     return report_path
 
 
+def _write_artifact_ledger(log_dir: Path, artifacts: list[dict[str, str]], rows: list[tuple[str, bool, str]]) -> tuple[Path, Path]:
+    ledger_path = log_dir / "ARTIFACT_TO_SURFACE_LEDGER.md"
+    ledger_lines = [
+        "# FAM-003 Settings Visual Fail Repair Artifact Ledger",
+        "",
+        "| Artifact | Surface / Element Group | State | Size | Saved |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for artifact in artifacts:
+        ledger_lines.append(
+            "| `{path}` | {surface} | {state} | {width}x{height} | {saved} |".format(**artifact)
+        )
+    ledger_lines.extend(
+        [
+            "",
+            "## Element Verdict Summary",
+            "",
+            "| Element Group Check | Verdict | Detail |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for name, ok, detail in rows:
+        ledger_lines.append(f"| {name} | {'PASS' if ok else 'FAIL'} | {detail} |")
+    ledger_path.write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
+
+    manifest_path = log_dir / "fam003_settings_visual_fail_repair_manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "surface": "Global Settings / Quick Access",
+                "proofClass": "supporting-focused-visual-proof-user-retest-required",
+                "artifactCount": len(artifacts),
+                "allChecksPass": all(ok for _name, ok, _detail in rows),
+                "artifacts": artifacts,
+                "checks": [
+                    {"name": name, "result": "PASS" if ok else "FAIL", "detail": detail}
+                    for name, ok, detail in rows
+                ],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return ledger_path, manifest_path
+
+
 def main() -> int:
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = LOG_ROOT / stamp
@@ -104,25 +163,71 @@ def main() -> int:
     app.processEvents()
 
     rows: list[tuple[str, bool, str]] = []
+    artifacts: list[dict[str, str]] = []
 
     default_path = log_dir / "01_default_quick_access.png"
-    default_ok, width, height = _capture(dialog, default_path)
+    default_ok, width, height = _capture(
+        dialog,
+        default_path,
+        artifacts,
+        surface="full Global Settings window",
+        state="default Quick Access page",
+    )
     light_ratio = _light_pixel_ratio(default_path)
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 660 <= width <= 700 and 430 <= height <= 450,
+            default_ok and 800 <= width <= 850 and 510 <= height <= 545,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
-            "compact settings geometry",
-            width <= 700 and height <= 450,
-            f"window={width}x{height}; old sparse repair was 700x460",
+            "global settings shell geometry",
+            800 <= width <= 850 and 510 <= height <= 545,
+            f"window={width}x{height}; required left-nav shell must not collapse to old Quick Access-only dialog",
         )
     )
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
+    chrome_path = log_dir / "01a_top_level_chrome_control_cluster.png"
+    chrome_ok, chrome_width, chrome_height = _capture(
+        dialog.chrome_bar,
+        chrome_path,
+        artifacts,
+        surface="top-level chrome and compact window control cluster",
+        state="default",
+    )
+    rows.append(
+        (
+            "top-level chrome/control cluster",
+            chrome_ok
+            and dialog.chrome_bar.control_cluster.objectName() == "residentAccessSettingsWindowControls"
+            and dialog.chrome_bar.minimize_button.isVisible()
+            and dialog.chrome_bar.close_button.isVisible()
+            and not dialog.chrome_bar.maximize_button.isVisible()
+            and dialog.chrome_bar.close_button.accessibleName() == "Close Global Settings",
+            f"{chrome_path} ({chrome_width}x{chrome_height}); cluster={dialog.chrome_bar.control_cluster.objectName()!r}; minimize={dialog.chrome_bar.minimize_button.isVisible()}; close={dialog.chrome_bar.close_button.isVisible()}; maximize_visible={dialog.chrome_bar.maximize_button.isVisible()}",
+        )
+    )
+    nav_path = log_dir / "01b_left_settings_organizer.png"
+    nav_ok, nav_width, nav_height = _capture(
+        dialog.nav_shell,
+        nav_path,
+        artifacts,
+        surface="left settings organizer",
+        state="Quick Access selected",
+    )
+    rows.append(
+        (
+            "left navigation settings organizer",
+            nav_ok
+            and dialog.nav_shell.isVisible()
+            and dialog.quick_access_nav_button.isChecked()
+            and set(dialog._nav_buttons) == {"quick_access"}
+            and "Only active settings are shown." in dialog.nav_detail.text(),
+            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; checked={dialog.quick_access_nav_button.isChecked()}",
+        )
+    )
     button_texts = [button.text().replace("&&", "&") for button in dialog.findChildren(QPushButton)]
     compact_action_buttons = [
         button
@@ -131,9 +236,11 @@ def main() -> int:
     ]
     rows.append(
         (
-            "single actionable settings category",
+            "single actionable settings page inside Global Settings IA",
             dialog.section_heading.text() == "Quick Access"
-            and not dialog._nav_buttons
+            and set(dialog._nav_buttons) == {"quick_access"}
+            and dialog.quick_access_nav_button.text() == "Quick Access"
+            and dialog.quick_access_nav_button.isChecked()
             and dialog.slot_count_badge.text() == "2/5 slots"
             and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
@@ -149,7 +256,8 @@ def main() -> int:
             "Move Up" not in button_texts
             and "Move Down" not in button_texts
             and "Reset Quick Access" not in button_texts
-            and all(button.width() <= 66 and button.height() <= 32 for button in compact_action_buttons),
+            and "Remove" not in button_texts
+            and all(button.width() <= 32 and button.height() <= 32 for button in compact_action_buttons),
             f"buttons={button_texts}; compact_action_sizes={[(button.objectName(), button.width(), button.height()) for button in compact_action_buttons]}",
         )
     )
@@ -170,7 +278,13 @@ def main() -> int:
         combo.setCurrentIndex(new_index)
         app.processEvents()
         dirty_path = log_dir / "02_dirty_quick_access.png"
-        dirty_ok, _, _ = _capture(dialog, dirty_path)
+        dirty_ok, _, _ = _capture(
+            dialog,
+            dirty_path,
+            artifacts,
+            surface="full Global Settings window",
+            state="dirty Quick Access edit",
+        )
         rows.append(("dirty screenshot saved", dirty_ok, str(dirty_path)))
         rows.append(
             ("dirty guard state after dropdown edit",
@@ -185,7 +299,13 @@ def main() -> int:
         combo.showPopup()
         app.processEvents()
         popup_path = log_dir / "03_dropdown_list_state.png"
-        popup_ok, popup_width, popup_height = _capture(combo.view(), popup_path)
+        popup_ok, popup_width, popup_height = _capture(
+            combo.view(),
+            popup_path,
+            artifacts,
+            surface="Quick Access route dropdown/list",
+            state="open",
+        )
         popup_light_ratio = _light_pixel_ratio(popup_path)
         combo.hidePopup()
         app.processEvents()
@@ -203,7 +323,13 @@ def main() -> int:
     dialog.reject()
     app.processEvents()
     guard_path = log_dir / "04_close_guard.png"
-    guard_ok, _, _ = _capture(dialog, guard_path)
+    guard_ok, _, _ = _capture(
+        dialog,
+        guard_path,
+        artifacts,
+        surface="dirty-change close guard",
+        state="chrome close requested with unsaved changes",
+    )
     rows.append(("close guard screenshot saved", guard_ok, str(guard_path)))
     rows.append(
         ("close guard blocks silent loss",
@@ -220,7 +346,13 @@ def main() -> int:
     dialog._reset_slots()
     app.processEvents()
     reset_path = log_dir / "05_defaults_staged.png"
-    reset_ok, _, _ = _capture(dialog, reset_path)
+    reset_ok, _, _ = _capture(
+        dialog,
+        reset_path,
+        artifacts,
+        surface="Quick Access defaults staging",
+        state="defaults staged before save",
+    )
     rows.append(("defaults staged screenshot saved", reset_ok, str(reset_path)))
     rows.append(
         (
@@ -254,7 +386,13 @@ def main() -> int:
         dialog._add_slot()
         app.processEvents()
     max_slots_path = log_dir / "06_max_slots_unclipped.png"
-    max_slots_ok, max_width, max_height = _capture(dialog, max_slots_path)
+    max_slots_ok, max_width, max_height = _capture(
+        dialog,
+        max_slots_path,
+        artifacts,
+        surface="Quick Access max slot budget",
+        state="5 slots / Add disabled",
+    )
     max_rows = [
         widget
         for widget in dialog.quick_slot_rows.findChildren(type(dialog.quick_slot_container))
@@ -280,7 +418,13 @@ def main() -> int:
     dialog._save_settings()
     app.processEvents()
     saved_path = log_dir / "07_saved_state.png"
-    saved_ok, _, _ = _capture(dialog, saved_path)
+    saved_ok, _, _ = _capture(
+        dialog,
+        saved_path,
+        artifacts,
+        surface="full Global Settings window",
+        state="saved Quick Access state",
+    )
     rows.append(("saved state screenshot saved", saved_ok, str(saved_path)))
     rows.append(
         ("save clears dirty state",
@@ -291,6 +435,8 @@ def main() -> int:
     )
     )
 
+    ledger_path, manifest_path = _write_artifact_ledger(log_dir, artifacts, rows)
+    rows.append(("artifact-to-surface ledger written", ledger_path.exists() and manifest_path.exists(), f"{ledger_path}; {manifest_path}"))
     report_path = _write_report(log_dir, rows)
     dialog.close()
     app.quit()

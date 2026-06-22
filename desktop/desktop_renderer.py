@@ -803,19 +803,31 @@ class ImmediateHelpButton(QLabel):
 
 
 class DialogChromeBar(QFrame):
-    def __init__(self, title: str, dialog: QDialog, *, object_prefix: str, parent=None, show_title: bool = False):
+    def __init__(
+        self,
+        title: str,
+        dialog: QDialog,
+        *,
+        object_prefix: str,
+        parent=None,
+        show_title: bool = False,
+        show_minimize: bool = False,
+        show_maximize: bool = False,
+        clustered_controls: bool = False,
+    ):
         super().__init__(parent or dialog)
         self._dialog = dialog
         self._drag_offset: QPoint | None = None
         self.setObjectName(f"{object_prefix}ChromeBar")
         self.setProperty("chromeRole", "bar")
         self.setProperty("showTitle", bool(show_title))
+        self.setProperty("windowControlCluster", "compact-minimize-maximize-close" if clustered_controls else "compact-close")
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setCursor(Qt.OpenHandCursor)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(12, 5, 16, 3)
+        layout.setContentsMargins(12, 5, 14, 5)
         layout.setSpacing(4)
 
         self.title_label = QLabel(title, self)
@@ -825,18 +837,45 @@ class DialogChromeBar(QFrame):
         layout.addWidget(self.title_label, 0, Qt.AlignVCenter)
         layout.addStretch(1)
 
-        self.close_button = QPushButton("\N{MULTIPLICATION SIGN}", self)
+        self.control_cluster = QFrame(self)
+        self.control_cluster.setObjectName(f"{object_prefix}WindowControls")
+        self.control_cluster.setProperty("chromeRole", "window-controls")
+        self.control_cluster.setAttribute(Qt.WA_StyledBackground, True)
+        control_layout = QHBoxLayout(self.control_cluster)
+        control_layout.setContentsMargins(2, 2, 2, 2)
+        control_layout.setSpacing(2)
+
+        self.minimize_button = QPushButton("\N{MINUS SIGN}", self.control_cluster)
+        self.minimize_button.setObjectName(f"{object_prefix}ChromeMinimize")
+        self.minimize_button.setProperty("chromeRole", "minimize")
+        self.minimize_button.setAccessibleName(f"Minimize {title}")
+        self.minimize_button.setFixedSize(26 if clustered_controls else 20, 24 if clustered_controls else 20)
+        self.minimize_button.setVisible(bool(show_minimize))
+        self.minimize_button.clicked.connect(self._dialog.showMinimized)
+        control_layout.addWidget(self.minimize_button, 0, Qt.AlignVCenter)
+
+        self.maximize_button = QPushButton("\N{WHITE SQUARE}", self.control_cluster)
+        self.maximize_button.setObjectName(f"{object_prefix}ChromeMaximize")
+        self.maximize_button.setProperty("chromeRole", "maximize")
+        self.maximize_button.setAccessibleName(f"Maximize {title} unavailable")
+        self.maximize_button.setFixedSize(26 if clustered_controls else 20, 24 if clustered_controls else 20)
+        self.maximize_button.setVisible(bool(show_maximize))
+        self.maximize_button.setEnabled(False)
+        control_layout.addWidget(self.maximize_button, 0, Qt.AlignVCenter)
+
+        self.close_button = QPushButton("\N{MULTIPLICATION SIGN}", self.control_cluster)
         self.close_button.setObjectName(f"{object_prefix}ChromeClose")
         self.close_button.setProperty("chromeRole", "close")
-        self.close_button.setToolTip("Close")
+        self.close_button.setAccessibleName(f"Close {title}")
         close_font = QFont("Segoe UI Symbol")
         close_font.setPointSize(11)
         close_font.setWeight(QFont.DemiBold)
         self.close_button.setFont(close_font)
-        self.close_button.setFixedSize(20, 20)
+        self.close_button.setFixedSize(26 if clustered_controls else 20, 24 if clustered_controls else 20)
         self.close_button.clicked.connect(self._dialog.reject)
-        layout.addWidget(self.close_button, 0, Qt.AlignVCenter)
-        self.setFixedHeight(28)
+        control_layout.addWidget(self.close_button, 0, Qt.AlignVCenter)
+        layout.addWidget(self.control_cluster, 0, Qt.AlignVCenter)
+        self.setFixedHeight(34 if clustered_controls else 28)
 
     def set_title(self, title: str):
         self.title_label.setText(title)
@@ -879,8 +918,12 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setWindowTitle("Global Settings")
         self.setObjectName("residentAccessSettingsDialog")
-        self.setMinimumSize(680, 408)
-        self.resize(680, 408)
+        self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
+        self.setProperty("visualInheritance", "UIREF-001-UIREF-002-UIREF-003-FAM-002")
+        self.setProperty("settingsInformationArchitecture", "left-navigation-active-settings-only")
+        self.setProperty("platformException", "none")
+        self.setMinimumSize(820, 520)
+        self.resize(820, 520)
         self._apply_native_settings_palette()
 
         root_layout = QVBoxLayout(self)
@@ -902,8 +945,9 @@ class ResidentAccessSettingsDialog(QDialog):
             object_prefix="residentAccessSettings",
             parent=self.shell,
             show_title=True,
+            show_minimize=True,
+            clustered_controls=True,
         )
-        self.chrome_bar.close_button.setToolTip("")
         shell_layout.addWidget(self.chrome_bar)
 
         body = QWidget(self.shell)
@@ -912,16 +956,52 @@ class ResidentAccessSettingsDialog(QDialog):
         shell_layout.addWidget(body, 1)
 
         body_layout = QHBoxLayout(body)
-        body_layout.setContentsMargins(10, 10, 10, 10)
-        body_layout.setSpacing(0)
+        body_layout.setContentsMargins(12, 12, 12, 12)
+        body_layout.setSpacing(12)
+
+        self.nav_shell = QFrame(body)
+        self.nav_shell.setObjectName("residentAccessSettingsNavShell")
+        self.nav_shell.setAttribute(Qt.WA_StyledBackground, True)
+        self.nav_shell.setFixedWidth(206)
+        body_layout.addWidget(self.nav_shell)
+        nav_layout = QVBoxLayout(self.nav_shell)
+        nav_layout.setContentsMargins(12, 12, 12, 12)
+        nav_layout.setSpacing(8)
+
+        self.nav_kicker = QLabel("GLOBAL SETTINGS", self.nav_shell)
+        self.nav_kicker.setObjectName("residentAccessSettingsNavKicker")
+        nav_layout.addWidget(self.nav_kicker)
+        self.nav_title = QLabel("Settings", self.nav_shell)
+        self.nav_title.setObjectName("residentAccessSettingsNavTitle")
+        nav_layout.addWidget(self.nav_title)
+        self.nav_detail = QLabel("Only active settings are shown.", self.nav_shell)
+        self.nav_detail.setObjectName("residentAccessSettingsNavDetail")
+        self.nav_detail.setWordWrap(True)
+        nav_layout.addWidget(self.nav_detail)
+
+        self.quick_access_nav_button = QPushButton("Quick Access", self.nav_shell)
+        self.quick_access_nav_button.setObjectName("residentAccessSettingsNavButton")
+        self.quick_access_nav_button.setCheckable(True)
+        self.quick_access_nav_button.setChecked(True)
+        self.quick_access_nav_button.setAccessibleName("Open Quick Access Settings")
+        self.quick_access_nav_button.setProperty("navState", "selected")
+        self.quick_access_nav_button.clicked.connect(lambda: self.set_focus("quick_access"))
+        self._nav_buttons["quick_access"] = self.quick_access_nav_button
+        nav_layout.addWidget(self.quick_access_nav_button)
+
+        self.nav_boundary = QLabel("Additional sections appear here only after they become real settings.", self.nav_shell)
+        self.nav_boundary.setObjectName("residentAccessSettingsNavBoundary")
+        self.nav_boundary.setWordWrap(True)
+        nav_layout.addWidget(self.nav_boundary)
+        nav_layout.addStretch(1)
 
         content_shell = QFrame(body)
         content_shell.setObjectName("residentAccessSettingsContentShell")
         content_shell.setAttribute(Qt.WA_StyledBackground, True)
         body_layout.addWidget(content_shell, 1)
         content_layout = QVBoxLayout(content_shell)
-        content_layout.setContentsMargins(14, 12, 14, 12)
-        content_layout.setSpacing(8)
+        content_layout.setContentsMargins(14, 14, 14, 12)
+        content_layout.setSpacing(9)
 
         self.section_heading = QLabel("Quick Access", content_shell)
         self.section_heading.setObjectName("residentAccessSettingsHeading")
@@ -959,7 +1039,7 @@ class ResidentAccessSettingsDialog(QDialog):
         quick_slot_layout.setSpacing(7)
 
         quick_header = QHBoxLayout()
-        quick_label = QLabel("Tray Quick Access Slots", self.quick_slot_container)
+        quick_label = QLabel("Tray Menu Shortcuts", self.quick_slot_container)
         quick_label.setObjectName("residentAccessSettingsSubheading")
         quick_header.addWidget(quick_label)
         quick_header.addStretch(1)
@@ -968,7 +1048,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.add_slot_button.setAccessibleName("Add Quick Access Slot")
         self.add_slot_button.clicked.connect(self._add_slot)
         quick_header.addWidget(self.add_slot_button)
-        self.reset_slots_button = QPushButton("Use Defaults", self.quick_slot_container)
+        self.reset_slots_button = QPushButton("Stage Defaults", self.quick_slot_container)
         self.reset_slots_button.setObjectName("residentAccessDefaultsButton")
         self.reset_slots_button.setAccessibleName("Stage Default Quick Access Slots")
         self.reset_slots_button.clicked.connect(self._reset_slots)
@@ -1025,9 +1105,9 @@ class ResidentAccessSettingsDialog(QDialog):
         self.save_button.setAccessibleName("Save Quick Access Settings")
         self.save_button.clicked.connect(self._save_settings)
         footer.addWidget(self.save_button)
-        self.close_button = QPushButton("Close", content_shell)
+        self.close_button = QPushButton("Done", content_shell)
         self.close_button.setObjectName("residentAccessCloseButton")
-        self.close_button.setAccessibleName("Close Resident Access Settings")
+        self.close_button.setAccessibleName("Done With Quick Access Settings")
         self.close_button.clicked.connect(self._request_close)
         footer.addWidget(self.close_button)
         content_layout.addWidget(self.footer_frame)
@@ -1035,49 +1115,106 @@ class ResidentAccessSettingsDialog(QDialog):
         dropdown_arrow_asset = (Path(__file__).resolve().parent / "nexus_dropdown_arrow.svg").as_posix()
         self.setStyleSheet(
             "#residentAccessSettingsDialog {"
-            " background: #07111f;"
+            " background: #050b15;"
             " color: #f8fafc;"
             " font-family: 'Bahnschrift', 'Rajdhani', 'Segoe UI';"
             " font-size: 10pt;"
             "}"
             "#residentAccessSettingsShell {"
-            " background: #07111f;"
-            " border: 1px solid #25636c;"
-            " border-radius: 8px;"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #07111f, stop:0.55 #081827, stop:1 #06101e);"
+            " border: 1px solid rgba(122, 232, 255, 0.38);"
+            " border-radius: 12px;"
             "}"
             "#residentAccessSettingsBody {"
-            " background: #07111f;"
+            " background: transparent;"
             "}"
             "#residentAccessSettingsChromeBar {"
-            " background: #101b2d;"
-            " border-bottom: 1px solid #244454;"
-            " border-top-left-radius: 8px;"
-            " border-top-right-radius: 8px;"
+            " background: rgba(8, 24, 39, 0.96);"
+            " border-bottom: 1px solid rgba(122, 232, 255, 0.26);"
+            " border-top-left-radius: 12px;"
+            " border-top-right-radius: 12px;"
             "}"
-            "#residentAccessSettingsChromeTitle { color: #f8fafc; }"
-            "#residentAccessSettingsChromeClose {"
-            " color: #f8fafc;"
-            " background: transparent;"
-            " border: none;"
+            "#residentAccessSettingsChromeTitle {"
+            " color: rgba(229, 246, 255, 0.94);"
+            " font-size: 11px;"
+            " font-weight: 800;"
             "}"
-            "#residentAccessSettingsChromeClose:hover, #residentAccessSettingsChromeClose:focus {"
-            " background: #173348;"
-            " border: 1px solid #66d9e8;"
-            " border-radius: 4px;"
+            "#residentAccessSettingsWindowControls {"
+            " background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 rgba(7, 42, 62, 0.70), stop:1 rgba(3, 18, 32, 0.76));"
+            " border: 1px solid rgba(122, 232, 255, 0.44);"
+            " border-radius: 999px;"
             "}"
+            "#residentAccessSettingsChromeMinimize, #residentAccessSettingsChromeMaximize, #residentAccessSettingsChromeClose {"
+            " color: rgba(235, 252, 255, 0.92);"
+            " background: rgba(5, 22, 36, 0.62);"
+            " border: 1px solid rgba(122, 232, 255, 0.24);"
+            " border-radius: 999px;"
+            " padding: 0;"
+            " font-weight: 900;"
+            "}"
+            "#residentAccessSettingsChromeMinimize:hover, #residentAccessSettingsChromeClose:hover,"
+            "#residentAccessSettingsChromeMinimize:focus, #residentAccessSettingsChromeClose:focus {"
+            " background: rgba(9, 49, 70, 0.78);"
+            " border-color: rgba(126, 248, 218, 0.56);"
+            "}"
+            "#residentAccessSettingsChromeMinimize:pressed,"
             "#residentAccessSettingsChromeClose:pressed {"
-            " background: #7f1d1d;"
-            " color: #ffffff;"
+            " background: rgba(7, 40, 57, 0.86);"
+            " border-color: rgba(163, 255, 228, 0.72);"
+            "}"
+            "#residentAccessSettingsNavShell {"
+            " background: rgba(3, 13, 24, 0.76);"
+            " border: 1px solid rgba(81, 149, 172, 0.42);"
+            " border-radius: 10px;"
+            "}"
+            "#residentAccessSettingsNavKicker {"
+            " color: rgba(158, 232, 245, 0.76);"
+            " font-size: 10px;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessSettingsNavTitle {"
+            " color: #f8fafc;"
+            " font-size: 20px;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessSettingsNavDetail, #residentAccessSettingsNavBoundary {"
+            " color: rgba(182, 197, 216, 0.92);"
+            " font-size: 11px;"
+            " line-height: 1.25;"
+            "}"
+            "#residentAccessSettingsNavBoundary {"
+            " color: rgba(129, 164, 179, 0.86);"
+            " border-top: 1px solid rgba(81, 149, 172, 0.26);"
+            " padding-top: 9px;"
+            " margin-top: 2px;"
+            "}"
+            "#residentAccessSettingsNavButton {"
+            " background: rgba(7, 32, 48, 0.86);"
+            " color: rgba(225, 244, 248, 0.96);"
+            " border: 1px solid rgba(118, 226, 255, 0.28);"
+            " border-radius: 8px;"
+            " min-height: 38px;"
+            " padding: 0 12px;"
+            " text-align: left;"
+            " font-weight: 800;"
+            "}"
+            "#residentAccessSettingsNavButton:hover, #residentAccessSettingsNavButton:focus {"
+            " background: rgba(9, 49, 70, 0.86);"
+            " border-color: rgba(126, 248, 218, 0.48);"
+            "}"
+            "#residentAccessSettingsNavButton:checked {"
+            " background: rgba(13, 65, 82, 0.92);"
+            " border-color: rgba(153, 246, 228, 0.56);"
             "}"
             "#residentAccessSettingsContentShell {"
-            " background: #0b1425;"
-            " border: 1px solid #2b596c;"
-            " border-radius: 8px;"
+            " background: rgba(8, 18, 30, 0.94);"
+            " border: 1px solid rgba(81, 149, 172, 0.48);"
+            " border-radius: 10px;"
             "}"
             "#residentAccessSettingsHeading {"
             " color: #f8fafc;"
-            " font-size: 17px;"
-            " font-weight: 700;"
+            " font-size: 20px;"
+            " font-weight: 800;"
             "}"
             "#residentAccessSettingsSlotCount {"
             " color: #9ee8f5;"
@@ -1096,6 +1233,7 @@ class ResidentAccessSettingsDialog(QDialog):
             "#residentAccessSettingsDetail, #residentAccessSettingsRouteSummary, #residentAccessSettingsQuickHelp {"
             " color: #b6c5d8;"
             " line-height: 1.25;"
+            " font-size: 11px;"
             "}"
             "#residentAccessSettingsStatus {"
             " background: rgba(8, 47, 73, 0.88);"
@@ -1114,7 +1252,7 @@ class ResidentAccessSettingsDialog(QDialog):
             "#residentAccessQuickSlotContainer {"
             " background: rgba(3, 14, 25, 0.86);"
             " border: 1px solid rgba(81, 149, 172, 0.46);"
-            " border-radius: 9px;"
+            " border-radius: 8px;"
             "}"
             "#residentAccessQuickSlotRows {"
             " background: transparent;"
@@ -1187,8 +1325,8 @@ class ResidentAccessSettingsDialog(QDialog):
             " border-radius: 6px;"
             "}"
             "#residentAccessQuickSlotActions #residentAccessQuickSlotRemove {"
-            " min-width: 58px;"
-            " max-width: 58px;"
+            " min-width: 28px;"
+            " max-width: 28px;"
             "}"
             "QComboBox {"
             " background: rgba(3, 13, 24, 230);"
@@ -1430,10 +1568,10 @@ class ResidentAccessSettingsDialog(QDialog):
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             action_layout.addWidget(down_button)
-            remove_button = QPushButton("Remove", action_cluster)
+            remove_button = QPushButton("\N{MULTIPLICATION SIGN}", action_cluster)
             remove_button.setObjectName("residentAccessQuickSlotRemove")
             remove_button.setAccessibleName(f"Remove Quick Access Slot {index + 1}")
-            remove_button.setFixedSize(58, 28)
+            remove_button.setFixedSize(28, 28)
             remove_button.setEnabled(len(selected_ids) > 1)
             remove_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             action_layout.addWidget(remove_button)
@@ -1443,11 +1581,11 @@ class ResidentAccessSettingsDialog(QDialog):
         self._resize_for_slot_count(len(selected_ids))
 
     def _resize_for_slot_count(self, slot_count: int):
-        base_height = 443
+        base_height = 520
         extra_row_height = 42
         target_height = base_height + max(0, slot_count - 2) * extra_row_height
         self.setMinimumHeight(target_height)
-        self.resize(max(self.width(), 680), target_height)
+        self.resize(max(self.width(), 820), target_height)
 
     def _replace_quick_slots(self, slot_ids: Iterable[str], notice: str | None = None):
         self._settings = ResidentAccessSettings(
@@ -1527,10 +1665,10 @@ class ResidentAccessSettingsDialog(QDialog):
         self.section_heading.setText("Quick Access")
         self.slot_count_badge.setText(f"{route_count}/{MAX_QUICK_SLOT_COUNT} slots")
         self.section_detail.setText(
-            f"Choose up to {MAX_QUICK_SLOT_COUNT} tray shortcuts and keep their order deliberate."
+            f"Choose up to {MAX_QUICK_SLOT_COUNT} shortcuts for the tray Quick Access menu."
         )
         self.route_summary.setText(
-            "Core tray commands stay fixed. This page only edits Quick Access shortcuts."
+            "Global Settings is showing active settings only. Core tray commands stay fixed."
         )
 
         dirty = self._has_unsaved_changes()
@@ -1549,6 +1687,12 @@ class ResidentAccessSettingsDialog(QDialog):
 
     def set_focus(self, focus: str):
         self._focus = "quick_access"
+        for nav_id, button in self._nav_buttons.items():
+            is_selected = nav_id == self._focus
+            button.setChecked(is_selected)
+            button.setProperty("navState", "selected" if is_selected else "available")
+            button.style().unpolish(button)
+            button.style().polish(button)
         self.quick_slot_container.setVisible(True)
         self._refresh_text()
         self.show()
