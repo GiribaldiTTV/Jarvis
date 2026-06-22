@@ -34,133 +34,697 @@ REFERENCE_SCREENSHOTS: tuple[tuple[str, Path], ...] = (
     ),
 )
 
-ELEMENT_GROUP_LEDGER_ROWS: tuple[tuple[str, str, str, str, str, str, str], ...] = (
-    (
-        "F3GS-001",
-        "Whole-window silhouette",
-        "desktop/desktop_renderer.py::ResidentAccessSettingsDialog",
-        "Global Settings top-level product shell",
-        "UIREF-001 / FAM-002 / Project Vision",
-        "accepted AI Control Center full-window reference",
-        "780x620 minimum dark NDAI shell; not white/native utility UI",
-    ),
-    (
-        "F3GS-002",
-        "Outer shell frame",
-        "desktop/desktop_renderer.py::residentAccessSettingsShell",
-        "Nexus-owned window boundary",
-        "UIREF-001 / UIREF-005",
-        "accepted AI Control Center rounded frame",
-        "single rounded frame with restrained cyan boundary",
-    ),
-    (
-        "F3GS-003",
-        "Header/body integration",
-        "desktop/desktop_renderer.py::residentAccessSettingsChromeBar + residentAccessSettingsBody",
-        "integrated settings window anatomy",
-        "AI Control Center reference / FAM-002",
-        "accepted AI Control Center header-to-body relationship",
-        "header, product title, pill metadata, and body read as one product surface",
-    ),
-    (
-        "F3GS-004",
-        "Product title group",
-        "desktop/desktop_renderer.py::DialogChromeBar",
-        "product identity and surface title",
-        "Project Vision / UIREF-001",
-        "accepted AI Control Center product/title hierarchy",
-        "NEXUS DESKTOP AI, Global Settings, and Configure the Nexus tray",
-    ),
-    (
-        "F3GS-005",
-        "Product-facing header pill",
-        "desktop/desktop_renderer.py::residentAccessSettingsChromeRolePill",
-        "compact product context",
-        "Project Vision / UIREF-006",
-        "accepted AI Control Center status pill",
-        "NEXUS TRAY / QUICK ACCESS and MENU BUDGET / 5 SLOTS; no debug or branch metadata",
-    ),
-    (
-        "F3GS-006",
-        "Window control cluster",
-        "desktop/desktop_renderer.py::residentAccessSettingsWindowControls",
-        "NDAI window controls",
-        "UIREF-002 / UIREF-003",
-        "accepted AI Control Center close-hover reference",
-        "rounded minimize/close cluster with focus/pressed proof",
-    ),
-    (
-        "F3GS-007",
-        "Left settings rail",
-        "desktop/desktop_renderer.py::residentAccessSettingsNavShell",
-        "compact settings organizer",
-        "FAM-003 / F3-FF01 / FAM-002",
-        "accepted dense side/section navigation grammar",
-        "Nexus Tray category with Quick Access selected; no fake future categories",
-    ),
-    (
-        "F3GS-008",
-        "Active page heading",
-        "desktop/desktop_renderer.py::residentAccessSettingsHeading",
-        "active settings leaf",
-        "FAM-003 / F3-FF01",
-        "accepted section title hierarchy",
-        "Quick Access reads as one page inside Global Settings",
-    ),
-    (
-        "F3GS-009",
-        "Settings summary rows",
-        "desktop/desktop_renderer.py::residentAccessSettingsSummaryPanel",
-        "deterministic settings context",
-        "Project Vision / UIREF-003",
-        "accepted AI Control Center state-row grammar",
-        "TRAY MENU and CHANGES rows use compact label/value rhythm",
-    ),
-    (
-        "F3GS-010",
-        "Shortcut order group",
-        "desktop/desktop_renderer.py::residentAccessQuickSlotContainer",
-        "settings control group",
-        "FAM-003 / UIREF-003",
-        "accepted state-card and row grouping",
-        "Shortcut Order panel with Add and Defaults actions",
-    ),
-    (
-        "F3GS-011",
-        "Route dropdown",
-        "desktop/desktop_renderer.py::QComboBox",
-        "quick-access route selector",
-        "UIREF-003 / accepted HUD selector grammar",
-        "open dropdown proof artifact",
-        "dark compact selector and non-white popup/list state",
-    ),
-    (
-        "F3GS-012",
-        "Row action cluster",
-        "desktop/desktop_renderer.py::residentAccessQuickSlotActions",
-        "reorder/remove controls",
-        "UIREF-003",
-        "focused row-action proof artifact",
-        "icon-only up/down/remove controls; disabled first-up state proven",
-    ),
-    (
-        "F3GS-013",
-        "Dirty/default/save states",
-        "desktop/desktop_renderer.py::_refresh_text",
-        "deterministic state transitions",
-        "Project Vision / F3-FF01",
-        "dirty/default/saved screenshot sequence",
-        "dirty guard, staged defaults, Save, Revert, and Done semantics are explicit",
-    ),
-    (
-        "F3GS-014",
-        "Copy discipline",
-        "desktop/desktop_renderer.py::ResidentAccessSettingsDialog labels",
-        "USER-facing language",
-        "Project Vision / UIREF-006",
-        "full screenshot and static text scan",
-        "short product copy; no branch status, fake FAM categories, or implementation metadata",
-    ),
+ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
+    {
+        "id": "F3GS-001",
+        "element": "Whole-window silhouette",
+        "surface": "Global Settings",
+        "fam": "FAM-003 / FAM-002 visual authority",
+        "code": "desktop/desktop_renderer.py::ResidentAccessSettingsDialog",
+        "role": "top-level settings product shell",
+        "rule": "Project Vision; UIREF-001; FAM-002",
+        "copy": "Global Settings",
+        "font": "Bahnschrift/Rajdhani/Segoe UI, 10-29px",
+        "text": "#f8fafc family",
+        "background": "#020914 / #04101b dark shell",
+        "border": "1px restrained cyan, 20px radius",
+        "effects": "subtle depth only",
+        "spacing": "800x640 compact two-column layout",
+        "hitbox": "top-level window with normal resize baseline",
+        "icon_label": "window title plus product kicker",
+        "states": "default, dirty, saved",
+        "a11y": "window title Global Settings",
+        "comparator": "accepted AI Control Center full-window reference",
+        "proof": "01_default_global_settings_shell.png",
+        "checks": "default screenshot saved;architecture-first Global Settings geometry;default surface is not white/native-light",
+    },
+    {
+        "id": "F3GS-002",
+        "element": "Nexus shell frame",
+        "surface": "Global Settings",
+        "fam": "FAM-003 / FAM-002 visual authority",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsShell",
+        "role": "Nexus-owned window boundary",
+        "rule": "UIREF-001; UIREF-005",
+        "copy": "none",
+        "font": "not applicable",
+        "text": "not applicable",
+        "background": "dark diagonal shell gradient",
+        "border": "restrained cyan boundary, 20px radius",
+        "effects": "no native white frame",
+        "spacing": "full window edge",
+        "hitbox": "entire shell",
+        "icon_label": "none",
+        "states": "default",
+        "a11y": "top-level shell only",
+        "comparator": "accepted AI Control Center rounded frame",
+        "proof": "01_default_global_settings_shell.png",
+        "checks": "default surface is not white/native-light",
+    },
+    {
+        "id": "F3GS-003",
+        "element": "Header/body integration",
+        "surface": "Global Settings",
+        "fam": "FAM-003 / FAM-002 visual authority",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsChromeBar + residentAccessSettingsBody",
+        "role": "integrated settings anatomy",
+        "rule": "UIREF-001; UIREF-005",
+        "copy": "NEXUS DESKTOP AI / Global Settings / Configure Nexus behavior.",
+        "font": "header 29px, subtitle 13px",
+        "text": "near-white plus muted cyan",
+        "background": "dark header to dark body",
+        "border": "single header divider",
+        "effects": "reference-family depth",
+        "spacing": "hero header above content",
+        "hitbox": "header and body zones",
+        "icon_label": "product title labels",
+        "states": "default",
+        "a11y": "Close Global Settings",
+        "comparator": "accepted AI Control Center header/body relationship",
+        "proof": "02_top_level_chrome_control_cluster.png",
+        "checks": "top-level chrome/control cluster;settings-specific product header",
+    },
+    {
+        "id": "F3GS-004",
+        "element": "Product title group",
+        "surface": "Global Settings chrome",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::DialogChromeBar title labels",
+        "role": "product identity and settings title",
+        "rule": "Project Vision; UIREF-001",
+        "copy": "NEXUS DESKTOP AI; Global Settings; Configure Nexus behavior.",
+        "font": "11px kicker, 29px title, 13px subtitle",
+        "text": "cyan kicker, near-white title, muted subtitle",
+        "background": "transparent on chrome bar",
+        "border": "none",
+        "effects": "none",
+        "spacing": "AI Control Center family rhythm",
+        "hitbox": "label group",
+        "icon_label": "text-only product group",
+        "states": "default",
+        "a11y": "window title",
+        "comparator": "accepted AI Control Center product/title hierarchy",
+        "proof": "02_top_level_chrome_control_cluster.png",
+        "checks": "settings-specific product header",
+    },
+    {
+        "id": "F3GS-005",
+        "element": "Header context pill",
+        "surface": "Global Settings chrome",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsChromeRolePill",
+        "role": "compact settings context",
+        "rule": "UIREF-006",
+        "copy": "SETTINGS AREA - NEXUS TRAY; ACTIVE SETTING - QUICK ACCESS",
+        "font": "10px bold",
+        "text": "soft mint",
+        "background": "muted blue-green pill",
+        "border": "1px muted cyan, 16px radius",
+        "effects": "no branch/debug metadata",
+        "spacing": "top-right compact pill",
+        "hitbox": "label-only context",
+        "icon_label": "label/value pairs",
+        "states": "default",
+        "a11y": "product context labels",
+        "comparator": "accepted AI Control Center status/context pill",
+        "proof": "02_top_level_chrome_control_cluster.png",
+        "checks": "settings-specific product header;product-facing copy is compact and non-internal",
+    },
+    {
+        "id": "F3GS-006",
+        "element": "Window control cluster",
+        "surface": "Global Settings chrome",
+        "fam": "FAM-003 / FAM-002 visual authority",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsWindowControls",
+        "role": "NDAI minimize/close controls",
+        "rule": "UIREF-002; UIREF-003",
+        "copy": "- and x controls",
+        "font": "control glyph 900 weight",
+        "text": "near-white",
+        "background": "dark rounded cluster",
+        "border": "1px cyan, 18px radius",
+        "effects": "focus/pressed color change",
+        "spacing": "28px buttons",
+        "hitbox": "28x28 controls",
+        "icon_label": "glyph-only with accessible names",
+        "states": "focus, pressed",
+        "a11y": "Close Global Settings",
+        "comparator": "accepted AI Control Center close-hover reference",
+        "proof": "03_window_control_focus_pressed_state.png",
+        "checks": "top-level chrome/control cluster;window control focus/pressed proof",
+    },
+    {
+        "id": "F3GS-007",
+        "element": "Left settings rail",
+        "surface": "Global Settings body",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsNavShell",
+        "role": "settings navigation organizer",
+        "rule": "F3-FF01; FAM-002; UIREF-005",
+        "copy": "SETTINGS; Nexus Tray; Resident tray behavior and shortcut menu.",
+        "font": "10-15px compact rail",
+        "text": "muted cyan/white",
+        "background": "transparent rail",
+        "border": "right divider",
+        "effects": "no fake future categories",
+        "spacing": "192px rail",
+        "hitbox": "left column",
+        "icon_label": "category and selected page label",
+        "states": "Quick Access selected",
+        "a11y": "Open Quick Access Settings",
+        "comparator": "dense settings navigation grammar",
+        "proof": "04_left_settings_organizer.png",
+        "checks": "left navigation settings organizer;single actionable page inside Global Settings IA",
+    },
+    {
+        "id": "F3GS-008",
+        "element": "Selected navigation row",
+        "surface": "Global Settings left rail",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsNavItem",
+        "role": "active settings leaf selector",
+        "rule": "UIREF-003",
+        "copy": "Quick Access; Shortcut menu slots",
+        "font": "10-13px compact",
+        "text": "near-white and muted caption",
+        "background": "subtle selected row",
+        "border": "2px left accent, 8px radius",
+        "effects": "hover background",
+        "spacing": "compact nav row",
+        "hitbox": "row with selected button",
+        "icon_label": "label plus caption",
+        "states": "selected, hover/focus feasible",
+        "a11y": "Open Quick Access Settings",
+        "comparator": "settings nav row, not CTA card",
+        "proof": "04_left_settings_organizer.png",
+        "checks": "left navigation settings organizer",
+    },
+    {
+        "id": "F3GS-009",
+        "element": "Settings overview rows",
+        "surface": "Global Settings content",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsOverviewPanel",
+        "role": "Global Settings-first IA proof",
+        "rule": "Project Vision; F3-FF01",
+        "copy": "AREA Nexus Tray; SETTING Quick Access menu; CHANGES No pending changes",
+        "font": "10-11px label/value",
+        "text": "muted label, mint value",
+        "background": "subtle dark panel",
+        "border": "1px muted cyan, 12px radius",
+        "effects": "state-row rhythm",
+        "spacing": "compact rows",
+        "hitbox": "overview panel",
+        "icon_label": "label/value rows",
+        "states": "saved, dirty",
+        "a11y": "change status propagated",
+        "comparator": "AI Control Center dense state rows",
+        "proof": "01_default_global_settings_shell.png; 06_dirty_quick_access.png",
+        "checks": "single actionable page inside Global Settings IA;initial pending-state copy;dirty guard state after dropdown edit",
+    },
+    {
+        "id": "F3GS-010",
+        "element": "Active page heading",
+        "surface": "Global Settings content",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsHeading",
+        "role": "selected settings page title",
+        "rule": "F3-FF01; UIREF-005",
+        "copy": "NEXUS TRAY; 01; Quick Access; slot count",
+        "font": "20px heading, 10-11px metadata",
+        "text": "near-white and cyan",
+        "background": "transparent",
+        "border": "badge borders only",
+        "effects": "none",
+        "spacing": "below overview panel",
+        "hitbox": "page header",
+        "icon_label": "badge plus page label",
+        "states": "slot count updates",
+        "a11y": "heading label",
+        "comparator": "settings section title hierarchy",
+        "proof": "01_default_global_settings_shell.png",
+        "checks": "single actionable page inside Global Settings IA",
+    },
+    {
+        "id": "F3GS-011",
+        "element": "Quick Access slot group",
+        "surface": "Global Settings content",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessQuickSlotContainer",
+        "role": "current settings control group",
+        "rule": "F3-FF01; UIREF-003",
+        "copy": "Quick Access Slots; Add Slot; Use Defaults",
+        "font": "11-13px compact",
+        "text": "muted body plus bright headings",
+        "background": "subtle dark section",
+        "border": "1px muted cyan, 12px radius",
+        "effects": "reduced cyan noise",
+        "spacing": "compact rows, no nested card overload",
+        "hitbox": "settings section",
+        "icon_label": "text actions plus rows",
+        "states": "add enabled/disabled, defaults staged",
+        "a11y": "Add Quick Access Slot; Use Default Quick Access Shortcuts",
+        "comparator": "NDAI settings control group",
+        "proof": "01_default_global_settings_shell.png; 09_defaults_staged.png",
+        "checks": "single actionable page inside Global Settings IA;default semantics stage defaults;max-slot budget rows are unclipped",
+    },
+    {
+        "id": "F3GS-012",
+        "element": "Slot row silhouette",
+        "surface": "Quick Access Slots",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessQuickSlotRow",
+        "role": "editable slot row",
+        "rule": "UIREF-003; UIREF-005",
+        "copy": "01 / selected route label",
+        "font": "11px index, combo text bold",
+        "text": "soft cyan and pale text",
+        "background": "dark row",
+        "border": "1px muted cyan, 2px left accent, 9px radius",
+        "effects": "none",
+        "spacing": "compact 7/4 margins",
+        "hitbox": "row height about 38px",
+        "icon_label": "numeric slot label",
+        "states": "default, max slots",
+        "a11y": "Quick Access Slot N label",
+        "comparator": "dense row grammar",
+        "proof": "05_row_action_default_disabled_state.png; 10_max_slots_unclipped.png",
+        "checks": "row actions show disabled state;defaults staged rows are unclipped;max-slot budget rows are unclipped",
+    },
+    {
+        "id": "F3GS-013",
+        "element": "Route dropdown closed",
+        "surface": "Quick Access row",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::QComboBox",
+        "role": "route selector",
+        "rule": "UIREF-003",
+        "copy": "route labels",
+        "font": "combo bold 10pt",
+        "text": "pale green-gray",
+        "background": "#020b16 dark",
+        "border": "1px muted cyan, 10px radius",
+        "effects": "hover/focus border",
+        "spacing": "30px min height",
+        "hitbox": "240px min width",
+        "icon_label": "custom dropdown arrow",
+        "states": "default, hover/focus feasible",
+        "a11y": "Quick Access Slot N Route",
+        "comparator": "HUD-style dark selector grammar",
+        "proof": "05_row_action_default_disabled_state.png",
+        "checks": "quick-slot combo exists;product-facing copy is compact and non-internal",
+    },
+    {
+        "id": "F3GS-014",
+        "element": "Route dropdown open list",
+        "surface": "Quick Access row popup",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessQuickSlotRoutePopup",
+        "role": "route option list",
+        "rule": "UIREF-003",
+        "copy": "route labels",
+        "font": "popup item text",
+        "text": "#c1d5d0",
+        "background": "#08121e",
+        "border": "#2b7485",
+        "effects": "selection highlight",
+        "spacing": "30px item height max 178px",
+        "hitbox": "popup list",
+        "icon_label": "list rows",
+        "states": "open, selected",
+        "a11y": "combo popup",
+        "comparator": "dark non-native popup/list",
+        "proof": "07_dropdown_list_state.png",
+        "checks": "dropdown/list state screenshot saved;dropdown/list state is not white/native-light",
+    },
+    {
+        "id": "F3GS-015",
+        "element": "Row action cluster",
+        "surface": "Quick Access row",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessQuickSlotActions",
+        "role": "reorder/remove controls",
+        "rule": "UIREF-003",
+        "copy": "up/down/remove glyphs",
+        "font": "glyph buttons",
+        "text": "pale action text",
+        "background": "dark action button",
+        "border": "1px muted cyan, round",
+        "effects": "hover/focus/pressed",
+        "spacing": "26px buttons",
+        "hitbox": "26x26 each",
+        "icon_label": "icon-only with accessible names",
+        "states": "enabled, disabled, pressed feasible",
+        "a11y": "Move/Remove Quick Access Slot",
+        "comparator": "compact icon action cluster",
+        "proof": "05_row_action_default_disabled_state.png",
+        "checks": "compact quick-slot controls;row actions show disabled state",
+    },
+    {
+        "id": "F3GS-016",
+        "element": "Add Slot action",
+        "surface": "Quick Access Slots",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessAddSlotButton",
+        "role": "add one slot",
+        "rule": "UIREF-003",
+        "copy": "Add Slot",
+        "font": "10pt button",
+        "text": "pale action text",
+        "background": "dark button",
+        "border": "1px muted cyan, 10px radius",
+        "effects": "disabled at max",
+        "spacing": "header action",
+        "hitbox": "28px min height",
+        "icon_label": "text action",
+        "states": "enabled, disabled",
+        "a11y": "Add Quick Access Slot",
+        "comparator": "NDAI control action",
+        "proof": "10_max_slots_unclipped.png",
+        "checks": "max-slot budget rows are unclipped",
+    },
+    {
+        "id": "F3GS-017",
+        "element": "Use Defaults action",
+        "surface": "Quick Access Slots",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessDefaultsButton",
+        "role": "stage default shortcut order",
+        "rule": "F3-FF01; UIREF-003",
+        "copy": "Use Defaults",
+        "font": "10pt button",
+        "text": "pale action text",
+        "background": "dark button",
+        "border": "1px muted cyan, 10px radius",
+        "effects": "pressed feasible",
+        "spacing": "header action",
+        "hitbox": "28px min height",
+        "icon_label": "text action",
+        "states": "stages dirty defaults",
+        "a11y": "Use Default Quick Access Shortcuts",
+        "comparator": "settings default action",
+        "proof": "09_defaults_staged.png",
+        "checks": "default semantics stage defaults",
+    },
+    {
+        "id": "F3GS-018",
+        "element": "Change summary",
+        "surface": "Global Settings content",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsChangeSummary",
+        "role": "dirty/save/default feedback",
+        "rule": "UIREF-004",
+        "copy": "Unsaved changes / Default shortcuts staged / Quick Access changes saved",
+        "font": "11px body",
+        "text": "light cyan",
+        "background": "dark cyan status bar",
+        "border": "1px muted cyan, 12px radius",
+        "effects": "appears only when meaningful",
+        "spacing": "below page detail",
+        "hitbox": "full content width",
+        "icon_label": "text status",
+        "states": "hidden, dirty, default, saved",
+        "a11y": "Quick Access change status",
+        "comparator": "NDAI recovery/status strip",
+        "proof": "06_dirty_quick_access.png; 09_defaults_staged.png; 11_saved_state.png",
+        "checks": "initial pending-state copy;dirty guard state after dropdown edit;default semantics stage defaults;save clears dirty state",
+    },
+    {
+        "id": "F3GS-019",
+        "element": "Footer action zone",
+        "surface": "Global Settings content",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsFooter",
+        "role": "deterministic settings actions",
+        "rule": "UIREF-003; F3-FF01",
+        "copy": "Revert; Save Changes; Done; guard-only Keep Editing/Discard",
+        "font": "10pt buttons",
+        "text": "pale action text",
+        "background": "transparent footer",
+        "border": "top divider",
+        "effects": "save emphasis when enabled",
+        "spacing": "right aligned",
+        "hitbox": "28px min-height buttons",
+        "icon_label": "text actions",
+        "states": "disabled, enabled, guard",
+        "a11y": "Save/Revert/Done settings",
+        "comparator": "NDAI action bar hierarchy",
+        "proof": "06_dirty_quick_access.png; 08_close_guard.png; 11_saved_state.png",
+        "checks": "initial pending-state copy;dirty guard state after dropdown edit;close guard blocks silent loss;save clears dirty state",
+    },
+    {
+        "id": "F3GS-020",
+        "element": "Disabled/degraded states",
+        "surface": "Global Settings controls",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py button and combo styles",
+        "role": "nonactive control state",
+        "rule": "UIREF-003",
+        "copy": "disabled controls retain labels",
+        "font": "10pt controls",
+        "text": "#64748b disabled",
+        "background": "#101827 disabled",
+        "border": "#1f2937 disabled",
+        "effects": "no fake enabled affordance",
+        "spacing": "same hitbox",
+        "hitbox": "unchanged disabled controls",
+        "icon_label": "disabled first-up, disabled save/revert",
+        "states": "disabled",
+        "a11y": "accessible names remain present",
+        "comparator": "UIREF disabled-state grammar",
+        "proof": "05_row_action_default_disabled_state.png; 01_default_global_settings_shell.png",
+        "checks": "row actions show disabled state;initial pending-state copy",
+    },
+    {
+        "id": "F3GS-021",
+        "element": "Close guard",
+        "surface": "Global Settings modal state",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::_request_close",
+        "role": "prevent silent data loss",
+        "rule": "UIREF-004; Project Vision",
+        "copy": "Unsaved changes - Save Changes, discard, or keep editing before closing.",
+        "font": "11px status plus buttons",
+        "text": "light cyan / red discard",
+        "background": "dark status/footer",
+        "border": "muted status borders",
+        "effects": "guard-only actions appear",
+        "spacing": "footer action row",
+        "hitbox": "guard action buttons",
+        "icon_label": "Keep Editing / Discard",
+        "states": "blocked close",
+        "a11y": "Keep Editing Quick Access Settings",
+        "comparator": "NDAI recovery/guard pattern",
+        "proof": "08_close_guard.png",
+        "checks": "close guard screenshot saved;close guard blocks silent loss",
+    },
+    {
+        "id": "F3GS-022",
+        "element": "Saved state",
+        "surface": "Global Settings content",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::_save_settings",
+        "role": "post-save truth alignment",
+        "rule": "Project Vision; backend predictability",
+        "copy": "Quick Access changes saved.",
+        "font": "11px status",
+        "text": "light cyan",
+        "background": "status strip",
+        "border": "status border",
+        "effects": "save/revert disabled",
+        "spacing": "same layout",
+        "hitbox": "status and footer controls",
+        "icon_label": "Save Changes disabled",
+        "states": "saved",
+        "a11y": "change status",
+        "comparator": "deterministic saved state",
+        "proof": "11_saved_state.png",
+        "checks": "save clears dirty state;saved state screenshot saved",
+    },
+    {
+        "id": "F3GS-023",
+        "element": "Copy discipline",
+        "surface": "Global Settings all visible text",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py labels and button text",
+        "role": "USER-facing product language",
+        "rule": "Project Vision; UIREF-006",
+        "copy": "short settings terms; no branch/debug/fake category wording",
+        "font": "consistent compact rhythm",
+        "text": "NDAI palette",
+        "background": "not applicable",
+        "border": "not applicable",
+        "effects": "no proof/planning copy",
+        "spacing": "not applicable",
+        "hitbox": "all labels",
+        "icon_label": "text and glyphs",
+        "states": "all captured states",
+        "a11y": "accessible names do not create visual tooltips",
+        "comparator": "Project Vision product-copy discipline",
+        "proof": "static scan and screenshot set",
+        "checks": "product-facing copy is compact and non-internal",
+    },
+    {
+        "id": "F3GS-024",
+        "element": "Scope discipline",
+        "surface": "Global Settings all visible text",
+        "fam": "FAM-003 plus dependency boundaries",
+        "code": "desktop/desktop_renderer.py ResidentAccessSettingsDialog",
+        "role": "minimal admitted settings shell",
+        "rule": "F3-FF01; FAM-006/007/008 boundaries",
+        "copy": "Nexus Tray / Quick Access only",
+        "font": "not applicable",
+        "text": "not applicable",
+        "background": "not applicable",
+        "border": "not applicable",
+        "effects": "no fake HUD/NCP/AI/provider settings",
+        "spacing": "hidden future sections",
+        "hitbox": "one active settings page",
+        "icon_label": "no fake category labels",
+        "states": "current page only",
+        "a11y": "no inaccessible fake controls",
+        "comparator": "accepted minimal settings foundation",
+        "proof": "static text scan",
+        "checks": "single actionable page inside Global Settings IA;product-facing copy is compact and non-internal",
+    },
+    {
+        "id": "F3GS-025",
+        "element": "Focus and pressed states",
+        "surface": "Window controls and settings controls",
+        "fam": "FAM-003 / FAM-002 visual authority",
+        "code": "desktop/desktop_renderer.py stylesheet",
+        "role": "interactive confidence",
+        "rule": "UIREF-002; UIREF-003",
+        "copy": "glyph/text controls",
+        "font": "control fonts",
+        "text": "near-white focus/pressed",
+        "background": "hover/focus/pressed dark cyan",
+        "border": "brighter focus border",
+        "effects": "pressed feedback",
+        "spacing": "stable hitboxes",
+        "hitbox": "unchanged on state",
+        "icon_label": "glyph/text controls",
+        "states": "focus, pressed",
+        "a11y": "accessible names",
+        "comparator": "accepted close-hover reference",
+        "proof": "03_window_control_focus_pressed_state.png",
+        "checks": "window control focus/pressed proof",
+    },
+    {
+        "id": "F3GS-026",
+        "element": "Scrollbar/list behavior",
+        "surface": "Dropdown popup",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py::residentAccessQuickSlotRoutePopup",
+        "role": "bounded route selection",
+        "rule": "UIREF-003",
+        "copy": "route labels with future-gated suffixes where applicable",
+        "font": "popup items",
+        "text": "#c1d5d0",
+        "background": "#08121e",
+        "border": "#2b7485",
+        "effects": "selection highlight",
+        "spacing": "maximum height 178",
+        "hitbox": "bounded popup",
+        "icon_label": "list rows",
+        "states": "open list",
+        "a11y": "combo list",
+        "comparator": "dark selector list",
+        "proof": "07_dropdown_list_state.png",
+        "checks": "dropdown/list state screenshot saved;dropdown/list state is not white/native-light",
+    },
+    {
+        "id": "F3GS-027",
+        "element": "Code-to-visual trace",
+        "surface": "All inspected Global Settings groups",
+        "fam": "FAM-003",
+        "code": "desktop/desktop_renderer.py objectNames and properties",
+        "role": "proof chain",
+        "rule": "Scope Coverage Manifest; Code-To-Visual Trace Requirement",
+        "copy": "objectName-backed selectors",
+        "font": "not applicable",
+        "text": "not applicable",
+        "background": "not applicable",
+        "border": "not applicable",
+        "effects": "not applicable",
+        "spacing": "not applicable",
+        "hitbox": "not applicable",
+        "icon_label": "not applicable",
+        "states": "all captured states",
+        "a11y": "mapped per element",
+        "comparator": "source code and screenshots",
+        "proof": "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md",
+        "checks": "element-group ledger is row-level fail-capable",
+    },
+    {
+        "id": "F3GS-028",
+        "element": "Reference comparison contact sheet",
+        "surface": "Proof artifact",
+        "fam": "FAM-003",
+        "code": "dev/orin_fam003_settings_repair_visual_validation.py::_write_contact_sheet",
+        "role": "visual comparison aid",
+        "rule": "Live Validation proof; Project Vision",
+        "copy": "AI Control Center family comparator, not template clone",
+        "font": "contact sheet caption font",
+        "text": "cyan captions",
+        "background": "dark contact sheet",
+        "border": "rounded image frames",
+        "effects": "none",
+        "spacing": "2-column proof grid",
+        "hitbox": "proof artifact",
+        "icon_label": "image captions",
+        "states": "reference/current/default/dropdown/dirty",
+        "a11y": "artifact ledger describes surfaces",
+        "comparator": "accepted AI Control Center and repaired Global Settings",
+        "proof": "REFERENCE_CONFORMANCE_CONTACT_SHEET.png",
+        "checks": "side-by-side reference contact sheet written;accepted reference available: accepted_ai_control_center_default;accepted reference available: accepted_ai_control_center_close_hover",
+    },
+    {
+        "id": "F3GS-029",
+        "element": "Validation fail-capability",
+        "surface": "Proof helper",
+        "fam": "FAM-003",
+        "code": "dev/orin_fam003_settings_repair_visual_validation.py",
+        "role": "anti-false-green validator",
+        "rule": "validation registry; USER visual fail repair",
+        "copy": "row-level PASS/FAIL/BLOCKED/NOT_APPLICABLE",
+        "font": "ledger markdown",
+        "text": "ledger text",
+        "background": "not applicable",
+        "border": "not applicable",
+        "effects": "not applicable",
+        "spacing": "not applicable",
+        "hitbox": "not applicable",
+        "icon_label": "not applicable",
+        "states": "helper pass or fail",
+        "a11y": "readable ledger",
+        "comparator": "previous marker-only/helper-green failure mode",
+        "proof": "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md",
+        "checks": "element-group ledger is row-level fail-capable",
+    },
+    {
+        "id": "F3GS-030",
+        "element": "Scope coverage manifest",
+        "surface": "Proof helper output",
+        "fam": "FAM-003",
+        "code": "dev/orin_fam003_settings_repair_visual_validation.py manifest",
+        "role": "review coverage boundary",
+        "rule": "Scope Coverage Requirement",
+        "copy": "reviewed/excluded/sampling fields",
+        "font": "manifest markdown/json",
+        "text": "manifest text",
+        "background": "not applicable",
+        "border": "not applicable",
+        "effects": "not applicable",
+        "spacing": "not applicable",
+        "hitbox": "not applicable",
+        "icon_label": "not applicable",
+        "states": "proof manifest",
+        "a11y": "readable proof packet",
+        "comparator": "scope coverage standard",
+        "proof": "fam003_settings_visual_fail_repair_manifest.json",
+        "checks": "element-group ledger is row-level fail-capable",
+    },
 )
 
 
@@ -248,7 +812,7 @@ def _write_contact_sheet(log_dir: Path, entries: list[tuple[str, Path]]) -> tupl
     title_font.setBold(True)
     painter.setFont(title_font)
     painter.setPen(QColor("#9ee8f5"))
-    painter.drawText(18, 24, "FAM-003 Global Settings Reference Conformance Contact Sheet")
+    painter.drawText(18, 24, "FAM-003 Settings-Specific Visual Conformance Contact Sheet")
     caption_font = QFont("Segoe UI")
     caption_font.setPointSize(8)
     caption_font.setBold(True)
@@ -303,9 +867,26 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "| --- | --- | --- |",
     ]
     for name, ok, detail in rows:
-        lines.append(f"| {name} | {'PASS' if ok else 'FAIL'} | {detail} |")
+        lines.append(f"| {_md_cell(name)} | {'PASS' if ok else 'FAIL'} | {_md_cell(detail)} |")
     report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return report_path
+
+
+def _md_cell(value: object) -> str:
+    return str(value).replace("|", "\\|").replace("\n", " ")
+
+
+def _element_group_result(row: dict[str, str], check_status: dict[str, bool], check_detail: dict[str, str]) -> tuple[str, str]:
+    check_names = [name.strip() for name in row.get("checks", "").split(";") if name.strip()]
+    if not check_names:
+        return "NOT_APPLICABLE", "No machine-checkable row mapping."
+    missing = [name for name in check_names if name not in check_status]
+    failed = [name for name in check_names if name in check_status and not check_status[name]]
+    if missing:
+        return "BLOCKED", "Missing check mapping: " + ", ".join(missing)
+    if failed:
+        return "FAIL", "; ".join(f"{name}: {check_detail.get(name, '')}" for name in failed)
+    return "PASS", "; ".join(f"{name}: {check_detail.get(name, '')}" for name in check_names)
 
 
 def _write_artifact_ledger(
@@ -325,7 +906,9 @@ def _write_artifact_ledger(
     ]
     for artifact in artifacts:
         ledger_lines.append(
-            "| `{path}` | {surface} | {state} | {width}x{height} | {saved} |".format(**artifact)
+            "| `{path}` | {surface} | {state} | {width}x{height} | {saved} |".format(
+                **{key: _md_cell(value) for key, value in artifact.items()}
+            )
         )
     ledger_lines.extend(
         [
@@ -337,25 +920,50 @@ def _write_artifact_ledger(
         ]
     )
     for name, ok, detail in rows:
-        ledger_lines.append(f"| {name} | {'PASS' if ok else 'FAIL'} | {detail} |")
+        ledger_lines.append(f"| {_md_cell(name)} | {'PASS' if ok else 'FAIL'} | {_md_cell(detail)} |")
     ledger_path.write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
 
     element_ledger_path = log_dir / "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md"
     all_checks_pass = all(ok for _name, ok, _detail in rows)
-    verdict = "PASS" if all_checks_pass else "BLOCKED"
+    check_status = {name: ok for name, ok, _detail in rows}
+    check_detail = {name: detail for name, _ok, detail in rows}
+    element_results = [
+        {
+            "id": row["id"],
+            "element": row["element"],
+            "disposition": _element_group_result(row, check_status, check_detail)[0],
+            "detail": _element_group_result(row, check_status, check_detail)[1],
+        }
+        for row in ELEMENT_GROUP_LEDGER_ROWS
+    ]
     element_lines = [
         "# FAM-003 Global Settings Element-Group Reference Conformance Ledger",
         "",
         "Scope: Global Settings / Nexus Tray / Quick Access settings window only.",
         "Reference class: UIREF-001 through UIREF-006 plus accepted AI Control Center top-level window evidence.",
-        "Proof model: contact sheet, focused screenshots, and code-to-visual widget/objectName trace. USER-operated Live Validation remains required.",
+        "Proof model: settings-specific contact sheet, focused screenshots, and code-to-visual widget/objectName trace. USER-operated Live Validation remains required.",
+        "Accepted-reference boundary: AI Control Center is the accepted NDAI visual-language comparator, not a Global Settings layout template or shared primitive claim.",
         "",
-        "| ID | Element Group | Code Path / Selector | Visual Role | Rule | Comparator | Required Proof | Disposition |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+        "## Scope Coverage Manifest",
+        "",
+        "- Reviewed files: desktop/desktop_renderer.py, desktop/resident_access.py, dev/orin_fam003_settings_repair_visual_validation.py.",
+        "- Reviewed windows/surfaces: Global Settings shell, chrome/control cluster, left organizer, settings overview, Quick Access page, slot rows, dropdown/list, row actions, footer, dirty/default/save/close-guard states.",
+        "- Reviewed artifacts: default screenshot, chrome/control screenshot, focus/pressed screenshot, left organizer screenshot, row-action screenshot, dirty screenshot, dropdown/list screenshot, close-guard screenshot, defaults-staged screenshot, max-slot screenshot, saved-state screenshot, accepted AI Control Center reference screenshots, and contact sheet.",
+        "- Excluded: full app-wide settings framework, FAM-006 HUD internals, FAM-007 AI/provider/privacy internals, FAM-008 installer/startup/shortcut/update/packaging behavior, and sibling worktree UI. Exclusion reason: outside current FAM-003 bounded repair.",
+        "- Sampling: no element-group sampling inside the owned Global Settings / Quick Access surface; every visible owned/touched element group in that surface has a row below.",
+        "",
+        "| ID | Element Group | Surface / Window | Owning FAM | Code Path / Selector | Visual Role | Rule | Text / Copy | Font | Text Color | Background | Border | Glow / Shadow | Spacing | Size / Hitbox | Icon / Label | States | Accessibility | Comparator | Proof Artifact | Disposition | Detail |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
-    for row_id, element, selector, role, rule, comparator, proof in ELEMENT_GROUP_LEDGER_ROWS:
+    result_by_id = {result["id"]: result for result in element_results}
+    for row in ELEMENT_GROUP_LEDGER_ROWS:
+        result = result_by_id[row["id"]]
         element_lines.append(
-            f"| {row_id} | {element} | `{selector}` | {role} | {rule} | {comparator} | {proof} | {verdict} |"
+            "| {id} | {element} | {surface} | {fam} | `{code}` | {role} | {rule} | {copy} | {font} | {text} | {background} | {border} | {effects} | {spacing} | {hitbox} | {icon_label} | {states} | {a11y} | {comparator} | {proof} | {disposition} | {detail} |".format(
+                **{key: _md_cell(value) for key, value in row.items()},
+                disposition=result["disposition"],
+                detail=_md_cell(result["detail"]),
+            )
         )
     element_ledger_path.write_text("\n".join(element_lines) + "\n", encoding="utf-8")
 
@@ -372,7 +980,35 @@ def _write_artifact_ledger(
                 "contactSheet": str(contact_sheet),
                 "elementGroupLedger": str(element_ledger_path),
                 "elementGroupCount": len(ELEMENT_GROUP_LEDGER_ROWS),
+                "elementGroupResults": element_results,
                 "referenceScreenshots": [{"label": label, "path": str(path)} for label, path in REFERENCE_SCREENSHOTS],
+                "scopeCoverage": {
+                    "reviewedFiles": [
+                        "desktop/desktop_renderer.py",
+                        "desktop/resident_access.py",
+                        "dev/orin_fam003_settings_repair_visual_validation.py",
+                    ],
+                    "reviewedSurfaces": [
+                        "Global Settings shell",
+                        "chrome/control cluster",
+                        "left settings organizer",
+                        "settings overview",
+                        "Quick Access page",
+                        "slot rows",
+                        "dropdown/list",
+                        "row actions",
+                        "footer",
+                        "dirty/default/save/close-guard states",
+                    ],
+                    "excluded": [
+                        "full app-wide Global Settings framework",
+                        "FAM-006 HUD internals",
+                        "FAM-007 AI/provider/privacy internals",
+                        "FAM-008 installer/startup/shortcut/update/packaging behavior",
+                        "sibling worktree UI",
+                    ],
+                    "sampling": "none for owned/touched Global Settings element groups",
+                },
                 "checks": [
                     {"name": name, "result": "PASS" if ok else "FAIL", "detail": detail}
                     for name, ok, detail in rows
@@ -435,15 +1071,15 @@ def main() -> int:
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 770 <= width <= 800 and 610 <= height <= 640,
+            default_ok and 790 <= width <= 830 and 630 <= height <= 660,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "architecture-first Global Settings geometry",
-            770 <= width <= 800 and 610 <= height <= 640,
-            f"window={width}x{height}; required compact settings shell, not old 880x600 Quick Access utility form",
+            790 <= width <= 830 and 630 <= height <= 660,
+            f"window={width}x{height}; required compact settings shell, not old sparse Quick Access utility form",
         )
     )
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
@@ -472,11 +1108,11 @@ def main() -> int:
     )
     rows.append(
         (
-            "reference-derived product header",
+            "settings-specific product header",
             dialog.chrome_bar.kicker_label.text() == "NEXUS DESKTOP AI"
             and dialog.chrome_bar.title_label.text() == "Global Settings"
-            and dialog.chrome_bar.subtitle_label.text() == "Configure the Nexus tray."
-            and role_text == ["NEXUS TRAY - QUICK ACCESS", "MENU BUDGET - 5 SLOTS"]
+            and dialog.chrome_bar.subtitle_label.text() == "Configure Nexus behavior."
+            and role_text == ["SETTINGS AREA - NEXUS TRAY", "ACTIVE SETTING - QUICK ACCESS"]
             and dialog.chrome_bar.role_pill.isVisible(),
             f"kicker={dialog.chrome_bar.kicker_label.text()!r}; title={dialog.chrome_bar.title_label.text()!r}; subtitle={dialog.chrome_bar.subtitle_label.text()!r}; role_pairs={role_text}; role_pill_visible={dialog.chrome_bar.role_pill.isVisible()}",
         )
@@ -519,10 +1155,11 @@ def main() -> int:
             and dialog.nav_shell.isVisible()
             and dialog.quick_access_nav_button.isChecked()
             and dialog.quick_access_nav_item.isVisible()
+            and dialog.quick_access_nav_item.property("settingsNavDensity") == "compact-settings-nav-row"
             and set(dialog._nav_buttons) == {"quick_access"}
             and dialog.nav_title.text() == "Nexus Tray"
-            and dialog.nav_detail.text() == "Quick Access is the active settings page."
-            and dialog.quick_access_nav_caption.text() == "Tray submenu order"
+            and dialog.nav_detail.text() == "Resident tray behavior and shortcut menu."
+            and dialog.quick_access_nav_caption.text() == "Shortcut menu slots"
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; checked={dialog.quick_access_nav_button.isChecked()}; detail={dialog.nav_detail.text()!r}; caption={dialog.quick_access_nav_caption.text()!r}",
         )
@@ -539,17 +1176,20 @@ def main() -> int:
             "single actionable page inside Global Settings IA",
             dialog.section_heading.text() == "Quick Access"
             and dialog.section_badge.text() == "01"
-            and dialog.section_scope.text() == "Nexus Tray Settings"
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-nexus-tray-quick-access-page"
-            and dialog.property("settingsVisualRepair") == "architecture-first-reference-conformance-v3"
-            and dialog.property("referenceDerivedHeader") == "ai-control-center-reference-derived-settings-shell-v3"
+            and dialog.section_scope.text() == "NEXUS TRAY"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-settings-navigation-quick-access-page-v4"
+            and dialog.property("settingsVisualRepair") == "settings-specific-conformance-v4"
+            and dialog.property("referenceDerivedHeader") == "ai-control-center-family-comparator-settings-shell-v4"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
             and set(dialog._nav_buttons) == {"quick_access"}
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_button.isChecked()
             and dialog.slot_count_badge.text() == "2/5 slots"
-            and dialog.menu_path_row.text() == "Native tray > Quick Access"
+            and dialog.settings_summary_panel.objectName() == "residentAccessSettingsOverviewPanel"
+            and dialog.settings_summary_panel.property("settingsOverview") == "global-settings-first"
+            and dialog.menu_path_row.text() == "Nexus Tray"
+            and dialog.active_setting_row.text() == "Quick Access menu"
             and dialog.pending_state_row.text() == "No pending changes"
             and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
@@ -562,9 +1202,12 @@ def main() -> int:
         "Resident Access",
         "Tray Menu Shortcuts",
         "Resident tray shortcuts and menu preferences.",
-        "Add Slot",
-        "Use Defaults",
-        "Save Changes",
+        "Configure the Nexus tray.",
+        "Quick Access is the active settings page.",
+        "Shortcut Order",
+        "Native tray > Quick Access",
+        "Save applies Quick Access edits to the tray menu.",
+        "future-gated",
         "Reset Quick Access",
         "Move Up",
         "Move Down",
@@ -618,6 +1261,7 @@ def main() -> int:
     if not dialog._slot_combos:
         rows.append(("quick-slot combo exists", False, "no quick-slot combo rendered"))
     else:
+        rows.append(("quick-slot combo exists", True, f"combo_count={len(dialog._slot_combos)}"))
         combo = dialog._slot_combos[0]
         row_action_path = log_dir / "05_row_action_default_disabled_state.png"
         row_action_ok, _, _ = _capture(
@@ -800,7 +1444,7 @@ def main() -> int:
             "save clears dirty state",
             not dialog._has_unsaved_changes()
             and not dialog.save_button.isEnabled()
-            and "Quick Access saved" in dialog.change_summary.text(),
+            and "Quick Access changes saved" in dialog.change_summary.text(),
             f"dirty={dialog._has_unsaved_changes()}; summary={dialog.change_summary.text()!r}; pending={dialog.pending_state_row.text()!r}",
         )
     )
@@ -808,10 +1452,12 @@ def main() -> int:
     contact_sheet, contact_ok = _write_contact_sheet(
         log_dir,
         [
-            ("Accepted reference - AI Control Center", REFERENCE_SCREENSHOTS[0][1]),
+            ("Accepted reference - AI Control Center family grammar", REFERENCE_SCREENSHOTS[0][1]),
             ("Accepted reference - close hover", REFERENCE_SCREENSHOTS[1][1]),
-            ("Repaired FAM-003 - Global Settings", default_path),
+            ("Repaired FAM-003 - settings shell", default_path),
+            ("Repaired FAM-003 - settings organizer", log_dir / "04_left_settings_organizer.png"),
             ("Repaired FAM-003 - dropdown/list state", log_dir / "07_dropdown_list_state.png"),
+            ("Repaired FAM-003 - dirty/save controls", log_dir / "06_dirty_quick_access.png"),
         ],
     )
     rows.append(
@@ -819,6 +1465,14 @@ def main() -> int:
             "side-by-side reference contact sheet written",
             contact_ok and contact_sheet.exists(),
             str(contact_sheet),
+        )
+    )
+    rows.append(
+        (
+            "element-group ledger is row-level fail-capable",
+            len(ELEMENT_GROUP_LEDGER_ROWS) >= 25
+            and all(row.get("checks") for row in ELEMENT_GROUP_LEDGER_ROWS),
+            f"element_groups={len(ELEMENT_GROUP_LEDGER_ROWS)}",
         )
     )
     artifacts.append(
