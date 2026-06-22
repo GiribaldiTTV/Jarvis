@@ -879,7 +879,8 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.setWindowTitle("Global Settings")
         self.setObjectName("residentAccessSettingsDialog")
-        self.setMinimumSize(700, 460)
+        self.setMinimumSize(680, 408)
+        self.resize(680, 408)
         self._apply_native_settings_palette()
 
         root_layout = QVBoxLayout(self)
@@ -911,7 +912,7 @@ class ResidentAccessSettingsDialog(QDialog):
         shell_layout.addWidget(body, 1)
 
         body_layout = QHBoxLayout(body)
-        body_layout.setContentsMargins(12, 12, 12, 12)
+        body_layout.setContentsMargins(10, 10, 10, 10)
         body_layout.setSpacing(0)
 
         content_shell = QFrame(body)
@@ -919,12 +920,20 @@ class ResidentAccessSettingsDialog(QDialog):
         content_shell.setAttribute(Qt.WA_StyledBackground, True)
         body_layout.addWidget(content_shell, 1)
         content_layout = QVBoxLayout(content_shell)
-        content_layout.setContentsMargins(16, 14, 16, 14)
-        content_layout.setSpacing(10)
+        content_layout.setContentsMargins(14, 12, 14, 12)
+        content_layout.setSpacing(8)
 
         self.section_heading = QLabel("Quick Access", content_shell)
         self.section_heading.setObjectName("residentAccessSettingsHeading")
-        content_layout.addWidget(self.section_heading)
+        self.slot_count_badge = QLabel("", content_shell)
+        self.slot_count_badge.setObjectName("residentAccessSettingsSlotCount")
+        header_row = QHBoxLayout()
+        header_row.setContentsMargins(0, 0, 0, 0)
+        header_row.setSpacing(8)
+        header_row.addWidget(self.section_heading)
+        header_row.addStretch(1)
+        header_row.addWidget(self.slot_count_badge)
+        content_layout.addLayout(header_row)
 
         self.section_detail = QLabel("", content_shell)
         self.section_detail.setObjectName("residentAccessSettingsDetail")
@@ -944,9 +953,10 @@ class ResidentAccessSettingsDialog(QDialog):
         self.quick_slot_container = QFrame(content_shell)
         self.quick_slot_container.setObjectName("residentAccessQuickSlotContainer")
         self.quick_slot_container.setAttribute(Qt.WA_StyledBackground, True)
+        self.quick_slot_container.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         quick_slot_layout = QVBoxLayout(self.quick_slot_container)
-        quick_slot_layout.setContentsMargins(0, 0, 0, 0)
-        quick_slot_layout.setSpacing(8)
+        quick_slot_layout.setContentsMargins(10, 8, 10, 10)
+        quick_slot_layout.setSpacing(7)
 
         quick_header = QHBoxLayout()
         quick_label = QLabel("Tray Quick Access Slots", self.quick_slot_container)
@@ -954,17 +964,19 @@ class ResidentAccessSettingsDialog(QDialog):
         quick_header.addWidget(quick_label)
         quick_header.addStretch(1)
         self.add_slot_button = QPushButton("Add Slot", self.quick_slot_container)
+        self.add_slot_button.setObjectName("residentAccessAddSlotButton")
         self.add_slot_button.setAccessibleName("Add Quick Access Slot")
         self.add_slot_button.clicked.connect(self._add_slot)
         quick_header.addWidget(self.add_slot_button)
         self.reset_slots_button = QPushButton("Use Defaults", self.quick_slot_container)
+        self.reset_slots_button.setObjectName("residentAccessDefaultsButton")
         self.reset_slots_button.setAccessibleName("Stage Default Quick Access Slots")
         self.reset_slots_button.clicked.connect(self._reset_slots)
         quick_header.addWidget(self.reset_slots_button)
         quick_slot_layout.addLayout(quick_header)
 
         self.quick_help = QLabel(
-            "Saved slots appear in the tray Quick Access submenu. Keep the list short and intentional.",
+            "Top to bottom becomes the tray submenu order.",
             self.quick_slot_container,
         )
         self.quick_help.setObjectName("residentAccessSettingsQuickHelp")
@@ -985,31 +997,40 @@ class ResidentAccessSettingsDialog(QDialog):
         self.route_summary.setWordWrap(True)
         content_layout.addWidget(self.route_summary)
 
-        content_layout.addStretch(1)
-
-        footer = QHBoxLayout()
+        self.footer_frame = QFrame(content_shell)
+        self.footer_frame.setObjectName("residentAccessSettingsFooter")
+        self.footer_frame.setAttribute(Qt.WA_StyledBackground, True)
+        self.footer_frame.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        footer = QHBoxLayout(self.footer_frame)
+        footer.setContentsMargins(8, 6, 8, 6)
+        footer.setSpacing(8)
         footer.addStretch(1)
         self.keep_editing_button = QPushButton("Keep Editing", content_shell)
+        self.keep_editing_button.setObjectName("residentAccessKeepEditingButton")
         self.keep_editing_button.setAccessibleName("Keep Editing Quick Access Settings")
         self.keep_editing_button.clicked.connect(self._keep_editing)
         footer.addWidget(self.keep_editing_button)
         self.discard_button = QPushButton("Discard Changes", content_shell)
+        self.discard_button.setObjectName("residentAccessDiscardButton")
         self.discard_button.setAccessibleName("Discard Unsaved Quick Access Changes")
         self.discard_button.clicked.connect(self._discard_and_close)
         footer.addWidget(self.discard_button)
         self.revert_button = QPushButton("Revert", content_shell)
+        self.revert_button.setObjectName("residentAccessRevertButton")
         self.revert_button.setAccessibleName("Revert Quick Access Settings")
         self.revert_button.clicked.connect(self._revert_settings)
         footer.addWidget(self.revert_button)
         self.save_button = QPushButton("Save Changes", content_shell)
+        self.save_button.setObjectName("residentAccessSaveButton")
         self.save_button.setAccessibleName("Save Quick Access Settings")
         self.save_button.clicked.connect(self._save_settings)
         footer.addWidget(self.save_button)
         self.close_button = QPushButton("Close", content_shell)
+        self.close_button.setObjectName("residentAccessCloseButton")
         self.close_button.setAccessibleName("Close Resident Access Settings")
         self.close_button.clicked.connect(self._request_close)
         footer.addWidget(self.close_button)
-        content_layout.addLayout(footer)
+        content_layout.addWidget(self.footer_frame)
 
         dropdown_arrow_asset = (Path(__file__).resolve().parent / "nexus_dropdown_arrow.svg").as_posix()
         self.setStyleSheet(
@@ -1049,14 +1070,23 @@ class ResidentAccessSettingsDialog(QDialog):
             " color: #ffffff;"
             "}"
             "#residentAccessSettingsContentShell {"
-            " background: #0f172a;"
-            " border: 1px solid #25435a;"
-            " border-radius: 6px;"
+            " background: #0b1425;"
+            " border: 1px solid #2b596c;"
+            " border-radius: 8px;"
             "}"
             "#residentAccessSettingsHeading {"
             " color: #f8fafc;"
-            " font-size: 18px;"
+            " font-size: 17px;"
             " font-weight: 700;"
+            "}"
+            "#residentAccessSettingsSlotCount {"
+            " color: #9ee8f5;"
+            " background: rgba(8, 47, 73, 0.64);"
+            " border: 1px solid rgba(118, 226, 255, 0.28);"
+            " border-radius: 999px;"
+            " padding: 4px 10px;"
+            " font-size: 11px;"
+            " font-weight: 760;"
             "}"
             "#residentAccessSettingsSubheading {"
             " color: #dbeafe;"
@@ -1075,42 +1105,47 @@ class ResidentAccessSettingsDialog(QDialog):
             " padding: 8px;"
             "}"
             "#residentAccessSettingsChangeSummary {"
-            " background: rgba(6, 18, 30, 0.92);"
+            " background: rgba(4, 16, 28, 0.92);"
             " color: #bae6fd;"
-            " border: 1px solid rgba(118, 226, 255, 0.24);"
-            " border-radius: 6px;"
-            " padding: 8px;"
+            " border: 1px solid rgba(118, 226, 255, 0.28);"
+            " border-radius: 8px;"
+            " padding: 7px 9px;"
             "}"
-            "#residentAccessQuickSlotContainer, #residentAccessQuickSlotRows, #residentAccessQuickSlotRow {"
+            "#residentAccessQuickSlotContainer {"
+            " background: rgba(3, 14, 25, 0.86);"
+            " border: 1px solid rgba(81, 149, 172, 0.46);"
+            " border-radius: 9px;"
+            "}"
+            "#residentAccessQuickSlotRows {"
             " background: transparent;"
             " border: none;"
             "}"
             "#residentAccessQuickSlotRow {"
-            " background: rgba(6, 18, 30, 0.72);"
-            " border: 1px solid rgba(117, 228, 255, 0.16);"
+            " background: rgba(8, 24, 39, 0.92);"
+            " border: 1px solid rgba(117, 228, 255, 0.22);"
             " border-radius: 8px;"
             "}"
             "#residentAccessQuickSlotIndex {"
             " color: rgba(139, 233, 255, 0.88);"
             " background: rgba(8, 47, 73, 0.58);"
-            " border: 1px solid rgba(117, 228, 255, 0.18);"
+            " border: 1px solid rgba(117, 228, 255, 0.24);"
             " border-radius: 7px;"
             " font-size: 11px;"
             " font-weight: 760;"
-            " padding: 6px 8px;"
+            " padding: 5px 7px;"
             "}"
             "#residentAccessQuickSlotContainer QPushButton, #residentAccessSettingsContentShell QPushButton {"
-            " background: rgba(6, 18, 30, 196);"
+            " background: rgba(8, 24, 39, 218);"
             " color: rgba(191, 212, 207, 0.96);"
-            " border: 1px solid rgba(118, 226, 255, 0.18);"
-            " border-radius: 8px;"
-            " padding: 0 14px;"
-            " min-height: 32px;"
+            " border: 1px solid rgba(118, 226, 255, 0.22);"
+            " border-radius: 7px;"
+            " padding: 0 12px;"
+            " min-height: 30px;"
             " font-weight: 700;"
             "}"
             "#residentAccessQuickSlotContainer QPushButton:hover, #residentAccessSettingsContentShell QPushButton:hover {"
-            " background: rgba(8, 32, 52, 224);"
-            " border-color: rgba(118, 226, 255, 0.38);"
+            " background: rgba(13, 43, 65, 232);"
+            " border-color: rgba(118, 226, 255, 0.48);"
             "}"
             "#residentAccessQuickSlotContainer QPushButton:focus, #residentAccessSettingsContentShell QPushButton:focus {"
             " border-color: rgba(118, 226, 255, 0.54);"
@@ -1124,29 +1159,44 @@ class ResidentAccessSettingsDialog(QDialog):
             " color: #64748b;"
             " border-color: #1f2937;"
             "}"
+            "#residentAccessSaveButton:enabled {"
+            " background: #0f766e;"
+            " color: #ecfeff;"
+            " border-color: rgba(153, 246, 228, 0.58);"
+            "}"
+            "#residentAccessDiscardButton:enabled {"
+            " color: #fecaca;"
+            " border-color: rgba(248, 113, 113, 0.44);"
+            "}"
+            "#residentAccessSettingsFooter {"
+            " background: rgba(4, 16, 28, 0.78);"
+            " border: 1px solid rgba(81, 149, 172, 0.34);"
+            " border-radius: 8px;"
+            "}"
             "#residentAccessQuickSlotActions {"
-            " background: transparent;"
-            " border: none;"
+            " background: rgba(3, 13, 24, 0.72);"
+            " border: 1px solid rgba(118, 226, 255, 0.14);"
+            " border-radius: 8px;"
             "}"
             "#residentAccessQuickSlotActions QPushButton {"
-            " min-width: 30px;"
-            " max-width: 30px;"
-            " min-height: 30px;"
-            " max-height: 30px;"
+            " min-width: 28px;"
+            " max-width: 28px;"
+            " min-height: 28px;"
+            " max-height: 28px;"
             " padding: 0;"
-            " border-radius: 7px;"
+            " border-radius: 6px;"
             "}"
             "#residentAccessQuickSlotActions #residentAccessQuickSlotRemove {"
-            " min-width: 62px;"
-            " max-width: 62px;"
+            " min-width: 58px;"
+            " max-width: 58px;"
             "}"
             "QComboBox {"
-            " background: rgba(6, 18, 30, 196);"
+            " background: rgba(3, 13, 24, 230);"
             " color: rgba(193, 213, 208, 0.96);"
-            " border: 1px solid rgba(118, 226, 255, 0.20);"
-            " border-radius: 8px;"
-            " padding: 4px 34px 4px 10px;"
-            " min-height: 32px;"
+            " border: 1px solid rgba(118, 226, 255, 0.24);"
+            " border-radius: 7px;"
+            " padding: 3px 34px 3px 10px;"
+            " min-height: 30px;"
             " font-weight: 700;"
             "}"
             "QComboBox:hover { border-color: rgba(118, 226, 255, 0.38); background: rgba(7, 22, 36, 220); }"
@@ -1312,7 +1362,7 @@ class ResidentAccessSettingsDialog(QDialog):
             row.setObjectName("residentAccessQuickSlotRow")
             row.setAttribute(Qt.WA_StyledBackground, True)
             row_layout = QHBoxLayout(row)
-            row_layout.setContentsMargins(8, 6, 8, 6)
+            row_layout.setContentsMargins(8, 5, 8, 5)
             row_layout.setSpacing(8)
             slot_label = QLabel(f"{index + 1:02d}", row)
             slot_label.setObjectName("residentAccessQuickSlotIndex")
@@ -1364,32 +1414,40 @@ class ResidentAccessSettingsDialog(QDialog):
             action_cluster.setObjectName("residentAccessQuickSlotActions")
             action_cluster.setAttribute(Qt.WA_StyledBackground, True)
             action_layout = QHBoxLayout(action_cluster)
-            action_layout.setContentsMargins(0, 0, 0, 0)
-            action_layout.setSpacing(5)
+            action_layout.setContentsMargins(3, 3, 3, 3)
+            action_layout.setSpacing(3)
             up_button = QPushButton("↑", action_cluster)
             up_button.setObjectName("residentAccessQuickSlotMoveUp")
             up_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Up")
-            up_button.setFixedSize(30, 30)
+            up_button.setFixedSize(28, 28)
             up_button.setEnabled(index > 0)
             up_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, -1))
             action_layout.addWidget(up_button)
             down_button = QPushButton("↓", action_cluster)
             down_button.setObjectName("residentAccessQuickSlotMoveDown")
             down_button.setAccessibleName(f"Move Quick Access Slot {index + 1} Down")
-            down_button.setFixedSize(30, 30)
+            down_button.setFixedSize(28, 28)
             down_button.setEnabled(index < len(selected_ids) - 1)
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             action_layout.addWidget(down_button)
             remove_button = QPushButton("Remove", action_cluster)
             remove_button.setObjectName("residentAccessQuickSlotRemove")
             remove_button.setAccessibleName(f"Remove Quick Access Slot {index + 1}")
-            remove_button.setFixedSize(62, 30)
+            remove_button.setFixedSize(58, 28)
             remove_button.setEnabled(len(selected_ids) > 1)
             remove_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             action_layout.addWidget(remove_button)
             row_layout.addWidget(action_cluster)
             self.quick_slot_rows_layout.addWidget(row)
         self.add_slot_button.setEnabled(len(selected_ids) < MAX_QUICK_SLOT_COUNT)
+        self._resize_for_slot_count(len(selected_ids))
+
+    def _resize_for_slot_count(self, slot_count: int):
+        base_height = 443
+        extra_row_height = 42
+        target_height = base_height + max(0, slot_count - 2) * extra_row_height
+        self.setMinimumHeight(target_height)
+        self.resize(max(self.width(), 680), target_height)
 
     def _replace_quick_slots(self, slot_ids: Iterable[str], notice: str | None = None):
         self._settings = ResidentAccessSettings(
@@ -1467,22 +1525,23 @@ class ResidentAccessSettingsDialog(QDialog):
         self.status_summary.clear()
         self.status_summary.setVisible(False)
         self.section_heading.setText("Quick Access")
+        self.slot_count_badge.setText(f"{route_count}/{MAX_QUICK_SLOT_COUNT} slots")
         self.section_detail.setText(
-            f"Choose up to {MAX_QUICK_SLOT_COUNT} shortcuts for the tray Quick Access submenu."
+            f"Choose up to {MAX_QUICK_SLOT_COUNT} tray shortcuts and keep their order deliberate."
         )
         self.route_summary.setText(
-            f"Slots: {route_count}/{MAX_QUICK_SLOT_COUNT}. Core tray commands stay fixed; this page only edits Quick Access shortcuts."
+            "Core tray commands stay fixed. This page only edits Quick Access shortcuts."
         )
 
         dirty = self._has_unsaved_changes()
         if self._close_guard_active and dirty:
-            change_text = "Unsaved Quick Access changes. Save Changes, Discard Changes, or Keep Editing before closing."
+            change_text = "Unsaved Quick Access changes - Save Changes, Discard Changes, or Keep Editing before closing."
         elif self._notice_text:
             change_text = self._notice_text
         elif dirty:
-            change_text = "Unsaved Quick Access changes. Save Changes to update the tray menu or Revert to restore the saved slots."
+            change_text = "Unsaved Quick Access changes - Save Changes to update the tray menu or Revert to restore the saved slots."
         else:
-            change_text = "No pending Quick Access changes."
+            change_text = "Saved - No pending Quick Access changes."
         self.change_summary.setText(change_text)
         self.change_summary.setAccessibleName(change_text)
         self.change_summary.setVisible(True)

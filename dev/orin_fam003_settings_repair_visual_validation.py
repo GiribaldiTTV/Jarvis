@@ -92,11 +92,11 @@ def main() -> int:
     )
     sys.path.insert(0, str(ROOT))
 
-    from PySide6.QtCore import Qt
+    from PySide6.QtCore import QPoint, Qt
     from PySide6.QtWidgets import QApplication, QPushButton
 
     from desktop.desktop_renderer import ResidentAccessSettingsDialog
-    from desktop.resident_access import DEFAULT_QUICK_SLOT_ROUTE_IDS
+    from desktop.resident_access import DEFAULT_QUICK_SLOT_ROUTE_IDS, MAX_QUICK_SLOT_COUNT
 
     app = QApplication.instance() or QApplication([])
     dialog = ResidentAccessSettingsDialog()
@@ -108,7 +108,20 @@ def main() -> int:
     default_path = log_dir / "01_default_quick_access.png"
     default_ok, width, height = _capture(dialog, default_path)
     light_ratio = _light_pixel_ratio(default_path)
-    rows.append(("default screenshot saved", default_ok and width >= 680 and height >= 430, f"{default_path} ({width}x{height})"))
+    rows.append(
+        (
+            "default screenshot saved",
+            default_ok and 660 <= width <= 700 and 430 <= height <= 450,
+            f"{default_path} ({width}x{height})",
+        )
+    )
+    rows.append(
+        (
+            "compact settings geometry",
+            width <= 700 and height <= 450,
+            f"window={width}x{height}; old sparse repair was 700x460",
+        )
+    )
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
     button_texts = [button.text().replace("&&", "&") for button in dialog.findChildren(QPushButton)]
     compact_action_buttons = [
@@ -121,10 +134,13 @@ def main() -> int:
             "single actionable settings category",
             dialog.section_heading.text() == "Quick Access"
             and not dialog._nav_buttons
+            and dialog.slot_count_badge.text() == "2/5 slots"
+            and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
+            and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
             and "Connected Surfaces" not in button_texts
             and "Connected Surfaces" not in dialog.section_detail.text()
             and "Connected Surfaces" not in dialog.route_summary.text(),
-            f"heading={dialog.section_heading.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}",
+            f"heading={dialog.section_heading.text()!r}; badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}",
         )
     )
     rows.append(
@@ -207,17 +223,63 @@ def main() -> int:
     reset_ok, _, _ = _capture(dialog, reset_path)
     rows.append(("defaults staged screenshot saved", reset_ok, str(reset_path)))
     rows.append(
-        ("reset semantics stage defaults",
-        dialog._has_unsaved_changes()
-        and tuple(dialog._settings.quick_slot_ids) == tuple(DEFAULT_QUICK_SLOT_ROUTE_IDS)
-        and "Default Quick Access slots are staged" in dialog.change_summary.text(),
-        f"settings={dialog._settings.quick_slot_ids}; summary={dialog.change_summary.text()!r}",
+        (
+            "reset semantics stage defaults",
+            dialog._has_unsaved_changes()
+            and tuple(dialog._settings.quick_slot_ids) == tuple(DEFAULT_QUICK_SLOT_ROUTE_IDS)
+            and "Default Quick Access slots are staged" in dialog.change_summary.text(),
+            f"settings={dialog._settings.quick_slot_ids}; summary={dialog.change_summary.text()!r}",
+        )
     )
+    reset_rows = [
+        widget
+        for widget in dialog.quick_slot_rows.findChildren(type(dialog.quick_slot_container))
+        if widget.objectName() == "residentAccessQuickSlotRow"
+    ]
+    last_row_bottom = 0
+    container_bottom = dialog.quick_slot_container.mapTo(dialog, QPoint(0, dialog.quick_slot_container.height())).y()
+    footer_top = dialog.footer_frame.mapTo(dialog, QPoint(0, 0)).y()
+    if reset_rows:
+        last_row = reset_rows[-1]
+        last_row_bottom = last_row.mapTo(dialog, QPoint(0, last_row.height())).y()
+    rows.append(
+        (
+            "defaults staged rows are unclipped",
+            bool(reset_rows) and last_row_bottom <= container_bottom <= footer_top,
+            f"rows={len(reset_rows)}; last_row_bottom={last_row_bottom}; container_bottom={container_bottom}; footer_top={footer_top}",
+        )
+    )
+
+    while len(dialog._settings.quick_slot_ids) < MAX_QUICK_SLOT_COUNT:
+        dialog._add_slot()
+        app.processEvents()
+    max_slots_path = log_dir / "06_max_slots_unclipped.png"
+    max_slots_ok, max_width, max_height = _capture(dialog, max_slots_path)
+    max_rows = [
+        widget
+        for widget in dialog.quick_slot_rows.findChildren(type(dialog.quick_slot_container))
+        if widget.objectName() == "residentAccessQuickSlotRow"
+    ]
+    max_last_row_bottom = 0
+    max_container_bottom = dialog.quick_slot_container.mapTo(dialog, QPoint(0, dialog.quick_slot_container.height())).y()
+    max_footer_top = dialog.footer_frame.mapTo(dialog, QPoint(0, 0)).y()
+    if max_rows:
+        max_last_row = max_rows[-1]
+        max_last_row_bottom = max_last_row.mapTo(dialog, QPoint(0, max_last_row.height())).y()
+    rows.append(("max-slot screenshot saved", max_slots_ok, f"{max_slots_path} ({max_width}x{max_height})"))
+    rows.append(
+        (
+            "max-slot budget rows are unclipped",
+            len(max_rows) == MAX_QUICK_SLOT_COUNT
+            and max_last_row_bottom <= max_container_bottom <= max_footer_top
+            and not dialog.add_slot_button.isEnabled(),
+            f"rows={len(max_rows)}; last_row_bottom={max_last_row_bottom}; container_bottom={max_container_bottom}; footer_top={max_footer_top}; add_enabled={dialog.add_slot_button.isEnabled()}",
+        )
     )
 
     dialog._save_settings()
     app.processEvents()
-    saved_path = log_dir / "06_saved_state.png"
+    saved_path = log_dir / "07_saved_state.png"
     saved_ok, _, _ = _capture(dialog, saved_path)
     rows.append(("saved state screenshot saved", saved_ok, str(saved_path)))
     rows.append(
