@@ -89,7 +89,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsChromeBar + residentAccessSettingsBody",
         "role": "integrated settings anatomy",
         "rule": "UIREF-001; UIREF-005",
-        "copy": "NEXUS DESKTOP AI / Global Settings / Configure Nexus behavior.",
+        "copy": "NEXUS DESKTOP AI / Global Settings / Nexus behavior and quick actions.",
         "font": "header 29px, subtitle 13px",
         "text": "near-white plus muted cyan",
         "background": "dark header to dark body",
@@ -112,7 +112,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::DialogChromeBar title labels",
         "role": "product identity and settings title",
         "rule": "Project Vision; UIREF-001",
-        "copy": "NEXUS DESKTOP AI; Global Settings; Configure Nexus behavior.",
+        "copy": "NEXUS DESKTOP AI; Global Settings; Nexus behavior and quick actions.",
         "font": "11px kicker, 29px title, 13px subtitle",
         "text": "cyan kicker, near-white title, muted subtitle",
         "background": "transparent on chrome bar",
@@ -129,26 +129,26 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
     },
     {
         "id": "F3GS-005",
-        "element": "Header context pill",
+        "element": "Header product discipline",
         "surface": "Global Settings chrome",
         "fam": "FAM-003",
         "code": "desktop/desktop_renderer.py::residentAccessSettingsChromeRolePill",
         "role": "compact settings context",
         "rule": "UIREF-006",
-        "copy": "SETTINGS AREA - NEXUS TRAY; ACTIVE SETTING - QUICK ACCESS",
+        "copy": "no visible role/status pill; no SETTINGS AREA / ACTIVE SETTING metadata",
         "font": "10px bold",
         "text": "soft mint",
-        "background": "muted blue-green pill",
-        "border": "1px muted cyan, 16px radius",
-        "effects": "no branch/debug metadata",
-        "spacing": "top-right compact pill",
-        "hitbox": "label-only context",
-        "icon_label": "label/value pairs",
+        "background": "not applicable",
+        "border": "not applicable",
+        "effects": "no branch/debug/status metadata",
+        "spacing": "header stays title/subtitle/control focused",
+        "hitbox": "not applicable",
+        "icon_label": "no extra visual label",
         "states": "default",
-        "a11y": "product context labels",
+        "a11y": "header remains product title and window controls",
         "comparator": "accepted AI Control Center status/context pill",
         "proof": "02_top_level_chrome_control_cluster.png",
-        "checks": "settings-specific product header;product-facing copy is compact and non-internal",
+        "checks": "settings-specific product header;no internal telemetry text;product-facing copy is compact and non-internal",
     },
     {
         "id": "F3GS-006",
@@ -181,7 +181,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsNavShell",
         "role": "settings navigation organizer",
         "rule": "F3-FF01; FAM-002; UIREF-005",
-        "copy": "SETTINGS; Nexus Tray; Resident tray behavior and shortcut menu.",
+        "copy": "GLOBAL SETTINGS; Nexus Tray; Tray menu and quick access.",
         "font": "10-15px compact rail",
         "text": "muted cyan/white",
         "background": "transparent rail",
@@ -204,7 +204,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsNavItem",
         "role": "active settings leaf selector",
         "rule": "UIREF-003",
-        "copy": "Quick Access; Shortcut menu slots",
+        "copy": "Quick Access; Tray shortcuts",
         "font": "10-13px compact",
         "text": "near-white and muted caption",
         "background": "subtle selected row",
@@ -221,26 +221,26 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
     },
     {
         "id": "F3GS-009",
-        "element": "Settings overview rows",
+        "element": "Settings context strip",
         "surface": "Global Settings content",
         "fam": "FAM-003",
         "code": "desktop/desktop_renderer.py::residentAccessSettingsOverviewPanel",
-        "role": "Global Settings-first IA proof",
+        "role": "product-native settings context",
         "rule": "Project Vision; F3-FF01",
-        "copy": "AREA Nexus Tray; SETTING Quick Access menu; CHANGES No pending changes",
-        "font": "10-11px label/value",
-        "text": "muted label, mint value",
-        "background": "subtle dark panel",
-        "border": "1px muted cyan, 12px radius",
-        "effects": "state-row rhythm",
-        "spacing": "compact rows",
-        "hitbox": "overview panel",
-        "icon_label": "label/value rows",
+        "copy": "Nexus Tray; Choose the shortcuts shown in the tray Quick Access submenu.; Saved",
+        "font": "11-13px product context",
+        "text": "near-white title, muted detail, mint state chip",
+        "background": "subtle dark strip",
+        "border": "restrained left accent only",
+        "effects": "quiet state chip",
+        "spacing": "single compact strip",
+        "hitbox": "context strip",
+        "icon_label": "title/detail/state chip",
         "states": "saved, dirty",
         "a11y": "change status propagated",
         "comparator": "AI Control Center dense state rows",
         "proof": "01_default_global_settings_shell.png; 06_dirty_quick_access.png",
-        "checks": "single actionable page inside Global Settings IA;initial pending-state copy;dirty guard state after dropdown edit",
+        "checks": "single actionable page inside Global Settings IA;product context strip replaces telemetry table;initial saved-state copy;dirty guard state after dropdown edit",
     },
     {
         "id": "F3GS-010",
@@ -250,7 +250,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsHeading",
         "role": "selected settings page title",
         "rule": "F3-FF01; UIREF-005",
-        "copy": "NEXUS TRAY; 01; Quick Access; slot count",
+        "copy": "Quick Access; Tray; slot count",
         "font": "20px heading, 10-11px metadata",
         "text": "near-white and cyan",
         "background": "transparent",
@@ -273,7 +273,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessQuickSlotContainer",
         "role": "current settings control group",
         "rule": "F3-FF01; UIREF-003",
-        "copy": "Quick Access Slots; Add Slot; Use Defaults",
+        "copy": "Quick Access Slots; Add Slot; Restore Defaults",
         "font": "11-13px compact",
         "text": "muted body plus bright headings",
         "background": "subtle dark section",
@@ -283,7 +283,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "hitbox": "settings section",
         "icon_label": "text actions plus rows",
         "states": "add enabled/disabled, defaults staged",
-        "a11y": "Add Quick Access Slot; Use Default Quick Access Shortcuts",
+        "a11y": "Add Quick Access Slot; Restore Default Quick Access Shortcuts",
         "comparator": "NDAI settings control group",
         "proof": "01_default_global_settings_shell.png; 09_defaults_staged.png",
         "checks": "single actionable page inside Global Settings IA;default semantics stage defaults;max-slot budget rows are unclipped",
@@ -405,13 +405,13 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
     },
     {
         "id": "F3GS-017",
-        "element": "Use Defaults action",
+        "element": "Restore Defaults action",
         "surface": "Quick Access Slots",
         "fam": "FAM-003",
         "code": "desktop/desktop_renderer.py::residentAccessDefaultsButton",
         "role": "stage default shortcut order",
         "rule": "F3-FF01; UIREF-003",
-        "copy": "Use Defaults",
+        "copy": "Restore Defaults",
         "font": "10pt button",
         "text": "pale action text",
         "background": "dark button",
@@ -421,7 +421,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "hitbox": "28px min height",
         "icon_label": "text action",
         "states": "stages dirty defaults",
-        "a11y": "Use Default Quick Access Shortcuts",
+        "a11y": "Restore Default Quick Access Shortcuts",
         "comparator": "settings default action",
         "proof": "09_defaults_staged.png",
         "checks": "default semantics stage defaults",
@@ -434,7 +434,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsChangeSummary",
         "role": "dirty/save/default feedback",
         "rule": "UIREF-004",
-        "copy": "Unsaved changes / Default shortcuts staged / Quick Access changes saved",
+        "copy": "Unsaved changes / Default shortcut order staged / Saved",
         "font": "11px body",
         "text": "light cyan",
         "background": "dark cyan status bar",
@@ -447,7 +447,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "Quick Access change status",
         "comparator": "NDAI recovery/status strip",
         "proof": "06_dirty_quick_access.png; 09_defaults_staged.png; 11_saved_state.png",
-        "checks": "initial pending-state copy;dirty guard state after dropdown edit;default semantics stage defaults;save clears dirty state",
+        "checks": "initial saved-state copy;dirty guard state after dropdown edit;default semantics stage defaults;save clears dirty state",
     },
     {
         "id": "F3GS-019",
@@ -470,7 +470,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "Save/Revert/Done settings",
         "comparator": "NDAI action bar hierarchy",
         "proof": "06_dirty_quick_access.png; 08_close_guard.png; 11_saved_state.png",
-        "checks": "initial pending-state copy;dirty guard state after dropdown edit;close guard blocks silent loss;save clears dirty state",
+        "checks": "initial saved-state copy;dirty guard state after dropdown edit;close guard blocks silent loss;save clears dirty state",
     },
     {
         "id": "F3GS-020",
@@ -493,7 +493,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "accessible names remain present",
         "comparator": "UIREF disabled-state grammar",
         "proof": "05_row_action_default_disabled_state.png; 01_default_global_settings_shell.png",
-        "checks": "row actions show disabled state;initial pending-state copy",
+        "checks": "row actions show disabled state;initial saved-state copy",
     },
     {
         "id": "F3GS-021",
@@ -526,7 +526,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::_save_settings",
         "role": "post-save truth alignment",
         "rule": "Project Vision; backend predictability",
-        "copy": "Quick Access changes saved.",
+        "copy": "Saved.",
         "font": "11px status",
         "text": "light cyan",
         "background": "status strip",
@@ -1111,9 +1111,9 @@ def main() -> int:
             "settings-specific product header",
             dialog.chrome_bar.kicker_label.text() == "NEXUS DESKTOP AI"
             and dialog.chrome_bar.title_label.text() == "Global Settings"
-            and dialog.chrome_bar.subtitle_label.text() == "Configure Nexus behavior."
-            and role_text == ["SETTINGS AREA - NEXUS TRAY", "ACTIVE SETTING - QUICK ACCESS"]
-            and dialog.chrome_bar.role_pill.isVisible(),
+            and dialog.chrome_bar.subtitle_label.text() == "Nexus behavior and quick actions."
+            and role_text == []
+            and not dialog.chrome_bar.role_pill.isVisible(),
             f"kicker={dialog.chrome_bar.kicker_label.text()!r}; title={dialog.chrome_bar.title_label.text()!r}; subtitle={dialog.chrome_bar.subtitle_label.text()!r}; role_pairs={role_text}; role_pill_visible={dialog.chrome_bar.role_pill.isVisible()}",
         )
     )
@@ -1158,8 +1158,9 @@ def main() -> int:
             and dialog.quick_access_nav_item.property("settingsNavDensity") == "compact-settings-nav-row"
             and set(dialog._nav_buttons) == {"quick_access"}
             and dialog.nav_title.text() == "Nexus Tray"
-            and dialog.nav_detail.text() == "Resident tray behavior and shortcut menu."
-            and dialog.quick_access_nav_caption.text() == "Shortcut menu slots"
+            and dialog.nav_kicker.text() == "GLOBAL SETTINGS"
+            and dialog.nav_detail.text() == "Tray menu and quick access."
+            and dialog.quick_access_nav_caption.text() == "Tray shortcuts"
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; checked={dialog.quick_access_nav_button.isChecked()}; detail={dialog.nav_detail.text()!r}; caption={dialog.quick_access_nav_caption.text()!r}",
         )
@@ -1175,11 +1176,11 @@ def main() -> int:
         (
             "single actionable page inside Global Settings IA",
             dialog.section_heading.text() == "Quick Access"
-            and dialog.section_badge.text() == "01"
-            and dialog.section_scope.text() == "NEXUS TRAY"
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-settings-navigation-quick-access-page-v4"
-            and dialog.property("settingsVisualRepair") == "settings-specific-conformance-v4"
-            and dialog.property("referenceDerivedHeader") == "ai-control-center-family-comparator-settings-shell-v4"
+            and dialog.section_badge.text() == "Tray"
+            and not dialog.section_scope.isVisible()
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-settings-navigation-quick-access-page-v5"
+            and dialog.property("settingsVisualRepair") == "settings-specific-conformance-v5-product-ui"
+            and dialog.property("referenceDerivedHeader") == "ai-control-center-family-comparator-settings-shell-v5"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
             and set(dialog._nav_buttons) == {"quick_access"}
@@ -1187,10 +1188,10 @@ def main() -> int:
             and dialog.quick_access_nav_button.isChecked()
             and dialog.slot_count_badge.text() == "2/5 slots"
             and dialog.settings_summary_panel.objectName() == "residentAccessSettingsOverviewPanel"
-            and dialog.settings_summary_panel.property("settingsOverview") == "global-settings-first"
-            and dialog.menu_path_row.text() == "Nexus Tray"
-            and dialog.active_setting_row.text() == "Quick Access menu"
-            and dialog.pending_state_row.text() == "No pending changes"
+            and dialog.settings_summary_panel.property("settingsOverview") == "product-context"
+            and dialog.settings_summary_title.text() == "Nexus Tray"
+            and dialog.settings_summary_detail.text() == "Choose the shortcuts shown in the tray Quick Access submenu."
+            and dialog.settings_state_chip.text() == "Saved"
             and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
             and not dialog.route_summary.isVisible(),
@@ -1213,6 +1214,13 @@ def main() -> int:
         "Move Down",
         "PAGE - QUICK ACCESS",
         "SCOPE - TRAY MENU",
+        "SETTINGS AREA",
+        "ACTIVE SETTING",
+        "AREA Nexus Tray",
+        "SETTING Quick Access",
+        "CHANGES No pending",
+        "No pending changes",
+        "01",
     }
     visible_text_blob = " ".join(
         [
@@ -1220,11 +1228,16 @@ def main() -> int:
             dialog.chrome_bar.title_label.text(),
             dialog.chrome_bar.subtitle_label.text(),
             " ".join(role_text),
+            dialog.nav_kicker.text(),
             dialog.nav_title.text(),
             dialog.nav_detail.text(),
             dialog.quick_access_nav_button.text(),
             dialog.quick_access_nav_caption.text(),
+            dialog.settings_summary_title.text(),
+            dialog.settings_summary_detail.text(),
+            dialog.settings_state_chip.text(),
             dialog.section_scope.text(),
+            dialog.section_badge.text(),
             dialog.section_heading.text(),
             dialog.section_detail.text(),
             dialog.quick_help.text(),
@@ -1240,6 +1253,37 @@ def main() -> int:
     )
     rows.append(
         (
+            "no internal telemetry text",
+            all(
+                token not in visible_text_blob
+                for token in {
+                    "SETTINGS AREA",
+                    "ACTIVE SETTING",
+                    "AREA",
+                    "AREA Nexus Tray",
+                    "SETTING Quick Access",
+                    "CHANGES No pending",
+                    "Quick Access menu",
+                    "No pending changes",
+                }
+            )
+            and role_text == []
+            and not dialog.chrome_bar.role_pill.isVisible(),
+            f"visible_text={visible_text_blob!r}; role_pairs={role_text}; role_pill_visible={dialog.chrome_bar.role_pill.isVisible()}",
+        )
+    )
+    rows.append(
+        (
+            "product context strip replaces telemetry table",
+            dialog.settings_summary_panel.property("settingsOverview") == "product-context"
+            and dialog.settings_summary_title.text() == "Nexus Tray"
+            and dialog.settings_state_chip.text() == "Saved"
+            and not any(hasattr(dialog, attr) for attr in ("menu_path_row", "active_setting_row", "pending_state_row")),
+            f"summary={dialog.settings_summary_title.text()!r}/{dialog.settings_summary_detail.text()!r}/{dialog.settings_state_chip.text()!r}; legacy_attrs={[attr for attr in ('menu_path_row', 'active_setting_row', 'pending_state_row') if hasattr(dialog, attr)]}",
+        )
+    )
+    rows.append(
+        (
             "compact quick-slot controls",
             all(button.text() in {"\u2191", "\u2193", "\N{MULTIPLICATION SIGN}"} for button in compact_action_buttons)
             and all(button.width() <= 30 and button.height() <= 30 for button in compact_action_buttons),
@@ -1248,13 +1292,13 @@ def main() -> int:
     )
     rows.append(
         (
-            "initial pending-state copy",
+            "initial saved-state copy",
             not dialog.change_summary.isVisible()
             and dialog.change_summary.text() == ""
             and not dialog.save_button.isEnabled()
             and not dialog.revert_button.isEnabled()
-            and dialog.pending_state_row.text() == "No pending changes",
-            f"change_summary={dialog.change_summary.text()!r}; visible={dialog.change_summary.isVisible()}; pending={dialog.pending_state_row.text()!r}",
+            and dialog.settings_state_chip.text() == "Saved",
+            f"change_summary={dialog.change_summary.text()!r}; visible={dialog.change_summary.isVisible()}; state_chip={dialog.settings_state_chip.text()!r}",
         )
     )
 
@@ -1298,8 +1342,8 @@ def main() -> int:
                 and dialog.save_button.isEnabled()
                 and dialog.revert_button.isEnabled()
                 and "Unsaved changes" in dialog.change_summary.text()
-                and dialog.pending_state_row.text() == "Unsaved changes",
-                f"dirty={dialog._has_unsaved_changes()}; summary={dialog.change_summary.text()!r}; pending={dialog.pending_state_row.text()!r}",
+                and dialog.settings_state_chip.text() == "Unsaved",
+                f"dirty={dialog._has_unsaved_changes()}; summary={dialog.change_summary.text()!r}; state_chip={dialog.settings_state_chip.text()!r}",
             )
         )
 
@@ -1372,7 +1416,7 @@ def main() -> int:
             "default semantics stage defaults",
             dialog._has_unsaved_changes()
             and tuple(dialog._settings.quick_slot_ids) == tuple(DEFAULT_QUICK_SLOT_ROUTE_IDS)
-            and "Default shortcuts staged" in dialog.change_summary.text(),
+            and "Default shortcut order staged" in dialog.change_summary.text(),
             f"settings={dialog._settings.quick_slot_ids}; summary={dialog.change_summary.text()!r}",
         )
     )
@@ -1444,8 +1488,9 @@ def main() -> int:
             "save clears dirty state",
             not dialog._has_unsaved_changes()
             and not dialog.save_button.isEnabled()
-            and "Quick Access changes saved" in dialog.change_summary.text(),
-            f"dirty={dialog._has_unsaved_changes()}; summary={dialog.change_summary.text()!r}; pending={dialog.pending_state_row.text()!r}",
+            and dialog.change_summary.text() == "Saved."
+            and dialog.settings_state_chip.text() == "Saved",
+            f"dirty={dialog._has_unsaved_changes()}; summary={dialog.change_summary.text()!r}; state_chip={dialog.settings_state_chip.text()!r}",
         )
     )
 
