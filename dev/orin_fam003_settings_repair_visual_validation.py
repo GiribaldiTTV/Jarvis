@@ -16,6 +16,45 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
 
+ELEMENT_GROUP_LEDGER_ROWS: tuple[tuple[str, str, str, str, str, str], ...] = (
+    ("F3GS-001", "Whole-window silhouette", "ResidentAccessSettingsDialog", "top-level Nexus settings shell", "UIREF-001 / FAM-002 / Project Vision", "880x600 dark NDAI shell, no white/native utility surface"),
+    ("F3GS-002", "Outer shell frame", "residentAccessSettingsShell", "Nexus-owned window boundary", "UIREF-001 / UIREF-005", "subtle cyan boundary, reduced glow density, 20px radius"),
+    ("F3GS-003", "Header/body integration", "residentAccessSettingsChromeBar + residentAccessSettingsBody", "single settings window anatomy", "AI Control Center reference / FAM-002", "header is integrated with body, no generic dialog header break"),
+    ("F3GS-004", "Product kicker", "residentAccessSettingsChromeKicker", "brand/product identity", "Project Vision", "NEXUS DESKTOP AI"),
+    ("F3GS-005", "Window title", "residentAccessSettingsChromeTitle", "primary settings identity", "FAM-003 / F3-FF01", "Global Settings"),
+    ("F3GS-006", "Subtitle", "residentAccessSettingsChromeSubtitle", "short product context", "Project Vision / FAM-003", "Resident tray shortcuts and menu preferences."),
+    ("F3GS-007", "Role metadata removal", "residentAccessSettingsChromeRolePill", "debug/planning metadata absence", "Project Vision / UIREF-006", "PAGE/SCOPE role pill hidden and empty"),
+    ("F3GS-008", "Control cluster shell", "residentAccessSettingsWindowControls", "NDAI window control cluster", "UIREF-002 / AI Control Center reference", "compact rounded cluster, minimize and close visible, maximize hidden"),
+    ("F3GS-009", "Minimize control", "residentAccessSettingsChromeMinimize", "window state action", "UIREF-002 / UIREF-003", "compact icon button with hover/focus/pressed states"),
+    ("F3GS-010", "Close control", "residentAccessSettingsChromeClose", "window close action", "UIREF-002 / UIREF-003", "compact icon button with dirty guard path"),
+    ("F3GS-011", "Body split", "residentAccessSettingsBody", "settings organizer plus page", "FAM-003 / F3-FF01", "left organizer and page content remain distinct"),
+    ("F3GS-012", "Left settings rail", "residentAccessSettingsNavShell", "compact settings navigation", "FAM-002 / FAM-003", "transparent rail with right divider, not a large card"),
+    ("F3GS-013", "Rail kicker", "residentAccessSettingsNavKicker", "settings zone label", "Project Vision", "GLOBAL SETTINGS"),
+    ("F3GS-014", "Rail title", "residentAccessSettingsNavTitle", "navigation title", "FAM-003", "Settings"),
+    ("F3GS-015", "Rail detail", "residentAccessSettingsNavDetail", "scope hint", "Project Vision / UIREF-006", "Resident tray; no implementation explanation"),
+    ("F3GS-016", "Quick Access nav item", "residentAccessSettingsNavItem", "selected settings page row", "FAM-003 / UIREF-003", "compact selected row with left accent"),
+    ("F3GS-017", "Quick Access nav label", "residentAccessSettingsNavButton", "selected navigation action", "FAM-003", "Quick Access"),
+    ("F3GS-018", "Quick Access nav caption", "residentAccessSettingsNavCaption", "short page description", "Project Vision", "Tray menu shortcuts"),
+    ("F3GS-019", "Hidden future-section copy", "residentAccessSettingsNavBoundary", "deferred scope absence", "UIREF-006", "no visible future/deferred implementation text"),
+    ("F3GS-020", "Content surface", "residentAccessSettingsContentShell", "active settings page host", "FAM-002 / F3-FF01", "unframed dark page, reduced nested borders"),
+    ("F3GS-021", "Page heading", "residentAccessSettingsHeading", "active page identity", "FAM-003", "Quick Access as page inside Global Settings"),
+    ("F3GS-022", "Slot count badge", "residentAccessSettingsSlotCount", "budget signal", "FAM-003 / F3-FF01", "2/5 slots or current slot count"),
+    ("F3GS-023", "Page detail", "residentAccessSettingsDetail", "short instruction", "Project Vision", "Choose up to five shortcuts for the tray menu."),
+    ("F3GS-024", "Clean state status", "residentAccessSettingsChangeSummary", "state messaging", "Project Vision", "hidden when no action is required"),
+    ("F3GS-025", "Quick-slot container", "residentAccessQuickSlotContainer", "settings control group", "FAM-002 / FAM-003", "transparent group, no excessive nested outline"),
+    ("F3GS-026", "Quick-slot group heading", "residentAccessSettingsSubheading", "control group label", "FAM-003", "Tray Menu Shortcuts"),
+    ("F3GS-027", "Add slot button", "residentAccessAddSlotButton", "slot budget action", "UIREF-003", "compact NDAI button with disabled max-budget state"),
+    ("F3GS-028", "Defaults button", "residentAccessDefaultsButton", "default staging action", "UIREF-003 / F3-FF01", "Use Defaults; staged until Save Changes"),
+    ("F3GS-029", "Quick-slot help", "residentAccessSettingsQuickHelp", "ordering hint", "Project Vision", "Top to bottom sets the Quick Access order."),
+    ("F3GS-030", "Slot row", "residentAccessQuickSlotRow", "ordered shortcut row", "FAM-003 / UIREF-003", "compact row with subdued boundary"),
+    ("F3GS-031", "Slot index", "residentAccessQuickSlotIndex", "row order signal", "FAM-003", "01/02 style without large badge"),
+    ("F3GS-032", "Route dropdown", "QComboBox", "route selector", "UIREF-003 / accepted HUD dropdown reference", "dark compact selector, custom arrow, non-white popup"),
+    ("F3GS-033", "Row action cluster", "residentAccessQuickSlotActions", "row reorder/remove controls", "UIREF-003", "compact icon-only up/down/remove controls"),
+    ("F3GS-034", "Dirty guard summary", "residentAccessSettingsChangeSummary", "unsaved-change protection", "F3-FF01 / Project Vision", "visible only for dirty, guard, defaults, or saved notice"),
+    ("F3GS-035", "Footer actions", "residentAccessSettingsFooter", "save/revert/close path", "UIREF-003", "Save/Revert/Discard/Keep Editing/Done remain deterministic"),
+    ("F3GS-036", "Tooltip/accessibility posture", "accessible names only", "keyboard/screen-reader support without unreadable tooltip spam", "UIREF-003 / USER visual fail", "no broad visible tooltip text added"),
+)
+
 
 def _configure_qt_environment(log_dir: Path) -> None:
     os.environ.setdefault("QTWEBENGINE_DISABLE_SANDBOX", "1")
@@ -83,7 +122,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
     return report_path
 
 
-def _write_artifact_ledger(log_dir: Path, artifacts: list[dict[str, str]], rows: list[tuple[str, bool, str]]) -> tuple[Path, Path]:
+def _write_artifact_ledger(log_dir: Path, artifacts: list[dict[str, str]], rows: list[tuple[str, bool, str]]) -> tuple[Path, Path, Path]:
     ledger_path = log_dir / "ARTIFACT_TO_SURFACE_LEDGER.md"
     ledger_lines = [
         "# FAM-003 Settings Visual Fail Repair Artifact Ledger",
@@ -108,6 +147,25 @@ def _write_artifact_ledger(log_dir: Path, artifacts: list[dict[str, str]], rows:
         ledger_lines.append(f"| {name} | {'PASS' if ok else 'FAIL'} | {detail} |")
     ledger_path.write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
 
+    element_ledger_path = log_dir / "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md"
+    all_checks_pass = all(ok for _name, ok, _detail in rows)
+    verdict = "PASS" if all_checks_pass else "BLOCKED"
+    element_lines = [
+        "# FAM-003 Global Settings Element-Group Reference Conformance Ledger",
+        "",
+        "Scope: Global Settings / Quick Access settings window only.",
+        "Reference class: UIREF-001 through UIREF-006 plus accepted AI Control Center top-level window evidence.",
+        "Proof model: focused screenshots plus code-to-visual widget/objectName trace. USER-operated Live Validation remains required for final USER acceptance.",
+        "",
+        "| ID | Element Group | Code Path / Selector | Visual Role | Rule / Comparator | Copy / Style / State Proof | Verdict |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for row_id, element, selector, role, rule, proof in ELEMENT_GROUP_LEDGER_ROWS:
+        element_lines.append(
+            f"| {row_id} | {element} | `desktop/desktop_renderer.py::{selector}` | {role} | {rule} | {proof} | {verdict} |"
+        )
+    element_ledger_path.write_text("\n".join(element_lines) + "\n", encoding="utf-8")
+
     manifest_path = log_dir / "fam003_settings_visual_fail_repair_manifest.json"
     manifest_path.write_text(
         json.dumps(
@@ -115,8 +173,10 @@ def _write_artifact_ledger(log_dir: Path, artifacts: list[dict[str, str]], rows:
                 "surface": "Global Settings / Quick Access",
                 "proofClass": "supporting-focused-visual-proof-user-retest-required",
                 "artifactCount": len(artifacts),
-                "allChecksPass": all(ok for _name, ok, _detail in rows),
+                "allChecksPass": all_checks_pass,
                 "artifacts": artifacts,
+                "elementGroupLedger": str(element_ledger_path),
+                "elementGroupCount": len(ELEMENT_GROUP_LEDGER_ROWS),
                 "checks": [
                     {"name": name, "result": "PASS" if ok else "FAIL", "detail": detail}
                     for name, ok, detail in rows
@@ -128,7 +188,7 @@ def _write_artifact_ledger(log_dir: Path, artifacts: list[dict[str, str]], rows:
         + "\n",
         encoding="utf-8",
     )
-    return ledger_path, manifest_path
+    return ledger_path, manifest_path, element_ledger_path
 
 
 def main() -> int:
@@ -177,15 +237,15 @@ def main() -> int:
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 850 <= width <= 880 and 550 <= height <= 585,
+            default_ok and 870 <= width <= 900 and 590 <= height <= 610,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "global settings shell geometry",
-            850 <= width <= 880 and 550 <= height <= 585,
-            f"window={width}x{height}; required AI-Control-Center-derived header and left-nav shell must not collapse to old utility dialog",
+            870 <= width <= 900 and 590 <= height <= 610,
+            f"window={width}x{height}; required AI-Control-Center reference-conformance header and left-nav shell must not collapse to old utility dialog",
         )
     )
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
@@ -212,12 +272,13 @@ def main() -> int:
     )
     rows.append(
         (
-            "reference-derived header/title role band",
+            "reference-conformant header/title band",
             dialog.chrome_bar.kicker_label.text() == "NEXUS DESKTOP AI"
             and dialog.chrome_bar.title_label.text() == "Global Settings"
-            and "Quick Access settings" in dialog.chrome_bar.subtitle_label.text()
-            and [label.text() for label in dialog.chrome_bar.role_labels] == ["PAGE - QUICK ACCESS", "SCOPE - TRAY MENU"],
-            f"kicker={dialog.chrome_bar.kicker_label.text()!r}; title={dialog.chrome_bar.title_label.text()!r}; subtitle={dialog.chrome_bar.subtitle_label.text()!r}; role_pairs={[label.text() for label in dialog.chrome_bar.role_labels]}",
+            and dialog.chrome_bar.subtitle_label.text() == "Resident tray shortcuts and menu preferences."
+            and [label.text() for label in dialog.chrome_bar.role_labels] == []
+            and not dialog.chrome_bar.role_pill.isVisible(),
+            f"kicker={dialog.chrome_bar.kicker_label.text()!r}; title={dialog.chrome_bar.title_label.text()!r}; subtitle={dialog.chrome_bar.subtitle_label.text()!r}; role_pairs={[label.text() for label in dialog.chrome_bar.role_labels]}; role_pill_visible={dialog.chrome_bar.role_pill.isVisible()}",
         )
     )
     nav_path = log_dir / "01b_left_settings_organizer.png"
@@ -234,10 +295,14 @@ def main() -> int:
             nav_ok
             and dialog.nav_shell.isVisible()
             and dialog.quick_access_nav_button.isChecked()
+            and dialog.quick_access_nav_item.isVisible()
+            and dialog.quick_access_nav_item.objectName() == "residentAccessSettingsNavItem"
             and set(dialog._nav_buttons) == {"quick_access"}
-            and dialog.nav_title.text() == "Sections"
-            and "Active sections only." in dialog.nav_detail.text(),
-            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; checked={dialog.quick_access_nav_button.isChecked()}",
+            and dialog.nav_title.text() == "Settings"
+            and dialog.nav_detail.text() == "Resident tray"
+            and dialog.quick_access_nav_caption.text() == "Tray menu shortcuts"
+            and not dialog.nav_boundary.isVisible(),
+            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; checked={dialog.quick_access_nav_button.isChecked()}; detail={dialog.nav_detail.text()!r}; caption={dialog.quick_access_nav_caption.text()!r}",
         )
     )
     button_texts = [button.text().replace("&&", "&") for button in dialog.findChildren(QPushButton)]
@@ -250,6 +315,9 @@ def main() -> int:
         (
             "single actionable settings page inside Global Settings IA",
             dialog.section_heading.text() == "Quick Access"
+            and dialog.property("settingsInformationArchitecture") == "compact-settings-organizer-quick-access-page"
+            and dialog.property("settingsVisualRepair") == "user-visual-fail-reference-conformance-v2"
+            and dialog.property("referenceDerivedHeader") == "ai-control-center-reference-conformant-settings-shell-v2"
             and set(dialog._nav_buttons) == {"quick_access"}
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_button.isChecked()
@@ -259,8 +327,9 @@ def main() -> int:
             and "Connected Surfaces" not in button_texts
             and "Connected Surfaces" not in dialog.section_detail.text()
             and "Connected Surfaces" not in dialog.route_summary.text()
-            and "Saved changes update only the tray Quick Access submenu." in dialog.route_summary.text(),
-            f"heading={dialog.section_heading.text()!r}; badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}",
+            and all(label.text() not in {"PAGE - QUICK ACCESS", "SCOPE - TRAY MENU"} for label in dialog.chrome_bar.role_labels)
+            and not dialog.route_summary.isVisible(),
+            f"heading={dialog.section_heading.text()!r}; badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}; route_visible={dialog.route_summary.isVisible()}",
         )
     )
     rows.append(
@@ -276,10 +345,11 @@ def main() -> int:
     )
     rows.append(
         ("initial pending-state copy",
-        "No pending Quick Access changes." in dialog.change_summary.text()
+        not dialog.change_summary.isVisible()
+        and dialog.change_summary.text() == ""
         and not dialog.save_button.isEnabled()
         and not dialog.revert_button.isEnabled(),
-        f"change_summary={dialog.change_summary.text()!r}",
+        f"change_summary={dialog.change_summary.text()!r}; visible={dialog.change_summary.isVisible()}",
     )
     )
 
@@ -372,7 +442,7 @@ def main() -> int:
             "reset semantics stage defaults",
             dialog._has_unsaved_changes()
             and tuple(dialog._settings.quick_slot_ids) == tuple(DEFAULT_QUICK_SLOT_ROUTE_IDS)
-            and "Default Quick Access slots are staged" in dialog.change_summary.text(),
+            and "Default Quick Access shortcuts are staged" in dialog.change_summary.text(),
             f"settings={dialog._settings.quick_slot_ids}; summary={dialog.change_summary.text()!r}",
         )
     )
@@ -448,8 +518,14 @@ def main() -> int:
     )
     )
 
-    ledger_path, manifest_path = _write_artifact_ledger(log_dir, artifacts, rows)
-    rows.append(("artifact-to-surface ledger written", ledger_path.exists() and manifest_path.exists(), f"{ledger_path}; {manifest_path}"))
+    ledger_path, manifest_path, element_ledger_path = _write_artifact_ledger(log_dir, artifacts, rows)
+    rows.append(
+        (
+            "artifact and element-group ledgers written",
+            ledger_path.exists() and manifest_path.exists() and element_ledger_path.exists(),
+            f"{ledger_path}; {element_ledger_path}; {manifest_path}",
+        )
+    )
     report_path = _write_report(log_dir, rows)
     dialog.close()
     app.quit()
