@@ -1628,7 +1628,7 @@ def validate() -> list[str]:
         "Stop Recording",
         "Log Viewer Studio",
         'data-resize-contract="not-resizable-position-memory-only"',
-        'data-fixed-controller-height="176"',
+        'data-fixed-controller-height="260"',
         "edge-resizable-log-access-shell",
         "edge-resize-native-top-level",
         "hub-action-content-fit-equal-gutter-32px-pill",
@@ -1647,6 +1647,11 @@ def validate() -> list[str]:
         "--nexus-feature-studio-title-bg",
         'data-fixed-controller-height="238"',
         "HEIGHT = 238",
+        'data-fixed-controller-height="176"',
+        "HEIGHT = 176",
+        'data-fixed-controller-height="292"',
+        "HEIGHT = 292",
+        "HEIGHT = 352",
         "hub-action-content-fit-equal-gutter-38px-pill",
         "hub-action-content-fit-equal-gutter-34px-pill",
         "fam006-detached-child-studio-shell-v3",
@@ -1664,9 +1669,9 @@ def validate() -> list[str]:
 
     for needle in (
         "monitoringHudStudioNativeDragHandle",
-        "DRAG_HEADER_HEIGHT = 56",
-        "HEIGHT = 176",
-        "HEIGHT = 238",
+        "DRAG_HEADER_HEIGHT = 64",
+        "HEIGHT = 260",
+        "HEIGHT = 310",
         "hub-action-content-fit-equal-gutter-32px-pill",
     ):
         _require_contains(renderer, needle, "FAM-006 native Studio geometry and drag contract", failures)

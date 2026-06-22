@@ -6682,11 +6682,11 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 448
-    HEIGHT = 176
-    MINIMUM_WIDTH = 448
-    MINIMUM_HEIGHT = 176
-    DRAG_HEADER_HEIGHT = 56
+    WIDTH = 480
+    HEIGHT = 260
+    MINIMUM_WIDTH = 480
+    MINIMUM_HEIGHT = 260
+    DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
 
@@ -6703,7 +6703,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         self._native_log_display_mode = "single-line-contained"
         self._last_activation_mode = "not-requested"
         self._opened_by_explicit_user_path = False
-        self._geometry_persistence_key = "recording_studio_feature_studio_v2"
+        self._geometry_persistence_key = "recording_studio_feature_studio_v3"
         super().__init__(screen, event_logger)
         self.setObjectName("monitoringHudRecordingStudioWindow")
         self.setWindowTitle("Nexus Recording Studio")
@@ -6910,18 +6910,18 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 520
-    HEIGHT = 238
-    MINIMUM_WIDTH = 430
-    MINIMUM_HEIGHT = 224
-    DRAG_HEADER_HEIGHT = 56
+    WIDTH = 596
+    HEIGHT = 310
+    MINIMUM_WIDTH = 540
+    MINIMUM_HEIGHT = 300
+    DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"
 
     def __init__(self, screen, event_logger=None):
         self._request_id = ""
         self._last_activation_mode = "not-requested"
-        self._geometry_persistence_key = "log_viewer_studio_feature_studio_v2"
+        self._geometry_persistence_key = "log_viewer_studio_feature_studio_v3"
         self._native_full_path = str(recording_output_dir())
         self._export_full_path = str(recording_export_dir())
         self._folder_status_text = "Native and exported log folders are ready to open."

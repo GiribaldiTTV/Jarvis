@@ -41,12 +41,12 @@ AI_CONTROL_CENTER_RESIZE_COMPARATOR = (
 FAM006_PRE_LV_ROOT = (
     PROOF_ROOT
     / "fam_006_pre_live_visual_conformance"
-    / "20260622_110332_260_window_taxonomy_resize_repair"
+    / "20260622_145149_179_feature_studio_visual_quality_repair_clean_geometry"
 )
 FAM006_STATE_ROOT = (
     PROOF_ROOT
     / "fam_006_pre_live_visual_conformance"
-    / "20260622_detached_feature_studio_conformance"
+    / "20260622_145149_179_feature_studio_visual_quality_repair_clean_geometry"
 )
 FAM006_LV_ROOT = (
     PROOF_ROOT

@@ -12,8 +12,9 @@ body.desktop-mode #monitoring-hud[data-shared-primitive-consumer="nexus-window-p
     radial-gradient(circle at 100% 20%, rgba(84, 255, 190, 0.10), transparent 32%),
     linear-gradient(145deg, rgba(4, 17, 32, 0.97), rgba(1, 7, 16, 0.96));
   --nexus-feature-studio-panel-bg:
-    linear-gradient(180deg, rgba(8, 34, 51, 0.82), rgba(4, 18, 31, 0.92)),
-    rgba(3, 16, 29, 0.9);
+    radial-gradient(circle at 6% 0%, rgba(78, 222, 255, 0.07), transparent 38%),
+    linear-gradient(180deg, rgba(6, 26, 42, 0.62), rgba(3, 16, 29, 0.72)),
+    rgba(3, 16, 29, 0.72);
 }
 
 body.desktop-mode #monitoring-hud[data-shared-primitive-consumer="nexus-window-primitives-v1"] .monitoring-hud__chrome {
@@ -154,11 +155,17 @@ body.desktop-mode #monitoring-hud[data-window-control-primitive="nexus-uiref-002
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title-group {
   display: block;
   min-height: 38px;
-  padding: 1px 78px 4px 3px;
+  padding: 2px 84px 4px 7px;
   border: 0;
   border-radius: 0;
   background: transparent;
   box-shadow: none;
+  backdrop-filter: none;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title-group::before {
+  display: none;
+  content: none;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__detached-child-studio-header {
@@ -177,19 +184,19 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__kicker {
   color: rgba(139, 233, 255, 0.86);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 740;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   line-height: 1.1;
   text-transform: uppercase;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__title {
-  margin-top: 4px;
+  margin-top: 3px;
   color: rgba(234, 253, 255, 0.95);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.035em;
   line-height: 1.08;
   text-transform: uppercase;
 }
@@ -200,18 +207,20 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__feature-studio-panel {
   display: grid;
-  gap: 8px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  gap: 10px;
+  padding: 10px 12px 12px;
+  border: 1px solid rgba(88, 203, 229, 0.24);
+  border-radius: 16px;
+  background: var(--nexus-feature-studio-panel-bg);
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.025) inset,
+    0 10px 22px rgba(0, 0, 0, 0.14);
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-stack,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-stack {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   border: 0;
 }
 
@@ -220,15 +229,19 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-item,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status {
   display: grid;
-  grid-template-columns: minmax(86px, 0.34fr) minmax(0, 1fr);
+  grid-template-columns: minmax(92px, 0.32fr) minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
-  min-height: 0;
-  padding: 5px 0 4px;
-  border-top: 1px solid var(--monitoring-hud-divider-line);
-  border-bottom: 0;
-  background: transparent;
-  box-shadow: none;
+  gap: 12px;
+  min-height: 34px;
+  padding: 7px 10px 6px;
+  border: 1px solid rgba(91, 204, 229, 0.20);
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, rgba(84, 212, 236, 0.09), transparent 46%),
+    rgba(3, 17, 30, 0.58);
+  box-shadow:
+    0 0 0 1px rgba(230, 251, 255, 0.025) inset,
+    0 8px 18px rgba(0, 0, 0, 0.10);
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-target span,
@@ -271,8 +284,8 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
-  margin-top: 2px;
+  gap: 10px;
+  margin-top: 0;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__hub-action--content-fit {
@@ -280,9 +293,9 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   width: auto;
   max-width: none;
   min-width: 0;
-  height: 34px;
-  min-height: 34px;
-  padding-inline: 14px;
+  height: 36px;
+  min-height: 36px;
+  padding-inline: 16px;
   overflow: visible;
   white-space: nowrap;
 }

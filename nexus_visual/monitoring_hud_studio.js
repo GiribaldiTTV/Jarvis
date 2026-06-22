@@ -65,7 +65,7 @@
     surface.dataset.resizeContract = mode === "log-viewer"
       ? "edge-resizable-log-access-shell"
       : "not-resizable-position-memory-only";
-    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "176";
+    surface.dataset.fixedControllerHeight = mode === "log-viewer" ? "not-applicable" : "260";
     surface.dataset.titleTreatment = "detached-child-window-header-no-title-card";
     surface.dataset.titleCardState = "absent";
     surface.dataset.childWindowTitleGrammar = "category-line-plus-strong-title-no-title-card";
