@@ -64,6 +64,28 @@ The goal is one shared public-safe core with edition-specific capability gates, 
 | Dev | `Nexus Desktop AI Dev` | Trusted contributor | Development, validation, repo-aware support | Public-safe hooks only; private Dev intelligence stays outside public repo |
 | Owner | `Nexus Desktop AI Owner` | Owner-only highest trust | Private co-developer AI and personal product partner | No private Owner logic, memory, prompts, secrets, evals, or tools |
 
+## Shared Core Experience And Capability Envelopes
+
+Public, Dev, and Owner editions should feel like one coherent Nexus Desktop AI product. The edition split changes capability access, trust boundary, private context, installed identity, and release/update channel. It must not create three unrelated apps with different normal usability, visual grammar, Windows workload behavior, privacy rules, troubleshooting expectations, or product experience semantics.
+
+All editions should preserve the shared core experience:
+
+- same Project Vision and NDAI Product Experience Contract for deterministic, intuitive, immersive, predictable, reliable, and consistent behavior
+- same FAM-002 presentation grammar for Nexus-owned windows, controls, cards, status rows, dropdowns, filters, menus, dialogs, tray-opened surfaces, and window-control clusters unless a source-truth owner records a USER-approved exception
+- same normal workflows for opening Nexus surfaces, using resident actions, managing standard Windows workloads, reviewing settings, seeing blocked/deferred/unavailable states, and recovering from failures when those capabilities are available
+- same privacy and trust posture for local-only, no-provider, provider-assisted, disabled, blocked, degraded, consent-required, troubleshooting, and private-boundary states
+- same backend-to-visual truth rule: UI labels, assistant responses, status rows, and proof claims must reflect the actual runtime/provider/memory/cache/private capability state
+
+Edition differences are capability envelopes, not basic usability differences:
+
+- Public Edition includes the shared core and public-safe capabilities. Optional public capability packages may later become subscription-based, purchase-based, entitlement-gated, or otherwise commercialized, but this document does not decide that business model.
+- Dev Edition includes the shared core plus developer-focused tools and agents. Future Dev surfaces may expose a Developer category in the tray, resident menu, Global Settings, AI Command Center, or another approved doorway when FAM-003, FAM-002, FAM-007, and FAM-008 routing permits it. Dev tools may include troubleshooting helpers, GitHub issue and solution workflows, log import helpers, validation helpers, diagnostics, and other development-support agents. Dev may receive access to public paid packages without the same public purchase/subscription model only if later source truth approves that policy. Dev must not include Owner-only feature creation, innovation, project-control, owner-private agents, Owner memory, Owner prompts, Owner strategy, or Owner secrets.
+- Owner Edition includes the shared core plus Public and Dev capability layers plus Owner-exclusive agents and project-control capabilities. Owner may include feature creation, innovation and intuitive planning, private project assistance, advanced repo/project governance support, private automation, and other Owner-only capabilities. Owner is the most powerful edition and requires the strictest privacy, data, memory, provider, leak-prevention, backup, and export boundaries.
+
+Enhanced troubleshooting is not automatically enabled by edition identity. Dev or Owner status may make stronger troubleshooting tools available, but enhanced troubleshooting must still be explicitly launched or enabled through the tray/resident UI, Global Settings, AI Command Center, or another approved user-visible control path. It must remain intentional, reversible, auditable, and visible enough that the USER understands when additional diagnostics, logs, provider-visible data, or development tools are active.
+
+This shared-core model does not authorize private repo creation, installer creation, shortcut mutation, app ID creation, provider/model execution, memory/cache behavior, data-root migration, secrets storage, Dev/Owner setup, entitlement/licensing, public paid package policy, or release work. Those remain later USER-gated implementation decisions in their owning branches.
+
 ## Public Repo Rule
 
 The public repository may define the edition model, generic capability gates, safe manifest schema, public-safe test fixtures, and validators.
@@ -282,6 +304,21 @@ Preferred sync model:
 Private-to-public flow must be exceptional and review-heavy.
 
 Public-to-private flow should be routine.
+
+## Capability Envelope Import / Export Direction
+
+Import and export must preserve the capability envelope. Lower-trust editions must not ingest higher-trust artifacts, and higher-trust editions must not push private material downward without explicit sanitization and USER approval.
+
+| Path | Default Posture | Required Conditions Before Any Exception |
+| --- | --- | --- |
+| Public to Dev | Allowed only through explicit copy-only import when future source truth admits it. | USER consent, selected data classes, provenance stamps, Public data remains intact, Dev-specific gates apply, and no secret/no-export material is imported. |
+| Public to Owner | Blocked as a normal user path. | Manual selected sanitized fixture import only when Owner work explicitly needs it and USER approves the exact data class. |
+| Dev to Public | Blocked by default. | Private-To-Public Sanitization Gate, secret scan, prompt/memory strip, private path scan, protected asset scan, source-truth review, and USER approval. Public-safe reimplementation is preferred over direct copying. |
+| Owner to Public | Blocked by default. | Explicit USER selection, sanitization, protected asset review, prompt/memory stripping, source-truth review, and public-safe reimplementation or cherry-pick. |
+| Owner to Dev | Blocked by default. | Explicit USER approval for sanitized patterns only; no Owner memory, prompts, strategy, secrets, private automation, or owner-only agents. |
+| Dev to Owner | Not automatic. | Owner may consume sanitized Dev tooling patterns when approved, but must not automatically inherit Dev profiles, contributor logs, issue data, imported Public user data, or Dev secrets. |
+
+Public must not import Dev or Owner backups, dependencies, capability packs, secrets, memory, private state, private agents, private configuration, private logs, private prompts, or private automation. Dev must not import Owner-only artifacts. Higher editions may consume lower-edition public-safe material only through explicit provenance-stamped import rules after source truth admits the path.
 
 ## Private-To-Public Sanitization Gate
 
@@ -855,6 +892,9 @@ Before a future branch claims edition-boundary progress, it should answer:
 - Which repo owns it?
 - Which data root owns it?
 - Which update channel owns it?
+- Does it preserve the shared core experience and NDAI Product Experience Contract?
+- Does it change normal usability, UI grammar, troubleshooting visibility, privacy posture, or Windows workload behavior across editions?
+- Is this a capability-envelope difference or an unintended product-experience fork?
 - Does it change public runtime behavior?
 - Does it expose private prompts, memory, logs, secrets, model assets, or strategy?
 - Does it allow Public-to-Dev import?
