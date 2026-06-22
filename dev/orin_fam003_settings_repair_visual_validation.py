@@ -93,7 +93,7 @@ def main() -> int:
     sys.path.insert(0, str(ROOT))
 
     from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication, QPushButton
 
     from desktop.desktop_renderer import ResidentAccessSettingsDialog
     from desktop.resident_access import DEFAULT_QUICK_SLOT_ROUTE_IDS
@@ -108,16 +108,34 @@ def main() -> int:
     default_path = log_dir / "01_default_quick_access.png"
     default_ok, width, height = _capture(dialog, default_path)
     light_ratio = _light_pixel_ratio(default_path)
-    rows.append(("default screenshot saved", default_ok and width >= 700 and height >= 450, f"{default_path} ({width}x{height})"))
+    rows.append(("default screenshot saved", default_ok and width >= 680 and height >= 430, f"{default_path} ({width}x{height})"))
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
+    button_texts = [button.text().replace("&&", "&") for button in dialog.findChildren(QPushButton)]
+    compact_action_buttons = [
+        button
+        for button in dialog.findChildren(QPushButton)
+        if button.objectName() in {"residentAccessQuickSlotMoveUp", "residentAccessQuickSlotMoveDown", "residentAccessQuickSlotRemove"}
+    ]
     rows.append(
-        ("visible category naming",
-        dialog.section_heading.text() == "Nexus Tray & Quick Access"
-        and [button.text().replace("&&", "&") for button in dialog._nav_buttons.values()] == [
-            "Nexus Tray & Quick Access",
-            "Connected Surfaces",
-        ],
-        f"heading={dialog.section_heading.text()!r}; nav={[button.text().replace('&&', '&') for button in dialog._nav_buttons.values()]}"),
+        (
+            "single actionable settings category",
+            dialog.section_heading.text() == "Quick Access"
+            and not dialog._nav_buttons
+            and "Connected Surfaces" not in button_texts
+            and "Connected Surfaces" not in dialog.section_detail.text()
+            and "Connected Surfaces" not in dialog.route_summary.text(),
+            f"heading={dialog.section_heading.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}",
+        )
+    )
+    rows.append(
+        (
+            "compact quick-slot controls",
+            "Move Up" not in button_texts
+            and "Move Down" not in button_texts
+            and "Reset Quick Access" not in button_texts
+            and all(button.width() <= 66 and button.height() <= 32 for button in compact_action_buttons),
+            f"buttons={button_texts}; compact_action_sizes={[(button.objectName(), button.width(), button.height()) for button in compact_action_buttons]}",
+        )
     )
     rows.append(
         ("initial pending-state copy",
@@ -182,25 +200,12 @@ def main() -> int:
     )
 
     dialog._keep_editing()
-    dialog.set_focus("connected_surfaces")
-    app.processEvents()
-    connected_path = log_dir / "05_connected_surfaces.png"
-    connected_ok, _, _ = _capture(dialog, connected_path)
-    connected_text = dialog.route_summary.text()
-    rows.append(("connected surfaces screenshot saved", connected_ok, str(connected_path)))
-    rows.append(
-        ("owner-bounded connected-surface copy",
-        all(token in connected_text for token in ("FAM-006", "FAM-007", "FAM-008", "NCP")),
-        connected_text.replace("\n", " | "),
-    )
-    )
-
     dialog.set_focus("quick_access")
     dialog._reset_slots()
     app.processEvents()
-    reset_path = log_dir / "06_reset_staged.png"
+    reset_path = log_dir / "05_defaults_staged.png"
     reset_ok, _, _ = _capture(dialog, reset_path)
-    rows.append(("reset staged screenshot saved", reset_ok, str(reset_path)))
+    rows.append(("defaults staged screenshot saved", reset_ok, str(reset_path)))
     rows.append(
         ("reset semantics stage defaults",
         dialog._has_unsaved_changes()
@@ -212,7 +217,7 @@ def main() -> int:
 
     dialog._save_settings()
     app.processEvents()
-    saved_path = log_dir / "07_saved_state.png"
+    saved_path = log_dir / "06_saved_state.png"
     saved_ok, _, _ = _capture(dialog, saved_path)
     rows.append(("saved state screenshot saved", saved_ok, str(saved_path)))
     rows.append(
