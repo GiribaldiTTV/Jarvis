@@ -164,7 +164,7 @@ ROUTE_CATALOG: tuple[ResidentAccessRoute, ...] = (
         "FAM-003",
         "available-minimal-shell",
         "local-shell",
-        "Opens the minimal Resident Access / Quick Access settings shell.",
+        "Opens the minimal Nexus Tray & Quick Access settings shell.",
         immutable=True,
     ),
     ResidentAccessRoute(

@@ -367,12 +367,33 @@ def validate_static_wiring(failures: list[str]):
         "request_resident_quick_action_from_tray",
         "self._replace_quick_slots(self._selected_slot_ids())",
         "setAccessibleName(\"Add Quick Access Slot\")",
-        "setMinimumWidth(280)",
+        "setMinimumWidth(340)",
+        "Nexus Tray & Quick Access",
+        "Connected Surfaces",
+        "Reset Quick Access",
+        "Save Changes",
+        "Discard Changes",
+        "Keep Editing",
+        "def _has_unsaved_changes",
+        "def closeEvent",
         "RESIDENT_ACCESS_PRIVACY_LOCKDOWN_ROUTE_ONLY",
         "Provider-visible data: none",
-        "Top-level Privacy Lockdown stays future-gated",
+        "Privacy Lockdown remains future-gated",
     ):
         assert_true(token in renderer_text, f"renderer resident access token missing: {token}", failures)
+
+    for token in (
+        '("quick_access", "Resident Access")',
+        '("ai_status", "AI Status")',
+        '("privacy", "Privacy / Trust")',
+        '("tray_visibility", "Tray Visibility")',
+        '("owner_routes", "Owner Routes")',
+    ):
+        assert_true(
+            token not in renderer_text,
+            f"Global Settings must not present stale fake settings category token: {token}",
+            failures,
+        )
 
     resident_settings_tooltip_tokens = (
         "Open the {label} settings section.",
