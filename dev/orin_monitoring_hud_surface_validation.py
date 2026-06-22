@@ -1617,9 +1617,10 @@ def validate() -> list[str]:
         "Stop Recording",
         "Log Viewer Studio",
         'data-resize-contract="not-resizable-position-memory-only"',
-        'data-fixed-controller-height="238"',
+        'data-fixed-controller-height="204"',
         "resizable-log-access-shell",
         "monitoring-hud__resize-corner",
+        "hub-action-content-fit-equal-gutter-32px-pill",
     ):
         _require_contains(studio_source, needle, "FAM-006 rendered Studio visual primitive source", failures)
 
@@ -1633,12 +1634,25 @@ def validate() -> list[str]:
         "<span>Recording State</span>",
         "<span>Native Log</span>",
         "--nexus-feature-studio-title-bg",
+        'data-fixed-controller-height="238"',
+        "HEIGHT = 238",
+        "hub-action-content-fit-equal-gutter-38px-pill",
+        "hub-action-content-fit-equal-gutter-34px-pill",
     ):
         _require(
             forbidden not in studio_html + "\n" + studio_js,
             f"FAM-006 Recording Studio returned-UTS repair must reject stale UI primitive/content: {forbidden}",
             failures,
         )
+
+    for needle in (
+        "monitoringHudStudioNativeDragHandle",
+        "DRAG_HEADER_HEIGHT = 56",
+        "HEIGHT = 204",
+        "HEIGHT = 224",
+        "hub-action-content-fit-equal-gutter-32px-pill",
+    ):
+        _require_contains(renderer, needle, "FAM-006 native Studio geometry and drag contract", failures)
 
     for forbidden in (
         '_monitoring_hud_studio_badge("REC"',
@@ -1787,7 +1801,7 @@ def validate() -> list[str]:
         '"stateRowDensityPolicy": "fam006-compact-feature-studio-state-row-density"',
         '"titleGroupVisualPolicy": "fam006-detached-child-window-title-row"',
         "ai-control-center-symbol-window-control-pill",
-        "hub-action-content-fit-equal-gutter-38px-pill",
+        "hub-action-content-fit-equal-gutter-32px-pill",
         '"recordingStudioVisibleActionModel": "single-stateful-start-stop-button-plus-log-viewer-route"',
         '"recordingToggleControlProof": _monitoring_hud_studio_dom_control_proof("recording-toggle")',
         '"logViewerRouteControlProof": _monitoring_hud_studio_dom_control_proof("open-log-viewer")',

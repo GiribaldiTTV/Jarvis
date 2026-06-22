@@ -1,7 +1,7 @@
 /*
   Bounded FAM-006 shared primitive carry-in.
   Source seed: AI Control Center UIREF-001/UIREF-002/UIREF-003 accepted visual grammar.
-  Scope: same-class Nexus window controls, feature-studio chrome, title strips,
+  Scope: same-class Nexus window controls, feature-studio chrome, child-window title rows,
   state rows, and action buttons required by the FAM-006 returned-UTS repair.
 */
 
@@ -151,7 +151,9 @@ body.desktop-mode #monitoring-hud[data-window-control-primitive="nexus-uiref-002
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__title-group {
-  padding: 2px 48px 5px 2px;
+  display: block;
+  min-height: 39px;
+  padding: 2px 74px 4px 4px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -160,6 +162,8 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__header {
   padding: 0;
+  min-height: 0;
+  cursor: move;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__kicker {
@@ -185,14 +189,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-
   display: none;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__surface-role {
-  display: none;
-}
-
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__feature-studio-panel {
   display: grid;
-  gap: 6px;
-  padding: 9px;
+  gap: 5px;
+  padding: 8px;
   border: 1px solid rgba(122, 232, 255, 0.22);
   border-radius: 14px;
   background: var(--nexus-feature-studio-panel-bg);
@@ -204,7 +204,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__feature-studio-summary {
   margin: 0;
   color: rgba(190, 226, 238, 0.92);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 660;
   line-height: 1.26;
 }
@@ -229,18 +229,18 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
-  margin-top: 4px;
+  gap: 8px;
+  margin-top: 2px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__hub-action--content-fit {
   flex: 0 0 auto;
   width: auto;
   max-width: none;
-  min-width: 116px;
-  height: 38px;
-  min-height: 38px;
-  padding-inline: 26px;
+  min-width: 0;
+  height: 32px;
+  min-height: 32px;
+  padding-inline: 16px;
   overflow: visible;
   white-space: nowrap;
 }
@@ -252,17 +252,17 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-
   overflow: visible;
   text-overflow: clip;
   white-space: nowrap;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   line-height: 1;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-native"] {
-  min-width: 166px;
+  min-width: 0;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__hub-action--content-fit[data-control="log-viewer-open-export"] {
-  min-width: 188px;
+  min-width: 0;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-compact-controller-shell-v2"] .monitoring-hud__feature-studio-panel[hidden] {

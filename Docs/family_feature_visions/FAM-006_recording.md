@@ -205,7 +205,7 @@ Expected direction:
 - bounded shared primitive carry-in for the active returned-UTS repair:
   Log Viewer Studio may consume `nexus_visual/nexus_window_primitives.css` as
   the same FAM-006-carried `nexus-window-primitives-v1` path used by Recording
-  Studio for same-class chrome, title strip, row, body, and control-state
+  Studio for same-class chrome, detached child-window title row, row, body, and control-state
   primitives while keeping its compact log-access-shell composition.
 - window placement continuity by carrying down the Project UI Vision rule for
   USER-moved windows to restore position safely across sessions where feasible

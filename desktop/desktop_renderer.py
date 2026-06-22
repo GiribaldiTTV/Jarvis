@@ -5904,7 +5904,7 @@ def _monitoring_hud_ai_control_center_primitive_contract() -> dict[str, str]:
         "windowControls": "ai-control-center-symbol-window-control-cluster-identical",
         "actionButtons": "monitoring-hud-hub-action-content-fit-button-identical",
         "rows": "fam006-compact-feature-studio-separated-state-rows",
-        "header": "single-compact-feature-studio-title-strip",
+        "header": "detached-child-window-title-row",
         "proofRule": "photo-video-comparison-required; runtime-marker-is-supporting-evidence-only",
     }
 
@@ -5929,7 +5929,7 @@ def _monitoring_hud_prepare_studio_button(
     button_width = minimum_width
     button.setMinimumWidth(button_width)
     button.setMaximumWidth(button_width)
-    button_height = 34 if compact_window_control else 38
+    button_height = 32 if not compact_window_control else 34
     button.setMinimumHeight(button_height)
     button.setMaximumHeight(button_height)
     button.setFixedHeight(button_height)
@@ -5945,7 +5945,7 @@ def _monitoring_hud_prepare_studio_button(
     else:
         button.setProperty("sharedPrimitiveSeed", "AI-Control-Center-UIREF-003-action-button")
         button.setProperty("primitiveRole", "primary-secondary-action-button")
-        button.setProperty("visiblePrimitiveShape", "hub-action-content-fit-equal-gutter-38px-pill")
+        button.setProperty("visiblePrimitiveShape", "hub-action-content-fit-equal-gutter-32px-pill")
 
 
 def _monitoring_hud_studio_window_control_cluster(parent: QWidget) -> QFrame:
@@ -6408,7 +6408,7 @@ def _monitoring_hud_studio_dom_control_proof(kind: str) -> dict[str, object]:
         "sharedPrimitiveSeed": "AI-Control-Center-UIREF-003-action-button",
         "visualClaimState": MONITORING_HUD_STUDIO_VISUAL_CLAIM_STATE,
         "primitiveRole": "primary-secondary-action-button",
-        "visiblePrimitiveShape": "hub-action-content-fit-equal-gutter-38px-pill",
+        "visiblePrimitiveShape": "hub-action-content-fit-equal-gutter-32px-pill",
         "keyboardFocusable": True,
         "visualProofAuthority": MONITORING_HUD_STUDIO_VISUAL_PROOF_AUTHORITY,
         "implementationPrimitive": "QWebEngineView/monitoring_hud.css DOM",
@@ -6420,7 +6420,7 @@ class MonitoringHudStudioWebWindow(QWidget):
     HEIGHT = 430
     MINIMUM_WIDTH = 440
     MINIMUM_HEIGHT = 330
-    DRAG_HEADER_HEIGHT = 176
+    DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "qsizegrip-bottom-right-enabled"
     WINDOW_CONTROL_ZONE_TOP = 14
@@ -6466,6 +6466,13 @@ class MonitoringHudStudioWebWindow(QWidget):
         self.webview.loadFinished.connect(self._on_studio_html_loaded)
         self.webview.load(QUrl.fromLocalFile(str(_monitoring_hud_studio_html_path())))
         root.addWidget(self.webview)
+        self._drag_handle = QWidget(self)
+        self._drag_handle.setObjectName("monitoringHudStudioNativeDragHandle")
+        self._drag_handle.setAttribute(Qt.WA_TranslucentBackground, True)
+        self._drag_handle.setCursor(Qt.SizeAllCursor)
+        self._drag_handle.installEventFilter(self)
+        self._drag_handle.raise_()
+        self._position_studio_drag_handle()
         if self.STUDIO_RESIZABLE:
             self._resize_grip = QSizeGrip(self)
             self._resize_grip.setObjectName("monitoringHudStudioResizeGrip")
@@ -6533,6 +6540,25 @@ class MonitoringHudStudioWebWindow(QWidget):
             elif event_type == QEvent.MouseButtonRelease:
                 self._drag_offset = None
                 self._save_current_geometry()
+        if watched is getattr(self, "_drag_handle", None):
+            event_type = event.type()
+            if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+                self._drag_offset = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+                event.accept()
+                return True
+            if (
+                event_type == QEvent.MouseMove
+                and self._drag_offset is not None
+                and event.buttons() & Qt.LeftButton
+            ):
+                self.move(event.globalPosition().toPoint() - self._drag_offset)
+                event.accept()
+                return True
+            if event_type == QEvent.MouseButtonRelease:
+                self._drag_offset = None
+                self._save_current_geometry()
+                event.accept()
+                return True
         return super().eventFilter(watched, event)
 
     def _studio_close_zone(self) -> QRect:
@@ -6542,6 +6568,16 @@ class MonitoringHudStudioWebWindow(QWidget):
             self.WINDOW_CONTROL_ZONE_WIDTH,
             self.WINDOW_CONTROL_ZONE_HEIGHT,
         )
+
+    def _position_studio_drag_handle(self) -> None:
+        if not hasattr(self, "_drag_handle"):
+            return
+        handle_width = max(
+            1,
+            self.width() - self.WINDOW_CONTROL_ZONE_RIGHT - self.WINDOW_CONTROL_ZONE_WIDTH - 12,
+        )
+        self._drag_handle.setGeometry(0, 0, handle_width, self.DRAG_HEADER_HEIGHT)
+        self._drag_handle.raise_()
 
     def _restore_saved_geometry(self) -> None:
         self._geometry_restored_from_saved = _monitoring_hud_restore_window_geometry(
@@ -6565,6 +6601,7 @@ class MonitoringHudStudioWebWindow(QWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+        self._position_studio_drag_handle()
         if hasattr(self, "_resize_grip"):
             self._resize_grip.move(max(0, self.width() - self._resize_grip.width() - 8), max(0, self.height() - self._resize_grip.height() - 8))
             self._resize_grip.raise_()
@@ -6590,10 +6627,10 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 430
-    HEIGHT = 238
+    HEIGHT = 204
     MINIMUM_WIDTH = 360
-    MINIMUM_HEIGHT = 238
-    DRAG_HEADER_HEIGHT = 82
+    MINIMUM_HEIGHT = 204
+    DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
 
@@ -6811,10 +6848,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 520
-    HEIGHT = 318
+    HEIGHT = 224
     MINIMUM_WIDTH = 430
-    MINIMUM_HEIGHT = 292
-    DRAG_HEADER_HEIGHT = 82
+    MINIMUM_HEIGHT = 224
+    DRAG_HEADER_HEIGHT = 56
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "qsizegrip-bottom-right-enabled"
 
@@ -13520,8 +13557,8 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("recordingStudioVisibleActionModel") == "single-stateful-start-stop-button-plus-log-viewer-route"
-                and proof.get("recordingToggleControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
-                and proof.get("logViewerRouteControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
+                and proof.get("recordingToggleControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
+                and proof.get("logViewerRouteControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("resizeBehavior") == "not-resizable-position-memory-only"
                 and proof.get("nativeLogRowsContained") is True
@@ -13802,8 +13839,8 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("titleGroupVisualPolicy") == "fam006-detached-child-window-title-row"
                 and proof.get("minimizeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
                 and proof.get("closeControlProof", {}).get("visiblePrimitiveShape") == "ai-control-center-symbol-window-control-pill"
-                and proof.get("openNativeControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
-                and proof.get("openExportControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-38px-pill"
+                and proof.get("openNativeControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
+                and proof.get("openExportControlProof", {}).get("visiblePrimitiveShape") == "hub-action-content-fit-equal-gutter-32px-pill"
                 and proof.get("windowPlacementMemoryState") == "enabled"
                 and proof.get("resizeBehavior") == "qsizegrip-bottom-right-enabled"
                 and proof.get("internalPathLeakageAbsent") is True
