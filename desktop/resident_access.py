@@ -272,8 +272,12 @@ def default_resident_access_settings_path() -> Path:
     return Path(local_app_data) / "Nexus Desktop AI" / "resident_access_settings.json"
 
 
-def quick_slot_candidate_routes() -> tuple[ResidentAccessRoute, ...]:
-    return tuple(route for route in ROUTE_CATALOG if route.quick_slot_candidate)
+def quick_slot_candidate_routes(*, include_unavailable: bool = False) -> tuple[ResidentAccessRoute, ...]:
+    return tuple(
+        route
+        for route in ROUTE_CATALOG
+        if route.quick_slot_candidate and (include_unavailable or route.enabled)
+    )
 
 
 def immutable_routes() -> tuple[ResidentAccessRoute, ...]:
@@ -522,6 +526,11 @@ def build_resident_access_menu_plan(
         "immutableRoutes": [route.as_dict() for route in immutable_routes()],
         "quickSlots": [route.as_dict() for route in quick_slots],
         "candidateRoutes": [route.as_dict() for route in quick_slot_candidate_routes()],
+        "futureGatedCandidateRoutes": [
+            route.as_dict()
+            for route in quick_slot_candidate_routes(include_unavailable=True)
+            if not route.enabled
+        ],
         "settings": settings.as_dict(),
         "menuStructure": {
             "nativeStatusRow": TRAY_MENU_STRUCTURE["nativeStatusRow"],

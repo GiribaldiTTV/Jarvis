@@ -365,7 +365,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessQuickSlotActions",
         "role": "reorder/remove controls",
         "rule": "UIREF-003",
-        "copy": "triangle / triangle / X",
+        "copy": "up/down reorder pill; Delete",
         "font": "compact symbolic controls",
         "text": "pale action text",
         "background": "dark action button",
@@ -902,6 +902,7 @@ def _write_fail_capable_defect_ledger(
         "left navigation settings organizer",
         "single actionable page inside Global Settings IA",
         "product-facing copy is compact and non-internal",
+        "Nexus UI exposure contract honored",
         "no internal telemetry text",
         "no fake overview/status strip",
         "readable compact quick-slot controls",
@@ -914,14 +915,14 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-        else "V7 compact visual/product checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+        else "V10 settings IA / UI Exposure Contract checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
         "# FAM-003 Fail-Capable Visual Defect Ledger",
         "",
         "Scope: Global Settings / Nexus Tray / Quick Access settings surface.",
-        "Prior Packet Under Review: `C:\\Nexus USER\\FAM-003-20260622-164659.zip`.",
+        "Prior Packet Under Review: `C:\\Nexus USER\\FAM-003-20260622-200820.zip`.",
         "Prior Packet Disposition: `REPAIR - traceable but not accepted for USER retest because visual/product conformance failed.`",
         "",
         "| Evidence Layer | Result | Detail |",
@@ -1116,7 +1117,7 @@ def main() -> int:
     from PySide6.QtWidgets import QApplication, QFrame, QPushButton
 
     from desktop.desktop_renderer import ResidentAccessSettingsDialog
-    from desktop.resident_access import DEFAULT_QUICK_SLOT_ROUTE_IDS, MAX_QUICK_SLOT_COUNT
+    from desktop.resident_access import DEFAULT_QUICK_SLOT_ROUTE_IDS, MAX_QUICK_SLOT_COUNT, quick_slot_candidate_routes
 
     app = QApplication.instance() or QApplication([])
     rows: list[tuple[str, bool, str]] = []
@@ -1126,6 +1127,7 @@ def main() -> int:
     dialog = ResidentAccessSettingsDialog()
     dialog.show()
     app.processEvents()
+    active_slot_limit = min(MAX_QUICK_SLOT_COUNT, len(quick_slot_candidate_routes()))
 
     default_path = log_dir / "01_default_global_settings_shell.png"
     default_ok, width, height = _capture(
@@ -1139,14 +1141,14 @@ def main() -> int:
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 740 <= width <= 790 and 390 <= height <= 410,
+            default_ok and 740 <= width <= 790 and 360 <= height <= 385,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "architecture-first Global Settings geometry",
-            740 <= width <= 790 and 390 <= height <= 410,
+            740 <= width <= 790 and 360 <= height <= 385,
             f"window={width}x{height}; required compact settings shell, not old sparse Quick Access utility form",
         )
     )
@@ -1154,13 +1156,13 @@ def main() -> int:
         (
             "settings shell fills the window intentionally",
             width >= 740
-            and height <= 410
+            and height <= 385
             and 138 <= dialog.nav_shell.width() <= 150
             and not dialog.primary_nav_rail.isVisible()
             and dialog.subpage_nav_rail.isVisible()
             and dialog.settings_page_frame.isVisible()
             and dialog.quick_slot_container.isVisible()
-            and dialog.quick_slot_container.height() >= 180,
+            and dialog.quick_slot_container.height() >= 170,
             f"window={width}x{height}; nav_width={dialog.nav_shell.width()}; primary_visible={dialog.primary_nav_rail.isVisible()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; page_visible={dialog.settings_page_frame.isVisible()}; slot_panel_height={dialog.quick_slot_container.height()}",
         )
     )
@@ -1240,6 +1242,9 @@ def main() -> int:
             and dialog.primary_tray_button.text() == "\N{GEAR}"
             and dialog.primary_tray_button.width() <= 24
             and dialog.primary_tray_button.height() <= 24
+            and dialog.tray_category_label.isVisible()
+            and dialog.tray_category_label.text() == "Tray"
+            and dialog.tray_category_label.property("settingsCategoryRole") == "real-category-no-direct-page"
             and dialog.subpage_nav_rail.isVisible()
             and dialog.quick_access_nav_button.isChecked()
             and dialog.quick_access_nav_item.isVisible()
@@ -1247,12 +1252,12 @@ def main() -> int:
             and dialog.quick_access_nav_item.property("settingsNavIdentity") == "ndai-signal-leaf"
             and dialog.nav_shell.property("settingsShellIdentity") == "ndai-slim-global-settings"
             and set(dialog._nav_buttons) == {"quick_access"}
-            and dialog.quick_access_nav_button.text() == "Tray"
-            and dialog.quick_access_nav_caption.text() == "Quick Access"
-            and dialog.quick_access_nav_caption.isVisible()
+            and dialog.quick_access_nav_button.text() == "Quick Access"
+            and dialog.quick_access_nav_caption.text() == ""
+            and not dialog.quick_access_nav_caption.isVisible()
             and 138 <= dialog.nav_shell.width() <= 150
             and not dialog.nav_boundary.isVisible(),
-            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; primary_visible={dialog.primary_nav_rail.isVisible()}; primary={dialog.primary_tray_button.text()!r}/{dialog.primary_tray_button.width()}x{dialog.primary_tray_button.height()}/{dialog.primary_tray_button.isChecked()}; checked={dialog.quick_access_nav_button.isChecked()}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
+            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; primary_visible={dialog.primary_nav_rail.isVisible()}; category={dialog.tray_category_label.text()!r}/{dialog.tray_category_label.isVisible()}; checked={dialog.quick_access_nav_button.isChecked()}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
         )
     )
 
@@ -1267,23 +1272,26 @@ def main() -> int:
             "single actionable page inside Global Settings IA",
             dialog.section_heading.text() == "Quick Access"
             and dialog.section_badge.text() == "Tray"
-            and dialog.section_badge.isVisible()
+            and not dialog.section_badge.isVisible()
+            and not dialog.section_detail.isVisible()
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-quick-access-v9"
-            and dialog.property("settingsVisualRepair") == "settings-specific-conformance-v9-tray-scoped-ndai-slim"
-            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v9"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-category-quick-access-subpage-v10"
+            and dialog.property("settingsVisualRepair") == "settings-ia-exposure-contract-v10"
+            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v10"
+            and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
             and set(dialog._nav_buttons) == {"quick_access"}
-            and dialog.quick_access_nav_button.text() == "Tray"
+            and dialog.tray_category_label.text() == "Tray"
+            and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_button.isChecked()
-            and dialog.slot_count_badge.text() == f"{len(DEFAULT_QUICK_SLOT_ROUTE_IDS)}/{MAX_QUICK_SLOT_COUNT} slots"
+            and dialog.slot_count_badge.text() == f"{len(DEFAULT_QUICK_SLOT_ROUTE_IDS)}/{active_slot_limit} slots"
             and dialog.settings_page_frame.objectName() == "residentAccessSettingsPageFrame"
             and dialog.settings_state_chip.text() == "Saved"
             and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
             and not dialog.route_summary.isVisible(),
-            f"heading={dialog.section_heading.text()!r}; section_badge={dialog.section_badge.text()!r}; slot_badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}; route_visible={dialog.route_summary.isVisible()}",
+            f"heading={dialog.section_heading.text()!r}; category={dialog.tray_category_label.text()!r}; section_badge_visible={dialog.section_badge.isVisible()}; detail_visible={dialog.section_detail.isVisible()}; slot_badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}; route_visible={dialog.route_summary.isVisible()}",
         )
     )
     stale_product_text = {
@@ -1304,11 +1312,9 @@ def main() -> int:
         "DOWNWARDS ARROW",
         "Up",
         "Down",
-        "Delete",
         "Quick Access Slots",
         "Rows appear in tray order. Use Save Changes to apply them.",
         "Save Changes",
-        "Restore Defaults",
         "Add Slot",
         "Remove",
         "(unavailable)",
@@ -1332,6 +1338,7 @@ def main() -> int:
         dialog.chrome_bar.subtitle_label.text(),
         " ".join(role_text),
         dialog.primary_tray_button.text() if dialog.primary_tray_button.text() != "\N{GEAR}" else "",
+        dialog.tray_category_label.text(),
         dialog.quick_access_nav_button.text(),
         dialog.quick_access_nav_caption.text() if dialog.quick_access_nav_caption.isVisible() else "",
         dialog.settings_state_chip.text(),
@@ -1393,13 +1400,33 @@ def main() -> int:
     )
     rows.append(
         (
+            "Nexus UI exposure contract honored",
+            all(token not in visible_text_blob for token in {"Recording Studio", "Log Viewer", "(unavailable)", "future-gated"})
+            and all(
+                combo.findText("Recording Studio") < 0 and combo.findText("Log Viewer") < 0
+                for combo in dialog._slot_combos
+            ),
+            f"visible_text={visible_text_blob!r}; combo_items={[[combo.itemText(i) for i in range(combo.count())] for combo in dialog._slot_combos]}",
+        )
+    )
+    rows.append(
+        (
             "readable compact quick-slot controls",
             all(
-                button.text()
-                in {"\N{BLACK UP-POINTING TRIANGLE}", "\N{BLACK DOWN-POINTING TRIANGLE}", "X"}
+                (
+                    button.text()
+                    in {"\N{BLACK UP-POINTING TRIANGLE}", "\N{BLACK DOWN-POINTING TRIANGLE}"}
+                    and button.width() <= 28
+                    and button.height() <= 26
+                )
+                or (
+                    button.objectName() == "residentAccessQuickSlotDelete"
+                    and button.text() == "Delete"
+                    and 50 <= button.width() <= 64
+                    and button.height() <= 26
+                )
                 for button in compact_action_buttons
             )
-            and all(button.width() <= 32 and button.height() <= 26 for button in compact_action_buttons)
             and any(frame.objectName() == "residentAccessQuickSlotReorderGroup" for frame in dialog.findChildren(QFrame)),
             f"buttons={button_texts}; compact_action_sizes={[(button.objectName(), button.text(), button.width(), button.height(), button.isEnabled()) for button in compact_action_buttons]}",
         )
@@ -1555,7 +1582,7 @@ def main() -> int:
         )
     )
 
-    while len(dialog._settings.quick_slot_ids) < MAX_QUICK_SLOT_COUNT:
+    while len(dialog._settings.quick_slot_ids) < active_slot_limit:
         dialog._add_slot()
         app.processEvents()
     max_slots_path = log_dir / "10_max_slots_unclipped.png"
@@ -1581,7 +1608,7 @@ def main() -> int:
     rows.append(
         (
             "max-slot budget rows are unclipped",
-            len(max_rows) == MAX_QUICK_SLOT_COUNT
+            len(max_rows) == active_slot_limit
             and max_last_row_bottom <= max_container_bottom <= max_footer_top
             and not dialog.add_slot_button.isEnabled(),
             f"rows={len(max_rows)}; last_row_bottom={max_last_row_bottom}; container_bottom={max_container_bottom}; footer_top={max_footer_top}; add_enabled={dialog.add_slot_button.isEnabled()}",

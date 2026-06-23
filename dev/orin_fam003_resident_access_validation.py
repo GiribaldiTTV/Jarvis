@@ -45,11 +45,14 @@ def validate_resident_model(failures: list[str]):
         build_optional_feature_route_state_model,
         build_resident_access_menu_plan,
         normalize_resident_access_settings,
+        quick_slot_candidate_routes,
     )
 
     plan = build_resident_access_menu_plan()
     immutable_ids = [route["routeId"] for route in plan["immutableRoutes"]]
     quick_ids = [route["routeId"] for route in plan["quickSlots"]]
+    candidate_ids = [route["routeId"] for route in plan["candidateRoutes"]]
+    future_gated_candidate_ids = [route["routeId"] for route in plan["futureGatedCandidateRoutes"]]
     route_owner = {route["routeId"]: route["ownerFamily"] for route in plan["immutableRoutes"]}
     menu_structure = plan["menuStructure"]
 
@@ -97,6 +100,18 @@ def validate_resident_model(failures: list[str]):
     assert_true(
         tuple(quick_ids) == DEFAULT_QUICK_SLOT_ROUTE_IDS,
         f"default quick slots drifted: {quick_ids}",
+        failures,
+    )
+    assert_true(
+        all(route.enabled for route in quick_slot_candidate_routes()),
+        f"active quick-slot candidates must expose only enabled routes: {candidate_ids}",
+        failures,
+    )
+    assert_true(
+        "recording_studio" not in candidate_ids
+        and "log_viewer" not in candidate_ids
+        and tuple(future_gated_candidate_ids) == ("recording_studio", "log_viewer"),
+        f"future-gated FAM-006 quick-slot routes must stay out of active UI candidates: active={candidate_ids}; future={future_gated_candidate_ids}",
         failures,
     )
     assert_true(
@@ -184,8 +199,6 @@ def validate_resident_model(failures: list[str]):
         normalized.quick_slot_ids
         == (
             "command_overlay",
-            "recording_studio",
-            "log_viewer",
             "tray_visibility_education",
             "open_saved_actions_folder",
         ),
@@ -370,11 +383,12 @@ def validate_static_wiring(failures: list[str]):
         "request_resident_quick_action_from_tray",
         "self._replace_quick_slots(self._selected_slot_ids())",
         "setAccessibleName(\"Add Quick Access Slot\")",
-        "setMinimumSize(760, 395)",
+        "setMinimumSize(760, 370)",
         "surfaceClassification\", \"Nexus-Owned Product Surface",
-        "settingsInformationArchitecture\", \"global-settings-shell-tray-quick-access-v9",
-        "settingsVisualRepair\", \"settings-specific-conformance-v9-tray-scoped-ndai-slim",
-        "referenceDerivedHeader\", \"compact-ndai-settings-window-frame-v9",
+        "settingsInformationArchitecture\", \"global-settings-shell-tray-category-quick-access-subpage-v10",
+        "settingsVisualRepair\", \"settings-ia-exposure-contract-v10",
+        "referenceDerivedHeader\", \"compact-ndai-settings-window-frame-v10",
+        "uiExposureContract\", \"real-enabled-meaningful-visible-ui-v1",
         "sharedPrimitiveClaim\", \"none-promoted-reference-derived-only",
         "referenceComparatorRequired\", \"accepted-ai-control-center-contact-sheet",
         "hero_header=False",
@@ -384,6 +398,8 @@ def validate_static_wiring(failures: list[str]):
         "residentAccessSettingsNavShell",
         "residentAccessSettingsPrimaryRail",
         "residentAccessSettingsPrimaryTray",
+        "residentAccessSettingsCategoryLabel",
+        "settingsCategoryRole\", \"real-category-no-direct-page",
         "residentAccessSettingsSubpageRail",
         "settingsShellIdentity\", \"ndai-slim-global-settings",
         "setFixedWidth(142)",
@@ -396,21 +412,23 @@ def validate_static_wiring(failures: list[str]):
         "settingsNavIdentity\", \"ndai-signal-leaf",
         "residentAccessSettingsNavButton",
         "residentAccessSettingsNavCaption",
-        "QPushButton(\"Tray\"",
-        "QLabel(\"Quick Access\"",
-        "quick_access_nav_caption.setVisible(True)",
+        "QPushButton(\"Quick Access\"",
+        "QLabel(\"Tray\"",
+        "quick_access_nav_caption.setVisible(False)",
         "Tray",
         "residentAccessSettingsSectionBadge",
-        "self.section_badge.setVisible(True)",
+        "self.section_badge.setVisible(False)",
         "residentAccessSettingsPageFrame",
         "residentAccessSettingsStateChip",
-        "setMinimumWidth(206)",
+        "setMinimumWidth(184)",
         "Quick Access",
         "slot_count_badge",
         "residentAccessSettingsSlotCount",
         "residentAccessSettingsFooter",
-        "QPushButton(\"Defaults\"",
+        "QPushButton(\"Restore Defaults\"",
         "quick_help.setVisible(False)",
+        "def _available_quick_slot_limit",
+        "self.add_slot_button.setEnabled(len(selected_ids) < self._available_quick_slot_limit())",
         "residentAccessQuickSlotActions",
         "residentAccessQuickSlotReorderGroup",
         "residentAccessQuickSlotMoveUp",
@@ -418,8 +436,8 @@ def validate_static_wiring(failures: list[str]):
         "residentAccessQuickSlotDelete",
         "QPushButton(\"\\N{BLACK UP-POINTING TRIANGLE}\"",
         "QPushButton(\"\\N{BLACK DOWN-POINTING TRIANGLE}\"",
-        "QPushButton(\"X\"",
-        "Choose up to {MAX_QUICK_SLOT_COUNT} menu shortcuts.",
+        "QPushButton(\"Delete\"",
+        "setFixedSize(56, 24)",
         "Default shortcut order staged.",
         "QPushButton(\"Save\"",
         "Discard",
@@ -427,7 +445,6 @@ def validate_static_wiring(failures: list[str]):
         "def _has_unsaved_changes",
         "def closeEvent",
         "compact_labels = {",
-        "item.setEnabled(False)",
         "RESIDENT_ACCESS_PRIVACY_LOCKDOWN_ROUTE_ONLY",
     ):
         assert_true(token in renderer_text, f"renderer resident access token missing: {token}", failures)
@@ -435,15 +452,17 @@ def validate_static_wiring(failures: list[str]):
     for token in (
         "Connected Surfaces",
         "connected_surfaces",
+        "settingsInformationArchitecture\", \"global-settings-shell-tray-quick-access-v9",
+        "settingsVisualRepair\", \"settings-specific-conformance-v9-tray-scoped-ndai-slim",
+        "referenceDerivedHeader\", \"compact-ndai-settings-window-frame-v9",
         "Move Up",
         "Move Down",
         "UPWARDS ARROW",
         "DOWNWARDS ARROW",
         'QPushButton("Up"',
         'QPushButton("Down"',
-        'QPushButton("Delete"',
+        'QPushButton("X"',
         "Add Slot",
-        "Restore Defaults",
         "Quick Access Slots",
         "Rows appear in tray order. Use Save Changes to apply them.",
         "Save Changes",
