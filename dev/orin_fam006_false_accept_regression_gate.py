@@ -29,6 +29,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-123110.zip",
+    USER_ROOT / "FAM-006-20260623-123110.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-121602.zip",
     USER_ROOT / "FAM-006-20260623-121602.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-120234.zip",
@@ -114,6 +116,7 @@ REQUIRED_EVIDENCE_KEYS = {
 
 REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
+    "Docs_nexus_startup_contract.md",
     "Docs_phase_governance.md",
     "Docs_branch_plans_README.md",
     "Docs_nexus_vision.md",
@@ -1035,9 +1038,40 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
             defect_ids = {str(row.get("defectId", "")) for row in defects if isinstance(row, dict)}
             if error or not isinstance(data, dict) or not isinstance(defects, list):
                 failures.append(f"invalid embedded unified_defect_ledger.json: {error}")
-            for required_id in ("FAM006-UDL-012", "FAM006-UDL-013", "FAM006-UDL-014", "FAM006-UDL-015"):
+            for required_id in (
+                "FAM006-UDL-012",
+                "FAM006-UDL-013",
+                "FAM006-UDL-014",
+                "FAM006-UDL-015",
+                "FAM006-UDL-016",
+                "FAM006-UDL-017",
+            ):
                 if required_id not in defect_ids:
                     failures.append(f"embedded UDL missing latest false-green defect {required_id}")
+            sweep_values: dict[str, list[str]] = {}
+            generic_sweep = (
+                "Adjacent proof path inspected: packet evidence, crop/overlay/text/scope, "
+                "visual ledger, red-team/root-cause row, false-ACCEPT gate."
+            )
+            for row in defects:
+                if not isinstance(row, dict):
+                    continue
+                defect_id = str(row.get("defectId", "<missing>"))
+                sweep = str(row.get("adjacentDefectSweepResult", "")).strip()
+                sweep_values.setdefault(sweep, []).append(defect_id)
+                if sweep == generic_sweep:
+                    failures.append(f"{defect_id}: embedded UDL adjacent sweep is generic copied text")
+                if not all(
+                    token in sweep.casefold()
+                    for token in ("adjacent", "surfaces", "proof", "validator", "additional", "defects", "repair scope")
+                ):
+                    failures.append(f"{defect_id}: embedded UDL adjacent sweep is not row-specific/substantive")
+            for sweep, ids in sweep_values.items():
+                if sweep and len(ids) > 1:
+                    failures.append(
+                        "embedded UDL duplicate adjacent sweep across unrelated defects: "
+                        + ", ".join(ids)
+                    )
         if embedded_incident_path is None:
             failures.append("packet has UDL but missing false_green_incident_ledger.json")
         else:
@@ -1060,6 +1094,8 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                 failures.append("embedded false-green incident ledger missing 120234 packet text-hygiene incident")
             if not any("121602" in item for item in covered):
                 failures.append("embedded false-green incident ledger missing 121602 packet text-hygiene incident")
+            if not any("123110" in item for item in covered):
+                failures.append("embedded false-green incident ledger missing 123110 source-context/adjacent-sweep incident")
             for index, row in enumerate(incidents, start=1):
                 if not isinstance(row, dict):
                     failures.append(f"embedded false-green incident row {index} is not an object")

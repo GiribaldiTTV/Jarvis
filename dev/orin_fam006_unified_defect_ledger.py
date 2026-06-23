@@ -68,12 +68,37 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260623-113615.zip",
     "FAM-006-20260623-120234.zip",
     "FAM-006-20260623-121602.zip",
+    "FAM-006-20260623-123110.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
     "FAM-006-20260623-113615.zip": "CFBBFA0CDAC9A6A190DF22F4811BC7E959C3A32C58E5514AF025ED18FB289086",
     "FAM-006-20260623-120234.zip": "D93AADB19ABBDD0973412D301AB14ABF8B115349A352E75868607A32F3CC20FE",
     "FAM-006-20260623-121602.zip": "284D92B4DD0F9F7977018B6B10D3E3550B14FAFAD1026DF5CF9E5DFDEED82CB6",
+    "FAM-006-20260623-123110.zip": "5DB6C953EFD4A120122B623A0713C8CB106117C21CC4C27B4DDE171DE796628C",
+}
+PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
+    "Docs_Main.md",
+    "Docs_nexus_startup_contract.md",
+    "Docs_phase_governance.md",
+    "Docs_branch_plans_README.md",
+    "Docs_nexus_vision.md",
+    "FAM-002_desktop_interface.md",
+    "FAM-006_monitoring_and_hud.md",
+    "FAM-006_recording.md",
+    "ui_reference_catalog_index.md",
+    "UIREF-001_top_level_window_frame.md",
+    "UIREF-002_window_control_cluster.md",
+    "UIREF-003_control_state_and_selector_grammar.md",
+    "UIREF-004_dialog_status_recovery_and_doorway_surfaces.md",
+    "UIREF-005_design_token_and_shared_rule_baseline.md",
+    "UIREF-006_negative_example_and_enforcement_contract.md",
+    "Docs_user_test_summary_guidance.md",
+    "Docs_validation_helper_registry.md",
+    "Docs_incident_patterns.md",
+    "Docs_external_operational_state_store_reform_plan.md",
+    "feature_fam_006_dashboard_recording_start_stop_local_file.md",
+    "external_branch_plan.md",
 }
 TEXT_HYGIENE_EXTENSIONS = {".json", ".md"}
 TEXT_HYGIENE_ROOTS = (
@@ -88,6 +113,7 @@ CANONICAL_TEXT_REFERENCES = (
     "the reconstructed 071500 record",
     "FAM-006-20260623-120234.zip",
     "FAM-006-20260623-121602.zip",
+    "FAM-006-20260623-123110.zip",
 )
 
 
@@ -172,7 +198,14 @@ def _defect(
     closure: str,
     current_owned: bool = True,
     governance_candidate: str = "",
+    adjacent_sweep: str = "",
 ) -> dict[str, Any]:
+    sweep = adjacent_sweep or (
+        f"Row-specific adjacent sweep for {defect_id}: inspected adjacent surfaces/files `{surfaces}`; "
+        f"inspected adjacent behavior/proof through `{proof}`; inspected adjacent validator gap `{validator_gap}`; "
+        "additional adjacent defects found: none for this row beyond separately linked UDL rows; "
+        "repair scope changed: no."
+    )
     return {
         "defectId": defect_id,
         "origin": origin,
@@ -187,7 +220,7 @@ def _defect(
         "impact": "Blocks FAM-006 from returning REPAIRED/LV-green/UTS-ready/PR-ready on shape-only proof.",
         "rootCause": root_cause,
         "validatorProofGapThatAllowedIt": validator_gap,
-        "adjacentDefectSweepResult": "Adjacent proof path inspected: packet evidence, crop/overlay/text/scope, visual ledger, red-team/root-cause row, false-ACCEPT gate.",
+        "adjacentDefectSweepResult": sweep,
         "exactRepairTarget": repair_target,
         "acceptanceCriteria": acceptance,
         "requiredProof": proof,
@@ -460,6 +493,48 @@ def seed_defects() -> list[dict[str, Any]]:
             status="CLOSED_WITH_PROOF",
             closure="121602 is admitted as known-bad, the packet text hygiene gate rejects its prose tab corruption, and the regenerated USER packet scans clean for tabs/control characters in prose.",
         ),
+        _defect(
+            "FAM006-UDL-016",
+            origin="ChatGPT",
+            title="Required startup contract missing from packet Source Truth Context",
+            exact_user_wording="FAM-006-20260623-123110.zip omitted Docs/nexus_startup_contract.md from Source Truth Context even though the task required it for false-green prevention, ChatGPT/Codex behavior, prompt workflow, loader alignment, and self-adjudication.",
+            expected="When startup contract, prompt workflow, loader continuity, ChatGPT/Codex behavior, or self-adjudication are in scope, the USER packet must include Docs/nexus_startup_contract.md in Source Truth Context or include a source-truth-backed omission reason.",
+            actual="FAM-006-20260623-123110.zip passed validation while Source Truth Context lacked Docs_nexus_startup_contract.md and contained no omission reason.",
+            evidence="Known-bad packet FAM-006-20260623-123110.zip SHA 5DB6C953EFD4A120122B623A0713C8CB106117C21CC4C27B4DDE171DE796628C; Source Truth Context listing omitted Docs_nexus_startup_contract.md.",
+            surfaces="Source Truth Context/Docs_nexus_startup_contract.md; START_HERE.md; USER Review/FAM006_UDL_TEXT_HYGIENE_REPAIR_II_REVIEW.md; UDL packet context manifest.",
+            root_cause="The packet gate required common governance and UI context files but did not encode startup contract as required when false-green/self-adjudication prompt behavior was explicitly in scope.",
+            validator_gap="No FAM-006-local packet source-truth context completeness rule for Docs_nexus_startup_contract.md.",
+            repair_target="Add 123110 to known-bad, require Docs_nexus_startup_contract.md in packet Source Truth Context, and include it in regenerated UDL repair packets.",
+            acceptance="FAM-006 gates reject 123110 for missing startup contract context and pass only when regenerated packet context includes Docs_nexus_startup_contract.md.",
+            proof="false-ACCEPT gate rejects FAM-006-20260623-123110.zip for missing startup contract context; current packet source context includes Docs_nexus_startup_contract.md.",
+            status="CLOSED_WITH_PROOF",
+            closure="123110 is admitted as known-bad, the packet source-context gate rejects its missing startup contract context, and the regenerated USER packet includes Docs_nexus_startup_contract.md.",
+        ),
+        _defect(
+            "FAM006-UDL-017",
+            origin="ChatGPT",
+            title="UDL adjacent-defect sweep fields are generic and repeated",
+            exact_user_wording="Every UDL row repeated `Adjacent proof path inspected: packet evidence, crop/overlay/text/scope, visual ledger, red-team/root-cause row, false-ACCEPT gate.` instead of a row-specific adjacent-defect sweep.",
+            expected="Every UDL defect row must name row-specific adjacent surfaces/files, adjacent behavior, adjacent proof artifacts, adjacent validators or ledger rows, additional defects found or exact reason none were found, linked UDL IDs added or reopened, and whether repair scope changed.",
+            actual="FAM-006-20260623-123110.zip passed validation even though adjacentDefectSweepResult was copied across unrelated UDL rows and did not substantively sweep adjacent defects row by row.",
+            evidence="Known-bad packet FAM-006-20260623-123110.zip SHA 5DB6C953EFD4A120122B623A0713C8CB106117C21CC4C27B4DDE171DE796628C; embedded Review Aids/Unified Defect Ledger/unified_defect_ledger.json.",
+            surfaces="unified_defect_ledger.json; UNIFIED_DEFECT_LEDGER.md; false-ACCEPT gate; UDL packet gate.",
+            root_cause="The UDL helper generated one boilerplate adjacent sweep string inside the shared defect constructor and the gate checked field presence instead of row-specific content.",
+            validator_gap="No duplicate/generic adjacentDefectSweepResult rejection and no minimum row-specific token checks.",
+            repair_target="Generate row-specific adjacent sweep text and reject duplicated or category-list-only adjacent sweeps.",
+            acceptance="FAM-006 gates reject 123110 for generic repeated adjacent sweeps and pass only when all current UDL rows have unique, substantive adjacent sweep results.",
+            proof="UDL gate reports no duplicate adjacentDefectSweepResult values and false-ACCEPT gate rejects 123110 for the embedded generic sweep recurrence.",
+            status="CLOSED_WITH_PROOF",
+            closure="123110 is admitted as known-bad, generic repeated adjacent sweeps are rejected, and regenerated UDL rows carry row-specific adjacent sweep results.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-017: inspected adjacent surfaces/files `unified_defect_ledger.json`, "
+                "`UNIFIED_DEFECT_LEDGER.md`, the shared `_defect` constructor, and packet-embedded UDL rows; "
+                "adjacent behavior inspected: row-specific defect closure versus copied category-list proof; "
+                "adjacent proof artifacts inspected: FAM-006-20260623-123110.zip embedded UDL, current regenerated UDL JSON, "
+                "and false-ACCEPT validator gate output; additional adjacent defects found: FAM006-UDL-016 for missing startup contract context; "
+                "linked UDL IDs added/reopened: FAM006-UDL-016 and FAM006-UDL-017; repair scope changed: yes, packet source-context and adjacent-sweep gates both hardened."
+            ),
+        ),
     ]
 
 
@@ -670,6 +745,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             scope="FAM-006-local",
             linked=["FAM006-UDL-015"],
         ),
+        _incident(
+            "FAM006-FGI-012",
+            packet="FAM-006-20260623-123110.zip",
+            sha256="5DB6C953EFD4A120122B623A0713C8CB106117C21CC4C27B4DDE171DE796628C",
+            head="c4a4b54585a82235cc7dc13ed249a4c107a5a4c7",
+            codex_claim="FAM-006 UDL text-hygiene repair II was ACCEPT / complete after fixing the tab-corrupted phrase.",
+            rejection="USER/ChatGPT rejected missing Docs/nexus_startup_contract.md packet context and generic repeated adjacent-defect sweep fields.",
+            validator_failed="FAM-006 UDL and false-ACCEPT gates before startup-contract source-context and row-specific adjacent-sweep enforcement.",
+            artifact="Source Truth Context inside FAM-006-20260623-123110.zip; embedded Review Aids/Unified Defect Ledger/unified_defect_ledger.json.",
+            ledger_row="FAM006-UDL-016,FAM006-UDL-017",
+            comparator="No visual comparator issue; UDL packet false green came from missing required source-truth context and copied adjacent-sweep prose.",
+            prevention="Require Docs_nexus_startup_contract.md in this scope and reject duplicated/generic adjacentDefectSweepResult fields.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-016", "FAM006-UDL-017"],
+        ),
     ]
     for row in rows:
         unknown = sorted(set(row["linkedDefectIds"]) - known_ids)
@@ -738,6 +828,37 @@ def validate_udl_state(packet_root: Path | None = None) -> dict[str, Any]:
         for banned in ("improved", "mostly", "acceptable", "looks good", "good enough", "green enough"):
             if banned in status.casefold():
                 failures.append(f"{defect_id}: soft status wording is forbidden: {status}")
+    sweep_values: dict[str, list[str]] = {}
+    generic_sweep = (
+        "Adjacent proof path inspected: packet evidence, crop/overlay/text/scope, "
+        "visual ledger, red-team/root-cause row, false-ACCEPT gate."
+    )
+    for row in defects:
+        defect_id = str(row.get("defectId", "<missing>"))
+        sweep = str(row.get("adjacentDefectSweepResult", "")).strip()
+        sweep_values.setdefault(sweep, []).append(defect_id)
+        if sweep == generic_sweep:
+            failures.append(f"{defect_id}: adjacentDefectSweepResult is the rejected generic copied sweep")
+        required_tokens = (
+            "adjacent",
+            "surfaces",
+            "proof",
+            "validator",
+            "additional",
+            "defects",
+            "repair scope",
+        )
+        missing_tokens = [token for token in required_tokens if token not in sweep.casefold()]
+        if missing_tokens:
+            failures.append(
+                f"{defect_id}: adjacentDefectSweepResult missing row-specific tokens: {', '.join(missing_tokens)}"
+            )
+    for sweep, defect_ids in sweep_values.items():
+        if sweep and len(defect_ids) > 1:
+            failures.append(
+                "duplicate adjacentDefectSweepResult across unrelated defects: "
+                f"{', '.join(defect_ids)}"
+            )
     known_bad = set()
     if KNOWN_BAD_CORPUS_ROOT.exists():
         known_bad.update(path.name for path in KNOWN_BAD_CORPUS_ROOT.glob("FAM-006-*.zip"))
@@ -811,6 +932,21 @@ def validate_udl_state(packet_root: Path | None = None) -> dict[str, Any]:
             missing_packet = sorted(PACKET_REQUIRED_FILES - present)
             if missing_packet:
                 failures.append(f"packet missing UDL files: {', '.join(missing_packet)}")
+            context_root = packet_root / "Source Truth Context"
+            if not context_root.exists():
+                failures.append("packet missing Source Truth Context folder")
+            else:
+                context_present = {
+                    path.name
+                    for path in context_root.glob("*")
+                    if path.is_file()
+                }
+                missing_context = sorted(PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES - context_present)
+                if missing_context:
+                    failures.append(
+                        "packet Source Truth Context missing required files: "
+                        + ", ".join(missing_context)
+                    )
             failures.extend(f"packet text hygiene: {failure}" for failure in scan_packet_text_hygiene(packet_root))
     status_counts = Counter(str(row["status"]) for row in defects)
     current_owned_blockers = [
