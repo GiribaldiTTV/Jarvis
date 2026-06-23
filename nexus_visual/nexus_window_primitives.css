@@ -300,7 +300,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state strong {
   color: rgba(237, 253, 255, 0.98);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 850;
   letter-spacing: 0.015em;
   line-height: 1.1;
@@ -338,8 +338,8 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
-  min-height: 76px;
-  padding: 11px 12px;
+  min-height: 82px;
+  padding: 13px 14px;
   border: 1px solid rgba(91, 204, 229, 0.16);
   border-radius: 13px;
   background:
@@ -368,7 +368,7 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status {
   min-height: 24px;
-  padding: 4px 2px 0;
+  padding: 8px 4px 0;
   border: 0;
   background: transparent;
   box-shadow: none;

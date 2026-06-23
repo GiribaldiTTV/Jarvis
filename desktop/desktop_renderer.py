@@ -6854,25 +6854,25 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         profile = getattr(self, "_active_profile_name", "") or "No active overlay profile"
         target_names = getattr(self, "_target_names", "") or "No active monitor targets"
         if self._recording_session_state == "recording":
-            state_label = "Recording"
+            state_label = "State"
             status_text = "Recording"
-            detail_text = "Capturing the active target."
+            detail_text = "Capturing selected overlay."
             log_state = "Log"
-            log_detail = "Native log appears after Stop Recording."
+            log_detail = "Saving when stopped."
         elif self._recording_session_state == "saved-complete":
-            state_label = "Saved"
+            state_label = "State"
             status_text = "Log ready"
             detail_text = "Recording saved as a native NDAI log."
             log_state = "Log"
             log_detail = "Open Log Viewer Studio for the native log."
         elif self._start_stop_state == "start-enabled":
-            state_label = "Ready"
+            state_label = "State"
             status_text = "Ready"
-            detail_text = "Active Overlay Profile target."
+            detail_text = "Selected overlay is ready."
             log_state = "Log"
-            log_detail = "Appears after Stop Recording."
+            log_detail = "No saved log yet."
         else:
-            state_label = "Blocked"
+            state_label = "State"
             status_text = "Choose a target"
             detail_text = "Select an active Overlay Profile before recording."
             log_state = "Log"
@@ -7045,8 +7045,9 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
         self._geometry_persistence_key = "log_viewer_studio_feature_studio_v4"
         self._native_full_path = str(recording_output_dir())
         self._export_full_path = str(recording_export_dir())
-        self._folder_status_text = "Native and exported log folders are ready to open."
+        self._folder_status_text = "Choose a log destination to open."
         self._folder_status_state = "ready"
+        self._last_folder_kind = ""
         super().__init__(screen, event_logger)
         self.setObjectName("monitoringHudLogViewerStudioWindow")
         self.setWindowTitle("Nexus Log Viewer Studio")
@@ -7087,14 +7088,23 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "exportFolder": "Exported Logs folder",
             "nativeFolderTooltip": os.path.normpath(str(self._native_full_path)),
             "exportFolderTooltip": os.path.normpath(str(self._export_full_path)),
-            "nativeFolderState": "Native destination ready",
-            "exportFolderState": "Export destination ready",
+            "nativeFolderState": self._destination_state_text("native"),
+            "exportFolderState": self._destination_state_text("export"),
             "folderStatus": self._folder_status_text,
             "logBoundary": (
                 "This branch provides folder access only. Previous-log selection, in-app viewing, "
                 "export customization, and Native Log Loader remain future-gated."
             ),
         }
+
+    def _destination_state_text(self, folder_kind: str) -> str:
+        if self._last_folder_kind == folder_kind and self._folder_status_state == "opened":
+            return "Opened"
+        if self._last_folder_kind == folder_kind and self._folder_status_state == "blocked":
+            return "Could not open"
+        if folder_kind == "native":
+            return "Ready before recording"
+        return "Ready when USER exports"
 
     def _handle_surface_command(self, command: str) -> None:
         if command == "open-native":
@@ -7110,6 +7120,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             os.startfile(target_folder)
             self._folder_status_text = "Native NDAI logs folder opened." if folder_kind == "native" else "Exported logs folder opened."
             self._folder_status_state = "opened"
+            self._last_folder_kind = folder_kind
             if callable(self.event_logger):
                 self.event_logger(
                     "MONITORING_HUD_LOG_VIEWER_STUDIO_FOLDER_OPENED|"
@@ -7118,6 +7129,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
         except Exception as exc:
             self._folder_status_text = "Native NDAI logs folder could not be opened." if folder_kind == "native" else "Exported logs folder could not be opened."
             self._folder_status_state = "blocked"
+            self._last_folder_kind = folder_kind
             if callable(self.event_logger):
                 self.event_logger(
                     "MONITORING_HUD_LOG_VIEWER_STUDIO_FOLDER_BLOCKED|"

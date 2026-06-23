@@ -706,8 +706,14 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
             resize = manifest.get("resizeProof", {})
             if resize.get("method") in {"scripted-resize-call", "setGeometry-only"}:
                 failures.append("resize proof uses forbidden scripted/direct geometry method")
-            if resize.get("runtimeTruth") != "pre-live-proof-only-exact-desktop-launcher-validation-still-required-before-uts":
+            runtime_truth = str(resize.get("runtimeTruth", ""))
+            if "exact-desktop-launcher-live-validation-still-required" not in runtime_truth:
                 failures.append("resize proof must explicitly separate pre-LV evidence from exact desktop launcher LV proof")
+            if (
+                resize.get("method") == "runtime-widget-edge-drag-with-top-level-resize-handler"
+                and not resize.get("widthIncreased")
+            ):
+                failures.append("runtime edge resize proof must show a width increase")
     if red_teams:
         try:
             red_team = json.loads(red_teams[0].read_text(encoding="utf-8"))
