@@ -236,48 +236,60 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 14px;
-  min-height: 78px;
-  padding: 12px;
-  border: 1px solid rgba(106, 230, 244, 0.24);
-  border-radius: 16px;
+  gap: 12px;
+  min-height: 82px;
+  padding: 13px 14px;
+  border: 1px solid rgba(106, 230, 244, 0.18);
+  border-radius: 14px;
   background:
-    radial-gradient(circle at 12% 0%, rgba(111, 255, 225, 0.16), transparent 48%),
-    linear-gradient(135deg, rgba(6, 32, 50, 0.82), rgba(3, 17, 31, 0.78));
+    radial-gradient(circle at 12% 0%, rgba(111, 255, 225, 0.11), transparent 48%),
+    linear-gradient(135deg, rgba(5, 27, 43, 0.74), rgba(3, 16, 29, 0.66));
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.035) inset,
-    0 14px 24px rgba(0, 0, 0, 0.16);
+    0 9px 20px rgba(0, 0, 0, 0.12);
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary > div,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-log-card > div,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-chip,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-copy {
   display: grid;
   gap: 4px;
   min-width: 0;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-log-card {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-strip {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
+  gap: 14px;
+  padding: 8px 10px 6px;
+  border: 0;
+  border-top: 1px solid rgba(91, 204, 229, 0.18);
+  border-bottom: 1px solid rgba(91, 204, 229, 0.10);
+  background: linear-gradient(90deg, rgba(74, 209, 238, 0.045), transparent 64%);
+  box-shadow: none;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-chip {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-route-strip {
+  display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 9px 11px;
-  border: 1px solid rgba(91, 204, 229, 0.16);
-  border-radius: 14px;
-  background:
-    linear-gradient(90deg, rgba(84, 212, 236, 0.06), transparent 60%),
-    rgba(3, 17, 30, 0.42);
+  justify-content: flex-start;
+  min-height: 38px;
+  padding-left: 10px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state span,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary span,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-log-card span,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card span {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-chip span,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-action-card span {
   color: rgba(133, 218, 238, 0.9);
   font-size: 10px;
   font-weight: 820;
@@ -295,9 +307,8 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   text-transform: uppercase;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary strong,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-log-card strong,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card strong {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-chip strong,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-action-card strong {
   color: rgba(161, 255, 226, 0.96);
   font-size: 12px;
   font-weight: 820;
@@ -308,8 +319,8 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state em,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-summary em,
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card em,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-chip em,
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-action-card em,
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status span {
   display: block;
   color: rgba(190, 226, 238, 0.94);
@@ -322,24 +333,24 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   white-space: nowrap;
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-action-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
-  gap: 8px;
-  min-height: 88px;
-  padding: 11px 12px 12px;
-  border: 1px solid rgba(91, 204, 229, 0.19);
-  border-radius: 15px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 11px 12px;
+  border: 1px solid rgba(91, 204, 229, 0.16);
+  border-radius: 13px;
   background:
-    radial-gradient(circle at 10% 0%, rgba(80, 225, 255, 0.10), transparent 48%),
-    linear-gradient(135deg, rgba(5, 28, 45, 0.72), rgba(3, 17, 30, 0.64));
+    radial-gradient(circle at 10% 0%, rgba(80, 225, 255, 0.07), transparent 46%),
+    linear-gradient(135deg, rgba(5, 26, 42, 0.58), rgba(3, 17, 30, 0.48));
   box-shadow:
     0 0 0 1px rgba(230, 251, 255, 0.024) inset,
-    0 10px 20px rgba(0, 0, 0, 0.13);
+    0 8px 16px rgba(0, 0, 0, 0.10);
 }
 
-body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-card small {
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-action-card small {
   display: block;
   color: rgba(157, 255, 226, 0.88);
   font-size: 10.5px;
@@ -395,7 +406,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit[data-control="recording-studio-toggle"] {
-  min-width: 176px;
+  min-width: 184px;
+  height: 44px;
+  min-height: 44px;
+  padding-inline: 22px;
   border-color: rgba(116, 255, 223, 0.42);
   background:
     linear-gradient(180deg, rgba(13, 66, 83, 0.62), rgba(6, 30, 48, 0.74)),

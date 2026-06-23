@@ -7,6 +7,17 @@
       target.textContent = String(value || "");
     }
   };
+  const setTitle = (id, value) => {
+    const target = byId(id);
+    if (target) {
+      const text = String(value || "");
+      if (text) {
+        target.setAttribute("title", text);
+      } else {
+        target.removeAttribute("title");
+      }
+    }
+  };
   const emitCommand = (name) => {
     console.info(`${commandPrefix}${name}`);
   };
@@ -94,10 +105,10 @@
     setText("monitoring-hud-studio-recording-state-label", state.recordingStateLabel || "Ready");
     setText("monitoring-hud-studio-recording-target", state.recordingTarget || "No active overlay profile");
     setText("monitoring-hud-studio-recording-target-detail", state.recordingTargetDetail || "No active monitors.");
-    setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Ready to record");
-    setText("monitoring-hud-studio-recording-detail", state.recordingDetail || "Uses the active Overlay Profile.");
-    setText("monitoring-hud-studio-recording-log-state", state.recordingLogState || "No saved log yet");
-    setText("monitoring-hud-studio-recording-log-detail", state.recordingLogDetail || "Start then stop recording to create a log.");
+    setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Ready");
+    setText("monitoring-hud-studio-recording-detail", state.recordingDetail || "Active Overlay Profile target.");
+    setText("monitoring-hud-studio-recording-log-state", state.recordingLogState || "Log");
+    setText("monitoring-hud-studio-recording-log-detail", state.recordingLogDetail || "Appears after Stop Recording.");
     setText("monitoring-hud-studio-recording-boundary", state.recordingBoundary || "");
     const toggle = byId("monitoring-hud-studio-recording-toggle-action");
     const isRecording = state.stopEnabled === true;
@@ -116,6 +127,8 @@
     setActionState("monitoring-hud-studio-recording-toggle-action", isRecording || state.startEnabled === true);
     setText("monitoring-hud-studio-native-folder", state.nativeFolder || "");
     setText("monitoring-hud-studio-export-folder", state.exportFolder || "");
+    setTitle("monitoring-hud-studio-native-folder", state.nativeFolderTooltip || state.nativeFolder || "");
+    setTitle("monitoring-hud-studio-export-folder", state.exportFolderTooltip || state.exportFolder || "");
     setText("monitoring-hud-studio-native-folder-state", state.nativeFolderState || "Native destination ready");
     setText("monitoring-hud-studio-export-folder-state", state.exportFolderState || "Export destination ready");
     setText("monitoring-hud-studio-log-boundary", state.logBoundary || "");

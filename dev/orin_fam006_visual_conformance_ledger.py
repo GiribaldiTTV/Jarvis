@@ -123,6 +123,7 @@ class VisualLedgerRow:
     accepted_comparator: str
     comparator_screenshot: str
     fam006_screenshot: str
+    packet_evidence_key: str
     code_path: str
     backend_to_visual_path: str
     visual_difference: str
@@ -130,6 +131,61 @@ class VisualLedgerRow:
     proof_quality: str
     repair_decision: str
     final_disposition: str
+
+
+PACKET_EVIDENCE_BY_GROUP = {
+    ("Recording Studio", "outer frame"): "recording-window-chrome",
+    ("Recording Studio", "chrome"): "recording-window-chrome",
+    ("Recording Studio", "title/header"): "recording-window-chrome",
+    ("Recording Studio", "category label"): "recording-window-chrome",
+    ("Recording Studio", "window-control cluster"): "recording-window-chrome",
+    ("Recording Studio", "minimize control"): "recording-window-chrome",
+    ("Recording Studio", "close control"): "recording-window-chrome",
+    ("Recording Studio", "controller hero"): "recording-primary-action",
+    ("Recording Studio", "visually primary Start/Stop control"): "recording-primary-action",
+    ("Recording Studio", "target summary card"): "recording-target-truth",
+    ("Recording Studio", "secondary Log Viewer route control"): "recording-log-route",
+    ("Recording Studio", "copy/text clarity"): "recording-target-truth",
+    ("Log Viewer Studio", "outer frame"): "log-viewer-window-chrome",
+    ("Log Viewer Studio", "chrome"): "log-viewer-window-chrome",
+    ("Log Viewer Studio", "title/header"): "log-viewer-window-chrome",
+    ("Log Viewer Studio", "category label"): "log-viewer-window-chrome",
+    ("Log Viewer Studio", "window-control cluster"): "log-viewer-window-chrome",
+    ("Log Viewer Studio", "minimize control"): "log-viewer-window-chrome",
+    ("Log Viewer Studio", "close control"): "log-viewer-window-chrome",
+    ("Log Viewer Studio", "edge resize affordance"): "log-viewer-resize-after",
+    ("Log Viewer Studio", "Native logs destination card"): "native-log-destination-action",
+    ("Log Viewer Studio", "Exported logs destination card"): "exported-log-destination-action",
+    ("Log Viewer Studio", "folder status strip"): "log-viewer-action-status",
+    ("Log Viewer Studio", "embedded Native Logs open control"): "native-log-destination-action",
+    ("Log Viewer Studio", "embedded Exported Logs open control"): "exported-log-destination-action",
+    ("Log Viewer Studio", "path text containment"): "native-log-destination-action",
+    ("Log Viewer Studio", "copy/text clarity"): "log-viewer-action-status",
+    ("Native/export folder shell", "native folder path"): "native-log-destination-action",
+    ("Native/export folder shell", "exported folder path"): "exported-log-destination-action",
+    ("Native/export folder shell", "pre-session folder availability"): "log-viewer-action-status",
+    ("Native/export folder shell", "folder-open action status"): "log-viewer-action-status",
+    ("Native/export folder shell", "blocked/error status"): "log-viewer-action-status",
+    ("Native/export folder shell", "path tooltip/accessibility"): "native-log-destination-action",
+}
+
+CURRENT_PACKET_REQUIRED_EVIDENCE = {
+    "recording-full-window",
+    "recording-window-chrome",
+    "recording-primary-action",
+    "recording-target-truth",
+    "recording-log-route",
+    "log-viewer-full-window",
+    "log-viewer-window-chrome",
+    "native-log-destination-action",
+    "exported-log-destination-action",
+    "log-viewer-action-status",
+    "log-viewer-resize-before",
+    "log-viewer-resize-during",
+    "log-viewer-resize-after",
+    "full-desktop-combined",
+    "contact-sheet",
+}
 
 
 def _read(relative: str) -> str:
@@ -401,9 +457,9 @@ def _visual_difference_for(surface: str, group: str, disposition: str) -> str:
     if "recording studio" in text and ("start/stop" in text or "log viewer route" in text):
         return f"{surface} {group}: row-specific proof shows one dominant stateful Start/Stop control plus a secondary Log Viewer route; separate/stretched equal-peer control model is rejected."
     if "recording studio" in text and ("target" in text or "status" in text or "controller hero" in text or "summary card" in text):
-        return f"{surface} {group}: row-specific proof shows a finished controller hero and compact summary card; debug labels, boxed tables, and dense Target/Status rows are rejected."
+        return f"{surface} {group}: row-specific proof must show an action-first controller and compact target/log truth chips; report panels, debug labels, boxed tables, and dense Target/Status rows are rejected."
     if "log viewer studio" in text and ("native logs" in text or "exported logs" in text or "path" in text or "destination card" in text):
-        return f"{surface} {group}: row-specific proof shows destination/action cards with secondary middle-elided path text; full log browser/export customization remains future-gated."
+        return f"{surface} {group}: row-specific proof must show folder actions first with muted secondary paths; technical path-table presentation and full log browser/export customization remain rejected."
     if "log viewer studio" in text and ("open native" in text or "open exported" in text):
         return f"{surface} {group}: repaired to content-fit folder action buttons; row requires folder-action proof before LV acceptance."
     if "log viewer studio" in text and "resize" in text:
@@ -442,9 +498,9 @@ def _state_coverage_for(surface: str, group: str) -> str:
     return f"{surface} {group}: inspected default visible state and applicable current-branch proof path; additional LV action proof remains pending."
 
 
-def _proof_quality_for(surface: str, group: str, evidence: Path) -> str:
+def _proof_quality_for(surface: str, group: str, evidence: Path, packet_key: str) -> str:
     return (
-        f"{surface} {group}: row uses concrete evidence file `{_as_posix(evidence)}`; "
+        f"{surface} {group}: row uses packet evidence key `{packet_key}` backed by `{_as_posix(evidence)}`; "
         "helper/marker output is supporting evidence only and cannot replace visual review."
     )
 
@@ -464,12 +520,11 @@ def build_rows() -> list[VisualLedgerRow]:
                 else AI_CONTROL_CENTER_COMPARATOR
             )
             disposition = DISPOSITION_MAP.get(str(spec["disposition"]), str(spec["disposition"]))
-            if surface == "Recording Studio" and any(token in str(group).casefold() for token in ("button", "control", "hover", "focus", "pressed", "disabled")):
-                disposition = "PERFECT_PASS"
-            if surface == "Log Viewer Studio" and any(token in str(group).casefold() for token in ("button", "control", "hover", "focus", "pressed", "disabled")):
-                disposition = "PERFECT_PASS"
-            if surface == "Log Viewer Studio" and "resize" in str(group).casefold():
-                disposition = "PERFECT_PASS"
+            packet_key = PACKET_EVIDENCE_BY_GROUP.get((surface, str(group)), "")
+            if not packet_key and surface == "Recording Studio":
+                packet_key = "recording-full-window"
+            if not packet_key and surface == "Log Viewer Studio":
+                packet_key = "log-viewer-full-window"
             rows.append(
                 VisualLedgerRow(
                     row_id=f"FAM006-STL-{counter:03d}",
@@ -481,11 +536,12 @@ def build_rows() -> list[VisualLedgerRow]:
                     accepted_comparator="AI Control Center / UIREF-001 through UIREF-006 plus FAM-006 current window taxonomy",
                     comparator_screenshot=_as_posix(comparator),
                     fam006_screenshot=_as_posix(screenshot),
+                    packet_evidence_key=packet_key,
                     code_path=str(spec["code_path"]),
                     backend_to_visual_path=str(spec["backend"]),
                     visual_difference=_visual_difference_for(surface, str(group), disposition),
                     state_coverage=_state_coverage_for(surface, str(group)),
-                    proof_quality=_proof_quality_for(surface, str(group), screenshot),
+                    proof_quality=_proof_quality_for(surface, str(group), screenshot, packet_key or "MISSING_PACKET_EVIDENCE_KEY"),
                     repair_decision=str(spec["decision"]),
                     final_disposition=disposition,
                 )
@@ -518,12 +574,14 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
             failures.append(f"{row.row_id}: duplicate row id")
         seen.add(row.row_id)
         for key, value in data.items():
-            if value is None or str(value).strip() == "":
+            if value is None or (key != "packet_evidence_key" and str(value).strip() == ""):
                 failures.append(f"{row.row_id}: missing {key}")
         if row.final_disposition not in ALLOWED_FINAL_DISPOSITIONS:
             failures.append(f"{row.row_id}: illegal final disposition {row.final_disposition!r}")
         if row.final_disposition in {"REPAIR_REQUIRED", "BLOCKED_WITH_DECISION"}:
             failures.append(f"{row.row_id}: non-green active disposition blocks H1/LV/UTS")
+        if row.surface in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"} and not row.packet_evidence_key:
+            failures.append(f"{row.row_id}: current-branch Studio row lacks packet_evidence_key")
         for evidence_key in ("comparator_screenshot", "fam006_screenshot"):
             evidence_path = str(data[evidence_key]).strip()
             if any(token in evidence_path for token in ("<timestamp>", "*", "?")):
@@ -540,19 +598,22 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
                 failures.append(f"{row.row_id}: vague visual verdict term {forbidden!r} appears in a green row")
     required_source_markers = (
         "fam006-unique-child-studio-shell-v5",
-        "unique-child-purpose-stack-v5",
+        "unique-child-purpose-stack-v6",
         "detached-child-window-header-no-title-card",
         "category-line-plus-strong-title-no-title-card",
-        "destination-and-controller-cards-no-table-rows",
+        "action-first-controller-with-compact-truth-chips-no-report-panels",
+        "action-first-folder-actions-with-secondary-paths-no-technical-path-table",
         "boxedTablePanelRejected",
         "tableRowTruthLayoutRejected",
-        "finished-recording-controller",
-        "finished-folder-access-shell",
+        "statusReportPanelRejected",
+        "technicalPathViewerRejected",
+        "action-first-recording-controller-v6",
+        "action-first-folder-access-shell-v6",
         "monitoring-hud__controller-hero",
-        "monitoring-hud__controller-summary",
-        "monitoring-hud__controller-log-card",
-        "monitoring-hud__log-destination-card",
-        "monitoring-hud-hub-action-content-fit-equal-gutter-v3",
+        "monitoring-hud__controller-meta-strip",
+        "monitoring-hud__controller-route-strip",
+        "monitoring-hud__log-action-card",
+        "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
         "hub-action-content-fit-equal-gutter-32px-pill",
         "not-resizable-position-memory-only",
         "edge-resize-native-top-level",
@@ -565,6 +626,7 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
     forbidden_source_markers = (
         "fam006-unique-child-studio-shell-v4",
         "unique-child-purpose-stack-v4",
+        "unique-child-purpose-stack-v5",
         'data-fixed-controller-height="184"',
         "HEIGHT = 184",
         '"stateRowDensityPolicy": "rejected-dense-row-stack-not-used"',
@@ -581,12 +643,79 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "ultra-light-recording-controller",
         "compact-folder-access-shell",
         "monitoring-hud-hub-action-content-fit-equal-gutter-v2",
+        "monitoring-hud-hub-action-content-fit-equal-gutter-v3",
+        "monitoring-hud__controller-summary",
+        "monitoring-hud__controller-log-card",
+        "monitoring-hud__log-destination-card",
         '"stateRowDensityPolicy": "divider-rows-no-boxed-table"',
         "--nexus-feature-studio-title-bg",
     )
     for marker in forbidden_source_markers:
         if marker in source_text:
             failures.append(f"stale source marker present: {marker}")
+    return failures
+
+
+def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
+    failures: list[str] = []
+    if not PACKET_ROOT.exists():
+        return ["active USER packet root missing; regenerate packet before green visual ledger"]
+    row_maps = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/row_to_evidence_map.json"))
+    manifests = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/visual_capture_manifest.json"))
+    red_teams = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/internal_visual_red_team_ledger.json"))
+    root_causes = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/adjudication_failure_root_cause_ledger.json"))
+    if len(row_maps) != 1:
+        failures.append(f"expected exactly one packet row_to_evidence_map.json, found {len(row_maps)}")
+        return failures
+    if len(manifests) != 1:
+        failures.append(f"expected exactly one packet visual_capture_manifest.json, found {len(manifests)}")
+    if len(red_teams) != 1:
+        failures.append(f"expected exactly one packet internal_visual_red_team_ledger.json, found {len(red_teams)}")
+    if len(root_causes) != 1:
+        failures.append(f"expected exactly one packet adjudication_failure_root_cause_ledger.json, found {len(root_causes)}")
+    row_map_path = row_maps[0]
+    evidence_root = row_map_path.parent
+    try:
+        row_map = json.loads(row_map_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"packet row_to_evidence_map.json is invalid JSON: {exc}"]
+    missing_keys = sorted(CURRENT_PACKET_REQUIRED_EVIDENCE - set(row_map))
+    if missing_keys:
+        failures.append(f"packet row_to_evidence_map.json missing required evidence keys: {', '.join(missing_keys)}")
+    for key, value in sorted(row_map.items()):
+        value_text = str(value or "").strip()
+        if not value_text:
+            failures.append(f"packet evidence key {key!r} has empty path")
+            continue
+        if Path(value_text).is_absolute():
+            failures.append(f"packet evidence key {key!r} uses absolute path instead of packet-relative path: {value_text}")
+            continue
+        target = evidence_root / value_text
+        if not target.exists():
+            failures.append(f"packet evidence key {key!r} points to missing packet media: {value_text}")
+    current_keys = {row.packet_evidence_key for row in rows if row.surface in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"}}
+    unmapped = sorted(key for key in current_keys if key and key not in row_map)
+    if unmapped:
+        failures.append(f"current-branch ledger rows reference packet evidence keys absent from row map: {', '.join(unmapped)}")
+    if manifests:
+        try:
+            manifest = json.loads(manifests[0].read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            failures.append(f"visual_capture_manifest.json is invalid JSON: {exc}")
+        else:
+            resize = manifest.get("resizeProof", {})
+            if resize.get("method") in {"scripted-resize-call", "setGeometry-only"}:
+                failures.append("resize proof uses forbidden scripted/direct geometry method")
+            if resize.get("runtimeTruth") != "pre-live-proof-only-exact-desktop-launcher-validation-still-required-before-uts":
+                failures.append("resize proof must explicitly separate pre-LV evidence from exact desktop launcher LV proof")
+    if red_teams:
+        try:
+            red_team = json.loads(red_teams[0].read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            failures.append(f"internal_visual_red_team_ledger.json is invalid JSON: {exc}")
+        else:
+            if "REPAIR_REQUIRED" in json.dumps(red_team):
+                failures.append("internal visual red-team ledger still contains REPAIR_REQUIRED")
     return failures
 
 
@@ -614,7 +743,7 @@ def render_markdown(rows: list[VisualLedgerRow]) -> str:
         "",
         "Final disposition vocabulary is restricted. Vague progress language is not accepted as green.",
         "",
-        "| Row ID | Surface | Element Group | Window Class | Comparator | Code Path | State Coverage | Final Disposition |",
+        "| Row ID | Surface | Element Group | Window Class | Packet Evidence Key | Code Path | State Coverage | Final Disposition |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for row in rows:
@@ -626,7 +755,7 @@ def render_markdown(rows: list[VisualLedgerRow]) -> str:
                     row.surface,
                     row.element_group,
                     row.window_class,
-                    row.accepted_comparator,
+                    row.packet_evidence_key or "N/A",
                     row.code_path,
                     row.state_coverage,
                     row.final_disposition,
@@ -655,6 +784,7 @@ def main() -> int:
     )
     rows = build_rows()
     failures = validate_rows(rows, source_text)
+    failures.extend(validate_packet_evidence(rows))
     helper_snapshot = packet_hygiene_summary()
     proof = {
         "status": "PASS" if not failures else "FAIL",
