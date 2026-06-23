@@ -29,6 +29,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-121602.zip",
+    USER_ROOT / "FAM-006-20260623-121602.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-120234.zip",
     USER_ROOT / "FAM-006-20260623-120234.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-113615.zip",
@@ -1033,7 +1035,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
             defect_ids = {str(row.get("defectId", "")) for row in defects if isinstance(row, dict)}
             if error or not isinstance(data, dict) or not isinstance(defects, list):
                 failures.append(f"invalid embedded unified_defect_ledger.json: {error}")
-            for required_id in ("FAM006-UDL-012", "FAM006-UDL-013", "FAM006-UDL-014"):
+            for required_id in ("FAM006-UDL-012", "FAM006-UDL-013", "FAM006-UDL-014", "FAM006-UDL-015"):
                 if required_id not in defect_ids:
                     failures.append(f"embedded UDL missing latest false-green defect {required_id}")
         if embedded_incident_path is None:
@@ -1043,8 +1045,8 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
             incidents = data.get("incidents", []) if isinstance(data, dict) else []
             if error or not isinstance(data, dict) or not isinstance(incidents, list):
                 failures.append(f"invalid embedded false_green_incident_ledger.json: {error}")
-            elif len(incidents) < 10:
-                failures.append(f"embedded false-green incident ledger is generic: expected at least 10 rows, found {len(incidents)}")
+            elif len(incidents) < 11:
+                failures.append(f"embedded false-green incident ledger is generic: expected at least 11 rows, found {len(incidents)}")
             covered = {
                 str(row.get("packetPathOrReconstructedRecord", ""))
                 for row in incidents
@@ -1056,6 +1058,8 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                 failures.append("embedded false-green incident ledger missing 113615 UDL false-green incident")
             if not any("120234" in item for item in covered):
                 failures.append("embedded false-green incident ledger missing 120234 packet text-hygiene incident")
+            if not any("121602" in item for item in covered):
+                failures.append("embedded false-green incident ledger missing 121602 packet text-hygiene incident")
             for index, row in enumerate(incidents, start=1):
                 if not isinstance(row, dict):
                     failures.append(f"embedded false-green incident row {index} is not an object")

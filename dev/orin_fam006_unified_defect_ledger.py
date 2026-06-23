@@ -67,11 +67,13 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json",
     "FAM-006-20260623-113615.zip",
     "FAM-006-20260623-120234.zip",
+    "FAM-006-20260623-121602.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
     "FAM-006-20260623-113615.zip": "CFBBFA0CDAC9A6A190DF22F4811BC7E959C3A32C58E5514AF025ED18FB289086",
     "FAM-006-20260623-120234.zip": "D93AADB19ABBDD0973412D301AB14ABF8B115349A352E75868607A32F3CC20FE",
+    "FAM-006-20260623-121602.zip": "284D92B4DD0F9F7977018B6B10D3E3550B14FAFAD1026DF5CF9E5DFDEED82CB6",
 }
 TEXT_HYGIENE_EXTENSIONS = {".json", ".md"}
 TEXT_HYGIENE_ROOTS = (
@@ -79,6 +81,13 @@ TEXT_HYGIENE_ROOTS = (
     "USER Review",
     "Review Aids",
     "Source Truth Context",
+)
+CANONICAL_TEXT_REFERENCES = (
+    "FAM-006-20260623-071500.zip",
+    "071500",
+    "the reconstructed 071500 record",
+    "FAM-006-20260623-120234.zip",
+    "FAM-006-20260623-121602.zip",
 )
 
 
@@ -121,6 +130,26 @@ def scan_packet_text_hygiene(packet_root: Path) -> list[str]:
             failures.append(f"{rel}: null character corrupts USER-facing text")
         if "reconstructed \x0071500 record" in text:
             failures.append(f"{rel}: corrupted known-bad identifier `reconstructed \\x0071500 record`")
+        if "\the reconstructed 071500 record" in text:
+            failures.append(f"{rel}: tab-corrupted prose `\\the reconstructed 071500 record`")
+        if path.suffix.lower() == ".md":
+            in_fence = False
+            for line_number, line in enumerate(text.splitlines(), start=1):
+                stripped = line.lstrip()
+                if stripped.startswith("```") or stripped.startswith("~~~"):
+                    in_fence = not in_fence
+                    continue
+                if "\t" not in line:
+                    continue
+                is_table = stripped.startswith("|")
+                if not in_fence and not is_table:
+                    failures.append(f"{rel}: tab character in USER-facing prose at line {line_number}")
+        elif "\t" in text:
+            failures.append(f"{rel}: tab character is not allowed in USER-facing JSON/text")
+        control_stripped = "".join(char for char in text if ord(char) >= 32 or char in "\r\n")
+        for expected in CANONICAL_TEXT_REFERENCES:
+            if expected in control_stripped and expected not in text:
+                failures.append(f"{rel}: canonical reference corrupted by hidden control characters: {expected}")
     return failures
 
 
@@ -414,6 +443,23 @@ def seed_defects() -> list[dict[str, Any]]:
             status="CLOSED_WITH_PROOF",
             closure="120234 is admitted as known-bad, the packet text hygiene gate rejects its null byte, and the regenerated USER packet scans clean for non-printable control characters.",
         ),
+        _defect(
+            "FAM006-UDL-015",
+            origin="ChatGPT",
+            title="USER-facing Markdown prose contains escape-generated tab and corrupted expected phrase",
+            exact_user_wording="USER Review/FAM006_UDL_TEXT_HYGIENE_REPAIR_REVIEW.md contains `should read \\the reconstructed 071500 record` instead of `should read the reconstructed 071500 record`.",
+            expected="USER-facing Markdown prose must render artifact explanations as normal readable text; tabs/control characters may not replace letters, split canonical references, or corrupt expected phrases outside explicitly allowed code/table contexts.",
+            actual="FAM-006-20260623-121602.zip passed validation while the primary USER review Markdown contained a literal tab before `he reconstructed 071500 record`, replacing the leading `t` in `the`.",
+            evidence="Known-bad packet FAM-006-20260623-121602.zip SHA 284D92B4DD0F9F7977018B6B10D3E3550B14FAFAD1026DF5CF9E5DFDEED82CB6; exact failing file USER Review/FAM006_UDL_TEXT_HYGIENE_REPAIR_REVIEW.md.",
+            surfaces="START_HERE.md; USER Review/*.md; Review Aids/**/*.md; Review Aids/**/*.json; Source Truth Context/**/*.md; generated USER review prose",
+            root_cause="The text-hygiene scanner allowed tab characters globally, so a generated escape sequence in prose corrupted the review sentence while still passing the packet gate.",
+            validator_gap="No Markdown context-aware tab rule and no canonical phrase/reference integrity check for `the reconstructed 071500 record` and the active known-bad packet IDs.",
+            repair_target="Add 121602 to known-bad, reject tabs in Markdown prose outside fenced code or table rows, and require canonical artifact/phrase integrity for known-bad references.",
+            acceptance="FAM-006 gates reject 121602 for the exact tab-corrupted phrase; regenerated packet has no prose tabs and renders `the reconstructed 071500 record` correctly.",
+            proof="false-ACCEPT gate rejects FAM-006-20260623-121602.zip for packet text hygiene and current packet text hygiene scan passes with canonical references intact.",
+            status="CLOSED_WITH_PROOF",
+            closure="121602 is admitted as known-bad, the packet text hygiene gate rejects its prose tab corruption, and the regenerated USER packet scans clean for tabs/control characters in prose.",
+        ),
     ]
 
 
@@ -609,6 +655,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             scope="FAM-006-local",
             linked=["FAM006-UDL-014"],
         ),
+        _incident(
+            "FAM006-FGI-011",
+            packet="FAM-006-20260623-121602.zip",
+            sha256="284D92B4DD0F9F7977018B6B10D3E3550B14FAFAD1026DF5CF9E5DFDEED82CB6",
+            head="65e420fc8a214df35ae84de29ee39f8687e166bf",
+            codex_claim="FAM-006 UDL packet text-hygiene repair was ACCEPT / complete after null-byte prevention.",
+            rejection="USER/ChatGPT rejected USER-facing Markdown prose corruption because a literal tab replaced the leading `t` in `the reconstructed 071500 record`.",
+            validator_failed="FAM-006 packet text hygiene gate before Markdown prose tab-context and canonical phrase integrity checks.",
+            artifact="USER Review/FAM006_UDL_TEXT_HYGIENE_REPAIR_REVIEW.md inside FAM-006-20260623-121602.zip",
+            ledger_row="FAM006-UDL-015",
+            comparator="No visual comparator issue; text hygiene false green corrupted prose and the canonical 071500 phrase.",
+            prevention="Reject tabs in USER-facing Markdown prose outside code fences/tables and require canonical known-bad artifact/phrase integrity.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-015"],
+        ),
     ]
     for row in rows:
         unknown = sorted(set(row["linkedDefectIds"]) - known_ids)
@@ -710,8 +771,8 @@ def validate_udl_state(packet_root: Path | None = None) -> dict[str, Any]:
                 failures.append(f"{artifact_name}: reconstructed record missing exactRejectionReasons")
     if not incidents:
         failures.append("false-green incident ledger is empty")
-    if len(incidents) < 10:
-        failures.append(f"false-green incident ledger is too generic: expected at least 10 event-specific rows, found {len(incidents)}")
+    if len(incidents) < 11:
+        failures.append(f"false-green incident ledger is too generic: expected at least 11 event-specific rows, found {len(incidents)}")
     for incident in incidents:
         for field in (
             "incidentId",
