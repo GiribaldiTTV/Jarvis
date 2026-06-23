@@ -326,6 +326,7 @@ def main() -> int:
           const surface = document.getElementById("monitoring-hud");
           const titleGroup = document.querySelector(".monitoring-hud__title-group");
           const subtitle = document.querySelector(".monitoring-hud__subtitle");
+          const title = document.querySelector(".monitoring-hud__title");
           const surfaceRole = document.querySelector(".monitoring-hud__surface-role");
           const surfaceRoleCopy = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-copy") : null;
           const surfaceRolePairs = surfaceRole ? Array.from(surfaceRole.querySelectorAll(".monitoring-hud__surface-role-pair")) : [];
@@ -337,20 +338,24 @@ def main() -> int:
           const close = document.getElementById("ai-control-center-close-action");
           const maximize = document.getElementById("ai-control-center-maximize-action");
           const minimize = document.getElementById("ai-control-center-minimize-action");
-          const foyerGroup = document.querySelector('[data-dashboard-hub-group="ai-home-control-foyer"]');
+          const settingsAction = document.getElementById("ai-dashboard-settings-action");
+          const settingsStatus = document.getElementById("ai-dashboard-settings-status");
+          const foyerGroup = document.querySelector('[data-dashboard-hub-group="ai-dashboard-domain-doorways"]');
           const categoryCards = foyerGroup
             ? Array.from(foyerGroup.querySelectorAll("[data-dashboard-hub-card]")).map((card) => card.dataset.dashboardHubCard || "")
             : [];
           const focusedDetail = document.getElementById("ai-control-center-readiness-detail");
           const focusedHeading = document.getElementById("ai-control-center-readiness-detail-heading");
           const focusedEyebrow = focusedDetail ? focusedDetail.querySelector(".ai-control-center-focused-detail__eyebrow") : null;
-          const orinRowLabel = document.querySelector('[data-dashboard-hub-card="orin-status"] .monitoring-hud__state-row span');
-          const orinRowValue = document.querySelector('[data-dashboard-hub-card="orin-status"] .monitoring-hud__state-row strong');
-          const localCheckRowLabel = document.querySelector('[data-dashboard-hub-card="ai-diagnostics"] .monitoring-hud__state-row span');
-          const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="ai-diagnostics"] .monitoring-hud__state-row strong');
+          const orinRowLabel = document.querySelector('[data-dashboard-hub-card="active-ai"] .monitoring-hud__state-row span');
+          const orinRowValue = document.querySelector('[data-dashboard-hub-card="active-ai"] .monitoring-hud__state-row strong');
+          const localCheckRowLabel = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"] .monitoring-hud__state-row span');
+          const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"] .monitoring-hud__state-row strong');
           const localCheckButton = document.getElementById("ai-control-center-local-check-action");
           const localCheckButtonLabel = localCheckButton ? localCheckButton.querySelector(".monitoring-hud__button-label") : null;
-          const reportCard = document.querySelector('[data-dashboard-hub-card="local-ai-readiness-report"]');
+          const reportCard = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"]');
+          const controlCenterCard = document.querySelector('[data-dashboard-hub-card="ai-control-center"]');
+          const maintenanceCard = document.querySelector('[data-dashboard-hub-card="capabilities-maintenance"]');
           const reportGenerateButton = document.getElementById("ai-control-center-generate-report-action");
           const reportCopyButton = document.getElementById("ai-control-center-copy-report-action");
           const reportState = document.getElementById("ai-control-center-report-state");
@@ -363,11 +368,14 @@ def main() -> int:
               }))
             : [];
           return JSON.stringify({
+            titleText: title ? title.textContent.trim() : "",
             titleGroupRect: rect(titleGroup),
             subtitleText: subtitle ? subtitle.textContent.trim() : "",
             subtitleLineCount: subtitle ? subtitle.getClientRects().length : 0,
             subtitleRect: rect(subtitle),
             surfaceRoleRect: rect(surfaceRole),
+            surfaceRoleAriaLabel: surfaceRole ? surfaceRole.getAttribute("aria-label") : "",
+            surfaceRoleDashboardRole: surfaceRole ? surfaceRole.dataset.dashboardRole : "",
             surfaceRoleStyle: style(surfaceRole),
             surfaceRoleCopyRect: rect(surfaceRoleCopy),
             surfaceRoleCopyStyle: style(surfaceRoleCopy),
@@ -420,11 +428,25 @@ def main() -> int:
             minimizeAriaDisabled: minimize ? minimize.getAttribute("aria-disabled") : "",
             minimizeTabIndex: minimize ? minimize.tabIndex : null,
             minimizeTitle: minimize ? minimize.getAttribute("title") : "",
+            settingsActionRect: rect(settingsAction),
+            settingsActionLabel: settingsAction ? settingsAction.getAttribute("aria-label") : "",
+            settingsActionState: settingsAction ? settingsAction.dataset.settingsState : "",
+            settingsActionRoute: settingsAction ? settingsAction.dataset.settingsRoute : "",
+            settingsActionAriaDisabled: settingsAction ? settingsAction.getAttribute("aria-disabled") : "",
+            settingsStatusText: settingsStatus ? settingsStatus.textContent.trim() : "",
             dashboardCardOrder: surface ? surface.dataset.dashboardCardOrder : "",
             dashboardIaModel: surface ? surface.dataset.dashboardIaModel : "",
+            dashboardVisibleName: surface ? surface.dataset.dashboardVisibleName : "",
+            aiControlCenterPlacement: surface ? surface.dataset.aiControlCenterPlacement : "",
+            globalAiStrip: surface ? surface.dataset.globalAiStrip : "",
+            settingsRoute: surface ? surface.dataset.settingsRoute : "",
+            maintenanceUpdatesPlacement: surface ? surface.dataset.maintenanceUpdatesPlacement : "",
             foyerGroupRect: rect(foyerGroup),
             foyerGroupStyle: style(foyerGroup),
             foyerGroupCards: categoryCards,
+            controlCenterCardRect: rect(controlCenterCard),
+            maintenanceCardRect: rect(maintenanceCard),
+            maintenanceCardState: maintenanceCard ? maintenanceCard.dataset.maintenanceUpdatesState : "",
             focusedDetailRect: rect(focusedDetail),
             focusedDetailStyle: style(focusedDetail),
             focusedDetailHidden: focusedDetail ? focusedDetail.hidden : null,
@@ -1117,25 +1139,53 @@ def main() -> int:
             and title_chrome_proof.get("reportCopyButtonDisabled") is True
             and title_chrome_proof.get("reportCopyButtonAriaDisabled") == "true"
         ),
-        "aiHomeControlFoyerCategoryDoorwaysVisible": (
+        "aiDashboardShellGlobalStripAndDoorwaysVisible": (
             isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("titleText") == "AI Dashboard"
+            and title_chrome_proof.get("dashboardVisibleName") == "AI Dashboard"
+            and title_chrome_proof.get("surfaceRoleAriaLabel") == "Global AI Strip"
+            and title_chrome_proof.get("surfaceRoleDashboardRole") == "global-ai-strip"
+            and title_chrome_proof.get("globalAiStrip") == "compact-truth-state-no-provider-no-execution"
             and title_chrome_proof.get("dashboardCardOrder")
-            == "orin-status-ai-persona-ai-diagnostics-ai-readiness-ai-trust-capability-dev-owner"
+            == "active-ai-ai-control-center-ai-readiness-diagnostics-trust-provider-capabilities-maintenance"
             and title_chrome_proof.get("dashboardIaModel")
-            == "ai-home-control-foyer-category-doorways-focused-readiness-detail"
+            == "ai-dashboard-global-strip-domain-doorways-focused-readiness-detail"
             and title_chrome_proof.get("foyerGroupCards")
             == [
-                "orin-status",
-                "ai-persona",
-                "ai-diagnostics",
-                "ai-readiness",
-                "ai-trust-boundary",
-                "capability-dev-owner-boundary",
+                "active-ai",
+                "ai-control-center",
+                "ai-readiness-diagnostics",
+                "trust-provider",
+                "capabilities-maintenance",
             ]
             and isinstance(title_chrome_proof.get("foyerGroupRect"), dict)
             and (title_chrome_proof["foyerGroupRect"].get("height") or 0) > 0
             and isinstance(title_chrome_proof.get("foyerGroupStyle"), dict)
             and title_chrome_proof["foyerGroupStyle"].get("display") == "grid"
+        ),
+        "aiControlCenterFocusedDomainCardInsideDashboard": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("aiControlCenterPlacement") == "focused-domain-card-inside-ai-dashboard"
+            and isinstance(title_chrome_proof.get("controlCenterCardRect"), dict)
+            and (title_chrome_proof["controlCenterCardRect"].get("height") or 0) > 0
+        ),
+        "settingsCogFutureGatedWithoutFam003Mutation": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("settingsRoute") == "fam003-global-settings-ai-future-gated-no-fam003-mutation"
+            and title_chrome_proof.get("settingsActionLabel") == "Settings"
+            and title_chrome_proof.get("settingsActionState") == "future-gated"
+            and title_chrome_proof.get("settingsActionRoute") == "fam003-global-settings-ai"
+            and title_chrome_proof.get("settingsActionAriaDisabled") == "true"
+            and "future-gated" in str(title_chrome_proof.get("settingsStatusText") or "")
+            and isinstance(title_chrome_proof.get("settingsActionRect"), dict)
+            and (title_chrome_proof["settingsActionRect"].get("width") or 0) > 0
+        ),
+        "maintenanceUpdatesPlacementOnlyNoExecution": (
+            isinstance(title_chrome_proof, dict)
+            and title_chrome_proof.get("maintenanceUpdatesPlacement") == "lifecycle-domain-doorway-no-download-install-update-execution"
+            and title_chrome_proof.get("maintenanceCardState") == "placement-only"
+            and isinstance(title_chrome_proof.get("maintenanceCardRect"), dict)
+            and (title_chrome_proof["maintenanceCardRect"].get("height") or 0) > 0
         ),
         "readinessFocusedDetailPresentAndInitiallyClosed": (
             isinstance(title_chrome_proof, dict)
@@ -1185,9 +1235,9 @@ def main() -> int:
         ),
         "windowControlAccessibleLabelsPresent": (
             isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("minimizeLabel") == "Minimize AI Control Center"
-            and title_chrome_proof.get("maximizeLabel") == "Maximize or restore AI Control Center hidden until future implementation"
-            and title_chrome_proof.get("closeLabel") == "Close AI Control Center"
+            and title_chrome_proof.get("minimizeLabel") == "Minimize AI Dashboard"
+            and title_chrome_proof.get("maximizeLabel") == "Maximize or restore AI Dashboard hidden until future implementation"
+            and title_chrome_proof.get("closeLabel") == "Close AI Dashboard"
         ),
         "surfaceRolePillTypographyReducedOnePoint": (
             isinstance(title_chrome_proof, dict)

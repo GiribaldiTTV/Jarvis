@@ -5925,7 +5925,7 @@ class AIControlCenterDialog(QDialog):
         self._geometry_persist_timer.setSingleShot(True)
         self._geometry_persist_timer.timeout.connect(self._persist_window_geometry)
         self.setObjectName("fam007AiControlCenter")
-        self.setWindowTitle("AI Control Center")
+        self.setWindowTitle("AI Dashboard")
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint | Qt.NoDropShadowWindowHint)
         self.setWindowModality(Qt.NonModal)
         self.setAttribute(Qt.WA_ShowWithoutActivating, False)
@@ -5933,7 +5933,9 @@ class AIControlCenterDialog(QDialog):
         self.setMinimumSize(self.MINIMUM_WIDTH, self.MINIMUM_HEIGHT)
         self.resize(self.DEFAULT_WIDTH, self.DEFAULT_HEIGHT)
         self.setProperty("aiControlCenterOwner", "FAM-007")
-        self.setProperty("aiControlCenterRoute", "fam007-ai-control-center")
+        self.setProperty("aiControlCenterRoute", "fam007-ai-dashboard")
+        self.setProperty("aiDashboardVisibleName", "AI Dashboard")
+        self.setProperty("aiControlCenterPlacement", "focused-domain-card-inside-ai-dashboard")
         self.setProperty("fam003CarryIn", "f3-ff01-narrow-doorway-only")
         self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
         self.setProperty("visualInheritance", "FAM-002-HUD")
@@ -5945,7 +5947,7 @@ class AIControlCenterDialog(QDialog):
         self.setProperty("memoryIndexing", "memory-indexing-disabled")
         self.setProperty("aiControlCenterWindowMemoryPolicy", "restart-memory-disabled")
         self.setProperty("fam003ResetDependency", "ai-global-settings-reset-default-location-size")
-        self.setProperty("aiControlCenterMinimizeAffordance", "Minimize AI Control Center")
+        self.setProperty("aiControlCenterMinimizeAffordance", "Minimize AI Dashboard")
         self.setProperty("aiControlCenterMaximizeDisposition", "hidden-future-gated")
         self.setProperty("aiControlCenterMaximizeDecisionGate", "per-window-relevance-before-inheritance")
         self.setProperty("aiControlCenterWindowControlStateModel", "hidden-blocked-active")
@@ -6082,6 +6084,13 @@ class AIControlCenterDialog(QDialog):
                 self.event_logger(
                     "RENDERER_MAIN|AI_CONTROL_CENTER_READINESS_REPORT_COPY_BLOCKED"
                     "|reason=report_not_generated_or_clipboard_unavailable"
+                )
+            return
+        if command == "open-settings-future-gated":
+            if callable(self.event_logger):
+                self.event_logger(
+                    "RENDERER_MAIN|AI_DASHBOARD_SETTINGS_ROUTE_FUTURE_GATED"
+                    "|route=fam003-global-settings-ai|fam003_mutation=false|settings_window_opened=false"
                 )
             return
 

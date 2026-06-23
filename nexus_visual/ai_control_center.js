@@ -12,24 +12,24 @@
     minimize: {
       id: "ai-control-center-minimize-action",
       command: "minimize",
-      activeLabel: "Minimize AI Control Center",
-      blockedLabel: "Minimize AI Control Center blocked",
-      hiddenLabel: "Minimize AI Control Center hidden",
+      activeLabel: "Minimize AI Dashboard",
+      blockedLabel: "Minimize AI Dashboard blocked",
+      hiddenLabel: "Minimize AI Dashboard hidden",
     },
     maximizeRestore: {
       id: "ai-control-center-maximize-action",
       command: "maximize-restore",
-      activeLabel: "Maximize AI Control Center",
-      activeMaximizedLabel: "Restore AI Control Center",
-      blockedLabel: "Maximize or restore AI Control Center blocked",
-      hiddenLabel: "Maximize or restore AI Control Center hidden until future implementation",
+      activeLabel: "Maximize AI Dashboard",
+      activeMaximizedLabel: "Restore AI Dashboard",
+      blockedLabel: "Maximize or restore AI Dashboard blocked",
+      hiddenLabel: "Maximize or restore AI Dashboard hidden until future implementation",
     },
     close: {
       id: "ai-control-center-close-action",
       command: "close",
-      activeLabel: "Close AI Control Center",
-      blockedLabel: "Close AI Control Center blocked",
-      hiddenLabel: "Close AI Control Center hidden",
+      activeLabel: "Close AI Dashboard",
+      blockedLabel: "Close AI Dashboard blocked",
+      hiddenLabel: "Close AI Dashboard hidden",
     },
   };
   const validWindowControlStates = new Set(["hidden", "blocked", "active"]);
@@ -424,6 +424,7 @@
     setText("ai-control-center-provider-model", providerExecution);
     setText("ai-control-center-prompt-memory", "Not accepted, sent, stored, or indexed");
     setText("ai-control-center-capability-packs", capabilityPacks);
+    setText("ai-control-center-maintenance-updates", "Lifecycle placement only; update execution blocked");
     setText("ai-control-center-edition-lanes", "Public only; Developer and Owner gated");
     setText("ai-control-center-provider-boundary", boundaryLabel);
     setText("ai-control-center-diagnostic-state", diagnosticLabel);
@@ -526,6 +527,10 @@
     window.nexusAiControlCenterCopyReadinessReport().then((copied) => {
       emitCommand(copied ? "copy-readiness-report" : "copy-readiness-report-blocked");
     });
+  });
+  attachActivationHandler(byId("ai-dashboard-settings-action"), () => {
+    setText("ai-dashboard-settings-status", "Global Settings / AI route is future-gated; no settings window opened.");
+    emitCommand("open-settings-future-gated");
   });
 
   byId("ai-control-center-card-hub")?.addEventListener("scroll", syncCustomScrollbar, { passive: true });

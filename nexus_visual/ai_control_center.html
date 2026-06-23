@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nexus Desktop AI Control Center</title>
+  <title>Nexus Desktop AI Dashboard</title>
   <link rel="stylesheet" href="monitoring_hud.css" />
   <style>
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__chrome {
@@ -14,6 +14,7 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group {
+      position: relative;
       padding: 12px 12px 10px;
       border-radius: 20px;
     }
@@ -80,6 +81,76 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy strong {
       color: rgba(171, 255, 226, 0.96);
       font-weight: 800;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-title-tools {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 0;
+      flex-wrap: wrap;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 31px;
+      min-width: 31px;
+      height: 31px;
+      min-height: 31px;
+      padding: 0;
+      border: 1px solid rgba(122, 232, 255, 0.34);
+      border-radius: 999px;
+      background: linear-gradient(145deg, rgba(7, 42, 62, 0.72), rgba(3, 18, 32, 0.76));
+      color: rgba(235, 252, 255, 0.96);
+      cursor: default;
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.05) inset,
+        0 0 12px rgba(86, 236, 255, 0.12);
+      transition:
+        border-color 120ms ease,
+        background 120ms ease,
+        box-shadow 120ms ease,
+        transform 120ms ease;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog::before {
+      content: "";
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(235, 252, 255, 0.90);
+      border-radius: 999px;
+      box-shadow:
+        0 -5px 0 -3px rgba(235, 252, 255, 0.90),
+        0 5px 0 -3px rgba(235, 252, 255, 0.90),
+        5px 0 0 -3px rgba(235, 252, 255, 0.90),
+        -5px 0 0 -3px rgba(235, 252, 255, 0.90);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog:hover,
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog:focus-visible {
+      border-color: rgba(126, 248, 218, 0.54);
+      background: rgba(9, 49, 70, 0.78);
+      box-shadow:
+        0 0 0 1px rgba(230, 251, 255, 0.07) inset,
+        0 0 14px rgba(86, 236, 255, 0.24);
+      outline: none;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog:active {
+      transform: translateY(1px);
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-status {
+      color: rgba(181, 218, 229, 0.82);
+      font-size: 10px;
+      font-weight: 720;
+      line-height: 1.28;
+      max-width: 126px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-controls {
@@ -338,6 +409,10 @@
       padding-top: 1px;
     }
 
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-status--inline {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-compact-status {
       color: rgba(171, 255, 226, 0.96);
       font-size: 11px;
@@ -544,9 +619,9 @@
     class="monitoring-hud"
     data-package="PKG-007"
     data-slice="SLC-002"
-    data-surface-id="fam007-ai-control-center"
-    data-product-surface-role="ai-transparency-control-surface"
-    data-dashboard-surface="fam007-ai-control-center"
+    data-surface-id="fam007-ai-dashboard"
+    data-product-surface-role="ai-dashboard-top-most-hub"
+    data-dashboard-surface="fam007-ai-dashboard"
     data-configures-surface="orin-provider-boundary"
     data-renderer-owner="DesktopRuntimeWindow"
     data-native-dashboard-owner="DesktopRuntimeWindow"
@@ -554,7 +629,7 @@
     data-split-contract="ai-control-center-status-boundary"
     data-hud-module="monitoring-hud-shell-module"
     data-product-surface="nexus-ai-control-center"
-    data-isolation-boundary="standalone-ai-control-center-layer"
+    data-isolation-boundary="standalone-ai-dashboard-layer"
     data-core-failure-isolation="ai-control-center-fail-does-not-hide-core"
     data-interaction-mode="standalone-dashboard-window"
     data-anchor-state="unanchored"
@@ -597,8 +672,13 @@
     data-dashboard-quick-access="not-applicable"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
-    data-dashboard-card-order="orin-status-ai-persona-ai-diagnostics-ai-readiness-ai-trust-capability-dev-owner"
-    data-dashboard-ia-model="ai-home-control-foyer-category-doorways-focused-readiness-detail"
+    data-dashboard-card-order="active-ai-ai-control-center-ai-readiness-diagnostics-trust-provider-capabilities-maintenance"
+    data-dashboard-ia-model="ai-dashboard-global-strip-domain-doorways-focused-readiness-detail"
+    data-dashboard-visible-name="AI Dashboard"
+    data-ai-control-center-placement="focused-domain-card-inside-ai-dashboard"
+    data-global-ai-strip="compact-truth-state-no-provider-no-execution"
+    data-settings-route="fam003-global-settings-ai-future-gated-no-fam003-mutation"
+    data-maintenance-updates-placement="lifecycle-domain-doorway-no-download-install-update-execution"
     data-dashboard-provider-truth="provider-contract-first"
     data-dashboard-state-model="no-provider-no-prompt-no-memory"
     data-dashboard-warning-controls="visual-non-invasive-only"
@@ -606,10 +686,10 @@
     data-interactive-control-affordance="normal-hover-active-focus-visible-disabled-open-selected"
     data-interactive-control-reliability="first-click-stress-proof-required"
     data-click-interception-diagnostics="z-index-pointer-events-disabled-aria-dom-focus-timing"
-    aria-label="Nexus Desktop AI Control Center product surface"
+    aria-label="Nexus Desktop AI Dashboard product surface"
   >
-    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Control Center panel">
-      <div class="monitoring-hud__window-controls" role="group" aria-label="AI Control Center window controls">
+    <div class="monitoring-hud__chrome" aria-label="Visible Nexus Desktop AI Dashboard panel">
+      <div class="monitoring-hud__window-controls" role="group" aria-label="AI Dashboard window controls">
         <button
           type="button"
           id="ai-control-center-minimize-action"
@@ -618,7 +698,7 @@
           data-window-control-key="minimize"
           data-window-control-command="minimize"
           data-window-control-state="active"
-          aria-label="Minimize AI Control Center"
+          aria-label="Minimize AI Dashboard"
         ></button>
         <button
           type="button"
@@ -630,7 +710,7 @@
           data-window-control-state="hidden"
           data-window-control-reason="future-gated"
           data-window-state="normal"
-          aria-label="Maximize or restore AI Control Center hidden until future implementation"
+          aria-label="Maximize or restore AI Dashboard hidden until future implementation"
           aria-hidden="true"
           aria-disabled="true"
           tabindex="-1"
@@ -645,18 +725,18 @@
           data-window-control-key="close"
           data-window-control-command="close"
           data-window-control-state="active"
-          aria-label="Close AI Control Center"
+          aria-label="Close AI Dashboard"
         ></button>
       </div>
       <div class="monitoring-hud__title-group">
         <div class="monitoring-hud__header" id="ai-control-center-drag-handle">
           <div>
             <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
-            <div class="monitoring-hud__title">AI Control Center</div>
-            <div class="monitoring-hud__subtitle">ORIN is not implemented; provider/model execution is not active.</div>
+            <div class="monitoring-hud__title">AI Dashboard</div>
+            <div class="monitoring-hud__subtitle">Top-level AI hub. ORIN is not implemented; provider/model execution is not active.</div>
           </div>
         </div>
-        <div class="monitoring-hud__surface-role" data-dashboard-role="ai-transparency-status-surface">
+        <div class="monitoring-hud__surface-role" data-dashboard-role="global-ai-strip" aria-label="Global AI Strip">
           <div class="monitoring-hud__surface-role-copy">
             <span class="monitoring-hud__surface-role-pair" aria-label="AI ORIN">
               <span class="monitoring-hud__surface-role-label">AI</span>
@@ -675,26 +755,39 @@
             </span>
           </div>
         </div>
+        <div class="ai-dashboard-title-tools" data-dashboard-utility-row="settings-route">
+          <button
+            type="button"
+            id="ai-dashboard-settings-action"
+            class="ai-dashboard-settings-cog"
+            data-control="open-ai-dashboard-settings"
+            data-settings-route="fam003-global-settings-ai"
+            data-settings-state="future-gated"
+            aria-label="Settings"
+            aria-disabled="true"
+          ></button>
+          <span class="ai-dashboard-settings-status" id="ai-dashboard-settings-status">Settings future-gated.</span>
+        </div>
       </div>
       <div
         class="monitoring-hud__control-hub"
         id="ai-control-center-card-hub"
         data-dashboard-content="control-hub-cards"
         data-child-window-model="hub-actions-standalone-child-windows"
-        aria-label="AI Control Center cards"
+        aria-label="AI Dashboard domain cards"
       >
         <div
           class="ai-control-center-foyer-grid"
-          data-dashboard-hub-group="ai-home-control-foyer"
-          aria-label="AI Home and Control Foyer category doorways"
+          data-dashboard-hub-group="ai-dashboard-domain-doorways"
+          aria-label="AI Dashboard category doorways"
         >
-        <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="orin-status" data-slice="SLC-R1">
+        <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="active-ai" data-slice="SLC-R1">
           <div class="monitoring-hud__hub-card-topline">
             <span>01</span>
             <div class="monitoring-hud__hub-card-title-copy">
-              <strong>ORIN Status</strong>
+              <strong>Active AI</strong>
             </div>
-            <p class="monitoring-hud__hub-card-description">Top-level AI truth before any category doorway is used.</p>
+            <p class="monitoring-hud__hub-card-description">Immediate AI truth before any doorway is used.</p>
           </div>
           <div class="monitoring-hud__state-row">
             <span>ORIN</span>
@@ -706,27 +799,27 @@
           </div>
         </article>
 
-          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-persona" data-slice="SLC-R1" data-category-doorway-state="future-gated">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-control-center" data-slice="SLC-R1" data-category-doorway-state="focused-domain">
             <div class="monitoring-hud__hub-card-topline">
               <span>02</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>AI Persona</strong>
+                <strong>AI Control Center</strong>
               </div>
-              <p class="monitoring-hud__hub-card-description">Persona selection and persona settings are category doorways for later focused surfaces.</p>
+              <p class="monitoring-hud__hub-card-description">Focused domain for persona, capabilities, provider posture, and lane gates.</p>
             </div>
-            <div class="ai-control-center-card-status">
-              <div class="ai-control-center-compact-status">Future-gated</div>
-              <div class="ai-control-center-future-note">No persona system is implemented or selected in this public-safe repair.</div>
+            <div class="ai-control-center-card-status ai-control-center-card-status--inline">
+              <div class="ai-control-center-compact-status">Focused domain available as a doorway</div>
+              <div class="ai-control-center-future-note">Detailed selectors and settings stay behind future focused surfaces.</div>
             </div>
           </article>
 
-          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-diagnostics" data-slice="SLC-R2">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-readiness-diagnostics" data-slice="SLC-R2">
               <div class="monitoring-hud__hub-card-topline">
                 <span>03</span>
                 <div class="monitoring-hud__hub-card-title-copy">
-                  <strong>AI Diagnostics</strong>
+                  <strong>AI Readiness / Diagnostics</strong>
                 </div>
-                <p class="monitoring-hud__hub-card-description">Local Safety Check is a compact signal and boundary-aware diagnostic doorway.</p>
+                <p class="monitoring-hud__hub-card-description">Local Safety Check and Readiness Report live behind this focused doorway.</p>
               </div>
               <div class="monitoring-hud__state-row">
                 <span>Local check</span>
@@ -748,24 +841,7 @@
                   <span class="monitoring-hud__button-label">Run Local Check</span>
                 </button>
               </div>
-            </article>
 
-          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-readiness" data-slice="SLC-R3">
-              <div class="monitoring-hud__hub-card-topline">
-                <span>04</span>
-                <div class="monitoring-hud__hub-card-title-copy">
-                  <strong>AI Readiness</strong>
-                </div>
-                <p class="monitoring-hud__hub-card-description">Generates the Local AI Readiness Report in a focused detail surface.</p>
-              </div>
-              <div class="monitoring-hud__state-row">
-                <span>Report state</span>
-                <strong id="ai-control-center-report-state">Not generated</strong>
-              </div>
-              <div class="monitoring-hud__state-row">
-                <span>Persistence</span>
-                <strong id="ai-control-center-report-persistence">View-only; copy is USER initiated</strong>
-              </div>
               <div class="monitoring-hud__hub-actions">
                 <button
                   type="button"
@@ -790,15 +866,24 @@
                   <span class="monitoring-hud__button-label">Copy Report</span>
                 </button>
               </div>
+
+              <div class="monitoring-hud__state-row">
+                <span>Report state</span>
+                <strong id="ai-control-center-report-state">Not generated</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Persistence</span>
+                <strong id="ai-control-center-report-persistence">View-only; copy is USER initiated</strong>
+              </div>
             </article>
 
-          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-trust-boundary" data-slice="SLC-R4">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="trust-provider" data-slice="SLC-R4">
             <div class="monitoring-hud__hub-card-topline">
-              <span>05</span>
+              <span>04</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>AI Trust Boundary</strong>
+                <strong>Trust & Provider</strong>
               </div>
-              <p class="monitoring-hud__hub-card-description">Provider, prompt, memory, and recovery truth stay public-safe and fail-closed.</p>
+              <p class="monitoring-hud__hub-card-description">Provider, prompt, memory, and recovery truth stay compact and fail-closed.</p>
             </div>
             <div class="monitoring-hud__state-row">
               <span>Provider / model</span>
@@ -816,27 +901,31 @@
               <span>Recovery</span>
               <strong id="ai-control-center-recovery">Retry local check only</strong>
             </div>
+            <div class="monitoring-hud__state-row">
+              <span>Blocked action</span>
+              <strong id="ai-control-center-blocked-action">Prompt/provider/model action blocked</strong>
+            </div>
           </article>
 
-          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="capability-dev-owner-boundary" data-slice="SLC-R4">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="capabilities-maintenance" data-slice="SLC-R4" data-maintenance-updates-state="placement-only">
             <div class="monitoring-hud__hub-card-topline">
-              <span>06</span>
+              <span>05</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>Capability And Owner Gates</strong>
+                <strong>Capabilities & Maintenance</strong>
               </div>
-              <p class="monitoring-hud__hub-card-description">Capability packs, Developer lane, and Owner lane remain explicit future-gated doorways.</p>
+              <p class="monitoring-hud__hub-card-description">Capability packs and AI lifecycle placement are visible without execution.</p>
             </div>
             <div class="monitoring-hud__state-row">
               <span>Capability packs</span>
               <strong id="ai-control-center-capability-packs">Install blocked; downloads disabled</strong>
             </div>
             <div class="monitoring-hud__state-row">
-              <span>Edition lanes</span>
-              <strong id="ai-control-center-edition-lanes">Public only; Developer and Owner gated</strong>
+              <span>Maintenance</span>
+              <strong id="ai-control-center-maintenance-updates">Lifecycle placement only; update execution blocked</strong>
             </div>
             <div class="monitoring-hud__state-row">
-              <span>Blocked action</span>
-              <strong id="ai-control-center-blocked-action">Prompt/provider/model action blocked</strong>
+              <span>Edition lanes</span>
+              <strong id="ai-control-center-edition-lanes">Public only; Developer and Owner gated</strong>
             </div>
             <div class="monitoring-hud__state-row">
               <span>Unavailable</span>
