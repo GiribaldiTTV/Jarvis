@@ -1,7 +1,7 @@
 # Helper Status: Workstream-scoped
-# Owner Workstream: FAM-007 H4 AI Control Center live resize repair
-# Reason Reusable Helper Was Not Extended: the HUD live validator is FAM-006-specific and exercises the Dashboard launch/tray flow; this helper proves the FAM-007 AI Control Center resize path directly with real OS mouse input.
-# Consolidation Target: future reusable Nexus product-window live resize validator
+# Owner Workstream: FAM-007 AI Dashboard child/domain window repair
+# Reason Reusable Helper Was Not Extended: the HUD live validator is FAM-006-specific; this helper proves FAM-007 AI Dashboard category launchers open real child/domain windows.
+# Consolidation Target: future reusable Nexus product-window child-window lifecycle validator
 # Promotion Decision Point: before PR Readiness fold-down
 
 from __future__ import annotations
@@ -11,6 +11,7 @@ import ctypes.wintypes
 import datetime
 import json
 import os
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -22,30 +23,14 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from desktop.desktop_renderer import AIControlCenterDialog
-from desktop.ai_provider_state import (
+from desktop.ai_provider_state import (  # noqa: E402
     build_default_provider_readiness_config,
     build_provider_setup_completion_foundation_state,
 )
+from desktop.desktop_renderer import AIControlCenterDialog  # noqa: E402
 
-
-MOUSEEVENTF_MOVE = 0x0001
-MOUSEEVENTF_LEFTDOWN = 0x0002
-MOUSEEVENTF_LEFTUP = 0x0004
 
 user32 = ctypes.windll.user32
-SetCursorPos = user32.SetCursorPos
-SetCursorPos.argtypes = [ctypes.c_int, ctypes.c_int]
-SetCursorPos.restype = ctypes.c_bool
-mouse_event = user32.mouse_event
-mouse_event.argtypes = [
-    ctypes.wintypes.DWORD,
-    ctypes.c_long,
-    ctypes.c_long,
-    ctypes.wintypes.DWORD,
-    ctypes.c_ulong,
-]
-mouse_event.restype = None
 GetWindowRect = user32.GetWindowRect
 GetWindowRect.argtypes = [ctypes.wintypes.HWND, ctypes.POINTER(ctypes.wintypes.RECT)]
 GetWindowRect.restype = ctypes.c_bool
@@ -65,24 +50,6 @@ def _timestamp() -> str:
     return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
-def _rect_to_dict(rect: ctypes.wintypes.RECT) -> dict[str, int]:
-    return {
-        "left": int(rect.left),
-        "top": int(rect.top),
-        "right": int(rect.right),
-        "bottom": int(rect.bottom),
-        "width": int(rect.right - rect.left),
-        "height": int(rect.bottom - rect.top),
-    }
-
-
-def _native_rect(hwnd: int) -> dict[str, int]:
-    rect = ctypes.wintypes.RECT()
-    if not GetWindowRect(ctypes.wintypes.HWND(int(hwnd)), ctypes.byref(rect)):
-        raise RuntimeError("GetWindowRect failed for AI Control Center")
-    return _rect_to_dict(rect)
-
-
 def _pump(app: QApplication, duration_ms: int = 80) -> None:
     deadline = time.monotonic() + max(0, duration_ms) / 1000.0
     while time.monotonic() < deadline:
@@ -91,7 +58,7 @@ def _pump(app: QApplication, duration_ms: int = 80) -> None:
     app.processEvents()
 
 
-def _run_js(app: QApplication, dialog: AIControlCenterDialog, script: str, timeout_ms: int = 1200):
+def _run_js(app: QApplication, dialog: AIControlCenterDialog, script: str, timeout_ms: int = 1500):
     box: dict[str, object] = {"done": False, "result": None}
 
     def _complete(result):
@@ -107,83 +74,67 @@ def _run_js(app: QApplication, dialog: AIControlCenterDialog, script: str, timeo
     return box.get("result")
 
 
-def _move_mouse(app: QApplication, x: int, y: int, settle_ms: int = 18) -> None:
-    SetCursorPos(int(x), int(y))
-    mouse_event(MOUSEEVENTF_MOVE, 0, 0, 0, 0)
-    _pump(app, settle_ms)
+def _run_child_js(app: QApplication, window, script: str, timeout_ms: int = 1500):
+    box: dict[str, object] = {"done": False, "result": None}
+
+    def _complete(result):
+        box["result"] = result
+        box["done"] = True
+
+    window.webview.page().runJavaScript(script, _complete)
+    deadline = time.monotonic() + max(0, timeout_ms) / 1000.0
+    while not box["done"] and time.monotonic() < deadline:
+        app.processEvents()
+        time.sleep(0.01)
+    app.processEvents()
+    return box.get("result")
 
 
-def _left_click(app: QApplication, x: int, y: int, settle_ms: int = 220) -> None:
-    _move_mouse(app, x, y, 90)
-    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-    _pump(app, 55)
-    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-    _pump(app, settle_ms)
+def _rect(hwnd: int) -> dict[str, int]:
+    native_rect = ctypes.wintypes.RECT()
+    if not hwnd or not GetWindowRect(ctypes.wintypes.HWND(int(hwnd)), ctypes.byref(native_rect)):
+        return {"left": 0, "top": 0, "right": 0, "bottom": 0, "width": 0, "height": 0}
+    return {
+        "left": int(native_rect.left),
+        "top": int(native_rect.top),
+        "right": int(native_rect.right),
+        "bottom": int(native_rect.bottom),
+        "width": int(native_rect.right - native_rect.left),
+        "height": int(native_rect.bottom - native_rect.top),
+    }
 
 
-def _capture(app: QApplication, dialog: AIControlCenterDialog, root: Path, label: str) -> dict[str, str]:
-    full_path = root / f"{label}_full_desktop.png"
+def _capture_window(app: QApplication, window, root: Path, label: str) -> dict[str, str]:
     focused_path = root / f"{label}_focused_window.png"
-    screen = dialog.screen() or QApplication.primaryScreen()
+    desktop_path = root / f"{label}_full_desktop.png"
+    screen = window.screen() or QApplication.primaryScreen()
     if screen is None:
         raise RuntimeError("No screen available for screenshot capture")
-    full = screen.grabWindow(0)
-    if not full.save(str(full_path)):
-        raise RuntimeError(f"Failed to save full desktop screenshot: {full_path}")
-    focused = dialog.grab()
-    if not focused.save(str(focused_path)):
+    if not window.grab().save(str(focused_path)):
         raise RuntimeError(f"Failed to save focused screenshot: {focused_path}")
-    _pump(app, 40)
-    return {
-        "fullDesktop": str(full_path),
-        "focusedWindow": str(focused_path),
-    }
+    if not screen.grabWindow(0).save(str(desktop_path)):
+        raise RuntimeError(f"Failed to save desktop screenshot: {desktop_path}")
+    _pump(app, 50)
+    return {"focusedWindow": str(focused_path), "fullDesktop": str(desktop_path)}
 
 
-def _drag_resize(
-    app: QApplication,
-    hwnd: int,
-    label: str,
-    start_x: int,
-    start_y: int,
-    end_x: int,
-    end_y: int,
-    *,
-    steps: int = 42,
-) -> dict[str, object]:
-    before = _native_rect(hwnd)
-    samples = [before]
-    _move_mouse(app, start_x, start_y, 140)
-    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
-    _pump(app, 80)
-    for index in range(1, steps + 1):
-        t = index / steps
-        x = round(start_x + ((end_x - start_x) * t))
-        y = round(start_y + ((end_y - start_y) * t))
-        _move_mouse(app, x, y, 10)
-        samples.append(_native_rect(hwnd))
-    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
-    _pump(app, 260)
-    after = _native_rect(hwnd)
-    samples.append(after)
-    unique_sizes = sorted({(item["width"], item["height"]) for item in samples})
-    unique_widths = sorted({item["width"] for item in samples})
-    unique_heights = sorted({item["height"] for item in samples})
-    return {
-        "label": label,
-        "method": "SetCursorPos plus held Win32 left mouse button against visible AI Control Center resize rail",
-        "start": {"x": int(start_x), "y": int(start_y)},
-        "end": {"x": int(end_x), "y": int(end_y)},
-        "before": before,
-        "after": after,
-        "widthDelta": int(after["width"] - before["width"]),
-        "heightDelta": int(after["height"] - before["height"]),
-        "sampleCount": len(samples),
-        "uniqueSizeCount": len(unique_sizes),
-        "uniqueWidthCount": len(unique_widths),
-        "uniqueHeightCount": len(unique_heights),
-        "samples": samples,
-    }
+def _open_from_dashboard(app: QApplication, dialog: AIControlCenterDialog, button_id: str, domain_id: str):
+    before = set(dialog._domain_windows.keys())
+    result = _run_js(
+        app,
+        dialog,
+        f"""
+        (() => {{
+          const button = document.getElementById({json.dumps(button_id)});
+          if (!button) return JSON.stringify({{ ok: false, reason: "missing-button" }});
+          button.click();
+          return JSON.stringify({{ ok: true, label: button.textContent.trim(), target: button.dataset.launchTarget || "", kind: button.dataset.launchWindowKind || "" }});
+        }})();
+        """,
+    )
+    _pump(app, 700)
+    window = dialog._domain_windows.get(domain_id)
+    return result, window, before
 
 
 def _copy_user_evidence(local_root: Path, stamp: str) -> Path:
@@ -194,8 +145,10 @@ def _copy_user_evidence(local_root: Path, stamp: str) -> Path:
         / "Screenshots"
         / "Nexus Desktop AI"
         / "FAM-007-H4"
-        / f"{stamp}-live-resize"
+        / f"{stamp}-child-window"
     )
+    if user_root.exists():
+        shutil.rmtree(user_root)
     user_root.mkdir(parents=True, exist_ok=True)
     for png in sorted(local_root.glob("*.png")):
         (user_root / png.name).write_bytes(png.read_bytes())
@@ -204,34 +157,16 @@ def _copy_user_evidence(local_root: Path, stamp: str) -> Path:
 
 def main() -> int:
     stamp = _timestamp()
-    repo_root = Path(__file__).resolve().parents[1]
-    log_root = repo_root / "dev" / "logs" / "fam_007_ai_control_center_live_resize" / stamp
+    log_root = REPO_ROOT / "dev" / "logs" / "fam_007_ai_control_center_live_resize" / stamp
     log_root.mkdir(parents=True, exist_ok=True)
-    isolated_state_path = log_root / "isolated_ai_control_center_window_state.json"
+    isolated_state_path = log_root / "isolated_ai_dashboard_window_state.json"
     os.environ["NEXUS_AI_CONTROL_CENTER_STATE_PATH"] = str(isolated_state_path)
     os.environ.pop("NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY", None)
-    isolated_state_path.write_text(
-        json.dumps(
-            {
-                "schemaVersion": 9,
-                "kind": "ai-control-center-window-geometry",
-                "x": 12,
-                "y": 12,
-                "w": 900,
-                "h": 760,
-                "updatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            },
-            indent=2,
-            sort_keys=True,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
 
     app = QApplication.instance() or QApplication(sys.argv)
     screen = QApplication.primaryScreen()
     if screen is None:
-        raise RuntimeError("No primary screen available for live resize validation")
+        raise RuntimeError("No primary screen available for child-window validation")
 
     events: list[str] = []
     provider_state = build_provider_setup_completion_foundation_state(
@@ -240,1249 +175,308 @@ def main() -> int:
     )
     dialog = AIControlCenterDialog(screen, event_logger=events.append)
     dialog.update_provider_state(provider_state.as_renderer_payload())
-    constructor_default_rect = {
-        "x": int(dialog.geometry().x()),
-        "y": int(dialog.geometry().y()),
-        "width": int(dialog.geometry().width()),
-        "height": int(dialog.geometry().height()),
-    }
-    geometry_memory_enabled = bool(dialog._window_geometry_memory_enabled())
-
     available = screen.availableGeometry()
-    initial_width = min(dialog.DEFAULT_WIDTH, max(dialog.minimumWidth() + 80, available.width() - 360))
-    initial_height = min(dialog.DEFAULT_HEIGHT, max(dialog.minimumHeight() + 80, available.height() - 260))
-    initial = QRect(
-        available.x() + 120,
-        available.y() + 80,
-        int(initial_width),
-        int(initial_height),
+    dialog.setGeometry(
+        QRect(
+            available.x() + max(40, available.width() - dialog.DEFAULT_WIDTH - 120),
+            available.y() + 80,
+            dialog.DEFAULT_WIDTH,
+            dialog.DEFAULT_HEIGHT,
+        )
     )
-    initial_bounded = dialog._bound_geometry_to_available_desktop(initial)
-    dialog.setGeometry(initial_bounded)
-    dialog.show()
-    dialog.raise_()
-    dialog.activateWindow()
+    dialog.show_from_tray()
     _pump(app, 900)
-    hwnd = int(dialog.winId())
-    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
-    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
+
+    screenshots: dict[str, dict[str, str]] = {
+        "dashboard_initial": _capture_window(app, dialog, log_root, "01_dashboard_initial"),
+    }
+    dashboard_probe = json.loads(
+        _run_js(
+            app,
+            dialog,
+            """
+            (() => {
+              const surface = document.getElementById("monitoring-hud");
+              const cardNames = Array.from(document.querySelectorAll("[data-dashboard-hub-card]")).map((card) => card.dataset.dashboardHubCard || "");
+              const launchers = Array.from(document.querySelectorAll("[data-category-launcher]")).map((button) => ({
+                id: button.id || "",
+                text: button.textContent.trim(),
+                launcher: button.dataset.categoryLauncher || "",
+                target: button.dataset.launchTarget || "",
+                kind: button.dataset.launchWindowKind || ""
+              }));
+              return JSON.stringify({
+                title: document.querySelector(".monitoring-hud__title")?.textContent.trim() || "",
+                dashboardIaModel: surface?.dataset.dashboardIaModel || "",
+                dashboardSurfaceModel: surface?.dataset.dashboardSurfaceModel || "",
+                childWindowModel: surface?.dataset.childWindowModel || "",
+                sameWindowFocusedSectionPolicy: surface?.dataset.sameWindowFocusedSectionPolicy || "",
+                cardOrder: surface?.dataset.dashboardCardOrder || "",
+                cardNames,
+                launchers,
+                focusedSurfaceCount: document.querySelectorAll("[data-focused-surface]").length,
+                domainSurfaceCount: document.querySelectorAll("[data-domain-surface]").length,
+                localCheckInline: Boolean(document.getElementById("ai-control-center-local-check-action")),
+                generateInline: Boolean(document.getElementById("ai-control-center-generate-report-action")),
+                copyInline: Boolean(document.getElementById("ai-control-center-copy-report-action")),
+                visibleSettingsFutureText: document.body.innerText.includes("Settings future-gated"),
+                activeAiText: document.body.innerText.includes("Active AI"),
+                trustProviderText: document.body.innerText.includes("Trust & Provider"),
+                nativeTitleTooltipCount: document.querySelectorAll("[title]").length
+              });
+            })();
+            """,
+        )
+    )
+
+    control_click, control_window, _ = _open_from_dashboard(
+        app,
+        dialog,
+        "ai-control-center-open-control-surface-action",
+        "control-center",
+    )
+    readiness_click, readiness_window, _ = _open_from_dashboard(
+        app,
+        dialog,
+        "ai-control-center-open-readiness-surface-action",
+        "readiness-diagnostics",
+    )
+    maintenance_click, maintenance_window, _ = _open_from_dashboard(
+        app,
+        dialog,
+        "ai-control-center-open-maintenance-surface-action",
+        "capabilities-maintenance",
+    )
+
+    child_windows = {
+        "control-center": control_window,
+        "readiness-diagnostics": readiness_window,
+        "capabilities-maintenance": maintenance_window,
+    }
+    child_windows_visible_before_close = {
+        domain_id: bool(window and window.isVisible())
+        for domain_id, window in child_windows.items()
+    }
+    for domain_id, window in child_windows.items():
+        if window is not None:
+            screenshots[f"{domain_id}_opened"] = _capture_window(
+                app,
+                window,
+                log_root,
+                f"02_{domain_id}_opened",
+            )
+
+    readiness_result = {}
+    if readiness_window is not None:
+        _run_child_js(
+            app,
+            readiness_window,
+            """
+            (() => {
+              const run = document.getElementById("run-local-check");
+              const generate = document.getElementById("generate-report");
+              const copy = document.getElementById("copy-report");
+              if (run) run.click();
+              if (generate) generate.click();
+              if (copy) copy.click();
+              return true;
+            })();
+            """,
+        )
+        _pump(app, 300)
+        readiness_result = json.loads(
+            _run_child_js(
+                app,
+                readiness_window,
+                """
+                (() => {
+                  const run = document.getElementById("run-local-check");
+                  const generate = document.getElementById("generate-report");
+                  const copy = document.getElementById("copy-report");
+                  return JSON.stringify({
+                    workspace: document.querySelector("[data-domain-workspace]")?.dataset.domainWorkspace || "",
+                    localResult: document.getElementById("local-result")?.textContent.trim() || "",
+                    reportState: document.getElementById("report-state")?.textContent.trim() || "",
+                    reportBodyVisible: !Boolean(document.getElementById("report-body")?.hidden),
+                    copyDisabled: Boolean(copy && copy.disabled),
+                    providerVisibleData: document.getElementById("provider-visible-data")?.textContent.trim() || "",
+                    runButtonPresent: Boolean(run),
+                    generateButtonPresent: Boolean(generate),
+                    copyButtonPresent: Boolean(copy)
+                  });
+                })();
+                """,
+            )
+        )
+        screenshots["readiness_after_actions"] = _capture_window(
+            app,
+            readiness_window,
+            log_root,
+            "03_readiness_after_actions",
+        )
+
+    singleton_focus = {}
+    if readiness_window is not None:
+        first_hwnd = int(readiness_window.winId())
+        _open_from_dashboard(app, dialog, "ai-control-center-open-readiness-surface-action", "readiness-diagnostics")
+        second_window = dialog._domain_windows.get("readiness-diagnostics")
+        singleton_focus = {
+            "sameInstance": second_window is readiness_window,
+            "sameHwnd": int(second_window.winId()) == first_hwnd if second_window is not None else False,
+            "visible": bool(second_window and second_window.isVisible()),
+        }
+
+    dashboard_rect_before_resize = _rect(int(dialog.winId()))
+    dialog.resize(dialog.width() + 42, dialog.height() + 28)
     _pump(app, 300)
+    dashboard_rect_after_resize = _rect(int(dialog.winId()))
+    dashboard_resize_proof = {
+        "before": dashboard_rect_before_resize,
+        "after": dashboard_rect_after_resize,
+        "widthDelta": dashboard_rect_after_resize["width"] - dashboard_rect_before_resize["width"],
+        "heightDelta": dashboard_rect_after_resize["height"] - dashboard_rect_before_resize["height"],
+    }
 
-    screenshot_evidence: dict[str, dict[str, str]] = {}
-    initial_native_rect = _native_rect(hwnd)
-    screenshot_evidence["before"] = _capture(app, dialog, log_root, "01_before_resize")
-    title_chrome_proof_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const rect = (element) => {
-            if (!element) {
-              return null;
-            }
-            const bounds = element.getBoundingClientRect();
-            return {
-              left: Math.round(bounds.left),
-              top: Math.round(bounds.top),
-              right: Math.round(bounds.right),
-              bottom: Math.round(bounds.bottom),
-              width: Math.round(bounds.width),
-              height: Math.round(bounds.height)
-            };
-          };
-          const style = (element) => {
-            if (!element) {
-              return null;
-            }
-            const computed = window.getComputedStyle(element);
-            return {
-              background: computed.background,
-              borderColor: computed.borderColor,
-              borderRadius: computed.borderRadius,
-              boxSizing: computed.boxSizing,
-              color: computed.color,
-              display: computed.display,
-              fontFamily: computed.fontFamily,
-              fontSize: computed.fontSize,
-              fontWeight: computed.fontWeight,
-              gap: computed.gap,
-              height: computed.height,
-              letterSpacing: computed.letterSpacing,
-              lineHeight: computed.lineHeight,
-              maxWidth: computed.maxWidth,
-              minHeight: computed.minHeight,
-              minWidth: computed.minWidth,
-              paddingBottom: computed.paddingBottom,
-              paddingLeft: computed.paddingLeft,
-              paddingRight: computed.paddingRight,
-              paddingTop: computed.paddingTop,
-              columnGap: computed.columnGap,
-              rowGap: computed.rowGap,
-              textTransform: computed.textTransform,
-              whiteSpace: computed.whiteSpace,
-              width: computed.width
-            };
-          };
-          const surface = document.getElementById("monitoring-hud");
-          const titleGroup = document.querySelector(".monitoring-hud__title-group");
-          const subtitle = document.querySelector(".monitoring-hud__subtitle");
-          const title = document.querySelector(".monitoring-hud__title");
-          const surfaceRole = document.querySelector(".monitoring-hud__surface-role");
-          const surfaceRoleCopy = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-copy") : null;
-          const surfaceRolePairs = surfaceRole ? Array.from(surfaceRole.querySelectorAll(".monitoring-hud__surface-role-pair")) : [];
-          const surfaceRolePair = surfaceRolePairs.length ? surfaceRolePairs[0] : null;
-          const surfaceRoleLabel = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-label") : null;
-          const surfaceRoleSeparator = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-separator") : null;
-          const surfaceRoleValue = surfaceRole ? surfaceRole.querySelector(".monitoring-hud__surface-role-pair strong") : null;
-          const cluster = document.querySelector(".monitoring-hud__window-controls");
-          const close = document.getElementById("ai-control-center-close-action");
-          const maximize = document.getElementById("ai-control-center-maximize-action");
-          const minimize = document.getElementById("ai-control-center-minimize-action");
-          const settingsAction = document.getElementById("ai-dashboard-settings-action");
-          const settingsStatus = document.getElementById("ai-dashboard-settings-status");
-          const foyerGroup = document.querySelector('[data-dashboard-hub-group="ai-dashboard-domain-doorways"]');
-          const categoryCards = foyerGroup
-            ? Array.from(foyerGroup.querySelectorAll("[data-dashboard-hub-card]")).map((card) => card.dataset.dashboardHubCard || "")
-            : [];
-          const focusedDetail = document.getElementById("ai-control-center-readiness-detail");
-          const focusedHeading = document.getElementById("ai-control-center-readiness-detail-heading");
-          const focusedEyebrow = focusedDetail ? focusedDetail.querySelector(".ai-control-center-focused-detail__eyebrow") : null;
-          const orinRowLabel = document.querySelector('[data-dashboard-hub-card="active-ai"] .monitoring-hud__state-row span');
-          const orinRowValue = document.querySelector('[data-dashboard-hub-card="active-ai"] .monitoring-hud__state-row strong');
-          const localCheckRowLabel = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"] .monitoring-hud__state-row span');
-          const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"] .monitoring-hud__state-row strong');
-          const focusedLocalCheckRowLabel = document.querySelector('#ai-control-center-readiness-detail .monitoring-hud__state-row span');
-          const focusedLocalCheckRowValue = document.querySelector('#ai-control-center-readiness-detail .monitoring-hud__state-row strong');
-          const localCheckButton = document.getElementById("ai-control-center-local-check-action");
-          const localCheckButtonLabel = localCheckButton ? localCheckButton.querySelector(".monitoring-hud__button-label") : null;
-          const openControlButton = document.getElementById("ai-control-center-open-control-surface-action");
-          const openReadinessButton = document.getElementById("ai-control-center-open-readiness-surface-action");
-          const openMaintenanceButton = document.getElementById("ai-control-center-open-maintenance-surface-action");
-          const reportCard = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"]');
-          const controlCenterCard = document.querySelector('[data-dashboard-hub-card="ai-control-center"]');
-          const maintenanceCard = document.querySelector('[data-dashboard-hub-card="capabilities-maintenance"]');
-          const controlSurface = document.getElementById("ai-control-center-control-surface");
-          const maintenanceSurface = document.getElementById("ai-control-center-maintenance-detail");
-          const reportGenerateButton = document.getElementById("ai-control-center-generate-report-action");
-          const reportCopyButton = document.getElementById("ai-control-center-copy-report-action");
-          const reportState = document.getElementById("ai-control-center-report-state");
-          const reportSummary = document.getElementById("ai-control-center-report-summary");
-          const titledElements = surface
-            ? Array.from(surface.querySelectorAll("[title]")).map((element) => ({
-                id: element.id || "",
-                className: element.className || "",
-                title: element.getAttribute("title") || "",
-              }))
-            : [];
-          return JSON.stringify({
-            titleText: title ? title.textContent.trim() : "",
-            titleGroupRect: rect(titleGroup),
-            subtitleText: subtitle ? subtitle.textContent.trim() : "",
-            subtitleLineCount: subtitle ? subtitle.getClientRects().length : 0,
-            subtitleRect: rect(subtitle),
-            surfaceRoleRect: rect(surfaceRole),
-            surfaceRoleAriaLabel: surfaceRole ? surfaceRole.getAttribute("aria-label") : "",
-            surfaceRoleDashboardRole: surfaceRole ? surfaceRole.dataset.dashboardRole : "",
-            surfaceRoleStyle: style(surfaceRole),
-            surfaceRoleCopyRect: rect(surfaceRoleCopy),
-            surfaceRoleCopyStyle: style(surfaceRoleCopy),
-            surfaceRolePairTexts: surfaceRolePairs.map((pair) => pair.textContent.replace(/\\s+/g, " ").trim()),
-            surfaceRolePairStyle: style(surfaceRolePair),
-            surfaceRoleLabelStyle: style(surfaceRoleLabel),
-            surfaceRoleSeparatorText: surfaceRoleSeparator ? surfaceRoleSeparator.textContent.trim() : "",
-            surfaceRoleSeparatorStyle: style(surfaceRoleSeparator),
-            surfaceRoleValueStyle: style(surfaceRoleValue),
-            clusterRect: rect(cluster),
-            clusterStyle: style(cluster),
-            closeText: close ? close.textContent.trim() : "",
-            closeRect: rect(close),
-            closeClass: close ? close.className : "",
-            closeStyle: style(close),
-            closeLabel: close ? close.getAttribute("aria-label") : "",
-            closeControl: close ? close.dataset.control : "",
-            closeControlState: close ? close.dataset.windowControlState : "",
-            closeControlCommand: close ? close.dataset.windowControlCommand : "",
-            closeHidden: close ? close.hidden : false,
-            closeAriaHidden: close ? close.getAttribute("aria-hidden") : "",
-            closeAriaDisabled: close ? close.getAttribute("aria-disabled") : "",
-            closeTabIndex: close ? close.tabIndex : null,
-            closeTitle: close ? close.getAttribute("title") : "",
-            maximizeText: maximize ? maximize.textContent.trim() : "",
-            maximizeRect: rect(maximize),
-            maximizeClass: maximize ? maximize.className : "",
-            maximizeStyle: style(maximize),
-            maximizeLabel: maximize ? maximize.getAttribute("aria-label") : "",
-            maximizeState: maximize ? maximize.dataset.windowState : "",
-            maximizeControl: maximize ? maximize.dataset.control : "",
-            maximizeControlState: maximize ? maximize.dataset.windowControlState : "",
-            maximizeControlCommand: maximize ? maximize.dataset.windowControlCommand : "",
-            maximizeHidden: maximize ? maximize.hidden : false,
-            maximizeAriaHidden: maximize ? maximize.getAttribute("aria-hidden") : "",
-            maximizeTabIndex: maximize ? maximize.tabIndex : null,
-            maximizeDisabled: maximize ? maximize.disabled : false,
-            maximizeAriaDisabled: maximize ? maximize.getAttribute("aria-disabled") : "",
-            maximizeTitle: maximize ? maximize.getAttribute("title") : "",
-            minimizeText: minimize ? minimize.textContent.trim() : "",
-            minimizeRect: rect(minimize),
-            minimizeClass: minimize ? minimize.className : "",
-            minimizeStyle: style(minimize),
-            minimizeLabel: minimize ? minimize.getAttribute("aria-label") : "",
-            minimizeControl: minimize ? minimize.dataset.control : "",
-            minimizeControlState: minimize ? minimize.dataset.windowControlState : "",
-            minimizeControlCommand: minimize ? minimize.dataset.windowControlCommand : "",
-            minimizeHidden: minimize ? minimize.hidden : false,
-            minimizeAriaHidden: minimize ? minimize.getAttribute("aria-hidden") : "",
-            minimizeAriaDisabled: minimize ? minimize.getAttribute("aria-disabled") : "",
-            minimizeTabIndex: minimize ? minimize.tabIndex : null,
-            minimizeTitle: minimize ? minimize.getAttribute("title") : "",
-            settingsActionRect: rect(settingsAction),
-            settingsActionLabel: settingsAction ? settingsAction.getAttribute("aria-label") : "",
-            settingsActionState: settingsAction ? settingsAction.dataset.settingsState : "",
-            settingsActionRoute: settingsAction ? settingsAction.dataset.settingsRoute : "",
-            settingsActionAriaDisabled: settingsAction ? settingsAction.getAttribute("aria-disabled") : "",
-            settingsStatusText: settingsStatus ? settingsStatus.textContent.trim() : "",
-            dashboardCardOrder: surface ? surface.dataset.dashboardCardOrder : "",
-            dashboardIaModel: surface ? surface.dataset.dashboardIaModel : "",
-            dashboardSurfaceModel: surface ? surface.dataset.dashboardSurfaceModel : "",
-            dashboardInlineWorkPolicy: surface ? surface.dataset.dashboardInlineWorkPolicy : "",
-            categoryCardLauncherContract: surface ? surface.dataset.categoryCardLauncherContract : "",
-            dashboardVisibleName: surface ? surface.dataset.dashboardVisibleName : "",
-            aiControlCenterPlacement: surface ? surface.dataset.aiControlCenterPlacement : "",
-            globalAiStrip: surface ? surface.dataset.globalAiStrip : "",
-            settingsRoute: surface ? surface.dataset.settingsRoute : "",
-            maintenanceUpdatesPlacement: surface ? surface.dataset.maintenanceUpdatesPlacement : "",
-            foyerGroupRect: rect(foyerGroup),
-            foyerGroupStyle: style(foyerGroup),
-            foyerGroupCards: categoryCards,
-            controlCenterCardRect: rect(controlCenterCard),
-            maintenanceCardRect: rect(maintenanceCard),
-            maintenanceCardState: maintenanceCard ? maintenanceCard.dataset.maintenanceUpdatesState : "",
-            openControlButtonText: openControlButton ? openControlButton.textContent.trim() : "",
-            openControlButtonRect: rect(openControlButton),
-            openControlButtonTarget: openControlButton ? openControlButton.dataset.launchTarget : "",
-            openReadinessButtonText: openReadinessButton ? openReadinessButton.textContent.trim() : "",
-            openReadinessButtonRect: rect(openReadinessButton),
-            openReadinessButtonTarget: openReadinessButton ? openReadinessButton.dataset.launchTarget : "",
-            openMaintenanceButtonText: openMaintenanceButton ? openMaintenanceButton.textContent.trim() : "",
-            openMaintenanceButtonRect: rect(openMaintenanceButton),
-            openMaintenanceButtonTarget: openMaintenanceButton ? openMaintenanceButton.dataset.launchTarget : "",
-            categoryLauncherCount: surface ? surface.querySelectorAll("[data-category-launcher]").length : 0,
-            domainSurfaceCount: surface ? surface.querySelectorAll("[data-domain-surface]").length : 0,
-            controlSurfaceHidden: controlSurface ? controlSurface.hidden : null,
-            controlSurfaceOpen: controlSurface ? controlSurface.dataset.surfaceOpen : "",
-            maintenanceSurfaceHidden: maintenanceSurface ? maintenanceSurface.hidden : null,
-            maintenanceSurfaceOpen: maintenanceSurface ? maintenanceSurface.dataset.surfaceOpen : "",
-            focusedDetailRect: rect(focusedDetail),
-            focusedDetailStyle: style(focusedDetail),
-            focusedDetailHidden: focusedDetail ? focusedDetail.hidden : null,
-            focusedDetailState: focusedDetail ? focusedDetail.dataset.focusedSurfaceState : "",
-            focusedDetailLabelledBy: focusedDetail ? focusedDetail.getAttribute("aria-labelledby") : "",
-            focusedDetailEyebrowText: focusedEyebrow ? focusedEyebrow.textContent.trim() : "",
-            focusedDetailEyebrowStyle: style(focusedEyebrow),
-            focusedDetailHeadingText: focusedHeading ? focusedHeading.textContent.trim() : "",
-            focusedDetailHeadingStyle: style(focusedHeading),
-            orinRowLabelText: orinRowLabel ? orinRowLabel.textContent.trim() : "",
-            orinRowLabelStyle: style(orinRowLabel),
-            orinRowValueText: orinRowValue ? orinRowValue.textContent.trim() : "",
-            orinRowValueStyle: style(orinRowValue),
-            localCheckRowLabelText: localCheckRowLabel ? localCheckRowLabel.textContent.trim() : "",
-            localCheckRowLabelStyle: style(localCheckRowLabel),
-            localCheckRowValueText: localCheckRowValue ? localCheckRowValue.textContent.trim() : "",
-            localCheckRowValueStyle: style(localCheckRowValue),
-            focusedLocalCheckRowLabelText: focusedLocalCheckRowLabel ? focusedLocalCheckRowLabel.textContent.trim() : "",
-            focusedLocalCheckRowLabelStyle: style(focusedLocalCheckRowLabel),
-            focusedLocalCheckRowValueText: focusedLocalCheckRowValue ? focusedLocalCheckRowValue.textContent.trim() : "",
-            focusedLocalCheckRowValueStyle: style(focusedLocalCheckRowValue),
-            localCheckButtonText: localCheckButton ? localCheckButton.textContent.trim() : "",
-            localCheckButtonRect: rect(localCheckButton),
-            localCheckButtonStyle: style(localCheckButton),
-            localCheckButtonLabelStyle: style(localCheckButtonLabel),
-            localCheckButtonTitle: localCheckButton ? localCheckButton.getAttribute("title") : "",
-            reportCardRect: rect(reportCard),
-            reportGenerateButtonText: reportGenerateButton ? reportGenerateButton.textContent.trim() : "",
-            reportGenerateButtonRect: rect(reportGenerateButton),
-            reportGenerateButtonStyle: style(reportGenerateButton),
-            reportCopyButtonText: reportCopyButton ? reportCopyButton.textContent.trim() : "",
-            reportCopyButtonRect: rect(reportCopyButton),
-            reportCopyButtonStyle: style(reportCopyButton),
-            reportCopyButtonDisabled: reportCopyButton ? reportCopyButton.disabled : null,
-            reportCopyButtonAriaDisabled: reportCopyButton ? reportCopyButton.getAttribute("aria-disabled") : "",
-            reportStateText: reportState ? reportState.textContent.trim() : "",
-            reportSummaryText: reportSummary ? reportSummary.textContent.trim() : "",
-            nativeTooltipElementCount: titledElements.length,
-            nativeTooltipElements: titledElements,
-            chromeGap: close && maximize && minimize
-              ? Math.round(Math.min(
-                  maximize.getBoundingClientRect().left - minimize.getBoundingClientRect().right,
-                  close.getBoundingClientRect().left - maximize.getBoundingClientRect().right
-                ))
-              : null,
-            compactButtonCount: cluster ? cluster.querySelectorAll(".monitoring-hud__window-control-button").length : 0,
-            visibleCompactButtonCount: cluster ? Array.from(cluster.querySelectorAll(".monitoring-hud__window-control-button")).filter((button) => !button.hidden).length : 0
-          });
-        })();
-        """,
-    )
-    try:
-        title_chrome_proof = json.loads(title_chrome_proof_raw) if isinstance(title_chrome_proof_raw, str) else title_chrome_proof_raw
-    except json.JSONDecodeError:
-        title_chrome_proof = {"ok": False, "raw": title_chrome_proof_raw}
-    hover_proof: dict[str, object] = {}
-    if isinstance(title_chrome_proof, dict):
-        window_rect_for_hover = _native_rect(hwnd)
-        for rect_key, state_key, label in (
-            ("minimizeRect", "minimizeControlState", "02_window_control_minimize_hover"),
-            ("maximizeRect", "maximizeControlState", "03_window_control_maximize_hidden"),
-            ("closeRect", "closeControlState", "04_window_control_close_hover"),
-        ):
-            control_rect = title_chrome_proof.get(rect_key)
-            if title_chrome_proof.get(state_key) == "hidden":
-                hover_proof[label] = {"ok": True, "skipped": True, "reason": "hidden-window-control"}
-                continue
-            if not isinstance(control_rect, dict):
-                hover_proof[label] = {"ok": False, "reason": f"missing-{rect_key}"}
-                continue
-            hover_x = int(window_rect_for_hover["left"] + int(control_rect.get("left") or 0) + (int(control_rect.get("width") or 0) // 2))
-            hover_y = int(window_rect_for_hover["top"] + int(control_rect.get("top") or 0) + (int(control_rect.get("height") or 0) // 2))
-            _move_mouse(app, hover_x, hover_y, 900)
-            hover_proof[label] = {
-                "ok": True,
-                "screenPoint": {"x": hover_x, "y": hover_y},
-                "evidence": _capture(app, dialog, log_root, label),
-            }
-        local_check_rect = title_chrome_proof.get("openReadinessButtonRect")
-        if isinstance(local_check_rect, dict):
-            hover_x = int(window_rect_for_hover["left"] + int(local_check_rect.get("left") or 0) + (int(local_check_rect.get("width") or 0) // 2))
-            hover_y = int(window_rect_for_hover["top"] + int(local_check_rect.get("top") or 0) + (int(local_check_rect.get("height") or 0) // 2))
-            _move_mouse(app, hover_x, hover_y, 1100)
-            hover_proof["05_open_readiness_launcher_hover_no_tooltip"] = {
-                "ok": True,
-                "screenPoint": {"x": hover_x, "y": hover_y},
-                "evidence": _capture(app, dialog, log_root, "05_open_readiness_launcher_hover_no_tooltip"),
-            }
-        else:
-            hover_proof["05_open_readiness_launcher_hover_no_tooltip"] = {
-                "ok": False,
-                "reason": "missing-openReadinessButtonRect",
-            }
-    local_check_scroll_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const hub = document.getElementById("ai-control-center-card-hub");
-          const opener = document.getElementById("ai-control-center-open-readiness-surface-action");
-          const button = document.getElementById("ai-control-center-local-check-action");
-          if (!hub || !button) {
-            return JSON.stringify({ok: false, reason: "missing-local-check-button-or-hub"});
-          }
-          if (opener) {
-            opener.click();
-          }
-          void button.offsetHeight;
-          const hubRect = hub.getBoundingClientRect();
-          const buttonRect = button.getBoundingClientRect();
-          hub.scrollTop += buttonRect.bottom - hubRect.bottom + 28;
-          window.nexusAiControlCenterSyncScrollbar && window.nexusAiControlCenterSyncScrollbar();
-          const updated = button.getBoundingClientRect();
-          return JSON.stringify({
-            ok: true,
-            scrollTop: hub.scrollTop,
-            buttonRect: {
-              left: Math.round(updated.left),
-              top: Math.round(updated.top),
-              right: Math.round(updated.right),
-              bottom: Math.round(updated.bottom),
-              width: Math.round(updated.width),
-              height: Math.round(updated.height)
-            }
-          });
-        })();
-        """,
-    )
-    try:
-        local_check_scroll = json.loads(local_check_scroll_raw) if isinstance(local_check_scroll_raw, str) else local_check_scroll_raw
-    except json.JSONDecodeError:
-        local_check_scroll = {"ok": False, "raw": local_check_scroll_raw}
-    _pump(app, 220)
-    local_check_real_click = {"ok": False, "reason": "missing-localCheckButtonRect"}
-    if isinstance(local_check_scroll, dict):
-        local_check_rect = local_check_scroll.get("buttonRect")
-        if isinstance(local_check_rect, dict):
-            window_rect_for_click = _native_rect(hwnd)
-            local_click_x = int(
-                window_rect_for_click["left"]
-                + int(local_check_rect.get("left") or 0)
-                + (int(local_check_rect.get("width") or 0) // 2)
-            )
-            local_click_y = int(
-                window_rect_for_click["top"]
-                + int(local_check_rect.get("top") or 0)
-                + (int(local_check_rect.get("height") or 0) // 2)
-            )
-            _left_click(app, local_click_x, local_click_y, 300)
-            local_check_real_click = {
-                "ok": True,
-                "method": "SetCursorPos plus Win32 left mouse down/up on visible Run Local Check button",
-                "screenPoint": {"x": local_click_x, "y": local_click_y},
-                "scrollProof": local_check_scroll,
-            }
-    local_check_result_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const result = document.getElementById("ai-control-center-local-result");
-          const detail = document.getElementById("ai-control-center-local-detail");
-          return JSON.stringify({
-            ok: true,
-            result: result ? result.textContent.trim() : "",
-            detail: detail ? detail.textContent.trim() : "",
-            providerVisibleData: "none",
-            sentToProvider: false,
-            canAcceptPrompts: false,
-            promptSendPosture: "prompt-send-disabled",
-            networkEgressState: "network-egress-blocked",
-            memoryIndexingState: "memory-indexing-disabled"
-          });
-        })();
-        """,
-    )
-    try:
-        local_check_result = json.loads(local_check_result_raw) if isinstance(local_check_result_raw, str) else local_check_result_raw
-    except json.JSONDecodeError:
-        local_check_result = {"ok": False, "raw": local_check_result_raw}
-    _pump(app, 180)
-    screenshot_evidence["localCheckResult"] = _capture(app, dialog, log_root, "05_local_check_result")
-    report_scroll_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const hub = document.getElementById("ai-control-center-card-hub");
-          const opener = document.getElementById("ai-control-center-open-readiness-surface-action");
-          const button = document.getElementById("ai-control-center-generate-report-action");
-          if (!hub || !button) {
-            return JSON.stringify({ok: false, reason: "missing-report-button-or-hub"});
-          }
-          if (opener) {
-            opener.click();
-          }
-          void button.offsetHeight;
-          const hubRect = hub.getBoundingClientRect();
-          const buttonRect = button.getBoundingClientRect();
-          hub.scrollTop += buttonRect.top - hubRect.top - 36;
-          window.nexusAiControlCenterSyncScrollbar && window.nexusAiControlCenterSyncScrollbar();
-          return JSON.stringify({ok: true, scrollTop: hub.scrollTop});
-        })();
-        """,
-    )
-    try:
-        report_scroll = json.loads(report_scroll_raw) if isinstance(report_scroll_raw, str) else report_scroll_raw
-    except json.JSONDecodeError:
-        report_scroll = {"ok": False, "raw": report_scroll_raw}
-    _pump(app, 220)
-    report_button_proof_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const rect = (element) => {
-            if (!element) {
-              return null;
-            }
-            const box = element.getBoundingClientRect();
-            return {
-              left: Math.round(box.left),
-              top: Math.round(box.top),
-              right: Math.round(box.right),
-              bottom: Math.round(box.bottom),
-              width: Math.round(box.width),
-              height: Math.round(box.height)
-            };
-          };
-          const button = document.getElementById("ai-control-center-generate-report-action");
-          const copy = document.getElementById("ai-control-center-copy-report-action");
-          return JSON.stringify({
-            ok: !!button,
-            reportGenerateButtonRect: rect(button),
-            reportGenerateButtonText: button ? button.textContent.trim() : "",
-            reportCopyButtonDisabledBefore: copy ? copy.disabled : null,
-            reportCopyButtonAriaDisabledBefore: copy ? copy.getAttribute("aria-disabled") : ""
-          });
-        })();
-        """,
-    )
-    try:
-        report_button_proof = json.loads(report_button_proof_raw) if isinstance(report_button_proof_raw, str) else report_button_proof_raw
-    except json.JSONDecodeError:
-        report_button_proof = {"ok": False, "raw": report_button_proof_raw}
-    readiness_report_real_click = {"ok": False, "reason": "missing-reportGenerateButtonRect"}
-    if isinstance(report_button_proof, dict):
-        report_rect = report_button_proof.get("reportGenerateButtonRect")
-        if isinstance(report_rect, dict):
-            window_rect_for_report_click = _native_rect(hwnd)
-            report_click_x = int(
-                window_rect_for_report_click["left"]
-                + int(report_rect.get("left") or 0)
-                + (int(report_rect.get("width") or 0) // 2)
-            )
-            report_click_y = int(
-                window_rect_for_report_click["top"]
-                + int(report_rect.get("top") or 0)
-                + (int(report_rect.get("height") or 0) // 2)
-            )
-            _left_click(app, report_click_x, report_click_y, 360)
-            readiness_report_real_click = {
-                "ok": True,
-                "method": "SetCursorPos plus Win32 left mouse down/up on visible Generate Readiness Report button",
-                "screenPoint": {"x": report_click_x, "y": report_click_y},
-            }
-    readiness_report_result_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const text = (id) => {
-            const element = document.getElementById(id);
-            return element ? element.textContent.trim() : "";
-          };
-          const body = document.getElementById("ai-control-center-report-body");
-          const detail = document.getElementById("ai-control-center-readiness-detail");
-          const copy = document.getElementById("ai-control-center-copy-report-action");
-          return JSON.stringify({
-            ok: true,
-            reportState: text("ai-control-center-report-state"),
-            summary: text("ai-control-center-report-summary"),
-            ready: text("ai-control-center-report-ready"),
-            missing: text("ai-control-center-report-missing"),
-            blocked: text("ai-control-center-report-blocked"),
-            evidence: text("ai-control-center-report-evidence"),
-            next: text("ai-control-center-report-next"),
-            boundary: text("ai-control-center-report-boundary"),
-            bodyVisible: body ? !body.hidden : false,
-            focusedDetailVisible: detail ? !detail.hidden : false,
-            focusedDetailState: detail ? detail.dataset.focusedSurfaceState : "",
-            copyButtonDisabled: copy ? copy.disabled : null,
-            copyButtonAriaDisabled: copy ? copy.getAttribute("aria-disabled") : ""
-          });
-        })();
-        """,
-    )
-    try:
-        readiness_report_result = json.loads(readiness_report_result_raw) if isinstance(readiness_report_result_raw, str) else readiness_report_result_raw
-    except json.JSONDecodeError:
-        readiness_report_result = {"ok": False, "raw": readiness_report_result_raw}
-    _pump(app, 180)
-    screenshot_evidence["readinessReportResult"] = _capture(app, dialog, log_root, "06_readiness_report_result")
-    readiness_report_copy_click = {"ok": False, "reason": "missing-copy-button-rect"}
-    readiness_report_copy_result = {"ok": False, "reason": "copy-not-attempted"}
-    _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const hub = document.getElementById("ai-control-center-card-hub");
-          const button = document.getElementById("ai-control-center-copy-report-action");
-          if (hub && button) {
-            const hubRect = hub.getBoundingClientRect();
-            const buttonRect = button.getBoundingClientRect();
-            hub.scrollTop += buttonRect.top - hubRect.top - 46;
-            window.nexusAiControlCenterSyncScrollbar && window.nexusAiControlCenterSyncScrollbar();
-          }
-          return true;
-        })();
-        """,
-    )
-    _pump(app, 180)
-    readiness_report_copy_button_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const button = document.getElementById("ai-control-center-copy-report-action");
-          if (!button) {
-            return JSON.stringify({ok: false, reason: "missing-copy-button"});
-          }
-          const box = button.getBoundingClientRect();
-          return JSON.stringify({
-            ok: true,
-            rect: {
-              left: Math.round(box.left),
-              top: Math.round(box.top),
-              width: Math.round(box.width),
-              height: Math.round(box.height)
-            },
-            disabled: button.disabled,
-            ariaDisabled: button.getAttribute("aria-disabled")
-          });
-        })();
-        """,
-    )
-    try:
-        readiness_report_copy_button = (
-            json.loads(readiness_report_copy_button_raw)
-            if isinstance(readiness_report_copy_button_raw, str)
-            else readiness_report_copy_button_raw
+    dialog.close()
+    _pump(app, 500)
+    lifecycle_after_dashboard_close = {
+        "controlVisible": bool(control_window and control_window.isVisible()),
+        "maintenanceVisible": bool(maintenance_window and maintenance_window.isVisible()),
+        "readinessVisible": bool(readiness_window and readiness_window.isVisible()),
+    }
+    if readiness_window is not None and readiness_window.isVisible():
+        screenshots["readiness_persists_after_dashboard_close"] = _capture_window(
+            app,
+            readiness_window,
+            log_root,
+            "04_readiness_persists_after_dashboard_close",
         )
-    except json.JSONDecodeError:
-        readiness_report_copy_button = {"ok": False, "raw": readiness_report_copy_button_raw}
-    if isinstance(readiness_report_copy_button, dict):
-        copy_rect = readiness_report_copy_button.get("rect")
-        if isinstance(copy_rect, dict) and readiness_report_copy_button.get("disabled") is False:
-            window_rect_for_copy_click = _native_rect(hwnd)
-            copy_click_x = int(
-                window_rect_for_copy_click["left"]
-                + int(copy_rect.get("left") or 0)
-                + (int(copy_rect.get("width") or 0) // 2)
-            )
-            copy_click_y = int(
-                window_rect_for_copy_click["top"]
-                + int(copy_rect.get("top") or 0)
-                + (int(copy_rect.get("height") or 0) // 2)
-            )
-            _left_click(app, copy_click_x, copy_click_y, 360)
-            readiness_report_copy_click = {
-                "ok": True,
-                "method": "SetCursorPos plus Win32 left mouse down/up on visible Copy Report button",
-                "screenPoint": {"x": copy_click_x, "y": copy_click_y},
-            }
-    _pump(app, 520)
-    readiness_report_copy_result_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const state = document.getElementById("ai-control-center-report-state");
-          const copy = document.getElementById("ai-control-center-copy-report-action");
-          return JSON.stringify({
-            ok: true,
-            reportState: state ? state.textContent.trim() : "",
-            copyButtonDisabled: copy ? copy.disabled : null,
-            copyButtonAriaDisabled: copy ? copy.getAttribute("aria-disabled") : ""
-          });
-        })();
-        """,
-    )
-    try:
-        readiness_report_copy_result = (
-            json.loads(readiness_report_copy_result_raw)
-            if isinstance(readiness_report_copy_result_raw, str)
-            else readiness_report_copy_result_raw
-        )
-    except json.JSONDecodeError:
-        readiness_report_copy_result = {"ok": False, "raw": readiness_report_copy_result_raw}
-    _pump(app, 180)
-    screenshot_evidence["readinessReportCopyResult"] = _capture(app, dialog, log_root, "07_readiness_report_copy_result")
-    _move_mouse(app, _native_rect(hwnd)["left"] + 24, _native_rect(hwnd)["top"] + 24, 120)
-    minimize_click = {"ok": False, "reason": "missing-minimizeRect"}
-    if isinstance(title_chrome_proof, dict):
-        minimize_rect = title_chrome_proof.get("minimizeRect")
-        if isinstance(minimize_rect, dict):
-            window_rect_for_click = _native_rect(hwnd)
-            minimize_click_x = int(
-                window_rect_for_click["left"]
-                + int(minimize_rect.get("left") or 0)
-                + (int(minimize_rect.get("width") or 0) // 2)
-            )
-            minimize_click_y = int(
-                window_rect_for_click["top"]
-                + int(minimize_rect.get("top") or 0)
-                + (int(minimize_rect.get("height") or 0) // 2)
-            )
-            _left_click(app, minimize_click_x, minimize_click_y, 380)
-            minimize_click = {
-                "ok": True,
-                "method": "SetCursorPos plus Win32 left mouse down/up on visible minimize control",
-                "screenPoint": {"x": minimize_click_x, "y": minimize_click_y},
-            }
-    _pump(app, 360)
-    minimized_after_click = bool(dialog.isMinimized())
-    for _ in range(5):
-        ShowWindow(ctypes.wintypes.HWND(hwnd), SW_RESTORE)
-        dialog.showNormal()
-        dialog.setGeometry(initial_bounded)
-        dialog.raise_()
-        dialog.activateWindow()
-        _pump(app, 240)
-        BringWindowToTop(ctypes.wintypes.HWND(hwnd))
-        SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
-        _pump(app, 160)
-        restore_probe = _native_rect(hwnd)
-        if restore_probe["left"] > -1000 and restore_probe["top"] > -1000:
-            break
-    post_minimize_restore_rect = _native_rect(hwnd)
-    custom_scrollbar_probe_raw = _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const surface = document.getElementById("monitoring-hud");
-          const hub = document.getElementById("ai-control-center-card-hub");
-          if (!surface || !hub || !window.nexusAiControlCenterSyncScrollbar) {
-            return { ok: false, reason: "missing-scrollbar-elements" };
-          }
-          hub.dataset.scrollbarVisualProbe = "temporary-overflow-proof";
-          hub.style.setProperty("padding-bottom", "220px", "important");
-          void hub.offsetHeight;
-          window.nexusAiControlCenterSyncScrollbar();
-          const thumb = document.getElementById("ai-control-center-scrollbar-thumb");
-          const thumbStyle = thumb ? window.getComputedStyle(thumb) : null;
-          return JSON.stringify({
-            ok: surface.dataset.customScrollbarVisible === "true",
-            style: surface.dataset.scrollbarStyle || "",
-            visible: surface.dataset.customScrollbarVisible || "",
-            thumbBorderRadius: thumbStyle ? thumbStyle.borderRadius : "",
-            thumbBackground: thumbStyle ? thumbStyle.backgroundColor : ""
-          });
-        })();
-        """,
-    )
-    try:
-        custom_scrollbar_probe = json.loads(custom_scrollbar_probe_raw) if isinstance(custom_scrollbar_probe_raw, str) else custom_scrollbar_probe_raw
-    except json.JSONDecodeError:
-        custom_scrollbar_probe = {"ok": False, "raw": custom_scrollbar_probe_raw}
-    _pump(app, 200)
-    screenshot_evidence["customScrollbarProbe"] = _capture(
-        app,
-        dialog,
-        log_root,
-        "04_custom_scrollbar_visual_probe",
-    )
-    _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const hub = document.getElementById("ai-control-center-card-hub");
-          if (hub) {
-            hub.style.removeProperty("padding-bottom");
-            delete hub.dataset.scrollbarVisualProbe;
-          }
-          window.nexusAiControlCenterSyncScrollbar && window.nexusAiControlCenterSyncScrollbar();
-          return true;
-        })();
-        """,
-    )
-    _pump(app, 200)
-
-    rect = _native_rect(hwnd)
-    corner_offset = max(18, (int(getattr(dialog, "RESIZE_MARGIN", 14)) * 2) - 2)
-    corner = _drag_resize(
-        app,
-        hwnd,
-        "bottom_right_corner",
-        rect["right"] - corner_offset,
-        rect["bottom"] - corner_offset,
-        min(available.right() - 24, rect["right"] + 96),
-        min(available.bottom() - 24, rect["bottom"] + 72),
-    )
-    screenshot_evidence["afterCorner"] = _capture(app, dialog, log_root, "05_after_corner_resize")
-    dialog.setGeometry(initial_bounded)
-    _pump(app, 180)
-    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
-    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
-    _pump(app, 160)
-
-    rect = _native_rect(hwnd)
-    right = _drag_resize(
-        app,
-        hwnd,
-        "right_edge",
-        rect["right"] - 8,
-        rect["top"] + max(220, rect["height"] // 2),
-        min(available.right() - 24, rect["right"] + 84),
-        rect["top"] + max(220, rect["height"] // 2),
-    )
-    screenshot_evidence["afterRightEdge"] = _capture(app, dialog, log_root, "06_after_right_edge_resize")
-    dialog.setGeometry(initial_bounded)
-    _pump(app, 180)
-    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
-    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
-    _pump(app, 160)
-
-    rect = _native_rect(hwnd)
-    bottom = _drag_resize(
-        app,
-        hwnd,
-        "bottom_edge",
-        rect["left"] + rect["width"] // 2,
-        rect["bottom"] - 3,
-        rect["left"] + rect["width"] // 2,
-        min(available.bottom() - 24, rect["bottom"] + 84),
-    )
-    screenshot_evidence["afterBottomEdge"] = _capture(app, dialog, log_root, "07_after_bottom_edge_resize")
-    dialog.setGeometry(initial_bounded)
-    _pump(app, 180)
-    BringWindowToTop(ctypes.wintypes.HWND(hwnd))
-    SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
-    _pump(app, 160)
-
-    rect = _native_rect(hwnd)
-    top_right = _drag_resize(
-        app,
-        hwnd,
-        "top_right_corner",
-        rect["right"] - 7,
-        rect["top"] + 7,
-        min(available.right() - 24, rect["right"] + 72),
-        max(available.top() + 24, rect["top"] - 56),
-    )
-    screenshot_evidence["afterTopRightCorner"] = _capture(
-        app,
-        dialog,
-        log_root,
-        "08_after_top_right_corner_resize",
-    )
-    try:
-        final_state_payload = json.loads(isolated_state_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        final_state_payload = {}
+        readiness_window.close()
+        _pump(app, 180)
 
     checks = {
-        "defaultOpenUsesContentFitHeight": abs(initial_native_rect["height"] - int(initial_height)) <= 4,
-        "defaultOpenRespectsMaxHeight": initial_native_rect["height"] <= dialog.DEFAULT_MAX_HEIGHT,
-        "customScrollbarProbeVisible": bool(
-            isinstance(custom_scrollbar_probe, dict)
-            and custom_scrollbar_probe.get("ok") is True
-            and custom_scrollbar_probe.get("style") == "nexus-rounded-custom-overlay"
+        "dashboardHubCompactOnly": (
+            dashboard_probe.get("title") == "AI Dashboard"
+            and dashboard_probe.get("dashboardIaModel") == "ai-dashboard-global-strip-category-cards-launch-real-child-domain-windows"
+            and dashboard_probe.get("dashboardSurfaceModel") == "hub-only-cards-are-doorways"
+            and dashboard_probe.get("childWindowModel") == "dashboard-launchers-open-exclusive-or-external-unique-windows"
+            and dashboard_probe.get("sameWindowFocusedSectionPolicy") == "blocked-as-dashboard-workspace-substitute"
+            and dashboard_probe.get("cardNames") == ["control-center", "readiness-diagnostics", "capabilities-maintenance"]
+            and dashboard_probe.get("focusedSurfaceCount") == 0
+            and dashboard_probe.get("domainSurfaceCount") == 0
         ),
-        "cornerResizeChangedWidth": corner["widthDelta"] >= 36,
-        "cornerResizeChangedHeight": corner["heightDelta"] >= 28,
-        "cornerFluidGeometrySamples": corner["uniqueSizeCount"] >= 6,
-        "rightEdgeChangedWidth": right["widthDelta"] >= 32,
-        "rightEdgeFluidGeometrySamples": right["uniqueWidthCount"] >= 4,
-        "bottomEdgeChangedHeight": abs(bottom["heightDelta"]) >= 26,
-        "bottomEdgeFluidGeometrySamples": bottom["uniqueHeightCount"] >= 4,
-        "topRightCornerResizeChangedWidth": top_right["widthDelta"] >= 28,
-        "topRightCornerResizeChangedHeight": top_right["heightDelta"] >= 24,
-        "topRightCornerFluidGeometrySamples": top_right["uniqueSizeCount"] >= 4,
-        "fallbackStartedMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_FALLBACK_STARTED" in event for event in events),
-        "resizeReadyMarker": any("AI_CONTROL_CENTER_WINDOW_RESIZE_READY" in event for event in events),
-        "restartMemoryDisabled": geometry_memory_enabled is False,
-        "staleGeometryIgnoredAtConstruction": (
-            int(constructor_default_rect["width"]) == int(dialog.DEFAULT_WIDTH)
-            and int(constructor_default_rect["height"]) == int(dialog.DEFAULT_HEIGHT)
+        "noInlineWorkspaceActions": (
+            dashboard_probe.get("localCheckInline") is False
+            and dashboard_probe.get("generateInline") is False
+            and dashboard_probe.get("copyInline") is False
         ),
-        "geometryStateNotPersistedDuringRuntime": (
-            int(final_state_payload.get("w") or 0) == 900
-            and int(final_state_payload.get("h") or 0) == 760
-            and int(final_state_payload.get("x") or 0) == 12
-            and int(final_state_payload.get("y") or 0) == 12
+        "redundantCardsRemoved": (
+            dashboard_probe.get("activeAiText") is False
+            and dashboard_probe.get("trustProviderText") is False
         ),
-        "titleSubtitleDoesNotWrapTooSoon": (
-            isinstance(title_chrome_proof, dict)
-            and int(title_chrome_proof.get("subtitleLineCount") or 0) <= 1
+        "settingsCogIconOnlyNoVisibleFutureCopy": (
+            dashboard_probe.get("visibleSettingsFutureText") is False
+            and dashboard_probe.get("nativeTitleTooltipCount") == 0
         ),
-        "compactWindowControlClusterVisible": (
-            isinstance(title_chrome_proof, dict)
-            and int(title_chrome_proof.get("compactButtonCount") or 0) == 3
-            and isinstance(title_chrome_proof.get("clusterRect"), dict)
-            and int(title_chrome_proof["clusterRect"].get("width") or 0) <= 130
+        "categoryLaunchersOpenRealWindows": (
+            len(dashboard_probe.get("launchers") or []) == 3
+            and control_window is not None
+            and readiness_window is not None
+            and maintenance_window is not None
+            and child_windows_visible_before_close.get("control-center") is True
+            and child_windows_visible_before_close.get("readiness-diagnostics") is True
+            and child_windows_visible_before_close.get("capabilities-maintenance") is True
         ),
-        "compactWindowControlButtonsSized": (
-            isinstance(title_chrome_proof, dict)
-            and all(
-                isinstance(title_chrome_proof.get(key), dict)
-                and int(title_chrome_proof[key].get("width") or 0) <= 28
-                and int(title_chrome_proof[key].get("height") or 0) <= 26
-                for key in ("minimizeRect", "maximizeRect", "closeRect")
-            )
+        "classificationLedgerMatchesPrompt": (
+            control_window is not None
+            and control_window.definition["classification"] == "exclusive-child"
+            and readiness_window is not None
+            and readiness_window.definition["classification"] == "external-unique"
+            and maintenance_window is not None
+            and maintenance_window.definition["classification"] == "exclusive-child"
         ),
-        "windowControlPillReducedAndActionHeightMatched": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("clusterRect"), dict)
-            and isinstance(title_chrome_proof.get("openReadinessButtonRect"), dict)
-            and 58 <= int(title_chrome_proof["clusterRect"].get("width") or 0) <= 62
-            and 28 <= int(title_chrome_proof["clusterRect"].get("height") or 0) <= 32
-            and abs(
-                int(title_chrome_proof["clusterRect"].get("height") or 0)
-                - int(title_chrome_proof["openReadinessButtonRect"].get("height") or 0)
-            ) <= 2
+        "readinessWorkRunsInsideChildWindow": (
+            readiness_result.get("workspace") == "readiness-diagnostics"
+            and readiness_result.get("runButtonPresent") is True
+            and readiness_result.get("generateButtonPresent") is True
+            and readiness_result.get("copyButtonPresent") is True
+            and readiness_result.get("localResult") == "No provider configured"
+            and readiness_result.get("reportState") == "Copied locally"
+            and readiness_result.get("reportBodyVisible") is True
         ),
-        "compactWindowControlBordersVisible": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("clusterStyle"), dict)
-            and title_chrome_proof["clusterStyle"].get("borderColor") == "rgba(122, 232, 255, 0.44)"
-            and isinstance(title_chrome_proof.get("minimizeStyle"), dict)
-            and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
-            and isinstance(title_chrome_proof.get("closeStyle"), dict)
-            and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
-            and title_chrome_proof.get("maximizeControlState") == "hidden"
+        "singletonFocusBehavior": (
+            singleton_focus.get("sameInstance") is True
+            and singleton_focus.get("sameHwnd") is True
+            and singleton_focus.get("visible") is True
         ),
-        "windowControlOuterBorderBrighterThanInner": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("clusterStyle"), dict)
-            and title_chrome_proof["clusterStyle"].get("borderColor") == "rgba(122, 232, 255, 0.44)"
-            and isinstance(title_chrome_proof.get("minimizeStyle"), dict)
-            and title_chrome_proof["minimizeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
-            and isinstance(title_chrome_proof.get("closeStyle"), dict)
-            and title_chrome_proof["closeStyle"].get("borderColor") == "rgba(122, 232, 255, 0.24)"
+        "dashboardResizeStillWorks": (
+            dashboard_resize_proof["widthDelta"] >= 30
+            and dashboard_resize_proof["heightDelta"] >= 20
         ),
-        "windowControlNativeTooltipsSuppressed": (
-            isinstance(title_chrome_proof, dict)
-            and not title_chrome_proof.get("minimizeTitle")
-            and not title_chrome_proof.get("maximizeTitle")
-            and not title_chrome_proof.get("closeTitle")
+        "childLifecycleBehavior": (
+            lifecycle_after_dashboard_close["controlVisible"] is False
+            and lifecycle_after_dashboard_close["maintenanceVisible"] is False
+            and lifecycle_after_dashboard_close["readinessVisible"] is True
         ),
-        "aiControlCenterNativeTooltipsSuppressed": (
-            isinstance(title_chrome_proof, dict)
-            and int(title_chrome_proof.get("nativeTooltipElementCount") or 0) == 0
-            and not title_chrome_proof.get("nativeTooltipElements")
-            and not title_chrome_proof.get("localCheckButtonTitle")
+        "providerExecutionStillBlocked": (
+            all("PROVIDER" not in event or "provider_visible_data=none" in event.lower() or "provider/model" not in event.lower() for event in events)
+            and provider_state.as_renderer_payload().get("sentToProvider") is False
+            and provider_state.as_renderer_payload().get("canAcceptPrompts") is False
+            and provider_state.as_renderer_payload().get("networkEgressState") == "network-egress-blocked"
+            and provider_state.as_renderer_payload().get("memoryIndexingState") == "memory-indexing-disabled"
         ),
-        "windowControlHoverProofCaptured": (
-            isinstance(hover_proof, dict)
-            and all(
-                isinstance(hover_proof.get(label), dict)
-                and hover_proof[label].get("ok") is True
-                and isinstance(hover_proof[label].get("evidence"), dict)
-                for label in (
-                    "02_window_control_minimize_hover",
-                    "04_window_control_close_hover",
-                )
-            )
-            and isinstance(hover_proof.get("03_window_control_maximize_hidden"), dict)
-            and hover_proof["03_window_control_maximize_hidden"].get("ok") is True
-            and hover_proof["03_window_control_maximize_hidden"].get("skipped") is True
-        ),
-        "localCheckButtonHoverProofCaptured": (
-            isinstance(hover_proof.get("05_open_readiness_launcher_hover_no_tooltip"), dict)
-            and hover_proof["05_open_readiness_launcher_hover_no_tooltip"].get("ok") is True
-            and isinstance(hover_proof["05_open_readiness_launcher_hover_no_tooltip"].get("evidence"), dict)
-        ),
-        "localCheckResultDeterministicNoProvider": (
-            isinstance(local_check_result, dict)
-            and local_check_result.get("ok") is True
-            and local_check_result.get("result") == "No provider configured"
-            and "provider-visible data remains none" in str(local_check_result.get("detail") or "")
-        ),
-        "localCheckResultProviderBoundaryClosed": (
-            isinstance(local_check_result, dict)
-            and local_check_result.get("providerVisibleData") == "none"
-            and local_check_result.get("sentToProvider") is False
-            and local_check_result.get("canAcceptPrompts") is False
-            and local_check_result.get("promptSendPosture") == "prompt-send-disabled"
-            and local_check_result.get("networkEgressState") == "network-egress-blocked"
-            and local_check_result.get("memoryIndexingState") == "memory-indexing-disabled"
-        ),
-        "localCheckRealUserClickUsed": (
-            isinstance(local_check_real_click, dict)
-            and local_check_real_click.get("ok") is True
-            and "Win32 left mouse" in str(local_check_real_click.get("method") or "")
-        ),
-        "readinessReportButtonPresentAndInitiallyCopyDisabled": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("reportGenerateButtonText") == "Generate Readiness Report"
-            and title_chrome_proof.get("reportCopyButtonText") == "Copy Report"
-            and title_chrome_proof.get("reportCopyButtonDisabled") is True
-            and title_chrome_proof.get("reportCopyButtonAriaDisabled") == "true"
-        ),
-        "aiDashboardShellGlobalStripAndDoorwaysVisible": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("titleText") == "AI Dashboard"
-            and title_chrome_proof.get("dashboardVisibleName") == "AI Dashboard"
-            and title_chrome_proof.get("surfaceRoleAriaLabel") == "Global AI Strip"
-            and title_chrome_proof.get("surfaceRoleDashboardRole") == "global-ai-strip"
-            and title_chrome_proof.get("globalAiStrip") == "compact-truth-state-no-provider-no-execution"
-            and title_chrome_proof.get("dashboardCardOrder")
-            == "active-ai-ai-control-center-ai-readiness-diagnostics-trust-provider-capabilities-maintenance"
-            and title_chrome_proof.get("dashboardIaModel")
-            == "ai-dashboard-global-strip-category-cards-launch-focused-domain-surfaces"
-            and title_chrome_proof.get("dashboardSurfaceModel") == "hub-only-cards-are-doorways"
-            and title_chrome_proof.get("dashboardInlineWorkPolicy") == "no-local-check-no-report-no-diagnostics-inline"
-            and title_chrome_proof.get("categoryCardLauncherContract") == "cards-contain-launchers-domain-surfaces-house-work"
-            and int(title_chrome_proof.get("categoryLauncherCount") or 0) >= 3
-            and int(title_chrome_proof.get("domainSurfaceCount") or 0) >= 3
-            and title_chrome_proof.get("foyerGroupCards")
-            == [
-                "active-ai",
-                "ai-control-center",
-                "ai-readiness-diagnostics",
-                "trust-provider",
-                "capabilities-maintenance",
-            ]
-            and isinstance(title_chrome_proof.get("foyerGroupRect"), dict)
-            and (title_chrome_proof["foyerGroupRect"].get("height") or 0) > 0
-            and isinstance(title_chrome_proof.get("foyerGroupStyle"), dict)
-            and title_chrome_proof["foyerGroupStyle"].get("display") == "grid"
-        ),
-        "aiControlCenterFocusedDomainCardInsideDashboard": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("aiControlCenterPlacement") == "focused-domain-card-inside-ai-dashboard"
-            and isinstance(title_chrome_proof.get("controlCenterCardRect"), dict)
-            and (title_chrome_proof["controlCenterCardRect"].get("height") or 0) > 0
-            and title_chrome_proof.get("openControlButtonText") == "Open Control Center"
-            and title_chrome_proof.get("openControlButtonTarget") == "ai-control-center-control-surface"
-            and title_chrome_proof.get("controlSurfaceHidden") is True
-            and title_chrome_proof.get("controlSurfaceOpen") == "false"
-        ),
-        "settingsCogFutureGatedWithoutFam003Mutation": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("settingsRoute") == "fam003-global-settings-ai-future-gated-no-fam003-mutation"
-            and title_chrome_proof.get("settingsActionLabel") == "Settings"
-            and title_chrome_proof.get("settingsActionState") == "future-gated"
-            and title_chrome_proof.get("settingsActionRoute") == "fam003-global-settings-ai"
-            and title_chrome_proof.get("settingsActionAriaDisabled") == "true"
-            and "future-gated" in str(title_chrome_proof.get("settingsStatusText") or "")
-            and isinstance(title_chrome_proof.get("settingsActionRect"), dict)
-            and (title_chrome_proof["settingsActionRect"].get("width") or 0) > 0
-        ),
-        "maintenanceUpdatesPlacementOnlyNoExecution": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("maintenanceUpdatesPlacement") == "lifecycle-domain-doorway-no-download-install-update-execution"
-            and title_chrome_proof.get("maintenanceCardState") == "placement-only"
-            and isinstance(title_chrome_proof.get("maintenanceCardRect"), dict)
-            and (title_chrome_proof["maintenanceCardRect"].get("height") or 0) > 0
-            and title_chrome_proof.get("openMaintenanceButtonText") == "Open Lifecycle"
-            and title_chrome_proof.get("openMaintenanceButtonTarget") == "ai-control-center-maintenance-detail"
-            and title_chrome_proof.get("maintenanceSurfaceHidden") is True
-            and title_chrome_proof.get("maintenanceSurfaceOpen") == "false"
-        ),
-        "readinessFocusedDetailPresentAndInitiallyClosed": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("focusedDetailLabelledBy") == "ai-control-center-readiness-detail-heading"
-            and title_chrome_proof.get("focusedDetailEyebrowText") == "AI Readiness / Focused Detail"
-            and title_chrome_proof.get("focusedDetailHeadingText") == "Local AI Readiness Report"
-            and title_chrome_proof.get("focusedDetailHidden") is True
-            and title_chrome_proof.get("focusedDetailState") in {"", "closed"}
-            and title_chrome_proof.get("openReadinessButtonText") == "Open Readiness"
-            and title_chrome_proof.get("openReadinessButtonTarget") == "ai-control-center-readiness-detail"
-        ),
-        "readinessReportScrolledIntoView": (
-            isinstance(report_scroll, dict)
-            and report_scroll.get("ok") is True
-            and isinstance(report_button_proof, dict)
-            and report_button_proof.get("ok") is True
-            and isinstance(report_button_proof.get("reportGenerateButtonRect"), dict)
-        ),
-        "readinessReportRealUserClickUsed": (
-            isinstance(readiness_report_real_click, dict)
-            and readiness_report_real_click.get("ok") is True
-            and "Win32 left mouse" in str(readiness_report_real_click.get("method") or "")
-        ),
-        "readinessReportUsefulLocalOutcome": (
-            isinstance(readiness_report_result, dict)
-            and readiness_report_result.get("ok") is True
-            and readiness_report_result.get("reportState") == "Generated locally"
-            and readiness_report_result.get("bodyVisible") is True
-            and readiness_report_result.get("focusedDetailVisible") is True
-            and readiness_report_result.get("focusedDetailState") == "open"
-            and "local boundary proof is ready" in str(readiness_report_result.get("summary") or "")
-            and "Provider-visible data is none" in str(readiness_report_result.get("ready") or "")
-            and "Provider setup approval is not granted" in str(readiness_report_result.get("missing") or "")
-            and "Provider/model execution" in str(readiness_report_result.get("blocked") or "")
-            and "provider boundary payload" in str(readiness_report_result.get("evidence") or "")
-            and "future-gated" in str(readiness_report_result.get("next") or "")
-            and "No provider or model executes" in str(readiness_report_result.get("boundary") or "")
-        ),
-        "readinessReportCopyBoundaryUserInitiatedNoFileExport": (
-            isinstance(readiness_report_result, dict)
-            and readiness_report_result.get("copyButtonDisabled") is False
-            and readiness_report_result.get("copyButtonAriaDisabled") == "false"
-            and isinstance(readiness_report_real_click, dict)
-            and readiness_report_real_click.get("ok") is True
-            and isinstance(readiness_report_copy_click, dict)
-            and readiness_report_copy_click.get("ok") is True
-            and isinstance(readiness_report_copy_result, dict)
-            and readiness_report_copy_result.get("reportState") == "Copied locally"
-        ),
-        "windowControlAccessibleLabelsPresent": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("minimizeLabel") == "Minimize AI Dashboard"
-            and title_chrome_proof.get("maximizeLabel") == "Maximize or restore AI Dashboard hidden until future implementation"
-            and title_chrome_proof.get("closeLabel") == "Close AI Dashboard"
-        ),
-        "surfaceRolePillTypographyReducedOnePoint": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("surfaceRoleLabelStyle"), dict)
-            and title_chrome_proof["surfaceRoleLabelStyle"].get("fontSize") == "10px"
-            and isinstance(title_chrome_proof.get("surfaceRoleValueStyle"), dict)
-            and title_chrome_proof["surfaceRoleValueStyle"].get("fontSize") == "10px"
-        ),
-        "surfaceRolePillLabelsReadable": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("surfaceRoleLabelStyle"), dict)
-            and title_chrome_proof["surfaceRoleLabelStyle"].get("color") == "rgba(188, 232, 244, 0.94)"
-            and str(title_chrome_proof["surfaceRoleLabelStyle"].get("fontWeight") or "") in {"700", "720", "760"}
-            and isinstance(title_chrome_proof.get("surfaceRoleValueStyle"), dict)
-            and title_chrome_proof["surfaceRoleValueStyle"].get("color") == "rgba(171, 255, 226, 0.96)"
-            and str(title_chrome_proof["surfaceRoleValueStyle"].get("fontWeight") or "") in {"700", "800"}
-        ),
-        "surfaceRolePillDeterministicNaturalSeparator": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("surfaceRolePairTexts")
-            == ["AI - ORIN", "Status - Not implemented", "Provider - Blocked"]
-            and title_chrome_proof.get("surfaceRoleSeparatorText") == "-"
-            and isinstance(title_chrome_proof.get("surfaceRolePairStyle"), dict)
-            and title_chrome_proof["surfaceRolePairStyle"].get("display") == "flex"
-            and title_chrome_proof["surfaceRolePairStyle"].get("columnGap") == "3px"
-            and title_chrome_proof["surfaceRolePairStyle"].get("whiteSpace") == "nowrap"
-            and isinstance(title_chrome_proof.get("surfaceRoleSeparatorStyle"), dict)
-            and title_chrome_proof["surfaceRoleSeparatorStyle"].get("fontSize") == "10px"
-            and title_chrome_proof["surfaceRoleSeparatorStyle"].get("color") == "rgba(188, 232, 244, 0.76)"
-        ),
-        "surfaceRolePillContentFit": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("titleGroupRect"), dict)
-            and isinstance(title_chrome_proof.get("surfaceRoleRect"), dict)
-            and isinstance(title_chrome_proof.get("surfaceRoleCopyRect"), dict)
-            and isinstance(title_chrome_proof.get("surfaceRoleStyle"), dict)
-            and int(title_chrome_proof["surfaceRoleRect"].get("width") or 0) > 0
-            and int(title_chrome_proof["surfaceRoleCopyRect"].get("width") or 0) > 0
-            and int(title_chrome_proof["surfaceRoleRect"].get("width") or 0)
-            <= int(title_chrome_proof["titleGroupRect"].get("width") or 0) - 32
-            and int(title_chrome_proof["surfaceRoleRect"].get("width") or 0)
-            <= int(title_chrome_proof["surfaceRoleCopyRect"].get("width") or 0) + 36
-            and title_chrome_proof["surfaceRoleStyle"].get("boxSizing") == "border-box"
-            and title_chrome_proof["surfaceRoleStyle"].get("maxWidth") == "100%"
-        ),
-        "rowTypographyReducedOnePoint": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("orinRowLabelStyle"), dict)
-            and title_chrome_proof["orinRowLabelStyle"].get("fontSize") == "10px"
-            and isinstance(title_chrome_proof.get("orinRowValueStyle"), dict)
-            and title_chrome_proof["orinRowValueStyle"].get("fontSize") == "11px"
-            and isinstance(title_chrome_proof.get("focusedLocalCheckRowLabelStyle"), dict)
-            and title_chrome_proof["focusedLocalCheckRowLabelStyle"].get("fontSize") == "10px"
-            and isinstance(title_chrome_proof.get("focusedLocalCheckRowValueStyle"), dict)
-            and title_chrome_proof["focusedLocalCheckRowValueStyle"].get("fontSize") == "11px"
-        ),
-        "runLocalCheckButtonTypographyReducedOnePoint": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("localCheckButtonStyle"), dict)
-            and title_chrome_proof["localCheckButtonStyle"].get("fontSize") == "11px"
-            and isinstance(title_chrome_proof.get("localCheckButtonLabelStyle"), dict)
-            and title_chrome_proof["localCheckButtonLabelStyle"].get("fontSize") == "11px"
-        ),
-        "runLocalCheckButtonStandardCompactSize": (
-            isinstance(title_chrome_proof, dict)
-            and isinstance(local_check_scroll, dict)
-            and isinstance(local_check_scroll.get("buttonRect"), dict)
-            and isinstance(title_chrome_proof.get("localCheckButtonStyle"), dict)
-            and title_chrome_proof["localCheckButtonStyle"].get("height") == "31px"
-            and title_chrome_proof["localCheckButtonStyle"].get("minHeight") == "31px"
-            and title_chrome_proof["localCheckButtonStyle"].get("maxWidth") in {"187px", "min(100%, 187px)"}
-            and title_chrome_proof["localCheckButtonStyle"].get("paddingLeft") == "14px"
-            and title_chrome_proof["localCheckButtonStyle"].get("paddingRight") == "14px"
-            and int(local_check_scroll["buttonRect"].get("width") or 0) <= 187
-            and int(local_check_scroll["buttonRect"].get("height") or 0) <= 33
-        ),
-        "windowControlStateModelHiddenBlockedActive": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("minimizeControlState") == "active"
-            and title_chrome_proof.get("maximizeControlState") == "hidden"
-            and title_chrome_proof.get("closeControlState") == "active"
-            and title_chrome_proof.get("minimizeControlCommand") == "minimize"
-            and title_chrome_proof.get("maximizeControlCommand") == "maximize-restore"
-            and title_chrome_proof.get("closeControlCommand") == "close"
-        ),
-        "maximizeRestoreFutureGatedHidden": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("maximizeDisabled") is True
-            and title_chrome_proof.get("maximizeAriaDisabled") == "true"
-            and title_chrome_proof.get("maximizeAriaHidden") == "true"
-            and title_chrome_proof.get("maximizeHidden") is True
-            and title_chrome_proof.get("maximizeTabIndex") == -1
-            and title_chrome_proof.get("maximizeControl") == "maximize-restore-ai-control-center"
-            and title_chrome_proof.get("maximizeState") == "hidden"
-            and isinstance(title_chrome_proof.get("maximizeRect"), dict)
-            and int(title_chrome_proof["maximizeRect"].get("width") or 0) == 0
-            and int(title_chrome_proof["maximizeRect"].get("height") or 0) == 0
-        ),
-        "minimizeMaximizeCloseShareCompactClass": (
-            isinstance(title_chrome_proof, dict)
-            and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("minimizeClass") or "")
-            and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("maximizeClass") or "")
-            and "monitoring-hud__window-control-button" in str(title_chrome_proof.get("closeClass") or "")
-        ),
-        "hiddenMaximizeLeavesTwoVisibleWindowControls": (
-            isinstance(title_chrome_proof, dict)
-            and title_chrome_proof.get("compactButtonCount") == 3
-            and title_chrome_proof.get("visibleCompactButtonCount") == 2
-        ),
-        "minimizeCommandMinimizedWindow": minimized_after_click,
-        "minimizeRealUserClickUsed": (
-            isinstance(minimize_click, dict)
-            and minimize_click.get("ok") is True
-            and "Win32 left mouse" in str(minimize_click.get("method") or "")
-        ),
-        "minimizeRestoreReturnedToKnownGeometry": (
-            abs(post_minimize_restore_rect["width"] - initial_native_rect["width"]) <= 4
-            and abs(post_minimize_restore_rect["height"] - initial_native_rect["height"]) <= 4
-        ),
-        "minimizeMarkerLogged": any("AI_CONTROL_CENTER_MINIMIZED" in event for event in events),
     }
+
     status = "PASS" if all(checks.values()) else "FAIL"
     user_evidence_root = _copy_user_evidence(log_root, stamp)
-
     manifest = {
         "status": status,
         "stamp": stamp,
         "helper": "dev/orin_ai_control_center_live_resize_validation.py",
-        "proofClass": "live OS mouse resize proof",
-        "worktree": str(repo_root),
-        "window": "AI Control Center",
-        "realOsMouseInputProof": True,
-        "realUserClickInputProof": True,
-        "qtestUsed": False,
-        "directHandlerMutationUsed": False,
-        "syntheticDomClickUsedForClickableControls": False,
-        "nativeGeometrySource": "Win32 GetWindowRect",
-        "initialWindowRect": initial_native_rect,
-        "initialWindowScreenshots": screenshot_evidence["before"],
-        "customScrollbarProbe": custom_scrollbar_probe,
-        "titleChromeProof": title_chrome_proof,
-        "windowControlHoverProof": hover_proof,
-        "localCheckResultProof": local_check_result,
-        "localCheckRealInputProof": local_check_real_click,
-        "readinessReportScrollProof": report_scroll,
-        "readinessReportButtonProof": report_button_proof,
-        "readinessReportResultProof": readiness_report_result,
-        "readinessReportRealInputProof": readiness_report_real_click,
-        "readinessReportCopyButtonProof": readiness_report_copy_button,
-        "readinessReportCopyResultProof": readiness_report_copy_result,
-        "readinessReportCopyRealInputProof": readiness_report_copy_click,
-        "windowControlProof": {
-            "cluster": "compact-minimize-maximize-close",
-            "minimize": "active-native-showMinimized",
-            "maximizeRestore": "hidden-future-gated-pending-per-window-relevance-decision",
-            "close": "active-native-close",
-            "stateModel": "hidden-blocked-active",
+        "proofClass": "live AI Dashboard child/domain window lifecycle proof",
+        "worktree": str(REPO_ROOT),
+        "window": "AI Dashboard",
+        "dashboardProbe": dashboard_probe,
+        "launcherClicks": {
+            "control": control_click,
+            "readiness": readiness_click,
+            "maintenance": maintenance_click,
         },
-        "minimizeClickProof": {
-            "clickResult": minimize_click,
-            "windowMinimizedAfterClick": minimized_after_click,
-            "restoredForResizeProof": bool(not dialog.isMinimized()),
-            "postMinimizeRestoreRect": post_minimize_restore_rect,
+        "childWindowClassificationLedger": {
+            "control-center": {
+                "classification": "exclusive-child",
+                "remainsOpenIfDashboardCloses": False,
+                "singleton": True,
+                "focusBehavior": "bring-to-front-if-open",
+            },
+            "readiness-diagnostics": {
+                "classification": "external-unique",
+                "remainsOpenIfDashboardCloses": True,
+                "singleton": True,
+                "focusBehavior": "bring-to-front-if-open",
+            },
+            "capabilities-maintenance": {
+                "classification": "exclusive-child",
+                "remainsOpenIfDashboardCloses": False,
+                "singleton": True,
+                "focusBehavior": "bring-to-front-if-open",
+            },
         },
-        "expectedInitialWindowSize": {
-            "width": int(initial_width),
-            "height": int(initial_height),
-            "defaultWidth": int(dialog.DEFAULT_WIDTH),
-            "defaultHeight": int(dialog.DEFAULT_HEIGHT),
-            "defaultMaxHeight": int(dialog.DEFAULT_MAX_HEIGHT),
-        },
-        "geometryMemoryPolicy": {
-            "env": "NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY",
-            "enabled": geometry_memory_enabled,
-            "restartMemoryDisabled": geometry_memory_enabled is False,
-            "staleStatePath": str(isolated_state_path),
-            "constructorDefaultRect": constructor_default_rect,
-            "ignoredPersistedSize": {"width": 900, "height": 760},
-            "finalStatePayload": final_state_payload,
-            "fam003ResetDependency": "ai-global-settings-reset-default-location-size",
-        },
-        "scrollbarStyle": "nexus-rounded-custom-overlay",
-        "checks": checks,
-        "drags": {
-            "bottomRightCorner": corner,
-            "rightEdge": right,
-            "bottomEdge": bottom,
-            "topRightCorner": top_right,
+        "readinessResult": readiness_result,
+        "singletonFocus": singleton_focus,
+        "dashboardResizeProof": dashboard_resize_proof,
+        "lifecycleAfterDashboardClose": lifecycle_after_dashboard_close,
+        "childWindowsVisibleBeforeDashboardClose": child_windows_visible_before_close,
+        "providerBoundary": {
+            "sentToProvider": provider_state.as_renderer_payload().get("sentToProvider"),
+            "canAcceptPrompts": provider_state.as_renderer_payload().get("canAcceptPrompts"),
+            "providerVisibleData": provider_state.as_renderer_payload().get("providerVisibleData"),
+            "networkEgressState": provider_state.as_renderer_payload().get("networkEgressState"),
+            "memoryIndexingState": provider_state.as_renderer_payload().get("memoryIndexingState"),
         },
         "events": events,
-        "screenshots": screenshot_evidence,
+        "checks": checks,
+        "screenshots": screenshots,
         "userInspectableEvidenceRoot": str(user_evidence_root),
         "localLogRoot": str(log_root),
     }
@@ -1490,13 +484,10 @@ def main() -> int:
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (user_evidence_root / "live_resize_manifest.json").write_bytes(manifest_path.read_bytes())
 
-    dialog.close()
-    _pump(app, 160)
-
     if status != "PASS":
-        print(f"FAIL: FAM-007 AI Control Center live resize validation failed. Manifest: {manifest_path}")
+        print(f"FAIL: FAM-007 AI Dashboard child-window validation failed. Manifest: {manifest_path}")
         return 1
-    print(f"PASS: FAM-007 AI Control Center live resize validation passed. Manifest: {manifest_path}")
+    print(f"PASS: FAM-007 AI Dashboard child-window validation passed. Manifest: {manifest_path}")
     print(f"USER_EVIDENCE_ROOT: {user_evidence_root}")
     return 0
 

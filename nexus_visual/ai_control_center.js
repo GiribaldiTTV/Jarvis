@@ -89,30 +89,6 @@
     button.disabled = !enabled;
     button.setAttribute("aria-disabled", enabled ? "false" : "true");
   };
-  const setReadinessDetailOpen = (open) => {
-    setFocusedSurfaceOpen("ai-control-center-readiness-detail", open);
-  };
-  const setFocusedSurfaceOpen = (surfaceId, open) => {
-    const detail = byId(surfaceId);
-    if (!detail) {
-      return;
-    }
-    detail.hidden = !open;
-    detail.dataset.focusedSurfaceState = open ? "open" : "closed";
-    detail.dataset.surfaceOpen = open ? "true" : "false";
-  };
-  const openFocusedSurface = (surfaceId, commandName) => {
-    const surfaces = Array.from(document.querySelectorAll("[data-focused-surface]"));
-    surfaces.forEach((surface) => setFocusedSurfaceOpen(surface.id, surface.id === surfaceId));
-    const surface = byId(surfaceId);
-    if (surface) {
-      surface.scrollIntoView({ block: "nearest" });
-    }
-    if (commandName) {
-      emitCommand(commandName);
-    }
-    requestAnimationFrame(syncCustomScrollbar);
-  };
   const copyTextThroughLocalSurface = (text) => {
     const copySurface = document.createElement("textarea");
     copySurface.value = text;
@@ -145,7 +121,6 @@
       if (body) {
         body.hidden = true;
       }
-      setReadinessDetailOpen(true);
       setReportCopyEnabled(false);
       requestAnimationFrame(syncCustomScrollbar);
       return false;
@@ -164,8 +139,6 @@
     if (body) {
       body.hidden = false;
     }
-    setReadinessDetailOpen(true);
-    byId("ai-control-center-readiness-detail")?.scrollIntoView({ block: "nearest" });
     setReportCopyEnabled(true);
     requestAnimationFrame(syncCustomScrollbar);
     return true;
@@ -435,8 +408,6 @@
       "Local guidance only",
     );
 
-    setText("ai-control-center-orin-state", "Not implemented; no real AI executing");
-    setText("ai-control-center-provider-visible-data", providerVisibleDataDisplay);
     setText("ai-control-center-provider-model", providerExecution);
     setText("ai-control-center-prompt-memory", "Not accepted, sent, stored, or indexed");
     setText("ai-control-center-capability-packs", capabilityPacks);
@@ -458,9 +429,6 @@
     setText("ai-control-center-report-persistence", "View-only; copy is USER initiated");
     setText("ai-control-center-report-summary", "Generate the report to inspect local readiness.");
     byId("ai-control-center-report-body")?.setAttribute("hidden", "");
-    Array.from(document.querySelectorAll("[data-focused-surface]")).forEach((surface) => {
-      setFocusedSurfaceOpen(surface.id, false);
-    });
     setReportCopyEnabled(false);
     requestAnimationFrame(syncCustomScrollbar);
   };
@@ -534,21 +502,19 @@
   observeNativeTooltipDrift();
   attachWindowControlHandlers();
   attachActivationHandler(byId("ai-control-center-open-control-surface-action"), () => {
-    openFocusedSurface("ai-control-center-control-surface", "open-ai-control-center-domain-surface");
+    emitCommand("open-control-center-child-window");
   });
   attachActivationHandler(byId("ai-control-center-open-readiness-surface-action"), () => {
-    openFocusedSurface("ai-control-center-readiness-detail", "open-ai-readiness-diagnostics-surface");
+    emitCommand("open-readiness-diagnostics-child-window");
   });
   attachActivationHandler(byId("ai-control-center-open-maintenance-surface-action"), () => {
-    openFocusedSurface("ai-control-center-maintenance-detail", "open-ai-maintenance-lifecycle-surface");
+    emitCommand("open-maintenance-lifecycle-child-window");
   });
   attachActivationHandler(byId("ai-control-center-local-check-action"), () => {
-    setReadinessDetailOpen(true);
     window.nexusAiControlCenterRunLocalCheck();
     emitCommand("run-local-check");
   });
   attachActivationHandler(byId("ai-control-center-generate-report-action"), () => {
-    setReadinessDetailOpen(true);
     const generated = window.nexusAiControlCenterGenerateReadinessReport();
     emitCommand(generated ? "generate-readiness-report" : "generate-readiness-report-blocked");
   });
@@ -558,7 +524,6 @@
     });
   });
   attachActivationHandler(byId("ai-dashboard-settings-action"), () => {
-    setText("ai-dashboard-settings-status", "Global Settings / AI route is future-gated; no settings window opened.");
     emitCommand("open-settings-future-gated");
   });
 

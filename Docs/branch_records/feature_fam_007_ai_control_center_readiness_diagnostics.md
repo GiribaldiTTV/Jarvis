@@ -130,6 +130,8 @@ Placement Role Vocabulary: `top-level summary; top-level action; category doorwa
 
 Option A Placement Decision: `The local AI readiness report remains a valid concrete local decision-aid behavior only if it gives the USER a useful local outcome beyond blocked-state explanation. Its detailed body should move behind AI Readiness and/or AI Diagnostics. The AI Control Center top level may show a compact readiness summary and doorway/action, but not a permanent full report body.`
 
+AI Dashboard Child Window Repair Carry-In: `2026-06-22 USER rejected the same-window focused-section implementation as insufficient for the AI Dashboard category-card model. The active Workstream repair must make Dashboard category cards open real child/domain windows: AI Control Center and Capabilities & Maintenance as exclusive child windows that close with the Dashboard, and AI Readiness / Diagnostics as an external-unique window that can remain open after the Dashboard closes. Same-window lower sections cannot substitute for this branch's accepted child-window model.`
+
 BP Re-Entry Requirement: `Because USER accepted this ontology as a major product-model shift, the branch must re-enter BP Entry analysis before any IA/runtime implementation repair. BP Entry must decide whether current branch remains the legal carrier, which artifacts remain carry-in, which are invalidated, whether BP1/BP2/BP3 repair or Workstream re-entry is required, what proof is needed, and the exact USER decision before LV1 can resume.`
 
 ## Explicit Non-Includes
