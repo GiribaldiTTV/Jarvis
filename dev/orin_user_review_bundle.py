@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
+import json
 import os
 import re
 import shutil
@@ -217,6 +219,43 @@ USER_FACING_TECHNICAL_METADATA_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...]
     ("worktree-status", re.compile(r"\bworktree status\b", re.IGNORECASE)),
     ("sha-like-proof", re.compile(r"\b[0-9a-f]{40}\b", re.IGNORECASE)),
 )
+MIN_PRIMARY_REVIEW_WORDS = 80
+MIN_PRIMARY_REVIEW_CHARACTERS = 500
+FALSE_GREEN_STALE_ACTIVE_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    (
+        "stale-dev-owner-skeleton-accepted",
+        re.compile(r"Accepted by USER\s*-\s*integrated Option A Dev/Owner Skeleton Readiness", re.IGNORECASE),
+    ),
+    (
+        "stale-dev-owner-skeleton-vision",
+        re.compile(r"Dev/Owner Skeleton Readiness Branch Vision", re.IGNORECASE),
+    ),
+    (
+        "stale-governance-pr-readiness-stage-1",
+        re.compile(r"Governance\s*/\s*PR Readiness Stage 1|PR Readiness Stage 1 analysis", re.IGNORECASE),
+    ),
+    (
+        "stale-approve-pr-readiness",
+        re.compile(r"approve\s+PR Readiness Stage 1|USER\s+approves?\s+PR Readiness Stage 1", re.IGNORECASE),
+    ),
+    (
+        "packet-validation-as-acceptance",
+        re.compile(r"packet validation (?:equals|is)\s+USER acceptance", re.IGNORECASE),
+    ),
+)
+REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
+    "settingsCogIconOnlyNoVisibleFutureCopy",
+    "categoryLaunchersOpenRealWindows",
+    "childWindowsUseNativeNexusChrome",
+    "childWindowsMoveResizeFocus",
+    "fullDesktopProofNotDuplicated",
+    "explicitLauncherLabels",
+    "readinessReportFirstVisibleCopyIsUserReadable",
+    "readinessChildScrollbarIsNDAINative",
+    "readinessWorkRunsInsideChildWindow",
+    "providerExecutionStillBlocked",
+)
+IMAGE_PROOF_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
 USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "old-product-design-planning-gate",
@@ -899,6 +938,256 @@ def _packet_text_files(packet_dir: Path) -> dict[str, str]:
     return packet_files
 
 
+def _primary_review_substantive_failures(
+    packet_files: Mapping[str, str],
+    primary_files: tuple[str, ...],
+) -> list[str]:
+    if len(primary_files) != 1:
+        return []
+    primary_path = primary_files[0]
+    text = packet_files.get(primary_path, "")
+    stripped = text.strip()
+    failures: list[str] = []
+    if not stripped:
+        return [f"{primary_path}: primary USER review file is empty"]
+    if len(stripped) < MIN_PRIMARY_REVIEW_CHARACTERS or _review_word_count(stripped) < MIN_PRIMARY_REVIEW_WORDS:
+        failures.append(
+            f"{primary_path}: primary USER review file is not meaningful enough for a current-gate decision "
+            f"(requires at least {MIN_PRIMARY_REVIEW_WORDS} words and {MIN_PRIMARY_REVIEW_CHARACTERS} characters)"
+        )
+    if "## " not in stripped:
+        failures.append(f"{primary_path}: primary USER review file must include decision-section headings")
+
+    start_here = packet_files.get("START_HERE.md", "")
+    if start_here and primary_path not in start_here:
+        failures.append(f"START_HERE.md: does not identify the primary USER review file {primary_path}")
+
+    gate_match = re.search(r"^Current Gate:\s*`?([^`\n]+)`?\s*$", start_here, re.MULTILINE)
+    if gate_match:
+        gate_words = {
+            word
+            for word in re.findall(r"[A-Za-z0-9]+", gate_match.group(1).casefold())
+            if len(word) >= 4
+            and word not in {"current", "gate", "user", "review", "packet", "after", "with"}
+        }
+        primary_words = set(re.findall(r"[A-Za-z0-9]+", stripped.casefold()))
+        missing_gate_words = sorted(gate_words - primary_words)
+        if len(gate_words) >= 3 and len(missing_gate_words) > max(1, len(gate_words) // 2):
+            failures.append(
+                f"{primary_path}: primary USER review file does not match START_HERE.md Current Gate "
+                f"(missing gate terms: {', '.join(missing_gate_words)})"
+            )
+    return failures
+
+
+def _active_review_aid_false_green_failures(packet_files: Mapping[str, str]) -> list[str]:
+    failures: list[str] = []
+    primary_paths = {
+        name
+        for name in packet_files
+        if name.startswith(f"{USER_REVIEW_DIR_NAME}/")
+    }
+    primary_names = {_packet_file_basename(name) for name in primary_paths}
+    primary_name = next(iter(primary_names), "")
+    user_facing_prefixes = (
+        "START_HERE.md",
+        f"{USER_REVIEW_DIR_NAME}/",
+        f"{REVIEW_AIDS_DIR_NAME}/",
+    )
+    for file_name, text in sorted(packet_files.items()):
+        normalized = file_name.replace("\\", "/")
+        if not (
+            normalized == user_facing_prefixes[0]
+            or normalized.startswith(user_facing_prefixes[1])
+            or normalized.startswith(user_facing_prefixes[2])
+        ):
+            continue
+        for reason, pattern in FALSE_GREEN_STALE_ACTIVE_PATTERNS:
+            if pattern.search(text):
+                failures.append(f"{file_name}: active USER packet text contains stale false-green marker {reason}")
+        if primary_name and normalized != f"{USER_REVIEW_DIR_NAME}/{primary_name}":
+            for stale_primary in (
+                USER_BRANCH_PLAN_REVIEW_FILE,
+                USER_BRANCH_VISION_REVIEW_FILE,
+                "WORKSTREAM_ENTRY_ANALYSIS_DIGEST.md",
+            ):
+                if stale_primary == primary_name:
+                    continue
+                if re.search(
+                    rf"{re.escape(stale_primary)}[^\n]{{0,80}}\b(?:primary|active|decision)\b|"
+                    rf"\b(?:primary|active|decision)[^\n]{{0,80}}{re.escape(stale_primary)}",
+                    text,
+                    re.IGNORECASE,
+                ):
+                    failures.append(
+                        f"{file_name}: active support text points to stale primary/current decision file {stale_primary}"
+                    )
+    return failures
+
+
+def _current_branch_external_state_dir() -> Path | None:
+    try:
+        branch = subprocess.check_output(
+            ["git", "branch", "--show-current"],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, OSError):
+        return None
+    if not branch:
+        return None
+    branch_state_dir = re.sub(r"[^A-Za-z0-9]+", "_", branch).strip("_")
+    return Path(r"C:\Nexus Governance State\branches") / branch_state_dir
+
+
+def _source_truth_context_currentness_failures(packet_files: Mapping[str, str]) -> list[str]:
+    failures: list[str] = []
+    external_state_dir = _current_branch_external_state_dir()
+    copied_to_live = {
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md": (
+            external_state_dir / "branch_state.md" if external_state_dir else None
+        ),
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md": (
+            external_state_dir / "branch_plan.md" if external_state_dir else None
+        ),
+    }
+    for copied_name, live_path in copied_to_live.items():
+        copied_text = packet_files.get(copied_name)
+        if copied_text is None:
+            continue
+        if live_path is None or not live_path.is_file():
+            failures.append(f"{copied_name}: live external-state source is missing for current branch")
+            continue
+        live_text = live_path.read_text(encoding="utf-8")
+        if _normalized_packet_text(copied_text) != _normalized_packet_text(live_text):
+            failures.append(f"{copied_name}: copied Source Truth Context does not match live external state {live_path}")
+        if re.search(r"PENDING_REGENERATION|Pending regeneration", copied_text, re.IGNORECASE):
+            failures.append(
+                f"{copied_name}: copied Source Truth Context still says packet regeneration is pending"
+            )
+        if re.search(r"USER Review ZIP:\s*`?PENDING", copied_text, re.IGNORECASE):
+            failures.append(
+                f"{copied_name}: copied Source Truth Context has no concrete current USER Review ZIP pointer"
+            )
+    return failures
+
+
+def _proof_manifest_false_green_failures(packet_files: Mapping[str, str]) -> list[str]:
+    manifest_items = [
+        (name, text)
+        for name, text in sorted(packet_files.items())
+        if _packet_file_basename(name) == "live_resize_manifest.json"
+    ]
+    if not manifest_items:
+        return []
+    failures: list[str] = []
+    manifest_name, manifest_text = manifest_items[0]
+    try:
+        manifest = json.loads(manifest_text)
+    except json.JSONDecodeError as exc:
+        return [f"{manifest_name}: live proof manifest is not valid JSON: {exc}"]
+
+    checks = manifest.get("checks")
+    if not isinstance(checks, dict):
+        return [f"{manifest_name}: live proof manifest is missing checks object"]
+    for check_name in REQUIRED_FAM007_LIVE_PROOF_CHECKS:
+        if checks.get(check_name) is not True:
+            failures.append(f"{manifest_name}: required false-green proof check is not true: {check_name}")
+
+    child_probe = manifest.get("childChromeProbe")
+    if isinstance(child_probe, dict):
+        for child_name, probe in sorted(child_probe.items()):
+            if not isinstance(probe, dict):
+                failures.append(f"{manifest_name}: childChromeProbe.{child_name} is not an object")
+                continue
+            expected_pairs = {
+                "nativeChrome": "true",
+                "osChrome": "rejected",
+                "shellConformance": "ndai-webview-rounded-window-shell",
+                "moveBehavior": "header-drag",
+                "resizeBehavior": "edge-corner-resize",
+            }
+            for key, expected in expected_pairs.items():
+                if probe.get(key) != expected:
+                    failures.append(
+                        f"{manifest_name}: childChromeProbe.{child_name}.{key} expected {expected!r} got {probe.get(key)!r}"
+                    )
+    else:
+        failures.append(f"{manifest_name}: live proof manifest is missing childChromeProbe object")
+    return failures
+
+
+def _image_signature_valid(data: bytes, suffix: str) -> bool:
+    try:
+        from PIL import Image
+
+        with Image.open(io.BytesIO(data)) as image:
+            image.verify()
+        return True
+    except ImportError:
+        pass
+    except Exception:
+        return False
+
+    suffix = suffix.lower()
+    if suffix == ".png":
+        return data.startswith(b"\x89PNG\r\n\x1a\n")
+    if suffix in {".jpg", ".jpeg"}:
+        return data.startswith(b"\xff\xd8") and data.rstrip().endswith(b"\xff\xd9")
+    if suffix == ".webp":
+        return len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP"
+    return True
+
+
+def _image_proof_failures(packet_dir: Path, export_zip: Path, folder_entries: set[str]) -> list[str]:
+    failures: list[str] = []
+    image_entries = sorted(
+        entry
+        for entry in folder_entries
+        if PurePosixPath(entry).suffix.lower() in IMAGE_PROOF_EXTENSIONS
+    )
+    folder_hashes_by_group: dict[str, dict[str, str]] = {}
+    for entry in image_entries:
+        data = (packet_dir / PurePosixPath(entry)).read_bytes()
+        if not _image_signature_valid(data, PurePosixPath(entry).suffix):
+            failures.append(f"{entry}: image proof file has invalid binary signature")
+        if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/"):
+            folder_hashes_by_group.setdefault("full_desktop_screenshots", {})[entry] = hashlib.sha256(data).hexdigest()
+
+    with zipfile.ZipFile(export_zip, "r") as archive:
+        for entry in image_entries:
+            data = archive.read(entry)
+            if not _image_signature_valid(data, PurePosixPath(entry).suffix):
+                failures.append(f"{entry}: ZIP image proof file has invalid binary signature")
+
+    full_desktop = sorted(
+        entry
+        for entry in image_entries
+        if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/")
+    )
+    focused = sorted(
+        entry
+        for entry in image_entries
+        if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/focused_window_screenshots/")
+    )
+    if focused and not full_desktop:
+        failures.append("Inspectable Evidence: focused/cropped window screenshots exist without full-desktop proof")
+    if focused and full_desktop and len(full_desktop) < len(focused):
+        failures.append(
+            "Inspectable Evidence: full-desktop proof count is lower than focused/cropped proof count "
+            f"focused={len(focused)} full_desktop={len(full_desktop)}"
+        )
+    full_hash_counts = Counter(folder_hashes_by_group.get("full_desktop_screenshots", {}).values())
+    duplicate_hashes = sorted(digest for digest, count in full_hash_counts.items() if count > 1)
+    if duplicate_hashes:
+        failures.append(
+            "Inspectable Evidence: duplicate full-desktop screenshot bytes detected "
+            f"duplicate_hash_count={len(duplicate_hashes)}"
+        )
+    return failures
+
+
 def _zip_file_entries(export_zip: Path) -> set[str]:
     with zipfile.ZipFile(export_zip, "r") as archive:
         return {entry.filename for entry in archive.infolist() if not entry.is_dir()}
@@ -1083,6 +1372,7 @@ def validate_local_user_packet(
     failures.extend(layout_failures)
 
     packet_files = _packet_text_files(packet_dir)
+    failures.extend(_primary_review_substantive_failures(packet_files, primary_files))
     generated_packet_files = {
         name: text
         for name, text in packet_files.items()
@@ -1098,6 +1388,11 @@ def validate_local_user_packet(
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
+    failures.extend(_active_review_aid_false_green_failures(packet_files))
+    failures.extend(_source_truth_context_currentness_failures(packet_files))
+    if not any("Review export ZIP is not readable" in failure for failure in failures):
+        failures.extend(_image_proof_failures(packet_dir, export_zip, folder_entries))
+    failures.extend(_proof_manifest_false_green_failures(packet_files))
 
     return LocalUserPacketValidationResult(
         packet_dir=packet_dir,
