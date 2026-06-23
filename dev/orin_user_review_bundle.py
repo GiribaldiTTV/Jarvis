@@ -938,6 +938,19 @@ def _packet_text_files(packet_dir: Path) -> dict[str, str]:
     return packet_files
 
 
+def _zip_text_files(export_zip: Path) -> dict[str, str]:
+    packet_files: dict[str, str] = {}
+    with zipfile.ZipFile(export_zip) as archive:
+        for info in archive.infolist():
+            if info.is_dir():
+                continue
+            name = info.filename.replace("\\", "/")
+            if PurePosixPath(name).suffix.lower() not in {".md", ".txt", ".json"}:
+                continue
+            packet_files[name] = archive.read(info).decode("utf-8")
+    return packet_files
+
+
 def _primary_review_substantive_failures(
     packet_files: Mapping[str, str],
     primary_files: tuple[str, ...],
@@ -1070,6 +1083,95 @@ def _source_truth_context_currentness_failures(packet_files: Mapping[str, str]) 
             failures.append(
                 f"{copied_name}: copied Source Truth Context has no concrete current USER Review ZIP pointer"
             )
+    return failures
+
+
+def _git_text(*args: str) -> str | None:
+    try:
+        return subprocess.check_output(
+            ["git", *args],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (subprocess.CalledProcessError, OSError):
+        return None
+
+
+def _markdown_field_values(text: str, field_name: str) -> list[str]:
+    pattern = re.compile(
+        rf"^{re.escape(field_name)}:\s*`?([^`\n]+?)`?\s*$",
+        re.MULTILINE,
+    )
+    return [match.group(1).strip() for match in pattern.finditer(text)]
+
+
+def _normalize_windows_path_text(text: str) -> str:
+    return text.strip().strip("`").replace("/", "\\").casefold()
+
+
+def _final_zip_active_metadata_failures(
+    packet_files: Mapping[str, str],
+    export_zip: Path,
+) -> list[str]:
+    failures: list[str] = []
+    live_head = _git_text("rev-parse", "HEAD")
+    source_truth_mismatch = False
+    context_files = (
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md",
+        f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md",
+    )
+
+    for context_file in context_files:
+        text = packet_files.get(context_file)
+        if text is None:
+            continue
+        source_heads = _markdown_field_values(text, "Source Repo HEAD")
+        if context_file.endswith("current_external_branch_state.md") and not source_heads:
+            failures.append(f"{context_file}: copied current Source Truth Context is missing Source Repo HEAD")
+            source_truth_mismatch = True
+        if live_head:
+            for source_head in source_heads:
+                if source_head != live_head:
+                    failures.append(
+                        f"{context_file}: copied current Source Truth Context Source Repo HEAD "
+                        f"{source_head} does not match live HEAD {live_head}"
+                    )
+                    source_truth_mismatch = True
+
+    state_text = packet_files.get(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md", "")
+    plan_text = packet_files.get(f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md", "")
+    state_heads = _markdown_field_values(state_text, "Source Repo HEAD")
+    plan_heads = _markdown_field_values(plan_text, "Source Repo HEAD")
+    if state_heads and plan_heads and state_heads[0] != plan_heads[0]:
+        failures.append(
+            f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}: copied branch state Source Repo HEAD "
+            f"{state_heads[0]} disagrees with copied branch plan Source Repo HEAD {plan_heads[0]}"
+        )
+        source_truth_mismatch = True
+
+    review_zip_values = _markdown_field_values(state_text, "USER Review ZIP")
+    if review_zip_values:
+        expected_zip = _normalize_windows_path_text(str(export_zip))
+        for review_zip in review_zip_values[:1]:
+            if _normalize_windows_path_text(review_zip) != expected_zip:
+                failures.append(
+                    f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md: "
+                    f"USER Review ZIP {review_zip} does not match final ZIP {export_zip}"
+                )
+                source_truth_mismatch = True
+
+    ledger_text = packet_files.get(f"{REVIEW_AIDS_DIR_NAME}/FAM_007_UNIFIED_DEFECT_LEDGER.md", "")
+    if source_truth_mismatch and re.search(
+        r"^\|.*F7-UDL-003.*CLOSED_WITH_PROOF.*\|",
+        ledger_text,
+        re.MULTILINE,
+    ):
+        failures.append(
+            f"{REVIEW_AIDS_DIR_NAME}/FAM_007_UNIFIED_DEFECT_LEDGER.md: "
+            "F7-UDL-003 is CLOSED_WITH_PROOF while final ZIP Source Truth Context is stale or inconsistent"
+        )
+
     return failures
 
 
@@ -1334,9 +1436,11 @@ def validate_local_user_packet(
 
     folder_hashes = _folder_file_hashes(packet_dir)
     folder_entries = set(folder_hashes)
+    zip_packet_files: dict[str, str] = {}
     try:
         zip_hashes, duplicate_zip_entries = _zip_file_hashes(export_zip)
         zip_entries = set(zip_hashes)
+        zip_packet_files = _zip_text_files(export_zip)
     except zipfile.BadZipFile as exc:
         failures.append(f"Review export ZIP is not readable: {export_zip}: {exc}")
         zip_hashes = {}
@@ -1371,7 +1475,8 @@ def validate_local_user_packet(
     layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, folder_entries)
     failures.extend(layout_failures)
 
-    packet_files = _packet_text_files(packet_dir)
+    folder_packet_files = _packet_text_files(packet_dir)
+    packet_files = zip_packet_files or folder_packet_files
     failures.extend(_primary_review_substantive_failures(packet_files, primary_files))
     generated_packet_files = {
         name: text
@@ -1390,6 +1495,7 @@ def validate_local_user_packet(
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
     failures.extend(_active_review_aid_false_green_failures(packet_files))
     failures.extend(_source_truth_context_currentness_failures(packet_files))
+    failures.extend(_final_zip_active_metadata_failures(packet_files, export_zip))
     if not any("Review export ZIP is not readable" in failure for failure in failures):
         failures.extend(_image_proof_failures(packet_dir, export_zip, folder_entries))
     failures.extend(_proof_manifest_false_green_failures(packet_files))

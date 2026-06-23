@@ -8,7 +8,7 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from orin_user_review_bundle import validate_local_user_packet
+from orin_user_review_bundle import ROOT, validate_local_user_packet
 
 
 PNG_1X1 = base64.b64decode(
@@ -60,13 +60,27 @@ def _write_base_packet(root: Path, primary_text: str = PRIMARY) -> None:
     (root / primary_path).write_text(primary_text, encoding="utf-8")
 
 
-def _zip_packet(root: Path, zip_path: Path) -> None:
+def _zip_packet(root: Path, zip_path: Path, overrides: dict[str, str] | None = None) -> None:
+    overrides = overrides or {}
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(p for p in root.rglob("*") if p.is_file()):
-            archive.write(path, path.relative_to(root).as_posix())
+            archive_name = path.relative_to(root).as_posix()
+            if archive_name in overrides:
+                archive.writestr(archive_name, overrides[archive_name])
+            else:
+                archive.write(path, archive_name)
+        for archive_name, text in sorted(overrides.items()):
+            if not (root / archive_name).exists():
+                archive.writestr(archive_name, text)
 
 
-def _run_fixture(name: str, mutate) -> list[str]:
+def _current_head() -> str:
+    import subprocess
+
+    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+
+
+def _run_fixture(name: str, mutate, *, zip_overrides=None) -> list[str]:
     with tempfile.TemporaryDirectory(prefix=f"ndai-{name}-") as temp_dir:
         review_root = Path(temp_dir)
         packet = review_root / "FAM-007"
@@ -74,12 +88,12 @@ def _run_fixture(name: str, mutate) -> list[str]:
         _write_base_packet(packet)
         mutate(packet)
         export_zip = review_root / "FAM-007-20260623-120000.zip"
-        _zip_packet(packet, export_zip)
+        _zip_packet(packet, export_zip, overrides=zip_overrides)
         return validate_local_user_packet(packet, export_zip=export_zip, worktree_label="FAM-007").failures
 
 
-def _assert_failure(name: str, needle: str, mutate) -> None:
-    failures = _run_fixture(name, mutate)
+def _assert_failure(name: str, needle: str, mutate, *, zip_overrides=None) -> None:
+    failures = _run_fixture(name, mutate, zip_overrides=zip_overrides)
     joined = "\n".join(failures)
     if needle not in joined:
         raise AssertionError(f"{name} did not fail on {needle!r}; failures were:\n{joined}")
@@ -114,6 +128,71 @@ def main() -> int:
             "Packet Reviewability State: `Pending regeneration`\nUSER Review ZIP: `PENDING_REGENERATION_AFTER_CHILD_WINDOW_SHELL_REPAIR`\n",
             encoding="utf-8",
         ),
+    )
+    live_head = _current_head()
+    stale_head = "d7352db4fb1816df24daf3e05670b1023a77d1c5"
+    _assert_failure(
+        "stale-source-truth-plan-head",
+        "does not match live HEAD",
+        lambda packet: (
+            (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
+                f"Source Repo HEAD: `{live_head}`\n",
+                encoding="utf-8",
+            ),
+            (packet / "Source Truth Context" / "current_external_branch_plan.md").write_text(
+                f"Source Repo HEAD: `{stale_head}`\n",
+                encoding="utf-8",
+            ),
+        ),
+    )
+    _assert_failure(
+        "branch-state-plan-head-disagree",
+        "disagrees with copied branch plan Source Repo HEAD",
+        lambda packet: (
+            (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
+                f"Source Repo HEAD: `{live_head}`\n",
+                encoding="utf-8",
+            ),
+            (packet / "Source Truth Context" / "current_external_branch_plan.md").write_text(
+                "Source Repo HEAD: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`\n",
+                encoding="utf-8",
+            ),
+        ),
+    )
+    _assert_failure(
+        "udl-false-closure-with-stale-source-context",
+        "F7-UDL-003 is CLOSED_WITH_PROOF",
+        lambda packet: (
+            (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
+                f"Source Repo HEAD: `{live_head}`\n",
+                encoding="utf-8",
+            ),
+            (packet / "Source Truth Context" / "current_external_branch_plan.md").write_text(
+                f"Source Repo HEAD: `{stale_head}`\n",
+                encoding="utf-8",
+            ),
+            (packet / "Review Aids" / "FAM_007_UNIFIED_DEFECT_LEDGER.md").write_text(
+                "| Defect ID | Status |\n| --- | --- |\n| F7-UDL-003 | CLOSED_WITH_PROOF |\n",
+                encoding="utf-8",
+            ),
+        ),
+    )
+    _assert_failure(
+        "folder-green-zip-stale-source-context",
+        "does not match live HEAD",
+        lambda packet: (
+            (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
+                f"Source Repo HEAD: `{live_head}`\n",
+                encoding="utf-8",
+            ),
+            (packet / "Source Truth Context" / "current_external_branch_plan.md").write_text(
+                f"Source Repo HEAD: `{live_head}`\n",
+                encoding="utf-8",
+            ),
+        ),
+        zip_overrides={
+            "Source Truth Context/current_external_branch_plan.md": f"Source Repo HEAD: `{stale_head}`\n"
+        },
     )
     _assert_failure(
         "cropped-only-proof",
