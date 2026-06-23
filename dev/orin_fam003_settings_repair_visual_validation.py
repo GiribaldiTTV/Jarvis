@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -21,7 +22,40 @@ VISUAL_UDL_PATH = Path(
     r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
     r"\unified_visual_defect_ledger_20260623.md"
 )
-VISUAL_UDL_IDS = tuple(f"UDL-VIS-{index:03d}" for index in range(1, 14))
+VISUAL_UDL_IDS = tuple(f"UDL-VIS-{index:03d}" for index in range(1, 15))
+VISUAL_UDL_ALLOWED_STATUSES = {
+    "OPEN",
+    "REPRODUCED",
+    "IN_REPAIR",
+    "FIXED_PENDING_PROOF",
+    "PROOF_FAILED",
+    "REOPENED",
+    "CLOSED_WITH_PROOF",
+    "BLOCKED_SOURCE_TRUTH",
+    "OUT_OF_SCOPE_USER_APPROVAL_REQUIRED",
+}
+VISUAL_UDL_REQUIRED_FIELDS = (
+    "Defect ID",
+    "Origin",
+    "Exact USER wording where applicable",
+    "Source-truth basis",
+    "Expected behavior",
+    "Actual behavior",
+    "Evidence path or screenshot reference",
+    "Affected files/surfaces",
+    "Owner/family boundary",
+    "Impact",
+    "Root cause",
+    "Validator/proof gap",
+    "Adjacent-defect sweep result",
+    "Exact repair target",
+    "Acceptance criteria",
+    "Required proof",
+    "Validation required",
+    "Status",
+    "Closure proof when closed",
+)
+VISUAL_UDL_REJECTED_PACKET = "FAM-003-20260623-125842.zip"
 REFERENCE_SCREENSHOTS: tuple[tuple[str, Path], ...] = (
     (
         "accepted_ai_control_center_default",
@@ -40,25 +74,87 @@ REFERENCE_SCREENSHOTS: tuple[tuple[str, Path], ...] = (
 )
 
 
+def _parse_visual_udl_sections(text: str) -> tuple[dict[str, dict[str, str]], list[str]]:
+    failures: list[str] = []
+    if "| ID | Status | Defect / Risk |" in text:
+        failures.append("compact summary table remains present")
+
+    sections: dict[str, dict[str, str]] = {}
+    section_pattern = re.compile(
+        r"^##\s+(UDL-VIS-\d{3})\b(?P<body>.*?)(?=^##\s+UDL-VIS-\d{3}\b|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    field_pattern = re.compile(r"^-\s+([^:]+):\s*(.*)$")
+    for match in section_pattern.finditer(text):
+        defect_id = match.group(1)
+        body = match.group("body")
+        fields: dict[str, str] = {}
+        current_field: str | None = None
+        for raw_line in body.splitlines():
+            field_match = field_pattern.match(raw_line)
+            if field_match:
+                current_field = field_match.group(1).strip()
+                fields[current_field] = field_match.group(2).strip()
+            elif current_field and raw_line.startswith("  "):
+                fields[current_field] = f"{fields[current_field]} {raw_line.strip()}".strip()
+            else:
+                current_field = None
+        sections[defect_id] = fields
+
+    return sections, failures
+
+
+def _visual_udl_schema_failures(text: str) -> list[str]:
+    sections, failures = _parse_visual_udl_sections(text)
+    for defect_id in VISUAL_UDL_IDS:
+        fields = sections.get(defect_id)
+        if not fields:
+            failures.append(f"{defect_id} missing detailed section")
+            continue
+        missing_fields = [
+            field
+            for field in VISUAL_UDL_REQUIRED_FIELDS
+            if not fields.get(field) or fields.get(field) in {"`TODO`", "TODO", "`TBD`", "TBD"}
+        ]
+        if missing_fields:
+            failures.append(f"{defect_id} missing fields: {', '.join(missing_fields)}")
+        status = fields.get("Status", "").strip("` ")
+        if status not in VISUAL_UDL_ALLOWED_STATUSES:
+            failures.append(f"{defect_id} illegal status: {fields.get('Status', '<missing>')}")
+        elif status != "CLOSED_WITH_PROOF":
+            failures.append(f"{defect_id} status is not CLOSED_WITH_PROOF: {status}")
+        if status == "CLOSED_WITH_PROOF":
+            for closure_field in (
+                "Evidence path or screenshot reference",
+                "Acceptance criteria",
+                "Validation required",
+                "Closure proof when closed",
+            ):
+                if not fields.get(closure_field):
+                    failures.append(f"{defect_id} missing closure field {closure_field}")
+    return failures
+
+
 def _visual_udl_status_rows() -> tuple[bool, str, bool, str]:
     if not VISUAL_UDL_PATH.exists():
         return False, f"{VISUAL_UDL_PATH} missing", False, "visual UDL missing"
     text = VISUAL_UDL_PATH.read_text(encoding="utf-8")
     missing = [defect_id for defect_id in VISUAL_UDL_IDS if defect_id not in text]
-    open_ids = [
-        defect_id
-        for defect_id in VISUAL_UDL_IDS
-        if defect_id in text
-        and f"| {defect_id} | CLOSED_WITH_PROOF |" not in text
-        and f"| `{defect_id}` | `CLOSED_WITH_PROOF` |" not in text
-    ]
+    schema_failures = _visual_udl_schema_failures(text)
+    stale_current_packet = f"Current regenerated USER retest packet: `C:\\Nexus USER\\{VISUAL_UDL_REJECTED_PACKET}`" in text
     exists_ok = not missing
-    closed_ok = exists_ok and not open_ids and "121448" in text and "VISUAL-UDL-RETEST-STOP" in text
+    closed_ok = (
+        exists_ok
+        and not schema_failures
+        and not stale_current_packet
+        and "125842" in text
+        and "VISUAL-UDL-SCHEMA-RETEST-STOP" in text
+    )
     return (
         exists_ok,
         f"{VISUAL_UDL_PATH}; missing={missing}",
         closed_ok,
-        f"{VISUAL_UDL_PATH}; open_or_unclosed={open_ids}; stop_receipt={'VISUAL-UDL-RETEST-STOP' in text}",
+        f"{VISUAL_UDL_PATH}; schema_failures={schema_failures}; stale_current_packet={stale_current_packet}; schema_stop_receipt={'VISUAL-UDL-SCHEMA-RETEST-STOP' in text}",
     )
 
 ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
@@ -910,7 +1006,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current failure digestion: packet `C:\\Nexus USER\\FAM-003-20260623-121448.zip` is packet-proof traceable evidence but is stopped for USER retest by the visual UDL; this run repairs and re-proves the Global Settings / Tray / Quick Access visual product surface.",
+        "- Current failure digestion: packet `C:\\Nexus USER\\FAM-003-20260623-125842.zip` is rejected for USER retest because the visual UDL was still a compact summary table instead of the required detailed per-defect schema; this run revalidates the existing V13 visual proof after schema repair.",
         "",
         "## Results",
         "",
@@ -983,8 +1079,8 @@ def _write_fail_capable_defect_ledger(
         "# FAM-003 Fail-Capable Visual Defect Ledger",
         "",
         "Scope: Global Settings / Nexus Tray / Quick Access settings surface.",
-        "Prior Packet Under Review: `C:\\Nexus USER\\FAM-003-20260623-121448.zip`.",
-        "Prior Packet Disposition: `REPAIR - packet-proof traceable but stopped for USER retest until visual UDL closure and refreshed proof.`",
+        "Rejected Packet Under Review: `C:\\Nexus USER\\FAM-003-20260623-125842.zip`.",
+        "Rejected Packet Disposition: `REPAIR - stale-output false-green because the visual UDL remained a compact summary table and USER retest was still offered.`",
         "",
         "| Evidence Layer | Result | Detail |",
         "| --- | --- | --- |",

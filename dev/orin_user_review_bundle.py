@@ -999,6 +999,96 @@ def _fam003_lv1_visual_retest_packet_detected(packet_files: Mapping[str, str]) -
     )
 
 
+FAM003_VISUAL_UDL_IDS = tuple(f"UDL-VIS-{index:03d}" for index in range(1, 15))
+FAM003_VISUAL_UDL_REQUIRED_FIELDS = (
+    "Defect ID",
+    "Origin",
+    "Exact USER wording where applicable",
+    "Source-truth basis",
+    "Expected behavior",
+    "Actual behavior",
+    "Evidence path or screenshot reference",
+    "Affected files/surfaces",
+    "Owner/family boundary",
+    "Impact",
+    "Root cause",
+    "Validator/proof gap",
+    "Adjacent-defect sweep result",
+    "Exact repair target",
+    "Acceptance criteria",
+    "Required proof",
+    "Validation required",
+    "Status",
+    "Closure proof when closed",
+)
+FAM003_VISUAL_UDL_ALLOWED_STATUSES = {
+    "OPEN",
+    "REPRODUCED",
+    "IN_REPAIR",
+    "FIXED_PENDING_PROOF",
+    "PROOF_FAILED",
+    "REOPENED",
+    "CLOSED_WITH_PROOF",
+    "BLOCKED_SOURCE_TRUTH",
+    "OUT_OF_SCOPE_USER_APPROVAL_REQUIRED",
+}
+
+
+def _fam003_visual_udl_schema_failures(visual_udl_text: str) -> list[str]:
+    failures: list[str] = []
+    if "| ID | Status | Defect / Risk |" in visual_udl_text:
+        failures.append("visual UDL is still a compact summary table")
+
+    section_pattern = re.compile(
+        r"^##\s+(UDL-VIS-\d{3})\b(?P<body>.*?)(?=^##\s+UDL-VIS-\d{3}\b|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    field_pattern = re.compile(r"^-\s+([^:]+):\s*(.*)$")
+    sections: dict[str, dict[str, str]] = {}
+    for match in section_pattern.finditer(visual_udl_text):
+        defect_id = match.group(1)
+        fields: dict[str, str] = {}
+        current_field: str | None = None
+        for raw_line in match.group("body").splitlines():
+            field_match = field_pattern.match(raw_line)
+            if field_match:
+                current_field = field_match.group(1).strip()
+                fields[current_field] = field_match.group(2).strip()
+            elif current_field and raw_line.startswith("  "):
+                fields[current_field] = f"{fields[current_field]} {raw_line.strip()}".strip()
+            else:
+                current_field = None
+        sections[defect_id] = fields
+
+    for defect_id in FAM003_VISUAL_UDL_IDS:
+        fields = sections.get(defect_id)
+        if not fields:
+            failures.append(f"{defect_id} missing detailed section")
+            continue
+        missing_fields = [
+            field
+            for field in FAM003_VISUAL_UDL_REQUIRED_FIELDS
+            if not fields.get(field) or fields.get(field) in {"TODO", "`TODO`", "TBD", "`TBD`"}
+        ]
+        if missing_fields:
+            failures.append(f"{defect_id} missing fields: {', '.join(missing_fields)}")
+        status = fields.get("Status", "").strip("` ")
+        if status not in FAM003_VISUAL_UDL_ALLOWED_STATUSES:
+            failures.append(f"{defect_id} has illegal status {fields.get('Status', '<missing>')}")
+        elif status != "CLOSED_WITH_PROOF":
+            failures.append(f"{defect_id} is not CLOSED_WITH_PROOF: {status}")
+        if status == "CLOSED_WITH_PROOF":
+            for closure_field in (
+                "Evidence path or screenshot reference",
+                "Acceptance criteria",
+                "Validation required",
+                "Closure proof when closed",
+            ):
+                if not fields.get(closure_field):
+                    failures.append(f"{defect_id} missing closure field {closure_field}")
+    return failures
+
+
 def _fam003_lv1_visual_retest_semantic_failures(
     packet_files: Mapping[str, str],
     folder_entries: set[str],
@@ -1161,6 +1251,16 @@ def _fam003_lv1_visual_retest_semantic_failures(
             "FAM-003 LV1 packet semantic proof failed: false-green incident record is missing"
         )
 
+    stale_output_incident_entries = [
+        entry
+        for entry in normalized_entries
+        if "stale_output_false_green_incident" in PurePosixPath(entry).name.lower()
+    ]
+    if not stale_output_incident_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: stale-output false-green incident record is missing"
+        )
+
     udl_entries = [
         entry
         for entry in normalized_entries
@@ -1212,22 +1312,25 @@ def _fam003_lv1_visual_retest_semantic_failures(
         )
     else:
         visual_udl_text = "\n".join(packet_files.get(entry, "") for entry in visual_udl_entries)
-        if "VISUAL-UDL-RETEST-STOP" not in visual_udl_text:
+        if "VISUAL-UDL-SCHEMA-RETEST-STOP" not in visual_udl_text:
             failures.append(
-                "FAM-003 LV1 packet semantic proof failed: visual UDL lacks the 121448 retest-stop receipt"
+                "FAM-003 LV1 packet semantic proof failed: visual UDL lacks the 125842 schema retest-stop receipt"
             )
-        for defect_id in tuple(f"UDL-VIS-{index:03d}" for index in range(1, 14)):
-            if defect_id not in visual_udl_text:
+        for schema_failure in _fam003_visual_udl_schema_failures(visual_udl_text):
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: " + schema_failure
+            )
+        rejected_current_packet_markers = (
+            "Current regenerated USER retest packet: `C:\\Nexus USER\\FAM-003-20260623-125842.zip`",
+            "Current packet is C:\\Nexus USER\\FAM-003-20260623-125842.zip",
+            "Upload file: C:\\Nexus USER\\FAM-003-20260623-125842.zip",
+        )
+        for marker in rejected_current_packet_markers:
+            if marker in visual_udl_text:
                 failures.append(
-                    f"FAM-003 LV1 packet semantic proof failed: {defect_id} is missing from the visual UDL"
+                    "FAM-003 LV1 packet semantic proof failed: visual UDL still names rejected 125842 packet as current"
                 )
-            elif (
-                f"| {defect_id} | CLOSED_WITH_PROOF |" not in visual_udl_text
-                and f"| `{defect_id}` | `CLOSED_WITH_PROOF` |" not in visual_udl_text
-            ):
-                failures.append(
-                    f"FAM-003 LV1 packet semantic proof failed: {defect_id} is not CLOSED_WITH_PROOF"
-                )
+                break
 
     fail_ledger_text = packet_files.get(
         "Source Truth Context/Proof Artifacts/Settings Visual Proof/FAIL_CAPABLE_DEFECT_LEDGER.md",
@@ -1235,7 +1338,7 @@ def _fam003_lv1_visual_retest_semantic_failures(
     )
     if fail_ledger_text and "Actual visual/product conformance | PASS" in fail_ledger_text:
         visual_udl_text = "\n".join(packet_files.get(entry, "") for entry in visual_udl_entries)
-        if not visual_udl_entries or "UDL-VIS-013" not in visual_udl_text:
+        if not visual_udl_entries or "UDL-VIS-014" not in visual_udl_text:
             failures.append(
                 "FAM-003 LV1 packet semantic proof failed: visual PASS lacks visual UDL closure mapping"
             )
