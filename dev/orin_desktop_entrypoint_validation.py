@@ -273,20 +273,47 @@ def launcher_default_target_line():
 
 
 def send_shutdown_hotkey():
+    hotkey_errors = []
     try:
         from pynput.keyboard import Controller, Key
+        try:
+            keyboard = Controller()
+            with keyboard.pressed(Key.ctrl):
+                with keyboard.pressed(Key.alt):
+                    keyboard.press(Key.end)
+                    keyboard.release(Key.end)
+            return True, "Ctrl+Alt+End"
+        except Exception as exc:
+            hotkey_errors.append(f"pynput send failed: {exc}")
     except Exception as exc:
-        return False, f"hotkey import failed: {exc}"
+        hotkey_errors.append(f"pynput import failed: {exc}")
 
-    try:
-        keyboard = Controller()
-        with keyboard.pressed(Key.ctrl):
-            with keyboard.pressed(Key.alt):
-                keyboard.press(Key.end)
-                keyboard.release(Key.end)
-        return True, "Ctrl+Alt+End"
-    except Exception as exc:
-        return False, f"hotkey send failed: {exc}"
+    if os.name == "nt":
+        try:
+            import ctypes
+
+            user32 = ctypes.windll.user32
+            vk_control = 0x11
+            vk_menu = 0x12
+            vk_end = 0x23
+            keyeventf_keyup = 0x0002
+
+            def key_event(vk, flags=0):
+                scan = user32.MapVirtualKeyW(vk, 0)
+                user32.keybd_event(vk, scan, flags, 0)
+
+            key_event(vk_control)
+            key_event(vk_menu)
+            key_event(vk_end)
+            time.sleep(0.05)
+            key_event(vk_end, keyeventf_keyup)
+            key_event(vk_menu, keyeventf_keyup)
+            key_event(vk_control, keyeventf_keyup)
+            return True, "Ctrl+Alt+End via Win32 keybd_event"
+        except Exception as exc:
+            hotkey_errors.append(f"win32 fallback failed: {exc}")
+
+    return False, "hotkey send failed: " + "; ".join(hotkey_errors)
 
 
 def run_hidden_command(args, env=None, timeout_seconds=20):
