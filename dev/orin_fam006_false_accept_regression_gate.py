@@ -29,6 +29,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-113615.zip",
+    USER_ROOT / "FAM-006-20260623-113615.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-063715.zip",
     USER_ROOT / "FAM-006-20260623-063715.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-060525.zip",
@@ -49,6 +51,9 @@ KNOWN_BAD_ZIPS = [
     USER_ROOT / "FAM-006-20260622-173545.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-170147.zip",
     USER_ROOT / "FAM-006-20260622-170147.zip",
+]
+KNOWN_BAD_RECONSTRUCTED_RECORDS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-071500.reconstructed-known-bad.json",
 ]
 
 REQUIRED_RED_TEAM_FIELDS = {
@@ -1014,6 +1019,62 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     visual_ledger_path = _find_one(root, "Review Aids/exhaustive_visual_conformance_ledger.json")
     is_known_bad = label.startswith("known-bad:")
 
+    embedded_udl_path = _find_one(root, "Review Aids/Unified Defect Ledger/unified_defect_ledger.json")
+    embedded_incident_path = _find_one(root, "Review Aids/Unified Defect Ledger/false_green_incident_ledger.json")
+    if embedded_udl_path is not None or embedded_incident_path is not None:
+        if embedded_udl_path is None:
+            failures.append("packet has incident ledger but missing unified_defect_ledger.json")
+        else:
+            data, error = _read_json(embedded_udl_path)
+            defects = data.get("defects", []) if isinstance(data, dict) else []
+            defect_ids = {str(row.get("defectId", "")) for row in defects if isinstance(row, dict)}
+            if error or not isinstance(data, dict) or not isinstance(defects, list):
+                failures.append(f"invalid embedded unified_defect_ledger.json: {error}")
+            for required_id in ("FAM006-UDL-012", "FAM006-UDL-013"):
+                if required_id not in defect_ids:
+                    failures.append(f"embedded UDL missing latest false-green defect {required_id}")
+        if embedded_incident_path is None:
+            failures.append("packet has UDL but missing false_green_incident_ledger.json")
+        else:
+            data, error = _read_json(embedded_incident_path)
+            incidents = data.get("incidents", []) if isinstance(data, dict) else []
+            if error or not isinstance(data, dict) or not isinstance(incidents, list):
+                failures.append(f"invalid embedded false_green_incident_ledger.json: {error}")
+            elif len(incidents) < 9:
+                failures.append(f"embedded false-green incident ledger is generic: expected at least 9 rows, found {len(incidents)}")
+            covered = {
+                str(row.get("packetPathOrReconstructedRecord", ""))
+                for row in incidents
+                if isinstance(row, dict)
+            }
+            if not any("071500" in item for item in covered):
+                failures.append("embedded false-green incident ledger missing 071500 reconstructed-known-bad incident")
+            if not any("113615" in item for item in covered):
+                failures.append("embedded false-green incident ledger missing 113615 UDL false-green incident")
+            for index, row in enumerate(incidents, start=1):
+                if not isinstance(row, dict):
+                    failures.append(f"embedded false-green incident row {index} is not an object")
+                    continue
+                for field in (
+                    "incidentId",
+                    "packetPathOrReconstructedRecord",
+                    "packetSha256",
+                    "head",
+                    "codexClaim",
+                    "userOrChatGPTRejection",
+                    "validatorFailed",
+                    "insufficientProofArtifact",
+                    "overclaimedLedgerRow",
+                    "missedOrMisusedComparator",
+                    "fam006PreventionAdded",
+                    "linkedDefectIds",
+                    "finalIncidentStatus",
+                ):
+                    if row.get(field) in (None, "", []):
+                        failures.append(f"embedded false-green incident row {index} missing {field}")
+                if len(row.get("linkedDefectIds", [])) > 3:
+                    failures.append(f"embedded false-green incident row {index} is generic and links too many defects")
+
     row_map: dict[str, Any] = {}
     manifest_data: dict[str, Any] | None = None
     if row_map_path is None:
@@ -1278,6 +1339,59 @@ def _inspect_zip(path: Path, label: str) -> PacketInspection:
         return _inspect_packet_root(temp_root, label)
 
 
+def _inspect_reconstructed_known_bad_record(path: Path) -> PacketInspection:
+    data, error = _read_json(path)
+    failures: list[str] = []
+    if error or not isinstance(data, dict):
+        failures.append(f"invalid reconstructed known-bad record: {error}")
+    else:
+        required = {
+            "External State Schema",
+            "schema",
+            "artifactName",
+            "originalPacketSha256",
+            "userOrChatGPTDisposition",
+            "falseGreenClass",
+            "exactRejectionReasons",
+            "linkedDefectIds",
+            "linkedIncidentIds",
+            "reconstructedKnownBadStatus",
+        }
+        for field in sorted(required):
+            if data.get(field) in (None, "", []):
+                failures.append(f"reconstructed known-bad record missing {field}")
+        if data.get("originalPacketSha256") != "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373":
+            failures.append("reconstructed 071500 SHA mismatch")
+        if "FAM006-UDL-012" not in data.get("linkedDefectIds", []):
+            failures.append("reconstructed 071500 missing FAM006-UDL-012 link")
+        reasons = " ".join(str(item) for item in data.get("exactRejectionReasons", [])).casefold()
+        for term in ("comparator", "crop", "scope"):
+            if term not in reasons:
+                failures.append(f"reconstructed 071500 rejection reasons missing {term}")
+    if failures:
+        return PacketInspection(
+            label=f"known-bad-reconstructed:{path.name}",
+            path=str(path),
+            accepted=True,
+            failures=failures,
+            artifactSummary={"record": str(path)},
+        )
+    return PacketInspection(
+        label=f"known-bad-reconstructed:{path.name}",
+        path=str(path),
+        accepted=False,
+        failures=[
+            "reconstructed known-bad artifact admitted and rejected: Loop XI comparator crop content/scope recurrence"
+        ],
+        artifactSummary={
+            "record": str(path),
+            "artifactName": str(data.get("artifactName", "")) if isinstance(data, dict) else "",
+            "sha256": str(data.get("originalPacketSha256", "")) if isinstance(data, dict) else "",
+            "linkedDefectIds": data.get("linkedDefectIds", []) if isinstance(data, dict) else [],
+        },
+    )
+
+
 def _known_bad_results(paths: list[Path]) -> tuple[list[PacketInspection], list[str]]:
     results: list[PacketInspection] = []
     missing: list[str] = []
@@ -1292,6 +1406,15 @@ def _known_bad_results(paths: list[Path]) -> tuple[list[PacketInspection], list[
             continue
         result = _inspect_zip(path, f"known-bad:{path.name}")
         results.append(result)
+    for path in KNOWN_BAD_RECONSTRUCTED_RECORDS:
+        resolved = path.resolve()
+        if resolved in seen:
+            continue
+        seen.add(resolved)
+        if not path.exists():
+            missing.append(str(path))
+            continue
+        results.append(_inspect_reconstructed_known_bad_record(path))
     return results, missing
 
 
@@ -1325,6 +1448,7 @@ def main() -> int:
                 failures.extend(f"current packet: {failure}" for failure in current.failures)
 
     output = {
+        "External State Schema": "external-state-v1",
         "status": "PASS" if not failures else "FAIL",
         "gate": "FAM-006 false-ACCEPT regression gate",
         "knownBadRejected": all(not result.accepted for result in known_bad) and bool(known_bad),

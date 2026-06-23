@@ -64,6 +64,12 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260623-050502.zip",
     "FAM-006-20260623-060525.zip",
     "FAM-006-20260623-063715.zip",
+    "FAM-006-20260623-071500.reconstructed-known-bad.json",
+    "FAM-006-20260623-113615.zip",
+}
+KNOWN_BAD_SHA256 = {
+    "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
+    "FAM-006-20260623-113615.zip": "CFBBFA0CDAC9A6A190DF22F4811BC7E959C3A32C58E5514AF025ED18FB289086",
 }
 
 
@@ -306,25 +312,227 @@ def seed_defects() -> list[dict[str, Any]]:
             current_owned=False,
             governance_candidate="Governance intake should generalize FAM-006 UDL/known-bad gate into project-wide proof acceptance contract.",
         ),
+        _defect(
+            "FAM006-UDL-012",
+            origin="USER/ChatGPT",
+            title="Loop XI comparator crop content and scope recurrence",
+            exact_user_wording="FAM-006-20260623-071500.zip was rejected for comparator crop content/scope defects that the UDL omitted.",
+            expected="Latest USER/ChatGPT-rejected comparator crop content/scope recurrence must be represented as known-bad and tied to a UDL defect before closure.",
+            actual="The first UDL implementation closed the comparator-crop class while omitting the 071500 recurrence.",
+            evidence="Reconstructed known-bad record FAM-006-20260623-071500.reconstructed-known-bad.json; branch plan Loop X receipt naming C:/Nexus USER/FAM-006-20260623-071500.zip and SHA 5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373.",
+            surfaces="focused_comparator_crops; comparator_crop_ledger.json; exhaustive_visual_conformance_ledger.json; USER packet evidence root 20260623_071352_feature_studio_visual_fail_repair",
+            root_cause="UDL closure used Loop X broad/duplicate comparator proof but did not carry forward the later comparator content/scope rejection.",
+            validator_gap="Expected known-bad corpus omitted reconstructed known-bad records and did not require latest recurrence closure proof.",
+            repair_target="Admit or reconstruct 071500 as known-bad, link it to this UDL ID, and require false-ACCEPT rejection coverage.",
+            acceptance="UDL gate fails if the 071500 reconstructed known-bad record is missing or not linked to this defect; false-ACCEPT gate reports it rejected for comparator crop content/scope recurrence.",
+            proof="FAM-006 UDL gate includes FAM-006-20260623-071500.reconstructed-known-bad.json and false-ACCEPT gate reports reconstructed-known-bad:FAM-006-20260623-071500.",
+            status="CLOSED_WITH_PROOF",
+            closure="071500 is reconstructed in the known-bad corpus and rejected by the FAM-006 false-ACCEPT regression gate for Loop XI comparator crop content/scope recurrence.",
+        ),
+        _defect(
+            "FAM006-UDL-013",
+            origin="USER/ChatGPT",
+            title="UDL packet omitted latest known-bad and used generic incident ledger",
+            exact_user_wording="FAM-006-20260623-113615.zip was rejected because the UDL missed 071500, left one generic false-green incident, and closed comparator crop recurrence too early.",
+            expected="A UDL packet cannot pass when latest known-bad artifacts are missing, incidents are generic, or recurring defect classes are closed before latest recurrence rejection proof.",
+            actual="The 113615 UDL packet passed despite missing 071500, aggregating false-green incidents, and not representing Loop XI as a current-owned defect.",
+            evidence="Known-bad packet FAM-006-20260623-113615.zip SHA CFBBFA0CDAC9A6A190DF22F4811BC7E959C3A32C58E5514AF025ED18FB289086.",
+            surfaces="unified_defect_ledger.json; false_green_incident_ledger.json; unified_defect_ledger_gate.json; FAM006_UNIFIED_DEFECT_LEDGER_REVIEW.md",
+            root_cause="The first UDL gate counted expected old corpus artifacts and required any incident row, but not latest rejected-packet admission or event-specific incidents.",
+            validator_gap="No failure for missing latest rejected packet, no incident-count/detail floor, and no recurrence-vs-closure proof check.",
+            repair_target="Add 113615 to known-bad, require event-specific incident rows, require latest recurrence records, and reject generic incident ledgers.",
+            acceptance="UDL gate fails if 113615 is absent; false-ACCEPT gate reports 113615 rejected as a UDL implementation false green.",
+            proof="FAM-006 known-bad corpus includes FAM-006-20260623-113615.zip and current gates reject it while accepting only the regenerated packet.",
+            status="CLOSED_WITH_PROOF",
+            closure="113615 is admitted as known-bad and rejected by the repaired false-ACCEPT gate for missing latest known-bad, generic incident ledger, and premature UDL closure.",
+        ),
     ]
+
+
+def _incident(
+    incident_id: str,
+    *,
+    packet: str,
+    sha256: str,
+    head: str,
+    codex_claim: str,
+    rejection: str,
+    validator_failed: str,
+    artifact: str,
+    ledger_row: str,
+    comparator: str,
+    prevention: str,
+    scope: str,
+    linked: list[str],
+    status: str = "CLOSED_WITH_PROOF",
+) -> dict[str, Any]:
+    return {
+        "incidentId": incident_id,
+        "packetPathOrReconstructedRecord": packet,
+        "packetSha256": sha256,
+        "head": head,
+        "codexClaim": codex_claim,
+        "userOrChatGPTRejection": rejection,
+        "validatorFailed": validator_failed,
+        "insufficientProofArtifact": artifact,
+        "overclaimedLedgerRow": ledger_row,
+        "missedOrMisusedComparator": comparator,
+        "fam006PreventionAdded": prevention,
+        "preventionScope": scope,
+        "globalGovernanceCandidate": (
+            "Governance candidate only: promote branch-local UDL, known-bad corpus, "
+            "and event-specific false-green incident enforcement into reusable project-wide proof law."
+        ),
+        "linkedDefectIds": linked,
+        "finalIncidentStatus": status,
+    }
 
 
 def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    defect_ids = [row["defectId"] for row in defects]
-    return [
-        {
-            "incidentId": "FAM006-FGI-001",
-            "codexClaim": "Prior packets were returned as ACCEPT / REPAIRED / review-ready after helper green.",
-            "userOrChatGPTRejection": "USER/ChatGPT repeatedly found visible UI/proof/packet defects after the claim.",
-            "validatorFailed": "FAM-006 visual conformance and false-ACCEPT gates before UDL hardening.",
-            "insufficientProofArtifact": "Known-bad packet series FAM-006-20260622-170147.zip through FAM-006-20260623-063715.zip.",
-            "overclaimedLedgerRow": "Sequential repair receipts without one carry-forward UDL status gate.",
-            "missedOrMisusedComparator": "AI Control Center/UIREF comparator evidence was used as broad context before row-bound focused crops were required.",
-            "fam006PreventionAdded": "FAM-006 UDL plus packet gate, known-bad rejection, crop/comparator ledgers, red-team/root-cause specificity checks.",
-            "globalGovernanceCandidate": "Project-wide UDL/false-green corpus and reusable packet/proof acceptance gate.",
-            "linkedDefectIds": defect_ids,
-        }
+    known_ids = {row["defectId"] for row in defects}
+    rows = [
+        _incident(
+            "FAM006-FGI-001",
+            packet="FAM-006-20260622-170147.zip",
+            sha256="unknown-preserved-corpus-artifact",
+            head="pre-UDL-loop",
+            codex_claim="Packet was reviewable/acceptable while evidence was referenced by local paths or missing media.",
+            rejection="USER/ChatGPT rejected local-path and missing-media packet proof.",
+            validator_failed="Packet hygiene and evidence containment checks before FAM-006 false-ACCEPT hardening.",
+            artifact="USER packet Review Aids evidence paths and row_to_evidence_map entries.",
+            ledger_row="FAM006-UDL-001",
+            comparator="No comparator-specific issue; packet self-containment proof was missing.",
+            prevention="Require packet-contained media and packet-relative evidence map entries for green rows.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-001"],
+        ),
+        _incident(
+            "FAM006-FGI-002",
+            packet="FAM-006-20260622-192100.zip",
+            sha256="unknown-preserved-corpus-artifact",
+            head="pre-UDL-loop",
+            codex_claim="Root-cause and red-team ledgers were substantive enough for USER review.",
+            rejection="USER/ChatGPT rejected generic repeated root-cause/red-team rows.",
+            validator_failed="Root-cause/red-team specificity validator before unique-field and defect-class checks.",
+            artifact="adjudication_failure_root_cause_ledger.json; internal_visual_red_team_ledger.json",
+            ledger_row="FAM006-UDL-002",
+            comparator="Comparator not primary; issue was generic evidence adjudication.",
+            prevention="Require named defect classes, unique root-cause fields, and known-bad rejection proof.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-002"],
+        ),
+        _incident(
+            "FAM006-FGI-003",
+            packet="FAM-006-20260622-194848.zip",
+            sha256="unknown-preserved-corpus-artifact",
+            head="pre-UDL-loop",
+            codex_claim="Crop completeness proof was sufficient.",
+            rejection="USER/ChatGPT rejected missing crop rows and self-attested crop proof.",
+            validator_failed="Crop completeness validator before required crop-row field enforcement.",
+            artifact="crop_completeness_ledger.json; visual_capture_manifest.json",
+            ledger_row="FAM006-UDL-003",
+            comparator="No comparator-specific issue; crop proof rows were incomplete.",
+            prevention="Require crop ledger rows, overlay paths, expected text, and content/scope validation method fields.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-003"],
+        ),
+        _incident(
+            "FAM006-FGI-004",
+            packet="FAM-006-20260622-202600.zip",
+            sha256="unknown-preserved-corpus-artifact",
+            head="pre-UDL-loop",
+            codex_claim="Crop overlay proof matched ledger claims.",
+            rejection="USER/ChatGPT rejected overlay/ledger contradictions.",
+            validator_failed="Crop geometry validator before DOM sibling intersection and adjacent-content checks.",
+            artifact="crop_overlays; crop_completeness_ledger.json",
+            ledger_row="FAM006-UDL-004",
+            comparator="No comparator-specific issue; crop overlay contradicted the ledger.",
+            prevention="Reject element crops with undeclared adjacent geometry/text and require relationship crop classification.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-004"],
+        ),
+        _incident(
+            "FAM006-FGI-005",
+            packet="FAM-006-20260623-050502.zip",
+            sha256="47869093641E2D1432445AD4226F8C1FA60E26B2502E22D9B47D4C7CBBF39A4D",
+            head="pre-UDL-loop",
+            codex_claim="Expected-text and crop-scope proof was sufficient.",
+            rejection="USER/ChatGPT rejected incomplete visible-text and crop-scope/type proof.",
+            validator_failed="Expected-text validator before crop-type-specific scope inventory.",
+            artifact="crop_completeness_ledger.json; visual_capture_manifest.json",
+            ledger_row="FAM006-UDL-005",
+            comparator="No comparator-specific issue; crop scope and visible text were incomplete.",
+            prevention="Require cropType, declared target scope, visible text audit, and final text verdict.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-005"],
+        ),
+        _incident(
+            "FAM006-FGI-006",
+            packet="FAM-006-20260623-060525.zip",
+            sha256="D0C45ACAB585541FA0B3A2AB10315B92AA38A789E748B5E0C3CD43F70E1DB69D",
+            head="pre-UDL-loop",
+            codex_claim="AI Control Center comparator proof was sufficient through broad/context evidence.",
+            rejection="USER/ChatGPT rejected comparator proof that was not row-bound.",
+            validator_failed="Visual conformance comparator gate before row-bound comparator key/path/finding requirements.",
+            artifact="exhaustive_visual_conformance_ledger.json; row_to_evidence_map.json",
+            ledger_row="FAM006-UDL-006",
+            comparator="AI Control Center/UIREF comparator cited as broad context instead of row-bound focused proof.",
+            prevention="Require comparator_evidence_key, comparator path, comparator crop key, owner, proof scope, source-truth rule, and row-specific finding for every green comparator row.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-006"],
+        ),
+        _incident(
+            "FAM006-FGI-007",
+            packet="FAM-006-20260623-063715.zip",
+            sha256="32BD9A6D2A0C9D70F62892E9A14E7E9FD43678785724381089CF4A118F97932D",
+            head="pre-UDL-loop",
+            codex_claim="Focused AI Control Center comparator crops were sufficient.",
+            rejection="USER/ChatGPT rejected broad, duplicated, mismatched comparator crops.",
+            validator_failed="Comparator crop validator before comparator_crop_ledger and hash/scope/content checks.",
+            artifact="focused_comparator_crops; comparator_crop_ledger.json missing in known-bad packet.",
+            ledger_row="FAM006-UDL-007",
+            comparator="AI Control Center focused crop keys reused broad/full screenshot content.",
+            prevention="Require comparator_crop_ledger.json with source screenshot, crop rect, target primitive, overlay proof, uniqueness/hash, and final comparator verdict.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-007"],
+        ),
+        _incident(
+            "FAM006-FGI-008",
+            packet="FAM-006-20260623-071500.reconstructed-known-bad.json",
+            sha256="5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
+            head="pre-UDL-loop",
+            codex_claim="Comparator crop proof was complete after Loop X repair.",
+            rejection="USER/ChatGPT rejected Loop XI comparator crop content/scope defects.",
+            validator_failed="UDL/false-ACCEPT gate before reconstructed latest-known-bad and comparator content/scope recurrence checks.",
+            artifact="Review Aids/Evidence/20260623_071352_feature_studio_visual_fail_repair comparator crops and crop ledger.",
+            ledger_row="FAM006-UDL-012",
+            comparator="AI Control Center comparator crop content included wrong/undeclared adjacent content or wrong proof scope.",
+            prevention="Admit reconstructed 071500 known-bad record, link to FAM006-UDL-012, and reject the recurrence by false-ACCEPT gate.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-012", "FAM006-UDL-007"],
+        ),
+        _incident(
+            "FAM006-FGI-009",
+            packet="FAM-006-20260623-113615.zip",
+            sha256="CFBBFA0CDAC9A6A190DF22F4811BC7E959C3A32C58E5514AF025ED18FB289086",
+            head="1e0e927c4aea2d0db31aa5569920e69f799f8f9d",
+            codex_claim="FAM-006 UDL packet was ACCEPT / complete after branch-local UDL implementation.",
+            rejection="USER/ChatGPT rejected missing latest known-bad, generic false-green incident ledger, and premature comparator defect closure.",
+            validator_failed="FAM-006 UDL gate before latest-known-bad admission, event-specific incident count, and recurrence-vs-closure checks.",
+            artifact="unified_defect_ledger.json; false_green_incident_ledger.json; unified_defect_ledger_gate.json",
+            ledger_row="FAM006-UDL-013",
+            comparator="Comparator crop recurrence from 071500 was omitted while UDL-007 remained closed.",
+            prevention="Add 113615 to known-bad corpus, require event-specific incidents, require 071500 reconstruction, and require closure proof tied to latest recurrence.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-013", "FAM006-UDL-012"],
+        ),
     ]
+    for row in rows:
+        unknown = sorted(set(row["linkedDefectIds"]) - known_ids)
+        if unknown:
+            row["finalIncidentStatus"] = "BROKEN_LINK"
+            row["brokenLinkedDefectIds"] = unknown
+    return rows
 
 
 def _required_fields() -> set[str]:
@@ -386,15 +594,47 @@ def validate_udl_state(packet_root: Path | None = None) -> dict[str, Any]:
         for banned in ("improved", "mostly", "acceptable", "looks good", "good enough", "green enough"):
             if banned in status.casefold():
                 failures.append(f"{defect_id}: soft status wording is forbidden: {status}")
-    known_bad = {path.name for path in KNOWN_BAD_CORPUS_ROOT.glob("FAM-006-*.zip")} if KNOWN_BAD_CORPUS_ROOT.exists() else set()
+    known_bad = set()
+    if KNOWN_BAD_CORPUS_ROOT.exists():
+        known_bad.update(path.name for path in KNOWN_BAD_CORPUS_ROOT.glob("FAM-006-*.zip"))
+        known_bad.update(path.name for path in KNOWN_BAD_CORPUS_ROOT.glob("FAM-006-*.reconstructed-known-bad.json"))
     missing_known_bad = sorted(EXPECTED_KNOWN_BAD - known_bad)
     if missing_known_bad:
         failures.append(f"known-bad corpus missing artifacts: {', '.join(missing_known_bad)}")
+    for artifact_name, expected_sha in KNOWN_BAD_SHA256.items():
+        artifact_path = KNOWN_BAD_CORPUS_ROOT / artifact_name
+        if not artifact_path.exists():
+            continue
+        if artifact_path.suffix.lower() == ".zip":
+            import hashlib
+
+            actual_sha = hashlib.sha256(artifact_path.read_bytes()).hexdigest().upper()
+            if actual_sha != expected_sha:
+                failures.append(f"{artifact_name}: SHA256 mismatch; expected {expected_sha}, found {actual_sha}")
+        else:
+            try:
+                record = json.loads(artifact_path.read_text(encoding="utf-8"))
+            except Exception as exc:  # noqa: BLE001 - corrupt known-bad record is a validation failure
+                failures.append(f"{artifact_name}: reconstructed known-bad record is unreadable: {exc}")
+                continue
+            if record.get("External State Schema") != EXTERNAL_STATE_SCHEMA:
+                failures.append(f"{artifact_name}: missing External State Schema {EXTERNAL_STATE_SCHEMA}")
+            if record.get("originalPacketSha256") != expected_sha:
+                failures.append(f"{artifact_name}: reconstructed SHA mismatch")
+            if "FAM006-UDL-012" not in record.get("linkedDefectIds", []):
+                failures.append(f"{artifact_name}: reconstructed record missing FAM006-UDL-012 link")
+            if not record.get("exactRejectionReasons"):
+                failures.append(f"{artifact_name}: reconstructed record missing exactRejectionReasons")
     if not incidents:
         failures.append("false-green incident ledger is empty")
+    if len(incidents) < 9:
+        failures.append(f"false-green incident ledger is too generic: expected at least 9 event-specific rows, found {len(incidents)}")
     for incident in incidents:
         for field in (
             "incidentId",
+            "packetPathOrReconstructedRecord",
+            "packetSha256",
+            "head",
             "codexClaim",
             "userOrChatGPTRejection",
             "validatorFailed",
@@ -402,11 +642,17 @@ def validate_udl_state(packet_root: Path | None = None) -> dict[str, Any]:
             "overclaimedLedgerRow",
             "missedOrMisusedComparator",
             "fam006PreventionAdded",
+            "preventionScope",
             "globalGovernanceCandidate",
             "linkedDefectIds",
+            "finalIncidentStatus",
         ):
             if field not in incident or incident[field] in ("", []):
                 failures.append(f"{incident.get('incidentId', '<missing>')}: missing {field}")
+        if len(incident.get("linkedDefectIds", [])) > 3:
+            failures.append(f"{incident.get('incidentId', '<missing>')}: generic incident links too many defects")
+        if incident.get("finalIncidentStatus") not in {"CLOSED_WITH_PROOF", "OUT_OF_SCOPE_USER_APPROVAL_REQUIRED"}:
+            failures.append(f"{incident.get('incidentId', '<missing>')}: invalid finalIncidentStatus {incident.get('finalIncidentStatus')!r}")
     packet_files: list[str] = []
     if packet_root is not None:
         if not packet_root.exists():
@@ -470,6 +716,35 @@ def _incidents_payload() -> dict[str, Any]:
     }
 
 
+def _write_reconstructed_known_bad_records() -> None:
+    KNOWN_BAD_CORPUS_ROOT.mkdir(parents=True, exist_ok=True)
+    record = {
+        "External State Schema": EXTERNAL_STATE_SCHEMA,
+        "schema": "fam006-reconstructed-known-bad-v1",
+        "artifactName": "FAM-006-20260623-071500.zip",
+        "reconstructedRecordName": "FAM-006-20260623-071500.reconstructed-known-bad.json",
+        "originalPacketPath": "C:/Nexus USER/FAM-006-20260623-071500.zip",
+        "originalPacketSha256": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
+        "reconstructionReason": "Original ZIP was purged before this repair; external branch-plan receipt and USER/ChatGPT rejection text preserve enough evidence to admit it as known-bad.",
+        "userOrChatGPTDisposition": "REPAIR",
+        "falseGreenClass": "Loop XI comparator crop content/scope recurrence",
+        "proofRoot": "Review Aids/Evidence/20260623_071352_feature_studio_visual_fail_repair",
+        "exactRejectionReasons": [
+            "Comparator crops still contained undeclared adjacent text or wrong proof-scope content.",
+            "The active proof root was later reused by the UDL packet without admitting the 071500 known-bad recurrence.",
+            "UDL-007 remained closed on Loop X proof while the Loop XI comparator crop content/scope recurrence was unresolved.",
+        ],
+        "linkedDefectIds": ["FAM006-UDL-012", "FAM006-UDL-007"],
+        "linkedIncidentIds": ["FAM006-FGI-008"],
+        "branchPlanReceipt": "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file/branch_plan.md#FAM-006-Loop-X-Comparator-Media-Proof-Repair-Receipt---2026-06-23",
+        "reconstructedKnownBadStatus": "REJECTED_BY_CURRENT_GATE",
+    }
+    (KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-071500.reconstructed-known-bad.json").write_text(
+        json.dumps(record, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
 def _write_markdown(defects: list[dict[str, Any]], incidents: list[dict[str, Any]]) -> None:
     UDL_MD.write_text(
         "# FAM-006 Unified Defect Ledger\n\n"
@@ -486,10 +761,10 @@ def _write_markdown(defects: list[dict[str, Any]], incidents: list[dict[str, Any
     )
     INCIDENT_MD.write_text(
         "# FAM-006 False-Green Incident Ledger\n\n"
-        "| Incident ID | Codex Claim | Rejection | Prevention Added | Linked Defects |\n"
-        "| --- | --- | --- | --- | --- |\n"
+        "| Incident ID | Packet / Record | SHA256 | Codex Claim | Rejection | Failed Validator / Proof | Overclaimed Row | Prevention Added | Linked Defects | Status |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
         + "\n".join(
-            f"| {row['incidentId']} | {row['codexClaim']} | {row['userOrChatGPTRejection']} | {row['fam006PreventionAdded']} | {', '.join(row['linkedDefectIds'])} |"
+            f"| {row['incidentId']} | {row['packetPathOrReconstructedRecord']} | {row['packetSha256']} | {row['codexClaim']} | {row['userOrChatGPTRejection']} | {row['validatorFailed']} / {row['insufficientProofArtifact']} | {row['overclaimedLedgerRow']} | {row['fam006PreventionAdded']} | {', '.join(row['linkedDefectIds'])} | {row['finalIncidentStatus']} |"
             for row in incidents
         )
         + "\n",
@@ -499,6 +774,7 @@ def _write_markdown(defects: list[dict[str, Any]], incidents: list[dict[str, Any
 
 def write_external_state() -> dict[str, Any]:
     EXTERNAL_BRANCH_ROOT.mkdir(parents=True, exist_ok=True)
+    _write_reconstructed_known_bad_records()
     ledger = _ledger_payload()
     incidents = _incidents_payload()
     UDL_JSON.write_text(json.dumps(ledger, indent=2) + "\n", encoding="utf-8")
