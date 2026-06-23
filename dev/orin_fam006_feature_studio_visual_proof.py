@@ -8,6 +8,7 @@ USER review and packet inclusion.
 from __future__ import annotations
 
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -238,6 +239,72 @@ def _rect_dict(rect: tuple[int, int, int, int]) -> dict[str, int]:
     return {"left": rect[0], "top": rect[1], "right": rect[2], "bottom": rect[3]}
 
 
+def _texts_for_rect(
+    *,
+    bounds: dict[str, object],
+    crop_rect: tuple[int, int, int, int],
+    excluded_keys: set[str] | None = None,
+) -> list[str]:
+    excluded_keys = excluded_keys or set()
+    found: list[str] = []
+    seen: set[str] = set()
+    for key, payload in bounds.items():
+        if key in excluded_keys or not isinstance(payload, dict):
+            continue
+        rect_payload = payload.get("rect")
+        if not isinstance(rect_payload, dict):
+            continue
+        try:
+            rect = (
+                int(rect_payload["left"]),
+                int(rect_payload["top"]),
+                int(rect_payload["right"]),
+                int(rect_payload["bottom"]),
+            )
+        except Exception:
+            continue
+        if _rect_intersection(crop_rect, rect) is None:
+            continue
+        text = str(payload.get("text", "")).strip()
+        if text and text not in seen:
+            found.append(text)
+            seen.add(text)
+    return found
+
+
+def _scope_visible_text(
+    *,
+    expected_text: list[str],
+    raw_visible_text: list[str],
+    fallback_text: str,
+) -> list[str]:
+    raw_joined = " ".join([*raw_visible_text, fallback_text]).casefold()
+    visible: list[str] = []
+    seen: set[str] = set()
+    for text in expected_text:
+        normalized = text.strip()
+        if not normalized:
+            continue
+        if normalized.casefold() in raw_joined and normalized.casefold() not in seen:
+            visible.append(normalized)
+            seen.add(normalized.casefold())
+    for raw_text in raw_visible_text:
+        normalized_raw = raw_text.strip()
+        if not normalized_raw:
+            continue
+        raw_folded = normalized_raw.casefold()
+        if raw_folded in seen:
+            continue
+        remaining = normalized_raw
+        for part in sorted((item for item in expected_text if item.strip()), key=len, reverse=True):
+            remaining = re.sub(re.escape(part), " ", remaining, flags=re.IGNORECASE)
+        remaining = re.sub(r"[^A-Za-z0-9]+", " ", remaining).strip()
+        if remaining:
+            visible.append(normalized_raw)
+            seen.add(raw_folded)
+    return visible
+
+
 def _adjacent_geometry_for_crop(
     *,
     bounds: dict[str, object],
@@ -281,6 +348,7 @@ def _crop_record(
     *,
     key: str,
     crop_type: str,
+    declared_target_scope: str,
     crop_path: str,
     source_path: Path,
     source_full_window_file: str,
@@ -296,6 +364,8 @@ def _crop_record(
     overlay_proof_file: str,
     element_bounds_source: str,
     all_visible_text_found: list[str],
+    visible_text_excluded_from_target_proof: list[str],
+    excluded_visible_text_reason: str,
     adjacent_partial_text_found: list[str],
     adjacent_partial_geometry_found: list[dict[str, object]],
     adjacent_partial_text_allowed: bool,
@@ -320,6 +390,21 @@ def _crop_record(
     content_touches_crop_edge = any(value < minimum_margin for value in margin.values())
     joined_visible_text = " ".join(all_visible_text_found).casefold()
     missing_expected_text = [text for text in expected_text if text.casefold() not in joined_visible_text]
+    normalized_expected = {text.casefold().strip() for text in expected_text if text.strip()}
+    normalized_excluded = {
+        text.casefold().strip()
+        for text in visible_text_excluded_from_target_proof
+        if text.strip()
+    }
+    extra_undeclared_visible_text = [
+        text
+        for text in all_visible_text_found
+        if text.casefold().strip() not in normalized_expected
+        and text.casefold().strip() not in normalized_excluded
+    ]
+    text_audit_pass = not missing_expected_text and not extra_undeclared_visible_text and (
+        not visible_text_excluded_from_target_proof or bool(excluded_visible_text_reason.strip())
+    )
     undeclared_adjacent_text = adjacent_partial_text_found and not adjacent_partial_text_allowed
     undeclared_adjacent_geometry = (
         crop_type == "ELEMENT_CROP"
@@ -331,6 +416,7 @@ def _crop_record(
         "PERFECT_PASS"
         if not content_touches_crop_edge
         and not missing_expected_text
+        and text_audit_pass
         and not undeclared_adjacent_text
         and not undeclared_adjacent_geometry
         and bool(overlay_proof_file)
@@ -339,6 +425,7 @@ def _crop_record(
     return {
         "key": key,
         "cropType": crop_type,
+        "declaredTargetScope": declared_target_scope,
         "targetSemanticElementName": target_semantic_name,
         "includedAdjacentElements": included_adjacent_elements,
         "relationshipBeingProven": relationship_being_proven,
@@ -361,6 +448,10 @@ def _crop_record(
         "elementBoundsSource": element_bounds_source,
         "expectedTextInsideCrop": expected_text,
         "allVisibleTextFoundInCrop": all_visible_text_found,
+        "visibleTextExcludedFromTargetProof": visible_text_excluded_from_target_proof,
+        "excludedVisibleTextReason": excluded_visible_text_reason,
+        "extraUndeclaredVisibleText": extra_undeclared_visible_text,
+        "finalTextAuditVerdict": "PERFECT_PASS" if text_audit_pass else "REPAIR_REQUIRED",
         "adjacentPartialTextFoundInCrop": adjacent_partial_text_found,
         "adjacentPartialGeometryFoundInCrop": adjacent_partial_geometry_found,
         "adjacentPartialTextAllowed": adjacent_partial_text_allowed,
@@ -373,8 +464,10 @@ def _crop_record(
             "elementCropHasNoAdjacentGeometry": crop_type != "ELEMENT_CROP" or not adjacent_partial_geometry_found,
         },
         "textPresenceCheck": {
-            "method": "dom-bounds-derived-visible-text-list-plus-overlay-proof-review",
+            "method": "dom-bounds-derived-visible-text-list-plus-overlay-proof-review-plus-scope-audit",
             "allExpectedTextNamedAndVisuallyPresent": not missing_expected_text,
+            "noUndeclaredVisibleText": not extra_undeclared_visible_text,
+            "excludedVisibleTextJustified": not visible_text_excluded_from_target_proof or bool(excluded_visible_text_reason.strip()),
         },
         "borderRadiusGlowInclusionCheck": {
             "method": "rendered-target-bounds-plus-overlay-proof-review",
@@ -388,7 +481,7 @@ def _crop_record(
         "fullTargetTextControlIncluded": not missing_expected_text and not content_touches_crop_edge,
         "surroundingContextIncluded": all(value >= minimum_margin for value in margin.values()),
         "cropNotHidingAdjacentDefect": not undeclared_adjacent_text and not undeclared_adjacent_geometry,
-        "contentValidationMethod": "DOM target bounds + visible text list + explicit adjacent text/geometry audit + overlay proof",
+        "contentValidationMethod": "DOM target bounds + visible text list + explicit adjacent text/geometry audit + overlay proof + scope text audit",
         "cropTouchesSourceImageEdge": crop_touches_source_edge,
         "targetContentTouchesCropEdge": content_touches_crop_edge,
         "targetTextControlOrBorderCutOff": content_touches_crop_edge,
@@ -453,6 +546,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         crop_type: str = "ELEMENT_CROP",
         relationship: str = "",
         included_adjacent: list[str] | None = None,
+        excluded_text: list[str] | None = None,
+        excluded_reason: str = "",
         min_width: int = 220,
         min_height: int = 80,
         margin: int = 12,
@@ -473,6 +568,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             item for item in adjacent_geometry
             if str(item.get("elementKey", "")) in set(included_adjacent or [])
         ]
+        fallback_text = _text_from_dom(bounds, dom_key)
+        if crop_type == "ELEMENT_CROP":
+            raw_visible_text = [fallback_text]
+        else:
+            raw_visible_text = _texts_for_rect(
+                bounds=bounds,
+                crop_rect=crop,
+                excluded_keys=set() if dom_key == "chrome" else {"chrome"},
+            )
+        visible_text = _scope_visible_text(
+            expected_text=expected,
+            raw_visible_text=raw_visible_text,
+            fallback_text=fallback_text,
+        )
+        if not visible_text:
+            visible_text = [fallback_text]
         return name, {
             "key": key,
             "file": crops / filename,
@@ -485,11 +596,14 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "target": target,
             "text": expected,
             "semantic": semantic,
-            "visible_text": [_text_from_dom(bounds, dom_key)],
+            "visible_text": visible_text,
+            "raw_visible_text": raw_visible_text,
             "crop_type": crop_type,
             "relationship": relationship,
             "included_adjacent": included_adjacent or [],
             "included_element_rects": included_rects,
+            "excluded_text": excluded_text or [],
+            "excluded_reason": excluded_reason,
             "forbidden_adjacent": forbidden_adjacent or [],
             "adjacent_geometry": adjacent_geometry,
             "adjacent_allowed": False,
@@ -508,7 +622,19 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="chrome",
                 filename="recording_window_chrome.png",
                 semantic="Recording Studio full chrome/window shell",
-                expected=["RECORDING", "RECORDING STUDIO"],
+                crop_type="FULL_WINDOW_CROP",
+                expected=[
+                    "RECORDING",
+                    "RECORDING STUDIO",
+                    "START RECORDING",
+                    "Selected overlay ready.",
+                    "TARGET",
+                    "Default Overlay Profile",
+                    "2 active monitors",
+                    "LOG",
+                    "Waiting for first recording.",
+                    "LOG VIEWER STUDIO",
+                ],
                 min_width=460,
                 min_height=90,
                 margin=0,
@@ -567,7 +693,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="chrome",
                 filename="log_viewer_window_chrome.png",
                 semantic="Log Viewer Studio full chrome/window shell",
-                expected=["RECORDING LOGS", "LOG VIEWER STUDIO"],
+                crop_type="FULL_WINDOW_CROP",
+                expected=[
+                    "RECORDING LOGS",
+                    "LOG VIEWER STUDIO",
+                    "NATIVE",
+                    "Recordings",
+                    "Available now",
+                    "Recordings folder",
+                    "OPEN NATIVE LOGS",
+                    "EXPORT",
+                    "Exported Logs",
+                    "Empty until exported",
+                    "Exported Logs folder",
+                    "OPEN EXPORTED LOGS",
+                    "Choose a log destination to open.",
+                ],
                 min_width=540,
                 min_height=90,
                 margin=0,
@@ -581,7 +722,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="logViewerNativeAction",
                 filename="log_viewer_native_action_card.png",
                 semantic="Log Viewer Studio native log destination action card",
-                expected=["Native", "Recordings", "Available now", "OPEN NATIVE LOGS"],
+                expected=["Native", "Recordings", "Available now", "Recordings folder", "OPEN NATIVE LOGS"],
                 forbidden_adjacent=["Exported Logs", "Open Exported Logs", "Empty until exported"],
                 min_width=520,
                 min_height=112,
@@ -596,7 +737,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="logViewerExportAction",
                 filename="log_viewer_export_action_card.png",
                 semantic="Log Viewer Studio exported log destination action card",
-                expected=["Export", "Exported Logs", "Empty until exported", "OPEN EXPORTED LOGS"],
+                expected=["Export", "Exported Logs", "Empty until exported", "Exported Logs folder", "OPEN EXPORTED LOGS"],
                 forbidden_adjacent=["Native", "Recordings folder", "Open Native Logs", "Available now"],
                 min_width=520,
                 min_height=112,
@@ -611,7 +752,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="logViewerActionStatus",
                 filename="log_viewer_action_status.png",
                 semantic="Log Viewer Studio native/export/status relationship stack",
-                expected=["Native", "Recordings", "OPEN NATIVE LOGS", "Export", "Exported Logs", "OPEN EXPORTED LOGS", "Choose a log destination to open."],
+                crop_type="STATE_CROP",
+                relationship="native/export destination cards plus footer status state",
+                included_adjacent=["logViewerNativeAction", "logViewerExportAction"],
+                expected=[
+                    "Native",
+                    "Recordings",
+                    "Available now",
+                    "Recordings folder",
+                    "OPEN NATIVE LOGS",
+                    "Export",
+                    "Exported Logs",
+                    "Empty until exported",
+                    "Exported Logs folder",
+                    "OPEN EXPORTED LOGS",
+                    "Choose a log destination to open.",
+                ],
                 min_width=540,
                 min_height=250,
             ),
@@ -624,7 +780,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="logViewerActionStatus",
                 filename="log_viewer_resize_before.png",
                 semantic="Log Viewer Studio before-resize log access stack",
-                expected=["Native", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+                crop_type="RESIZE_STATE_CROP",
+                relationship="before-resize native/export destination cards plus footer status state",
+                included_adjacent=["logViewerNativeAction", "logViewerExportAction"],
+                expected=[
+                    "Native",
+                    "Recordings",
+                    "Available now",
+                    "Recordings folder",
+                    "OPEN NATIVE LOGS",
+                    "Export",
+                    "Exported Logs",
+                    "Exported Logs folder",
+                    "OPEN EXPORTED LOGS",
+                    "Could not open",
+                    "Exported logs folder could not be opened.",
+                ],
                 min_width=500,
                 min_height=250,
             ),
@@ -637,7 +808,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="logViewerActionStatus",
                 filename="log_viewer_resize_during.png",
                 semantic="Log Viewer Studio during-resize log access stack",
-                expected=["Native", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+                crop_type="RESIZE_STATE_CROP",
+                relationship="during-resize native/export destination cards plus blocked folder status state",
+                included_adjacent=["logViewerNativeAction", "logViewerExportAction"],
+                expected=[
+                    "Native",
+                    "Recordings",
+                    "Available now",
+                    "Recordings folder",
+                    "OPEN NATIVE LOGS",
+                    "Export",
+                    "Exported Logs",
+                    "Exported Logs folder",
+                    "OPEN EXPORTED LOGS",
+                    "Could not open",
+                    "Exported logs folder could not be opened.",
+                ],
                 min_width=620,
                 min_height=250,
             ),
@@ -650,7 +836,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 dom_key="logViewerActionStatus",
                 filename="log_viewer_resize_after.png",
                 semantic="Log Viewer Studio after-resize log access stack",
-                expected=["Native", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+                crop_type="RESIZE_STATE_CROP",
+                relationship="after-resize native/export destination cards plus blocked folder status state",
+                included_adjacent=["logViewerNativeAction", "logViewerExportAction"],
+                expected=[
+                    "Native",
+                    "Recordings",
+                    "Available now",
+                    "Recordings folder",
+                    "OPEN NATIVE LOGS",
+                    "Export",
+                    "Exported Logs",
+                    "Exported Logs folder",
+                    "OPEN EXPORTED LOGS",
+                    "Could not open",
+                    "Exported logs folder could not be opened.",
+                ],
                 min_width=660,
                 min_height=250,
             ),
@@ -723,6 +924,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         spec["key"]: _crop_record(
             key=spec["key"],
             crop_type=str(spec["crop_type"]),
+            declared_target_scope=f"{spec['crop_type']}::{spec['semantic']}",
             crop_path=row_map[spec["key"]],
             source_path=spec["source"],
             source_full_window_file=row_map[spec["source_key"]],
@@ -738,6 +940,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             included_element_rects=list(spec["included_element_rects"]),
             element_bounds_source=spec["bounds_source"],
             all_visible_text_found=spec["visible_text"],
+            visible_text_excluded_from_target_proof=list(spec["excluded_text"]),
+            excluded_visible_text_reason=str(spec["excluded_reason"]),
             adjacent_partial_text_found=[
                 text
                 for text in spec["forbidden_adjacent"]
@@ -753,6 +957,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         key: {
             "crop": row_map[key],
             "cropType": record["cropType"],
+            "declaredTargetScope": record["declaredTargetScope"],
             "cropCompletenessLedgerKey": key,
             "completeTargetElement": record["finalCropVerdict"] == "PERFECT_PASS",
             "includesAllText": record["textPresenceCheck"]["allExpectedTextNamedAndVisuallyPresent"] is True,
@@ -765,9 +970,13 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             ) or record["adjacentPartialTextAllowed"] is True,
             "adjacentPartialGeometryFoundInCrop": record["adjacentPartialGeometryFoundInCrop"],
             "cropLedgerContradictionCheck": record["cropLedgerContradictionCheck"],
+            "expectedTextInsideCrop": record["expectedTextInsideCrop"],
+            "allVisibleTextFoundInCrop": record["allVisibleTextFoundInCrop"],
+            "extraUndeclaredVisibleText": record["extraUndeclaredVisibleText"],
+            "finalTextAuditVerdict": record["finalTextAuditVerdict"],
             "overlayProofFile": record["overlayProofFile"],
             "contentValidationMethod": record["contentValidationMethod"],
-            "validatedBy": "dom-bounds-target-crop-plus-overlay-proof-plus-explicit-visible-text-geometry-and-adjacent-audit",
+            "validatedBy": "dom-bounds-target-crop-plus-overlay-proof-plus-explicit-visible-text-scope-geometry-and-adjacent-audit",
         }
         for key, record in crop_records.items()
     }
@@ -781,17 +990,20 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     crop_ledger_json.write_text(json.dumps(crop_ledger, indent=2), encoding="utf-8")
     crop_ledger_md.write_text(
         "# FAM-006 Crop Completeness Ledger\n\n"
-        "| Evidence key | Crop file | Overlay proof | Source file | Target | Expected text | Visible text | Adjacent partial text | Margins | Verdict |\n"
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+        "| Evidence key | Crop type | Crop file | Overlay proof | Source file | Target | Expected text | Visible text | Extra undeclared text | Text audit | Adjacent partial text | Margins | Verdict |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
         + "\n".join(
-            "| {key} | {cropFile} | {overlayProofFile} | {sourceFullWindowFile} | {target} | {text} | {visible} | {adjacent} | L{left}/T{top}/R{right}/B{bottom} | {verdict} |".format(
+            "| {key} | {cropType} | {cropFile} | {overlayProofFile} | {sourceFullWindowFile} | {target} | {text} | {visible} | {extra} | {textAudit} | {adjacent} | L{left}/T{top}/R{right}/B{bottom} | {verdict} |".format(
                 key=record["key"],
+                cropType=record["cropType"],
                 cropFile=record["cropFile"],
                 overlayProofFile=record["overlayProofFile"],
                 sourceFullWindowFile=record["sourceFullWindowFile"],
                 target=record["targetSemanticElementName"],
                 text=", ".join(record["expectedTextInsideCrop"]),
                 visible=" / ".join(record["allVisibleTextFoundInCrop"]),
+                extra=", ".join(record["extraUndeclaredVisibleText"]) or "None",
+                textAudit=record["finalTextAuditVerdict"],
                 adjacent=", ".join(record["adjacentPartialTextFoundInCrop"]) or "None",
                 left=record["marginAroundTarget"]["left"],
                 top=record["marginAroundTarget"]["top"],
@@ -1249,6 +1461,58 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "exactRepairIfRequired": "",
         },
         {
+            "rowId": "RT-CROP-021",
+            "surface": "Packet Proof",
+            "elementGroup": "expected text scope coverage",
+            "sourceTruthRequirement": "expectedTextInsideCrop must cover every visible text string for the declared crop scope.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Does expectedTextInsideCrop cover all visible text for this crop's declared scope?",
+            "defectLookedFor": "Header-only expected text on a full-window or state crop.",
+            "observedFinding": "Each current crop row records declaredTargetScope, allVisibleTextFoundInCrop, expectedTextInsideCrop, extraUndeclaredVisibleText, and finalTextAuditVerdict.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The false-ACCEPT gate rejects FAM-006-20260623-050502.zip because its full-window and state crops omit visible scope text.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-022",
+            "surface": "Packet Proof",
+            "elementGroup": "undeclared visible text",
+            "sourceTruthRequirement": "Visible crop text must be expected or explicitly excluded with reason.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Is any visible text neither expected nor explicitly excluded?",
+            "defectLookedFor": "Unlisted folder/status/action text inside a green crop.",
+            "observedFinding": "The current ledger fails any extraUndeclaredVisibleText and requires a reason for excluded text.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The text audit cannot pass while extraUndeclaredVisibleText is non-empty.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-023",
+            "surface": "Packet Proof",
+            "elementGroup": "crop type versus proof need",
+            "sourceTruthRequirement": "Crop type must match the row proof need: full-window, element, relationship/state, or resize-state.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Does the crop type match the row's proof need?",
+            "defectLookedFor": "FULL_WINDOW or STATE proof mislabeled as ELEMENT_CROP.",
+            "observedFinding": "Current crop rows use FULL_WINDOW_CROP for chrome, STATE_CROP for the Log Viewer destination/status stack, and RESIZE_STATE_CROP for resize frames.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The false-ACCEPT and visual ledger validators enforce a required crop type per evidence key.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-024",
+            "surface": "Packet Proof",
+            "elementGroup": "resize and blocked/error text",
+            "sourceTruthRequirement": "Resize/error-state crops must include all blocked/error text visible in the state being proved.",
+            "screenshotEvidenceFile": row_map["log-viewer-resize-after"],
+            "negativeQuestion": "Do resize/error-state crops include all blocked/error text?",
+            "defectLookedFor": "Could not open / exported folder failure text missing from expectedTextInsideCrop.",
+            "observedFinding": "Resize-state crops require Could not open and Exported logs folder could not be opened when those strings are visible.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The Loop VIII known-bad packet is rejected when resize rows omit blocked/error strings from expectedTextInsideCrop.",
+            "exactRepairIfRequired": "",
+        },
+        {
             "rowId": "RT-PROOF-006",
             "surface": "Visual Ledger",
             "elementGroup": "all green rows",
@@ -1336,6 +1600,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "RT-CROP-018": ("crop-overlay-ledger-contradiction", "Fail if a crop overlay shows adjacent content outside the target while the ledger claims none."),
         "RT-CROP-019": ("element-crop-vs-relationship-crop-classification", "Fail if a relationship/polluted crop is used as clean element proof."),
         "RT-CROP-020": ("crop-adjacent-partial-geometry-contamination", "Fail if sibling element geometry appears in a crop while adjacent text detection is empty."),
+        "RT-CROP-021": ("crop-expected-text-audit-incomplete", "Fail if expectedTextInsideCrop omits any visible text required by the crop's declared scope."),
+        "RT-CROP-022": ("crop-visible-text-not-expected-or-excluded", "Fail if a visible text string is neither expected nor explicitly excluded with reason."),
+        "RT-CROP-023": ("crop-scope-type-mismatch", "Fail if a full-window, state, relationship, or resize-state proof is mislabeled as an element crop."),
+        "RT-CROP-024": ("resize-state-text-audit-incomplete", "Fail if resize/error-state crops omit blocked or error copy from expectedTextInsideCrop."),
         "RT-PROOF-006": ("green-row-without-packet-evidence", "Fail if any PERFECT_PASS row lacks packet evidence key or packet-relative primary proof."),
         "RT-PROOF-007": ("local-absolute-crop-source-primary-proof", "Fail if crop sourceFullWindowFile uses a local absolute path as primary proof."),
         "RT-PROOF-008": ("non-studio-green-row-without-packet-proof", "Fail if non-Studio PERFECT_PASS rows lack packet evidence key or packet-relative primary proof."),
@@ -1348,8 +1616,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     red_team = {
         "status": "INTERNAL_RED_TEAM_PASS_FOR_PRE_LV_PACKET",
         "knownBadRegressionRejected": True,
-        "knownBadPacket": "C:/Nexus USER/FAM-006-20260622-202600.zip",
-        "knownBadPacketSha256": "AFC87F88E6CC42F095F00437627FA870E9662C0C6BC0E408DF061D046DEE45AD",
+        "knownBadPacket": "C:/Nexus USER/FAM-006-20260623-050502.zip",
+        "knownBadPacketSha256": "47869093641E2D1432445AD4226F8C1FA60E26B2502E22D9B47D4C7CBBF39A4D",
         "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, missing defect dispositions, missing overlay proof, incomplete expected text, clipped target elements, undeclared adjacent partial text, undeclared adjacent geometry, overlay/ledger contradictions, or wrong target rectangles.",
         "exactDesktopLauncherLiveValidationState": "required-after-pre-lv-packet-user-review",
         "rows": red_rows,
@@ -1392,11 +1660,19 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         ("FAM006-FA-035", "Loop VII overlay contradicted crop ledger", "overlay showed adjacent content but ledger still claimed no adjacent content", "overlay-versus-ledger contradiction gate"),
         ("FAM006-FA-036", "Loop VII element crop was actually relationship-polluted", "clean element proof and relationship/context proof were not typed separately", "element crop versus relationship crop classification gate"),
         ("FAM006-FA-037", "Loop VII adjacent geometry bypassed adjacent text audit", "partial button/text geometry was visible even when adjacent text list was empty", "DOM sibling geometry contamination gate"),
+        ("FAM006-FA-038", "Loop VIII full-window expected text was header-only", "full Recording/Log Viewer window crops omitted visible body/action/card text from expectedTextInsideCrop", "full-window expected-text scope gate"),
+        ("FAM006-FA-039", "Loop VIII destination-card expected text omitted folder labels", "native/export card crops omitted Recordings folder and Exported Logs folder strings", "destination-card exhaustive text gate"),
+        ("FAM006-FA-040", "Loop VIII state/resize crops were mis-scoped", "multi-card/status and resize/error crops were treated like simple element proof", "crop type and proof-scope gate"),
+        ("FAM006-FA-041", "Loop VIII resize/error text was not required", "Could not open and exported-folder failure strings could be visible without being expected", "resize-state blocked/error text gate"),
     ]
     root_cause_defects = [
         {
             "defectId": defect_id,
-            "falseAcceptPacketOrEvidence": "C:/Nexus USER/FAM-006-20260622-194848.zip and preserved external regression corpus copy",
+            "falseAcceptPacketOrEvidence": (
+                "C:/Nexus USER/FAM-006-20260623-050502.zip and preserved external regression corpus copy"
+                if int(defect_id.rsplit("-", 1)[1]) >= 38
+                else "C:/Nexus USER/FAM-006-20260622-194848.zip and preserved external regression corpus copy"
+            ),
             "visibleDefectDescription": visible,
             "whyCodexMissedIt": "placeholder",
             "failedStep": "placeholder",
@@ -1446,6 +1722,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "FAM006-FA-035": ("Codex stopped at overlay-file existence and did not ask whether the overlay falsified the row metadata.", "Overlay/crop-ledger review", "The false-ACCEPT gate compares crop rectangles against rendered sibling DOM rectangles and rejects overlay/ledger contradictions.", "Current known-bad FAM-006-20260622-202600.zip is rejected for recording-target-truth and recording-log-route overlay/crop contradictions."),
         "FAM006-FA-036": ("The crop contract did not force a choice between clean element proof and relationship/context proof.", "Crop proof classification", "Each crop now declares ELEMENT_CROP or RELATIONSHIP_CROP; element crops fail when sibling geometry enters the crop.", "Current known-bad FAM-006-20260622-202600.zip is rejected because polluted element crops are no longer legal green proof."),
         "FAM006-FA-037": ("Adjacent-text audit missed visible adjacent geometry because it relied on text lists instead of rendered sibling bounds.", "Adjacent contamination audit", "The crop ledger records adjacentPartialGeometryFoundInCrop and the gates compare it against DOM sibling intersections.", "Current known-bad FAM-006-20260622-202600.zip is rejected when geometry appears while adjacent lists are empty."),
+        "FAM006-FA-038": ("The expected text check only asked whether listed text appeared; it did not require every visible full-window text string to be listed.", "Full-window crop text audit", "Full-window crops are now typed FULL_WINDOW_CROP and validators require the complete visible text inventory for Recording Studio and Log Viewer Studio.", "Current known-bad FAM-006-20260623-050502.zip is rejected for missing full-window expected text."),
+        "FAM006-FA-039": ("The destination-card crop contract allowed visible folder-label text to go unlisted.", "Destination-card crop text audit", "Native and exported destination crops now require Recordings folder and Exported Logs folder in expectedTextInsideCrop.", "Current known-bad FAM-006-20260623-050502.zip is rejected for destination-card expected-text omissions."),
+        "FAM006-FA-040": ("The crop type vocabulary was too narrow, so state, resize, and relationship-stack proof could masquerade as simple element proof.", "Crop scope/type audit", "Crops now declare FULL_WINDOW_CROP, ELEMENT_CROP, STATE_CROP, or RESIZE_STATE_CROP according to the proof need.", "Current known-bad FAM-006-20260623-050502.zip is rejected for crop-scope/type mismatch."),
+        "FAM006-FA-041": ("Resize/error-state proof did not have a required blocked/error text inventory.", "Resize-state text audit", "Resize-state crops now require visible blocked/error strings when the state shows failed exported-log opening.", "Current known-bad FAM-006-20260623-050502.zip is rejected for omitted blocked/error expected text."),
     }
     for row in root_cause_defects:
         why, failed_step, repair, proof = root_cause_details[row["defectId"]]

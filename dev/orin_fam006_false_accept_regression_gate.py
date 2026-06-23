@@ -26,6 +26,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-050502.zip",
+    USER_ROOT / "FAM-006-20260623-050502.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-202600.zip",
     USER_ROOT / "FAM-006-20260622-202600.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-194848.zip",
@@ -192,10 +194,15 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "crop-overlay-ledger-contradiction",
     "element-crop-vs-relationship-crop-classification",
     "crop-adjacent-partial-geometry-contamination",
+    "crop-expected-text-audit-incomplete",
+    "crop-scope-type-mismatch",
+    "crop-visible-text-not-expected-or-excluded",
+    "resize-state-text-audit-incomplete",
 }
 
 REQUIRED_CROP_CONTENT_FIELDS = {
     "cropType",
+    "declaredTargetScope",
     "targetSemanticElementName",
     "includedAdjacentElements",
     "relationshipBeingProven",
@@ -203,6 +210,10 @@ REQUIRED_CROP_CONTENT_FIELDS = {
     "overlayProofFile",
     "elementBoundsSource",
     "allVisibleTextFoundInCrop",
+    "visibleTextExcludedFromTargetProof",
+    "excludedVisibleTextReason",
+    "extraUndeclaredVisibleText",
+    "finalTextAuditVerdict",
     "adjacentPartialTextFoundInCrop",
     "adjacentPartialGeometryFoundInCrop",
     "adjacentPartialTextAllowed",
@@ -217,6 +228,113 @@ REQUIRED_CROP_CONTENT_FIELDS = {
 
 CROP_TYPE_ELEMENT = "ELEMENT_CROP"
 CROP_TYPE_RELATIONSHIP = "RELATIONSHIP_CROP"
+VALID_CROP_TYPES = {
+    CROP_TYPE_ELEMENT,
+    CROP_TYPE_RELATIONSHIP,
+    "FULL_WINDOW_CROP",
+    "FULL_SHELL_CROP",
+    "STATE_CROP",
+    "RESIZE_STATE_CROP",
+}
+REQUIRED_CROP_TYPES = {
+    "recording-window-chrome": "FULL_WINDOW_CROP",
+    "recording-primary-action": "ELEMENT_CROP",
+    "recording-target-truth": "ELEMENT_CROP",
+    "recording-log-route": "ELEMENT_CROP",
+    "log-viewer-window-chrome": "FULL_WINDOW_CROP",
+    "native-log-destination-action": "ELEMENT_CROP",
+    "exported-log-destination-action": "ELEMENT_CROP",
+    "log-viewer-action-status": "STATE_CROP",
+    "log-viewer-resize-before": "RESIZE_STATE_CROP",
+    "log-viewer-resize-during": "RESIZE_STATE_CROP",
+    "log-viewer-resize-after": "RESIZE_STATE_CROP",
+}
+REQUIRED_SCOPE_TEXT = {
+    "recording-window-chrome": [
+        "RECORDING",
+        "RECORDING STUDIO",
+        "START RECORDING",
+        "Selected overlay ready.",
+        "TARGET",
+        "Default Overlay Profile",
+        "2 active monitors",
+        "LOG",
+        "Waiting for first recording.",
+        "LOG VIEWER STUDIO",
+    ],
+    "recording-primary-action": ["START RECORDING", "Selected overlay ready."],
+    "recording-target-truth": ["Target", "Default Overlay Profile", "2 active monitors", "Log", "Waiting for first recording."],
+    "recording-log-route": ["LOG VIEWER STUDIO"],
+    "log-viewer-window-chrome": [
+        "RECORDING LOGS",
+        "LOG VIEWER STUDIO",
+        "NATIVE",
+        "Recordings",
+        "Available now",
+        "Recordings folder",
+        "OPEN NATIVE LOGS",
+        "EXPORT",
+        "Exported Logs",
+        "Empty until exported",
+        "Exported Logs folder",
+        "OPEN EXPORTED LOGS",
+        "Choose a log destination to open.",
+    ],
+    "native-log-destination-action": ["Native", "Recordings", "Available now", "Recordings folder", "OPEN NATIVE LOGS"],
+    "exported-log-destination-action": ["Export", "Exported Logs", "Empty until exported", "Exported Logs folder", "OPEN EXPORTED LOGS"],
+    "log-viewer-action-status": [
+        "Native",
+        "Recordings",
+        "Available now",
+        "Recordings folder",
+        "OPEN NATIVE LOGS",
+        "Export",
+        "Exported Logs",
+        "Empty until exported",
+        "Exported Logs folder",
+        "OPEN EXPORTED LOGS",
+        "Choose a log destination to open.",
+    ],
+    "log-viewer-resize-before": [
+        "Native",
+        "Recordings",
+        "Available now",
+        "Recordings folder",
+        "OPEN NATIVE LOGS",
+        "Export",
+        "Exported Logs",
+        "Exported Logs folder",
+        "OPEN EXPORTED LOGS",
+        "Could not open",
+        "Exported logs folder could not be opened.",
+    ],
+    "log-viewer-resize-during": [
+        "Native",
+        "Recordings",
+        "Available now",
+        "Recordings folder",
+        "OPEN NATIVE LOGS",
+        "Export",
+        "Exported Logs",
+        "Exported Logs folder",
+        "OPEN EXPORTED LOGS",
+        "Could not open",
+        "Exported logs folder could not be opened.",
+    ],
+    "log-viewer-resize-after": [
+        "Native",
+        "Recordings",
+        "Available now",
+        "Recordings folder",
+        "OPEN NATIVE LOGS",
+        "Export",
+        "Exported Logs",
+        "Exported Logs folder",
+        "OPEN EXPORTED LOGS",
+        "Could not open",
+        "Exported logs folder could not be opened.",
+    ],
+}
 CROP_DOM_KEYS = {
     "recording-window-chrome": "chrome",
     "recording-primary-action": "recordingPrimaryAction",
@@ -411,8 +529,8 @@ def _validate_crop_completeness(
         elif not (evidence_root / overlay).exists():
             failures.append(f"crop completeness key {key} overlayProofFile missing from packet: {overlay}")
         method = str(check.get("contentValidationMethod", "")).casefold()
-        if not all(token in method for token in ("dom", "overlay", "adjacent")):
-            failures.append(f"crop completeness key {key} contentValidationMethod does not prove DOM/overlay/adjacent-text validation")
+        if not all(token in method for token in ("dom", "overlay", "adjacent", "geometry", "text", "scope")):
+            failures.append(f"crop completeness key {key} contentValidationMethod does not prove DOM/overlay/adjacent/geometry/text/scope validation")
         validator = str(check.get("validatedBy", "")).strip()
         if not validator or "overlay" not in validator.casefold() or "adjacent" not in validator.casefold():
             failures.append(f"crop completeness key {key} missing overlay/adjacent-aware validatedBy")
@@ -492,9 +610,18 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
         if row.get("finalCropVerdict") != "PERFECT_PASS":
             failures.append(f"crop completeness ledger row {key} is not PERFECT_PASS")
         crop_type = str(row.get("cropType", "")).strip()
-        if crop_type not in {CROP_TYPE_ELEMENT, CROP_TYPE_RELATIONSHIP}:
+        if crop_type not in VALID_CROP_TYPES:
             failures.append(f"crop completeness ledger row {key} has invalid or missing cropType: {crop_type or '<missing>'}")
             crop_type = CROP_TYPE_ELEMENT
+        required_crop_type = REQUIRED_CROP_TYPES.get(key)
+        if required_crop_type and crop_type != required_crop_type:
+            failures.append(
+                f"crop completeness ledger row {key} cropType mismatch: "
+                f"{crop_type} != required {required_crop_type}"
+            )
+        declared_scope = str(row.get("declaredTargetScope", "")).strip()
+        if not declared_scope:
+            failures.append(f"crop completeness ledger row {key} missing declaredTargetScope")
         included_adjacent = row.get("includedAdjacentElements")
         if not isinstance(included_adjacent, list):
             failures.append(f"crop completeness ledger row {key} missing includedAdjacentElements list")
@@ -504,22 +631,57 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
             failures.append(f"crop completeness ledger row {key} missing includedElementRects list")
             included_rects = []
         relationship = str(row.get("relationshipBeingProven", "")).strip()
-        if crop_type == CROP_TYPE_RELATIONSHIP and not relationship:
+        if crop_type in {CROP_TYPE_RELATIONSHIP, "STATE_CROP", "RESIZE_STATE_CROP"} and not relationship:
             failures.append(f"relationship crop {key} does not name the relationship being proven")
         if crop_type == CROP_TYPE_ELEMENT and (included_adjacent or relationship or included_rects):
             failures.append(f"element crop {key} declares relationship/adjacent elements instead of staying clean")
+        if crop_type in {CROP_TYPE_RELATIONSHIP, "STATE_CROP", "RESIZE_STATE_CROP"} and not included_adjacent:
+            failures.append(f"{crop_type} row {key} does not declare included elements")
         expected_text = row.get("expectedTextInsideCrop")
         if not isinstance(expected_text, list) or not expected_text or not all(str(item).strip() for item in expected_text):
             failures.append(f"crop completeness ledger row {key} missing expected text list")
+            expected_text = []
         visible_text = row.get("allVisibleTextFoundInCrop")
         if not isinstance(visible_text, list) or not visible_text:
             failures.append(f"crop completeness ledger row {key} missing allVisibleTextFoundInCrop")
             visible_text = []
+        required_scope_text = REQUIRED_SCOPE_TEXT.get(key, [])
+        normalized_expected = {str(item).casefold().strip() for item in expected_text if str(item).strip()}
+        for required_text in required_scope_text:
+            if required_text.casefold().strip() not in normalized_expected:
+                failures.append(
+                    f"crop completeness ledger row {key} expectedTextInsideCrop omits required visible scope text: "
+                    f"{required_text}"
+                )
         joined_visible_text = " ".join(str(item) for item in visible_text).casefold()
         if isinstance(expected_text, list):
             for text in expected_text:
                 if str(text).casefold() not in joined_visible_text:
                     failures.append(f"crop completeness ledger row {key} expected text not found in visible-text audit: {text}")
+        for required_text in required_scope_text:
+            if required_text.casefold() not in joined_visible_text:
+                failures.append(
+                    f"crop completeness ledger row {key} required scope text not found in allVisibleTextFoundInCrop: "
+                    f"{required_text}"
+                )
+        excluded_text = row.get("visibleTextExcludedFromTargetProof")
+        if not isinstance(excluded_text, list):
+            failures.append(f"crop completeness ledger row {key} missing visibleTextExcludedFromTargetProof list")
+            excluded_text = []
+        exclusion_reason = str(row.get("excludedVisibleTextReason", "")).strip()
+        if excluded_text and not exclusion_reason:
+            failures.append(f"crop completeness ledger row {key} excludes visible text without reason")
+        extra_text = row.get("extraUndeclaredVisibleText")
+        if not isinstance(extra_text, list):
+            failures.append(f"crop completeness ledger row {key} missing extraUndeclaredVisibleText list")
+            extra_text = []
+        if extra_text:
+            failures.append(
+                f"crop completeness ledger row {key} has visible text neither expected nor excluded: "
+                f"{', '.join(str(item) for item in extra_text)}"
+            )
+        if row.get("finalTextAuditVerdict") != "PERFECT_PASS":
+            failures.append(f"crop completeness ledger row {key} finalTextAuditVerdict is not PERFECT_PASS")
         adjacent = row.get("adjacentPartialTextFoundInCrop")
         if not isinstance(adjacent, list):
             failures.append(f"crop completeness ledger row {key} missing adjacentPartialTextFoundInCrop list")
@@ -585,8 +747,8 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
                 f"crop completeness ledger row {key} says cropNotHidingAdjacentDefect=true while overlay shows adjacent geometry"
             )
         method = str(row.get("contentValidationMethod", "")).casefold()
-        if not all(token in method for token in ("dom", "overlay", "adjacent", "geometry")):
-            failures.append(f"crop completeness ledger row {key} contentValidationMethod is not DOM/overlay/adjacent-text backed")
+        if not all(token in method for token in ("dom", "overlay", "adjacent", "geometry", "text", "scope")):
+            failures.append(f"crop completeness ledger row {key} contentValidationMethod is not DOM/overlay/adjacent/geometry/text/scope backed")
         for rect_name in ("cropRect", "targetElementRect"):
             rect = row.get(rect_name)
             if not isinstance(rect, dict) or not all(name in rect for name in ("left", "top", "right", "bottom")):

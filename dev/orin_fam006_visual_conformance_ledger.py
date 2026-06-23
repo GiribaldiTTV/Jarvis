@@ -143,6 +143,7 @@ REQUIRED_CROP_COMPLETENESS = {
 
 REQUIRED_CROP_CONTENT_FIELDS = {
     "cropType",
+    "declaredTargetScope",
     "targetSemanticElementName",
     "includedAdjacentElements",
     "relationshipBeingProven",
@@ -150,6 +151,10 @@ REQUIRED_CROP_CONTENT_FIELDS = {
     "overlayProofFile",
     "elementBoundsSource",
     "allVisibleTextFoundInCrop",
+    "visibleTextExcludedFromTargetProof",
+    "excludedVisibleTextReason",
+    "extraUndeclaredVisibleText",
+    "finalTextAuditVerdict",
     "adjacentPartialTextFoundInCrop",
     "adjacentPartialGeometryFoundInCrop",
     "adjacentPartialTextAllowed",
@@ -160,6 +165,41 @@ REQUIRED_CROP_CONTENT_FIELDS = {
     "surroundingContextIncluded",
     "cropNotHidingAdjacentDefect",
     "contentValidationMethod",
+}
+
+VALID_CROP_TYPES = {
+    "ELEMENT_CROP",
+    "RELATIONSHIP_CROP",
+    "FULL_WINDOW_CROP",
+    "FULL_SHELL_CROP",
+    "STATE_CROP",
+    "RESIZE_STATE_CROP",
+}
+REQUIRED_CROP_TYPES = {
+    "recording-window-chrome": "FULL_WINDOW_CROP",
+    "recording-primary-action": "ELEMENT_CROP",
+    "recording-target-truth": "ELEMENT_CROP",
+    "recording-log-route": "ELEMENT_CROP",
+    "log-viewer-window-chrome": "FULL_WINDOW_CROP",
+    "native-log-destination-action": "ELEMENT_CROP",
+    "exported-log-destination-action": "ELEMENT_CROP",
+    "log-viewer-action-status": "STATE_CROP",
+    "log-viewer-resize-before": "RESIZE_STATE_CROP",
+    "log-viewer-resize-during": "RESIZE_STATE_CROP",
+    "log-viewer-resize-after": "RESIZE_STATE_CROP",
+}
+REQUIRED_SCOPE_TEXT = {
+    "recording-window-chrome": ["RECORDING", "RECORDING STUDIO", "START RECORDING", "Selected overlay ready.", "TARGET", "Default Overlay Profile", "2 active monitors", "LOG", "Waiting for first recording.", "LOG VIEWER STUDIO"],
+    "recording-primary-action": ["START RECORDING", "Selected overlay ready."],
+    "recording-target-truth": ["Target", "Default Overlay Profile", "2 active monitors", "Log", "Waiting for first recording."],
+    "recording-log-route": ["LOG VIEWER STUDIO"],
+    "log-viewer-window-chrome": ["RECORDING LOGS", "LOG VIEWER STUDIO", "NATIVE", "Recordings", "Available now", "Recordings folder", "OPEN NATIVE LOGS", "EXPORT", "Exported Logs", "Empty until exported", "Exported Logs folder", "OPEN EXPORTED LOGS", "Choose a log destination to open."],
+    "native-log-destination-action": ["Native", "Recordings", "Available now", "Recordings folder", "OPEN NATIVE LOGS"],
+    "exported-log-destination-action": ["Export", "Exported Logs", "Empty until exported", "Exported Logs folder", "OPEN EXPORTED LOGS"],
+    "log-viewer-action-status": ["Native", "Recordings", "Available now", "Recordings folder", "OPEN NATIVE LOGS", "Export", "Exported Logs", "Empty until exported", "Exported Logs folder", "OPEN EXPORTED LOGS", "Choose a log destination to open."],
+    "log-viewer-resize-before": ["Native", "Recordings", "Available now", "Recordings folder", "OPEN NATIVE LOGS", "Export", "Exported Logs", "Exported Logs folder", "OPEN EXPORTED LOGS", "Could not open", "Exported logs folder could not be opened."],
+    "log-viewer-resize-during": ["Native", "Recordings", "Available now", "Recordings folder", "OPEN NATIVE LOGS", "Export", "Exported Logs", "Exported Logs folder", "OPEN EXPORTED LOGS", "Could not open", "Exported logs folder could not be opened."],
+    "log-viewer-resize-after": ["Native", "Recordings", "Available now", "Recordings folder", "OPEN NATIVE LOGS", "Export", "Exported Logs", "Exported Logs folder", "OPEN EXPORTED LOGS", "Could not open", "Exported logs folder could not be opened."],
 }
 
 
@@ -832,7 +872,7 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                 elif not (evidence_root / overlay_path).exists():
                     failures.append(f"cropCompletenessChecks entry for {key} overlayProofFile is missing from packet: {overlay_path}")
                 content_method = str(check.get("contentValidationMethod", "")).casefold()
-                for token in ("dom", "overlay", "adjacent"):
+                for token in ("dom", "overlay", "adjacent", "geometry", "text", "scope"):
                     if token not in content_method:
                         failures.append(
                             f"cropCompletenessChecks entry for {key} contentValidationMethod lacks {token!r}"
@@ -842,7 +882,7 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                     failures.append(f"cropCompletenessChecks entry for {key} missing validatedBy")
                 else:
                     lowered = validated_by.casefold()
-                    for token in ("overlay", "adjacent"):
+                    for token in ("overlay", "adjacent", "text", "scope"):
                         if token not in lowered:
                             failures.append(
                                 f"cropCompletenessChecks entry for {key} validatedBy lacks {token!r}"
@@ -888,9 +928,14 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                     if item.get("cropFile") != row_map.get(key):
                         failures.append(f"crop completeness row {key} cropFile does not match row map")
                     crop_type = str(item.get("cropType", "")).strip()
-                    if crop_type not in {"ELEMENT_CROP", "RELATIONSHIP_CROP"}:
+                    if crop_type not in VALID_CROP_TYPES:
                         failures.append(f"crop completeness row {key} has invalid or missing cropType: {crop_type or '<missing>'}")
                         crop_type = "ELEMENT_CROP"
+                    required_crop_type = REQUIRED_CROP_TYPES.get(key)
+                    if required_crop_type and crop_type != required_crop_type:
+                        failures.append(f"crop completeness row {key} cropType mismatch: {crop_type} != {required_crop_type}")
+                    if not str(item.get("declaredTargetScope", "")).strip():
+                        failures.append(f"crop completeness row {key} missing declaredTargetScope")
                     included_adjacent = item.get("includedAdjacentElements")
                     if not isinstance(included_adjacent, list):
                         failures.append(f"crop completeness row {key} missing includedAdjacentElements list")
@@ -900,10 +945,12 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                         failures.append(f"crop completeness row {key} missing includedElementRects list")
                         included_rects = []
                     relationship = str(item.get("relationshipBeingProven", "")).strip()
-                    if crop_type == "RELATIONSHIP_CROP" and not relationship:
+                    if crop_type in {"RELATIONSHIP_CROP", "STATE_CROP", "RESIZE_STATE_CROP"} and not relationship:
                         failures.append(f"relationship crop {key} does not name the relationship being proven")
                     if crop_type == "ELEMENT_CROP" and (included_adjacent or relationship or included_rects):
                         failures.append(f"element crop {key} declares relationship/adjacent elements instead of staying clean")
+                    if crop_type in {"RELATIONSHIP_CROP", "STATE_CROP", "RESIZE_STATE_CROP"} and not included_adjacent:
+                        failures.append(f"{crop_type} row {key} does not declare included elements")
                     overlay_file = str(item.get("overlayProofFile", "")).strip()
                     if not overlay_file:
                         failures.append(f"crop completeness row {key} missing overlayProofFile")
@@ -932,10 +979,35 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                     if not isinstance(visible_text, list) or not visible_text:
                         failures.append(f"crop completeness row {key} missing allVisibleTextFoundInCrop list")
                         visible_text = []
+                    normalized_expected = {str(text).casefold().strip() for text in expected_text if str(text).strip()}
+                    for required_text in REQUIRED_SCOPE_TEXT.get(key, []):
+                        if required_text.casefold().strip() not in normalized_expected:
+                            failures.append(
+                                f"crop completeness row {key} expectedTextInsideCrop omits required visible scope text: {required_text}"
+                            )
                     joined_visible_text = " ".join(str(text) for text in visible_text).casefold()
                     for expected in expected_text:
                         if str(expected).casefold() not in joined_visible_text:
                             failures.append(f"crop completeness row {key} expected text absent from visible-text audit: {expected}")
+                    for required_text in REQUIRED_SCOPE_TEXT.get(key, []):
+                        if required_text.casefold() not in joined_visible_text:
+                            failures.append(
+                                f"crop completeness row {key} required scope text absent from allVisibleTextFoundInCrop: {required_text}"
+                            )
+                    excluded_text = item.get("visibleTextExcludedFromTargetProof")
+                    if not isinstance(excluded_text, list):
+                        failures.append(f"crop completeness row {key} missing visibleTextExcludedFromTargetProof list")
+                        excluded_text = []
+                    if excluded_text and not str(item.get("excludedVisibleTextReason", "")).strip():
+                        failures.append(f"crop completeness row {key} excludes visible text without reason")
+                    extra_text = item.get("extraUndeclaredVisibleText")
+                    if not isinstance(extra_text, list):
+                        failures.append(f"crop completeness row {key} missing extraUndeclaredVisibleText list")
+                        extra_text = []
+                    if extra_text:
+                        failures.append(f"crop completeness row {key} has visible text neither expected nor excluded: {extra_text}")
+                    if item.get("finalTextAuditVerdict") != "PERFECT_PASS":
+                        failures.append(f"crop completeness row {key} finalTextAuditVerdict is not PERFECT_PASS")
                     adjacent = item.get("adjacentPartialTextFoundInCrop")
                     if not isinstance(adjacent, list):
                         failures.append(f"crop completeness row {key} adjacentPartialTextFoundInCrop is not a list")
@@ -968,7 +1040,7 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                         if item.get(required_bool) is not True:
                             failures.append(f"crop completeness row {key} has non-true {required_bool}")
                     content_method = str(item.get("contentValidationMethod", "")).casefold()
-                    for token in ("dom", "overlay", "adjacent", "geometry"):
+                    for token in ("dom", "overlay", "adjacent", "geometry", "text", "scope"):
                         if token not in content_method:
                             failures.append(f"crop completeness row {key} contentValidationMethod lacks {token!r}")
             if resize.get("method") in {"scripted-resize-call", "setGeometry-only"}:
