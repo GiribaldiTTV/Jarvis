@@ -983,6 +983,227 @@ def _local_user_packet_layout_failures(
     return failures, primary_files
 
 
+def _fam003_lv1_visual_retest_packet_detected(packet_files: Mapping[str, str]) -> bool:
+    combined = "\n".join(
+        (
+            packet_files.get("START_HERE.md", ""),
+            packet_files.get("USER Review/FAM003_LV1_VISUAL_RETEST_REVIEW.md", ""),
+            packet_files.get("Review Aids/LV1_RETEST_PACKET_FILE_DIGEST.md", ""),
+        )
+    ).casefold()
+    return (
+        "fam-003" in combined
+        and "lv1 visual retest" in combined
+        and "global settings" in combined
+        and "quick access" in combined
+    )
+
+
+def _fam003_lv1_visual_retest_semantic_failures(
+    packet_files: Mapping[str, str],
+    folder_entries: set[str],
+    export_zip: Path,
+) -> list[str]:
+    """FAM-003-local semantic proof checks for the LV1 visual retest packet."""
+
+    if not _fam003_lv1_visual_retest_packet_detected(packet_files):
+        return []
+
+    failures: list[str] = []
+    normalized_entries = {entry.replace("\\", "/") for entry in folder_entries}
+    expected_zip_name = export_zip.name
+    settings_prefix = "Source Truth Context/Proof Artifacts/Settings Visual Proof/"
+    required_settings_artifacts = (
+        "01_default_global_settings_shell.png",
+        "02_top_level_chrome_control_cluster.png",
+        "03_window_control_focus_pressed_state.png",
+        "03a_window_moved_by_chrome.png",
+        "03b_window_resized.png",
+        "03c_window_minimum_size.png",
+        "04_left_settings_organizer.png",
+        "05_row_action_default_disabled_state.png",
+        "05_tray_parent_page.png",
+        "06_dirty_quick_access.png",
+        "07_dropdown_list_state.png",
+        "08_close_guard.png",
+        "09_defaults_staged.png",
+        "10_max_slots_unclipped.png",
+        "11_saved_state.png",
+        "REFERENCE_CONFORMANCE_CONTACT_SHEET.png",
+        "ARTIFACT_TO_SURFACE_LEDGER.md",
+        "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md",
+        "FAIL_CAPABLE_DEFECT_LEDGER.md",
+        "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md",
+        "fam003_settings_visual_fail_repair_manifest.json",
+        "resident_access_settings.json",
+    )
+    settings_files = sorted(
+        entry for entry in normalized_entries if entry.startswith(settings_prefix)
+    )
+    if not settings_files:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: Settings Visual Proof folder is empty"
+        )
+    for artifact in required_settings_artifacts:
+        expected_entry = settings_prefix + artifact
+        if expected_entry not in normalized_entries:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: missing settings proof artifact "
+                f"{expected_entry}"
+            )
+
+    review_text = packet_files.get("USER Review/FAM003_LV1_VISUAL_RETEST_REVIEW.md", "")
+    if "The packet includes focused screenshots" in review_text and not settings_files:
+        failures.append(
+            "USER Review/FAM003_LV1_VISUAL_RETEST_REVIEW.md: claims focused screenshots are included, "
+            "but Settings Visual Proof contains no files"
+        )
+
+    missing_source_text = packet_files.get(
+        "Source Truth Context/MISSING_SOURCE_FILES.md", ""
+    )
+    if missing_source_text.strip():
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: MISSING_SOURCE_FILES.md is present; "
+            "source-truth copy claims must be reconciled before USER review"
+        )
+
+    current_uiref_files = (
+        "Source Truth Context/Repo Source Truth/UIREF-003_control_state_and_selector_grammar.md",
+        "Source Truth Context/Repo Source Truth/UIREF-004_dialog_status_recovery_and_doorway_surfaces.md",
+        "Source Truth Context/Repo Source Truth/UIREF-005_design_token_and_shared_rule_baseline.md",
+        "Source Truth Context/Repo Source Truth/UIREF-006_negative_example_and_enforcement_contract.md",
+    )
+    for entry in current_uiref_files:
+        if entry not in normalized_entries:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: missing current UIREF source snapshot "
+                f"{entry}"
+            )
+    stale_uiref_name_patterns = (
+        "UIREF-003_spacing_density.md",
+        "UIREF-004_control_states.md",
+        "UIREF-005_menu_dropdown_list_behavior.md",
+        "UIREF-006_visual_proof_and_reference_usage.md",
+    )
+    stale_uiref_mentions = [
+        name for name in stale_uiref_name_patterns if name in missing_source_text
+    ]
+    if stale_uiref_mentions:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: stale UIREF filenames listed as missing "
+            f"{stale_uiref_mentions}"
+        )
+
+    uts_text = packet_files.get("Source Truth Context/UTS Context/UTS - FAM-003.txt", "")
+    if not uts_text.strip():
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: UTS context snapshot is missing"
+        )
+    else:
+        packet_refs = sorted(set(re.findall(r"FAM-003-\d{8}-\d{6}\.zip", uts_text)))
+        stale_packet_refs = [ref for ref in packet_refs if ref != expected_zip_name]
+        if stale_packet_refs:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: UTS context references stale packet(s) "
+                f"{stale_packet_refs}; expected {expected_zip_name}"
+            )
+        sha_refs = sorted(set(re.findall(r"\b[A-Fa-f0-9]{64}\b", uts_text)))
+        if sha_refs:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: UTS context contains ZIP SHA256 value(s); "
+                "packet-internal UTS must use an outside-packet final receipt model"
+            )
+        commit_sha_refs = sorted(set(re.findall(r"\b[A-Fa-f0-9]{40}\b", uts_text)))
+        if commit_sha_refs:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: UTS context contains commit SHA value(s); "
+                "packet-internal UTS must not carry live HEAD receipts"
+            )
+
+    file_digest = packet_files.get("Review Aids/LV1_RETEST_PACKET_FILE_DIGEST.md", "")
+    proof_root_match = re.search(
+        r"fam003_settings_repair_visual_validation[\\/](\d{8}-\d{6})",
+        file_digest,
+        re.IGNORECASE,
+    )
+    expected_proof_stamp = proof_root_match.group(1) if proof_root_match else ""
+    if not expected_proof_stamp:
+        failures.append(
+            "Review Aids/LV1_RETEST_PACKET_FILE_DIGEST.md: current settings proof root is missing"
+        )
+    elif uts_text:
+        uts_proof_stamps = sorted(
+            set(
+                re.findall(
+                    r"fam003_settings_repair_visual_validation[\\/](\d{8}-\d{6})",
+                    uts_text,
+                    re.IGNORECASE,
+                )
+            )
+        )
+        stale_proof_stamps = [
+            stamp for stamp in uts_proof_stamps if stamp != expected_proof_stamp
+        ]
+        if stale_proof_stamps:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: UTS context references stale proof root(s) "
+                f"{stale_proof_stamps}; expected {expected_proof_stamp}"
+            )
+
+    incident_entries = [
+        entry
+        for entry in normalized_entries
+        if "false_green_incident" in PurePosixPath(entry).name.lower()
+    ]
+    if not incident_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: false-green incident record is missing"
+        )
+
+    udl_entries = [
+        entry
+        for entry in normalized_entries
+        if "unified_defect_ledger" in PurePosixPath(entry).name.lower()
+    ]
+    if not udl_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: Unified Defect Ledger is missing"
+        )
+    else:
+        udl_text = "\n".join(packet_files.get(entry, "") for entry in udl_entries)
+        for defect_id in (
+            "UDL-001",
+            "UDL-002",
+            "UDL-003",
+            "UDL-004",
+            "UDL-005",
+            "UDL-006",
+            "UDL-007",
+            "UDL-008",
+            "UDL-009",
+            "UDL-010",
+            "UDL-011",
+        ):
+            if defect_id not in udl_text:
+                failures.append(
+                    f"FAM-003 LV1 packet semantic proof failed: {defect_id} is missing from the UDL"
+                )
+        open_status_pattern = re.compile(
+            r"Status:\s*`?(OPEN|REPRODUCED|IN_REPAIR|FIXED_PENDING_PROOF|PROOF_FAILED|"
+            r"REOPENED|BLOCKED_SOURCE_TRUTH|OUT_OF_SCOPE_USER_APPROVAL_REQUIRED|AMBIGUOUS|UNPROVEN)`?",
+            re.IGNORECASE,
+        )
+        open_statuses = sorted({match.group(0) for match in open_status_pattern.finditer(udl_text)})
+        if open_statuses:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: current-owned UDL rows are not closed "
+                f"{open_statuses}"
+            )
+
+    return failures
+
+
 def validate_local_user_packet(
     packet_dir: Path,
     *,
@@ -1091,6 +1312,13 @@ def validate_local_user_packet(
     failures.extend(_bp1_packet_phase_language_failures(generated_packet_files))
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
+    failures.extend(
+        _fam003_lv1_visual_retest_semantic_failures(
+            packet_files,
+            folder_entries,
+            export_zip,
+        )
+    )
 
     return LocalUserPacketValidationResult(
         packet_dir=packet_dir,
