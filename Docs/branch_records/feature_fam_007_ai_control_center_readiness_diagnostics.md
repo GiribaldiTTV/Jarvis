@@ -150,6 +150,18 @@ Regression Fixture: `dev/orin_user_review_bundle_false_green_fixture_validation.
 
 Current Packet Revalidation: `The previously generated packet C:\Nexus USER\FAM-007-20260623-071029.zip is invalid under the hardened validator because USER Review\WORKSTREAM_IMPLEMENTATION_H1_LV_REVIEW.md is empty and copied Source Truth Context\current_external_branch_state.md still says packet regeneration is pending with no concrete USER Review ZIP pointer. A fresh root-cause repair USER packet is required before normal FAM-007 H1/LV packet review can resume.`
 
+## Unified Defect Ledger Carry-Forward Receipt
+
+Receipt Date: `2026-06-23`
+
+Ledger Owner: `C:\Nexus Governance State\branches\feature_fam_007_ai_control_center_readiness_diagnostics\unified_defect_ledger.md`
+
+Ledger Scope: `FAM-007 branch-local sticky defect ledger for the AI Dashboard / AI Control Center Workstream implementation / H1-LV proof path. The ledger carries USER, ChatGPT, Codex, validator, and regression-discovered defects across regenerated packets. Defect rows must not disappear between packets; if USER says an issue remains, reopen the existing defect ID instead of creating a renamed duplicate.`
+
+Initial UDL Gate Result: `PASS - before regenerating the Workstream implementation / H1-LV proof packet, every current-owned FAM-007 defect row is CLOSED_WITH_PROOF, BLOCKED_SOURCE_TRUTH, or OUT_OF_SCOPE_USER_APPROVAL_REQUIRED. The initial ledger has current-owned rows CLOSED_WITH_PROOF using the 2026-06-23 112609 live proof manifest and screenshots.`
+
+UDL Packet Carry-Forward Requirement: `Every regenerated FAM-007 USER packet for this branch must include the Unified Defect Ledger, carry open, closed, reopened, validator-gap, and regression rows forward, and run a packet-creation gate that blocks USER-retest-ready packet generation when any current-owned row remains OPEN, REPRODUCED, IN_REPAIR, FIXED_PENDING_PROOF, PROOF_FAILED, REOPENED, ambiguous, or unproven.`
+
 BP Re-Entry Requirement: `Because USER accepted this ontology as a major product-model shift, the branch must re-enter BP Entry analysis before any IA/runtime implementation repair. BP Entry must decide whether current branch remains the legal carrier, which artifacts remain carry-in, which are invalidated, whether BP1/BP2/BP3 repair or Workstream re-entry is required, what proof is needed, and the exact USER decision before LV1 can resume.`
 
 ## Explicit Non-Includes
