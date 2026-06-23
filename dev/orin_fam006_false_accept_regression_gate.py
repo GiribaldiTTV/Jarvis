@@ -26,6 +26,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-192100.zip",
+    USER_ROOT / "FAM-006-20260622-192100.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-182112.zip",
     USER_ROOT / "FAM-006-20260622-182112.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-175717.zip",
@@ -104,40 +106,34 @@ REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "external_branch_plan.md",
 }
 
+DEFAULT_CROP_RULE = {
+    "minWidth": 220,
+    "minHeight": 60,
+    "requires": (
+        "completeTargetElement",
+        "includesAllText",
+        "includesBorderRadiusGlow",
+        "includesSurroundingContext",
+        "notClipped",
+    ),
+}
+
 REQUIRED_CROP_COMPLETENESS = {
-    "recording-primary-action": {
-        "minWidth": 460,
-        "minHeight": 160,
-        "requires": (
-            "completeTargetElement",
-            "includesAllText",
-            "includesBorderRadiusGlow",
-            "includesSurroundingContext",
-            "notClipped",
-        ),
-    },
+    "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 90},
+    "recording-primary-action": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 160},
+    "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 110},
     "recording-log-route": {
+        **DEFAULT_CROP_RULE,
         "minWidth": 460,
         "minHeight": 130,
-        "requires": (
-            "completeTargetElement",
-            "includesAllText",
-            "includesBorderRadiusGlow",
-            "includesSurroundingContext",
-            "notClipped",
-        ),
     },
-    "log-viewer-action-status": {
-        "minWidth": 540,
-        "minHeight": 110,
-        "requires": (
-            "completeTargetElement",
-            "includesAllText",
-            "includesBorderRadiusGlow",
-            "includesSurroundingContext",
-            "notClipped",
-        ),
-    },
+    "log-viewer-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 540, "minHeight": 90},
+    "native-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 520, "minHeight": 100},
+    "exported-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 520, "minHeight": 100},
+    "log-viewer-action-status": {**DEFAULT_CROP_RULE, "minWidth": 540, "minHeight": 110},
+    "log-viewer-resize-before": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 280},
+    "log-viewer-resize-during": {**DEFAULT_CROP_RULE, "minWidth": 620, "minHeight": 280},
+    "log-viewer-resize-after": {**DEFAULT_CROP_RULE, "minWidth": 660, "minHeight": 280},
 }
 
 FORBIDDEN_GREEN_WORDS = (
@@ -178,6 +174,10 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "visual-packet-source-truth-context-completeness",
     "visual-ledger-local-primary-proof",
     "crop-completeness-self-attestation",
+    "incomplete-crop-completeness-coverage",
+    "green-row-without-packet-evidence",
+    "local-absolute-crop-source-primary-proof",
+    "non-studio-green-row-without-packet-proof",
 }
 
 MIN_ROOT_CAUSE_UNIQUE_FIELDS = (
@@ -314,6 +314,15 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
             failures.append(f"crop completeness ledger row {key} missing fields: {', '.join(missing)}")
         if row.get("cropFile") != row_map.get(key):
             failures.append(f"crop completeness ledger row {key} cropFile does not match row_to_evidence_map")
+        source_file = str(row.get("sourceFullWindowFile", "")).strip()
+        if not source_file:
+            failures.append(f"crop completeness ledger row {key} missing sourceFullWindowFile")
+        elif Path(source_file).is_absolute():
+            failures.append(f"crop completeness ledger row {key} sourceFullWindowFile is local absolute primary proof: {source_file}")
+        elif source_file not in row_map.values():
+            failures.append(f"crop completeness ledger row {key} sourceFullWindowFile is not packet row-map proof: {source_file}")
+        elif not (evidence_root / source_file).exists():
+            failures.append(f"crop completeness ledger row {key} sourceFullWindowFile target missing from packet: {source_file}")
         if row.get("finalCropVerdict") != "PERFECT_PASS":
             failures.append(f"crop completeness ledger row {key} is not PERFECT_PASS")
         expected_text = row.get("expectedTextInsideCrop")
@@ -515,8 +524,8 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                 if missing:
                     failures.append(f"root-cause defect row {index} missing fields: {', '.join(sorted(missing))}")
                 proof = str(row.get("proofNewCheckRejectsKnownBadExample", ""))
-                if "FAM-006-20260622-173545.zip" not in proof and is_known_bad:
-                    failures.append(f"root-cause defect row {index} does not cite the current known-bad rejection proof")
+                if is_known_bad and "FAM-006-20260622-" not in proof:
+                    failures.append(f"root-cause defect row {index} does not cite a known-bad packet rejection proof")
 
     if visual_ledger_path is None:
         failures.append("missing exhaustive_visual_conformance_ledger.json")
@@ -530,18 +539,17 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
             for row in rows:
                 if isinstance(row, dict) and row.get("final_disposition") == "PERFECT_PASS":
                     joined_green_text.append(" ".join(str(value) for value in row.values()))
-                    if row.get("surface") in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"} and not row.get("packet_evidence_key"):
-                        failures.append(f"{row.get('row_id')}: green Studio row lacks packet evidence key")
-                    if row.get("surface") in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"}:
-                        primary = str(row.get("primary_packet_evidence_path", "")).strip()
-                        if not primary:
-                            failures.append(f"{row.get('row_id')}: green Studio row lacks primary_packet_evidence_path")
-                        elif Path(primary).is_absolute():
-                            failures.append(f"{row.get('row_id')}: green Studio row uses local absolute primary proof path: {primary}")
-                        for legacy_field in ("comparator_screenshot", "fam006_screenshot"):
-                            legacy = str(row.get(legacy_field, "")).strip()
-                            if legacy and Path(legacy).is_absolute():
-                                failures.append(f"{row.get('row_id')}: green Studio row uses legacy primary local proof field {legacy_field}")
+                    if not row.get("packet_evidence_key"):
+                        failures.append(f"{row.get('row_id')}: green row lacks packet evidence key")
+                    primary = str(row.get("primary_packet_evidence_path", "")).strip()
+                    if not primary:
+                        failures.append(f"{row.get('row_id')}: green row lacks primary_packet_evidence_path")
+                    elif Path(primary).is_absolute():
+                        failures.append(f"{row.get('row_id')}: green row uses local absolute primary proof path: {primary}")
+                    for legacy_field in ("comparator_screenshot", "fam006_screenshot"):
+                        legacy = str(row.get(legacy_field, "")).strip()
+                        if legacy and Path(legacy).is_absolute():
+                            failures.append(f"{row.get('row_id')}: green row uses legacy primary local proof field {legacy_field}")
                     key = str(row.get("packet_evidence_key", "")).strip()
                     if key in REQUIRED_CROP_COMPLETENESS and not _crop_key_complete(row_map, manifest_data, row_map_path.parent, key):
                         failures.append(f"{row.get('row_id')}: green row overcredits incomplete focused crop evidence for {key}")
