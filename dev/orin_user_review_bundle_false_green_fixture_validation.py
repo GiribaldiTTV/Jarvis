@@ -4,12 +4,20 @@
 from __future__ import annotations
 
 import base64
+import inspect
 import json
 import tempfile
 import zipfile
 from pathlib import Path, PureWindowsPath
 
-from orin_user_review_bundle import ROOT, validate_local_user_packet
+import orin_user_review_bundle as bundle
+from orin_user_review_bundle import (
+    PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+    PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+    PACKET_VALIDATION_MODE_NEXT_GATE,
+    ROOT,
+    validate_local_user_packet,
+)
 
 
 PNG_1X1 = base64.b64decode(
@@ -89,23 +97,142 @@ def _current_head() -> str:
     return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
 
 
-def _run_fixture(name: str, mutate, *, zip_overrides=None, zip_omit=None) -> list[str]:
+def _run_fixture(
+    name: str,
+    mutate,
+    *,
+    zip_overrides=None,
+    zip_omit=None,
+    validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+    external_state_files=None,
+) -> list[str]:
     with tempfile.TemporaryDirectory(prefix=f"ndai-{name}-") as temp_dir:
         review_root = Path(temp_dir)
         packet = review_root / "FAM-007"
         packet.mkdir()
         _write_base_packet(packet)
-        mutate(packet)
         export_zip = review_root / "FAM-007-20260623-120000.zip"
-        _zip_packet(packet, export_zip, overrides=zip_overrides, omit=zip_omit)
-        return validate_local_user_packet(packet, export_zip=export_zip, worktree_label="FAM-007").failures
+        if len(inspect.signature(mutate).parameters) >= 2:
+            mutate(packet, export_zip)
+        else:
+            mutate(packet)
+        external_state_dir = review_root / "external_state"
+        if external_state_files is not None:
+            external_state_dir.mkdir()
+            for file_name, text in external_state_files(packet, export_zip).items():
+                (external_state_dir / file_name).write_text(text, encoding="utf-8")
+        original_external_state_dir = bundle._current_branch_external_state_dir
+        if external_state_files is not None:
+            bundle._current_branch_external_state_dir = lambda: external_state_dir
+        try:
+            _zip_packet(packet, export_zip, overrides=zip_overrides, omit=zip_omit)
+            return validate_local_user_packet(
+                packet,
+                export_zip=export_zip,
+                worktree_label="FAM-007",
+                validation_mode=validation_mode,
+            ).failures
+        finally:
+            bundle._current_branch_external_state_dir = original_external_state_dir
 
 
-def _assert_failure(name: str, needle: str, mutate, *, zip_overrides=None, zip_omit=None) -> None:
-    failures = _run_fixture(name, mutate, zip_overrides=zip_overrides, zip_omit=zip_omit)
+def _assert_failure(
+    name: str,
+    needle: str,
+    mutate,
+    *,
+    zip_overrides=None,
+    zip_omit=None,
+    validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+    external_state_files=None,
+) -> None:
+    failures = _run_fixture(
+        name,
+        mutate,
+        zip_overrides=zip_overrides,
+        zip_omit=zip_omit,
+        validation_mode=validation_mode,
+        external_state_files=external_state_files,
+    )
     joined = "\n".join(failures)
     if needle not in joined:
         raise AssertionError(f"{name} did not fail on {needle!r}; failures were:\n{joined}")
+
+
+def _assert_success(
+    name: str,
+    mutate,
+    *,
+    validation_mode: str,
+    external_state_files,
+) -> None:
+    failures = _run_fixture(
+        name,
+        mutate,
+        validation_mode=validation_mode,
+        external_state_files=external_state_files,
+    )
+    if failures:
+        raise AssertionError(f"{name} failed unexpectedly:\n" + "\n".join(failures))
+
+
+def _snapshot_context(packet: Path, export_zip: Path, *, state_head: str, plan_head: str | None = None) -> None:
+    plan_head = plan_head or state_head
+    (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
+        "\n".join(
+            [
+                f"Source Repo HEAD: `{state_head}`",
+                f"USER Review ZIP: `{export_zip}`",
+                "Packet Reviewability State: `Reviewable evidence packet`",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (packet / "Source Truth Context" / "current_external_branch_plan.md").write_text(
+        f"Source Repo HEAD: `{plan_head}`\nPlanning Snapshot: `packet generation context`\n",
+        encoding="utf-8",
+    )
+
+
+def _accepted_live_state(snapshot_head: str, live_head: str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"):
+    def _files(_packet: Path, export_zip: Path) -> dict[str, str]:
+        return {
+            "branch_state.md": "\n".join(
+                [
+                    f"Source Repo HEAD: `{live_head}`",
+                    f"USER Review ZIP: `{export_zip}`",
+                    "Packet Reviewability State: `USER accepted reviewable proof packet only`",
+                    "USER Gate State: `USER accepted reviewable evidence only`",
+                    "",
+                ]
+            ),
+            "branch_plan.md": "\n".join(
+                [
+                    f"Source Repo HEAD: `{live_head}`",
+                    f"Accepted Historical Packet Source HEAD: `{snapshot_head}`",
+                    f"USER accepted reviewable proof packet `{export_zip}` as historical evidence.",
+                    "",
+                ]
+            ),
+        }
+    return _files
+
+
+def _fresh_live_state(head: str):
+    def _files(_packet: Path, export_zip: Path) -> dict[str, str]:
+        return {
+            "branch_state.md": "\n".join(
+                [
+                    f"Source Repo HEAD: `{head}`",
+                    f"USER Review ZIP: `{export_zip}`",
+                    "Packet Reviewability State: `Reviewable evidence packet`",
+                    "",
+                ]
+            ),
+            "branch_plan.md": f"Source Repo HEAD: `{head}`\nPlanning Snapshot: `packet generation context`\n",
+        }
+    return _files
 
 
 def _write_live_manifest(packet: Path) -> None:
@@ -212,6 +339,57 @@ def main() -> int:
     )
     live_head = _current_head()
     stale_head = "d7352db4fb1816df24daf3e05670b1023a77d1c5"
+    snapshot_head = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    _assert_failure(
+        "active-review-stale-copied-context",
+        "does not match live external state",
+        lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=snapshot_head),
+        external_state_files=_fresh_live_state(live_head),
+    )
+    _assert_success(
+        "accepted-historical-post-acceptance-drift",
+        lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=snapshot_head),
+        validation_mode=PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+        external_state_files=_accepted_live_state(snapshot_head),
+    )
+    _assert_failure(
+        "accepted-historical-stale-at-generation",
+        "disagrees with copied branch plan Source Repo HEAD",
+        lambda packet, export_zip: _snapshot_context(
+            packet,
+            export_zip,
+            state_head=snapshot_head,
+            plan_head="cccccccccccccccccccccccccccccccccccccccc",
+        ),
+        validation_mode=PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+        external_state_files=_accepted_live_state(snapshot_head),
+    )
+    _assert_failure(
+        "next-gate-stale-copied-context",
+        "does not match live external state",
+        lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=snapshot_head),
+        validation_mode=PACKET_VALIDATION_MODE_NEXT_GATE,
+        external_state_files=_fresh_live_state(live_head),
+    )
+    _assert_failure(
+        "accepted-historical-run-as-active-review",
+        "does not match live external state",
+        lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=snapshot_head),
+        validation_mode=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        external_state_files=_accepted_live_state(snapshot_head),
+    )
+    _assert_success(
+        "accepted-packet-not-regenerated-for-live-byte-match",
+        lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=snapshot_head),
+        validation_mode=PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+        external_state_files=_accepted_live_state(snapshot_head, live_head=live_head),
+    )
+    _assert_success(
+        "new-next-gate-fresh-copied-context",
+        lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=live_head),
+        validation_mode=PACKET_VALIDATION_MODE_NEXT_GATE,
+        external_state_files=_fresh_live_state(live_head),
+    )
     _assert_failure(
         "stale-source-truth-plan-head",
         "does not match live HEAD",

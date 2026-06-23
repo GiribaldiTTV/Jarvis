@@ -48,6 +48,14 @@ USER_BRANCH_VISION_REVIEW_FILE = "USER_BRANCH_VISION_REVIEW.md"
 USER_REVIEW_DIR_NAME = "USER Review"
 REVIEW_AIDS_DIR_NAME = "Review Aids"
 SOURCE_TRUTH_CONTEXT_DIR_NAME = "Source Truth Context"
+PACKET_VALIDATION_MODE_ACTIVE_REVIEW = "active-review"
+PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL = "accepted-historical"
+PACKET_VALIDATION_MODE_NEXT_GATE = "next-gate"
+PACKET_VALIDATION_MODES = (
+    PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+    PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+    PACKET_VALIDATION_MODE_NEXT_GATE,
+)
 LOCAL_USER_PACKET_ROOT_FILES = {"START_HERE.md"}
 LOCAL_USER_PACKET_REQUIRED_DIRS = (
     USER_REVIEW_DIR_NAME,
@@ -437,6 +445,7 @@ class LocalUserPacketValidationResult:
     packet_dir: Path
     export_zip: Path
     label: str
+    validation_mode: str
     folder_file_count: int
     zip_file_count: int
     primary_user_review_files: tuple[str, ...]
@@ -1068,7 +1077,66 @@ def _current_branch_external_state_dir() -> Path | None:
     return Path(r"C:\Nexus Governance State\branches") / branch_state_dir
 
 
-def _source_truth_context_currentness_failures(packet_files: Mapping[str, str]) -> list[str]:
+def _accepted_historical_context_posture_failures(
+    packet_files: Mapping[str, str],
+    export_zip: Path,
+    copied_to_live: Mapping[str, Path | None],
+) -> list[str]:
+    failures: list[str] = []
+    state_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_state.md"
+    plan_name = f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}/current_external_branch_plan.md"
+    state_text = packet_files.get(state_name, "")
+    plan_text = packet_files.get(plan_name, "")
+    live_state_path = copied_to_live.get(state_name)
+    live_plan_path = copied_to_live.get(plan_name)
+    live_state_text = live_state_path.read_text(encoding="utf-8") if live_state_path and live_state_path.is_file() else ""
+    live_plan_text = live_plan_path.read_text(encoding="utf-8") if live_plan_path and live_plan_path.is_file() else ""
+
+    expected_zip = _normalize_windows_path_text(str(export_zip))
+    copied_zip_values = _markdown_field_values(state_text, "USER Review ZIP")
+    live_zip_values = _markdown_field_values(live_state_text, "USER Review ZIP")
+    if not copied_zip_values:
+        failures.append(
+            f"{state_name}: accepted historical packet mode requires a copied USER Review ZIP pointer"
+        )
+    elif _normalize_windows_path_text(copied_zip_values[0]) != expected_zip:
+        failures.append(
+            f"{state_name}: accepted historical packet mode USER Review ZIP "
+            f"{copied_zip_values[0]} does not match final ZIP {export_zip}"
+        )
+    if live_zip_values and _normalize_windows_path_text(live_zip_values[0]) != expected_zip:
+        failures.append(
+            f"{state_name}: accepted historical packet mode is invalid because live external state "
+            f"does not point to this accepted packet; live USER Review ZIP is {live_zip_values[0]}"
+        )
+
+    acceptance_text = f"{live_state_text}\n{live_plan_text}"
+    if not re.search(r"\bUSER accepted\b.*\breviewable\b|\breviewable proof packet accepted\b", acceptance_text, re.IGNORECASE | re.DOTALL):
+        failures.append(
+            "Accepted historical packet mode requires a live external-state acceptance receipt "
+            "for this reviewable evidence packet"
+        )
+
+    state_heads = _markdown_field_values(state_text, "Source Repo HEAD")
+    plan_heads = _markdown_field_values(plan_text, "Source Repo HEAD")
+    if not state_heads:
+        failures.append(f"{state_name}: accepted historical packet mode requires copied Source Repo HEAD")
+    if not plan_heads:
+        failures.append(f"{plan_name}: accepted historical packet mode requires copied Source Repo HEAD")
+    if state_heads and plan_heads and state_heads[0] != plan_heads[0]:
+        failures.append(
+            f"{SOURCE_TRUTH_CONTEXT_DIR_NAME}: accepted historical packet copied branch state Source Repo HEAD "
+            f"{state_heads[0]} disagrees with copied branch plan Source Repo HEAD {plan_heads[0]}"
+        )
+    return failures
+
+
+def _source_truth_context_currentness_failures(
+    packet_files: Mapping[str, str],
+    *,
+    validation_mode: str,
+    export_zip: Path,
+) -> list[str]:
     failures: list[str] = []
     external_state_dir = _current_branch_external_state_dir()
     copied_to_live = {
@@ -1087,7 +1155,10 @@ def _source_truth_context_currentness_failures(packet_files: Mapping[str, str]) 
             failures.append(f"{copied_name}: live external-state source is missing for current branch")
             continue
         live_text = live_path.read_text(encoding="utf-8")
-        if _normalized_packet_text(copied_text) != _normalized_packet_text(live_text):
+        if (
+            validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL
+            and _normalized_packet_text(copied_text) != _normalized_packet_text(live_text)
+        ):
             failures.append(f"{copied_name}: copied Source Truth Context does not match live external state {live_path}")
         if re.search(r"PENDING_REGENERATION|Pending regeneration", copied_text, re.IGNORECASE):
             failures.append(
@@ -1097,6 +1168,14 @@ def _source_truth_context_currentness_failures(packet_files: Mapping[str, str]) 
             failures.append(
                 f"{copied_name}: copied Source Truth Context has no concrete current USER Review ZIP pointer"
             )
+    if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        failures.extend(
+            _accepted_historical_context_posture_failures(
+                packet_files,
+                export_zip,
+                copied_to_live,
+            )
+        )
     return failures
 
 
@@ -1127,6 +1206,8 @@ def _normalize_windows_path_text(text: str) -> str:
 def _final_zip_active_metadata_failures(
     packet_files: Mapping[str, str],
     export_zip: Path,
+    *,
+    validation_mode: str,
 ) -> list[str]:
     failures: list[str] = []
     live_head = _git_text("rev-parse", "HEAD")
@@ -1144,7 +1225,7 @@ def _final_zip_active_metadata_failures(
         if context_file.endswith("current_external_branch_state.md") and not source_heads:
             failures.append(f"{context_file}: copied current Source Truth Context is missing Source Repo HEAD")
             source_truth_mismatch = True
-        if live_head:
+        if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL and live_head:
             for source_head in source_heads:
                 if source_head != live_head:
                     failures.append(
@@ -1532,7 +1613,13 @@ def validate_local_user_packet(
     *,
     export_zip: Path,
     worktree_label: str | None = None,
+    validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
 ) -> LocalUserPacketValidationResult:
+    if validation_mode not in PACKET_VALIDATION_MODES:
+        raise ValueError(
+            f"Unsupported packet validation mode {validation_mode!r}; "
+            f"expected one of {', '.join(PACKET_VALIDATION_MODES)}"
+        )
     label = _sanitize_folder_name(worktree_label or packet_dir.name)
     packet_dir = packet_dir.resolve()
     export_zip = export_zip.resolve()
@@ -1544,6 +1631,7 @@ def validate_local_user_packet(
             packet_dir=packet_dir,
             export_zip=export_zip,
             label=label,
+            validation_mode=validation_mode,
             folder_file_count=0,
             zip_file_count=0,
             primary_user_review_files=(),
@@ -1555,6 +1643,7 @@ def validate_local_user_packet(
             packet_dir=packet_dir,
             export_zip=export_zip,
             label=label,
+            validation_mode=validation_mode,
             folder_file_count=len(_bundle_files(packet_dir)),
             zip_file_count=0,
             primary_user_review_files=(),
@@ -1640,8 +1729,20 @@ def validate_local_user_packet(
     failures.extend(_user_branch_vision_substantive_failures(generated_packet_files))
     failures.extend(_branch_planning_review_gate_state_failures(generated_packet_files))
     failures.extend(_active_review_aid_false_green_failures(packet_files))
-    failures.extend(_source_truth_context_currentness_failures(packet_files))
-    failures.extend(_final_zip_active_metadata_failures(packet_files, export_zip))
+    failures.extend(
+        _source_truth_context_currentness_failures(
+            packet_files,
+            validation_mode=validation_mode,
+            export_zip=export_zip,
+        )
+    )
+    failures.extend(
+        _final_zip_active_metadata_failures(
+            packet_files,
+            export_zip,
+            validation_mode=validation_mode,
+        )
+    )
     if not any("Review export ZIP is not readable" in failure for failure in failures):
         failures.extend(_image_proof_failures(packet_dir, export_zip, folder_entries))
     failures.extend(_proof_manifest_false_green_failures(packet_files))
@@ -1650,6 +1751,7 @@ def validate_local_user_packet(
         packet_dir=packet_dir,
         export_zip=export_zip,
         label=label,
+        validation_mode=validation_mode,
         folder_file_count=len(folder_entries),
         zip_file_count=len(zip_entries),
         primary_user_review_files=primary_files,
@@ -1664,6 +1766,7 @@ def _format_local_user_packet_validation_result(result: LocalUserPacketValidatio
         f"Packet Folder: {result.packet_dir}",
         f"Review Export Zip: {result.export_zip}",
         f"Worktree Label: {result.label}",
+        f"Packet Validation Mode: {result.validation_mode}",
         f"Folder File Count: {result.folder_file_count}",
         f"ZIP File Count: {result.zip_file_count}",
         "Primary USER Review Files: "
@@ -9655,6 +9758,16 @@ def main() -> int:
         type=Path,
         help="Timestamped upload ZIP to validate with --validate-local-user-packet.",
     )
+    parser.add_argument(
+        "--packet-validation-mode",
+        choices=PACKET_VALIDATION_MODES,
+        default=PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
+        help=(
+            "Currentness mode for --validate-local-user-packet: active-review and next-gate "
+            "must match live external state; accepted-historical validates the immutable "
+            "accepted packet snapshot against its copied context and live acceptance receipt."
+        ),
+    )
     parser.add_argument("--expected-branch", help="Expected source branch for Workstream Entry packet validation.")
     parser.add_argument("--expected-head", help="Expected source HEAD for Workstream Entry packet validation.")
     parser.add_argument("--expected-origin-main", help="Expected main baseline for Workstream Entry packet validation.")
@@ -9673,6 +9786,7 @@ def main() -> int:
             args.validate_local_user_packet,
             export_zip=args.review_export_zip,
             worktree_label=args.worktree_label or args.folder_name,
+            validation_mode=args.packet_validation_mode,
         )
         print(_format_local_user_packet_validation_result(result))
         return 1 if result.failures else 0
