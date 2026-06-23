@@ -26,6 +26,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-173545.zip",
+    USER_ROOT / "FAM-006-20260622-173545.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-170147.zip",
     USER_ROOT / "FAM-006-20260622-170147.zip",
 ]
@@ -42,6 +44,7 @@ REQUIRED_RED_TEAM_FIELDS = {
     "finalDisposition",
     "whyDefectAbsentIfPass",
     "exactRepairIfRequired",
+    "checkThatWouldFailIfAppearsAgain",
 }
 
 REQUIRED_ROOT_CAUSE_FIELDS = {
@@ -88,6 +91,29 @@ FORBIDDEN_GREEN_WORDS = (
     "looks acceptable",
 )
 
+FORBIDDEN_PRODUCT_COPY = (
+    "ready when user exports",
+    "user exports",
+)
+
+REQUIRED_RED_TEAM_DEFECT_CLASSES = {
+    "log-viewer-user-export-copy",
+    "log-viewer-card-footer-contradiction",
+    "recording-action-hierarchy",
+    "recording-status-panel-feel",
+    "local-absolute-primary-proof",
+    "broad-row-evidence-map",
+    "visual-ledger-overcredit",
+}
+
+MIN_ROOT_CAUSE_UNIQUE_FIELDS = (
+    "whyCodexMissedIt",
+    "failedStep",
+    "missingCheck",
+    "repairMade",
+    "proofNewCheckRejectsKnownBadExample",
+)
+
 
 @dataclass
 class PacketInspection:
@@ -131,6 +157,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     red_team_path = _find_one(root, "Review Aids/Evidence/**/internal_visual_red_team_ledger.json")
     root_cause_path = _find_one(root, "Review Aids/Evidence/**/adjudication_failure_root_cause_ledger.json")
     visual_ledger_path = _find_one(root, "Review Aids/exhaustive_visual_conformance_ledger.json")
+    is_known_bad = label.startswith("known-bad:")
 
     row_map: dict[str, Any] = {}
     if row_map_path is None:
@@ -195,6 +222,18 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
         else:
             if len(rows) < 12:
                 failures.append(f"internal red-team ledger row count too low: {len(rows)}")
+            dispositions = [str(row.get("finalDisposition", "")) for row in rows if isinstance(row, dict)]
+            known_bad_proven = data.get("knownBadRegressionRejected") is True
+            if rows and all(disposition == "PERFECT_PASS" for disposition in dispositions) and not known_bad_proven:
+                failures.append("internal red-team ledger is all PERFECT_PASS and lacks negative repair/adjudication branches")
+            defect_classes = {
+                str(row.get("defectClass", "")).strip()
+                for row in rows
+                if isinstance(row, dict) and str(row.get("defectClass", "")).strip()
+            }
+            missing_classes = sorted(REQUIRED_RED_TEAM_DEFECT_CLASSES - defect_classes)
+            if missing_classes:
+                failures.append(f"internal red-team ledger missing defect classes: {', '.join(missing_classes)}")
             for index, row in enumerate(rows, start=1):
                 if not isinstance(row, dict):
                     failures.append(f"internal red-team row {index} is not an object")
@@ -204,6 +243,14 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                     failures.append(f"internal red-team row {index} missing fields: {', '.join(sorted(missing))}")
                 if row.get("finalDisposition") == "REPAIR_REQUIRED":
                     failures.append(f"internal red-team row {index} remains REPAIR_REQUIRED")
+                adjudicated_text = " ".join(
+                    str(row.get(field, ""))
+                    for field in ("observedFinding", "whyDefectAbsentIfPass", "exactRepairIfRequired")
+                ).casefold()
+                if any(term in adjudicated_text for term in FORBIDDEN_PRODUCT_COPY) and row.get("finalDisposition") == "PERFECT_PASS":
+                    failures.append(f"internal red-team row {index} marks forbidden product copy as PERFECT_PASS")
+                if "could not be opened" in adjudicated_text and "ready" in adjudicated_text and row.get("finalDisposition") == "PERFECT_PASS":
+                    failures.append(f"internal red-team row {index} marks card/footer ready-vs-blocked contradiction as PERFECT_PASS")
 
     if root_cause_path is None:
         failures.append("missing adjudication_failure_root_cause_ledger.json")
@@ -215,6 +262,18 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
         else:
             if len(defects) < 10:
                 failures.append(f"root-cause defect row count too low: {len(defects)}")
+            if len(defects) >= 2:
+                for field in MIN_ROOT_CAUSE_UNIQUE_FIELDS:
+                    unique = {
+                        str(row.get(field, "")).strip()
+                        for row in defects
+                        if isinstance(row, dict) and str(row.get(field, "")).strip()
+                    }
+                    minimum = min(5, len(defects))
+                    if len(unique) < minimum:
+                        failures.append(
+                            f"root-cause field {field} is too generic/repeated: {len(unique)} unique values for {len(defects)} defects"
+                        )
             for index, row in enumerate(defects, start=1):
                 if not isinstance(row, dict):
                     failures.append(f"root-cause defect row {index} is not an object")
@@ -222,6 +281,9 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                 missing = REQUIRED_ROOT_CAUSE_FIELDS - set(row)
                 if missing:
                     failures.append(f"root-cause defect row {index} missing fields: {', '.join(sorted(missing))}")
+                proof = str(row.get("proofNewCheckRejectsKnownBadExample", ""))
+                if "FAM-006-20260622-173545.zip" not in proof and is_known_bad:
+                    failures.append(f"root-cause defect row {index} does not cite the current known-bad rejection proof")
 
     if visual_ledger_path is None:
         failures.append("missing exhaustive_visual_conformance_ledger.json")
@@ -241,6 +303,8 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
             for word in FORBIDDEN_GREEN_WORDS:
                 if word in green_text:
                     failures.append(f"visual ledger green row contains forbidden progress wording: {word}")
+            if any(term in green_text for term in FORBIDDEN_PRODUCT_COPY):
+                failures.append("visual ledger green row contains forbidden internal/governance product copy")
 
     artifact_summary = {
         "evidenceRoot": str(evidence_root),

@@ -102,13 +102,13 @@
   window.nexusMonitoringHudStudioApplyState = (payload) => {
     const state = payload && typeof payload === "object" ? payload : {};
     applySurface(state);
-    setText("monitoring-hud-studio-recording-state-label", state.recordingStateLabel || "State");
+    setText("monitoring-hud-studio-recording-state-label", state.recordingStateLabel || "Now");
     setText("monitoring-hud-studio-recording-target", state.recordingTarget || "No active overlay profile");
     setText("monitoring-hud-studio-recording-target-detail", state.recordingTargetDetail || "No active monitors.");
-    setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Ready");
-    setText("monitoring-hud-studio-recording-detail", state.recordingDetail || "Selected overlay is ready.");
+    setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Selected overlay ready.");
+    setText("monitoring-hud-studio-recording-detail", state.recordingDetail || "");
     setText("monitoring-hud-studio-recording-log-state", state.recordingLogState || "Log");
-    setText("monitoring-hud-studio-recording-log-detail", state.recordingLogDetail || "No saved log yet.");
+    setText("monitoring-hud-studio-recording-log-detail", state.recordingLogDetail || "Waiting for first recording.");
     setText("monitoring-hud-studio-recording-boundary", state.recordingBoundary || "");
     const toggle = byId("monitoring-hud-studio-recording-toggle-action");
     const isRecording = state.stopEnabled === true;
@@ -129,8 +129,8 @@
     setText("monitoring-hud-studio-export-folder", state.exportFolder || "");
     setTitle("monitoring-hud-studio-native-folder", state.nativeFolderTooltip || state.nativeFolder || "");
     setTitle("monitoring-hud-studio-export-folder", state.exportFolderTooltip || state.exportFolder || "");
-    setText("monitoring-hud-studio-native-folder-state", state.nativeFolderState || "Ready before recording");
-    setText("monitoring-hud-studio-export-folder-state", state.exportFolderState || "Ready when USER exports");
+    setText("monitoring-hud-studio-native-folder-state", state.nativeFolderState || "Available now");
+    setText("monitoring-hud-studio-export-folder-state", state.exportFolderState || "Empty until exported");
     setText("monitoring-hud-studio-log-boundary", state.logBoundary || "");
     setText("monitoring-hud-studio-folder-status", state.folderStatus || "Choose a log destination to open.");
   };

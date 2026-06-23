@@ -6854,25 +6854,25 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         profile = getattr(self, "_active_profile_name", "") or "No active overlay profile"
         target_names = getattr(self, "_target_names", "") or "No active monitor targets"
         if self._recording_session_state == "recording":
-            state_label = "State"
-            status_text = "Recording"
-            detail_text = "Capturing selected overlay."
+            state_label = "Now"
+            status_text = "Capturing selected overlay."
+            detail_text = ""
             log_state = "Log"
             log_detail = "Saving when stopped."
         elif self._recording_session_state == "saved-complete":
-            state_label = "State"
-            status_text = "Log ready"
-            detail_text = "Recording saved as a native NDAI log."
+            state_label = "Now"
+            status_text = "Native log saved."
+            detail_text = ""
             log_state = "Log"
             log_detail = "Open Log Viewer Studio for the native log."
         elif self._start_stop_state == "start-enabled":
-            state_label = "State"
-            status_text = "Ready"
-            detail_text = "Selected overlay is ready."
+            state_label = "Now"
+            status_text = "Selected overlay ready."
+            detail_text = ""
             log_state = "Log"
-            log_detail = "No saved log yet."
+            log_detail = "Waiting for first recording."
         else:
-            state_label = "State"
+            state_label = "Now"
             status_text = "Choose a target"
             detail_text = "Select an active Overlay Profile before recording."
             log_state = "Log"
@@ -7103,8 +7103,8 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
         if self._last_folder_kind == folder_kind and self._folder_status_state == "blocked":
             return "Could not open"
         if folder_kind == "native":
-            return "Ready before recording"
-        return "Ready when USER exports"
+            return "Available now"
+        return "Empty until exported"
 
     def _handle_surface_command(self, command: str) -> None:
         if command == "open-native":

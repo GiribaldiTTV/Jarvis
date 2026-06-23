@@ -236,11 +236,12 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-hero {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
-  min-height: 82px;
-  padding: 13px 14px;
+  justify-items: stretch;
+  gap: 10px;
+  min-height: 94px;
+  padding: 14px;
   border: 1px solid rgba(106, 230, 244, 0.18);
   border-radius: 14px;
   background:
@@ -259,15 +260,22 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   min-width: 0;
 }
 
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state {
+  justify-items: center;
+  text-align: center;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state span {
+  display: none;
+}
+
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-strip {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.86fr);
-  gap: 14px;
-  padding: 8px 10px 6px;
+  gap: 10px;
+  padding: 4px 8px 2px;
   border: 0;
-  border-top: 1px solid rgba(91, 204, 229, 0.18);
-  border-bottom: 1px solid rgba(91, 204, 229, 0.10);
-  background: linear-gradient(90deg, rgba(74, 209, 238, 0.045), transparent 64%);
+  background: transparent;
   box-shadow: none;
 }
 
@@ -283,8 +291,8 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  min-height: 38px;
-  padding-left: 10px;
+  min-height: 34px;
+  padding-left: 6px;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state span,
@@ -299,12 +307,16 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state strong {
-  color: rgba(237, 253, 255, 0.98);
-  font-size: 18px;
-  font-weight: 850;
-  letter-spacing: 0.015em;
+  color: rgba(193, 232, 239, 0.95);
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: 0;
   line-height: 1.1;
-  text-transform: uppercase;
+  text-transform: none;
+}
+
+body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-state em:empty {
+  display: none;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__controller-meta-chip strong,
@@ -335,10 +347,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-action-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 12px;
-  min-height: 82px;
+  min-height: 84px;
   padding: 13px 14px;
   border: 1px solid rgba(91, 204, 229, 0.16);
   border-radius: 13px;
@@ -362,8 +374,9 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-destination-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-end;
   min-width: 0;
+  order: -1;
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"] .monitoring-hud__log-access-status {
@@ -406,9 +419,10 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__hub-action--content-fit[data-control="recording-studio-toggle"] {
-  min-width: 184px;
-  height: 44px;
-  min-height: 44px;
+  width: 100%;
+  min-width: 0;
+  height: 50px;
+  min-height: 50px;
   padding-inline: 22px;
   border-color: rgba(116, 255, 223, 0.42);
   background:
@@ -420,9 +434,9 @@ body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-c
 }
 
 body.desktop-mode #monitoring-hud[data-feature-studio-primitive="fam006-unique-child-studio-shell-v5"][data-studio-surface="recording"] .monitoring-hud__studio-secondary-action {
-  height: 34px;
-  min-height: 34px;
-  padding-inline: 14px;
+  height: 32px;
+  min-height: 32px;
+  padding-inline: 12px;
   opacity: 0.94;
 }
 

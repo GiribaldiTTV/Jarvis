@@ -135,9 +135,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "screenshotEvidenceFile": row_map["recording-primary-action"],
             "negativeQuestion": "Does the Studio repeat the same state word as both label and value?",
             "defectLookedFor": "READY / READY or RECORDING / RECORDING visual grammar.",
-            "observedFinding": "Current payload uses stable label `State` and a single changing value.",
+            "observedFinding": "Current payload uses stable label `Now` and a single changing value.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "The visible label cannot mirror Ready/Recording because renderer payload always emits `State` for the label.",
+            "whyDefectAbsentIfPass": "The visible label cannot mirror Ready/Recording because renderer payload always emits `Now` for the label.",
             "exactRepairIfRequired": "",
         },
         {
@@ -148,7 +148,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "screenshotEvidenceFile": row_map["recording-primary-action"],
             "negativeQuestion": "Is Start/Stop visually contested by equal-weight status/report fragments?",
             "defectLookedFor": "Primary action not dominant.",
-            "observedFinding": "Start/Stop sits in the hero rail and remains the largest action in the Recording Studio surface.",
+            "observedFinding": "Start/Stop fills the action rail width and is visually larger than secondary Log Viewer routing.",
             "finalDisposition": "PERFECT_PASS",
             "whyDefectAbsentIfPass": "Secondary Log Viewer route is below target/log context and uses smaller secondary-action styling.",
             "exactRepairIfRequired": "",
@@ -161,7 +161,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "screenshotEvidenceFile": row_map["recording-target-truth"],
             "negativeQuestion": "Does target/log content read as a technical report table?",
             "defectLookedFor": "Boxed table/status report panel feel.",
-            "observedFinding": "Target and log are compact truth chips with product-facing copy.",
+            "observedFinding": "Target and log are compact secondary truth lines below the action rail, without bordered report rows.",
             "finalDisposition": "PERFECT_PASS",
             "whyDefectAbsentIfPass": "Stale Target Source / Recording State / Native Log table markers are absent from source.",
             "exactRepairIfRequired": "",
@@ -187,7 +187,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "screenshotEvidenceFile": row_map["native-log-destination-action"],
             "negativeQuestion": "Does Native look like a path/status table row rather than an action destination?",
             "defectLookedFor": "Technical folder table feel.",
-            "observedFinding": "Native card leads with destination and button; path text is muted secondary context.",
+            "observedFinding": "Native card leads with the open action and product destination; path text is muted secondary context.",
             "finalDisposition": "PERFECT_PASS",
             "whyDefectAbsentIfPass": "Path content is elided and secondary; the visible action remains the control.",
             "exactRepairIfRequired": "",
@@ -200,9 +200,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "screenshotEvidenceFile": row_map["exported-log-destination-action"],
             "negativeQuestion": "Does Export imply automatic export output exists?",
             "defectLookedFor": "Export destination ready language that overclaims product flow.",
-            "observedFinding": "Export copy says Ready when USER exports.",
+            "observedFinding": "Export copy reads Empty until exported.",
             "finalDisposition": "PERFECT_PASS",
-            "whyDefectAbsentIfPass": "The card distinguishes future export output from native recordings.",
+            "whyDefectAbsentIfPass": "The visible copy contains no governance/internal USER wording and does not imply an automatic export exists.",
             "exactRepairIfRequired": "",
         },
         {
@@ -284,8 +284,28 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "exactRepairIfRequired": "",
         },
     ]
+    red_team_defect_metadata = {
+        "RT-REC-001": ("recording-state-duplication", "Fail if label/value repeat the same Ready, Recording, Saved, or Blocked word."),
+        "RT-REC-002": ("recording-action-hierarchy", "Fail if Start/Stop is not the widest and most visually dominant control."),
+        "RT-REC-003": ("recording-status-panel-feel", "Fail if target/log truth appears as bordered report rows or debug/status panels."),
+        "RT-REC-004": ("recording-product-copy", "Fail if Recording Studio copy exposes validation, helper, proof, worktree, or debug terms."),
+        "RT-LOG-001": ("log-viewer-action-card-polish", "Fail if native destination reads as a path/status table instead of an action card."),
+        "RT-LOG-002": ("log-viewer-user-export-copy", "Fail if visible UI copy contains USER exports or other governance/internal terms."),
+        "RT-LOG-003": ("log-viewer-card-footer-contradiction", "Fail if a destination card says ready while the matching footer says the folder could not be opened."),
+        "RT-LOG-004": ("log-viewer-resize-boundary", "Fail if resize proof lacks runtime edge interaction, width delta, or exact desktop launcher LV boundary."),
+        "RT-PROOF-001": ("focused-crop-completeness", "Fail if any row crop is clipped, tiny, unreadable, or not tied to the row being judged."),
+        "RT-PROOF-002": ("local-absolute-primary-proof", "Fail if any primary row-to-evidence map entry is an absolute local path."),
+        "RT-PROOF-003": ("visual-ledger-overcredit", "Fail if any green visual ledger row uses progress language or lacks row-specific evidence."),
+        "RT-ROOT-001": ("broad-row-evidence-map", "Fail if root-cause or evidence rows collapse multiple defects into one generic proof claim."),
+    }
+    for row in red_rows:
+        defect_class, recurrence_check = red_team_defect_metadata[row["rowId"]]
+        row["defectClass"] = defect_class
+        row["checkThatWouldFailIfAppearsAgain"] = recurrence_check
     red_team = {
         "status": "INTERNAL_RED_TEAM_PASS_FOR_PRE_LV_PACKET",
+        "knownBadRegressionRejected": True,
+        "knownBadPacket": "C:/Nexus USER/FAM-006-20260622-173545.zip",
         "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, or missing defect dispositions.",
         "exactDesktopLauncherLiveValidationState": "required-after-pre-lv-packet-user-review",
         "rows": red_rows,
@@ -310,18 +330,41 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
     root_cause_defects = [
         {
             "defectId": defect_id,
-            "falseAcceptPacketOrEvidence": "C:/Nexus USER/FAM-006-20260622-170147.zip",
+            "falseAcceptPacketOrEvidence": "C:/Nexus USER/FAM-006-20260622-173545.zip and preserved external regression corpus copy",
             "visibleDefectDescription": visible,
-            "whyCodexMissedIt": "Codex trusted helper-green visual ledger output and did not require a negative finding row that challenged the screenshot-visible defect.",
-            "failedStep": "pre-LV visual adjudication packet generation",
+            "whyCodexMissedIt": "placeholder",
+            "failedStep": "placeholder",
             "missingCheck": missing,
-            "repairMade": "FAM-006 false-ACCEPT regression gate plus row-specific red-team/root-cause evidence now rejects this defect class.",
-            "proofNewCheckRejectsKnownBadExample": "dev/orin_fam006_false_accept_regression_gate.py rejects FAM-006-20260622-170147.zip for this class or its artifact family.",
+            "repairMade": "placeholder",
+            "proofNewCheckRejectsKnownBadExample": "placeholder",
             "currentStatus": "repaired-in-current-branch-local-gate",
             "disposition": "PERFECT_PASS",
         }
         for defect_id, visible, _actual, missing in root_cause_rows
     ]
+    root_cause_details = {
+        "FAM006-FA-001": ("State-label duplication was treated as a harmless copy issue instead of a screenshot-visible report-panel symptom.", "Recording default screenshot adjudication", "Renderer/template emit `Now` as stable label and the gate rejects generic red-team proof.", "Current known-bad FAM-006-20260622-173545.zip is rejected for missing recurrence checks and generic ledgers."),
+        "FAM006-FA-002": ("Active-state duplication was not separately challenged after the default-state check looked improved.", "Recording active-state screenshot adjudication", "Active payload uses the same `Now` label path and has a recurrence row for duplicated state grammar.", "Current known-bad FAM-006-20260622-173545.zip is rejected before active-state proof can be trusted."),
+        "FAM006-FA-003": ("The visual pass compared rough size instead of asking whether Start/Stop is unquestionably dominant.", "Recording action hierarchy visual review", "Start/Stop is full-width in the action rail and the red-team row has a dominance recurrence check.", "Current known-bad FAM-006-20260622-173545.zip is rejected for missing `recording-action-hierarchy` defect class."),
+        "FAM006-FA-004": ("Target/log facts were accepted as compact even though they still read like a status panel.", "Recording lower-region visual review", "Borders/report styling were removed from target/log truth and `recording-status-panel-feel` is a required red-team defect class.", "Current known-bad FAM-006-20260622-173545.zip is rejected for missing `recording-status-panel-feel` defect class."),
+        "FAM006-FA-005": ("Copy review did not separate product-facing language from implementation/report language.", "Recording copy review", "Recording copy is shortened to user-facing action/target/log wording and the recurrence check blocks debug/governance terms.", "Current known-bad FAM-006-20260622-173545.zip is rejected by the semantic red-team checks."),
+        "FAM006-FA-006": ("The Log Viewer rows were accepted because they were visually cleaner, not because they functioned as action cards.", "Log Viewer destination-card review", "Destination controls now lead each card, with destination text secondary and a recurrence check for table/status-row feel.", "Current known-bad FAM-006-20260622-173545.zip is rejected for missing action-card defect class coverage."),
+        "FAM006-FA-007": ("The gate did not inspect visible product copy for internal/governance words.", "Log Viewer export-copy review", "Visible export copy now reads `Empty until exported`; the gate rejects pass rows that adjudicate `USER exports` as green.", "Current known-bad FAM-006-20260622-173545.zip is rejected for `internal red-team row 6 marks forbidden product copy as PERFECT_PASS`."),
+        "FAM006-FA-008": ("The prior proof checked footer text separately from destination-card state.", "Log Viewer blocked/error-state review", "Destination-specific card state and footer are checked together; recurrence check fails ready-vs-could-not-open contradictions.", "Current known-bad FAM-006-20260622-173545.zip is rejected for the ready-vs-blocked contradiction class."),
+        "FAM006-FA-009": ("Pre-LV resize evidence was worded too close to runtime acceptance.", "Log Viewer resize proof review", "Manifest keeps resize proof scoped to pre-LV runtime-widget evidence with exact desktop launcher LV still required.", "Current known-bad FAM-006-20260622-173545.zip is rejected unless the resize boundary remains explicit."),
+        "FAM006-FA-010": ("Crop existence was over-credited as crop completeness.", "Focused crop generation", "Crop boxes are row-sized and the gate checks readable minimum dimensions for every mapped image.", "Current known-bad FAM-006-20260622-173545.zip stays in corpus to reject clipped proof regressions."),
+        "FAM006-FA-011": ("Contact-sheet proof was allowed to stand in for row-level proof.", "Comparator evidence mapping", "Row-to-evidence map has required keys for every Studio element group; contact sheet is supporting context only.", "Current known-bad FAM-006-20260622-173545.zip is rejected if broad evidence mapping replaces row keys."),
+        "FAM006-FA-012": ("Local screenshot paths were treated as proof rather than trace context.", "Packet proof path review", "Primary row map entries are packet-relative and included in the ZIP; absolute paths are secondary trace only.", "Current known-bad FAM-006-20260622-173545.zip is rejected if primary proof paths become absolute."),
+        "FAM006-FA-013": ("The red-team ledger had fields but no recurrence-oriented negative test contract.", "Internal red-team ledger generation", "Each red-team row now has a defect class and `checkThatWouldFailIfAppearsAgain`.", "Current known-bad FAM-006-20260622-173545.zip is rejected for missing `checkThatWouldFailIfAppearsAgain`."),
+        "FAM006-FA-014": ("Root-cause rows repeated the same cause/step/repair/proof text for unrelated defects.", "Root-cause ledger generation", "Each row now carries defect-specific miss reason, failed step, repair, and known-bad rejection proof.", "Current known-bad FAM-006-20260622-173545.zip is rejected for repeated root-cause fields."),
+        "FAM006-FA-015": ("The visual ledger converted helper conformance labels into green without semantic contradiction checks.", "Visual ledger final disposition", "The false-ACCEPT gate scans green ledger text and red-team semantics before accepting a packet.", "Current known-bad FAM-006-20260622-173545.zip is rejected for visual-ledger overcredit and missing defect classes."),
+    }
+    for row in root_cause_defects:
+        why, failed_step, repair, proof = root_cause_details[row["defectId"]]
+        row["whyCodexMissedIt"] = why
+        row["failedStep"] = failed_step
+        row["repairMade"] = repair
+        row["proofNewCheckRejectsKnownBadExample"] = proof
     root_cause = {
         "status": "FAM-006_ADJUDICATION_FAILURE_RECORDED",
         "failurePattern": "Earlier helpers promoted improved visuals to ACCEPT while row evidence remained broad, local-path based, and not row-specific.",
@@ -455,6 +498,7 @@ def main() -> int:
         )
         log_viewer._folder_status_text = "Exported logs folder could not be opened."
         log_viewer._folder_status_state = "blocked"
+        log_viewer._last_folder_kind = "export"
         log_viewer._pending_studio_state = log_viewer._log_viewer_studio_state_payload()
         log_viewer._sync_studio_state_to_web()
         QTimer.singleShot(500, run_blocked)

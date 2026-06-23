@@ -95,9 +95,9 @@
           <div class="monitoring-hud__controller-hero" data-controller-primitive="action-first-recording-controller-v6" data-element-group="recording-primary-action">
             <button type="button" id="monitoring-hud-studio-recording-toggle-action" class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit monitoring-hud__studio-primary-action" data-control="recording-studio-toggle" data-recording-command="start" data-button-layout="content-fit" data-action-button-primitive="monitoring-hud-hub-action-content-fit-equal-gutter-v4" data-action-button-visual-shape="hub-action-content-fit-equal-gutter-32px-pill"><span class="monitoring-hud__button-label">Start Recording</span></button>
             <div class="monitoring-hud__controller-state" data-element-group="recording-controller-truth">
-              <span id="monitoring-hud-studio-recording-state-label">State</span>
-              <strong id="monitoring-hud-studio-recording-status">Ready</strong>
-              <em id="monitoring-hud-studio-recording-detail">Selected overlay is ready.</em>
+              <span id="monitoring-hud-studio-recording-state-label">Now</span>
+              <strong id="monitoring-hud-studio-recording-status">Selected overlay ready.</strong>
+              <em id="monitoring-hud-studio-recording-detail"></em>
             </div>
           </div>
           <div class="monitoring-hud__controller-meta-strip" data-element-group="recording-target-log-truth">
@@ -108,7 +108,7 @@
             </div>
             <div class="monitoring-hud__controller-meta-chip">
               <span id="monitoring-hud-studio-recording-log-state">Log</span>
-              <strong id="monitoring-hud-studio-recording-log-detail">No saved log yet.</strong>
+              <strong id="monitoring-hud-studio-recording-log-detail">Waiting for first recording.</strong>
             </div>
           </div>
           <div class="monitoring-hud__controller-route-strip" data-element-group="recording-log-viewer-route">
@@ -121,7 +121,7 @@
               <div class="monitoring-hud__log-destination-copy">
                 <span>Native</span>
                 <strong>Recordings</strong>
-                <small id="monitoring-hud-studio-native-folder-state">Ready before recording</small>
+                <small id="monitoring-hud-studio-native-folder-state">Available now</small>
                 <em id="monitoring-hud-studio-native-folder" aria-label="Native log folder path"></em>
               </div>
               <div class="monitoring-hud__log-destination-footer">
@@ -132,7 +132,7 @@
               <div class="monitoring-hud__log-destination-copy">
                 <span>Export</span>
                 <strong>Exported Logs</strong>
-                <small id="monitoring-hud-studio-export-folder-state">Ready when USER exports</small>
+                <small id="monitoring-hud-studio-export-folder-state">Empty until exported</small>
                 <em id="monitoring-hud-studio-export-folder" aria-label="Exported log folder path"></em>
               </div>
               <div class="monitoring-hud__log-destination-footer">
