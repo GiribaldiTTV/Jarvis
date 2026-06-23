@@ -1201,6 +1201,45 @@ def _fam003_lv1_visual_retest_semantic_failures(
                 f"{open_statuses}"
             )
 
+    visual_udl_entries = [
+        entry
+        for entry in normalized_entries
+        if "unified_visual_defect_ledger" in PurePosixPath(entry).name.lower()
+    ]
+    if not visual_udl_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: visual Unified Defect Ledger is missing"
+        )
+    else:
+        visual_udl_text = "\n".join(packet_files.get(entry, "") for entry in visual_udl_entries)
+        if "VISUAL-UDL-RETEST-STOP" not in visual_udl_text:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: visual UDL lacks the 121448 retest-stop receipt"
+            )
+        for defect_id in tuple(f"UDL-VIS-{index:03d}" for index in range(1, 14)):
+            if defect_id not in visual_udl_text:
+                failures.append(
+                    f"FAM-003 LV1 packet semantic proof failed: {defect_id} is missing from the visual UDL"
+                )
+            elif (
+                f"| {defect_id} | CLOSED_WITH_PROOF |" not in visual_udl_text
+                and f"| `{defect_id}` | `CLOSED_WITH_PROOF` |" not in visual_udl_text
+            ):
+                failures.append(
+                    f"FAM-003 LV1 packet semantic proof failed: {defect_id} is not CLOSED_WITH_PROOF"
+                )
+
+    fail_ledger_text = packet_files.get(
+        "Source Truth Context/Proof Artifacts/Settings Visual Proof/FAIL_CAPABLE_DEFECT_LEDGER.md",
+        "",
+    )
+    if fail_ledger_text and "Actual visual/product conformance | PASS" in fail_ledger_text:
+        visual_udl_text = "\n".join(packet_files.get(entry, "") for entry in visual_udl_entries)
+        if not visual_udl_entries or "UDL-VIS-013" not in visual_udl_text:
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: visual PASS lacks visual UDL closure mapping"
+            )
+
     return failures
 
 

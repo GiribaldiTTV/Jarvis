@@ -17,6 +17,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 LOG_ROOT = ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation"
+VISUAL_UDL_PATH = Path(
+    r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
+    r"\unified_visual_defect_ledger_20260623.md"
+)
+VISUAL_UDL_IDS = tuple(f"UDL-VIS-{index:03d}" for index in range(1, 14))
 REFERENCE_SCREENSHOTS: tuple[tuple[str, Path], ...] = (
     (
         "accepted_ai_control_center_default",
@@ -34,6 +39,28 @@ REFERENCE_SCREENSHOTS: tuple[tuple[str, Path], ...] = (
     ),
 )
 
+
+def _visual_udl_status_rows() -> tuple[bool, str, bool, str]:
+    if not VISUAL_UDL_PATH.exists():
+        return False, f"{VISUAL_UDL_PATH} missing", False, "visual UDL missing"
+    text = VISUAL_UDL_PATH.read_text(encoding="utf-8")
+    missing = [defect_id for defect_id in VISUAL_UDL_IDS if defect_id not in text]
+    open_ids = [
+        defect_id
+        for defect_id in VISUAL_UDL_IDS
+        if defect_id in text
+        and f"| {defect_id} | CLOSED_WITH_PROOF |" not in text
+        and f"| `{defect_id}` | `CLOSED_WITH_PROOF` |" not in text
+    ]
+    exists_ok = not missing
+    closed_ok = exists_ok and not open_ids and "121448" in text and "VISUAL-UDL-RETEST-STOP" in text
+    return (
+        exists_ok,
+        f"{VISUAL_UDL_PATH}; missing={missing}",
+        closed_ok,
+        f"{VISUAL_UDL_PATH}; open_or_unclosed={open_ids}; stop_receipt={'VISUAL-UDL-RETEST-STOP' in text}",
+    )
+
 ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
     {
         "id": "F3GS-001",
@@ -49,7 +76,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "#020914 / #04101b dark shell",
         "border": "1px restrained cyan, 20px radius",
         "effects": "subtle depth only",
-        "spacing": "760x350 compact two-column settings layout",
+        "spacing": "760x320 compact two-column settings layout",
         "hitbox": "top-level compact settings window",
         "icon_label": "window title only",
         "states": "default, dirty, saved",
@@ -883,7 +910,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current failure digestion: the latest packet `C:\\Nexus USER\\FAM-003-20260623-063541.zip` is traceable evidence but is not accepted for USER retest; this run repairs and re-proves the Global Settings / Quick Access visual product surface.",
+        "- Current failure digestion: packet `C:\\Nexus USER\\FAM-003-20260623-121448.zip` is packet-proof traceable evidence but is stopped for USER retest by the visual UDL; this run repairs and re-proves the Global Settings / Tray / Quick Access visual product surface.",
         "",
         "## Results",
         "",
@@ -920,20 +947,28 @@ def _write_fail_capable_defect_ledger(
     check_status = {name: ok for name, ok, _detail in rows}
     check_detail = {name: detail for name, _ok, detail in rows}
     conformance_checks = [
+        "visual UDL exists",
+        "visual UDL rows closed with proof",
         "settings shell fills the window intentionally",
         "compact settings product header",
         "window chrome drag/move proof",
         "window resize/minimum-size proof",
         "left navigation settings organizer",
+        "left rail slim row metrics",
         "selectable Tray parent page",
+        "Tray parent contains no Quick Access overview or open row",
         "Tray parent plus Quick Access child settings IA",
         "product-facing copy is compact and non-internal",
         "Nexus UI exposure contract honored",
         "no internal telemetry text",
         "no fake overview/status strip",
         "readable compact quick-slot controls",
+        "route selector is compact and bounded",
+        "state text is non-action plain label",
         "dropdown/list state is not white/native-light",
+        "dropdown/list geometry is compact",
         "close guard blocks silent loss",
+        "close guard comparator-aligned no-cancel layout",
         "save clears dirty state",
     ]
     conformance_failed = [name for name in conformance_checks if not check_status.get(name, False)]
@@ -941,15 +976,15 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-        else "V12 selectable Tray parent / Quick Access child IA plus move/resize checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+        else "V13 visual-UDL Tray parent / Quick Access child IA plus move/resize checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
         "# FAM-003 Fail-Capable Visual Defect Ledger",
         "",
         "Scope: Global Settings / Nexus Tray / Quick Access settings surface.",
-        "Prior Packet Under Review: `C:\\Nexus USER\\FAM-003-20260623-063541.zip`.",
-        "Prior Packet Disposition: `REPAIR - traceable but not accepted for USER retest because visual/product conformance failed.`",
+        "Prior Packet Under Review: `C:\\Nexus USER\\FAM-003-20260623-121448.zip`.",
+        "Prior Packet Disposition: `REPAIR - packet-proof traceable but stopped for USER retest until visual UDL closure and refreshed proof.`",
         "",
         "| Evidence Layer | Result | Detail |",
         "| --- | --- | --- |",
@@ -1126,7 +1161,7 @@ def _write_artifact_ledger(
 
 
 def main() -> int:
-    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    stamp = os.environ.get("FAM003_SETTINGS_VISUAL_PROOF_STAMP") or dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = LOG_ROOT / stamp
     log_dir.mkdir(parents=True, exist_ok=True)
     _configure_qt_environment(log_dir)
@@ -1156,6 +1191,9 @@ def main() -> int:
     rows: list[tuple[str, bool, str]] = []
     artifacts: list[dict[str, str]] = []
     rows.extend(_copy_reference_artifacts(log_dir, artifacts))
+    udl_exists_ok, udl_exists_detail, udl_closed_ok, udl_closed_detail = _visual_udl_status_rows()
+    rows.append(("visual UDL exists", udl_exists_ok, udl_exists_detail))
+    rows.append(("visual UDL rows closed with proof", udl_closed_ok, udl_closed_detail))
 
     dialog = ResidentAccessSettingsDialog()
     dialog.show()
@@ -1177,14 +1215,14 @@ def main() -> int:
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 740 <= width <= 790 and 340 <= height <= 365,
+            default_ok and 740 <= width <= 790 and 310 <= height <= 335,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "architecture-first Global Settings geometry",
-            740 <= width <= 790 and 340 <= height <= 365,
+            740 <= width <= 790 and 310 <= height <= 335,
             f"window={width}x{height}; required compact settings shell, not old sparse Quick Access utility form",
         )
     )
@@ -1193,13 +1231,13 @@ def main() -> int:
             "settings shell fills the window intentionally",
             width >= 740
             and height <= 365
-            and 132 <= dialog.nav_shell.width() <= 142
+            and 118 <= dialog.nav_shell.width() <= 126
             and dialog.tray_nav_item.isVisible()
             and dialog.tray_nav_button.isVisible()
             and dialog.subpage_nav_rail.isVisible()
             and dialog.settings_page_frame.isVisible()
             and dialog.quick_slot_container.isVisible()
-            and dialog.quick_slot_container.height() >= 150
+            and dialog.quick_slot_container.height() >= 135
             and default_footer_gap <= 42,
             f"window={width}x{height}; nav_width={dialog.nav_shell.width()}; tray_visible={dialog.tray_nav_item.isVisible()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; page_visible={dialog.settings_page_frame.isVisible()}; slot_panel_height={dialog.quick_slot_container.height()}; footer_gap={default_footer_gap}",
         )
@@ -1288,7 +1326,7 @@ def main() -> int:
     dialog.setGeometry(original_geometry)
     app.processEvents()
 
-    dialog.resize(840, 390)
+    dialog.resize(840, 360)
     app.processEvents()
     resized_path = log_dir / "03b_window_resized.png"
     resized_ok, resized_width, resized_height = _capture(
@@ -1314,11 +1352,11 @@ def main() -> int:
             resized_ok
             and min_ok
             and resized_width >= 830
-            and resized_height >= 380
+            and resized_height >= 350
             and min_width >= 760
-            and min_height >= 350
+            and min_height >= 320
             and dialog.resize_grip.isVisible()
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x350-v12",
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x320-v13",
             f"resized={resized_width}x{resized_height}; min={min_width}x{min_height}; grip_visible={dialog.resize_grip.isVisible()}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -1352,9 +1390,24 @@ def main() -> int:
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_caption.text() == ""
             and not dialog.quick_access_nav_caption.isVisible()
-            and 132 <= dialog.nav_shell.width() <= 142
+            and 118 <= dialog.nav_shell.width() <= 126
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
+        )
+    )
+    tray_nav_height = dialog.tray_nav_item.height()
+    quick_nav_height = dialog.quick_access_nav_item.height()
+    rows.append(
+        (
+            "left rail slim row metrics",
+            nav_ok
+            and tray_nav_height <= 24
+            and quick_nav_height <= 24
+            and dialog.tray_nav_indicator.width() <= 2
+            and dialog.quick_access_nav_icon.width() <= 6
+            and dialog.tray_nav_item.property("settingsNavDensity") == "slim-parent-row"
+            and dialog.quick_access_nav_item.property("settingsNavDensity") == "two-level-subpage-row",
+            f"tray_row={tray_nav_height}; quick_row={quick_nav_height}; indicator={dialog.tray_nav_indicator.width()}x{dialog.tray_nav_indicator.height()}; icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}; nav_width={dialog.nav_shell.width()}",
         )
     )
 
@@ -1378,12 +1431,32 @@ def main() -> int:
             and dialog.section_heading.text() == "Tray"
             and dialog.tray_overview_container.isVisible()
             and not dialog.quick_slot_container.isVisible()
+            and not dialog.footer_frame.isVisible()
             and dialog.tray_deferred_notice.isVisible()
             and dialog.tray_deferred_title.text() == "Tray behavior"
-            and "No active Tray behavior settings" in dialog.tray_deferred_detail.text()
-            and dialog.tray_quick_access_title.text() == "Quick Access"
-            and dialog.tray_quick_access_open.text() == "Open",
-            f"focus={dialog._focus}; heading={dialog.section_heading.text()!r}; tray_checked={dialog.tray_nav_button.isChecked()}; quick_checked={dialog.quick_access_nav_button.isChecked()}; overview={dialog.tray_overview_container.isVisible()}; quick_panel={dialog.quick_slot_container.isVisible()}; tray_notice={dialog.tray_deferred_detail.text()!r}",
+            and "Tray click and menu behavior settings are not active yet." == dialog.tray_deferred_detail.text(),
+            f"focus={dialog._focus}; heading={dialog.section_heading.text()!r}; tray_checked={dialog.tray_nav_button.isChecked()}; quick_checked={dialog.quick_access_nav_button.isChecked()}; overview={dialog.tray_overview_container.isVisible()}; quick_panel={dialog.quick_slot_container.isVisible()}; footer={dialog.footer_frame.isVisible()}; tray_notice={dialog.tray_deferred_detail.text()!r}",
+        )
+    )
+    rows.append(
+        (
+            "Tray parent contains no Quick Access overview or open row",
+            dialog._focus == "tray"
+            and not hasattr(dialog, "tray_quick_access_row")
+            and not hasattr(dialog, "tray_quick_access_open")
+            and not any(
+                button.text().replace("&&", "&") == "Open" and button.isVisible()
+                for button in dialog.findChildren(QPushButton)
+            ),
+            "quick_row_attr={}; open_attr={}; visible_open_buttons={}".format(
+                hasattr(dialog, "tray_quick_access_row"),
+                hasattr(dialog, "tray_quick_access_open"),
+                [
+                    (button.objectName(), button.text())
+                    for button in dialog.findChildren(QPushButton)
+                    if button.text().replace("&&", "&") == "Open" and button.isVisible()
+                ],
+            ),
         )
     )
     dialog.set_focus("quick_access")
@@ -1403,10 +1476,10 @@ def main() -> int:
             and not dialog.section_badge.isVisible()
             and not dialog.section_detail.isVisible()
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-selectable-tray-parent-quick-access-child-v12"
-            and dialog.property("settingsVisualRepair") == "settings-ia-window-behavior-v12"
-            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v12"
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x350-v12"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-v13"
+            and dialog.property("settingsVisualRepair") == "visual-udl-conformance-v13"
+            and dialog.property("referenceDerivedHeader") == "integrated-ndai-settings-window-frame-v13"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x320-v13"
             and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
@@ -1420,7 +1493,7 @@ def main() -> int:
             and not dialog.tray_overview_container.isVisible()
             and dialog.quick_slot_container.isVisible()
             and dialog.settings_page_frame.objectName() == "residentAccessSettingsPageFrame"
-            and dialog.settings_state_chip.text() == "Saved"
+            and dialog.settings_state_chip.objectName() == "residentAccessSettingsStateText"
             and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
             and not dialog.route_summary.isVisible(),
@@ -1471,9 +1544,8 @@ def main() -> int:
         dialog.chrome_bar.subtitle_label.text(),
         " ".join(role_text),
         dialog.tray_nav_button.text(),
-        dialog.tray_quick_access_title.text() if dialog.tray_overview_container.isVisible() else "",
-        dialog.tray_quick_access_detail.text() if dialog.tray_overview_container.isVisible() else "",
-        dialog.tray_quick_access_open.text() if dialog.tray_overview_container.isVisible() else "",
+        dialog.tray_deferred_title.text() if dialog.tray_overview_container.isVisible() else "",
+        dialog.tray_deferred_detail.text() if dialog.tray_overview_container.isVisible() else "",
         dialog.quick_access_nav_button.text(),
         dialog.quick_access_nav_caption.text() if dialog.quick_access_nav_caption.isVisible() else "",
         dialog.settings_state_chip.text(),
@@ -1529,8 +1601,20 @@ def main() -> int:
                 )
             )
             and not dialog.route_summary.isVisible()
-            and dialog.settings_state_chip.text() == "Saved",
+            and dialog.settings_state_chip.objectName() == "residentAccessSettingsStateText",
             f"state_chip={dialog.settings_state_chip.text()!r}; route_visible={dialog.route_summary.isVisible()}; legacy_attrs={[attr for attr in ('settings_summary_panel', 'settings_summary_title', 'settings_summary_detail', 'menu_path_row', 'active_setting_row', 'pending_state_row') if hasattr(dialog, attr)]}",
+        )
+    )
+    rows.append(
+        (
+            "state text is non-action plain label",
+            dialog.settings_state_chip.objectName() == "residentAccessSettingsStateText"
+            and dialog.settings_state_chip.text() == "Saved"
+            and dialog.settings_state_chip.isVisible()
+            and dialog.settings_state_chip.height() <= 20
+            and dialog.settings_state_chip.minimumWidth() == 0
+            and dialog.settings_state_chip.accessibleName() == "Quick Access settings state: Saved",
+            f"object={dialog.settings_state_chip.objectName()!r}; text={dialog.settings_state_chip.text()!r}; visible={dialog.settings_state_chip.isVisible()}; size={dialog.settings_state_chip.width()}x{dialog.settings_state_chip.height()}; min_width={dialog.settings_state_chip.minimumWidth()}; a11y={dialog.settings_state_chip.accessibleName()!r}",
         )
     )
     rows.append(
@@ -1557,8 +1641,8 @@ def main() -> int:
                 or (
                     button.objectName() == "residentAccessQuickSlotDelete"
                     and button.text() == "Delete"
-                    and 50 <= button.width() <= 64
-                    and button.height() <= 26
+                    and 42 <= button.width() <= 52
+                    and button.height() <= 22
                 )
                 for button in compact_action_buttons
             )
@@ -1583,6 +1667,13 @@ def main() -> int:
     else:
         rows.append(("quick-slot combo exists", True, f"combo_count={len(dialog._slot_combos)}"))
         combo = dialog._slot_combos[0]
+        rows.append(
+            (
+                "route selector is compact and bounded",
+                all(150 <= slot_combo.width() <= 190 and slot_combo.maxVisibleItems() <= 4 for slot_combo in dialog._slot_combos),
+                f"combo_sizes={[(slot_combo.width(), slot_combo.height(), slot_combo.maxVisibleItems()) for slot_combo in dialog._slot_combos]}",
+            )
+        )
         row_action_path = log_dir / "05_row_action_default_disabled_state.png"
         row_action_ok, _, _ = _capture(
             dialog.quick_slot_rows,
@@ -1618,8 +1709,9 @@ def main() -> int:
                 and dialog.save_button.isEnabled()
                 and dialog.revert_button.isEnabled()
                 and "Unsaved changes" in dialog.change_summary.text()
-                and dialog.settings_state_chip.text() == "Unsaved",
-                f"dirty={dialog._has_unsaved_changes()}; summary={dialog.change_summary.text()!r}; state_chip={dialog.settings_state_chip.text()!r}",
+                and dialog.settings_state_chip.text() == ""
+                and not dialog.settings_state_chip.isVisible(),
+                f"dirty={dialog._has_unsaved_changes()}; summary={dialog.change_summary.text()!r}; state_text={dialog.settings_state_chip.text()!r}; state_visible={dialog.settings_state_chip.isVisible()}",
             )
         )
 
@@ -1650,6 +1742,13 @@ def main() -> int:
                 f"light_pixel_ratio={popup_light_ratio:.3f}",
             )
         )
+        rows.append(
+            (
+                "dropdown/list geometry is compact",
+                popup_width <= 190 and popup_height <= 116 and combo.maxVisibleItems() <= 4,
+                f"popup={popup_width}x{popup_height}; combo={combo.width()}x{combo.height()}; max_visible={combo.maxVisibleItems()}",
+            )
+        )
 
     dialog.reject()
     app.processEvents()
@@ -1668,11 +1767,25 @@ def main() -> int:
             dialog.isVisible()
             and dialog._close_guard_active
             and dialog.discard_button.isVisible()
-            and dialog.keep_editing_button.isVisible()
-            and dialog.change_summary.text() == "Unsaved changes"
+            and not dialog.keep_editing_button.isVisible()
+            and not dialog.revert_button.isVisible()
+            and dialog.change_summary.text() == "Save or discard to close"
             and dialog.change_summary.width() >= 128
-            and dialog.change_summary.height() <= 28,
-            f"visible={dialog.isVisible()}; guard={dialog._close_guard_active}; summary={dialog.change_summary.text()!r}; status_size={dialog.change_summary.width()}x{dialog.change_summary.height()}",
+            and dialog.change_summary.height() <= 24,
+            f"visible={dialog.isVisible()}; guard={dialog._close_guard_active}; summary={dialog.change_summary.text()!r}; status_size={dialog.change_summary.width()}x{dialog.change_summary.height()}; cancel_visible={dialog.keep_editing_button.isVisible()}; revert_visible={dialog.revert_button.isVisible()}",
+        )
+    )
+    rows.append(
+        (
+            "close guard comparator-aligned no-cancel layout",
+            dialog._close_guard_active
+            and dialog.discard_button.isVisible()
+            and dialog.save_button.isVisible()
+            and not dialog.keep_editing_button.isVisible()
+            and not dialog.revert_button.isVisible()
+            and dialog.discard_button.text() == "Discard"
+            and dialog.save_button.text() == "Save Changes",
+            f"discard_visible={dialog.discard_button.isVisible()}; save_visible={dialog.save_button.isVisible()}; cancel_visible={dialog.keep_editing_button.isVisible()}; revert_visible={dialog.revert_button.isVisible()}; buttons={[(button.objectName(), button.text(), button.isVisible(), button.isEnabled()) for button in dialog.findChildren(QPushButton)]}",
         )
     )
 

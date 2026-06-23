@@ -284,6 +284,11 @@ class DesktopTrayEntry:
 
             self.ai_menu = self.tray_menu.addMenu("AI")
             self.ai_menu_action = self.ai_menu.menuAction()
+            self.ai_control_center_action = self._add_button_action(
+                "AI Control Center",
+                self.request_ai_control_center_from_tray,
+                parent_menu=self.ai_menu,
+            )
             self.ai_status_action = self._add_button_action(
                 "AI Status / Command Center",
                 self.request_ai_status_from_tray,
@@ -522,6 +527,7 @@ class DesktopTrayEntry:
                 user32.DestroyMenu(quick_access_menu)
 
             ai_menu = user32.CreatePopupMenu()
+            append(ai_menu, 90, "AI Control Center", True)
             append(ai_menu, 120, "AI Status / Command Center", True)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append_submenu(menu, ai_menu, "AI", True)
@@ -566,6 +572,7 @@ class DesktopTrayEntry:
 
     def _dispatch_native_menu_command(self, command_id):
         commands = {
+            90: self.request_ai_control_center_from_tray,
             101: self.request_monitoring_hud_dashboard_from_tray,
             102: self.request_monitoring_hud_unanchor_from_tray,
             110: self.request_global_settings_from_tray,
