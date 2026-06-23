@@ -26,6 +26,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-202600.zip",
+    USER_ROOT / "FAM-006-20260622-202600.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-194848.zip",
     USER_ROOT / "FAM-006-20260622-194848.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-192100.zip",
@@ -123,11 +125,11 @@ DEFAULT_CROP_RULE = {
 REQUIRED_CROP_COMPLETENESS = {
     "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 90},
     "recording-primary-action": {**DEFAULT_CROP_RULE, "minWidth": 430, "minHeight": 140},
-    "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 430, "minHeight": 88},
+    "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 430, "minHeight": 68},
     "recording-log-route": {
         **DEFAULT_CROP_RULE,
         "minWidth": 430,
-        "minHeight": 72,
+        "minHeight": 50,
     },
     "log-viewer-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 540, "minHeight": 90},
     "native-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 520, "minHeight": 100},
@@ -187,21 +189,53 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "crop-hides-layout-relationship-defect",
     "crop-overlay-proof-missing",
     "visual-ledger-false-crop-completeness-reliance",
+    "crop-overlay-ledger-contradiction",
+    "element-crop-vs-relationship-crop-classification",
+    "crop-adjacent-partial-geometry-contamination",
 }
 
 REQUIRED_CROP_CONTENT_FIELDS = {
+    "cropType",
     "targetSemanticElementName",
+    "includedAdjacentElements",
+    "relationshipBeingProven",
+    "includedElementRects",
     "overlayProofFile",
     "elementBoundsSource",
     "allVisibleTextFoundInCrop",
     "adjacentPartialTextFoundInCrop",
+    "adjacentPartialGeometryFoundInCrop",
     "adjacentPartialTextAllowed",
     "adjacentPartialTextAllowanceReason",
+    "cropLedgerContradictionCheck",
     "fullTargetBorderRadiusGlowIncluded",
     "fullTargetTextControlIncluded",
     "surroundingContextIncluded",
     "cropNotHidingAdjacentDefect",
     "contentValidationMethod",
+}
+
+CROP_TYPE_ELEMENT = "ELEMENT_CROP"
+CROP_TYPE_RELATIONSHIP = "RELATIONSHIP_CROP"
+CROP_DOM_KEYS = {
+    "recording-window-chrome": "chrome",
+    "recording-primary-action": "recordingPrimaryAction",
+    "recording-target-truth": "recordingTargetTruth",
+    "recording-log-route": "recordingLogRoute",
+    "log-viewer-window-chrome": "chrome",
+    "native-log-destination-action": "logViewerNativeAction",
+    "exported-log-destination-action": "logViewerExportAction",
+    "log-viewer-action-status": "logViewerActionStatus",
+    "log-viewer-resize-before": "logViewerActionStatus",
+    "log-viewer-resize-during": "logViewerActionStatus",
+    "log-viewer-resize-after": "logViewerActionStatus",
+}
+CROP_SOURCE_LABELS = {
+    "recording_default.png": "recording_default",
+    "log_viewer_default.png": "log_viewer_default",
+    "log_viewer_edge_resize_before_drag.png": "log_viewer_edge_resize_before_drag",
+    "log_viewer_edge_resize_during_drag.png": "log_viewer_edge_resize_during_drag",
+    "log_viewer_edge_resize_width_proof.png": "log_viewer_edge_resize_width_proof",
 }
 
 MIN_ROOT_CAUSE_UNIQUE_FIELDS = (
@@ -240,6 +274,94 @@ def _image_size(path: Path) -> tuple[int, int] | None:
             return image.size
     except Exception:
         return None
+
+
+def _rect_from_mapping(value: Any) -> tuple[int, int, int, int] | None:
+    if not isinstance(value, dict):
+        return None
+    try:
+        return (
+            int(value["left"]),
+            int(value["top"]),
+            int(value["right"]),
+            int(value["bottom"]),
+        )
+    except Exception:
+        return None
+
+
+def _rect_intersection(
+    first: tuple[int, int, int, int],
+    second: tuple[int, int, int, int],
+) -> tuple[int, int, int, int] | None:
+    left = max(first[0], second[0])
+    top = max(first[1], second[1])
+    right = min(first[2], second[2])
+    bottom = min(first[3], second[3])
+    if right <= left or bottom <= top:
+        return None
+    return (left, top, right, bottom)
+
+
+def _rect_contains(
+    outer: tuple[int, int, int, int],
+    inner: tuple[int, int, int, int],
+) -> bool:
+    return outer[0] <= inner[0] and outer[1] <= inner[1] and outer[2] >= inner[2] and outer[3] >= inner[3]
+
+
+def _rect_dict(rect: tuple[int, int, int, int]) -> dict[str, int]:
+    return {"left": rect[0], "top": rect[1], "right": rect[2], "bottom": rect[3]}
+
+
+def _source_label_for_row(row: dict[str, Any]) -> str:
+    explicit = str(row.get("sourceDomBoundsLabel", "")).strip()
+    if explicit:
+        return explicit
+    source = Path(str(row.get("sourceFullWindowFile", ""))).name
+    return CROP_SOURCE_LABELS.get(source, Path(source).stem)
+
+
+def _detect_adjacent_geometry(
+    *,
+    key: str,
+    row: dict[str, Any],
+    manifest: dict[str, Any] | None,
+) -> list[dict[str, Any]]:
+    if not isinstance(manifest, dict):
+        return []
+    target_key = str(row.get("sourceDomBoundsKey") or CROP_DOM_KEYS.get(key, "")).strip()
+    if target_key == "chrome":
+        return []
+    source_label = _source_label_for_row(row)
+    dom_bounds = manifest.get("domBounds", {}).get(f"{source_label}_dom_bounds")
+    if not isinstance(dom_bounds, dict):
+        return []
+    crop_rect = _rect_from_mapping(row.get("cropRect"))
+    target_rect = _rect_from_mapping(row.get("targetElementRect"))
+    if crop_rect is None or target_rect is None:
+        return []
+    findings: list[dict[str, Any]] = []
+    for dom_key, payload in dom_bounds.items():
+        if dom_key in {target_key, "chrome"} or not isinstance(payload, dict):
+            continue
+        other_rect = _rect_from_mapping(payload.get("rect"))
+        if other_rect is None:
+            continue
+        overlap = _rect_intersection(crop_rect, other_rect)
+        if overlap is None:
+            continue
+        if _rect_contains(target_rect, other_rect) or _rect_contains(other_rect, target_rect):
+            continue
+        findings.append(
+            {
+                "elementKey": dom_key,
+                "elementText": str(payload.get("text", "")).strip(),
+                "elementRect": _rect_dict(other_rect),
+                "intersectionWithCrop": _rect_dict(overlap),
+            }
+        )
+    return findings
 
 
 def _validate_crop_completeness(
@@ -369,6 +491,23 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
             failures.append(f"crop completeness ledger row {key} sourceFullWindowFile target missing from packet: {source_file}")
         if row.get("finalCropVerdict") != "PERFECT_PASS":
             failures.append(f"crop completeness ledger row {key} is not PERFECT_PASS")
+        crop_type = str(row.get("cropType", "")).strip()
+        if crop_type not in {CROP_TYPE_ELEMENT, CROP_TYPE_RELATIONSHIP}:
+            failures.append(f"crop completeness ledger row {key} has invalid or missing cropType: {crop_type or '<missing>'}")
+            crop_type = CROP_TYPE_ELEMENT
+        included_adjacent = row.get("includedAdjacentElements")
+        if not isinstance(included_adjacent, list):
+            failures.append(f"crop completeness ledger row {key} missing includedAdjacentElements list")
+            included_adjacent = []
+        included_rects = row.get("includedElementRects")
+        if not isinstance(included_rects, list):
+            failures.append(f"crop completeness ledger row {key} missing includedElementRects list")
+            included_rects = []
+        relationship = str(row.get("relationshipBeingProven", "")).strip()
+        if crop_type == CROP_TYPE_RELATIONSHIP and not relationship:
+            failures.append(f"relationship crop {key} does not name the relationship being proven")
+        if crop_type == CROP_TYPE_ELEMENT and (included_adjacent or relationship or included_rects):
+            failures.append(f"element crop {key} declares relationship/adjacent elements instead of staying clean")
         expected_text = row.get("expectedTextInsideCrop")
         if not isinstance(expected_text, list) or not expected_text or not all(str(item).strip() for item in expected_text):
             failures.append(f"crop completeness ledger row {key} missing expected text list")
@@ -387,6 +526,52 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
             adjacent = []
         if adjacent and row.get("adjacentPartialTextAllowed") is not True:
             failures.append(f"crop completeness ledger row {key} has undeclared adjacent partial text: {', '.join(str(item) for item in adjacent)}")
+        adjacent_geometry = row.get("adjacentPartialGeometryFoundInCrop")
+        if not isinstance(adjacent_geometry, list):
+            failures.append(f"crop completeness ledger row {key} missing adjacentPartialGeometryFoundInCrop list")
+            adjacent_geometry = []
+        detected_geometry = _detect_adjacent_geometry(key=key, row=row, manifest=manifest)
+        if detected_geometry and not adjacent_geometry:
+            failures.append(
+                f"crop completeness ledger row {key} overlay/crop contradiction: crop intersects adjacent DOM elements "
+                f"but adjacentPartialGeometryFoundInCrop is empty: "
+                f"{', '.join(str(item.get('elementKey')) for item in detected_geometry)}"
+            )
+        if detected_geometry and crop_type == CROP_TYPE_ELEMENT:
+            failures.append(
+                f"element crop {key} contains undeclared adjacent geometry outside target rectangle: "
+                f"{', '.join(str(item.get('elementKey')) for item in detected_geometry)}"
+            )
+        if detected_geometry and row.get("adjacentPartialTextAllowed") is not True:
+            failures.append(
+                f"crop completeness ledger row {key} includes adjacent geometry but adjacent content is not declared/allowed"
+            )
+        declared_geometry_keys = {
+            str(item.get("elementKey", "")).strip()
+            for item in adjacent_geometry
+            if isinstance(item, dict)
+        }
+        detected_geometry_keys = {
+            str(item.get("elementKey", "")).strip()
+            for item in detected_geometry
+            if isinstance(item, dict)
+        }
+        missing_detected_keys = sorted(detected_geometry_keys - declared_geometry_keys)
+        if missing_detected_keys:
+            failures.append(
+                f"crop completeness ledger row {key} misses overlay-detected adjacent geometry keys: "
+                f"{', '.join(missing_detected_keys)}"
+            )
+        contradiction = row.get("cropLedgerContradictionCheck")
+        if not isinstance(contradiction, dict):
+            failures.append(f"crop completeness ledger row {key} missing cropLedgerContradictionCheck object")
+        else:
+            if contradiction.get("overlayMatchesLedger") is not True:
+                failures.append(f"crop completeness ledger row {key} overlay does not match ledger")
+            if detected_geometry and contradiction.get("detectedAdjacentGeometryCount") != len(detected_geometry):
+                failures.append(
+                    f"crop completeness ledger row {key} contradiction check does not count overlay-detected adjacent geometry"
+                )
         if row.get("fullTargetBorderRadiusGlowIncluded") is not True:
             failures.append(f"crop completeness ledger row {key} does not prove full target border/radius/glow included")
         if row.get("fullTargetTextControlIncluded") is not True:
@@ -395,8 +580,12 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
             failures.append(f"crop completeness ledger row {key} does not prove surrounding context included")
         if row.get("cropNotHidingAdjacentDefect") is not True:
             failures.append(f"crop completeness ledger row {key} may hide an adjacent spacing/alignment defect")
+        if detected_geometry and row.get("cropNotHidingAdjacentDefect") is True and crop_type == CROP_TYPE_ELEMENT:
+            failures.append(
+                f"crop completeness ledger row {key} says cropNotHidingAdjacentDefect=true while overlay shows adjacent geometry"
+            )
         method = str(row.get("contentValidationMethod", "")).casefold()
-        if not all(token in method for token in ("dom", "overlay", "adjacent")):
+        if not all(token in method for token in ("dom", "overlay", "adjacent", "geometry")):
             failures.append(f"crop completeness ledger row {key} contentValidationMethod is not DOM/overlay/adjacent-text backed")
         for rect_name in ("cropRect", "targetElementRect"):
             rect = row.get(rect_name)
@@ -504,6 +693,12 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                     size = _image_size(target)
                     if size is None:
                         failures.append(f"row_to_evidence_map key {key} image unreadable")
+                    elif key in REQUIRED_CROP_COMPLETENESS:
+                        rule = REQUIRED_CROP_COMPLETENESS[key]
+                        if size[0] < int(rule["minWidth"]) or size[1] < int(rule["minHeight"]):
+                            failures.append(
+                                f"row_to_evidence_map key {key} image too small/clipped: {size[0]}x{size[1]}"
+                            )
                     elif key != "contact-sheet" and (size[0] < 220 or size[1] < 60):
                         failures.append(f"row_to_evidence_map key {key} image too small/clipped: {size[0]}x{size[1]}")
 

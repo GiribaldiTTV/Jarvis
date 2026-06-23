@@ -214,20 +214,90 @@ def _expand_rect(
     return tuple(int(value) for value in crop)
 
 
+def _rect_intersection(
+    first: tuple[int, int, int, int],
+    second: tuple[int, int, int, int],
+) -> tuple[int, int, int, int] | None:
+    left = max(first[0], second[0])
+    top = max(first[1], second[1])
+    right = min(first[2], second[2])
+    bottom = min(first[3], second[3])
+    if right <= left or bottom <= top:
+        return None
+    return (left, top, right, bottom)
+
+
+def _rect_contains(
+    outer: tuple[int, int, int, int],
+    inner: tuple[int, int, int, int],
+) -> bool:
+    return outer[0] <= inner[0] and outer[1] <= inner[1] and outer[2] >= inner[2] and outer[3] >= inner[3]
+
+
+def _rect_dict(rect: tuple[int, int, int, int]) -> dict[str, int]:
+    return {"left": rect[0], "top": rect[1], "right": rect[2], "bottom": rect[3]}
+
+
+def _adjacent_geometry_for_crop(
+    *,
+    bounds: dict[str, object],
+    dom_key: str,
+    crop_rect: tuple[int, int, int, int],
+    target_rect: tuple[int, int, int, int],
+) -> list[dict[str, object]]:
+    if dom_key == "chrome":
+        return []
+    findings: list[dict[str, object]] = []
+    for other_key, payload in bounds.items():
+        if other_key in {dom_key, "chrome"} or not isinstance(payload, dict):
+            continue
+        rect_payload = payload.get("rect")
+        if not isinstance(rect_payload, dict):
+            continue
+        try:
+            other_rect = (
+                int(rect_payload["left"]),
+                int(rect_payload["top"]),
+                int(rect_payload["right"]),
+                int(rect_payload["bottom"]),
+            )
+        except Exception:
+            continue
+        overlap = _rect_intersection(crop_rect, other_rect)
+        if overlap is None or _rect_contains(target_rect, other_rect) or _rect_contains(other_rect, target_rect):
+            continue
+        findings.append(
+            {
+                "elementKey": str(other_key),
+                "elementText": str(payload.get("text", "")).strip(),
+                "elementRect": _rect_dict(other_rect),
+                "intersectionWithCrop": _rect_dict(overlap),
+            }
+        )
+    return findings
+
+
 def _crop_record(
     *,
     key: str,
+    crop_type: str,
     crop_path: str,
     source_path: Path,
     source_full_window_file: str,
+    source_dom_bounds_label: str,
+    source_dom_bounds_key: str,
     crop_rect: tuple[int, int, int, int],
     target_rect: tuple[int, int, int, int],
     expected_text: list[str],
     target_semantic_name: str,
+    included_adjacent_elements: list[str],
+    relationship_being_proven: str,
+    included_element_rects: list[dict[str, object]],
     overlay_proof_file: str,
     element_bounds_source: str,
     all_visible_text_found: list[str],
     adjacent_partial_text_found: list[str],
+    adjacent_partial_geometry_found: list[dict[str, object]],
     adjacent_partial_text_allowed: bool,
     adjacent_partial_text_allowance_reason: str,
 ) -> dict[str, object]:
@@ -251,20 +321,33 @@ def _crop_record(
     joined_visible_text = " ".join(all_visible_text_found).casefold()
     missing_expected_text = [text for text in expected_text if text.casefold() not in joined_visible_text]
     undeclared_adjacent_text = adjacent_partial_text_found and not adjacent_partial_text_allowed
+    undeclared_adjacent_geometry = (
+        crop_type == "ELEMENT_CROP"
+        and bool(adjacent_partial_geometry_found)
+        and not adjacent_partial_text_allowed
+    )
+    overlay_matches_ledger = not undeclared_adjacent_geometry and not undeclared_adjacent_text
     verdict = (
         "PERFECT_PASS"
         if not content_touches_crop_edge
         and not missing_expected_text
         and not undeclared_adjacent_text
+        and not undeclared_adjacent_geometry
         and bool(overlay_proof_file)
         else "REPAIR_REQUIRED"
     )
     return {
         "key": key,
+        "cropType": crop_type,
         "targetSemanticElementName": target_semantic_name,
+        "includedAdjacentElements": included_adjacent_elements,
+        "relationshipBeingProven": relationship_being_proven,
+        "includedElementRects": included_element_rects,
         "cropFile": crop_path,
         "overlayProofFile": overlay_proof_file,
         "sourceFullWindowFile": source_full_window_file,
+        "sourceDomBoundsLabel": source_dom_bounds_label,
+        "sourceDomBoundsKey": source_dom_bounds_key,
         "sourceImageSize": {"width": source.width, "height": source.height},
         "cropRect": {"left": crop_rect[0], "top": crop_rect[1], "right": crop_rect[2], "bottom": crop_rect[3]},
         "targetElementRect": {
@@ -279,9 +362,16 @@ def _crop_record(
         "expectedTextInsideCrop": expected_text,
         "allVisibleTextFoundInCrop": all_visible_text_found,
         "adjacentPartialTextFoundInCrop": adjacent_partial_text_found,
+        "adjacentPartialGeometryFoundInCrop": adjacent_partial_geometry_found,
         "adjacentPartialTextAllowed": adjacent_partial_text_allowed,
         "adjacentPartialTextAllowanceReason": adjacent_partial_text_allowance_reason,
         "missingExpectedTextFromCrop": missing_expected_text,
+        "cropLedgerContradictionCheck": {
+            "method": "DOM sibling-rectangle intersection compared against ledger crop type and adjacent geometry declarations",
+            "overlayMatchesLedger": overlay_matches_ledger,
+            "detectedAdjacentGeometryCount": len(adjacent_partial_geometry_found),
+            "elementCropHasNoAdjacentGeometry": crop_type != "ELEMENT_CROP" or not adjacent_partial_geometry_found,
+        },
         "textPresenceCheck": {
             "method": "dom-bounds-derived-visible-text-list-plus-overlay-proof-review",
             "allExpectedTextNamedAndVisuallyPresent": not missing_expected_text,
@@ -297,8 +387,8 @@ def _crop_record(
         "fullTargetBorderRadiusGlowIncluded": not content_touches_crop_edge,
         "fullTargetTextControlIncluded": not missing_expected_text and not content_touches_crop_edge,
         "surroundingContextIncluded": all(value >= minimum_margin for value in margin.values()),
-        "cropNotHidingAdjacentDefect": not undeclared_adjacent_text,
-        "contentValidationMethod": "DOM target bounds + visible text list + explicit adjacent partial text audit + overlay proof",
+        "cropNotHidingAdjacentDefect": not undeclared_adjacent_text and not undeclared_adjacent_geometry,
+        "contentValidationMethod": "DOM target bounds + visible text list + explicit adjacent text/geometry audit + overlay proof",
         "cropTouchesSourceImageEdge": crop_touches_source_edge,
         "targetContentTouchesCropEdge": content_touches_crop_edge,
         "targetTextControlOrBorderCutOff": content_touches_crop_edge,
@@ -360,6 +450,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         semantic: str,
         expected: list[str],
         forbidden_adjacent: list[str] | None = None,
+        crop_type: str = "ELEMENT_CROP",
+        relationship: str = "",
+        included_adjacent: list[str] | None = None,
         min_width: int = 220,
         min_height: int = 80,
         margin: int = 12,
@@ -370,6 +463,16 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         target = _rect_from_dom(bounds, dom_key)
         source_image = _load_image(source)
         crop = _expand_rect(target, source_image.size, margin=margin, min_width=min_width, min_height=min_height)
+        adjacent_geometry = _adjacent_geometry_for_crop(
+            bounds=bounds,
+            dom_key=dom_key,
+            crop_rect=crop,
+            target_rect=target,
+        )
+        included_rects = [
+            item for item in adjacent_geometry
+            if str(item.get("elementKey", "")) in set(included_adjacent or [])
+        ]
         return name, {
             "key": key,
             "file": crops / filename,
@@ -383,7 +486,12 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "text": expected,
             "semantic": semantic,
             "visible_text": [_text_from_dom(bounds, dom_key)],
+            "crop_type": crop_type,
+            "relationship": relationship,
+            "included_adjacent": included_adjacent or [],
+            "included_element_rects": included_rects,
             "forbidden_adjacent": forbidden_adjacent or [],
+            "adjacent_geometry": adjacent_geometry,
             "adjacent_allowed": False,
             "adjacent_reason": "",
             "bounds_source": f"rendered DOM getBoundingClientRect selector for {dom_key}",
@@ -418,6 +526,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 forbidden_adjacent=["Target", "Log Viewer Studio"],
                 min_width=430,
                 min_height=100,
+                margin=8,
             ),
             spec_from_dom(
                 name="recordingTargetTruthCrop",
@@ -431,7 +540,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 expected=["Target", "Default Overlay Profile", "2 active monitors", "Log", "Waiting for first recording."],
                 forbidden_adjacent=["Start Recording", "Log Viewer Studio"],
                 min_width=430,
-                min_height=88,
+                min_height=68,
+                margin=8,
             ),
             spec_from_dom(
                 name="recordingLogRouteCrop",
@@ -445,7 +555,8 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 expected=["LOG VIEWER STUDIO"],
                 forbidden_adjacent=["Waiting for first recording."],
                 min_width=430,
-                min_height=74,
+                min_height=50,
+                margin=8,
             ),
             spec_from_dom(
                 name="logViewerChromeCrop",
@@ -474,6 +585,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 forbidden_adjacent=["Exported Logs", "Open Exported Logs", "Empty until exported"],
                 min_width=520,
                 min_height=112,
+                margin=8,
             ),
             spec_from_dom(
                 name="logViewerExportActionCrop",
@@ -488,6 +600,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 forbidden_adjacent=["Native", "Recordings folder", "Open Native Logs", "Available now"],
                 min_width=520,
                 min_height=112,
+                margin=8,
             ),
             spec_from_dom(
                 name="logViewerActionStatusCrop",
@@ -609,14 +722,20 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     crop_records = {
         spec["key"]: _crop_record(
             key=spec["key"],
+            crop_type=str(spec["crop_type"]),
             crop_path=row_map[spec["key"]],
             source_path=spec["source"],
             source_full_window_file=row_map[spec["source_key"]],
+            source_dom_bounds_label=str(spec["source_label"]),
+            source_dom_bounds_key=str(spec["dom_key"]),
             overlay_proof_file=row_map[f"{spec['key']}-overlay"],
             crop_rect=spec["crop"],
             target_rect=spec["target"],
             expected_text=spec["text"],
             target_semantic_name=spec["semantic"],
+            included_adjacent_elements=list(spec["included_adjacent"]),
+            relationship_being_proven=str(spec["relationship"]),
+            included_element_rects=list(spec["included_element_rects"]),
             element_bounds_source=spec["bounds_source"],
             all_visible_text_found=spec["visible_text"],
             adjacent_partial_text_found=[
@@ -624,6 +743,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
                 for text in spec["forbidden_adjacent"]
                 if text.casefold() in " ".join(spec["visible_text"]).casefold()
             ],
+            adjacent_partial_geometry_found=list(spec["adjacent_geometry"]),
             adjacent_partial_text_allowed=bool(spec["adjacent_allowed"]),
             adjacent_partial_text_allowance_reason=str(spec["adjacent_reason"]),
         )
@@ -632,16 +752,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     derivatives["cropCompletenessChecks"] = {
         key: {
             "crop": row_map[key],
+            "cropType": record["cropType"],
             "cropCompletenessLedgerKey": key,
             "completeTargetElement": record["finalCropVerdict"] == "PERFECT_PASS",
             "includesAllText": record["textPresenceCheck"]["allExpectedTextNamedAndVisuallyPresent"] is True,
             "includesBorderRadiusGlow": record["borderRadiusGlowInclusionCheck"]["included"] is True,
             "includesSurroundingContext": record["surroundingContextCheck"]["included"] is True,
             "notClipped": record["targetTextControlOrBorderCutOff"] is False,
-            "noUndeclaredAdjacentPartialText": not record["adjacentPartialTextFoundInCrop"] or record["adjacentPartialTextAllowed"] is True,
+            "noUndeclaredAdjacentPartialText": (
+                not record["adjacentPartialTextFoundInCrop"]
+                and not record["adjacentPartialGeometryFoundInCrop"]
+            ) or record["adjacentPartialTextAllowed"] is True,
+            "adjacentPartialGeometryFoundInCrop": record["adjacentPartialGeometryFoundInCrop"],
+            "cropLedgerContradictionCheck": record["cropLedgerContradictionCheck"],
             "overlayProofFile": record["overlayProofFile"],
             "contentValidationMethod": record["contentValidationMethod"],
-            "validatedBy": "dom-bounds-target-crop-plus-overlay-proof-plus-explicit-visible-text-and-adjacent-text-audit",
+            "validatedBy": "dom-bounds-target-crop-plus-overlay-proof-plus-explicit-visible-text-geometry-and-adjacent-audit",
         }
         for key, record in crop_records.items()
     }
@@ -1084,6 +1210,45 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "exactRepairIfRequired": "",
         },
         {
+            "rowId": "RT-CROP-018",
+            "surface": "Packet Proof",
+            "elementGroup": "overlay versus crop ledger contradiction",
+            "sourceTruthRequirement": "Overlay images must be able to falsify crop ledger claims; metadata cannot override visible crop content.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Does the cyan crop rectangle include visible content outside the green target rectangle while the ledger claims no adjacent content?",
+            "defectLookedFor": "Overlay/crop-ledger contradiction.",
+            "observedFinding": "Each crop row now stores cropLedgerContradictionCheck plus adjacentPartialGeometryFoundInCrop from DOM sibling intersections.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "FAM-006-20260622-202600.zip is rejected when recording-target-truth or recording-log-route crops intersect sibling DOM elements outside their target rectangles.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-019",
+            "surface": "Packet Proof",
+            "elementGroup": "element crop classification",
+            "sourceTruthRequirement": "A clean element crop and a relationship crop are different proof types and must not be conflated.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Is this crop being used as element proof when it is really relationship proof?",
+            "defectLookedFor": "Element crop contaminated by relationship/adjacent geometry.",
+            "observedFinding": "All current Studio focused crops are typed; element crops must have no included adjacent elements, relationship text, or sibling geometry.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The false-ACCEPT gate rejects element crops that contain sibling geometry outside the target rectangle.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-020",
+            "surface": "Packet Proof",
+            "elementGroup": "adjacent partial geometry contamination",
+            "sourceTruthRequirement": "Adjacent geometry contamination must be detected even when OCR/text extraction misses partial text.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Does the crop ledger claim no adjacent partial text while the overlay image shows adjacent button/card geometry?",
+            "defectLookedFor": "Adjacent geometry hidden by an empty adjacent text list.",
+            "observedFinding": "The crop ledger now records adjacentPartialGeometryFoundInCrop separately from adjacentPartialTextFoundInCrop.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The gate rejects FAM-006-20260622-202600.zip because its target and route crops include sibling geometry while the old ledger left adjacent lists empty.",
+            "exactRepairIfRequired": "",
+        },
+        {
             "rowId": "RT-PROOF-006",
             "surface": "Visual Ledger",
             "elementGroup": "all green rows",
@@ -1168,6 +1333,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "RT-CROP-015": ("crop-target-rectangle-mismatch", "Fail if targetElementRect is not derived from a rendered element-bound source or lacks overlay proof."),
         "RT-CROP-016": ("crop-hides-layout-relationship-defect", "Fail if a crop hides adjacent spacing, alignment, gutter, or relationship defects."),
         "RT-CROP-017": ("crop-overlay-proof-missing", "Fail if any crop lacks packet-contained overlay proof showing crop and target rectangles."),
+        "RT-CROP-018": ("crop-overlay-ledger-contradiction", "Fail if a crop overlay shows adjacent content outside the target while the ledger claims none."),
+        "RT-CROP-019": ("element-crop-vs-relationship-crop-classification", "Fail if a relationship/polluted crop is used as clean element proof."),
+        "RT-CROP-020": ("crop-adjacent-partial-geometry-contamination", "Fail if sibling element geometry appears in a crop while adjacent text detection is empty."),
         "RT-PROOF-006": ("green-row-without-packet-evidence", "Fail if any PERFECT_PASS row lacks packet evidence key or packet-relative primary proof."),
         "RT-PROOF-007": ("local-absolute-crop-source-primary-proof", "Fail if crop sourceFullWindowFile uses a local absolute path as primary proof."),
         "RT-PROOF-008": ("non-studio-green-row-without-packet-proof", "Fail if non-Studio PERFECT_PASS rows lack packet evidence key or packet-relative primary proof."),
@@ -1180,9 +1348,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     red_team = {
         "status": "INTERNAL_RED_TEAM_PASS_FOR_PRE_LV_PACKET",
         "knownBadRegressionRejected": True,
-        "knownBadPacket": "C:/Nexus USER/FAM-006-20260622-194848.zip",
-        "knownBadPacketSha256": "2E1B5A3F17C876B563243F63B005663A89B4F71CF0EBC9E34EC4A3D7E02718D3",
-        "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, missing defect dispositions, missing overlay proof, incomplete expected text, clipped target elements, undeclared adjacent partial text, or wrong target rectangles.",
+        "knownBadPacket": "C:/Nexus USER/FAM-006-20260622-202600.zip",
+        "knownBadPacketSha256": "AFC87F88E6CC42F095F00437627FA870E9662C0C6BC0E408DF061D046DEE45AD",
+        "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, missing defect dispositions, missing overlay proof, incomplete expected text, clipped target elements, undeclared adjacent partial text, undeclared adjacent geometry, overlay/ledger contradictions, or wrong target rectangles.",
         "exactDesktopLauncherLiveValidationState": "required-after-pre-lv-packet-user-review",
         "rows": red_rows,
     }
@@ -1221,6 +1389,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         ("FAM006-FA-032", "Loop VI expected text audit was incomplete", "expectedTextInsideCrop could omit missing visible text and still pass", "expected text versus visible text audit gate"),
         ("FAM006-FA-033", "Loop VI lacked overlay proof for crop/target geometry", "reviewer could not see source screenshot, crop rect, and target rect together", "overlay proof image gate"),
         ("FAM006-FA-034", "Loop VI visual ledger trusted false crop completeness", "ledger green rows did not enforce content-backed crop metadata", "visual ledger crop-content cross-check"),
+        ("FAM006-FA-035", "Loop VII overlay contradicted crop ledger", "overlay showed adjacent content but ledger still claimed no adjacent content", "overlay-versus-ledger contradiction gate"),
+        ("FAM006-FA-036", "Loop VII element crop was actually relationship-polluted", "clean element proof and relationship/context proof were not typed separately", "element crop versus relationship crop classification gate"),
+        ("FAM006-FA-037", "Loop VII adjacent geometry bypassed adjacent text audit", "partial button/text geometry was visible even when adjacent text list was empty", "DOM sibling geometry contamination gate"),
     ]
     root_cause_defects = [
         {
@@ -1272,6 +1443,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "FAM006-FA-032": ("The expected text list was allowed to be incomplete, so a crop could pass while omitting a target line or action label.", "Crop expected-text audit", "Each crop row now includes allVisibleTextFoundInCrop and validators compare every expectedTextInsideCrop item against it.", "Current known-bad FAM-006-20260622-194848.zip is rejected for missing expected-text and visible-text audit fields."),
         "FAM006-FA-033": ("Reviewers could not see crop and target rectangles over the full source screenshot, making wrong crop geometry hard to challenge.", "Overlay proof generation", "The proof generator writes crop_overlays images with cyan crop rectangles, green target rectangles, crop keys, and expected text.", "Current known-bad FAM-006-20260622-194848.zip is rejected for missing overlayProofFile in manifest and crop ledger rows."),
         "FAM006-FA-034": ("The visual ledger accepted crop completeness booleans without checking whether crop metadata proved target content, adjacent text, and overlay geometry.", "Visual ledger crop-content validation", "The visual ledger validator now enforces required crop content fields, packet-contained overlay files, visible text, adjacent text policy, and contentValidationMethod tokens.", "Current known-bad FAM-006-20260622-194848.zip is rejected before any PERFECT_PASS can rely on false crop completeness."),
+        "FAM006-FA-035": ("Codex stopped at overlay-file existence and did not ask whether the overlay falsified the row metadata.", "Overlay/crop-ledger review", "The false-ACCEPT gate compares crop rectangles against rendered sibling DOM rectangles and rejects overlay/ledger contradictions.", "Current known-bad FAM-006-20260622-202600.zip is rejected for recording-target-truth and recording-log-route overlay/crop contradictions."),
+        "FAM006-FA-036": ("The crop contract did not force a choice between clean element proof and relationship/context proof.", "Crop proof classification", "Each crop now declares ELEMENT_CROP or RELATIONSHIP_CROP; element crops fail when sibling geometry enters the crop.", "Current known-bad FAM-006-20260622-202600.zip is rejected because polluted element crops are no longer legal green proof."),
+        "FAM006-FA-037": ("Adjacent-text audit missed visible adjacent geometry because it relied on text lists instead of rendered sibling bounds.", "Adjacent contamination audit", "The crop ledger records adjacentPartialGeometryFoundInCrop and the gates compare it against DOM sibling intersections.", "Current known-bad FAM-006-20260622-202600.zip is rejected when geometry appears while adjacent lists are empty."),
     }
     for row in root_cause_defects:
         why, failed_step, repair, proof = root_cause_details[row["defectId"]]
