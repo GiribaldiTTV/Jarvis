@@ -503,7 +503,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::_request_close",
         "role": "prevent silent data loss",
         "rule": "UIREF-004; Project Vision",
-        "copy": "Unsaved changes - Save, discard, or cancel before closing.",
+        "copy": "Unsaved changes",
         "font": "11px status plus buttons",
         "text": "light cyan / red discard",
         "background": "dark status/footer",
@@ -1669,8 +1669,10 @@ def main() -> int:
             and dialog._close_guard_active
             and dialog.discard_button.isVisible()
             and dialog.keep_editing_button.isVisible()
-            and "Unsaved changes" in dialog.change_summary.text(),
-            f"visible={dialog.isVisible()}; guard={dialog._close_guard_active}; summary={dialog.change_summary.text()!r}",
+            and dialog.change_summary.text() == "Unsaved changes"
+            and dialog.change_summary.width() >= 128
+            and dialog.change_summary.height() <= 28,
+            f"visible={dialog.isVisible()}; guard={dialog._close_guard_active}; summary={dialog.change_summary.text()!r}; status_size={dialog.change_summary.width()}x{dialog.change_summary.height()}",
         )
     )
 

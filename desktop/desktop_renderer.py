@@ -1173,7 +1173,9 @@ class ResidentAccessSettingsDialog(QDialog):
 
         self.change_summary = QLabel("", self.settings_page_frame)
         self.change_summary.setObjectName("residentAccessSettingsChangeSummary")
-        self.change_summary.setWordWrap(True)
+        self.change_summary.setWordWrap(False)
+        self.change_summary.setMinimumWidth(128)
+        self.change_summary.setMaximumHeight(28)
 
         self.tray_overview_container = QFrame(self.settings_page_frame)
         self.tray_overview_container.setObjectName("residentAccessTrayOverviewContainer")
@@ -2090,7 +2092,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         dirty = self._has_unsaved_changes()
         if self._close_guard_active and dirty:
-            change_text = "Unsaved changes. Save, discard, or cancel."
+            change_text = "Unsaved changes"
         elif self._notice_text:
             change_text = self._notice_text
         elif dirty:
@@ -2098,7 +2100,10 @@ class ResidentAccessSettingsDialog(QDialog):
         else:
             change_text = "Saved." if saved else ""
         self.change_summary.setText(change_text)
-        self.change_summary.setAccessibleName(change_text or "Quick Access change status")
+        if self._close_guard_active and dirty:
+            self.change_summary.setAccessibleName("Unsaved changes. Save, discard, or cancel before closing.")
+        else:
+            self.change_summary.setAccessibleName(change_text or "Quick Access change status")
         self.change_summary.setVisible(bool(change_text))
         if dirty or self._close_guard_active:
             self.settings_state_chip.setText("Unsaved")
