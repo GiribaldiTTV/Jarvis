@@ -2181,6 +2181,42 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         + "\n",
         encoding="utf-8",
     )
+    udl_links = {
+        "schema": "fam006-udl-proof-links-v1",
+        "ledgerPath": "C:/Nexus Governance State/branches/feature_fam_006_dashboard_recording_start_stop_local_file/unified_defect_ledger.json",
+        "proofRoot": str(root),
+        "links": [
+            {
+                "defectId": "FAM006-UDL-003",
+                "proofKeys": ["crop_completeness_ledger.json", "crop_overlays", "focused_crops"],
+                "proofMeaning": "crop completeness, overlays, expected text, and scope/content validation are packet-contained",
+            },
+            {
+                "defectId": "FAM006-UDL-004",
+                "proofKeys": ["crop_completeness_ledger.json", "crop_overlays"],
+                "proofMeaning": "overlay/ledger contradiction checks are visible and machine-checkable",
+            },
+            {
+                "defectId": "FAM006-UDL-006",
+                "proofKeys": ["row_to_evidence_map.json", "focused_comparator_contact_sheet.png"],
+                "proofMeaning": "visual rows cite row-bound comparator evidence instead of broad context only",
+            },
+            {
+                "defectId": "FAM006-UDL-007",
+                "proofKeys": ["comparator_crop_ledger.json", "focused_comparator_crops", "comparator_crop_overlays"],
+                "proofMeaning": "AI Control Center comparator proof uses focused crop keys, overlays, source screenshots, and unique compatible media",
+            },
+            {
+                "defectId": "FAM006-UDL-008",
+                "proofKeys": ["visual_capture_manifest.json"],
+                "proofMeaning": "resize/fixed-size proof is labeled as pre-LV and preserves exact desktop launcher LV as pending",
+            },
+        ],
+    }
+    (root / "unified_defect_ledger_proof_links.json").write_text(
+        json.dumps(udl_links, indent=2),
+        encoding="utf-8",
+    )
     relative_derivatives: dict[str, object] = {}
     for key, value in derivatives.items():
         if isinstance(value, dict):

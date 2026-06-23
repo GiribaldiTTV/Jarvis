@@ -14,6 +14,8 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+from orin_fam006_unified_defect_ledger import validate_udl_state
+
 
 ROOT = Path(__file__).resolve().parents[1]
 USER_ROOT = Path("C:/Nexus USER")
@@ -1425,6 +1427,9 @@ def main() -> int:
     rows = build_rows()
     failures = validate_rows(rows, source_text)
     failures.extend(validate_packet_evidence(rows))
+    udl_gate = validate_udl_state(PACKET_ROOT if PACKET_ROOT.exists() else None)
+    if udl_gate["status"] != "PASS":
+        failures.extend(f"UDL gate: {failure}" for failure in udl_gate.get("failures", []))
     helper_snapshot = packet_hygiene_summary()
     proof = {
         "status": "PASS" if not failures else "FAIL",
@@ -1434,6 +1439,7 @@ def main() -> int:
             "snapshotScope": "helper-run observation only; final USER packet hygiene is generated after packet folder and timestamped ZIP creation",
             **helper_snapshot,
         },
+        "unifiedDefectLedgerGate": udl_gate,
         "rows": [asdict(row) for row in rows],
         "failures": failures,
     }

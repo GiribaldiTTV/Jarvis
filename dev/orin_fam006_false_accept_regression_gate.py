@@ -19,6 +19,8 @@ from typing import Any
 
 from PIL import Image
 
+from orin_fam006_unified_defect_ledger import validate_udl_state
+
 
 USER_ROOT = Path("C:/Nexus USER")
 DEFAULT_CURRENT_PACKET = USER_ROOT / "FAM-006"
@@ -1304,6 +1306,9 @@ def main() -> int:
     known_bad_paths = [*args.known_bad, *KNOWN_BAD_ZIPS]
     known_bad, missing = _known_bad_results(known_bad_paths)
     failures: list[str] = []
+    udl_gate = validate_udl_state(None if args.known_bad_only else args.current_packet)
+    if udl_gate["status"] != "PASS":
+        failures.extend(f"UDL gate: {failure}" for failure in udl_gate.get("failures", []))
     if not known_bad:
         failures.append("no known-bad packet artifact available for false-ACCEPT regression corpus")
     for result in known_bad:
@@ -1323,6 +1328,7 @@ def main() -> int:
         "status": "PASS" if not failures else "FAIL",
         "gate": "FAM-006 false-ACCEPT regression gate",
         "knownBadRejected": all(not result.accepted for result in known_bad) and bool(known_bad),
+        "unifiedDefectLedgerGate": udl_gate,
         "knownBadResults": [result.__dict__ for result in known_bad],
         "missingPriorArtifacts": missing,
         "currentPacketResult": current.__dict__ if current else None,
