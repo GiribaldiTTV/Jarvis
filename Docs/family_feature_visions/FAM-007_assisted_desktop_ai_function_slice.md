@@ -100,12 +100,12 @@ Internal Product Model: `AI Home / Control Foyer`
 
 Durable Definition: `AI Dashboard is the FAM-007-owned top-level AI orientation and control-entry surface. It tells the USER what AI exists, what state it is in, what is safe or blocked, and where to go for each AI subsystem. AI Control Center is a focused control domain/card inside AI Dashboard for persona, capability, provider/model readiness, Developer / Owner lane, and AI permission/control-plane posture.`
 
-Top-Level Admission Rule: top-level AI Dashboard content must be compact, orienting, trust-critical, immediately useful, or navigational. The top level may show a Global AI Strip, AI truth summaries, category doorway cards, and narrowly scoped actions that route to the correct focused surface. Permanent stacked top-level report bodies, setup flows, logs, selectors, provider internals, capability-pack detail tables, memory/cache/private setup content, and long diagnostics are disallowed unless source truth and USER approval create an explicit exception.
+Top-Level Admission Rule: top-level AI Dashboard content must be compact, orienting, trust-critical, immediately useful, or navigational. The top level may show a Global AI Strip, AI truth summaries, category doorway cards, and launcher actions that open the correct focused surface. Category cards are doors, not workspaces. Permanent stacked top-level report bodies, setup flows, logs, selectors, provider internals, capability-pack detail tables, memory/cache/private setup content, direct local-check execution, direct readiness-report generation/results, and long diagnostics are disallowed unless source truth and USER approval create an explicit exception.
 
 Placement Role Vocabulary:
 
 - `Top-level summary`: compact truth about active AI, readiness, trust/provider, capability, lane, or recovery posture.
-- `Top-level action`: a bounded action that starts or opens an approved focused surface without executing future-gated behavior by implication.
+- `Top-level action`: a bounded launcher action that opens an approved focused surface without executing tests, reports, diagnostics, setup, provider/model behavior, or future-gated behavior by implication.
 - `Category doorway`: a card or control that routes to a grouped AI subsystem such as Active AI, AI Readiness, AI Diagnostics, Trust & Provider, Capabilities, Developer / Owner, Activity / Recovery, or AI Settings handoff.
 - `Focused surface / child surface / drill-down detail`: a separate approved window, page, panel, or modal that owns detailed reports, selectors, settings, logs, setup, diagnostics, or recovery flows.
 - `Settings route`: a compact utility affordance that routes toward FAM-003 Global Settings / AI when available and remains future-gated when that surface is not approved or implemented.
@@ -118,7 +118,7 @@ Placement Role Vocabulary:
 
 Recommended Category Taxonomy: `Active AI`, `AI Control Center`, `AI Readiness / Diagnostics`, `Trust & Provider`, `Capabilities & Maintenance`, `Developer / Owner`, `Activity / Recovery`, and `AI Settings` only when an owning settings route is approved.
 
-Readiness Report Placement: the local AI readiness report remains a valid concrete local decision-aid behavior when it gives the USER ready/missing/blocked conditions, evidence checked, safe next steps, provider-visible-data `none`, and enforced trust boundaries. Its detailed body belongs behind an `AI Readiness / Diagnostics` doorway or focused surface. The AI Dashboard top level may show a compact readiness summary and an action such as `Generate Readiness Report`, but must not treat the full report body as permanent top-level stacked content.
+Readiness Report Placement: the local AI readiness report remains a valid concrete local decision-aid behavior when it gives the USER ready/missing/blocked conditions, evidence checked, safe next steps, provider-visible-data `none`, and enforced trust boundaries. Its Local AI Check action, report generation action, detailed body, copy action, diagnostics detail, and results belong behind an `AI Readiness / Diagnostics` doorway or focused surface. The AI Dashboard top level may show a compact readiness summary plus a launcher such as `Open Readiness`, but must not run the local check, generate the report, copy the report, or display the full report body inline.
 
 Visual Proof Carry-In: future visible FAM-007 surfaces must classify whether they use the accepted rendered DOM/CSS path, a future approved template/shared primitive, a reference-derived implementation, or a USER-approved exception. Reference-derived implementations remain unproven until side-by-side element-group visual adjudication, code-to-visual trace, proof artifacts, and USER acceptance or waiver are recorded.
 

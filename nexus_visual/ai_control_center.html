@@ -469,6 +469,14 @@
       text-transform: uppercase;
     }
 
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail__description {
+      margin: 0;
+      color: rgba(181, 218, 229, 0.86);
+      font-size: 11px;
+      font-weight: 650;
+      line-height: 1.32;
+    }
+
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card-topline {
       display: grid;
       align-items: flex-start;
@@ -673,7 +681,10 @@
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
     data-dashboard-card-order="active-ai-ai-control-center-ai-readiness-diagnostics-trust-provider-capabilities-maintenance"
-    data-dashboard-ia-model="ai-dashboard-global-strip-domain-doorways-focused-readiness-detail"
+    data-dashboard-ia-model="ai-dashboard-global-strip-category-cards-launch-focused-domain-surfaces"
+    data-dashboard-surface-model="hub-only-cards-are-doorways"
+    data-dashboard-inline-work-policy="no-local-check-no-report-no-diagnostics-inline"
+    data-category-card-launcher-contract="cards-contain-launchers-domain-surfaces-house-work"
     data-dashboard-visible-name="AI Dashboard"
     data-ai-control-center-placement="focused-domain-card-inside-ai-dashboard"
     data-global-ai-strip="compact-truth-state-no-provider-no-execution"
@@ -799,7 +810,7 @@
           </div>
         </article>
 
-          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-control-center" data-slice="SLC-R1" data-category-doorway-state="focused-domain">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-control-center" data-category-card="ai-control-center" data-slice="SLC-R1" data-category-doorway-state="focused-domain">
             <div class="monitoring-hud__hub-card-topline">
               <span>02</span>
               <div class="monitoring-hud__hub-card-title-copy">
@@ -811,9 +822,23 @@
               <div class="ai-control-center-compact-status">Focused domain available as a doorway</div>
               <div class="ai-control-center-future-note">Detailed selectors and settings stay behind future focused surfaces.</div>
             </div>
+            <div class="monitoring-hud__hub-actions">
+              <button
+                type="button"
+                id="ai-control-center-open-control-surface-action"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+                data-control="open-ai-control-center-domain-surface"
+                data-category-launcher="ai-control-center"
+                data-launch-target="ai-control-center-control-surface"
+                data-action-size="content-fit-fixed-height"
+                aria-label="Open AI Control Center"
+              >
+                <span class="monitoring-hud__button-label">Open Control Center</span>
+              </button>
+            </div>
           </article>
 
-          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-readiness-diagnostics" data-slice="SLC-R2">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="ai-readiness-diagnostics" data-category-card="ai-readiness-diagnostics" data-slice="SLC-R2">
               <div class="monitoring-hud__hub-card-topline">
                 <span>03</span>
                 <div class="monitoring-hud__hub-card-title-copy">
@@ -821,59 +846,23 @@
                 </div>
                 <p class="monitoring-hud__hub-card-description">Local Safety Check and Readiness Report live behind this focused doorway.</p>
               </div>
-              <div class="monitoring-hud__state-row">
-                <span>Local check</span>
-                <strong id="ai-control-center-local-result">Waiting for local action</strong>
-              </div>
-              <div class="monitoring-hud__state-row">
-                <span>Prompt / data</span>
-                <strong id="ai-control-center-local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong>
+              <div class="ai-control-center-card-status ai-control-center-card-status--inline">
+                <div class="ai-control-center-compact-status">Readiness tools are behind the focused surface</div>
+                <div class="ai-control-center-future-note">Local check, readiness report, diagnostics detail, and results do not run inline here.</div>
               </div>
               <div class="monitoring-hud__hub-actions">
                 <button
                   type="button"
-                  id="ai-control-center-local-check-action"
+                  id="ai-control-center-open-readiness-surface-action"
                   class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-                  data-control="run-local-check"
+                  data-control="open-ai-readiness-diagnostics-surface"
+                  data-category-launcher="ai-readiness-diagnostics"
+                  data-launch-target="ai-control-center-readiness-detail"
                   data-action-size="content-fit-fixed-height"
-                  aria-label="Run Local Check"
+                  aria-label="Open Readiness"
                 >
-                  <span class="monitoring-hud__button-label">Run Local Check</span>
+                  <span class="monitoring-hud__button-label">Open Readiness</span>
                 </button>
-              </div>
-
-              <div class="monitoring-hud__hub-actions">
-                <button
-                  type="button"
-                  id="ai-control-center-generate-report-action"
-                  class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-                  data-control="generate-local-ai-readiness-report"
-                  data-action-size="content-fit-fixed-height"
-                  aria-label="Generate Readiness Report"
-                >
-                  <span class="monitoring-hud__button-label">Generate Readiness Report</span>
-                </button>
-                <button
-                  type="button"
-                  id="ai-control-center-copy-report-action"
-                  class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
-                  data-control="copy-local-ai-readiness-report"
-                  data-action-size="content-fit-fixed-height"
-                  aria-label="Copy Readiness Report"
-                  disabled
-                  aria-disabled="true"
-                >
-                  <span class="monitoring-hud__button-label">Copy Report</span>
-                </button>
-              </div>
-
-              <div class="monitoring-hud__state-row">
-                <span>Report state</span>
-                <strong id="ai-control-center-report-state">Not generated</strong>
-              </div>
-              <div class="monitoring-hud__state-row">
-                <span>Persistence</span>
-                <strong id="ai-control-center-report-persistence">View-only; copy is USER initiated</strong>
               </div>
             </article>
 
@@ -907,7 +896,7 @@
             </div>
           </article>
 
-          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="capabilities-maintenance" data-slice="SLC-R4" data-maintenance-updates-state="placement-only">
+          <article class="monitoring-hud__hub-card ai-control-center-category-card" data-dashboard-hub-card="capabilities-maintenance" data-category-card="capabilities-maintenance" data-slice="SLC-R4" data-maintenance-updates-state="placement-only">
             <div class="monitoring-hud__hub-card-topline">
               <span>05</span>
               <div class="monitoring-hud__hub-card-title-copy">
@@ -931,13 +920,58 @@
               <span>Unavailable</span>
               <strong id="ai-control-center-unavailable-capability">Capability packs unavailable</strong>
             </div>
+            <div class="monitoring-hud__hub-actions">
+              <button
+                type="button"
+                id="ai-control-center-open-maintenance-surface-action"
+                class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+                data-control="open-ai-maintenance-lifecycle-surface"
+                data-category-launcher="capabilities-maintenance"
+                data-launch-target="ai-control-center-maintenance-detail"
+                data-action-size="content-fit-fixed-height"
+                aria-label="Open Lifecycle"
+              >
+                <span class="monitoring-hud__button-label">Open Lifecycle</span>
+              </button>
+            </div>
           </article>
         </div>
 
         <section
           class="ai-control-center-focused-detail"
+          id="ai-control-center-control-surface"
+          data-focused-surface="ai-control-center-control-plane"
+          data-domain-surface="ai-control-center"
+          data-surface-open="false"
+          data-slice="SLC-R1"
+          aria-labelledby="ai-control-center-control-surface-heading"
+          hidden
+        >
+          <div class="ai-control-center-focused-detail__header">
+            <div class="ai-control-center-focused-detail__eyebrow">AI Control Center / Focused Surface</div>
+            <div class="ai-control-center-focused-detail__title" id="ai-control-center-control-surface-heading">Control Plane Doorway</div>
+            <p class="ai-control-center-focused-detail__description">Persona, capabilities, provider/model readiness, Developer and Owner gates, and future AI control details live here as focused control-plane placement. Provider/model execution remains disabled and blocked.</p>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Persona</span>
+            <strong>Future-gated; ORIN persona is not implemented</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Provider / model</span>
+            <strong>Readiness posture only; execution disabled and blocked</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Developer / Owner</span>
+            <strong>Gated; private setup is not configured</strong>
+          </div>
+        </section>
+
+        <section
+          class="ai-control-center-focused-detail"
           id="ai-control-center-readiness-detail"
           data-focused-surface="local-ai-readiness-report"
+          data-domain-surface="ai-readiness-diagnostics"
+          data-surface-open="false"
           data-dashboard-hub-card="local-ai-readiness-report"
           data-slice="SLC-R3"
           aria-labelledby="ai-control-center-readiness-detail-heading"
@@ -946,6 +980,62 @@
           <div class="ai-control-center-focused-detail__header">
             <div class="ai-control-center-focused-detail__eyebrow">AI Readiness / Focused Detail</div>
             <div class="ai-control-center-focused-detail__title" id="ai-control-center-readiness-detail-heading">Local AI Readiness Report</div>
+            <p class="ai-control-center-focused-detail__description">Local Safety Check, readiness report generation, diagnostics detail, and results run inside this focused surface, not in the AI Dashboard hub.</p>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Local check</span>
+            <strong id="ai-control-center-local-result">Waiting for local action</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Prompt / data</span>
+            <strong id="ai-control-center-local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong>
+          </div>
+          <div class="monitoring-hud__hub-actions">
+            <button
+              type="button"
+              id="ai-control-center-local-check-action"
+              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+              data-control="run-local-check"
+              data-domain-surface-action="ai-readiness-diagnostics"
+              data-action-size="content-fit-fixed-height"
+              aria-label="Run Local Check"
+            >
+              <span class="monitoring-hud__button-label">Run Local Check</span>
+            </button>
+          </div>
+          <div class="monitoring-hud__hub-actions">
+            <button
+              type="button"
+              id="ai-control-center-generate-report-action"
+              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+              data-control="generate-local-ai-readiness-report"
+              data-domain-surface-action="ai-readiness-diagnostics"
+              data-action-size="content-fit-fixed-height"
+              aria-label="Generate Readiness Report"
+            >
+              <span class="monitoring-hud__button-label">Generate Readiness Report</span>
+            </button>
+            <button
+              type="button"
+              id="ai-control-center-copy-report-action"
+              class="monitoring-hud__hub-action monitoring-hud__hub-action--compact monitoring-hud__hub-action--content-fit"
+              data-control="copy-local-ai-readiness-report"
+              data-domain-surface-action="ai-readiness-diagnostics"
+              data-action-size="content-fit-fixed-height"
+              aria-label="Copy Readiness Report"
+              disabled
+              aria-disabled="true"
+            >
+              <span class="monitoring-hud__button-label">Copy Report</span>
+            </button>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Report state</span>
+            <strong id="ai-control-center-report-state">Not generated</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Persistence</span>
+            <strong id="ai-control-center-report-persistence">View-only; copy is USER initiated</strong>
           </div>
           <div class="ai-control-center-report" data-report-surface="local-ai-readiness-report">
             <div class="ai-control-center-report__status" id="ai-control-center-report-summary">Generate the report to inspect local readiness.</div>
@@ -975,6 +1065,39 @@
                 <strong id="ai-control-center-report-boundary">Not generated</strong>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section
+          class="ai-control-center-focused-detail"
+          id="ai-control-center-maintenance-detail"
+          data-focused-surface="ai-maintenance-lifecycle-placement"
+          data-domain-surface="capabilities-maintenance"
+          data-surface-open="false"
+          data-maintenance-updates-state="placement-only"
+          data-update-execution="blocked"
+          data-download-execution="blocked"
+          data-install-execution="blocked"
+          data-slice="SLC-R4"
+          aria-labelledby="ai-control-center-maintenance-detail-heading"
+          hidden
+        >
+          <div class="ai-control-center-focused-detail__header">
+            <div class="ai-control-center-focused-detail__eyebrow">AI Maintenance / Focused Surface</div>
+            <div class="ai-control-center-focused-detail__title" id="ai-control-center-maintenance-detail-heading">Lifecycle Placement</div>
+            <p class="ai-control-center-focused-detail__description">AI lifecycle placement is reserved here for future version, capability pack, provider/model, and maintenance detail. No update, download, install, fetch, or capability execution is available.</p>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>NDAI app</span>
+            <strong>Placement only; update execution future-gated</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Capability packs</span>
+            <strong>Install and downloads remain blocked</strong>
+          </div>
+          <div class="monitoring-hud__state-row">
+            <span>Provider / model</span>
+            <strong>Provider/model lifecycle remains unavailable</strong>
           </div>
         </section>
       </div>

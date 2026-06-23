@@ -351,11 +351,18 @@ def main() -> int:
           const orinRowValue = document.querySelector('[data-dashboard-hub-card="active-ai"] .monitoring-hud__state-row strong');
           const localCheckRowLabel = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"] .monitoring-hud__state-row span');
           const localCheckRowValue = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"] .monitoring-hud__state-row strong');
+          const focusedLocalCheckRowLabel = document.querySelector('#ai-control-center-readiness-detail .monitoring-hud__state-row span');
+          const focusedLocalCheckRowValue = document.querySelector('#ai-control-center-readiness-detail .monitoring-hud__state-row strong');
           const localCheckButton = document.getElementById("ai-control-center-local-check-action");
           const localCheckButtonLabel = localCheckButton ? localCheckButton.querySelector(".monitoring-hud__button-label") : null;
+          const openControlButton = document.getElementById("ai-control-center-open-control-surface-action");
+          const openReadinessButton = document.getElementById("ai-control-center-open-readiness-surface-action");
+          const openMaintenanceButton = document.getElementById("ai-control-center-open-maintenance-surface-action");
           const reportCard = document.querySelector('[data-dashboard-hub-card="ai-readiness-diagnostics"]');
           const controlCenterCard = document.querySelector('[data-dashboard-hub-card="ai-control-center"]');
           const maintenanceCard = document.querySelector('[data-dashboard-hub-card="capabilities-maintenance"]');
+          const controlSurface = document.getElementById("ai-control-center-control-surface");
+          const maintenanceSurface = document.getElementById("ai-control-center-maintenance-detail");
           const reportGenerateButton = document.getElementById("ai-control-center-generate-report-action");
           const reportCopyButton = document.getElementById("ai-control-center-copy-report-action");
           const reportState = document.getElementById("ai-control-center-report-state");
@@ -436,6 +443,9 @@ def main() -> int:
             settingsStatusText: settingsStatus ? settingsStatus.textContent.trim() : "",
             dashboardCardOrder: surface ? surface.dataset.dashboardCardOrder : "",
             dashboardIaModel: surface ? surface.dataset.dashboardIaModel : "",
+            dashboardSurfaceModel: surface ? surface.dataset.dashboardSurfaceModel : "",
+            dashboardInlineWorkPolicy: surface ? surface.dataset.dashboardInlineWorkPolicy : "",
+            categoryCardLauncherContract: surface ? surface.dataset.categoryCardLauncherContract : "",
             dashboardVisibleName: surface ? surface.dataset.dashboardVisibleName : "",
             aiControlCenterPlacement: surface ? surface.dataset.aiControlCenterPlacement : "",
             globalAiStrip: surface ? surface.dataset.globalAiStrip : "",
@@ -447,6 +457,21 @@ def main() -> int:
             controlCenterCardRect: rect(controlCenterCard),
             maintenanceCardRect: rect(maintenanceCard),
             maintenanceCardState: maintenanceCard ? maintenanceCard.dataset.maintenanceUpdatesState : "",
+            openControlButtonText: openControlButton ? openControlButton.textContent.trim() : "",
+            openControlButtonRect: rect(openControlButton),
+            openControlButtonTarget: openControlButton ? openControlButton.dataset.launchTarget : "",
+            openReadinessButtonText: openReadinessButton ? openReadinessButton.textContent.trim() : "",
+            openReadinessButtonRect: rect(openReadinessButton),
+            openReadinessButtonTarget: openReadinessButton ? openReadinessButton.dataset.launchTarget : "",
+            openMaintenanceButtonText: openMaintenanceButton ? openMaintenanceButton.textContent.trim() : "",
+            openMaintenanceButtonRect: rect(openMaintenanceButton),
+            openMaintenanceButtonTarget: openMaintenanceButton ? openMaintenanceButton.dataset.launchTarget : "",
+            categoryLauncherCount: surface ? surface.querySelectorAll("[data-category-launcher]").length : 0,
+            domainSurfaceCount: surface ? surface.querySelectorAll("[data-domain-surface]").length : 0,
+            controlSurfaceHidden: controlSurface ? controlSurface.hidden : null,
+            controlSurfaceOpen: controlSurface ? controlSurface.dataset.surfaceOpen : "",
+            maintenanceSurfaceHidden: maintenanceSurface ? maintenanceSurface.hidden : null,
+            maintenanceSurfaceOpen: maintenanceSurface ? maintenanceSurface.dataset.surfaceOpen : "",
             focusedDetailRect: rect(focusedDetail),
             focusedDetailStyle: style(focusedDetail),
             focusedDetailHidden: focusedDetail ? focusedDetail.hidden : null,
@@ -464,6 +489,10 @@ def main() -> int:
             localCheckRowLabelStyle: style(localCheckRowLabel),
             localCheckRowValueText: localCheckRowValue ? localCheckRowValue.textContent.trim() : "",
             localCheckRowValueStyle: style(localCheckRowValue),
+            focusedLocalCheckRowLabelText: focusedLocalCheckRowLabel ? focusedLocalCheckRowLabel.textContent.trim() : "",
+            focusedLocalCheckRowLabelStyle: style(focusedLocalCheckRowLabel),
+            focusedLocalCheckRowValueText: focusedLocalCheckRowValue ? focusedLocalCheckRowValue.textContent.trim() : "",
+            focusedLocalCheckRowValueStyle: style(focusedLocalCheckRowValue),
             localCheckButtonText: localCheckButton ? localCheckButton.textContent.trim() : "",
             localCheckButtonRect: rect(localCheckButton),
             localCheckButtonStyle: style(localCheckButton),
@@ -521,20 +550,20 @@ def main() -> int:
                 "screenPoint": {"x": hover_x, "y": hover_y},
                 "evidence": _capture(app, dialog, log_root, label),
             }
-        local_check_rect = title_chrome_proof.get("localCheckButtonRect")
+        local_check_rect = title_chrome_proof.get("openReadinessButtonRect")
         if isinstance(local_check_rect, dict):
             hover_x = int(window_rect_for_hover["left"] + int(local_check_rect.get("left") or 0) + (int(local_check_rect.get("width") or 0) // 2))
             hover_y = int(window_rect_for_hover["top"] + int(local_check_rect.get("top") or 0) + (int(local_check_rect.get("height") or 0) // 2))
             _move_mouse(app, hover_x, hover_y, 1100)
-            hover_proof["05_run_local_check_hover_no_tooltip"] = {
+            hover_proof["05_open_readiness_launcher_hover_no_tooltip"] = {
                 "ok": True,
                 "screenPoint": {"x": hover_x, "y": hover_y},
-                "evidence": _capture(app, dialog, log_root, "05_run_local_check_hover_no_tooltip"),
+                "evidence": _capture(app, dialog, log_root, "05_open_readiness_launcher_hover_no_tooltip"),
             }
         else:
-            hover_proof["05_run_local_check_hover_no_tooltip"] = {
+            hover_proof["05_open_readiness_launcher_hover_no_tooltip"] = {
                 "ok": False,
-                "reason": "missing-localCheckButtonRect",
+                "reason": "missing-openReadinessButtonRect",
             }
     local_check_scroll_raw = _run_js(
         app,
@@ -542,10 +571,15 @@ def main() -> int:
         """
         (() => {
           const hub = document.getElementById("ai-control-center-card-hub");
+          const opener = document.getElementById("ai-control-center-open-readiness-surface-action");
           const button = document.getElementById("ai-control-center-local-check-action");
           if (!hub || !button) {
             return JSON.stringify({ok: false, reason: "missing-local-check-button-or-hub"});
           }
+          if (opener) {
+            opener.click();
+          }
+          void button.offsetHeight;
           const hubRect = hub.getBoundingClientRect();
           const buttonRect = button.getBoundingClientRect();
           hub.scrollTop += buttonRect.bottom - hubRect.bottom + 28;
@@ -626,10 +660,15 @@ def main() -> int:
         """
         (() => {
           const hub = document.getElementById("ai-control-center-card-hub");
+          const opener = document.getElementById("ai-control-center-open-readiness-surface-action");
           const button = document.getElementById("ai-control-center-generate-report-action");
           if (!hub || !button) {
             return JSON.stringify({ok: false, reason: "missing-report-button-or-hub"});
           }
+          if (opener) {
+            opener.click();
+          }
+          void button.offsetHeight;
           const hubRect = hub.getBoundingClientRect();
           const buttonRect = button.getBoundingClientRect();
           hub.scrollTop += buttonRect.top - hubRect.top - 36;
@@ -1053,12 +1092,12 @@ def main() -> int:
         "windowControlPillReducedAndActionHeightMatched": (
             isinstance(title_chrome_proof, dict)
             and isinstance(title_chrome_proof.get("clusterRect"), dict)
-            and isinstance(title_chrome_proof.get("localCheckButtonRect"), dict)
+            and isinstance(title_chrome_proof.get("openReadinessButtonRect"), dict)
             and 58 <= int(title_chrome_proof["clusterRect"].get("width") or 0) <= 62
             and 28 <= int(title_chrome_proof["clusterRect"].get("height") or 0) <= 32
             and abs(
                 int(title_chrome_proof["clusterRect"].get("height") or 0)
-                - int(title_chrome_proof["localCheckButtonRect"].get("height") or 0)
+                - int(title_chrome_proof["openReadinessButtonRect"].get("height") or 0)
             ) <= 2
         ),
         "compactWindowControlBordersVisible": (
@@ -1108,9 +1147,9 @@ def main() -> int:
             and hover_proof["03_window_control_maximize_hidden"].get("skipped") is True
         ),
         "localCheckButtonHoverProofCaptured": (
-            isinstance(hover_proof.get("05_run_local_check_hover_no_tooltip"), dict)
-            and hover_proof["05_run_local_check_hover_no_tooltip"].get("ok") is True
-            and isinstance(hover_proof["05_run_local_check_hover_no_tooltip"].get("evidence"), dict)
+            isinstance(hover_proof.get("05_open_readiness_launcher_hover_no_tooltip"), dict)
+            and hover_proof["05_open_readiness_launcher_hover_no_tooltip"].get("ok") is True
+            and isinstance(hover_proof["05_open_readiness_launcher_hover_no_tooltip"].get("evidence"), dict)
         ),
         "localCheckResultDeterministicNoProvider": (
             isinstance(local_check_result, dict)
@@ -1149,7 +1188,12 @@ def main() -> int:
             and title_chrome_proof.get("dashboardCardOrder")
             == "active-ai-ai-control-center-ai-readiness-diagnostics-trust-provider-capabilities-maintenance"
             and title_chrome_proof.get("dashboardIaModel")
-            == "ai-dashboard-global-strip-domain-doorways-focused-readiness-detail"
+            == "ai-dashboard-global-strip-category-cards-launch-focused-domain-surfaces"
+            and title_chrome_proof.get("dashboardSurfaceModel") == "hub-only-cards-are-doorways"
+            and title_chrome_proof.get("dashboardInlineWorkPolicy") == "no-local-check-no-report-no-diagnostics-inline"
+            and title_chrome_proof.get("categoryCardLauncherContract") == "cards-contain-launchers-domain-surfaces-house-work"
+            and int(title_chrome_proof.get("categoryLauncherCount") or 0) >= 3
+            and int(title_chrome_proof.get("domainSurfaceCount") or 0) >= 3
             and title_chrome_proof.get("foyerGroupCards")
             == [
                 "active-ai",
@@ -1168,6 +1212,10 @@ def main() -> int:
             and title_chrome_proof.get("aiControlCenterPlacement") == "focused-domain-card-inside-ai-dashboard"
             and isinstance(title_chrome_proof.get("controlCenterCardRect"), dict)
             and (title_chrome_proof["controlCenterCardRect"].get("height") or 0) > 0
+            and title_chrome_proof.get("openControlButtonText") == "Open Control Center"
+            and title_chrome_proof.get("openControlButtonTarget") == "ai-control-center-control-surface"
+            and title_chrome_proof.get("controlSurfaceHidden") is True
+            and title_chrome_proof.get("controlSurfaceOpen") == "false"
         ),
         "settingsCogFutureGatedWithoutFam003Mutation": (
             isinstance(title_chrome_proof, dict)
@@ -1186,6 +1234,10 @@ def main() -> int:
             and title_chrome_proof.get("maintenanceCardState") == "placement-only"
             and isinstance(title_chrome_proof.get("maintenanceCardRect"), dict)
             and (title_chrome_proof["maintenanceCardRect"].get("height") or 0) > 0
+            and title_chrome_proof.get("openMaintenanceButtonText") == "Open Lifecycle"
+            and title_chrome_proof.get("openMaintenanceButtonTarget") == "ai-control-center-maintenance-detail"
+            and title_chrome_proof.get("maintenanceSurfaceHidden") is True
+            and title_chrome_proof.get("maintenanceSurfaceOpen") == "false"
         ),
         "readinessFocusedDetailPresentAndInitiallyClosed": (
             isinstance(title_chrome_proof, dict)
@@ -1194,6 +1246,8 @@ def main() -> int:
             and title_chrome_proof.get("focusedDetailHeadingText") == "Local AI Readiness Report"
             and title_chrome_proof.get("focusedDetailHidden") is True
             and title_chrome_proof.get("focusedDetailState") in {"", "closed"}
+            and title_chrome_proof.get("openReadinessButtonText") == "Open Readiness"
+            and title_chrome_proof.get("openReadinessButtonTarget") == "ai-control-center-readiness-detail"
         ),
         "readinessReportScrolledIntoView": (
             isinstance(report_scroll, dict)
@@ -1289,10 +1343,10 @@ def main() -> int:
             and title_chrome_proof["orinRowLabelStyle"].get("fontSize") == "10px"
             and isinstance(title_chrome_proof.get("orinRowValueStyle"), dict)
             and title_chrome_proof["orinRowValueStyle"].get("fontSize") == "11px"
-            and isinstance(title_chrome_proof.get("localCheckRowLabelStyle"), dict)
-            and title_chrome_proof["localCheckRowLabelStyle"].get("fontSize") == "10px"
-            and isinstance(title_chrome_proof.get("localCheckRowValueStyle"), dict)
-            and title_chrome_proof["localCheckRowValueStyle"].get("fontSize") == "11px"
+            and isinstance(title_chrome_proof.get("focusedLocalCheckRowLabelStyle"), dict)
+            and title_chrome_proof["focusedLocalCheckRowLabelStyle"].get("fontSize") == "10px"
+            and isinstance(title_chrome_proof.get("focusedLocalCheckRowValueStyle"), dict)
+            and title_chrome_proof["focusedLocalCheckRowValueStyle"].get("fontSize") == "11px"
         ),
         "runLocalCheckButtonTypographyReducedOnePoint": (
             isinstance(title_chrome_proof, dict)
@@ -1303,15 +1357,16 @@ def main() -> int:
         ),
         "runLocalCheckButtonStandardCompactSize": (
             isinstance(title_chrome_proof, dict)
-            and isinstance(title_chrome_proof.get("localCheckButtonRect"), dict)
+            and isinstance(local_check_scroll, dict)
+            and isinstance(local_check_scroll.get("buttonRect"), dict)
             and isinstance(title_chrome_proof.get("localCheckButtonStyle"), dict)
             and title_chrome_proof["localCheckButtonStyle"].get("height") == "31px"
             and title_chrome_proof["localCheckButtonStyle"].get("minHeight") == "31px"
             and title_chrome_proof["localCheckButtonStyle"].get("maxWidth") in {"187px", "min(100%, 187px)"}
             and title_chrome_proof["localCheckButtonStyle"].get("paddingLeft") == "14px"
             and title_chrome_proof["localCheckButtonStyle"].get("paddingRight") == "14px"
-            and int(title_chrome_proof["localCheckButtonRect"].get("width") or 0) <= 187
-            and int(title_chrome_proof["localCheckButtonRect"].get("height") or 0) <= 33
+            and int(local_check_scroll["buttonRect"].get("width") or 0) <= 187
+            and int(local_check_scroll["buttonRect"].get("height") or 0) <= 33
         ),
         "windowControlStateModelHiddenBlockedActive": (
             isinstance(title_chrome_proof, dict)
