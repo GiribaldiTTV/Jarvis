@@ -44,7 +44,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "role": "top-level settings product shell",
         "rule": "Project Vision; UIREF-001; FAM-002",
         "copy": "Global Settings",
-        "font": "Bahnschrift/Rajdhani/Segoe UI, 10-29px",
+        "font": "Bahnschrift/Rajdhani/Segoe UI, compact 10-18px",
         "text": "#f8fafc family",
         "background": "#020914 / #04101b dark shell",
         "border": "1px restrained cyan, 20px radius",
@@ -56,7 +56,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "window title Global Settings",
         "comparator": "accepted AI Control Center full-window reference",
         "proof": "01_default_global_settings_shell.png",
-        "checks": "default screenshot saved;architecture-first Global Settings geometry;settings shell fills the window intentionally;default surface is not white/native-light",
+        "checks": "default screenshot saved;architecture-first Global Settings geometry;settings shell fills the window intentionally;default surface is not white/native-light;window chrome drag/move proof;window resize/minimum-size proof",
     },
     {
         "id": "F3GS-002",
@@ -90,12 +90,12 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "role": "integrated settings anatomy",
         "rule": "UIREF-001; UIREF-005",
         "copy": "Global Settings",
-        "font": "header 29px, subtitle 13px",
+        "font": "compact title 18px; no subtitle",
         "text": "near-white plus muted cyan",
         "background": "dark header to dark body",
         "border": "single header divider",
         "effects": "reference-family depth",
-        "spacing": "hero header above content",
+        "spacing": "compact chrome integrated with body",
         "hitbox": "header and body zones",
         "icon_label": "product title labels",
         "states": "default",
@@ -113,12 +113,12 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "role": "product identity and settings title",
         "rule": "Project Vision; UIREF-001",
         "copy": "Global Settings",
-        "font": "11px kicker, 29px title, 13px subtitle",
+        "font": "18px compact title; hidden kicker/subtitle",
         "text": "cyan kicker, near-white title, muted subtitle",
         "background": "transparent on chrome bar",
         "border": "none",
         "effects": "none",
-        "spacing": "AI Control Center family rhythm",
+        "spacing": "compact settings chrome rhythm",
         "hitbox": "label group",
         "icon_label": "text-only product group",
         "states": "default",
@@ -158,7 +158,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsWindowControls",
         "role": "NDAI minimize/close controls",
         "rule": "UIREF-002; UIREF-003",
-        "copy": "- and x controls",
+        "copy": "- and x controls plus resize grip",
         "font": "control glyph 900 weight",
         "text": "near-white",
         "background": "dark rounded cluster",
@@ -167,11 +167,11 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "spacing": "28px buttons",
         "hitbox": "28x28 controls",
         "icon_label": "glyph-only with accessible names",
-        "states": "focus, pressed",
+        "states": "focus, pressed, drag, resize",
         "a11y": "Close Global Settings",
         "comparator": "accepted AI Control Center close-hover reference",
-        "proof": "03_window_control_focus_pressed_state.png",
-        "checks": "top-level chrome/control cluster;window control focus/pressed proof",
+        "proof": "03_window_control_focus_pressed_state.png; 03a_window_moved_by_chrome.png; 03b_window_resized.png; 03c_window_minimum_size.png",
+        "checks": "top-level chrome/control cluster;window control focus/pressed proof;window chrome drag/move proof;window resize/minimum-size proof",
     },
     {
         "id": "F3GS-007",
@@ -187,7 +187,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "transparent rail",
         "border": "right divider",
         "effects": "no fake future categories",
-        "spacing": "142px slim rail",
+        "spacing": "136px slim rail",
         "hitbox": "left column",
         "icon_label": "category and selected page label",
         "states": "Quick Access selected",
@@ -326,7 +326,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "border": "1px muted cyan, 10px radius",
         "effects": "hover/focus border",
         "spacing": "23px min height",
-        "hitbox": "164px min width",
+        "hitbox": "156px min width",
         "icon_label": "custom dropdown arrow",
         "states": "default, hover/focus feasible",
         "a11y": "Quick Access Slot N Route",
@@ -457,7 +457,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsFooter",
         "role": "deterministic settings actions",
         "rule": "UIREF-003; F3-FF01",
-        "copy": "Revert; Save; Done; guard-only Cancel/Discard",
+        "copy": "Revert; Save Changes; guard-only Cancel/Discard",
         "font": "10pt buttons",
         "text": "pale action text",
         "background": "transparent footer",
@@ -467,7 +467,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "hitbox": "28px min-height buttons",
         "icon_label": "text actions",
         "states": "disabled, enabled, guard",
-        "a11y": "Save/Revert/Done settings",
+        "a11y": "Save/Revert settings plus chrome close guard",
         "comparator": "NDAI action bar hierarchy",
         "proof": "06_dirty_quick_access.png; 08_close_guard.png; 11_saved_state.png",
         "checks": "initial saved-state copy;dirty guard state after dropdown edit;close guard blocks silent loss;save clears dirty state",
@@ -725,6 +725,29 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "proof": "fam003_settings_visual_fail_repair_manifest.json",
         "checks": "element-group ledger is row-level fail-capable",
     },
+    {
+        "id": "F3GS-031",
+        "element": "Resize affordance and minimum-size behavior",
+        "surface": "Global Settings frame",
+        "fam": "FAM-003 / FAM-002 visual authority",
+        "code": "desktop/desktop_renderer.py::residentAccessSettingsResizeGrip + ResidentAccessSettingsDialog.resizeEvent",
+        "role": "top-level window resizing and layout safety",
+        "rule": "UIREF-001; FAM-002 Standalone Window Geometry Recovery Standard",
+        "copy": "none",
+        "font": "not applicable",
+        "text": "not applicable",
+        "background": "subtle cyan resize grip",
+        "border": "muted cyan, bottom-right shell integration",
+        "effects": "visible corner affordance",
+        "spacing": "anchored to lower-right frame",
+        "hitbox": "18x18 resize affordance",
+        "icon_label": "accessible name Resize Global Settings",
+        "states": "default, resized, minimum-size",
+        "a11y": "Resize Global Settings",
+        "comparator": "UIREF-001 top-level resizable window expectation",
+        "proof": "03b_window_resized.png; 03c_window_minimum_size.png",
+        "checks": "window resize/minimum-size proof",
+    },
 )
 
 
@@ -860,7 +883,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current failure digestion: the prior packet is traceable evidence but is not accepted for USER retest; this run repairs and re-proves the Global Settings / Quick Access visual product surface.",
+        "- Current failure digestion: the latest packet `C:\\Nexus USER\\FAM-003-20260623-063541.zip` is traceable evidence but is not accepted for USER retest; this run repairs and re-proves the Global Settings / Quick Access visual product surface.",
         "",
         "## Results",
         "",
@@ -899,6 +922,8 @@ def _write_fail_capable_defect_ledger(
     conformance_checks = [
         "settings shell fills the window intentionally",
         "compact settings product header",
+        "window chrome drag/move proof",
+        "window resize/minimum-size proof",
         "left navigation settings organizer",
         "selectable Tray parent page",
         "Tray parent plus Quick Access child settings IA",
@@ -916,14 +941,14 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-        else "V11 selectable Tray parent / Quick Access child IA checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+        else "V12 selectable Tray parent / Quick Access child IA plus move/resize checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
         "# FAM-003 Fail-Capable Visual Defect Ledger",
         "",
         "Scope: Global Settings / Nexus Tray / Quick Access settings surface.",
-        "Prior Packet Under Review: `C:\\Nexus USER\\FAM-003-20260622-200820.zip`.",
+        "Prior Packet Under Review: `C:\\Nexus USER\\FAM-003-20260623-063541.zip`.",
         "Prior Packet Disposition: `REPAIR - traceable but not accepted for USER retest because visual/product conformance failed.`",
         "",
         "| Evidence Layer | Result | Detail |",
@@ -1168,7 +1193,7 @@ def main() -> int:
             "settings shell fills the window intentionally",
             width >= 740
             and height <= 365
-            and 138 <= dialog.nav_shell.width() <= 150
+            and 132 <= dialog.nav_shell.width() <= 142
             and dialog.tray_nav_item.isVisible()
             and dialog.tray_nav_button.isVisible()
             and dialog.subpage_nav_rail.isVisible()
@@ -1199,8 +1224,10 @@ def main() -> int:
             and dialog.chrome_bar.minimize_button.isVisible()
             and dialog.chrome_bar.close_button.isVisible()
             and not dialog.chrome_bar.maximize_button.isVisible()
+            and dialog.resize_grip.isVisible()
+            and dialog.resize_grip.accessibleName() == "Resize Global Settings"
             and dialog.chrome_bar.close_button.accessibleName() == "Close Global Settings",
-            f"{chrome_path} ({chrome_width}x{chrome_height}); anatomy={dialog.chrome_bar.property('headerAnatomy')!r}; cluster={dialog.chrome_bar.control_cluster.objectName()!r}; minimize={dialog.chrome_bar.minimize_button.isVisible()}; close={dialog.chrome_bar.close_button.isVisible()}; maximize_visible={dialog.chrome_bar.maximize_button.isVisible()}",
+            f"{chrome_path} ({chrome_width}x{chrome_height}); anatomy={dialog.chrome_bar.property('headerAnatomy')!r}; cluster={dialog.chrome_bar.control_cluster.objectName()!r}; minimize={dialog.chrome_bar.minimize_button.isVisible()}; close={dialog.chrome_bar.close_button.isVisible()}; maximize_visible={dialog.chrome_bar.maximize_button.isVisible()}; resize_grip={dialog.resize_grip.isVisible()}",
         )
     )
     rows.append(
@@ -1237,6 +1264,67 @@ def main() -> int:
         )
     )
 
+    original_geometry = dialog.geometry()
+    QTest.mousePress(dialog.chrome_bar, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, QPoint(26, 18))
+    QTest.mouseMove(dialog.chrome_bar, QPoint(88, 38), delay=120)
+    QTest.mouseRelease(dialog.chrome_bar, Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, QPoint(88, 38))
+    app.processEvents()
+    moved_geometry = dialog.geometry()
+    moved_path = log_dir / "03a_window_moved_by_chrome.png"
+    moved_ok, _, _ = _capture(
+        dialog,
+        moved_path,
+        artifacts,
+        surface="full Global Settings shell",
+        state="moved by compact chrome",
+    )
+    rows.append(
+        (
+            "window chrome drag/move proof",
+            moved_ok and moved_geometry.topLeft() != original_geometry.topLeft(),
+            f"{moved_path}; before={original_geometry.getRect()}; after={moved_geometry.getRect()}",
+        )
+    )
+    dialog.setGeometry(original_geometry)
+    app.processEvents()
+
+    dialog.resize(840, 390)
+    app.processEvents()
+    resized_path = log_dir / "03b_window_resized.png"
+    resized_ok, resized_width, resized_height = _capture(
+        dialog,
+        resized_path,
+        artifacts,
+        surface="full Global Settings shell",
+        state="resized with visible resize affordance",
+    )
+    dialog.resize(320, 200)
+    app.processEvents()
+    min_path = log_dir / "03c_window_minimum_size.png"
+    min_ok, min_width, min_height = _capture(
+        dialog,
+        min_path,
+        artifacts,
+        surface="full Global Settings shell",
+        state="minimum-size enforcement",
+    )
+    rows.append(
+        (
+            "window resize/minimum-size proof",
+            resized_ok
+            and min_ok
+            and resized_width >= 830
+            and resized_height >= 380
+            and min_width >= 760
+            and min_height >= 350
+            and dialog.resize_grip.isVisible()
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x350-v12",
+            f"resized={resized_width}x{resized_height}; min={min_width}x{min_height}; grip_visible={dialog.resize_grip.isVisible()}; behavior={dialog.property('windowResizeBehavior')!r}",
+        )
+    )
+    dialog.setGeometry(original_geometry)
+    app.processEvents()
+
     nav_path = log_dir / "04_left_settings_organizer.png"
     nav_ok, nav_width, nav_height = _capture(
         dialog.nav_shell,
@@ -1264,7 +1352,7 @@ def main() -> int:
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_caption.text() == ""
             and not dialog.quick_access_nav_caption.isVisible()
-            and 138 <= dialog.nav_shell.width() <= 150
+            and 132 <= dialog.nav_shell.width() <= 142
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
         )
@@ -1290,9 +1378,12 @@ def main() -> int:
             and dialog.section_heading.text() == "Tray"
             and dialog.tray_overview_container.isVisible()
             and not dialog.quick_slot_container.isVisible()
+            and dialog.tray_deferred_notice.isVisible()
+            and dialog.tray_deferred_title.text() == "Tray behavior"
+            and "No active Tray behavior settings" in dialog.tray_deferred_detail.text()
             and dialog.tray_quick_access_title.text() == "Quick Access"
             and dialog.tray_quick_access_open.text() == "Open",
-            f"focus={dialog._focus}; heading={dialog.section_heading.text()!r}; tray_checked={dialog.tray_nav_button.isChecked()}; quick_checked={dialog.quick_access_nav_button.isChecked()}; overview={dialog.tray_overview_container.isVisible()}; quick_panel={dialog.quick_slot_container.isVisible()}",
+            f"focus={dialog._focus}; heading={dialog.section_heading.text()!r}; tray_checked={dialog.tray_nav_button.isChecked()}; quick_checked={dialog.quick_access_nav_button.isChecked()}; overview={dialog.tray_overview_container.isVisible()}; quick_panel={dialog.quick_slot_container.isVisible()}; tray_notice={dialog.tray_deferred_detail.text()!r}",
         )
     )
     dialog.set_focus("quick_access")
@@ -1312,9 +1403,10 @@ def main() -> int:
             and not dialog.section_badge.isVisible()
             and not dialog.section_detail.isVisible()
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-selectable-tray-parent-quick-access-child-v11"
-            and dialog.property("settingsVisualRepair") == "settings-ia-self-adjudication-v11"
-            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v11"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-selectable-tray-parent-quick-access-child-v12"
+            and dialog.property("settingsVisualRepair") == "settings-ia-window-behavior-v12"
+            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v12"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x350-v12"
             and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
@@ -1357,6 +1449,7 @@ def main() -> int:
         "Rows appear in tray order. Use Save Changes to apply them.",
         "Add Slot",
         "Remove",
+        "Done",
         "(unavailable)",
         "PAGE - QUICK ACCESS",
         "SCOPE - TRAY MENU",
@@ -1685,6 +1778,8 @@ def main() -> int:
             ("Accepted reference - AI Control Center family grammar", REFERENCE_SCREENSHOTS[0][1]),
             ("Accepted reference - close hover", REFERENCE_SCREENSHOTS[1][1]),
             ("Repaired FAM-003 - settings shell", default_path),
+            ("Repaired FAM-003 - moved window", log_dir / "03a_window_moved_by_chrome.png"),
+            ("Repaired FAM-003 - resized window", log_dir / "03b_window_resized.png"),
             ("Repaired FAM-003 - settings organizer", log_dir / "04_left_settings_organizer.png"),
             ("Repaired FAM-003 - Tray parent page", log_dir / "05_tray_parent_page.png"),
             ("Repaired FAM-003 - dropdown/list state", log_dir / "07_dropdown_list_state.png"),
