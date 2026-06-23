@@ -147,31 +147,31 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-tooltip {
       position: absolute;
-      right: 0;
-      top: 37px;
-      z-index: 45;
+      right: 38px;
+      top: 3px;
+      z-index: 70;
       opacity: 0;
       pointer-events: none;
-      padding: 5px 9px;
-      border: 1px solid rgba(122, 232, 255, 0.36);
+      padding: 6px 10px;
+      border: 1px solid rgba(122, 232, 255, 0.48);
       border-radius: 999px;
-      background: rgba(3, 14, 24, 0.96);
+      background: rgba(3, 14, 24, 0.98);
       color: rgba(235, 252, 255, 0.96);
       font-size: 10px;
       font-weight: 820;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       white-space: nowrap;
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28), 0 0 12px rgba(86, 236, 255, 0.12);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.34), 0 0 14px rgba(86, 236, 255, 0.18);
       transition: opacity 120ms ease, transform 120ms ease;
-      transform: translateY(-2px);
+      transform: translateX(4px);
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog:hover + .ai-dashboard-settings-tooltip,
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog:focus-visible + .ai-dashboard-settings-tooltip,
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog[data-tooltip-proof="visible"] + .ai-dashboard-settings-tooltip {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateX(0);
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-controls {
@@ -871,9 +871,9 @@
               <div class="monitoring-hud__hub-card-topline">
                 <span>02</span>
                 <div class="monitoring-hud__hub-card-title-copy">
-                  <strong>Readiness & Diagnostics</strong>
+                  <strong>Diagnostics</strong>
                 </div>
-                <p class="monitoring-hud__hub-card-description">Local Safety Check and Readiness Report open in their own window.</p>
+                <p class="monitoring-hud__hub-card-description">Local checks, readiness reports, and diagnostic results open separately.</p>
               </div>
               <div class="ai-control-center-card-status ai-control-center-card-status--inline">
                 <div class="ai-control-center-compact-status">External unique window; provider data remains none</div>
@@ -889,9 +889,9 @@
                   data-launch-target="readiness-diagnostics-child-window"
                   data-launch-window-kind="external-unique"
                   data-action-size="content-fit-fixed-height"
-                  aria-label="Open Readiness & Diagnostics"
+                  aria-label="Open Diagnostics"
                 >
-                  <span class="monitoring-hud__button-label">Open Readiness &amp; Diagnostics</span>
+                  <span class="monitoring-hud__button-label">Open Diagnostics</span>
                 </button>
               </div>
             </article>
@@ -910,9 +910,9 @@
             <div class="monitoring-hud__hub-card-topline">
               <span>03</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>Capabilities & Maintenance</strong>
+                <strong>Capabilities</strong>
               </div>
-              <p class="monitoring-hud__hub-card-description">Capability packs and AI lifecycle placement are visible without execution.</p>
+              <p class="monitoring-hud__hub-card-description">Capability packs, maintenance placement, and edition gates open separately.</p>
             </div>
             <div class="ai-control-center-card-status ai-control-center-card-status--inline">
               <div class="ai-control-center-compact-status">Lifecycle detail opens separately</div>
@@ -928,9 +928,9 @@
                 data-launch-target="capabilities-maintenance-child-window"
                 data-launch-window-kind="exclusive-child"
                 data-action-size="content-fit-fixed-height"
-                aria-label="Open Capabilities & Maintenance"
+                aria-label="Open Capabilities"
               >
-                <span class="monitoring-hud__button-label">Open Capabilities &amp; Maintenance</span>
+                <span class="monitoring-hud__button-label">Open Capabilities</span>
               </button>
             </div>
           </article>

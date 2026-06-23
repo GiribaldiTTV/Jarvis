@@ -877,11 +877,14 @@ class AIDashboardDomainCommandPage(QWebEnginePage):
 
 
 class AIDashboardDomainWindow(QDialog):
+    RESIZE_MARGIN = 12
+    SHELL_RADIUS = 24
+
     DOMAIN_DEFINITIONS = {
         "readiness-diagnostics": {
-            "title": "Readiness & Diagnostics",
+            "title": "Diagnostics",
             "kicker": "Nexus Desktop AI",
-            "description": "Local Safety Check, Readiness Report, copy, diagnostics detail, and results live here, outside the AI Dashboard hub.",
+            "description": "Local checks, readiness reports, copy, diagnostic detail, and results live here, outside the AI Dashboard hub.",
             "classification": "external-unique",
             "lifecycle": "stays-open-if-dashboard-closes",
             "actions": ("run-local-check", "generate-readiness-report", "copy-readiness-report"),
@@ -895,9 +898,9 @@ class AIDashboardDomainWindow(QDialog):
             "actions": (),
         },
         "capabilities-maintenance": {
-            "title": "Capabilities & Maintenance",
+            "title": "Capabilities",
             "kicker": "Nexus Desktop AI",
-            "description": "Capability-pack and AI lifecycle placement only. Update, download, install, fetch, and capability execution are blocked.",
+            "description": "Capability-pack, maintenance placement, and edition gates live here. Update, download, install, fetch, and capability execution are blocked.",
             "classification": "exclusive-child",
             "lifecycle": "closes-with-dashboard",
             "actions": (),
@@ -932,9 +935,16 @@ class AIDashboardDomainWindow(QDialog):
         self.setProperty("promptSend", "prompt-send-disabled")
         self.setProperty("networkEgress", "network-egress-blocked")
         self.setProperty("memoryIndexing", "memory-indexing-disabled")
+        self.setProperty("ndaiShellConformance", "ndai-webview-rounded-window-shell")
+        self.setProperty("windowMoveBehavior", "header-drag")
+        self.setProperty("windowResizeBehavior", "edge-corner-resize")
         self._drag_start_global = QPoint()
         self._drag_window_origin = QPoint()
         self._dragging_header = False
+        self._resize_start_global = QPoint()
+        self._resize_start_geometry = QRect()
+        self._resize_edges = Qt.Edges()
+        self._resizing_window = False
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -942,37 +952,114 @@ class AIDashboardDomainWindow(QDialog):
         self.webview = QWebEngineView(self)
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setStyleSheet("background-color: transparent; border: none;")
+        self.webview.setMouseTracking(True)
+        self.setMouseTracking(True)
         self.webview.installEventFilter(self)
         self._web_page = AIDashboardDomainCommandPage(self.domain_id, self.webview)
         self._web_page.domain_command.connect(self._handle_domain_command)
         self.webview.setPage(self._web_page)
-        self.webview.page().setBackgroundColor(QColor(3, 10, 18, 255))
+        self.webview.page().setBackgroundColor(QColor(0, 0, 0, 0))
         self.webview.loadFinished.connect(self._on_html_loaded)
         layout.addWidget(self.webview)
         self.webview.setHtml(self._domain_html(), QUrl.fromLocalFile(str(self._asset_base_dir()) + os.sep))
         _apply_windows_dark_title_bar(self)
+        self._apply_shell_mask()
 
     def eventFilter(self, obj, event):
         if obj is self.webview:
             event_type = event.type()
             if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
                 local = event.position().toPoint() if hasattr(event, "position") else event.pos()
+                edges = self._resize_edges_for_point(local)
+                if edges:
+                    self._resizing_window = True
+                    self._resize_edges = edges
+                    self._resize_start_global = event.globalPosition().toPoint()
+                    self._resize_start_geometry = QRect(self.geometry())
+                    event.accept()
+                    return True
                 if 14 <= local.y() <= 92 and local.x() < max(0, self.webview.width() - 118):
                     self._dragging_header = True
                     self._drag_start_global = event.globalPosition().toPoint()
                     self._drag_window_origin = self.frameGeometry().topLeft()
                     event.accept()
                     return True
+            if event_type == QEvent.MouseMove and self._resizing_window:
+                self._apply_resize_from_global(event.globalPosition().toPoint())
+                event.accept()
+                return True
             if event_type == QEvent.MouseMove and self._dragging_header:
                 current = event.globalPosition().toPoint()
                 self.move(self._drag_window_origin + (current - self._drag_start_global))
                 event.accept()
                 return True
-            if event_type == QEvent.MouseButtonRelease and self._dragging_header:
+            if event_type == QEvent.MouseMove:
+                local = event.position().toPoint() if hasattr(event, "position") else event.pos()
+                self._set_resize_cursor(self._resize_edges_for_point(local))
+            if event_type == QEvent.MouseButtonRelease and (self._dragging_header or self._resizing_window):
                 self._dragging_header = False
+                self._resizing_window = False
+                self._resize_edges = Qt.Edges()
                 event.accept()
                 return True
         return super().eventFilter(obj, event)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._apply_shell_mask()
+
+    def leaveEvent(self, event):
+        if not self._resizing_window:
+            self.unsetCursor()
+        super().leaveEvent(event)
+
+    def _apply_shell_mask(self) -> None:
+        if self.width() <= 0 or self.height() <= 0:
+            return
+        path = QPainterPath()
+        path.addRoundedRect(QRectF(self.rect()), self.SHELL_RADIUS, self.SHELL_RADIUS)
+        self.setMask(QRegion(path.toFillPolygon().toPolygon()))
+
+    def _resize_edges_for_point(self, point: QPoint):
+        edges = Qt.Edges()
+        margin = self.RESIZE_MARGIN
+        if point.x() <= margin:
+            edges |= Qt.LeftEdge
+        elif point.x() >= self.webview.width() - margin:
+            edges |= Qt.RightEdge
+        if point.y() <= margin:
+            edges |= Qt.TopEdge
+        elif point.y() >= self.webview.height() - margin:
+            edges |= Qt.BottomEdge
+        return edges
+
+    def _set_resize_cursor(self, edges) -> None:
+        if edges in (Qt.LeftEdge | Qt.TopEdge, Qt.RightEdge | Qt.BottomEdge):
+            self.setCursor(Qt.SizeFDiagCursor)
+        elif edges in (Qt.RightEdge | Qt.TopEdge, Qt.LeftEdge | Qt.BottomEdge):
+            self.setCursor(Qt.SizeBDiagCursor)
+        elif edges & (Qt.LeftEdge | Qt.RightEdge):
+            self.setCursor(Qt.SizeHorCursor)
+        elif edges & (Qt.TopEdge | Qt.BottomEdge):
+            self.setCursor(Qt.SizeVerCursor)
+        else:
+            self.unsetCursor()
+
+    def _apply_resize_from_global(self, current_global: QPoint) -> None:
+        delta = current_global - self._resize_start_global
+        rect = QRect(self._resize_start_geometry)
+        min_width = self.minimumWidth()
+        min_height = self.minimumHeight()
+        if self._resize_edges & Qt.LeftEdge:
+            rect.setLeft(min(rect.right() - min_width, rect.left() + delta.x()))
+        if self._resize_edges & Qt.RightEdge:
+            rect.setRight(max(rect.left() + min_width, rect.right() + delta.x()))
+        if self._resize_edges & Qt.TopEdge:
+            rect.setTop(min(rect.bottom() - min_height, rect.top() + delta.y()))
+        if self._resize_edges & Qt.BottomEdge:
+            rect.setBottom(max(rect.top() + min_height, rect.bottom() + delta.y()))
+        self.setGeometry(rect)
+        self._apply_shell_mask()
 
     def _asset_base_dir(self) -> Path:
         return Path(__file__).resolve().parents[1] / "nexus_visual"
@@ -988,16 +1075,14 @@ class AIDashboardDomainWindow(QDialog):
   <title>{escape(definition["title"])}</title>
   <link rel="stylesheet" href="monitoring_hud.css" />
   <style>
-    html, body {{ margin: 0; min-height: 100%; background: #030a12; }}
+    html, body {{ margin: 0; min-height: 100%; background: transparent; }}
     body.desktop-mode {{ overflow: hidden; }}
     .ai-domain-window {{
       min-height: 100vh;
       padding: 12px;
       box-sizing: border-box;
       color: rgba(235, 252, 255, 0.96);
-      background:
-        radial-gradient(circle at 20% 4%, rgba(94, 212, 235, 0.10), transparent 34%),
-        linear-gradient(180deg, rgba(4, 16, 28, 0.98), rgba(2, 8, 16, 0.98));
+      background: transparent;
       font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }}
     .ai-domain-window__chrome {{
@@ -1007,11 +1092,16 @@ class AIDashboardDomainWindow(QDialog):
       scrollbar-width: thin;
       scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
       border: 1px solid rgba(94, 207, 229, 0.42);
-      border-radius: 22px;
+      border-radius: 24px;
       padding: 14px;
       box-sizing: border-box;
-      background: rgba(2, 12, 22, 0.90);
-      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.38), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+      background:
+        radial-gradient(circle at 20% 4%, rgba(94, 212, 235, 0.11), transparent 34%),
+        linear-gradient(180deg, rgba(4, 16, 28, 0.985), rgba(2, 8, 16, 0.985));
+      box-shadow:
+        0 18px 46px rgba(0, 0, 0, 0.46),
+        0 0 24px rgba(86, 236, 255, 0.08),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.025);
     }}
     .ai-domain-window__chrome::-webkit-scrollbar {{
       width: 8px;
@@ -1205,7 +1295,7 @@ class AIDashboardDomainWindow(QDialog):
   </style>
 </head>
 <body class="desktop-mode">
-  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar">
+  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-shell-conformance="ndai-webview-rounded-window-shell" data-window-move="header-drag" data-window-resize="edge-corner-resize" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar">
     <section class="ai-domain-window__chrome">
       <div class="ai-domain-window__controls" role="group" aria-label="{escape(definition["title"])} window controls">
         <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}"></button>

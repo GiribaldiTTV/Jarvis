@@ -209,6 +209,50 @@ def _hover_web_button(app: QApplication, web_window, button_id: str) -> dict[str
     }
 
 
+def _drag_child_window(app: QApplication, window, dx: int = 36, dy: int = 24) -> dict[str, object]:
+    _foreground_window(app, window)
+    before = _rect(int(window.winId()))
+    start = QPoint(min(176, max(80, window.webview.width() // 3)), 46)
+    end = QPoint(start.x() + dx, start.y() + dy)
+    QTest.mousePress(window.webview, Qt.LeftButton, Qt.NoModifier, start)
+    _pump(app, 60)
+    QTest.mouseMove(window.webview, end, 120)
+    _pump(app, 80)
+    QTest.mouseRelease(window.webview, Qt.LeftButton, Qt.NoModifier, end)
+    _pump(app, 220)
+    after = _rect(int(window.winId()))
+    return {
+        "before": before,
+        "after": after,
+        "deltaLeft": after["left"] - before["left"],
+        "deltaTop": after["top"] - before["top"],
+        "moved": abs(after["left"] - before["left"]) >= 16 and abs(after["top"] - before["top"]) >= 12,
+        "mode": "webview-header-drag",
+    }
+
+
+def _resize_child_window(app: QApplication, window, dx: int = 44, dy: int = 34) -> dict[str, object]:
+    _foreground_window(app, window)
+    before = _rect(int(window.winId()))
+    start = QPoint(max(2, window.webview.width() - 4), max(2, window.webview.height() - 4))
+    end = QPoint(start.x() + dx, start.y() + dy)
+    QTest.mousePress(window.webview, Qt.LeftButton, Qt.NoModifier, start)
+    _pump(app, 60)
+    QTest.mouseMove(window.webview, end, 140)
+    _pump(app, 80)
+    QTest.mouseRelease(window.webview, Qt.LeftButton, Qt.NoModifier, end)
+    _pump(app, 260)
+    after = _rect(int(window.winId()))
+    return {
+        "before": before,
+        "after": after,
+        "widthDelta": after["width"] - before["width"],
+        "heightDelta": after["height"] - before["height"],
+        "resized": after["width"] - before["width"] >= 22 and after["height"] - before["height"] >= 16,
+        "mode": "webview-bottom-right-edge-resize",
+    }
+
+
 def _open_from_dashboard(app: QApplication, dialog: AIControlCenterDialog, button_id: str, domain_id: str):
     before = set(dialog._domain_windows.keys())
     result = _run_js(
@@ -309,6 +353,7 @@ def main() -> int:
                 cardOrder: surface?.dataset.dashboardCardOrder || "",
                 cardNames,
                 launchers,
+                cardTitles: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-card-title-copy strong")].map((node) => node.textContent.trim()),
                 capabilityHubRows: document.querySelectorAll('[data-dashboard-hub-card="capabilities-maintenance"] .monitoring-hud__state-row').length,
                 settingsTooltipText: document.getElementById("ai-dashboard-settings-tooltip")?.textContent.trim() || "",
                 focusedSurfaceCount: document.querySelectorAll("[data-focused-surface]").length,
@@ -355,6 +400,8 @@ def main() -> int:
               return JSON.stringify({
                 text: tooltip?.textContent.trim() || "",
                 opacity: style ? Number(style.opacity) : 0,
+                display: style ? style.display : "",
+                visibility: style ? style.visibility : "",
                 label: document.getElementById("ai-dashboard-settings-action")?.getAttribute("aria-label") || "",
                 titleCount: document.querySelectorAll("[title]").length
               });
@@ -392,6 +439,7 @@ def main() -> int:
         for domain_id, window in child_windows.items()
     }
     child_chrome_probe = {}
+    child_geometry_behavior = {}
     for domain_id, window in child_windows.items():
         if window is not None:
             child_chrome_probe[domain_id] = json.loads(
@@ -401,12 +449,22 @@ def main() -> int:
                     """
                     (() => {
                       const root = document.querySelector("[data-ai-dashboard-child-window]");
+                      const chrome = document.querySelector(".ai-domain-window__chrome");
+                      const chromeStyle = chrome ? getComputedStyle(chrome) : null;
+                      const bodyStyle = getComputedStyle(document.body);
                       return JSON.stringify({
+                        title: document.querySelector(".ai-domain-window__title")?.textContent.trim() || "",
                         nativeChrome: root?.dataset.ndaiNativeChrome || "",
                         osChrome: root?.dataset.genericOsChrome || "",
+                        shellConformance: root?.dataset.shellConformance || "",
+                        moveBehavior: root?.dataset.windowMove || "",
+                        resizeBehavior: root?.dataset.windowResize || "",
                         controls: root?.dataset.windowControlCluster || "",
                         minimizePresent: Boolean(document.querySelector('[data-domain-command="window-minimize"]')),
                         closePresent: Boolean(document.querySelector('[data-domain-command="window-close"]')),
+                        chromeBorderRadius: chromeStyle ? chromeStyle.borderRadius : "",
+                        chromeBackground: chromeStyle ? chromeStyle.backgroundImage + " " + chromeStyle.backgroundColor : "",
+                        bodyBackground: bodyStyle.backgroundColor,
                         frameFlags: "frameless-custom-product-window"
                       });
                     })();
@@ -418,6 +476,19 @@ def main() -> int:
                 window,
                 log_root,
                 f"02_{domain_id}_opened",
+            )
+            move_proof = _drag_child_window(app, window)
+            resize_proof = _resize_child_window(app, window)
+            child_geometry_behavior[domain_id] = {
+                "move": move_proof,
+                "resize": resize_proof,
+                "currentRect": _rect(int(window.winId())),
+            }
+            screenshots[f"{domain_id}_moved_resized"] = _capture_window(
+                app,
+                window,
+                log_root,
+                f"02_{domain_id}_moved_resized",
             )
 
     readiness_result = {}
@@ -542,8 +613,8 @@ def main() -> int:
     duplicate_full_desktop_proof = len(set(opened_desktop_hashes.values())) != len(opened_desktop_hashes)
     expected_launcher_labels = [
         "Open Control Center",
-        "Open Readiness & Diagnostics",
-        "Open Capabilities & Maintenance",
+        "Open Diagnostics",
+        "Open Capabilities",
     ]
     actual_launcher_labels = [launcher.get("text") for launcher in dashboard_probe.get("launchers") or []]
 
@@ -555,6 +626,7 @@ def main() -> int:
             and dashboard_probe.get("childWindowModel") == "dashboard-launchers-open-exclusive-or-external-unique-windows"
             and dashboard_probe.get("sameWindowFocusedSectionPolicy") == "blocked-as-dashboard-workspace-substitute"
             and dashboard_probe.get("cardNames") == ["control-center", "readiness-diagnostics", "capabilities-maintenance"]
+            and dashboard_probe.get("cardTitles") == ["Control Center", "Diagnostics", "Capabilities"]
             and dashboard_probe.get("focusedSurfaceCount") == 0
             and dashboard_probe.get("domainSurfaceCount") == 0
         ),
@@ -580,6 +652,8 @@ def main() -> int:
             and dashboard_probe.get("settingsTooltipText") == "Settings"
             and settings_tooltip_probe.get("text") == "Settings"
             and settings_tooltip_probe.get("opacity", 0) >= 0.95
+            and settings_tooltip_probe.get("display") != "none"
+            and settings_tooltip_probe.get("visibility") != "hidden"
             and settings_tooltip_probe.get("label") == "Settings"
             and settings_tooltip_probe.get("titleCount") == 0
         ),
@@ -596,14 +670,25 @@ def main() -> int:
             all(
                 probe.get("nativeChrome") == "true"
                 and probe.get("osChrome") == "rejected"
+                and probe.get("shellConformance") == "ndai-webview-rounded-window-shell"
+                and probe.get("moveBehavior") == "header-drag"
+                and probe.get("resizeBehavior") == "edge-corner-resize"
                 and probe.get("controls") == "compact-minimize-close"
                 and probe.get("minimizePresent") is True
                 and probe.get("closePresent") is True
+                and "24px" in str(probe.get("chromeBorderRadius"))
+                and probe.get("bodyBackground") in ("rgba(0, 0, 0, 0)", "transparent")
                 for probe in child_chrome_probe.values()
             )
             and control_window is not None
             and bool(control_window.property("ndaiNativeChrome")) is True
+            and control_window.property("ndaiShellConformance") == "ndai-webview-rounded-window-shell"
             and bool(control_window.windowFlags() & Qt.FramelessWindowHint)
+        ),
+        "childWindowsMoveResizeFocus": (
+            len(child_geometry_behavior) == 3
+            and all(item.get("move", {}).get("moved") is True for item in child_geometry_behavior.values())
+            and all(item.get("resize", {}).get("resized") is True for item in child_geometry_behavior.values())
         ),
         "fullDesktopProofNotDuplicated": (
             len(opened_desktop_hashes) == 3
@@ -684,21 +769,36 @@ def main() -> int:
         "duplicateFullDesktopProof": duplicate_full_desktop_proof,
         "childWindowClassificationLedger": {
             "control-center": {
+                "sourceCategoryCard": "Control Center",
+                "launcherLabel": "Open Control Center",
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": True,
+                "moveBehavior": "header-drag",
+                "resizeBehavior": "edge-corner-resize",
+                "shellConformance": child_chrome_probe.get("control-center", {}).get("shellConformance", ""),
                 "focusBehavior": "bring-to-front-if-open",
             },
             "readiness-diagnostics": {
+                "sourceCategoryCard": "Diagnostics",
+                "launcherLabel": "Open Diagnostics",
                 "classification": "external-unique",
                 "remainsOpenIfDashboardCloses": True,
                 "singleton": True,
+                "moveBehavior": "header-drag",
+                "resizeBehavior": "edge-corner-resize",
+                "shellConformance": child_chrome_probe.get("readiness-diagnostics", {}).get("shellConformance", ""),
                 "focusBehavior": "bring-to-front-if-open",
             },
             "capabilities-maintenance": {
+                "sourceCategoryCard": "Capabilities",
+                "launcherLabel": "Open Capabilities",
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
                 "singleton": True,
+                "moveBehavior": "header-drag",
+                "resizeBehavior": "edge-corner-resize",
+                "shellConformance": child_chrome_probe.get("capabilities-maintenance", {}).get("shellConformance", ""),
                 "focusBehavior": "bring-to-front-if-open",
             },
         },
@@ -707,6 +807,7 @@ def main() -> int:
         "dashboardResizeProof": dashboard_resize_proof,
         "lifecycleAfterDashboardClose": lifecycle_after_dashboard_close,
         "childWindowsVisibleBeforeDashboardClose": child_windows_visible_before_close,
+        "childGeometryBehavior": child_geometry_behavior,
         "providerBoundary": {
             "sentToProvider": provider_state.as_renderer_payload().get("sentToProvider"),
             "canAcceptPrompts": provider_state.as_renderer_payload().get("canAcceptPrompts"),
