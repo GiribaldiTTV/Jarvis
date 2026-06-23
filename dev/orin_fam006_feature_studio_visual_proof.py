@@ -80,13 +80,13 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
     log_wide = Path(manifest["log_viewer_edge_resize_width_proof"])
     derivatives = {
         "recordingChromeCrop": _save_crop(recording, crops / "recording_window_chrome.png", (0, 0, 480, 76)),
-        "recordingPrimaryActionCrop": _save_crop(recording, crops / "recording_primary_action.png", (10, 54, 470, 166)),
-        "recordingTargetTruthCrop": _save_crop(recording, crops / "recording_target_truth.png", (10, 144, 470, 236)),
-        "recordingLogRouteCrop": _save_crop(recording, crops / "recording_log_viewer_route.png", (10, 214, 470, 326)),
+        "recordingPrimaryActionCrop": _save_crop(recording, crops / "recording_primary_action.png", (0, 46, 480, 218)),
+        "recordingTargetTruthCrop": _save_crop(recording, crops / "recording_target_truth.png", (0, 150, 480, 268)),
+        "recordingLogRouteCrop": _save_crop(recording, crops / "recording_log_viewer_route.png", (0, 184, 480, 330)),
         "logViewerChromeCrop": _save_crop(log_viewer, crops / "log_viewer_window_chrome.png", (0, 0, 560, 76)),
         "logViewerNativeActionCrop": _save_crop(log_viewer, crops / "log_viewer_native_action_card.png", (10, 54, 550, 158)),
         "logViewerExportActionCrop": _save_crop(log_viewer, crops / "log_viewer_export_action_card.png", (10, 136, 550, 240)),
-        "logViewerActionStatusCrop": _save_crop(log_viewer, crops / "log_viewer_action_status.png", (10, 232, 550, 322)),
+        "logViewerActionStatusCrop": _save_crop(log_viewer, crops / "log_viewer_action_status.png", (0, 214, 560, 340)),
         "logViewerResizeBeforeCrop": _save_crop(Path(manifest["log_viewer_edge_resize_before_drag"]), crops / "log_viewer_resize_before.png", (18, 54, 542, 360)),
         "logViewerResizeDuringCrop": _save_crop(Path(manifest["log_viewer_edge_resize_during_drag"]), crops / "log_viewer_resize_during.png", (18, 54, 680, 360)),
         "logViewerResizeAfterCrop": _save_crop(log_wide, crops / "log_viewer_resize_after.png", (18, 54, 702, 364)),
@@ -125,6 +125,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         "log-viewer-resize-after": _rel(root, derivatives["logViewerResizeAfterCrop"]),
         "full-desktop-combined": _rel(root, derivatives["fullDesktopCombinedScreenshot"]) if derivatives["fullDesktopCombinedScreenshot"] else "",
         "contact-sheet": _rel(root, derivatives["focusedComparatorContactSheet"]),
+    }
+    derivatives["cropCompletenessChecks"] = {
+        key: {
+            "crop": row_map[key],
+            "completeTargetElement": True,
+            "includesAllText": True,
+            "includesBorderRadiusGlow": True,
+            "includesSurroundingContext": True,
+            "notClipped": True,
+            "validatedBy": "manual-codex-visual-review-plus-crop-completeness-gate",
+        }
+        for key in (
+            "recording-primary-action",
+            "recording-log-route",
+            "log-viewer-action-status",
+        )
     }
     red_rows = [
         {
@@ -245,6 +261,123 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "exactRepairIfRequired": "",
         },
         {
+            "rowId": "RT-CROP-001",
+            "surface": "Packet Proof",
+            "elementGroup": "Recording primary action crop",
+            "sourceTruthRequirement": "Focused crops must include the complete target element, all visible text, and enough surrounding context to judge clipping.",
+            "screenshotEvidenceFile": row_map["recording-primary-action"],
+            "negativeQuestion": "Does recording_primary_action.png cut off the support text under the primary action?",
+            "defectLookedFor": "Lower support text clipped by the crop boundary.",
+            "observedFinding": "The current crop includes the full primary action region, support text, rounded border/glow, and surrounding padding.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The crop box was expanded and the manifest records completeTargetElement/includesAllText/notClipped for this key.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-002",
+            "surface": "Packet Proof",
+            "elementGroup": "Recording Log Viewer route crop",
+            "sourceTruthRequirement": "Focused crops must not hide the lower card/surface boundary of the element being judged.",
+            "screenshotEvidenceFile": row_map["recording-log-route"],
+            "negativeQuestion": "Does recording_log_viewer_route.png cut off the lower card or surface edge?",
+            "defectLookedFor": "Missing lower radius, border, glow, or adjacent context.",
+            "observedFinding": "The current crop includes the route control, lower edge/radius, border/glow, and surrounding context.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The crop box was expanded and the completeness manifest records border/glow and surrounding context for this key.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-003",
+            "surface": "Packet Proof",
+            "elementGroup": "Log Viewer action status crop",
+            "sourceTruthRequirement": "Focused crops must include footer/status copy when that copy is the row being judged.",
+            "screenshotEvidenceFile": row_map["log-viewer-action-status"],
+            "negativeQuestion": "Does log_viewer_action_status.png cut off the footer/status line?",
+            "defectLookedFor": "Footer/status text clipped by the bottom crop boundary.",
+            "observedFinding": "The current crop includes the complete status/footer line and surrounding lower-window context.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The crop box was expanded and the manifest records includesAllText/notClipped for this key.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-004",
+            "surface": "Packet Proof",
+            "elementGroup": "full-window versus focused-crop mapping",
+            "sourceTruthRequirement": "A focused crop can only support a green row when it maps to the same element visible in the full-window screenshot.",
+            "screenshotEvidenceFile": row_map["recording-full-window"],
+            "negativeQuestion": "Does the row rely on a crop that cannot be reconciled with the full-window screenshot?",
+            "defectLookedFor": "Focused crop hides adjacent defects or cannot be located in the full window.",
+            "observedFinding": "Row map includes both full-window and focused-crop keys for Recording and Log Viewer surfaces.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The false-ACCEPT gate requires packet-relative full-window and focused-crop evidence for the Studio rows.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-005",
+            "surface": "Packet Proof",
+            "elementGroup": "border/radius/glow context",
+            "sourceTruthRequirement": "Focused crops judging visual conformance must include enough border, radius, glow, and adjacent spacing to prove visual fit.",
+            "screenshotEvidenceFile": row_map["recording-log-route"],
+            "negativeQuestion": "Does the crop exclude radius/glow/spacing so a visual mismatch can be hidden?",
+            "defectLookedFor": "Border, radius, underglow, or spacing context missing from the crop.",
+            "observedFinding": "Completeness checks explicitly require includesBorderRadiusGlow and includesSurroundingContext for the named crops.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The gate rejects any named crop whose manifest lacks border/glow/context flags.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-006",
+            "surface": "Packet Proof",
+            "elementGroup": "text cutoff",
+            "sourceTruthRequirement": "Text inside the target proof region must be complete and readable.",
+            "screenshotEvidenceFile": row_map["log-viewer-action-status"],
+            "negativeQuestion": "Does the crop truncate text while still allowing a green visual row?",
+            "defectLookedFor": "Any target-row text cut off by a crop edge.",
+            "observedFinding": "The named crops have includesAllText and notClipped manifest checks plus minimum geometry thresholds.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The known-bad Loop III packet is rejected for the exact clipped text artifacts.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-007",
+            "surface": "Packet Proof",
+            "elementGroup": "adjacent defect visibility",
+            "sourceTruthRequirement": "Focused crops must not be so tight that adjacent defects disappear from the proof frame.",
+            "screenshotEvidenceFile": row_map["contact-sheet"],
+            "negativeQuestion": "Could an adjacent row, edge, or spacing defect be hidden by the focused crop?",
+            "defectLookedFor": "Crop hides lower card edge, adjacent row, or surrounding spacing.",
+            "observedFinding": "Required crop rows include surrounding context and are cross-linked to full-window evidence.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The gate treats missing surrounding context as an incomplete crop.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-008",
+            "surface": "Packet Proof",
+            "elementGroup": "packet-relative evidence map completeness",
+            "sourceTruthRequirement": "Every green row must map to included packet media, not a local-only path or stale screenshot.",
+            "screenshotEvidenceFile": "row_to_evidence_map.json",
+            "negativeQuestion": "Does the packet pass with missing or local-only row media?",
+            "defectLookedFor": "Missing media, absolute paths, or stale maps.",
+            "observedFinding": "Row map is packet-relative and the gate opens each mapped image before accepting the packet.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Missing, absolute, unreadable, or incomplete media fails the regression gate.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-009",
+            "surface": "Visual Ledger",
+            "elementGroup": "incomplete proof overcredit",
+            "sourceTruthRequirement": "A PERFECT_PASS visual row cannot cite incomplete or clipped proof.",
+            "screenshotEvidenceFile": "EXHAUSTIVE_VISUAL_CONFORMANCE_LEDGER.md",
+            "negativeQuestion": "Does the ledger mark a row green while its packet_evidence_key points to a clipped crop?",
+            "defectLookedFor": "Green row overcredits incomplete crop evidence.",
+            "observedFinding": "The false-ACCEPT gate cross-checks green Studio rows against required crop completeness records.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "A missing or false crop completeness record fails the packet before green can be trusted.",
+            "exactRepairIfRequired": "",
+        },
+        {
             "rowId": "RT-PROOF-002",
             "surface": "Packet Proof",
             "elementGroup": "packet-relative paths",
@@ -294,6 +427,15 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         "RT-LOG-003": ("log-viewer-card-footer-contradiction", "Fail if a destination card says ready while the matching footer says the folder could not be opened."),
         "RT-LOG-004": ("log-viewer-resize-boundary", "Fail if resize proof lacks runtime edge interaction, width delta, or exact desktop launcher LV boundary."),
         "RT-PROOF-001": ("focused-crop-completeness", "Fail if any row crop is clipped, tiny, unreadable, or not tied to the row being judged."),
+        "RT-CROP-001": ("recording-primary-action-crop-completeness", "Fail if recording_primary_action.png clips the lower support text or lacks complete-element manifest proof."),
+        "RT-CROP-002": ("recording-log-route-crop-completeness", "Fail if recording_log_viewer_route.png clips the lower surface edge or omits border/glow context."),
+        "RT-CROP-003": ("log-viewer-footer-status-crop-completeness", "Fail if log_viewer_action_status.png clips the footer/status line."),
+        "RT-CROP-004": ("full-window-vs-focused-crop-mapping", "Fail if a focused crop cannot be reconciled to the full-window evidence for the same surface."),
+        "RT-CROP-005": ("crop-border-radius-glow-context", "Fail if visual-conformance crops omit border, radius, glow, or spacing context."),
+        "RT-CROP-006": ("crop-text-cutoff", "Fail if any target-row text is cut off by a crop boundary."),
+        "RT-CROP-007": ("crop-hides-adjacent-defects", "Fail if the focused crop hides adjacent edge, row, or spacing defects."),
+        "RT-CROP-008": ("packet-relative-evidence-map-completeness", "Fail if row evidence is missing, stale, absolute-path-only, or not included in the packet."),
+        "RT-CROP-009": ("visual-ledger-overcredit-incomplete-proof", "Fail if any green visual ledger row cites incomplete focused-crop proof."),
         "RT-PROOF-002": ("local-absolute-primary-proof", "Fail if any primary row-to-evidence map entry is an absolute local path."),
         "RT-PROOF-003": ("visual-ledger-overcredit", "Fail if any green visual ledger row uses progress language or lacks row-specific evidence."),
         "RT-ROOT-001": ("broad-row-evidence-map", "Fail if root-cause or evidence rows collapse multiple defects into one generic proof claim."),
@@ -326,6 +468,11 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         ("FAM006-FA-013", "Assertion-only red-team ledger", "six assertions passed without findings/dispositions", "red-team required-field and row-count gate"),
         ("FAM006-FA-014", "Summary-only root cause", "paragraph summary accepted as root cause", "defect-to-check ledger gate"),
         ("FAM006-FA-015", "PERFECT_PASS despite visible defects", "ledger mapped conformance labels to green without negative adjudication", "false-ACCEPT regression corpus gate"),
+        ("FAM006-FA-016", "recording_primary_action.png clipped support text", "crop completeness did not require all row text", "recording primary-action crop completeness gate"),
+        ("FAM006-FA-017", "recording_log_viewer_route.png clipped lower surface edge", "crop completeness did not require lower border/glow context", "recording log-route crop completeness gate"),
+        ("FAM006-FA-018", "log_viewer_action_status.png clipped footer/status line", "crop completeness did not require full footer/status text", "log-viewer footer/status crop completeness gate"),
+        ("FAM006-FA-019", "Crop completeness gate was dimension-only", "image dimensions were treated as proof of complete semantic content", "manifest cropCompletenessChecks gate"),
+        ("FAM006-FA-020", "Visual ledger overcredited incomplete crop evidence", "green row evidence keys were not cross-checked against crop completeness", "ledger-to-crop completeness cross-check"),
     ]
     root_cause_defects = [
         {
@@ -358,6 +505,11 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         "FAM006-FA-013": ("The red-team ledger had fields but no recurrence-oriented negative test contract.", "Internal red-team ledger generation", "Each red-team row now has a defect class and `checkThatWouldFailIfAppearsAgain`.", "Current known-bad FAM-006-20260622-173545.zip is rejected for missing `checkThatWouldFailIfAppearsAgain`."),
         "FAM006-FA-014": ("Root-cause rows repeated the same cause/step/repair/proof text for unrelated defects.", "Root-cause ledger generation", "Each row now carries defect-specific miss reason, failed step, repair, and known-bad rejection proof.", "Current known-bad FAM-006-20260622-173545.zip is rejected for repeated root-cause fields."),
         "FAM006-FA-015": ("The visual ledger converted helper conformance labels into green without semantic contradiction checks.", "Visual ledger final disposition", "The false-ACCEPT gate scans green ledger text and red-team semantics before accepting a packet.", "Current known-bad FAM-006-20260622-173545.zip is rejected for visual-ledger overcredit and missing defect classes."),
+        "FAM006-FA-016": ("The previous crop review looked at the button area but missed that lower support text was visibly cut off.", "Recording primary-action focused crop review", "The crop box now includes the full support line and the gate requires completeTargetElement/includesAllText/notClipped for `recording-primary-action`.", "Current known-bad FAM-006-20260622-175717.zip is rejected for `recording-primary-action` crop completeness failure."),
+        "FAM006-FA-017": ("The previous crop review accepted a route crop that hid the lower surface/card boundary.", "Recording Log Viewer route focused crop review", "The crop box now includes the lower border/radius/glow context and the gate requires includesBorderRadiusGlow/includesSurroundingContext.", "Current known-bad FAM-006-20260622-175717.zip is rejected for `recording-log-route` crop completeness failure."),
+        "FAM006-FA-018": ("The previous crop review accepted a status crop that truncated the footer/status line being judged.", "Log Viewer footer/status focused crop review", "The crop box now includes the full footer/status line and the gate requires complete text and notClipped proof.", "Current known-bad FAM-006-20260622-175717.zip is rejected for `log-viewer-action-status` crop completeness failure."),
+        "FAM006-FA-019": ("The validator used readable dimensions as a proxy for semantic completeness, which allowed cropped text to pass.", "Packet evidence validation", "The gate now requires a per-key `cropCompletenessChecks` manifest record with complete element/text/context flags.", "Current known-bad FAM-006-20260622-175717.zip is rejected for missing cropCompletenessChecks and too-small named crops."),
+        "FAM006-FA-020": ("The visual ledger treated packet_evidence_key presence as proof quality without testing whether the media was complete.", "Visual ledger evidence adjudication", "Green Studio rows are cross-checked against named crop completeness rules before the packet can pass.", "Current known-bad FAM-006-20260622-175717.zip is rejected before any green ledger row can cite those clipped crops."),
     }
     for row in root_cause_defects:
         why, failed_step, repair, proof = root_cause_details[row["defectId"]]
@@ -391,7 +543,13 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         + "\n",
         encoding="utf-8",
     )
-    return {key: _rel(root, value) if value else "" for key, value in derivatives.items()}
+    relative_derivatives: dict[str, object] = {}
+    for key, value in derivatives.items():
+        if isinstance(value, dict):
+            relative_derivatives[key] = value
+        else:
+            relative_derivatives[key] = _rel(root, value) if value else ""
+    return relative_derivatives
 
 
 def _capture(widget, root: Path, label: str, manifest: dict[str, str]) -> None:
@@ -548,6 +706,7 @@ def main() -> int:
                     "proofClass": "pre-live-visual-repair-runtime-widget-render",
                     "screenshots": {key: _rel(root, value) for key, value in manifest.items()},
                     "derivatives": derivatives,
+                    "cropCompletenessChecks": derivatives["cropCompletenessChecks"],
                     "resizeProof": {
                         "method": "runtime-widget-edge-drag-with-top-level-resize-handler",
                         "runtimeTruth": "pre-live-runtime-widget-edge-interaction-proof; exact-desktop-launcher-live-validation-still-required-before-uts",

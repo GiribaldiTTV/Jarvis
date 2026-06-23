@@ -111,6 +111,42 @@ FORBIDDEN_GREEN_WORDS = (
     "unproven",
 )
 
+REQUIRED_CROP_COMPLETENESS = {
+    "recording-primary-action": {
+        "minWidth": 460,
+        "minHeight": 160,
+        "requires": (
+            "completeTargetElement",
+            "includesAllText",
+            "includesBorderRadiusGlow",
+            "includesSurroundingContext",
+            "notClipped",
+        ),
+    },
+    "recording-log-route": {
+        "minWidth": 460,
+        "minHeight": 130,
+        "requires": (
+            "completeTargetElement",
+            "includesAllText",
+            "includesBorderRadiusGlow",
+            "includesSurroundingContext",
+            "notClipped",
+        ),
+    },
+    "log-viewer-action-status": {
+        "minWidth": 540,
+        "minHeight": 110,
+        "requires": (
+            "completeTargetElement",
+            "includesAllText",
+            "includesBorderRadiusGlow",
+            "includesSurroundingContext",
+            "notClipped",
+        ),
+    },
+}
+
 
 @dataclass(frozen=True)
 class VisualLedgerRow:
@@ -693,6 +729,22 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
         target = evidence_root / value_text
         if not target.exists():
             failures.append(f"packet evidence key {key!r} points to missing packet media: {value_text}")
+            continue
+        if key in REQUIRED_CROP_COMPLETENESS and target.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+            try:
+                from PIL import Image
+
+                with Image.open(target) as image:
+                    width, height = image.size
+            except Exception as exc:  # noqa: BLE001 - validation reports exact proof failure
+                failures.append(f"packet evidence key {key!r} image unreadable: {exc}")
+            else:
+                rule = REQUIRED_CROP_COMPLETENESS[key]
+                if width < int(rule["minWidth"]) or height < int(rule["minHeight"]):
+                    failures.append(
+                        f"packet evidence key {key!r} focused crop too small for complete proof: "
+                        f"{width}x{height} < {rule['minWidth']}x{rule['minHeight']}"
+                    )
     current_keys = {row.packet_evidence_key for row in rows if row.surface in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"}}
     unmapped = sorted(key for key in current_keys if key and key not in row_map)
     if unmapped:
@@ -704,6 +756,22 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
             failures.append(f"visual_capture_manifest.json is invalid JSON: {exc}")
         else:
             resize = manifest.get("resizeProof", {})
+            crop_checks = manifest.get("cropCompletenessChecks", {})
+            if not isinstance(crop_checks, dict):
+                failures.append("visual_capture_manifest.json missing cropCompletenessChecks object")
+                crop_checks = {}
+            for key, rule in REQUIRED_CROP_COMPLETENESS.items():
+                check = crop_checks.get(key)
+                if not isinstance(check, dict):
+                    failures.append(f"visual_capture_manifest.json missing cropCompletenessChecks entry for {key}")
+                    continue
+                if str(check.get("crop", "")).strip() != str(row_map.get(key, "")).strip():
+                    failures.append(f"cropCompletenessChecks entry for {key} does not match row_to_evidence_map")
+                for required in rule["requires"]:
+                    if check.get(required) is not True:
+                        failures.append(f"cropCompletenessChecks entry for {key} has non-true {required}")
+                if not str(check.get("validatedBy", "")).strip():
+                    failures.append(f"cropCompletenessChecks entry for {key} missing validatedBy")
             if resize.get("method") in {"scripted-resize-call", "setGeometry-only"}:
                 failures.append("resize proof uses forbidden scripted/direct geometry method")
             runtime_truth = str(resize.get("runtimeTruth", ""))

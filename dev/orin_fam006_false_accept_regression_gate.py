@@ -26,6 +26,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-175717.zip",
+    USER_ROOT / "FAM-006-20260622-175717.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-173545.zip",
     USER_ROOT / "FAM-006-20260622-173545.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-170147.zip",
@@ -78,6 +80,42 @@ REQUIRED_EVIDENCE_KEYS = {
     "contact-sheet",
 }
 
+REQUIRED_CROP_COMPLETENESS = {
+    "recording-primary-action": {
+        "minWidth": 460,
+        "minHeight": 160,
+        "requires": (
+            "completeTargetElement",
+            "includesAllText",
+            "includesBorderRadiusGlow",
+            "includesSurroundingContext",
+            "notClipped",
+        ),
+    },
+    "recording-log-route": {
+        "minWidth": 460,
+        "minHeight": 130,
+        "requires": (
+            "completeTargetElement",
+            "includesAllText",
+            "includesBorderRadiusGlow",
+            "includesSurroundingContext",
+            "notClipped",
+        ),
+    },
+    "log-viewer-action-status": {
+        "minWidth": 540,
+        "minHeight": 110,
+        "requires": (
+            "completeTargetElement",
+            "includesAllText",
+            "includesBorderRadiusGlow",
+            "includesSurroundingContext",
+            "notClipped",
+        ),
+    },
+}
+
 FORBIDDEN_GREEN_WORDS = (
     "better",
     "closer",
@@ -104,6 +142,15 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "local-absolute-primary-proof",
     "broad-row-evidence-map",
     "visual-ledger-overcredit",
+    "recording-primary-action-crop-completeness",
+    "recording-log-route-crop-completeness",
+    "log-viewer-footer-status-crop-completeness",
+    "full-window-vs-focused-crop-mapping",
+    "crop-border-radius-glow-context",
+    "crop-text-cutoff",
+    "crop-hides-adjacent-defects",
+    "packet-relative-evidence-map-completeness",
+    "visual-ledger-overcredit-incomplete-proof",
 }
 
 MIN_ROOT_CAUSE_UNIQUE_FIELDS = (
@@ -144,6 +191,80 @@ def _image_size(path: Path) -> tuple[int, int] | None:
         return None
 
 
+def _validate_crop_completeness(
+    row_map: dict[str, Any],
+    manifest: dict[str, Any] | None,
+    evidence_root: Path,
+) -> list[str]:
+    failures: list[str] = []
+    checks = manifest.get("cropCompletenessChecks") if isinstance(manifest, dict) else None
+    if not isinstance(checks, dict):
+        failures.append("visual_capture_manifest.json missing cropCompletenessChecks object")
+        checks = {}
+    for key, rule in REQUIRED_CROP_COMPLETENESS.items():
+        text = str(row_map.get(key, "")).strip()
+        if not text:
+            failures.append(f"crop completeness key {key} missing from row_to_evidence_map")
+            continue
+        target = evidence_root / text
+        size = _image_size(target)
+        if size is None:
+            failures.append(f"crop completeness key {key} image unreadable")
+            continue
+        min_width = int(rule["minWidth"])
+        min_height = int(rule["minHeight"])
+        if size[0] < min_width or size[1] < min_height:
+            failures.append(
+                f"crop completeness key {key} image too small for complete focused proof: "
+                f"{size[0]}x{size[1]} < {min_width}x{min_height}"
+            )
+        check = checks.get(key)
+        if not isinstance(check, dict):
+            failures.append(f"crop completeness key {key} missing manifest completeness record")
+            continue
+        crop_value = str(check.get("crop", "")).strip()
+        if crop_value and crop_value != text:
+            failures.append(f"crop completeness key {key} manifest crop path mismatch: {crop_value} != {text}")
+        for required in rule["requires"]:
+            if check.get(required) is not True:
+                failures.append(f"crop completeness key {key} manifest flag {required} is not true")
+        validator = str(check.get("validatedBy", "")).strip()
+        if not validator:
+            failures.append(f"crop completeness key {key} missing validatedBy")
+    return failures
+
+
+def _crop_key_complete(
+    row_map: dict[str, Any],
+    manifest: dict[str, Any] | None,
+    evidence_root: Path,
+    key: str,
+) -> bool:
+    rule = REQUIRED_CROP_COMPLETENESS.get(key)
+    if rule is None:
+        return True
+    text = str(row_map.get(key, "")).strip()
+    if not text:
+        return False
+    target = evidence_root / text
+    size = _image_size(target)
+    if size is None:
+        return False
+    if size[0] < int(rule["minWidth"]) or size[1] < int(rule["minHeight"]):
+        return False
+    checks = (manifest or {}).get("cropCompletenessChecks", {})
+    if not isinstance(checks, dict):
+        return False
+    check = checks.get(key)
+    if not isinstance(check, dict):
+        return False
+    if str(check.get("crop", "")).strip() != text:
+        return False
+    return all(check.get(required) is True for required in rule["requires"]) and bool(
+        str(check.get("validatedBy", "")).strip()
+    )
+
+
 def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures: list[str] = []
     evidence_roots = sorted((root / "Review Aids" / "Evidence").glob("*")) if (root / "Review Aids" / "Evidence").exists() else []
@@ -160,6 +281,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     is_known_bad = label.startswith("known-bad:")
 
     row_map: dict[str, Any] = {}
+    manifest_data: dict[str, Any] | None = None
     if row_map_path is None:
         failures.append("missing row_to_evidence_map.json")
     else:
@@ -197,6 +319,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
         if error or not isinstance(data, dict):
             failures.append(f"invalid visual_capture_manifest.json: {error}")
         else:
+            manifest_data = data
             resize = data.get("resizeProof", {})
             if not isinstance(resize, dict):
                 failures.append("resizeProof missing object")
@@ -211,6 +334,9 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                     failures.append("resize proof does not prove width increased")
                 if "exact-desktop-launcher-live-validation-still-required" not in runtime_truth:
                     failures.append("resize proof does not preserve exact desktop launcher LV boundary")
+
+    if row_map_path is not None and row_map:
+        failures.extend(_validate_crop_completeness(row_map, manifest_data, row_map_path.parent))
 
     if red_team_path is None:
         failures.append("missing internal_visual_red_team_ledger.json")
@@ -299,6 +425,9 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                     joined_green_text.append(" ".join(str(value) for value in row.values()))
                     if row.get("surface") in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"} and not row.get("packet_evidence_key"):
                         failures.append(f"{row.get('row_id')}: green Studio row lacks packet evidence key")
+                    key = str(row.get("packet_evidence_key", "")).strip()
+                    if key in REQUIRED_CROP_COMPLETENESS and not _crop_key_complete(row_map, manifest_data, row_map_path.parent, key):
+                        failures.append(f"{row.get('row_id')}: green row overcredits incomplete focused crop evidence for {key}")
             green_text = " ".join(joined_green_text).casefold()
             for word in FORBIDDEN_GREEN_WORDS:
                 if word in green_text:
