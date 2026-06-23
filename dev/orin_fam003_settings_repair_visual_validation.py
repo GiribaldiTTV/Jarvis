@@ -181,7 +181,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsNavShell",
         "role": "settings navigation organizer",
         "rule": "F3-FF01; FAM-002; UIREF-005",
-        "copy": "GLOBAL SETTINGS; Nexus Tray; Tray doorway settings.",
+        "copy": "Tray; Quick Access",
         "font": "10-15px compact rail",
         "text": "muted cyan/white",
         "background": "transparent rail",
@@ -204,7 +204,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsNavItem",
         "role": "active settings leaf selector",
         "rule": "UIREF-003",
-        "copy": "Quick Access",
+        "copy": "Tray; Quick Access",
         "font": "10-13px compact",
         "text": "near-white and muted caption",
         "background": "subtle selected row",
@@ -212,7 +212,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "effects": "hover background",
         "spacing": "compact nav row",
         "hitbox": "row with selected button",
-        "icon_label": "small gear mark plus label",
+        "icon_label": "small gear mark plus main/subcategory labels",
         "states": "selected, hover/focus feasible",
         "a11y": "Open Quick Access Settings",
         "comparator": "settings nav row, not CTA card",
@@ -250,7 +250,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsHeading",
         "role": "selected settings page title",
         "rule": "F3-FF01; UIREF-005",
-        "copy": "Quick Access; slot count",
+        "copy": "Quick Access; Tray; slot count",
         "font": "18px heading, 10-11px metadata",
         "text": "near-white and cyan",
         "background": "transparent",
@@ -1247,8 +1247,9 @@ def main() -> int:
             and dialog.quick_access_nav_item.property("settingsNavIdentity") == "ndai-signal-leaf"
             and dialog.nav_shell.property("settingsShellIdentity") == "ndai-slim-global-settings"
             and set(dialog._nav_buttons) == {"quick_access"}
-            and dialog.quick_access_nav_caption.text() == "Slots"
-            and not dialog.quick_access_nav_caption.isVisible()
+            and dialog.quick_access_nav_button.text() == "Tray"
+            and dialog.quick_access_nav_caption.text() == "Quick Access"
+            and dialog.quick_access_nav_caption.isVisible()
             and 138 <= dialog.nav_shell.width() <= 150
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; primary_visible={dialog.primary_nav_rail.isVisible()}; primary={dialog.primary_tray_button.text()!r}/{dialog.primary_tray_button.width()}x{dialog.primary_tray_button.height()}/{dialog.primary_tray_button.isChecked()}; checked={dialog.quick_access_nav_button.isChecked()}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
@@ -1265,15 +1266,16 @@ def main() -> int:
         (
             "single actionable page inside Global Settings IA",
             dialog.section_heading.text() == "Quick Access"
-            and not dialog.section_badge.isVisible()
+            and dialog.section_badge.text() == "Tray"
+            and dialog.section_badge.isVisible()
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-two-level-tray-quick-access-v8"
-            and dialog.property("settingsVisualRepair") == "settings-specific-conformance-v8-exclusive-ndai-slim"
-            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v8"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-quick-access-v9"
+            and dialog.property("settingsVisualRepair") == "settings-specific-conformance-v9-tray-scoped-ndai-slim"
+            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v9"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
             and set(dialog._nav_buttons) == {"quick_access"}
-            and dialog.quick_access_nav_button.text() == "Quick Access"
+            and dialog.quick_access_nav_button.text() == "Tray"
             and dialog.quick_access_nav_button.isChecked()
             and dialog.slot_count_badge.text() == f"{len(DEFAULT_QUICK_SLOT_ROUTE_IDS)}/{MAX_QUICK_SLOT_COUNT} slots"
             and dialog.settings_page_frame.objectName() == "residentAccessSettingsPageFrame"

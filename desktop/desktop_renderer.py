@@ -983,9 +983,9 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setObjectName("residentAccessSettingsDialog")
         self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
         self.setProperty("visualInheritance", "UIREF-001-UIREF-002-UIREF-003-FAM-002")
-        self.setProperty("settingsInformationArchitecture", "global-settings-shell-two-level-tray-quick-access-v8")
-        self.setProperty("referenceDerivedHeader", "compact-ndai-settings-window-frame-v8")
-        self.setProperty("settingsVisualRepair", "settings-specific-conformance-v8-exclusive-ndai-slim")
+        self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-quick-access-v9")
+        self.setProperty("referenceDerivedHeader", "compact-ndai-settings-window-frame-v9")
+        self.setProperty("settingsVisualRepair", "settings-specific-conformance-v9-tray-scoped-ndai-slim")
         self.setProperty("sharedPrimitiveClaim", "none-promoted-reference-derived-only")
         self.setProperty("referenceComparatorRequired", "accepted-ai-control-center-contact-sheet")
         self.setProperty("platformException", "none")
@@ -1074,26 +1074,30 @@ class ResidentAccessSettingsDialog(QDialog):
         self.quick_access_nav_item.setProperty("settingsNavIdentity", "ndai-signal-leaf")
         self.quick_access_nav_item.setAttribute(Qt.WA_StyledBackground, True)
         nav_item_layout = QHBoxLayout(self.quick_access_nav_item)
-        nav_item_layout.setContentsMargins(8, 3, 8, 3)
+        nav_item_layout.setContentsMargins(8, 4, 8, 4)
         nav_item_layout.setSpacing(6)
         self.quick_access_nav_icon = QLabel("\N{GEAR}", self.quick_access_nav_item)
         self.quick_access_nav_icon.setObjectName("residentAccessSettingsNavIcon")
         self.quick_access_nav_icon.setAlignment(Qt.AlignCenter)
         self.quick_access_nav_icon.setFixedSize(14, 16)
         nav_item_layout.addWidget(self.quick_access_nav_icon)
-        self.quick_access_nav_button = QPushButton("Quick Access", self.quick_access_nav_item)
+        nav_text_stack = QVBoxLayout()
+        nav_text_stack.setContentsMargins(0, 0, 0, 0)
+        nav_text_stack.setSpacing(0)
+        self.quick_access_nav_button = QPushButton("Tray", self.quick_access_nav_item)
         self.quick_access_nav_button.setObjectName("residentAccessSettingsNavButton")
         self.quick_access_nav_button.setCheckable(True)
         self.quick_access_nav_button.setChecked(True)
-        self.quick_access_nav_button.setAccessibleName("Open Quick Access Settings")
+        self.quick_access_nav_button.setAccessibleName("Open Tray Settings")
         self.quick_access_nav_button.setProperty("navState", "selected")
         self.quick_access_nav_button.clicked.connect(lambda: self.set_focus("quick_access"))
         self._nav_buttons["quick_access"] = self.quick_access_nav_button
-        nav_item_layout.addWidget(self.quick_access_nav_button, 1)
-        self.quick_access_nav_caption = QLabel("Slots", self.quick_access_nav_item)
+        nav_text_stack.addWidget(self.quick_access_nav_button)
+        self.quick_access_nav_caption = QLabel("Quick Access", self.quick_access_nav_item)
         self.quick_access_nav_caption.setObjectName("residentAccessSettingsNavCaption")
-        self.quick_access_nav_caption.setVisible(False)
-        nav_item_layout.addWidget(self.quick_access_nav_caption)
+        self.quick_access_nav_caption.setVisible(True)
+        nav_text_stack.addWidget(self.quick_access_nav_caption)
+        nav_item_layout.addLayout(nav_text_stack, 1)
         subpage_layout.addWidget(self.quick_access_nav_item)
         subpage_layout.addStretch(1)
         nav_layout.addWidget(self.subpage_nav_rail)
@@ -1126,7 +1130,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.section_badge.setObjectName("residentAccessSettingsSectionBadge")
         self.section_badge.setAlignment(Qt.AlignCenter)
         self.section_badge.setFixedSize(38, 24)
-        self.section_badge.setVisible(False)
+        self.section_badge.setVisible(True)
         self.section_scope = QLabel("", self.settings_page_frame)
         self.section_scope.setObjectName("residentAccessSettingsScope")
         self.section_scope.setVisible(False)
@@ -1365,8 +1369,8 @@ class ResidentAccessSettingsDialog(QDialog):
             " font-weight: 800;"
             "}"
             "#residentAccessSettingsNavDetail, #residentAccessSettingsNavCaption, #residentAccessSettingsNavBoundary {"
-            " color: rgba(157, 184, 204, 0.92);"
-            " font-size: 11px;"
+            " color: rgba(132, 170, 188, 0.86);"
+            " font-size: 10px;"
             " line-height: 1.25;"
             "}"
             "#residentAccessSettingsNavItem {"
@@ -1390,7 +1394,7 @@ class ResidentAccessSettingsDialog(QDialog):
             " color: rgba(225, 244, 248, 0.96);"
             " border: none;"
             " border-radius: 0;"
-            " min-height: 18px;"
+            " min-height: 16px;"
             " padding: 0;"
             " text-align: left;"
             " font-size: 11px;"
@@ -1928,7 +1932,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.status_summary.setVisible(False)
         self.section_heading.setText("Quick Access")
         self.slot_count_badge.setText(f"{route_count}/{MAX_QUICK_SLOT_COUNT} slots")
-        self.section_detail.setText(f"Choose up to {MAX_QUICK_SLOT_COUNT} shortcuts.")
+        self.section_detail.setText(f"Choose up to {MAX_QUICK_SLOT_COUNT} menu shortcuts.")
 
         dirty = self._has_unsaved_changes()
         if self._close_guard_active and dirty:
