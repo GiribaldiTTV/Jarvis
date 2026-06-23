@@ -26,6 +26,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-060525.zip",
+    USER_ROOT / "FAM-006-20260623-060525.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-050502.zip",
     USER_ROOT / "FAM-006-20260623-050502.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-202600.zip",
@@ -88,6 +90,12 @@ REQUIRED_EVIDENCE_KEYS = {
     "log-viewer-resize-after",
     "full-desktop-combined",
     "contact-sheet",
+    "comparator-ai-control-center-outer-frame",
+    "comparator-ai-control-center-chrome-header",
+    "comparator-ai-control-center-window-control-cluster",
+    "comparator-ai-control-center-button-grammar",
+    "comparator-ai-control-center-panel-rhythm",
+    "comparator-ai-control-center-status-action-grammar",
 }
 
 REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
@@ -198,6 +206,10 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "crop-scope-type-mismatch",
     "crop-visible-text-not-expected-or-excluded",
     "resize-state-text-audit-incomplete",
+    "comparator-proof-not-row-bound",
+    "green-comparator-row-missing-evidence-key",
+    "uncited-broad-comparator-sheet",
+    "row-specific-comparator-finding-missing",
 }
 
 REQUIRED_CROP_CONTENT_FIELDS = {
@@ -976,20 +988,54 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
             for row in rows:
                 if isinstance(row, dict) and row.get("final_disposition") == "PERFECT_PASS":
                     joined_green_text.append(" ".join(str(value) for value in row.values()))
+                    row_id = row.get("row_id")
                     if not row.get("packet_evidence_key"):
-                        failures.append(f"{row.get('row_id')}: green row lacks packet evidence key")
+                        failures.append(f"{row_id}: green row lacks packet evidence key")
                     primary = str(row.get("primary_packet_evidence_path", "")).strip()
                     if not primary:
-                        failures.append(f"{row.get('row_id')}: green row lacks primary_packet_evidence_path")
+                        failures.append(f"{row_id}: green row lacks primary_packet_evidence_path")
                     elif Path(primary).is_absolute():
-                        failures.append(f"{row.get('row_id')}: green row uses local absolute primary proof path: {primary}")
+                        failures.append(f"{row_id}: green row uses local absolute primary proof path: {primary}")
+                    accepted_comparator = str(row.get("accepted_comparator", "")).strip()
+                    if accepted_comparator:
+                        comparator_key = str(row.get("comparator_evidence_key", "")).strip()
+                        comparator_path = str(row.get("comparator_packet_evidence_path", "")).strip()
+                        comparator_finding = str(row.get("row_specific_comparator_finding", "")).strip()
+                        for field in (
+                            "comparator_evidence_key",
+                            "comparator_packet_evidence_path",
+                            "comparator_owner",
+                            "comparator_proof_scope",
+                            "comparator_source_truth_rule",
+                            "row_specific_comparator_finding",
+                        ):
+                            if not str(row.get(field, "")).strip():
+                                failures.append(f"{row_id}: green comparator row missing {field}")
+                        if comparator_key and comparator_key not in row_map:
+                            failures.append(f"{row_id}: comparator_evidence_key absent from row map: {comparator_key}")
+                        if comparator_key and comparator_path and str(row_map.get(comparator_key, "")).strip() != comparator_path:
+                            failures.append(f"{row_id}: comparator_packet_evidence_path does not match row map")
+                        if comparator_key == "contact-sheet" or "contact_sheet" in comparator_path:
+                            failures.append(f"{row_id}: broad comparator contact sheet used as row-bound comparator proof")
+                        if comparator_key and comparator_key not in comparator_finding:
+                            failures.append(f"{row_id}: row-specific comparator finding does not cite comparator evidence key")
+                        if comparator_path and not Path(comparator_path).is_absolute():
+                            target = row_map_path.parent / comparator_path
+                            if not target.exists():
+                                failures.append(f"{row_id}: comparator packet media missing: {comparator_path}")
+                            elif target.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+                                size = _image_size(target)
+                                if size is None:
+                                    failures.append(f"{row_id}: comparator packet media unreadable: {comparator_path}")
+                                elif size[0] < 300 or size[1] < 120:
+                                    failures.append(f"{row_id}: comparator packet media too small for row-bound proof: {size[0]}x{size[1]}")
                     for legacy_field in ("comparator_screenshot", "fam006_screenshot"):
                         legacy = str(row.get(legacy_field, "")).strip()
                         if legacy and Path(legacy).is_absolute():
-                            failures.append(f"{row.get('row_id')}: green row uses legacy primary local proof field {legacy_field}")
+                            failures.append(f"{row_id}: green row uses legacy primary local proof field {legacy_field}")
                     key = str(row.get("packet_evidence_key", "")).strip()
                     if key in REQUIRED_CROP_COMPLETENESS and not _crop_key_complete(row_map, manifest_data, row_map_path.parent, key):
-                        failures.append(f"{row.get('row_id')}: green row overcredits incomplete focused crop evidence for {key}")
+                        failures.append(f"{row_id}: green row overcredits incomplete focused crop evidence for {key}")
             green_text = " ".join(joined_green_text).casefold()
             for word in FORBIDDEN_GREEN_WORDS:
                 if word in green_text:

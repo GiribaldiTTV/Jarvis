@@ -214,6 +214,12 @@ class VisualLedgerRow:
     accepted_comparator: str
     packet_evidence_key: str
     primary_packet_evidence_path: str
+    comparator_evidence_key: str
+    comparator_packet_evidence_path: str
+    comparator_owner: str
+    comparator_proof_scope: str
+    comparator_source_truth_rule: str
+    row_specific_comparator_finding: str
     secondary_comparator_trace_path: str
     secondary_fam006_trace_path: str
     code_path: str
@@ -261,6 +267,28 @@ PACKET_EVIDENCE_BY_GROUP = {
     ("Native/export folder shell", "path tooltip/accessibility"): "native-log-destination-action",
 }
 
+COMPARATOR_EVIDENCE_BY_GROUP = {
+    "outer frame": "comparator-ai-control-center-outer-frame",
+    "chrome": "comparator-ai-control-center-chrome-header",
+    "top-level chrome": "comparator-ai-control-center-chrome-header",
+    "title/header": "comparator-ai-control-center-chrome-header",
+    "category label": "comparator-ai-control-center-chrome-header",
+    "window-control cluster": "comparator-ai-control-center-window-control-cluster",
+    "minimize control": "comparator-ai-control-center-window-control-cluster",
+    "close control": "comparator-ai-control-center-window-control-cluster",
+    "controller hero": "comparator-ai-control-center-status-action-grammar",
+    "visually primary Start/Stop control": "comparator-ai-control-center-button-grammar",
+    "secondary Log Viewer route control": "comparator-ai-control-center-button-grammar",
+    "Native logs destination card": "comparator-ai-control-center-panel-rhythm",
+    "Exported logs destination card": "comparator-ai-control-center-panel-rhythm",
+    "folder status strip": "comparator-ai-control-center-status-action-grammar",
+    "embedded Native Logs open control": "comparator-ai-control-center-button-grammar",
+    "embedded Exported Logs open control": "comparator-ai-control-center-button-grammar",
+    "edge resize affordance": "comparator-ai-control-center-outer-frame",
+    "path text containment": "comparator-ai-control-center-panel-rhythm",
+    "copy/text clarity": "comparator-ai-control-center-status-action-grammar",
+}
+
 CURRENT_PACKET_REQUIRED_EVIDENCE = {
     "recording-full-window",
     "recording-window-chrome",
@@ -277,6 +305,12 @@ CURRENT_PACKET_REQUIRED_EVIDENCE = {
     "log-viewer-resize-after",
     "full-desktop-combined",
     "contact-sheet",
+    "comparator-ai-control-center-outer-frame",
+    "comparator-ai-control-center-chrome-header",
+    "comparator-ai-control-center-window-control-cluster",
+    "comparator-ai-control-center-button-grammar",
+    "comparator-ai-control-center-panel-rhythm",
+    "comparator-ai-control-center-status-action-grammar",
 }
 
 
@@ -603,6 +637,37 @@ def _proof_quality_for(surface: str, group: str, packet_key: str, primary_packet
     )
 
 
+def _comparator_key_for(group: str) -> str:
+    if group in COMPARATOR_EVIDENCE_BY_GROUP:
+        return COMPARATOR_EVIDENCE_BY_GROUP[group]
+    text = group.casefold()
+    if any(token in text for token in ("button", "control", "hover", "focus", "pressed", "disabled")):
+        return "comparator-ai-control-center-button-grammar"
+    if any(token in text for token in ("card", "row", "strip", "path", "status", "copy")):
+        return "comparator-ai-control-center-panel-rhythm"
+    if any(token in text for token in ("chrome", "header", "title", "category")):
+        return "comparator-ai-control-center-chrome-header"
+    return "comparator-ai-control-center-outer-frame"
+
+
+def _comparator_scope_for(group: str) -> str:
+    text = group.casefold()
+    if any(token in text for token in ("button", "control")):
+        return "same-class control primitive: pill geometry, type weight, glow, hover/focus/pressed grammar, and hitbox rhythm"
+    if any(token in text for token in ("chrome", "header", "title", "category", "outer frame")):
+        return "same-class shell/chrome primitive: frame fill, radius, border, glow, title hierarchy, and control-cluster placement"
+    if any(token in text for token in ("card", "row", "strip", "path", "status")):
+        return "same-class information/action primitive: panel rhythm, row density, border treatment, and action/status hierarchy"
+    return "same-class visual primitive: accepted AI Control Center family grammar applied to the current FAM-006 element group"
+
+
+def _row_specific_comparator_finding(surface: str, group: str, comparator_key: str) -> str:
+    return (
+        f"{surface} {group}: compared against packet evidence key `{comparator_key}`; "
+        f"the row must match the comparator's {_comparator_scope_for(group)} while preserving the Studio window's source-truth purpose."
+    )
+
+
 def _packet_row_map() -> dict[str, str]:
     row_maps = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/row_to_evidence_map.json"))
     if len(row_maps) != 1:
@@ -638,6 +703,8 @@ def build_rows() -> list[VisualLedgerRow]:
             if not packet_key and surface == "Log Viewer Studio":
                 packet_key = "log-viewer-full-window"
             primary_packet_path = packet_row_map.get(packet_key, "") if packet_key else ""
+            comparator_key = _comparator_key_for(str(group))
+            comparator_packet_path = packet_row_map.get(comparator_key, "") if comparator_key else ""
             rows.append(
                 VisualLedgerRow(
                     row_id=f"FAM006-STL-{counter:03d}",
@@ -649,6 +716,12 @@ def build_rows() -> list[VisualLedgerRow]:
                     accepted_comparator="AI Control Center / UIREF-001 through UIREF-006 plus FAM-006 current window taxonomy",
                     packet_evidence_key=packet_key,
                     primary_packet_evidence_path=primary_packet_path,
+                    comparator_evidence_key=comparator_key,
+                    comparator_packet_evidence_path=comparator_packet_path,
+                    comparator_owner="AI Control Center accepted reference evidence / UIREF-001 through UIREF-006",
+                    comparator_proof_scope=_comparator_scope_for(str(group)),
+                    comparator_source_truth_rule="Docs/nexus_vision.md Product Experience Contract; FAM-002 Desktop Interface grammar; UIREF-001 through UIREF-006 accepted-reference comparator contract",
+                    row_specific_comparator_finding=_row_specific_comparator_finding(surface, str(group), comparator_key),
                     secondary_comparator_trace_path=_as_posix(comparator),
                     secondary_fam006_trace_path=_as_posix(screenshot),
                     code_path=str(spec["code_path"]),
@@ -687,8 +760,14 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         if row.row_id in seen:
             failures.append(f"{row.row_id}: duplicate row id")
         seen.add(row.row_id)
+        optional_packet_fields = {
+            "packet_evidence_key",
+            "primary_packet_evidence_path",
+            "comparator_evidence_key",
+            "comparator_packet_evidence_path",
+        }
         for key, value in data.items():
-            if value is None or (key not in {"packet_evidence_key", "primary_packet_evidence_path"} and str(value).strip() == ""):
+            if value is None or (key not in optional_packet_fields and str(value).strip() == ""):
                 failures.append(f"{row.row_id}: missing {key}")
         if row.final_disposition not in ALLOWED_FINAL_DISPOSITIONS:
             failures.append(f"{row.row_id}: illegal final disposition {row.final_disposition!r}")
@@ -701,6 +780,17 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
                 failures.append(f"{row.row_id}: green row lacks primary_packet_evidence_path")
             elif Path(row.primary_packet_evidence_path).is_absolute():
                 failures.append(f"{row.row_id}: primary packet evidence path is absolute: {row.primary_packet_evidence_path}")
+            if row.accepted_comparator:
+                if not row.comparator_evidence_key:
+                    failures.append(f"{row.row_id}: green comparator row lacks comparator_evidence_key")
+                if not row.comparator_packet_evidence_path:
+                    failures.append(f"{row.row_id}: green comparator row lacks comparator_packet_evidence_path")
+                elif Path(row.comparator_packet_evidence_path).is_absolute():
+                    failures.append(f"{row.row_id}: comparator packet evidence path is absolute: {row.comparator_packet_evidence_path}")
+                if row.comparator_evidence_key == "contact-sheet" or "contact_sheet" in row.comparator_packet_evidence_path:
+                    failures.append(f"{row.row_id}: green comparator row uses broad contact sheet as row-bound comparator proof")
+                if row.comparator_evidence_key and row.comparator_evidence_key not in row.row_specific_comparator_finding:
+                    failures.append(f"{row.row_id}: row_specific_comparator_finding does not cite comparator evidence key")
         for evidence_key in ("secondary_comparator_trace_path", "secondary_fam006_trace_path"):
             evidence_path = str(data[evidence_key]).strip()
             if any(token in evidence_path for token in ("<timestamp>", "*", "?")):
@@ -828,10 +918,35 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                         f"packet evidence key {key!r} focused crop too small for complete proof: "
                         f"{width}x{height} < {rule['minWidth']}x{rule['minHeight']}"
                     )
+        if key.startswith("comparator-") and target.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+            try:
+                from PIL import Image
+
+                with Image.open(target) as image:
+                    width, height = image.size
+            except Exception as exc:  # noqa: BLE001 - validation reports exact proof failure
+                failures.append(f"comparator evidence key {key!r} image unreadable: {exc}")
+            else:
+                if width < 300 or height < 120:
+                    failures.append(
+                        f"comparator evidence key {key!r} is too small for row-bound proof: {width}x{height}"
+                    )
+                if "contact_sheet" in value_text:
+                    failures.append(f"comparator evidence key {key!r} points to broad contact sheet instead of focused comparator media")
     current_keys = {row.packet_evidence_key for row in rows if row.final_disposition == "PERFECT_PASS"}
     unmapped = sorted(key for key in current_keys if key and key not in row_map)
     if unmapped:
         failures.append(f"current-branch ledger rows reference packet evidence keys absent from row map: {', '.join(unmapped)}")
+    comparator_keys = {
+        row.comparator_evidence_key
+        for row in rows
+        if row.final_disposition == "PERFECT_PASS" and row.accepted_comparator and row.comparator_evidence_key
+    }
+    missing_comparator_keys = sorted(key for key in comparator_keys if key not in row_map)
+    if missing_comparator_keys:
+        failures.append(
+            f"green comparator rows reference comparator evidence keys absent from row map: {', '.join(missing_comparator_keys)}"
+        )
     for row in rows:
         if row.final_disposition != "PERFECT_PASS":
             continue
@@ -841,6 +956,22 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
             failures.append(f"{row.row_id}: primary_packet_evidence_path is absolute")
         elif row.packet_evidence_key and row.primary_packet_evidence_path != str(row_map.get(row.packet_evidence_key, "")):
             failures.append(f"{row.row_id}: primary_packet_evidence_path does not match row_to_evidence_map")
+        if row.accepted_comparator:
+            mapped_comparator = str(row_map.get(row.comparator_evidence_key, "")).strip()
+            if not row.comparator_evidence_key:
+                failures.append(f"{row.row_id}: missing comparator_evidence_key")
+            elif not mapped_comparator:
+                failures.append(f"{row.row_id}: comparator evidence key absent from row map: {row.comparator_evidence_key}")
+            elif mapped_comparator != row.comparator_packet_evidence_path:
+                failures.append(
+                    f"{row.row_id}: comparator_packet_evidence_path does not match row_to_evidence_map"
+                )
+            if row.comparator_evidence_key == "contact-sheet" or "contact_sheet" in row.comparator_packet_evidence_path:
+                failures.append(f"{row.row_id}: broad comparator contact sheet used as row-bound comparator proof")
+            if not row.comparator_owner or not row.comparator_proof_scope or not row.comparator_source_truth_rule:
+                failures.append(f"{row.row_id}: comparator metadata incomplete")
+            if row.comparator_evidence_key and row.comparator_evidence_key not in row.row_specific_comparator_finding:
+                failures.append(f"{row.row_id}: row-specific comparator finding does not cite comparator evidence key")
     if manifests:
         try:
             manifest = json.loads(manifests[0].read_text(encoding="utf-8"))
@@ -1088,8 +1219,8 @@ def render_markdown(rows: list[VisualLedgerRow]) -> str:
         "",
         "Final disposition vocabulary is restricted. Vague progress language is not accepted as green.",
         "",
-        "| Row ID | Surface | Element Group | Window Class | Packet Evidence Key | Primary Packet Evidence Path | Code Path | State Coverage | Final Disposition |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| Row ID | Surface | Element Group | Window Class | Packet Evidence Key | Primary Packet Evidence Path | Comparator Evidence Key | Comparator Packet Evidence Path | Comparator Finding | Code Path | State Coverage | Final Disposition |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for row in rows:
         lines.append(
@@ -1102,6 +1233,9 @@ def render_markdown(rows: list[VisualLedgerRow]) -> str:
                     row.window_class,
                     row.packet_evidence_key or "N/A",
                     row.primary_packet_evidence_path or "N/A",
+                    row.comparator_evidence_key or "N/A",
+                    row.comparator_packet_evidence_path or "N/A",
+                    row.row_specific_comparator_finding,
                     row.code_path,
                     row.state_coverage,
                     row.final_disposition,

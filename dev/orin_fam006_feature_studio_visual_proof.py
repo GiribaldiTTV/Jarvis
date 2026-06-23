@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import sys
 import time
 from pathlib import Path
@@ -47,6 +48,14 @@ def _load_image(path: Path) -> Image.Image:
 def _save_crop(source: Path, target: Path, box: tuple[int, int, int, int]) -> str:
     image = _load_image(source)
     image.crop(box).save(target)
+    return str(target)
+
+
+def _copy_comparator(source: Path, target: Path) -> str:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not source.exists():
+        return ""
+    shutil.copy2(source, target)
     return str(target)
 
 
@@ -891,6 +900,37 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         existing_comparators,
         root / "focused_comparator_contact_sheet.png",
     )
+    comparator_crops = root / "focused_comparator_crops"
+    ai_control_cluster = AI_CONTROL_CENTER_ROOT / "04_window_control_close_hover_focused_window.png"
+    ai_button = AI_CONTROL_CENTER_ROOT / "05_run_local_check_hover_no_tooltip_focused_window.png"
+    derivatives.update(
+        {
+            "comparatorAiControlCenterOuterFrame": _copy_comparator(
+                ai_control_cluster,
+                comparator_crops / "ai_control_center_outer_frame_shell.png",
+            ),
+            "comparatorAiControlCenterChromeHeader": _copy_comparator(
+                ai_control_cluster,
+                comparator_crops / "ai_control_center_chrome_header.png",
+            ),
+            "comparatorAiControlCenterWindowControls": _copy_comparator(
+                ai_control_cluster,
+                comparator_crops / "ai_control_center_window_control_cluster.png",
+            ),
+            "comparatorAiControlCenterButtonGrammar": _copy_comparator(
+                ai_button,
+                comparator_crops / "ai_control_center_button_grammar.png",
+            ),
+            "comparatorAiControlCenterPanelRhythm": _copy_comparator(
+                ai_button,
+                comparator_crops / "ai_control_center_panel_rhythm.png",
+            ),
+            "comparatorAiControlCenterStatusAction": _copy_comparator(
+                ai_button,
+                comparator_crops / "ai_control_center_status_action_grammar.png",
+            ),
+        }
+    )
     derivatives["fullDesktopCombinedScreenshot"] = manifest.get("full_desktop_recording_and_log_viewer_after_repair", "")
     row_map = {
         "recording-full-window": _rel(root, str(manifest["recording_default"])),
@@ -919,6 +959,12 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "log-viewer-resize-after-overlay": _rel(root, derivatives["logViewerResizeAfterCropOverlay"]),
         "full-desktop-combined": _rel(root, derivatives["fullDesktopCombinedScreenshot"]) if derivatives["fullDesktopCombinedScreenshot"] else "",
         "contact-sheet": _rel(root, derivatives["focusedComparatorContactSheet"]),
+        "comparator-ai-control-center-outer-frame": _rel(root, derivatives["comparatorAiControlCenterOuterFrame"]) if derivatives["comparatorAiControlCenterOuterFrame"] else "",
+        "comparator-ai-control-center-chrome-header": _rel(root, derivatives["comparatorAiControlCenterChromeHeader"]) if derivatives["comparatorAiControlCenterChromeHeader"] else "",
+        "comparator-ai-control-center-window-control-cluster": _rel(root, derivatives["comparatorAiControlCenterWindowControls"]) if derivatives["comparatorAiControlCenterWindowControls"] else "",
+        "comparator-ai-control-center-button-grammar": _rel(root, derivatives["comparatorAiControlCenterButtonGrammar"]) if derivatives["comparatorAiControlCenterButtonGrammar"] else "",
+        "comparator-ai-control-center-panel-rhythm": _rel(root, derivatives["comparatorAiControlCenterPanelRhythm"]) if derivatives["comparatorAiControlCenterPanelRhythm"] else "",
+        "comparator-ai-control-center-status-action-grammar": _rel(root, derivatives["comparatorAiControlCenterStatusAction"]) if derivatives["comparatorAiControlCenterStatusAction"] else "",
     }
     crop_records = {
         spec["key"]: _crop_record(
@@ -1564,6 +1610,58 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "whyDefectAbsentIfPass": "The false-ACCEPT and visual ledger validators reject absolute sourceFullWindowFile values and missing packet targets.",
             "exactRepairIfRequired": "",
         },
+        {
+            "rowId": "RT-COMP-001",
+            "surface": "Visual Ledger",
+            "elementGroup": "green comparator rows",
+            "sourceTruthRequirement": "Every green row that names AI Control Center, UIREF, or another accepted visual comparator must have row-bound packet-contained comparator evidence.",
+            "screenshotEvidenceFile": "exhaustive_visual_conformance_ledger.json",
+            "negativeQuestion": "Does this green row claim comparator conformance without comparator_evidence_key and comparator_packet_evidence_path?",
+            "defectLookedFor": "Green comparator row missing row-bound comparator evidence key.",
+            "observedFinding": "The ledger schema now requires comparator_evidence_key, comparator_packet_evidence_path, comparator owner, proof scope, source-truth rule, and row-specific comparator finding.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "FAM-006-20260623-060525.zip is rejected when green Studio rows cite AI Control Center/UIREF but lack comparator evidence keys.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-COMP-002",
+            "surface": "Packet Evidence",
+            "elementGroup": "comparator media map",
+            "sourceTruthRequirement": "Comparator proof must be packet-contained and addressable through row_to_evidence_map.json.",
+            "screenshotEvidenceFile": "row_to_evidence_map.json",
+            "negativeQuestion": "Can a comparator key be named by a row while the row-to-evidence map lacks a packet media entry for it?",
+            "defectLookedFor": "Comparator evidence key absent from packet row map.",
+            "observedFinding": "The packet map now includes focused comparator keys for AI Control Center shell, chrome, window controls, button grammar, panel rhythm, and status/action grammar.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The false-ACCEPT gate rejects green comparator rows whose comparator_evidence_key is absent from row_to_evidence_map.json.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-COMP-003",
+            "surface": "Comparator Proof",
+            "elementGroup": "broad contact sheet",
+            "sourceTruthRequirement": "A broad contact sheet is summary context only unless a row cites it and it is readable for that row's exact element group.",
+            "screenshotEvidenceFile": "focused_comparator_contact_sheet.png",
+            "negativeQuestion": "Is an uncited broad contact sheet being used as the only comparator proof for a green row?",
+            "defectLookedFor": "Uncited broad comparator sheet treated as row-bound proof.",
+            "observedFinding": "Green comparator rows now reject contact-sheet-only comparator proof and require focused comparator media paths.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "FAM-006-20260623-060525.zip is rejected because it only included broad comparator context without row-bound comparator fields.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-COMP-004",
+            "surface": "Visual Ledger",
+            "elementGroup": "row-specific comparator finding",
+            "sourceTruthRequirement": "A green comparator row must say exactly what was compared and cite the comparator evidence key used for that comparison.",
+            "screenshotEvidenceFile": "exhaustive_visual_conformance_ledger.json",
+            "negativeQuestion": "Does the green row have only generic comparator language instead of a row-specific comparator finding?",
+            "defectLookedFor": "Missing row-specific comparator finding.",
+            "observedFinding": "Each current comparator row now includes row_specific_comparator_finding that names the exact comparator evidence key and proof scope.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The visual ledger validator and false-ACCEPT gate reject rows whose row-specific comparator finding does not cite the comparator key.",
+            "exactRepairIfRequired": "",
+        },
     ]
     red_team_defect_metadata = {
         "RT-REC-001": ("recording-state-duplication", "Fail if label/value repeat the same Ready, Recording, Saved, or Blocked word."),
@@ -1608,6 +1706,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "RT-PROOF-007": ("local-absolute-crop-source-primary-proof", "Fail if crop sourceFullWindowFile uses a local absolute path as primary proof."),
         "RT-PROOF-008": ("non-studio-green-row-without-packet-proof", "Fail if non-Studio PERFECT_PASS rows lack packet evidence key or packet-relative primary proof."),
         "RT-PROOF-009": ("visual-ledger-false-crop-completeness-reliance", "Fail if visual ledger accepts assertion-only crop-completeness without DOM, overlay, and adjacent-text proof."),
+        "RT-COMP-001": ("comparator-proof-not-row-bound", "Fail if a green comparator row lacks row-bound packet-contained comparator evidence."),
+        "RT-COMP-002": ("green-comparator-row-missing-evidence-key", "Fail if comparator evidence keys are absent from row_to_evidence_map.json."),
+        "RT-COMP-003": ("uncited-broad-comparator-sheet", "Fail if a broad contact sheet is used as uncited comparator proof."),
+        "RT-COMP-004": ("row-specific-comparator-finding-missing", "Fail if a green comparator row lacks an exact row-specific comparator finding."),
     }
     for row in red_rows:
         defect_class, recurrence_check = red_team_defect_metadata[row["rowId"]]
@@ -1664,11 +1766,18 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         ("FAM006-FA-039", "Loop VIII destination-card expected text omitted folder labels", "native/export card crops omitted Recordings folder and Exported Logs folder strings", "destination-card exhaustive text gate"),
         ("FAM006-FA-040", "Loop VIII state/resize crops were mis-scoped", "multi-card/status and resize/error crops were treated like simple element proof", "crop type and proof-scope gate"),
         ("FAM006-FA-041", "Loop VIII resize/error text was not required", "Could not open and exported-folder failure strings could be visible without being expected", "resize-state blocked/error text gate"),
+        ("FAM006-FA-042", "Loop IX green Studio rows claimed comparator conformance without comparator evidence keys", "accepted_comparator named AI Control Center/UIREF while comparator_evidence_key was absent", "row-bound comparator evidence key gate"),
+        ("FAM006-FA-043", "Loop IX row map lacked packet-contained comparator media", "row_to_evidence_map had FAM-006 crops but no focused comparator media keys", "packet-contained comparator media map gate"),
+        ("FAM006-FA-044", "Loop IX broad comparator contact sheet was allowed as context-only proof", "focused_comparator_contact_sheet.png existed but green rows did not cite row-specific comparator proof", "uncited broad comparator sheet rejection gate"),
+        ("FAM006-FA-045", "Loop IX comparator findings were generic rather than row-specific", "green rows had no exact comparator comparison finding tied to a comparator evidence key", "row-specific comparator finding gate"),
     ]
     root_cause_defects = [
         {
             "defectId": defect_id,
             "falseAcceptPacketOrEvidence": (
+                "C:/Nexus USER/FAM-006-20260623-060525.zip and preserved external regression corpus copy"
+                if int(defect_id.rsplit("-", 1)[1]) >= 42
+                else
                 "C:/Nexus USER/FAM-006-20260623-050502.zip and preserved external regression corpus copy"
                 if int(defect_id.rsplit("-", 1)[1]) >= 38
                 else "C:/Nexus USER/FAM-006-20260622-194848.zip and preserved external regression corpus copy"
@@ -1726,6 +1835,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "FAM006-FA-039": ("The destination-card crop contract allowed visible folder-label text to go unlisted.", "Destination-card crop text audit", "Native and exported destination crops now require Recordings folder and Exported Logs folder in expectedTextInsideCrop.", "Current known-bad FAM-006-20260623-050502.zip is rejected for destination-card expected-text omissions."),
         "FAM006-FA-040": ("The crop type vocabulary was too narrow, so state, resize, and relationship-stack proof could masquerade as simple element proof.", "Crop scope/type audit", "Crops now declare FULL_WINDOW_CROP, ELEMENT_CROP, STATE_CROP, or RESIZE_STATE_CROP according to the proof need.", "Current known-bad FAM-006-20260623-050502.zip is rejected for crop-scope/type mismatch."),
         "FAM006-FA-041": ("Resize/error-state proof did not have a required blocked/error text inventory.", "Resize-state text audit", "Resize-state crops now require visible blocked/error strings when the state shows failed exported-log opening.", "Current known-bad FAM-006-20260623-050502.zip is rejected for omitted blocked/error expected text."),
+        "FAM006-FA-042": ("The visual ledger treated accepted_comparator text as enough and did not require a comparator evidence key for each green row.", "Visual ledger comparator-proof audit", "The ledger schema now requires comparator_evidence_key and comparator_packet_evidence_path for every green comparator row.", "Current known-bad FAM-006-20260623-060525.zip is rejected for green comparator rows missing comparator evidence keys."),
+        "FAM006-FA-043": ("Packet validation checked FAM-006 evidence keys but did not require packet-contained comparator media keys.", "Row-to-evidence comparator map audit", "The proof generator now writes focused comparator media and row_to_evidence_map keys for shell, chrome, window controls, button grammar, panel rhythm, and status/action grammar.", "Current known-bad FAM-006-20260623-060525.zip is rejected for missing comparator row-map keys."),
+        "FAM006-FA-044": ("The contact sheet existed as broad context, so Codex overcredited it even though no row cited it as row-bound proof.", "Comparator contact-sheet adjudication", "The false-ACCEPT gate rejects contact-sheet-only comparator proof for green comparator rows.", "Current known-bad FAM-006-20260623-060525.zip is rejected because broad comparator context is not row-specific proof."),
+        "FAM006-FA-045": ("Rows did not explain what exact comparator element was compared, so comparator conformance stayed generic.", "Row-specific comparator finding audit", "Each green comparator row now writes row_specific_comparator_finding that cites the comparator evidence key and proof scope.", "Current known-bad FAM-006-20260623-060525.zip is rejected when row-specific comparator finding is missing."),
     }
     for row in root_cause_defects:
         why, failed_step, repair, proof = root_cause_details[row["defectId"]]
