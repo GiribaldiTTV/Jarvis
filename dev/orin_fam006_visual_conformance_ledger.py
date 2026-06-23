@@ -157,9 +157,10 @@ class VisualLedgerRow:
     window_class: str
     expectation: str
     accepted_comparator: str
-    comparator_screenshot: str
-    fam006_screenshot: str
     packet_evidence_key: str
+    primary_packet_evidence_path: str
+    secondary_comparator_trace_path: str
+    secondary_fam006_trace_path: str
     code_path: str
     backend_to_visual_path: str
     visual_difference: str
@@ -541,9 +542,23 @@ def _proof_quality_for(surface: str, group: str, evidence: Path, packet_key: str
     )
 
 
+def _packet_row_map() -> dict[str, str]:
+    row_maps = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/row_to_evidence_map.json"))
+    if len(row_maps) != 1:
+        return {}
+    try:
+        data = json.loads(row_maps[0].read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {str(key): str(value) for key, value in data.items()}
+
+
 def build_rows() -> list[VisualLedgerRow]:
     rows: list[VisualLedgerRow] = []
     counter = 1
+    packet_row_map = _packet_row_map()
     for spec in _surface_specs():
         for group in spec["groups"]:  # type: ignore[index]
             surface = str(spec["surface"])
@@ -561,6 +576,7 @@ def build_rows() -> list[VisualLedgerRow]:
                 packet_key = "recording-full-window"
             if not packet_key and surface == "Log Viewer Studio":
                 packet_key = "log-viewer-full-window"
+            primary_packet_path = packet_row_map.get(packet_key, "") if packet_key else ""
             rows.append(
                 VisualLedgerRow(
                     row_id=f"FAM006-STL-{counter:03d}",
@@ -570,9 +586,10 @@ def build_rows() -> list[VisualLedgerRow]:
                     window_class=str(spec["window_class"]),
                     expectation=_expectation_for(surface, str(group), str(spec["window_class"])),
                     accepted_comparator="AI Control Center / UIREF-001 through UIREF-006 plus FAM-006 current window taxonomy",
-                    comparator_screenshot=_as_posix(comparator),
-                    fam006_screenshot=_as_posix(screenshot),
                     packet_evidence_key=packet_key,
+                    primary_packet_evidence_path=primary_packet_path,
+                    secondary_comparator_trace_path=_as_posix(comparator),
+                    secondary_fam006_trace_path=_as_posix(screenshot),
                     code_path=str(spec["code_path"]),
                     backend_to_visual_path=str(spec["backend"]),
                     visual_difference=_visual_difference_for(surface, str(group), disposition),
@@ -610,7 +627,7 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
             failures.append(f"{row.row_id}: duplicate row id")
         seen.add(row.row_id)
         for key, value in data.items():
-            if value is None or (key != "packet_evidence_key" and str(value).strip() == ""):
+            if value is None or (key not in {"packet_evidence_key", "primary_packet_evidence_path"} and str(value).strip() == ""):
                 failures.append(f"{row.row_id}: missing {key}")
         if row.final_disposition not in ALLOWED_FINAL_DISPOSITIONS:
             failures.append(f"{row.row_id}: illegal final disposition {row.final_disposition!r}")
@@ -618,7 +635,12 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
             failures.append(f"{row.row_id}: non-green active disposition blocks H1/LV/UTS")
         if row.surface in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"} and not row.packet_evidence_key:
             failures.append(f"{row.row_id}: current-branch Studio row lacks packet_evidence_key")
-        for evidence_key in ("comparator_screenshot", "fam006_screenshot"):
+        if row.surface in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"}:
+            if not row.primary_packet_evidence_path:
+                failures.append(f"{row.row_id}: current-branch Studio row lacks primary_packet_evidence_path")
+            elif Path(row.primary_packet_evidence_path).is_absolute():
+                failures.append(f"{row.row_id}: primary packet evidence path is absolute: {row.primary_packet_evidence_path}")
+        for evidence_key in ("secondary_comparator_trace_path", "secondary_fam006_trace_path"):
             evidence_path = str(data[evidence_key]).strip()
             if any(token in evidence_path for token in ("<timestamp>", "*", "?")):
                 failures.append(f"{row.row_id}: {evidence_key} is not a concrete path: {evidence_path}")
@@ -749,6 +771,15 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
     unmapped = sorted(key for key in current_keys if key and key not in row_map)
     if unmapped:
         failures.append(f"current-branch ledger rows reference packet evidence keys absent from row map: {', '.join(unmapped)}")
+    for row in rows:
+        if row.surface not in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"}:
+            continue
+        if not row.primary_packet_evidence_path:
+            failures.append(f"{row.row_id}: missing primary_packet_evidence_path")
+        elif Path(row.primary_packet_evidence_path).is_absolute():
+            failures.append(f"{row.row_id}: primary_packet_evidence_path is absolute")
+        elif row.packet_evidence_key and row.primary_packet_evidence_path != str(row_map.get(row.packet_evidence_key, "")):
+            failures.append(f"{row.row_id}: primary_packet_evidence_path does not match row_to_evidence_map")
     if manifests:
         try:
             manifest = json.loads(manifests[0].read_text(encoding="utf-8"))
@@ -772,6 +803,52 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                         failures.append(f"cropCompletenessChecks entry for {key} has non-true {required}")
                 if not str(check.get("validatedBy", "")).strip():
                     failures.append(f"cropCompletenessChecks entry for {key} missing validatedBy")
+            crop_ledgers = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/crop_completeness_ledger.json"))
+            if len(crop_ledgers) != 1:
+                failures.append(f"expected exactly one packet crop_completeness_ledger.json, found {len(crop_ledgers)}")
+            else:
+                try:
+                    crop_ledger = json.loads(crop_ledgers[0].read_text(encoding="utf-8"))
+                except json.JSONDecodeError as exc:
+                    failures.append(f"crop_completeness_ledger.json is invalid JSON: {exc}")
+                    crop_ledger = {}
+                rows_by_key = {
+                    str(item.get("key", "")): item
+                    for item in crop_ledger.get("rows", [])
+                    if isinstance(item, dict)
+                } if isinstance(crop_ledger, dict) else {}
+                if isinstance(crop_ledger, dict) and crop_ledger.get("status") != "PASS":
+                    failures.append("crop_completeness_ledger.json status is not PASS")
+                for key in REQUIRED_CROP_COMPLETENESS:
+                    item = rows_by_key.get(key)
+                    if not isinstance(item, dict):
+                        failures.append(f"crop_completeness_ledger.json missing row for {key}")
+                        continue
+                    for required in (
+                        "cropFile",
+                        "sourceFullWindowFile",
+                        "cropRect",
+                        "targetElementRect",
+                        "marginAroundTarget",
+                        "expectedTextInsideCrop",
+                        "textPresenceCheck",
+                        "borderRadiusGlowInclusionCheck",
+                        "surroundingContextCheck",
+                        "targetContentTouchesCropEdge",
+                        "targetTextControlOrBorderCutOff",
+                        "finalCropVerdict",
+                    ):
+                        if required not in item:
+                            failures.append(f"crop completeness row {key} missing {required}")
+                    if item.get("cropFile") != row_map.get(key):
+                        failures.append(f"crop completeness row {key} cropFile does not match row map")
+                    if item.get("finalCropVerdict") != "PERFECT_PASS":
+                        failures.append(f"crop completeness row {key} is not PERFECT_PASS")
+                    if item.get("targetContentTouchesCropEdge") is True or item.get("targetTextControlOrBorderCutOff") is True:
+                        failures.append(f"crop completeness row {key} says target is clipped or touches crop edge")
+                    expected_text = item.get("expectedTextInsideCrop")
+                    if not isinstance(expected_text, list) or not expected_text:
+                        failures.append(f"crop completeness row {key} missing expected text list")
             if resize.get("method") in {"scripted-resize-call", "setGeometry-only"}:
                 failures.append("resize proof uses forbidden scripted/direct geometry method")
             runtime_truth = str(resize.get("runtimeTruth", ""))
@@ -817,8 +894,8 @@ def render_markdown(rows: list[VisualLedgerRow]) -> str:
         "",
         "Final disposition vocabulary is restricted. Vague progress language is not accepted as green.",
         "",
-        "| Row ID | Surface | Element Group | Window Class | Packet Evidence Key | Code Path | State Coverage | Final Disposition |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| Row ID | Surface | Element Group | Window Class | Packet Evidence Key | Primary Packet Evidence Path | Code Path | State Coverage | Final Disposition |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for row in rows:
         lines.append(
@@ -830,6 +907,7 @@ def render_markdown(rows: list[VisualLedgerRow]) -> str:
                     row.element_group,
                     row.window_class,
                     row.packet_evidence_key or "N/A",
+                    row.primary_packet_evidence_path or "N/A",
                     row.code_path,
                     row.state_coverage,
                     row.final_disposition,

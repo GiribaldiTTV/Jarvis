@@ -26,6 +26,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-182112.zip",
+    USER_ROOT / "FAM-006-20260622-182112.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-175717.zip",
     USER_ROOT / "FAM-006-20260622-175717.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-173545.zip",
@@ -78,6 +80,28 @@ REQUIRED_EVIDENCE_KEYS = {
     "log-viewer-resize-after",
     "full-desktop-combined",
     "contact-sheet",
+}
+
+REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
+    "Docs_Main.md",
+    "Docs_phase_governance.md",
+    "Docs_branch_plans_README.md",
+    "Docs_nexus_vision.md",
+    "FAM-002_desktop_interface.md",
+    "FAM-006_monitoring_and_hud.md",
+    "FAM-006_recording.md",
+    "ui_reference_catalog_index.md",
+    "UIREF-001_top_level_window_frame.md",
+    "UIREF-002_window_control_cluster.md",
+    "UIREF-003_control_state_and_selector_grammar.md",
+    "UIREF-004_dialog_status_recovery_and_doorway_surfaces.md",
+    "UIREF-005_design_token_and_shared_rule_baseline.md",
+    "UIREF-006_negative_example_and_enforcement_contract.md",
+    "Docs_user_test_summary_guidance.md",
+    "Docs_validation_helper_registry.md",
+    "Docs_incident_patterns.md",
+    "feature_fam_006_dashboard_recording_start_stop_local_file.md",
+    "external_branch_plan.md",
 }
 
 REQUIRED_CROP_COMPLETENESS = {
@@ -151,6 +175,9 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "crop-hides-adjacent-defects",
     "packet-relative-evidence-map-completeness",
     "visual-ledger-overcredit-incomplete-proof",
+    "visual-packet-source-truth-context-completeness",
+    "visual-ledger-local-primary-proof",
+    "crop-completeness-self-attestation",
 }
 
 MIN_ROOT_CAUSE_UNIQUE_FIELDS = (
@@ -234,6 +261,84 @@ def _validate_crop_completeness(
     return failures
 
 
+def _validate_source_truth_context(root: Path) -> list[str]:
+    context_root = root / "Source Truth Context"
+    if not context_root.exists():
+        return ["missing Source Truth Context folder"]
+    names = {path.name for path in context_root.glob("*") if path.is_file()}
+    missing = sorted(REQUIRED_SOURCE_TRUTH_CONTEXT_FILES - names)
+    if missing:
+        return [f"Source Truth Context missing required files: {', '.join(missing)}"]
+    return []
+
+
+def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[str, Any] | None, evidence_root: Path) -> list[str]:
+    failures: list[str] = []
+    ledger_path = _find_one(root, "Review Aids/Evidence/**/crop_completeness_ledger.json")
+    if ledger_path is None:
+        return ["missing crop_completeness_ledger.json"]
+    data, error = _read_json(ledger_path)
+    rows = data.get("rows", []) if isinstance(data, dict) else []
+    if error or not isinstance(data, dict) or not isinstance(rows, list):
+        return [f"invalid crop_completeness_ledger.json: {error}"]
+    if data.get("status") != "PASS":
+        failures.append("crop completeness ledger status is not PASS")
+    rows_by_key = {str(row.get("key", "")): row for row in rows if isinstance(row, dict)}
+    checks = (manifest or {}).get("cropCompletenessChecks", {})
+    if not isinstance(checks, dict):
+        checks = {}
+    required_fields = {
+        "cropFile",
+        "sourceFullWindowFile",
+        "sourceImageSize",
+        "cropRect",
+        "targetElementRect",
+        "cropSize",
+        "marginAroundTarget",
+        "expectedTextInsideCrop",
+        "textPresenceCheck",
+        "borderRadiusGlowInclusionCheck",
+        "surroundingContextCheck",
+        "cropTouchesSourceImageEdge",
+        "targetContentTouchesCropEdge",
+        "targetTextControlOrBorderCutOff",
+        "finalCropVerdict",
+    }
+    for key in REQUIRED_CROP_COMPLETENESS:
+        row = rows_by_key.get(key)
+        if not isinstance(row, dict):
+            failures.append(f"crop completeness ledger missing row for {key}")
+            continue
+        missing = sorted(required_fields - set(row))
+        if missing:
+            failures.append(f"crop completeness ledger row {key} missing fields: {', '.join(missing)}")
+        if row.get("cropFile") != row_map.get(key):
+            failures.append(f"crop completeness ledger row {key} cropFile does not match row_to_evidence_map")
+        if row.get("finalCropVerdict") != "PERFECT_PASS":
+            failures.append(f"crop completeness ledger row {key} is not PERFECT_PASS")
+        expected_text = row.get("expectedTextInsideCrop")
+        if not isinstance(expected_text, list) or not expected_text or not all(str(item).strip() for item in expected_text):
+            failures.append(f"crop completeness ledger row {key} missing expected text list")
+        for rect_name in ("cropRect", "targetElementRect"):
+            rect = row.get(rect_name)
+            if not isinstance(rect, dict) or not all(name in rect for name in ("left", "top", "right", "bottom")):
+                failures.append(f"crop completeness ledger row {key} missing {rect_name} coordinates")
+        margin = row.get("marginAroundTarget")
+        if not isinstance(margin, dict) or not all(name in margin for name in ("left", "top", "right", "bottom")):
+            failures.append(f"crop completeness ledger row {key} missing marginAroundTarget values")
+        elif any(int(margin[name]) < 8 for name in ("left", "top", "right", "bottom")):
+            failures.append(f"crop completeness ledger row {key} margin too tight: {margin}")
+        if row.get("targetContentTouchesCropEdge") is True or row.get("targetTextControlOrBorderCutOff") is True:
+            failures.append(f"crop completeness ledger row {key} says target touches edge or is cut off")
+        check = checks.get(key)
+        if not isinstance(check, dict) or check.get("cropCompletenessLedgerKey") != key:
+            failures.append(f"crop completeness manifest check for {key} lacks cropCompletenessLedgerKey")
+        target = evidence_root / str(row_map.get(key, ""))
+        if not target.exists():
+            failures.append(f"crop completeness ledger row {key} target media missing from packet")
+    return failures
+
+
 def _crop_key_complete(
     row_map: dict[str, Any],
     manifest: dict[str, Any] | None,
@@ -267,6 +372,7 @@ def _crop_key_complete(
 
 def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures: list[str] = []
+    failures.extend(_validate_source_truth_context(root))
     evidence_roots = sorted((root / "Review Aids" / "Evidence").glob("*")) if (root / "Review Aids" / "Evidence").exists() else []
     evidence_root = next((path for path in evidence_roots if path.is_dir()), None)
     if evidence_root is None:
@@ -337,6 +443,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
 
     if row_map_path is not None and row_map:
         failures.extend(_validate_crop_completeness(row_map, manifest_data, row_map_path.parent))
+        failures.extend(_validate_crop_ledger(root, row_map, manifest_data, row_map_path.parent))
 
     if red_team_path is None:
         failures.append("missing internal_visual_red_team_ledger.json")
@@ -425,6 +532,16 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                     joined_green_text.append(" ".join(str(value) for value in row.values()))
                     if row.get("surface") in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"} and not row.get("packet_evidence_key"):
                         failures.append(f"{row.get('row_id')}: green Studio row lacks packet evidence key")
+                    if row.get("surface") in {"Recording Studio", "Log Viewer Studio", "Native/export folder shell"}:
+                        primary = str(row.get("primary_packet_evidence_path", "")).strip()
+                        if not primary:
+                            failures.append(f"{row.get('row_id')}: green Studio row lacks primary_packet_evidence_path")
+                        elif Path(primary).is_absolute():
+                            failures.append(f"{row.get('row_id')}: green Studio row uses local absolute primary proof path: {primary}")
+                        for legacy_field in ("comparator_screenshot", "fam006_screenshot"):
+                            legacy = str(row.get(legacy_field, "")).strip()
+                            if legacy and Path(legacy).is_absolute():
+                                failures.append(f"{row.get('row_id')}: green Studio row uses legacy primary local proof field {legacy_field}")
                     key = str(row.get("packet_evidence_key", "")).strip()
                     if key in REQUIRED_CROP_COMPLETENESS and not _crop_key_complete(row_map, manifest_data, row_map_path.parent, key):
                         failures.append(f"{row.get('row_id')}: green row overcredits incomplete focused crop evidence for {key}")

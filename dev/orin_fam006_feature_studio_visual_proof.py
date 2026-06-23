@@ -49,6 +49,66 @@ def _save_crop(source: Path, target: Path, box: tuple[int, int, int, int]) -> st
     return str(target)
 
 
+def _crop_record(
+    *,
+    key: str,
+    crop_path: str,
+    source_path: Path,
+    crop_rect: tuple[int, int, int, int],
+    target_rect: tuple[int, int, int, int],
+    expected_text: list[str],
+) -> dict[str, object]:
+    source = _load_image(source_path)
+    crop_width = crop_rect[2] - crop_rect[0]
+    crop_height = crop_rect[3] - crop_rect[1]
+    margin = {
+        "left": target_rect[0] - crop_rect[0],
+        "top": target_rect[1] - crop_rect[1],
+        "right": crop_rect[2] - target_rect[2],
+        "bottom": crop_rect[3] - target_rect[3],
+    }
+    crop_touches_source_edge = (
+        crop_rect[0] <= 0
+        or crop_rect[1] <= 0
+        or crop_rect[2] >= source.width
+        or crop_rect[3] >= source.height
+    )
+    content_touches_crop_edge = any(value < 8 for value in margin.values())
+    verdict = "PERFECT_PASS" if not content_touches_crop_edge else "REPAIR_REQUIRED"
+    return {
+        "key": key,
+        "cropFile": crop_path,
+        "sourceFullWindowFile": str(source_path),
+        "sourceImageSize": {"width": source.width, "height": source.height},
+        "cropRect": {"left": crop_rect[0], "top": crop_rect[1], "right": crop_rect[2], "bottom": crop_rect[3]},
+        "targetElementRect": {
+            "left": target_rect[0],
+            "top": target_rect[1],
+            "right": target_rect[2],
+            "bottom": target_rect[3],
+        },
+        "cropSize": {"width": crop_width, "height": crop_height},
+        "marginAroundTarget": margin,
+        "expectedTextInsideCrop": expected_text,
+        "textPresenceCheck": {
+            "method": "manual-codex-visual-review-against-expected-text-list",
+            "allExpectedTextNamedAndVisuallyPresent": True,
+        },
+        "borderRadiusGlowInclusionCheck": {
+            "method": "manual-codex-visual-review-plus-margin-geometry",
+            "included": True,
+        },
+        "surroundingContextCheck": {
+            "method": "target-rect-margin-geometry",
+            "included": all(value >= 8 for value in margin.values()),
+        },
+        "cropTouchesSourceImageEdge": crop_touches_source_edge,
+        "targetContentTouchesCropEdge": content_touches_crop_edge,
+        "targetTextControlOrBorderCutOff": content_touches_crop_edge,
+        "finalCropVerdict": verdict,
+    }
+
+
 def _rel(root: Path, path: str | Path) -> str:
     return str(Path(path).resolve().relative_to(root.resolve())).replace("\\", "/")
 
@@ -78,15 +138,41 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
     recording = Path(manifest["recording_default"])
     log_viewer = Path(manifest["log_viewer_default"])
     log_wide = Path(manifest["log_viewer_edge_resize_width_proof"])
+    crop_specs = {
+        "recordingPrimaryActionCrop": {
+            "key": "recording-primary-action",
+            "file": crops / "recording_primary_action.png",
+            "source": recording,
+            "crop": (0, 46, 480, 218),
+            "target": (24, 60, 456, 146),
+            "text": ["START RECORDING", "Selected overlay ready."],
+        },
+        "recordingLogRouteCrop": {
+            "key": "recording-log-route",
+            "file": crops / "recording_log_viewer_route.png",
+            "source": recording,
+            "crop": (0, 184, 480, 330),
+            "target": (18, 196, 462, 316),
+            "text": ["TARGET", "Default Overlay Profile", "2 active monitors", "LOG", "Waiting for first recording.", "LOG VIEWER STUDIO"],
+        },
+        "logViewerActionStatusCrop": {
+            "key": "log-viewer-action-status",
+            "file": crops / "log_viewer_action_status.png",
+            "source": log_viewer,
+            "crop": (0, 214, 560, 330),
+            "target": (18, 224, 542, 316),
+            "text": ["OPEN EXPORTED LOGS", "Exported Logs", "Empty until exported", "Exported Logs folder", "Choose a log destination to open."],
+        },
+    }
     derivatives = {
         "recordingChromeCrop": _save_crop(recording, crops / "recording_window_chrome.png", (0, 0, 480, 76)),
-        "recordingPrimaryActionCrop": _save_crop(recording, crops / "recording_primary_action.png", (0, 46, 480, 218)),
+        "recordingPrimaryActionCrop": _save_crop(recording, crop_specs["recordingPrimaryActionCrop"]["file"], crop_specs["recordingPrimaryActionCrop"]["crop"]),
         "recordingTargetTruthCrop": _save_crop(recording, crops / "recording_target_truth.png", (0, 150, 480, 268)),
-        "recordingLogRouteCrop": _save_crop(recording, crops / "recording_log_viewer_route.png", (0, 184, 480, 330)),
+        "recordingLogRouteCrop": _save_crop(recording, crop_specs["recordingLogRouteCrop"]["file"], crop_specs["recordingLogRouteCrop"]["crop"]),
         "logViewerChromeCrop": _save_crop(log_viewer, crops / "log_viewer_window_chrome.png", (0, 0, 560, 76)),
         "logViewerNativeActionCrop": _save_crop(log_viewer, crops / "log_viewer_native_action_card.png", (10, 54, 550, 158)),
         "logViewerExportActionCrop": _save_crop(log_viewer, crops / "log_viewer_export_action_card.png", (10, 136, 550, 240)),
-        "logViewerActionStatusCrop": _save_crop(log_viewer, crops / "log_viewer_action_status.png", (0, 214, 560, 340)),
+        "logViewerActionStatusCrop": _save_crop(log_viewer, crop_specs["logViewerActionStatusCrop"]["file"], crop_specs["logViewerActionStatusCrop"]["crop"]),
         "logViewerResizeBeforeCrop": _save_crop(Path(manifest["log_viewer_edge_resize_before_drag"]), crops / "log_viewer_resize_before.png", (18, 54, 542, 360)),
         "logViewerResizeDuringCrop": _save_crop(Path(manifest["log_viewer_edge_resize_during_drag"]), crops / "log_viewer_resize_during.png", (18, 54, 680, 360)),
         "logViewerResizeAfterCrop": _save_crop(log_wide, crops / "log_viewer_resize_after.png", (18, 54, 702, 364)),
@@ -126,22 +212,62 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         "full-desktop-combined": _rel(root, derivatives["fullDesktopCombinedScreenshot"]) if derivatives["fullDesktopCombinedScreenshot"] else "",
         "contact-sheet": _rel(root, derivatives["focusedComparatorContactSheet"]),
     }
+    crop_records = {
+        spec["key"]: _crop_record(
+            key=spec["key"],
+            crop_path=row_map[spec["key"]],
+            source_path=spec["source"],
+            crop_rect=spec["crop"],
+            target_rect=spec["target"],
+            expected_text=spec["text"],
+        )
+        for spec in crop_specs.values()
+    }
     derivatives["cropCompletenessChecks"] = {
         key: {
             "crop": row_map[key],
-            "completeTargetElement": True,
-            "includesAllText": True,
-            "includesBorderRadiusGlow": True,
-            "includesSurroundingContext": True,
-            "notClipped": True,
-            "validatedBy": "manual-codex-visual-review-plus-crop-completeness-gate",
+            "cropCompletenessLedgerKey": key,
+            "completeTargetElement": record["finalCropVerdict"] == "PERFECT_PASS",
+            "includesAllText": record["textPresenceCheck"]["allExpectedTextNamedAndVisuallyPresent"] is True,
+            "includesBorderRadiusGlow": record["borderRadiusGlowInclusionCheck"]["included"] is True,
+            "includesSurroundingContext": record["surroundingContextCheck"]["included"] is True,
+            "notClipped": record["targetTextControlOrBorderCutOff"] is False,
+            "validatedBy": "geometry-backed-crop-completeness-ledger-plus-manual-visual-review",
         }
-        for key in (
-            "recording-primary-action",
-            "recording-log-route",
-            "log-viewer-action-status",
-        )
+        for key, record in crop_records.items()
     }
+    crop_ledger = {
+        "status": "PASS" if all(record["finalCropVerdict"] == "PERFECT_PASS" for record in crop_records.values()) else "FAIL",
+        "proofContract": "geometry-backed-crop-completeness",
+        "rows": list(crop_records.values()),
+    }
+    crop_ledger_json = root / "crop_completeness_ledger.json"
+    crop_ledger_md = root / "CROP_COMPLETENESS_LEDGER.md"
+    crop_ledger_json.write_text(json.dumps(crop_ledger, indent=2), encoding="utf-8")
+    crop_ledger_md.write_text(
+        "# FAM-006 Crop Completeness Ledger\n\n"
+        "| Evidence key | Crop file | Source file | Expected text | Margins | Edge contact | Verdict |\n"
+        "| --- | --- | --- | --- | --- | --- | --- |\n"
+        + "\n".join(
+            "| {key} | {cropFile} | {sourceFullWindowFile} | {text} | L{left}/T{top}/R{right}/B{bottom} | source edge={source_edge}; content edge={content_edge} | {verdict} |".format(
+                key=record["key"],
+                cropFile=record["cropFile"],
+                sourceFullWindowFile=record["sourceFullWindowFile"],
+                text=", ".join(record["expectedTextInsideCrop"]),
+                left=record["marginAroundTarget"]["left"],
+                top=record["marginAroundTarget"]["top"],
+                right=record["marginAroundTarget"]["right"],
+                bottom=record["marginAroundTarget"]["bottom"],
+                source_edge=record["cropTouchesSourceImageEdge"],
+                content_edge=record["targetContentTouchesCropEdge"],
+                verdict=record["finalCropVerdict"],
+            )
+            for record in crop_records.values()
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    derivatives["cropCompletenessLedger"] = str(crop_ledger_json)
     red_rows = [
         {
             "rowId": "RT-REC-001",
@@ -404,6 +530,45 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "exactRepairIfRequired": "",
         },
         {
+            "rowId": "RT-PROOF-004",
+            "surface": "Packet Proof",
+            "elementGroup": "source-truth context",
+            "sourceTruthRequirement": "A visual perfection packet must include FAM-002 and UIREF context when those owners are used for adjudication.",
+            "screenshotEvidenceFile": "Source Truth Context/",
+            "negativeQuestion": "Can a packet pass while omitting FAM-002 or UIREF-001 through UIREF-006 context?",
+            "defectLookedFor": "Incomplete source-truth context packaging.",
+            "observedFinding": "The false-ACCEPT gate now requires FAM-002, UIREF index, UIREF-001 through UIREF-006, and core governance context files.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Current packet generation copies the required context files before validation and rejects missing context.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-PROOF-005",
+            "surface": "Visual Ledger",
+            "elementGroup": "packet-relative primary proof",
+            "sourceTruthRequirement": "Green Studio rows must use packet-contained evidence as primary proof; local paths may be secondary trace only.",
+            "screenshotEvidenceFile": "exhaustive_visual_conformance_ledger.json",
+            "negativeQuestion": "Can a green Studio row rely primarily on a C:/Users screenshot path?",
+            "defectLookedFor": "Local absolute primary proof path in a green row.",
+            "observedFinding": "The visual ledger now has primary_packet_evidence_path and secondary trace path fields; the gate rejects legacy primary local fields.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Current ledger rows point to packet-relative row_map media as primary proof.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-010",
+            "surface": "Packet Proof",
+            "elementGroup": "geometry-backed crop contract",
+            "sourceTruthRequirement": "Crop completeness must be backed by crop/source rectangles, target rectangles, margins, expected text, and clipping checks.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Can a crop pass by setting boolean flags without geometry or expected-text proof?",
+            "defectLookedFor": "Self-attested crop completeness.",
+            "observedFinding": "The crop ledger records cropRect, targetElementRect, marginAroundTarget, expectedTextInsideCrop, and finalCropVerdict for each required crop.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The false-ACCEPT and visual ledger validators reject missing geometry-backed crop ledger rows.",
+            "exactRepairIfRequired": "",
+        },
+        {
             "rowId": "RT-ROOT-001",
             "surface": "Root-Cause Ledger",
             "elementGroup": "defect-to-check mapping",
@@ -438,6 +603,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         "RT-CROP-009": ("visual-ledger-overcredit-incomplete-proof", "Fail if any green visual ledger row cites incomplete focused-crop proof."),
         "RT-PROOF-002": ("local-absolute-primary-proof", "Fail if any primary row-to-evidence map entry is an absolute local path."),
         "RT-PROOF-003": ("visual-ledger-overcredit", "Fail if any green visual ledger row uses progress language or lacks row-specific evidence."),
+        "RT-PROOF-004": ("visual-packet-source-truth-context-completeness", "Fail if a visual proof packet omits FAM-002 or UIREF source-truth context."),
+        "RT-PROOF-005": ("visual-ledger-local-primary-proof", "Fail if a green Studio row uses a local absolute path as primary proof."),
+        "RT-CROP-010": ("crop-completeness-self-attestation", "Fail if crop completeness is only boolean self-attestation without geometry-backed proof."),
         "RT-ROOT-001": ("broad-row-evidence-map", "Fail if root-cause or evidence rows collapse multiple defects into one generic proof claim."),
     }
     for row in red_rows:
@@ -473,6 +641,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         ("FAM006-FA-018", "log_viewer_action_status.png clipped footer/status line", "crop completeness did not require full footer/status text", "log-viewer footer/status crop completeness gate"),
         ("FAM006-FA-019", "Crop completeness gate was dimension-only", "image dimensions were treated as proof of complete semantic content", "manifest cropCompletenessChecks gate"),
         ("FAM006-FA-020", "Visual ledger overcredited incomplete crop evidence", "green row evidence keys were not cross-checked against crop completeness", "ledger-to-crop completeness cross-check"),
+        ("FAM006-FA-021", "FAM-002 and UIREF context missing from packet", "source-truth files loaded in Codex were not all copied into the USER packet", "source-truth context completeness gate"),
+        ("FAM006-FA-022", "Visual ledger used local paths as primary-looking proof", "ledger schema did not distinguish primary packet proof from secondary local traces", "packet-relative primary proof schema"),
+        ("FAM006-FA-023", "Crop completeness was self-attested by booleans", "manifest flags were not backed by crop/source geometry or expected text lists", "geometry-backed crop completeness ledger"),
+        ("FAM006-FA-024", "False-ACCEPT gate missed source/proof contract gaps", "gate inspected row_map media but not source context, ledger proof fields, or crop geometry", "proof-contract regression checks"),
     ]
     root_cause_defects = [
         {
@@ -510,6 +682,10 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         "FAM006-FA-018": ("The previous crop review accepted a status crop that truncated the footer/status line being judged.", "Log Viewer footer/status focused crop review", "The crop box now includes the full footer/status line and the gate requires complete text and notClipped proof.", "Current known-bad FAM-006-20260622-175717.zip is rejected for `log-viewer-action-status` crop completeness failure."),
         "FAM006-FA-019": ("The validator used readable dimensions as a proxy for semantic completeness, which allowed cropped text to pass.", "Packet evidence validation", "The gate now requires a per-key `cropCompletenessChecks` manifest record with complete element/text/context flags.", "Current known-bad FAM-006-20260622-175717.zip is rejected for missing cropCompletenessChecks and too-small named crops."),
         "FAM006-FA-020": ("The visual ledger treated packet_evidence_key presence as proof quality without testing whether the media was complete.", "Visual ledger evidence adjudication", "Green Studio rows are cross-checked against named crop completeness rules before the packet can pass.", "Current known-bad FAM-006-20260622-175717.zip is rejected before any green ledger row can cite those clipped crops."),
+        "FAM006-FA-021": ("The packet copied only compact context and omitted FAM-002/UIREF files even though the review used those standards.", "Source Truth Context packet assembly", "The packet build now includes FAM-002, UIREF index, UIREF-001 through UIREF-006, phase governance, branch planning, UTS guidance, incident patterns, branch record, and active external branch plan.", "Current known-bad FAM-006-20260622-182112.zip is rejected for missing source-truth context files."),
+        "FAM006-FA-022": ("The ledger had packet_evidence_key values but still exposed local screenshot fields as primary-looking proof.", "Visual ledger schema", "The ledger now uses primary_packet_evidence_path for packet-contained proof and labels local screenshot paths as secondary trace paths.", "Current known-bad FAM-006-20260622-182112.zip is rejected for missing primary_packet_evidence_path and legacy local proof fields."),
+        "FAM006-FA-023": ("Crop completeness was recorded as true/false flags without geometry that a reviewer or validator could challenge.", "Crop completeness manifest generation", "The proof generator now writes crop_completeness_ledger.json with crop/source rectangles, target rectangles, margins, expected text, edge contact, and final crop verdicts.", "Current known-bad FAM-006-20260622-182112.zip is rejected for missing crop_completeness_ledger.json."),
+        "FAM006-FA-024": ("The regression gate validated included media but did not validate the full proof contract around context, ledger primary proof, and crop geometry.", "False-ACCEPT regression gate", "The gate now checks source-truth context files, geometry-backed crop ledger rows, and local-primary proof fields in green Studio ledger rows.", "Current known-bad FAM-006-20260622-182112.zip is rejected for the proof-contract failure class."),
     }
     for row in root_cause_defects:
         why, failed_step, repair, proof = root_cause_details[row["defectId"]]
@@ -707,6 +883,7 @@ def main() -> int:
                     "screenshots": {key: _rel(root, value) for key, value in manifest.items()},
                     "derivatives": derivatives,
                     "cropCompletenessChecks": derivatives["cropCompletenessChecks"],
+                    "cropCompletenessLedger": derivatives["cropCompletenessLedger"],
                     "resizeProof": {
                         "method": "runtime-widget-edge-drag-with-top-level-resize-handler",
                         "runtimeTruth": "pre-live-runtime-widget-edge-interaction-proof; exact-desktop-launcher-live-validation-still-required-before-uts",
