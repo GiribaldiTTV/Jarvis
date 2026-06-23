@@ -4,15 +4,16 @@
 from __future__ import annotations
 
 import base64
+import json
 import tempfile
 import zipfile
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from orin_user_review_bundle import ROOT, validate_local_user_packet
 
 
 PNG_1X1 = base64.b64decode(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII="
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
 )
 
 
@@ -60,17 +61,25 @@ def _write_base_packet(root: Path, primary_text: str = PRIMARY) -> None:
     (root / primary_path).write_text(primary_text, encoding="utf-8")
 
 
-def _zip_packet(root: Path, zip_path: Path, overrides: dict[str, str] | None = None) -> None:
+def _zip_packet(
+    root: Path,
+    zip_path: Path,
+    overrides: dict[str, str | bytes] | None = None,
+    omit: set[str] | None = None,
+) -> None:
     overrides = overrides or {}
+    omit = omit or set()
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(p for p in root.rglob("*") if p.is_file()):
             archive_name = path.relative_to(root).as_posix()
+            if archive_name in omit:
+                continue
             if archive_name in overrides:
                 archive.writestr(archive_name, overrides[archive_name])
             else:
                 archive.write(path, archive_name)
         for archive_name, text in sorted(overrides.items()):
-            if not (root / archive_name).exists():
+            if archive_name not in omit and not (root / archive_name).exists():
                 archive.writestr(archive_name, text)
 
 
@@ -80,7 +89,7 @@ def _current_head() -> str:
     return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
 
 
-def _run_fixture(name: str, mutate, *, zip_overrides=None) -> list[str]:
+def _run_fixture(name: str, mutate, *, zip_overrides=None, zip_omit=None) -> list[str]:
     with tempfile.TemporaryDirectory(prefix=f"ndai-{name}-") as temp_dir:
         review_root = Path(temp_dir)
         packet = review_root / "FAM-007"
@@ -88,15 +97,87 @@ def _run_fixture(name: str, mutate, *, zip_overrides=None) -> list[str]:
         _write_base_packet(packet)
         mutate(packet)
         export_zip = review_root / "FAM-007-20260623-120000.zip"
-        _zip_packet(packet, export_zip, overrides=zip_overrides)
+        _zip_packet(packet, export_zip, overrides=zip_overrides, omit=zip_omit)
         return validate_local_user_packet(packet, export_zip=export_zip, worktree_label="FAM-007").failures
 
 
-def _assert_failure(name: str, needle: str, mutate, *, zip_overrides=None) -> None:
-    failures = _run_fixture(name, mutate, zip_overrides=zip_overrides)
+def _assert_failure(name: str, needle: str, mutate, *, zip_overrides=None, zip_omit=None) -> None:
+    failures = _run_fixture(name, mutate, zip_overrides=zip_overrides, zip_omit=zip_omit)
     joined = "\n".join(failures)
     if needle not in joined:
         raise AssertionError(f"{name} did not fail on {needle!r}; failures were:\n{joined}")
+
+
+def _write_live_manifest(packet: Path) -> None:
+    manifest_dir = packet / "Review Aids" / "Inspectable Evidence"
+    manifest_dir.mkdir(parents=True, exist_ok=True)
+    screenshot_classes = [
+        "dashboard_initial",
+        "settings_tooltip_visible",
+        "control-center_opened",
+        "control-center_moved_resized",
+        "readiness-diagnostics_opened",
+        "readiness-diagnostics_moved_resized",
+        "readiness_after_actions",
+        "readiness_persists_after_dashboard_close",
+        "capabilities-maintenance_opened",
+        "capabilities-maintenance_moved_resized",
+    ]
+    (manifest_dir / "live_resize_manifest.json").write_text(
+        json.dumps(
+            {
+                "screenshots": {
+                    screenshot_class: {
+                        "focusedWindow": f"C:\\proof\\{screenshot_class}_focused_window.png",
+                        "fullDesktop": f"C:\\proof\\{screenshot_class}_full_desktop.png",
+                    }
+                    for screenshot_class in screenshot_classes
+                },
+                "checks": {
+                    "settingsCogIconOnlyNoVisibleFutureCopy": True,
+                    "categoryLaunchersOpenRealWindows": True,
+                    "childWindowsUseNativeNexusChrome": True,
+                    "childWindowsMoveResizeFocus": True,
+                    "fullDesktopProofNotDuplicated": True,
+                    "explicitLauncherLabels": True,
+                    "readinessReportFirstVisibleCopyIsUserReadable": True,
+                    "readinessChildScrollbarIsNDAINative": True,
+                    "readinessWorkRunsInsideChildWindow": True,
+                    "providerExecutionStillBlocked": True,
+                },
+                "childChromeProbe": {
+                    "control-center": {
+                        "nativeChrome": "true",
+                        "osChrome": "rejected",
+                        "shellConformance": "ndai-webview-rounded-window-shell",
+                        "moveBehavior": "header-drag",
+                        "resizeBehavior": "edge-corner-resize",
+                    }
+                },
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+def _write_manifest_images(packet: Path) -> tuple[set[str], set[str]]:
+    _write_live_manifest(packet)
+    focused_dir = packet / "Review Aids" / "Inspectable Evidence" / "focused_window_screenshots"
+    full_dir = packet / "Review Aids" / "Inspectable Evidence" / "full_desktop_screenshots"
+    focused_dir.mkdir(parents=True, exist_ok=True)
+    full_dir.mkdir(parents=True, exist_ok=True)
+    focused_entries: set[str] = set()
+    full_entries: set[str] = set()
+    manifest = json.loads((packet / "Review Aids" / "Inspectable Evidence" / "live_resize_manifest.json").read_text(encoding="utf-8"))
+    for paths in manifest["screenshots"].values():
+        focused_name = PureWindowsPath(paths["focusedWindow"]).name
+        full_name = PureWindowsPath(paths["fullDesktop"]).name
+        (focused_dir / focused_name).write_bytes(PNG_1X1)
+        (full_dir / full_name).write_bytes(PNG_1X1)
+        focused_entries.add(f"Review Aids/Inspectable Evidence/focused_window_screenshots/{focused_name}")
+        full_entries.add(f"Review Aids/Inspectable Evidence/full_desktop_screenshots/{full_name}")
+    return focused_entries, full_entries
 
 
 def main() -> int:
@@ -210,6 +291,90 @@ def main() -> int:
             (packet / "Review Aids" / "Inspectable Evidence" / "full_desktop_screenshots" / "a.png").write_bytes(PNG_1X1),
             (packet / "Review Aids" / "Inspectable Evidence" / "full_desktop_screenshots" / "b.png").write_bytes(PNG_1X1),
         ),
+    )
+    _assert_failure(
+        "final-zip-zero-pngs-with-manifest",
+        "final ZIP contains zero image proof files",
+        lambda packet: _write_live_manifest(packet),
+    )
+    _assert_failure(
+        "manifest-json-no-screenshots",
+        "final ZIP contains zero image proof files",
+        lambda packet: _write_live_manifest(packet),
+    )
+    _assert_failure(
+        "proof-index-references-missing-image",
+        "proof index references image proof not present in final ZIP",
+        lambda packet: (
+            (packet / "Review Aids" / "CHILD_WINDOW_VISUAL_PROOF_INDEX.md").write_text(
+                "Expected screenshot: Review Aids/Inspectable Evidence/full_desktop_screenshots/missing.png\n",
+                encoding="utf-8",
+            )
+        ),
+    )
+    _assert_failure(
+        "proof-index-references-local-only-image",
+        "proof index references local-only image path",
+        lambda packet: (
+            (packet / "Review Aids" / "CHILD_WINDOW_VISUAL_PROOF_INDEX.md").write_text(
+                r"Expected screenshot: C:\proof\missing.png" + "\n",
+                encoding="utf-8",
+            )
+        ),
+    )
+    fixture_classes = [
+        "dashboard_initial",
+        "settings_tooltip_visible",
+        "control-center_opened",
+        "control-center_moved_resized",
+        "readiness-diagnostics_opened",
+        "readiness-diagnostics_moved_resized",
+        "readiness_after_actions",
+        "readiness_persists_after_dashboard_close",
+        "capabilities-maintenance_opened",
+        "capabilities-maintenance_moved_resized",
+    ]
+    all_manifest_image_entries = {
+        f"Review Aids/Inspectable Evidence/focused_window_screenshots/{screenshot_class}_focused_window.png"
+        for screenshot_class in fixture_classes
+    } | {
+        f"Review Aids/Inspectable Evidence/full_desktop_screenshots/{screenshot_class}_full_desktop.png"
+        for screenshot_class in fixture_classes
+    }
+
+    _assert_failure(
+        "local-proof-folder-images-but-final-zip-lacks-images",
+        "Folder/ZIP parity failed",
+        lambda packet: _write_manifest_images(packet),
+        zip_omit=all_manifest_image_entries,
+    )
+    omitted_image_entry = "Review Aids/Inspectable Evidence/focused_window_screenshots/dashboard_initial_focused_window.png"
+
+    def _one_zip_image_missing(packet: Path) -> None:
+        _write_manifest_images(packet)
+
+    _assert_failure(
+        "proof-index-folder-pass-final-zip-image-inclusion-fails",
+        "final ZIP image proof count is lower than manifest expectation",
+        _one_zip_image_missing,
+        zip_omit={omitted_image_entry},
+    )
+    _assert_failure(
+        "udl-closed-with-proof-while-zip-lacks-screenshots",
+        "F7-UDL-016 is CLOSED_WITH_PROOF",
+        lambda packet: (
+            _write_live_manifest(packet),
+            (packet / "Review Aids" / "FAM_007_UNIFIED_DEFECT_LEDGER.md").write_text(
+                "| Defect ID | Status |\n| --- | --- |\n| F7-UDL-016 | CLOSED_WITH_PROOF |\n",
+                encoding="utf-8",
+            ),
+        ),
+    )
+    _assert_failure(
+        "image-openability-uses-final-zip-bytes",
+        "ZIP image proof file has invalid binary signature",
+        _one_zip_image_missing,
+        zip_overrides={omitted_image_entry: b"not-an-image"},
     )
     _assert_failure(
         "missing-live-proof-check",

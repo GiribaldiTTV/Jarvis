@@ -256,6 +256,20 @@ REQUIRED_FAM007_LIVE_PROOF_CHECKS: tuple[str, ...] = (
     "providerExecutionStillBlocked",
 )
 IMAGE_PROOF_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES = {
+    "dashboard_initial",
+    "settings_tooltip_visible",
+    "control-center_opened",
+    "control-center_moved_resized",
+    "readiness-diagnostics_opened",
+    "readiness-diagnostics_moved_resized",
+    "readiness_after_actions",
+    "readiness_persists_after_dashboard_close",
+    "capabilities-maintenance_opened",
+    "capabilities-maintenance_moved_resized",
+}
+FAM007_LIVE_PROOF_MANIFEST_NAME = "live_resize_manifest.json"
+FAM007_UDL_IMAGE_PROOF_IDS = ("F7-UDL-006", "F7-UDL-007", "F7-UDL-016")
 USER_BRANCH_PLAN_STALE_BP1_WORDING_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
     (
         "old-product-design-planning-gate",
@@ -1242,35 +1256,167 @@ def _image_signature_valid(data: bytes, suffix: str) -> bool:
     return True
 
 
+def _archive_file_entries(archive: zipfile.ZipFile) -> set[str]:
+    return {entry.filename for entry in archive.infolist() if not entry.is_dir()}
+
+
+def _archive_text(archive: zipfile.ZipFile, entry: str) -> str | None:
+    try:
+        return archive.read(entry).decode("utf-8")
+    except KeyError:
+        return None
+    except UnicodeDecodeError:
+        return None
+
+
+def _proof_image_basename(value: object) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    windows_name = PureWindowsPath(text).name
+    posix_name = PurePosixPath(text).name
+    return windows_name if len(windows_name) <= len(posix_name) else posix_name
+
+
+def _manifest_image_expectations(
+    archive: zipfile.ZipFile,
+) -> tuple[set[str], set[str], bool]:
+    expected_entries: set[str] = set()
+    screenshot_classes: set[str] = set()
+    manifest_found = False
+    for entry in _archive_file_entries(archive):
+        if PurePosixPath(entry).name != FAM007_LIVE_PROOF_MANIFEST_NAME:
+            continue
+        text = _archive_text(archive, entry)
+        if text is None:
+            continue
+        try:
+            manifest = json.loads(text)
+        except json.JSONDecodeError:
+            continue
+        screenshots = manifest.get("screenshots")
+        if not isinstance(screenshots, dict):
+            continue
+        manifest_found = True
+        for screenshot_class, paths in screenshots.items():
+            if not isinstance(paths, dict):
+                continue
+            screenshot_classes.add(str(screenshot_class))
+            focused_name = _proof_image_basename(paths.get("focusedWindow"))
+            full_name = _proof_image_basename(paths.get("fullDesktop"))
+            if focused_name:
+                expected_entries.add(
+                    f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/focused_window_screenshots/{focused_name}"
+                )
+            if full_name:
+                expected_entries.add(
+                    f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/{full_name}"
+                )
+    return expected_entries, screenshot_classes, manifest_found
+
+
+def _proof_index_image_failures(
+    archive: zipfile.ZipFile,
+    zip_entries: set[str],
+    zip_image_entries: set[str],
+) -> list[str]:
+    failures: list[str] = []
+    image_basenames = {PurePosixPath(entry).name for entry in zip_image_entries}
+    image_reference_pattern = re.compile(
+        r"(?P<path>[A-Za-z]:\\[^\s)`]+|[\w./ -]+?\.(?:png|jpg|jpeg|webp))",
+        re.IGNORECASE,
+    )
+    for entry in sorted(zip_entries):
+        if not entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/") or PurePosixPath(entry).suffix.lower() != ".md":
+            continue
+        text = _archive_text(archive, entry)
+        if not text:
+            continue
+        for match in image_reference_pattern.finditer(text):
+            reference = match.group("path").strip("`.,;:)")
+            basename = _proof_image_basename(reference)
+            if not basename or PurePosixPath(basename).suffix.lower() not in IMAGE_PROOF_EXTENSIONS:
+                continue
+            if re.match(r"^[A-Za-z]:\\", reference):
+                failures.append(f"{entry}: proof index references local-only image path {basename}")
+            if basename not in image_basenames and reference.replace("\\", "/") not in zip_entries:
+                failures.append(f"{entry}: proof index references image proof not present in final ZIP {basename}")
+    return failures
+
+
 def _image_proof_failures(packet_dir: Path, export_zip: Path, folder_entries: set[str]) -> list[str]:
     failures: list[str] = []
-    image_entries = sorted(
+    folder_image_entries = sorted(
         entry
         for entry in folder_entries
         if PurePosixPath(entry).suffix.lower() in IMAGE_PROOF_EXTENSIONS
     )
-    folder_hashes_by_group: dict[str, dict[str, str]] = {}
-    for entry in image_entries:
+    for entry in folder_image_entries:
         data = (packet_dir / PurePosixPath(entry)).read_bytes()
         if not _image_signature_valid(data, PurePosixPath(entry).suffix):
             failures.append(f"{entry}: image proof file has invalid binary signature")
-        if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/"):
-            folder_hashes_by_group.setdefault("full_desktop_screenshots", {})[entry] = hashlib.sha256(data).hexdigest()
 
     with zipfile.ZipFile(export_zip, "r") as archive:
-        for entry in image_entries:
+        zip_entries = _archive_file_entries(archive)
+        zip_image_entries = sorted(
+            entry
+            for entry in zip_entries
+            if PurePosixPath(entry).suffix.lower() in IMAGE_PROOF_EXTENSIONS
+        )
+        manifest_expected_entries, screenshot_classes, manifest_found = _manifest_image_expectations(archive)
+        for entry in zip_image_entries:
             data = archive.read(entry)
             if not _image_signature_valid(data, PurePosixPath(entry).suffix):
                 failures.append(f"{entry}: ZIP image proof file has invalid binary signature")
+        if manifest_expected_entries and not zip_image_entries:
+            failures.append(
+                "Inspectable Evidence: live proof manifest references screenshots but final ZIP contains zero image proof files"
+            )
+        missing_expected_entries = sorted(manifest_expected_entries.difference(zip_entries))
+        if missing_expected_entries:
+            preview = ", ".join(missing_expected_entries[:5])
+            if len(missing_expected_entries) > 5:
+                preview += f", ... total_missing={len(missing_expected_entries)}"
+            failures.append(
+                "Inspectable Evidence: final ZIP is missing manifest-referenced screenshot proof files "
+                f"entries=[{preview}]"
+            )
+        if manifest_expected_entries and len(zip_image_entries) < len(manifest_expected_entries):
+            failures.append(
+                "Inspectable Evidence: final ZIP image proof count is lower than manifest expectation "
+                f"zip_images={len(zip_image_entries)} expected_images={len(manifest_expected_entries)}"
+            )
+        if manifest_found:
+            missing_classes = sorted(FAM007_REQUIRED_LIVE_PROOF_SCREENSHOT_CLASSES.difference(screenshot_classes))
+            if missing_classes:
+                failures.append(
+                    "Inspectable Evidence: live proof manifest is missing required screenshot classes "
+                    f"missing={', '.join(missing_classes)}"
+                )
+        zip_hashes_by_group: dict[str, dict[str, str]] = {}
+        for entry in zip_image_entries:
+            if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/"):
+                zip_hashes_by_group.setdefault("full_desktop_screenshots", {})[entry] = hashlib.sha256(
+                    archive.read(entry)
+                ).hexdigest()
+        failures.extend(_proof_index_image_failures(archive, zip_entries, set(zip_image_entries)))
+        udl_text = _archive_text(archive, f"{REVIEW_AIDS_DIR_NAME}/FAM_007_UNIFIED_DEFECT_LEDGER.md") or ""
+        image_proof_missing = bool(manifest_expected_entries and (not zip_image_entries or missing_expected_entries))
+        if image_proof_missing:
+            for defect_id in FAM007_UDL_IMAGE_PROOF_IDS:
+                if any(defect_id in line and "CLOSED_WITH_PROOF" in line for line in udl_text.splitlines()):
+                    failures.append(
+                        f"{defect_id} is CLOSED_WITH_PROOF while final ZIP screenshot proof is missing"
+                    )
 
     full_desktop = sorted(
         entry
-        for entry in image_entries
+        for entry in zip_image_entries
         if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/full_desktop_screenshots/")
     )
     focused = sorted(
         entry
-        for entry in image_entries
+        for entry in zip_image_entries
         if entry.startswith(f"{REVIEW_AIDS_DIR_NAME}/Inspectable Evidence/focused_window_screenshots/")
     )
     if focused and not full_desktop:
@@ -1280,7 +1426,7 @@ def _image_proof_failures(packet_dir: Path, export_zip: Path, folder_entries: se
             "Inspectable Evidence: full-desktop proof count is lower than focused/cropped proof count "
             f"focused={len(focused)} full_desktop={len(full_desktop)}"
         )
-    full_hash_counts = Counter(folder_hashes_by_group.get("full_desktop_screenshots", {}).values())
+    full_hash_counts = Counter(zip_hashes_by_group.get("full_desktop_screenshots", {}).values())
     duplicate_hashes = sorted(digest for digest, count in full_hash_counts.items() if count > 1)
     if duplicate_hashes:
         failures.append(
