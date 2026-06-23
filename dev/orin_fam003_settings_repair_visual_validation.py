@@ -49,14 +49,14 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "#020914 / #04101b dark shell",
         "border": "1px restrained cyan, 20px radius",
         "effects": "subtle depth only",
-        "spacing": "800x640 compact two-column layout",
+        "spacing": "860x560 compact two-column settings layout",
         "hitbox": "top-level window with normal resize baseline",
         "icon_label": "window title plus product kicker",
         "states": "default, dirty, saved",
         "a11y": "window title Global Settings",
         "comparator": "accepted AI Control Center full-window reference",
         "proof": "01_default_global_settings_shell.png",
-        "checks": "default screenshot saved;architecture-first Global Settings geometry;default surface is not white/native-light",
+        "checks": "default screenshot saved;architecture-first Global Settings geometry;settings shell fills the window intentionally;default surface is not white/native-light",
     },
     {
         "id": "F3GS-002",
@@ -89,7 +89,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsChromeBar + residentAccessSettingsBody",
         "role": "integrated settings anatomy",
         "rule": "UIREF-001; UIREF-005",
-        "copy": "NEXUS DESKTOP AI / Global Settings / Nexus behavior and quick actions.",
+        "copy": "NEXUS DESKTOP AI / Global Settings / Settings for Nexus behavior.",
         "font": "header 29px, subtitle 13px",
         "text": "near-white plus muted cyan",
         "background": "dark header to dark body",
@@ -112,7 +112,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::DialogChromeBar title labels",
         "role": "product identity and settings title",
         "rule": "Project Vision; UIREF-001",
-        "copy": "NEXUS DESKTOP AI; Global Settings; Nexus behavior and quick actions.",
+        "copy": "NEXUS DESKTOP AI; Global Settings; Settings for Nexus behavior.",
         "font": "11px kicker, 29px title, 13px subtitle",
         "text": "cyan kicker, near-white title, muted subtitle",
         "background": "transparent on chrome bar",
@@ -181,13 +181,13 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsNavShell",
         "role": "settings navigation organizer",
         "rule": "F3-FF01; FAM-002; UIREF-005",
-        "copy": "GLOBAL SETTINGS; Nexus Tray; Tray menu and quick access.",
+        "copy": "GLOBAL SETTINGS; Nexus Tray; Tray doorway settings.",
         "font": "10-15px compact rail",
         "text": "muted cyan/white",
         "background": "transparent rail",
         "border": "right divider",
         "effects": "no fake future categories",
-        "spacing": "192px rail",
+        "spacing": "248px rail",
         "hitbox": "left column",
         "icon_label": "category and selected page label",
         "states": "Quick Access selected",
@@ -204,7 +204,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsNavItem",
         "role": "active settings leaf selector",
         "rule": "UIREF-003",
-        "copy": "Quick Access; Tray shortcuts",
+        "copy": "Quick Access; Configure the tray submenu.",
         "font": "10-13px compact",
         "text": "near-white and muted caption",
         "background": "subtle selected row",
@@ -227,7 +227,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsOverviewPanel",
         "role": "product-native settings context",
         "rule": "Project Vision; F3-FF01",
-        "copy": "Nexus Tray; Choose the shortcuts shown in the tray Quick Access submenu.; Saved",
+        "copy": "Nexus Tray; Manage the tray doorway and its Quick Access submenu.; Saved",
         "font": "11-13px product context",
         "text": "near-white title, muted detail, mint state chip",
         "background": "subtle dark strip",
@@ -273,7 +273,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessQuickSlotContainer",
         "role": "current settings control group",
         "rule": "F3-FF01; UIREF-003",
-        "copy": "Quick Access Slots; Add Slot; Restore Defaults",
+        "copy": "Quick Access Slots; Add Slot; Restore Defaults; Rows appear in tray order.",
         "font": "11-13px compact",
         "text": "muted body plus bright headings",
         "background": "subtle dark section",
@@ -325,8 +325,8 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "#020b16 dark",
         "border": "1px muted cyan, 10px radius",
         "effects": "hover/focus border",
-        "spacing": "30px min height",
-        "hitbox": "240px min width",
+        "spacing": "34px min height",
+        "hitbox": "250px min width",
         "icon_label": "custom dropdown arrow",
         "states": "default, hover/focus feasible",
         "a11y": "Quick Access Slot N Route",
@@ -365,20 +365,20 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessQuickSlotActions",
         "role": "reorder/remove controls",
         "rule": "UIREF-003",
-        "copy": "up/down/remove glyphs",
-        "font": "glyph buttons",
+        "copy": "Up / Down / Remove",
+        "font": "compact text buttons",
         "text": "pale action text",
         "background": "dark action button",
         "border": "1px muted cyan, round",
         "effects": "hover/focus/pressed",
         "spacing": "26px buttons",
         "hitbox": "26x26 each",
-        "icon_label": "icon-only with accessible names",
+        "icon_label": "text labels with accessible names",
         "states": "enabled, disabled, pressed feasible",
         "a11y": "Move/Remove Quick Access Slot",
-        "comparator": "compact icon action cluster",
+        "comparator": "compact but readable action cluster",
         "proof": "05_row_action_default_disabled_state.png",
-        "checks": "compact quick-slot controls;row actions show disabled state",
+        "checks": "readable compact quick-slot controls;row actions show disabled state",
     },
     {
         "id": "F3GS-016",
@@ -687,7 +687,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "dev/orin_fam003_settings_repair_visual_validation.py",
         "role": "anti-false-green validator",
         "rule": "validation registry; USER visual fail repair",
-        "copy": "row-level PASS/FAIL/BLOCKED/NOT_APPLICABLE",
+        "copy": "row-level PASS/REPAIR/BLOCKED/USER_REVIEW_NEEDED/NOT_APPLICABLE",
         "font": "ledger markdown",
         "text": "ledger text",
         "background": "not applicable",
@@ -860,6 +860,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
+        "- Current failure digestion: the prior packet is traceable evidence but is not accepted for USER retest; this run repairs and re-proves the Global Settings / Quick Access visual product surface.",
         "",
         "## Results",
         "",
@@ -885,8 +886,73 @@ def _element_group_result(row: dict[str, str], check_status: dict[str, bool], ch
     if missing:
         return "BLOCKED", "Missing check mapping: " + ", ".join(missing)
     if failed:
-        return "FAIL", "; ".join(f"{name}: {check_detail.get(name, '')}" for name in failed)
+        return "REPAIR", "; ".join(f"{name}: {check_detail.get(name, '')}" for name in failed)
     return "PASS", "; ".join(f"{name}: {check_detail.get(name, '')}" for name in check_names)
+
+
+def _write_fail_capable_defect_ledger(
+    log_dir: Path,
+    rows: list[tuple[str, bool, str]],
+) -> Path:
+    check_status = {name: ok for name, ok, _detail in rows}
+    check_detail = {name: detail for name, _ok, detail in rows}
+    conformance_checks = [
+        "settings shell fills the window intentionally",
+        "settings-specific product header",
+        "left navigation settings organizer",
+        "single actionable page inside Global Settings IA",
+        "product-facing copy is compact and non-internal",
+        "no internal telemetry text",
+        "product context strip replaces telemetry table",
+        "readable compact quick-slot controls",
+        "dropdown/list state is not white/native-light",
+        "close guard blocks silent loss",
+        "save clears dirty state",
+    ]
+    conformance_failed = [name for name in conformance_checks if not check_status.get(name, False)]
+    conformance_result = "REPAIR" if conformance_failed else "PASS"
+    conformance_detail = (
+        "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
+        if conformance_failed
+        else "V6 visual/product checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+    )
+    ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
+    ledger_lines = [
+        "# FAM-003 Fail-Capable Visual Defect Ledger",
+        "",
+        "Scope: Global Settings / Nexus Tray / Quick Access settings surface.",
+        "Prior Packet Under Review: `C:\\Nexus USER\\FAM-003-20260622-164659.zip`.",
+        "Prior Packet Disposition: `REPAIR - traceable but not accepted for USER retest because visual/product conformance failed.`",
+        "",
+        "| Evidence Layer | Result | Detail |",
+        "| --- | --- | --- |",
+        "| Structure exists | {result} | {detail} |".format(
+            result="PASS" if check_status.get("single actionable page inside Global Settings IA", False) else "REPAIR",
+            detail=_md_cell(check_detail.get("single actionable page inside Global Settings IA", "")),
+        ),
+        "| Screenshot exists | {result} | {detail} |".format(
+            result="PASS" if check_status.get("default screenshot saved", False) else "REPAIR",
+            detail=_md_cell(check_detail.get("default screenshot saved", "")),
+        ),
+        "| Accepted reference loaded | {result} | {detail} |".format(
+            result="PASS"
+            if check_status.get("accepted reference available: accepted_ai_control_center_default", False)
+            and check_status.get("accepted reference available: accepted_ai_control_center_close_hover", False)
+            else "BLOCKED",
+            detail=_md_cell(
+                check_detail.get("accepted reference available: accepted_ai_control_center_default", "")
+                + "; "
+                + check_detail.get("accepted reference available: accepted_ai_control_center_close_hover", "")
+            ),
+        ),
+        "| Actual visual/product conformance | {result} | {detail} |".format(
+            result=conformance_result,
+            detail=_md_cell(conformance_detail),
+        ),
+        "| LV / USER acceptance | USER_REVIEW_NEEDED | Helper PASS and screenshot existence are supporting evidence only; this is not LV green or PR-ready. |",
+    ]
+    ledger_path.write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
+    return ledger_path
 
 
 def _write_artifact_ledger(
@@ -894,7 +960,7 @@ def _write_artifact_ledger(
     artifacts: list[dict[str, str]],
     rows: list[tuple[str, bool, str]],
     contact_sheet: Path,
-) -> tuple[Path, Path, Path]:
+) -> tuple[Path, Path, Path, Path]:
     ledger_path = log_dir / "ARTIFACT_TO_SURFACE_LEDGER.md"
     ledger_lines = [
         "# FAM-003 Settings Visual Repair Artifact Ledger",
@@ -924,6 +990,7 @@ def _write_artifact_ledger(
     ledger_path.write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
 
     element_ledger_path = log_dir / "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md"
+    defect_ledger_path = _write_fail_capable_defect_ledger(log_dir, rows)
     all_checks_pass = all(ok for _name, ok, _detail in rows)
     check_status = {name: ok for name, ok, _detail in rows}
     check_detail = {name: detail for name, _ok, detail in rows}
@@ -941,7 +1008,7 @@ def _write_artifact_ledger(
         "",
         "Scope: Global Settings / Nexus Tray / Quick Access settings window only.",
         "Reference class: UIREF-001 through UIREF-006 plus accepted AI Control Center top-level window evidence.",
-        "Proof model: settings-specific contact sheet, focused screenshots, and code-to-visual widget/objectName trace. USER-operated Live Validation remains required.",
+        "Proof model: settings-specific contact sheet, focused screenshots, code-to-visual widget/objectName trace, and fail-capable defect ledger. USER-operated Live Validation remains required.",
         "Accepted-reference boundary: AI Control Center is the accepted NDAI visual-language comparator, not a Global Settings layout template or shared primitive claim.",
         "",
         "## Scope Coverage Manifest",
@@ -979,6 +1046,7 @@ def _write_artifact_ledger(
                 "artifacts": artifacts,
                 "contactSheet": str(contact_sheet),
                 "elementGroupLedger": str(element_ledger_path),
+                "failCapableDefectLedger": str(defect_ledger_path),
                 "elementGroupCount": len(ELEMENT_GROUP_LEDGER_ROWS),
                 "elementGroupResults": element_results,
                 "referenceScreenshots": [{"label": label, "path": str(path)} for label, path in REFERENCE_SCREENSHOTS],
@@ -1020,7 +1088,7 @@ def _write_artifact_ledger(
         + "\n",
         encoding="utf-8",
     )
-    return ledger_path, manifest_path, element_ledger_path
+    return ledger_path, manifest_path, element_ledger_path, defect_ledger_path
 
 
 def main() -> int:
@@ -1071,15 +1139,27 @@ def main() -> int:
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 790 <= width <= 830 and 630 <= height <= 660,
+            default_ok and 850 <= width <= 890 and 550 <= height <= 590,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "architecture-first Global Settings geometry",
-            790 <= width <= 830 and 630 <= height <= 660,
-            f"window={width}x{height}; required compact settings shell, not old sparse Quick Access utility form",
+            850 <= width <= 890 and 550 <= height <= 590,
+            f"window={width}x{height}; required wider compact settings shell, not old sparse Quick Access utility form",
+        )
+    )
+    rows.append(
+        (
+            "settings shell fills the window intentionally",
+            width >= 850
+            and height <= 590
+            and dialog.nav_shell.width() >= 240
+            and dialog.settings_page_frame.isVisible()
+            and dialog.quick_slot_container.isVisible()
+            and dialog.quick_slot_container.height() >= 200,
+            f"window={width}x{height}; nav_width={dialog.nav_shell.width()}; page_visible={dialog.settings_page_frame.isVisible()}; slot_panel_height={dialog.quick_slot_container.height()}",
         )
     )
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
@@ -1111,7 +1191,7 @@ def main() -> int:
             "settings-specific product header",
             dialog.chrome_bar.kicker_label.text() == "NEXUS DESKTOP AI"
             and dialog.chrome_bar.title_label.text() == "Global Settings"
-            and dialog.chrome_bar.subtitle_label.text() == "Nexus behavior and quick actions."
+            and dialog.chrome_bar.subtitle_label.text() == "Settings for Nexus behavior."
             and role_text == []
             and not dialog.chrome_bar.role_pill.isVisible(),
             f"kicker={dialog.chrome_bar.kicker_label.text()!r}; title={dialog.chrome_bar.title_label.text()!r}; subtitle={dialog.chrome_bar.subtitle_label.text()!r}; role_pairs={role_text}; role_pill_visible={dialog.chrome_bar.role_pill.isVisible()}",
@@ -1159,10 +1239,11 @@ def main() -> int:
             and set(dialog._nav_buttons) == {"quick_access"}
             and dialog.nav_title.text() == "Nexus Tray"
             and dialog.nav_kicker.text() == "GLOBAL SETTINGS"
-            and dialog.nav_detail.text() == "Tray menu and quick access."
-            and dialog.quick_access_nav_caption.text() == "Tray shortcuts"
+            and dialog.nav_detail.text() == "Tray doorway settings."
+            and dialog.quick_access_nav_caption.text() == "Configure the tray submenu."
+            and dialog.nav_shell.width() >= 240
             and not dialog.nav_boundary.isVisible(),
-            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; checked={dialog.quick_access_nav_button.isChecked()}; detail={dialog.nav_detail.text()!r}; caption={dialog.quick_access_nav_caption.text()!r}",
+            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; checked={dialog.quick_access_nav_button.isChecked()}; detail={dialog.nav_detail.text()!r}; caption={dialog.quick_access_nav_caption.text()!r}; nav_width={dialog.nav_shell.width()}",
         )
     )
 
@@ -1178,9 +1259,9 @@ def main() -> int:
             dialog.section_heading.text() == "Quick Access"
             and dialog.section_badge.text() == "Tray"
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-settings-navigation-quick-access-page-v5"
-            and dialog.property("settingsVisualRepair") == "settings-specific-conformance-v5-product-ui"
-            and dialog.property("referenceDerivedHeader") == "ai-control-center-family-comparator-settings-shell-v5"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-settings-navigation-quick-access-page-v6"
+            and dialog.property("settingsVisualRepair") == "settings-specific-conformance-v6-product-ui"
+            and dialog.property("referenceDerivedHeader") == "ai-control-center-family-comparator-settings-shell-v6"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
             and set(dialog._nav_buttons) == {"quick_access"}
@@ -1190,7 +1271,8 @@ def main() -> int:
             and dialog.settings_summary_panel.objectName() == "residentAccessSettingsOverviewPanel"
             and dialog.settings_summary_panel.property("settingsOverview") == "product-context"
             and dialog.settings_summary_title.text() == "Nexus Tray"
-            and dialog.settings_summary_detail.text() == "Choose the shortcuts shown in the tray Quick Access submenu."
+            and dialog.settings_summary_detail.text() == "Manage the tray doorway and its Quick Access submenu."
+            and dialog.settings_page_frame.objectName() == "residentAccessSettingsPageFrame"
             and dialog.settings_state_chip.text() == "Saved"
             and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
@@ -1221,6 +1303,10 @@ def main() -> int:
         "CHANGES No pending",
         "No pending changes",
         "01",
+        "Nexus behavior and quick actions.",
+        "Choose the shortcuts shown in the tray Quick Access submenu.",
+        "Tray menu and quick access.",
+        "Tray shortcuts",
     }
     visible_text_blob = " ".join(
         [
@@ -1284,9 +1370,9 @@ def main() -> int:
     )
     rows.append(
         (
-            "compact quick-slot controls",
-            all(button.text() in {"\u2191", "\u2193", "\N{MULTIPLICATION SIGN}"} for button in compact_action_buttons)
-            and all(button.width() <= 30 and button.height() <= 30 for button in compact_action_buttons),
+            "readable compact quick-slot controls",
+            all(button.text() in {"Up", "Down", "Remove"} for button in compact_action_buttons)
+            and all(button.width() <= 66 and button.height() <= 30 for button in compact_action_buttons),
             f"buttons={button_texts}; compact_action_sizes={[(button.objectName(), button.text(), button.width(), button.height(), button.isEnabled()) for button in compact_action_buttons]}",
         )
     )
@@ -1531,12 +1617,12 @@ def main() -> int:
         }
     )
 
-    ledger_path, manifest_path, element_ledger_path = _write_artifact_ledger(log_dir, artifacts, rows, contact_sheet)
+    ledger_path, manifest_path, element_ledger_path, defect_ledger_path = _write_artifact_ledger(log_dir, artifacts, rows, contact_sheet)
     rows.append(
         (
             "artifact and element-group ledgers written",
-            ledger_path.exists() and manifest_path.exists() and element_ledger_path.exists(),
-            f"{ledger_path}; {element_ledger_path}; {manifest_path}",
+            ledger_path.exists() and manifest_path.exists() and element_ledger_path.exists() and defect_ledger_path.exists(),
+            f"{ledger_path}; {element_ledger_path}; {defect_ledger_path}; {manifest_path}",
         )
     )
     report_path = _write_report(log_dir, rows)
