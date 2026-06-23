@@ -19,7 +19,7 @@ from typing import Any
 
 from PIL import Image
 
-from orin_fam006_unified_defect_ledger import validate_udl_state
+from orin_fam006_unified_defect_ledger import scan_packet_text_hygiene, validate_udl_state
 
 
 USER_ROOT = Path("C:/Nexus USER")
@@ -29,6 +29,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-120234.zip",
+    USER_ROOT / "FAM-006-20260623-120234.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-113615.zip",
     USER_ROOT / "FAM-006-20260623-113615.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-063715.zip",
@@ -1006,6 +1008,7 @@ def _validate_comparator_crop_ledger(
 def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures: list[str] = []
     failures.extend(_validate_source_truth_context(root))
+    failures.extend(f"packet text hygiene: {failure}" for failure in scan_packet_text_hygiene(root))
     evidence_roots = sorted((root / "Review Aids" / "Evidence").glob("*")) if (root / "Review Aids" / "Evidence").exists() else []
     evidence_root = next((path for path in evidence_roots if path.is_dir()), None)
     if evidence_root is None:
@@ -1030,7 +1033,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
             defect_ids = {str(row.get("defectId", "")) for row in defects if isinstance(row, dict)}
             if error or not isinstance(data, dict) or not isinstance(defects, list):
                 failures.append(f"invalid embedded unified_defect_ledger.json: {error}")
-            for required_id in ("FAM006-UDL-012", "FAM006-UDL-013"):
+            for required_id in ("FAM006-UDL-012", "FAM006-UDL-013", "FAM006-UDL-014"):
                 if required_id not in defect_ids:
                     failures.append(f"embedded UDL missing latest false-green defect {required_id}")
         if embedded_incident_path is None:
@@ -1040,8 +1043,8 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
             incidents = data.get("incidents", []) if isinstance(data, dict) else []
             if error or not isinstance(data, dict) or not isinstance(incidents, list):
                 failures.append(f"invalid embedded false_green_incident_ledger.json: {error}")
-            elif len(incidents) < 9:
-                failures.append(f"embedded false-green incident ledger is generic: expected at least 9 rows, found {len(incidents)}")
+            elif len(incidents) < 10:
+                failures.append(f"embedded false-green incident ledger is generic: expected at least 10 rows, found {len(incidents)}")
             covered = {
                 str(row.get("packetPathOrReconstructedRecord", ""))
                 for row in incidents
@@ -1051,6 +1054,8 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                 failures.append("embedded false-green incident ledger missing 071500 reconstructed-known-bad incident")
             if not any("113615" in item for item in covered):
                 failures.append("embedded false-green incident ledger missing 113615 UDL false-green incident")
+            if not any("120234" in item for item in covered):
+                failures.append("embedded false-green incident ledger missing 120234 packet text-hygiene incident")
             for index, row in enumerate(incidents, start=1):
                 if not isinstance(row, dict):
                     failures.append(f"embedded false-green incident row {index} is not an object")

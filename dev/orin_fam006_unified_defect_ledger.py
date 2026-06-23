@@ -66,11 +66,62 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260623-063715.zip",
     "FAM-006-20260623-071500.reconstructed-known-bad.json",
     "FAM-006-20260623-113615.zip",
+    "FAM-006-20260623-120234.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
     "FAM-006-20260623-113615.zip": "CFBBFA0CDAC9A6A190DF22F4811BC7E959C3A32C58E5514AF025ED18FB289086",
+    "FAM-006-20260623-120234.zip": "D93AADB19ABBDD0973412D301AB14ABF8B115349A352E75868607A32F3CC20FE",
 }
+TEXT_HYGIENE_EXTENSIONS = {".json", ".md"}
+TEXT_HYGIENE_ROOTS = (
+    "START_HERE.md",
+    "USER Review",
+    "Review Aids",
+    "Source Truth Context",
+)
+
+
+def _is_text_hygiene_target(path: Path, root: Path) -> bool:
+    try:
+        rel = path.resolve().relative_to(root.resolve())
+    except ValueError:
+        return False
+    if not path.is_file():
+        return False
+    if rel.as_posix() == "START_HERE.md":
+        return True
+    if path.suffix.lower() not in TEXT_HYGIENE_EXTENSIONS:
+        return False
+    if not rel.parts:
+        return False
+    return rel.parts[0] in {"USER Review", "Review Aids", "Source Truth Context"}
+
+
+def scan_packet_text_hygiene(packet_root: Path) -> list[str]:
+    failures: list[str] = []
+    if not packet_root.exists():
+        return [f"packet root missing for text hygiene scan: {packet_root}"]
+    for path in sorted(packet_root.rglob("*")):
+        if not _is_text_hygiene_target(path, packet_root):
+            continue
+        rel = _packet_rel(path, packet_root)
+        data = path.read_bytes()
+        for index, byte in enumerate(data):
+            if byte < 32 and byte not in (9, 10, 13):
+                failures.append(f"{rel}: non-printable control byte 0x{byte:02X} at byte {index}")
+        try:
+            text = data.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            failures.append(f"{rel}: invalid UTF-8 text: {exc}")
+            continue
+        if "\ufffd" in text:
+            failures.append(f"{rel}: replacement character U+FFFD indicates decoding corruption")
+        if "\x00" in text:
+            failures.append(f"{rel}: null character corrupts USER-facing text")
+        if "reconstructed \x0071500 record" in text:
+            failures.append(f"{rel}: corrupted known-bad identifier `reconstructed \\x0071500 record`")
+    return failures
 
 
 def _defect(
@@ -346,6 +397,23 @@ def seed_defects() -> list[dict[str, Any]]:
             status="CLOSED_WITH_PROOF",
             closure="113615 is admitted as known-bad and rejected by the repaired false-ACCEPT gate for missing latest known-bad, generic incident ledger, and premature UDL closure.",
         ),
+        _defect(
+            "FAM006-UDL-014",
+            origin="ChatGPT",
+            title="USER-facing packet text contains non-printable control character",
+            exact_user_wording="USER Review/FAM006_UNIFIED_DEFECT_LEDGER_REPAIR_REVIEW.md contains `the reconstructed \\x0071500 record` instead of `the reconstructed 071500 record`.",
+            expected="USER-facing packet text, known-bad identifiers, artifact IDs, and paths must be readable UTF-8 text with no null bytes, non-printable control characters, replacement characters, or corrupted IDs.",
+            actual="FAM-006-20260623-120234.zip passed validation while its primary USER review Markdown contained a literal null byte that corrupted the 071500 known-bad identifier.",
+            evidence="Known-bad packet FAM-006-20260623-120234.zip SHA D93AADB19ABBDD0973412D301AB14ABF8B115349A352E75868607A32F3CC20FE; exact failing file USER Review/FAM006_UNIFIED_DEFECT_LEDGER_REPAIR_REVIEW.md.",
+            surfaces="START_HERE.md; USER Review/*.md; Review Aids/**/*.md; Review Aids/**/*.json; Source Truth Context/**/*.md; packet generated review text",
+            root_cause="Packet generation wrote USER-facing text without a final binary/text hygiene scan, so an accidental null byte survived into the upload artifact and the helper still reported green.",
+            validator_gap="UDL and false-ACCEPT gates checked structure, known-bad corpus coverage, and proof files but did not reject non-printable control characters or corrupted artifact IDs in USER-facing packet files.",
+            repair_target="Add 120234 to known-bad, add packet text hygiene scanning to FAM-006 packet gates, repair the generated review text, and reject the known-bad packet for the control-character defect.",
+            acceptance="FAM-006 gates fail for non-printable control bytes, U+FFFD replacement characters, invalid UTF-8, or the corrupted `reconstructed \\x0071500 record` phrase; regenerated packet renders `071500` correctly everywhere.",
+            proof="false-ACCEPT gate rejects FAM-006-20260623-120234.zip for packet text hygiene and current UDL gate reports packet text hygiene clean for the regenerated packet.",
+            status="CLOSED_WITH_PROOF",
+            closure="120234 is admitted as known-bad, the packet text hygiene gate rejects its null byte, and the regenerated USER packet scans clean for non-printable control characters.",
+        ),
     ]
 
 
@@ -526,6 +594,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             scope="FAM-006-local",
             linked=["FAM006-UDL-013", "FAM006-UDL-012"],
         ),
+        _incident(
+            "FAM006-FGI-010",
+            packet="FAM-006-20260623-120234.zip",
+            sha256="D93AADB19ABBDD0973412D301AB14ABF8B115349A352E75868607A32F3CC20FE",
+            head="dbe5b2903a0ef5a3dfdac1d1d52477aa4d5366f8",
+            codex_claim="FAM-006 UDL packet was ACCEPT / complete after latest known-bad coverage repair.",
+            rejection="USER/ChatGPT rejected USER-facing packet text hygiene because the primary review file contained `the reconstructed \\x0071500 record`.",
+            validator_failed="FAM-006 UDL and false-ACCEPT gates before packet text hygiene scanning of USER-facing Markdown/JSON files.",
+            artifact="USER Review/FAM006_UNIFIED_DEFECT_LEDGER_REPAIR_REVIEW.md inside FAM-006-20260623-120234.zip",
+            ledger_row="FAM006-UDL-014",
+            comparator="No visual comparator issue; text hygiene false green corrupted a known-bad artifact identifier.",
+            prevention="Scan packet USER-facing Markdown/JSON for invalid UTF-8, null bytes, non-printable controls, U+FFFD, and corrupted known-bad IDs.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-014"],
+        ),
     ]
     for row in rows:
         unknown = sorted(set(row["linkedDefectIds"]) - known_ids)
@@ -627,8 +710,8 @@ def validate_udl_state(packet_root: Path | None = None) -> dict[str, Any]:
                 failures.append(f"{artifact_name}: reconstructed record missing exactRejectionReasons")
     if not incidents:
         failures.append("false-green incident ledger is empty")
-    if len(incidents) < 9:
-        failures.append(f"false-green incident ledger is too generic: expected at least 9 event-specific rows, found {len(incidents)}")
+    if len(incidents) < 10:
+        failures.append(f"false-green incident ledger is too generic: expected at least 10 event-specific rows, found {len(incidents)}")
     for incident in incidents:
         for field in (
             "incidentId",
@@ -667,6 +750,7 @@ def validate_udl_state(packet_root: Path | None = None) -> dict[str, Any]:
             missing_packet = sorted(PACKET_REQUIRED_FILES - present)
             if missing_packet:
                 failures.append(f"packet missing UDL files: {', '.join(missing_packet)}")
+            failures.extend(f"packet text hygiene: {failure}" for failure in scan_packet_text_hygiene(packet_root))
     status_counts = Counter(str(row["status"]) for row in defects)
     current_owned_blockers = [
         row["defectId"]
