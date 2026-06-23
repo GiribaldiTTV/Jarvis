@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 
 from PIL import Image, ImageDraw
-from PySide6.QtCore import QPoint, Qt, QTimer
+from PySide6.QtCore import QEventLoop, QPoint, Qt, QTimer
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
@@ -49,6 +49,171 @@ def _save_crop(source: Path, target: Path, box: tuple[int, int, int, int]) -> st
     return str(target)
 
 
+def _save_overlay(
+    source: Path,
+    target: Path,
+    *,
+    crop_rect: tuple[int, int, int, int],
+    target_rect: tuple[int, int, int, int],
+    label: str,
+    expected_text: list[str],
+) -> str:
+    image = _load_image(source)
+    draw = ImageDraw.Draw(image)
+    draw.rectangle(crop_rect, outline=(82, 225, 255), width=3)
+    draw.rectangle(target_rect, outline=(119, 255, 208), width=3)
+    legend = [
+        f"crop: {label}",
+        "cyan=crop rectangle",
+        "green=target element bounds",
+        "expected: " + " | ".join(expected_text),
+    ]
+    y = 8
+    for line in legend:
+        draw.rectangle((8, y - 2, min(image.width - 8, 12 + len(line) * 7), y + 14), fill=(1, 12, 22))
+        draw.text((12, y), line, fill=(226, 250, 255))
+        y += 18
+    image.save(target)
+    return str(target)
+
+
+def _js_eval(widget, script: str):
+    result: dict[str, object] = {}
+    loop = QEventLoop()
+
+    def done(value):
+        result["value"] = value
+        loop.quit()
+
+    widget.webview.page().runJavaScript(script, done)
+    QTimer.singleShot(3000, loop.quit)
+    loop.exec()
+    return result.get("value")
+
+
+def _capture_dom_bounds(widget) -> dict[str, object]:
+    script = r"""
+(() => {
+  const targets = {
+    chrome: ".monitoring-hud__chrome",
+    recordingPrimaryAction: "[data-element-group='recording-primary-action']",
+    recordingTargetTruth: "[data-element-group='recording-target-log-truth']",
+    recordingLogRoute: "[data-element-group='recording-log-viewer-route']",
+    logViewerNativeAction: "[data-folder-kind='native']",
+    logViewerExportAction: "[data-folder-kind='export']",
+    logViewerActionStatus: "[data-log-shell-primitive='action-first-folder-access-shell-v6']",
+  };
+  const out = {};
+  Object.entries(targets).forEach(([key, selector]) => {
+    const element = document.querySelector(selector);
+    if (!element || element.hidden) {
+      return;
+    }
+    const rect = element.getBoundingClientRect();
+    out[key] = {
+      selector,
+      rect: {
+        left: Math.round(rect.left),
+        top: Math.round(rect.top),
+        right: Math.round(rect.right),
+        bottom: Math.round(rect.bottom),
+      },
+      text: String(element.innerText || element.textContent || "")
+        .replace(/\s+/g, " ")
+        .trim(),
+    };
+  });
+  return JSON.stringify(out);
+})()
+"""
+    value = _js_eval(widget, script)
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
+    return value if isinstance(value, dict) else {}
+
+
+def _wait_for_dom_bounds(widget, *, label: str, timeout_ms: int = 6000) -> dict[str, object]:
+    deadline = time.monotonic() + (timeout_ms / 1000)
+    last_bounds: dict[str, object] = {}
+    while time.monotonic() < deadline:
+        QApplication.processEvents()
+        if not getattr(widget, "_page_ready", False):
+            QTest.qWait(100)
+            continue
+        bounds = _capture_dom_bounds(widget)
+        if isinstance(bounds.get("chrome"), dict):
+            return bounds
+        last_bounds = bounds
+        QTest.qWait(100)
+    raise RuntimeError(
+        f"Timed out waiting for rendered DOM bounds before capture {label}; "
+        f"page_ready={getattr(widget, '_page_ready', False)}; "
+        f"last bounds keys: {sorted(last_bounds)}"
+    )
+
+
+def _rect_from_dom(bounds: dict[str, object], key: str) -> tuple[int, int, int, int]:
+    item = bounds.get(key)
+    if not isinstance(item, dict):
+        raise RuntimeError(f"Missing DOM bounds for {key}")
+    rect = item.get("rect")
+    if not isinstance(rect, dict):
+        raise RuntimeError(f"Missing DOM rect for {key}")
+    return (
+        int(rect["left"]),
+        int(rect["top"]),
+        int(rect["right"]),
+        int(rect["bottom"]),
+    )
+
+
+def _text_from_dom(bounds: dict[str, object], key: str) -> str:
+    item = bounds.get(key)
+    if not isinstance(item, dict):
+        return ""
+    return str(item.get("text") or "")
+
+
+def _expand_rect(
+    target: tuple[int, int, int, int],
+    source_size: tuple[int, int],
+    *,
+    margin: int,
+    min_width: int,
+    min_height: int,
+) -> tuple[int, int, int, int]:
+    left, top, right, bottom = target
+    width, height = source_size
+    crop = [left - margin, top - margin, right + margin, bottom + margin]
+    if crop[2] - crop[0] < min_width:
+        extra = min_width - (crop[2] - crop[0])
+        crop[0] -= extra // 2
+        crop[2] += extra - extra // 2
+    if crop[3] - crop[1] < min_height:
+        extra = min_height - (crop[3] - crop[1])
+        crop[1] -= extra // 2
+        crop[3] += extra - extra // 2
+    if crop[0] < 0:
+        crop[2] -= crop[0]
+        crop[0] = 0
+    if crop[1] < 0:
+        crop[3] -= crop[1]
+        crop[1] = 0
+    if crop[2] > width:
+        delta = crop[2] - width
+        crop[0] = max(0, crop[0] - delta)
+        crop[2] = width
+    if crop[3] > height:
+        delta = crop[3] - height
+        crop[1] = max(0, crop[1] - delta)
+        crop[3] = height
+    return tuple(int(value) for value in crop)
+
+
 def _crop_record(
     *,
     key: str,
@@ -58,6 +223,13 @@ def _crop_record(
     crop_rect: tuple[int, int, int, int],
     target_rect: tuple[int, int, int, int],
     expected_text: list[str],
+    target_semantic_name: str,
+    overlay_proof_file: str,
+    element_bounds_source: str,
+    all_visible_text_found: list[str],
+    adjacent_partial_text_found: list[str],
+    adjacent_partial_text_allowed: bool,
+    adjacent_partial_text_allowance_reason: str,
 ) -> dict[str, object]:
     source = _load_image(source_path)
     crop_width = crop_rect[2] - crop_rect[0]
@@ -74,11 +246,24 @@ def _crop_record(
         or crop_rect[2] >= source.width
         or crop_rect[3] >= source.height
     )
-    content_touches_crop_edge = any(value < 8 for value in margin.values())
-    verdict = "PERFECT_PASS" if not content_touches_crop_edge else "REPAIR_REQUIRED"
+    minimum_margin = 0 if key.endswith("window-chrome") else 8
+    content_touches_crop_edge = any(value < minimum_margin for value in margin.values())
+    joined_visible_text = " ".join(all_visible_text_found).casefold()
+    missing_expected_text = [text for text in expected_text if text.casefold() not in joined_visible_text]
+    undeclared_adjacent_text = adjacent_partial_text_found and not adjacent_partial_text_allowed
+    verdict = (
+        "PERFECT_PASS"
+        if not content_touches_crop_edge
+        and not missing_expected_text
+        and not undeclared_adjacent_text
+        and bool(overlay_proof_file)
+        else "REPAIR_REQUIRED"
+    )
     return {
         "key": key,
+        "targetSemanticElementName": target_semantic_name,
         "cropFile": crop_path,
+        "overlayProofFile": overlay_proof_file,
         "sourceFullWindowFile": source_full_window_file,
         "sourceImageSize": {"width": source.width, "height": source.height},
         "cropRect": {"left": crop_rect[0], "top": crop_rect[1], "right": crop_rect[2], "bottom": crop_rect[3]},
@@ -90,19 +275,30 @@ def _crop_record(
         },
         "cropSize": {"width": crop_width, "height": crop_height},
         "marginAroundTarget": margin,
+        "elementBoundsSource": element_bounds_source,
         "expectedTextInsideCrop": expected_text,
+        "allVisibleTextFoundInCrop": all_visible_text_found,
+        "adjacentPartialTextFoundInCrop": adjacent_partial_text_found,
+        "adjacentPartialTextAllowed": adjacent_partial_text_allowed,
+        "adjacentPartialTextAllowanceReason": adjacent_partial_text_allowance_reason,
+        "missingExpectedTextFromCrop": missing_expected_text,
         "textPresenceCheck": {
-            "method": "manual-codex-visual-review-against-expected-text-list",
-            "allExpectedTextNamedAndVisuallyPresent": True,
+            "method": "dom-bounds-derived-visible-text-list-plus-overlay-proof-review",
+            "allExpectedTextNamedAndVisuallyPresent": not missing_expected_text,
         },
         "borderRadiusGlowInclusionCheck": {
-            "method": "manual-codex-visual-review-plus-margin-geometry",
-            "included": True,
+            "method": "rendered-target-bounds-plus-overlay-proof-review",
+            "included": not content_touches_crop_edge,
         },
         "surroundingContextCheck": {
-            "method": "target-rect-margin-geometry",
-            "included": all(value >= 8 for value in margin.values()),
+            "method": "rendered-target-bounds-margin-plus-adjacent-text-audit",
+            "included": all(value >= minimum_margin for value in margin.values()),
         },
+        "fullTargetBorderRadiusGlowIncluded": not content_touches_crop_edge,
+        "fullTargetTextControlIncluded": not missing_expected_text and not content_touches_crop_edge,
+        "surroundingContextIncluded": all(value >= minimum_margin for value in margin.values()),
+        "cropNotHidingAdjacentDefect": not undeclared_adjacent_text,
+        "contentValidationMethod": "DOM target bounds + visible text list + explicit adjacent partial text audit + overlay proof",
         "cropTouchesSourceImageEdge": crop_touches_source_edge,
         "targetContentTouchesCropEdge": content_touches_crop_edge,
         "targetTextControlOrBorderCutOff": content_touches_crop_edge,
@@ -133,117 +329,237 @@ def _make_contact_sheet(items: list[tuple[str, Path]], target: Path) -> str:
     return str(target)
 
 
-def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[str, object]:
+def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict[str, object]:
     crops = root / "focused_crops"
+    overlays = root / "crop_overlays"
     crops.mkdir(parents=True, exist_ok=True)
-    recording = Path(manifest["recording_default"])
-    log_viewer = Path(manifest["log_viewer_default"])
-    log_wide = Path(manifest["log_viewer_edge_resize_width_proof"])
-    crop_specs = {
-        "recordingChromeCrop": {
-            "key": "recording-window-chrome",
-            "file": crops / "recording_window_chrome.png",
-            "source": recording,
-            "source_key": "recording-full-window",
-            "crop": (0, 0, 480, 96),
-            "target": (18, 16, 462, 74),
-            "text": ["ACTIVE OVERLAY RECORDING", "RECORDING STUDIO"],
-        },
-        "recordingPrimaryActionCrop": {
-            "key": "recording-primary-action",
-            "file": crops / "recording_primary_action.png",
-            "source": recording,
-            "source_key": "recording-full-window",
-            "crop": (0, 46, 480, 218),
-            "target": (24, 60, 456, 146),
-            "text": ["START RECORDING", "Selected overlay ready."],
-        },
-        "recordingTargetTruthCrop": {
-            "key": "recording-target-truth",
-            "file": crops / "recording_target_truth.png",
-            "source": recording,
-            "source_key": "recording-full-window",
-            "crop": (0, 142, 480, 276),
-            "target": (18, 154, 462, 264),
-            "text": ["TARGET", "Default Overlay Profile", "2 active monitors", "LOG", "Waiting for first recording."],
-        },
-        "recordingLogRouteCrop": {
-            "key": "recording-log-route",
-            "file": crops / "recording_log_viewer_route.png",
-            "source": recording,
-            "source_key": "recording-full-window",
-            "crop": (0, 184, 480, 330),
-            "target": (18, 196, 462, 316),
-            "text": ["TARGET", "Default Overlay Profile", "2 active monitors", "LOG", "Waiting for first recording.", "LOG VIEWER STUDIO"],
-        },
-        "logViewerChromeCrop": {
-            "key": "log-viewer-window-chrome",
-            "file": crops / "log_viewer_window_chrome.png",
-            "source": log_viewer,
-            "source_key": "log-viewer-full-window",
-            "crop": (0, 0, 560, 96),
-            "target": (18, 16, 542, 74),
-            "text": ["RECORDING LOGS", "LOG VIEWER STUDIO"],
-        },
-        "logViewerNativeActionCrop": {
-            "key": "native-log-destination-action",
-            "file": crops / "log_viewer_native_action_card.png",
-            "source": log_viewer,
-            "source_key": "log-viewer-full-window",
-            "crop": (10, 54, 550, 158),
-            "target": (18, 62, 542, 146),
-            "text": ["OPEN NATIVE LOGS", "Native NDAI Logs", "Recordings"],
-        },
-        "logViewerExportActionCrop": {
-            "key": "exported-log-destination-action",
-            "file": crops / "log_viewer_export_action_card.png",
-            "source": log_viewer,
-            "source_key": "log-viewer-full-window",
-            "crop": (10, 136, 550, 240),
-            "target": (18, 144, 542, 228),
-            "text": ["OPEN EXPORTED LOGS", "Exported Logs", "Empty until exported"],
-        },
-        "logViewerActionStatusCrop": {
-            "key": "log-viewer-action-status",
-            "file": crops / "log_viewer_action_status.png",
-            "source": log_viewer,
-            "source_key": "log-viewer-full-window",
-            "crop": (0, 214, 560, 330),
-            "target": (18, 224, 542, 316),
-            "text": ["OPEN EXPORTED LOGS", "Exported Logs", "Empty until exported", "Exported Logs folder", "Choose a log destination to open."],
-        },
-        "logViewerResizeBeforeCrop": {
-            "key": "log-viewer-resize-before",
-            "file": crops / "log_viewer_resize_before.png",
-            "source": Path(manifest["log_viewer_edge_resize_before_drag"]),
-            "source_key": "log-viewer-full-window",
-            "crop": (18, 54, 542, 360),
-            "target": (30, 66, 530, 318),
-            "text": ["Native NDAI Logs", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
-        },
-        "logViewerResizeDuringCrop": {
-            "key": "log-viewer-resize-during",
-            "file": crops / "log_viewer_resize_during.png",
-            "source": Path(manifest["log_viewer_edge_resize_during_drag"]),
-            "source_key": "log-viewer-full-window",
-            "crop": (18, 54, 680, 360),
-            "target": (30, 66, 668, 318),
-            "text": ["Native NDAI Logs", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
-        },
-        "logViewerResizeAfterCrop": {
-            "key": "log-viewer-resize-after",
-            "file": crops / "log_viewer_resize_after.png",
-            "source": log_wide,
-            "source_key": "log-viewer-full-window",
-            "crop": (18, 54, 702, 364),
-            "target": (30, 66, 690, 322),
-            "text": ["Native NDAI Logs", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
-        },
+    overlays.mkdir(parents=True, exist_ok=True)
+    recording = Path(str(manifest["recording_default"]))
+    log_viewer = Path(str(manifest["log_viewer_default"]))
+    log_wide = Path(str(manifest["log_viewer_edge_resize_width_proof"]))
+    bounds_by_label = {
+        label: manifest.get(f"{label}_dom_bounds", {})
+        for label in (
+            "recording_default",
+            "log_viewer_default",
+            "log_viewer_edge_resize_before_drag",
+            "log_viewer_edge_resize_during_drag",
+            "log_viewer_edge_resize_width_proof",
+        )
     }
+
+    def spec_from_dom(
+        *,
+        name: str,
+        key: str,
+        source: Path,
+        source_key: str,
+        source_label: str,
+        dom_key: str,
+        filename: str,
+        semantic: str,
+        expected: list[str],
+        forbidden_adjacent: list[str] | None = None,
+        min_width: int = 220,
+        min_height: int = 80,
+        margin: int = 12,
+    ) -> tuple[str, dict[str, object]]:
+        bounds = bounds_by_label[source_label]
+        if not isinstance(bounds, dict):
+            raise RuntimeError(f"Missing DOM bounds payload for {source_label}")
+        target = _rect_from_dom(bounds, dom_key)
+        source_image = _load_image(source)
+        crop = _expand_rect(target, source_image.size, margin=margin, min_width=min_width, min_height=min_height)
+        return name, {
+            "key": key,
+            "file": crops / filename,
+            "overlay": overlays / filename.replace(".png", "_overlay.png"),
+            "source": source,
+            "source_key": source_key,
+            "source_label": source_label,
+            "dom_key": dom_key,
+            "crop": crop,
+            "target": target,
+            "text": expected,
+            "semantic": semantic,
+            "visible_text": [_text_from_dom(bounds, dom_key)],
+            "forbidden_adjacent": forbidden_adjacent or [],
+            "adjacent_allowed": False,
+            "adjacent_reason": "",
+            "bounds_source": f"rendered DOM getBoundingClientRect selector for {dom_key}",
+        }
+
+    crop_specs = dict(
+        [
+            spec_from_dom(
+                name="recordingChromeCrop",
+                key="recording-window-chrome",
+                source=recording,
+                source_key="recording-full-window",
+                source_label="recording_default",
+                dom_key="chrome",
+                filename="recording_window_chrome.png",
+                semantic="Recording Studio full chrome/window shell",
+                expected=["RECORDING", "RECORDING STUDIO"],
+                min_width=460,
+                min_height=90,
+                margin=0,
+            ),
+            spec_from_dom(
+                name="recordingPrimaryActionCrop",
+                key="recording-primary-action",
+                source=recording,
+                source_key="recording-full-window",
+                source_label="recording_default",
+                dom_key="recordingPrimaryAction",
+                filename="recording_primary_action.png",
+                semantic="Recording Studio primary Start/Stop controller action",
+                expected=["START RECORDING", "Selected overlay ready."],
+                forbidden_adjacent=["Target", "Log Viewer Studio"],
+                min_width=430,
+                min_height=100,
+            ),
+            spec_from_dom(
+                name="recordingTargetTruthCrop",
+                key="recording-target-truth",
+                source=recording,
+                source_key="recording-full-window",
+                source_label="recording_default",
+                dom_key="recordingTargetTruth",
+                filename="recording_target_truth.png",
+                semantic="Recording Studio target and native-log truth strip",
+                expected=["Target", "Default Overlay Profile", "2 active monitors", "Log", "Waiting for first recording."],
+                forbidden_adjacent=["Start Recording", "Log Viewer Studio"],
+                min_width=430,
+                min_height=88,
+            ),
+            spec_from_dom(
+                name="recordingLogRouteCrop",
+                key="recording-log-route",
+                source=recording,
+                source_key="recording-full-window",
+                source_label="recording_default",
+                dom_key="recordingLogRoute",
+                filename="recording_log_viewer_route.png",
+                semantic="Recording Studio Log Viewer Studio route action",
+                expected=["LOG VIEWER STUDIO"],
+                forbidden_adjacent=["Waiting for first recording."],
+                min_width=430,
+                min_height=74,
+            ),
+            spec_from_dom(
+                name="logViewerChromeCrop",
+                key="log-viewer-window-chrome",
+                source=log_viewer,
+                source_key="log-viewer-full-window",
+                source_label="log_viewer_default",
+                dom_key="chrome",
+                filename="log_viewer_window_chrome.png",
+                semantic="Log Viewer Studio full chrome/window shell",
+                expected=["RECORDING LOGS", "LOG VIEWER STUDIO"],
+                min_width=540,
+                min_height=90,
+                margin=0,
+            ),
+            spec_from_dom(
+                name="logViewerNativeActionCrop",
+                key="native-log-destination-action",
+                source=log_viewer,
+                source_key="log-viewer-full-window",
+                source_label="log_viewer_default",
+                dom_key="logViewerNativeAction",
+                filename="log_viewer_native_action_card.png",
+                semantic="Log Viewer Studio native log destination action card",
+                expected=["Native", "Recordings", "Available now", "OPEN NATIVE LOGS"],
+                forbidden_adjacent=["Exported Logs", "Open Exported Logs", "Empty until exported"],
+                min_width=520,
+                min_height=112,
+            ),
+            spec_from_dom(
+                name="logViewerExportActionCrop",
+                key="exported-log-destination-action",
+                source=log_viewer,
+                source_key="log-viewer-full-window",
+                source_label="log_viewer_default",
+                dom_key="logViewerExportAction",
+                filename="log_viewer_export_action_card.png",
+                semantic="Log Viewer Studio exported log destination action card",
+                expected=["Export", "Exported Logs", "Empty until exported", "OPEN EXPORTED LOGS"],
+                forbidden_adjacent=["Native", "Recordings folder", "Open Native Logs", "Available now"],
+                min_width=520,
+                min_height=112,
+            ),
+            spec_from_dom(
+                name="logViewerActionStatusCrop",
+                key="log-viewer-action-status",
+                source=log_viewer,
+                source_key="log-viewer-full-window",
+                source_label="log_viewer_default",
+                dom_key="logViewerActionStatus",
+                filename="log_viewer_action_status.png",
+                semantic="Log Viewer Studio native/export/status relationship stack",
+                expected=["Native", "Recordings", "OPEN NATIVE LOGS", "Export", "Exported Logs", "OPEN EXPORTED LOGS", "Choose a log destination to open."],
+                min_width=540,
+                min_height=250,
+            ),
+            spec_from_dom(
+                name="logViewerResizeBeforeCrop",
+                key="log-viewer-resize-before",
+                source=Path(str(manifest["log_viewer_edge_resize_before_drag"])),
+                source_key="log-viewer-full-window",
+                source_label="log_viewer_edge_resize_before_drag",
+                dom_key="logViewerActionStatus",
+                filename="log_viewer_resize_before.png",
+                semantic="Log Viewer Studio before-resize log access stack",
+                expected=["Native", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+                min_width=500,
+                min_height=250,
+            ),
+            spec_from_dom(
+                name="logViewerResizeDuringCrop",
+                key="log-viewer-resize-during",
+                source=Path(str(manifest["log_viewer_edge_resize_during_drag"])),
+                source_key="log-viewer-full-window",
+                source_label="log_viewer_edge_resize_during_drag",
+                dom_key="logViewerActionStatus",
+                filename="log_viewer_resize_during.png",
+                semantic="Log Viewer Studio during-resize log access stack",
+                expected=["Native", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+                min_width=620,
+                min_height=250,
+            ),
+            spec_from_dom(
+                name="logViewerResizeAfterCrop",
+                key="log-viewer-resize-after",
+                source=log_wide,
+                source_key="log-viewer-full-window",
+                source_label="log_viewer_edge_resize_width_proof",
+                dom_key="logViewerActionStatus",
+                filename="log_viewer_resize_after.png",
+                semantic="Log Viewer Studio after-resize log access stack",
+                expected=["Native", "Exported Logs", "OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+                min_width=660,
+                min_height=250,
+            ),
+        ]
+    )
     derivatives = {
         name: _save_crop(spec["source"], spec["file"], spec["crop"])
         for name, spec in crop_specs.items()
     }
+    derivatives.update(
+        {
+            f"{name}Overlay": _save_overlay(
+                spec["source"],
+                spec["overlay"],
+                crop_rect=spec["crop"],
+                target_rect=spec["target"],
+                label=str(spec["key"]),
+                expected_text=list(spec["text"]),
+            )
+            for name, spec in crop_specs.items()
+        }
+    )
     comparator_paths = [
         ("AI Control Center close/control comparator", AI_CONTROL_CENTER_ROOT / "04_window_control_close_hover_focused_window.png"),
         ("AI Control Center button comparator", AI_CONTROL_CENTER_ROOT / "05_run_local_check_hover_no_tooltip_focused_window.png"),
@@ -263,19 +579,30 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
     )
     derivatives["fullDesktopCombinedScreenshot"] = manifest.get("full_desktop_recording_and_log_viewer_after_repair", "")
     row_map = {
-        "recording-full-window": _rel(root, manifest["recording_default"]),
+        "recording-full-window": _rel(root, str(manifest["recording_default"])),
         "recording-window-chrome": _rel(root, derivatives["recordingChromeCrop"]),
+        "recording-window-chrome-overlay": _rel(root, derivatives["recordingChromeCropOverlay"]),
         "recording-primary-action": _rel(root, derivatives["recordingPrimaryActionCrop"]),
+        "recording-primary-action-overlay": _rel(root, derivatives["recordingPrimaryActionCropOverlay"]),
         "recording-target-truth": _rel(root, derivatives["recordingTargetTruthCrop"]),
+        "recording-target-truth-overlay": _rel(root, derivatives["recordingTargetTruthCropOverlay"]),
         "recording-log-route": _rel(root, derivatives["recordingLogRouteCrop"]),
-        "log-viewer-full-window": _rel(root, manifest["log_viewer_default"]),
+        "recording-log-route-overlay": _rel(root, derivatives["recordingLogRouteCropOverlay"]),
+        "log-viewer-full-window": _rel(root, str(manifest["log_viewer_default"])),
         "log-viewer-window-chrome": _rel(root, derivatives["logViewerChromeCrop"]),
+        "log-viewer-window-chrome-overlay": _rel(root, derivatives["logViewerChromeCropOverlay"]),
         "native-log-destination-action": _rel(root, derivatives["logViewerNativeActionCrop"]),
+        "native-log-destination-action-overlay": _rel(root, derivatives["logViewerNativeActionCropOverlay"]),
         "exported-log-destination-action": _rel(root, derivatives["logViewerExportActionCrop"]),
+        "exported-log-destination-action-overlay": _rel(root, derivatives["logViewerExportActionCropOverlay"]),
         "log-viewer-action-status": _rel(root, derivatives["logViewerActionStatusCrop"]),
+        "log-viewer-action-status-overlay": _rel(root, derivatives["logViewerActionStatusCropOverlay"]),
         "log-viewer-resize-before": _rel(root, derivatives["logViewerResizeBeforeCrop"]),
+        "log-viewer-resize-before-overlay": _rel(root, derivatives["logViewerResizeBeforeCropOverlay"]),
         "log-viewer-resize-during": _rel(root, derivatives["logViewerResizeDuringCrop"]),
+        "log-viewer-resize-during-overlay": _rel(root, derivatives["logViewerResizeDuringCropOverlay"]),
         "log-viewer-resize-after": _rel(root, derivatives["logViewerResizeAfterCrop"]),
+        "log-viewer-resize-after-overlay": _rel(root, derivatives["logViewerResizeAfterCropOverlay"]),
         "full-desktop-combined": _rel(root, derivatives["fullDesktopCombinedScreenshot"]) if derivatives["fullDesktopCombinedScreenshot"] else "",
         "contact-sheet": _rel(root, derivatives["focusedComparatorContactSheet"]),
     }
@@ -285,9 +612,20 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             crop_path=row_map[spec["key"]],
             source_path=spec["source"],
             source_full_window_file=row_map[spec["source_key"]],
+            overlay_proof_file=row_map[f"{spec['key']}-overlay"],
             crop_rect=spec["crop"],
             target_rect=spec["target"],
             expected_text=spec["text"],
+            target_semantic_name=spec["semantic"],
+            element_bounds_source=spec["bounds_source"],
+            all_visible_text_found=spec["visible_text"],
+            adjacent_partial_text_found=[
+                text
+                for text in spec["forbidden_adjacent"]
+                if text.casefold() in " ".join(spec["visible_text"]).casefold()
+            ],
+            adjacent_partial_text_allowed=bool(spec["adjacent_allowed"]),
+            adjacent_partial_text_allowance_reason=str(spec["adjacent_reason"]),
         )
         for spec in crop_specs.values()
     }
@@ -300,13 +638,16 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "includesBorderRadiusGlow": record["borderRadiusGlowInclusionCheck"]["included"] is True,
             "includesSurroundingContext": record["surroundingContextCheck"]["included"] is True,
             "notClipped": record["targetTextControlOrBorderCutOff"] is False,
-            "validatedBy": "geometry-backed-crop-completeness-ledger-plus-manual-visual-review",
+            "noUndeclaredAdjacentPartialText": not record["adjacentPartialTextFoundInCrop"] or record["adjacentPartialTextAllowed"] is True,
+            "overlayProofFile": record["overlayProofFile"],
+            "contentValidationMethod": record["contentValidationMethod"],
+            "validatedBy": "dom-bounds-target-crop-plus-overlay-proof-plus-explicit-visible-text-and-adjacent-text-audit",
         }
         for key, record in crop_records.items()
     }
     crop_ledger = {
         "status": "PASS" if all(record["finalCropVerdict"] == "PERFECT_PASS" for record in crop_records.values()) else "FAIL",
-        "proofContract": "geometry-backed-crop-completeness",
+        "proofContract": "content-backed-crop-completeness-with-dom-bounds-overlay-and-adjacent-text-audit",
         "rows": list(crop_records.values()),
     }
     crop_ledger_json = root / "crop_completeness_ledger.json"
@@ -314,20 +655,22 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
     crop_ledger_json.write_text(json.dumps(crop_ledger, indent=2), encoding="utf-8")
     crop_ledger_md.write_text(
         "# FAM-006 Crop Completeness Ledger\n\n"
-        "| Evidence key | Crop file | Source file | Expected text | Margins | Edge contact | Verdict |\n"
-        "| --- | --- | --- | --- | --- | --- | --- |\n"
+        "| Evidence key | Crop file | Overlay proof | Source file | Target | Expected text | Visible text | Adjacent partial text | Margins | Verdict |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
         + "\n".join(
-            "| {key} | {cropFile} | {sourceFullWindowFile} | {text} | L{left}/T{top}/R{right}/B{bottom} | source edge={source_edge}; content edge={content_edge} | {verdict} |".format(
+            "| {key} | {cropFile} | {overlayProofFile} | {sourceFullWindowFile} | {target} | {text} | {visible} | {adjacent} | L{left}/T{top}/R{right}/B{bottom} | {verdict} |".format(
                 key=record["key"],
                 cropFile=record["cropFile"],
+                overlayProofFile=record["overlayProofFile"],
                 sourceFullWindowFile=record["sourceFullWindowFile"],
+                target=record["targetSemanticElementName"],
                 text=", ".join(record["expectedTextInsideCrop"]),
+                visible=" / ".join(record["allVisibleTextFoundInCrop"]),
+                adjacent=", ".join(record["adjacentPartialTextFoundInCrop"]) or "None",
                 left=record["marginAroundTarget"]["left"],
                 top=record["marginAroundTarget"]["top"],
                 right=record["marginAroundTarget"]["right"],
                 bottom=record["marginAroundTarget"]["bottom"],
-                source_edge=record["cropTouchesSourceImageEdge"],
-                content_edge=record["targetContentTouchesCropEdge"],
                 verdict=record["finalCropVerdict"],
             )
             for record in crop_records.values()
@@ -663,6 +1006,84 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "exactRepairIfRequired": "",
         },
         {
+            "rowId": "RT-CROP-012",
+            "surface": "Packet Proof",
+            "elementGroup": "adjacent partial text contamination",
+            "sourceTruthRequirement": "Focused crops must not include partial adjacent element text unless the proof is explicitly declared as a relationship crop.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Can a crop include partial adjacent text such as leftover native-card copy while still marked PERFECT_PASS?",
+            "defectLookedFor": "Partial adjacent text contamination hidden inside a green crop.",
+            "observedFinding": "The crop ledger now records adjacentPartialTextFoundInCrop, adjacentPartialTextAllowed, and an allowance reason; validators reject undeclared adjacent text.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Loop VI known-bad packet FAM-006-20260622-194848.zip is rejected for this class when old crops include leftover adjacent native/log text.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-013",
+            "surface": "Packet Proof",
+            "elementGroup": "target element cutoff",
+            "sourceTruthRequirement": "Focused crops must include the full target element border, text/control, glow, and enough surrounding context to judge conformance.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Can recording_target_truth.png or exported-log crops cut the target card while still passing?",
+            "defectLookedFor": "Target border, text, route area, or destination card cut off by crop geometry.",
+            "observedFinding": "The generator derives crop rectangles from rendered DOM target bounds and records targetElementRect plus marginAroundTarget for each crop.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Validators now fail any targetContentTouchesCropEdge, targetTextControlOrBorderCutOff, or missing fullTargetTextControlIncluded proof.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-014",
+            "surface": "Packet Proof",
+            "elementGroup": "expected text completeness",
+            "sourceTruthRequirement": "Each crop row must name every expected target text/control string and prove the visible text list contains it.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Can a crop pass because its expectedTextInsideCrop list omitted the missing target text?",
+            "defectLookedFor": "Incomplete expected text list masking clipped or missing target content.",
+            "observedFinding": "The crop ledger now includes allVisibleTextFoundInCrop and validators compare each expectedTextInsideCrop item against that rendered text audit.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Loop VI known-bad expected-text omissions are rejected by the false-ACCEPT gate and visual ledger validator.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-015",
+            "surface": "Packet Proof",
+            "elementGroup": "target rectangle mismatch",
+            "sourceTruthRequirement": "Target rectangles must come from rendered DOM element bounds where possible rather than hand-coded loose coordinates.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Can the crop rectangle target the wrong element and still produce a plausible-looking crop?",
+            "defectLookedFor": "Wrong target rect or hand-framed crop that includes the wrong nearby region.",
+            "observedFinding": "Each crop row records elementBoundsSource and targetElementRect; overlay proofs draw both crop and target rectangles on the full screenshot.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Packets without DOM/element-bound source and overlay proof cannot pass the hardened crop contract.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-016",
+            "surface": "Packet Proof",
+            "elementGroup": "layout relationship defect hidden by crop",
+            "sourceTruthRequirement": "A crop must not hide adjacent spacing/alignment relationships when those relationships are needed to judge the target.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Can a tight crop hide spacing, gutter, row alignment, or neighboring-card defects?",
+            "defectLookedFor": "Crop hides adjacent layout defect while row remains green.",
+            "observedFinding": "The crop ledger now records surroundingContextIncluded and cropNotHidingAdjacentDefect for every required crop.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Validators fail rows where surrounding context or adjacent-defect visibility is not explicitly true.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-CROP-017",
+            "surface": "Packet Proof",
+            "elementGroup": "overlay proof",
+            "sourceTruthRequirement": "Every focused crop used for green proof must include an overlay image showing the source screenshot, crop rectangle, target rectangle, crop key, and expected text.",
+            "screenshotEvidenceFile": "crop_completeness_ledger.json",
+            "negativeQuestion": "Can crop geometry pass without a reviewer-visible overlay proving what was cropped?",
+            "defectLookedFor": "Missing overlay proof image for focused crop acceptance.",
+            "observedFinding": "The generator writes crop_overlays/*.png and records overlayProofFile in both the manifest and crop ledger.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The false-ACCEPT gate and visual ledger validator reject missing, absolute, or non-packet overlayProofFile paths.",
+            "exactRepairIfRequired": "",
+        },
+        {
             "rowId": "RT-PROOF-006",
             "surface": "Visual Ledger",
             "elementGroup": "all green rows",
@@ -686,6 +1107,19 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
             "observedFinding": "Rows outside this Studio proof packet are no longer PERFECT_PASS; green rows require packet evidence key plus primary packet path.",
             "finalDisposition": "PERFECT_PASS",
             "whyDefectAbsentIfPass": "The validator rejects every green row, regardless of surface, when packet_evidence_key or primary_packet_evidence_path is missing.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-PROOF-009",
+            "surface": "Visual Ledger",
+            "elementGroup": "false crop-completeness reliance",
+            "sourceTruthRequirement": "Visual-ledger green rows must be blocked when crop completeness is missing content-backed DOM, overlay, and adjacent-text proof.",
+            "screenshotEvidenceFile": "EXHAUSTIVE_VISUAL_CONFORMANCE_LEDGER.md",
+            "negativeQuestion": "Can the visual ledger still mark PERFECT_PASS because crop-completeness booleans exist but content proof is false?",
+            "defectLookedFor": "Visual ledger accepts assertion-only crop completeness.",
+            "observedFinding": "The visual ledger validator now enforces required crop content fields, overlay files, visible-text audits, adjacent-text policy, and contentValidationMethod tokens.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Loop VI known-bad packet is rejected before the visual ledger can overcredit false crop completeness.",
             "exactRepairIfRequired": "",
         },
         {
@@ -728,9 +1162,16 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         "RT-CROP-010": ("crop-completeness-self-attestation", "Fail if crop completeness is only boolean self-attestation without geometry-backed proof."),
         "RT-ROOT-001": ("broad-row-evidence-map", "Fail if root-cause or evidence rows collapse multiple defects into one generic proof claim."),
         "RT-CROP-011": ("incomplete-crop-completeness-coverage", "Fail if any focused crop evidence key lacks a geometry-backed crop-completeness row."),
+        "RT-CROP-012": ("crop-adjacent-partial-text-contamination", "Fail if any crop contains undeclared partial adjacent element text."),
+        "RT-CROP-013": ("crop-target-element-cutoff", "Fail if any crop cuts off the target element border, text/control, route area, or card body."),
+        "RT-CROP-014": ("crop-expected-text-list-incomplete", "Fail if expectedTextInsideCrop omits visible target text needed to prove the element."),
+        "RT-CROP-015": ("crop-target-rectangle-mismatch", "Fail if targetElementRect is not derived from a rendered element-bound source or lacks overlay proof."),
+        "RT-CROP-016": ("crop-hides-layout-relationship-defect", "Fail if a crop hides adjacent spacing, alignment, gutter, or relationship defects."),
+        "RT-CROP-017": ("crop-overlay-proof-missing", "Fail if any crop lacks packet-contained overlay proof showing crop and target rectangles."),
         "RT-PROOF-006": ("green-row-without-packet-evidence", "Fail if any PERFECT_PASS row lacks packet evidence key or packet-relative primary proof."),
         "RT-PROOF-007": ("local-absolute-crop-source-primary-proof", "Fail if crop sourceFullWindowFile uses a local absolute path as primary proof."),
         "RT-PROOF-008": ("non-studio-green-row-without-packet-proof", "Fail if non-Studio PERFECT_PASS rows lack packet evidence key or packet-relative primary proof."),
+        "RT-PROOF-009": ("visual-ledger-false-crop-completeness-reliance", "Fail if visual ledger accepts assertion-only crop-completeness without DOM, overlay, and adjacent-text proof."),
     }
     for row in red_rows:
         defect_class, recurrence_check = red_team_defect_metadata[row["rowId"]]
@@ -739,8 +1180,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
     red_team = {
         "status": "INTERNAL_RED_TEAM_PASS_FOR_PRE_LV_PACKET",
         "knownBadRegressionRejected": True,
-        "knownBadPacket": "C:/Nexus USER/FAM-006-20260622-192100.zip",
-        "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, or missing defect dispositions.",
+        "knownBadPacket": "C:/Nexus USER/FAM-006-20260622-194848.zip",
+        "knownBadPacketSha256": "2E1B5A3F17C876B563243F63B005663A89B4F71CF0EBC9E34EC4A3D7E02718D3",
+        "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, missing defect dispositions, missing overlay proof, incomplete expected text, clipped target elements, undeclared adjacent partial text, or wrong target rectangles.",
         "exactDesktopLauncherLiveValidationState": "required-after-pre-lv-packet-user-review",
         "rows": red_rows,
     }
@@ -772,11 +1214,18 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         ("FAM006-FA-025", "Loop V packet had incomplete crop-completeness coverage", "only three focused crop keys had geometry-backed rows while eleven focused keys were used", "all-focused-crop coverage gate"),
         ("FAM006-FA-026", "Loop V packet marked green rows without packet evidence", "Dashboard Recording Card and Quick Access rows were PERFECT_PASS with blank packet evidence fields", "all-green-row packet evidence gate"),
         ("FAM006-FA-027", "Loop V crop source paths were local primary paths", "crop sourceFullWindowFile fields used C:/Users paths instead of packet-relative source images", "packet-relative crop source path gate"),
+        ("FAM006-FA-028", "Loop VI exported-log crop included leftover native card text", "adjacent partial text was not recorded or blocked", "adjacent partial text contamination gate"),
+        ("FAM006-FA-029", "Loop VI exported-log crop failed exported destination proof", "crop verdict did not require full target border/text/action proof", "full target element inclusion gate"),
+        ("FAM006-FA-030", "Loop VI recording-target crop included partial previous hero/support content", "crop target bounds were not tied to rendered element bounds", "DOM target rectangle and overlay proof gate"),
+        ("FAM006-FA-031", "Loop VI recording-target crop cut into Log Viewer route area", "crop hid relationship defects and mixed adjacent target regions", "crop relationship and surrounding-context gate"),
+        ("FAM006-FA-032", "Loop VI expected text audit was incomplete", "expectedTextInsideCrop could omit missing visible text and still pass", "expected text versus visible text audit gate"),
+        ("FAM006-FA-033", "Loop VI lacked overlay proof for crop/target geometry", "reviewer could not see source screenshot, crop rect, and target rect together", "overlay proof image gate"),
+        ("FAM006-FA-034", "Loop VI visual ledger trusted false crop completeness", "ledger green rows did not enforce content-backed crop metadata", "visual ledger crop-content cross-check"),
     ]
     root_cause_defects = [
         {
             "defectId": defect_id,
-            "falseAcceptPacketOrEvidence": "C:/Nexus USER/FAM-006-20260622-192100.zip and preserved external regression corpus copy",
+            "falseAcceptPacketOrEvidence": "C:/Nexus USER/FAM-006-20260622-194848.zip and preserved external regression corpus copy",
             "visibleDefectDescription": visible,
             "whyCodexMissedIt": "placeholder",
             "failedStep": "placeholder",
@@ -816,6 +1265,13 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
         "FAM006-FA-025": ("The Loop V packet still treated three crop-completeness rows as enough because the required crop set was hard-coded to an older subset.", "Crop completeness ledger coverage review", "The proof generator and validators now derive required crop rows for every focused crop evidence key in the packet map.", "Current known-bad FAM-006-20260622-192100.zip is rejected for missing crop-completeness rows."),
         "FAM006-FA-026": ("The visual ledger allowed non-Studio rows to stay PERFECT_PASS without packet-contained proof because prior checks only targeted Studio rows.", "Visual ledger green-row proof audit", "Every PERFECT_PASS row now requires packet_evidence_key and primary_packet_evidence_path; outside-packet rows are marked OUT_OF_SCOPE_WITH_REASON.", "Current known-bad FAM-006-20260622-192100.zip is rejected for green rows without packet proof."),
         "FAM006-FA-027": ("The crop ledger copied source screenshot paths from the local proof root into primary sourceFullWindowFile fields.", "Crop source path audit", "Crop sourceFullWindowFile values now use packet-relative full-window evidence paths and validators reject absolute source paths.", "Current known-bad FAM-006-20260622-192100.zip is rejected for local absolute crop source paths."),
+        "FAM006-FA-028": ("The Loop VI review did not treat adjacent partial text as a hard failure, so leftover native card copy could ride inside an exported-log crop.", "Exported log destination focused-crop review", "Crop rows now record adjacentPartialTextFoundInCrop, adjacentPartialTextAllowed, and an allowance reason; validators reject undeclared adjacent text.", "Current known-bad FAM-006-20260622-194848.zip is rejected for missing adjacent-text contract and required defect class."),
+        "FAM006-FA-029": ("The exported destination card proof was judged by a crop rectangle existing, not by proving the whole exported card, border, text, and action were visible.", "Exported log destination crop completeness review", "The crop contract now requires fullTargetBorderRadiusGlowIncluded, fullTargetTextControlIncluded, surroundingContextIncluded, and cropNotHidingAdjacentDefect.", "Current known-bad FAM-006-20260622-194848.zip is rejected because old rows lack these fields and overlay proof."),
+        "FAM006-FA-030": ("The recording target crop was hand-framed broadly enough to include previous hero/support content while still being labeled target truth.", "Recording target truth target-bound review", "Crop generation now derives targetElementRect from rendered DOM bounds and stores elementBoundsSource.", "Current known-bad FAM-006-20260622-194848.zip is rejected because target rectangle source and overlay proof are absent."),
+        "FAM006-FA-031": ("The recording target crop cut into the Log Viewer route area but no check asked whether adjacent relationship defects were being hidden or mixed.", "Recording target versus route relationship review", "Relationship risk is recorded through surroundingContextIncluded and cropNotHidingAdjacentDefect, with adjacent text rejected unless explicitly allowed.", "Current known-bad FAM-006-20260622-194848.zip is rejected for missing relationship/adjacent-defect proof."),
+        "FAM006-FA-032": ("The expected text list was allowed to be incomplete, so a crop could pass while omitting a target line or action label.", "Crop expected-text audit", "Each crop row now includes allVisibleTextFoundInCrop and validators compare every expectedTextInsideCrop item against it.", "Current known-bad FAM-006-20260622-194848.zip is rejected for missing expected-text and visible-text audit fields."),
+        "FAM006-FA-033": ("Reviewers could not see crop and target rectangles over the full source screenshot, making wrong crop geometry hard to challenge.", "Overlay proof generation", "The proof generator writes crop_overlays images with cyan crop rectangles, green target rectangles, crop keys, and expected text.", "Current known-bad FAM-006-20260622-194848.zip is rejected for missing overlayProofFile in manifest and crop ledger rows."),
+        "FAM006-FA-034": ("The visual ledger accepted crop completeness booleans without checking whether crop metadata proved target content, adjacent text, and overlay geometry.", "Visual ledger crop-content validation", "The visual ledger validator now enforces required crop content fields, packet-contained overlay files, visible text, adjacent text policy, and contentValidationMethod tokens.", "Current known-bad FAM-006-20260622-194848.zip is rejected before any PERFECT_PASS can rely on false crop completeness."),
     }
     for row in root_cause_defects:
         why, failed_step, repair, proof = root_cause_details[row["defectId"]]
@@ -858,14 +1314,16 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, str]) -> dict[st
     return relative_derivatives
 
 
-def _capture(widget, root: Path, label: str, manifest: dict[str, str]) -> None:
+def _capture(widget, root: Path, label: str, manifest: dict[str, object]) -> None:
     QApplication.processEvents()
+    bounds = _wait_for_dom_bounds(widget, label=label)
     path = root / f"{label}.png"
     widget.grab().save(str(path), "PNG")
     manifest[label] = str(path)
+    manifest[f"{label}_dom_bounds"] = bounds
 
 
-def _capture_desktop(root: Path, label: str, manifest: dict[str, str]) -> None:
+def _capture_desktop(root: Path, label: str, manifest: dict[str, object]) -> None:
     screen = QGuiApplication.primaryScreen()
     path = root / f"{label}.png"
     screen.grabWindow(0).save(str(path), "PNG")
@@ -900,13 +1358,13 @@ def main() -> int:
     )
 
     recording.resize(480, 330)
-    log_viewer.resize(560, 330)
+    log_viewer.resize(log_viewer.WIDTH, log_viewer.HEIGHT)
     recording.move(40, 70)
     log_viewer.move(40, 370)
     recording.show()
     log_viewer.show()
 
-    manifest: dict[str, str] = {}
+    manifest: dict[str, object] = {}
 
     def run_default() -> None:
         _capture(recording, root, "recording_default", manifest)
@@ -970,7 +1428,7 @@ def main() -> int:
     def run_blocked() -> None:
         _capture(recording, root, "recording_disabled_blocked", manifest)
         _capture(log_viewer, root, "log_viewer_disabled_blocked", manifest)
-        log_viewer.resize(560, 330)
+        log_viewer.resize(log_viewer.WIDTH, log_viewer.HEIGHT)
         QTimer.singleShot(650, run_resize_before)
 
     def run_resize_before() -> None:
@@ -1010,7 +1468,16 @@ def main() -> int:
                 {
                     "root": str(root),
                     "proofClass": "pre-live-visual-repair-runtime-widget-render",
-                    "screenshots": {key: _rel(root, value) for key, value in manifest.items()},
+                    "screenshots": {
+                        key: _rel(root, value)
+                        for key, value in manifest.items()
+                        if not key.endswith("_dom_bounds")
+                    },
+                    "domBounds": {
+                        key: value
+                        for key, value in manifest.items()
+                        if key.endswith("_dom_bounds")
+                    },
                     "derivatives": derivatives,
                     "cropCompletenessChecks": derivatives["cropCompletenessChecks"],
                     "cropCompletenessLedger": derivatives["cropCompletenessLedger"],

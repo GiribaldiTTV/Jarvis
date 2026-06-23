@@ -7032,9 +7032,9 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     WIDTH = 560
-    HEIGHT = 330
+    HEIGHT = 352
     MINIMUM_WIDTH = 520
-    MINIMUM_HEIGHT = 310
+    MINIMUM_HEIGHT = 330
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"

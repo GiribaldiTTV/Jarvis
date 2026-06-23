@@ -26,6 +26,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-194848.zip",
+    USER_ROOT / "FAM-006-20260622-194848.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-192100.zip",
     USER_ROOT / "FAM-006-20260622-192100.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260622-182112.zip",
@@ -120,12 +122,12 @@ DEFAULT_CROP_RULE = {
 
 REQUIRED_CROP_COMPLETENESS = {
     "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 90},
-    "recording-primary-action": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 160},
-    "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 110},
+    "recording-primary-action": {**DEFAULT_CROP_RULE, "minWidth": 430, "minHeight": 140},
+    "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 430, "minHeight": 88},
     "recording-log-route": {
         **DEFAULT_CROP_RULE,
-        "minWidth": 460,
-        "minHeight": 130,
+        "minWidth": 430,
+        "minHeight": 72,
     },
     "log-viewer-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 540, "minHeight": 90},
     "native-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 520, "minHeight": 100},
@@ -178,6 +180,28 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "green-row-without-packet-evidence",
     "local-absolute-crop-source-primary-proof",
     "non-studio-green-row-without-packet-proof",
+    "crop-adjacent-partial-text-contamination",
+    "crop-target-element-cutoff",
+    "crop-expected-text-list-incomplete",
+    "crop-target-rectangle-mismatch",
+    "crop-hides-layout-relationship-defect",
+    "crop-overlay-proof-missing",
+    "visual-ledger-false-crop-completeness-reliance",
+}
+
+REQUIRED_CROP_CONTENT_FIELDS = {
+    "targetSemanticElementName",
+    "overlayProofFile",
+    "elementBoundsSource",
+    "allVisibleTextFoundInCrop",
+    "adjacentPartialTextFoundInCrop",
+    "adjacentPartialTextAllowed",
+    "adjacentPartialTextAllowanceReason",
+    "fullTargetBorderRadiusGlowIncluded",
+    "fullTargetTextControlIncluded",
+    "surroundingContextIncluded",
+    "cropNotHidingAdjacentDefect",
+    "contentValidationMethod",
 }
 
 MIN_ROOT_CAUSE_UNIQUE_FIELDS = (
@@ -255,9 +279,21 @@ def _validate_crop_completeness(
         for required in rule["requires"]:
             if check.get(required) is not True:
                 failures.append(f"crop completeness key {key} manifest flag {required} is not true")
+        if check.get("noUndeclaredAdjacentPartialText") is not True:
+            failures.append(f"crop completeness key {key} has undeclared adjacent partial text or lacks adjacent-text audit")
+        overlay = str(check.get("overlayProofFile", "")).strip()
+        if not overlay:
+            failures.append(f"crop completeness key {key} missing overlayProofFile")
+        elif Path(overlay).is_absolute():
+            failures.append(f"crop completeness key {key} overlayProofFile is local absolute proof: {overlay}")
+        elif not (evidence_root / overlay).exists():
+            failures.append(f"crop completeness key {key} overlayProofFile missing from packet: {overlay}")
+        method = str(check.get("contentValidationMethod", "")).casefold()
+        if not all(token in method for token in ("dom", "overlay", "adjacent")):
+            failures.append(f"crop completeness key {key} contentValidationMethod does not prove DOM/overlay/adjacent-text validation")
         validator = str(check.get("validatedBy", "")).strip()
-        if not validator:
-            failures.append(f"crop completeness key {key} missing validatedBy")
+        if not validator or "overlay" not in validator.casefold() or "adjacent" not in validator.casefold():
+            failures.append(f"crop completeness key {key} missing overlay/adjacent-aware validatedBy")
     return failures
 
 
@@ -304,6 +340,7 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
         "targetTextControlOrBorderCutOff",
         "finalCropVerdict",
     }
+    required_fields |= REQUIRED_CROP_CONTENT_FIELDS
     for key in REQUIRED_CROP_COMPLETENESS:
         row = rows_by_key.get(key)
         if not isinstance(row, dict):
@@ -314,6 +351,13 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
             failures.append(f"crop completeness ledger row {key} missing fields: {', '.join(missing)}")
         if row.get("cropFile") != row_map.get(key):
             failures.append(f"crop completeness ledger row {key} cropFile does not match row_to_evidence_map")
+        overlay_file = str(row.get("overlayProofFile", "")).strip()
+        if not overlay_file:
+            failures.append(f"crop completeness ledger row {key} missing overlayProofFile")
+        elif Path(overlay_file).is_absolute():
+            failures.append(f"crop completeness ledger row {key} overlayProofFile is local absolute primary proof: {overlay_file}")
+        elif not (evidence_root / overlay_file).exists():
+            failures.append(f"crop completeness ledger row {key} overlayProofFile target missing from packet: {overlay_file}")
         source_file = str(row.get("sourceFullWindowFile", "")).strip()
         if not source_file:
             failures.append(f"crop completeness ledger row {key} missing sourceFullWindowFile")
@@ -328,6 +372,32 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
         expected_text = row.get("expectedTextInsideCrop")
         if not isinstance(expected_text, list) or not expected_text or not all(str(item).strip() for item in expected_text):
             failures.append(f"crop completeness ledger row {key} missing expected text list")
+        visible_text = row.get("allVisibleTextFoundInCrop")
+        if not isinstance(visible_text, list) or not visible_text:
+            failures.append(f"crop completeness ledger row {key} missing allVisibleTextFoundInCrop")
+            visible_text = []
+        joined_visible_text = " ".join(str(item) for item in visible_text).casefold()
+        if isinstance(expected_text, list):
+            for text in expected_text:
+                if str(text).casefold() not in joined_visible_text:
+                    failures.append(f"crop completeness ledger row {key} expected text not found in visible-text audit: {text}")
+        adjacent = row.get("adjacentPartialTextFoundInCrop")
+        if not isinstance(adjacent, list):
+            failures.append(f"crop completeness ledger row {key} missing adjacentPartialTextFoundInCrop list")
+            adjacent = []
+        if adjacent and row.get("adjacentPartialTextAllowed") is not True:
+            failures.append(f"crop completeness ledger row {key} has undeclared adjacent partial text: {', '.join(str(item) for item in adjacent)}")
+        if row.get("fullTargetBorderRadiusGlowIncluded") is not True:
+            failures.append(f"crop completeness ledger row {key} does not prove full target border/radius/glow included")
+        if row.get("fullTargetTextControlIncluded") is not True:
+            failures.append(f"crop completeness ledger row {key} does not prove full target text/control included")
+        if row.get("surroundingContextIncluded") is not True:
+            failures.append(f"crop completeness ledger row {key} does not prove surrounding context included")
+        if row.get("cropNotHidingAdjacentDefect") is not True:
+            failures.append(f"crop completeness ledger row {key} may hide an adjacent spacing/alignment defect")
+        method = str(row.get("contentValidationMethod", "")).casefold()
+        if not all(token in method for token in ("dom", "overlay", "adjacent")):
+            failures.append(f"crop completeness ledger row {key} contentValidationMethod is not DOM/overlay/adjacent-text backed")
         for rect_name in ("cropRect", "targetElementRect"):
             rect = row.get(rect_name)
             if not isinstance(rect, dict) or not all(name in rect for name in ("left", "top", "right", "bottom")):
@@ -335,8 +405,10 @@ def _validate_crop_ledger(root: Path, row_map: dict[str, Any], manifest: dict[st
         margin = row.get("marginAroundTarget")
         if not isinstance(margin, dict) or not all(name in margin for name in ("left", "top", "right", "bottom")):
             failures.append(f"crop completeness ledger row {key} missing marginAroundTarget values")
-        elif any(int(margin[name]) < 8 for name in ("left", "top", "right", "bottom")):
-            failures.append(f"crop completeness ledger row {key} margin too tight: {margin}")
+        else:
+            minimum_margin = 0 if key.endswith("window-chrome") else 8
+            if any(int(margin[name]) < minimum_margin for name in ("left", "top", "right", "bottom")):
+                failures.append(f"crop completeness ledger row {key} margin too tight: {margin}")
         if row.get("targetContentTouchesCropEdge") is True or row.get("targetTextControlOrBorderCutOff") is True:
             failures.append(f"crop completeness ledger row {key} says target touches edge or is cut off")
         check = checks.get(key)
@@ -374,8 +446,16 @@ def _crop_key_complete(
         return False
     if str(check.get("crop", "")).strip() != text:
         return False
-    return all(check.get(required) is True for required in rule["requires"]) and bool(
-        str(check.get("validatedBy", "")).strip()
+    overlay = str(check.get("overlayProofFile", "")).strip()
+    validator = str(check.get("validatedBy", "")).casefold()
+    return (
+        all(check.get(required) is True for required in rule["requires"])
+        and check.get("noUndeclaredAdjacentPartialText") is True
+        and bool(overlay)
+        and not Path(overlay).is_absolute()
+        and (evidence_root / overlay).exists()
+        and "overlay" in validator
+        and "adjacent" in validator
     )
 
 

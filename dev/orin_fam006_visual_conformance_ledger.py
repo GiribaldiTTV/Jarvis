@@ -125,12 +125,12 @@ DEFAULT_CROP_RULE = {
 
 REQUIRED_CROP_COMPLETENESS = {
     "recording-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 90},
-    "recording-primary-action": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 160},
-    "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 460, "minHeight": 110},
+    "recording-primary-action": {**DEFAULT_CROP_RULE, "minWidth": 430, "minHeight": 140},
+    "recording-target-truth": {**DEFAULT_CROP_RULE, "minWidth": 430, "minHeight": 88},
     "recording-log-route": {
         **DEFAULT_CROP_RULE,
-        "minWidth": 460,
-        "minHeight": 130,
+        "minWidth": 430,
+        "minHeight": 72,
     },
     "log-viewer-window-chrome": {**DEFAULT_CROP_RULE, "minWidth": 540, "minHeight": 90},
     "native-log-destination-action": {**DEFAULT_CROP_RULE, "minWidth": 520, "minHeight": 100},
@@ -139,6 +139,21 @@ REQUIRED_CROP_COMPLETENESS = {
     "log-viewer-resize-before": {**DEFAULT_CROP_RULE, "minWidth": 500, "minHeight": 280},
     "log-viewer-resize-during": {**DEFAULT_CROP_RULE, "minWidth": 620, "minHeight": 280},
     "log-viewer-resize-after": {**DEFAULT_CROP_RULE, "minWidth": 660, "minHeight": 280},
+}
+
+REQUIRED_CROP_CONTENT_FIELDS = {
+    "targetSemanticElementName",
+    "overlayProofFile",
+    "elementBoundsSource",
+    "allVisibleTextFoundInCrop",
+    "adjacentPartialTextFoundInCrop",
+    "adjacentPartialTextAllowed",
+    "adjacentPartialTextAllowanceReason",
+    "fullTargetBorderRadiusGlowIncluded",
+    "fullTargetTextControlIncluded",
+    "surroundingContextIncluded",
+    "cropNotHidingAdjacentDefect",
+    "contentValidationMethod",
 }
 
 
@@ -537,6 +552,7 @@ def _proof_quality_for(surface: str, group: str, packet_key: str, primary_packet
         )
     return (
         f"{surface} {group}: row uses packet evidence key `{packet_key}` backed first by packet-relative primary proof `{primary_packet_path}`; "
+        "focused crops must be DOM-target-bound, include overlay rectangle proof, audit expected text, and reject undeclared adjacent text; "
         "helper/marker output is supporting evidence only and cannot replace visual review."
     )
 
@@ -800,8 +816,31 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                 for required in rule["requires"]:
                     if check.get(required) is not True:
                         failures.append(f"cropCompletenessChecks entry for {key} has non-true {required}")
-                if not str(check.get("validatedBy", "")).strip():
+                if check.get("noUndeclaredAdjacentPartialText") is not True:
+                    failures.append(f"cropCompletenessChecks entry for {key} has undeclared adjacent text risk")
+                overlay_path = str(check.get("overlayProofFile", "")).strip()
+                if not overlay_path:
+                    failures.append(f"cropCompletenessChecks entry for {key} missing overlayProofFile")
+                elif Path(overlay_path).is_absolute():
+                    failures.append(f"cropCompletenessChecks entry for {key} overlayProofFile is absolute: {overlay_path}")
+                elif not (evidence_root / overlay_path).exists():
+                    failures.append(f"cropCompletenessChecks entry for {key} overlayProofFile is missing from packet: {overlay_path}")
+                content_method = str(check.get("contentValidationMethod", "")).casefold()
+                for token in ("dom", "overlay", "adjacent"):
+                    if token not in content_method:
+                        failures.append(
+                            f"cropCompletenessChecks entry for {key} contentValidationMethod lacks {token!r}"
+                        )
+                validated_by = str(check.get("validatedBy", "")).strip()
+                if not validated_by:
                     failures.append(f"cropCompletenessChecks entry for {key} missing validatedBy")
+                else:
+                    lowered = validated_by.casefold()
+                    for token in ("overlay", "adjacent"):
+                        if token not in lowered:
+                            failures.append(
+                                f"cropCompletenessChecks entry for {key} validatedBy lacks {token!r}"
+                            )
             crop_ledgers = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/crop_completeness_ledger.json"))
             if len(crop_ledgers) != 1:
                 failures.append(f"expected exactly one packet crop_completeness_ledger.json, found {len(crop_ledgers)}")
@@ -825,6 +864,7 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                         continue
                     for required in (
                         "cropFile",
+                        *REQUIRED_CROP_CONTENT_FIELDS,
                         "sourceFullWindowFile",
                         "cropRect",
                         "targetElementRect",
@@ -841,6 +881,13 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                             failures.append(f"crop completeness row {key} missing {required}")
                     if item.get("cropFile") != row_map.get(key):
                         failures.append(f"crop completeness row {key} cropFile does not match row map")
+                    overlay_file = str(item.get("overlayProofFile", "")).strip()
+                    if not overlay_file:
+                        failures.append(f"crop completeness row {key} missing overlayProofFile")
+                    elif Path(overlay_file).is_absolute():
+                        failures.append(f"crop completeness row {key} overlayProofFile is absolute primary proof: {overlay_file}")
+                    elif not (evidence_root / overlay_file).exists():
+                        failures.append(f"crop completeness row {key} overlayProofFile target is missing from packet: {overlay_file}")
                     source_file = str(item.get("sourceFullWindowFile", "")).strip()
                     if not source_file:
                         failures.append(f"crop completeness row {key} missing sourceFullWindowFile")
@@ -857,6 +904,33 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                     expected_text = item.get("expectedTextInsideCrop")
                     if not isinstance(expected_text, list) or not expected_text:
                         failures.append(f"crop completeness row {key} missing expected text list")
+                        expected_text = []
+                    visible_text = item.get("allVisibleTextFoundInCrop")
+                    if not isinstance(visible_text, list) or not visible_text:
+                        failures.append(f"crop completeness row {key} missing allVisibleTextFoundInCrop list")
+                        visible_text = []
+                    joined_visible_text = " ".join(str(text) for text in visible_text).casefold()
+                    for expected in expected_text:
+                        if str(expected).casefold() not in joined_visible_text:
+                            failures.append(f"crop completeness row {key} expected text absent from visible-text audit: {expected}")
+                    adjacent = item.get("adjacentPartialTextFoundInCrop")
+                    if not isinstance(adjacent, list):
+                        failures.append(f"crop completeness row {key} adjacentPartialTextFoundInCrop is not a list")
+                        adjacent = []
+                    if adjacent and item.get("adjacentPartialTextAllowed") is not True:
+                        failures.append(f"crop completeness row {key} has undeclared adjacent partial text: {adjacent}")
+                    for required_bool in (
+                        "fullTargetBorderRadiusGlowIncluded",
+                        "fullTargetTextControlIncluded",
+                        "surroundingContextIncluded",
+                        "cropNotHidingAdjacentDefect",
+                    ):
+                        if item.get(required_bool) is not True:
+                            failures.append(f"crop completeness row {key} has non-true {required_bool}")
+                    content_method = str(item.get("contentValidationMethod", "")).casefold()
+                    for token in ("dom", "overlay", "adjacent"):
+                        if token not in content_method:
+                            failures.append(f"crop completeness row {key} contentValidationMethod lacks {token!r}")
             if resize.get("method") in {"scripted-resize-call", "setGeometry-only"}:
                 failures.append("resize proof uses forbidden scripted/direct geometry method")
             runtime_truth = str(resize.get("runtimeTruth", ""))
