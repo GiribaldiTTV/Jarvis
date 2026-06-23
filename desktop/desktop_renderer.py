@@ -1004,12 +1004,43 @@ class AIDashboardDomainWindow(QDialog):
       position: relative;
       height: calc(100vh - 24px);
       overflow: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(108, 232, 255, 0.58) transparent;
       border: 1px solid rgba(94, 207, 229, 0.42);
       border-radius: 22px;
       padding: 14px;
       box-sizing: border-box;
       background: rgba(2, 12, 22, 0.90);
       box-shadow: 0 16px 42px rgba(0, 0, 0, 0.38), inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar {{
+      width: 8px;
+      height: 8px;
+      background: transparent;
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-track {{
+      margin: 18px 0;
+      border-radius: 999px;
+      background: transparent;
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-button {{
+      width: 0;
+      height: 0;
+      display: none;
+      background: transparent;
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-thumb {{
+      min-height: 44px;
+      border-radius: 999px;
+      background: rgba(108, 232, 255, 0.58);
+      box-shadow: 0 0 8px rgba(88, 225, 255, 0.14);
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-thumb:hover {{
+      background: rgba(126, 248, 218, 0.66);
+      box-shadow: 0 0 12px rgba(88, 225, 255, 0.20);
+    }}
+    .ai-domain-window__chrome::-webkit-scrollbar-corner {{
+      background: transparent;
     }}
     .ai-domain-window__header {{
       display: grid;
@@ -1174,7 +1205,7 @@ class AIDashboardDomainWindow(QDialog):
   </style>
 </head>
 <body class="desktop-mode">
-  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-window-control-cluster="compact-minimize-close">
+  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-window-control-cluster="compact-minimize-close" data-scrollbar-style="ndai-rounded-domain-scrollbar">
     <section class="ai-domain-window__chrome">
       <div class="ai-domain-window__controls" role="group" aria-label="{escape(definition["title"])} window controls">
         <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}"></button>
@@ -1196,6 +1227,16 @@ class AIDashboardDomainWindow(QDialog):
     const setText = (id, value) => {{ const target = byId(id); if (target) target.textContent = String(value || ""); }};
     const emit = (command) => console.info(prefix + command);
     const formatItems = (items, keys = ["label"]) => {{
+      const list = Array.isArray(items) ? items : [];
+      if (!list.length) return "None";
+      return list.map((item) => {{
+        if (item && typeof item === "object") {{
+          return keys.map((key) => String(item[key] || "").trim()).filter(Boolean).join(" - ");
+        }}
+        return String(item || "").trim();
+      }}).filter(Boolean).join("; ");
+    }};
+    const formatUserItems = (items, keys = ["label"]) => {{
       const list = Array.isArray(items) ? items : [];
       if (!list.length) return "None";
       return list.map((item) => {{
@@ -1259,12 +1300,12 @@ class AIDashboardDomainWindow(QDialog):
       reportText = buildReportText(report);
       setText("report-state", "Generated locally");
       setText("report-summary", report.summary || "Local readiness report generated.");
-      setText("report-ready", formatItems(report.readyConditions, ["label", "evidence"]));
-      setText("report-missing", formatItems(report.missingRequirements, ["label", "reason"]));
-      setText("report-blocked", formatItems(report.blockedPaths, ["label", "state", "gate"]));
-      setText("report-evidence", formatItems(report.localEvidenceChecked));
-      setText("report-next", formatItems(report.safeNextSteps));
-      setText("report-boundary", formatItems(report.trustBoundaries));
+      setText("report-ready", formatUserItems(report.readyConditions, ["label"]));
+      setText("report-missing", formatUserItems(report.missingRequirements, ["label", "reason"]));
+      setText("report-blocked", formatUserItems(report.blockedPaths, ["label"]));
+      setText("report-evidence", formatUserItems(report.localEvidenceChecked));
+      setText("report-next", formatUserItems(report.safeNextSteps));
+      setText("report-boundary", "No provider/model execution, prompt send, download, cache, memory, or private setup ran. Copy report includes raw local proof details.");
       const body = byId("report-body");
       if (body) body.hidden = false;
       const copy = byId("copy-report");

@@ -439,9 +439,22 @@ def main() -> int:
                   const copy = document.getElementById("copy-report");
                   return JSON.stringify({
                     workspace: document.querySelector("[data-domain-workspace]")?.dataset.domainWorkspace || "",
+                    scrollbarStyle: document.querySelector("[data-ai-dashboard-child-window]")?.dataset.scrollbarStyle || "",
                     localResult: document.getElementById("local-result")?.textContent.trim() || "",
                     reportState: document.getElementById("report-state")?.textContent.trim() || "",
                     reportBodyVisible: !Boolean(document.getElementById("report-body")?.hidden),
+                    visibleReportReady: document.getElementById("report-ready")?.textContent.trim() || "",
+                    visibleReportBoundary: document.getElementById("report-boundary")?.textContent.trim() || "",
+                    visibleRawProofTokens: /providerVisibleData=|sentToProvider=|canAcceptPrompts=|promptSendPosture=|networkEgressState=|memoryIndexingState=/.test(
+                      [
+                        document.getElementById("report-ready")?.textContent || "",
+                        document.getElementById("report-missing")?.textContent || "",
+                        document.getElementById("report-blocked")?.textContent || "",
+                        document.getElementById("report-evidence")?.textContent || "",
+                        document.getElementById("report-next")?.textContent || "",
+                        document.getElementById("report-boundary")?.textContent || ""
+                      ].join(" ")
+                    ),
                     copyDisabled: Boolean(copy && copy.disabled),
                     providerVisibleData: document.getElementById("provider-visible-data")?.textContent.trim() || "",
                     runButtonPresent: Boolean(run),
@@ -613,6 +626,14 @@ def main() -> int:
             and readiness_result.get("localResult") == "No provider configured"
             and readiness_result.get("reportState") == "Copied locally"
             and readiness_result.get("reportBodyVisible") is True
+        ),
+        "readinessReportFirstVisibleCopyIsUserReadable": (
+            readiness_result.get("visibleRawProofTokens") is False
+            and "Provider-visible data is none" in str(readiness_result.get("visibleReportReady") or "")
+            and "Copy report includes raw local proof details" in str(readiness_result.get("visibleReportBoundary") or "")
+        ),
+        "readinessChildScrollbarIsNDAINative": (
+            readiness_result.get("scrollbarStyle") == "ndai-rounded-domain-scrollbar"
         ),
         "childWindowControlsWork": (
             child_control_behavior.get("control-center", {}).get("minimizeCommandWorks") is True
