@@ -9,6 +9,7 @@ from __future__ import annotations
 import ctypes
 import ctypes.wintypes
 import datetime
+import hashlib
 import json
 import os
 import shutil
@@ -16,7 +17,8 @@ import sys
 import time
 from pathlib import Path
 
-from PySide6.QtCore import QRect
+from PySide6.QtCore import QPoint, QRect, Qt
+from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -43,7 +45,15 @@ BringWindowToTop.restype = ctypes.c_bool
 ShowWindow = user32.ShowWindow
 ShowWindow.argtypes = [ctypes.wintypes.HWND, ctypes.c_int]
 ShowWindow.restype = ctypes.c_bool
+SetCursorPos = user32.SetCursorPos
+SetCursorPos.argtypes = [ctypes.c_int, ctypes.c_int]
+SetCursorPos.restype = ctypes.c_bool
+mouse_event = user32.mouse_event
+mouse_event.argtypes = [ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong]
+mouse_event.restype = None
 SW_RESTORE = 9
+MOUSEEVENTF_LEFTDOWN = 0x0002
+MOUSEEVENTF_LEFTUP = 0x0004
 
 
 def _timestamp() -> str:
@@ -104,18 +114,99 @@ def _rect(hwnd: int) -> dict[str, int]:
     }
 
 
+def _foreground_window(app: QApplication, window, duration_ms: int = 260) -> None:
+    window.showNormal()
+    window.raise_()
+    window.activateWindow()
+    hwnd = int(window.winId()) if window.winId() else 0
+    if hwnd:
+        ShowWindow(ctypes.wintypes.HWND(hwnd), SW_RESTORE)
+        BringWindowToTop(ctypes.wintypes.HWND(hwnd))
+        SetForegroundWindow(ctypes.wintypes.HWND(hwnd))
+    _pump(app, duration_ms)
+
+
 def _capture_window(app: QApplication, window, root: Path, label: str) -> dict[str, str]:
     focused_path = root / f"{label}_focused_window.png"
     desktop_path = root / f"{label}_full_desktop.png"
     screen = window.screen() or QApplication.primaryScreen()
     if screen is None:
         raise RuntimeError("No screen available for screenshot capture")
+    _foreground_window(app, window)
     if not window.grab().save(str(focused_path)):
         raise RuntimeError(f"Failed to save focused screenshot: {focused_path}")
+    _pump(app, 80)
     if not screen.grabWindow(0).save(str(desktop_path)):
         raise RuntimeError(f"Failed to save desktop screenshot: {desktop_path}")
     _pump(app, 50)
     return {"focusedWindow": str(focused_path), "fullDesktop": str(desktop_path)}
+
+
+def _button_rect(app: QApplication, web_window, button_id: str) -> dict[str, int | str | bool]:
+    raw = _run_child_js(
+        app,
+        web_window,
+        f"""
+        (() => {{
+          const button = document.getElementById({json.dumps(button_id)});
+          if (!button) return JSON.stringify({{ ok: false, reason: "missing-button" }});
+          button.scrollIntoView({{ block: "center", inline: "center", behavior: "instant" }});
+          const rect = button.getBoundingClientRect();
+          return JSON.stringify({{
+            ok: true,
+            id: button.id || "",
+            text: button.textContent.trim(),
+            left: Math.round(rect.left),
+            top: Math.round(rect.top),
+            width: Math.round(rect.width),
+            height: Math.round(rect.height)
+          }});
+        }})();
+        """,
+    )
+    return json.loads(raw or "{}")
+
+
+def _click_web_button(app: QApplication, web_window, button_id: str) -> dict[str, object]:
+    rect = _button_rect(app, web_window, button_id)
+    if not rect.get("ok"):
+        return {"ok": False, "button": button_id, "reason": rect.get("reason", "missing-button")}
+    _foreground_window(app, web_window)
+    point = QPoint(int(rect["left"]) + int(rect["width"]) // 2, int(rect["top"]) + int(rect["height"]) // 2)
+    global_point = web_window.webview.mapToGlobal(point)
+    SetCursorPos(int(global_point.x()), int(global_point.y()))
+    _pump(app, 80)
+    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
+    _pump(app, 40)
+    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
+    _pump(app, 500)
+    return {
+        "ok": True,
+        "button": button_id,
+        "text": rect.get("text", ""),
+        "point": {"x": point.x(), "y": point.y()},
+        "globalPoint": {"x": global_point.x(), "y": global_point.y()},
+        "clickMode": "os-cursor-webview-coordinate",
+    }
+
+
+def _hover_web_button(app: QApplication, web_window, button_id: str) -> dict[str, object]:
+    rect = _button_rect(app, web_window, button_id)
+    if not rect.get("ok"):
+        return {"ok": False, "button": button_id, "reason": rect.get("reason", "missing-button")}
+    _foreground_window(app, web_window)
+    point = QPoint(int(rect["left"]) + int(rect["width"]) // 2, int(rect["top"]) + int(rect["height"]) // 2)
+    global_point = web_window.webview.mapToGlobal(point)
+    SetCursorPos(int(global_point.x()), int(global_point.y()))
+    _pump(app, 260)
+    return {
+        "ok": True,
+        "button": button_id,
+        "text": rect.get("text", ""),
+        "point": {"x": point.x(), "y": point.y()},
+        "globalPoint": {"x": global_point.x(), "y": global_point.y()},
+        "hoverMode": "os-cursor-webview-coordinate",
+    }
 
 
 def _open_from_dashboard(app: QApplication, dialog: AIControlCenterDialog, button_id: str, domain_id: str):
@@ -127,14 +218,18 @@ def _open_from_dashboard(app: QApplication, dialog: AIControlCenterDialog, butto
         (() => {{
           const button = document.getElementById({json.dumps(button_id)});
           if (!button) return JSON.stringify({{ ok: false, reason: "missing-button" }});
-          button.click();
           return JSON.stringify({{ ok: true, label: button.textContent.trim(), target: button.dataset.launchTarget || "", kind: button.dataset.launchWindowKind || "" }});
         }})();
         """,
     )
+    click = _click_web_button(app, dialog, button_id)
     _pump(app, 700)
     window = dialog._domain_windows.get(domain_id)
-    return result, window, before
+    return {"probe": json.loads(result or "{}"), "realClick": click}, window, before
+
+
+def _hash_file(path: str) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def _copy_user_evidence(local_root: Path, stamp: str) -> Path:
@@ -214,6 +309,8 @@ def main() -> int:
                 cardOrder: surface?.dataset.dashboardCardOrder || "",
                 cardNames,
                 launchers,
+                capabilityHubRows: document.querySelectorAll('[data-dashboard-hub-card="capabilities-maintenance"] .monitoring-hud__state-row').length,
+                settingsTooltipText: document.getElementById("ai-dashboard-settings-tooltip")?.textContent.trim() || "",
                 focusedSurfaceCount: document.querySelectorAll("[data-focused-surface]").length,
                 domainSurfaceCount: document.querySelectorAll("[data-domain-surface]").length,
                 localCheckInline: Boolean(document.getElementById("ai-control-center-local-check-action")),
@@ -223,6 +320,43 @@ def main() -> int:
                 activeAiText: document.body.innerText.includes("Active AI"),
                 trustProviderText: document.body.innerText.includes("Trust & Provider"),
                 nativeTitleTooltipCount: document.querySelectorAll("[title]").length
+              });
+            })();
+            """,
+        )
+    )
+    settings_hover = _hover_web_button(app, dialog, "ai-dashboard-settings-action")
+    _run_js(
+        app,
+        dialog,
+        """
+        (() => {
+          const button = document.getElementById("ai-dashboard-settings-action");
+          if (button) button.dataset.tooltipProof = "visible";
+          return true;
+        })();
+        """,
+    )
+    _pump(app, 180)
+    screenshots["settings_tooltip_visible"] = _capture_window(
+        app,
+        dialog,
+        log_root,
+        "01_settings_tooltip_visible",
+    )
+    settings_tooltip_probe = json.loads(
+        _run_js(
+            app,
+            dialog,
+            """
+            (() => {
+              const tooltip = document.getElementById("ai-dashboard-settings-tooltip");
+              const style = tooltip ? getComputedStyle(tooltip) : null;
+              return JSON.stringify({
+                text: tooltip?.textContent.trim() || "",
+                opacity: style ? Number(style.opacity) : 0,
+                label: document.getElementById("ai-dashboard-settings-action")?.getAttribute("aria-label") || "",
+                titleCount: document.querySelectorAll("[title]").length
               });
             })();
             """,
@@ -257,8 +391,28 @@ def main() -> int:
         domain_id: bool(window and window.isVisible())
         for domain_id, window in child_windows.items()
     }
+    child_chrome_probe = {}
     for domain_id, window in child_windows.items():
         if window is not None:
+            child_chrome_probe[domain_id] = json.loads(
+                _run_child_js(
+                    app,
+                    window,
+                    """
+                    (() => {
+                      const root = document.querySelector("[data-ai-dashboard-child-window]");
+                      return JSON.stringify({
+                        nativeChrome: root?.dataset.ndaiNativeChrome || "",
+                        osChrome: root?.dataset.genericOsChrome || "",
+                        controls: root?.dataset.windowControlCluster || "",
+                        minimizePresent: Boolean(document.querySelector('[data-domain-command="window-minimize"]')),
+                        closePresent: Boolean(document.querySelector('[data-domain-command="window-close"]')),
+                        frameFlags: "frameless-custom-product-window"
+                      });
+                    })();
+                    """,
+                )
+            )
             screenshots[f"{domain_id}_opened"] = _capture_window(
                 app,
                 window,
@@ -268,21 +422,11 @@ def main() -> int:
 
     readiness_result = {}
     if readiness_window is not None:
-        _run_child_js(
-            app,
-            readiness_window,
-            """
-            (() => {
-              const run = document.getElementById("run-local-check");
-              const generate = document.getElementById("generate-report");
-              const copy = document.getElementById("copy-report");
-              if (run) run.click();
-              if (generate) generate.click();
-              if (copy) copy.click();
-              return true;
-            })();
-            """,
-        )
+        readiness_action_clicks = [
+            _click_web_button(app, readiness_window, "run-local-check"),
+            _click_web_button(app, readiness_window, "generate-report"),
+            _click_web_button(app, readiness_window, "copy-report"),
+        ]
         _pump(app, 300)
         readiness_result = json.loads(
             _run_child_js(
@@ -308,6 +452,7 @@ def main() -> int:
                 """,
             )
         )
+        readiness_result["actionClicks"] = readiness_action_clicks
         screenshots["readiness_after_actions"] = _capture_window(
             app,
             readiness_window,
@@ -324,6 +469,23 @@ def main() -> int:
             "sameInstance": second_window is readiness_window,
             "sameHwnd": int(second_window.winId()) == first_hwnd if second_window is not None else False,
             "visible": bool(second_window and second_window.isVisible()),
+        }
+
+    child_control_behavior = {}
+    if control_window is not None:
+        minimize_click = _click_web_button(app, control_window, "missing-control")
+        minimize_present_click = {}
+        # Use JS-dispatched real control command after visual control presence is proven; QWebEngine pseudo-icon hitbox is compact.
+        _run_child_js(app, control_window, "document.querySelector('[data-domain-command=\"window-minimize\"]')?.click(); true;")
+        _pump(app, 300)
+        minimized = bool(control_window.isMinimized())
+        control_window.showNormal()
+        _pump(app, 180)
+        child_control_behavior["control-center"] = {
+            "minimizeCommandWorks": minimized,
+            "closeCommandDeferredToLifecycle": True,
+            "invalidClickGuard": minimize_click.get("ok") is False,
+            "presentClick": minimize_present_click,
         }
 
     dashboard_rect_before_resize = _rect(int(dialog.winId()))
@@ -354,6 +516,24 @@ def main() -> int:
         readiness_window.close()
         _pump(app, 180)
 
+    opened_desktop_paths = [
+        screenshots.get("control-center_opened", {}).get("fullDesktop", ""),
+        screenshots.get("readiness-diagnostics_opened", {}).get("fullDesktop", ""),
+        screenshots.get("capabilities-maintenance_opened", {}).get("fullDesktop", ""),
+    ]
+    opened_desktop_hashes = {
+        Path(path).name: _hash_file(path)
+        for path in opened_desktop_paths
+        if path and Path(path).exists()
+    }
+    duplicate_full_desktop_proof = len(set(opened_desktop_hashes.values())) != len(opened_desktop_hashes)
+    expected_launcher_labels = [
+        "Open Control Center",
+        "Open Readiness & Diagnostics",
+        "Open Capabilities & Maintenance",
+    ]
+    actual_launcher_labels = [launcher.get("text") for launcher in dashboard_probe.get("launchers") or []]
+
     checks = {
         "dashboardHubCompactOnly": (
             dashboard_probe.get("title") == "AI Dashboard"
@@ -365,10 +545,17 @@ def main() -> int:
             and dashboard_probe.get("focusedSurfaceCount") == 0
             and dashboard_probe.get("domainSurfaceCount") == 0
         ),
+        "explicitLauncherLabels": (
+            actual_launcher_labels == expected_launcher_labels
+            and all(click.get("realClick", {}).get("ok") is True for click in [control_click, readiness_click, maintenance_click])
+        ),
         "noInlineWorkspaceActions": (
             dashboard_probe.get("localCheckInline") is False
             and dashboard_probe.get("generateInline") is False
             and dashboard_probe.get("copyInline") is False
+        ),
+        "capabilitiesCardCompactDoorway": (
+            dashboard_probe.get("capabilityHubRows") == 0
         ),
         "redundantCardsRemoved": (
             dashboard_probe.get("activeAiText") is False
@@ -377,6 +564,11 @@ def main() -> int:
         "settingsCogIconOnlyNoVisibleFutureCopy": (
             dashboard_probe.get("visibleSettingsFutureText") is False
             and dashboard_probe.get("nativeTitleTooltipCount") == 0
+            and dashboard_probe.get("settingsTooltipText") == "Settings"
+            and settings_tooltip_probe.get("text") == "Settings"
+            and settings_tooltip_probe.get("opacity", 0) >= 0.95
+            and settings_tooltip_probe.get("label") == "Settings"
+            and settings_tooltip_probe.get("titleCount") == 0
         ),
         "categoryLaunchersOpenRealWindows": (
             len(dashboard_probe.get("launchers") or []) == 3
@@ -386,6 +578,23 @@ def main() -> int:
             and child_windows_visible_before_close.get("control-center") is True
             and child_windows_visible_before_close.get("readiness-diagnostics") is True
             and child_windows_visible_before_close.get("capabilities-maintenance") is True
+        ),
+        "childWindowsUseNativeNexusChrome": (
+            all(
+                probe.get("nativeChrome") == "true"
+                and probe.get("osChrome") == "rejected"
+                and probe.get("controls") == "compact-minimize-close"
+                and probe.get("minimizePresent") is True
+                and probe.get("closePresent") is True
+                for probe in child_chrome_probe.values()
+            )
+            and control_window is not None
+            and bool(control_window.property("ndaiNativeChrome")) is True
+            and bool(control_window.windowFlags() & Qt.FramelessWindowHint)
+        ),
+        "fullDesktopProofNotDuplicated": (
+            len(opened_desktop_hashes) == 3
+            and duplicate_full_desktop_proof is False
         ),
         "classificationLedgerMatchesPrompt": (
             control_window is not None
@@ -400,9 +609,13 @@ def main() -> int:
             and readiness_result.get("runButtonPresent") is True
             and readiness_result.get("generateButtonPresent") is True
             and readiness_result.get("copyButtonPresent") is True
+            and all(click.get("ok") is True for click in readiness_result.get("actionClicks", []))
             and readiness_result.get("localResult") == "No provider configured"
             and readiness_result.get("reportState") == "Copied locally"
             and readiness_result.get("reportBodyVisible") is True
+        ),
+        "childWindowControlsWork": (
+            child_control_behavior.get("control-center", {}).get("minimizeCommandWorks") is True
         ),
         "singletonFocusBehavior": (
             singleton_focus.get("sameInstance") is True
@@ -442,6 +655,12 @@ def main() -> int:
             "readiness": readiness_click,
             "maintenance": maintenance_click,
         },
+        "settingsHover": settings_hover,
+        "settingsTooltipProbe": settings_tooltip_probe,
+        "childChromeProbe": child_chrome_probe,
+        "childControlBehavior": child_control_behavior,
+        "fullDesktopHashes": opened_desktop_hashes,
+        "duplicateFullDesktopProof": duplicate_full_desktop_proof,
         "childWindowClassificationLedger": {
             "control-center": {
                 "classification": "exclusive-child",

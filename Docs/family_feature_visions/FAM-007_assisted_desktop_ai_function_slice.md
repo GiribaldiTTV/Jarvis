@@ -102,6 +102,8 @@ Durable Definition: `AI Dashboard is the FAM-007-owned top-level AI orientation 
 
 Top-Level Admission Rule: top-level AI Dashboard content must be compact, orienting, trust-critical, immediately useful, or navigational. The top level may show a Global AI Strip, AI truth summaries, category doorway cards, and launcher actions that open the correct external-unique or exclusive child/domain window for this branch's approved Dashboard repair. Category cards are doors, not workspaces. Permanent stacked top-level report bodies, setup flows, logs, selectors, provider internals, capability-pack detail tables, memory/cache/private setup content, direct local-check execution, direct readiness-report generation/results, and long diagnostics are disallowed unless source truth and USER approval create an explicit exception.
 
+Child/Domain Window Chrome Rule: for this branch's selected AI Dashboard repair, opened AI category windows must render through Nexus-native custom product chrome and must reject generic Windows title bars. Required proof includes a real Dashboard card launcher click path, custom compact minimize/close controls, opened-window classification as exclusive child or external unique, lifecycle proof, full-desktop proof, focused-window proof, and duplicate-screenshot rejection.
+
 Placement Role Vocabulary:
 
 - `Top-level summary`: compact truth about active AI, readiness, trust/provider, capability, lane, or recovery posture.

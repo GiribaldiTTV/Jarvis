@@ -3704,6 +3704,7 @@ def validate() -> list[str]:
     js = _read("nexus_visual/orin_core.js")
     ai_control_html = _read("nexus_visual/ai_control_center.html")
     ai_control_js = _read("nexus_visual/ai_control_center.js")
+    live_resize_helper = _read("dev/orin_ai_control_center_live_resize_validation.py")
     monitoring_hud_css = _read("nexus_visual/monitoring_hud.css")
     branch_record = _read("Docs/branch_records/feature_fam_007_provider_boundary_no_provider_shell.md")
     active_activation_branch_record = _read(
@@ -9157,14 +9158,18 @@ def validate() -> list[str]:
         "Control Center",
         "Readiness & Diagnostics",
         "Capabilities & Maintenance",
+        "Open Control Center",
+        "Open Readiness &amp; Diagnostics",
+        "Open Capabilities &amp; Maintenance",
+        'id="ai-dashboard-settings-tooltip"',
+        "ai-dashboard-settings-tooltip",
         "Global AI Strip",
-        "Lifecycle placement only; update execution blocked",
+        "Lifecycle detail opens separately",
+        "Capability, maintenance, update, and edition-lane details stay out of the hub.",
         "Minimize AI Dashboard",
         "Maximize or restore AI Dashboard hidden until future implementation",
         "Close AI Dashboard",
         "Top-level AI hub. ORIN is not implemented; provider/model execution is not active.",
-        "Install blocked; downloads disabled",
-        "Public only; Developer and Owner gated",
     ):
         _require(
             needle in ai_control_html,
@@ -9187,6 +9192,11 @@ def validate() -> list[str]:
         "Active AI",
         "Trust & Provider",
         "Settings future-gated.",
+        '<span class="monitoring-hud__button-label">Open</span>',
+        'id="ai-control-center-capability-packs"',
+        'id="ai-control-center-maintenance-updates"',
+        'id="ai-control-center-edition-lanes"',
+        'id="ai-control-center-unavailable-capability"',
         "AI Readiness / Focused Detail",
         'id="ai-control-center-local-check-action"',
         'id="ai-control-center-generate-report-action"',
@@ -9216,12 +9226,46 @@ def validate() -> list[str]:
         "setAttribute('title'",
         ".title =",
         ".title=",
-        "data-tooltip",
         "aria-describedby",
     ):
         _require(
             forbidden not in ai_control_html and forbidden not in ai_control_js,
             f"AI Control Center must not define current tooltip hooks; explicit tooltip UX is future-gated: {forbidden!r}",
+            failures,
+        )
+
+    for needle in (
+        "self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)",
+        "self.setAttribute(Qt.WA_TranslucentBackground, True)",
+        'self.setProperty("ndaiNativeChrome", True)',
+        'self.setProperty("genericOsChromeRejected", True)',
+        'data-ndai-native-chrome="true"',
+        'data-generic-os-chrome="rejected"',
+        'data-window-control-cluster="compact-minimize-close"',
+        'data-domain-command="window-minimize"',
+        'data-domain-command="window-close"',
+        'command == "window-minimize"',
+        'command == "window-close"',
+    ):
+        _require(
+            needle in renderer,
+            f"AI Dashboard child/domain window native chrome contract is missing {needle!r}",
+            failures,
+        )
+
+    for needle in (
+        "os-cursor-webview-coordinate",
+        "SetCursorPos",
+        "mouse_event",
+        "duplicateFullDesktopProof",
+        '"fullDesktopProofNotDuplicated"',
+        '"childWindowsUseNativeNexusChrome"',
+        '"settingsTooltipProbe"',
+        '"explicitLauncherLabels"',
+    ):
+        _require(
+            needle in live_resize_helper,
+            f"AI Dashboard live child-window helper is missing proof-hardening check {needle!r}",
             failures,
         )
 

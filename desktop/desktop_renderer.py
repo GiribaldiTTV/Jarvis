@@ -916,18 +916,25 @@ class AIDashboardDomainWindow(QDialog):
         self.definition = definition
         self.setObjectName(f"fam007AiDashboardDomainWindow_{self.domain_id.replace('-', '_')}")
         self.setWindowTitle(definition["title"])
-        self.setWindowFlags(Qt.Window)
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowModality(Qt.NonModal)
         self.setMinimumSize(460, 420)
         self.resize(620, 560 if self.domain_id == "readiness-diagnostics" else 460)
         self.setProperty("aiDashboardDomainWindow", self.domain_id)
         self.setProperty("aiDashboardDomainClassification", definition["classification"])
         self.setProperty("aiDashboardDomainLifecycle", definition["lifecycle"])
+        self.setProperty("ndaiNativeChrome", True)
+        self.setProperty("genericOsChromeRejected", True)
+        self.setProperty("windowControlCluster", "compact-minimize-close")
         self.setProperty("providerVisibleData", "none")
         self.setProperty("providerModelExecution", "blocked")
         self.setProperty("promptSend", "prompt-send-disabled")
         self.setProperty("networkEgress", "network-egress-blocked")
         self.setProperty("memoryIndexing", "memory-indexing-disabled")
+        self._drag_start_global = QPoint()
+        self._drag_window_origin = QPoint()
+        self._dragging_header = False
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -935,6 +942,7 @@ class AIDashboardDomainWindow(QDialog):
         self.webview = QWebEngineView(self)
         self.webview.setContextMenuPolicy(Qt.NoContextMenu)
         self.webview.setStyleSheet("background-color: transparent; border: none;")
+        self.webview.installEventFilter(self)
         self._web_page = AIDashboardDomainCommandPage(self.domain_id, self.webview)
         self._web_page.domain_command.connect(self._handle_domain_command)
         self.webview.setPage(self._web_page)
@@ -943,6 +951,28 @@ class AIDashboardDomainWindow(QDialog):
         layout.addWidget(self.webview)
         self.webview.setHtml(self._domain_html(), QUrl.fromLocalFile(str(self._asset_base_dir()) + os.sep))
         _apply_windows_dark_title_bar(self)
+
+    def eventFilter(self, obj, event):
+        if obj is self.webview:
+            event_type = event.type()
+            if event_type == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+                local = event.position().toPoint() if hasattr(event, "position") else event.pos()
+                if 14 <= local.y() <= 92 and local.x() < max(0, self.webview.width() - 118):
+                    self._dragging_header = True
+                    self._drag_start_global = event.globalPosition().toPoint()
+                    self._drag_window_origin = self.frameGeometry().topLeft()
+                    event.accept()
+                    return True
+            if event_type == QEvent.MouseMove and self._dragging_header:
+                current = event.globalPosition().toPoint()
+                self.move(self._drag_window_origin + (current - self._drag_start_global))
+                event.accept()
+                return True
+            if event_type == QEvent.MouseButtonRelease and self._dragging_header:
+                self._dragging_header = False
+                event.accept()
+                return True
+        return super().eventFilter(obj, event)
 
     def _asset_base_dir(self) -> Path:
         return Path(__file__).resolve().parents[1] / "nexus_visual"
@@ -971,6 +1001,7 @@ class AIDashboardDomainWindow(QDialog):
       font-family: "Inter", "Segoe UI", Arial, sans-serif;
     }}
     .ai-domain-window__chrome {{
+      position: relative;
       height: calc(100vh - 24px);
       overflow: auto;
       border: 1px solid rgba(94, 207, 229, 0.42);
@@ -983,9 +1014,81 @@ class AIDashboardDomainWindow(QDialog):
     .ai-domain-window__header {{
       display: grid;
       gap: 6px;
-      padding: 10px 10px 14px;
+      padding: 10px 118px 14px 10px;
       border-bottom: 1px solid rgba(94, 207, 229, 0.24);
       margin-bottom: 12px;
+      cursor: move;
+      user-select: none;
+    }}
+    .ai-domain-window__controls {{
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 2px;
+      border: 1px solid rgba(122, 232, 255, 0.44);
+      border-radius: 999px;
+      background: linear-gradient(145deg, rgba(7, 42, 62, 0.70), rgba(3, 18, 32, 0.76));
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.05) inset, 0 8px 19px rgba(0, 0, 0, 0.28);
+    }}
+    .ai-domain-window__control {{
+      position: relative;
+      width: 26px;
+      min-width: 26px;
+      height: 24px;
+      min-height: 24px;
+      padding: 0;
+      border: 1px solid rgba(122, 232, 255, 0.24);
+      border-radius: 999px;
+      background: rgba(5, 22, 36, 0.62);
+      color: transparent;
+      cursor: pointer;
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.04) inset;
+      transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+    }}
+    .ai-domain-window__control::before,
+    .ai-domain-window__control::after {{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      content: "";
+      box-sizing: border-box;
+      border-color: rgba(235, 252, 255, 0.92);
+      background: rgba(235, 252, 255, 0.92);
+      transform: translate(-50%, -50%);
+      transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease;
+    }}
+    .ai-domain-window__control:hover,
+    .ai-domain-window__control:focus-visible {{
+      border-color: rgba(126, 248, 218, 0.56);
+      background: rgba(9, 49, 70, 0.78);
+      box-shadow: 0 0 0 1px rgba(230, 251, 255, 0.07) inset, 0 0 14px rgba(86, 236, 255, 0.28);
+      outline: none;
+    }}
+    .ai-domain-window__control:active {{
+      border-color: rgba(163, 255, 228, 0.72);
+      background: rgba(7, 40, 57, 0.86);
+      transform: translateY(1px);
+    }}
+    .ai-domain-window__control--minimize::before {{
+      width: 10px;
+      height: 2px;
+      border-radius: 999px;
+    }}
+    .ai-domain-window__control--close::before,
+    .ai-domain-window__control--close::after {{
+      width: 11px;
+      height: 2px;
+      border-radius: 999px;
+    }}
+    .ai-domain-window__control--close::before {{
+      transform: translate(-50%, -50%) rotate(45deg);
+    }}
+    .ai-domain-window__control--close::after {{
+      transform: translate(-50%, -50%) rotate(-45deg);
     }}
     .ai-domain-window__kicker {{
       color: rgba(103, 224, 255, 0.95);
@@ -1071,8 +1174,12 @@ class AIDashboardDomainWindow(QDialog):
   </style>
 </head>
 <body class="desktop-mode">
-  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}">
+  <main class="ai-domain-window" data-ai-dashboard-child-window="{escape(self.domain_id)}" data-window-classification="{escape(definition["classification"])}" data-window-lifecycle="{escape(definition["lifecycle"])}" data-ndai-native-chrome="true" data-generic-os-chrome="rejected" data-window-control-cluster="compact-minimize-close">
     <section class="ai-domain-window__chrome">
+      <div class="ai-domain-window__controls" role="group" aria-label="{escape(definition["title"])} window controls">
+        <button class="ai-domain-window__control ai-domain-window__control--minimize" type="button" data-domain-command="window-minimize" aria-label="Minimize {escape(definition["title"])}"></button>
+        <button class="ai-domain-window__control ai-domain-window__control--close" type="button" data-domain-command="window-close" aria-label="Close {escape(definition["title"])}"></button>
+      </div>
       <header class="ai-domain-window__header">
         <div class="ai-domain-window__kicker">{escape(definition["kicker"])}</div>
         <div class="ai-domain-window__title">{escape(definition["title"])}</div>
@@ -1186,7 +1293,9 @@ class AIDashboardDomainWindow(QDialog):
       const button = event.target.closest("[data-domain-command]");
       if (!button || button.disabled) return;
       const command = button.dataset.domainCommand;
-      if (command === "run-local-check") {{
+      if (command === "window-minimize" || command === "window-close") {{
+        emit(command);
+      }} else if (command === "run-local-check") {{
         window.nexusAiDomainRunLocalCheck();
         emit("run-local-check");
       }} else if (command === "generate-readiness-report") {{
@@ -1283,6 +1392,10 @@ class AIDashboardDomainWindow(QDialog):
                 "RENDERER_MAIN|AI_DASHBOARD_DOMAIN_WINDOW_COMMAND"
                 f"|domain={domain_id}|command={command}"
             )
+        if command == "window-minimize":
+            self.showMinimized()
+        elif command == "window-close":
+            self.close()
 
     def update_provider_state(self, payload: dict[str, object]) -> None:
         self._provider_payload = dict(payload or {})
@@ -1296,7 +1409,24 @@ class AIDashboardDomainWindow(QDialog):
     def show_domain_window(self, origin: QRect | None = None) -> dict[str, object]:
         if not self.isVisible():
             if origin is not None and origin.isValid():
-                self.move(origin.x() + 44, origin.y() + 54)
+                available = self.screen_ref.availableGeometry() if self.screen_ref is not None else QApplication.primaryScreen().availableGeometry()
+                target_x = origin.x() - self.width() - 24
+                if target_x < available.x() + 12:
+                    right_x = origin.x() + origin.width() + 24
+                    if right_x + self.width() <= available.right() - 12:
+                        target_x = right_x
+                    else:
+                        target_x = min(origin.x() + 44, available.right() - self.width() - 12)
+                domain_offset = {
+                    "control-center": 0,
+                    "readiness-diagnostics": 34,
+                    "capabilities-maintenance": 68,
+                }.get(self.domain_id, 0)
+                target_y = min(
+                    max(available.y() + 12, origin.y() + domain_offset),
+                    available.bottom() - self.height() - 12,
+                )
+                self.move(target_x, target_y)
             _schedule_window_clamp(self, padding=18)
         self.show()
         self.raise_()
