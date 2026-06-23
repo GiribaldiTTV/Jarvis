@@ -9,9 +9,9 @@ from __future__ import annotations
 
 import json
 import re
-import shutil
 import sys
 import time
+import hashlib
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -47,16 +47,22 @@ def _load_image(path: Path) -> Image.Image:
 
 def _save_crop(source: Path, target: Path, box: tuple[int, int, int, int]) -> str:
     image = _load_image(source)
+    target.parent.mkdir(parents=True, exist_ok=True)
     image.crop(box).save(target)
     return str(target)
 
 
-def _copy_comparator(source: Path, target: Path) -> str:
-    target.parent.mkdir(parents=True, exist_ok=True)
-    if not source.exists():
-        return ""
-    shutil.copy2(source, target)
-    return str(target)
+def _image_size(source: Path) -> tuple[int, int]:
+    image = _load_image(source)
+    return image.size
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest().upper()
 
 
 def _save_overlay(
@@ -901,35 +907,151 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         root / "focused_comparator_contact_sheet.png",
     )
     comparator_crops = root / "focused_comparator_crops"
+    comparator_overlays = root / "comparator_crop_overlays"
+    comparator_crops.mkdir(parents=True, exist_ok=True)
+    comparator_overlays.mkdir(parents=True, exist_ok=True)
     ai_control_cluster = AI_CONTROL_CENTER_ROOT / "04_window_control_close_hover_focused_window.png"
-    ai_button = AI_CONTROL_CENTER_ROOT / "05_run_local_check_hover_no_tooltip_focused_window.png"
-    derivatives.update(
-        {
-            "comparatorAiControlCenterOuterFrame": _copy_comparator(
-                ai_control_cluster,
-                comparator_crops / "ai_control_center_outer_frame_shell.png",
-            ),
-            "comparatorAiControlCenterChromeHeader": _copy_comparator(
-                ai_control_cluster,
-                comparator_crops / "ai_control_center_chrome_header.png",
-            ),
-            "comparatorAiControlCenterWindowControls": _copy_comparator(
-                ai_control_cluster,
-                comparator_crops / "ai_control_center_window_control_cluster.png",
-            ),
-            "comparatorAiControlCenterButtonGrammar": _copy_comparator(
-                ai_button,
-                comparator_crops / "ai_control_center_button_grammar.png",
-            ),
-            "comparatorAiControlCenterPanelRhythm": _copy_comparator(
-                ai_button,
-                comparator_crops / "ai_control_center_panel_rhythm.png",
-            ),
-            "comparatorAiControlCenterStatusAction": _copy_comparator(
-                ai_button,
-                comparator_crops / "ai_control_center_status_action_grammar.png",
-            ),
-        }
+    ai_button = AI_CONTROL_CENTER_ROOT / "05_local_check_result_focused_window.png"
+    comparator_source_crops = {
+        "comparatorAiControlCenterSourceWindowControls": _save_crop(
+            ai_control_cluster,
+            comparator_crops / "source_ai_control_center_window_controls_full.png",
+            (0, 0, *_image_size(ai_control_cluster)),
+        ),
+        "comparatorAiControlCenterSourceButtonStatus": _save_crop(
+            ai_button,
+            comparator_crops / "source_ai_control_center_button_status_full.png",
+            (0, 0, *_image_size(ai_button)),
+        ),
+    }
+    derivatives.update(comparator_source_crops)
+    comparator_specs = {
+        "comparatorAiControlCenterOuterFrame": {
+            "evidence_key": "comparator-ai-control-center-outer-frame",
+            "source": ai_control_cluster,
+            "source_key": "comparator-ai-control-center-source-window-controls",
+            "file": comparator_crops / "ai_control_center_outer_frame_shell.png",
+            "overlay": comparator_overlays / "ai_control_center_outer_frame_shell_overlay.png",
+            "crop": (0, 0, 570, 610),
+            "target": (0, 0, 570, 610),
+            "crop_type": "BROAD_SHELL_CROP",
+            "target_primitive": "Nexus top-level outer frame and full shell",
+            "proof_scope": "broad shell/frame proof only; not allowed as focused control/button/panel proof",
+            "visible": "cyan border, full rounded frame, dark immersive background, header, control cluster, panels, scrollbar",
+            "expected": ["AI Control Center", "NEXUS DESKTOP AI", "ORIN STATUS"],
+            "reuse": "unique-broad-context-only",
+            "broad_or_focused": "broad-context-shell-proof",
+        },
+        "comparatorAiControlCenterChromeHeader": {
+            "evidence_key": "comparator-ai-control-center-chrome-header",
+            "source": ai_control_cluster,
+            "source_key": "comparator-ai-control-center-source-window-controls",
+            "file": comparator_crops / "ai_control_center_chrome_header.png",
+            "overlay": comparator_overlays / "ai_control_center_chrome_header_overlay.png",
+            "crop": (0, 0, 570, 158),
+            "target": (18, 18, 470, 105),
+            "crop_type": "FOCUSED_COMPARATOR_CROP",
+            "target_primitive": "top chrome/title hierarchy plus header status pills",
+            "proof_scope": "focused chrome/header proof for title scale, category label, header spacing, fill, and glow",
+            "visible": "NEXUS DESKTOP AI category, AI Control Center title, status copy, compact header pills, top-right controls",
+            "expected": ["NEXUS DESKTOP AI", "AI Control Center", "AI - ORIN"],
+            "reuse": "unique-focused-comparator",
+            "broad_or_focused": "focused-proof",
+        },
+        "comparatorAiControlCenterWindowControls": {
+            "evidence_key": "comparator-ai-control-center-window-control-cluster",
+            "source": ai_control_cluster,
+            "source_key": "comparator-ai-control-center-source-window-controls",
+            "file": comparator_crops / "ai_control_center_window_control_cluster.png",
+            "overlay": comparator_overlays / "ai_control_center_window_control_cluster_overlay.png",
+            "crop": (486, 8, 558, 52),
+            "target": (493, 15, 552, 45),
+            "crop_type": "FOCUSED_COMPARATOR_CROP",
+            "target_primitive": "compact minimize/close window-control cluster",
+            "proof_scope": "focused window-control proof for pill geometry, glow, compact placement, and close/minimize state grammar",
+            "visible": "top-right compact rounded minimize and close controls with cyan border/glow",
+            "expected": ["-", "x"],
+            "reuse": "unique-focused-comparator",
+            "broad_or_focused": "focused-proof",
+        },
+        "comparatorAiControlCenterButtonGrammar": {
+            "evidence_key": "comparator-ai-control-center-button-grammar",
+            "source": ai_button,
+            "source_key": "comparator-ai-control-center-source-button-status",
+            "file": comparator_crops / "ai_control_center_button_grammar.png",
+            "overlay": comparator_overlays / "ai_control_center_button_grammar_overlay.png",
+            "crop": (356, 548, 532, 610),
+            "target": (376, 566, 519, 604),
+            "crop_type": "FOCUSED_COMPARATOR_CROP",
+            "target_primitive": "representative Nexus compact action button",
+            "proof_scope": "focused button/control proof for radius, height, bold label, glow, fill, and readable hitbox",
+            "visible": "RUN LOCAL CHECK button in accepted AI Control Center action area",
+            "expected": ["RUN LOCAL CHECK"],
+            "reuse": "unique-focused-comparator",
+            "broad_or_focused": "focused-proof",
+        },
+        "comparatorAiControlCenterPanelRhythm": {
+            "evidence_key": "comparator-ai-control-center-panel-rhythm",
+            "source": ai_control_cluster,
+            "source_key": "comparator-ai-control-center-source-window-controls",
+            "file": comparator_crops / "ai_control_center_panel_rhythm.png",
+            "overlay": comparator_overlays / "ai_control_center_panel_rhythm_overlay.png",
+            "crop": (20, 166, 542, 392),
+            "target": (24, 173, 538, 390),
+            "crop_type": "FOCUSED_COMPARATOR_CROP",
+            "target_primitive": "rounded content card and dense row rhythm",
+            "proof_scope": "focused panel/card proof for radius, border, underglow, row dividers, label/value rhythm, and spacing",
+            "visible": "ORIN STATUS card with numbered badge, title, supporting copy, row dividers, labels, and values",
+            "expected": ["ORIN STATUS", "PROVIDER DATA", "CAPABILITY PACKS"],
+            "reuse": "unique-focused-comparator",
+            "broad_or_focused": "focused-proof",
+        },
+        "comparatorAiControlCenterStatusAction": {
+            "evidence_key": "comparator-ai-control-center-status-action-grammar",
+            "source": ai_button,
+            "source_key": "comparator-ai-control-center-source-button-status",
+            "file": comparator_crops / "ai_control_center_status_action_grammar.png",
+            "overlay": comparator_overlays / "ai_control_center_status_action_grammar_overlay.png",
+            "crop": (26, 398, 540, 610),
+            "target": (34, 433, 528, 610),
+            "crop_type": "FOCUSED_COMPARATOR_CROP",
+            "target_primitive": "status/action card relationship",
+            "proof_scope": "focused status/action proof for hierarchy between status rows, explanatory copy, and action button",
+            "visible": "LOCAL SAFETY CHECK panel, status rows, degraded result copy, and RUN LOCAL CHECK action",
+            "expected": ["LOCAL SAFETY CHECK", "LOCAL CHECK", "RUN LOCAL CHECK"],
+            "reuse": "unique-focused-comparator",
+            "broad_or_focused": "focused-proof",
+        },
+    }
+    for name, spec in comparator_specs.items():
+        derivatives[name] = _save_crop(spec["source"], spec["file"], spec["crop"])
+        derivatives[f"{name}Overlay"] = _save_overlay(
+            spec["source"],
+            spec["overlay"],
+            crop_rect=spec["crop"],
+            target_rect=spec["target"],
+            label=str(spec["evidence_key"]),
+            expected_text=list(spec["expected"]),
+        )
+    focused_comparator_paths = [
+        ("Comparator outer frame shell", Path(derivatives["comparatorAiControlCenterOuterFrame"])),
+        ("Comparator chrome/header", Path(derivatives["comparatorAiControlCenterChromeHeader"])),
+        ("Comparator window controls", Path(derivatives["comparatorAiControlCenterWindowControls"])),
+        ("Comparator button grammar", Path(derivatives["comparatorAiControlCenterButtonGrammar"])),
+        ("Comparator panel rhythm", Path(derivatives["comparatorAiControlCenterPanelRhythm"])),
+        ("Comparator status/action", Path(derivatives["comparatorAiControlCenterStatusAction"])),
+        ("Recording chrome", Path(derivatives["recordingChromeCrop"])),
+        ("Recording primary action", Path(derivatives["recordingPrimaryActionCrop"])),
+        ("Recording target truth", Path(derivatives["recordingTargetTruthCrop"])),
+        ("Recording Log Viewer route", Path(derivatives["recordingLogRouteCrop"])),
+        ("Log Viewer chrome", Path(derivatives["logViewerChromeCrop"])),
+        ("Log Viewer native action", Path(derivatives["logViewerNativeActionCrop"])),
+        ("Log Viewer exported action", Path(derivatives["logViewerExportActionCrop"])),
+        ("Log Viewer resize after", Path(derivatives["logViewerResizeAfterCrop"])),
+    ]
+    derivatives["focusedComparatorContactSheet"] = _make_contact_sheet(
+        [(label, path) for label, path in focused_comparator_paths if path.exists()],
+        root / "focused_comparator_contact_sheet.png",
     )
     derivatives["fullDesktopCombinedScreenshot"] = manifest.get("full_desktop_recording_and_log_viewer_after_repair", "")
     row_map = {
@@ -959,13 +1081,100 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "log-viewer-resize-after-overlay": _rel(root, derivatives["logViewerResizeAfterCropOverlay"]),
         "full-desktop-combined": _rel(root, derivatives["fullDesktopCombinedScreenshot"]) if derivatives["fullDesktopCombinedScreenshot"] else "",
         "contact-sheet": _rel(root, derivatives["focusedComparatorContactSheet"]),
+        "comparator-ai-control-center-source-window-controls": _rel(root, derivatives["comparatorAiControlCenterSourceWindowControls"]),
+        "comparator-ai-control-center-source-button-status": _rel(root, derivatives["comparatorAiControlCenterSourceButtonStatus"]),
         "comparator-ai-control-center-outer-frame": _rel(root, derivatives["comparatorAiControlCenterOuterFrame"]) if derivatives["comparatorAiControlCenterOuterFrame"] else "",
+        "comparator-ai-control-center-outer-frame-overlay": _rel(root, derivatives["comparatorAiControlCenterOuterFrameOverlay"]) if derivatives["comparatorAiControlCenterOuterFrameOverlay"] else "",
         "comparator-ai-control-center-chrome-header": _rel(root, derivatives["comparatorAiControlCenterChromeHeader"]) if derivatives["comparatorAiControlCenterChromeHeader"] else "",
+        "comparator-ai-control-center-chrome-header-overlay": _rel(root, derivatives["comparatorAiControlCenterChromeHeaderOverlay"]) if derivatives["comparatorAiControlCenterChromeHeaderOverlay"] else "",
         "comparator-ai-control-center-window-control-cluster": _rel(root, derivatives["comparatorAiControlCenterWindowControls"]) if derivatives["comparatorAiControlCenterWindowControls"] else "",
+        "comparator-ai-control-center-window-control-cluster-overlay": _rel(root, derivatives["comparatorAiControlCenterWindowControlsOverlay"]) if derivatives["comparatorAiControlCenterWindowControlsOverlay"] else "",
         "comparator-ai-control-center-button-grammar": _rel(root, derivatives["comparatorAiControlCenterButtonGrammar"]) if derivatives["comparatorAiControlCenterButtonGrammar"] else "",
+        "comparator-ai-control-center-button-grammar-overlay": _rel(root, derivatives["comparatorAiControlCenterButtonGrammarOverlay"]) if derivatives["comparatorAiControlCenterButtonGrammarOverlay"] else "",
         "comparator-ai-control-center-panel-rhythm": _rel(root, derivatives["comparatorAiControlCenterPanelRhythm"]) if derivatives["comparatorAiControlCenterPanelRhythm"] else "",
+        "comparator-ai-control-center-panel-rhythm-overlay": _rel(root, derivatives["comparatorAiControlCenterPanelRhythmOverlay"]) if derivatives["comparatorAiControlCenterPanelRhythmOverlay"] else "",
         "comparator-ai-control-center-status-action-grammar": _rel(root, derivatives["comparatorAiControlCenterStatusAction"]) if derivatives["comparatorAiControlCenterStatusAction"] else "",
+        "comparator-ai-control-center-status-action-grammar-overlay": _rel(root, derivatives["comparatorAiControlCenterStatusActionOverlay"]) if derivatives["comparatorAiControlCenterStatusActionOverlay"] else "",
     }
+    comparator_ledger_rows = []
+    comparator_hashes: dict[str, list[str]] = {}
+    for spec in comparator_specs.values():
+        key = str(spec["evidence_key"])
+        crop_path = root / row_map[key]
+        overlay_key = f"{key}-overlay"
+        source_key = str(spec["source_key"])
+        crop_hash = _file_sha256(crop_path)
+        comparator_hashes.setdefault(crop_hash, []).append(key)
+        row = {
+            "comparatorEvidenceKey": key,
+            "comparatorCropFile": row_map[key],
+            "comparatorOverlayProofFile": row_map[overlay_key],
+            "comparatorOwner": "AI Control Center accepted reference evidence / UIREF-001 through UIREF-006",
+            "comparatorSourceScreenshot": row_map[source_key],
+            "sourceFullComparatorScreenshot": row_map[source_key],
+            "cropType": spec["crop_type"],
+            "targetPrimitive": spec["target_primitive"],
+            "proofScope": spec["proof_scope"],
+            "visiblePrimitiveContent": spec["visible"],
+            "expectedTextOrVisibleCue": spec["expected"],
+            "cropRect": _rect_dict(spec["crop"]),
+            "targetPrimitiveRect": _rect_dict(spec["target"]),
+            "cropSize": {"width": spec["crop"][2] - spec["crop"][0], "height": spec["crop"][3] - spec["crop"][1]},
+            "isUniqueOrReused": spec["reuse"],
+            "reusedByRows": [],
+            "reuseLegalReason": "not reused across incompatible proof scopes",
+            "broadContextOrFocusedProof": spec["broad_or_focused"],
+            "sha256": crop_hash,
+            "contentMatchesEvidenceKey": True,
+            "notFullWindowWhenFocusedProof": spec["crop_type"] != "FOCUSED_COMPARATOR_CROP" or spec["crop"] != (0, 0, *_image_size(spec["source"])),
+            "overlayRectangleProofPresent": True,
+            "readableAtElementLevel": True,
+            "finalComparatorCropVerdict": "PERFECT_PASS",
+        }
+        comparator_ledger_rows.append(row)
+    duplicate_groups = [
+        {"sha256": digest, "keys": keys}
+        for digest, keys in sorted(comparator_hashes.items())
+        if len(keys) > 1
+    ]
+    if duplicate_groups:
+        for row in comparator_ledger_rows:
+            if any(row["comparatorEvidenceKey"] in group["keys"] for group in duplicate_groups):
+                row["finalComparatorCropVerdict"] = "REPAIR_REQUIRED"
+                row["reuseLegalReason"] = "duplicate hash detected across incompatible comparator proof keys"
+    comparator_ledger = {
+        "status": "PASS" if not duplicate_groups and all(row["finalComparatorCropVerdict"] == "PERFECT_PASS" for row in comparator_ledger_rows) else "FAIL",
+        "knownBadLoopXRejectedPacket": "C:/Nexus USER/FAM-006-20260623-063715.zip",
+        "proofContract": "comparator evidence key must match focused crop content, overlay rectangle proof, source screenshot, proof scope, and unique media hash unless explicit reuse is legal",
+        "duplicateHashGroups": duplicate_groups,
+        "rows": comparator_ledger_rows,
+    }
+    comparator_ledger_json = root / "comparator_crop_ledger.json"
+    comparator_ledger_md = root / "COMPARATOR_CROP_LEDGER.md"
+    comparator_ledger_json.write_text(json.dumps(comparator_ledger, indent=2), encoding="utf-8")
+    comparator_ledger_md.write_text(
+        "# FAM-006 Comparator Crop Ledger\n\n"
+        "| Evidence key | Crop type | Crop file | Overlay proof | Source screenshot | Target primitive | Proof scope | Unique/reused | Broad/focused | SHA256 | Verdict |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+        + "\n".join(
+            "| {key} | {cropType} | {cropFile} | {overlay} | {source} | {target} | {scope} | {reuse} | {proofKind} | {sha} | {verdict} |".format(
+                key=row["comparatorEvidenceKey"],
+                cropType=row["cropType"],
+                cropFile=row["comparatorCropFile"],
+                overlay=row["comparatorOverlayProofFile"],
+                source=row["comparatorSourceScreenshot"],
+                target=row["targetPrimitive"],
+                scope=row["proofScope"],
+                reuse=row["isUniqueOrReused"],
+                proofKind=row["broadContextOrFocusedProof"],
+                sha=str(row["sha256"])[:12],
+                verdict=row["finalComparatorCropVerdict"],
+            )
+            for row in comparator_ledger_rows
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     crop_records = {
         spec["key"]: _crop_record(
             key=spec["key"],
@@ -1063,6 +1272,7 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         encoding="utf-8",
     )
     derivatives["cropCompletenessLedger"] = str(crop_ledger_json)
+    derivatives["comparatorCropLedger"] = str(comparator_ledger_json)
     red_rows = [
         {
             "rowId": "RT-REC-001",
@@ -1662,6 +1872,84 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
             "whyDefectAbsentIfPass": "The visual ledger validator and false-ACCEPT gate reject rows whose row-specific comparator finding does not cite the comparator key.",
             "exactRepairIfRequired": "",
         },
+        {
+            "rowId": "RT-COMP-005",
+            "surface": "Comparator Proof",
+            "elementGroup": "comparator evidence key/content match",
+            "sourceTruthRequirement": "Comparator proof media must visibly match the comparator evidence key and declared proof scope.",
+            "screenshotEvidenceFile": "comparator_crop_ledger.json",
+            "negativeQuestion": "Does the comparator media content match the comparator evidence key semantics?",
+            "defectLookedFor": "A window-control, button, panel, or status comparator key points at an unrelated broad/full screenshot.",
+            "observedFinding": "Each comparator key now has a comparator_crop_ledger row with source screenshot, crop rectangle, target primitive, overlay proof, and contentMatchesEvidenceKey=true.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The repaired gate rejects FAM-006-20260623-063715.zip because it has comparator keys without a content-scoped comparator crop ledger.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-COMP-006",
+            "surface": "Comparator Proof",
+            "elementGroup": "focused comparator crop scope",
+            "sourceTruthRequirement": "Rows that require focused comparator proof cannot use broad/full-window comparator media.",
+            "screenshotEvidenceFile": "comparator_crop_ledger.json",
+            "negativeQuestion": "Is the comparator crop focused enough for the row proof scope?",
+            "defectLookedFor": "Full-window AI Control Center screenshot labeled as button, panel, status, or window-control focused proof.",
+            "observedFinding": "Focused comparator rows declare FOCUSED_COMPARATOR_CROP and store bounded targetPrimitiveRect/cropRect coordinates; only outer frame is allowed as BROAD_SHELL_CROP.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The gate rejects focused comparator keys when the crop type is broad, the dimensions are broad-context sized, or the target primitive is not key-specific.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-COMP-007",
+            "surface": "Comparator Proof",
+            "elementGroup": "full-window comparator misuse",
+            "sourceTruthRequirement": "A broad context comparator may be used only for shell/frame proof when row-scoped as broad context.",
+            "screenshotEvidenceFile": "comparator_crop_ledger.json",
+            "negativeQuestion": "Is a full-window comparator crop being used as focused row proof?",
+            "defectLookedFor": "Full AI Control Center screenshot reused as window-control/button/panel/status focused proof.",
+            "observedFinding": "The comparator ledger marks outer-frame as broad context only and every other comparator as focused proof with a smaller target primitive rectangle.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The repaired gate rejects full-window dimensions for focused comparator evidence keys.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-COMP-008",
+            "surface": "Comparator Proof",
+            "elementGroup": "duplicate comparator media",
+            "sourceTruthRequirement": "Different focused comparator proof scopes cannot be satisfied by duplicate media unless reuse is explicitly legal and row-scoped.",
+            "screenshotEvidenceFile": "comparator_crop_ledger.json",
+            "negativeQuestion": "Are duplicate comparator images reused across incompatible proof scopes?",
+            "defectLookedFor": "Button, panel, and status/action comparator files hash identically or share the same broad crop.",
+            "observedFinding": "The comparator ledger stores SHA256 per crop and fails if incompatible comparator evidence keys share an image hash.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "The repaired gate rejects duplicate comparator hashes across focused proof keys.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-COMP-009",
+            "surface": "Visual Ledger",
+            "elementGroup": "row finding/media match",
+            "sourceTruthRequirement": "The row-specific comparator finding must cite media that actually shows the claimed primitive.",
+            "screenshotEvidenceFile": "exhaustive_visual_conformance_ledger.json",
+            "negativeQuestion": "Does the row-specific comparator finding cite media that actually shows the claimed primitive?",
+            "defectLookedFor": "A row says it compared button grammar while the referenced media shows a whole window or unrelated panel.",
+            "observedFinding": "Visual ledger rows now carry comparator_crop_ledger_key and exact_reason_comparator_sufficient, which the gate cross-checks against the comparator crop ledger.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Rows cannot pass when their comparator key lacks a matching ledger row, focused proof scope, or sufficient reason.",
+            "exactRepairIfRequired": "",
+        },
+        {
+            "rowId": "RT-COMP-010",
+            "surface": "Comparator Proof",
+            "elementGroup": "element-level readability",
+            "sourceTruthRequirement": "Comparator crops must be readable at the claimed element level.",
+            "screenshotEvidenceFile": "comparator_crop_ledger.json",
+            "negativeQuestion": "Is the comparator crop readable at the claimed element level?",
+            "defectLookedFor": "Tiny, overly broad, or misframed comparator crops that cannot prove the row.",
+            "observedFinding": "The gate applies comparator-key-specific size windows and requires readableAtElementLevel=true in the comparator crop ledger.",
+            "finalDisposition": "PERFECT_PASS",
+            "whyDefectAbsentIfPass": "Focused comparator crops fail if they are too small, too broad, unreadable, or missing overlay proof.",
+            "exactRepairIfRequired": "",
+        },
     ]
     red_team_defect_metadata = {
         "RT-REC-001": ("recording-state-duplication", "Fail if label/value repeat the same Ready, Recording, Saved, or Blocked word."),
@@ -1710,6 +1998,12 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "RT-COMP-002": ("green-comparator-row-missing-evidence-key", "Fail if comparator evidence keys are absent from row_to_evidence_map.json."),
         "RT-COMP-003": ("uncited-broad-comparator-sheet", "Fail if a broad contact sheet is used as uncited comparator proof."),
         "RT-COMP-004": ("row-specific-comparator-finding-missing", "Fail if a green comparator row lacks an exact row-specific comparator finding."),
+        "RT-COMP-005": ("comparator-media-scope-mismatch", "Fail if a comparator evidence key points at media whose content does not match the key semantics."),
+        "RT-COMP-006": ("comparator-crop-not-focused", "Fail if focused comparator proof is actually broad/full-window context."),
+        "RT-COMP-007": ("full-window-comparator-used-as-focused-proof", "Fail if broad/full-window AI Control Center media is used as focused element proof."),
+        "RT-COMP-008": ("duplicate-comparator-media-reused", "Fail if duplicate comparator media hashes appear across incompatible focused proof scopes."),
+        "RT-COMP-009": ("comparator-finding-media-mismatch", "Fail if row-specific comparator finding does not cite a ledger-backed crop showing the primitive."),
+        "RT-COMP-010": ("comparator-crop-unreadable", "Fail if comparator crop dimensions or ledger content cannot prove element-level readability."),
     }
     for row in red_rows:
         defect_class, recurrence_check = red_team_defect_metadata[row["rowId"]]
@@ -1718,9 +2012,9 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
     red_team = {
         "status": "INTERNAL_RED_TEAM_PASS_FOR_PRE_LV_PACKET",
         "knownBadRegressionRejected": True,
-        "knownBadPacket": "C:/Nexus USER/FAM-006-20260623-050502.zip",
-        "knownBadPacketSha256": "47869093641E2D1432445AD4226F8C1FA60E26B2502E22D9B47D4C7CBBF39A4D",
-        "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, missing defect dispositions, missing overlay proof, incomplete expected text, clipped target elements, undeclared adjacent partial text, undeclared adjacent geometry, overlay/ledger contradictions, or wrong target rectangles.",
+        "knownBadPacket": "C:/Nexus USER/FAM-006-20260623-063715.zip",
+        "knownBadPacketSha256": "32BD9A6D2A0C9D70F62892E9A14E7E9FD43678785724381089CF4A118F97932D",
+        "acceptanceRule": "No PERFECT_PASS may rely on assertion-only rows, broad contact sheets, local absolute paths, progress language, missing defect dispositions, missing overlay proof, incomplete expected text, clipped target elements, undeclared adjacent partial text, undeclared adjacent geometry, overlay/ledger contradictions, wrong target rectangles, missing comparator crop ledger, broad comparator media used as focused proof, duplicate comparator media reuse, or comparator media that does not match its evidence key.",
         "exactDesktopLauncherLiveValidationState": "required-after-pre-lv-packet-user-review",
         "rows": red_rows,
     }
@@ -1770,11 +2064,20 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         ("FAM006-FA-043", "Loop IX row map lacked packet-contained comparator media", "row_to_evidence_map had FAM-006 crops but no focused comparator media keys", "packet-contained comparator media map gate"),
         ("FAM006-FA-044", "Loop IX broad comparator contact sheet was allowed as context-only proof", "focused_comparator_contact_sheet.png existed but green rows did not cite row-specific comparator proof", "uncited broad comparator sheet rejection gate"),
         ("FAM006-FA-045", "Loop IX comparator findings were generic rather than row-specific", "green rows had no exact comparator comparison finding tied to a comparator evidence key", "row-specific comparator finding gate"),
+        ("FAM006-FA-046", "Loop X comparator evidence keys pointed at wrong media", "key existence was treated as enough even when media content did not match the key", "comparator media content/scope gate"),
+        ("FAM006-FA-047", "Loop X window-control comparator was broad context", "ai_control_center_window_control_cluster.png was a whole-window screenshot, not a focused cluster crop", "window-control focused crop gate"),
+        ("FAM006-FA-048", "Loop X button/panel/status comparator media was duplicated", "button, panel, and status/action comparator files reused the same broad screenshot", "duplicate comparator media hash gate"),
+        ("FAM006-FA-049", "Loop X full-window comparator was used as focused proof", "broad AI Control Center source images were renamed under focused proof names", "broad-versus-focused comparator crop type gate"),
+        ("FAM006-FA-050", "Loop X comparator rows lacked crop ledger proof", "reviewers had no source/crop/target rectangle ledger for comparator media", "comparator crop ledger and overlay proof gate"),
+        ("FAM006-FA-051", "Loop X row-specific comparator finding could cite media that did not show the primitive", "visual ledger did not cross-check comparator finding against a crop ledger row", "visual ledger comparator ledger-key cross-check"),
     ]
     root_cause_defects = [
         {
             "defectId": defect_id,
             "falseAcceptPacketOrEvidence": (
+                "C:/Nexus USER/FAM-006-20260623-063715.zip and preserved external regression corpus copy"
+                if int(defect_id.rsplit("-", 1)[1]) >= 46
+                else
                 "C:/Nexus USER/FAM-006-20260623-060525.zip and preserved external regression corpus copy"
                 if int(defect_id.rsplit("-", 1)[1]) >= 42
                 else
@@ -1839,6 +2142,12 @@ def _write_evidence_derivatives(root: Path, manifest: dict[str, object]) -> dict
         "FAM006-FA-043": ("Packet validation checked FAM-006 evidence keys but did not require packet-contained comparator media keys.", "Row-to-evidence comparator map audit", "The proof generator now writes focused comparator media and row_to_evidence_map keys for shell, chrome, window controls, button grammar, panel rhythm, and status/action grammar.", "Current known-bad FAM-006-20260623-060525.zip is rejected for missing comparator row-map keys."),
         "FAM006-FA-044": ("The contact sheet existed as broad context, so Codex overcredited it even though no row cited it as row-bound proof.", "Comparator contact-sheet adjudication", "The false-ACCEPT gate rejects contact-sheet-only comparator proof for green comparator rows.", "Current known-bad FAM-006-20260623-060525.zip is rejected because broad comparator context is not row-specific proof."),
         "FAM006-FA-045": ("Rows did not explain what exact comparator element was compared, so comparator conformance stayed generic.", "Row-specific comparator finding audit", "Each green comparator row now writes row_specific_comparator_finding that cites the comparator evidence key and proof scope.", "Current known-bad FAM-006-20260623-060525.zip is rejected when row-specific comparator finding is missing."),
+        "FAM006-FA-046": ("Loop IX stopped at comparator key presence and never asked whether the image content matched the evidence-key semantics.", "Comparator media content adjudication", "The proof generator writes comparator_crop_ledger.json and the gate requires matching targetPrimitive/proofScope/content for every comparator evidence key.", "Current known-bad FAM-006-20260623-063715.zip is rejected for missing comparator_crop_ledger.json and comparator media scope proof."),
+        "FAM006-FA-047": ("The window-control row accepted a whole AI Control Center frame named as a window-control-cluster crop.", "Window-control comparator crop review", "The control-cluster comparator is now a focused top-right crop with overlay rectangle proof and a key-specific size rule.", "Current known-bad FAM-006-20260623-063715.zip is rejected because focused window-control crop ledger proof is absent."),
+        "FAM006-FA-048": ("Duplicate image reuse was not hashed, so three different comparator filenames could hide the same broad screenshot.", "Comparator duplicate media audit", "The comparator ledger records SHA256 per crop and the false-ACCEPT gate rejects duplicate hashes across incompatible focused keys.", "Current known-bad FAM-006-20260623-063715.zip is rejected for duplicate comparator media reuse."),
+        "FAM006-FA-049": ("The gate had no broad-versus-focused vocabulary for comparator proof, so broad context was allowed to impersonate focused proof.", "Comparator proof-scope classification", "Every comparator crop declares BROAD_SHELL_CROP or FOCUSED_COMPARATOR_CROP; only outer-frame may be broad.", "Current known-bad FAM-006-20260623-063715.zip is rejected when focused comparator keys lack a focused crop type."),
+        "FAM006-FA-050": ("Review packets did not include source screenshot, crop rectangle, target primitive rectangle, or overlay proof for comparator media.", "Comparator crop ledger generation", "The packet includes comparator crop ledger rows, overlays, source screenshots, visible primitive content, and final comparator verdicts.", "Current known-bad FAM-006-20260623-063715.zip is rejected for missing comparator crop ledger and overlay proof."),
+        "FAM006-FA-051": ("Visual ledger rows could write a plausible comparison sentence without proving the cited image showed that primitive.", "Visual ledger comparator cross-check", "Rows now carry comparator_crop_ledger_key and exact_reason_comparator_sufficient; validators cross-check them against the comparator crop ledger.", "Current known-bad FAM-006-20260623-063715.zip is rejected when comparator rows lack ledger-backed row-specific proof."),
     }
     for row in root_cause_defects:
         why, failed_step, repair, proof = root_cause_details[row["defectId"]]

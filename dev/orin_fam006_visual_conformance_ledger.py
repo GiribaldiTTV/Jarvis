@@ -216,10 +216,12 @@ class VisualLedgerRow:
     primary_packet_evidence_path: str
     comparator_evidence_key: str
     comparator_packet_evidence_path: str
+    comparator_crop_ledger_key: str
     comparator_owner: str
     comparator_proof_scope: str
     comparator_source_truth_rule: str
     row_specific_comparator_finding: str
+    exact_reason_comparator_sufficient: str
     secondary_comparator_trace_path: str
     secondary_fam006_trace_path: str
     code_path: str
@@ -311,6 +313,57 @@ CURRENT_PACKET_REQUIRED_EVIDENCE = {
     "comparator-ai-control-center-button-grammar",
     "comparator-ai-control-center-panel-rhythm",
     "comparator-ai-control-center-status-action-grammar",
+}
+
+COMPARATOR_CROP_RULES = {
+    "comparator-ai-control-center-outer-frame": {
+        "cropType": "BROAD_SHELL_CROP",
+        "minWidth": 520,
+        "minHeight": 560,
+        "maxWidth": 620,
+        "maxHeight": 660,
+        "proofKind": "broad-context-shell-proof",
+    },
+    "comparator-ai-control-center-chrome-header": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 500,
+        "minHeight": 120,
+        "maxWidth": 620,
+        "maxHeight": 190,
+        "proofKind": "focused-proof",
+    },
+    "comparator-ai-control-center-window-control-cluster": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 60,
+        "minHeight": 35,
+        "maxWidth": 130,
+        "maxHeight": 80,
+        "proofKind": "focused-proof",
+    },
+    "comparator-ai-control-center-button-grammar": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 150,
+        "minHeight": 50,
+        "maxWidth": 260,
+        "maxHeight": 110,
+        "proofKind": "focused-proof",
+    },
+    "comparator-ai-control-center-panel-rhythm": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 460,
+        "minHeight": 180,
+        "maxWidth": 550,
+        "maxHeight": 260,
+        "proofKind": "focused-proof",
+    },
+    "comparator-ai-control-center-status-action-grammar": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 460,
+        "minHeight": 170,
+        "maxWidth": 550,
+        "maxHeight": 250,
+        "proofKind": "focused-proof",
+    },
 }
 
 
@@ -718,10 +771,15 @@ def build_rows() -> list[VisualLedgerRow]:
                     primary_packet_evidence_path=primary_packet_path,
                     comparator_evidence_key=comparator_key,
                     comparator_packet_evidence_path=comparator_packet_path,
+                    comparator_crop_ledger_key=comparator_key,
                     comparator_owner="AI Control Center accepted reference evidence / UIREF-001 through UIREF-006",
                     comparator_proof_scope=_comparator_scope_for(str(group)),
                     comparator_source_truth_rule="Docs/nexus_vision.md Product Experience Contract; FAM-002 Desktop Interface grammar; UIREF-001 through UIREF-006 accepted-reference comparator contract",
                     row_specific_comparator_finding=_row_specific_comparator_finding(surface, str(group), comparator_key),
+                    exact_reason_comparator_sufficient=(
+                        f"`{comparator_key}` is sufficient only when packet evidence includes a comparator_crop_ledger row "
+                        f"whose target primitive, crop type, overlay proof, readable crop media, and proof scope match `{_comparator_scope_for(str(group))}`."
+                    ),
                     secondary_comparator_trace_path=_as_posix(comparator),
                     secondary_fam006_trace_path=_as_posix(screenshot),
                     code_path=str(spec["code_path"]),
@@ -918,7 +976,7 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                         f"packet evidence key {key!r} focused crop too small for complete proof: "
                         f"{width}x{height} < {rule['minWidth']}x{rule['minHeight']}"
                     )
-        if key.startswith("comparator-") and target.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+        if key in COMPARATOR_CROP_RULES and target.suffix.lower() in {".png", ".jpg", ".jpeg"}:
             try:
                 from PIL import Image
 
@@ -927,12 +985,104 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
             except Exception as exc:  # noqa: BLE001 - validation reports exact proof failure
                 failures.append(f"comparator evidence key {key!r} image unreadable: {exc}")
             else:
-                if width < 300 or height < 120:
+                rule = COMPARATOR_CROP_RULES[key]
+                if width < int(rule["minWidth"]) or height < int(rule["minHeight"]):
                     failures.append(
-                        f"comparator evidence key {key!r} is too small for row-bound proof: {width}x{height}"
+                        f"comparator evidence key {key!r} is too small for its proof scope: "
+                        f"{width}x{height} < {rule['minWidth']}x{rule['minHeight']}"
+                    )
+                if width > int(rule["maxWidth"]) or height > int(rule["maxHeight"]):
+                    failures.append(
+                        f"comparator evidence key {key!r} is too broad for its proof scope: "
+                        f"{width}x{height} > {rule['maxWidth']}x{rule['maxHeight']}"
                     )
                 if "contact_sheet" in value_text:
                     failures.append(f"comparator evidence key {key!r} points to broad contact sheet instead of focused comparator media")
+    comparator_ledgers = sorted(PACKET_ROOT.glob("Review Aids/Evidence/**/comparator_crop_ledger.json"))
+    comparator_rows_by_key: dict[str, dict[str, object]] = {}
+    if len(comparator_ledgers) != 1:
+        failures.append(f"expected exactly one packet comparator_crop_ledger.json, found {len(comparator_ledgers)}")
+    else:
+        try:
+            comparator_ledger = json.loads(comparator_ledgers[0].read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            failures.append(f"comparator_crop_ledger.json is invalid JSON: {exc}")
+            comparator_ledger = {}
+        if isinstance(comparator_ledger, dict):
+            if comparator_ledger.get("status") != "PASS":
+                failures.append("comparator_crop_ledger.json status is not PASS")
+            duplicate_groups = comparator_ledger.get("duplicateHashGroups")
+            if duplicate_groups:
+                failures.append(f"comparator_crop_ledger.json reports duplicate comparator hashes: {duplicate_groups}")
+            comparator_ledger_rows = comparator_ledger.get("rows", [])
+            if not isinstance(comparator_ledger_rows, list):
+                failures.append("comparator_crop_ledger.json rows is not a list")
+                comparator_ledger_rows = []
+            comparator_rows_by_key = {
+                str(row.get("comparatorEvidenceKey", "")): row
+                for row in comparator_ledger_rows
+                if isinstance(row, dict)
+            }
+            missing_comparator_rows = sorted(set(COMPARATOR_CROP_RULES) - set(comparator_rows_by_key))
+            if missing_comparator_rows:
+                failures.append(
+                    "comparator_crop_ledger.json missing rows: " + ", ".join(missing_comparator_rows)
+                )
+            seen_hashes: dict[str, list[str]] = {}
+            for key, rule in COMPARATOR_CROP_RULES.items():
+                item = comparator_rows_by_key.get(key)
+                if not isinstance(item, dict):
+                    continue
+                if item.get("comparatorCropFile") != row_map.get(key):
+                    failures.append(f"comparator crop ledger row {key} crop file does not match row map")
+                overlay_path = str(item.get("comparatorOverlayProofFile", "")).strip()
+                if not overlay_path:
+                    failures.append(f"comparator crop ledger row {key} missing comparatorOverlayProofFile")
+                elif Path(overlay_path).is_absolute():
+                    failures.append(f"comparator crop ledger row {key} overlay path is absolute")
+                elif not (evidence_root / overlay_path).exists():
+                    failures.append(f"comparator crop ledger row {key} overlay file missing from packet: {overlay_path}")
+                source_path = str(item.get("comparatorSourceScreenshot", "")).strip()
+                if not source_path:
+                    failures.append(f"comparator crop ledger row {key} missing comparatorSourceScreenshot")
+                elif Path(source_path).is_absolute():
+                    failures.append(f"comparator crop ledger row {key} source screenshot is absolute")
+                elif not (evidence_root / source_path).exists():
+                    failures.append(f"comparator crop ledger row {key} source screenshot missing from packet: {source_path}")
+                crop_type = str(item.get("cropType", "")).strip()
+                if crop_type != rule["cropType"]:
+                    failures.append(f"comparator crop ledger row {key} cropType mismatch: {crop_type} != {rule['cropType']}")
+                proof_kind = str(item.get("broadContextOrFocusedProof", "")).strip()
+                if proof_kind != rule["proofKind"]:
+                    failures.append(f"comparator crop ledger row {key} proof kind mismatch: {proof_kind} != {rule['proofKind']}")
+                if item.get("finalComparatorCropVerdict") != "PERFECT_PASS":
+                    failures.append(f"comparator crop ledger row {key} is not PERFECT_PASS")
+                if item.get("contentMatchesEvidenceKey") is not True:
+                    failures.append(f"comparator crop ledger row {key} does not prove contentMatchesEvidenceKey")
+                if item.get("overlayRectangleProofPresent") is not True:
+                    failures.append(f"comparator crop ledger row {key} does not prove overlayRectangleProofPresent")
+                if item.get("readableAtElementLevel") is not True:
+                    failures.append(f"comparator crop ledger row {key} does not prove readableAtElementLevel")
+                crop_size = item.get("cropSize")
+                if not isinstance(crop_size, dict):
+                    failures.append(f"comparator crop ledger row {key} missing cropSize")
+                else:
+                    width = int(crop_size.get("width", 0))
+                    height = int(crop_size.get("height", 0))
+                    if width < int(rule["minWidth"]) or height < int(rule["minHeight"]):
+                        failures.append(f"comparator crop ledger row {key} crop too small: {width}x{height}")
+                    if width > int(rule["maxWidth"]) or height > int(rule["maxHeight"]):
+                        failures.append(f"comparator crop ledger row {key} crop too broad: {width}x{height}")
+                digest = str(item.get("sha256", "")).strip()
+                if not digest:
+                    failures.append(f"comparator crop ledger row {key} missing sha256")
+                else:
+                    seen_hashes.setdefault(digest, []).append(key)
+            for digest, keys in seen_hashes.items():
+                if len(keys) > 1:
+                    failures.append(
+                        f"duplicate comparator media hash {digest[:12]} reused across incompatible keys: {', '.join(keys)}"
+                    )
     current_keys = {row.packet_evidence_key for row in rows if row.final_disposition == "PERFECT_PASS"}
     unmapped = sorted(key for key in current_keys if key and key not in row_map)
     if unmapped:
@@ -972,6 +1122,16 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                 failures.append(f"{row.row_id}: comparator metadata incomplete")
             if row.comparator_evidence_key and row.comparator_evidence_key not in row.row_specific_comparator_finding:
                 failures.append(f"{row.row_id}: row-specific comparator finding does not cite comparator evidence key")
+            if not row.comparator_crop_ledger_key:
+                failures.append(f"{row.row_id}: missing comparator_crop_ledger_key")
+            elif row.comparator_crop_ledger_key != row.comparator_evidence_key:
+                failures.append(f"{row.row_id}: comparator_crop_ledger_key does not match comparator_evidence_key")
+            elif row.comparator_crop_ledger_key not in comparator_rows_by_key:
+                failures.append(f"{row.row_id}: comparator_crop_ledger_key absent from comparator_crop_ledger.json")
+            if not row.exact_reason_comparator_sufficient:
+                failures.append(f"{row.row_id}: missing exact_reason_comparator_sufficient")
+            elif row.comparator_evidence_key and row.comparator_evidence_key not in row.exact_reason_comparator_sufficient:
+                failures.append(f"{row.row_id}: exact_reason_comparator_sufficient does not cite comparator evidence key")
     if manifests:
         try:
             manifest = json.loads(manifests[0].read_text(encoding="utf-8"))

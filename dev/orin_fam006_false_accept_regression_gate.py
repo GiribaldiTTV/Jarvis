@@ -9,6 +9,7 @@ resize proof, clipped crops, or progress-language green claims.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import tempfile
 import zipfile
@@ -26,6 +27,8 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-063715.zip",
+    USER_ROOT / "FAM-006-20260623-063715.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-060525.zip",
     USER_ROOT / "FAM-006-20260623-060525.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-050502.zip",
@@ -210,6 +213,63 @@ REQUIRED_RED_TEAM_DEFECT_CLASSES = {
     "green-comparator-row-missing-evidence-key",
     "uncited-broad-comparator-sheet",
     "row-specific-comparator-finding-missing",
+    "comparator-media-scope-mismatch",
+    "comparator-crop-not-focused",
+    "full-window-comparator-used-as-focused-proof",
+    "duplicate-comparator-media-reused",
+    "comparator-finding-media-mismatch",
+    "comparator-crop-unreadable",
+}
+
+COMPARATOR_CROP_RULES = {
+    "comparator-ai-control-center-outer-frame": {
+        "cropType": "BROAD_SHELL_CROP",
+        "minWidth": 520,
+        "minHeight": 560,
+        "maxWidth": 620,
+        "maxHeight": 660,
+        "proofKind": "broad-context-shell-proof",
+    },
+    "comparator-ai-control-center-chrome-header": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 500,
+        "minHeight": 120,
+        "maxWidth": 620,
+        "maxHeight": 190,
+        "proofKind": "focused-proof",
+    },
+    "comparator-ai-control-center-window-control-cluster": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 60,
+        "minHeight": 35,
+        "maxWidth": 130,
+        "maxHeight": 80,
+        "proofKind": "focused-proof",
+    },
+    "comparator-ai-control-center-button-grammar": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 150,
+        "minHeight": 50,
+        "maxWidth": 260,
+        "maxHeight": 110,
+        "proofKind": "focused-proof",
+    },
+    "comparator-ai-control-center-panel-rhythm": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 460,
+        "minHeight": 180,
+        "maxWidth": 550,
+        "maxHeight": 260,
+        "proofKind": "focused-proof",
+    },
+    "comparator-ai-control-center-status-action-grammar": {
+        "cropType": "FOCUSED_COMPARATOR_CROP",
+        "minWidth": 460,
+        "minHeight": 170,
+        "maxWidth": 550,
+        "maxHeight": 250,
+        "proofKind": "focused-proof",
+    },
 }
 
 REQUIRED_CROP_CONTENT_FIELDS = {
@@ -404,6 +464,14 @@ def _image_size(path: Path) -> tuple[int, int] | None:
             return image.size
     except Exception:
         return None
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest().upper()
 
 
 def _rect_from_mapping(value: Any) -> tuple[int, int, int, int] | None:
@@ -822,6 +890,112 @@ def _crop_key_complete(
     )
 
 
+def _validate_comparator_crop_ledger(
+    root: Path,
+    row_map: dict[str, Any],
+    evidence_root: Path,
+) -> list[str]:
+    failures: list[str] = []
+    ledger_path = _find_one(root, "Review Aids/Evidence/**/comparator_crop_ledger.json")
+    if ledger_path is None:
+        return ["missing comparator_crop_ledger.json"]
+    data, error = _read_json(ledger_path)
+    rows = data.get("rows", []) if isinstance(data, dict) else []
+    if error or not isinstance(data, dict) or not isinstance(rows, list):
+        return [f"invalid comparator_crop_ledger.json: {error}"]
+    if data.get("status") != "PASS":
+        failures.append("comparator crop ledger status is not PASS")
+    if data.get("duplicateHashGroups"):
+        failures.append(f"comparator crop ledger reports duplicate hash groups: {data.get('duplicateHashGroups')}")
+    rows_by_key = {
+        str(row.get("comparatorEvidenceKey", "")): row
+        for row in rows
+        if isinstance(row, dict)
+    }
+    missing_rows = sorted(set(COMPARATOR_CROP_RULES) - set(rows_by_key))
+    if missing_rows:
+        failures.append(f"comparator crop ledger missing rows: {', '.join(missing_rows)}")
+    seen_hashes: dict[str, list[str]] = {}
+    for key, rule in COMPARATOR_CROP_RULES.items():
+        row = rows_by_key.get(key)
+        if not isinstance(row, dict):
+            continue
+        crop_file = str(row.get("comparatorCropFile", "")).strip()
+        if crop_file != str(row_map.get(key, "")).strip():
+            failures.append(f"comparator crop ledger row {key} crop file does not match row map")
+        if not crop_file or Path(crop_file).is_absolute():
+            failures.append(f"comparator crop ledger row {key} crop file is missing or absolute")
+            crop_path = evidence_root / "__missing__"
+        else:
+            crop_path = evidence_root / crop_file
+            if not crop_path.exists():
+                failures.append(f"comparator crop ledger row {key} crop file missing from packet: {crop_file}")
+            elif crop_path.suffix.lower() in {".png", ".jpg", ".jpeg"}:
+                size = _image_size(crop_path)
+                if size is None:
+                    failures.append(f"comparator crop ledger row {key} crop image unreadable")
+                else:
+                    width, height = size
+                    if width < int(rule["minWidth"]) or height < int(rule["minHeight"]):
+                        failures.append(f"comparator crop ledger row {key} crop too small: {width}x{height}")
+                    if width > int(rule["maxWidth"]) or height > int(rule["maxHeight"]):
+                        failures.append(f"comparator crop ledger row {key} crop too broad: {width}x{height}")
+                    actual_hash = _file_sha256(crop_path)
+                    seen_hashes.setdefault(actual_hash, []).append(key)
+                    declared_hash = str(row.get("sha256", "")).strip().upper()
+                    if declared_hash and declared_hash != actual_hash:
+                        failures.append(f"comparator crop ledger row {key} sha256 does not match packet media")
+                    elif not declared_hash:
+                        failures.append(f"comparator crop ledger row {key} missing sha256")
+        overlay = str(row.get("comparatorOverlayProofFile", "")).strip()
+        if not overlay:
+            failures.append(f"comparator crop ledger row {key} missing comparatorOverlayProofFile")
+        elif Path(overlay).is_absolute():
+            failures.append(f"comparator crop ledger row {key} overlay path is absolute")
+        elif not (evidence_root / overlay).exists():
+            failures.append(f"comparator crop ledger row {key} overlay proof missing from packet: {overlay}")
+        source = str(row.get("comparatorSourceScreenshot", "")).strip()
+        if not source:
+            failures.append(f"comparator crop ledger row {key} missing comparatorSourceScreenshot")
+        elif Path(source).is_absolute():
+            failures.append(f"comparator crop ledger row {key} source screenshot path is absolute")
+        elif not (evidence_root / source).exists():
+            failures.append(f"comparator crop ledger row {key} source screenshot missing from packet: {source}")
+        if str(row.get("cropType", "")).strip() != str(rule["cropType"]):
+            failures.append(
+                f"comparator crop ledger row {key} cropType mismatch: {row.get('cropType')} != {rule['cropType']}"
+            )
+        if str(row.get("broadContextOrFocusedProof", "")).strip() != str(rule["proofKind"]):
+            failures.append(
+                f"comparator crop ledger row {key} proof kind mismatch: "
+                f"{row.get('broadContextOrFocusedProof')} != {rule['proofKind']}"
+            )
+        for required in (
+            "targetPrimitive",
+            "proofScope",
+            "visiblePrimitiveContent",
+            "cropRect",
+            "targetPrimitiveRect",
+            "cropSize",
+        ):
+            if required not in row or not str(row.get(required, "")).strip():
+                failures.append(f"comparator crop ledger row {key} missing {required}")
+        if row.get("contentMatchesEvidenceKey") is not True:
+            failures.append(f"comparator crop ledger row {key} contentMatchesEvidenceKey is not true")
+        if row.get("overlayRectangleProofPresent") is not True:
+            failures.append(f"comparator crop ledger row {key} overlayRectangleProofPresent is not true")
+        if row.get("readableAtElementLevel") is not True:
+            failures.append(f"comparator crop ledger row {key} readableAtElementLevel is not true")
+        if row.get("finalComparatorCropVerdict") != "PERFECT_PASS":
+            failures.append(f"comparator crop ledger row {key} is not PERFECT_PASS")
+    for digest, keys in seen_hashes.items():
+        if len(keys) > 1:
+            failures.append(
+                f"duplicate comparator media hash {digest[:12]} reused across incompatible keys: {', '.join(keys)}"
+            )
+    return failures
+
+
 def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures: list[str] = []
     failures.extend(_validate_source_truth_context(root))
@@ -873,6 +1047,18 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                             failures.append(
                                 f"row_to_evidence_map key {key} image too small/clipped: {size[0]}x{size[1]}"
                             )
+                    elif key in COMPARATOR_CROP_RULES:
+                        rule = COMPARATOR_CROP_RULES[key]
+                        if size[0] < int(rule["minWidth"]) or size[1] < int(rule["minHeight"]):
+                            failures.append(
+                                f"comparator evidence key {key} image too small for scope: "
+                                f"{size[0]}x{size[1]} < {rule['minWidth']}x{rule['minHeight']}"
+                            )
+                        if size[0] > int(rule["maxWidth"]) or size[1] > int(rule["maxHeight"]):
+                            failures.append(
+                                f"comparator evidence key {key} image too broad for scope: "
+                                f"{size[0]}x{size[1]} > {rule['maxWidth']}x{rule['maxHeight']}"
+                            )
                     elif key != "contact-sheet" and (size[0] < 220 or size[1] < 60):
                         failures.append(f"row_to_evidence_map key {key} image too small/clipped: {size[0]}x{size[1]}")
 
@@ -902,6 +1088,7 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     if row_map_path is not None and row_map:
         failures.extend(_validate_crop_completeness(row_map, manifest_data, row_map_path.parent))
         failures.extend(_validate_crop_ledger(root, row_map, manifest_data, row_map_path.parent))
+        failures.extend(_validate_comparator_crop_ledger(root, row_map, row_map_path.parent))
 
     if red_team_path is None:
         failures.append("missing internal_visual_red_team_ledger.json")
@@ -1004,10 +1191,12 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                         for field in (
                             "comparator_evidence_key",
                             "comparator_packet_evidence_path",
+                            "comparator_crop_ledger_key",
                             "comparator_owner",
                             "comparator_proof_scope",
                             "comparator_source_truth_rule",
                             "row_specific_comparator_finding",
+                            "exact_reason_comparator_sufficient",
                         ):
                             if not str(row.get(field, "")).strip():
                                 failures.append(f"{row_id}: green comparator row missing {field}")
@@ -1019,6 +1208,12 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                             failures.append(f"{row_id}: broad comparator contact sheet used as row-bound comparator proof")
                         if comparator_key and comparator_key not in comparator_finding:
                             failures.append(f"{row_id}: row-specific comparator finding does not cite comparator evidence key")
+                        ledger_key = str(row.get("comparator_crop_ledger_key", "")).strip()
+                        if ledger_key and ledger_key != comparator_key:
+                            failures.append(f"{row_id}: comparator_crop_ledger_key does not match comparator_evidence_key")
+                        reason = str(row.get("exact_reason_comparator_sufficient", "")).strip()
+                        if comparator_key and reason and comparator_key not in reason:
+                            failures.append(f"{row_id}: exact_reason_comparator_sufficient does not cite comparator evidence key")
                         if comparator_path and not Path(comparator_path).is_absolute():
                             target = row_map_path.parent / comparator_path
                             if not target.exists():
@@ -1027,6 +1222,18 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                                 size = _image_size(target)
                                 if size is None:
                                     failures.append(f"{row_id}: comparator packet media unreadable: {comparator_path}")
+                                elif comparator_key in COMPARATOR_CROP_RULES:
+                                    rule = COMPARATOR_CROP_RULES[comparator_key]
+                                    if size[0] < int(rule["minWidth"]) or size[1] < int(rule["minHeight"]):
+                                        failures.append(
+                                            f"{row_id}: comparator packet media too small for {comparator_key}: "
+                                            f"{size[0]}x{size[1]}"
+                                        )
+                                    if size[0] > int(rule["maxWidth"]) or size[1] > int(rule["maxHeight"]):
+                                        failures.append(
+                                            f"{row_id}: comparator packet media too broad for {comparator_key}: "
+                                            f"{size[0]}x{size[1]}"
+                                        )
                                 elif size[0] < 300 or size[1] < 120:
                                     failures.append(f"{row_id}: comparator packet media too small for row-bound proof: {size[0]}x{size[1]}")
                     for legacy_field in ("comparator_screenshot", "fam006_screenshot"):
