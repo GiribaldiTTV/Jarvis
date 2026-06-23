@@ -49,9 +49,9 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "#020914 / #04101b dark shell",
         "border": "1px restrained cyan, 20px radius",
         "effects": "subtle depth only",
-        "spacing": "860x560 compact two-column settings layout",
-        "hitbox": "top-level window with normal resize baseline",
-        "icon_label": "window title plus product kicker",
+        "spacing": "760x350 compact two-column settings layout",
+        "hitbox": "top-level compact settings window",
+        "icon_label": "window title only",
         "states": "default, dirty, saved",
         "a11y": "window title Global Settings",
         "comparator": "accepted AI Control Center full-window reference",
@@ -89,7 +89,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsChromeBar + residentAccessSettingsBody",
         "role": "integrated settings anatomy",
         "rule": "UIREF-001; UIREF-005",
-        "copy": "Settings",
+        "copy": "Global Settings",
         "font": "header 29px, subtitle 13px",
         "text": "near-white plus muted cyan",
         "background": "dark header to dark body",
@@ -112,7 +112,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::DialogChromeBar title labels",
         "role": "product identity and settings title",
         "rule": "Project Vision; UIREF-001",
-        "copy": "Settings",
+        "copy": "Global Settings",
         "font": "11px kicker, 29px title, 13px subtitle",
         "text": "cyan kicker, near-white title, muted subtitle",
         "background": "transparent on chrome bar",
@@ -194,7 +194,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "Open Quick Access Settings",
         "comparator": "dense settings navigation grammar",
         "proof": "04_left_settings_organizer.png",
-        "checks": "left navigation settings organizer;single actionable page inside Global Settings IA",
+        "checks": "left navigation settings organizer;Tray parent plus Quick Access child settings IA;selectable Tray parent page",
     },
     {
         "id": "F3GS-008",
@@ -240,7 +240,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "change status propagated",
         "comparator": "AI Control Center dense state rows",
         "proof": "01_default_global_settings_shell.png; 06_dirty_quick_access.png",
-        "checks": "single actionable page inside Global Settings IA;no fake overview/status strip;initial saved-state copy;dirty guard state after dropdown edit",
+        "checks": "Tray parent plus Quick Access child settings IA;selectable Tray parent page;no fake overview/status strip;initial saved-state copy;dirty guard state after dropdown edit",
     },
     {
         "id": "F3GS-010",
@@ -263,7 +263,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "heading label",
         "comparator": "settings section title hierarchy",
         "proof": "01_default_global_settings_shell.png",
-        "checks": "single actionable page inside Global Settings IA",
+        "checks": "Tray parent plus Quick Access child settings IA;selectable Tray parent page",
     },
     {
         "id": "F3GS-011",
@@ -286,7 +286,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "Add Quick Access Slot; Restore Default Quick Access Shortcuts",
         "comparator": "NDAI settings control group",
         "proof": "01_default_global_settings_shell.png; 09_defaults_staged.png",
-        "checks": "single actionable page inside Global Settings IA;default semantics stage defaults;max-slot budget rows are unclipped",
+        "checks": "Tray parent plus Quick Access child settings IA;default semantics stage defaults;max-slot budget rows are unclipped",
     },
     {
         "id": "F3GS-012",
@@ -302,8 +302,8 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "dark row",
         "border": "1px muted cyan, 2px left accent, 9px radius",
         "effects": "none",
-        "spacing": "compact 7/4 margins",
-        "hitbox": "row height about 38px",
+        "spacing": "compact 6/2 margins",
+        "hitbox": "row height about 32px",
         "icon_label": "numeric slot label",
         "states": "default, max slots",
         "a11y": "Quick Access Slot N label",
@@ -325,8 +325,8 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "#020b16 dark",
         "border": "1px muted cyan, 10px radius",
         "effects": "hover/focus border",
-        "spacing": "34px min height",
-        "hitbox": "250px min width",
+        "spacing": "23px min height",
+        "hitbox": "164px min width",
         "icon_label": "custom dropdown arrow",
         "states": "default, hover/focus feasible",
         "a11y": "Quick Access Slot N Route",
@@ -371,8 +371,8 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "dark action button",
         "border": "1px muted cyan, round",
         "effects": "hover/focus/pressed",
-        "spacing": "26px buttons",
-        "hitbox": "24-30px compact targets",
+        "spacing": "24px symbolic controls, 54px delete",
+        "hitbox": "22-24px compact targets",
         "icon_label": "symbol controls with accessible names",
         "states": "enabled, disabled, pressed feasible",
         "a11y": "Move/Delete Quick Access Slot",
@@ -585,7 +585,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "a11y": "no inaccessible fake controls",
         "comparator": "accepted minimal settings foundation",
         "proof": "static text scan",
-        "checks": "single actionable page inside Global Settings IA;product-facing copy is compact and non-internal",
+        "checks": "Tray parent plus Quick Access child settings IA;selectable Tray parent page;product-facing copy is compact and non-internal",
     },
     {
         "id": "F3GS-025",
@@ -900,7 +900,8 @@ def _write_fail_capable_defect_ledger(
         "settings shell fills the window intentionally",
         "compact settings product header",
         "left navigation settings organizer",
-        "single actionable page inside Global Settings IA",
+        "selectable Tray parent page",
+        "Tray parent plus Quick Access child settings IA",
         "product-facing copy is compact and non-internal",
         "Nexus UI exposure contract honored",
         "no internal telemetry text",
@@ -915,7 +916,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-        else "V10 settings IA / UI Exposure Contract checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+        else "V11 selectable Tray parent / Quick Access child IA checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -928,8 +929,15 @@ def _write_fail_capable_defect_ledger(
         "| Evidence Layer | Result | Detail |",
         "| --- | --- | --- |",
         "| Structure exists | {result} | {detail} |".format(
-            result="PASS" if check_status.get("single actionable page inside Global Settings IA", False) else "REPAIR",
-            detail=_md_cell(check_detail.get("single actionable page inside Global Settings IA", "")),
+            result="PASS"
+            if check_status.get("Tray parent plus Quick Access child settings IA", False)
+            and check_status.get("selectable Tray parent page", False)
+            else "REPAIR",
+            detail=_md_cell(
+                check_detail.get("Tray parent plus Quick Access child settings IA", "")
+                + "; "
+                + check_detail.get("selectable Tray parent page", "")
+            ),
         ),
         "| Screenshot exists | {result} | {detail} |".format(
             result="PASS" if check_status.get("default screenshot saved", False) else "REPAIR",
@@ -1015,8 +1023,8 @@ def _write_artifact_ledger(
         "## Scope Coverage Manifest",
         "",
         "- Reviewed files: desktop/desktop_renderer.py, desktop/resident_access.py, dev/orin_fam003_settings_repair_visual_validation.py.",
-        "- Reviewed windows/surfaces: Global Settings shell, chrome/control cluster, left organizer, settings overview, Quick Access page, slot rows, dropdown/list, row actions, footer, dirty/default/save/close-guard states.",
-        "- Reviewed artifacts: default screenshot, chrome/control screenshot, focus/pressed screenshot, left organizer screenshot, row-action screenshot, dirty screenshot, dropdown/list screenshot, close-guard screenshot, defaults-staged screenshot, max-slot screenshot, saved-state screenshot, accepted AI Control Center reference screenshots, and contact sheet.",
+        "- Reviewed windows/surfaces: Global Settings shell, chrome/control cluster, left organizer, selectable Tray parent page, Quick Access child page, slot rows, dropdown/list, row actions, footer, dirty/default/save/close-guard states.",
+        "- Reviewed artifacts: default screenshot, chrome/control screenshot, focus/pressed screenshot, left organizer screenshot, Tray parent page screenshot, row-action screenshot, dirty screenshot, dropdown/list screenshot, close-guard screenshot, defaults-staged screenshot, max-slot screenshot, saved-state screenshot, accepted AI Control Center reference screenshots, and contact sheet.",
         "- Excluded: full app-wide settings framework, FAM-006 HUD internals, FAM-007 AI/provider/privacy internals, FAM-008 installer/startup/shortcut/update/packaging behavior, and sibling worktree UI. Exclusion reason: outside current FAM-003 bounded repair.",
         "- Sampling: no element-group sampling inside the owned Global Settings / Quick Access surface; every visible owned/touched element group in that surface has a row below.",
         "",
@@ -1061,8 +1069,8 @@ def _write_artifact_ledger(
                         "Global Settings shell",
                         "chrome/control cluster",
                         "left settings organizer",
-                        "settings overview",
-                        "Quick Access page",
+                        "selectable Tray parent page",
+                        "Quick Access child page",
                         "slot rows",
                         "dropdown/list",
                         "row actions",
@@ -1138,17 +1146,20 @@ def main() -> int:
         state="default Quick Access page",
     )
     light_ratio = _light_pixel_ratio(default_path)
+    default_slot_bottom = dialog.quick_slot_container.mapTo(dialog, QPoint(0, dialog.quick_slot_container.height())).y()
+    default_footer_top = dialog.footer_frame.mapTo(dialog, QPoint(0, 0)).y()
+    default_footer_gap = max(0, default_footer_top - default_slot_bottom)
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 740 <= width <= 790 and 360 <= height <= 385,
+            default_ok and 740 <= width <= 790 and 340 <= height <= 365,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "architecture-first Global Settings geometry",
-            740 <= width <= 790 and 360 <= height <= 385,
+            740 <= width <= 790 and 340 <= height <= 365,
             f"window={width}x{height}; required compact settings shell, not old sparse Quick Access utility form",
         )
     )
@@ -1156,14 +1167,16 @@ def main() -> int:
         (
             "settings shell fills the window intentionally",
             width >= 740
-            and height <= 385
+            and height <= 365
             and 138 <= dialog.nav_shell.width() <= 150
-            and not dialog.primary_nav_rail.isVisible()
+            and dialog.tray_nav_item.isVisible()
+            and dialog.tray_nav_button.isVisible()
             and dialog.subpage_nav_rail.isVisible()
             and dialog.settings_page_frame.isVisible()
             and dialog.quick_slot_container.isVisible()
-            and dialog.quick_slot_container.height() >= 170,
-            f"window={width}x{height}; nav_width={dialog.nav_shell.width()}; primary_visible={dialog.primary_nav_rail.isVisible()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; page_visible={dialog.settings_page_frame.isVisible()}; slot_panel_height={dialog.quick_slot_container.height()}",
+            and dialog.quick_slot_container.height() >= 150
+            and default_footer_gap <= 42,
+            f"window={width}x{height}; nav_width={dialog.nav_shell.width()}; tray_visible={dialog.tray_nav_item.isVisible()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; page_visible={dialog.settings_page_frame.isVisible()}; slot_panel_height={dialog.quick_slot_container.height()}; footer_gap={default_footer_gap}",
         )
     )
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
@@ -1237,29 +1250,53 @@ def main() -> int:
             "left navigation settings organizer",
             nav_ok
             and dialog.nav_shell.isVisible()
-            and not dialog.primary_nav_rail.isVisible()
-            and dialog.primary_tray_button.isChecked()
-            and dialog.primary_tray_button.text() == "\N{GEAR}"
-            and dialog.primary_tray_button.width() <= 24
-            and dialog.primary_tray_button.height() <= 24
-            and dialog.tray_category_label.isVisible()
-            and dialog.tray_category_label.text() == "Tray"
-            and dialog.tray_category_label.property("settingsCategoryRole") == "real-category-no-direct-page"
+            and dialog.tray_nav_item.isVisible()
+            and dialog.tray_nav_item.property("settingsCategoryRole") == "selectable-parent-page"
+            and dialog.tray_nav_item.property("settingsNavDensity") == "slim-parent-row"
+            and dialog.tray_nav_button.text() == "Tray"
             and dialog.subpage_nav_rail.isVisible()
             and dialog.quick_access_nav_button.isChecked()
             and dialog.quick_access_nav_item.isVisible()
             and dialog.quick_access_nav_item.property("settingsNavDensity") == "two-level-subpage-row"
             and dialog.quick_access_nav_item.property("settingsNavIdentity") == "ndai-signal-leaf"
             and dialog.nav_shell.property("settingsShellIdentity") == "ndai-slim-global-settings"
-            and set(dialog._nav_buttons) == {"quick_access"}
+            and set(dialog._nav_buttons) == {"tray", "quick_access"}
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_caption.text() == ""
             and not dialog.quick_access_nav_caption.isVisible()
             and 138 <= dialog.nav_shell.width() <= 150
             and not dialog.nav_boundary.isVisible(),
-            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; primary_visible={dialog.primary_nav_rail.isVisible()}; category={dialog.tray_category_label.text()!r}/{dialog.tray_category_label.isVisible()}; checked={dialog.quick_access_nav_button.isChecked()}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
+            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
         )
     )
+
+    dialog.set_focus("tray")
+    app.processEvents()
+    tray_parent_path = log_dir / "05_tray_parent_page.png"
+    tray_parent_ok, _, _ = _capture(
+        dialog,
+        tray_parent_path,
+        artifacts,
+        surface="Tray parent settings page",
+        state="Tray selected",
+    )
+    rows.append(("Tray parent page screenshot saved", tray_parent_ok, str(tray_parent_path)))
+    rows.append(
+        (
+            "selectable Tray parent page",
+            dialog._focus == "tray"
+            and dialog.tray_nav_button.isChecked()
+            and not dialog.quick_access_nav_button.isChecked()
+            and dialog.section_heading.text() == "Tray"
+            and dialog.tray_overview_container.isVisible()
+            and not dialog.quick_slot_container.isVisible()
+            and dialog.tray_quick_access_title.text() == "Quick Access"
+            and dialog.tray_quick_access_open.text() == "Open",
+            f"focus={dialog._focus}; heading={dialog.section_heading.text()!r}; tray_checked={dialog.tray_nav_button.isChecked()}; quick_checked={dialog.quick_access_nav_button.isChecked()}; overview={dialog.tray_overview_container.isVisible()}; quick_panel={dialog.quick_slot_container.isVisible()}",
+        )
+    )
+    dialog.set_focus("quick_access")
+    app.processEvents()
 
     button_texts = [button.text().replace("&&", "&") for button in dialog.findChildren(QPushButton)]
     compact_action_buttons = [
@@ -1269,29 +1306,33 @@ def main() -> int:
     ]
     rows.append(
         (
-            "single actionable page inside Global Settings IA",
+            "Tray parent plus Quick Access child settings IA",
             dialog.section_heading.text() == "Quick Access"
             and dialog.section_badge.text() == "Tray"
             and not dialog.section_badge.isVisible()
             and not dialog.section_detail.isVisible()
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-category-quick-access-subpage-v10"
-            and dialog.property("settingsVisualRepair") == "settings-ia-exposure-contract-v10"
-            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v10"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-selectable-tray-parent-quick-access-child-v11"
+            and dialog.property("settingsVisualRepair") == "settings-ia-self-adjudication-v11"
+            and dialog.property("referenceDerivedHeader") == "compact-ndai-settings-window-frame-v11"
             and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
-            and set(dialog._nav_buttons) == {"quick_access"}
-            and dialog.tray_category_label.text() == "Tray"
+            and set(dialog._nav_buttons) == {"tray", "quick_access"}
+            and dialog.tray_nav_item.property("settingsCategoryRole") == "selectable-parent-page"
+            and dialog.tray_nav_button.text() == "Tray"
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_button.isChecked()
             and dialog.slot_count_badge.text() == f"{len(DEFAULT_QUICK_SLOT_ROUTE_IDS)}/{active_slot_limit} slots"
+            and dialog.slot_count_badge.isVisible()
+            and not dialog.tray_overview_container.isVisible()
+            and dialog.quick_slot_container.isVisible()
             and dialog.settings_page_frame.objectName() == "residentAccessSettingsPageFrame"
             and dialog.settings_state_chip.text() == "Saved"
             and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
             and not dialog.route_summary.isVisible(),
-            f"heading={dialog.section_heading.text()!r}; category={dialog.tray_category_label.text()!r}; section_badge_visible={dialog.section_badge.isVisible()}; detail_visible={dialog.section_detail.isVisible()}; slot_badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}; route_visible={dialog.route_summary.isVisible()}",
+            f"heading={dialog.section_heading.text()!r}; category={dialog.tray_nav_button.text()!r}; section_badge_visible={dialog.section_badge.isVisible()}; detail_visible={dialog.section_detail.isVisible()}; slot_badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}; route_visible={dialog.route_summary.isVisible()}",
         )
     )
     stale_product_text = {
@@ -1314,7 +1355,6 @@ def main() -> int:
         "Down",
         "Quick Access Slots",
         "Rows appear in tray order. Use Save Changes to apply them.",
-        "Save Changes",
         "Add Slot",
         "Remove",
         "(unavailable)",
@@ -1337,8 +1377,10 @@ def main() -> int:
         dialog.chrome_bar.title_label.text(),
         dialog.chrome_bar.subtitle_label.text(),
         " ".join(role_text),
-        dialog.primary_tray_button.text() if dialog.primary_tray_button.text() != "\N{GEAR}" else "",
-        dialog.tray_category_label.text(),
+        dialog.tray_nav_button.text(),
+        dialog.tray_quick_access_title.text() if dialog.tray_overview_container.isVisible() else "",
+        dialog.tray_quick_access_detail.text() if dialog.tray_overview_container.isVisible() else "",
+        dialog.tray_quick_access_open.text() if dialog.tray_overview_container.isVisible() else "",
         dialog.quick_access_nav_button.text(),
         dialog.quick_access_nav_caption.text() if dialog.quick_access_nav_caption.isVisible() else "",
         dialog.settings_state_chip.text(),
@@ -1644,6 +1686,7 @@ def main() -> int:
             ("Accepted reference - close hover", REFERENCE_SCREENSHOTS[1][1]),
             ("Repaired FAM-003 - settings shell", default_path),
             ("Repaired FAM-003 - settings organizer", log_dir / "04_left_settings_organizer.png"),
+            ("Repaired FAM-003 - Tray parent page", log_dir / "05_tray_parent_page.png"),
             ("Repaired FAM-003 - dropdown/list state", log_dir / "07_dropdown_list_state.png"),
             ("Repaired FAM-003 - dirty/save controls", log_dir / "06_dirty_quick_access.png"),
         ],
