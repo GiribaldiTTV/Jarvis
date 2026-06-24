@@ -94,7 +94,8 @@ and clean post-commit/post-push Git proof when helper/source changes were
 committed. For the current branch selection, A2 revised preserves `TARGET -
 Default Overlay Profile`, `STATE - Ready - 2 active monitors`, no bottom helper
 copy, ACTION-002 `OPEN LOG VIEWER STUDIO`, and a compact/tight bottom action row
-with no oversized control well, giant padded slab, or button dead-zone; B2
+with no oversized control well, giant padded slab, visible bottom dead-space, or
+button dead-zone; B2
 preserves same-session moved position with restart reset near parent; the
 corrected Log Viewer selection is a LOG-A-derived doorway shell with `VIEWER -
 Deferred`, bottom `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` actions, no
@@ -104,7 +105,11 @@ Recording Studio, no direct exported-log opening from Recording Studio, and no
 full-viewer workspace implication. C2 inline/right-aligned row-action layout is
 rejected as selected direction because it implies row-level Log Viewer
 data/functionality before the current branch implements a real viewer data
-surface.
+surface. Selected Recording Studio and Log Viewer doorway evidence must also
+prove accepted compact window-control/chrome grammar against AI Control Center /
+HUD Dashboard references; a large labeled window-control pill, mismatched
+minimize/close cluster, or missing chrome comparison keeps the selected packet in
+`REPAIR`.
 
 ## Relationship To FAM-006
 

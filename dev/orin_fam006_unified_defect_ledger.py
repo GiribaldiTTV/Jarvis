@@ -74,6 +74,7 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260624-132551.zip",
     "FAM-006-20260624-135010.zip",
     "FAM-006-20260624-142638.zip",
+    "FAM-006-20260624-145849.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -86,6 +87,7 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260624-132551.zip": "DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE",
     "FAM-006-20260624-135010.zip": "46008863B7BFE9E4D3B0028AC84A5B62DED4CC30621FAA0BB9311BEEB53F396D",
     "FAM-006-20260624-142638.zip": "3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D",
+    "FAM-006-20260624-145849.zip": "3C5C49B73B9CF7EDD4F86F02610E3C8C845550245D1E10E19CA0221BBC6B843A",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -669,6 +671,31 @@ def seed_defects() -> list[dict[str, Any]]:
                 "linked UDL IDs added/reopened: FAM006-UDL-018, FAM006-UDL-019, FAM006-UDL-020, FAM006-UDL-021, and FAM006-UDL-022; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-023",
+            origin="USER/ChatGPT",
+            title="Selected-direction packet still allowed bottom dead-space and mismatched window chrome",
+            exact_user_wording="FAM-006-20260624-145849.zip still cannot be accepted because A2 and the corrected Log Viewer doorway retain visible bottom dead space/control-row heaviness and the child-window control pill/chrome does not visually match the accepted AI Control Center / HUD Dashboard grammar.",
+            expected="Selected visual-direction evidence must show A2 as a compact COMPACT_CONTROLLER with no large dead zone under the final row, no oversized control well, and child-window chrome/control pill matching the accepted AI Control Center / HUD Dashboard compact icon-pill grammar. The selected Log Viewer doorway must be a tight DOORWAY_SHELL around `VIEWER - Deferred` and bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions, with no oversized empty panel and matching control-pill chrome.",
+            actual="The 145849 packet improved label fit and removed product-surface helper copy, but the selected renders still read too open/tall around the final action rows and still did not provide explicit control-pill comparison proof against accepted AI Control Center / HUD Dashboard grammar.",
+            evidence="Known-bad packet FAM-006-20260624-145849.zip SHA 3C5C49B73B9CF7EDD4F86F02610E3C8C845550245D1E10E19CA0221BBC6B843A; USER/ChatGPT REPAIR verdict on selected-direction visual repair / window chrome + bottom dead-space.",
+            surfaces="FAM-006 USER packet; A2 selected render; selected Log Viewer doorway render; window-control/chrome comparison; bottom dead-space comparison; external full_desktop_false_green_review_manifest.json.",
+            root_cause="The packet helper treated reduced dimensions and selected-direction text as enough proof, but did not enforce a visible bottom-dead-space threshold or require explicit accepted-reference chrome comparison media.",
+            validator_gap="No hard failure for visible bottom dead space beneath final actions, oversized shell height for selected doorway/controller roles, or selected-render control pill/chrome mismatch without reference comparison proof.",
+            repair_target="Admit 145849 as known-bad, require selected render contract proof for bottom dead-space and compact shell height, require AI Control Center compact control-pill chrome proof, and include bottom-dead-space / chrome comparison boards in the USER packet.",
+            acceptance="FAM-006 gates fail when selected A2 or Log Viewer renders exceed compact shell/dead-space limits, omit accepted control-pill proof, use mismatched labeled window controls, or omit packet-contained visual comparison boards for bottom dead-space and chrome.",
+            proof="dev/orin_fam006_full_desktop_false_green_review.py validates 145849 known-bad corpus copy, selected_render_contract.json bottomDeadSpacePx/shellHeightPx/windowChrome fields, packet-contained window_control_pill_comparison_board.png, and bottom_dead_space_comparison_board.png.",
+            status="CLOSED_WITH_PROOF",
+            closure="145849 is admitted as known-bad; the repaired helper renders tighter A2 and Log Viewer selected shells, replaces labeled chrome with compact icon-pill chrome, writes explicit dead-space/chrome contract fields, and requires comparison boards.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-023: inspected adjacent surfaces/files `dev/orin_fam006_full_desktop_false_green_review.py`, "
+                "`dev/orin_fam006_unified_defect_ledger.py`, `dev/orin_fam006_false_accept_regression_gate.py`, `Docs/family_feature_visions/FAM-006_recording.md`, "
+                "`Docs/validation_helper_registry.md`, active USER packet layout, and external manifest receipt; adjacent behavior inspected: A2 shell height, A2 final-row bottom spacing, "
+                "Log Viewer doorway shell height, Log Viewer final-row bottom spacing, accepted control-pill chrome comparison, validation contract fields, known-bad corpus replay, and packet media inclusion; "
+                "additional adjacent defects found: none beyond the 145849 bottom-dead-space / chrome false-green class and already linked FAM006-UDL-018 / FAM006-UDL-019 / FAM006-UDL-020 / FAM006-UDL-021 / FAM006-UDL-022; "
+                "linked UDL IDs added/reopened: FAM006-UDL-018 through FAM006-UDL-023; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
+            ),
+        ),
     ]
 
 
@@ -968,6 +995,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require selected_render_contract.json, compact A2 bottom row, no Log Viewer helper/proof copy inside product surface, broader command-output validation records, and known-bad 142638 replay.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-022", "FAM006-UDL-021", "FAM006-UDL-020"],
+        ),
+        _incident(
+            "FAM006-FGI-018",
+            packet="FAM-006-20260624-145849.zip",
+            sha256="3C5C49B73B9CF7EDD4F86F02610E3C8C845550245D1E10E19CA0221BBC6B843A",
+            head="2ee7737daf1137e6d5e01fb830662fac4cb71596",
+            codex_claim="FAM-006 selected-direction packet was ACCEPT / reviewable after A2 label fit, Log Viewer proof-copy removal, and validation-output evidence repairs.",
+            rejection="USER/ChatGPT rejected the packet because A2 and Log Viewer still had too much bottom dead space/control-row heaviness and their child-window chrome/control pills did not visually match the accepted AI Control Center / HUD Dashboard grammar.",
+            validator_failed="FAM-006 full-desktop false-green packet helper before explicit bottom-dead-space thresholds, compact shell-height limits, and accepted-reference window-control comparison boards.",
+            artifact="Review Aids/Evidence/Options/a2_nested_card_inheritance.png, Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png, selected_render_contract.json, and missing chrome/dead-space comparison boards inside FAM-006-20260624-145849.zip.",
+            ledger_row="FAM006-UDL-023",
+            comparator="The packet improved selected semantics but still did not prove compact controller/doorway shell geometry or accepted AI Control Center-style icon-pill chrome.",
+            prevention="Require 145849 known-bad replay, selected_render_contract.json bottomDeadSpacePx/shellHeightPx/windowChrome fields, window_control_pill_comparison_board.png, and bottom_dead_space_comparison_board.png.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-023", "FAM006-UDL-022", "FAM006-UDL-021"],
         ),
     ]
     for row in rows:

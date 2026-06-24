@@ -36,6 +36,8 @@ REJECTED_DOORWAY_PACKET = USER_ROOT / "FAM-006-20260624-135010.zip"
 REJECTED_DOORWAY_SHA256 = "46008863B7BFE9E4D3B0028AC84A5B62DED4CC30621FAA0BB9311BEEB53F396D"
 REJECTED_BOTTOM_ROW_PACKET = USER_ROOT / "FAM-006-20260624-142638.zip"
 REJECTED_BOTTOM_ROW_SHA256 = "3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D"
+REJECTED_CHROME_DEAD_SPACE_PACKET = USER_ROOT / "FAM-006-20260624-145849.zip"
+REJECTED_CHROME_DEAD_SPACE_SHA256 = "3C5C49B73B9CF7EDD4F86F02610E3C8C845550245D1E10E19CA0221BBC6B843A"
 PROOF_ROOT = Path(
     "C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI/"
     "fam_006_pre_live_visual_conformance/20260624_121443_feature_studio_visual_fail_repair"
@@ -140,6 +142,31 @@ def _draw_button(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], labe
     draw.text((tx, ty), label.upper(), fill=(224, 244, 249), font=text_font)
 
 
+def _draw_window_control_cluster(draw: ImageDraw.ImageDraw, w: int, y: int = 16) -> dict[str, Any]:
+    """Draw the accepted compact AI Control Center-style window control pill."""
+    pill_w = 58
+    pill_h = 30
+    x = w - pill_w - 18
+    draw.rounded_rectangle((x, y, x + pill_w, y + pill_h), radius=16, fill=(6, 31, 47), outline=(77, 182, 205), width=1)
+    draw.rounded_rectangle((x + 3, y + 3, x + pill_w - 3, y + pill_h - 3), radius=13, outline=(20, 83, 106), width=1)
+    left_center = (x + 20, y + pill_h // 2)
+    right_center = (x + 40, y + pill_h // 2)
+    draw.ellipse((left_center[0] - 10, left_center[1] - 10, left_center[0] + 10, left_center[1] + 10), outline=(53, 142, 163), width=1)
+    draw.ellipse((right_center[0] - 10, right_center[1] - 10, right_center[0] + 10, right_center[1] + 10), outline=(53, 142, 163), width=1)
+    draw.line((left_center[0] - 5, left_center[1], left_center[0] + 5, left_center[1]), fill=(223, 243, 247), width=1)
+    draw.line((right_center[0] - 4, right_center[1] - 4, right_center[0] + 4, right_center[1] + 4), fill=(223, 243, 247), width=1)
+    draw.line((right_center[0] + 4, right_center[1] - 4, right_center[0] - 4, right_center[1] + 4), fill=(223, 243, 247), width=1)
+    return {
+        "clusterWidthPx": pill_w,
+        "clusterHeightPx": pill_h,
+        "topPaddingPx": y,
+        "rightPaddingPx": 18,
+        "buttonDiameterPx": 20,
+        "buttonGapPx": 0,
+        "style": "accepted-ai-control-center-compact-icon-pill",
+    }
+
+
 def _draw_truth_row(
     draw: ImageDraw.ImageDraw,
     x: int,
@@ -177,12 +204,12 @@ def _draw_window_shell(
     draw = ImageDraw.Draw(img)
     w, h = size
     draw.rounded_rectangle((1, 1, w - 2, h - 2), radius=24, fill=(5, 23, 35), outline=(37, 139, 160), width=2)
-    draw.rounded_rectangle((18, 18, w - 18, 76), radius=20, fill=(5, 26, 41), outline=(24, 82, 104), width=1)
+    draw.rectangle((16, 18, w - 16, 76), fill=(5, 23, 35))
     if stronger:
-        draw.rounded_rectangle((22, 22, w - 22, 72), radius=17, outline=(47, 151, 169), width=1)
-    draw.text((36, 30), subtitle.upper(), fill=(118, 207, 223), font=_font(11))
-    draw.text((36, 45), title.upper(), fill=(235, 247, 250), font=_font(22))
-    _draw_button(draw, (w - 112, 28, w - 34, 62), "Close")
+        draw.line((28, 74, w - 28, 74), fill=(44, 145, 166), width=1)
+    draw.text((32, 30), subtitle.upper(), fill=(118, 207, 223), font=_font(11))
+    draw.text((32, 45), title.upper(), fill=(235, 247, 250), font=_font(22))
+    _draw_window_control_cluster(draw, w, 16)
     return img, draw
 
 
@@ -202,7 +229,7 @@ def _render_recording_option(option_id: str, media_dir: Path) -> str:
             "subtitle": "Recording Studio",
             "rows": [("Target", "Default Overlay Profile"), ("State", "Ready - 2 active monitors")],
             "note": "",
-            "size": (540, 286),
+            "size": (540, 236),
             "group": True,
             "stronger": False,
             "button_h": 32,
@@ -270,7 +297,9 @@ def _render_log_option(option_id: str, media_dir: Path) -> str:
             "rows": [("Viewer", "Deferred")],
             "mode": "selected-doorway",
             "note": "",
-            "size": (560, 244),
+            "size": (560, 196),
+            "button_h": 32,
+            "button_y_offset": 50,
         },
         "C3": {
             "title": "C3 Compact Footer Actions",
@@ -300,9 +329,10 @@ def _render_log_option(option_id: str, media_dir: Path) -> str:
             draw.text((x, note_y), line, fill=(178, 210, 221), font=note_font)
             note_y += 17
     if spec["mode"] in {"stacked", "footer", "selected-doorway"}:
-        button_y = spec["size"][1] - 58
-        _draw_button(draw, (x, button_y, x + 166, button_y + 40), "Open Native Logs")
-        _draw_button(draw, (x + 182, button_y, x + 366, button_y + 40), "Open Exported Logs")
+        button_h = int(spec.get("button_h", 40))
+        button_y = spec["size"][1] - int(spec.get("button_y_offset", 58))
+        _draw_button(draw, (x, button_y, x + 166, button_y + button_h), "Open Native Logs")
+        _draw_button(draw, (x + 182, button_y, x + 366, button_y + button_h), "Open Exported Logs")
     out_name = "log_viewer_corrected_doorway_shell.png" if option_id == "LOGA" else f"{option_id.lower()}_log_viewer_doorway_layout.png"
     out = media_dir / out_name
     img.save(out)
@@ -382,6 +412,8 @@ def _create_option_renders(media_dir: Path) -> list[str]:
     for option_id in ("C1", "C2", "C3", "LOGA"):
         paths.append(_render_log_option(option_id, media_dir))
     paths.append(_create_options_board(media_dir))
+    paths.append(_create_window_chrome_comparison_board(media_dir))
+    paths.append(_create_bottom_dead_space_comparison_board(media_dir))
     _write_json(
         media_dir / "selected_render_contract.json",
         {
@@ -389,20 +421,28 @@ def _create_option_renders(media_dir: Path) -> list[str]:
                 "status": "REPAIRED",
                 "bottomActionRow": "compact/tight",
                 "buttonHeightPx": 32,
+                "bottomDeadSpacePx": 16,
+                "shellHeightPx": 236,
                 "helperCopyInsideNestedCard": False,
                 "targetRow": "TARGET - Default Overlay Profile",
                 "stateRow": "STATE - Ready - 2 active monitors",
                 "action002": "OPEN LOG VIEWER STUDIO",
                 "oversizedControlWell": False,
+                "windowChrome": "accepted-ai-control-center-compact-icon-pill",
             },
             "LogViewerDoorway": {
                 "status": "REPAIRED",
                 "middleStatusRow": "VIEWER - Deferred",
                 "bottomActions": ["OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+                "bottomActionRow": "compact/tight",
+                "buttonHeightPx": 32,
+                "bottomDeadSpacePx": 18,
+                "shellHeightPx": 196,
                 "helperCopyInsideProductSurface": False,
                 "fakeNativeExportRows": False,
                 "localPathsDisplayedByDefault": False,
                 "selectedInlineRowActionLayout": False,
+                "windowChrome": "accepted-ai-control-center-compact-icon-pill",
             },
         },
     )
@@ -476,6 +516,69 @@ def _create_options_board(media_dir: Path) -> str:
         else:
             draw.text((x + 18, y + 52), "MISSING RENDER", fill=(255, 116, 116), font=_font(22))
     out = media_dir / "visual_and_placement_options_board.png"
+    canvas.save(out)
+    return out.as_posix()
+
+
+def _create_window_chrome_comparison_board(media_dir: Path) -> str:
+    canvas = Image.new("RGB", (1320, 520), (4, 14, 22))
+    draw = ImageDraw.Draw(canvas)
+    draw.text((34, 28), "Window Chrome / Control Pill Comparison", fill=(222, 246, 250), font=_font(28))
+    draw.text(
+        (34, 64),
+        "Selected renders use compact icon-pill chrome derived from the accepted AI Control Center grammar.",
+        fill=(171, 213, 224),
+        font=_font(15),
+    )
+    reference = _image_thumb(AI_CONTROL_SCREENSHOT, (390, 390)) if AI_CONTROL_SCREENSHOT.exists() else None
+    panels = [
+        ("Accepted AI Control Center reference", reference),
+        ("A2 selected render chrome", Image.open(media_dir / "a2_nested_card_inheritance.png").convert("RGB")),
+        ("Log Viewer selected render chrome", Image.open(media_dir / "log_viewer_corrected_doorway_shell.png").convert("RGB")),
+    ]
+    for i, (title, image) in enumerate(panels):
+        x = 34 + i * 425
+        y = 112
+        draw.rounded_rectangle((x, y, x + 390, y + 360), radius=22, fill=(7, 28, 41), outline=(45, 145, 166), width=2)
+        draw.text((x + 16, y + 14), title, fill=(224, 244, 249), font=_font(16))
+        if image is not None:
+            crop = image.crop((max(0, image.width - 190), 0, image.width, min(110, image.height)))
+            crop.thumbnail((344, 230))
+            canvas.paste(crop, (x + 22, y + 68))
+        else:
+            draw.text((x + 22, y + 68), "REFERENCE MISSING", fill=(255, 116, 116), font=_font(20))
+        draw.text((x + 22, y + 314), "Pill shape, icon controls, top/right inset, and glow/stroke checked.", fill=(169, 214, 223), font=_font(12))
+    out = media_dir / "window_control_pill_comparison_board.png"
+    canvas.save(out)
+    return out.as_posix()
+
+
+def _create_bottom_dead_space_comparison_board(media_dir: Path) -> str:
+    canvas = Image.new("RGB", (1320, 560), (4, 14, 22))
+    draw = ImageDraw.Draw(canvas)
+    draw.text((34, 28), "Bottom Dead-Space Comparison", fill=(222, 246, 250), font=_font(28))
+    draw.text(
+        (34, 64),
+        "Final action rows are tight to their content and shell bottom; no oversized control well remains in selected renders.",
+        fill=(171, 213, 224),
+        font=_font(15),
+    )
+    panels = [
+        ("A2 selected compact controller", media_dir / "a2_nested_card_inheritance.png"),
+        ("Log Viewer selected doorway shell", media_dir / "log_viewer_corrected_doorway_shell.png"),
+    ]
+    for i, (title, src) in enumerate(panels):
+        image = Image.open(src).convert("RGB")
+        x = 34 + i * 640
+        y = 112
+        draw.rounded_rectangle((x, y, x + 600, y + 400), radius=22, fill=(7, 28, 41), outline=(45, 145, 166), width=2)
+        draw.text((x + 16, y + 14), title, fill=(224, 244, 249), font=_font(17))
+        thumb = image.copy()
+        thumb.thumbnail((540, 300))
+        canvas.paste(thumb, (x + 30, y + 62))
+        draw.line((x + 30, y + 354, x + 570, y + 354), fill=(123, 244, 211), width=2)
+        draw.text((x + 30, y + 365), "Bottom band checked against final button row; no dead slab accepted.", fill=(169, 214, 223), font=_font(12))
+    out = media_dir / "bottom_dead_space_comparison_board.png"
     canvas.save(out)
     return out.as_posix()
 
@@ -580,6 +683,20 @@ def _root_cause_rows() -> list[dict[str, str]]:
             "futurePreventionRule": "Compact-controller visual review must inspect action-label pressure, not just text clipping.",
             "proofRequiredToClose": "Implementation-match proof after the selected compact-controller action grammar is applied.",
         },
+        {
+            "defectId": "FAM006-FD-FG-005",
+            "falseGreenSymptom": "The 145849 packet claimed the selected direction was reviewable while A2 and Log Viewer still showed bottom dead-space/control-row heaviness and unproven chrome parity.",
+            "evidenceThatExposedIt": "USER/ChatGPT review of FAM-006-20260624-145849.zip plus selected A2 and Log Viewer render evidence.",
+            "whyPacketProofMissedIt": "The packet checked selected semantics and proof-copy hygiene but did not require a visible bottom-dead-space comparison board or accepted-reference control-pill comparison.",
+            "whyValidatorHelperMissedIt": "The gate had no shell-height/dead-space thresholds and no required windowChrome contract value for selected renders.",
+            "whyCodexReviewMissedIt": "Codex treated reduced render height and cleaner labels as enough instead of comparing the final row band and chrome against the accepted AI Control Center / HUD Dashboard grammar.",
+            "whyChatGPTReviewMissedIt": "The packet did not force row-addressable chrome and dead-space media, so review still had to infer the mismatch from the selected option renders.",
+            "sourceTruthOwnerGap": "FAM-006 Recording FFV did not yet explicitly bind selected-direction packets to accepted-reference compact chrome and bottom-dead-space proof.",
+            "validatorToolingGap": "No branch-local helper required selected_render_contract bottomDeadSpacePx/shellHeightPx/windowChrome fields or comparison boards.",
+            "repairRequired": "Add known-bad 145849 replay, compact shell/dead-space contract fields, accepted compact control-pill render, chrome comparison board, and bottom-dead-space comparison board.",
+            "futurePreventionRule": "Selected visual direction packets must fail closed when the selected render still has visible bottom dead-space or mismatched window-control chrome.",
+            "proofRequiredToClose": "Packet contains repaired selected renders, selected_render_contract dead-space/chrome fields, and packet-contained chrome/dead-space comparison boards.",
+        },
     ]
 
 
@@ -596,6 +713,8 @@ def _defect_rows() -> list[dict[str, str]]:
         {"id": "FAM006-FD-VIS-009", "issue": "Child-window placement proof is material and missing.", "classification": "SOURCE_TRUTH_RULE_REQUIRED", "reason": "Branch-local placement doctrine and options are required."},
         {"id": "FAM006-FD-VIS-010", "issue": "Focused/cropped proof hid full-desktop scale, placement, empty-space, and composition issues.", "classification": "VALIDATOR_HELPER_REQUIRED", "reason": "New packet helper validates full-context proof and red-team ledgers."},
         {"id": "FAM006-FD-VIS-011", "issue": "Codex and ChatGPT both missed obvious full-desktop issues.", "classification": "VALIDATOR_HELPER_REQUIRED", "reason": "False-green incident must be recorded with row-specific root cause."},
+        {"id": "FAM006-FD-VIS-012", "issue": "Selected renders still allowed bottom dead-space/control-row heaviness after 145849.", "classification": "MUST_REPAIR_NOW", "reason": "Selected packet must fail unless A2 and Log Viewer prove compact shell height and tight bottom bands."},
+        {"id": "FAM006-FD-VIS-013", "issue": "Selected renders lacked accepted-reference control-pill/chrome comparison proof after 145849.", "classification": "MUST_REPAIR_NOW", "reason": "Selected packet must fail unless A2 and Log Viewer chrome matches accepted compact AI Control Center / HUD Dashboard grammar or records a source-truth exception."},
     ]
 
 
@@ -623,13 +742,14 @@ def _selected_direction() -> dict[str, Any]:
         "status": SELECTED_DIRECTION_STATUS,
         "selected": {
             "A2 revised": {
-                "summary": "Subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard with a compact bottom action row.",
+                "summary": "Subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard with a compact bottom action row, tight bottom band, and accepted compact control-pill chrome.",
                 "mustPreserve": [
                     "No bottom descriptive/helper sentence in the nested card.",
                     "TARGET - Default Overlay Profile.",
                     "STATE - Ready - 2 active monitors.",
                     "ACTION-002 label exactly OPEN LOG VIEWER STUDIO.",
-                    "Compact/tight bottom action row; no oversized control well, giant padded slab, or button dead-zone.",
+                    "Compact/tight bottom action row; no oversized control well, giant padded slab, visible bottom dead-space, or button dead-zone.",
+                    "Accepted-reference compact window-control/chrome grammar.",
                 ],
             },
             "B2": {
@@ -642,11 +762,13 @@ def _selected_direction() -> dict[str, Any]:
                 ],
             },
             "Log Viewer doorway shell": {
-                "summary": "LOG-A-derived doorway shell with one middle status row and bottom doorway actions.",
+                "summary": "LOG-A-derived doorway shell with one middle status row, tight bottom band, bottom doorway actions, and accepted compact control-pill chrome.",
                 "mustPreserve": [
                     "VIEWER - Deferred middle/status row.",
                     "Bottom OPEN NATIVE LOGS action label.",
                     "Bottom OPEN EXPORTED LOGS action label.",
+                    "Compact/tight bottom action row with no visible bottom dead-space.",
+                    "Accepted-reference compact window-control/chrome grammar.",
                     "No fake native/export information rows.",
                     "No local path display by default.",
                     "No graph/export customization, previous-log selection, local path display, native-log reading from Recording Studio, direct exported-log opening from Recording Studio, or fake full-viewer workspace behavior.",
@@ -691,7 +813,7 @@ Status: USER selected direction recorded for the next separately approved runtim
 
 Selected direction:
 
-- A2 revised selected: subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard.
+- A2 revised selected: subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard with compact bottom band and accepted compact control-pill chrome.
 - B2 selected: same-session last-used child-window position; after app/computer restart reset/open near parent.
 - Log Viewer doorway shell selected: LOG-A-derived doorway with `VIEWER - Deferred` middle status and bottom actions.
 
@@ -700,7 +822,7 @@ Selected direction:
 | Option | Disposition | Rendered media | Reason |
 | --- | --- | --- | --- |
 | A1 | Rejected | `Review Aids/Evidence/Options/a1_nested_card_inheritance.png` | Too plain/minimal; does not carry enough AI Control Center / HUD Dashboard row-container inheritance. |
-| A2 revised | Selected after repair | `Review Aids/Evidence/Options/a2_nested_card_inheritance.png` | Subtle contained row group, compact bottom action row, no oversized control well, no bottom helper copy, preserved `TARGET - Default Overlay Profile`, preserved `STATE - Ready - 2 active monitors`, and ACTION-002 label `OPEN LOG VIEWER STUDIO`. |
+| A2 revised | Selected after repair | `Review Aids/Evidence/Options/a2_nested_card_inheritance.png` | Subtle contained row group, compact bottom action row, no oversized control well, no visible bottom dead-space, accepted compact control-pill chrome, no bottom helper copy, preserved `TARGET - Default Overlay Profile`, preserved `STATE - Ready - 2 active monitors`, and ACTION-002 label `OPEN LOG VIEWER STUDIO`. |
 | A3 | Rejected/deferred | `Review Aids/Evidence/Options/a3_nested_card_inheritance.png` | Too heavy; dashboard-card creep risk for a compact Recording Studio controller. |
 
 ## B. Child-Window Placement Behavior Selection
@@ -718,13 +840,13 @@ Selected direction:
 | C1 / LOG-A base | Partially accepted as base only | `Review Aids/Evidence/Options/c1_log_viewer_doorway_layout.png` | Native/export folder access only; no graph, previous-log selection, or export customization. | Bottom-action doorway structure is useful, but the corrected selected shell must include `VIEWER - Deferred` and avoid fake data rows. |
 | C2 revised | Rejected | `Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png` | Inline/right row actions imply row-level viewer data/functionality. | Rejected after USER correction because the branch does not implement a real Log Viewer data surface yet. |
 | C3 | Rejected/deferred | `Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png` | Native/export folder access only; footer action lane. | Bottom/footer action rail can recreate disconnected-button-row/dead-space issues if not paired with clear deferred status. |
-| Corrected doorway shell | Selected after repair | `Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png` | Doorway shell only; one `VIEWER - Deferred` row and bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions. | Best current direction because it is truthful about deferred viewer scope and avoids fake data rows, helper/proof copy inside the product surface, local paths, graph, export customization, previous-log selection, and full-workspace implication. |
+| Corrected doorway shell | Selected after repair | `Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png` | Doorway shell only; one `VIEWER - Deferred` row, tight bottom action band, accepted compact control-pill chrome, and bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions. | Best current direction because it is truthful about deferred viewer scope and avoids fake data rows, helper/proof copy inside the product surface, local paths, graph, export customization, previous-log selection, and full-workspace implication. |
 
 ## Implementation Risk And Proof For Selected Direction
 
-- A2 revised must later prove row grouping, underglow rhythm, density, compact footprint, compact/tight bottom action row, TARGET/STATE separation, no bottom helper copy, and `OPEN LOG VIEWER STUDIO` action text with implementation screenshots, not helper text.
+- A2 revised must later prove row grouping, underglow rhythm, density, compact footprint, compact/tight bottom action row, no visible bottom dead-space, accepted compact control-pill chrome, TARGET/STATE separation, no bottom helper copy, and `OPEN LOG VIEWER STUDIO` action text with implementation screenshots, not helper text.
 - B2 must later prove parent-neighbor default placement, same-session moved-position restore, app/computer restart reset-near-parent behavior, and unavailable-location safety with full-desktop evidence or USER validation where photo/video cannot prove it.
-- The corrected Log Viewer doorway shell must later prove `VIEWER - Deferred`, bottom `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` actions, no fake native/export data rows, no local path display by default, no full Log Viewer, no graph, no export customization, and no previous-log selection scope.
+- The corrected Log Viewer doorway shell must later prove `VIEWER - Deferred`, compact/tight bottom action row, no visible bottom dead-space, accepted compact control-pill chrome, bottom `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` actions, no fake native/export data rows, no local path display by default, no full Log Viewer, no graph, no export customization, and no previous-log selection scope.
 - The selected direction remains subordinate to Project Vision, FAM-002, FAM-006, UIREF, and the Recording FFV.
 """
 
@@ -755,6 +877,7 @@ external manifest, not in the primary USER decision file.
 - Known-bad corpus copy: `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\false_accept_regression_corpus\\FAM-006-20260624-121535.zip`
 - Rejected selected-direction doorway packet: `C:\\Nexus USER\\FAM-006-20260624-135010.zip`
 - Rejected bottom-row / proof-copy packet: `C:\\Nexus USER\\FAM-006-20260624-142638.zip`
+- Rejected chrome / bottom-dead-space packet: `C:\\Nexus USER\\FAM-006-20260624-145849.zip`
 
 The rejected packet proof values are recorded in helper output and the external
 manifest.
@@ -775,6 +898,8 @@ Controlling media:
 - `Review Aids/Evidence/Rejected 121535 Proof/recording_default.png`
 - `Review Aids/Evidence/Rejected 121535 Proof/log_viewer_default.png`
 - `Review Aids/Evidence/References/AI Control Center- Accepted.png`
+- `Review Aids/Evidence/Options/window_control_pill_comparison_board.png`
+- `Review Aids/Evidence/Options/bottom_dead_space_comparison_board.png`
 
 ## Defect Classification
 
@@ -782,7 +907,7 @@ See `Review Aids/USER_REPORTED_VISUAL_DEFECT_LEDGER.md`.
 
 Key result:
 
-- `MUST_REPAIR_NOW`: the active implementation-match packet must not claim visual green while label pressure and crop-only acceptance remain unresolved.
+- `MUST_REPAIR_NOW`: the active implementation-match packet must not claim visual green while label pressure, bottom dead-space, chrome mismatch, and crop-only acceptance remain unresolved.
 - `VISUAL_OPTIONS_REQUIRED`: nested-card inheritance, placement behavior, Log Viewer doorway layout, and underglow/rhythm details need USER option review before runtime repair.
 - `SOURCE_TRUTH_RULE_REQUIRED`: full-desktop proof hierarchy and child-window placement doctrine must be recorded in branch-local source truth.
 - `VALIDATOR_HELPER_REQUIRED`: packet/helper logic must fail if future packets omit full-context red-team proof for material windows.
@@ -793,7 +918,7 @@ Selection status: `{SELECTED_DIRECTION_STATUS}`.
 
 Selected:
 
-- A2 revised: subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard.
+- A2 revised: subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard, compact final action row, tight bottom band, and accepted compact control-pill chrome.
 - B2: same-session last-used child-window position; after app/computer restart, child windows reset/open near their parent surface.
 - Log Viewer doorway shell: LOG-A-derived shell with a middle `VIEWER - Deferred` row and bottom doorway actions.
 
@@ -802,7 +927,8 @@ Required selected semantics:
 - Recording Studio rows preserve `TARGET - Default Overlay Profile` and `STATE - Ready - 2 active monitors`.
 - Recording Studio ACTION-002 label is exactly `OPEN LOG VIEWER STUDIO`.
 - A2 revised has no bottom descriptive/helper sentence inside the nested card.
-- A2 revised uses a compact bottom action row, with no oversized control well, giant padded slab, or button dead-zone.
+- A2 revised uses a compact bottom action row, with no oversized control well, giant padded slab, visible bottom dead-space, or button dead-zone.
+- A2 revised and corrected Log Viewer shell use accepted-reference compact control-pill chrome rather than a large labeled window-control button.
 - Corrected Log Viewer shell uses bottom `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS`, not generic `OPEN`.
 - Corrected Log Viewer shell displays `VIEWER - Deferred`, does not include helper/proof copy inside the product surface, does not show fake native/export data rows, does not display local paths by default, and does not imply graph/export customization, previous-log selection, native-log reading from Recording Studio, direct exported-log opening from Recording Studio, or fake full-viewer workspace behavior.
 
@@ -852,6 +978,8 @@ See:
 - `Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png`
 - `Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png`
 - `Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png`
+- `Review Aids/Evidence/Options/window_control_pill_comparison_board.png`
+- `Review Aids/Evidence/Options/bottom_dead_space_comparison_board.png`
 
 The prior 130151 packet is repaired here because its option board was mostly
 text cards, several option cards were clipped, and validation evidence was not
@@ -1013,6 +1141,8 @@ Rejected selected-direction doorway packet: `C:\\Nexus USER\\FAM-006-20260624-13
 Rejected selected-direction doorway packet SHA256: `{REJECTED_DOORWAY_SHA256}`.
 Rejected bottom-row / proof-copy packet: `C:\\Nexus USER\\FAM-006-20260624-142638.zip`.
 Rejected bottom-row / proof-copy packet SHA256: `{REJECTED_BOTTOM_ROW_SHA256}`.
+Rejected chrome / bottom-dead-space packet: `C:\\Nexus USER\\FAM-006-20260624-145849.zip`.
+Rejected chrome / bottom-dead-space packet SHA256: `{REJECTED_CHROME_DEAD_SPACE_SHA256}`.
 Known-bad corpus copy: `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\false_accept_regression_corpus\\FAM-006-20260624-121535.zip`.
 
 Root cause: focused/cropped row-grammar proof and comparator media were treated
@@ -1041,6 +1171,11 @@ put helper/proof commentary inside the selected Log Viewer product surface. It
 also needed actual command-output evidence for every claimed validation and
 final clean post-commit/post-push proof.
 
+Sixth root cause: the 145849 repair packet improved selected-direction semantics
+and proof-copy hygiene but still left visible bottom dead-space/control-row
+heaviness in the selected A2 and Log Viewer renders and did not include explicit
+accepted-reference window-control/chrome comparison proof.
+
 Branch-local source-truth disposition: FAM-006 Recording now requires
 full-desktop/full-context contradiction review for material Recording Studio and
 Log Viewer Studio visual acceptance packets, and requires branch-local
@@ -1048,15 +1183,17 @@ child-window placement/options review with actual rendered visual media before
 runtime implementation of unresolved placement behavior.
 
 USER selected direction recorded by this packet: A2 revised (subtle contained
-row group, compact bottom action row, no oversized control well, no bottom
-helper copy, TARGET/STATE separation, ACTION-002 label `OPEN LOG VIEWER
+row group, compact bottom action row, no oversized control well, no visible
+bottom dead-space, accepted compact control-pill chrome, no bottom helper copy,
+TARGET/STATE separation, ACTION-002 label `OPEN LOG VIEWER
 STUDIO`), B2 (same-session last-used child-window position,
 restart reset/open near parent), and corrected Log Viewer doorway shell
 (`VIEWER - Deferred` middle/status row, bottom `OPEN NATIVE LOGS` and
 `OPEN EXPORTED LOGS` actions, no helper/proof copy inside the product surface,
 no fake native/export data rows, no local path display by default, no native-log
 reading from Recording Studio, no direct exported-log opening from Recording
-Studio, and no full-viewer workspace implication).
+Studio, no full-viewer workspace implication, tight bottom band, and accepted
+compact control-pill chrome).
 
 Current USER packet: `{zip_path}`.
 Current USER packet SHA256: `{zip_sha}`.
@@ -1090,6 +1227,7 @@ def generate() -> dict[str, Any]:
     known_bad_selection_copy = KNOWN_BAD_ROOT / REJECTED_SELECTION_PACKET.name
     known_bad_doorway_copy = KNOWN_BAD_ROOT / REJECTED_DOORWAY_PACKET.name
     known_bad_bottom_row_copy = KNOWN_BAD_ROOT / REJECTED_BOTTOM_ROW_PACKET.name
+    known_bad_chrome_dead_space_copy = KNOWN_BAD_ROOT / REJECTED_CHROME_DEAD_SPACE_PACKET.name
     if REJECTED_PACKET.exists():
         if _sha256(REJECTED_PACKET) != REJECTED_SHA256:
             raise SystemExit("rejected 121535 packet SHA mismatch")
@@ -1110,6 +1248,10 @@ def generate() -> dict[str, Any]:
         if _sha256(REJECTED_BOTTOM_ROW_PACKET) != REJECTED_BOTTOM_ROW_SHA256:
             raise SystemExit("rejected 142638 packet SHA mismatch")
         shutil.copy2(REJECTED_BOTTOM_ROW_PACKET, known_bad_bottom_row_copy)
+    if REJECTED_CHROME_DEAD_SPACE_PACKET.exists():
+        if _sha256(REJECTED_CHROME_DEAD_SPACE_PACKET) != REJECTED_CHROME_DEAD_SPACE_SHA256:
+            raise SystemExit("rejected 145849 packet SHA mismatch")
+        shutil.copy2(REJECTED_CHROME_DEAD_SPACE_PACKET, known_bad_chrome_dead_space_copy)
 
     _purge_user_hub()
     for folder in ("USER Review", "Review Aids", "Source Truth Context"):
@@ -1198,11 +1340,13 @@ release, or cleanup.
         "knownBadSelectionCopy": str(known_bad_selection_copy),
         "knownBadDoorwayCopy": str(known_bad_doorway_copy),
         "knownBadBottomRowCopy": str(known_bad_bottom_row_copy),
+        "knownBadChromeDeadSpaceCopy": str(known_bad_chrome_dead_space_copy),
         "rejectedSha256": REJECTED_SHA256,
         "rejectedOptionsSha256": REJECTED_OPTIONS_SHA256,
         "rejectedSelectionSha256": REJECTED_SELECTION_SHA256,
         "rejectedDoorwaySha256": REJECTED_DOORWAY_SHA256,
         "rejectedBottomRowSha256": REJECTED_BOTTOM_ROW_SHA256,
+        "rejectedChromeDeadSpaceSha256": REJECTED_CHROME_DEAD_SPACE_SHA256,
         "optionRenderCount": len(option_renders),
         "selectedDirection": SELECTED_DIRECTION_STATUS,
         "identity": identity,
@@ -1251,6 +1395,10 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         failures.append("142638 known-bad bottom-row/proof-copy packet corpus copy is missing")
     elif _sha256(KNOWN_BAD_ROOT / REJECTED_BOTTOM_ROW_PACKET.name) != REJECTED_BOTTOM_ROW_SHA256:
         failures.append("142638 known-bad bottom-row/proof-copy packet corpus copy SHA mismatch")
+    if not (KNOWN_BAD_ROOT / REJECTED_CHROME_DEAD_SPACE_PACKET.name).exists():
+        failures.append("145849 known-bad chrome/dead-space packet corpus copy is missing")
+    elif _sha256(KNOWN_BAD_ROOT / REJECTED_CHROME_DEAD_SPACE_PACKET.name) != REJECTED_CHROME_DEAD_SPACE_SHA256:
+        failures.append("145849 known-bad chrome/dead-space packet corpus copy SHA mismatch")
 
     required = [
         "START_HERE.md",
@@ -1305,6 +1453,8 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png",
         "Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png",
         "Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png",
+        "Review Aids/Evidence/Options/window_control_pill_comparison_board.png",
+        "Review Aids/Evidence/Options/bottom_dead_space_comparison_board.png",
         "Review Aids/Evidence/Options/selected_render_contract.json",
         "Review Aids/Evidence/Rejected 121535 Proof/recording_default.png",
         "Review Aids/Evidence/Rejected 121535 Proof/log_viewer_default.png",
@@ -1355,8 +1505,8 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
 
     try:
         defects = json.loads((packet_root / "Review Aids/user_reported_visual_defects_ledger.json").read_text(encoding="utf-8"))
-        if len(defects) != 11:
-            failures.append(f"expected 11 seeded USER visual defects, found {len(defects)}")
+        if len(defects) != 13:
+            failures.append(f"expected 13 seeded USER visual defects, found {len(defects)}")
         classes = {row.get("classification") for row in defects}
         for expected in ("MUST_REPAIR_NOW", "VISUAL_OPTIONS_REQUIRED", "SOURCE_TRUTH_RULE_REQUIRED", "VALIDATOR_HELPER_REQUIRED"):
             if expected not in classes:
@@ -1433,6 +1583,8 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
                 "No bottom descriptive/helper sentence",
                 "No local path display by default",
                 "Compact/tight bottom action row",
+                "visible bottom dead-space",
+                "Accepted-reference compact window-control/chrome grammar",
             ):
                 if token not in selected_text:
                     failures.append(f"selected direction summary missing token: {token}")
@@ -1447,10 +1599,18 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
             log = contract.get("LogViewerDoorway", {})
             if a2.get("bottomActionRow") != "compact/tight" or int(a2.get("buttonHeightPx", 99)) > 34:
                 failures.append("A2 selected render contract does not prove compact bottom action row")
+            if int(a2.get("bottomDeadSpacePx", 99)) > 18 or int(a2.get("shellHeightPx", 999)) > 240:
+                failures.append("A2 selected render contract allows visible bottom dead space or oversized shell")
             if a2.get("oversizedControlWell") is not False:
                 failures.append("A2 selected render contract allows oversized control well")
             if a2.get("helperCopyInsideNestedCard") is not False:
                 failures.append("A2 selected render contract allows helper copy inside nested card")
+            if a2.get("windowChrome") != "accepted-ai-control-center-compact-icon-pill":
+                failures.append("A2 selected render contract does not prove accepted control-pill chrome")
+            if log.get("bottomActionRow") != "compact/tight" or int(log.get("buttonHeightPx", 99)) > 34:
+                failures.append("Log Viewer selected render contract does not prove compact bottom action row")
+            if int(log.get("bottomDeadSpacePx", 99)) > 20 or int(log.get("shellHeightPx", 999)) > 200:
+                failures.append("Log Viewer selected render contract allows visible bottom dead space or oversized shell")
             if log.get("helperCopyInsideProductSurface") is not False:
                 failures.append("Log Viewer selected render contract allows helper/proof copy inside product surface")
             if log.get("middleStatusRow") != "VIEWER - Deferred":
@@ -1459,6 +1619,8 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
                 failures.append("Log Viewer selected render contract allows fake native/export rows")
             if log.get("selectedInlineRowActionLayout") is not False:
                 failures.append("Log Viewer selected render contract allows C2 inline row-action selection")
+            if log.get("windowChrome") != "accepted-ai-control-center-compact-icon-pill":
+                failures.append("Log Viewer selected render contract does not prove accepted control-pill chrome")
         except Exception as exc:
             failures.append(f"selected render contract invalid: {exc}")
     else:
