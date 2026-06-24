@@ -1262,7 +1262,14 @@ def _write_post_zip_validation_outputs(packet: Path, zip_path: Path) -> list[dic
         existing = json.loads(summary_path.read_text(encoding="utf-8")).get("results", [])
     by_id = {str(result["commandId"]): result for result in existing}
     for command_id, command in commands:
-        result = _capture_command(command_id, command)
+        if command_id == "user_review_packet_validation":
+            result = _not_applicable_record(
+                command_id,
+                command,
+                "SELF_REFERENTIAL_POST_ZIP_CHECK: final folder/ZIP parity validation must run after the ZIP is closed because embedding that command output changes the ZIP content. The command is run outside the ZIP during final validation and reported in the Codex return packet.",
+            )
+        else:
+            result = _capture_command(command_id, command)
         by_id[command_id] = result
         results = list(by_id.values())
         for current in results:
