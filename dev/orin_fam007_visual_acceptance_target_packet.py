@@ -48,7 +48,8 @@ BLOCKED_GATES = (
 VISUAL_PACKET_PURPOSE = (
     "Branch-local visual acceptance target process and review packet. It creates rendered "
     "targets, legends, selection ledgers, a draft target, rejected-pattern and reusable-"
-    "recipe templates, and validation evidence before any future visible UI/UX "
+    "recipe templates, artifact-to-surface mapping, caveat and material-deviation rules, "
+    "state coverage planning, and validation evidence before any future visible UI/UX "
     "implementation."
 )
 VISUAL_NEXT_LEGAL_PHASE = (
@@ -79,7 +80,11 @@ REQUIRED_PACKET_FILES = [
     "Review Aids/ELEMENT_LEGENDS.md",
     "Review Aids/ANNOTATION_MANIFEST.md",
     "Review Aids/IMAGE_RELEVANCE_MANIFEST.md",
+    "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
     "Review Aids/STATE_COVERAGE_MATRIX.md",
+    "Review Aids/STATE_COVERAGE_STORYBOARD.md",
+    "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
+    "Review Aids/CAVEAT_LEDGER.md",
     "Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md",
     "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
     "Review Aids/REJECTED_PATTERNS_LEDGER.md",
@@ -458,7 +463,7 @@ def _mark_udl_018_restored(udl_text: str, zip_path: Path) -> str:
 
 
 def _update_visual_packet_udl_rows(udl_text: str, zip_path: Path) -> str:
-    row_019 = """## F7-UDL-019 Visual Target Legend Mapping / Annotation Bounds - 2026-06-24
+    row_019 = f"""## F7-UDL-019 Visual Target Legend Mapping / Annotation Bounds - 2026-06-24
 
 Status: `CLOSED_WITH_PROOF`
 Finding: `The branch-local Visual Acceptance Target packet generator could create visual legends that were hard to map to exact render regions, and focused annotated renders could clip or truncate callout labels outside the image canvas.`
@@ -468,7 +473,7 @@ Proof: `Current Visual Acceptance Target packet validation fails if any annotati
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This repair does not restore or require a second historical packet ZIP and does not approve H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling mutation, imports, or v1.8.0 work.`
 """
-    row_021 = """## F7-UDL-021 Final Packet Image Relevance / Decision Clarity - 2026-06-24
+    row_021 = f"""## F7-UDL-021 Final Packet Image Relevance / Decision Clarity - 2026-06-24
 
 Status: `CLOSED_WITH_PROOF`
 Finding: `Final USER-review packets that are not repair-cycle/debug packets can over-include raw proof dumps or helper-only screenshot evidence, making the current USER decision ambiguous.`
@@ -477,6 +482,16 @@ Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now writes IMAGE_REL
 Proof: `Current Visual Acceptance Target packet validation fails when an included image lacks a declared USER-decision purpose, when final packet images appear outside the curated Render Media path, when image counts drift from the expected curated set, or when START_HERE / primary USER review bypass the curated decision path.`
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This repair preserves artifact-of-record validation for the current packet without overloading the final USER-facing decision packet with repair/debug proof images.`
+"""
+    row_022 = f"""## F7-UDL-022 Visual Acceptance Comparative-Audit Ledger Hardening - 2026-06-24
+
+Status: `CLOSED_WITH_PROOF`
+Finding: `The branch-local Visual Acceptance Target packet was weaker than the FAM-003 comparison model for artifact-to-surface mapping, implementation-difference rules, accepted-with-caveats handling, rejected-pattern explanations, and FAM-007-specific state coverage clarity.`
+Required Disposition: `Current and future FAM-007 Visual Acceptance Target packets must include explicit artifact-to-surface mapping, material-deviation / implementation-difference rules, caveat handling, strengthened rejected-pattern explanations, and a FAM-007 state coverage storyboard or plan.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates ARTIFACT_TO_SURFACE_LEDGER.md, IMPLEMENTATION_DIFFERENCE_RULE.md, CAVEAT_LEDGER.md, STATE_COVERAGE_STORYBOARD.md, a stronger STATE_COVERAGE_MATRIX.md, and a stronger REJECTED_PATTERNS_LEDGER.md, while preserving template-not-endstate wording and single-current-packet boundaries.`
+Proof: `Current Visual Acceptance Target packet validation fails if the artifact-to-surface ledger, implementation-difference rule, caveat ledger, state storyboard, rejected-pattern ledger, or required boundary terms are missing from the generated packet or final ZIP.`
+Current Review Packet: `{zip_path}`
+No-Fake-Preservation Rule: `This repair does not approve H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling mutation, imports, v1.8.0 work, or global Governance/FAM-002/UIREF mutation.`
 """
     if "## F7-UDL-019 " in udl_text:
         udl_text = re.sub(
@@ -498,6 +513,16 @@ No-Fake-Preservation Rule: `This repair preserves artifact-of-record validation 
         )
     else:
         udl_text = udl_text.rstrip() + "\n\n" + row_021
+    if "## F7-UDL-022 " in udl_text:
+        udl_text = re.sub(
+            r"## F7-UDL-022 .+?(?=\n## |\Z)",
+            lambda _match: row_022,
+            udl_text,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
+        udl_text = udl_text.rstrip() + "\n\n" + row_022
     return udl_text
 
 
@@ -962,11 +987,40 @@ def _image_relevance_manifest_table(options: list[RenderOption]) -> str:
     return "\n".join(rows)
 
 
+def _artifact_to_surface_ledger_table(options: list[RenderOption]) -> str:
+    source_paths = (
+        "nexus_visual/ai_control_center.html; nexus_visual/ai_control_center.css; "
+        "nexus_visual/ai_control_center.js; desktop/desktop_renderer.py; "
+        "dev/orin_ai_control_center_live_resize_validation.py"
+    )
+    rows = [
+        "| Artifact | Artifact class | USER-facing surface | Element groups | Source / code path | UIREF owner | Branch-local proof target | Future implementation comparison use |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for option in options:
+        option_note = {
+            "OPTION-A": "Actual current-branch runtime snapshot used as draft target basis; not accepted implementation proof by itself.",
+            "OPTION-B": "Deterministic branch-local candidate mockup for possible denser doorway grouping.",
+            "OPTION-C": "Deterministic branch-local rejected-risk comparator showing larger settings/workspace mass.",
+        }[option.option_id]
+        for artifact, artifact_class, proof_target in (
+            (option.focused_media, "candidate clean focused render", "focused footprint, density, hierarchy, copy, and doorway layout"),
+            (option.annotated_focused_media, "candidate annotated focused render", "element-group trace and visible callout mapping"),
+            (option.desktop_media, "candidate clean desktop/context render", "desktop placement, scale, and surrounding visual relationship"),
+            (option.annotated_desktop_media, "candidate annotated desktop/context render", "context-level element-group trace and callout mapping"),
+        ):
+            rows.append(
+                f"| `{artifact}` | `{artifact_class}` | AI Dashboard / AI Control Center visual-target guide | `CHROME-001`, `CTRL-001`, `TITLE-001`, `PANEL-001`, `ACTION-001`, `STATUS-001` | `{source_paths}` | UIREF-001, UIREF-002, UIREF-003, UIREF-004, UIREF-005, UIREF-006 | {proof_target}; {option_note} | Later implementation-match proof must compare actual app screenshots/video against this artifact, explain material differences, and route USER approval when required. |"
+            )
+    return "\n".join(rows)
+
+
 def _write_packet_files(options: list[RenderOption]) -> None:
     options_table = _options_table(options)
     decision_options_table = _decision_options_table(options)
     annotation_table = _annotation_manifest_table(options)
     image_relevance_table = _image_relevance_manifest_table(options)
+    artifact_to_surface_table = _artifact_to_surface_ledger_table(options)
     _write_text(
         "START_HERE.md",
         """
@@ -984,8 +1038,10 @@ Review order:
 2. Inspect the curated clean and annotated render media under `Review Aids/Render Media`.
 3. Use `Review Aids/IMAGE_RELEVANCE_MANIFEST.md` to see why each included image is present in this final USER decision packet.
 4. Use `Review Aids/ANNOTATION_MANIFEST.md` and `Review Aids/ELEMENT_LEGENDS.md` to map every callout marker to the exact visual region it identifies.
-5. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
-6. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
+5. Use `Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md` to map every artifact to the visible surface, element group, source/code path, UIREF owner, and future implementation comparison use.
+6. Use `Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md` and `Review Aids/CAVEAT_LEDGER.md` before accepting with caveats or claiming implementation match.
+7. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
+8. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
 
 Image Scope Rule: this final USER review packet is curated for decision clarity. It includes only the images needed to compare visual target options, understand clean versus annotated renders, and judge focused/desktop context. Repair-cycle/debug evidence belongs in explicitly labeled repair packets or helper output, not in this final USER decision path.
 """,
@@ -1004,6 +1060,10 @@ This packet creates a current-branch visual target guide process for FAM-007 vis
 Visual Target Boundary: a USER-accepted visual target is a branch-local guide, comparator, template candidate, or expectation-alignment artifact. It should be as close to the intended product result as practical, but it is not final implemented product truth by itself. Final implementation still requires source-truth reconciliation, code-to-visual proof, validation, and USER review where the current phase requires it.
 
 Image Scope Boundary: this final USER review packet is curated for the current decision. Included images are limited to clean option renders, annotated option renders, and minimal desktop/context renders needed to compare, select, accept, reject, or revise the visual target. Repair/debug proof dumps are intentionally excluded from the primary USER decision packet.
+
+Implementation Difference Boundary: actual implementation may differ from the accepted visual target only with source-truth-grounded explanation. Material visual differences require USER approval or a recorded source-truth-routed justification before implementation-match claims. Helper PASS, screenshot existence, "closer", "better", or packet parity cannot prove implementation match.
+
+Caveat Boundary: USER may accept a visual target with caveats, but caveat acceptance only records required follow-up, deferred elements, source-truth reconciliation needs, and future proof obligations. It never accepts H1/LV, USER UTS, PR Readiness, PR creation, merge, release, runtime mutation, or provider/model/private/cache/memory/download/packaging behavior.
 
 ## Current Branch Visual Impact Classification
 
@@ -1025,6 +1085,8 @@ Any future visible UI/UX change on this branch needs a rendered visual target be
 ## Recommended Decision
 
 Recommended: promote `OPTION-A` as the draft target basis because it uses actual current branch runtime screenshot evidence, keeps AI Dashboard as a compact doorway shell, and carries the accepted child/domain window proof. Treat `OPTION-B` as a possible future refinement candidate only if USER wants denser grouping. Treat `OPTION-C` as a rejected-risk comparator because it trends toward the larger workspace/report pattern that caused earlier false-green loops.
+
+Recommendation Boundary: `OPTION-A` is recommended as a draft target basis, not as proof that the current runtime implementation is accepted or complete. If USER accepts `OPTION-A`, later implementation-match proof must still compare actual app evidence against the accepted target and classify any material differences.
 
 ## USER Decision Needed
 
@@ -1109,21 +1171,107 @@ Excluded from this final USER decision packet: redundant proof dumps, duplicate 
 """,
     )
     _write_text(
+        "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
+        f"""
+# Artifact-To-Surface Ledger
+
+Purpose: map each included visual artifact to the USER-facing surface, visible element groups, source/code path, UIREF owner, branch-local proof target, and future implementation comparison use.
+
+Ledger Rule: a render artifact can become a USER-accepted visual target guide only after USER selection. It is not implementation proof, LV proof, UTS proof, PR Readiness proof, or final product truth by itself.
+
+{artifact_to_surface_table}
+""",
+    )
+    _write_text(
         "Review Aids/STATE_COVERAGE_MATRIX.md",
         """
 # State Coverage Matrix
 
-| State | Required Handling | Current Packet Coverage |
+| State | FAM-007 relevance | Current packet coverage | Later implementation-match requirement | Disposition |
+| --- | --- | --- | --- | --- |
+| default / focused | normal AI Dashboard / AI Control Center opening state | clean focused and desktop/context renders for every option | actual app focused screenshot/video must match accepted target or explain difference | `COVERED_FOR_TARGET_SELECTION` |
+| hover | launcher buttons, window controls, Settings icon, category cards | not rendered in final decision packet to preserve image clarity | focused hover screenshot/video or USER waiver required before visual green if controls are touched | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| focus / keyboard focus | window controls and launch buttons | target requirement recorded | focus-visible proof or not-applicable rationale required before visual green | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| pressed / clicked | launchers, close/minimize, copy/report actions | target requirement recorded | ordered-frame proof or short video required when claiming interaction behavior | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| disabled / future-gated | provider/model/private/cache/memory/download/install/settings routes | target requirement recorded | disabled/future-gated visual state must be shown where a control exists | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+| provider/model unavailable | trust-boundary, no-provider, provider-visible-data none | compact status group identified by `STATUS-001` | backend-to-visual truth mapping and screenshot proof required | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+| generated/report state | local AI readiness report generated | not part of current final visual target images | actual report/focused surface proof required before H1/LV claim | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| copy-success / action-result | readiness report copy action | not rendered in final decision packet | success/confirmation proof required before claiming copy-result UI green | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| child/domain window open | AI Control Center / Diagnostics / Capabilities child surfaces | Option A carries current child-window proof context as candidate evidence | fresh actual opened-window proof required after target acceptance or runtime change | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| resized / minimum layout | top-level and child window geometry | current proof carried as historical branch evidence, not current acceptance proof | fresh resized/minimum screenshot or manifest proof required before LV green after changes | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| blocked / error / degraded | provider blocked, failed readiness check, unavailable capability | target requirement recorded | readable failure/recovery/blocked surface proof required | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+| empty / no-data | no report/result yet | target requirement recorded | empty-state proof required when the surface can appear without data | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+""",
+    )
+    _write_text(
+        "Review Aids/STATE_COVERAGE_STORYBOARD.md",
+        """
+# FAM-007 State Coverage Storyboard / Plan
+
+Purpose: identify which FAM-007 states must be rendered now, which are deferred to implementation proof, and which are future-gated.
+
+Current Packet Mode: `visual target selection`, not runtime implementation proof.
+
+| Storyboard Step | State / moment | Visible surface | Required proof later | Current disposition |
+| --- | --- | --- | --- | --- |
+| `SB-001` | Default AI Dashboard / Control Center doorway shell | top-level AI Dashboard / AI Control Center | accepted target render plus actual app match proof later | `RENDERED_FOR_TARGET_SELECTION` |
+| `SB-002` | Hover over category launcher | AI Dashboard category card button | focused screenshot or video showing hover grammar | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| `SB-003` | Focus-visible launcher / window control | keyboard or focus state | screenshot/video or accessibility proof | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| `SB-004` | Pressed/clicked launcher opens child/domain window | category launcher path | ordered frames or short video with real click path | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| `SB-005` | Disabled or future-gated provider/model/private/cache/memory/download action | status, settings, capability doorway | screenshot proving disabled/future-gated state and truthful copy | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+| `SB-006` | Provider/model unavailable / no-provider configured | compact trust/status area | backend-to-visual truth mapping plus visual proof | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+| `SB-007` | Local readiness report generated | diagnostics/readiness child surface | actual generated report visual proof | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| `SB-008` | Copy-success or action-result state | readiness/report action | visual confirmation or state proof | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| `SB-009` | Child/domain window open and positioned | AI Control Center / Diagnostics / Capabilities | full desktop/context screenshot and focused window proof | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| `SB-010` | Resized / minimum supported layout | top-level or child windows | resized/minimum screenshot or manifest proof | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
+| `SB-011` | Empty / no-data state | readiness/report surface before generation | screenshot of empty state with readable guidance | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+| `SB-012` | Error / blocked / degraded state | diagnostics/status/recovery surface | screenshot showing recovery guidance and trust boundary | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+
+Storyboard Rule: if a later pass claims visual green for one of these states, it must include actual app evidence or a USER-approved waiver. This current packet records the plan and target-selection basis only.
+""",
+    )
+    _write_text(
+        "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
+        """
+# Implementation Difference / Material-Deviation Rule
+
+Rule Status: `BRANCH_LOCAL_VISUAL_TARGET_RULE`
+
+Accepted visual targets are high-fidelity guides/templates/comparators for implementation alignment. They are not guaranteed final screenshots and are not final product truth by themselves.
+
+Actual implementation may differ from the accepted visual target only when the difference is source-truth-grounded, technically necessary, or USER-approved.
+
+Material visual differences require USER approval or a recorded source-truth-routed justification before implementation-match claims.
+
+Material visual differences require one of these dispositions before implementation-match can be claimed:
+
+| Difference class | Examples | Required disposition |
 | --- | --- | --- |
-| default | render focused surface and desktop footprint | covered by all options |
-| hover | required for future implementation-match proof | target requirement recorded |
-| focus | required for future implementation-match proof | target requirement recorded |
-| pressed/active | required for future implementation-match proof | target requirement recorded |
-| disabled | required for blocked/future-gated actions | target requirement recorded |
-| empty/no-data | required when no report/result exists | target requirement recorded |
-| blocked/error | required for provider/model/download/cache/memory/private setup gates | target requirement recorded |
-| success/complete | required for local readiness report generated/copied state | target requirement recorded |
-| resized/fixed-size | required for product windows | current actual proof carried from H1/LV; future target must prove again after change |
+| `MINOR_NON_MATERIAL` | tiny antialiasing, OS font rasterization, one-pixel layout tolerance | record in implementation-match proof |
+| `SOURCE_TRUTH_GROUNDED` | UIREF/FAM/source-truth requirement conflicts with target detail | cite source truth and compare visually |
+| `TECHNICAL_RUNTIME_CONSTRAINT` | runtime size/monitor behavior prevents exact target shape | explain constraint and provide actual proof |
+| `USER_APPROVAL_REQUIRED` | layout hierarchy, surface purpose, button/state behavior, copy meaning, visible grouping, window chrome, state handling, or target option changes | get USER approval or route a revised target packet |
+| `BLOCKER` | helper PASS, screenshot existence, "closer", "better", packet parity, or marker presence used as proof without visual comparison | stop; cannot claim implementation match |
+
+Implementation-match proof must compare actual app screenshots/video against the accepted target and classify every material difference. Helper PASS, screenshot existence, "closer", "better", or packet parity cannot prove implementation match.
+""",
+    )
+    _write_text(
+        "Review Aids/CAVEAT_LEDGER.md",
+        """
+# Caveat Ledger
+
+Purpose: support USER acceptance with caveats without turning caveats into phase acceptance or runtime approval.
+
+Current Caveat State: `NONE_RECORDED_YET`
+
+| Caveat ID | USER caveat / condition | Affected option or element | Required follow-up | Deferred element / state | Source-truth reconciliation needed | Future proof obligation | Gate impact |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `CAV-001` | None recorded yet | none | none | none | none | none | no acceptance until USER records decision |
+
+Caveat Rule: USER may accept a visual target with caveats, but caveat acceptance only records required follow-up, deferred elements, source-truth reconciliation needs, and future proof obligations.
+
+Caveat Boundary: caveat acceptance does not approve H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, runtime mutation, provider/model execution, prompt send, downloads, runtime cache behavior, memory/learning/personalization, private Developer/Owner setup, installer/shortcut/packaging execution, sibling/Governance mutation, imports, or v1.8.0 work.
 """,
     )
     _write_text("Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md", "# Visual Selection Ledger Template\n\n| Decision ID | Surface | Option ID | Element ID | Accepted / Rejected / Combine / Revise | USER Notes | Source-Truth Impact | Branch-Local Vs Durable Design Principle | Implementation Requirement | Proof Requirement | Future Reuse Note |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| `VSL-001` | AI Dashboard / AI Control Center |  |  |  |  |  |  |  |  |  |")
@@ -1162,12 +1310,33 @@ Accepted Reference Surfaces: UIREF-001 through UIREF-006; current FAM-007 actual
 
 Implementation Constraints: no future visible UI/UX implementation on this branch should proceed without USER_ACCEPTED target guide or source-truth-governed exception. Final implementation still requires code-to-visual proof, validation, and USER review where source truth requires it.
 
-Proof Requirements: implementation-match screenshots/video, focused element proof, full desktop/context proof, state coverage, and code-to-visual trace.
+Material Difference Rule: actual implementation may differ from the accepted visual target only with source-truth-grounded explanation. Material visual differences require USER approval or recorded source-truth-routed justification before implementation-match claims.
+
+Caveat Handling: USER may accept this draft target with caveats; caveats must be recorded in `Review Aids/CAVEAT_LEDGER.md` and carried into later implementation-match proof.
+
+Proof Requirements: implementation-match screenshots/video, focused element proof, full desktop/context proof, artifact-to-surface trace, state coverage, and code-to-visual trace.
 
 LV Gating Rule: Live Validation cannot claim UI green by helper output, screenshot existence, or marker presence alone.
 """,
     )
-    _write_text("Review Aids/REJECTED_PATTERNS_LEDGER.md", "# Rejected Patterns Ledger\n\n| Pattern ID | Rejected UI/UX Pattern | Source Option Or Prior Evidence | Reason Rejected | Affected Surface/Class | Future Avoidance Guidance | Source-Truth Impact | Linked USER Feedback |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| `RPL-001` | oversized inner cards | prior AI Control Center repair loops | consumes space and weakens doorway clarity | dashboard/card layout | keep doorway cards compact | branch-local, possible durable candidate | USER visual repair feedback |\n| `RPL-002` | path-dominant or proof-token layout | prior readiness rows | reads like debug/proof instead of product | diagnostics/readiness report | show USER-readable trust copy first | branch-local | USER readability feedback |\n| `RPL-003` | verbose inline helper copy | prior stacked top-level report body | turns hub into workspace | dashboard top level | route detail behind child/domain surface | branch-local and FFV carrydown | LV1 FAIL / IA feedback |\n| `RPL-004` | action buried under status | prior stacked layout | USER cannot see doorway action quickly | category cards | keep one primary launcher/action visible | branch-local | repeated AI Control Center feedback |\n| `RPL-005` | fake workspace for deferred feature | capability/provider/private placeholders | implies implementation that does not exist | future-gated cards | use compact blocked/future-gated copy | branch-local | trust-boundary feedback |\n| `RPL-006` | marker-only or local-path proof | packet false-green incidents | not reviewable or not artifact-of-record proof | USER packets/proof | include real media in ZIP | validation/packet owner | false-green repair receipts |")
+    _write_text(
+        "Review Aids/REJECTED_PATTERNS_LEDGER.md",
+        """
+# Rejected Patterns Ledger
+
+Boundary: rejected patterns are candidate/comparator dispositions, not claims that a candidate was a failed final UI.
+
+| Pattern ID | Rejected / deferred pattern | Source option or prior evidence | Product / UX risk | Governance risk | State / proof gap | UIREF / FAM boundary risk | Implementation-match risk | Future avoidance guidance |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `RPL-001` | oversized inner cards | prior AI Control Center repair loops; `OPTION-C` risk | consumes space and weakens doorway clarity | could reopen stacked-workspace IA failure | requires more scroll/resize states | risks drifting from compact doorway model | harder to compare as compact target | keep top-level cards compact and route detail behind child/domain surfaces |
+| `RPL-002` | path-dominant or proof-token layout | prior readiness rows | reads like debug/proof instead of product | proof strings can be mistaken for source truth | report readability proof needed | conflicts with Product Experience Contract | implementation can pass helper while failing USER readability | show USER-readable trust copy first |
+| `RPL-003` | verbose inline helper copy | prior stacked top-level report body | turns hub into workspace | blurs visual target with helper output | missing empty/error/report states | conflicts with AI Home / Control Foyer doorway model | target and actual implementation become non-comparable | keep top-level compact and route long reports behind child surfaces |
+| `RPL-004` | action buried under status | prior stacked layout | USER cannot predict where to click | weakens deterministic action hierarchy | hover/focus/pressed proof becomes ambiguous | conflicts with UIREF-003 control grammar | visual match can hide behavior mismatch | keep one clear primary launcher/action visible per category |
+| `RPL-005` | fake workspace for deferred feature | capability/provider/private placeholders | implies unavailable capability exists | could imply provider/model/private/cache/memory/download approval | disabled/future-gated state proof required | crosses FAM-008/private/provider boundaries | accepted target could overclaim runtime behavior | use compact future-gated/blocked copy and route future work to owning gates |
+| `RPL-006` | marker-only or local-path proof | packet false-green incidents | USER cannot inspect real artifact | helper PASS could replace USER judgment | missing ZIP-byte media proof | violates packet proof owner boundaries | implementation-match claim lacks artifact of record | include real media in ZIP with annotation and relevance manifests |
+| `RPL-007` | candidate treated as final product truth | previous false-green loops | USER may accept a direction as if runtime is done | bypasses H1/LV/UTS/PR gates | no actual app state proof | conflicts with UIREF-006 overclaim enforcement | implementation differences go unclassified | keep candidate, target, implementation proof, LV proof, UTS proof, and PR proof separate |
+""",
+    )
     _write_text("Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md", "# Reusable Design Recipe Template\n\nStatus: `TEMPLATE ONLY - fill after USER accepts a Visual Acceptance Target guide. This template is not final implemented product truth by itself.`\n\n| Field | Value |\n| --- | --- |\n| Accepted surface class |  |\n| Accepted footprint class |  |\n| Token values / dimensions |  |\n| Padding |  |\n| Spacing |  |\n| Button heights |  |\n| Font scale |  |\n| Status chip pattern |  |\n| Title/header grammar |  |\n| Resize behavior |  |\n| Copy pattern |  |\n| State pattern |  |\n| Accepted comparator references |  |\n| Rejected alternatives |  |\n| Future branch reuse notes |  |\n| Proof requirements |  |")
     _write_text("Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md", "# Source-Truth Conflict Classification\n\n| Candidate Decision | Classification | Disposition |\n| --- | --- | --- |\n| Require rendered visual target before future visible UI implementation on this branch | `BRANCH_LOCAL_VISUAL_DECISION` | legal branch-local process; Governance/global version is candidate only |\n| Treat current FAM-007 actual screenshot as branch-local target candidate | `NO_CONFLICT` | comparator seed only, not global template promotion |\n| Require FAM-002/UIREF comparison for same-class controls | `NO_CONFLICT` | matches Project Vision, FAM-002, UIREF-001 through UIREF-006 |\n| Promote AI Dashboard / AI Control Center as global gold standard | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Add reusable global helper/validator for all branches | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Implement product/runtime UI change in this pass | `USER_DECISION_REQUIRED` | not approved by this packet |")
     _write_text("Review Aids/GOVERNANCE_CANDIDATE_ONLY.md", "# Governance Candidate Only\n\nCandidate: create a global Visual Acceptance Target process for all future Nexus visible UI/UX work.\n\nReason: FAM-007 and FAM-006 false-green loops show that implementation-first UI work creates repair loops. A global rule should require substantial rendered targets, annotated and clean render media, annotation manifests, element legends, state matrices, full desktop/context renders, rejected-pattern ledgers, reusable design recipes, and implementation-match proof before visible UI work can proceed.\n\nTemplate Boundary: a global visual target process should say that accepted targets are guides/templates/comparators for implementation alignment, not final product truth by themselves.\n\nApproval Needed: USER-approved Governance/FAM-002 carrier after this branch-local process is reviewed. This FAM-007 pass does not mutate Governance and does not promote a global template.")
@@ -1571,6 +1740,89 @@ def _validate_image_relevance_manifest(packet_dir: Path) -> list[str]:
     return failures
 
 
+def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
+    failures: list[str] = []
+    required_terms_by_file = {
+        "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md": [
+            "source/code path",
+            "UIREF owner",
+            "future implementation comparison use",
+            "not implementation proof",
+            "OPTION-A",
+            "OPTION-B",
+            "OPTION-C",
+        ],
+        "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md": [
+            "Material visual differences require USER approval",
+            "source-truth-grounded",
+            "Helper PASS",
+            "screenshot existence",
+            "cannot prove implementation match",
+        ],
+        "Review Aids/CAVEAT_LEDGER.md": [
+            "Current Caveat State: `NONE_RECORDED_YET`",
+            "acceptance does not approve H1/LV acceptance",
+            "future proof obligations",
+            "source-truth reconciliation",
+        ],
+        "Review Aids/STATE_COVERAGE_STORYBOARD.md": [
+            "hover",
+            "focus",
+            "pressed",
+            "Disabled or future-gated",
+            "Provider/model unavailable",
+            "Local readiness report generated",
+            "Copy-success",
+            "Resized / minimum",
+            "actual app evidence or a USER-approved waiver",
+        ],
+        "Review Aids/STATE_COVERAGE_MATRIX.md": [
+            "DEFERRED_TO_IMPLEMENTATION_PROOF",
+            "REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE",
+            "provider/model unavailable",
+            "child/domain window open",
+        ],
+        "Review Aids/REJECTED_PATTERNS_LEDGER.md": [
+            "Product / UX risk",
+            "Governance risk",
+            "State / proof gap",
+            "UIREF / FAM boundary risk",
+            "Implementation-match risk",
+            "candidate/comparator dispositions",
+        ],
+        "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md": [
+            "Material Difference Rule",
+            "Caveat Handling",
+            "artifact-to-surface trace",
+        ],
+    }
+    for relative, terms in required_terms_by_file.items():
+        path = packet_dir / relative
+        if not path.exists():
+            failures.append(f"Comparative-audit repair aid missing: {relative}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        text_folded = text.casefold()
+        for term in terms:
+            if term.casefold() not in text_folded:
+                failures.append(f"{relative} missing required comparative-audit term: {term}")
+    primary_text = ""
+    for relative in ("START_HERE.md", f"USER Review/{PRIMARY_REVIEW_FILE}"):
+        path = packet_dir / relative
+        if path.exists():
+            primary_text += "\n" + path.read_text(encoding="utf-8")
+    for term in (
+        "ARTIFACT_TO_SURFACE_LEDGER.md",
+        "IMPLEMENTATION_DIFFERENCE_RULE.md",
+        "CAVEAT_LEDGER.md",
+        "Material visual differences require USER approval",
+        "caveat acceptance only records required follow-up",
+    ):
+        if term.casefold() not in primary_text.casefold():
+            failures.append(f"Primary USER decision path missing comparative-audit routing/boundary term: {term}")
+    return failures
+
+
 def generate() -> Path:
     zip_path = USER_ROOT / f"{WORKTREE_LABEL}-{_stamp()}.zip"
     _purge_packet_root()
@@ -1612,6 +1864,7 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
             failures.append(f"Image cannot be opened: {image_path}: {exc}")
     failures.extend(_validate_annotation_images(packet_dir))
     failures.extend(_validate_image_relevance_manifest(packet_dir))
+    failures.extend(_validate_comparative_audit_repair_aids(packet_dir))
     annotation_manifest = packet_dir / "Review Aids" / "ANNOTATION_MANIFEST.md"
     annotation_text = annotation_manifest.read_text(encoding="utf-8") if annotation_manifest.exists() else ""
     if not annotation_text:
@@ -1628,7 +1881,11 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         "Review Aids/VISUAL_OPTIONS_PACKET.md",
         "Review Aids/ELEMENT_LEGENDS.md",
         "Review Aids/ANNOTATION_MANIFEST.md",
+        "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
         "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
+        "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
+        "Review Aids/CAVEAT_LEDGER.md",
+        "Review Aids/STATE_COVERAGE_STORYBOARD.md",
         "Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md",
         "Review Aids/GOVERNANCE_CANDIDATE_ONLY.md",
         "Review Aids/VALIDATION_SUMMARY.md",
@@ -1670,6 +1927,14 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
                 failures.append("ZIP missing annotation manifest")
             if "Review Aids/IMAGE_RELEVANCE_MANIFEST.md" not in zip_entries:
                 failures.append("ZIP missing image relevance manifest")
+            for required_entry in (
+                "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
+                "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
+                "Review Aids/CAVEAT_LEDGER.md",
+                "Review Aids/STATE_COVERAGE_STORYBOARD.md",
+            ):
+                if required_entry not in zip_entries:
+                    failures.append(f"ZIP missing comparative-audit repair aid: {required_entry}")
             primary_entries = [entry for entry in zip_entries if entry.startswith("USER Review/") and entry.endswith(".md")]
             if primary_entries != [f"USER Review/{PRIMARY_REVIEW_FILE}"]:
                 failures.append(f"Unexpected primary USER review entries in ZIP: {primary_entries}")
