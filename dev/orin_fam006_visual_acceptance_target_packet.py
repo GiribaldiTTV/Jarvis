@@ -121,6 +121,39 @@ LOG_REQUIRED_STATES = {
     "fixed_or_resize_behavior",
 }
 
+RECORDING_ACCEPTED_REQUIRED_STATES = {
+    "ACTION-001-hover",
+    "ACTION-001-focus",
+    "ACTION-001-pressed",
+    "ACTION-001-disabled",
+    "ACTION-001-ready",
+    "ACTION-001-recording",
+    "ACTION-001-saved-complete",
+    "ACTION-001-blocked-error",
+    "ACTION-002-hover",
+    "ACTION-002-focus",
+    "ACTION-002-pressed",
+    "ACTION-002-disabled",
+    "FOOTPRINT-001-fixed-size",
+}
+
+LOG_ACCEPTED_REQUIRED_STATES = {
+    "ROW-001-native-ready",
+    "ACTION-001-hover",
+    "ACTION-001-focus",
+    "ACTION-001-pressed",
+    "ACTION-001-disabled",
+    "ACTION-001-blocked",
+    "ROW-002-export-empty",
+    "ROW-002-export-available",
+    "ACTION-002-hover",
+    "ACTION-002-focus",
+    "ACTION-002-pressed",
+    "ACTION-002-disabled",
+    "ACTION-002-blocked",
+    "FOOTPRINT-001-doorway",
+}
+
 REJECTED_PATTERNS = [
     (
         "RPL-001",
@@ -321,6 +354,16 @@ class Option:
     secondary_action: str
     rows: tuple[tuple[str, str], ...]
     footer: str
+
+
+@dataclass(frozen=True)
+class CalloutSpec:
+    marker: str
+    element_id: str
+    element_name: str
+    status: str
+    purpose_note: str
+    rect: tuple[int, int, int, int]
 
 
 OPTIONS = [
@@ -578,6 +621,40 @@ def _draw_button(draw: ImageDraw.ImageDraw, xy: tuple[int, int, int, int], label
     )
 
 
+def _callout_specs(option: Option) -> list[CalloutSpec]:
+    width, height = option.default_size
+    body_top = 66
+    body_bottom = height - 58
+    row_h = max(26, (body_bottom - body_top - 12) // max(1, len(option.rows)))
+    action_y = height - 42
+    ctrl_w = 66 if option.resize_behavior.startswith("Fixed") else 96
+    common = [
+        CalloutSpec("01", "CHROME-001", "window shell and edge", "accepted", "Unique child/feature-studio shell, not product overlay art.", (0, 0, width - 1, height - 1)),
+        CalloutSpec("02", "TITLE-001", "category and title text", "accepted", "Child-window title grammar: category line plus strong title, no title card.", (18, 14, width - 94, 58)),
+        CalloutSpec("03", "CTRL-001", "window control cluster", "accepted", "Compact minimize/close controls for the accepted window class.", (width - ctrl_w - 18, 18, width - 18, 48)),
+    ]
+    if option.surface.startswith("Recording"):
+        common.extend(
+            [
+                CalloutSpec("04", "TARGET-001", "target truth row", "accepted", "Target row only; shows the active Overlay Profile target truth.", (18, body_top + 8, width - 18, body_top + row_h + 4)),
+                CalloutSpec("05", "STATUS-001", "state truth row", "accepted", "State row only; separate from target truth.", (18, body_top + row_h + 8, width - 18, body_top + (row_h * 2) + 4)),
+                CalloutSpec("06", "ACTION-001", "primary Start/Stop action", "accepted", "Primary stateful control only; does not include Open Logs.", (18, action_y, 178, action_y + 32)),
+                CalloutSpec("07", "ACTION-002", "Open Logs secondary action", "accepted", "Secondary route action only; does not share ACTION-001 proof.", (190, action_y, width - 18, action_y + 32)),
+            ]
+        )
+    else:
+        mid = width // 2
+        common.extend(
+            [
+                CalloutSpec("04", "ROW-001", "native logs row", "accepted", "Native row only; not grouped with export row.", (18, body_top + 8, width - 18, body_top + row_h + 4)),
+                CalloutSpec("05", "ROW-002", "exported logs row", "accepted", "Export row only; not grouped with native row.", (18, body_top + row_h + 8, width - 18, body_top + (row_h * 2) + 4)),
+                CalloutSpec("06", "ACTION-001", "Open Native Logs action", "accepted", "Native folder action only.", (18, action_y, mid - 7, action_y + 32)),
+                CalloutSpec("07", "ACTION-002", "Open Exported Logs action", "accepted", "Export folder action only.", (mid + 7, action_y, width - 18, action_y + 32)),
+            ]
+        )
+    return common
+
+
 def _draw_window(option: Option, target: Path, *, context: bool = False) -> None:
     width, height = option.default_size
     canvas_w = 900 if context else width
@@ -636,18 +713,9 @@ def _draw_window(option: Option, target: Path, *, context: bool = False) -> None
     # Legend.
     legend_x = wx + width + 28 if context else 0
     if context:
-        legend = [
-            f"{option.option_id} - {option.surface}",
-            "CHROME-001: Nexus shell",
-            "TITLE-001: child-window title text",
-            "CTRL-001: compact window controls",
-            "PANEL-001: body/status panel",
-            "ROW-001: target/status truth",
-            "ACTION-001: primary action",
-            "ACTION-002: secondary route/action",
-            f"FOOTPRINT: {option.footprint_class}",
-            f"SIZE: {width}x{height}",
-        ]
+        legend = [f"{option.option_id} - {option.surface}"]
+        legend.extend(f"{spec.element_id}: {spec.element_name}" for spec in _callout_specs(option))
+        legend.extend([f"FOOTPRINT: {option.footprint_class}", f"SIZE: {width}x{height}"])
         draw.text((legend_x, wy + 8), "ELEMENT LEGEND", font=_font(12, bold=True), fill="#EAF8FF")
         ly = wy + 34
         for line in legend:
@@ -658,9 +726,10 @@ def _draw_window(option: Option, target: Path, *, context: bool = False) -> None
 
 
 def _draw_state_contact_sheet(option: Option, target: Path) -> None:
+    frames = _accepted_state_frames(option) if option.option_id.endswith("-ACCEPTED") else _legacy_state_frames(option)
     tile_w, tile_h = 300, 132
     cols = 3
-    rows = 3
+    rows = (len(frames) + cols - 1) // cols
     margin = 18
     header_h = 38
     img = Image.new("RGB", (cols * tile_w + margin * 2, rows * tile_h + header_h + margin * 2), "#020811")
@@ -669,15 +738,82 @@ def _draw_state_contact_sheet(option: Option, target: Path) -> None:
     state_font = _font(10, bold=True)
     small = _font(8, bold=True)
     value = _font(9, bold=True)
-    for index, state in enumerate(STATE_RENDER_SEQUENCE):
+    for index, frame in enumerate(frames):
         col = index % cols
         row = index // cols
         x = margin + col * tile_w
         y = header_h + margin + row * tile_h
+        state_label = frame["label"]
+        _rounded(draw, (x, y, x + tile_w - 14, y + tile_h - 12), 17, "#03111C", "#1E5C70", 1)
+        draw.text((x + 14, y + 10), state_label, font=state_font, fill="#7BD2E8")
+        draw.text((x + 14, y + 26), option.title.upper(), font=_font(13, bold=True), fill="#F1FAFF")
+
+        panel = (x + 14, y + 50, x + tile_w - 28, y + 82)
+        fill = "#061725"
+        outline = "#173D4E"
+        state_style = frame["style"]
+        if state_style == "blocked":
+            fill, outline = "#211218", "#7C3D45"
+        elif state_style in {"active", "pressed"}:
+            fill, outline = "#0D1F24", "#34BFA4"
+        elif state_style == "disabled":
+            fill, outline = "#06111A", "#244052"
+        elif state_style == "focus":
+            fill, outline = "#071F31", "#8CEBFF"
+        elif state_style == "hover":
+            fill, outline = "#08283A", "#39B7D1"
+        _rounded(draw, panel, 11, fill, outline, 1)
+
+        draw.text((panel[0] + 10, panel[1] + 10), frame["truth"], font=value, fill="#9FFFE3" if state_style != "disabled" else "#647684")
+
+        button = (x + 14, y + 91, x + 145, y + 119)
+        button_fill = "#092C3E"
+        button_outline = "#39B7D1"
+        if state_style == "disabled":
+            button_fill, button_outline = "#06111A", "#244052"
+        elif state_style == "pressed":
+            button_fill, button_outline = "#0D403F", "#7DFFE6"
+        elif state_style == "focus":
+            button_fill, button_outline = "#092C3E", "#EAF8FF"
+        elif state_style == "hover":
+            button_fill, button_outline = "#0A354C", "#69E8FF"
+        _rounded(draw, button, 10, button_fill, button_outline, 1)
+        label = frame["button"].upper()
+        tw, th = _text_size(draw, label, small)
+        draw.text(
+            (button[0] + ((button[2] - button[0]) - tw) // 2, button[1] + ((button[3] - button[1]) - th) // 2 - 1),
+            label,
+            font=small,
+            fill="#EAF8FF" if state_style != "disabled" else "#647684",
+        )
+        if frame["state_id"].startswith("FOOTPRINT-"):
+            draw.line((x + tile_w - 58, y + 22, x + tile_w - 28, y + 22), fill="#8CEBFF")
+            draw.line((x + tile_w - 28, y + 22, x + tile_w - 28, y + 52), fill="#8CEBFF")
+            grip = "no corner grip" if "Fixed" in option.resize_behavior or "fixed" in option.resize_behavior else "edge resize only"
+            draw.text((x + tile_w - 120, y + 84), grip, font=_font(8), fill="#A9C9D7")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    img.save(target)
+
+
+def _legacy_state_frames(option: Option) -> list[dict[str, str]]:
+    frames: list[dict[str, str]] = []
+    for state in STATE_RENDER_SEQUENCE:
         if option.surface.startswith("Recording"):
-            state_label = state.replace("_", " ").upper()
+            label = state.replace("_", " ").upper()
+            truth = {
+                "ready": "Ready - 2 active monitors",
+                "hover": "Hover: Start Recording",
+                "focus": "Focus ring visible",
+                "pressed": "Pressed: starting...",
+                "disabled": "Disabled: target missing",
+                "recording": "Recording active",
+                "saved_complete": "Saved native log",
+                "blocked_error": "Blocked: no active monitor",
+                "footprint_proof": f"Fixed {option.default_size[0]}x{option.default_size[1]}",
+            }[state]
+            button = "Stop Recording" if state == "recording" else option.primary_action
         else:
-            state_label = {
+            label = {
                 "ready": "NATIVE READY",
                 "hover": "HOVER ACTION",
                 "focus": "FOCUS RING",
@@ -688,40 +824,7 @@ def _draw_state_contact_sheet(option: Option, target: Path) -> None:
                 "blocked_error": "OPEN FAILED",
                 "footprint_proof": "DOORWAY FOOTPRINT",
             }[state]
-        _rounded(draw, (x, y, x + tile_w - 14, y + tile_h - 12), 17, "#03111C", "#1E5C70", 1)
-        draw.text((x + 14, y + 10), state_label, font=state_font, fill="#7BD2E8")
-        draw.text((x + 14, y + 26), option.title.upper(), font=_font(13, bold=True), fill="#F1FAFF")
-
-        panel = (x + 14, y + 50, x + tile_w - 28, y + 82)
-        fill = "#061725"
-        outline = "#173D4E"
-        if state == "blocked_error":
-            fill, outline = "#211218", "#7C3D45"
-        elif state in {"recording", "pressed"}:
-            fill, outline = "#0D1F24", "#34BFA4"
-        elif state == "disabled":
-            fill, outline = "#06111A", "#244052"
-        elif state == "focus":
-            fill, outline = "#071F31", "#8CEBFF"
-        elif state == "hover":
-            fill, outline = "#08283A", "#39B7D1"
-        _rounded(draw, panel, 11, fill, outline, 1)
-
-        if option.surface.startswith("Recording"):
-            status_map = {
-                "ready": "Ready - 2 active monitors",
-                "hover": "Hover: Start Recording",
-                "focus": "Focus ring visible",
-                "pressed": "Pressed: starting...",
-                "disabled": "Disabled: target missing",
-                "recording": "Recording active",
-                "saved_complete": "Saved native log",
-                "blocked_error": "Blocked: no active monitor",
-                "footprint_proof": f"Fixed {option.default_size[0]}x{option.default_size[1]}",
-            }
-            action = "Stop Recording" if state == "recording" else option.primary_action
-        else:
-            status_map = {
+            truth = {
                 "ready": "Native logs ready",
                 "hover": "Hover: Open Native Logs",
                 "focus": "Focus ring visible",
@@ -731,72 +834,130 @@ def _draw_state_contact_sheet(option: Option, target: Path) -> None:
                 "saved_complete": "Export folder ready",
                 "blocked_error": "Blocked: open failed",
                 "footprint_proof": option.resize_behavior,
+            }[state]
+            button = option.primary_action
+        frames.append(
+            {
+                "state_id": state,
+                "label": label,
+                "truth": truth,
+                "button": button,
+                "style": _style_for_state_id(state),
             }
-            action = option.primary_action
-        draw.text((panel[0] + 10, panel[1] + 10), status_map[state], font=value, fill="#9FFFE3" if state != "disabled" else "#647684")
-
-        button = (x + 14, y + 91, x + 145, y + 119)
-        button_fill = "#092C3E"
-        button_outline = "#39B7D1"
-        if state == "disabled":
-            button_fill, button_outline = "#06111A", "#244052"
-        elif state == "pressed":
-            button_fill, button_outline = "#0D403F", "#7DFFE6"
-        elif state == "focus":
-            button_fill, button_outline = "#092C3E", "#EAF8FF"
-        elif state == "hover":
-            button_fill, button_outline = "#0A354C", "#69E8FF"
-        _rounded(draw, button, 10, button_fill, button_outline, 1)
-        label = action.upper()
-        tw, th = _text_size(draw, label, small)
-        draw.text(
-            (button[0] + ((button[2] - button[0]) - tw) // 2, button[1] + ((button[3] - button[1]) - th) // 2 - 1),
-            label,
-            font=small,
-            fill="#EAF8FF" if state != "disabled" else "#647684",
         )
-        if state == "footprint_proof":
-            draw.line((x + tile_w - 58, y + 22, x + tile_w - 28, y + 22), fill="#8CEBFF")
-            draw.line((x + tile_w - 28, y + 22, x + tile_w - 28, y + 52), fill="#8CEBFF")
-            grip = "no corner grip" if "Fixed" in option.resize_behavior or "fixed" in option.resize_behavior else "edge resize only"
-            draw.text((x + tile_w - 116, y + 56), grip, font=_font(8), fill="#A9C9D7")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    img.save(target)
+    return frames
+
+
+def _accepted_state_frames(option: Option) -> list[dict[str, str]]:
+    if option.surface.startswith("Recording"):
+        rows = [
+            ("ACTION-001-ready", "ACTION-001 READY", "Ready: target and active monitors available", "Start Recording", "ready"),
+            ("ACTION-001-hover", "ACTION-001 HOVER", "Hover: primary Start Recording", "Start Recording", "hover"),
+            ("ACTION-001-focus", "ACTION-001 FOCUS", "Focus: primary action ring visible", "Start Recording", "focus"),
+            ("ACTION-001-pressed", "ACTION-001 PRESSED", "Pressed: starting recording", "Start Recording", "pressed"),
+            ("ACTION-001-recording", "ACTION-001 RECORDING", "Stateful variation: Stop Recording", "Stop Recording", "active"),
+            ("ACTION-001-saved-complete", "ACTION-001 SAVED", "Saved complete: ready for another recording", "Start Recording", "active"),
+            ("ACTION-001-disabled", "ACTION-001 DISABLED", "Disabled: target unavailable", "Start Recording", "disabled"),
+            ("ACTION-001-blocked-error", "ACTION-001 BLOCKED", "Blocked: no active monitor", "Start Recording", "blocked"),
+            ("ACTION-002-hover", "ACTION-002 HOVER", "Hover: Open Logs secondary action", "Open Logs", "hover"),
+            ("ACTION-002-focus", "ACTION-002 FOCUS", "Focus: Open Logs secondary action", "Open Logs", "focus"),
+            ("ACTION-002-pressed", "ACTION-002 PRESSED", "Pressed: opening Log Viewer Studio", "Open Logs", "pressed"),
+            ("ACTION-002-disabled", "ACTION-002 DISABLED", "Disabled: log route unavailable", "Open Logs", "disabled"),
+            ("FOOTPRINT-001-fixed-size", "FOOTPRINT PROOF", option.resize_behavior, "Fixed footprint", "ready"),
+        ]
+    else:
+        rows = [
+            ("ROW-001-native-ready", "ROW-001 NATIVE READY", "Native logs row: Recordings folder ready", "Native Row", "ready"),
+            ("ACTION-001-hover", "ACTION-001 HOVER", "Hover: Open Native Logs", "Open Native Logs", "hover"),
+            ("ACTION-001-focus", "ACTION-001 FOCUS", "Focus: Open Native Logs", "Open Native Logs", "focus"),
+            ("ACTION-001-pressed", "ACTION-001 PRESSED", "Pressed: opening native folder", "Open Native Logs", "pressed"),
+            ("ACTION-001-disabled", "ACTION-001 DISABLED", "Disabled: native folder unavailable", "Open Native Logs", "disabled"),
+            ("ACTION-001-blocked", "ACTION-001 BLOCKED", "Blocked: native folder open failed", "Open Native Logs", "blocked"),
+            ("ROW-002-export-empty", "ROW-002 EXPORT EMPTY", "Export row: no user export yet", "Export Row", "ready"),
+            ("ROW-002-export-available", "ROW-002 EXPORT READY", "Export row: exported logs available", "Export Row", "active"),
+            ("ACTION-002-hover", "ACTION-002 HOVER", "Hover: Open Exported Logs", "Open Exported Logs", "hover"),
+            ("ACTION-002-focus", "ACTION-002 FOCUS", "Focus: Open Exported Logs", "Open Exported Logs", "focus"),
+            ("ACTION-002-pressed", "ACTION-002 PRESSED", "Pressed: opening exported folder", "Open Exported Logs", "pressed"),
+            ("ACTION-002-disabled", "ACTION-002 DISABLED", "Disabled: exported folder unavailable", "Open Exported Logs", "disabled"),
+            ("ACTION-002-blocked", "ACTION-002 BLOCKED", "Blocked: exported folder open failed", "Open Exported Logs", "blocked"),
+            ("FOOTPRINT-001-doorway", "DOORWAY FOOTPRINT", option.resize_behavior, "Doorway shell", "ready"),
+        ]
+    return [
+        {"state_id": state_id, "label": label, "truth": truth, "button": button, "style": style}
+        for state_id, label, truth, button, style in rows
+    ]
+
+
+def _style_for_state_id(state_id: str) -> str:
+    if "blocked" in state_id or "error" in state_id:
+        return "blocked"
+    if "disabled" in state_id:
+        return "disabled"
+    if "pressed" in state_id:
+        return "pressed"
+    if "focus" in state_id:
+        return "focus"
+    if "hover" in state_id:
+        return "hover"
+    if "recording" in state_id or "available" in state_id or "saved" in state_id:
+        return "active"
+    return "ready"
 
 
 def _draw_annotated_callout(option: Option, target: Path) -> None:
     base = target.with_name(target.stem + "_base.png")
     _draw_window(option, base)
-    img = Image.new("RGB", (option.default_size[0] + 310, option.default_size[1] + 34), "#020811")
+    callouts = _callout_specs(option)
+    canvas_h = max(option.default_size[1] + 54, 62 + len(callouts) * 52)
+    img = Image.new("RGB", (option.default_size[0] + 430, canvas_h), "#020811")
     img.paste(Image.open(base), (14, 17))
     base.unlink(missing_ok=True)
     draw = ImageDraw.Draw(img)
     offset_x, offset_y = 14, 17
     width, height = option.default_size
-    callouts = [
-        ("CHROME-001", (offset_x, offset_y, offset_x + width - 1, offset_y + height - 1), "Nexus shell / window class"),
-        ("TITLE-001", (offset_x + 20, offset_y + 14, offset_x + width - 90, offset_y + 56), "Header and title copy"),
-        ("CTRL-001", (offset_x + width - 88, offset_y + 16, offset_x + width - 15, offset_y + 51), "Minimize/close control pill"),
-        ("ROW-001", (offset_x + 18, offset_y + 66, offset_x + width - 18, offset_y + height - 58), "Accepted target/state rows"),
-        ("ACTION-001", (offset_x + 18, offset_y + height - 44, offset_x + width - 18, offset_y + height - 8), "Accepted action group"),
-    ]
     legend_x = offset_x + width + 24
     draw.text((legend_x, 18), "ANNOTATED LEGEND", font=_font(13, bold=True), fill="#EAF8FF")
     y = 44
-    for index, (callout_id, rect, label) in enumerate(callouts, start=1):
-        outline = ["#7DFFE6", "#8CEBFF", "#F5D06C", "#9FFFE3", "#F1FAFF"][index - 1]
+    colors = ["#7DFFE6", "#8CEBFF", "#F5D06C", "#9FFFE3", "#F1FAFF", "#FFB86C", "#C0FF72", "#B28DFF"]
+    for index, spec in enumerate(callouts, start=1):
+        outline = colors[(index - 1) % len(colors)]
+        rect = (
+            offset_x + spec.rect[0],
+            offset_y + spec.rect[1],
+            offset_x + spec.rect[2],
+            offset_y + spec.rect[3],
+        )
         draw.rounded_rectangle(rect, radius=8, outline=outline, width=2)
-        badge = (rect[0] + 4, rect[1] + 4, rect[0] + 34, rect[1] + 22)
+        badge = (rect[0] + 4, rect[1] + 4, rect[0] + 38, rect[1] + 23)
         _rounded(draw, badge, 6, "#061725", outline, 1)
-        draw.text((badge[0] + 6, badge[1] + 3), f"{index}", font=_font(9, bold=True), fill="#EAF8FF")
-        anchor_y = rect[1] + 10
-        draw.line((rect[2], anchor_y, legend_x - 8, y + 6), fill=outline, width=1)
-        draw.text((legend_x, y), f"{index}. {callout_id}", font=_font(10, bold=True), fill=outline)
-        draw.text((legend_x, y + 15), label, font=_font(9), fill="#A9C9D7")
-        y += 42
+        draw.text((badge[0] + 5, badge[1] + 4), spec.marker, font=_font(8, bold=True), fill="#EAF8FF")
+        anchor_x = rect[2] if rect[2] < legend_x else rect[0]
+        anchor_y = rect[1] + max(8, (rect[3] - rect[1]) // 2)
+        target_y = y + 9
+        draw.line((anchor_x, anchor_y, legend_x - 12, target_y), fill=outline, width=2)
+        draw.ellipse((legend_x - 18, target_y - 4, legend_x - 10, target_y + 4), fill=outline)
+        draw.text((legend_x, y), f"{spec.marker}. {spec.element_id}", font=_font(10, bold=True), fill=outline)
+        draw.text((legend_x, y + 14), spec.element_name, font=_font(9), fill="#EAF8FF")
+        draw.text((legend_x, y + 28), spec.purpose_note[:58], font=_font(8), fill="#A9C9D7")
+        y += 52
     draw.text((legend_x, y + 4), "Callouts are packet proof overlays only.", font=_font(9), fill="#A9C9D7")
     target.parent.mkdir(parents=True, exist_ok=True)
     img.save(target)
+
+
+def _callout_legend_records(option: Option) -> list[dict[str, object]]:
+    return [
+        {
+            "calloutMarker": spec.marker,
+            "elementId": spec.element_id,
+            "elementName": spec.element_name,
+            "acceptedRejectedReviseStatus": spec.status,
+            "purposeNote": spec.purpose_note,
+            "rect": list(spec.rect),
+            "nonColorMarkerMethod": "outlined box plus printed marker badge plus connector line",
+        }
+        for spec in _callout_specs(option)
+    ]
 
 
 def _copy_source_context() -> list[str]:
@@ -926,7 +1087,8 @@ def _option_record(option: Option, focus: Path, context: Path, states: Path) -> 
 
 
 def _accepted_target_record(option: Option, focus: Path, context: Path, states: Path, annotated: Path) -> dict[str, object]:
-    required_states = RECORDING_REQUIRED_STATES if option.surface.startswith("Recording") else LOG_REQUIRED_STATES
+    required_states = RECORDING_ACCEPTED_REQUIRED_STATES if option.surface.startswith("Recording") else LOG_ACCEPTED_REQUIRED_STATES
+    callout_legend = _callout_legend_records(option)
     accepted_basis = "REC-C accepted as base with REC-A target/state separation" if option.surface.startswith("Recording") else "LOG-A accepted as current branch doorway shell"
     rejected_patterns = [
         "REC-B proof/helper copy",
@@ -957,7 +1119,9 @@ def _accepted_target_record(option: Option, focus: Path, context: Path, states: 
         "fullDesktopContextRenderMediaPath": context.relative_to(PACKET_ROOT).as_posix(),
         "stateContactSheetMediaPath": states.relative_to(PACKET_ROOT).as_posix(),
         "annotatedCalloutMediaPath": annotated.relative_to(PACKET_ROOT).as_posix(),
-        "elementLegend": ["CHROME-001", "TITLE-001", "CTRL-001", "ROW-001", "ACTION-001"],
+        "elementLegend": [row["elementId"] for row in callout_legend],
+        "calloutLegend": callout_legend,
+        "annotationClarityRequirement": "Each callout uses a printed marker badge, outline, and connector line; color is supportive only.",
         "stateCoverage": {
             state: f"Rendered in {states.relative_to(PACKET_ROOT).as_posix()}" for state in sorted(required_states)
         },
@@ -1037,6 +1201,29 @@ def _write_packet(stamp: str) -> Path:
             )
         )
     (review_aids / "Accepted Branch Visual Acceptance Target.md").write_text("\n".join(accepted_md) + "\n", encoding="utf-8")
+
+    callout_md = [
+        "# Annotated Callout Legend Table",
+        "",
+        "Every marker below appears in the accepted-target annotated media as a printed badge, outline, and connector line. Color is supportive only and is not the sole identification method.",
+        "",
+        "| Surface | Callout marker | Element ID | Element name | Status | Purpose note | Non-color marker method |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for record in accepted_records:
+        for row in record["calloutLegend"]:
+            callout_md.append(
+                "| {surface} | `{marker}` | `{element}` | {name} | `{status}` | {note} | {method} |".format(
+                    surface=record["surface"],
+                    marker=row["calloutMarker"],
+                    element=row["elementId"],
+                    name=row["elementName"],
+                    status=row["acceptedRejectedReviseStatus"],
+                    note=row["purposeNote"],
+                    method=row["nonColorMarkerMethod"],
+                )
+            )
+    (review_aids / "Annotated Callout Legend Table.md").write_text("\n".join(callout_md) + "\n", encoding="utf-8")
 
     selection = [
         "# Visual Selection Ledger",
@@ -1162,6 +1349,9 @@ def _write_packet(stamp: str) -> Path:
         "- Stable callout IDs for material element groups.\n"
         "- Visible outlines/arrows/badges/markers.\n"
         "- No reliance on color alone.\n"
+        "- Recording Studio callouts must split TARGET-001, STATUS-001, ACTION-001, and ACTION-002.\n"
+        "- Log Viewer Studio callouts must split ROW-001, ROW-002, ACTION-001, and ACTION-002.\n"
+        "- State contact sheets must explicitly include secondary-action states, not infer them from primary actions.\n"
         "- Annotations are review/proof artifacts only and must not be injected into product UI.\n"
         "- The ZIP must include the actual media files, not only local paths.\n",
         encoding="utf-8",
@@ -1491,6 +1681,7 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
         "Reusable Design Recipe Template.md",
         "Visual Acceptance Lifecycle.md",
         "Annotated Callout Legend Requirement.md",
+        "Annotated Callout Legend Table.md",
         "Source Truth Conflict Classification.json",
         "Source Truth Conflict Classification.md",
         "Governance Candidate Only.md",
@@ -1526,6 +1717,8 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
                 "stateContactSheetMediaPath",
                 "annotatedCalloutMediaPath",
                 "elementLegend",
+                "calloutLegend",
+                "annotationClarityRequirement",
                 "stateCoverage",
                 "requiredStates",
                 "resizeBehavior",
@@ -1544,6 +1737,44 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
             rendered_states = set((option.get("stateCoverage") or {}).keys())
             if required_states != rendered_states:
                 failures.append(f"state coverage mismatch for {option.get('targetId')}: required {sorted(required_states)} rendered {sorted(rendered_states)}")
+            surface = option.get("surface")
+            required_elements = (
+                {"CHROME-001", "TITLE-001", "CTRL-001", "TARGET-001", "STATUS-001", "ACTION-001", "ACTION-002"}
+                if surface == "Recording Studio"
+                else {"CHROME-001", "TITLE-001", "CTRL-001", "ROW-001", "ROW-002", "ACTION-001", "ACTION-002"}
+            )
+            element_legend = set(option.get("elementLegend", []))
+            if element_legend != required_elements:
+                failures.append(f"element legend mismatch for {option.get('targetId')}: required {sorted(required_elements)} found {sorted(element_legend)}")
+            if "PANEL-001" in element_legend:
+                failures.append(f"grouped body/panel callout is forbidden for accepted target: {option.get('targetId')}")
+            callout_legend = option.get("calloutLegend") or []
+            callout_elements = {row.get("elementId") for row in callout_legend}
+            if callout_elements != required_elements:
+                failures.append(f"callout legend mismatch for {option.get('targetId')}: required {sorted(required_elements)} found {sorted(callout_elements)}")
+            for row in callout_legend:
+                if not row.get("calloutMarker") or not row.get("elementId") or not row.get("elementName") or not row.get("purposeNote"):
+                    failures.append(f"callout legend row incomplete for {option.get('targetId')}: {row}")
+                method = row.get("nonColorMarkerMethod", "")
+                if not all(token in method for token in ("printed marker", "outline", "connector line")):
+                    failures.append(f"callout row relies on insufficient non-color marker method for {option.get('targetId')}: {row}")
+                rect = row.get("rect")
+                if not isinstance(rect, list) or len(rect) != 4:
+                    failures.append(f"callout row missing rect for {option.get('targetId')}: {row}")
+            if surface == "Recording Studio":
+                for token in ("ACTION-002-hover", "ACTION-002-focus", "ACTION-002-pressed", "ACTION-002-disabled"):
+                    if token not in rendered_states:
+                        failures.append(f"Recording accepted target missing secondary-action state: {token}")
+                for forbidden_element in ("ROW-001", "ROW-002"):
+                    if forbidden_element in element_legend:
+                        failures.append(f"Recording accepted target uses wrong row element ID: {forbidden_element}")
+            if surface == "Log Viewer Studio":
+                for token in ("ACTION-002-hover", "ACTION-002-focus", "ACTION-002-pressed", "ACTION-002-disabled", "ACTION-002-blocked", "ROW-002-export-empty", "ROW-002-export-available"):
+                    if token not in rendered_states:
+                        failures.append(f"Log Viewer accepted target missing secondary/export state: {token}")
+                for forbidden_token in ("recording", "saved_complete", "ACTION-001-recording", "ACTION-001-saved-complete"):
+                    if forbidden_token in rendered_states:
+                        failures.append(f"Log Viewer accepted target contains Recording-specific state token: {forbidden_token}")
     accepted_media = list((packet_root / "Review Aids" / "Accepted Visual Target" / "media").glob("*.png"))
     if len(accepted_media) < 8:
         failures.append(f"expected at least 8 accepted target PNG media files, found {len(accepted_media)}")
@@ -1596,6 +1827,9 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
         "LOG-A": "accepted Log Viewer base",
         "Implementation-Match Checklist": "implementation-match checklist routing",
         "Annotated / Callout Legend Requirement": "annotated/callout requirement",
+        "Annotated Callout Legend Table": "marker-to-element legend table",
+        "ACTION-002": "secondary action callout/state coverage",
+        "ROW-002": "split exported row callout/state coverage",
     }
     for token, label in text_requirements.items():
         if token not in text_blob:
