@@ -142,7 +142,7 @@ def _update_field(text: str, field: str, value: str) -> str:
     pattern = re.compile(rf"^{re.escape(field)}: `.*?`$", re.MULTILINE)
     replacement = f"{field}: `{value}`"
     if pattern.search(text):
-        return pattern.sub(replacement, text, count=1)
+        return pattern.sub(lambda _match: replacement, text, count=1)
     return text.rstrip() + "\n" + replacement + "\n"
 
 
