@@ -1799,7 +1799,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             return []
         rows: list[list[str]] = []
         seen_separator = False
-        for line in lines[header_index + 1 :]:
+        for offset, line in enumerate(lines[header_index + 1 :], start=header_index + 1):
             if not line.strip().startswith("|"):
                 if rows or seen_separator:
                     break
@@ -1808,6 +1808,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             if governance._is_markdown_table_separator(cells):
                 seen_separator = True
                 continue
+            if seen_separator and offset + 1 < len(lines):
+                next_cells = governance._markdown_table_cells(lines[offset + 1])
+                if governance._is_markdown_table_separator(next_cells):
+                    break
             rows.append(cells)
         return rows
 
