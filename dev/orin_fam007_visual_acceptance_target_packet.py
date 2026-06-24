@@ -78,6 +78,7 @@ REQUIRED_PACKET_FILES = [
     "Review Aids/VISUAL_OPTIONS_PACKET.md",
     "Review Aids/ELEMENT_LEGENDS.md",
     "Review Aids/ANNOTATION_MANIFEST.md",
+    "Review Aids/IMAGE_RELEVANCE_MANIFEST.md",
     "Review Aids/STATE_COVERAGE_MATRIX.md",
     "Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md",
     "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
@@ -456,6 +457,50 @@ def _mark_udl_018_restored(udl_text: str, zip_path: Path) -> str:
     )
 
 
+def _update_visual_packet_udl_rows(udl_text: str, zip_path: Path) -> str:
+    row_019 = """## F7-UDL-019 Visual Target Legend Mapping / Annotation Bounds - 2026-06-24
+
+Status: `CLOSED_WITH_PROOF`
+Finding: `The branch-local Visual Acceptance Target packet generator could create visual legends that were hard to map to exact render regions, and focused annotated renders could clip or truncate callout labels outside the image canvas.`
+Required Disposition: `Future Visual Acceptance Target packets must include clean and annotated renders, stable annotation IDs, color plus non-color cues, an annotation manifest mapping marker ID to element ID and visual region, in-canvas annotation labels, in-bounds target boxes, in-bounds label boxes, in-bounds leader lines, and template-not-endstate wording.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now renders annotated images with a right-side in-canvas annotation key panel, keeps clean renders beside annotated renders, records label boxes and leader lines in ANNOTATION_MANIFEST.md, and validates annotation geometry plus visible marker label pixels for every annotated render.`
+Proof: `Current Visual Acceptance Target packet validation fails if any annotation target, label box, or leader line extends outside the image canvas, or if the marker label area does not contain visible text pixels.`
+Current Review Packet: `{zip_path}`
+No-Fake-Preservation Rule: `This repair does not restore or require a second historical packet ZIP and does not approve H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling mutation, imports, or v1.8.0 work.`
+"""
+    row_021 = """## F7-UDL-021 Final Packet Image Relevance / Decision Clarity - 2026-06-24
+
+Status: `CLOSED_WITH_PROOF`
+Finding: `Final USER-review packets that are not repair-cycle/debug packets can over-include raw proof dumps or helper-only screenshot evidence, making the current USER decision ambiguous.`
+Required Disposition: `Final Visual Acceptance Target packets must include only USER decision images, required context images, and required annotation images needed to compare, select, accept, reject, or revise the current visual target. Repair/debug evidence images must be excluded from final USER decision packets unless a current source-truth rule admits them for that decision and labels them clearly.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now writes IMAGE_RELEVANCE_MANIFEST.md, declares every included image classification and USER purpose, excludes raw H1/LV screenshot proof dumps from the final visual-target packet, and validates that the final packet contains exactly the curated render media images with declared USER-decision purposes.`
+Proof: `Current Visual Acceptance Target packet validation fails when an included image lacks a declared USER-decision purpose, when final packet images appear outside the curated Render Media path, when image counts drift from the expected curated set, or when START_HERE / primary USER review bypass the curated decision path.`
+Current Review Packet: `{zip_path}`
+No-Fake-Preservation Rule: `This repair preserves artifact-of-record validation for the current packet without overloading the final USER-facing decision packet with repair/debug proof images.`
+"""
+    if "## F7-UDL-019 " in udl_text:
+        udl_text = re.sub(
+            r"## F7-UDL-019 .+?(?=\n## |\Z)",
+            lambda _match: row_019,
+            udl_text,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
+        udl_text = udl_text.rstrip() + "\n\n" + row_019
+    if "## F7-UDL-021 " in udl_text:
+        udl_text = re.sub(
+            r"## F7-UDL-021 .+?(?=\n## |\Z)",
+            lambda _match: row_021,
+            udl_text,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
+        udl_text = udl_text.rstrip() + "\n\n" + row_021
+    return udl_text
+
+
 def _update_external_state(zip_path: Path) -> None:
     now = datetime.now().astimezone().isoformat(timespec="seconds")
     head = _git_value("rev-parse", "HEAD")
@@ -509,6 +554,7 @@ def _update_external_state(zip_path: Path) -> None:
                 flags=re.MULTILINE,
             )
         udl_text = _mark_udl_018_restored(udl_text, zip_path)
+        udl_text = _update_visual_packet_udl_rows(udl_text, zip_path)
         UDL_PATH.write_text(udl_text.rstrip() + "\n", encoding="utf-8")
 
 
@@ -614,8 +660,22 @@ ANNOTATION_ELEMENTS = [
     ("STATUS-001", "blue bracket", "compact AI/provider/trust status"),
 ]
 
+ANNOTATION_LABEL_PANEL_WIDTH = 260
+ANNOTATION_LABEL_BOX_WIDTH = 216
+ANNOTATION_LABEL_BOX_HEIGHT = 34
+
 
 def _annotation_targets(width: int, height: int, *, desktop: bool) -> dict[str, tuple[int, int, int, int]]:
+    if not desktop and width < 700:
+        x, y, win_w, win_h = 20, 20, max(360, width - 40), max(360, height - 40)
+        return {
+            "CHROME-001": (x, y, x + win_w, y + win_h),
+            "CTRL-001": (max(x + win_w - 124, x + 20), y + 20, x + win_w - 24, y + 66),
+            "TITLE-001": (x + 24, y + 26, min(x + win_w - 120, x + 400), y + 116),
+            "PANEL-001": (x + 24, y + 140, x + win_w - 24, min(y + 340, y + win_h - 116)),
+            "ACTION-001": (max(x + win_w - 208, x + 80), y + 248, x + win_w - 28, min(y + 430, y + win_h - 76)),
+            "STATUS-001": (x + 24, max(y + win_h - 118, y + 300), x + win_w - 24, y + win_h - 20),
+        }
     if desktop:
         x, y, win_w, win_h = 850, 82, 650, 620
     else:
@@ -630,6 +690,22 @@ def _annotation_targets(width: int, height: int, *, desktop: bool) -> dict[str, 
     }
 
 
+def _callout_geometry(target: tuple[int, int, int, int], index: int, canvas_width: int) -> dict[str, tuple[int, ...]]:
+    x1, y1, x2, y2 = target
+    label_x = canvas_width - ANNOTATION_LABEL_PANEL_WIDTH + 20
+    label_y = 64 + (index - 1) * 50
+    label_box = (
+        label_x,
+        label_y,
+        label_x + ANNOTATION_LABEL_BOX_WIDTH,
+        label_y + ANNOTATION_LABEL_BOX_HEIGHT,
+    )
+    anchor_x = x2 if x2 < label_x else x1
+    anchor_y = y1 + max(16, min(44, (y2 - y1) // 3))
+    line = (anchor_x, anchor_y, label_x, label_y + ANNOTATION_LABEL_BOX_HEIGHT // 2)
+    return {"label_box": label_box, "leader_line": line}
+
+
 def _draw_callout(
     draw: ImageDraw.ImageDraw,
     label: str,
@@ -638,17 +714,15 @@ def _draw_callout(
     *,
     color: tuple[int, int, int],
     shape: str,
-) -> None:
+    canvas_width: int,
+) -> dict[str, tuple[int, ...]]:
     x1, y1, x2, y2 = target
     draw.rounded_rectangle(target, radius=12, outline=color, width=4)
-    anchor_x = x1 if index % 2 == 0 else x2
-    anchor_y = y1 + max(16, min(44, (y2 - y1) // 3))
-    label_x = max(18, min(x1 - 118 if index % 2 == 0 else x2 + 18, 1450))
-    label_y = max(18, min(y1 + (index % 3) * 18, 820))
-    if label_x > x1:
-        label_x = min(label_x, max(18, x2 + 18))
-    label_box = (label_x, label_y, label_x + 104, label_y + 28)
-    draw.line((anchor_x, anchor_y, label_x + 52, label_y + 28), fill=color, width=3)
+    geometry = _callout_geometry(target, index, canvas_width)
+    label_box = geometry["label_box"]
+    leader_line = geometry["leader_line"]
+    label_x, label_y, _, _ = label_box
+    draw.line(leader_line, fill=color, width=3)
     draw.rounded_rectangle(label_box, radius=10, fill=(1, 14, 23), outline=color, width=3)
     if shape == "circle":
         draw.ellipse((label_x + 7, label_y + 7, label_x + 21, label_y + 21), outline=color, width=3)
@@ -661,6 +735,7 @@ def _draw_callout(
     else:
         draw.rectangle((label_x + 7, label_y + 7, label_x + 21, label_y + 21), outline=color, width=3)
     draw.text((label_x + 28, label_y + 8), label, fill=(238, 248, 252), font=_font(10))
+    return geometry
 
 
 def _annotate_render(source: Path, target: Path, option_id: str, *, desktop: bool) -> list[dict[str, str]]:
@@ -674,15 +749,22 @@ def _annotate_render(source: Path, target: Path, option_id: str, *, desktop: boo
     ]
     shapes = ["box", "circle", "bracket", "box", "arrow", "bracket"]
     with Image.open(source) as image:
-        annotated = image.convert("RGB")
+        base = image.convert("RGB")
+    annotated = Image.new("RGB", (base.width + ANNOTATION_LABEL_PANEL_WIDTH, base.height), (0, 5, 8))
+    annotated.paste(base, (0, 0))
     draw = ImageDraw.Draw(annotated)
-    targets = _annotation_targets(*annotated.size, desktop=desktop)
+    panel_x = base.width
+    draw.rectangle((panel_x, 0, annotated.width, annotated.height), fill=(2, 16, 25))
+    draw.line((panel_x, 0, panel_x, annotated.height), fill=(59, 161, 190), width=2)
+    draw.text((panel_x + 20, 22), "ANNOTATION KEY", fill=(104, 225, 239), font=_font(13))
+    draw.text((panel_x + 20, 40), "IDs stay in-canvas", fill=(158, 205, 213), font=_font(11))
+    targets = _annotation_targets(base.width, base.height, desktop=desktop)
     rows: list[dict[str, str]] = []
     for index, (element_id, cue, purpose) in enumerate(ANNOTATION_ELEMENTS, start=1):
         marker_id = f"{option_id}-A{index:02d}"
         target_box = targets[element_id]
         color = colors[index - 1]
-        _draw_callout(draw, marker_id, target_box, index, color=color, shape=shapes[index - 1])
+        geometry = _draw_callout(draw, marker_id, target_box, index, color=color, shape=shapes[index - 1], canvas_width=annotated.width)
         rows.append(
             {
                 "option": option_id,
@@ -690,6 +772,8 @@ def _annotate_render(source: Path, target: Path, option_id: str, *, desktop: boo
                 "element": element_id,
                 "cue": cue,
                 "region": f"{target_box[0]},{target_box[1]},{target_box[2]},{target_box[3]}",
+                "label_box": ",".join(str(value) for value in geometry["label_box"]),
+                "leader_line": ",".join(str(value) for value in geometry["leader_line"]),
                 "purpose": purpose,
                 "file": str(target.relative_to(PACKET_DIR)).replace("\\", "/"),
             }
@@ -815,10 +899,22 @@ def _options_table(options: list[RenderOption]) -> str:
     return "\n".join(rows)
 
 
+def _decision_options_table(options: list[RenderOption]) -> str:
+    rows = [
+        "| Option ID | Surface | Footprint | Authority | USER critique focus |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for option in options:
+        rows.append(
+            f"| `{option.option_id}` | AI Dashboard / AI Control Center visual acceptance target guide | `{option.footprint}` | `{option.authority}` | {option.description} |"
+        )
+    return "\n".join(rows)
+
+
 def _annotation_manifest_table(options: list[RenderOption]) -> str:
     rows = [
-        "| Option ID | Annotation ID | Element ID | Color + non-color cue | Visual region | Purpose | Annotated file |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| Option ID | Annotation ID | Element ID | Color + non-color cue | Visual region | Label box | Leader line | Purpose | Annotated file |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for option in options:
         for image_path, desktop in (
@@ -827,19 +923,50 @@ def _annotation_manifest_table(options: list[RenderOption]) -> str:
         ):
             target_path = PACKET_DIR / image_path
             with Image.open(target_path) as image:
-                targets = _annotation_targets(*image.size, desktop=desktop)
+                base_width = image.size[0] - ANNOTATION_LABEL_PANEL_WIDTH
+                targets = _annotation_targets(base_width, image.size[1], desktop=desktop)
             for index, (element_id, cue, purpose) in enumerate(ANNOTATION_ELEMENTS, start=1):
                 marker_id = f"{option.option_id}-A{index:02d}"
                 box = targets[element_id]
+                geometry = _callout_geometry(box, index, base_width + ANNOTATION_LABEL_PANEL_WIDTH)
+                label_box = geometry["label_box"]
+                leader_line = geometry["leader_line"]
                 rows.append(
-                    f"| `{option.option_id}` | `{marker_id}` | `{element_id}` | {cue}; visible label `{marker_id}` plus outline/callout line | `{box[0]},{box[1]},{box[2]},{box[3]}` | {purpose} | `{image_path}` |"
+                    f"| `{option.option_id}` | `{marker_id}` | `{element_id}` | {cue}; visible label `{marker_id}` plus outline/callout line | `{box[0]},{box[1]},{box[2]},{box[3]}` | `{label_box[0]},{label_box[1]},{label_box[2]},{label_box[3]}` | `{leader_line[0]},{leader_line[1]},{leader_line[2]},{leader_line[3]}` | {purpose} | `{image_path}` |"
                 )
+    return "\n".join(rows)
+
+
+def _image_relevance_manifest_table(options: list[RenderOption]) -> str:
+    rows = [
+        "| Included image | Classification | Why USER needs it | Supported decision |",
+        "| --- | --- | --- | --- |",
+    ]
+    for option in options:
+        rows.extend(
+            [
+                (
+                    f"| `{option.focused_media}` | `USER decision image` | Clean focused view of {option.option_id} without annotation overlays. | Compare/select/revise visual target footprint and layout. |"
+                ),
+                (
+                    f"| `{option.annotated_focused_media}` | `required annotation image` | Focused view with in-canvas marker IDs, outlines, and leader lines. | Map visible element groups to the element ledger without guessing. |"
+                ),
+                (
+                    f"| `{option.desktop_media}` | `required context image` | Clean desktop/context view showing placement and monitor relationship. | Judge footprint and surrounding desktop relationship. |"
+                ),
+                (
+                    f"| `{option.annotated_desktop_media}` | `required annotation image` | Desktop/context view with in-canvas marker IDs, outlines, and leader lines. | Map context-level placement and same element IDs. |"
+                ),
+            ]
+        )
     return "\n".join(rows)
 
 
 def _write_packet_files(options: list[RenderOption]) -> None:
     options_table = _options_table(options)
+    decision_options_table = _decision_options_table(options)
     annotation_table = _annotation_manifest_table(options)
+    image_relevance_table = _image_relevance_manifest_table(options)
     _write_text(
         "START_HERE.md",
         """
@@ -854,10 +981,13 @@ Purpose: review a branch-local process that requires rendered visual targets bef
 Review order:
 
 1. Open the primary USER Review file.
-2. Inspect the clean and annotated render media under `Review Aids/Render Media`.
-3. Use `Review Aids/ANNOTATION_MANIFEST.md` and `Review Aids/ELEMENT_LEGENDS.md` to map every callout marker to the exact visual region it identifies.
-4. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
-5. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
+2. Inspect the curated clean and annotated render media under `Review Aids/Render Media`.
+3. Use `Review Aids/IMAGE_RELEVANCE_MANIFEST.md` to see why each included image is present in this final USER decision packet.
+4. Use `Review Aids/ANNOTATION_MANIFEST.md` and `Review Aids/ELEMENT_LEGENDS.md` to map every callout marker to the exact visual region it identifies.
+5. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
+6. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
+
+Image Scope Rule: this final USER review packet is curated for decision clarity. It includes only the images needed to compare visual target options, understand clean versus annotated renders, and judge focused/desktop context. Repair-cycle/debug evidence belongs in explicitly labeled repair packets or helper output, not in this final USER decision path.
 """,
     )
     _write_text(
@@ -872,6 +1002,8 @@ Verdict requested: accept, revise, reject, or hold this branch-local Visual Acce
 This packet creates a current-branch visual target guide process for FAM-007 visible UI/UX work. Future visible UI/UX implementation on this branch should not proceed from prose alone. It should first have a rendered visual target substantial enough to judge scale, footprint, spacing, density, hierarchy, controls, state behavior, resize behavior, copy, and relation to accepted Nexus references.
 
 Visual Target Boundary: a USER-accepted visual target is a branch-local guide, comparator, template candidate, or expectation-alignment artifact. It should be as close to the intended product result as practical, but it is not final implemented product truth by itself. Final implementation still requires source-truth reconciliation, code-to-visual proof, validation, and USER review where the current phase requires it.
+
+Image Scope Boundary: this final USER review packet is curated for the current decision. Included images are limited to clean option renders, annotated option renders, and minimal desktop/context renders needed to compare, select, accept, reject, or revise the visual target. Repair/debug proof dumps are intentionally excluded from the primary USER decision packet.
 
 ## Current Branch Visual Impact Classification
 
@@ -888,7 +1020,7 @@ Any future visible UI/UX change on this branch needs a rendered visual target be
 
 ## Visual Options
 
-{options_table}
+{decision_options_table}
 
 ## Recommended Decision
 
@@ -961,6 +1093,22 @@ Annotation Rule: every current visual target option must include color plus a no
 """,
     )
     _write_text(
+        "Review Aids/IMAGE_RELEVANCE_MANIFEST.md",
+        f"""
+# Image Relevance Manifest
+
+Purpose: list every image included in this final USER-review packet and why the USER needs it for the current visual target decision.
+
+Packet Mode: `final USER decision packet`
+
+Allowed image classifications in this packet: `USER decision image`, `required context image`, and `required annotation image`.
+
+Excluded from this final USER decision packet: redundant proof dumps, duplicate state screenshots, helper-only evidence images, raw repair/debug evidence images, and images without a declared USER-decision purpose.
+
+{image_relevance_table}
+""",
+    )
+    _write_text(
         "Review Aids/STATE_COVERAGE_MATRIX.md",
         """
 # State Coverage Matrix
@@ -1023,8 +1171,8 @@ LV Gating Rule: Live Validation cannot claim UI green by helper output, screensh
     _write_text("Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md", "# Reusable Design Recipe Template\n\nStatus: `TEMPLATE ONLY - fill after USER accepts a Visual Acceptance Target guide. This template is not final implemented product truth by itself.`\n\n| Field | Value |\n| --- | --- |\n| Accepted surface class |  |\n| Accepted footprint class |  |\n| Token values / dimensions |  |\n| Padding |  |\n| Spacing |  |\n| Button heights |  |\n| Font scale |  |\n| Status chip pattern |  |\n| Title/header grammar |  |\n| Resize behavior |  |\n| Copy pattern |  |\n| State pattern |  |\n| Accepted comparator references |  |\n| Rejected alternatives |  |\n| Future branch reuse notes |  |\n| Proof requirements |  |")
     _write_text("Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md", "# Source-Truth Conflict Classification\n\n| Candidate Decision | Classification | Disposition |\n| --- | --- | --- |\n| Require rendered visual target before future visible UI implementation on this branch | `BRANCH_LOCAL_VISUAL_DECISION` | legal branch-local process; Governance/global version is candidate only |\n| Treat current FAM-007 actual screenshot as branch-local target candidate | `NO_CONFLICT` | comparator seed only, not global template promotion |\n| Require FAM-002/UIREF comparison for same-class controls | `NO_CONFLICT` | matches Project Vision, FAM-002, UIREF-001 through UIREF-006 |\n| Promote AI Dashboard / AI Control Center as global gold standard | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Add reusable global helper/validator for all branches | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Implement product/runtime UI change in this pass | `USER_DECISION_REQUIRED` | not approved by this packet |")
     _write_text("Review Aids/GOVERNANCE_CANDIDATE_ONLY.md", "# Governance Candidate Only\n\nCandidate: create a global Visual Acceptance Target process for all future Nexus visible UI/UX work.\n\nReason: FAM-007 and FAM-006 false-green loops show that implementation-first UI work creates repair loops. A global rule should require substantial rendered targets, annotated and clean render media, annotation manifests, element legends, state matrices, full desktop/context renders, rejected-pattern ledgers, reusable design recipes, and implementation-match proof before visible UI work can proceed.\n\nTemplate Boundary: a global visual target process should say that accepted targets are guides/templates/comparators for implementation alignment, not final product truth by themselves.\n\nApproval Needed: USER-approved Governance/FAM-002 carrier after this branch-local process is reviewed. This FAM-007 pass does not mutate Governance and does not promote a global template.")
-    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, and packet media included in the ZIP.\n\nNo current-owned UDL row is marked closed by this packet. Existing known-bad packet defects remain preserved as historical false-green evidence.")
-    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, annotated renders for each option, annotation manifest mapping marker IDs to visual regions, element legend, state matrix, template-not-endstate wording, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
+    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, curated decision-relevant packet images, and packet media included in the ZIP.\n\nUDL rows F7-UDL-019 and F7-UDL-021 track annotation readability/bounds and final-packet image relevance. Existing known-bad packet defects remain preserved as historical false-green evidence.")
+    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, annotated renders for each option, annotation manifest mapping marker IDs to visual regions, annotation label/leader geometry in bounds, visible marker label text pixels inside each label box, image relevance manifest coverage for every included image, final USER-review image scope, element legend, state matrix, template-not-endstate wording, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
 
     context_files = {
         "Source Truth Context/current_external_branch_state.md": BRANCH_STATE,
@@ -1043,9 +1191,6 @@ LV Gating Rule: Live Validation cannot claim UI green by helper output, screensh
         context_files["Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md"] = UDL_PATH
     for relative, source in context_files.items():
         _copy_file(source, relative)
-    if MANIFEST_PATH.exists():
-        _copy_file(MANIFEST_PATH, "Review Aids/Inspectable Evidence/live_resize_manifest.json")
-    _copy_manifest_media()
 
 
 def _recovery_search_roots() -> list[Path]:
@@ -1315,6 +1460,117 @@ def _create_zip(zip_path: Path) -> None:
             archive.write(path, path.relative_to(PACKET_DIR).as_posix())
 
 
+def _box_in_bounds(box: tuple[int, ...], width: int, height: int) -> bool:
+    return len(box) == 4 and 0 <= box[0] < box[2] <= width and 0 <= box[1] < box[3] <= height
+
+
+def _line_in_bounds(line: tuple[int, ...], width: int, height: int) -> bool:
+    return len(line) == 4 and 0 <= line[0] <= width and 0 <= line[2] <= width and 0 <= line[1] <= height and 0 <= line[3] <= height
+
+
+def _option_id_from_annotated_path(path: Path) -> str | None:
+    normalized = path.as_posix().casefold()
+    if "option-a" in normalized or "option_a" in normalized:
+        return "OPTION-A"
+    if "option-b" in normalized:
+        return "OPTION-B"
+    if "option-c" in normalized:
+        return "OPTION-C"
+    return None
+
+
+def _validate_annotation_images(packet_dir: Path) -> list[str]:
+    failures: list[str] = []
+    annotated_images = sorted((packet_dir / "Review Aids" / "Render Media").rglob("*_annotated.png"))
+    if len(annotated_images) < 6:
+        failures.append(f"Expected at least 6 annotated render images; found {len(annotated_images)}")
+    for image_path in annotated_images:
+        option_id = _option_id_from_annotated_path(image_path)
+        if option_id is None:
+            failures.append(f"Cannot infer option ID for annotated image: {image_path}")
+            continue
+        desktop = "desktop" in image_path.name.casefold()
+        with Image.open(image_path) as image:
+            rgb = image.convert("RGB")
+        width, height = rgb.size
+        base_width = width - ANNOTATION_LABEL_PANEL_WIDTH
+        if base_width <= 0:
+            failures.append(f"Annotated image missing annotation side panel width: {image_path}")
+            continue
+        targets = _annotation_targets(base_width, height, desktop=desktop)
+        for index, (element_id, _cue, _purpose) in enumerate(ANNOTATION_ELEMENTS, start=1):
+            marker_id = f"{option_id}-A{index:02d}"
+            target_box = targets[element_id]
+            geometry = _callout_geometry(target_box, index, width)
+            label_box = geometry["label_box"]
+            leader_line = geometry["leader_line"]
+            if not _box_in_bounds(target_box, width, height):
+                failures.append(f"Annotation target box out of bounds for {marker_id} in {image_path}: {target_box} within {width}x{height}")
+            if not _box_in_bounds(label_box, width, height):
+                failures.append(f"Annotation label box out of bounds for {marker_id} in {image_path}: {label_box} within {width}x{height}")
+            if not _line_in_bounds(leader_line, width, height):
+                failures.append(f"Annotation leader line out of bounds for {marker_id} in {image_path}: {leader_line} within {width}x{height}")
+            label_crop = rgb.crop(label_box)
+            light_pixels = 0
+            pixel_iter = label_crop.get_flattened_data() if hasattr(label_crop, "get_flattened_data") else label_crop.getdata()
+            for red, green, blue in pixel_iter:
+                if red > 210 and green > 220 and blue > 220:
+                    light_pixels += 1
+            if light_pixels < 12:
+                failures.append(f"Annotation ID not visibly present in label box for {marker_id} in {image_path}")
+    return failures
+
+
+def _validate_image_relevance_manifest(packet_dir: Path) -> list[str]:
+    failures: list[str] = []
+    manifest = packet_dir / "Review Aids" / "IMAGE_RELEVANCE_MANIFEST.md"
+    if not manifest.exists():
+        return ["Image relevance manifest missing"]
+    text = manifest.read_text(encoding="utf-8")
+    allowed_classes = {
+        "USER decision image",
+        "required context image",
+        "required annotation image",
+    }
+    image_paths = sorted(
+        path.relative_to(packet_dir).as_posix()
+        for path in packet_dir.rglob("*")
+        if path.is_file() and path.suffix.casefold() in {".png", ".jpg", ".jpeg", ".gif", ".webp"}
+    )
+    if len(image_paths) != 12:
+        failures.append(f"Expected exactly 12 curated final-packet images; found {len(image_paths)}")
+    for relative in image_paths:
+        if not relative.startswith("Review Aids/Render Media/"):
+            failures.append(f"Final USER packet includes non-curated image outside Render Media: {relative}")
+        if f"`{relative}`" not in text:
+            failures.append(f"Image missing declared USER-decision purpose in IMAGE_RELEVANCE_MANIFEST.md: {relative}")
+    for line in text.splitlines():
+        if not line.startswith("| `Review Aids/Render Media/"):
+            continue
+        cells = [cell.strip().strip("`") for cell in line.strip("|").split("|")]
+        if len(cells) < 4:
+            failures.append(f"Malformed image relevance row: {line}")
+            continue
+        classification = cells[1]
+        why_user_needs_it = cells[2]
+        supported_decision = cells[3]
+        if classification not in allowed_classes:
+            failures.append(f"Image relevance row uses invalid final-packet classification {classification!r}: {line}")
+        if not why_user_needs_it or not supported_decision:
+            failures.append(f"Image relevance row missing USER purpose or supported decision: {line}")
+    primary_text = ""
+    for relative in ("START_HERE.md", f"USER Review/{PRIMARY_REVIEW_FILE}"):
+        path = packet_dir / relative
+        if path.exists():
+            primary_text += "\n" + path.read_text(encoding="utf-8")
+    primary_image_refs = len(re.findall(r"\.(?:png|jpg|jpeg|gif|webp)\b", primary_text, flags=re.IGNORECASE))
+    if primary_image_refs > 0:
+        failures.append("Primary USER decision path directly embeds image filenames instead of routing through curated manifests")
+    if "curated for decision clarity" not in primary_text:
+        failures.append("Primary USER decision path missing curated final-packet image-scope wording")
+    return failures
+
+
 def generate() -> Path:
     zip_path = USER_ROOT / f"{WORKTREE_LABEL}-{_stamp()}.zip"
     _purge_packet_root()
@@ -1346,14 +1602,16 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         if option_id not in option_text:
             failures.append(f"Visual option missing: {option_id}")
     media_files = sorted((packet_dir / "Review Aids" / "Render Media").rglob("*.png"))
-    if len(media_files) < 6:
-        failures.append(f"Expected at least 6 render media PNGs; found {len(media_files)}")
+    if len(media_files) != 12:
+        failures.append(f"Expected exactly 12 curated render media PNGs; found {len(media_files)}")
     for image_path in media_files:
         try:
             with Image.open(image_path) as image:
                 image.verify()
         except Exception as exc:
             failures.append(f"Image cannot be opened: {image_path}: {exc}")
+    failures.extend(_validate_annotation_images(packet_dir))
+    failures.extend(_validate_image_relevance_manifest(packet_dir))
     annotation_manifest = packet_dir / "Review Aids" / "ANNOTATION_MANIFEST.md"
     annotation_text = annotation_manifest.read_text(encoding="utf-8") if annotation_manifest.exists() else ""
     if not annotation_text:
@@ -1403,13 +1661,15 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
             if folder_entries != zip_entries:
                 failures.append("Folder/ZIP parity failed")
             image_entries = [entry for entry in zip_entries if entry.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp"))]
-            if len(image_entries) < 6:
-                failures.append(f"Expected at least 6 ZIP images; found {len(image_entries)}")
+            if len(image_entries) != 12:
+                failures.append(f"Expected exactly 12 curated ZIP images; found {len(image_entries)}")
             annotated_entries = [entry for entry in image_entries if "_annotated" in entry]
-            if len(annotated_entries) < 6:
-                failures.append(f"Expected annotated ZIP images for every option render; found {len(annotated_entries)}")
+            if len(annotated_entries) != 6:
+                failures.append(f"Expected 6 annotated ZIP images for every option render; found {len(annotated_entries)}")
             if "Review Aids/ANNOTATION_MANIFEST.md" not in zip_entries:
                 failures.append("ZIP missing annotation manifest")
+            if "Review Aids/IMAGE_RELEVANCE_MANIFEST.md" not in zip_entries:
+                failures.append("ZIP missing image relevance manifest")
             primary_entries = [entry for entry in zip_entries if entry.startswith("USER Review/") and entry.endswith(".md")]
             if primary_entries != [f"USER Review/{PRIMARY_REVIEW_FILE}"]:
                 failures.append(f"Unexpected primary USER review entries in ZIP: {primary_entries}")
