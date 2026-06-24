@@ -521,7 +521,7 @@ def _create_options_board(media_dir: Path) -> str:
 
 
 def _create_window_chrome_comparison_board(media_dir: Path) -> str:
-    canvas = Image.new("RGB", (1320, 520), (4, 14, 22))
+    canvas = Image.new("RGB", (1320, 410), (4, 14, 22))
     draw = ImageDraw.Draw(canvas)
     draw.text((34, 28), "Window Chrome / Control Pill Comparison", fill=(222, 246, 250), font=_font(28))
     draw.text(
@@ -539,7 +539,7 @@ def _create_window_chrome_comparison_board(media_dir: Path) -> str:
     for i, (title, image) in enumerate(panels):
         x = 34 + i * 425
         y = 112
-        draw.rounded_rectangle((x, y, x + 390, y + 360), radius=22, fill=(7, 28, 41), outline=(45, 145, 166), width=2)
+        draw.rounded_rectangle((x, y, x + 390, y + 250), radius=22, fill=(7, 28, 41), outline=(45, 145, 166), width=2)
         draw.text((x + 16, y + 14), title, fill=(224, 244, 249), font=_font(16))
         if image is not None:
             crop = image.crop((max(0, image.width - 190), 0, image.width, min(110, image.height)))
@@ -547,14 +547,14 @@ def _create_window_chrome_comparison_board(media_dir: Path) -> str:
             canvas.paste(crop, (x + 22, y + 68))
         else:
             draw.text((x + 22, y + 68), "REFERENCE MISSING", fill=(255, 116, 116), font=_font(20))
-        draw.text((x + 22, y + 314), "Pill shape, icon controls, top/right inset, and glow/stroke checked.", fill=(169, 214, 223), font=_font(12))
+        draw.text((x + 22, y + 214), "Pill shape, icon controls, top/right inset, and glow/stroke checked.", fill=(169, 214, 223), font=_font(12))
     out = media_dir / "window_control_pill_comparison_board.png"
     canvas.save(out)
     return out.as_posix()
 
 
 def _create_bottom_dead_space_comparison_board(media_dir: Path) -> str:
-    canvas = Image.new("RGB", (1320, 560), (4, 14, 22))
+    canvas = Image.new("RGB", (1320, 450), (4, 14, 22))
     draw = ImageDraw.Draw(canvas)
     draw.text((34, 28), "Bottom Dead-Space Comparison", fill=(222, 246, 250), font=_font(28))
     draw.text(
@@ -571,13 +571,16 @@ def _create_bottom_dead_space_comparison_board(media_dir: Path) -> str:
         image = Image.open(src).convert("RGB")
         x = 34 + i * 640
         y = 112
-        draw.rounded_rectangle((x, y, x + 600, y + 400), radius=22, fill=(7, 28, 41), outline=(45, 145, 166), width=2)
+        draw.rounded_rectangle((x, y, x + 600, y + 288), radius=22, fill=(7, 28, 41), outline=(45, 145, 166), width=2)
         draw.text((x + 16, y + 14), title, fill=(224, 244, 249), font=_font(17))
         thumb = image.copy()
         thumb.thumbnail((540, 300))
-        canvas.paste(thumb, (x + 30, y + 62))
-        draw.line((x + 30, y + 354, x + 570, y + 354), fill=(123, 244, 211), width=2)
-        draw.text((x + 30, y + 365), "Bottom band checked against final button row; no dead slab accepted.", fill=(169, 214, 223), font=_font(12))
+        thumb_x = x + 30
+        thumb_y = y + 62
+        canvas.paste(thumb, (thumb_x, thumb_y))
+        line_y = min(y + 238, thumb_y + thumb.height + 12)
+        draw.line((x + 30, line_y, x + 570, line_y), fill=(123, 244, 211), width=2)
+        draw.text((x + 30, line_y + 11), "Bottom band checked against final button row; no dead slab accepted.", fill=(169, 214, 223), font=_font(12))
     out = media_dir / "bottom_dead_space_comparison_board.png"
     canvas.save(out)
     return out.as_posix()
