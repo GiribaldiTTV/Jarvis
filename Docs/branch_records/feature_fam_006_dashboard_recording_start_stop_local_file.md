@@ -347,11 +347,14 @@ Rejected Packet: `C:\Nexus USER\FAM-006-20260624-121535.zip`
 Rejected Packet SHA256: `1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3`
 Rejected Options Packet: `C:\Nexus USER\FAM-006-20260624-130151.zip`
 Rejected Options Packet SHA256: `0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F`
+Rejected Selected-Direction Packet: `C:\Nexus USER\FAM-006-20260624-132551.zip`
+Rejected Selected-Direction Packet SHA256: `DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE`
 False-Green Class: `Focused/cropped row-grammar proof underweighted full-desktop context; full-desktop evidence exposed scale, placement, dead-space, control-relationship, and child-window composition contradictions.`
 Options Packet False-Green Class: `The first repair packet carried the correct false-green direction but used mostly clipped text-card option summaries and incomplete in-packet validation-output evidence for decisions that required rendered visual/spatial media.`
-Branch-Local Repair: `FAM-006 Recording source truth now requires full-desktop/full-window contradiction review and rendered option media for material Recording Studio and Log Viewer Studio visual/placement option packets; branch-local helper dev/orin_fam006_full_desktop_false_green_review.py generates and validates the false-green review packet with media, ledgers, placement doctrine, rendered A/B/C options, and validation-output evidence.`
+Selected-Direction False-Green Class: `The second repair packet improved rendered media but still needed to record USER-selected A2 revised / B2 / C2 revised semantics, exact labels, rejected/deferred dispositions, and clean post-commit/post-push proof before runtime implementation repair.`
+Branch-Local Repair: `FAM-006 Recording source truth now requires full-desktop/full-window contradiction review, rendered option media for material Recording Studio and Log Viewer Studio visual/placement option packets, and exact selected-direction semantics after USER chooses A2/B2/C2. Branch-local helper dev/orin_fam006_full_desktop_false_green_review.py generates and validates the false-green review packet with media, ledgers, placement doctrine, selected A2 revised / B2 / C2 revised direction, rejected/deferred dispositions, and validation-output evidence.`
 Boundary: `This receipt does not approve runtime UI repair, H1 acceptance, Live Validation acceptance, UTS acceptance, PR Readiness, PR creation, issue mutation, merge, release, cleanup, Governance worktree mutation, FAM-007 mutation, neutral-main mutation, provider/model/private/cache/memory work, or future-gated Log Viewer implementation.`
-Next Legal Phase: `USER review of the full-desktop visual false-green packet and USER selection or revision of child-window inheritance, placement, and Log Viewer doorway options before bounded runtime repair.`
+Next Legal Phase: `USER review of the repaired selected-direction packet; if accepted, USER may separately approve bounded runtime implementation-match repair against A2 revised, B2, and C2 revised.`
 
 ## BP1 Route
 

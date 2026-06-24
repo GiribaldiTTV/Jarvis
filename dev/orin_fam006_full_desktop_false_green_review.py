@@ -30,6 +30,8 @@ REJECTED_PACKET = USER_ROOT / "FAM-006-20260624-121535.zip"
 REJECTED_SHA256 = "1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3"
 REJECTED_OPTIONS_PACKET = USER_ROOT / "FAM-006-20260624-130151.zip"
 REJECTED_OPTIONS_SHA256 = "0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F"
+REJECTED_SELECTION_PACKET = USER_ROOT / "FAM-006-20260624-132551.zip"
+REJECTED_SELECTION_SHA256 = "DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE"
 PROOF_ROOT = Path(
     "C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI/"
     "fam_006_pre_live_visual_conformance/20260624_121443_feature_studio_visual_fail_repair"
@@ -41,6 +43,7 @@ AI_CONTROL_SCREENSHOT = Path(
 PRIMARY_REVIEW = "USER Review/FULL_DESKTOP_FALSE_GREEN_REVIEW.md"
 STATUS = "full-desktop-visual-false-green-review"
 EXTERNAL_STATE_SCHEMA = "external-state-v1"
+SELECTED_DIRECTION_STATUS = "A2 revised / B2 / C2 revised selected by USER"
 
 
 def _run_git(args: list[str]) -> str:
@@ -149,11 +152,13 @@ def _draw_truth_row(
     draw.text((x + 14, y + 12), label.upper(), fill=(111, 194, 211), font=_font(13))
     value_x = x + 150
     value_w = width - 170
+    action_w = 0
     if action:
-        value_w -= 150
+        action_w = 190 if len(action) > 10 else 136
+        value_w -= action_w + 20
     draw.text((value_x, y + 12), value, fill=(158, 246, 218), font=_font(13))
     if action:
-        _draw_button(draw, (x + width - 136, y + 7, x + width - 14, y + 39), action)
+        _draw_button(draw, (x + width - action_w, y + 7, x + width - 14, y + 39), action)
     return y + row_h
 
 
@@ -189,10 +194,10 @@ def _render_recording_option(option_id: str, media_dir: Path) -> str:
             "stronger": False,
         },
         "A2": {
-            "title": "A2 Subtle Contained Row Group",
+            "title": "A2 Revised Selected",
             "subtitle": "Recording Studio",
-            "rows": [("Target", "Default Overlay Profile / 2 active monitors"), ("State", "Ready")],
-            "note": "Recommended: AI/HUD row-container rhythm without becoming a dashboard card.",
+            "rows": [("Target", "Default Overlay Profile"), ("State", "Ready - 2 active monitors")],
+            "note": "",
             "size": (540, 310),
             "group": True,
             "stronger": False,
@@ -214,14 +219,15 @@ def _render_recording_option(option_id: str, media_dir: Path) -> str:
         draw.rounded_rectangle((x - 8, y - 10, x + w + 8, y + 48 * len(spec["rows"]) + 14), radius=18, fill=(4, 27, 38), outline=(22, 82, 101), width=1)
     for label, value in spec["rows"]:
         y = _draw_truth_row(draw, x, y, w, label, value)
-    note_font = _font(12)
-    note_y = y + 10
-    for line in _wrap_text(spec["note"], w, note_font)[:2]:
-        draw.text((x, note_y), line, fill=(178, 210, 221), font=note_font)
-        note_y += 17
+    if spec["note"]:
+        note_font = _font(12)
+        note_y = y + 10
+        for line in _wrap_text(spec["note"], w, note_font)[:2]:
+            draw.text((x, note_y), line, fill=(178, 210, 221), font=note_font)
+            note_y += 17
     button_y = spec["size"][1] - 58
     _draw_button(draw, (x, button_y, x + 156, button_y + 40), "Start Recording")
-    _draw_button(draw, (x + 172, button_y, x + 342, button_y + 40), "Log Viewer Studio")
+    _draw_button(draw, (x + 172, button_y, x + 384, button_y + 40), "Open Log Viewer Studio")
     out = media_dir / f"{option_id.lower()}_nested_card_inheritance.png"
     img.save(out)
     return out.as_posix()
@@ -237,11 +243,14 @@ def _render_log_option(option_id: str, media_dir: Path) -> str:
             "size": (560, 292),
         },
         "C2": {
-            "title": "C2 Inline Row Actions",
-            "rows": [("Native Logs", "Recordings folder", "Open"), ("Exported Logs", "Exported Logs folder", "Open")],
+            "title": "C2 Revised Selected",
+            "rows": [
+                ("Native", "Native NDAI logs", "Open Native Logs"),
+                ("Export", "Exported Logs", "Open Exported Logs"),
+            ],
             "mode": "inline",
             "note": "Recommended: truth and action are tied on each row; less dead space.",
-            "size": (660, 270),
+            "size": (760, 270),
         },
         "C3": {
             "title": "C3 Compact Footer Actions",
@@ -285,7 +294,7 @@ def _render_placement_option(option_id: str, media_dir: Path) -> str:
             (690, 220),
         ),
         "B2": (
-            "Same-session restore, restart reset",
+            "B2 Selected: same-session restore, restart reset",
             "Default: parent-neighbor",
             "Same session: restore last user-moved position",
             "Restart: reset near parent",
@@ -380,10 +389,10 @@ def _create_options_board(media_dir: Path) -> str:
     media_dir.mkdir(parents=True, exist_ok=True)
     canvas = Image.new("RGB", (1900, 1420), (4, 14, 22))
     draw = ImageDraw.Draw(canvas)
-    draw.text((42, 32), "FAM-006 Visual / Placement Options For USER Review", fill=(222, 246, 250), font=_font(30))
+    draw.text((42, 32), "FAM-006 Selected Visual / Placement Direction", fill=(222, 246, 250), font=_font(30))
     draw.text(
         (42, 72),
-        "Rendered mockup evidence only; no runtime UI implementation is performed by this packet.",
+        "USER selected A2 revised, B2, and C2 revised. Rendered evidence only; no runtime UI implementation is performed.",
         fill=(171, 213, 224),
         font=_font(16),
     )
@@ -404,7 +413,12 @@ def _create_options_board(media_dir: Path) -> str:
         x = 42 + col * 610
         y = 122 + row * 420
         draw.rounded_rectangle((x, y, x + 570, y + 380), radius=24, outline=(46, 143, 164), width=2, fill=(7, 28, 41))
-        draw.text((x + 18, y + 14), option_id, fill=(122, 224, 233), font=_font(22))
+        selected = option_id in {"A2", "B2", "C2"}
+        label = f"{option_id} SELECTED" if selected else option_id
+        draw.text((x + 18, y + 14), label, fill=(158, 246, 218) if selected else (122, 224, 233), font=_font(22))
+        if selected:
+            draw.rounded_rectangle((x + 390, y + 13, x + 548, y + 42), radius=13, fill=(22, 73, 58), outline=(122, 224, 190), width=1)
+            draw.text((x + 410, y + 19), "USER SELECTED", fill=(190, 250, 226), font=_font(11))
         if src.exists():
             thumb = _image_thumb(src, (532, 315))
             canvas.paste(thumb, (x + 18, y + 52))
@@ -553,48 +567,110 @@ def _placement_doctrine() -> dict[str, Any]:
     }
 
 
+def _selected_direction() -> dict[str, Any]:
+    return {
+        "status": SELECTED_DIRECTION_STATUS,
+        "selected": {
+            "A2 revised": {
+                "summary": "Subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard.",
+                "mustPreserve": [
+                    "No bottom descriptive/helper sentence in the nested card.",
+                    "TARGET - Default Overlay Profile.",
+                    "STATE - Ready - 2 active monitors.",
+                    "ACTION-002 label exactly OPEN LOG VIEWER STUDIO.",
+                ],
+            },
+            "B2": {
+                "summary": "Same-session last-used child-window position; reset/open near parent after app/computer restart.",
+                "mustPreserve": [
+                    "Parent-neighbor default placement.",
+                    "Same-session moved-position restore.",
+                    "Restart reset near parent to avoid stale monitor/layout placement.",
+                    "No restore-default-position control required by default unless a later source-truth owner requires one.",
+                ],
+            },
+            "C2 revised": {
+                "summary": "Two-row Log Viewer doorway with inline/right-aligned explicit actions.",
+                "mustPreserve": [
+                    "OPEN NATIVE LOGS action label.",
+                    "OPEN EXPORTED LOGS action label.",
+                    "No generic OPEN labels.",
+                    "No local path display by default.",
+                    "No graph/export customization, previous-log selection, or fake full-viewer workspace behavior.",
+                ],
+            },
+        },
+        "rejectedOrDeferred": {
+            "A1": "Rejected as too plain/minimal.",
+            "A3": "Rejected/deferred as too heavy / dashboard-card creep risk.",
+            "B1": "Rejected as too rigid because it ignores same-session USER placement.",
+            "B3": "Rejected/deferred because persistent restart placement can create stale-monitor/stale-layout problems and may require extra reset controls.",
+            "C1": "Rejected/deferred as safer fallback but less ideal because actions remain separated from rows.",
+            "C3": "Rejected/deferred because bottom/footer action rail can recreate disconnected-button-row/dead-space issues.",
+        },
+    }
+
+
+def _selected_direction_markdown(direction: dict[str, Any]) -> str:
+    lines = ["# FAM-006 Selected Direction Summary", "", f"Status: `{direction['status']}`", ""]
+    lines.append("## Selected")
+    for option, data in direction["selected"].items():
+        lines.append("")
+        lines.append(f"### {option}")
+        lines.append("")
+        lines.append(str(data["summary"]))
+        lines.append("")
+        for item in data["mustPreserve"]:
+            lines.append(f"- {item}")
+    lines.append("")
+    lines.append("## Rejected Or Deferred")
+    lines.append("")
+    for option, reason in direction["rejectedOrDeferred"].items():
+        lines.append(f"- {option}: {reason}")
+    return "\n".join(lines) + "\n"
+
+
 def _visual_options_markdown() -> str:
-    return """# FAM-006 Visual And Placement Options
+    return """# FAM-006 Selected Visual And Placement Direction
 
-Status: USER review options only. This packet does not implement runtime UI.
+Status: USER selected direction recorded for the next separately approved runtime repair. This packet does not implement runtime UI.
 
-ChatGPT product recommendation is non-binding:
+Selected direction:
 
-- A2 is likely preferred because it inherits AI Control Center / HUD Dashboard row-container grammar without becoming a fake dashboard.
-- B2 is likely preferred because it respects same-session user placement but resets near parent after restart.
-- C2 is likely preferred because each truth row owns its action and avoids disconnected dead button rows.
-- If C2 creates width pressure, C1 is the safer compact fallback.
+- A2 revised selected: subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard.
+- B2 selected: same-session last-used child-window position; after app/computer restart reset/open near parent.
+- C2 revised selected: two-row Log Viewer doorway with inline/right-aligned explicit actions.
 
-## A. Child-Window Nested-Card Inheritance
+## A. Child-Window Nested-Card Inheritance Selection
 
-| Option | Rendered media | Source-truth basis | Pros | Risks / what USER should critique |
+| Option | Disposition | Rendered media | Reason |
+| --- | --- | --- | --- |
+| A1 | Rejected | `Review Aids/Evidence/Options/a1_nested_card_inheritance.png` | Too plain/minimal; does not carry enough AI Control Center / HUD Dashboard row-container inheritance. |
+| A2 revised | Selected | `Review Aids/Evidence/Options/a2_nested_card_inheritance.png` | Subtle contained row group, no bottom helper copy, preserved `TARGET - Default Overlay Profile`, preserved `STATE - Ready - 2 active monitors`, and ACTION-002 label `OPEN LOG VIEWER STUDIO`. |
+| A3 | Rejected/deferred | `Review Aids/Evidence/Options/a3_nested_card_inheritance.png` | Too heavy; dashboard-card creep risk for a compact Recording Studio controller. |
+
+## B. Child-Window Placement Behavior Selection
+
+| Option | Disposition | Rendered media | Default-open behavior | Same-session behavior | Restart behavior | Reason |
+| --- | --- | --- | --- | --- | --- | --- |
+| B1 | Rejected | `Review Aids/Evidence/Options/b1_child_window_placement_context.png` | Always near parent. | User move is not preserved on reopen. | Near parent. | Too rigid because it ignores same-session USER placement. |
+| B2 | Selected | `Review Aids/Evidence/Options/b2_child_window_placement_context.png` | Near parent. | Restore last user-moved position. | Reset near parent. | Best balance: respects same-session movement while avoiding stale restart placement and extra reset-control pressure. |
+| B3 | Rejected/deferred | `Review Aids/Evidence/Options/b3_child_window_placement_context.png` | Near parent until moved. | Restore last user-moved position. | Persist moved position. | Too risky because persistent restart placement can create stale-monitor/stale-layout problems and may require extra reset controls. |
+
+## C. Log Viewer Doorway Layout Selection
+
+| Option | Disposition | Rendered media | Doorway scope | Reason |
 | --- | --- | --- | --- | --- |
-| A1 | `Review Aids/Evidence/Options/a1_nested_card_inheritance.png` | Compact unique child controller; row density and proof-debug avoidance. | Smallest footprint; least dashboard-card cloning. | May still feel too detached from AI/HUD row-container grammar; critique row grouping and glow rhythm. |
-| A2 | `Review Aids/Evidence/Options/a2_nested_card_inheritance.png` | Subtle contained row group / section-card inheritance from AI Control Center. | Stronger row rhythm while staying compact. | Needs careful density to avoid table/proof-panel feel; critique nested-card inheritance amount. |
-| A3 | `Review Aids/Evidence/Options/a3_nested_card_inheritance.png` | Stronger parent-family card grammar while preserving compact footprint. | Most immersive family relationship. | Could become too large or fake-workspace-like; critique whether it overcopies dashboard/card grammar. |
+| C1 | Rejected/deferred | `Review Aids/Evidence/Options/c1_log_viewer_doorway_layout.png` | Native/export folder access only; no graph, previous-log selection, or export customization. | Safer fallback but less ideal because actions remain separated from rows. |
+| C2 revised | Selected | `Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png` | Native/export folder access only; no local path display by default and no full-viewer/workspace behavior. | Two rows with explicit inline/right actions: `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS`. |
+| C3 | Rejected/deferred | `Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png` | Native/export folder access only; footer action lane. | Bottom/footer action rail can recreate disconnected-button-row/dead-space issues. |
 
-## B. Child-Window Placement Behavior
+## Implementation Risk And Proof For Selected Direction
 
-| Option | Rendered media | Default-open behavior | Same-session behavior | Restart behavior | Risk / validation obligation |
-| --- | --- | --- | --- | --- | --- |
-| B1 | `Review Aids/Evidence/Options/b1_child_window_placement_context.png` | Always near parent. | User move is not preserved on reopen. | Near parent. | Most predictable, but may feel hostile to user placement; prove parent-neighbor opening. |
-| B2 | `Review Aids/Evidence/Options/b2_child_window_placement_context.png` | Near parent. | Restore last user-moved position. | Reset near parent. | Recommended balance; prove same-session restore and restart reset. |
-| B3 | `Review Aids/Evidence/Options/b3_child_window_placement_context.png` | Near parent until moved. | Restore last user-moved position. | Persist moved position. | Requires reset-default-position control and stale-screen recovery proof. |
-
-## C. Log Viewer Doorway Layout
-
-| Option | Rendered media | Doorway scope | Pros | Risks / what USER should critique |
-| --- | --- | --- | --- | --- |
-| C1 | `Review Aids/Evidence/Options/c1_log_viewer_doorway_layout.png` | Native/export folder access only; no graph, previous-log selection, or export customization. | Reduces dead space and preserves compact vertical reading. | Still vertically structured; critique whether actions feel close enough to rows. |
-| C2 | `Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png` | Native/export folder access only; no full-viewer/workspace behavior. | Ties each path/truth row directly to its action. | Needs width discipline for path text; critique row/action pressure. |
-| C3 | `Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png` | Native/export folder access only; footer action lane. | Clear action area and simple shell. | Must avoid disconnected buttons and empty body; critique dead-space risk. |
-
-## Implementation Risk And Proof If Selected
-
-- Selected A option must later prove row grouping, underglow rhythm, density, and compact footprint with implementation screenshots, not helper text.
-- Selected B option must later prove default-open, moved, reopened, restart/unavailable-location, and restore behavior with full-desktop evidence or USER validation where photo/video cannot prove it.
-- Selected C option must later prove native/export folder actions without implying full Log Viewer, graph, export customization, or previous-log selection scope.
-- Any selected option still remains subordinate to Project Vision, FAM-002, FAM-006, UIREF, and the Recording FFV.
+- A2 revised must later prove row grouping, underglow rhythm, density, compact footprint, TARGET/STATE separation, no bottom helper copy, and `OPEN LOG VIEWER STUDIO` action text with implementation screenshots, not helper text.
+- B2 must later prove parent-neighbor default placement, same-session moved-position restore, app/computer restart reset-near-parent behavior, and unavailable-location safety with full-desktop evidence or USER validation where photo/video cannot prove it.
+- C2 revised must later prove `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` row actions without implying local path display by default, full Log Viewer, graph, export customization, or previous-log selection scope.
+- The selected direction remains subordinate to Project Vision, FAM-002, FAM-006, UIREF, and the Recording FFV.
 """
 
 
@@ -654,6 +730,33 @@ Key result:
 - `SOURCE_TRUTH_RULE_REQUIRED`: full-desktop proof hierarchy and child-window placement doctrine must be recorded in branch-local source truth.
 - `VALIDATOR_HELPER_REQUIRED`: packet/helper logic must fail if future packets omit full-context red-team proof for material windows.
 
+## USER Selected Direction
+
+Selection status: `{SELECTED_DIRECTION_STATUS}`.
+
+Selected:
+
+- A2 revised: subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard.
+- B2: same-session last-used child-window position; after app/computer restart, child windows reset/open near their parent surface.
+- C2 revised: two-row Log Viewer doorway layout with inline/right-aligned explicit actions.
+
+Required selected semantics:
+
+- Recording Studio rows preserve `TARGET - Default Overlay Profile` and `STATE - Ready - 2 active monitors`.
+- Recording Studio ACTION-002 label is exactly `OPEN LOG VIEWER STUDIO`.
+- A2 revised has no bottom descriptive/helper sentence inside the nested card.
+- C2 revised uses `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS`, not generic `OPEN`.
+- C2 revised does not display local paths by default and does not imply graph/export customization, previous-log selection, or fake full-viewer workspace behavior.
+
+Rejected/deferred:
+
+- A1 rejected as too plain/minimal.
+- A3 rejected/deferred as too heavy and at risk of dashboard-card creep.
+- B1 rejected as too rigid because it ignores same-session USER placement.
+- B3 rejected/deferred because persistent restart placement can create stale-monitor/stale-layout problems and may require extra reset controls.
+- C1 rejected/deferred as a safer fallback but less ideal because actions remain separated from rows.
+- C3 rejected/deferred because a bottom/footer action rail can recreate disconnected-button-row/dead-space issues.
+
 ## Source-Truth Repair Summary
 
 Updated branch-local source truth records:
@@ -705,8 +808,8 @@ inside this packet. Final post-ZIP SHA proof is external/non-self-mutating.
 USER review of this false-green / full-desktop proof repair packet.
 
 After USER review, the next legal implementation path is a bounded FAM-006
-runtime visual/options implementation repair only if USER approves the selected
-visual and placement direction. Renewed exact USER desktop launcher Live
+runtime implementation-match repair only if USER approves applying the selected
+A2 revised / B2 / C2 revised direction. Renewed exact USER desktop launcher Live
 Validation, UTS acceptance, later PR gates, merge, release, and cleanup remain
 blocked.
 
@@ -714,7 +817,7 @@ blocked.
 
 Review this packet and choose one:
 
-- Accept the branch-local full-desktop false-green repair packet and select the child-window inheritance, placement, and Log Viewer doorway options for the next bounded runtime repair.
+- Accept the selected A2 revised / B2 / C2 revised packet as the implementation-match direction for the next bounded runtime repair.
 - Request revisions to the packet, source-truth rule, or visual options.
 - Reject the packet and provide the corrected visual/process direction.
 
@@ -772,6 +875,11 @@ def _write_validation_outputs(packet: Path) -> list[dict[str, Any]]:
     output_dir.mkdir(parents=True, exist_ok=True)
     commands = [
         ("git_status_branch", ["git", "status", "--short", "--branch"]),
+        ("git_head", ["git", "rev-parse", "HEAD"]),
+        ("git_origin_main", ["git", "rev-parse", "origin/main"]),
+        ("git_merge_base_origin_main", ["git", "merge-base", "HEAD", "origin/main"]),
+        ("git_ahead_behind_origin_main", ["git", "rev-list", "--left-right", "--count", "origin/main...HEAD"]),
+        ("git_ahead_behind_upstream", ["git", "rev-list", "--left-right", "--count", "@{upstream}...HEAD"]),
         ("git_diff_check", ["git", "diff", "--check"]),
         ("git_diff_check_origin_main", ["git", "diff", "--check", "origin/main...HEAD"]),
         ("udl_gate", ["python", "dev/orin_fam006_unified_defect_ledger.py"]),
@@ -820,12 +928,14 @@ def _write_external_receipt(zip_path: Path, zip_sha: str) -> None:
     section = f"""{marker_start}
 ## FAM-006 Full-Desktop Visual False-Green Review Receipt - 2026-06-24
 
-Status: `REPAIR / Pending USER review`.
+Status: `REPAIR / Selected direction recorded / Pending USER review of repaired packet evidence`.
 
 Rejected packet: `C:\\Nexus USER\\FAM-006-20260624-121535.zip`.
 Rejected packet SHA256: `{REJECTED_SHA256}`.
 Rejected options packet: `C:\\Nexus USER\\FAM-006-20260624-130151.zip`.
 Rejected options packet SHA256: `{REJECTED_OPTIONS_SHA256}`.
+Rejected selected-direction packet: `C:\\Nexus USER\\FAM-006-20260624-132551.zip`.
+Rejected selected-direction packet SHA256: `{REJECTED_SELECTION_SHA256}`.
 Known-bad corpus copy: `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\false_accept_regression_corpus\\FAM-006-20260624-121535.zip`.
 
 Root cause: focused/cropped row-grammar proof and comparator media were treated
@@ -837,18 +947,31 @@ Second root cause: the 130151 repair packet carried the right false-green
 direction but represented visual/spatial decisions with mostly text cards,
 clipped option content, and incomplete in-packet validation output evidence.
 
+Third root cause: the 132551 repair packet improved rendered media but did not
+record the USER-selected A2 revised / B2 / C2 revised direction with exact
+semantics, preserved some superseded recommendation/open-option wording, and
+allowed selected renders to regress labels such as ACTION-002 and C2 inline
+actions.
+
 Branch-local source-truth disposition: FAM-006 Recording now requires
 full-desktop/full-context contradiction review for material Recording Studio and
 Log Viewer Studio visual acceptance packets, and requires branch-local
 child-window placement/options review with actual rendered visual media before
 runtime implementation of unresolved placement behavior.
 
+USER selected direction recorded by this packet: A2 revised (subtle contained
+row group, no bottom helper copy, TARGET/STATE separation, ACTION-002 label
+`OPEN LOG VIEWER STUDIO`), B2 (same-session last-used child-window position,
+restart reset/open near parent), and C2 revised (two-row Log Viewer doorway with
+inline/right-aligned `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` actions, no
+local path display by default, and no full-viewer workspace implication).
+
 Current USER packet: `{zip_path}`.
 Current USER packet SHA256: `{zip_sha}`.
 
-Next legal phase: USER reviews the false-green / full-desktop proof packet and
-selects or revises the child-window visual inheritance, placement, and Log
-Viewer doorway options. Renewed H1/LV/UTS and PR Readiness remain blocked.
+Next legal phase: USER reviews the repaired selected-direction packet and then
+may approve a bounded runtime implementation-match repair against A2 revised,
+B2, and C2 revised. Renewed H1/LV/UTS and PR Readiness remain blocked.
 {marker_end}
 """
     text = plan.read_text(encoding="utf-8") if plan.exists() else ""
@@ -871,6 +994,7 @@ def generate() -> dict[str, Any]:
     KNOWN_BAD_ROOT.mkdir(parents=True, exist_ok=True)
     known_bad_copy = KNOWN_BAD_ROOT / REJECTED_PACKET.name
     known_bad_options_copy = KNOWN_BAD_ROOT / REJECTED_OPTIONS_PACKET.name
+    known_bad_selection_copy = KNOWN_BAD_ROOT / REJECTED_SELECTION_PACKET.name
     if REJECTED_PACKET.exists():
         if _sha256(REJECTED_PACKET) != REJECTED_SHA256:
             raise SystemExit("rejected 121535 packet SHA mismatch")
@@ -879,6 +1003,10 @@ def generate() -> dict[str, Any]:
         if _sha256(REJECTED_OPTIONS_PACKET) != REJECTED_OPTIONS_SHA256:
             raise SystemExit("rejected 130151 packet SHA mismatch")
         shutil.copy2(REJECTED_OPTIONS_PACKET, known_bad_options_copy)
+    if REJECTED_SELECTION_PACKET.exists():
+        if _sha256(REJECTED_SELECTION_PACKET) != REJECTED_SELECTION_SHA256:
+            raise SystemExit("rejected 132551 packet SHA mismatch")
+        shutil.copy2(REJECTED_SELECTION_PACKET, known_bad_selection_copy)
 
     _purge_user_hub()
     for folder in ("USER Review", "Review Aids", "Source Truth Context"):
@@ -908,6 +1036,7 @@ def generate() -> dict[str, Any]:
     root_cause = _root_cause_rows()
     defects = _defect_rows()
     doctrine = _placement_doctrine()
+    selected_direction = _selected_direction()
 
     _write_json(PACKET_ROOT / "Review Aids" / "false_green_root_cause_ledger.json", root_cause)
     _write_text(PACKET_ROOT / "Review Aids" / "FALSE_GREEN_ROOT_CAUSE_LEDGER.md", _ledger_markdown("FAM-006 Full-Desktop False-Green Root-Cause Ledger", root_cause))
@@ -915,6 +1044,8 @@ def generate() -> dict[str, Any]:
     _write_text(PACKET_ROOT / "Review Aids" / "USER_REPORTED_VISUAL_DEFECT_LEDGER.md", _ledger_markdown("FAM-006 USER-Reported Visual Defect Ledger", defects))
     _write_json(PACKET_ROOT / "Review Aids" / "child_window_placement_doctrine.json", doctrine)
     _write_text(PACKET_ROOT / "Review Aids" / "CHILD_WINDOW_PLACEMENT_DOCTRINE.md", "# FAM-006 Child-Window Placement Doctrine Candidate\n\n" + "\n".join(f"- {rule}" for rule in doctrine["rules"]) + "\n")
+    _write_json(PACKET_ROOT / "Review Aids" / "selected_direction_summary.json", selected_direction)
+    _write_text(PACKET_ROOT / "Review Aids" / "SELECTED_DIRECTION_SUMMARY.md", _selected_direction_markdown(selected_direction))
     _write_text(PACKET_ROOT / "Review Aids" / "VISUAL_AND_PLACEMENT_OPTIONS.md", _visual_options_markdown())
     _write_json(PACKET_ROOT / "Review Aids" / "packet_media_manifest.json", {"media": copied_media})
     _write_validation_outputs(PACKET_ROOT)
@@ -961,9 +1092,12 @@ release, or cleanup.
         "zipSha256": zip_sha,
         "knownBadCopy": str(known_bad_copy),
         "knownBadOptionsCopy": str(known_bad_options_copy),
+        "knownBadSelectionCopy": str(known_bad_selection_copy),
         "rejectedSha256": REJECTED_SHA256,
         "rejectedOptionsSha256": REJECTED_OPTIONS_SHA256,
+        "rejectedSelectionSha256": REJECTED_SELECTION_SHA256,
         "optionRenderCount": len(option_renders),
+        "selectedDirection": SELECTED_DIRECTION_STATUS,
         "identity": identity,
     }
     _write_json(EXTERNAL_ROOT / "full_desktop_false_green_review_manifest.json", manifest)
@@ -998,6 +1132,10 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         failures.append("130151 known-bad options packet corpus copy is missing")
     elif _sha256(KNOWN_BAD_ROOT / REJECTED_OPTIONS_PACKET.name) != REJECTED_OPTIONS_SHA256:
         failures.append("130151 known-bad options packet corpus copy SHA mismatch")
+    if not (KNOWN_BAD_ROOT / REJECTED_SELECTION_PACKET.name).exists():
+        failures.append("132551 known-bad selected-direction packet corpus copy is missing")
+    elif _sha256(KNOWN_BAD_ROOT / REJECTED_SELECTION_PACKET.name) != REJECTED_SELECTION_SHA256:
+        failures.append("132551 known-bad selected-direction packet corpus copy SHA mismatch")
 
     required = [
         "START_HERE.md",
@@ -1008,9 +1146,16 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/user_reported_visual_defects_ledger.json",
         "Review Aids/FULL_DESKTOP_RED_TEAM_REVIEW.md",
         "Review Aids/CHILD_WINDOW_PLACEMENT_DOCTRINE.md",
+        "Review Aids/SELECTED_DIRECTION_SUMMARY.md",
+        "Review Aids/selected_direction_summary.json",
         "Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md",
         "Review Aids/VALIDATION_OUTPUT_EVIDENCE.md",
         "Review Aids/Validation Outputs/git_status_branch.json",
+        "Review Aids/Validation Outputs/git_head.json",
+        "Review Aids/Validation Outputs/git_origin_main.json",
+        "Review Aids/Validation Outputs/git_merge_base_origin_main.json",
+        "Review Aids/Validation Outputs/git_ahead_behind_origin_main.json",
+        "Review Aids/Validation Outputs/git_ahead_behind_upstream.json",
         "Review Aids/Validation Outputs/git_diff_check.json",
         "Review Aids/Validation Outputs/git_diff_check_origin_main.json",
         "Review Aids/Validation Outputs/udl_gate.json",
@@ -1094,6 +1239,9 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
     required_phrases = [
         "Packet Status: `full-desktop-visual-false-green-review`",
         "Verdict: `REPAIR`",
+        "A2 revised / B2 / C2 revised selected by USER",
+        "ACTION-002 label is exactly `OPEN LOG VIEWER STUDIO`",
+        "`OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS`",
         "Global Governance promotion remains a candidate only",
         "renewed exact USER desktop launcher Live",
     ]
@@ -1107,9 +1255,53 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
             failures.append(f"primary review file contains forbidden acceptance phrase: {phrase}")
 
     options_text = (packet_root / "Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md").read_text(encoding="utf-8", errors="replace") if (packet_root / "Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md").exists() else ""
-    for token in ("A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "Rendered media", "ChatGPT product recommendation is non-binding"):
+    for token in (
+        "A1",
+        "A2 revised",
+        "A3",
+        "B1",
+        "B2",
+        "B3",
+        "C1",
+        "C2 revised",
+        "C3",
+        "Selected",
+        "Rejected",
+        "Rejected/deferred",
+        "OPEN LOG VIEWER STUDIO",
+        "OPEN NATIVE LOGS",
+        "OPEN EXPORTED LOGS",
+    ):
         if token not in options_text:
             failures.append(f"visual options review aid missing token: {token}")
+    forbidden_options_phrases = (
+        "ChatGPT product recommendation is non-binding",
+        "A2 is likely preferred",
+        "B2 is likely preferred",
+        "C2 is likely preferred",
+        "`OPEN` buttons",
+    )
+    for phrase in forbidden_options_phrases:
+        if phrase in options_text:
+            failures.append(f"visual options review aid contains superseded open-option wording: {phrase}")
+    selected_direction_path = packet_root / "Review Aids/selected_direction_summary.json"
+    if selected_direction_path.exists():
+        try:
+            selected_direction = json.loads(selected_direction_path.read_text(encoding="utf-8"))
+            if selected_direction.get("status") != SELECTED_DIRECTION_STATUS:
+                failures.append("selected direction summary status mismatch")
+            selected_text = json.dumps(selected_direction)
+            for token in (
+                "OPEN LOG VIEWER STUDIO",
+                "OPEN NATIVE LOGS",
+                "OPEN EXPORTED LOGS",
+                "No bottom descriptive/helper sentence",
+                "No local path display by default",
+            ):
+                if token not in selected_text:
+                    failures.append(f"selected direction summary missing token: {token}")
+        except Exception as exc:
+            failures.append(f"selected direction summary invalid: {exc}")
 
     validation_summary = packet_root / "Review Aids/Validation Outputs/validation_outputs_summary.json"
     if validation_summary.exists():
@@ -1123,6 +1315,23 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
                         failures.append(f"validation output missing {key}: {result.get('commandId', '<unknown>')}")
                 if result.get("status") != "PASS" or result.get("exitCode") != 0:
                     failures.append(f"validation output records failing command: {result.get('commandId', '<unknown>')}")
+                if result.get("commandId") == "git_status_branch":
+                    dirty_lines = [
+                        line
+                        for line in str(result.get("stdout", "")).splitlines()
+                        if line and not line.startswith("## ")
+                    ]
+                    if dirty_lines:
+                        failures.append(
+                            "validation output git_status_branch captured dirty pre-commit status: "
+                            + "; ".join(dirty_lines)
+                        )
+                if result.get("commandId") == "git_ahead_behind_upstream":
+                    if str(result.get("stdout", "")).strip() != "0\t0":
+                        failures.append(
+                            "validation output git_ahead_behind_upstream does not prove post-push sync: "
+                            + str(result.get("stdout", "")).strip()
+                        )
         except Exception as exc:
             failures.append(f"validation output summary invalid: {exc}")
 

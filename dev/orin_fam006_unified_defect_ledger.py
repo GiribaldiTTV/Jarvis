@@ -71,6 +71,7 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260623-123110.zip",
     "FAM-006-20260624-121535.zip",
     "FAM-006-20260624-130151.zip",
+    "FAM-006-20260624-132551.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -80,6 +81,7 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-123110.zip": "5DB6C953EFD4A120122B623A0713C8CB106117C21CC4C27B4DDE171DE796628C",
     "FAM-006-20260624-121535.zip": "1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3",
     "FAM-006-20260624-130151.zip": "0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F",
+    "FAM-006-20260624-132551.zip": "DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -588,6 +590,30 @@ def seed_defects() -> list[dict[str, Any]]:
                 "linked UDL IDs added/reopened: FAM006-UDL-018 and FAM006-UDL-019; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-020",
+            origin="USER/ChatGPT",
+            title="Selected option packet failed to preserve USER-selected semantics",
+            exact_user_wording="FAM-006-20260624-132551.zip was improved, but the selected direction needed to be recorded with revisions before runtime repair: A2 revised, B2, and C2 revised with exact labels and no superseded helper/open-option wording.",
+            expected="Once USER selects A2 revised / B2 / C2 revised, the packet must preserve exact selected semantics, exact Recording Studio ACTION-002 label `OPEN LOG VIEWER STUDIO`, A2 TARGET/STATE separation with no bottom helper copy, C2 explicit `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` labels, rejected/deferred option dispositions, and clean post-commit/post-push proof.",
+            actual="The 132551 packet still behaved partly like an option-recommendation packet, selected renders/text could regress labels, C2 could use generic OPEN labels, and in-packet Git proof could remain pre-commit/dirty if generated before durability.",
+            evidence="Known-bad packet FAM-006-20260624-132551.zip SHA DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE; USER/ChatGPT REPAIR verdict on full-desktop option selection / packet evidence repair.",
+            surfaces="FAM-006 USER packet; selected A2 render; selected B2 placement render; selected C2 render; selected-direction summary; validation output evidence; external full_desktop_false_green_review_manifest.json.",
+            root_cause="The packet helper validated that rendered media existed but did not distinguish open option recommendation evidence from a USER-selected direction contract with exact semantic labels and post-push clean proof.",
+            validator_gap="No hard failure for missing selected-direction JSON/Markdown, superseded open-option recommendation wording, missing rejected/deferred dispositions, A2 helper-copy regression, C2 generic OPEN labels, ACTION-002 label drift, or dirty git-status proof captured inside validation outputs.",
+            repair_target="Admit 132551 as known-bad, require selected-direction summary files, require exact A2/B2/C2 revised semantics, require rejected/deferred dispositions, require clean post-push Git validation output, and regenerate the USER packet from a purged folder after helper commit/push.",
+            acceptance="FAM-006 gates fail when selected-direction files, exact semantic labels, post-push clean proof, or packet-contained validation outputs are missing or superseded recommendation wording remains.",
+            proof="dev/orin_fam006_full_desktop_false_green_review.py validates selected-direction summary, A2/B2/C2 text, exact labels, known-bad 132551 corpus copy, packet-contained validation outputs, and clean upstream proof.",
+            status="CLOSED_WITH_PROOF",
+            closure="132551 is admitted as known-bad; the repaired helper records selected A2 revised / B2 / C2 revised direction, validates exact labels and dispositions, and requires clean post-push status proof inside the regenerated packet.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-020: inspected adjacent surfaces/files `dev/orin_fam006_full_desktop_false_green_review.py`, "
+                "`dev/orin_fam006_unified_defect_ledger.py`, `dev/orin_fam006_false_accept_regression_gate.py`, active USER packet layout, and external manifest receipt; "
+                "adjacent behavior inspected: selected-direction semantics, exact A2 ACTION-002 label, A2 TARGET/STATE separation, A2 bottom helper copy exclusion, B2 placement doctrine, C2 explicit row action labels, rejected/deferred option dispositions, post-push clean Git proof, and packet-contained validation-output evidence; "
+                "additional adjacent defects found by validator gate output: none beyond the selected-direction false-green class and already linked FAM006-UDL-018 / FAM006-UDL-019; "
+                "linked UDL IDs added/reopened: FAM006-UDL-018, FAM006-UDL-019, and FAM006-UDL-020; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
+            ),
+        ),
     ]
 
 
@@ -842,6 +868,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require actual rendered A1/A2/A3, B1/B2/B3, and C1/C2/C3 media plus command/cwd/timestamp/exit-code/stdout/stderr validation output records.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-019", "FAM006-UDL-018"],
+        ),
+        _incident(
+            "FAM006-FGI-015",
+            packet="FAM-006-20260624-132551.zip",
+            sha256="DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE",
+            head="a125b162265a8d8c0bdb9b6e4b614a1409987e41",
+            codex_claim="FAM-006 full-desktop option packet repair was ACCEPT / reviewable after rendered option media were added.",
+            rejection="USER/ChatGPT rejected the packet because USER-selected A2 revised / B2 / C2 revised direction and exact selected semantics were not durably recorded before runtime repair.",
+            validator_failed="FAM-006 full-desktop false-green packet helper before selected-direction semantic contract and post-push clean-proof gates.",
+            artifact="Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md and rendered selected option media inside FAM-006-20260624-132551.zip.",
+            ledger_row="FAM006-UDL-020",
+            comparator="The packet showed improved option renders but still behaved like open recommendation evidence rather than a selected-direction contract.",
+            prevention="Require selected-direction JSON/Markdown, exact A2/B2/C2 revised labels and dispositions, known-bad 132551 replay, and clean post-push validation-output proof.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-020", "FAM006-UDL-019", "FAM006-UDL-018"],
         ),
     ]
     for row in rows:

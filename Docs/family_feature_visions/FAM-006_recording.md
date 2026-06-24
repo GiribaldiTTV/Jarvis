@@ -85,6 +85,19 @@ placement, footprint, or parent/child relationship is material. Text-only option
 cards, clipped option text, local-path-only proof, or missing command-output
 evidence keep the packet in `REPAIR`.
 
+After USER selects a visual/spatial option direction, the next packet must stop
+presenting that direction as an open recommendation and must preserve the
+selected semantics exactly. Selected Recording/Log Viewer option packets must
+include a selected-direction summary, exact labels, selected/rejected/deferred
+option dispositions, packet-contained rendered media, validation-output records,
+and clean post-commit/post-push Git proof when helper/source changes were
+committed. For the current branch selection, A2 revised preserves `TARGET -
+Default Overlay Profile`, `STATE - Ready - 2 active monitors`, no bottom helper
+copy, and ACTION-002 `OPEN LOG VIEWER STUDIO`; B2 preserves same-session moved
+position with restart reset near parent; C2 revised preserves `OPEN NATIVE LOGS`
+and `OPEN EXPORTED LOGS`, no local path display by default, and no full-viewer
+workspace implication.
+
 ## Relationship To FAM-006
 
 Recording belongs to FAM-006 because it depends on Dashboard/HUD visibility,
