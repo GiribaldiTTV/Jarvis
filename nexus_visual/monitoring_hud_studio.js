@@ -86,7 +86,7 @@
         ? "Nexus Desktop AI Log Viewer Studio"
         : "Nexus Desktop AI Recording Studio",
     );
-    setText("monitoring-hud-studio-kicker", payload.kicker || (mode === "log-viewer" ? "Recording Logs" : "Recording"));
+    setText("monitoring-hud-studio-kicker", payload.kicker || (mode === "log-viewer" ? "RECORDING LOGS" : "ACTIVE OVERLAY RECORDING"));
     setText("monitoring-hud-studio-title", payload.title || "");
     setText("monitoring-hud-studio-subtitle", payload.subtitle || "");
     setText("monitoring-hud-studio-role-label-a", payload.roleLabelA || "Surface");
@@ -107,8 +107,6 @@
     setText("monitoring-hud-studio-recording-target-detail", state.recordingTargetDetail || "No active monitors.");
     setText("monitoring-hud-studio-recording-status", state.recordingStatus || state.recordingState || "Selected overlay ready.");
     setText("monitoring-hud-studio-recording-detail", state.recordingDetail || "");
-    setText("monitoring-hud-studio-recording-log-state", state.recordingLogState || "Log");
-    setText("monitoring-hud-studio-recording-log-detail", state.recordingLogDetail || "Waiting for first recording.");
     setText("monitoring-hud-studio-recording-boundary", state.recordingBoundary || "");
     const toggle = byId("monitoring-hud-studio-recording-toggle-action");
     const isRecording = state.stopEnabled === true;
@@ -132,7 +130,12 @@
     setText("monitoring-hud-studio-native-folder-state", state.nativeFolderState || "Available now");
     setText("monitoring-hud-studio-export-folder-state", state.exportFolderState || "Empty until exported");
     setText("monitoring-hud-studio-log-boundary", state.logBoundary || "");
-    setText("monitoring-hud-studio-folder-status", state.folderStatus || "Choose a log destination to open.");
+    const folderStatus = state.folderStatus || "Choose a log destination to open.";
+    setText("monitoring-hud-studio-folder-status", folderStatus);
+    const statusContainer = document.querySelector("[data-element-group='log-folder-action-status']");
+    if (statusContainer) {
+      statusContainer.hidden = folderStatus === "Choose a log destination to open.";
+    }
   };
 
   window.nexusMonitoringHudStudioSetWindowState = (state, controls = {}) => {

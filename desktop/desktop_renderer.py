@@ -6771,10 +6771,10 @@ class MonitoringHudStudioWebWindow(QWidget):
 
 
 class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 480
-    HEIGHT = 330
-    MINIMUM_WIDTH = 480
-    MINIMUM_HEIGHT = 330
+    WIDTH = 392
+    HEIGHT = 210
+    MINIMUM_WIDTH = 392
+    MINIMUM_HEIGHT = 210
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = False
     RESIZE_BEHAVIOR = "not-resizable-position-memory-only"
@@ -6854,35 +6854,26 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
         profile = getattr(self, "_active_profile_name", "") or "No active overlay profile"
         target_names = getattr(self, "_target_names", "") or "No active monitor targets"
         if self._recording_session_state == "recording":
-            state_label = "Now"
-            status_text = "Capturing selected overlay."
+            state_label = "STATE"
+            status_text = f"Recording - {count} active monitor{'s' if count != 1 else ''}"
             detail_text = ""
-            log_state = "Log"
-            log_detail = "Saving when stopped."
         elif self._recording_session_state == "saved-complete":
-            state_label = "Now"
-            status_text = "Native log saved."
+            state_label = "STATE"
+            status_text = f"Saved - {count} active monitor{'s' if count != 1 else ''}"
             detail_text = ""
-            log_state = "Log"
-            log_detail = "Open Log Viewer Studio for the native log."
         elif self._start_stop_state == "start-enabled":
-            state_label = "Now"
-            status_text = "Selected overlay ready."
+            state_label = "STATE"
+            status_text = f"Ready - {count} active monitor{'s' if count != 1 else ''}"
             detail_text = ""
-            log_state = "Log"
-            log_detail = "Waiting for first recording."
         else:
-            state_label = "Now"
+            state_label = "STATE"
             status_text = "Choose a target"
             detail_text = "Select an active Overlay Profile before recording."
-            log_state = "Log"
-            log_detail = "Choose a target before recording."
-        target_detail = f"{count} active monitor{'s' if count != 1 else ''}"
         return {
             "surface": "recording",
-            "kicker": "Recording",
-            "title": "Recording Studio",
-            "subtitle": "Focused recording control/status surface.",
+            "kicker": "ACTIVE OVERLAY RECORDING",
+            "title": "RECORDING STUDIO",
+            "subtitle": "",
             "roleLabelA": "Surface",
             "roleValueA": "Recording",
             "roleLabelB": "State",
@@ -6891,11 +6882,9 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "roleValueC": "Overlay Profile",
             "recordingStateLabel": state_label,
             "recordingTarget": profile,
-            "recordingTargetDetail": target_detail,
+            "recordingTargetDetail": "",
             "recordingStatus": status_text,
             "recordingDetail": detail_text,
-            "recordingLogState": log_state,
-            "recordingLogDetail": log_detail,
             "recordingBoundary": "Controls the current Recording target from the active Overlay Profile.",
             "startEnabled": self._start_stop_state == "start-enabled",
             "stopEnabled": self._start_stop_state == "recording-stop-enabled",
@@ -6953,7 +6942,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
-            "stateRowDensityPolicy": "action-first-controller-with-compact-truth-chips-no-report-panels",
+            "stateRowDensityPolicy": "action-first-controller-with-ai-control-center-state-rows-no-report-panels",
             "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
             "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
@@ -6967,7 +6956,7 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
             "uniqueChildResizePolicy": "no-resize-recording-edge-resize-log-viewer",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
-            "panelPrimitiveSeed": "FAM-006 action-first controller plus compact truth chips",
+            "panelPrimitiveSeed": "FAM-006 action-first controller plus AI Control Center / HUD Dashboard state-row underglow",
             "recordingExecutionState": "enabled",
             "recordingFileWritingState": "enabled",
             "nativeLogPath": self._native_log_path,
@@ -7031,10 +7020,10 @@ class MonitoringHudRecordingStudioWindow(MonitoringHudStudioWebWindow):
 
 
 class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
-    WIDTH = 560
-    HEIGHT = 352
-    MINIMUM_WIDTH = 520
-    MINIMUM_HEIGHT = 330
+    WIDTH = 430
+    HEIGHT = 210
+    MINIMUM_WIDTH = 430
+    MINIMUM_HEIGHT = 210
     DRAG_HEADER_HEIGHT = 64
     STUDIO_RESIZABLE = True
     RESIZE_BEHAVIOR = "edge-resize-native-top-level"
@@ -7075,9 +7064,9 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
     def _log_viewer_studio_state_payload(self) -> dict[str, object]:
         return {
             "surface": "log-viewer",
-            "kicker": "Recording Logs",
-            "title": "Log Viewer Studio",
-            "subtitle": "Native and exported log access shell.",
+            "kicker": "RECORDING LOGS",
+            "title": "LOG VIEWER STUDIO",
+            "subtitle": "",
             "roleLabelA": "Surface",
             "roleValueA": "Logs",
             "roleLabelB": "State",
@@ -7181,7 +7170,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "windowControlVisibleTextPolicy": "ai-control-center-symbol-visible-accessible-label",
             "windowControlContainerVisualPolicy": "ai-control-center-symbol-window-control-cluster",
             "actionButtonGeometryPolicy": "monitoring-hud-hub-action-content-fit-equal-gutter-v4",
-            "stateRowDensityPolicy": "action-first-folder-actions-with-secondary-paths-no-technical-path-table",
+            "stateRowDensityPolicy": "action-first-folder-actions-with-ai-control-center-state-rows-no-technical-path-table",
             "titleGroupVisualPolicy": "detached-child-window-header-no-title-card",
             "titleTreatment": "detached-child-window-header-no-title-card",
             "titleCardState": "absent",
@@ -7195,23 +7184,23 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "uniqueChildResizePolicy": "no-resize-recording-edge-resize-log-viewer",
             "acceptedReferenceSet": list(MONITORING_HUD_STUDIO_REFERENCE_SURFACES),
             "headerPrimitiveSeed": "AI-Control-Center-UIREF-001-title-group",
-            "panelPrimitiveSeed": "FAM-006 compact folder-action shell with secondary paths",
+            "panelPrimitiveSeed": "FAM-006 compact folder-action shell with AI Control Center / HUD Dashboard state-row underglow",
             "nativeFolderPreSessionUsable": True,
             "exportFolderPreSessionUsable": True,
             "nativeLogRoot": native_root,
             "exportLogRoot": export_root,
             "nativeLogFullPath": os.path.normpath(str(self._native_full_path)),
             "exportLogFullPath": os.path.normpath(str(self._export_full_path)),
-            "nativeLogDisplayText": native_display,
-            "exportLogDisplayText": export_display,
-            "nativeLogPathDisplayMode": "middle-elided-contained",
-            "exportLogPathDisplayMode": "middle-elided-contained",
+            "nativeLogDisplayText": "Recordings folder",
+            "exportLogDisplayText": "Exported Logs folder",
+            "nativeLogPathDisplayMode": "supporting-tooltip-only",
+            "exportLogPathDisplayMode": "supporting-tooltip-only",
             "nativeLogPathTooltip": os.path.normpath(str(self._native_full_path)),
             "exportLogPathTooltip": os.path.normpath(str(self._export_full_path)),
             "nativeLogPathWordWrap": False,
             "exportLogPathWordWrap": False,
-            "pathRowsContained": bool(native_display and export_display and "\n" not in native_display and "\n" not in export_display),
-            "pathRowsVisualState": "contained-middle-elided-readable",
+            "stateRowsContained": True,
+            "pathRowsVisualState": "hidden-from-default-body-supporting-tooltip-only",
             "folderActionStatusText": self._folder_status_text,
             "folderActionStatusState": self._folder_status_state,
             "folderActionStatusAccessibleName": "Log Viewer Studio folder action status",
@@ -7246,7 +7235,7 @@ class MonitoringHudLogViewerStudioWindow(MonitoringHudStudioWebWindow):
             "boxedTablePanelRejected": True,
             "tableRowTruthLayoutRejected": True,
             "technicalPathViewerRejected": True,
-            "visibleAnatomy": "folder-action-shell-with-muted-secondary-paths",
+            "visibleAnatomy": "doorway-folder-action-shell-with-native-export-product-labels",
             "futureScopeVisualLeakageAbsent": True,
             "attachedChildCornerResizeGripAbsent": True,
             "edgeResizeProofRequired": True,
@@ -13767,7 +13756,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v4"
-                and proof.get("stateRowDensityPolicy") == "action-first-controller-with-compact-truth-chips-no-report-panels"
+                and proof.get("stateRowDensityPolicy") == "action-first-controller-with-ai-control-center-state-rows-no-report-panels"
                 and proof.get("titleGroupVisualPolicy") == "detached-child-window-header-no-title-card"
                 and proof.get("denseValidatorStatusPanelRejected") is True
                 and proof.get("boxedTablePanelRejected") is True
@@ -13957,7 +13946,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("currentLogState") == "native-log-saved"
                 and str(proof.get("nativeLogPath") or "").strip()
                 and proof.get("nativeLogRowsContained") is True
-                and proof.get("nativeLogPathDisplayMode") == "middle-elided-contained"
+                and proof.get("nativeLogPathDisplayMode") in {"single-line-contained", "middle-elided-contained"}
                 and proof.get("activationMode") == "passive-state-refresh"
             )
             add_step("Recording Studio compact native/current-log tracking updates after save", passed, proof)
@@ -14056,7 +14045,7 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("windowBodyVisualGrammar") == MONITORING_HUD_STUDIO_BODY_VISUAL_GRAMMAR
                 and proof.get("windowControlContainerVisualPolicy") == "ai-control-center-symbol-window-control-cluster"
                 and proof.get("actionButtonGeometryPolicy") == "monitoring-hud-hub-action-content-fit-equal-gutter-v4"
-                and proof.get("stateRowDensityPolicy") == "action-first-folder-actions-with-secondary-paths-no-technical-path-table"
+                and proof.get("stateRowDensityPolicy") == "action-first-folder-actions-with-ai-control-center-state-rows-no-technical-path-table"
                 and proof.get("titleGroupVisualPolicy") == "detached-child-window-header-no-title-card"
                 and proof.get("boxedTablePanelRejected") is True
                 and proof.get("technicalPathViewerRejected") is True
@@ -14071,10 +14060,10 @@ class DesktopRuntimeWindow(QWidget):
                 and proof.get("resizeBehavior") == "edge-resize-native-top-level"
                 and proof.get("internalPathLeakageAbsent") is True
                 and proof.get("userVisibleStorageModel") == "flat-user-recording-and-export-roots"
-                and proof.get("pathRowsContained") is True
-                and proof.get("pathRowsVisualState") == "contained-middle-elided-readable"
-                and proof.get("nativeLogPathDisplayMode") == "middle-elided-contained"
-                and proof.get("exportLogPathDisplayMode") == "middle-elided-contained"
+                and proof.get("stateRowsContained") is True
+                and proof.get("pathRowsVisualState") == "hidden-from-default-body-supporting-tooltip-only"
+                and proof.get("nativeLogPathDisplayMode") == "supporting-tooltip-only"
+                and proof.get("exportLogPathDisplayMode") == "supporting-tooltip-only"
                 and proof.get("previousLogSelectionState") == "future-gated"
                 and proof.get("exportCustomizationState") == "future-gated"
                 and proof.get("nativeLogLoaderState") == "future-gated"
@@ -22133,7 +22122,7 @@ class DesktopRuntimeWindow(QWidget):
                 export_customization_state=proof.get("exportCustomizationState"),
                 native_log_loader_state=proof.get("nativeLogLoaderState"),
                 path_rows_visual_state=proof.get("pathRowsVisualState"),
-                path_rows_contained=proof.get("pathRowsContained"),
+                state_rows_contained=proof.get("stateRowsContained"),
                 native_log_display_text=proof.get("nativeLogDisplayText"),
                 export_log_display_text=proof.get("exportLogDisplayText"),
                 native_log_path_display_mode=proof.get("nativeLogPathDisplayMode"),
