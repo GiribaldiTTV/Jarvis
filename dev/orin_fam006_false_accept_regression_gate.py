@@ -20,6 +20,7 @@ from typing import Any
 from PIL import Image
 
 from orin_fam006_unified_defect_ledger import scan_packet_text_hygiene, validate_udl_state
+from orin_fam006_visual_acceptance_target_packet import validate as validate_visual_acceptance_target_packet
 
 
 USER_ROOT = Path("C:/Nexus USER")
@@ -470,6 +471,25 @@ def _read_json(path: Path) -> tuple[dict[str, Any] | list[Any] | None, str | Non
 def _find_one(root: Path, pattern: str) -> Path | None:
     matches = sorted(root.glob(pattern))
     return matches[0] if matches else None
+
+
+def _is_accepted_visual_target_packet(root: Path) -> bool:
+    primary = root / "USER Review" / "CURRENT_BRANCH_VISUAL_ACCEPTANCE_TARGET_REVIEW.md"
+    target = root / "Review Aids" / "Accepted Branch Visual Acceptance Target.json"
+    lifecycle = root / "Review Aids" / "Visual Acceptance Lifecycle.md"
+    if not primary.is_file() or not target.is_file() or not lifecycle.is_file():
+        return False
+    primary_text = primary.read_text(encoding="utf-8", errors="replace")
+    lifecycle_text = lifecycle.read_text(encoding="utf-8", errors="replace")
+    data, error = _read_json(target)
+    return (
+        error is None
+        and isinstance(data, dict)
+        and data.get("status") == "USER_ACCEPTED"
+        and "branch-local-accepted-visual-target-review" in primary_text
+        and "Implementation Match Proof" in lifecycle_text
+        and "does not claim implementation match" in lifecycle_text
+    )
 
 
 def _image_size(path: Path) -> tuple[int, int] | None:
@@ -1014,6 +1034,24 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures: list[str] = []
     failures.extend(_validate_source_truth_context(root))
     failures.extend(f"packet text hygiene: {failure}" for failure in scan_packet_text_hygiene(root))
+    is_known_bad = label.startswith("known-bad:")
+    if not is_known_bad and _is_accepted_visual_target_packet(root):
+        target_failures = validate_visual_acceptance_target_packet(root)
+        failures.extend(f"accepted visual target packet: {failure}" for failure in target_failures)
+        target_json = root / "Review Aids" / "Accepted Branch Visual Acceptance Target.json"
+        accepted_media = sorted((root / "Review Aids" / "Accepted Visual Target" / "media").glob("*.png"))
+        return PacketInspection(
+            label=label,
+            path=str(root),
+            accepted=not failures,
+            failures=failures,
+            artifactSummary={
+                "packetClass": "accepted-visual-target",
+                "acceptedTargetJson": str(target_json),
+                "acceptedTargetMediaCount": len(accepted_media),
+                "runtimeImplementationProofRequired": "separate implementation-match packet; not claimed by this accepted target packet",
+            },
+        )
     evidence_roots = sorted((root / "Review Aids" / "Evidence").glob("*")) if (root / "Review Aids" / "Evidence").exists() else []
     evidence_root = next((path for path in evidence_roots if path.is_dir()), None)
     if evidence_root is None:
@@ -1025,8 +1063,6 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     red_team_path = _find_one(root, "Review Aids/Evidence/**/internal_visual_red_team_ledger.json")
     root_cause_path = _find_one(root, "Review Aids/Evidence/**/adjudication_failure_root_cause_ledger.json")
     visual_ledger_path = _find_one(root, "Review Aids/exhaustive_visual_conformance_ledger.json")
-    is_known_bad = label.startswith("known-bad:")
-
     embedded_udl_path = _find_one(root, "Review Aids/Unified Defect Ledger/unified_defect_ledger.json")
     embedded_incident_path = _find_one(root, "Review Aids/Unified Defect Ledger/false_green_incident_ledger.json")
     if embedded_udl_path is not None or embedded_incident_path is not None:

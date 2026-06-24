@@ -32,6 +32,7 @@ EXTERNAL_ROOT = Path(
 EXTERNAL_PROCESS_MD = EXTERNAL_ROOT / "visual_acceptance_target_process.md"
 EXTERNAL_PROCESS_JSON = EXTERNAL_ROOT / "visual_acceptance_target_process.json"
 BRANCH_PLAN = EXTERNAL_ROOT / "branch_plan.md"
+BRANCH_STATE = EXTERNAL_ROOT / "branch_state.md"
 UDL_JSON = EXTERNAL_ROOT / "unified_defect_ledger.json"
 UDL_MD = EXTERNAL_ROOT / "UNIFIED_DEFECT_LEDGER.md"
 INCIDENT_JSON = EXTERNAL_ROOT / "false_green_incident_ledger.json"
@@ -438,6 +439,98 @@ OPTIONS = [
     ),
 ]
 
+ACCEPTED_TARGETS = [
+    Option(
+        option_id="REC-C-ACCEPTED",
+        surface="Recording Studio",
+        footprint_class="COMPACT_CONTROLLER",
+        window_class="Unique child / standalone-capable feature-studio window",
+        title="Recording Studio",
+        purpose="Accepted compact detached controller: REC-C action-first base with REC-A target/state separation.",
+        default_size=(392, 184),
+        min_size=(368, 170),
+        resize_behavior="Fixed-size; movable with remembered position; no resize affordance.",
+        tradeoffs="USER accepted REC-C as the base while requiring REC-A clearer target/state separation.",
+        risks="Implementation repair must not reintroduce REC-B proof copy, native-log status rows, mini-dashboard report tables, or giant button wells.",
+        primary_action="Start Recording",
+        secondary_action="Open Logs",
+        rows=(("TARGET", "Default Overlay Profile"), ("STATE", "Ready - 2 active monitors")),
+        footer="Compact controller; native logs remain product artifacts, export is user-requested.",
+    ),
+    Option(
+        option_id="LOG-A-ACCEPTED",
+        surface="Log Viewer Studio",
+        footprint_class="DOORWAY_SHELL",
+        window_class="Unique child / standalone-capable feature-studio window",
+        title="Log Viewer Studio",
+        purpose="Accepted compact doorway shell: LOG-A base for native/export folder access only.",
+        default_size=(430, 184),
+        min_size=(392, 176),
+        resize_behavior="Movable; fixed-size for current accepted doorway shell unless later source truth admits viewer workspace resizing.",
+        tradeoffs="USER accepted LOG-A as the current branch doorway target and rejected path/debug and full-workspace drift.",
+        risks="Implementation repair must not display local paths by default, fake graph/viewer/export customization, previous-log selection, or Recording Studio state labels.",
+        primary_action="Open Native Logs",
+        secondary_action="Open Exported Logs",
+        rows=(("NATIVE", "Recordings folder"), ("EXPORT", "Exported Logs folder")),
+        footer="Full Log Viewer, previous-log selection, graph viewing, and export customization remain future-gated.",
+    ),
+]
+
+ACCEPTED_SELECTION_ROWS = [
+    (
+        "VSL-001",
+        "Recording Studio",
+        "REC-C",
+        "WINDOW/ACTION/ROW",
+        "ACCEPTED_WITH_REVISIONS",
+        "Accept REC-C as base; borrow REC-A clearer target/state separation.",
+        "Branch-local accepted visual target; not runtime proof.",
+        "Use compact detached-controller class.",
+        "One stateful Start Recording / Stop Recording button; one Open Logs route; Target row; State row.",
+        "Later actual implementation screenshots/video must match this target.",
+        "Reusable candidate after implementation-match proof passes.",
+    ),
+    (
+        "VSL-002",
+        "Recording Studio",
+        "REC-B",
+        "COPY/ROWS",
+        "REJECTED",
+        "Reject helper/proof copy, native-log status row, mini-dashboard/report-table feel, internal proof wording.",
+        "Rejected pattern carried into implementation-match checklist.",
+        "Do not use REC-B body or proof language.",
+        "No native-log status row in Recording Studio accepted target.",
+        "Visual target packet and later implementation-match evidence must show absence.",
+        "False-green prevention row.",
+    ),
+    (
+        "VSL-003",
+        "Log Viewer Studio",
+        "LOG-A",
+        "WINDOW/ACTION/ROW",
+        "ACCEPTED",
+        "Accept LOG-A as base.",
+        "Branch-local accepted visual target; not runtime proof.",
+        "Use compact doorway-shell class.",
+        "Native and Export rows with folder labels and corresponding actions.",
+        "Later actual implementation screenshots/video must match this target.",
+        "Reusable doorway-shell candidate after proof.",
+    ),
+    (
+        "VSL-004",
+        "Log Viewer Studio",
+        "LOG-B/LOG-C",
+        "COPY/SCOPE",
+        "REJECTED_DEFERRED",
+        "Reject LOG-B local-path/debug display; defer LOG-C full feature-studio workspace.",
+        "Future-gated feature scope remains deferred.",
+        "No local paths by default; no fake full-viewer workspace.",
+        "Doorway shell only: native/export folder access.",
+        "Visual target packet and later implementation-match evidence must show absence.",
+        "False-green prevention row.",
+    ),
+]
+
 
 def _run_git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=ROOT, text=True, stderr=subprocess.STDOUT).strip()
@@ -581,7 +674,20 @@ def _draw_state_contact_sheet(option: Option, target: Path) -> None:
         row = index // cols
         x = margin + col * tile_w
         y = header_h + margin + row * tile_h
-        state_label = state.replace("_", " ").upper()
+        if option.surface.startswith("Recording"):
+            state_label = state.replace("_", " ").upper()
+        else:
+            state_label = {
+                "ready": "NATIVE READY",
+                "hover": "HOVER ACTION",
+                "focus": "FOCUS RING",
+                "pressed": "OPENING FOLDER",
+                "disabled": "DISABLED ACTION",
+                "recording": "EXPORT AVAILABLE",
+                "saved_complete": "EXPORT READY",
+                "blocked_error": "OPEN FAILED",
+                "footprint_proof": "DOORWAY FOOTPRINT",
+            }[state]
         _rounded(draw, (x, y, x + tile_w - 14, y + tile_h - 12), 17, "#03111C", "#1E5C70", 1)
         draw.text((x + 14, y + 10), state_label, font=state_font, fill="#7BD2E8")
         draw.text((x + 14, y + 26), option.title.upper(), font=_font(13, bold=True), fill="#F1FAFF")
@@ -658,6 +764,41 @@ def _draw_state_contact_sheet(option: Option, target: Path) -> None:
     img.save(target)
 
 
+def _draw_annotated_callout(option: Option, target: Path) -> None:
+    base = target.with_name(target.stem + "_base.png")
+    _draw_window(option, base)
+    img = Image.new("RGB", (option.default_size[0] + 310, option.default_size[1] + 34), "#020811")
+    img.paste(Image.open(base), (14, 17))
+    base.unlink(missing_ok=True)
+    draw = ImageDraw.Draw(img)
+    offset_x, offset_y = 14, 17
+    width, height = option.default_size
+    callouts = [
+        ("CHROME-001", (offset_x, offset_y, offset_x + width - 1, offset_y + height - 1), "Nexus shell / window class"),
+        ("TITLE-001", (offset_x + 20, offset_y + 14, offset_x + width - 90, offset_y + 56), "Header and title copy"),
+        ("CTRL-001", (offset_x + width - 88, offset_y + 16, offset_x + width - 15, offset_y + 51), "Minimize/close control pill"),
+        ("ROW-001", (offset_x + 18, offset_y + 66, offset_x + width - 18, offset_y + height - 58), "Accepted target/state rows"),
+        ("ACTION-001", (offset_x + 18, offset_y + height - 44, offset_x + width - 18, offset_y + height - 8), "Accepted action group"),
+    ]
+    legend_x = offset_x + width + 24
+    draw.text((legend_x, 18), "ANNOTATED LEGEND", font=_font(13, bold=True), fill="#EAF8FF")
+    y = 44
+    for index, (callout_id, rect, label) in enumerate(callouts, start=1):
+        outline = ["#7DFFE6", "#8CEBFF", "#F5D06C", "#9FFFE3", "#F1FAFF"][index - 1]
+        draw.rounded_rectangle(rect, radius=8, outline=outline, width=2)
+        badge = (rect[0] + 4, rect[1] + 4, rect[0] + 34, rect[1] + 22)
+        _rounded(draw, badge, 6, "#061725", outline, 1)
+        draw.text((badge[0] + 6, badge[1] + 3), f"{index}", font=_font(9, bold=True), fill="#EAF8FF")
+        anchor_y = rect[1] + 10
+        draw.line((rect[2], anchor_y, legend_x - 8, y + 6), fill=outline, width=1)
+        draw.text((legend_x, y), f"{index}. {callout_id}", font=_font(10, bold=True), fill=outline)
+        draw.text((legend_x, y + 15), label, font=_font(9), fill="#A9C9D7")
+        y += 42
+    draw.text((legend_x, y + 4), "Callouts are packet proof overlays only.", font=_font(9), fill="#A9C9D7")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    img.save(target)
+
+
 def _copy_source_context() -> list[str]:
     copied: list[str] = []
     context = PACKET_ROOT / "Source Truth Context"
@@ -701,8 +842,8 @@ def _copy_udl_context() -> list[str]:
             copied.append(str(source))
     status = {
         "status": "REVIEWABLE_EVIDENCE_INCLUDED" if len(copied) == 5 else "PARTIAL_EVIDENCE_INCLUDED",
-        "absenceOfVisualAcceptanceTargetRepresented": "The packet preserves the branch-local false-green / UDL evidence and keeps implementation blocked pending USER visual selection.",
-        "currentOwnedUdlBlocksThisPacket": "Packet generation is allowed only as visual-target review evidence; product UI repair remains blocked until USER selects/revises target.",
+        "absenceOfVisualAcceptanceTargetRepresented": "The packet preserves the branch-local false-green / UDL evidence and records the USER-accepted visual target as a pre-implementation contract.",
+        "currentOwnedUdlBlocksThisPacket": "Packet generation is allowed as accepted visual-target evidence; product UI repair remains blocked until USER separately approves implementation-match repair.",
         "knownBadFalseGreenDefects": [
             "missing required state renders",
             "stale or inconsistent packet hash proof",
@@ -784,284 +925,348 @@ def _option_record(option: Option, focus: Path, context: Path, states: Path) -> 
     }
 
 
+def _accepted_target_record(option: Option, focus: Path, context: Path, states: Path, annotated: Path) -> dict[str, object]:
+    required_states = RECORDING_REQUIRED_STATES if option.surface.startswith("Recording") else LOG_REQUIRED_STATES
+    accepted_basis = "REC-C accepted as base with REC-A target/state separation" if option.surface.startswith("Recording") else "LOG-A accepted as current branch doorway shell"
+    rejected_patterns = [
+        "REC-B proof/helper copy",
+        "native-log status row inside Recording Studio target",
+        "mini-dashboard/report-table feel",
+        "LOG-B local-path/debug display by default",
+        "LOG-C full feature-studio workspace implication",
+    ]
+    return {
+        "targetId": f"FAM006-VAT-{option.option_id}",
+        "targetStatus": "USER_ACCEPTED",
+        "surface": option.surface,
+        "acceptedBasis": accepted_basis,
+        "footprintClass": option.footprint_class,
+        "windowSurfaceClass": option.window_class,
+        "intendedUserPurpose": option.purpose,
+        "defaultDimensions": f"{option.default_size[0]}x{option.default_size[1]}",
+        "minimumDimensions": f"{option.min_size[0]}x{option.min_size[1]}",
+        "resizeBehavior": option.resize_behavior,
+        "headerText": "ACTIVE OVERLAY RECORDING" if option.surface.startswith("Recording") else "RECORDING LOGS",
+        "titleText": option.title.upper(),
+        "rows": [{"label": label, "value": value} for label, value in option.rows],
+        "primaryAction": "START RECORDING / STOP RECORDING" if option.surface.startswith("Recording") else option.primary_action.upper(),
+        "secondaryAction": option.secondary_action.upper(),
+        "rejectedPatterns": rejected_patterns,
+        "renderAuthorityLevel": "Visual Acceptance Target",
+        "focusedRenderMediaPath": focus.relative_to(PACKET_ROOT).as_posix(),
+        "fullDesktopContextRenderMediaPath": context.relative_to(PACKET_ROOT).as_posix(),
+        "stateContactSheetMediaPath": states.relative_to(PACKET_ROOT).as_posix(),
+        "annotatedCalloutMediaPath": annotated.relative_to(PACKET_ROOT).as_posix(),
+        "elementLegend": ["CHROME-001", "TITLE-001", "CTRL-001", "ROW-001", "ACTION-001"],
+        "stateCoverage": {
+            state: f"Rendered in {states.relative_to(PACKET_ROOT).as_posix()}" for state in sorted(required_states)
+        },
+        "requiredStates": sorted(required_states),
+        "implementationMatchRequirement": "Later product UI repair must compare actual runtime screenshots/video against this target before H1/LV/UTS progression.",
+    }
+
+
 def _markdown_table(rows: Iterable[Iterable[str]]) -> str:
     return "\n".join("| " + " | ".join(row) + " |" for row in rows)
 
 
 def _write_packet(stamp: str) -> Path:
     _purge_packet()
-    media_root = PACKET_ROOT / "Review Aids" / "Visual Options" / "media"
-    records: list[dict[str, object]] = []
-    for option in OPTIONS:
+    media_root = PACKET_ROOT / "Review Aids" / "Accepted Visual Target" / "media"
+    accepted_records: list[dict[str, object]] = []
+    for option in ACCEPTED_TARGETS:
         focus = media_root / f"{option.option_id}_focused.png"
         context = media_root / f"{option.option_id}_desktop_context.png"
         states = media_root / f"{option.option_id}_state_contact_sheet.png"
+        annotated = media_root / f"{option.option_id}_annotated_callouts.png"
         _draw_window(option, focus)
         _draw_window(option, context, context=True)
         _draw_state_contact_sheet(option, states)
-        records.append(_option_record(option, focus, context, states))
+        _draw_annotated_callout(option, annotated)
+        accepted_records.append(_accepted_target_record(option, focus, context, states, annotated))
+
+    option_media_root = PACKET_ROOT / "Review Aids" / "Superseded Visual Options" / "media"
+    superseded_records: list[dict[str, object]] = []
+    for option in OPTIONS:
+        focus = option_media_root / f"{option.option_id}_focused.png"
+        context = option_media_root / f"{option.option_id}_desktop_context.png"
+        states = option_media_root / f"{option.option_id}_state_contact_sheet.png"
+        _draw_window(option, focus)
+        _draw_window(option, context, context=True)
+        _draw_state_contact_sheet(option, states)
+        superseded_records.append(_option_record(option, focus, context, states))
 
     copied = _copy_source_context()
     copied_udl = _copy_udl_context()
     review_aids = PACKET_ROOT / "Review Aids"
     user_review = PACKET_ROOT / "USER Review" / PRIMARY_FILE
 
-    impact = {
-        "status": "VISUAL_TARGET_REQUIRED",
+    _write_json(review_aids / "Visual Impact Classification.json", {
+        "status": "USER_ACCEPTED_VISUAL_TARGET_RECORDED",
         "classifications": VISUAL_CLASSIFICATIONS,
-        "rule": "Any visible UI/UX change requires a rendered visual target before product/runtime UI implementation.",
+        "rule": "Visible UI/UX repair now proceeds only by separate implementation-match approval against this accepted target.",
         "currentBranchSurfaces": ["Recording Studio", "Log Viewer Studio"],
-    }
-    _write_json(review_aids / "Visual Impact Classification.json", impact)
-    _write_json(review_aids / "Visual Options Packet.json", {"options": records})
+    })
+    _write_json(review_aids / "Accepted Branch Visual Acceptance Target.json", {"status": "USER_ACCEPTED", "targets": accepted_records})
+    _write_json(review_aids / "Superseded Visual Options Packet.json", {"options": superseded_records})
 
-    visual_options_md = [
-        "# Visual Options Packet",
+    accepted_md = [
+        "# Accepted Branch Visual Acceptance Target",
         "",
-        "Render Authority Level: `Design Candidate Render`.",
-        "These are selection artifacts only. They are not implementation proof and not USER acceptance targets until USER selects/revises them.",
+        "Target Status: `USER_ACCEPTED`",
+        "Authority Level: `Visual Acceptance Target`",
         "",
-        "| Option | Surface | Footprint | Size | Resize | Focused render | Context render | State contact sheet | What USER should critique |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "This file records the USER/ChatGPT visual decision. It is a pre-implementation visual guide contract, not proof that the runtime implementation already exists or matches it.",
+        "",
+        "| Target | Surface | Accepted basis | Footprint | Size | Resize | Focused render | Context render | State sheet | Annotated callouts |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
-    for option, record in zip(OPTIONS, records, strict=True):
-        visual_options_md.append(
-            "| {option} | {surface} | {footprint} | {size} | {resize} | `{focus}` | `{context}` | `{states}` | {critique} |".format(
-                option=option.option_id,
-                surface=option.surface,
-                footprint=option.footprint_class,
-                size=f"{option.default_size[0]}x{option.default_size[1]}",
-                resize=option.resize_behavior,
+    for record in accepted_records:
+        accepted_md.append(
+            "| {target} | {surface} | {basis} | {footprint} | {size} | {resize} | `{focus}` | `{context}` | `{states}` | `{annotated}` |".format(
+                target=record["targetId"],
+                surface=record["surface"],
+                basis=record["acceptedBasis"],
+                footprint=record["footprintClass"],
+                size=record["defaultDimensions"],
+                resize=record["resizeBehavior"],
                 focus=record["focusedRenderMediaPath"],
                 context=record["fullDesktopContextRenderMediaPath"],
                 states=record["stateContactSheetMediaPath"],
-                critique=record["whatUserShouldCritique"],
+                annotated=record["annotatedCalloutMediaPath"],
             )
         )
-    (review_aids / "Visual Options Packet.md").write_text("\n".join(visual_options_md) + "\n", encoding="utf-8")
+    (review_aids / "Accepted Branch Visual Acceptance Target.md").write_text("\n".join(accepted_md) + "\n", encoding="utf-8")
 
     selection = [
-        "# Visual Selection Ledger Template",
+        "# Visual Selection Ledger",
         "",
         "| decision ID | surface | option ID | element ID | accepted / rejected / combine / revise | USER notes | source-truth impact | branch-local vs durable design principle | implementation requirement | proof requirement | future reuse note |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
-        "| VSL-001 | Recording Studio |  |  |  |  |  |  |  |  |  |",
-        "| VSL-002 | Log Viewer Studio |  |  |  |  |  |  |  |  |  |",
     ]
-    (review_aids / "Visual Selection Ledger Template.md").write_text("\n".join(selection) + "\n", encoding="utf-8")
+    selection.extend("| " + " | ".join(row) + " |" for row in ACCEPTED_SELECTION_ROWS)
+    (review_aids / "Visual Selection Ledger.md").write_text("\n".join(selection) + "\n", encoding="utf-8")
 
     target = [
-        "# Draft Branch Visual Acceptance Target",
+        "# Branch Visual Acceptance Target",
         "",
-        "Target ID: `FAM006-VAT-DRAFT-001`",
-        "Target Status: `DRAFT`",
-        "Selected Option(s): `Pending USER selection`",
-        "Selected Element Decisions: `Pending USER selection`",
-        "Surface Purpose: `Pending USER acceptance after option review`",
-        "Footprint Class: `Pending USER selection`",
-        "Default Dimensions: `Pending USER selection`",
-        "Resize Behavior: `Pending USER selection`",
-        "State Matrix: `default, hover, focus, pressed/active, disabled, empty/no-data, blocked/error, success/complete, resized/fixed-size proof required before implementation-match proof`",
+        "Target ID: `FAM006-VAT-USER-ACCEPTED-20260624`",
+        "Target Status: `USER_ACCEPTED`",
+        "Selected Option(s): `REC-C as base with REC-A target/state separation; LOG-A as base`",
+        "Selected Element Decisions: `See Visual Selection Ledger`",
+        "Surface Purpose: `Recording Studio is a compact detached controller; Log Viewer Studio is a compact native/export doorway shell`",
+        "Footprint Class: `Recording Studio COMPACT_CONTROLLER; Log Viewer Studio DOORWAY_SHELL`",
+        "Default Dimensions: `Recording Studio 392x184 target render; Log Viewer Studio 430x184 target render`",
+        "Resize Behavior: `Recording fixed-size/movable/no resize affordance; Log doorway shell fixed-size unless later source truth admits viewer workspace resizing`",
+        "State Matrix: `default, hover, focus, pressed/active, disabled, empty/no-data, blocked/error, success/complete, fixed-size proof required before implementation-match proof`",
         "Copy Rules: `Short product copy only; no proof/debug/governance/internal wording`",
         "Spacing/Density Rules: `Same-class primitives must be identical or explicitly varied by accepted target`",
         "Button/Control Rules: `Content-fit primitive, equal left/right gutters, shared hover/focus/pressed/disabled grammar`",
         "Status/Error/Empty Rules: `Truthful runtime state; no fake readiness; no hidden failures`",
-        "Accepted Reference Surfaces: `Pending USER selection; expected to cite UIREF and accepted comparator rows`",
-        "UIREF Obligations: `UIREF-001 through UIREF-006 applicability must be mapped per element group`",
-        "Accepted Exceptions: `None accepted by this draft`",
-        "Source-Truth Conflict Candidates: `None admitted; record any USER-selected conflict before implementation`",
-        "Implementation Constraints: `No product/runtime UI repair may proceed from this packet until USER accepts or revises this target`",
+        "Accepted Reference Surfaces: `AI Control Center same-class control primitives; FAM-006 child-window title grammar; HUD Dashboard doorway/action semantics only`",
+        "Accepted Exceptions: `None for proof/debug copy, dashboard/report-table feel, default local-path display, fake full-viewer workspace, or Recording labels in Log Viewer state names`",
+        "Implementation Constraints: `This packet does not approve runtime/product UI repair by itself; implementation-match repair still needs separate approval`",
         "Proof Requirements: `Focused implementation screenshots/video, full desktop/context screenshots, element legends, state matrix, implementation-match checklist, LV exact desktop launcher proof`",
-        "LV Gating Rule: `No renewed Live Validation until implementation-match proof compares actual UI against USER-accepted Visual Acceptance Target`",
     ]
-    (review_aids / "Draft Branch Visual Acceptance Target.md").write_text("\n".join(target) + "\n", encoding="utf-8")
+    (review_aids / "Branch Visual Acceptance Target.md").write_text("\n".join(target) + "\n", encoding="utf-8")
+
+    checklist = [
+        "# Implementation-Match Checklist",
+        "",
+        "| ID | Surface | Requirement | Required implementation proof | Blocking disposition |",
+        "| --- | --- | --- | --- | --- |",
+        "| IMC-REC-001 | Recording Studio | Header `ACTIVE OVERLAY RECORDING`; title `RECORDING STUDIO`; no separated title card. | Focused runtime screenshot and annotated crop. | Blocks H1/LV if missing. |",
+        "| IMC-REC-002 | Recording Studio | Target row `Default Overlay Profile`; State row `Ready - 2 active monitors`. | Focused row crop with readable text. | Blocks H1/LV if missing. |",
+        "| IMC-REC-003 | Recording Studio | One stateful primary action: `START RECORDING` changes to `STOP RECORDING`; one secondary `OPEN LOGS`. | Ordered screenshot/video frames before/after click. | Blocks H1/LV if missing. |",
+        "| IMC-REC-004 | Recording Studio | Reject REC-B proof copy, native-log status row, report-table/minidashboard feel, and internal proof wording. | Negative visual proof / text audit. | Blocks H1/LV if present. |",
+        "| IMC-LOG-001 | Log Viewer Studio | Header `RECORDING LOGS`; title `LOG VIEWER STUDIO`; no Recording Studio state names. | Focused runtime screenshot and text audit. | Blocks H1/LV if missing. |",
+        "| IMC-LOG-002 | Log Viewer Studio | Row 1 `NATIVE - Recordings folder`; action `OPEN NATIVE LOGS`. | Focused row/action crop and activation proof. | Blocks H1/LV if missing. |",
+        "| IMC-LOG-003 | Log Viewer Studio | Row 2 `EXPORT - Exported Logs folder`; action `OPEN EXPORTED LOGS`. | Focused row/action crop and activation proof. | Blocks H1/LV if missing. |",
+        "| IMC-LOG-004 | Log Viewer Studio | No default local path display, graph/export customization, previous-log selection, or fake full-viewer workspace. | Negative visual proof / text audit. | Blocks H1/LV if present. |",
+        "| IMC-BOTH-001 | Both studios | Same-class controls, gutters, type, glow, radius, hover/focus/pressed/disabled states match accepted primitives or explicitly logged exception. | State contact sheet and implementation screenshots. | Blocks H1/LV if unproven. |",
+    ]
+    (review_aids / "Implementation-Match Checklist.md").write_text("\n".join(checklist) + "\n", encoding="utf-8")
 
     rejected = [
-        "# Rejected Patterns Ledger",
+        "# Rejected Options And Patterns Ledger",
         "",
         "| pattern ID | rejected UI/UX pattern | source option or prior screenshot | reason rejected | affected surface/class | future avoidance guidance | source-truth impact | linked USER feedback |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     rejected.extend("| " + " | ".join(row) + " |" for row in REJECTED_PATTERNS)
-    (review_aids / "Rejected Patterns Ledger.md").write_text("\n".join(rejected) + "\n", encoding="utf-8")
+    rejected.extend([
+        "| VSL-REC-B | REC-B final body/copy | REC-B | USER rejected helper/proof copy, native-log status row, mini-dashboard/report-table feel, and internal proof wording. | Recording Studio | Do not implement REC-B final structure. | Branch-local accepted target | Current USER/ChatGPT decision |",
+        "| VSL-LOG-B | LOG-B local-path/debug display | LOG-B | USER rejected local-path/technical/debug appearance. | Log Viewer Studio | Do not display local paths by default. | Branch-local accepted target | Current USER/ChatGPT decision |",
+        "| VSL-LOG-C | LOG-C full feature-studio workspace | LOG-C | USER deferred full viewer workspace; current branch is doorway shell only. | Log Viewer Studio | Keep graph/export customization/previous-log selection future-gated. | Branch-local accepted target | Current USER/ChatGPT decision |",
+    ])
+    (review_aids / "Rejected Options And Patterns Ledger.md").write_text("\n".join(rejected) + "\n", encoding="utf-8")
 
     recipe = [
         "# Reusable Design Recipe Template",
         "",
-        "Accepted Surface Class: `Pending USER accepted target`",
-        "Accepted Footprint Class: `Pending USER accepted target`",
-        "Token Values / Dimensions: `Pending implementation-match proof`",
-        "Padding: `Pending USER accepted target`",
-        "Spacing: `Pending USER accepted target`",
-        "Button Heights: `Pending USER accepted target`",
-        "Font Scale: `Pending USER accepted target`",
-        "Status Chip Pattern: `Pending USER accepted target`",
-        "Title/Header Grammar: `Pending USER accepted target`",
-        "Resize Behavior: `Pending USER accepted target`",
-        "Copy Pattern: `Pending USER accepted target`",
+        "Accepted Surface Class: `Unique child / standalone-capable feature-studio window`",
+        "Accepted Footprint Class: `COMPACT_CONTROLLER for Recording; DOORWAY_SHELL for Log Viewer`",
+        "Token Values / Dimensions: `See Branch Visual Acceptance Target; exact runtime tokens require implementation-match proof`",
+        "Padding: `Content-fit and compact; no giant button wells`",
+        "Spacing: `Equal left/right gutters and same-class primitive rhythm`",
+        "Button Heights: `Compact content-fit; prove by screenshot/video after implementation`",
+        "Font Scale: `Nexus same-class primitive type; prove by implementation match`",
+        "Status Chip Pattern: `No debug/proof/internal copy`",
+        "Title/Header Grammar: `Category line plus strong title; no separated title card`",
+        "Resize Behavior: `Recording fixed; Log Viewer fixed doorway shell unless later accepted source truth changes it`",
+        "Copy Pattern: `Short product copy only`",
         "State Pattern: `default, hover, focus, pressed, disabled, blocked/error, empty, success`",
-        "Accepted Comparator References: `Pending USER accepted target`",
-        "Rejected Alternatives: `See Rejected Patterns Ledger`",
-        "Future Branch Reuse Notes: `Fold down after USER accepts final visual target and implementation proof passes`",
+        "Accepted Comparator References: `AI Control Center same-class controls; FAM-006 child-window title grammar; HUD doorway semantics only`",
+        "Rejected Alternatives: `See Rejected Options And Patterns Ledger`",
+        "Future Branch Reuse Notes: `Fold down after implementation proof passes`",
         "Proof Requirements: `packet-contained render media plus later implementation-match screenshots/video`",
     ]
     (review_aids / "Reusable Design Recipe Template.md").write_text("\n".join(recipe) + "\n", encoding="utf-8")
 
-    conflict = {
-        "status": "MATERIAL_CANDIDATE_DECISIONS_CLASSIFIED",
-        "classificationVocabulary": [
-            "BRANCH_LOCAL_VISUAL_DECISION",
-            "FAMILY_FEATURE_VISION_REPAIR_REQUIRED",
-            "FAMILY_VISION_REPAIR_REQUIRED",
-            "FAM-002_REPAIR_REQUIRED",
-            "UIREF_REPAIR_REQUIRED",
-            "PROJECT_VISION_REPAIR_REQUIRED",
-            "GOVERNANCE_CANDIDATE_ONLY",
-            "USER_DECISION_REQUIRED",
-            "NO_CONFLICT",
-        ],
+    _write_json(review_aids / "Source Truth Conflict Classification.json", {
+        "status": "USER_ACCEPTED_VISUAL_DECISIONS_CLASSIFIED",
+        "classificationVocabulary": ["BRANCH_LOCAL_VISUAL_DECISION", "GOVERNANCE_CANDIDATE_ONLY", "NO_CONFLICT"],
         "classifications": CONFLICT_CLASSIFICATION_ROWS,
-    }
-    _write_json(review_aids / "Source Truth Conflict Classification.json", conflict)
+    })
     conflict_md = [
         "# Source Truth Conflict Classification",
+        "",
+        "Accepted visual target decisions are branch-local source-truth records. Governance promotion remains candidate only.",
         "",
         "| decision | classification | risk area | basis | USER decision needed |",
         "| --- | --- | --- | --- | --- |",
     ]
     for row in CONFLICT_CLASSIFICATION_ROWS:
-        conflict_md.append(
-            "| {decision} | `{classification}` | {riskArea} | {basis} | {userDecisionNeeded} |".format(**row)
-        )
+        conflict_md.append("| {decision} | `{classification}` | {riskArea} | {basis} | {userDecisionNeeded} |".format(**row))
     (review_aids / "Source Truth Conflict Classification.md").write_text("\n".join(conflict_md) + "\n", encoding="utf-8")
 
-    governance_candidate = [
-        "# Governance Candidate Only",
-        "",
-        "Candidate: promote a global Visual Acceptance Target gate for visible UI/UX changes.",
-        "",
-        "Reason: FAM-006 repeatedly implemented UI before USER had a substantial rendered target to accept, producing false-green and repair loops.",
-        "",
-        "Exact future approval needed: `I approve Governance to evaluate and promote the FAM-006 Visual Acceptance Target process into global source truth and validators, using the FAM-006 branch-local packet as evidence only.`",
-    ]
-    (review_aids / "Governance Candidate Only.md").write_text("\n".join(governance_candidate) + "\n", encoding="utf-8")
+    (review_aids / "Governance Candidate Only.md").write_text(
+        "# Governance Candidate Only\n\n"
+        "Candidate: promote a global Visual Acceptance Target gate for visible UI/UX changes.\n\n"
+        "Current packet records branch-local FAM-006 target acceptance only. Governance worktree mutation remains excluded.\n\n"
+        "Exact future approval needed: `I approve Governance to evaluate and promote the FAM-006 Visual Acceptance Target process into global source truth and validators, using the FAM-006 branch-local packet as evidence only.`\n",
+        encoding="utf-8",
+    )
+    (review_aids / "Visual Acceptance Lifecycle.md").write_text(
+        "# Visual Acceptance Lifecycle Clarification\n\n"
+        "- `Concept Render`: brainstorming only.\n"
+        "- `Design Candidate Render`: selectable review option, not accepted source truth.\n"
+        "- `Visual Acceptance Target`: USER-accepted pre-implementation visual guide contract.\n"
+        "- `Implementation Match Proof`: actual product screenshot/video proving runtime UI matches the accepted target.\n\n"
+        "This packet records `Visual Acceptance Target`. It does not claim implementation match, H1 green, Live Validation green, UTS acceptance, PR Readiness, release readiness, or issue closure.\n",
+        encoding="utf-8",
+    )
+    (review_aids / "Annotated Callout Legend Requirement.md").write_text(
+        "# Annotated / Callout Legend Requirement\n\n"
+        "Future visual-target and implementation-match packets must include annotated/callout renders, not only plain tables.\n\n"
+        "- Stable callout IDs for material element groups.\n"
+        "- Visible outlines/arrows/badges/markers.\n"
+        "- No reliance on color alone.\n"
+        "- Annotations are review/proof artifacts only and must not be injected into product UI.\n"
+        "- The ZIP must include the actual media files, not only local paths.\n",
+        encoding="utf-8",
+    )
+    (review_aids / "Superseded Visual Options Packet.md").write_text(
+        "# Superseded Visual Options Context\n\n"
+        "These Design Candidate Renders are retained as context only. The accepted target is `REC-C-ACCEPTED` and `LOG-A-ACCEPTED`.\n\n"
+        "| Option | Surface | Status | Reason |\n"
+        "| --- | --- | --- | --- |\n"
+        "| REC-A | Recording Studio | PARTIAL_SOURCE | Clearer target/state separation borrowed into accepted target. |\n"
+        "| REC-B | Recording Studio | REJECTED | Proof/helper copy, native-log status row, mini-dashboard/report-table feel, internal proof wording. |\n"
+        "| REC-C | Recording Studio | ACCEPTED_BASE | Action-first compact controller base. |\n"
+        "| LOG-A | Log Viewer Studio | ACCEPTED_BASE | Compact native/export doorway shell. |\n"
+        "| LOG-B | Log Viewer Studio | REJECTED | Local-path/technical/debug presentation. |\n"
+        "| LOG-C | Log Viewer Studio | DEFERRED | Future full viewer workspace implication. |\n",
+        encoding="utf-8",
+    )
 
-    validation_summary = [
-        "# Validation Outputs",
-        "",
-        "Packet generator validation is run after packet creation and copied here.",
-        "Live Validation was not run.",
-        "UTS acceptance was not claimed.",
-    ]
-    (review_aids / "Validation Outputs.md").write_text("\n".join(validation_summary) + "\n", encoding="utf-8")
+    (review_aids / "Validation Outputs.md").write_text(
+        "# Validation Outputs\n\nPacket generator validation is run after packet creation and copied here.\nLive Validation was not run.\nUTS acceptance was not claimed.\n\nFinal ZIP SHA policy: authoritative final ZIP SHA is external to the ZIP because embedding it would mutate the ZIP bytes.\n",
+        encoding="utf-8",
+    )
 
     primary = [
-        "# FAM-006 Current Branch Visual Acceptance Target Review",
+        "# FAM-006 Accepted Branch Visual Acceptance Target Review",
         "",
-        "Packet Status: `branch-local-visual-acceptance-target-review`",
+        "Packet Status: `branch-local-accepted-visual-target-review`",
         "Packet Reviewability State: `Reviewable`",
-        "USER Gate State: `Pending USER visual selection / revision`",
-        "Runtime Implementation State: `Blocked by pending Visual Acceptance Target`",
-        "Live Validation State: `Not run; blocked until USER-accepted target and implementation-match proof`",
+        "USER Gate State: `USER_ACCEPTED Visual Acceptance Target; implementation-match repair pending separate approval`",
+        "Runtime Implementation State: `Blocked until separate implementation-match repair approval`",
+        "Live Validation State: `Not run; blocked until implementation-match proof`",
         "",
-        "## Why This Packet Exists",
+        "## Accepted Recording Studio Target",
         "",
-        "The current branch has visible UI/UX changes for Recording Studio and Log Viewer Studio. USER rejected the implementation-first loop and asked for real rendered options so USER can choose the final product direction before more runtime UI repair.",
+        "- Base: `REC-C` with REC-A target/state separation.",
+        "- Header: `ACTIVE OVERLAY RECORDING`; title: `RECORDING STUDIO`.",
+        "- Rows: `TARGET - Default Overlay Profile`; `STATE - Ready - 2 active monitors`.",
+        "- Primary stateful button: `START RECORDING / STOP RECORDING`; secondary action: `OPEN LOGS`.",
+        "- Rejected: REC-B proof/helper copy, native-log status row, mini-dashboard/report-table feel, internal proof wording.",
         "",
-        "This packet gives substantial rendered Design Candidate Renders. It does not claim the UI is implemented, visually accepted, Live-Validation green, UTS complete, or PR Readiness green.",
+        "## Accepted Log Viewer Studio Target",
         "",
-        "## Visual Impact Classification",
+        "- Base: `LOG-A`.",
+        "- Header: `RECORDING LOGS`; title: `LOG VIEWER STUDIO`.",
+        "- Row 1: `NATIVE - Recordings folder`; action `OPEN NATIVE LOGS`.",
+        "- Row 2: `EXPORT - Exported Logs folder`; action `OPEN EXPORTED LOGS`.",
+        "- Rejected: local path display by default, technical/debug copy, LOG-C full viewer workspace, graph/export customization, previous-log selection.",
+        "- State labels are Log Viewer specific and do not use Recording Studio labels like `RECORDING` or `SAVED COMPLETE`.",
         "",
-        ", ".join(f"`{item}`" for item in VISUAL_CLASSIFICATIONS),
+        "## Media To Review",
         "",
-        "## Render Authority Levels",
-        "",
-        _markdown_table([("Authority Level", "Meaning"), ("---", "---"), *AUTHORITY_LEVELS.items()]),
-        "",
-        "## Options To Review",
-        "",
-        "Open `Review Aids/Visual Options Packet.md` and inspect the packet-contained PNG renders under `Review Aids/Visual Options/media/`.",
-        "",
-        "Each option has three required media types: focused render, desktop/context footprint render, and state contact sheet. The state contact sheets are actual rendered review artifacts for ready/recording/saved/blocked and hover/focus/pressed/disabled/footprint states; they are not deferred prose.",
-        "",
-        "## UDL / False-Green Status",
-        "",
-        "Open `Review Aids/Unified Defect Ledger/UDL_FALSE_GREEN_STATUS.md`. This packet does not close UDL rows or claim product repair; it proves the visual-target packet now carries the false-green evidence needed for USER review.",
-        "",
-        "## Validation And SHA Proof",
-        "",
-        "Open `Review Aids/Validation Outputs.md` for command-output summaries. Final ZIP SHA proof is intentionally recorded outside the ZIP in external state and in Codex's return packet because embedding the final ZIP SHA inside the ZIP would change the ZIP bytes.",
+        "Open `Review Aids/Accepted Branch Visual Acceptance Target.md` and inspect the packet-contained focused, desktop-context, state/contact-sheet, and annotated/callout PNGs under `Review Aids/Accepted Visual Target/media/`.",
         "",
         "## USER Decision Needed",
         "",
-        "Choose, combine, revise, or reject the rendered options. You may reference element IDs such as `ACTION-001 from REC-A` or `PANEL-001 from LOG-B`.",
-        "",
-        "Exact decision text:",
+        "Confirm whether Codex may proceed to separate implementation-match repair using this accepted Visual Acceptance Target.",
         "",
         "```text",
-        "I select/revise the FAM-006 Visual Acceptance Target as follows: [state selected Recording option/elements, selected Log Viewer option/elements, rejected patterns, required changes, and whether Codex may prepare the accepted Branch Visual Acceptance Target for implementation-match repair].",
+        "I approve bounded FAM-006 implementation-match repair for Recording Studio and Log Viewer Studio against the USER_ACCEPTED Visual Acceptance Target recorded in the current packet.",
         "```",
-        "",
-        "## Pending Decisions",
-        "",
-        "- Runtime UI implementation repair.",
-        "- Renewed H1.",
-        "- Renewed exact USER desktop launcher Live Validation.",
-        "- UTS acceptance.",
-        "- PR Readiness, PR creation, merge, release, issue mutation, and cleanup.",
     ]
     user_review.write_text("\n".join(primary) + "\n", encoding="utf-8")
 
-    start_here = [
-        "# FAM-006 Visual Acceptance Target Packet",
-        "",
-        f"Generated: `{stamp}`",
-        "Review Purpose: choose or revise rendered visual targets before any further Recording Studio / Log Viewer Studio product UI repair.",
-        f"Primary USER Review File: `USER Review/{PRIMARY_FILE}`",
-        "Packet Reviewability State: `Reviewable`",
-        "USER Gate State: `Pending USER visual selection / revision`",
-        "Runtime Implementation State: `Blocked`",
-        "Live Validation State: `Not run`",
-        "",
-        "## Review Order",
-        "",
-        "1. Open the primary USER review file.",
-        "2. Inspect the focused and desktop-context PNG renders in `Review Aids/Visual Options/media/`.",
-        "3. Inspect the state contact sheets in `Review Aids/Visual Options/media/`.",
-        "4. Review `Review Aids/Rejected Patterns Ledger.md`, `Review Aids/Source Truth Conflict Classification.md`, and `Review Aids/Unified Defect Ledger/UDL_FALSE_GREEN_STATUS.md`.",
-        "5. Fill or reference `Review Aids/Visual Selection Ledger Template.md`.",
-        "6. Decide whether Codex should combine, revise, or reject options before implementation resumes.",
-    ]
-    (PACKET_ROOT / "START_HERE.md").write_text("\n".join(start_here) + "\n", encoding="utf-8")
+    (PACKET_ROOT / "START_HERE.md").write_text(
+        "# FAM-006 Accepted Visual Acceptance Target Packet\n\n"
+        f"Generated: `{stamp}`\n"
+        "Review Purpose: inspect the accepted branch visual target and decide whether to approve separate implementation-match repair.\n"
+        f"Primary USER Review File: `USER Review/{PRIMARY_FILE}`\n"
+        "Packet Reviewability State: `Reviewable`\n"
+        "USER Gate State: `USER_ACCEPTED Visual Acceptance Target; implementation-match repair pending separate approval`\n"
+        "Runtime Implementation State: `Blocked`\n"
+        "Live Validation State: `Not run`\n\n"
+        "## Review Order\n\n"
+        "1. Open the primary USER review file.\n"
+        "2. Inspect `Review Aids/Accepted Branch Visual Acceptance Target.md` and media in `Review Aids/Accepted Visual Target/media/`.\n"
+        "3. Review `Review Aids/Visual Selection Ledger.md`, `Review Aids/Branch Visual Acceptance Target.md`, and `Review Aids/Implementation-Match Checklist.md`.\n"
+        "4. Review `Review Aids/Rejected Options And Patterns Ledger.md`, `Review Aids/Visual Acceptance Lifecycle.md`, and `Review Aids/Annotated Callout Legend Requirement.md`.\n"
+        "5. Decide whether Codex may proceed to separate implementation-match repair.\n",
+        encoding="utf-8",
+    )
 
     process_payload = {
         "External State Schema": "external-state-v1",
-        "status": "DRAFT_PACKET_GENERATED",
+        "status": "USER_ACCEPTED_VISUAL_TARGET_PACKET_GENERATED",
         "branch": _run_git("branch", "--show-current"),
         "head": _run_git("rev-parse", "HEAD"),
         "visualImpactClassification": VISUAL_CLASSIFICATIONS,
         "authorityLevels": AUTHORITY_LEVELS,
-        "options": records,
+        "acceptedTargets": accepted_records,
+        "supersededOptions": superseded_records,
         "copiedSourceTruthContext": copied,
         "copiedUdlFalseGreenEvidence": copied_udl,
         "userPacket": str(PACKET_ROOT),
-        "nextLegalPhase": "USER review of Visual Acceptance Target options before runtime UI implementation repair",
+        "nextLegalPhase": "USER decision on separate implementation-match repair against the USER_ACCEPTED visual target",
         "governanceCandidateOnly": "Promote globally after USER approves a Governance carrier; not implemented globally here.",
     }
     _write_json(EXTERNAL_PROCESS_JSON, process_payload)
     EXTERNAL_PROCESS_MD.parent.mkdir(parents=True, exist_ok=True)
     EXTERNAL_PROCESS_MD.write_text(
         "# FAM-006 Branch-Local Visual Acceptance Target Process\n\n"
-        "Status: `DRAFT_PACKET_GENERATED / Pending USER visual selection`.\n\n"
-        "This branch-local process requires substantial rendered visual options before any further visible UI/UX implementation repair for Recording Studio or Log Viewer Studio.\n\n"
+        "Status: `USER_ACCEPTED_VISUAL_TARGET_PACKET_GENERATED / Pending separate implementation-match repair approval`.\n\n"
+        "This branch-local process records the accepted rendered visual target before any further visible UI/UX implementation repair for Recording Studio or Log Viewer Studio.\n\n"
         "Authority levels:\n\n"
         + "\n".join(f"- `{key}`: {value}" for key, value in AUTHORITY_LEVELS.items())
-        + "\n\n"
-        "Current visual impact classification: "
-        + ", ".join(f"`{item}`" for item in VISUAL_CLASSIFICATIONS)
-        + ".\n\n"
-        "USER packet: `C:\\Nexus USER\\FAM-006`.\n\n"
-        "Global/Governance promotion remains candidate only.\n",
+        + "\n\nUSER packet: `C:\\Nexus USER\\FAM-006`.\n\nGlobal/Governance promotion remains candidate only.\n",
         encoding="utf-8",
     )
 
@@ -1071,19 +1276,35 @@ def _write_packet(stamp: str) -> Path:
         receipt = (
             marker
             + "\n"
-            + "Status: `DRAFT_PACKET_GENERATED / Pending USER visual selection`.\n\n"
-            + "Current branch visual impact classification: `"
-            + "`, `".join(VISUAL_CLASSIFICATIONS)
-            + "`.\n\n"
-            + "Visual Acceptance Target rule: further visible Recording Studio / Log Viewer Studio product UI repair is blocked until USER selects, combines, revises, or rejects the rendered Design Candidate Renders and Codex records a USER-accepted or revised Branch Visual Acceptance Target.\n\n"
+            + "Status: `USER_ACCEPTED / Pending separate implementation-match repair approval`.\n\n"
+            + "USER accepted REC-C as the Recording Studio base with REC-A target/state separation and LOG-A as the Log Viewer Studio base. This accepted target is a pre-implementation visual guide contract, not implementation proof.\n\n"
             + f"USER packet: `C:\\Nexus USER\\FAM-006` with primary file `USER Review/{PRIMARY_FILE}`.\n\n"
-            + "Next legal phase: `USER review of Visual Acceptance Target options`; renewed implementation repair, H1, Live Validation, UTS, and PR Readiness remain pending.\n"
+            + "Next legal phase: `USER decision on bounded implementation-match repair against the accepted Visual Acceptance Target`; renewed H1, Live Validation, UTS, and PR Readiness remain pending.\n"
         )
         if marker.strip() in text:
             text = text.split(marker, 1)[0].rstrip() + receipt
         else:
             text = text.rstrip() + "\n" + receipt
         BRANCH_PLAN.write_text(text, encoding="utf-8")
+
+    if BRANCH_STATE.exists():
+        marker = "\n## Accepted Visual Acceptance Target Receipt - 2026-06-24\n"
+        text = BRANCH_STATE.read_text(encoding="utf-8")
+        receipt = (
+            marker
+            + "\n"
+            + "Status: `USER_ACCEPTED / Pending separate implementation-match repair approval`.\n\n"
+            + "Accepted Recording Target: `REC-C base with REC-A target/state separation; compact controller; TARGET Default Overlay Profile; STATE Ready - 2 active monitors; START/STOP stateful primary action; OPEN LOGS secondary action; REC-B proof/debug/native-log-status/report-table patterns rejected`.\n\n"
+            + "Accepted Log Viewer Target: `LOG-A base; compact doorway shell; NATIVE Recordings folder with OPEN NATIVE LOGS; EXPORT Exported Logs folder with OPEN EXPORTED LOGS; LOG-B path/debug and LOG-C full viewer workspace rejected/deferred`.\n\n"
+            + "Lifecycle: `Visual Acceptance Target is accepted as pre-implementation guidance only. Runtime implementation match, H1, Live Validation, UTS, PR Readiness, issue closeout, merge, release, and cleanup remain pending.`\n\n"
+            + f"USER packet: `C:\\Nexus USER\\FAM-006` with primary file `USER Review/{PRIMARY_FILE}`.\n\n"
+            + "Next Legal Phase: `USER decision on bounded implementation-match repair against the accepted Visual Acceptance Target`.\n"
+        )
+        if marker.strip() in text:
+            text = text.split(marker, 1)[0].rstrip() + receipt
+        else:
+            text = text.rstrip() + "\n" + receipt
+        BRANCH_STATE.write_text(text, encoding="utf-8")
 
     return _zip_packet(stamp)
 
@@ -1259,12 +1480,17 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
         failures.append(f"USER Review must contain exactly one primary Markdown file; found {len(primary_files)}")
     required_aids = [
         "Visual Impact Classification.json",
-        "Visual Options Packet.json",
-        "Visual Options Packet.md",
-        "Visual Selection Ledger Template.md",
-        "Draft Branch Visual Acceptance Target.md",
-        "Rejected Patterns Ledger.md",
+        "Accepted Branch Visual Acceptance Target.json",
+        "Accepted Branch Visual Acceptance Target.md",
+        "Superseded Visual Options Packet.json",
+        "Superseded Visual Options Packet.md",
+        "Visual Selection Ledger.md",
+        "Branch Visual Acceptance Target.md",
+        "Implementation-Match Checklist.md",
+        "Rejected Options And Patterns Ledger.md",
         "Reusable Design Recipe Template.md",
+        "Visual Acceptance Lifecycle.md",
+        "Annotated Callout Legend Requirement.md",
         "Source Truth Conflict Classification.json",
         "Source Truth Conflict Classification.md",
         "Governance Candidate Only.md",
@@ -1275,15 +1501,22 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
     for rel in required_aids:
         if not (packet_root / "Review Aids" / rel).is_file():
             failures.append(f"missing review aid: {rel}")
-    options_json = packet_root / "Review Aids" / "Visual Options Packet.json"
-    if options_json.exists():
-        data = json.loads(options_json.read_text(encoding="utf-8"))
-        options = data.get("options", [])
-        if len(options) < 6:
-            failures.append(f"expected at least 6 rendered options, found {len(options)}")
-        for option in options:
+    accepted_json = packet_root / "Review Aids" / "Accepted Branch Visual Acceptance Target.json"
+    if accepted_json.exists():
+        data = json.loads(accepted_json.read_text(encoding="utf-8"))
+        if data.get("status") != "USER_ACCEPTED":
+            failures.append("accepted target JSON must have USER_ACCEPTED status")
+        targets = data.get("targets", [])
+        if len(targets) != 2:
+            failures.append(f"expected exactly 2 accepted targets, found {len(targets)}")
+        surfaces = {target.get("surface") for target in targets}
+        for surface in ("Recording Studio", "Log Viewer Studio"):
+            if surface not in surfaces:
+                failures.append(f"accepted target missing surface: {surface}")
+        for option in targets:
             for field in (
-                "optionId",
+                "targetId",
+                "targetStatus",
                 "surface",
                 "footprintClass",
                 "windowSurfaceClass",
@@ -1291,29 +1524,35 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
                 "focusedRenderMediaPath",
                 "fullDesktopContextRenderMediaPath",
                 "stateContactSheetMediaPath",
+                "annotatedCalloutMediaPath",
                 "elementLegend",
                 "stateCoverage",
                 "requiredStates",
                 "resizeBehavior",
             ):
                 if not option.get(field):
-                    failures.append(f"option missing field {field}: {option.get('optionId')}")
-            for field in ("focusedRenderMediaPath", "fullDesktopContextRenderMediaPath", "stateContactSheetMediaPath"):
+                    failures.append(f"accepted target missing field {field}: {option.get('targetId')}")
+            if option.get("targetStatus") != "USER_ACCEPTED":
+                failures.append(f"accepted target has wrong status: {option.get('targetId')}")
+            for field in ("focusedRenderMediaPath", "fullDesktopContextRenderMediaPath", "stateContactSheetMediaPath", "annotatedCalloutMediaPath"):
                 rel = option.get(field)
                 if rel and not (packet_root / rel).is_file():
-                    failures.append(f"option media missing: {rel}")
-            if option.get("renderAuthorityLevel") != "Design Candidate Render":
-                failures.append(f"option has wrong authority level: {option.get('optionId')}")
+                    failures.append(f"accepted target media missing: {rel}")
+            if option.get("renderAuthorityLevel") != "Visual Acceptance Target":
+                failures.append(f"accepted target has wrong authority level: {option.get('targetId')}")
             required_states = set(option.get("requiredStates", []))
             rendered_states = set((option.get("stateCoverage") or {}).keys())
             if required_states != rendered_states:
-                failures.append(f"state coverage mismatch for {option.get('optionId')}: required {sorted(required_states)} rendered {sorted(rendered_states)}")
-    media = list((packet_root / "Review Aids" / "Visual Options" / "media").glob("*.png"))
-    if len(media) < 18:
-        failures.append(f"expected at least 18 PNG render media files, found {len(media)}")
-    state_media = [path for path in media if path.name.endswith("_state_contact_sheet.png")]
-    if len(state_media) < 6:
-        failures.append(f"expected at least 6 state contact sheets, found {len(state_media)}")
+                failures.append(f"state coverage mismatch for {option.get('targetId')}: required {sorted(required_states)} rendered {sorted(rendered_states)}")
+    accepted_media = list((packet_root / "Review Aids" / "Accepted Visual Target" / "media").glob("*.png"))
+    if len(accepted_media) < 8:
+        failures.append(f"expected at least 8 accepted target PNG media files, found {len(accepted_media)}")
+    annotated_media = [path for path in accepted_media if path.name.endswith("_annotated_callouts.png")]
+    if len(annotated_media) < 2:
+        failures.append(f"expected at least 2 annotated/callout media files, found {len(annotated_media)}")
+    state_media = [path for path in accepted_media if path.name.endswith("_state_contact_sheet.png")]
+    if len(state_media) < 2:
+        failures.append(f"expected at least 2 accepted target state contact sheets, found {len(state_media)}")
     source_context_files = list((packet_root / "Source Truth Context").glob("*")) if (packet_root / "Source Truth Context").exists() else []
     if len(source_context_files) < 15:
         failures.append(f"source truth context too small: {len(source_context_files)} files")
@@ -1346,25 +1585,38 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
         "Live Validation State: `Green`",
         "UTS accepted",
         "PR-ready",
-        "USER_ACCEPTED",
     ]
     for token in forbidden:
         if token in text_blob:
             failures.append(f"packet contains forbidden progression claim: {token}")
-    rejected_path = packet_root / "Review Aids" / "Rejected Patterns Ledger.md"
+    text_requirements = {
+        "USER_ACCEPTED": "accepted target status",
+        "REC-C": "accepted Recording base",
+        "REC-A target/state separation": "accepted Recording revision",
+        "LOG-A": "accepted Log Viewer base",
+        "Implementation-Match Checklist": "implementation-match checklist routing",
+        "Annotated / Callout Legend Requirement": "annotated/callout requirement",
+    }
+    for token, label in text_requirements.items():
+        if token not in text_blob:
+            failures.append(f"packet missing required {label}: {token}")
+    rejected_path = packet_root / "Review Aids" / "Rejected Options And Patterns Ledger.md"
     if rejected_path.exists():
         rejected_text = rejected_path.read_text(encoding="utf-8", errors="replace")
         for token in ("oversized inner cards", "path-dominant layout", "marker-only proof", "better/closer/improved"):
             if token not in rejected_text:
-                failures.append(f"Rejected Patterns Ledger missing required pattern: {token}")
+                failures.append(f"Rejected Options And Patterns Ledger missing required pattern: {token}")
+        for token in ("REC-B", "LOG-B", "LOG-C", "native-log status row", "local-path", "full viewer workspace"):
+            if token not in rejected_text:
+                failures.append(f"Rejected Options And Patterns Ledger missing rejected option/detail: {token}")
         pattern_rows = [line for line in rejected_text.splitlines() if line.startswith("| RPL-")]
         if len(pattern_rows) < 12:
-            failures.append(f"Rejected Patterns Ledger under-seeded: {len(pattern_rows)} rows")
+            failures.append(f"Rejected Options And Patterns Ledger under-seeded: {len(pattern_rows)} rows")
     conflict_path = packet_root / "Review Aids" / "Source Truth Conflict Classification.json"
     if conflict_path.exists():
         conflict = json.loads(conflict_path.read_text(encoding="utf-8"))
         classifications = {row.get("classification") for row in conflict.get("classifications", [])}
-        for classification in ("BRANCH_LOCAL_VISUAL_DECISION", "USER_DECISION_REQUIRED", "GOVERNANCE_CANDIDATE_ONLY", "NO_CONFLICT"):
+        for classification in ("BRANCH_LOCAL_VISUAL_DECISION", "GOVERNANCE_CANDIDATE_ONLY", "NO_CONFLICT"):
             if classification not in classifications:
                 failures.append(f"Source Truth Conflict Classification missing {classification}")
         decisions = " ".join(row.get("decision", "") for row in conflict.get("classifications", []))
