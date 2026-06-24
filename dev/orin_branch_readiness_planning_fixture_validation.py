@@ -326,6 +326,9 @@ INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_SEPARATE_NEGATION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_green_separate_negation.md"
 )
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_CONJUNCTION_NEGATION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_green_conjunction_negation.md"
+)
 INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_validation_summary_green.md"
 )
@@ -337,6 +340,9 @@ INVALID_REBASELINE_ADOPTION_REQUIRED_USER_REVIEW_NO_PACKET_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_wrong_root.md"
+)
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_ZIP_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_zip.md"
 )
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
@@ -2101,8 +2107,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             normalized_value,
             re.IGNORECASE,
         ):
+            next_char = normalized_value[match.end() : match.end() + 1]
+            if next_char == ".":
+                continue
             canonical_path = canonical_windows_path(match.group(0))
-            if canonical_path is not None:
+            if canonical_path is not None and not canonical_path.casefold().endswith(".zip"):
                 paths.append(canonical_path)
         return paths
 
@@ -2248,8 +2257,15 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     def contains_non_negated_phrase(value: str, phrases: tuple[str, ...]) -> bool:
         for phrase in phrases:
             for match in re.finditer(re.escape(phrase), value):
-                prefix = value[max(0, match.start() - 32) : match.start()]
-                if re.search(r"\b(not|no|cannot|can't|without)\b[\w\s-]{0,24}$", prefix):
+                prefix = value[max(0, match.start() - 24) : match.start()]
+                if re.search(
+                    r"(?:^|[\s;:,(\[])(?:not|no)\s+(?:all\s+)?$",
+                    prefix,
+                ):
+                    continue
+                if re.search(r"(?:^|[\s;:,(\[])(?:cannot|can't)\s+(?:be\s+)?$", prefix):
+                    continue
+                if re.search(r"(?:^|[\s;:,(\[])without\s+$", prefix):
                     continue
                 return True
         return False
@@ -6593,6 +6609,20 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject unresolved green claim with separate negation"
         )
 
+    unresolved_green_conjunction_negation_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_CONJUNCTION_NEGATION_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_green_conjunction_negation_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved green claim after unrelated negation"
+        )
+
     validation_summary_green_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_GREEN_FIXTURE.read_text(
             encoding="utf-8"
@@ -6735,6 +6765,16 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject USER packet folder outside C:\\Nexus USER"
+        )
+
+    packet_path_zip_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_ZIP_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_zip_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet folder marker pointing at ZIP"
         )
 
     bare_rar3_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
