@@ -637,7 +637,7 @@ def seed_defects() -> list[dict[str, Any]]:
                 "`dev/orin_fam006_unified_defect_ledger.py`, `dev/orin_fam006_false_accept_regression_gate.py`, `Docs/family_feature_visions/FAM-006_recording.md`, "
                 "`Docs/validation_helper_registry.md`, active USER packet layout, and external manifest receipt; adjacent behavior inspected: selected Log Viewer semantics, C2 rejection, "
                 "`VIEWER - Deferred` status row, bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions, fake native/export row exclusion, local path display exclusion, "
-                "Recording Studio direct native/export action exclusion, rejected/deferred option disposition, post-push clean Git proof, and packet-contained validation-output evidence; "
+                "Recording Studio direct native/export action exclusion, rejected/deferred option disposition, post-push clean Git proof, validator behavior, and packet-contained validation-output evidence; "
                 "additional adjacent defects found: none beyond the selected-direction doorway false-green class and already linked FAM006-UDL-018 / FAM006-UDL-019 / FAM006-UDL-020; "
                 "linked UDL IDs added/reopened: FAM006-UDL-018, FAM006-UDL-019, FAM006-UDL-020, and FAM006-UDL-021; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
             ),
@@ -925,7 +925,7 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             comparator="The packet selected a row-action design when the source-truth-correct current branch direction is a simple doorway shell with `VIEWER - Deferred` and bottom actions.",
             prevention="Require corrected Log Viewer doorway shell media, `VIEWER - Deferred`, bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions, C2 rejection, fake-row exclusion, and known-bad 135010 replay.",
             scope="FAM-006-local",
-            linked=["FAM006-UDL-021", "FAM006-UDL-020", "FAM006-UDL-019", "FAM006-UDL-018"],
+            linked=["FAM006-UDL-021", "FAM006-UDL-020", "FAM006-UDL-019"],
         ),
     ]
     for row in rows:

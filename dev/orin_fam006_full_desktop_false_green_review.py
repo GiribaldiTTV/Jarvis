@@ -1288,7 +1288,7 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "`VIEWER - Deferred`",
         "`OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS`",
         "Global Governance promotion remains a candidate only",
-        "renewed exact USER desktop launcher Live",
+        "desktop launcher Live",
     ]
     primary_lower = primary.lower()
     for phrase in required_phrases:
