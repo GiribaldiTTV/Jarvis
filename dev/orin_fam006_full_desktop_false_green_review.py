@@ -38,6 +38,8 @@ REJECTED_BOTTOM_ROW_PACKET = USER_ROOT / "FAM-006-20260624-142638.zip"
 REJECTED_BOTTOM_ROW_SHA256 = "3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D"
 REJECTED_CHROME_DEAD_SPACE_PACKET = USER_ROOT / "FAM-006-20260624-145849.zip"
 REJECTED_CHROME_DEAD_SPACE_SHA256 = "3C5C49B73B9CF7EDD4F86F02610E3C8C845550245D1E10E19CA0221BBC6B843A"
+REJECTED_VALIDATION_EVIDENCE_PACKET = USER_ROOT / "FAM-006-20260624-153501.zip"
+REJECTED_VALIDATION_EVIDENCE_SHA256 = "B5C570F01A44B8146D29720EFF24ADAB040BF1F9A5A701424A8069E272563114"
 PROOF_ROOT = Path(
     "C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI/"
     "fam_006_pre_live_visual_conformance/20260624_121443_feature_studio_visual_fail_repair"
@@ -700,6 +702,20 @@ def _root_cause_rows() -> list[dict[str, str]]:
             "futurePreventionRule": "Selected visual direction packets must fail closed when the selected render still has visible bottom dead-space or mismatched window-control chrome.",
             "proofRequiredToClose": "Packet contains repaired selected renders, selected_render_contract dead-space/chrome fields, and packet-contained chrome/dead-space comparison boards.",
         },
+        {
+            "defectId": "FAM006-FD-FG-006",
+            "falseGreenSymptom": "The 153501 packet carried the accepted selected visual direction but did not include packet-contained command evidence for every validation Codex claimed in the return packet.",
+            "evidenceThatExposedIt": "USER/ChatGPT review of FAM-006-20260624-153501.zip and the Codex return packet listing validations that were not all backed by in-ZIP validation records.",
+            "whyPacketProofMissedIt": "The packet summarized validation status and included many raw records, but did not require a validation claim ledger tying each PASS/NA claim to packet-contained command/cwd/timestamp/exit/stdout/stderr evidence.",
+            "whyValidatorHelperMissedIt": "The branch-local packet validator checked core validation output records but did not require self-validation, USER packet validation, external-state validation, git diff cached applicability, or exact claim-to-evidence parity.",
+            "whyCodexReviewMissedIt": "Codex treated the final chat validation summary and packet helper PASS as sufficient instead of proving every claimed command inside the upload artifact.",
+            "whyChatGPTReviewMissedIt": "The upload packet lacked a deterministic claim ledger, so ChatGPT had to infer which validations were actually packet-contained.",
+            "sourceTruthOwnerGap": "FAM-006 packet repair source truth did not explicitly require selected-direction packets to fail closed on summary-only validation claims.",
+            "validatorToolingGap": "No branch-local helper required validation_claim_ledger.json, post-ZIP packet validation evidence, and final clean status proof in the packet.",
+            "repairRequired": "Add validation claim ledger generation, packet-contained command-output records for every claimed validation, post-ZIP packet/external validation evidence, and final clean git proof.",
+            "futurePreventionRule": "Selected-direction packets must fail closed if any validation claim lacks packet-contained evidence or if post-ZIP validation placeholders survive.",
+            "proofRequiredToClose": "Packet contains validation_claim_ledger.json, VALIDATION_CLAIM_LEDGER.md, command records for all claimed validations, post-ZIP validation evidence, and final clean branch proof.",
+        },
     ]
 
 
@@ -1318,6 +1334,8 @@ Rejected bottom-row / proof-copy packet: `C:\\Nexus USER\\FAM-006-20260624-14263
 Rejected bottom-row / proof-copy packet SHA256: `{REJECTED_BOTTOM_ROW_SHA256}`.
 Rejected chrome / bottom-dead-space packet: `C:\\Nexus USER\\FAM-006-20260624-145849.zip`.
 Rejected chrome / bottom-dead-space packet SHA256: `{REJECTED_CHROME_DEAD_SPACE_SHA256}`.
+Rejected validation-evidence packet: `C:\\Nexus USER\\FAM-006-20260624-153501.zip`.
+Rejected validation-evidence packet SHA256: `{REJECTED_VALIDATION_EVIDENCE_SHA256}`.
 Known-bad corpus copy: `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\false_accept_regression_corpus\\FAM-006-20260624-121535.zip`.
 
 Root cause: focused/cropped row-grammar proof and comparator media were treated
@@ -1351,11 +1369,19 @@ and proof-copy hygiene but still left visible bottom dead-space/control-row
 heaviness in the selected A2 and Log Viewer renders and did not include explicit
 accepted-reference window-control/chrome comparison proof.
 
+Seventh root cause: the 153501 packet carried the accepted selected visual
+direction but did not include a packet-contained validation claim ledger and
+raw/structured command evidence for every validation Codex claimed in the
+return packet.
+
 Branch-local source-truth disposition: FAM-006 Recording now requires
 full-desktop/full-context contradiction review for material Recording Studio and
 Log Viewer Studio visual acceptance packets, and requires branch-local
 child-window placement/options review with actual rendered visual media before
-runtime implementation of unresolved placement behavior.
+runtime implementation of unresolved placement behavior. Selected-direction
+packets must also fail closed on summary-only PASS claims, missing
+packet-contained validation evidence, surviving post-ZIP placeholders, or
+missing final clean branch proof.
 
 USER selected direction recorded by this packet: A2 revised (subtle contained
 row group, compact bottom action row, no oversized control well, no visible
@@ -1403,6 +1429,7 @@ def generate() -> dict[str, Any]:
     known_bad_doorway_copy = KNOWN_BAD_ROOT / REJECTED_DOORWAY_PACKET.name
     known_bad_bottom_row_copy = KNOWN_BAD_ROOT / REJECTED_BOTTOM_ROW_PACKET.name
     known_bad_chrome_dead_space_copy = KNOWN_BAD_ROOT / REJECTED_CHROME_DEAD_SPACE_PACKET.name
+    known_bad_validation_evidence_copy = KNOWN_BAD_ROOT / REJECTED_VALIDATION_EVIDENCE_PACKET.name
     if REJECTED_PACKET.exists():
         if _sha256(REJECTED_PACKET) != REJECTED_SHA256:
             raise SystemExit("rejected 121535 packet SHA mismatch")
@@ -1427,6 +1454,10 @@ def generate() -> dict[str, Any]:
         if _sha256(REJECTED_CHROME_DEAD_SPACE_PACKET) != REJECTED_CHROME_DEAD_SPACE_SHA256:
             raise SystemExit("rejected 145849 packet SHA mismatch")
         shutil.copy2(REJECTED_CHROME_DEAD_SPACE_PACKET, known_bad_chrome_dead_space_copy)
+    if REJECTED_VALIDATION_EVIDENCE_PACKET.exists():
+        if _sha256(REJECTED_VALIDATION_EVIDENCE_PACKET) != REJECTED_VALIDATION_EVIDENCE_SHA256:
+            raise SystemExit("rejected 153501 packet SHA mismatch")
+        shutil.copy2(REJECTED_VALIDATION_EVIDENCE_PACKET, known_bad_validation_evidence_copy)
 
     _purge_user_hub()
     for folder in ("USER Review", "Review Aids", "Source Truth Context"):
@@ -1515,12 +1546,14 @@ release, or cleanup.
         "knownBadDoorwayCopy": str(known_bad_doorway_copy),
         "knownBadBottomRowCopy": str(known_bad_bottom_row_copy),
         "knownBadChromeDeadSpaceCopy": str(known_bad_chrome_dead_space_copy),
+        "knownBadValidationEvidenceCopy": str(known_bad_validation_evidence_copy),
         "rejectedSha256": REJECTED_SHA256,
         "rejectedOptionsSha256": REJECTED_OPTIONS_SHA256,
         "rejectedSelectionSha256": REJECTED_SELECTION_SHA256,
         "rejectedDoorwaySha256": REJECTED_DOORWAY_SHA256,
         "rejectedBottomRowSha256": REJECTED_BOTTOM_ROW_SHA256,
         "rejectedChromeDeadSpaceSha256": REJECTED_CHROME_DEAD_SPACE_SHA256,
+        "rejectedValidationEvidenceSha256": REJECTED_VALIDATION_EVIDENCE_SHA256,
         "optionRenderCount": len(option_renders),
         "selectedDirection": SELECTED_DIRECTION_STATUS,
         "identity": identity,
@@ -1579,6 +1612,10 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         failures.append("145849 known-bad chrome/dead-space packet corpus copy is missing")
     elif _sha256(KNOWN_BAD_ROOT / REJECTED_CHROME_DEAD_SPACE_PACKET.name) != REJECTED_CHROME_DEAD_SPACE_SHA256:
         failures.append("145849 known-bad chrome/dead-space packet corpus copy SHA mismatch")
+    if not (KNOWN_BAD_ROOT / REJECTED_VALIDATION_EVIDENCE_PACKET.name).exists():
+        failures.append("153501 known-bad validation-evidence packet corpus copy is missing")
+    elif _sha256(KNOWN_BAD_ROOT / REJECTED_VALIDATION_EVIDENCE_PACKET.name) != REJECTED_VALIDATION_EVIDENCE_SHA256:
+        failures.append("153501 known-bad validation-evidence packet corpus copy SHA mismatch")
 
     required = [
         "START_HERE.md",
