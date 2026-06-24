@@ -25,8 +25,11 @@ STATE_ROOT = Path(
 )
 WORKTREE_STATE = Path(r"C:\Nexus Governance State\worktrees\FAM-003\worktree_state.md")
 USER_ROOT = Path(r"C:\Nexus USER")
-PACKET_LABEL = "FAM-003-Visual-Acceptance"
+PACKET_LABEL = "FAM-003"
 PACKET_ROOT = USER_ROOT / PACKET_LABEL
+PACKET_RENDER_MEDIA_PREFIX = "Source Truth Context/Proof Artifacts/Visual Target Render Media"
+PACKET_RENDER_MEDIA_ROOT = PACKET_ROOT / "Source Truth Context" / "Proof Artifacts" / "Visual Target Render Media"
+RETIRED_PACKET_LABELS = ("FAM-003-Visual-Acceptance",)
 CURRENT_PROOF_ROOT = (
     ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260623-140739"
 )
@@ -83,7 +86,7 @@ OPTIONS = (
         critique=(
             "Most conservative refinement of the current branch: slim left hierarchy, "
             "compact rows, compact tray menu, and no Settings content that behaves like "
-            "a branch status wall."
+            "an internal status wall."
         ),
     ),
     VisualOption(
@@ -482,14 +485,25 @@ def clean_roots(stamp: str) -> tuple[Path, Path]:
     zip_path = USER_ROOT / f"{PACKET_LABEL}-{stamp}.zip"
     if PACKET_ROOT.exists():
         shutil.rmtree(PACKET_ROOT)
+    legacy_stable_zip = USER_ROOT / f"{PACKET_LABEL}.zip"
+    if legacy_stable_zip.exists():
+        legacy_stable_zip.unlink()
     for existing in USER_ROOT.glob(f"{PACKET_LABEL}-*.zip"):
         existing.unlink()
+    for retired_label in RETIRED_PACKET_LABELS:
+        retired_root = USER_ROOT / retired_label
+        if retired_root.exists():
+            shutil.rmtree(retired_root)
+        retired_stable_zip = USER_ROOT / f"{retired_label}.zip"
+        if retired_stable_zip.exists():
+            retired_stable_zip.unlink()
+        for existing in USER_ROOT.glob(f"{retired_label}-*.zip"):
+            existing.unlink()
     for directory in (
         proof_root,
         PACKET_ROOT / "USER Review",
         PACKET_ROOT / "Review Aids",
         PACKET_ROOT / "Source Truth Context",
-        PACKET_ROOT / "Render Media",
     ):
         directory.mkdir(parents=True, exist_ok=True)
     return proof_root, zip_path
@@ -497,7 +511,7 @@ def clean_roots(stamp: str) -> tuple[Path, Path]:
 
 def render_all(proof_root: Path):
     media_root = proof_root / "render_media"
-    packet_media = PACKET_ROOT / "Render Media"
+    packet_media = PACKET_RENDER_MEDIA_ROOT
     for option in OPTIONS:
         option_dir = media_root / option.id
         packet_dir = packet_media / f"Option {option.id[-1]}"
@@ -597,7 +611,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         USER action: Review the three Design Candidate Renders, use the Visual Selection Ledger to accept/reject/combine/revise elements, and decide whether one candidate should become the Draft Branch Visual Acceptance Target after revision.
 
-        Hash model: The final ZIP SHA256 is recorded outside the ZIP after generation. Packet-internal files intentionally do not contain their own final archive hash.
+        Archive proof: The final archive checksum is tracked externally after generation. Packet files intentionally do not contain their own final archive checksum.
         """,
     )
 
@@ -622,16 +636,16 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         ## Media To Inspect
 
-        - `Render Media/visual_options_contact_sheet.png`
-        - `Render Media/Option A/focused_surface.png`
-        - `Render Media/Option B/focused_surface.png`
-        - `Render Media/Option C/focused_surface.png`
-        - `Render Media/Option A/desktop_context.png`
-        - `Render Media/Option B/desktop_context.png`
-        - `Render Media/Option C/desktop_context.png`
-        - `Render Media/Option A/state_matrix.png`
-        - `Render Media/Option B/state_matrix.png`
-        - `Render Media/Option C/state_matrix.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/desktop_context.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/desktop_context.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/desktop_context.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/state_matrix.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/state_matrix.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/state_matrix.png`
 
         ## Decision Summary
 
@@ -693,7 +707,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         | --- | --- | --- | --- | --- | --- | --- |
         """
         + "\n".join(
-            f"| `{option.id}` | {option.name} | SETTINGS_PANEL + tray menu context | `Render Media/Option {option.id[-1]}/focused_surface.png` | `Render Media/Option {option.id[-1]}/desktop_context.png` | `Render Media/Option {option.id[-1]}/state_matrix.png` | {option.critique} |"
+            f"| `{option.id}` | {option.name} | SETTINGS_PANEL + tray menu context | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/focused_surface.png` | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/desktop_context.png` | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/state_matrix.png` | {option.critique} |"
             for option in OPTIONS
         )
         + """
@@ -867,16 +881,16 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         | Artifact | Surface / Claim | Authority Level |
         | --- | --- | --- |
-        | `Render Media/Option A/focused_surface.png` | Option A focused Settings + tray menu target | Design Candidate Render |
-        | `Render Media/Option A/desktop_context.png` | Option A monitor footprint | Design Candidate Render |
-        | `Render Media/Option A/state_matrix.png` | Option A state coverage | Design Candidate Render |
-        | `Render Media/Option B/focused_surface.png` | Option B focused Settings + tray menu target | Design Candidate Render |
-        | `Render Media/Option B/desktop_context.png` | Option B monitor footprint | Design Candidate Render |
-        | `Render Media/Option B/state_matrix.png` | Option B state coverage | Design Candidate Render |
-        | `Render Media/Option C/focused_surface.png` | Option C focused Settings + tray menu target | Design Candidate Render |
-        | `Render Media/Option C/desktop_context.png` | Option C monitor footprint | Design Candidate Render |
-        | `Render Media/Option C/state_matrix.png` | Option C state coverage | Design Candidate Render |
-        | `Render Media/visual_options_contact_sheet.png` | Cross-option comparison | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option A/focused_surface.png` | Option A focused Settings + tray menu target | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option A/desktop_context.png` | Option A monitor footprint | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option A/state_matrix.png` | Option A state coverage | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option B/focused_surface.png` | Option B focused Settings + tray menu target | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option B/desktop_context.png` | Option B monitor footprint | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option B/state_matrix.png` | Option B state coverage | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option C/focused_surface.png` | Option C focused Settings + tray menu target | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option C/desktop_context.png` | Option C monitor footprint | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option C/state_matrix.png` | Option C state coverage | Design Candidate Render |
+        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/visual_options_contact_sheet.png` | Cross-option comparison | Design Candidate Render |
         | `Source Truth Context/Current Evidence/01_default_global_settings_shell.png` | Current implementation evidence only | Existing implementation screenshot, not acceptance target |
         """,
     )
@@ -897,11 +911,11 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         Contact sheet count: `1`
 
         Packet hygiene:
-        - Active gate-specific folder purged before generation: `YES`
-        - Stale matching gate-specific ZIPs removed: `YES`
-        - Existing LV1 packet folder `C:\\Nexus USER\\FAM-003` not purged: `PRESERVED`
-        - Existing LV1 timestamped ZIPs not removed by this gate-specific packet: `PRESERVED`
-        - Final ZIP hash inside packet: `NO`
+        - Stable worktree-labeled folder purged before generation: `YES`
+        - Legacy stable ZIP `C:\\Nexus USER\\FAM-003.zip` removed if present: `YES`
+        - Previous same-label timestamped ZIPs removed before generation: `YES`
+        - Retired nonstandard `FAM-003-Visual-Acceptance` folder/ZIP artifacts removed: `YES`
+        - Final archive checksum inside packet: `NO`
         """,
     )
 
@@ -910,7 +924,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         """
         # Validation Results
 
-        This file records validation intent before final post-ZIP parity. Final packet ZIP SHA256 and post-ZIP parity are recorded outside the ZIP to avoid self-hash contradiction.
+        This file records validation intent before final archive parity. Final archive checksum and post-archive parity are recorded outside the packet to avoid self-reference.
 
         Planned validation set: git identity/status/freshness proof; git diff whitespace checks; FAM-003 visual acceptance target packet validation; FAM-003 settings visual/UDL schema validation; FAM-003 resident access validation; external-state validation; branch governance validation with worktree confinement gate; normal branch governance validation; source owner marker validation; branch readiness planning fixture validation; governance efficiency validation; release-readiness health gate; release body validation; AI provider state validation; compileall for repo helper/code changes.
         """,
@@ -990,6 +1004,41 @@ def zip_packet(zip_path: Path) -> str:
     return hashlib.sha256(zip_path.read_bytes()).hexdigest().upper()
 
 
+def append_external_final_receipts(proof_root: Path, zip_path: Path, digest: str):
+    folder_file_count = len([path for path in PACKET_ROOT.rglob("*") if path.is_file()])
+    with zipfile.ZipFile(zip_path, "r") as archive:
+        zip_file_count = len([info for info in archive.infolist() if not info.is_dir()])
+    receipt = f"""
+
+## Branch-Local Visual Acceptance Target Final Receipt - 2026-06-24
+
+Receipt Timestamp: `{dt.datetime.now().isoformat(timespec='seconds')}`
+Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target packet generation cleanup repair; standard USER packet lane restored.`
+Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
+Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
+USER Packet Folder: `{PACKET_ROOT}`
+USER Packet ZIP Path: `{zip_path}`
+USER Packet ZIP SHA256: `{digest}`
+Folder / ZIP File Count: `{folder_file_count} / {zip_file_count}`
+Packet Cleanup: `Standard C:\\Nexus USER\\FAM-003 folder regenerated from clean output; legacy stable C:\\Nexus USER\\FAM-003.zip removed if present; previous same-label timestamped ZIPs removed; retired FAM-003-Visual-Acceptance folder and ZIP artifacts removed.`
+Render Media Root: `{proof_root}\\render_media`
+Hash Recording Model: `Final ZIP SHA256 is recorded after ZIP generation in active external state and Codex return output only; packet-internal files intentionally do not contain their own final hash.`
+Next Legal Phase: `USER review of the FAM-003 Visual Acceptance Target packet. If USER accepts or revises a target that differs from current implementation, route to the correct bounded repair before renewed LV1 retest. If USER accepts current-equivalent target with no implementation delta, LV1 USER-operated retest may continue from the current source-truth packet after Codex digests that decision.`
+"""
+    markers = (
+        "\n## Branch-Local Visual Acceptance Target Final Receipt - 2026-06-24",
+        "\n## Branch-Local Visual Acceptance Target Final Packet Receipt - 2026-06-24",
+    )
+    for path in (STATE_ROOT / "branch_plan.md", STATE_ROOT / "branch_state.md", STATE_ROOT / "adoption_reconciliation.md", WORKTREE_STATE):
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        cut_points = [text.index(marker) for marker in markers if marker in text]
+        if cut_points:
+            text = text[: min(cut_points)]
+        path.write_text(text.rstrip() + receipt + "\n", encoding="utf-8")
+
+
 def main() -> int:
     stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
     proof_root, zip_path = clean_roots(stamp)
@@ -997,6 +1046,7 @@ def main() -> int:
     build_packet_files(stamp, proof_root, zip_path)
     append_external_receipts(proof_root, zip_path)
     digest = zip_packet(zip_path)
+    append_external_final_receipts(proof_root, zip_path, digest)
     summary = {
         "stamp": stamp,
         "packet_folder": str(PACKET_ROOT),

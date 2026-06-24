@@ -15,7 +15,10 @@ import zipfile
 from pathlib import Path, PurePosixPath
 
 
-DEFAULT_PACKET_DIR = Path(r"C:\Nexus USER\FAM-003-Visual-Acceptance")
+STANDARD_PACKET_LABEL = "FAM-003"
+RETIRED_PACKET_LABELS = ("FAM-003-Visual-Acceptance",)
+RENDER_MEDIA_PREFIX = "Source Truth Context/Proof Artifacts/Visual Target Render Media"
+DEFAULT_PACKET_DIR = Path(r"C:\Nexus USER\FAM-003")
 DEFAULT_STATE_ROOT = Path(
     r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
 )
@@ -35,10 +38,10 @@ REQUIRED_REVIEW_AIDS = (
     "VALIDATION_RESULTS.md",
 )
 REQUIRED_RENDER_FILES = tuple(
-    f"Render Media/Option {option}/{name}.png"
+    f"{RENDER_MEDIA_PREFIX}/Option {option}/{name}.png"
     for option in ("A", "B", "C")
     for name in ("focused_surface", "desktop_context", "state_matrix")
-) + ("Render Media/visual_options_contact_sheet.png",)
+) + (f"{RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png",)
 REQUIRED_STATE_FILES = (
     "visual_acceptance_target_process_20260624.md",
     "visual_impact_classification_20260624.md",
@@ -91,13 +94,26 @@ def _read_text(path: Path) -> str:
 
 def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> list[str]:
     failures: list[str] = []
+    if packet_dir.name != STANDARD_PACKET_LABEL:
+        failures.append(
+            f"nonstandard packet folder name: {packet_dir.name}; expected {STANDARD_PACKET_LABEL}"
+        )
+    for retired_label in RETIRED_PACKET_LABELS:
+        retired_root = packet_dir.parent / retired_label
+        if retired_root.exists():
+            failures.append(f"retired nonstandard packet folder still exists: {retired_root}")
+        retired_stable_zip = packet_dir.parent / f"{retired_label}.zip"
+        if retired_stable_zip.exists():
+            failures.append(f"retired nonstandard stable ZIP still exists: {retired_stable_zip}")
+        for retired_zip in packet_dir.parent.glob(f"{retired_label}-*.zip"):
+            failures.append(f"retired nonstandard timestamped ZIP still exists: {retired_zip}")
     if not packet_dir.exists():
         return [f"packet folder missing: {packet_dir}"]
 
     packet_files = _relative_files(packet_dir)
     if "START_HERE.md" not in packet_files:
         failures.append("START_HERE.md missing")
-    for folder in ("USER Review", "Review Aids", "Source Truth Context", "Render Media"):
+    for folder in ("USER Review", "Review Aids", "Source Truth Context"):
         if not (packet_dir / folder).is_dir():
             failures.append(f"{folder}/ folder missing")
 
@@ -153,6 +169,25 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         if not packet_zip.exists():
             failures.append(f"packet ZIP missing: {packet_zip}")
         else:
+            if not re.fullmatch(rf"{re.escape(STANDARD_PACKET_LABEL)}-\d{{8}}-\d{{6}}\.zip", packet_zip.name):
+                failures.append(
+                    f"nonstandard packet ZIP name: {packet_zip.name}; expected "
+                    f"{STANDARD_PACKET_LABEL}-YYYYMMDD-HHMMSS.zip"
+                )
+            if packet_zip.parent != packet_dir.parent:
+                failures.append(
+                    f"packet ZIP must live beside packet folder: {packet_zip.parent} != {packet_dir.parent}"
+                )
+            legacy_stable_zip = packet_dir.parent / f"{STANDARD_PACKET_LABEL}.zip"
+            if legacy_stable_zip.exists():
+                failures.append(f"legacy stable packet ZIP still exists: {legacy_stable_zip}")
+            stale_zips = [
+                path
+                for path in packet_dir.parent.glob(f"{STANDARD_PACKET_LABEL}-*.zip")
+                if path.resolve() != packet_zip.resolve()
+            ]
+            for stale_zip in stale_zips:
+                failures.append(f"stale same-label timestamped ZIP still exists: {stale_zip}")
             folder_hashes = _file_hashes(packet_dir)
             zip_hashes = _zip_hashes(packet_zip)
             if folder_hashes != zip_hashes:
