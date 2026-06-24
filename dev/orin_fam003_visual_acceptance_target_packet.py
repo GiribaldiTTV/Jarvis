@@ -129,6 +129,66 @@ OPTIONS = (
             "than decorative panels."
         ),
     ),
+    VisualOption(
+        id="VAT-OPT-D",
+        name="NDAI C/A Hybrid Compact Selector",
+        rail_width=122,
+        rail_header="Tray",
+        nav=(("Tray", False, ""), ("Quick Access", True, "")),
+        row_height=19,
+        nav_gap=2,
+        title_large=False,
+        badge="3/4",
+        editor_style="hybrid",
+        state_text="Saved",
+        dirty=False,
+        tray_hover=1,
+        critique=(
+            "Hybrid requested by USER direction: keeps Option C's slim ShareX-like "
+            "density while restoring Option A's clearer selector and action affordances. "
+            "Best candidate when compactness and readability must both win."
+        ),
+    ),
+    VisualOption(
+        id="VAT-OPT-E",
+        name="Polished NDAI Compact Shell",
+        rail_width=132,
+        rail_header="Nexus",
+        nav=(("Tray", False, "N"), ("Quick Access", True, "+")),
+        row_height=20,
+        nav_gap=3,
+        title_large=False,
+        badge="3/4 slots",
+        editor_style="shell",
+        state_text="Unsaved changes",
+        dirty=True,
+        tray_hover=0,
+        critique=(
+            "A more authored NDAI shell target: small rail icons, stricter chrome, compact "
+            "actions, and a polished but still narrow settings footprint. It is heavier "
+            "than C/D, so USER should reject any app-like mass that feels non-exclusive."
+        ),
+    ),
+    VisualOption(
+        id="VAT-OPT-F",
+        name="NDAI Deterministic Dirty Guard",
+        rail_width=124,
+        rail_header="Tray",
+        nav=(("Tray", False, ""), ("Quick Access", True, "")),
+        row_height=19,
+        nav_gap=2,
+        title_large=False,
+        badge="dirty",
+        editor_style="guard",
+        state_text="Unsaved - close guard ready",
+        dirty=True,
+        tray_hover=1,
+        critique=(
+            "Tests Manage-Monitors-style maturity without fake capabilities: compact "
+            "slot editing plus a deterministic dirty-save/close-guard posture that must "
+            "be proven before any future LV green claim."
+        ),
+    ),
 )
 
 
@@ -270,6 +330,68 @@ def _draw_micro_editor(draw: ImageDraw.ImageDraw, x: int, y: int, w: int):
     _label(draw, (x + 70, y + 130, x + 140, y + 151), "Defaults", font=F8)
 
 
+def _draw_hybrid_editor(draw: ImageDraw.ImageDraw, x: int, y: int, w: int):
+    draw.text((x, y), "Slot", fill=MUTED_2, font=F8)
+    draw.text((x + 38, y), "Quick Access action", fill=MUTED_2, font=F8)
+    draw.text((x + w - 132, y), "Order", fill=MUTED_2, font=F8)
+    _label(draw, (x + w - 74, y - 5, x + w, y + 16), "Defaults", font=F8)
+    for i, name in enumerate(("Command Overlay", "Create Task", "Saved Actions Folder")):
+        yy = y + 20 + i * 27
+        _rr(draw, (x, yy, x + w, yy + 22), 4, fill=(4, 17, 30), outline=(31, 83, 101))
+        draw.rectangle((x, yy + 4, x + 2, yy + 18), fill=MINT)
+        draw.text((x + 10, yy + 5), str(i + 1), fill=CYAN, font=F8)
+        _rr(draw, (x + 38, yy + 3, x + w - 150, yy + 19), 4, fill=BG, outline=(48, 119, 139))
+        draw.text((x + 47, yy + 5), name, fill=TEXT, font=F8)
+        draw.text((x + w - 170, yy + 5), "v", fill=MINT, font=F8)
+        _label(draw, (x + w - 132, yy + 3, x + w - 96, yy + 19), "^", fill=(4, 18, 30), font=F8)
+        _label(draw, (x + w - 91, yy + 3, x + w - 55, yy + 19), "v", fill=(4, 18, 30), font=F8)
+        _label(
+            draw,
+            (x + w - 48, yy + 3, x + w - 8, yy + 19),
+            "Del",
+            fill=(34, 12, 18),
+            outline=(112, 50, 58),
+            text_fill=(255, 210, 214),
+            font=F8,
+        )
+    _label(draw, (x, y + 116, x + 64, y + 137), "Add Slot", font=F8)
+    draw.text((x + 76, y + 121), "Compact list, clear dropdown affordance", fill=MUTED_2, font=F8)
+
+
+def _draw_shell_editor(draw: ImageDraw.ImageDraw, x: int, y: int, w: int):
+    _rr(draw, (x, y, x + w, y + 28), 6, fill=(4, 22, 36), outline=(35, 96, 118))
+    draw.text((x + 10, y + 8), "Tray / Quick Access", fill=TEXT, font=F10B)
+    draw.text((x + w - 122, y + 8), "3 active of 4", fill=CYAN, font=F8)
+    for i, name in enumerate(("Command Overlay", "Create Task", "Saved Actions Folder")):
+        yy = y + 39 + i * 29
+        _rr(draw, (x, yy, x + w, yy + 23), 5, fill=(5, 19, 32), outline=(27, 75, 93))
+        draw.text((x + 10, yy + 6), f"{i + 1:02d}", fill=MINT, font=F8)
+        _rr(draw, (x + 44, yy + 3, x + w - 132, yy + 20), 4, fill=(2, 10, 18), outline=(51, 129, 147))
+        draw.text((x + 52, yy + 6), name, fill=TEXT, font=F8)
+        draw.text((x + w - 154, yy + 6), "v", fill=MINT, font=F8)
+        _label(draw, (x + w - 116, yy + 3, x + w - 78, yy + 20), "^v", fill=(4, 18, 30), font=F8)
+        _label(
+            draw,
+            (x + w - 70, yy + 3, x + w - 10, yy + 20),
+            "Remove",
+            fill=(34, 12, 18),
+            outline=(112, 50, 58),
+            text_fill=(255, 210, 214),
+            font=F8,
+        )
+    _label(draw, (x, y + 136, x + 68, y + 158), "Add", font=F8)
+    _label(draw, (x + 78, y + 136, x + 158, y + 158), "Defaults", font=F8)
+
+
+def _draw_guard_editor(draw: ImageDraw.ImageDraw, x: int, y: int, w: int):
+    _draw_hybrid_editor(draw, x, y, w)
+    guard_y = y + 142
+    _rr(draw, (x, guard_y, x + w, guard_y + 28), 6, fill=(24, 18, 9), outline=(137, 111, 56))
+    draw.text((x + 10, guard_y + 8), "Dirty-close guard: Save / Discard / Cancel", fill=(255, 232, 166), font=F8)
+    _label(draw, (x + w - 118, guard_y + 5, x + w - 74, guard_y + 24), "Save", fill=GREEN, outline=(55, 160, 138), font=F8)
+    _label(draw, (x + w - 68, guard_y + 5, x + w - 12, guard_y + 24), "Discard", fill=(35, 23, 18), outline=(119, 82, 54), font=F8)
+
+
 def _draw_window(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, option: VisualOption):
     _rr(draw, (x, y, x + w, y + h), 20, fill=SHELL, outline=(55, 130, 154))
     _rr(draw, (x + 1, y + 1, x + w - 1, y + 36), 19, fill=(2, 12, 23))
@@ -306,6 +428,14 @@ def _draw_window(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, opti
         _draw_slot_table(draw, cx + 12, cy + 10, cw - 24)
     elif option.editor_style == "rail_editor":
         _draw_rail_editor(draw, cx + 12, cy + 10, cw - 24)
+    elif option.editor_style == "micro":
+        _draw_micro_editor(draw, cx + 12, cy + 10, cw - 24)
+    elif option.editor_style == "hybrid":
+        _draw_hybrid_editor(draw, cx + 12, cy + 10, cw - 24)
+    elif option.editor_style == "shell":
+        _draw_shell_editor(draw, cx + 12, cy + 10, cw - 24)
+    elif option.editor_style == "guard":
+        _draw_guard_editor(draw, cx + 12, cy + 10, cw - 24)
     else:
         _draw_micro_editor(draw, cx + 12, cy + 10, cw - 24)
 
@@ -526,19 +656,22 @@ def render_all(proof_root: Path):
             image.save(option_dir / name)
             image.save(packet_dir / name)
 
-    contact = Image.new("RGB", (1600, 1000), BG)
+    contact = Image.new("RGB", (1600, 1450), BG)
     draw = ImageDraw.Draw(contact)
     draw.text((24, 18), "FAM-003 Visual Options Contact Sheet", fill=TEXT, font=F18B)
+    draw.text((24, 46), "A/B/C retained as references. D/E/F add C density + A clarity and dirty-guard maturity.", fill=MUTED, font=F11)
     for idx, option in enumerate(OPTIONS):
         source = Image.open(media_root / option.id / "focused_surface.png")
-        thumb = source.resize((500, 288))
-        x = 24 + idx * 520
-        y = 68
+        thumb = source.resize((490, 282))
+        col = idx % 3
+        row = idx // 3
+        x = 24 + col * 520
+        y = 84 + row * 500
         contact.paste(thumb, (x, y))
-        draw.text((x, y + 302), option.id, fill=MINT, font=F12B)
-        _wrapped(draw, (x, y + 326), option.name, fill=TEXT, font=F12B, width=470)
-        _wrapped(draw, (x, y + 354), option.critique, fill=MUTED, font=F10, width=470)
-    y = 610
+        draw.text((x, y + 296), option.id, fill=MINT, font=F12B)
+        _wrapped(draw, (x, y + 320), option.name, fill=TEXT, font=F12B, width=470)
+        _wrapped(draw, (x, y + 348), option.critique, fill=MUTED, font=F10, width=470)
+    y = 1105
     draw.text((24, y), "Shared non-negotiables", fill=TEXT, font=F14B)
     y += 28
     for item in (
@@ -609,7 +742,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Current gate: Live Validation Stage 1 USER-operated visual retest remains pending for the existing regenerated detailed-UDL packet. This packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.
 
-        USER action: Review the three Design Candidate Renders, use the Visual Selection Ledger to accept/reject/combine/revise elements, and decide whether one candidate should become the Draft Branch Visual Acceptance Target after revision.
+        USER action: Review the six Design Candidate Renders, treating A/B/C as retained references and D/E/F as new refinement candidates. Use the Visual Selection Ledger to accept/reject/combine/revise elements and decide whether one candidate or hybrid should become the Draft Branch Visual Acceptance Target after revision.
 
         Archive proof: The final archive checksum is tracked externally after generation. Packet files intentionally do not contain their own final archive checksum.
         """,
@@ -617,7 +750,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
     write(
         PACKET_ROOT / "USER Review" / "FAM003_VISUAL_ACCEPTANCE_TARGET_REVIEW.md",
-        """
+        f"""
         # FAM-003 Visual Acceptance Target Review
 
         Verdict requested: choose `ACCEPT OPTION`, `COMBINE`, `REVISE`, or `REJECT ALL` for the visual target direction. This is a design-target review only.
@@ -629,6 +762,9 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         - `VAT-OPT-A`: NDAI Slim Tree Settings. Most conservative refinement of current branch layout.
         - `VAT-OPT-B`: NDAI Section Rail With Micro Icons. Stronger polished settings-app feel, higher width/risk.
         - `VAT-OPT-C`: NDAI Ultra-Slim List Editor. Most ShareX-like density with NDAI chrome identity.
+        - `VAT-OPT-D`: NDAI C/A Hybrid Compact Selector. Combines C density with A clarity.
+        - `VAT-OPT-E`: Polished NDAI Compact Shell. More authored NDAI shell while staying compact.
+        - `VAT-OPT-F`: NDAI Deterministic Dirty Guard. Tests dirty-save/close-guard maturity with no fake future controls.
 
         ## Render Authority
 
@@ -640,12 +776,21 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/desktop_context.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/desktop_context.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/desktop_context.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/desktop_context.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/desktop_context.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/desktop_context.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/state_matrix.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/state_matrix.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/state_matrix.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/state_matrix.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/state_matrix.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/state_matrix.png`
 
         ## Decision Summary
 
@@ -881,16 +1026,18 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         | Artifact | Surface / Claim | Authority Level |
         | --- | --- | --- |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option A/focused_surface.png` | Option A focused Settings + tray menu target | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option A/desktop_context.png` | Option A monitor footprint | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option A/state_matrix.png` | Option A state coverage | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option B/focused_surface.png` | Option B focused Settings + tray menu target | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option B/desktop_context.png` | Option B monitor footprint | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option B/state_matrix.png` | Option B state coverage | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option C/focused_surface.png` | Option C focused Settings + tray menu target | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option C/desktop_context.png` | Option C monitor footprint | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/Option C/state_matrix.png` | Option C state coverage | Design Candidate Render |
-        | `Source Truth Context/Proof Artifacts/Visual Target Render Media/visual_options_contact_sheet.png` | Cross-option comparison | Design Candidate Render |
+        """
+        + "\n".join(
+            row
+            for option in OPTIONS
+            for row in (
+                f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/focused_surface.png` | Option {option.id[-1]} focused Settings + tray menu target | Design Candidate Render |",
+                f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/desktop_context.png` | Option {option.id[-1]} monitor footprint | Design Candidate Render |",
+                f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/state_matrix.png` | Option {option.id[-1]} state coverage | Design Candidate Render |",
+            )
+        )
+        + f"""
+        | `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png` | Cross-option comparison | Design Candidate Render |
         | `Source Truth Context/Current Evidence/01_default_global_settings_shell.png` | Current implementation evidence only | Existing implementation screenshot, not acceptance target |
         """,
     )
@@ -904,10 +1051,10 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         Packet folder: `{PACKET_ROOT}`
         Generated: `{stamp}`
         Review file: `USER Review/FAM003_VISUAL_ACCEPTANCE_TARGET_REVIEW.md`
-        Render option count: `3`
-        Focused render count: `3`
-        Desktop/context render count: `3`
-        State matrix render count: `3`
+        Render option count: `{len(OPTIONS)}`
+        Focused render count: `{len(OPTIONS)}`
+        Desktop/context render count: `{len(OPTIONS)}`
+        State matrix render count: `{len(OPTIONS)}`
         Contact sheet count: `1`
 
         Packet hygiene:

@@ -39,7 +39,7 @@ REQUIRED_REVIEW_AIDS = (
 )
 REQUIRED_RENDER_FILES = tuple(
     f"{RENDER_MEDIA_PREFIX}/Option {option}/{name}.png"
-    for option in ("A", "B", "C")
+    for option in ("A", "B", "C", "D", "E", "F")
     for name in ("focused_surface", "desktop_context", "state_matrix")
 ) + (f"{RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png",)
 REQUIRED_STATE_FILES = (
@@ -152,6 +152,12 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "Rejected Patterns Ledger",
         "Reusable Design Recipe",
         "Implementation Match Proof",
+        "VAT-OPT-D",
+        "VAT-OPT-E",
+        "VAT-OPT-F",
+        "C/A Hybrid",
+        "Polished NDAI Compact Shell",
+        "Deterministic Dirty Guard",
     )
     for marker in required_markers:
         if marker not in combined_user_text and marker not in "\n".join(
