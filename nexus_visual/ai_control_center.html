@@ -10,13 +10,17 @@
   <link rel="stylesheet" href="monitoring_hud.css" />
   <style>
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__chrome {
-      padding: 12px;
+      padding: 18px 20px 20px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__title-group {
       position: relative;
-      padding: 12px 12px 10px;
-      border-radius: 20px;
+      min-height: 128px;
+      padding: 18px 26px 14px;
+      border-radius: 24px;
+      background:
+        linear-gradient(150deg, rgba(3, 14, 26, 0.99), rgba(2, 10, 20, 0.975)),
+        linear-gradient(90deg, rgba(116, 240, 255, 0.06), transparent 58%);
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__header {
@@ -43,9 +47,9 @@
       width: fit-content;
       max-width: 100%;
       box-sizing: border-box;
-      margin-top: 12px;
-      padding: 9px 11px;
-      border-radius: 16px;
+      margin-top: 20px;
+      padding: 10px 14px;
+      border-radius: 18px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__surface-role-copy {
@@ -84,14 +88,7 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-title-tools {
-      position: absolute;
-      right: 12px;
-      top: 50px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 0;
-      flex-wrap: wrap;
+      display: none;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-dashboard-settings-cog {
@@ -176,8 +173,8 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__window-controls {
       position: absolute;
-      top: 14px;
-      right: 15px;
+      top: 28px;
+      right: 28px;
       z-index: 35;
       display: flex;
       align-items: center;
@@ -317,10 +314,10 @@
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__control-hub {
-      margin-top: 12px;
-      gap: 6px;
-      padding: 8px 18px 14px 10px;
-      scroll-padding: 8px 18px 14px 10px;
+      margin-top: 16px;
+      gap: 8px;
+      padding: 0 18px 8px 0;
+      scroll-padding: 0 18px 8px 0;
       scrollbar-gutter: auto;
       scrollbar-width: none;
       scrollbar-color: transparent transparent;
@@ -358,7 +355,7 @@
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .monitoring-hud__hub-card {
       gap: 6px;
-      padding: 10px;
+      padding: 14px 22px 12px;
       border-radius: 20px;
     }
 
@@ -417,35 +414,84 @@
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-foyer-grid {
       display: grid;
       min-width: 0;
-      gap: 6px;
+      gap: 8px;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card {
-      min-width: 0;
-    }
-
-    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-status {
       display: grid;
-      gap: 5px;
-      padding-top: 1px;
+      min-width: 0;
+      min-height: 0;
+      align-content: start;
     }
 
-    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-status--inline {
-      grid-template-columns: minmax(0, 1fr);
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows {
+      display: grid;
+      gap: 0;
+      padding-top: 4px;
     }
 
-    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-compact-status {
-      color: rgba(171, 255, 226, 0.96);
-      font-size: 11px;
-      font-weight: 820;
-      line-height: 1.32;
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row {
+      grid-template-columns: minmax(130px, 0.28fr) minmax(0, 1fr);
+      min-height: 24px;
+      padding: 3px 0;
     }
 
-    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-future-note {
-      color: rgba(181, 218, 229, 0.82);
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row span {
       font-size: 10px;
-      font-weight: 680;
-      line-height: 1.32;
+      font-weight: 800;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-card-rows .monitoring-hud__state-row strong {
+      font-size: 11px;
+      font-weight: 780;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-topline {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      align-items: start;
+      justify-content: start;
+      gap: 6px 14px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-topline > span {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-title-copy strong {
+      font-size: 16px;
+      font-weight: 840;
+      line-height: 1.12;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-card-description {
+      grid-column: 2;
+      margin-top: -6px;
+      font-size: 11px;
+      font-weight: 760;
+      line-height: 1.28;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-actions {
+      position: static;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      min-height: 32px;
+      margin-top: 0;
+      padding-top: 4px;
+      z-index: 3;
+    }
+
+    body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-category-card .monitoring-hud__hub-action--content-fit {
+      height: 32px;
+      min-height: 32px;
+      padding: 0 14px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 850;
     }
 
     body.desktop-mode #monitoring-hud[data-product-surface="nexus-ai-control-center"] .ai-control-center-focused-detail {
@@ -687,9 +733,9 @@
     data-card-interior-visual-contract="hud-dashboard-shared-card-text-and-button"
     data-card-heading-layout="top-aligned-number-title-description-wrap-under-number"
     data-single-action-button-model="content-fit-fixed-height-ellipsis"
-    data-default-window-width="570"
-    data-default-window-height="610"
-    data-default-window-max-height="820"
+    data-default-window-width="840"
+    data-default-window-height="900"
+    data-default-window-max-height="900"
     data-window-restore-policy="disabled-until-fam003-reset-control"
     data-window-memory-policy="restart-memory-disabled"
     data-window-reset-dependency="fam003-ai-global-settings-reset-default-location-size"
@@ -705,7 +751,7 @@
     data-dashboard-quick-access="not-applicable"
     data-dashboard-global-feature-control="tray-owned"
     data-dashboard-deferred-action-policy="disabled-labeled-not-clickable"
-    data-dashboard-card-order="control-center-readiness-diagnostics-capabilities-maintenance"
+    data-dashboard-card-order="status-trust-readiness-diagnostics-capabilities-maintenance"
     data-dashboard-ia-model="ai-dashboard-global-strip-category-cards-launch-real-child-domain-windows"
     data-dashboard-surface-model="hub-only-cards-are-doorways"
     data-dashboard-inline-work-policy="no-local-check-no-report-no-diagnostics-inline"
@@ -771,7 +817,7 @@
           <div>
             <div class="monitoring-hud__kicker">Nexus Desktop AI</div>
             <div class="monitoring-hud__title">AI Dashboard</div>
-            <div class="monitoring-hud__subtitle">Top-level AI hub. ORIN is not implemented; provider/model execution is not active.</div>
+            <div class="monitoring-hud__subtitle">Refined D/E target: compact AI truth, grouped doorways, and polished row grammar.</div>
           </div>
         </div>
         <div class="monitoring-hud__surface-role" data-dashboard-role="global-ai-strip" aria-label="Global AI Strip">
@@ -790,6 +836,11 @@
               <span class="monitoring-hud__surface-role-label">Provider</span>
               <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
               <strong>Blocked</strong>
+            </span>
+            <span class="monitoring-hud__surface-role-pair" aria-label="Data none">
+              <span class="monitoring-hud__surface-role-label">Data</span>
+              <span class="monitoring-hud__surface-role-separator" aria-hidden="true">-</span>
+              <strong>None</strong>
             </span>
           </div>
         </div>
@@ -833,15 +884,25 @@
             <div class="monitoring-hud__hub-card-topline">
               <span>01</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>Control Center</strong>
+                <strong>AI Status &amp; Trust</strong>
               </div>
-              <p class="monitoring-hud__hub-card-description">Focused domain for persona, capabilities, provider posture, and lane gates.</p>
+              <p class="monitoring-hud__hub-card-description">Truth-first orientation before any AI action.</p>
             </div>
-            <div class="ai-control-center-card-status ai-control-center-card-status--inline">
-              <div class="ai-control-center-compact-status">Control-plane detail opens separately</div>
-              <div class="ai-control-center-future-note">Persona, provider/model posture, and lane gates stay out of the hub.</div>
+            <div class="ai-control-center-card-rows" aria-label="AI status and trust rows">
+              <div class="monitoring-hud__state-row">
+                <span>AI</span>
+                <strong>ORIN not implemented; no real AI executing</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Provider</span>
+                <strong>Blocked; no provider/model path active</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Visible data</span>
+                <strong>None leaves this machine</strong>
+              </div>
             </div>
-            <div class="monitoring-hud__hub-actions">
+            <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
               <button
                 type="button"
                 id="ai-control-center-open-control-surface-action"
@@ -871,15 +932,25 @@
               <div class="monitoring-hud__hub-card-topline">
                 <span>02</span>
                 <div class="monitoring-hud__hub-card-title-copy">
-                  <strong>Diagnostics</strong>
+                  <strong>AI Readiness &amp; Diagnostics</strong>
                 </div>
-                <p class="monitoring-hud__hub-card-description">Local checks, readiness reports, and diagnostic results open separately.</p>
+                <p class="monitoring-hud__hub-card-description">Local checks and readiness report doorway.</p>
               </div>
-              <div class="ai-control-center-card-status ai-control-center-card-status--inline">
-                <div class="ai-control-center-compact-status">External unique window; provider data remains none</div>
-                <div class="ai-control-center-future-note">Run Local Check, report generation, copy, and results stay outside the hub.</div>
+              <div class="ai-control-center-card-rows" aria-label="AI readiness and diagnostics rows">
+                <div class="monitoring-hud__state-row">
+                  <span>Local check</span>
+                  <strong>Waiting for USER action</strong>
+                </div>
+                <div class="monitoring-hud__state-row">
+                  <span>Readiness report</span>
+                  <strong>Local decision aid behind diagnostics</strong>
+                </div>
+                <div class="monitoring-hud__state-row">
+                  <span>Prompt/data</span>
+                  <strong>Not accepted, sent, stored, or indexed</strong>
+                </div>
               </div>
-              <div class="monitoring-hud__hub-actions">
+              <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
                 <button
                   type="button"
                   id="ai-control-center-open-readiness-surface-action"
@@ -910,15 +981,21 @@
             <div class="monitoring-hud__hub-card-topline">
               <span>03</span>
               <div class="monitoring-hud__hub-card-title-copy">
-                <strong>Capabilities</strong>
+                <strong>Capabilities &amp; Maintenance</strong>
               </div>
-              <p class="monitoring-hud__hub-card-description">Capability packs, maintenance placement, and edition gates open separately.</p>
+              <p class="monitoring-hud__hub-card-description">Capability state without install or update execution.</p>
             </div>
-            <div class="ai-control-center-card-status ai-control-center-card-status--inline">
-              <div class="ai-control-center-compact-status">Lifecycle detail opens separately</div>
-              <div class="ai-control-center-future-note">Capability, maintenance, update, and edition-lane details stay out of the hub.</div>
+            <div class="ai-control-center-card-rows" aria-label="Capabilities and maintenance rows">
+              <div class="monitoring-hud__state-row">
+                <span>Capability packs</span>
+                <strong>Install intent blocked; downloads disabled</strong>
+              </div>
+              <div class="monitoring-hud__state-row">
+                <span>Downloads/updates</span>
+                <strong>Future-gated; no install execution</strong>
+              </div>
             </div>
-            <div class="monitoring-hud__hub-actions">
+            <div class="monitoring-hud__hub-actions" data-action-row-contract="separate-from-state-rows">
               <button
                 type="button"
                 id="ai-control-center-open-maintenance-surface-action"

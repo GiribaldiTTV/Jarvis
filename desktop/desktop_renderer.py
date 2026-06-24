@@ -1234,17 +1234,57 @@ class AIDashboardDomainWindow(QDialog):
     .ai-domain-window__card {{
       display: grid;
       gap: 8px;
-      padding: 12px;
+      padding: 14px 18px 12px;
       border: 1px solid rgba(94, 207, 229, 0.28);
       border-radius: 18px;
       background: rgba(3, 18, 32, 0.74);
       margin-bottom: 10px;
     }}
+    .ai-domain-window__card-heading {{
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr);
+      gap: 6px 14px;
+      align-items: start;
+    }}
+    .ai-domain-window__card-number {{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(87, 213, 236, 0.46);
+      border-radius: 12px;
+      color: rgba(103, 224, 255, 0.98);
+      background: rgba(7, 54, 77, 0.52);
+      font-size: 11px;
+      font-weight: 820;
+    }}
+    .ai-domain-window__card-title {{
+      color: rgba(235, 252, 255, 0.96);
+      font-size: 16px;
+      font-weight: 840;
+      line-height: 1.12;
+      text-transform: uppercase;
+    }}
+    .ai-domain-window__card-description {{
+      grid-column: 2;
+      margin: -6px 0 2px;
+      color: rgba(181, 218, 229, 0.88);
+      font-size: 11px;
+      font-weight: 760;
+      line-height: 1.28;
+    }}
+    .ai-domain-window__rows {{
+      display: grid;
+      gap: 0;
+      min-width: 0;
+    }}
     .ai-domain-window__row {{
       display: grid;
       grid-template-columns: minmax(132px, 0.36fr) minmax(0, 1fr);
       gap: 8px;
-      padding-top: 6px;
+      min-height: 25px;
+      padding: 4px 0 2px;
       border-top: 1px solid rgba(94, 207, 229, 0.18);
     }}
     .ai-domain-window__row span {{
@@ -1263,8 +1303,12 @@ class AIDashboardDomainWindow(QDialog):
     .ai-domain-window__actions {{
       display: flex;
       flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 2px;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      margin-top: 0;
+      padding-top: 5px;
     }}
     .ai-domain-window__button {{
       min-height: 31px;
@@ -1450,16 +1494,23 @@ class AIDashboardDomainWindow(QDialog):
         if self.domain_id == "readiness-diagnostics":
             return """
       <section class="ai-domain-window__card" data-domain-workspace="readiness-diagnostics" data-executes-inside-child-window="true">
-        <div class="ai-domain-window__row"><span>Local check</span><strong id="local-result">Waiting for local action</strong></div>
-        <div class="ai-domain-window__row"><span>Prompt / data</span><strong id="local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong></div>
-        <div class="ai-domain-window__actions">
+        <div class="ai-domain-window__card-heading">
+          <span class="ai-domain-window__card-number">01</span>
+          <strong class="ai-domain-window__card-title">Local Readiness</strong>
+          <p class="ai-domain-window__card-description">Runs local-only checks and report generation inside this diagnostics window.</p>
+        </div>
+        <div class="ai-domain-window__rows" data-row-group="readiness-diagnostics">
+          <div class="ai-domain-window__row"><span>Local check</span><strong id="local-result">Waiting for local action</strong></div>
+          <div class="ai-domain-window__row"><span>Prompt / data</span><strong id="local-detail">No prompt, file, memory, telemetry, or provider config is sent.</strong></div>
+          <div class="ai-domain-window__row"><span>Report state</span><strong id="report-state">Not generated</strong></div>
+          <div class="ai-domain-window__row"><span>Persistence</span><strong>View-only; copy is USER initiated</strong></div>
+          <div class="ai-domain-window__row"><span>Summary</span><strong id="report-summary">Generate the report to inspect local readiness.</strong></div>
+        </div>
+        <div class="ai-domain-window__actions" data-action-row-contract="separate-from-state-rows">
           <button class="ai-domain-window__button" type="button" id="run-local-check" data-domain-command="run-local-check">Run Local Check</button>
           <button class="ai-domain-window__button" type="button" id="generate-report" data-domain-command="generate-readiness-report">Generate Report</button>
           <button class="ai-domain-window__button" type="button" id="copy-report" data-domain-command="copy-readiness-report" disabled aria-disabled="true">Copy Report</button>
         </div>
-        <div class="ai-domain-window__row"><span>Report state</span><strong id="report-state">Not generated</strong></div>
-        <div class="ai-domain-window__row"><span>Persistence</span><strong>View-only; copy is USER initiated</strong></div>
-        <div class="ai-domain-window__row"><span>Summary</span><strong id="report-summary">Generate the report to inspect local readiness.</strong></div>
         <div id="report-body" hidden>
           <div class="ai-domain-window__row"><span>Ready</span><strong id="report-ready">Not generated</strong></div>
           <div class="ai-domain-window__row"><span>Missing</span><strong id="report-missing">Not generated</strong></div>
@@ -1472,18 +1523,32 @@ class AIDashboardDomainWindow(QDialog):
         if self.domain_id == "capabilities-maintenance":
             return """
       <section class="ai-domain-window__card" data-domain-workspace="capabilities-maintenance" data-update-execution="blocked" data-download-execution="blocked" data-install-execution="blocked">
-        <div class="ai-domain-window__row"><span>Capability packs</span><strong id="capability-packs">Install blocked; downloads disabled</strong></div>
-        <div class="ai-domain-window__row"><span>Maintenance</span><strong id="maintenance-updates">Lifecycle placement only; update execution blocked</strong></div>
-        <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Provider/model lifecycle remains unavailable</strong></div>
-        <div class="ai-domain-window__row"><span>Execution</span><strong>No update, download, install, fetch, provider/model, or capability execution is approved.</strong></div>
+        <div class="ai-domain-window__card-heading">
+          <span class="ai-domain-window__card-number">01</span>
+          <strong class="ai-domain-window__card-title">Capability Boundary</strong>
+          <p class="ai-domain-window__card-description">Shows capability and maintenance posture without update, download, or install execution.</p>
+        </div>
+        <div class="ai-domain-window__rows" data-row-group="capabilities-maintenance">
+          <div class="ai-domain-window__row"><span>Capability packs</span><strong id="capability-packs">Install blocked; downloads disabled</strong></div>
+          <div class="ai-domain-window__row"><span>Maintenance</span><strong id="maintenance-updates">Lifecycle placement only; update execution blocked</strong></div>
+          <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Provider/model lifecycle remains unavailable</strong></div>
+          <div class="ai-domain-window__row"><span>Execution</span><strong>No update, download, install, fetch, provider/model, or capability execution is approved.</strong></div>
+        </div>
       </section>"""
         return """
       <section class="ai-domain-window__card" data-domain-workspace="control-center">
-        <div class="ai-domain-window__row"><span>Provider data</span><strong id="provider-visible-data">None</strong></div>
-        <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Disabled and blocked</strong></div>
-        <div class="ai-domain-window__row"><span>Prompt / memory</span><strong id="prompt-memory">Not accepted, sent, stored, or indexed</strong></div>
-        <div class="ai-domain-window__row"><span>Persona</span><strong>Future-gated; ORIN persona is not implemented</strong></div>
-        <div class="ai-domain-window__row"><span>Developer / Owner</span><strong id="edition-lanes">Public only; Developer and Owner gated</strong></div>
+        <div class="ai-domain-window__card-heading">
+          <span class="ai-domain-window__card-number">01</span>
+          <strong class="ai-domain-window__card-title">AI Control Boundary</strong>
+          <p class="ai-domain-window__card-description">Keeps provider, prompt, persona, and edition truth separate from future AI setup flows.</p>
+        </div>
+        <div class="ai-domain-window__rows" data-row-group="control-center">
+          <div class="ai-domain-window__row"><span>Provider data</span><strong id="provider-visible-data">None</strong></div>
+          <div class="ai-domain-window__row"><span>Provider / model</span><strong id="provider-model">Disabled and blocked</strong></div>
+          <div class="ai-domain-window__row"><span>Prompt / memory</span><strong id="prompt-memory">Not accepted, sent, stored, or indexed</strong></div>
+          <div class="ai-domain-window__row"><span>Persona</span><strong>Future-gated; ORIN persona is not implemented</strong></div>
+          <div class="ai-domain-window__row"><span>Developer / Owner</span><strong id="edition-lanes">Public only; Developer and Owner gated</strong></div>
+        </div>
       </section>"""
 
     def _on_html_loaded(self, ok: bool) -> None:
@@ -6612,13 +6677,13 @@ class AIControlCenterDialog(QDialog):
     WINDOW_STATE_ENV = "NEXUS_AI_CONTROL_CENTER_STATE_PATH"
     WINDOW_GEOMETRY_MEMORY_ENV = "NEXUS_AI_CONTROL_CENTER_ENABLE_GEOMETRY_MEMORY"
     WINDOW_STATE_FILENAME = "ai_control_center_window_state.json"
-    DEFAULT_WIDTH = 570
-    DEFAULT_HEIGHT = 610
-    DEFAULT_MAX_HEIGHT = 820
+    DEFAULT_WIDTH = 840
+    DEFAULT_HEIGHT = 900
+    DEFAULT_MAX_HEIGHT = 900
     DEFAULT_SCREEN_MARGIN_X = 96
-    DEFAULT_SCREEN_MARGIN_Y = 126
-    MINIMUM_WIDTH = 440
-    MINIMUM_HEIGHT = 540
+    DEFAULT_SCREEN_MARGIN_Y = 80
+    MINIMUM_WIDTH = 570
+    MINIMUM_HEIGHT = 610
     RESIZE_MARGIN = 14
     DRAG_HEADER_HEIGHT = 190
     WINDOW_CONTROL_ZONE_TOP = 14

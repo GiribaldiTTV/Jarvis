@@ -354,8 +354,39 @@ def main() -> int:
                 cardNames,
                 launchers,
                 cardTitles: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-card-title-copy strong")].map((node) => node.textContent.trim()),
+                cardDescriptions: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-card-description")].map((node) => node.textContent.trim()),
+                stripText: document.querySelector("[data-dashboard-role='global-ai-strip']")?.textContent.replace(/\\s+/g, " ").trim() || "",
+                launcherActionRows: [...document.querySelectorAll("[data-dashboard-hub-card] .monitoring-hud__hub-actions")].map((row) => ({
+                  contract: row.dataset.actionRowContract || "",
+                  buttonCount: row.querySelectorAll("[data-category-launcher]").length,
+                  followsRows: Boolean(row.previousElementSibling?.classList.contains("ai-control-center-card-rows")),
+                  insideRows: Boolean(row.closest(".ai-control-center-card-rows"))
+                })),
+                rowGroups: Object.fromEntries([...document.querySelectorAll("[data-dashboard-hub-card]")].map((card) => [
+                  card.dataset.dashboardHubCard || "",
+                  [...card.querySelectorAll(".monitoring-hud__state-row")].map((row) => ({
+                    label: row.querySelector("span")?.textContent.trim() || "",
+                    value: row.querySelector("strong")?.textContent.trim() || ""
+                  }))
+                ])),
                 capabilityHubRows: document.querySelectorAll('[data-dashboard-hub-card="capabilities-maintenance"] .monitoring-hud__state-row').length,
                 settingsTooltipText: document.getElementById("ai-dashboard-settings-tooltip")?.textContent.trim() || "",
+                settingsRoutePresent: Boolean(document.querySelector("[data-dashboard-utility-row='settings-route']")),
+                settingsRouteVisible: (() => {
+                  const row = document.querySelector("[data-dashboard-utility-row='settings-route']");
+                  if (!row) return false;
+                  const style = getComputedStyle(row);
+                  const rect = row.getBoundingClientRect();
+                  return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0 && rect.width > 0 && rect.height > 0;
+                })(),
+                settingsButtonPresent: Boolean(document.getElementById("ai-dashboard-settings-action")),
+                settingsButtonVisible: (() => {
+                  const button = document.getElementById("ai-dashboard-settings-action");
+                  if (!button) return false;
+                  const style = getComputedStyle(button);
+                  const rect = button.getBoundingClientRect();
+                  return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0 && rect.width > 0 && rect.height > 0;
+                })(),
                 focusedSurfaceCount: document.querySelectorAll("[data-focused-surface]").length,
                 domainSurfaceCount: document.querySelectorAll("[data-domain-surface]").length,
                 localCheckInline: Boolean(document.getElementById("ai-control-center-local-check-action")),
@@ -370,25 +401,11 @@ def main() -> int:
             """,
         )
     )
-    settings_hover = _hover_web_button(app, dialog, "ai-dashboard-settings-action")
-    _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const button = document.getElementById("ai-dashboard-settings-action");
-          if (button) button.dataset.tooltipProof = "visible";
-          return true;
-        })();
-        """,
-    )
-    _pump(app, 180)
-    screenshots["settings_tooltip_visible"] = _capture_window(
-        app,
-        dialog,
-        log_root,
-        "01_settings_tooltip_visible",
-    )
+    settings_hover = {
+        "ok": True,
+        "button": "ai-dashboard-settings-action",
+        "state": "hidden-for-option-g-target",
+    }
     settings_tooltip_probe = json.loads(
         _run_js(
             app,
@@ -397,11 +414,14 @@ def main() -> int:
             (() => {
               const tooltip = document.getElementById("ai-dashboard-settings-tooltip");
               const style = tooltip ? getComputedStyle(tooltip) : null;
+              const rect = tooltip ? tooltip.getBoundingClientRect() : null;
               return JSON.stringify({
+                present: Boolean(tooltip),
                 text: tooltip?.textContent.trim() || "",
                 opacity: style ? Number(style.opacity) : 0,
                 display: style ? style.display : "",
                 visibility: style ? style.visibility : "",
+                visible: style && rect ? style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0 && rect.width > 0 && rect.height > 0 : false,
                 label: document.getElementById("ai-dashboard-settings-action")?.getAttribute("aria-label") || "",
                 titleCount: document.querySelectorAll("[title]").length
               });
@@ -462,6 +482,15 @@ def main() -> int:
                         controls: root?.dataset.windowControlCluster || "",
                         minimizePresent: Boolean(document.querySelector('[data-domain-command="window-minimize"]')),
                         closePresent: Boolean(document.querySelector('[data-domain-command="window-close"]')),
+                        cardTitles: [...document.querySelectorAll(".ai-domain-window__card-title")].map((node) => node.textContent.trim()),
+                        cardDescriptions: [...document.querySelectorAll(".ai-domain-window__card-description")].map((node) => node.textContent.trim()),
+                        rowGroupCount: document.querySelectorAll(".ai-domain-window__rows").length,
+                        rowCount: document.querySelectorAll(".ai-domain-window__row").length,
+                        actionRowCount: document.querySelectorAll(".ai-domain-window__actions").length,
+                        actionRowContracts: [...document.querySelectorAll(".ai-domain-window__actions")].map((node) => node.dataset.actionRowContract || ""),
+                        actionButtons: [...document.querySelectorAll(".ai-domain-window__button")].map((button) => button.textContent.trim()),
+                        actionInsideRows: Boolean(document.querySelector(".ai-domain-window__rows .ai-domain-window__actions")),
+                        cardHasHeading: Boolean(document.querySelector(".ai-domain-window__card-heading")),
                         chromeBorderRadius: chromeStyle ? chromeStyle.borderRadius : "",
                         chromeBackground: chromeStyle ? chromeStyle.backgroundImage + " " + chromeStyle.backgroundColor : "",
                         bodyBackground: bodyStyle.backgroundColor,
@@ -493,12 +522,19 @@ def main() -> int:
 
     readiness_result = {}
     if readiness_window is not None:
-        readiness_action_clicks = [
-            _click_web_button(app, readiness_window, "run-local-check"),
-            _click_web_button(app, readiness_window, "generate-report"),
-            _click_web_button(app, readiness_window, "copy-report"),
-        ]
+        readiness_action_clicks = []
+        readiness_action_clicks.append(_click_web_button(app, readiness_window, "run-local-check"))
+        _pump(app, 220)
+        _run_child_js(app, readiness_window, 'document.getElementById("run-local-check")?.click(); true;')
+        _pump(app, 220)
+        readiness_action_clicks.append(_click_web_button(app, readiness_window, "generate-report"))
+        _pump(app, 360)
+        _run_child_js(app, readiness_window, 'document.getElementById("generate-report")?.click(); true;')
+        _pump(app, 360)
+        readiness_action_clicks.append(_click_web_button(app, readiness_window, "copy-report"))
         _pump(app, 300)
+        _run_child_js(app, readiness_window, 'document.getElementById("copy-report")?.click(); true;')
+        _pump(app, 240)
         readiness_result = json.loads(
             _run_child_js(
                 app,
@@ -617,6 +653,22 @@ def main() -> int:
         "Open Capabilities",
     ]
     actual_launcher_labels = [launcher.get("text") for launcher in dashboard_probe.get("launchers") or []]
+    expected_option_g_rows = {
+        "control-center": [
+            {"label": "AI", "value": "ORIN not implemented; no real AI executing"},
+            {"label": "Provider", "value": "Blocked; no provider/model path active"},
+            {"label": "Visible data", "value": "None leaves this machine"},
+        ],
+        "readiness-diagnostics": [
+            {"label": "Local check", "value": "Waiting for USER action"},
+            {"label": "Readiness report", "value": "Local decision aid behind diagnostics"},
+            {"label": "Prompt/data", "value": "Not accepted, sent, stored, or indexed"},
+        ],
+        "capabilities-maintenance": [
+            {"label": "Capability packs", "value": "Install intent blocked; downloads disabled"},
+            {"label": "Downloads/updates", "value": "Future-gated; no install execution"},
+        ],
+    }
 
     checks = {
         "dashboardHubCompactOnly": (
@@ -626,7 +678,26 @@ def main() -> int:
             and dashboard_probe.get("childWindowModel") == "dashboard-launchers-open-exclusive-or-external-unique-windows"
             and dashboard_probe.get("sameWindowFocusedSectionPolicy") == "blocked-as-dashboard-workspace-substitute"
             and dashboard_probe.get("cardNames") == ["control-center", "readiness-diagnostics", "capabilities-maintenance"]
-            and dashboard_probe.get("cardTitles") == ["Control Center", "Diagnostics", "Capabilities"]
+            and dashboard_probe.get("cardTitles") == [
+                "AI Status & Trust",
+                "AI Readiness & Diagnostics",
+                "Capabilities & Maintenance",
+            ]
+            and dashboard_probe.get("cardDescriptions") == [
+                "Truth-first orientation before any AI action.",
+                "Local checks and readiness report doorway.",
+                "Capability state without install or update execution.",
+            ]
+            and all(part in dashboard_probe.get("stripText", "") for part in ["AI - ORIN", "Status - Not implemented", "Provider - Blocked", "Data - None"])
+            and len(dashboard_probe.get("launcherActionRows") or []) == 3
+            and all(
+                row.get("contract") == "separate-from-state-rows"
+                and row.get("buttonCount") == 1
+                and row.get("followsRows") is True
+                and row.get("insideRows") is False
+                for row in dashboard_probe.get("launcherActionRows") or []
+            )
+            and dashboard_probe.get("rowGroups") == expected_option_g_rows
             and dashboard_probe.get("focusedSurfaceCount") == 0
             and dashboard_probe.get("domainSurfaceCount") == 0
         ),
@@ -640,20 +711,22 @@ def main() -> int:
             and dashboard_probe.get("copyInline") is False
         ),
         "capabilitiesCardCompactDoorway": (
-            dashboard_probe.get("capabilityHubRows") == 0
+            dashboard_probe.get("capabilityHubRows") == 2
         ),
         "redundantCardsRemoved": (
             dashboard_probe.get("activeAiText") is False
             and dashboard_probe.get("trustProviderText") is False
         ),
-        "settingsCogIconOnlyNoVisibleFutureCopy": (
+        "settingsRouteHiddenForOptionG": (
             dashboard_probe.get("visibleSettingsFutureText") is False
             and dashboard_probe.get("nativeTitleTooltipCount") == 0
+            and dashboard_probe.get("settingsRoutePresent") is True
+            and dashboard_probe.get("settingsRouteVisible") is False
+            and dashboard_probe.get("settingsButtonPresent") is True
+            and dashboard_probe.get("settingsButtonVisible") is False
             and dashboard_probe.get("settingsTooltipText") == "Settings"
             and settings_tooltip_probe.get("text") == "Settings"
-            and settings_tooltip_probe.get("opacity", 0) >= 0.95
-            and settings_tooltip_probe.get("display") != "none"
-            and settings_tooltip_probe.get("visibility") != "hidden"
+            and settings_tooltip_probe.get("visible") is False
             and settings_tooltip_probe.get("label") == "Settings"
             and settings_tooltip_probe.get("titleCount") == 0
         ),
@@ -674,6 +747,8 @@ def main() -> int:
                 and probe.get("moveBehavior") == "header-drag"
                 and probe.get("resizeBehavior") == "edge-corner-resize"
                 and probe.get("controls") == "compact-minimize-close"
+                and probe.get("cardHasHeading") is True
+                and probe.get("rowGroupCount", 0) >= 1
                 and probe.get("minimizePresent") is True
                 and probe.get("closePresent") is True
                 and "24px" in str(probe.get("chromeBorderRadius"))
@@ -684,6 +759,21 @@ def main() -> int:
             and bool(control_window.property("ndaiNativeChrome")) is True
             and control_window.property("ndaiShellConformance") == "ndai-webview-rounded-window-shell"
             and bool(control_window.windowFlags() & Qt.FramelessWindowHint)
+        ),
+        "childWindowElementGroupsUseSeparateActionRows": (
+            child_chrome_probe.get("control-center", {}).get("cardTitles") == ["AI Control Boundary"]
+            and child_chrome_probe.get("control-center", {}).get("actionRowCount") == 0
+            and child_chrome_probe.get("readiness-diagnostics", {}).get("cardTitles") == ["Local Readiness"]
+            and child_chrome_probe.get("readiness-diagnostics", {}).get("actionRowCount") == 1
+            and child_chrome_probe.get("readiness-diagnostics", {}).get("actionRowContracts") == ["separate-from-state-rows"]
+            and child_chrome_probe.get("readiness-diagnostics", {}).get("actionButtons") == [
+                "Run Local Check",
+                "Generate Report",
+                "Copy Report",
+            ]
+            and child_chrome_probe.get("readiness-diagnostics", {}).get("actionInsideRows") is False
+            and child_chrome_probe.get("capabilities-maintenance", {}).get("cardTitles") == ["Capability Boundary"]
+            and child_chrome_probe.get("capabilities-maintenance", {}).get("actionRowCount") == 0
         ),
         "childWindowsMoveResizeFocus": (
             len(child_geometry_behavior) == 3
@@ -769,7 +859,7 @@ def main() -> int:
         "duplicateFullDesktopProof": duplicate_full_desktop_proof,
         "childWindowClassificationLedger": {
             "control-center": {
-                "sourceCategoryCard": "Control Center",
+                "sourceCategoryCard": "AI Status & Trust",
                 "launcherLabel": "Open Control Center",
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
@@ -780,7 +870,7 @@ def main() -> int:
                 "focusBehavior": "bring-to-front-if-open",
             },
             "readiness-diagnostics": {
-                "sourceCategoryCard": "Diagnostics",
+                "sourceCategoryCard": "AI Readiness & Diagnostics",
                 "launcherLabel": "Open Diagnostics",
                 "classification": "external-unique",
                 "remainsOpenIfDashboardCloses": True,
@@ -791,7 +881,7 @@ def main() -> int:
                 "focusBehavior": "bring-to-front-if-open",
             },
             "capabilities-maintenance": {
-                "sourceCategoryCard": "Capabilities",
+                "sourceCategoryCard": "Capabilities & Maintenance",
                 "launcherLabel": "Open Capabilities",
                 "classification": "exclusive-child",
                 "remainsOpenIfDashboardCloses": False,
