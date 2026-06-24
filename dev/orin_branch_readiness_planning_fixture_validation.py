@@ -335,6 +335,9 @@ INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_REQUIRED_USER_REVIEW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_required_user_review_no_packet.md"
 )
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_wrong_root.md"
+)
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
 )
@@ -2074,26 +2077,39 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     user_packet_path_not_required = "not required" in user_packet_path.casefold()
     user_packet_zip_not_required = "not required" in user_packet_zip.casefold()
 
+    def canonical_windows_path(path: str) -> str | None:
+        parts = [part for part in path.split("\\") if part]
+        if not parts or re.fullmatch(r"[A-Za-z]:", parts[0]) is None:
+            return None
+        stack = [parts[0]]
+        for part in parts[1:]:
+            if part == ".":
+                continue
+            if part == "..":
+                if len(stack) == 1:
+                    return None
+                stack.pop()
+                continue
+            stack.append(part)
+        return stack[0] + "\\" + "\\".join(stack[1:])
+
+    def normalized_user_packet_paths(value: str) -> list[str]:
+        normalized_value = value.replace("/", "\\")
+        paths: list[str] = []
+        for match in re.finditer(
+            r"\b[A-Za-z]:\\Nexus USER\\[A-Za-z0-9_-]+(?:\\[^\s|,;:)\]]+)*",
+            normalized_value,
+            re.IGNORECASE,
+        ):
+            canonical_path = canonical_windows_path(match.group(0))
+            if canonical_path is not None:
+                paths.append(canonical_path)
+        return paths
+
     def normalized_windows_zip_paths(value: str) -> tuple[list[str], bool]:
         normalized_value = value.replace("/", "\\")
         paths: list[str] = []
         invalid_suffix_seen = False
-
-        def canonical_windows_path(path: str) -> str | None:
-            parts = [part for part in path.split("\\") if part]
-            if not parts or re.fullmatch(r"[A-Za-z]:", parts[0]) is None:
-                return None
-            stack = [parts[0]]
-            for part in parts[1:]:
-                if part == ".":
-                    continue
-                if part == "..":
-                    if len(stack) == 1:
-                        return None
-                    stack.pop()
-                    continue
-                stack.append(part)
-            return stack[0] + "\\" + "\\".join(stack[1:])
 
         for match in re.finditer(r"[A-Za-z]:\\[^|\r\n]*?\.zip", normalized_value):
             next_char = normalized_value[match.end() : match.end() + 1]
@@ -2114,6 +2130,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     user_packet_zip_paths, user_packet_zip_invalid_suffix_seen = (
         normalized_windows_zip_paths(user_packet_zip)
     )
+    user_packet_paths = normalized_user_packet_paths(user_packet_path)
+    user_packet_path_is_rooted = (
+        len(user_packet_paths) == 1
+        and user_packet_paths[0].casefold().startswith("c:\\nexus user\\")
+    )
     deterministic_user_zip_paths = [
         path
         for path in user_packet_zip_paths
@@ -2126,7 +2147,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         and len(deterministic_user_zip_paths) == 1
     )
     require(
-        "c:\\nexus user" in user_packet_path.casefold()
+        user_packet_path_is_rooted
         or (user_packet_path_not_required and not pending_user_review_required),
         "RAR USER Packet Missing",
     )
@@ -6702,6 +6723,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject required USER review without packet proof"
+        )
+
+    packet_path_wrong_root_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_wrong_root_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet folder outside C:\\Nexus USER"
         )
 
     bare_rar3_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
