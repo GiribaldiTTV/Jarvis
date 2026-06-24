@@ -287,6 +287,9 @@ VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_FIXTURE = (
 VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_active_negated_disclaimers.md"
 )
+VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_WORDING_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_no_issue_candidate_wording.md"
+)
 INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
 )
@@ -319,6 +322,9 @@ INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
+)
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_SEPARATE_NEGATION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_green_separate_negation.md"
 )
 INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_green.md"
@@ -2132,8 +2138,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         normalized_value = governance._normalized_planning_value(value).strip(" .;:")
         if not normalized_value:
             return False
-        if re.search(r"\bissue candidate\s+[a-z0-9][a-z0-9_-]*", normalized_value):
-            return False
         if normalized_value in {
             "none",
             "n/a",
@@ -2143,7 +2147,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "none with reason",
         }:
             return True
-        return normalized_value.startswith(
+        no_candidate_wording = normalized_value.startswith(
             (
                 "none recorded",
                 "none with reason",
@@ -2157,6 +2161,14 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 "no issue candidates are applicable",
             )
         )
+        if no_candidate_wording:
+            return True
+        if re.search(
+            r"\bissue candidate\s+(?!is\b|are\b)[a-z0-9][a-z0-9_-]*",
+            normalized_value,
+        ):
+            return False
+        return False
 
     previous_candidates_absent = no_issue_candidates_declared(previous_candidates)
     if not previous_candidates_absent:
@@ -2199,16 +2211,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "rar closed",
         "adoption closed",
     )
-    green_claim_negations = (
-        "not green",
-        "not adoption green",
-        "not rar green",
-        "cannot be green",
-        "green blocked",
-        "not resolved with evidence",
-        "not closed",
-        "cannot close",
-    )
     def contains_non_negated_phrase(value: str, phrases: tuple[str, ...]) -> bool:
         for phrase in phrases:
             for match in re.finditer(re.escape(phrase), value):
@@ -2220,8 +2222,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     claims_green = contains_non_negated_phrase(
         normalized_adoption_disposition, green_claim_phrases
-    ) and not any(
-        phrase in normalized_adoption_disposition for phrase in green_claim_negations
     )
     require(
         not (unresolved_present and claims_green),
@@ -6383,6 +6383,17 @@ line item, not a seam or separate branch.
             + "; ".join(valid_active_negated_disclaimers_rar_failures[:5])
         )
 
+    valid_no_issue_candidate_wording_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_WORDING_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_no_issue_candidate_wording_failures:
+        failures.append(
+            "Valid no-issue-candidate wording RAR fixture unexpectedly failed: "
+            + "; ".join(valid_no_issue_candidate_wording_failures[:5])
+        )
+
     marker_only_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE.read_text(encoding="utf-8")
     )
@@ -6517,6 +6528,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject unresolved nonconformance claimed green"
+        )
+
+    unresolved_green_separate_negation_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_SEPARATE_NEGATION_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_green_separate_negation_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved green claim with separate negation"
         )
 
     issue_candidate_green_rar_failures = _validate_rebaseline_adoption_review_text(
