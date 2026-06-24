@@ -281,6 +281,9 @@ VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE = (
 VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_resolved_normal_phase.md"
 )
+VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_issue_candidate_reviewed.md"
+)
 INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
 )
@@ -1705,7 +1708,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "Previous / Historical Branch Issue Candidates:",
         "Current Violation Findings:",
         "Issue-Candidate Table:",
-        "Issue Candidate Disposition:",
+        "Issue Candidate Disposition:",  # Required even when no issue candidate exists.
         "Repair / Waiver / Defer / Route Decision Table:",
         "Adoption Disposition:",
         "Repair / Waiver / Blocker:",
@@ -1797,6 +1800,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 return True
         return False
 
+    code_trace_rows = table_rows_after_header(code_trace_header)
     issue_candidate_rows = table_rows_after_header(issue_candidate_header)
 
     for quality in (
@@ -1856,20 +1860,31 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     adoption_disposition = governance._extract_marker_value(
         text, "Adoption Disposition:"
     )
-    unresolved_statuses = tuple(
-        status.casefold()
-        for status in (
-            "NONCONFORMING",
-            "UNPROVEN",
-            "PARTIAL",
-            "EXCEPTION NEEDED",
-            "SOURCE-TRUTH GAP",
-            "REFERENCE GAP",
-            "TEMPLATE GAP",
-            "SHARED PRIMITIVE GAP",
-        )
+    unresolved_statuses = (
+        "nonconforming",
+        "unproven",
+        "partial",
+        "exception needed",
+        "source-truth gap",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
     )
-    unresolved_present = any(status in normalized for status in unresolved_statuses)
+
+    def cell_has_unresolved_status(value: str) -> bool:
+        normalized_cell = governance._normalized_planning_value(value)
+        normalized_cell = normalized_cell.strip(" .;:")
+        return any(
+            normalized_cell == status
+            or normalized_cell.startswith(f"{status} ")
+            or f" {status} " in f" {normalized_cell} "
+            for status in unresolved_statuses
+        )
+
+    unresolved_present = any(
+        len(row) > 8 and cell_has_unresolved_status(row[8])
+        for row in code_trace_rows
+    )
     claims_green = (
         "adoption green with evidence"
         in governance._normalized_planning_value(adoption_disposition)
@@ -1896,13 +1911,31 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         normalized_decision_table = governance._normalized_planning_value(
             decision_table
         )
+        pending_issue_candidate_review = any(
+            phrase in normalized_decision_table
+            or phrase in normalized_issue_candidate_disposition
+            for phrase in (
+                "user review pending",
+                "pending user review",
+                "pending user",
+            )
+        )
+        completed_issue_candidate_disposition = any(
+            phrase in normalized_issue_candidate_disposition
+            or phrase in normalized_decision_table
+            for phrase in (
+                "issue candidate packet user-reviewed",
+                "issue candidate packet user reviewed",
+                "user-reviewed",
+                "user reviewed",
+                "user waiver recorded",
+                "repair completed and revalidated",
+                "route back to earlier gate",
+                "blocked",
+            )
+        )
         require(
-            "user review pending" in normalized_decision_table
-            or "pending user review" in normalized_decision_table
-            or "pending user" in normalized_decision_table
-            or "user review pending" in normalized_issue_candidate_disposition
-            or "pending user review" in normalized_issue_candidate_disposition
-            or "pending user" in normalized_issue_candidate_disposition,
+            pending_issue_candidate_review or completed_issue_candidate_disposition,
             "Issue Candidate Disposition Missing",
         )
 
@@ -5899,6 +5932,19 @@ line item, not a seam or separate branch.
         failures.append(
             "Valid resolved RAR normal-phase fixture unexpectedly failed: "
             + "; ".join(valid_resolved_rar_failures[:5])
+        )
+
+    valid_reviewed_issue_candidate_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_reviewed_issue_candidate_rar_failures:
+        failures.append(
+            "Valid reviewed issue-candidate RAR fixture unexpectedly failed: "
+            + "; ".join(valid_reviewed_issue_candidate_rar_failures[:5])
         )
 
     marker_only_rar_failures = _validate_rebaseline_adoption_review_text(
