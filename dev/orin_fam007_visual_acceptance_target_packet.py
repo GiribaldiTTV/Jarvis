@@ -249,6 +249,20 @@ def _copy_actual_media() -> list[RenderOption]:
     ]
 
 
+def _copy_manifest_media() -> None:
+    if not PROOF_ROOT.exists():
+        raise FileNotFoundError(f"Missing proof media root: {PROOF_ROOT}")
+    for source in sorted(PROOF_ROOT.glob("*.png")):
+        if source.name.endswith("_focused_window.png"):
+            target_dir = PACKET_DIR / "Review Aids" / "Inspectable Evidence" / "focused_window_screenshots"
+        elif source.name.endswith("_full_desktop.png"):
+            target_dir = PACKET_DIR / "Review Aids" / "Inspectable Evidence" / "full_desktop_screenshots"
+        else:
+            target_dir = PACKET_DIR / "Review Aids" / "Inspectable Evidence" / "other_screenshots"
+        target_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target_dir / source.name)
+
+
 def _generate_candidate_media() -> list[RenderOption]:
     specs = [
         ("OPTION-B", "Compact Directory Variant", "Slightly denser doorway shell with stronger category grouping.", "Option-B-compact-directory", "DOORWAY_SHELL"),
@@ -452,7 +466,7 @@ LV Gating Rule: Live Validation cannot claim UI green by helper output, screensh
     _write_text("Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md", "# Source-Truth Conflict Classification\n\n| Candidate Decision | Classification | Disposition |\n| --- | --- | --- |\n| Require rendered visual target before future visible UI implementation on this branch | `BRANCH_LOCAL_VISUAL_DECISION` | legal branch-local process; Governance/global version is candidate only |\n| Treat current FAM-007 actual screenshot as branch-local target candidate | `NO_CONFLICT` | comparator seed only, not global template promotion |\n| Require FAM-002/UIREF comparison for same-class controls | `NO_CONFLICT` | matches Project Vision, FAM-002, UIREF-001 through UIREF-006 |\n| Promote AI Dashboard / AI Control Center as global gold standard | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Add reusable global helper/validator for all branches | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Implement product/runtime UI change in this pass | `USER_DECISION_REQUIRED` | not approved by this packet |")
     _write_text("Review Aids/GOVERNANCE_CANDIDATE_ONLY.md", "# Governance Candidate Only\n\nCandidate: create a global Visual Acceptance Target process for all future Nexus visible UI/UX work.\n\nReason: FAM-007 and FAM-006 false-green loops show that implementation-first UI work creates repair loops. A global rule should require substantial rendered targets, element legends, state matrices, full desktop/context renders, rejected-pattern ledgers, reusable design recipes, and implementation-match proof before visible UI work can proceed.\n\nApproval Needed: USER-approved Governance/FAM-002 carrier after this branch-local process is reviewed. This FAM-007 pass does not mutate Governance and does not promote a global template.")
     _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, full desktop/context render media, stable element IDs, state coverage, a draft target, rejected-pattern ledger, reusable design recipe template, and packet media included in the ZIP.\n\nNo current-owned UDL row is marked closed by this packet. Existing known-bad packet defects remain preserved as historical false-green evidence.")
-    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Validation Summary\n\nPacket-local validation is run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, element legend, state matrix, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
+    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, element legend, state matrix, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
 
     context_files = {
         "Source Truth Context/current_external_branch_state.md": BRANCH_STATE,
@@ -474,6 +488,7 @@ LV Gating Rule: Live Validation cannot claim UI green by helper output, screensh
         _copy_file(source, relative)
     if MANIFEST_PATH.exists():
         _copy_file(MANIFEST_PATH, "Review Aids/Inspectable Evidence/live_resize_manifest.json")
+    _copy_manifest_media()
 
 
 def _create_zip(zip_path: Path) -> None:
