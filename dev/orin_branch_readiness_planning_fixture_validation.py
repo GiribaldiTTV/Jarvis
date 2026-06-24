@@ -290,6 +290,9 @@ INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
 )
+INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -379,6 +382,7 @@ EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET = (
     "Product Experience Contract Nonconformance Unresolved"
 )
 EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET = "Owned Surface Issue Candidate Missing"
+EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET = "Normal Phase Progression Blocked By RAR"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -1801,18 +1805,24 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     adoption_disposition = governance._extract_marker_value(
         text, "Adoption Disposition:"
     )
-    unresolved_statuses = (
-        "NONCONFORMING",
-        "UNPROVEN",
-        "PARTIAL",
-        "EXCEPTION NEEDED",
-        "SOURCE-TRUTH GAP",
-        "REFERENCE GAP",
-        "TEMPLATE GAP",
-        "SHARED PRIMITIVE GAP",
+    unresolved_statuses = tuple(
+        status.casefold()
+        for status in (
+            "NONCONFORMING",
+            "UNPROVEN",
+            "PARTIAL",
+            "EXCEPTION NEEDED",
+            "SOURCE-TRUTH GAP",
+            "REFERENCE GAP",
+            "TEMPLATE GAP",
+            "SHARED PRIMITIVE GAP",
+        )
     )
-    unresolved_present = any(status in text for status in unresolved_statuses)
-    claims_green = "Adoption Green With Evidence" in adoption_disposition
+    unresolved_present = any(status in normalized for status in unresolved_statuses)
+    claims_green = (
+        "adoption green with evidence"
+        in governance._normalized_planning_value(adoption_disposition)
+    )
     require(
         not (unresolved_present and claims_green),
         "Product Experience Contract Nonconformance Unresolved",
@@ -1831,9 +1841,24 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
     if normal_phase:
+        active_rar_context = any(
+            token in normalized
+            for token in (
+                "rar user review gate remains active",
+                "pending user",
+                "user review pending",
+                "issue candidate pending",
+                "repair remains required",
+                "repair required",
+                "waiver required",
+                "blocker",
+                "required before normal phase progression",
+            )
+        )
         require(
-            "normal phase progression" not in normal_phase.casefold()
-            or "blocked" not in normalized,
+            "normal phase progression"
+            not in governance._normalized_planning_value(normal_phase)
+            or not active_rar_context,
             "Normal Phase Progression Blocked By RAR",
         )
     return failures
@@ -5823,6 +5848,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing historical issue candidate disposition"
+        )
+
+    normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        normal_phase_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject normal phase progression while RAR remains active"
         )
 
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
