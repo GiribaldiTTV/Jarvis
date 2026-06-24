@@ -58,9 +58,11 @@ VISUAL_NEXT_LEGAL_PHASE = (
     "after this packet is accepted or revised."
 )
 RECOVERY_NEXT_LEGAL_PHASE = (
-    "USER decision on the accepted-historical packet recovery / retention blocker packet. "
-    "USER may provide the missing accepted historical ZIP, approve a retention waiver, "
-    "or hold the packet chain blocked until the artifact is recovered."
+    "USER decision on the accepted-historical packet recovery / retention blocker packet "
+    "and missing accepted-historical packet artifact. USER may accept the packet and "
+    "provide the missing accepted historical ZIP, accept the packet and approve a "
+    "retention waiver, or hold the packet chain blocked while directing a later "
+    "source-truth-routed recovery path."
 )
 PROOF_ROOT = Path(
     r"C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI"
@@ -220,14 +222,17 @@ def _recovery_exact_user_decision_text(zip_path: Path) -> str:
         f"I accept the FAM-007 accepted-historical packet recovery / retention blocker "
         f"packet at {zip_path}. I understand that {ACCEPTED_HISTORICAL_ZIP} was not found "
         "in the searched local roots, that Codex did not recreate or fake the accepted "
-        "historical artifact, and that the current packet chain remains blocked unless I "
-        "provide/upload the missing ZIP, approve a retention waiver, or direct a later "
-        "source-truth-routed recovery path. This does not approve H1/LV acceptance, USER "
-        "UTS acceptance, PR Readiness, PR creation, merge, release, unrelated cleanup, "
-        "issue mutation, provider/model execution, prompt send, downloads, runtime cache "
-        "behavior, memory/learning/personalization, private Developer/Owner setup, "
-        "installer/shortcut/packaging execution, sibling/Governance mutation, imports, "
-        "or v1.8.0 work."
+        "historical artifact, and that packet validation, ChatGPT review, helper PASS, "
+        "external-state updates, or Codex digests are not USER acceptance. I choose this "
+        "artifact disposition: [provide/upload the missing ZIP] OR [approve an explicit "
+        "retention waiver for the missing accepted-historical ZIP while preserving "
+        "F7-UDL-018 as waived historical retention debt] OR [keep the packet chain blocked "
+        "and direct a later source-truth-routed recovery path]. This does not approve "
+        "H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, "
+        "unrelated cleanup, issue mutation, provider/model execution, prompt send, downloads, "
+        "runtime cache behavior, memory/learning/personalization, private Developer/Owner "
+        "setup, installer/shortcut/packaging execution, sibling/Governance mutation, "
+        "imports, or v1.8.0 work."
     )
 
 
@@ -315,7 +320,9 @@ def _update_branch_state_for_recovery_packet(text: str, zip_path: Path) -> str:
         "External State Item Status",
         (
             f"Current USER review packet is the accepted-historical packet recovery / "
-            f"retention blocker packet {zip_path}. The accepted historical Workstream "
+            f"retention blocker packet {zip_path}. ChatGPT review may classify it as "
+            f"ACCEPTED FOR USER REVIEW / truthful blocker evidence, but USER acceptance "
+            f"remains pending until exact USER decision text is provided. The accepted historical Workstream "
             f"implementation / H1-LV proof packet {ACCEPTED_HISTORICAL_ZIP} is missing "
             f"from local retained artifacts after required search and is not currently "
             f"preserved. H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, "
@@ -329,27 +336,29 @@ def _update_branch_state_for_recovery_packet(text: str, zip_path: Path) -> str:
         text,
         "Current Gate",
         (
-            "USER review of the accepted-historical packet recovery / retention blocker "
-            "packet; the missing accepted historical ZIP must be provided, waived, or kept "
-            "as a blocker before the Visual Acceptance Target packet can be accepted."
+            "USER decision on accepted-historical artifact disposition remains pending; "
+            "ChatGPT review may accept the recovery / retention blocker packet as "
+            "reviewable truthful blocker evidence only."
         ),
     )
     text = _update_field(
         text,
         "Packet Reviewability State",
         (
-            f"Accepted-historical recovery / retention blocker packet generated for USER "
-            f"review at {zip_path}; packet validation is supporting evidence only and is "
-            "not USER acceptance."
+            f"Accepted-historical recovery / retention blocker packet is reviewable at "
+            f"{zip_path}; ChatGPT review verdict may be ACCEPTED FOR USER REVIEW / truthful "
+            "blocker evidence; packet validation and ChatGPT review are supporting evidence "
+            "only and are not USER acceptance."
         ),
     )
     text = _update_field(
         text,
         "USER Gate State",
         (
-            "Pending USER review of accepted-historical artifact recovery / retention "
-            "blocker; H1/LV acceptance and USER UTS acceptance remain pending separate "
-            "USER decision."
+            "Pending USER decision. USER has not provided the missing ZIP, approved a "
+            "retention waiver, accepted the recovery blocker packet as a USER decision, "
+            "or selected a later source-truth-routed recovery path. H1/LV acceptance and "
+            "USER UTS acceptance remain pending separate USER decision."
         ),
     )
     text = _update_field(text, "Next Legal Phase", RECOVERY_NEXT_LEGAL_PHASE)
@@ -363,12 +372,13 @@ def _update_branch_plan_for_recovery_packet(text: str, zip_path: Path) -> str:
         [
             (
                 "Packet Reviewability State: `Reviewable accepted-historical packet "
-                f"recovery / retention blocker packet at {zip_path}. Packet validation is "
-                "not USER acceptance; the accepted historical ZIP is missing and is not "
-                "claimed preserved by this active packet.`"
+                f"recovery / retention blocker packet at {zip_path}. ChatGPT review may "
+                "classify it as ACCEPTED FOR USER REVIEW / truthful blocker evidence only. "
+                "Packet validation and ChatGPT review are not USER acceptance; the accepted "
+                "historical ZIP is missing and is not claimed preserved by this active packet.`"
             ),
             "Accepted Historical Packet: `MISSING - C:\\Nexus USER\\FAM-007-20260623-123429.zip was not recovered in searched local roots.`",
-            "USER Gate State: `Pending USER review of recovery / waiver / blocked-chain decision.`",
+            "USER Gate State: `Pending USER decision. USER has not accepted the recovery blocker packet as a USER decision, provided/uploaded the missing ZIP, explicitly approved a retention waiver, or selected a later source-truth-routed recovery path.`",
             f"Primary USER Review File: `{RECOVERY_PRIMARY_REVIEW_FILE}`",
             f"USER Review Folder: `{PACKET_DIR}`",
             f"USER Review ZIP: `{zip_path}`",
