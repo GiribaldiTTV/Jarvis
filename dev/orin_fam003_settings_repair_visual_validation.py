@@ -60,6 +60,10 @@ ACTIVE_UDL_PATH = Path(
     r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
     r"\unified_defect_ledger_20260623_false_green.md"
 )
+SAME_DEFECT_RECURRENCE_LEDGER_PATH = Path(
+    r"C:\Nexus Governance State\branches\feature_fam_003_resident_access_quick_actions"
+    r"\same_defect_recurrence_ledger_20260624.md"
+)
 ACTIVE_FALSE_RETEST_DEFECT_IDS = (
     "F3-LV1-UI-001",
     "F3-LV1-UI-015",
@@ -80,6 +84,14 @@ ACTIVE_FALSE_RETEST_DEFECT_IDS = (
     "F3-LV1-PROOF-001",
     "F3-LV1-PROOF-002",
 )
+SAME_DEFECT_REOPENED_IDS = (
+    "F3-LV1-UI-001",
+    "F3-LV1-UI-016",
+    "F3-LV1-UI-020",
+    "F3-LV1-UI-021",
+    "F3-LV1-PROOF-002",
+)
+SAME_DEFECT_LOOP_BREAKER_ID = "F3-LV1-PROOF-003"
 REFERENCE_SCREENSHOTS: tuple[tuple[str, Path], ...] = (
     (
         "accepted_ai_control_center_default",
@@ -211,12 +223,48 @@ def _parse_active_false_retest_sections(text: str) -> dict[str, dict[str, str]]:
     return sections
 
 
-def _active_false_retest_udl_status_rows() -> tuple[bool, str, bool, str]:
+def _same_defect_loop_breaker_active() -> bool:
+    if not SAME_DEFECT_RECURRENCE_LEDGER_PATH.exists():
+        return False
+    text = SAME_DEFECT_RECURRENCE_LEDGER_PATH.read_text(encoding="utf-8")
+    return (
+        "Retest Candidate Gate: `BLOCKED`" in text
+        and "Posture: `LOOP-BREAKER ONLY`" in text
+    )
+
+
+def _active_false_retest_udl_status_rows() -> tuple[bool, str, str, bool, str]:
     if not ACTIVE_UDL_PATH.exists():
-        return False, f"{ACTIVE_UDL_PATH} missing", False, "active false-retest UDL missing"
+        return (
+            False,
+            f"{ACTIVE_UDL_PATH} missing",
+            "active false-retest UDL rows closed with proof",
+            False,
+            "active false-retest UDL missing",
+        )
     text = ACTIVE_UDL_PATH.read_text(encoding="utf-8")
     sections = _parse_active_false_retest_sections(text)
     missing = [defect_id for defect_id in ACTIVE_FALSE_RETEST_DEFECT_IDS if defect_id not in sections]
+    if _same_defect_loop_breaker_active():
+        missing_reopened = [
+            defect_id
+            for defect_id in SAME_DEFECT_REOPENED_IDS
+            if sections.get(defect_id, {}).get("Status", "").strip("` ") != "REOPENED"
+        ]
+        proof3_status = sections.get(SAME_DEFECT_LOOP_BREAKER_ID, {}).get("Status", "").strip("` ")
+        gate_ok = not missing and not missing_reopened and proof3_status == "CLOSED_WITH_PROOF"
+        return (
+            not missing,
+            f"{ACTIVE_UDL_PATH}; missing={missing}",
+            "same-defect recurrence gate blocks retest candidate",
+            gate_ok,
+            (
+                f"{SAME_DEFECT_RECURRENCE_LEDGER_PATH}; "
+                f"missing_reopened={missing_reopened}; "
+                f"{SAME_DEFECT_LOOP_BREAKER_ID}={proof3_status or '<missing>'}"
+            ),
+        )
+
     bad_status: list[str] = []
     missing_proof: list[str] = []
     for defect_id in ACTIVE_FALSE_RETEST_DEFECT_IDS:
@@ -232,6 +280,7 @@ def _active_false_retest_udl_status_rows() -> tuple[bool, str, bool, str]:
     return (
         exists_ok,
         f"{ACTIVE_UDL_PATH}; missing={missing}",
+        "active false-retest UDL rows closed with proof",
         closed_ok,
         f"{ACTIVE_UDL_PATH}; bad_status={bad_status}; missing_proof={missing_proof}",
     )
@@ -1603,9 +1652,15 @@ def main() -> int:
     udl_exists_ok, udl_exists_detail, udl_closed_ok, udl_closed_detail = _visual_udl_status_rows()
     rows.append(("visual UDL exists", udl_exists_ok, udl_exists_detail))
     rows.append(("visual UDL rows closed with proof", udl_closed_ok, udl_closed_detail))
-    active_udl_exists_ok, active_udl_exists_detail, active_udl_closed_ok, active_udl_closed_detail = _active_false_retest_udl_status_rows()
+    (
+        active_udl_exists_ok,
+        active_udl_exists_detail,
+        active_udl_gate_label,
+        active_udl_closed_ok,
+        active_udl_closed_detail,
+    ) = _active_false_retest_udl_status_rows()
     rows.append(("active false-retest UDL rows exist", active_udl_exists_ok, active_udl_exists_detail))
-    rows.append(("active false-retest UDL rows closed with proof", active_udl_closed_ok, active_udl_closed_detail))
+    rows.append((active_udl_gate_label, active_udl_closed_ok, active_udl_closed_detail))
 
     dialog = ResidentAccessSettingsDialog()
     dialog.show()
@@ -2812,6 +2867,27 @@ def main() -> int:
         ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),
         ("F3-LV1-PROOF-002", "USER / ChatGPT / Codex", "Codex repeatedly returned repaired/retest-candidate packets after unresolved seed defects remained visible", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png; 18_manage_monitors_dirty_guard_side_by_side.png", "row-specific root-cause prevention plus fail-capable validator requirements for every reopened current-owned defect", "CLOSED_WITH_PROOF"),
     ]
+    if _same_defect_loop_breaker_active():
+        adjusted_rows: list[tuple[str, str, str, str, str, str]] = []
+        for defect_id, origin, prior, proof, comparator, status in closure_rows:
+            if defect_id in SAME_DEFECT_REOPENED_IDS:
+                status = "REOPENED"
+                comparator = (
+                    "same-defect recurrence gate blocks retest candidate; stronger "
+                    "row-specific proof is required before closure"
+                )
+            adjusted_rows.append((defect_id, origin, prior, proof, comparator, status))
+        adjusted_rows.append(
+            (
+                SAME_DEFECT_LOOP_BREAKER_ID,
+                "USER / ChatGPT / Codex",
+                "v17/v18/v19 retest packets returned after recurring defects stayed unresolved",
+                "same_defect_recurrence_ledger_20260624.md; orin_fam003_same_defect_recurrence_validation.py",
+                "branch-local recurrence gate blocks retest candidate return",
+                "CLOSED_WITH_PROOF",
+            )
+        )
+        closure_rows = adjusted_rows
     for defect_id, origin, prior, proof, comparator, status in closure_rows:
         closure_lines.append(f"| {defect_id} | {origin} | `{prior}` | `{proof}` | {comparator} | {status} |")
     closure_ledger.write_text("\n".join(closure_lines) + "\n", encoding="utf-8")

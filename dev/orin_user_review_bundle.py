@@ -1032,6 +1032,40 @@ FAM003_VISUAL_UDL_ALLOWED_STATUSES = {
     "BLOCKED_SOURCE_TRUTH",
     "OUT_OF_SCOPE_USER_APPROVAL_REQUIRED",
 }
+FAM003_RECURRING_DEFECT_IDS = (
+    "F3-LV1-UI-001",
+    "F3-LV1-UI-016",
+    "F3-LV1-UI-020",
+    "F3-LV1-UI-021",
+    "F3-LV1-PROOF-002",
+)
+FAM003_LOOP_BREAKER_DEFECT_ID = "F3-LV1-PROOF-003"
+
+
+def _fam003_recurrence_ledger_failures(recurrence_text: str) -> list[str]:
+    failures: list[str] = []
+    if FAM003_LOOP_BREAKER_DEFECT_ID not in recurrence_text:
+        failures.append(f"{FAM003_LOOP_BREAKER_DEFECT_ID} is missing from recurrence ledger")
+    if "Result: `PASS - WOULD BLOCK`" not in recurrence_text:
+        failures.append("recurrence ledger lacks prior-packet blockability proof")
+    if "Retest Candidate Gate: `BLOCKED`" in recurrence_text:
+        failures.append("same-defect recurrence gate is BLOCKED; packet cannot be a retest candidate")
+
+    table_statuses: dict[str, str] = {}
+    table_pattern = re.compile(
+        r"^\|\s*`(F3-LV1-(?:UI|PROOF)-\d{3})`\s*\|\s*`([^`]+)`\s*\|",
+        re.MULTILINE,
+    )
+    for match in table_pattern.finditer(recurrence_text):
+        table_statuses[match.group(1)] = match.group(2).strip()
+
+    for defect_id in (*FAM003_RECURRING_DEFECT_IDS, FAM003_LOOP_BREAKER_DEFECT_ID):
+        status = table_statuses.get(defect_id)
+        if not status:
+            failures.append(f"{defect_id} is missing from recurrence table")
+        elif status != "CLOSED_WITH_PROOF":
+            failures.append(f"{defect_id} recurrence status is not CLOSED_WITH_PROOF: {status}")
+    return failures
 
 
 def _fam003_visual_udl_schema_failures(visual_udl_text: str) -> list[str]:
@@ -1272,6 +1306,22 @@ def _fam003_lv1_visual_retest_semantic_failures(
         failures.append(
             "FAM-003 LV1 packet semantic proof failed: stale-output false-green incident record is missing"
         )
+
+    recurrence_entries = [
+        entry
+        for entry in normalized_entries
+        if "same_defect_recurrence_ledger" in PurePosixPath(entry).name.lower()
+    ]
+    if not recurrence_entries:
+        failures.append(
+            "FAM-003 LV1 packet semantic proof failed: same-defect recurrence ledger is missing"
+        )
+    else:
+        recurrence_text = "\n".join(packet_files.get(entry, "") for entry in recurrence_entries)
+        for recurrence_failure in _fam003_recurrence_ledger_failures(recurrence_text):
+            failures.append(
+                "FAM-003 LV1 packet semantic proof failed: " + recurrence_failure
+            )
 
     udl_entries = [
         entry
