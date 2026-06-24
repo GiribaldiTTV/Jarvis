@@ -554,7 +554,7 @@ def _create_window_chrome_comparison_board(media_dir: Path) -> str:
 
 
 def _create_bottom_dead_space_comparison_board(media_dir: Path) -> str:
-    canvas = Image.new("RGB", (1320, 450), (4, 14, 22))
+    canvas = Image.new("RGB", (1320, 540), (4, 14, 22))
     draw = ImageDraw.Draw(canvas)
     draw.text((34, 28), "Bottom Dead-Space Comparison", fill=(222, 246, 250), font=_font(28))
     draw.text(
@@ -571,14 +571,14 @@ def _create_bottom_dead_space_comparison_board(media_dir: Path) -> str:
         image = Image.open(src).convert("RGB")
         x = 34 + i * 640
         y = 112
-        draw.rounded_rectangle((x, y, x + 600, y + 288), radius=22, fill=(7, 28, 41), outline=(45, 145, 166), width=2)
+        draw.rounded_rectangle((x, y, x + 600, y + 380), radius=22, fill=(7, 28, 41), outline=(45, 145, 166), width=2)
         draw.text((x + 16, y + 14), title, fill=(224, 244, 249), font=_font(17))
         thumb = image.copy()
         thumb.thumbnail((540, 300))
         thumb_x = x + 30
         thumb_y = y + 62
         canvas.paste(thumb, (thumb_x, thumb_y))
-        line_y = min(y + 238, thumb_y + thumb.height + 12)
+        line_y = thumb_y + thumb.height + 12
         draw.line((x + 30, line_y, x + 570, line_y), fill=(123, 244, 211), width=2)
         draw.text((x + 30, line_y + 11), "Bottom band checked against final button row; no dead slab accepted.", fill=(169, 214, 223), font=_font(12))
     out = media_dir / "bottom_dead_space_comparison_board.png"
