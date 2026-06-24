@@ -81,7 +81,7 @@ VISUAL_CLASSIFICATIONS = [
 AUTHORITY_LEVELS = {
     "Concept Render": "Brainstorming only; not source truth and not an implementation target.",
     "Design Candidate Render": "USER selection artifact; substantial enough to critique final direction.",
-    "Visual Acceptance Target": "USER-accepted final branch visual contract; not accepted by this packet.",
+    "Visual Acceptance Target": "USER-accepted final branch visual contract recorded by this packet; not runtime implementation proof.",
     "Implementation Match Proof": "Actual implementation screenshot/video proving match to an accepted target.",
 }
 
@@ -221,8 +221,8 @@ REJECTED_PATTERNS = [
         "LOG-C risk area",
         "A large viewer-like shell can imply graph/log viewer/export work that is not current-branch scope.",
         "Log Viewer Studio",
-        "Keep current shell as folder access only unless USER selects future-leaning target with explicit risk.",
-        "USER_DECISION_REQUIRED if selected",
+        "Keep current shell as folder access only; future full-viewer scope requires a separate later approval.",
+        "Rejected/deferred future scope",
         "Prompt requires LOG-C risk classification.",
     ),
     (
@@ -271,7 +271,7 @@ REJECTED_PATTERNS = [
         "Prior Codex summaries",
         "Progress wording allowed REPAIR to be misreported as ACCEPT.",
         "All visual review packets",
-        "Use PASS/REPAIR/BLOCKED/USER_DECISION_REQUIRED only; never accept because a result is better.",
+        "Use exact accepted, repair, blocked, rejected, deferred, or waived states; never accept because a result is better.",
         "FAM-002 and false-green gate",
         "Prompt explicitly names this false-acceptance class.",
     ),
@@ -279,53 +279,53 @@ REJECTED_PATTERNS = [
 
 CONFLICT_CLASSIFICATION_ROWS = [
     {
-        "decision": "Visual target packet before product UI repair",
+        "decision": "Visual target packet records the accepted target before product UI repair",
         "classification": "BRANCH_LOCAL_VISUAL_DECISION",
         "riskArea": "process sequencing",
-        "basis": "FAM-006 returned-UTS false-green loop; branch-local repair approved.",
-        "userDecisionNeeded": "USER must select/revise target before implementation-match repair.",
+        "basis": "USER accepted the Visual Acceptance Target direction; implementation-match repair remains a separate approval.",
+        "userDecisionNeeded": "Implementation-match repair approval remains pending separately.",
     },
     {
         "decision": "Recording Studio compact controller footprint",
-        "classification": "USER_DECISION_REQUIRED",
+        "classification": "BRANCH_LOCAL_VISUAL_DECISION",
         "riskArea": "surface footprint and density",
-        "basis": "Recording FFV requires ultra-light detached controller; final dimensions are USER visual target choice.",
-        "userDecisionNeeded": "Choose, combine, or revise REC-A/REC-B/REC-C.",
+        "basis": "USER accepted REC-C as the base with REC-A target/state separation.",
+        "userDecisionNeeded": "None for visual target selection; implementation-match repair approval remains pending.",
     },
     {
-        "decision": "REC-B proof-like copy: Dashboard and Studio share target truth",
+        "decision": "REC-B proof/helper copy, native-log status row, and report-table feel",
         "classification": "BRANCH_LOCAL_VISUAL_DECISION",
-        "riskArea": "internal/proof-like copy",
-        "basis": "Valid concept but potentially too proof-like for product UI; packet must expose it for critique.",
-        "userDecisionNeeded": "Accept shorter product copy or revise wording.",
+        "riskArea": "rejected Recording Studio pattern",
+        "basis": "USER rejected REC-B as final target because proof/helper copy, native-log status rows, and mini-dashboard/report-table feel do not belong in the accepted compact controller.",
+        "userDecisionNeeded": "None; rejected unless USER later explicitly reopens the visual target.",
     },
     {
-        "decision": "Log Viewer fixed-size versus edge-resizable doorway shell",
-        "classification": "USER_DECISION_REQUIRED",
-        "riskArea": "resize behavior",
-        "basis": "Current branch is folder access only; future graph/viewer placement remains deferred.",
-        "userDecisionNeeded": "Choose fixed-size LOG-A or path/future-leaning LOG-B/LOG-C with explicit risk.",
-    },
-    {
-        "decision": "LOG-B path-forward / local-path-looking text",
+        "decision": "Log Viewer Studio unique child doorway shell",
         "classification": "BRANCH_LOCAL_VISUAL_DECISION",
-        "riskArea": "local-path proof smell",
-        "basis": "Path truth may help, but product UI must not look like validation proof.",
-        "userDecisionNeeded": "Accept path-aware shell or prefer direct action-only shell.",
+        "riskArea": "accepted Log Viewer target shape",
+        "basis": "USER accepted LOG-A as the compact current-branch native/export doorway shell.",
+        "userDecisionNeeded": "None for visual target selection; implementation-match repair approval remains pending.",
     },
     {
-        "decision": "LOG-C FEATURE_STUDIO-like shape while scope is doorway/shell only",
-        "classification": "USER_DECISION_REQUIRED",
+        "decision": "LOG-B path-forward / local-path-looking display",
+        "classification": "BRANCH_LOCAL_VISUAL_DECISION",
+        "riskArea": "rejected Log Viewer pattern",
+        "basis": "USER rejected LOG-B local-path/debug/path-forward presentation as the current accepted target.",
+        "userDecisionNeeded": "None; rejected unless USER later explicitly reopens the visual target.",
+    },
+    {
+        "decision": "LOG-C full viewer / feature-studio workspace implication",
+        "classification": "BRANCH_LOCAL_VISUAL_DECISION",
         "riskArea": "deferred full viewer/export/graph scope",
-        "basis": "LOG-C may imply future workspace not admitted by current branch.",
-        "userDecisionNeeded": "Accept as future-leaning target or reject/defer it.",
+        "basis": "USER rejected/deferred LOG-C as future full-viewer/feature-studio direction; current accepted target remains LOG-A doorway shell.",
+        "userDecisionNeeded": "None for this packet; future full-viewer scope requires separate approval.",
     },
     {
         "decision": "Any dashboard, report-table, debug-panel, or workspace drift",
         "classification": "NO_CONFLICT",
         "riskArea": "rejected pattern",
-        "basis": "Rejected Patterns Ledger blocks those patterns unless USER explicitly selects an exception.",
-        "userDecisionNeeded": "Only needed if USER wants to revive one of those patterns.",
+        "basis": "Rejected Patterns Ledger blocks those patterns for this accepted target.",
+        "userDecisionNeeded": "None for this packet.",
     },
     {
         "decision": "Global Visual Acceptance Target governance promotion",
@@ -1816,6 +1816,12 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
         "Live Validation State: `Green`",
         "UTS accepted",
         "PR-ready",
+        "USER must select/revise target before implementation-match repair",
+        "Choose, combine, or revise REC-A/REC-B/REC-C",
+        "Choose fixed-size LOG-A or path/future-leaning LOG-B/LOG-C",
+        "Accept path-aware shell or prefer direct action-only shell",
+        "Accept as future-leaning target or reject/defer it",
+        "USER_DECISION_REQUIRED",
     ]
     for token in forbidden:
         if token in text_blob:
@@ -1849,6 +1855,13 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
     conflict_path = packet_root / "Review Aids" / "Source Truth Conflict Classification.json"
     if conflict_path.exists():
         conflict = json.loads(conflict_path.read_text(encoding="utf-8"))
+        vocabulary = set(conflict.get("classificationVocabulary", []))
+        used_classifications = {row.get("classification") for row in conflict.get("classifications", [])}
+        missing_from_vocab = used_classifications - vocabulary
+        if missing_from_vocab:
+            failures.append(f"Source Truth Conflict Classification vocabulary omits used classifications: {sorted(missing_from_vocab)}")
+        if "USER_DECISION_REQUIRED" in used_classifications:
+            failures.append("Source Truth Conflict Classification still uses USER_DECISION_REQUIRED after accepted-target decision")
         classifications = {row.get("classification") for row in conflict.get("classifications", [])}
         for classification in ("BRANCH_LOCAL_VISUAL_DECISION", "GOVERNANCE_CANDIDATE_ONLY", "NO_CONFLICT"):
             if classification not in classifications:
@@ -1857,6 +1870,36 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
         for token in ("LOG-C", "LOG-B", "REC-B"):
             if token not in decisions:
                 failures.append(f"Source Truth Conflict Classification missing risk area: {token}")
+        conflict_blob = json.dumps(conflict, sort_keys=True)
+        for token in (
+            "USER must select/revise target",
+            "Choose, combine, or revise",
+            "Choose fixed-size LOG-A",
+            "Accept path-aware shell",
+            "Accept as future-leaning target",
+        ):
+            if token in conflict_blob:
+                failures.append(f"Source Truth Conflict Classification contains unresolved option-selection wording: {token}")
+        for row in conflict.get("classifications", []):
+            decision = row.get("decision", "")
+            basis = row.get("basis", "")
+            if "LOG-C" in decision and "rejected/deferred" not in basis:
+                failures.append("LOG-C conflict row must classify the full-viewer/feature-studio implication as rejected/deferred")
+            if "Log Viewer Studio unique child doorway shell" in decision and "LOG-A" not in basis:
+                failures.append("Log Viewer accepted target row must name LOG-A doorway shell basis")
+        accepted_json_for_conflict = packet_root / "Review Aids" / "Accepted Branch Visual Acceptance Target.json"
+        if accepted_json_for_conflict.exists():
+            accepted = json.loads(accepted_json_for_conflict.read_text(encoding="utf-8"))
+            for target in accepted.get("targets", []):
+                if target.get("surface") == "Log Viewer Studio":
+                    if target.get("footprintClass") != "DOORWAY_SHELL":
+                        failures.append("Log Viewer accepted target must remain DOORWAY_SHELL")
+                    accepted_basis = target.get("acceptedBasis", "")
+                    if "LOG-A" not in accepted_basis:
+                        failures.append("Log Viewer accepted target basis must name LOG-A")
+                    rejected = " ".join(target.get("rejectedPatterns", []))
+                    if "LOG-C full feature-studio workspace implication" not in rejected:
+                        failures.append("Log Viewer accepted target must retain LOG-C feature-studio workspace as rejected/deferred scope")
     validation_dir = packet_root / "Review Aids" / "Validation Outputs"
     if not validation_dir.is_dir():
         failures.append("missing Validation Outputs directory")
