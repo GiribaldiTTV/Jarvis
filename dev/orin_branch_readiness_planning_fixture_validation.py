@@ -290,6 +290,9 @@ VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE = (
 VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_WORDING_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_no_issue_candidate_wording.md"
 )
+VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_GAP_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_no_issue_candidate_gap.md"
+)
 VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_direct_negated_green.md"
 )
@@ -316,6 +319,9 @@ INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_malformed_table_rows.md"
+)
+INVALID_REBASELINE_ADOPTION_HEADER_ONLY_RAR_DECISION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_header_only_rar_decision.md"
 )
 INVALID_REBASELINE_ADOPTION_MISSING_TABLE_SEPARATOR_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_table_separator.md"
@@ -349,6 +355,9 @@ INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_PACKET_PATH_ZIP_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_zip.md"
+)
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_CHILD_FOLDER_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_child_folder.md"
 )
 INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_explanatory_user_root.md"
@@ -1983,8 +1992,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     raw_code_trace_rows = table_rows_after_header(code_trace_header)
     raw_accepted_reference_rows = table_rows_after_header(accepted_reference_header)
+    raw_rar_decision_rows = table_rows_after_header(rar_decision_header)
     code_trace_rows = substantive_rows(raw_code_trace_rows, 11)
     accepted_reference_rows = substantive_rows(raw_accepted_reference_rows, 9)
+    rar_decision_rows = substantive_rows(raw_rar_decision_rows, 4)
     issue_candidate_rows = table_rows_after_header(issue_candidate_header)
     require(
         bool(code_trace_rows)
@@ -1995,6 +2006,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         bool(accepted_reference_rows)
         and not has_malformed_substantive_table_row(raw_accepted_reference_rows, 9),
         "Accepted Reference Comparator Missing",
+    )
+    require(
+        bool(rar_decision_rows)
+        and not has_malformed_substantive_table_row(raw_rar_decision_rows, 4),
+        "RAR USER Packet Missing",
     )
     issue_candidate_disposition = governance._extract_marker_value(
         text, "Issue Candidate Disposition:"
@@ -2024,8 +2040,24 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
         return normalized_cell.strip(" .;:")
 
+    def cell_negates_issue_candidate_status(value: str) -> bool:
+        normalized_cell = normalize_rar_status_cell(value)
+        return bool(
+            normalized_cell in {"none", "n/a", "not applicable", "not applicable with reason"}
+            or re.search(
+                r"\b(?:no|not|without)\s+(?:current\s+|unresolved\s+|active\s+|pending\s+)?issue candidates?\b",
+                normalized_cell,
+            )
+            or re.search(
+                r"\bissue candidates?\s+(?:is\s+|are\s+)?(?:not\s+)?(?:applicable|needed|required|present|open|active)\b",
+                normalized_cell,
+            )
+        )
+
     def cell_has_unresolved_status(value: str) -> bool:
         normalized_cell = normalize_rar_status_cell(value)
+        if cell_negates_issue_candidate_status(value):
+            return False
         return any(
             normalized_cell == status
             or normalized_cell.startswith(f"{status} ")
@@ -2035,6 +2067,8 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     def cell_has_issue_candidate_status(value: str) -> bool:
         normalized_cell = normalize_rar_status_cell(value)
+        if cell_negates_issue_candidate_status(value):
+            return False
         return (
             normalized_cell == "issue candidate"
             or normalized_cell.startswith("issue candidate ")
@@ -2225,7 +2259,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     user_packet_path_is_rooted = (
         not user_packet_path_invalid_seen
         and len(user_packet_paths) == 1
-        and user_packet_paths[0].casefold().startswith("c:\\nexus user\\")
+        and re.fullmatch(
+            r"c:\\nexus user\\[a-z0-9_-]+",
+            user_packet_paths[0].casefold(),
+        )
+        is not None
     )
     deterministic_user_zip_paths = [
         path
@@ -6570,6 +6608,17 @@ line item, not a seam or separate branch.
             + "; ".join(valid_no_issue_candidate_wording_failures[:5])
         )
 
+    valid_no_issue_candidate_gap_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_GAP_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_no_issue_candidate_gap_failures:
+        failures.append(
+            "Valid no-issue-candidate accepted-reference gap RAR fixture unexpectedly failed: "
+            + "; ".join(valid_no_issue_candidate_gap_failures[:5])
+        )
+
     valid_direct_negated_green_failures = _validate_rebaseline_adoption_review_text(
         VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE.read_text(
             encoding="utf-8"
@@ -6673,6 +6722,18 @@ line item, not a seam or separate branch.
     if "Accepted Reference Comparator Missing" not in malformed_table_failures_joined:
         failures.append(
             "Invalid RAR fixture did not reject malformed accepted-reference row"
+        )
+
+    header_only_rar_decision_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_HEADER_ONLY_RAR_DECISION_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        header_only_rar_decision_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject header-only USER decision table"
         )
 
     missing_table_separator_rar_failures = _validate_rebaseline_adoption_review_text(
@@ -6950,6 +7011,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject USER packet folder marker pointing at ZIP"
+        )
+
+    packet_path_child_folder_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PACKET_PATH_CHILD_FOLDER_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_child_folder_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet path pointing at a child folder"
         )
 
     packet_path_explanatory_user_root_failures = (
