@@ -296,6 +296,9 @@ INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_empty_accepted_reference.md"
 )
+INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_malformed_table_rows.md"
+)
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
 )
@@ -320,6 +323,9 @@ INVALID_REBASELINE_ADOPTION_ACTIVE_REVIEW_NO_PACKET_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE = (
     FIXTURE_DIR
     / "invalid_rebaseline_adoption_contradictory_no_decision_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_OUTSIDE_USER_ROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_outside_user_root.md"
 )
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
@@ -1821,6 +1827,21 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             rows.append(cells)
         return rows
 
+    def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
+        placeholder_values = {"", "tbd", "todo", "placeholder"}
+        real_rows: list[list[str]] = []
+        for row in rows:
+            if len(row) < expected_columns:
+                continue
+            normalized_cells = [
+                governance._normalized_planning_value(cell).strip(" .;:")
+                for cell in row[:expected_columns]
+            ]
+            if all(cell in placeholder_values for cell in normalized_cells):
+                continue
+            real_rows.append(row)
+        return real_rows
+
     def has_real_issue_candidate_row(rows: list[list[str]]) -> bool:
         for row in rows:
             if len(row) < 8:
@@ -1844,8 +1865,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 return True
         return False
 
-    code_trace_rows = table_rows_after_header(code_trace_header)
-    accepted_reference_rows = table_rows_after_header(accepted_reference_header)
+    code_trace_rows = substantive_rows(table_rows_after_header(code_trace_header), 11)
+    accepted_reference_rows = substantive_rows(
+        table_rows_after_header(accepted_reference_header), 9
+    )
     issue_candidate_rows = table_rows_after_header(issue_candidate_header)
     require(bool(code_trace_rows), "Code-To-Visual Trace Missing")
     require(bool(accepted_reference_rows), "Accepted Reference Comparator Missing")
@@ -1912,13 +1935,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     user_packet_zip = governance._extract_marker_value(text, "USER Packet ZIP Path:")
     user_packet_path_not_required = "not required" in user_packet_path.casefold()
     user_packet_zip_not_required = "not required" in user_packet_zip.casefold()
+    normalized_user_packet_zip = user_packet_zip.replace("/", "\\").casefold()
+    user_packet_zip_in_user_root = "c:\\nexus user\\" in normalized_user_packet_zip
+    user_packet_zip_has_timestamp = (
+        re.search(r"[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip", user_packet_zip) is not None
+    )
     require(
         "c:\\nexus user" in user_packet_path.casefold()
         or (user_packet_path_not_required and not pending_user_review_required),
         "RAR USER Packet Missing",
     )
     require(
-        re.search(r"[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip", user_packet_zip) is not None
+        (user_packet_zip_has_timestamp and user_packet_zip_in_user_root)
         or (user_packet_zip_not_required and not pending_user_review_required),
         "RAR USER Packet Missing",
     )
@@ -6189,6 +6217,19 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject header-only accepted-reference comparator"
         )
 
+    malformed_table_rows_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    malformed_table_failures_joined = "\n".join(malformed_table_rows_rar_failures)
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in malformed_table_failures_joined:
+        failures.append("Invalid RAR fixture did not reject malformed code-trace row")
+    if "Accepted Reference Comparator Missing" not in malformed_table_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject malformed accepted-reference row"
+        )
+
     unresolved_green_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE.read_text(encoding="utf-8")
     )
@@ -6291,6 +6332,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing USER packet for contradictory active review gate"
+        )
+
+    zip_outside_user_root_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_OUTSIDE_USER_ROOT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_outside_user_root_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject USER packet ZIP outside C:\\Nexus USER"
         )
 
     normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
