@@ -302,6 +302,9 @@ INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
 )
+INVALID_REBASELINE_ADOPTION_HISTORICAL_NONE_PROSE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_historical_none_prose.md"
+)
 INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_untabled.md"
 )
@@ -1918,7 +1921,39 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     previous_candidates = governance._extract_marker_value(
         text, "Previous / Historical Branch Issue Candidates:"
     )
-    if "none" not in previous_candidates.casefold():
+
+    def no_issue_candidates_declared(value: str) -> bool:
+        normalized_value = governance._normalized_planning_value(value).strip(" .;:")
+        if not normalized_value:
+            return False
+        if re.search(r"\bissue candidate\s+[a-z0-9][a-z0-9_-]*", normalized_value):
+            return False
+        if normalized_value in {
+            "none",
+            "n/a",
+            "not applicable",
+            "none recorded",
+            "none recorded for this fixture",
+            "none with reason",
+        }:
+            return True
+        return normalized_value.startswith(
+            (
+                "none recorded",
+                "none with reason",
+                "no previous issue candidate",
+                "no previous issue candidates",
+                "no historical issue candidate",
+                "no historical issue candidates",
+                "no previous / historical issue candidate",
+                "no previous / historical issue candidates",
+                "no issue candidate is applicable",
+                "no issue candidates are applicable",
+            )
+        )
+
+    previous_candidates_absent = no_issue_candidates_declared(previous_candidates)
+    if not previous_candidates_absent:
         require(
             has_real_issue_candidate_row(issue_candidate_rows),
             "Owned Surface Issue Candidate Missing",
@@ -2005,7 +2040,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     issue_candidate_disposition_required = (
         has_real_issue_candidate_row(issue_candidate_rows)
-        or "none" not in previous_candidates.casefold()
+        or not previous_candidates_absent
         or code_trace_has_issue_candidate
     )
     if issue_candidate_disposition_required:
@@ -2067,50 +2102,58 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
 
     normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
-    if normal_phase:
-        active_rar_context = any(
-            token in active_rar_values
-            for token in (
-                "rar user review gate remains active",
-                "remains active",
-                "pending user",
-                "user review pending",
-                "issue candidate pending",
-                "repair remains required",
-                "repair required",
-                "waiver required",
-                "blocker active",
-                "blocked",
-                "required before normal phase progression",
-            )
+    active_rar_context = any(
+        token in active_rar_values
+        for token in (
+            "rar user review gate remains active",
+            "remains active",
+            "pending user",
+            "user review pending",
+            "issue candidate pending",
+            "repair remains required",
+            "repair required",
+            "waiver required",
+            "blocker active",
+            "blocked",
+            "required before normal phase progression",
         )
-        normalized_next_phase = governance._normalized_planning_value(normal_phase)
-        advancement_requested = any(
-            token in normalized_next_phase
-            for token in (
-                "normal phase progression",
-                "branch readiness",
-                "br1",
-                "br2",
-                "bp1",
-                "bp2",
-                "bp3",
-                "workstream",
-                "hardening",
-                "live validation",
-                "lv1",
-                "uts",
-                "pr readiness",
-                "release readiness",
-                "pr creation",
-                "merge",
-                "release",
-            )
+    )
+    normalized_next_phase = governance._normalized_planning_value(normal_phase)
+    phase_advancement_values = " ".join(
+        (
+            active_rar_values,
+            normalized_next_phase,
         )
-        require(
-            not (advancement_requested and active_rar_context),
-            "Normal Phase Progression Blocked By RAR",
+    )
+    concrete_advancement_requested = any(
+        token in phase_advancement_values
+        for token in (
+            "branch readiness",
+            "br1",
+            "br2",
+            "bp1",
+            "bp2",
+            "bp3",
+            "workstream",
+            "hardening",
+            "live validation",
+            "lv1",
+            "uts",
+            "pr readiness",
+            "release readiness",
+            "pr creation",
+            "merge",
+            "release",
         )
+    )
+    advancement_requested = (
+        "normal phase progression" in normalized_next_phase
+        or concrete_advancement_requested
+    )
+    require(
+        not (advancement_requested and active_rar_context),
+        "Normal Phase Progression Blocked By RAR",
+    )
     return failures
 
 
@@ -6146,6 +6189,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing historical issue candidate disposition"
+        )
+
+    historical_none_prose_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_HISTORICAL_NONE_PROSE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        historical_none_prose_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject historical issue candidate hidden by none prose"
         )
 
     current_issue_candidate_untabled_rar_failures = (

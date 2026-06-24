@@ -40,9 +40,8 @@ Repair / Waiver / Blocker: RAR USER Review Gate remains active until USER review
 Validation Summary: fixture validation should fail because a concrete phase is named while RAR remains active.
 USER Packet Path: C:\Nexus USER\FAM-006 contains the deterministic RAR review packet for USER inspection.
 USER Packet ZIP Path: timestamped upload packet at C:\Nexus USER\FAM-006-20260620-120000.zip.
-Exact Next USER Decision: USER reviews RAR issue candidates and decides repair, waive, defer, or route.
+Exact Next USER Decision: proceed to PR Readiness Stage 1 after local validation.
 No Repo Live-State Tracking: active RAR rows stay in C:\Nexus Governance State or USER packet evidence.
-Next Legal Phase: PR Readiness Stage 1 after local validation.
 
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
