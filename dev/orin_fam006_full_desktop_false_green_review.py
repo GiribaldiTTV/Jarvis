@@ -207,8 +207,8 @@ def _render_recording_option(option_id: str, media_dir: Path) -> str:
             "stronger": False,
             "button_h": 32,
             "button_y_offset": 48,
-            "start_w": 132,
-            "log_w": 210,
+            "start_w": 152,
+            "log_w": 228,
             "gap": 12,
         },
         "A3": {
