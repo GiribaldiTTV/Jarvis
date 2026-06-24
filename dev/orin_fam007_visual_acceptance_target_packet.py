@@ -1228,8 +1228,8 @@ def validate_recovery_blocker(packet_dir: Path = PACKET_DIR, zip_path: Path | No
             failures.append("Recovery active copied context does not name final ZIP")
         if str(zip_path) not in udl_text:
             failures.append("Recovery copied UDL does not name final recovery packet")
-        if udl_text.count("F7-UDL-018") != 1:
-            failures.append("Copied UDL must contain F7-UDL-018 exactly once")
+        if udl_text.count("## F7-UDL-018 ") != 1:
+            failures.append("Copied UDL must contain exactly one F7-UDL-018 heading")
         for required in ("MISSING", "not currently preserved", "recovery / retention blocker"):
             if required not in state_text and required not in plan_text:
                 failures.append(f"Recovery copied context missing required blocker wording: {required}")
