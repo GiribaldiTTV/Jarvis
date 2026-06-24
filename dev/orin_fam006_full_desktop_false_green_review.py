@@ -40,6 +40,7 @@ AI_CONTROL_SCREENSHOT = Path(
 
 PRIMARY_REVIEW = "USER Review/FULL_DESKTOP_FALSE_GREEN_REVIEW.md"
 STATUS = "full-desktop-visual-false-green-review"
+EXTERNAL_STATE_SCHEMA = "external-state-v1"
 
 
 def _run_git(args: list[str]) -> str:
@@ -954,6 +955,7 @@ release, or cleanup.
     zip_sha = _sha256(zip_path)
     _write_external_receipt(zip_path, zip_sha)
     manifest = {
+        "External State Schema": EXTERNAL_STATE_SCHEMA,
         "packetRoot": str(PACKET_ROOT),
         "zipPath": str(zip_path),
         "zipSha256": zip_sha,
@@ -977,6 +979,17 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         failures.append(f"expected exactly one timestamped FAM-006 ZIP, found {len(zips)}")
     if (USER_ROOT / "FAM-006.zip").exists():
         failures.append("stable FAM-006.zip is forbidden for this packet")
+    manifest_path = EXTERNAL_ROOT / "full_desktop_false_green_review_manifest.json"
+    if not manifest_path.exists():
+        failures.append("full desktop false-green external manifest is missing")
+    else:
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            failures.append(f"full desktop false-green external manifest is invalid JSON: {exc}")
+        else:
+            if manifest.get("External State Schema") != EXTERNAL_STATE_SCHEMA:
+                failures.append("full desktop false-green external manifest missing external-state schema")
     if not (KNOWN_BAD_ROOT / REJECTED_PACKET.name).exists():
         failures.append("121535 known-bad corpus copy is missing")
     elif _sha256(KNOWN_BAD_ROOT / REJECTED_PACKET.name) != REJECTED_SHA256:
