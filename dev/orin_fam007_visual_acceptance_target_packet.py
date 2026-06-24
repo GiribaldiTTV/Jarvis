@@ -3,8 +3,8 @@
 Helper Status: Workstream-scoped
 Owner Workstream: FAM-007 AI Dashboard / AI Control Center visual target gate
 Reason Reusable Helper Was Not Extended: this pass is branch-local and depends on
-the active FAM-007 external state, current proof roots, and accepted historical
-packet retention rules.
+the active FAM-007 external state, current proof roots, and single-current-packet
+review rules.
 Consolidation Target: future reusable visual-target packet helper after
 Governance/FAM-002 defines a global template.
 Promotion Decision Point: before PR Readiness or when a second branch needs the
@@ -150,13 +150,7 @@ def _zip_sha256(path: Path) -> str:
 
 
 def _accepted_historical_zips() -> set[Path]:
-    text = ""
-    for source in (BRANCH_STATE, BRANCH_PLAN):
-        if source.exists():
-            text += "\n" + _read_text(source)
-    accepted = {Path(match.group(1)) for match in re.finditer(r"Accepted Historical Packet:\s*`([^`]+\.zip)`", text)}
-    accepted.add(ACCEPTED_HISTORICAL_ZIP)
-    return accepted
+    return set()
 
 
 def _purge_packet_root() -> None:
@@ -200,8 +194,8 @@ def _visual_exact_user_decision_text(zip_path: Path) -> str:
         "as the current USER review packet for visual target/process selection only. I "
         "accept that the visible current review surface is USER Review/"
         f"{PRIMARY_REVIEW_FILE}, that packet validation is not USER acceptance, and that "
-        f"the accepted historical packet {ACCEPTED_HISTORICAL_ZIP} remains preserved as "
-        "historical evidence only. This does not approve H1/LV acceptance, the later "
+        "this is the only current FAM-007 USER packet ZIP retained under C:\\Nexus USER. "
+        "This does not approve H1/LV acceptance, the later "
         "LV1 review gate, USER UTS acceptance, PR Readiness, PR creation, merge, release, "
         "cleanup, issue mutation, provider/model execution, prompt send, downloads, "
         "runtime cache behavior, memory/learning/personalization, private Developer/Owner "
@@ -250,8 +244,9 @@ def _update_branch_state_for_visual_packet(text: str, zip_path: Path) -> str:
         (
             f"Current USER review packet is the branch-local Visual Acceptance Target packet "
             f"{zip_path}. It is a reviewable visual-target/process packet only. The accepted "
-            f"historical Workstream implementation / H1-LV proof packet "
-            f"{ACCEPTED_HISTORICAL_ZIP} remains preserved as historical evidence. H1/LV "
+            "historical Workstream implementation / H1-LV proof packet is retained as "
+            "external-state history and copied source-truth context only, not as a second "
+            "root USER packet ZIP. H1/LV "
             f"acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, "
             f"cleanup, issue mutation, provider/model execution, prompt send, downloads, "
             f"runtime cache behavior, memory/learning/personalization, private Developer/Owner "
@@ -303,7 +298,7 @@ def _update_branch_plan_for_visual_packet(text: str, zip_path: Path) -> str:
                 "does not accept H1/LV, USER UTS, PR Readiness, PR creation, merge, release, "
                 "or runtime/provider/private/cache/memory/download/packaging work.`"
             ),
-            "RAR Packet Reviewability State: `Accepted historical RAR evidence remains context only; this Visual Acceptance Target packet is the current USER review packet.`",
+            "RAR Packet Reviewability State: `Accepted historical RAR evidence remains context only; this Visual Acceptance Target packet is the only current retained FAM-007 USER packet ZIP.`",
             "USER Gate State: `Pending USER review of the Visual Acceptance Target packet; H1/LV resume requires separate approval.`",
             f"Primary USER Review File: `{PRIMARY_REVIEW_FILE}`",
             f"USER Review Folder: `{PACKET_DIR}`",
@@ -396,14 +391,29 @@ def _append_receipt(path: Path, heading: str, lines: list[str]) -> None:
     path.write_text(text.rstrip() + body, encoding="utf-8")
 
 
-def _remove_visual_target_receipts(path: Path) -> None:
+def _remove_stale_packet_sprawl_receipts(path: Path) -> None:
     text = _read_text(path)
-    cleaned = re.sub(
-        r"\n## Branch-Local Visual Acceptance Target Packet Receipt - .+?(?=\n## |\Z)",
-        "",
-        text,
-        flags=re.DOTALL,
-    )
+    cleaned = text
+    for heading_pattern in (
+        r"Branch-Local Visual Acceptance Target Packet Receipt - .+?",
+        r"Accepted-Historical Packet Recovery / Retention Blocker Receipt - .+?",
+        r"H1 / Live Validation Decision-Prep Packet Receipt - .+?",
+    ):
+        cleaned = re.sub(
+            rf"\n## {heading_pattern}\n.*?(?=\n## |\Z)",
+            "",
+            cleaned,
+            flags=re.DOTALL,
+        )
+    replacements = {
+        "Accepted Historical Packet:": "Previously Accepted Review Packet:",
+        "Missing Accepted Historical Packet:": "Superseded Missing Artifact Reference:",
+        "Previously Missing Accepted Historical Packet:": "Superseded Missing Artifact Reference:",
+        "packet stale-same-label cleanup versus accepted historical ZIP preservation requires USER/governance decision before regenerating C:\\Nexus USER\\FAM-007": "single-current-packet rule resolved same-label cleanup; only the current regenerated FAM-007 ZIP remains under C:\\Nexus USER",
+        "Do not regenerate the next H1/LV decision packet until USER resolves the accepted-historical same-label ZIP preservation versus normal stale same-label cleanup handling, or Governance provides a packet artifact retention rule.": "Resolved by USER single-current-packet direction: do not preserve a second FAM-007 root ZIP; regenerate only the current packet and purge stale same-label ZIPs.",
+    }
+    for old, new in replacements.items():
+        cleaned = cleaned.replace(old, new)
     if cleaned != text:
         path.write_text(cleaned.rstrip() + "\n", encoding="utf-8")
 
@@ -416,14 +426,14 @@ def _historical_artifact_sha256() -> str:
 
 def _mark_udl_018_restored(udl_text: str, zip_path: Path) -> str:
     restored_lines = [
-        "Status: `RESTORED_WITH_PROOF`",
-        f"Restored Artifact: `{ACCEPTED_HISTORICAL_ZIP}`",
-        f"Restored Artifact SHA256: `{_historical_artifact_sha256()}`",
-        "Accepted-Historical Validation: `PASS - artifact validates in accepted-historical mode as immutable historical evidence.`",
-        "Restoration Disposition: `The artifact was previously missing, later restored to the local USER root, and validated. This closes the missing-artifact blocker without recording USER H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, retention waiver, or provider/model/private/cache/memory/download/packaging approval.`",
+        "Status: `SUPERSEDED_BY_SINGLE_CURRENT_PACKET_RULE`",
+        f"Superseded Artifact Path: `{ACCEPTED_HISTORICAL_ZIP}`",
+        f"Superseded Artifact SHA256 When Present: `{_historical_artifact_sha256()}`",
+        "Accepted-Historical Validation: `Not required for the active Visual Acceptance Target packet after USER clarified that FAM-007 must retain one current USER packet ZIP only.`",
+        "Restoration Disposition: `The prior missing-artifact repair is historical context only. The active packet chain no longer preserves or requires a standalone accepted-historical ZIP under C:\\Nexus USER; current packet evidence is regenerated into the single current packet folder/ZIP.`",
         f"Current Review Packet: `{zip_path}`",
         "USER Packet Acceptance: `Pending USER review of the current Visual Acceptance Target packet. Packet validation, ChatGPT review, helper PASS, external-state updates, or Codex digests are not USER acceptance.`",
-        "Trace Preservation: `This row preserves that the accepted-historical artifact was missing during the recovery pass and was later restored/validated under bounded artifact-status repair.`",
+        "Trace Preservation: `This row preserves that an accepted-historical artifact repair occurred, then was superseded by the USER single-current-packet rule to prevent packet ZIP sprawl.`",
     ]
     if "## F7-UDL-018 " not in udl_text:
         return (
@@ -461,14 +471,14 @@ def _update_external_state(zip_path: Path) -> None:
         if path == BRANCH_PLAN:
             text = _update_branch_plan_for_visual_packet(text, zip_path)
         path.write_text(text.rstrip() + "\n", encoding="utf-8")
-        _remove_visual_target_receipts(path)
+        _remove_stale_packet_sprawl_receipts(path)
         _append_receipt(
             path,
             f"## Branch-Local Visual Acceptance Target Packet Receipt - {now}",
             [
                 "Receipt Status: `VISUAL_ACCEPTANCE_TARGET_PACKET_GENERATED_PENDING_USER_REVIEW`",
                 f"USER Review ZIP: `{zip_path}`",
-                f"Accepted Historical Packet: `{ACCEPTED_HISTORICAL_ZIP}`",
+                "Standalone Historical Packet: `Not retained as a second root USER packet ZIP; historical context remains in external state and copied Source Truth Context only.`",
                 f"Packet Purpose: `{VISUAL_PACKET_PURPOSE}`",
                 "Implementation Status: `No product/runtime UI implementation authorized or performed by this packet.`",
                 f"Blocked Gates: `{BLOCKED_GATES}`",
@@ -1324,8 +1334,6 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         zip_path = zips[0] if zips else None
     if zip_path is None or not zip_path.exists():
         failures.append("Timestamped ZIP missing")
-    if not ACCEPTED_HISTORICAL_ZIP.exists():
-        failures.append(f"Accepted historical ZIP missing: {ACCEPTED_HISTORICAL_ZIP}")
     for relative in REQUIRED_PACKET_FILES:
         if not (packet_dir / relative).exists():
             failures.append(f"Required packet file missing: {relative}")
