@@ -307,17 +307,17 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "copy": "Tray; Quick Access",
         "font": "10-15px compact rail",
         "text": "muted cyan/white",
-        "background": "transparent rail",
-        "border": "right divider",
-        "effects": "no fake future categories",
-        "spacing": "136px slim rail",
-        "hitbox": "left column",
-        "icon_label": "category and selected page label",
-        "states": "Quick Access selected",
-        "a11y": "Open Quick Access Settings",
+        "background": "integrated dark navigation well",
+        "border": "subtle cyan divider, splitter handle",
+        "effects": "no fake future categories; selected parent carries child focus",
+        "spacing": "resizable 124-238px rail",
+        "hitbox": "left splitter pane",
+        "icon_label": "small parent T icon, child Q icon, compact expander",
+        "states": "default, active child, collapsed parent, narrow overflow, wide pane",
+        "a11y": "Open Quick Access Settings; Resize Global Settings navigation pane",
         "comparator": "dense settings navigation grammar",
-        "proof": "04_left_settings_organizer.png",
-        "checks": "left navigation settings organizer;Tray parent plus Quick Access child settings IA;selectable Tray parent page",
+        "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png; 04d_left_pane_narrow_horizontal_scroll.png; 04e_left_pane_wide.png",
+        "checks": "left navigation settings organizer;Tray parent plus Quick Access child settings IA;selectable Tray parent page;left navigation active child proof;left navigation collapsed proof;left navigation expanded proof;left pane narrow horizontal overflow proof;left pane wide resize proof;left pane vertical overflow source-truth disposition",
     },
     {
         "id": "F3GS-008",
@@ -335,12 +335,12 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "effects": "hover background",
         "spacing": "compact nav row",
         "hitbox": "row with selected button",
-        "icon_label": "small gear mark plus main/subcategory labels",
-        "states": "selected, hover/focus feasible",
+        "icon_label": "small parent/child identifiers plus main/subcategory labels",
+        "states": "selected, parent contains selected child, parent-only selected after collapse",
         "a11y": "Open Quick Access Settings",
         "comparator": "settings nav row, not CTA card",
-        "proof": "04_left_settings_organizer.png",
-        "checks": "left navigation settings organizer",
+        "proof": "04_left_settings_organizer.png; 04a_left_nav_active_child.png; 04b_left_nav_collapsed.png; 04c_left_nav_expanded.png",
+        "checks": "left navigation settings organizer;left navigation active child proof;left navigation collapsed proof;left navigation expanded proof",
     },
     {
         "id": "F3GS-009",
@@ -740,21 +740,21 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "fam": "FAM-003",
         "code": "desktop/desktop_renderer.py::residentAccessQuickSlotRoutePopup",
         "role": "bounded route selection",
-        "rule": "UIREF-003",
-        "copy": "route labels with future-gated suffixes where applicable",
+        "rule": "UIREF-003; UIREF-005",
+        "copy": "route labels with future-gated suffixes where applicable; Tray; Quick Access",
         "font": "popup items",
         "text": "#c1d5d0",
-        "background": "#08121e",
-        "border": "#2b7485",
-        "effects": "selection highlight",
-        "spacing": "maximum height 178",
-        "hitbox": "bounded popup",
-        "icon_label": "list rows",
-        "states": "open list",
-        "a11y": "combo list",
-        "comparator": "dark selector list",
-        "proof": "07_dropdown_list_state.png",
-        "checks": "dropdown/list state screenshot saved;dropdown/list state is not white/native-light",
+        "background": "#08121e dropdown; integrated nav scroll area",
+        "border": "#2b7485 dropdown; muted cyan scrollbars",
+        "effects": "selection highlight; bounded overflow",
+        "spacing": "maximum popup height 178; 124px narrow nav viewport",
+        "hitbox": "bounded popup and left navigation scroll area",
+        "icon_label": "list rows and navigation child rows",
+        "states": "open list, left-pane horizontal overflow, vertical overflow disposition",
+        "a11y": "combo list; Global Settings navigation list",
+        "comparator": "dark selector list and compact settings navigation overflow",
+        "proof": "07_dropdown_list_state.png; 04d_left_pane_narrow_horizontal_scroll.png",
+        "checks": "dropdown/list state screenshot saved;dropdown/list state is not white/native-light;left pane narrow horizontal overflow proof;left pane vertical overflow source-truth disposition",
     },
     {
         "id": "F3GS-027",
@@ -865,11 +865,11 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "spacing": "anchored to lower-right frame",
         "hitbox": "18x18 resize affordance",
         "icon_label": "accessible name Resize Global Settings",
-        "states": "default, resized, minimum-size",
-        "a11y": "Resize Global Settings",
+        "states": "default, resized, minimum-size, narrow/wide left pane",
+        "a11y": "Resize Global Settings; Resize Global Settings navigation pane",
         "comparator": "UIREF-001 top-level resizable window expectation",
-        "proof": "03b_window_resized.png; 03c_window_minimum_size.png",
-        "checks": "window resize/minimum-size proof",
+        "proof": "03b_window_resized.png; 03c_window_minimum_size.png; 04d_left_pane_narrow_horizontal_scroll.png; 04e_left_pane_wide.png",
+        "checks": "window resize/minimum-size proof;left pane narrow horizontal overflow proof;left pane wide resize proof",
     },
 )
 
@@ -1006,7 +1006,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current repair route: VAT-OPT-G2 is USER_ACCEPTED as a high-fidelity guide/template; this run validates the bounded G2-v14 implementation-match repair while preserving USER-operated LV1 retest as pending.",
+        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 USER-fail v15 repair for splitter-backed navigation, stronger chrome/control proof, compact row grouping, and renewed USER retest readiness only.",
         "",
         "## Results",
         "",
@@ -1051,6 +1051,12 @@ def _write_fail_capable_defect_ledger(
         "window resize/minimum-size proof",
         "left navigation settings organizer",
         "left rail slim row metrics",
+        "left navigation active child proof",
+        "left navigation collapsed proof",
+        "left navigation expanded proof",
+        "left pane narrow horizontal overflow proof",
+        "left pane wide resize proof",
+        "left pane vertical overflow source-truth disposition",
         "selectable Tray parent page",
         "Tray parent contains no Quick Access overview or open row",
         "Tray parent plus Quick Access child settings IA",
@@ -1059,6 +1065,7 @@ def _write_fail_capable_defect_ledger(
         "no internal telemetry text",
         "no fake overview/status strip",
         "readable compact quick-slot controls",
+        "quick-slot row grouping has no excessive gutter",
         "route selector is compact and bounded",
         "state text is non-action plain label",
         "dropdown/list state is not white/native-light",
@@ -1179,8 +1186,8 @@ def _write_artifact_ledger(
         "## Scope Coverage Manifest",
         "",
         "- Reviewed files: desktop/desktop_renderer.py, desktop/resident_access.py, dev/orin_fam003_settings_repair_visual_validation.py.",
-        "- Reviewed windows/surfaces: Global Settings shell, chrome/control cluster, left organizer, selectable Tray parent page, Quick Access child page, slot rows, dropdown/list, row actions, footer, dirty/default/save/close-guard states.",
-        "- Reviewed artifacts: default screenshot, chrome/control screenshot, focus/pressed screenshot, left organizer screenshot, Tray parent page screenshot, row-action screenshot, dirty screenshot, dropdown/list screenshot, close-guard screenshot, defaults-staged screenshot, max-slot screenshot, saved-state screenshot, accepted AI Control Center reference screenshots, and contact sheet.",
+        "- Reviewed windows/surfaces: Global Settings shell, chrome/control cluster, splitter-backed left organizer, parent expand/collapse, pane narrow/default/wide states, selectable Tray parent page, Quick Access child page, slot rows, dropdown/list, row actions, footer, dirty/default/save/close-guard states.",
+        "- Reviewed artifacts: default screenshot, chrome/control screenshot, focus/pressed screenshot, left organizer default/active/collapsed/expanded/narrow/wide screenshots, Tray parent page screenshot, row-action screenshot, dirty screenshot, dropdown/list screenshot, close-guard screenshot, defaults-staged screenshot, max-slot screenshot, saved-state screenshot, accepted AI Control Center reference screenshots, and contact sheet.",
         "- Excluded: full app-wide settings framework, FAM-006 HUD internals, FAM-007 AI/provider/privacy internals, FAM-008 installer/startup/shortcut/update/packaging behavior, and sibling worktree UI. Exclusion reason: outside current FAM-003 bounded repair.",
         "- Sampling: no element-group sampling inside the owned Global Settings / Quick Access surface; every visible owned/touched element group in that surface has a row below.",
         "",
@@ -1225,6 +1232,8 @@ def _write_artifact_ledger(
                         "Global Settings shell",
                         "chrome/control cluster",
                         "left settings organizer",
+                        "left settings organizer expanded/collapsed states",
+                        "left pane narrow/default/wide states",
                         "selectable Tray parent page",
                         "Quick Access child page",
                         "slot rows",
@@ -1311,31 +1320,35 @@ def main() -> int:
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 740 <= width <= 790 and 310 <= height <= 335,
+            default_ok and 790 <= width <= 820 and 330 <= height <= 350,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "architecture-first Global Settings geometry",
-            740 <= width <= 790 and 310 <= height <= 335,
+            790 <= width <= 820 and 330 <= height <= 350,
             f"window={width}x{height}; required compact settings shell, not old sparse Quick Access utility form",
         )
     )
     rows.append(
         (
             "settings shell fills the window intentionally",
-            width >= 740
+            width >= 790
             and height <= 365
-            and 118 <= dialog.nav_shell.width() <= 126
+            and 148 <= dialog.nav_shell.width() <= 238
+            and getattr(dialog, "settings_splitter", None) is not None
+            and dialog.settings_splitter.handleWidth() == 6
             and dialog.tray_nav_item.isVisible()
             and dialog.tray_nav_button.isVisible()
+            and dialog.tray_expand_button.isVisible()
+            and dialog.tray_expand_button.text() == "v"
             and dialog.subpage_nav_rail.isVisible()
             and dialog.settings_page_frame.isVisible()
             and dialog.quick_slot_container.isVisible()
-            and dialog.quick_slot_container.height() >= 135
+            and dialog.quick_slot_container.height() >= 160
             and default_footer_gap <= 42,
-            f"window={width}x{height}; nav_width={dialog.nav_shell.width()}; tray_visible={dialog.tray_nav_item.isVisible()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; page_visible={dialog.settings_page_frame.isVisible()}; slot_panel_height={dialog.quick_slot_container.height()}; footer_gap={default_footer_gap}",
+            f"window={width}x{height}; nav_width={dialog.nav_shell.width()}; splitter_handle={getattr(dialog, 'settings_splitter', None).handleWidth() if getattr(dialog, 'settings_splitter', None) is not None else '<missing>'}; tray_visible={dialog.tray_nav_item.isVisible()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; page_visible={dialog.settings_page_frame.isVisible()}; slot_panel_height={dialog.quick_slot_container.height()}; footer_gap={default_footer_gap}",
         )
     )
     rows.append(("default surface is not white/native-light", light_ratio < 0.20, f"light_pixel_ratio={light_ratio:.3f}"))
@@ -1449,10 +1462,10 @@ def main() -> int:
             and min_ok
             and resized_width >= 830
             and resized_height >= 350
-            and min_width >= 760
-            and min_height >= 320
+            and min_width >= 800
+            and min_height >= 340
             and dialog.resize_grip.isVisible()
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x320-v14",
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-splitter-minimum-800x340-v15",
             f"resized={resized_width}x{resized_height}; min={min_width}x{min_height}; grip_visible={dialog.resize_grip.isVisible()}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -1482,13 +1495,18 @@ def main() -> int:
             and dialog.quick_access_nav_item.property("settingsNavDensity") == "two-level-subpage-row"
             and dialog.quick_access_nav_item.property("settingsNavIdentity") == "ndai-signal-leaf"
             and dialog.nav_shell.property("settingsShellIdentity") == "ndai-slim-global-settings"
+            and dialog.nav_scroll_area.horizontalScrollBarPolicy() == Qt.ScrollBarAsNeeded
+            and dialog.nav_scroll_area.verticalScrollBarPolicy() == Qt.ScrollBarAsNeeded
+            and dialog.tray_expand_button.text() == "v"
+            and dialog.tray_nav_icon.text() == "T"
+            and dialog.quick_access_nav_icon.text() == "Q"
             and set(dialog._nav_buttons) == {"tray", "quick_access"}
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_caption.text() == ""
             and not dialog.quick_access_nav_caption.isVisible()
-            and 118 <= dialog.nav_shell.width() <= 126
+            and 148 <= dialog.nav_shell.width() <= 238
             and not dialog.nav_boundary.isVisible(),
-            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
+            f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; expander={dialog.tray_expand_button.text()!r}; icons={dialog.tray_nav_icon.text()!r}/{dialog.quick_access_nav_icon.text()!r}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
         )
     )
     tray_nav_height = dialog.tray_nav_item.height()
@@ -1500,12 +1518,135 @@ def main() -> int:
             and tray_nav_height <= 24
             and quick_nav_height <= 24
             and dialog.tray_nav_indicator.width() <= 2
-            and dialog.quick_access_nav_icon.width() <= 6
+            and dialog.tray_nav_icon.width() <= 18
+            and dialog.quick_access_nav_icon.width() <= 16
             and dialog.tray_nav_item.property("settingsNavDensity") == "slim-parent-row"
             and dialog.quick_access_nav_item.property("settingsNavDensity") == "two-level-subpage-row",
-            f"tray_row={tray_nav_height}; quick_row={quick_nav_height}; indicator={dialog.tray_nav_indicator.width()}x{dialog.tray_nav_indicator.height()}; icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}; nav_width={dialog.nav_shell.width()}",
+            f"tray_row={tray_nav_height}; quick_row={quick_nav_height}; indicator={dialog.tray_nav_indicator.width()}x{dialog.tray_nav_indicator.height()}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}; nav_width={dialog.nav_shell.width()}",
         )
     )
+
+    active_child_path = log_dir / "04a_left_nav_active_child.png"
+    active_child_ok, _, _ = _capture(
+        dialog.nav_shell,
+        active_child_path,
+        artifacts,
+        surface="left settings organizer",
+        state="expanded / Quick Access child selected",
+    )
+    rows.append(
+        (
+            "left navigation active child proof",
+            active_child_ok
+            and dialog._focus == "quick_access"
+            and dialog.tray_nav_item.property("navState") == "contains-selected"
+            and dialog.quick_access_nav_item.property("navState") == "selected"
+            and dialog.subpage_nav_rail.isVisible(),
+            f"{active_child_path}; focus={dialog._focus}; tray_state={dialog.tray_nav_item.property('navState')!r}; child_state={dialog.quick_access_nav_item.property('navState')!r}; subpage_visible={dialog.subpage_nav_rail.isVisible()}",
+        )
+    )
+
+    dialog._toggle_tray_children()
+    app.processEvents()
+    collapsed_path = log_dir / "04b_left_nav_collapsed.png"
+    collapsed_ok, _, _ = _capture(
+        dialog.nav_shell,
+        collapsed_path,
+        artifacts,
+        surface="left settings organizer",
+        state="Tray group collapsed",
+    )
+    rows.append(
+        (
+            "left navigation collapsed proof",
+            collapsed_ok
+            and dialog._focus == "tray"
+            and not dialog.subpage_nav_rail.isVisible()
+            and dialog.tray_expand_button.text() == ">"
+            and dialog.tray_nav_item.property("navState") == "selected",
+            f"{collapsed_path}; focus={dialog._focus}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; expander={dialog.tray_expand_button.text()!r}; tray_state={dialog.tray_nav_item.property('navState')!r}",
+        )
+    )
+
+    dialog._toggle_tray_children()
+    dialog.set_focus("quick_access")
+    app.processEvents()
+    expanded_path = log_dir / "04c_left_nav_expanded.png"
+    expanded_ok, _, _ = _capture(
+        dialog.nav_shell,
+        expanded_path,
+        artifacts,
+        surface="left settings organizer",
+        state="Tray group expanded",
+    )
+    rows.append(
+        (
+            "left navigation expanded proof",
+            expanded_ok
+            and dialog._focus == "quick_access"
+            and dialog.subpage_nav_rail.isVisible()
+            and dialog.tray_expand_button.text() == "v",
+            f"{expanded_path}; focus={dialog._focus}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; expander={dialog.tray_expand_button.text()!r}",
+        )
+    )
+
+    dialog.settings_splitter.setSizes([124, 680])
+    app.processEvents()
+    narrow_path = log_dir / "04d_left_pane_narrow_horizontal_scroll.png"
+    narrow_ok, narrow_width, narrow_height = _capture(
+        dialog.nav_shell,
+        narrow_path,
+        artifacts,
+        surface="left settings organizer",
+        state="narrow pane / horizontal overflow available",
+    )
+    hbar_max = dialog.nav_scroll_area.horizontalScrollBar().maximum()
+    rows.append(
+        (
+            "left pane narrow horizontal overflow proof",
+            narrow_ok
+            and 120 <= dialog.nav_shell.width() <= 132
+            and hbar_max > 0
+            and dialog.nav_content.width() >= 150,
+            f"{narrow_path} ({narrow_width}x{narrow_height}); nav_width={dialog.nav_shell.width()}; nav_content_width={dialog.nav_content.width()}; hbar_max={hbar_max}",
+        )
+    )
+
+    dialog.settings_splitter.setSizes([228, 572])
+    app.processEvents()
+    wide_path = log_dir / "04e_left_pane_wide.png"
+    wide_ok, wide_width, wide_height = _capture(
+        dialog.nav_shell,
+        wide_path,
+        artifacts,
+        surface="left settings organizer",
+        state="wide pane",
+    )
+    rows.append(
+        (
+            "left pane wide resize proof",
+            wide_ok
+            and 210 <= dialog.nav_shell.width() <= 238
+            and dialog.subpage_nav_rail.isVisible()
+            and dialog.quick_access_nav_item.isVisible(),
+            f"{wide_path} ({wide_width}x{wide_height}); nav_width={dialog.nav_shell.width()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}",
+        )
+    )
+
+    vbar_max = dialog.nav_scroll_area.verticalScrollBar().maximum()
+    rows.append(
+        (
+            "left pane vertical overflow source-truth disposition",
+            vbar_max == 0
+            and set(dialog._nav_buttons) == {"tray", "quick_access"}
+            and dialog.nav_content.height() <= dialog.nav_scroll_area.viewport().height(),
+            f"vbar_max={vbar_max}; current_real_nav={list(dialog._nav_buttons)}; nav_content_height={dialog.nav_content.height()}; viewport_height={dialog.nav_scroll_area.viewport().height()}; source_truth='current visible Global Settings hierarchy is Tray parent and Quick Access child only; no fake future categories admitted'",
+        )
+    )
+
+    dialog.settings_splitter.setSizes([154, 646])
+    dialog.set_focus("quick_access")
+    app.processEvents()
 
     dialog.set_focus("tray")
     app.processEvents()
@@ -1572,17 +1713,20 @@ def main() -> int:
             and not dialog.section_badge.isVisible()
             and not dialog.section_detail.isVisible()
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-g2-v14"
-            and dialog.property("settingsVisualRepair") == "vat-opt-g2-implementation-match-v14"
-            and dialog.property("referenceDerivedHeader") == "integrated-ndai-settings-window-frame-g2-v14"
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x320-v14"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-resizable-rail-v15"
+            and dialog.property("settingsVisualRepair") == "lv1-user-fail-repair-v15"
+            and dialog.property("referenceDerivedHeader") == "integrated-ndai-settings-window-frame-v15"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-splitter-minimum-800x340-v15"
             and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
             and set(dialog._nav_buttons) == {"tray", "quick_access"}
             and dialog.tray_nav_item.property("settingsCategoryRole") == "selectable-parent-page"
             and dialog.tray_nav_button.text() == "Tray"
+            and dialog.tray_nav_icon.text() == "T"
+            and dialog.tray_expand_button.text() == "v"
             and dialog.quick_access_nav_button.text() == "Quick Access"
+            and dialog.quick_access_nav_icon.text() == "Q"
             and dialog.quick_access_nav_button.isChecked()
             and dialog.slot_count_badge.text() == f"{len(DEFAULT_QUICK_SLOT_ROUTE_IDS)} active of {active_slot_limit}"
             and dialog.slot_count_badge.isVisible()
@@ -1729,13 +1873,13 @@ def main() -> int:
             all(
                 (
                     button.text()
-                    in {"\N{BLACK UP-POINTING TRIANGLE}", "\N{BLACK DOWN-POINTING TRIANGLE}"}
+                    in {"^", "v"}
                     and button.width() <= 28
                     and button.height() <= 26
                 )
                 or (
                     button.objectName() == "residentAccessQuickSlotDelete"
-                    and button.text() == "\N{MULTIPLICATION SIGN}"
+                    and button.text() == "x"
                     and 30 <= button.width() <= 38
                     and button.height() <= 22
                 )
@@ -1767,6 +1911,32 @@ def main() -> int:
                 "route selector is compact and bounded",
                 all(150 <= slot_combo.width() <= 190 and slot_combo.maxVisibleItems() <= 4 for slot_combo in dialog._slot_combos),
                 f"combo_sizes={[(slot_combo.width(), slot_combo.height(), slot_combo.maxVisibleItems()) for slot_combo in dialog._slot_combos]}",
+            )
+        )
+        slot_rows = [
+            widget
+            for widget in dialog.quick_slot_rows.findChildren(type(dialog.quick_slot_container))
+            if widget.objectName() == "residentAccessQuickSlotRow"
+        ]
+        row_gutters: list[int] = []
+        row_widths: list[int] = []
+        for slot_row, slot_combo in zip(slot_rows, dialog._slot_combos):
+            action_cluster = slot_row.findChild(QFrame, "residentAccessQuickSlotActions")
+            if action_cluster is None:
+                row_gutters.append(999)
+                row_widths.append(slot_row.width())
+                continue
+            combo_right = slot_combo.mapTo(slot_row, QPoint(slot_combo.width(), 0)).x()
+            action_left = action_cluster.mapTo(slot_row, QPoint(0, 0)).x()
+            row_gutters.append(max(0, action_left - combo_right))
+            row_widths.append(slot_row.width())
+        rows.append(
+            (
+                "quick-slot row grouping has no excessive gutter",
+                bool(row_gutters)
+                and all(gutter <= 10 for gutter in row_gutters)
+                and all(width <= 330 for width in row_widths),
+                f"row_gutters={row_gutters}; row_widths={row_widths}",
             )
         )
         row_action_path = log_dir / "05_row_action_default_disabled_state.png"
