@@ -75,6 +75,7 @@ REQUIRED_PACKET_FILES = [
     "Review Aids/VISUAL_IMPACT_CLASSIFICATION.md",
     "Review Aids/VISUAL_OPTIONS_PACKET.md",
     "Review Aids/ELEMENT_LEGENDS.md",
+    "Review Aids/ANNOTATION_MANIFEST.md",
     "Review Aids/STATE_COVERAGE_MATRIX.md",
     "Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md",
     "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
@@ -105,6 +106,8 @@ class RenderOption:
     footprint: str
     focused_media: str
     desktop_media: str
+    annotated_focused_media: str
+    annotated_desktop_media: str
     description: str
 
 
@@ -543,6 +546,100 @@ def _draw_card(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], title:
     draw.text((x2 - 166, button_y + 8), "OPEN SURFACE", fill=(226, 245, 249), font=_font(11))
 
 
+ANNOTATION_ELEMENTS = [
+    ("CHROME-001", "cyan box", "NDAI custom window frame / shell"),
+    ("CTRL-001", "yellow circle", "compact window control cluster"),
+    ("TITLE-001", "magenta bracket", "title strip and subtitle copy"),
+    ("PANEL-001", "green box", "category doorway card or panel body"),
+    ("ACTION-001", "amber arrow", "primary open/action button"),
+    ("STATUS-001", "blue bracket", "compact AI/provider/trust status"),
+]
+
+
+def _annotation_targets(width: int, height: int, *, desktop: bool) -> dict[str, tuple[int, int, int, int]]:
+    if desktop:
+        x, y, win_w, win_h = 850, 82, 650, 620
+    else:
+        x, y, win_w, win_h = 48, 48, 650, 620
+    return {
+        "CHROME-001": (x, y, x + win_w, y + win_h),
+        "CTRL-001": (x + win_w - 136, y + 32, x + win_w - 38, y + 76),
+        "TITLE-001": (x + 40, y + 36, x + 430, y + 126),
+        "PANEL-001": (x + 30, y + 168, x + win_w - 30, y + 502),
+        "ACTION-001": (x + win_w - 220, y + 270, x + win_w - 44, y + 486),
+        "STATUS-001": (x + 30, y + 510, x + win_w - 30, y + 674),
+    }
+
+
+def _draw_callout(
+    draw: ImageDraw.ImageDraw,
+    label: str,
+    target: tuple[int, int, int, int],
+    index: int,
+    *,
+    color: tuple[int, int, int],
+    shape: str,
+) -> None:
+    x1, y1, x2, y2 = target
+    draw.rounded_rectangle(target, radius=12, outline=color, width=4)
+    anchor_x = x1 if index % 2 == 0 else x2
+    anchor_y = y1 + max(16, min(44, (y2 - y1) // 3))
+    label_x = max(18, min(x1 - 118 if index % 2 == 0 else x2 + 18, 1450))
+    label_y = max(18, min(y1 + (index % 3) * 18, 820))
+    if label_x > x1:
+        label_x = min(label_x, max(18, x2 + 18))
+    label_box = (label_x, label_y, label_x + 104, label_y + 28)
+    draw.line((anchor_x, anchor_y, label_x + 52, label_y + 28), fill=color, width=3)
+    draw.rounded_rectangle(label_box, radius=10, fill=(1, 14, 23), outline=color, width=3)
+    if shape == "circle":
+        draw.ellipse((label_x + 7, label_y + 7, label_x + 21, label_y + 21), outline=color, width=3)
+    elif shape == "bracket":
+        draw.line((label_x + 8, label_y + 7, label_x + 8, label_y + 21), fill=color, width=3)
+        draw.line((label_x + 8, label_y + 7, label_x + 20, label_y + 7), fill=color, width=3)
+        draw.line((label_x + 8, label_y + 21, label_x + 20, label_y + 21), fill=color, width=3)
+    elif shape == "arrow":
+        draw.polygon([(label_x + 8, label_y + 14), (label_x + 22, label_y + 7), (label_x + 22, label_y + 21)], fill=color)
+    else:
+        draw.rectangle((label_x + 7, label_y + 7, label_x + 21, label_y + 21), outline=color, width=3)
+    draw.text((label_x + 28, label_y + 8), label, fill=(238, 248, 252), font=_font(10))
+
+
+def _annotate_render(source: Path, target: Path, option_id: str, *, desktop: bool) -> list[dict[str, str]]:
+    colors = [
+        (80, 218, 238),
+        (236, 202, 89),
+        (230, 112, 225),
+        (92, 220, 156),
+        (242, 166, 80),
+        (105, 164, 255),
+    ]
+    shapes = ["box", "circle", "bracket", "box", "arrow", "bracket"]
+    with Image.open(source) as image:
+        annotated = image.convert("RGB")
+    draw = ImageDraw.Draw(annotated)
+    targets = _annotation_targets(*annotated.size, desktop=desktop)
+    rows: list[dict[str, str]] = []
+    for index, (element_id, cue, purpose) in enumerate(ANNOTATION_ELEMENTS, start=1):
+        marker_id = f"{option_id}-A{index:02d}"
+        target_box = targets[element_id]
+        color = colors[index - 1]
+        _draw_callout(draw, marker_id, target_box, index, color=color, shape=shapes[index - 1])
+        rows.append(
+            {
+                "option": option_id,
+                "annotation": marker_id,
+                "element": element_id,
+                "cue": cue,
+                "region": f"{target_box[0]},{target_box[1]},{target_box[2]},{target_box[3]}",
+                "purpose": purpose,
+                "file": str(target.relative_to(PACKET_DIR)).replace("\\", "/"),
+            }
+        )
+    target.parent.mkdir(parents=True, exist_ok=True)
+    annotated.save(target)
+    return rows
+
+
 def _draw_option_mockup(path: Path, option: str, title: str, subtitle: str, desktop: bool) -> None:
     width, height = (1600, 900) if desktop else (760, 760)
     img = Image.new("RGB", (width, height), (0, 5, 8))
@@ -579,6 +676,12 @@ def _copy_actual_media() -> list[RenderOption]:
         target = option_root / f"option_a_current_{kind}.png"
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+    focused = option_root / "option_a_current_focused.png"
+    desktop = option_root / "option_a_current_desktop.png"
+    annotated_focused = option_root / "option_a_current_focused_annotated.png"
+    annotated_desktop = option_root / "option_a_current_desktop_annotated.png"
+    _annotate_render(focused, annotated_focused, "OPTION-A", desktop=False)
+    _annotate_render(desktop, annotated_desktop, "OPTION-A", desktop=True)
     return [
         RenderOption(
             "OPTION-A",
@@ -586,6 +689,8 @@ def _copy_actual_media() -> list[RenderOption]:
             "DOORWAY_SHELL",
             "Review Aids/Render Media/Option-A-current-implementation/option_a_current_focused.png",
             "Review Aids/Render Media/Option-A-current-implementation/option_a_current_desktop.png",
+            "Review Aids/Render Media/Option-A-current-implementation/option_a_current_focused_annotated.png",
+            "Review Aids/Render Media/Option-A-current-implementation/option_a_current_desktop_annotated.png",
             "Actual current branch render: compact hub, category doorways, and child/domain window proof carry-in.",
         )
     ]
@@ -618,8 +723,12 @@ def _generate_candidate_media() -> list[RenderOption]:
     for option_id, title, subtitle, folder, footprint in specs:
         focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_focused.png"
         desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_desktop.png"
+        annotated_focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_focused_annotated.png"
+        annotated_desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_desktop_annotated.png"
         _draw_option_mockup(focused, option_id, title, subtitle, desktop=False)
         _draw_option_mockup(desktop, option_id, title, subtitle, desktop=True)
+        _annotate_render(focused, annotated_focused, option_id, desktop=False)
+        _annotate_render(desktop, annotated_desktop, option_id, desktop=True)
         result.append(
             RenderOption(
                 option_id,
@@ -627,6 +736,8 @@ def _generate_candidate_media() -> list[RenderOption]:
                 footprint,
                 str(focused.relative_to(PACKET_DIR)).replace("\\", "/"),
                 str(desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
+                str(annotated_focused.relative_to(PACKET_DIR)).replace("\\", "/"),
+                str(annotated_desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
                 subtitle,
             )
         )
@@ -635,18 +746,41 @@ def _generate_candidate_media() -> list[RenderOption]:
 
 def _options_table(options: list[RenderOption]) -> str:
     rows = [
-        "| Option ID | Surface | Footprint | Authority | Focused Render | Full Desktop / Context Render | USER critique focus |",
-        "| --- | --- | --- | --- | --- | --- | --- |",
+        "| Option ID | Surface | Footprint | Authority | Clean Focused Render | Annotated Focused Render | Clean Desktop / Context Render | Annotated Desktop / Context Render | USER critique focus |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for option in options:
         rows.append(
-            f"| `{option.option_id}` | AI Dashboard / AI Control Center visual acceptance target | `{option.footprint}` | `{option.authority}` | `{option.focused_media}` | `{option.desktop_media}` | {option.description} |"
+            f"| `{option.option_id}` | AI Dashboard / AI Control Center visual acceptance target guide | `{option.footprint}` | `{option.authority}` | `{option.focused_media}` | `{option.annotated_focused_media}` | `{option.desktop_media}` | `{option.annotated_desktop_media}` | {option.description} |"
         )
+    return "\n".join(rows)
+
+
+def _annotation_manifest_table(options: list[RenderOption]) -> str:
+    rows = [
+        "| Option ID | Annotation ID | Element ID | Color + non-color cue | Visual region | Purpose | Annotated file |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for option in options:
+        for image_path, desktop in (
+            (option.annotated_focused_media, False),
+            (option.annotated_desktop_media, True),
+        ):
+            target_path = PACKET_DIR / image_path
+            with Image.open(target_path) as image:
+                targets = _annotation_targets(*image.size, desktop=desktop)
+            for index, (element_id, cue, purpose) in enumerate(ANNOTATION_ELEMENTS, start=1):
+                marker_id = f"{option.option_id}-A{index:02d}"
+                box = targets[element_id]
+                rows.append(
+                    f"| `{option.option_id}` | `{marker_id}` | `{element_id}` | {cue}; visible label `{marker_id}` plus outline/callout line | `{box[0]},{box[1]},{box[2]},{box[3]}` | {purpose} | `{image_path}` |"
+                )
     return "\n".join(rows)
 
 
 def _write_packet_files(options: list[RenderOption]) -> None:
     options_table = _options_table(options)
+    annotation_table = _annotation_manifest_table(options)
     _write_text(
         "START_HERE.md",
         """
@@ -656,14 +790,15 @@ Primary review file: `USER Review/VISUAL_ACCEPTANCE_TARGET_REVIEW.md`
 
 Current gate: branch-local UI/UX Visual Acceptance Target review.
 
-Purpose: review a branch-local process that requires rendered visual targets before future visible UI/UX implementation. This packet does not accept H1/LV, USER UTS, PR Readiness, PR creation, merge, release, or runtime/provider/private/cache/memory/download/packaging work.
+Purpose: review a branch-local process that requires rendered visual targets before future visible UI/UX implementation. A visual target is a planning guide/template candidate, not final implemented product truth by itself. This packet does not accept H1/LV, USER UTS, PR Readiness, PR creation, merge, release, or runtime/provider/private/cache/memory/download/packaging work.
 
 Review order:
 
 1. Open the primary USER Review file.
-2. Inspect the render media under `Review Aids/Render Media`.
-3. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
-4. Review the Draft Branch Visual Acceptance Target. It remains DRAFT until USER accepts it.
+2. Inspect the clean and annotated render media under `Review Aids/Render Media`.
+3. Use `Review Aids/ANNOTATION_MANIFEST.md` and `Review Aids/ELEMENT_LEGENDS.md` to map every callout marker to the exact visual region it identifies.
+4. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
+5. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
 """,
     )
     _write_text(
@@ -671,11 +806,13 @@ Review order:
         f"""
 # FAM-007 Visual Acceptance Target Review
 
-Verdict requested: accept, revise, reject, or hold this branch-local Visual Acceptance Target process.
+Verdict requested: accept, revise, reject, or hold this branch-local Visual Acceptance Target guide process.
 
 ## What This Packet Does
 
-This packet creates a current-branch visual target process for FAM-007 visible UI/UX work. Future visible UI/UX implementation on this branch should not proceed from prose alone. It should first have a rendered visual target substantial enough to judge scale, footprint, spacing, density, hierarchy, controls, state behavior, resize behavior, copy, and relation to accepted Nexus references.
+This packet creates a current-branch visual target guide process for FAM-007 visible UI/UX work. Future visible UI/UX implementation on this branch should not proceed from prose alone. It should first have a rendered visual target substantial enough to judge scale, footprint, spacing, density, hierarchy, controls, state behavior, resize behavior, copy, and relation to accepted Nexus references.
+
+Visual Target Boundary: a USER-accepted visual target is a branch-local guide, comparator, template candidate, or expectation-alignment artifact. It should be as close to the intended product result as practical, but it is not final implemented product truth by itself. Final implementation still requires source-truth reconciliation, code-to-visual proof, validation, and USER review where the current phase requires it.
 
 ## Current Branch Visual Impact Classification
 
@@ -687,7 +824,7 @@ Any future visible UI/UX change on this branch needs a rendered visual target be
 
 1. `Concept Render`: brainstorming only, not source truth.
 2. `Design Candidate Render`: USER selection artifact, substantial and labeled.
-3. `Visual Acceptance Target`: USER-accepted final branch visual contract.
+3. `Visual Acceptance Target`: USER-accepted branch-local visual guide / expectation target.
 4. `Implementation Match Proof`: actual implementation screenshot or video proving the implementation matches the accepted target.
 
 ## Visual Options
@@ -700,7 +837,7 @@ Recommended: promote `OPTION-A` as the draft target basis because it uses actual
 
 ## USER Decision Needed
 
-Decide whether this branch-local process and draft target are accepted for future visible UI/UX changes on this branch.
+Decide whether this branch-local process and draft target guide are accepted, revised, rejected, combined from multiple options, or held for future visible UI/UX changes on this branch.
 
 This decision does not approve H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, cleanup, issue mutation, provider/model execution, prompt send, downloads, runtime cache behavior, memory/learning/personalization, private Developer/Owner setup, installer/shortcut/packaging execution, sibling/Governance mutation, imports, or v1.8.0 work.
 """,
@@ -733,21 +870,35 @@ This decision does not approve H1/LV acceptance, USER UTS acceptance, PR Readine
         """
 # Element Legends
 
-| Element ID | Meaning | Applies To |
-| --- | --- | --- |
-| `CHROME-001` | NDAI custom window chrome / frame | all options |
-| `CTRL-001` | compact window control cluster | all options |
-| `TITLE-001` | title strip and subtitle copy | all options |
-| `PANEL-001` | category doorway card or panel body | all options |
-| `ACTION-001` | primary open/action button | all options |
-| `STATUS-001` | compact AI/provider/trust status | all options |
-| `ROW-001` | state row inside child/detail surface | all options |
-| `SCROLL-001` | scrollbar treatment | options with overflow |
-| `RESIZE-001` | resize affordance / behavior | all product windows |
-| `EMPTY-001` | empty/no-data state | future child surfaces |
-| `ERROR-001` | blocked/error/unavailable state | all options |
+Use this with `Review Aids/ANNOTATION_MANIFEST.md`. Each annotation uses color plus a non-color cue: a stable marker ID, outline shape, and pointer/callout line. Color alone is never the mapping proof.
+
+| Element ID | Meaning | Visible cue in annotated renders | Applies To |
+| --- | --- | --- | --- |
+| `CHROME-001` | NDAI custom window chrome / frame | cyan box with `OPTION-*-A01` marker | all options |
+| `CTRL-001` | compact window control cluster | yellow circle with `OPTION-*-A02` marker | all options |
+| `TITLE-001` | title strip and subtitle copy | magenta bracket with `OPTION-*-A03` marker | all options |
+| `PANEL-001` | category doorway card or panel body | green box with `OPTION-*-A04` marker | all options |
+| `ACTION-001` | primary open/action button | amber arrow with `OPTION-*-A05` marker | all options |
+| `STATUS-001` | compact AI/provider/trust status | blue bracket with `OPTION-*-A06` marker | all options |
+| `ROW-001` | state row inside child/detail surface | future implementation-match proof marker required | child/detail surfaces |
+| `SCROLL-001` | scrollbar treatment | future implementation-match proof marker required | options with overflow |
+| `RESIZE-001` | resize affordance / behavior | future implementation-match proof marker required | all product windows |
+| `EMPTY-001` | empty/no-data state | future implementation-match proof marker required | future child surfaces |
+| `ERROR-001` | blocked/error/unavailable state | future implementation-match proof marker required | all options |
 
 Example review language: `I accept ACTION-001 from OPTION-A, reject PANEL-001 from OPTION-C, and want STATUS-001 revised.`
+""",
+    )
+    _write_text(
+        "Review Aids/ANNOTATION_MANIFEST.md",
+        f"""
+# Annotation Manifest
+
+Purpose: map every visible callout marker in the annotated render files to an exact element ID and visual region. The clean renders remain available beside the annotated renders so the USER can inspect the design without callout overlays.
+
+Annotation Rule: every current visual target option must include color plus a non-color cue such as marker ID, outline shape, bracket, arrow, box, circle, and pointer line. Annotations should identify the region without hiding critical UI content.
+
+{annotation_table}
 """,
     )
     _write_text(
@@ -778,6 +929,8 @@ Target ID: `FAM007-VAT-001`
 
 Target Status: `DRAFT`
 
+Target Boundary: `Branch-local guide/template candidate only; not final implemented product truth by itself.`
+
 Selected Option(s): `Pending USER selection`
 
 Surface Purpose: AI Dashboard / AI Control Center should be a compact top-level AI orientation and control-entry doorway. It should tell the USER what AI exists, what state it is in, what is safe or blocked, and where to go for grouped AI subsystems.
@@ -800,7 +953,7 @@ Status / Error / Empty Rules: provider-visible data, no-provider, blocked instal
 
 Accepted Reference Surfaces: UIREF-001 through UIREF-006; current FAM-007 actual runtime proof is a branch-local candidate, not global template promotion.
 
-Implementation Constraints: no future visible UI/UX implementation on this branch should proceed without USER_ACCEPTED target or source-truth-governed exception.
+Implementation Constraints: no future visible UI/UX implementation on this branch should proceed without USER_ACCEPTED target guide or source-truth-governed exception. Final implementation still requires code-to-visual proof, validation, and USER review where source truth requires it.
 
 Proof Requirements: implementation-match screenshots/video, focused element proof, full desktop/context proof, state coverage, and code-to-visual trace.
 
@@ -808,11 +961,11 @@ LV Gating Rule: Live Validation cannot claim UI green by helper output, screensh
 """,
     )
     _write_text("Review Aids/REJECTED_PATTERNS_LEDGER.md", "# Rejected Patterns Ledger\n\n| Pattern ID | Rejected UI/UX Pattern | Source Option Or Prior Evidence | Reason Rejected | Affected Surface/Class | Future Avoidance Guidance | Source-Truth Impact | Linked USER Feedback |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| `RPL-001` | oversized inner cards | prior AI Control Center repair loops | consumes space and weakens doorway clarity | dashboard/card layout | keep doorway cards compact | branch-local, possible durable candidate | USER visual repair feedback |\n| `RPL-002` | path-dominant or proof-token layout | prior readiness rows | reads like debug/proof instead of product | diagnostics/readiness report | show USER-readable trust copy first | branch-local | USER readability feedback |\n| `RPL-003` | verbose inline helper copy | prior stacked top-level report body | turns hub into workspace | dashboard top level | route detail behind child/domain surface | branch-local and FFV carrydown | LV1 FAIL / IA feedback |\n| `RPL-004` | action buried under status | prior stacked layout | USER cannot see doorway action quickly | category cards | keep one primary launcher/action visible | branch-local | repeated AI Control Center feedback |\n| `RPL-005` | fake workspace for deferred feature | capability/provider/private placeholders | implies implementation that does not exist | future-gated cards | use compact blocked/future-gated copy | branch-local | trust-boundary feedback |\n| `RPL-006` | marker-only or local-path proof | packet false-green incidents | not reviewable or not artifact-of-record proof | USER packets/proof | include real media in ZIP | validation/packet owner | false-green repair receipts |")
-    _write_text("Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md", "# Reusable Design Recipe Template\n\nStatus: `TEMPLATE ONLY - fill after USER accepts a Visual Acceptance Target`\n\n| Field | Value |\n| --- | --- |\n| Accepted surface class |  |\n| Accepted footprint class |  |\n| Token values / dimensions |  |\n| Padding |  |\n| Spacing |  |\n| Button heights |  |\n| Font scale |  |\n| Status chip pattern |  |\n| Title/header grammar |  |\n| Resize behavior |  |\n| Copy pattern |  |\n| State pattern |  |\n| Accepted comparator references |  |\n| Rejected alternatives |  |\n| Future branch reuse notes |  |\n| Proof requirements |  |")
+    _write_text("Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md", "# Reusable Design Recipe Template\n\nStatus: `TEMPLATE ONLY - fill after USER accepts a Visual Acceptance Target guide. This template is not final implemented product truth by itself.`\n\n| Field | Value |\n| --- | --- |\n| Accepted surface class |  |\n| Accepted footprint class |  |\n| Token values / dimensions |  |\n| Padding |  |\n| Spacing |  |\n| Button heights |  |\n| Font scale |  |\n| Status chip pattern |  |\n| Title/header grammar |  |\n| Resize behavior |  |\n| Copy pattern |  |\n| State pattern |  |\n| Accepted comparator references |  |\n| Rejected alternatives |  |\n| Future branch reuse notes |  |\n| Proof requirements |  |")
     _write_text("Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md", "# Source-Truth Conflict Classification\n\n| Candidate Decision | Classification | Disposition |\n| --- | --- | --- |\n| Require rendered visual target before future visible UI implementation on this branch | `BRANCH_LOCAL_VISUAL_DECISION` | legal branch-local process; Governance/global version is candidate only |\n| Treat current FAM-007 actual screenshot as branch-local target candidate | `NO_CONFLICT` | comparator seed only, not global template promotion |\n| Require FAM-002/UIREF comparison for same-class controls | `NO_CONFLICT` | matches Project Vision, FAM-002, UIREF-001 through UIREF-006 |\n| Promote AI Dashboard / AI Control Center as global gold standard | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Add reusable global helper/validator for all branches | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Implement product/runtime UI change in this pass | `USER_DECISION_REQUIRED` | not approved by this packet |")
-    _write_text("Review Aids/GOVERNANCE_CANDIDATE_ONLY.md", "# Governance Candidate Only\n\nCandidate: create a global Visual Acceptance Target process for all future Nexus visible UI/UX work.\n\nReason: FAM-007 and FAM-006 false-green loops show that implementation-first UI work creates repair loops. A global rule should require substantial rendered targets, element legends, state matrices, full desktop/context renders, rejected-pattern ledgers, reusable design recipes, and implementation-match proof before visible UI work can proceed.\n\nApproval Needed: USER-approved Governance/FAM-002 carrier after this branch-local process is reviewed. This FAM-007 pass does not mutate Governance and does not promote a global template.")
-    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, full desktop/context render media, stable element IDs, state coverage, a draft target, rejected-pattern ledger, reusable design recipe template, and packet media included in the ZIP.\n\nNo current-owned UDL row is marked closed by this packet. Existing known-bad packet defects remain preserved as historical false-green evidence.")
-    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, element legend, state matrix, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
+    _write_text("Review Aids/GOVERNANCE_CANDIDATE_ONLY.md", "# Governance Candidate Only\n\nCandidate: create a global Visual Acceptance Target process for all future Nexus visible UI/UX work.\n\nReason: FAM-007 and FAM-006 false-green loops show that implementation-first UI work creates repair loops. A global rule should require substantial rendered targets, annotated and clean render media, annotation manifests, element legends, state matrices, full desktop/context renders, rejected-pattern ledgers, reusable design recipes, and implementation-match proof before visible UI work can proceed.\n\nTemplate Boundary: a global visual target process should say that accepted targets are guides/templates/comparators for implementation alignment, not final product truth by themselves.\n\nApproval Needed: USER-approved Governance/FAM-002 carrier after this branch-local process is reviewed. This FAM-007 pass does not mutate Governance and does not promote a global template.")
+    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, and packet media included in the ZIP.\n\nNo current-owned UDL row is marked closed by this packet. Existing known-bad packet defects remain preserved as historical false-green evidence.")
+    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, annotated renders for each option, annotation manifest mapping marker IDs to visual regions, element legend, state matrix, template-not-endstate wording, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
 
     context_files = {
         "Source Truth Context/current_external_branch_state.md": BRANCH_STATE,
@@ -1144,6 +1297,48 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
                 image.verify()
         except Exception as exc:
             failures.append(f"Image cannot be opened: {image_path}: {exc}")
+    annotation_manifest = packet_dir / "Review Aids" / "ANNOTATION_MANIFEST.md"
+    annotation_text = annotation_manifest.read_text(encoding="utf-8") if annotation_manifest.exists() else ""
+    if not annotation_text:
+        failures.append("Annotation manifest missing or empty")
+    for option_id in ("OPTION-A", "OPTION-B", "OPTION-C"):
+        for index in range(1, len(ANNOTATION_ELEMENTS) + 1):
+            marker_id = f"{option_id}-A{index:02d}"
+            if marker_id not in annotation_text:
+                failures.append(f"Annotation manifest missing marker: {marker_id}")
+    generated_text = ""
+    for relative in (
+        "START_HERE.md",
+        f"USER Review/{PRIMARY_REVIEW_FILE}",
+        "Review Aids/VISUAL_OPTIONS_PACKET.md",
+        "Review Aids/ELEMENT_LEGENDS.md",
+        "Review Aids/ANNOTATION_MANIFEST.md",
+        "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
+        "Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md",
+        "Review Aids/GOVERNANCE_CANDIDATE_ONLY.md",
+        "Review Aids/VALIDATION_SUMMARY.md",
+    ):
+        path = packet_dir / relative
+        if path.exists():
+            generated_text += "\n" + path.read_text(encoding="utf-8")
+    required_boundary_terms = (
+        "not final implemented product truth by itself",
+        "code-to-visual proof",
+        "clean and annotated render media",
+    )
+    for term in required_boundary_terms:
+        if term not in generated_text:
+            failures.append(f"Generated visual packet text missing required boundary wording: {term}")
+    forbidden_final_product_terms = (
+        "final UI",
+        "true end state",
+        "guaranteed final render",
+        "accepted final product",
+        "final branch visual contract",
+    )
+    for term in forbidden_final_product_terms:
+        if term.casefold() in generated_text.casefold():
+            failures.append(f"Generated visual packet text implies final product truth: {term}")
     if zip_path and zip_path.exists():
         folder_entries = {path.relative_to(packet_dir).as_posix() for path in _packet_file_entries()}
         with zipfile.ZipFile(zip_path, "r") as archive:
@@ -1153,6 +1348,11 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
             image_entries = [entry for entry in zip_entries if entry.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp"))]
             if len(image_entries) < 6:
                 failures.append(f"Expected at least 6 ZIP images; found {len(image_entries)}")
+            annotated_entries = [entry for entry in image_entries if "_annotated" in entry]
+            if len(annotated_entries) < 6:
+                failures.append(f"Expected annotated ZIP images for every option render; found {len(annotated_entries)}")
+            if "Review Aids/ANNOTATION_MANIFEST.md" not in zip_entries:
+                failures.append("ZIP missing annotation manifest")
             primary_entries = [entry for entry in zip_entries if entry.startswith("USER Review/") and entry.endswith(".md")]
             if primary_entries != [f"USER Review/{PRIMARY_REVIEW_FILE}"]:
                 failures.append(f"Unexpected primary USER review entries in ZIP: {primary_entries}")
