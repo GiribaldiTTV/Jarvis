@@ -46,10 +46,12 @@ Next Legal Phase: RAR2 Adoption Ledger repair.
 
 | Surface | Element Group | Source File / Code Region | Backend / State Owner | Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | Status | Defect / Gap | Next Legal Action |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| HUD Dashboard | Status row | desktop/desktop_renderer.py hud status row | FAM-006 desktop renderer | focused screenshot packet | UIREF-003 and AI Control Center seed | Match | Match | CONFORMING | None | Continue after review |
 | Recording Studio | Window control cluster | desktop/desktop_renderer.py studio controls | FAM-006 desktop renderer | focused screenshot packet | UIREF-002 and AI Control Center seed | Match | Match | CONFORMING | None | Continue after review | Extra cell |
 
 | Element Class | Implementation Authority | Accepted Reference Set | Invariant Traits | Feature-Specific Traits | Target Surface | Primitive/Template/Reference-Derived/Exception | Evidence | Gap / Issue |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Status row | Accepted Reference | UIREF-003 and FAM-002 | compact status text and backend truth mapping | feature text differs | HUD Dashboard | Reference-Derived | screenshot and code trace | none |
 | Window control cluster | Accepted Reference | UIREF-002, FAM-002, AI Control Center seed | compact placement and Nexus glow | feature text differs | Recording Studio | Reference-Derived | screenshot and code trace | none | Extra cell |
 
 | Issue Candidate | Owner FAM | Surface | Element Group | Defect Class | Evidence | Proposed Carrier | GitHub Issue Mutation Approved? |

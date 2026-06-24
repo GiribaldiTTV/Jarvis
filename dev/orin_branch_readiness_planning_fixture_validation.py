@@ -1941,6 +1941,15 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             real_rows.append(row)
         return real_rows
 
+    def has_malformed_substantive_table_row(
+        rows: list[list[str]], expected_columns: int
+    ) -> bool:
+        return any(
+            len(row) != expected_columns
+            or any(is_placeholder_table_cell(cell) for cell in row[:expected_columns])
+            for row in rows
+        )
+
     def has_real_issue_candidate_row(rows: list[list[str]]) -> bool:
         for row in rows:
             if len(row) != 8:
@@ -1972,13 +1981,21 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 return True
         return False
 
-    code_trace_rows = substantive_rows(table_rows_after_header(code_trace_header), 11)
-    accepted_reference_rows = substantive_rows(
-        table_rows_after_header(accepted_reference_header), 9
-    )
+    raw_code_trace_rows = table_rows_after_header(code_trace_header)
+    raw_accepted_reference_rows = table_rows_after_header(accepted_reference_header)
+    code_trace_rows = substantive_rows(raw_code_trace_rows, 11)
+    accepted_reference_rows = substantive_rows(raw_accepted_reference_rows, 9)
     issue_candidate_rows = table_rows_after_header(issue_candidate_header)
-    require(bool(code_trace_rows), "Code-To-Visual Trace Missing")
-    require(bool(accepted_reference_rows), "Accepted Reference Comparator Missing")
+    require(
+        bool(code_trace_rows)
+        and not has_malformed_substantive_table_row(raw_code_trace_rows, 11),
+        "Code-To-Visual Trace Missing",
+    )
+    require(
+        bool(accepted_reference_rows)
+        and not has_malformed_substantive_table_row(raw_accepted_reference_rows, 9),
+        "Accepted Reference Comparator Missing",
+    )
     issue_candidate_disposition = governance._extract_marker_value(
         text, "Issue Candidate Disposition:"
     )
