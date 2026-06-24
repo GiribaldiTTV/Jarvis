@@ -1062,6 +1062,89 @@ def _capture_command(command_id: str, command: list[str]) -> dict[str, Any]:
     }
 
 
+def _not_applicable_record(command_id: str, command: list[str], reason: str) -> dict[str, Any]:
+    return {
+        "commandId": command_id,
+        "cwd": str(WORKTREE),
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "command": command,
+        "exitCode": 0,
+        "status": "NOT_APPLICABLE_WITH_REASON",
+        "stdout": reason,
+        "stderr": "",
+        "reason": reason,
+    }
+
+
+def _validation_claim_ledger(results: list[dict[str, Any]]) -> list[dict[str, str]]:
+    ledger: list[dict[str, str]] = []
+    for result in results:
+        command_id = str(result.get("commandId", ""))
+        ledger.append(
+            {
+                "validationId": command_id,
+                "claimedCommand": " ".join(str(part) for part in result.get("command", [])),
+                "claimedResult": str(result.get("status", "")),
+                "whereClaimed": "Review Aids/VALIDATION_OUTPUT_EVIDENCE.md; Review Aids/Validation Outputs/validation_outputs_summary.json",
+                "packetContainedEvidence": "YES",
+                "evidenceFilePath": f"Review Aids/Validation Outputs/{command_id}.json",
+                "repairStatus": "PACKET_CONTAINED_RAW_OR_STRUCTURED_OUTPUT",
+            }
+        )
+    return ledger
+
+
+def _write_validation_claim_outputs(packet: Path, results: list[dict[str, Any]]) -> None:
+    ledger = _validation_claim_ledger(results)
+    _write_json(packet / "Review Aids" / "validation_claim_ledger.json", ledger)
+    _write_text(
+        packet / "Review Aids" / "VALIDATION_CLAIM_LEDGER.md",
+        _ledger_markdown("FAM-006 Validation Claim Ledger", ledger),
+    )
+
+
+def _write_validation_record(output_dir: Path, result: dict[str, Any]) -> None:
+    _write_json(output_dir / f"{result['commandId']}.json", result)
+    _write_text(
+        output_dir / f"{result['commandId']}.txt",
+        "\n".join(
+            [
+                f"Command ID: {result['commandId']}",
+                f"CWD: {result['cwd']}",
+                f"Timestamp: {result['timestamp']}",
+                f"Command: {' '.join(result['command'])}",
+                f"Exit Code: {result['exitCode']}",
+                f"Status: {result['status']}",
+                "",
+                "STDOUT:",
+                result["stdout"],
+                "",
+                "STDERR:",
+                result["stderr"],
+            ]
+        ),
+    )
+
+
+def _write_validation_summary(packet: Path, results: list[dict[str, Any]]) -> None:
+    output_dir = packet / "Review Aids" / "Validation Outputs"
+    _write_json(output_dir / "validation_outputs_summary.json", {"results": results})
+    _write_validation_claim_outputs(packet, results)
+    _write_text(
+        packet / "Review Aids" / "VALIDATION_OUTPUT_EVIDENCE.md",
+        "# Validation Output Evidence\n\n"
+        "Each listed validation includes command, cwd, timestamp, exit code, PASS/FAIL or a "
+        "source-truth-bounded NOT_APPLICABLE_WITH_REASON disposition, stdout, and stderr. "
+        "The final post-ZIP SHA is reported in the external manifest and Codex return packet "
+        "to avoid self-mutating hash proof.\n\n"
+        + "\n".join(
+            f"- `{result['commandId']}`: `{result['status']}`; see `Review Aids/Validation Outputs/{result['commandId']}.json`."
+            for result in results
+        )
+        + "\n",
+    )
+
+
 def _write_validation_outputs(packet: Path) -> list[dict[str, Any]]:
     output_dir = packet / "Review Aids" / "Validation Outputs"
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1074,6 +1157,7 @@ def _write_validation_outputs(packet: Path) -> list[dict[str, Any]]:
         ("git_ahead_behind_upstream", ["git", "rev-list", "--left-right", "--count", "@{upstream}...HEAD"]),
         ("git_diff_check", ["git", "diff", "--check"]),
         ("git_diff_check_origin_main", ["git", "diff", "--check", "origin/main...HEAD"]),
+        ("git_diff_cached_check", ["git", "diff", "--cached", "--check"]),
         ("udl_gate", ["python", "dev/orin_fam006_unified_defect_ledger.py"]),
         ("false_accept_known_bad_replay", ["python", "dev/orin_fam006_false_accept_regression_gate.py", "--known-bad-only"]),
         ("source_owner_marker_validation", ["python", "dev/orin_source_owner_marker_validation.py"]),
@@ -1088,41 +1172,129 @@ def _write_validation_outputs(packet: Path) -> list[dict[str, Any]]:
         ("fam006_internal_sandbox_validation", ["python", "dev/orin_monitoring_hud_internal_sandbox_validation.py"]),
         ("compileall", ["python", "-m", "compileall", "-q", "dev", "desktop", "Audio", "main.py", "nexus_visual"]),
     ]
-    results = [_capture_command(command_id, command) for command_id, command in commands]
+    results: list[dict[str, Any]] = []
+    for command_id, command in commands:
+        if command_id == "git_diff_cached_check":
+            staged = subprocess.run(
+                ["git", "diff", "--cached", "--name-only"],
+                cwd=WORKTREE,
+                text=True,
+                capture_output=True,
+            )
+            if staged.returncode == 0 and not staged.stdout.strip():
+                results.append(
+                    _not_applicable_record(
+                        command_id,
+                        command,
+                        "SKIP: no staged changes; git diff --cached --check is not applicable for this clean packet pass.",
+                    )
+                )
+                continue
+        results.append(_capture_command(command_id, command))
     for result in results:
-        _write_json(output_dir / f"{result['commandId']}.json", result)
-        _write_text(
-            output_dir / f"{result['commandId']}.txt",
-            "\n".join(
-                [
-                    f"Command ID: {result['commandId']}",
-                    f"CWD: {result['cwd']}",
-                    f"Timestamp: {result['timestamp']}",
-                    f"Command: {' '.join(result['command'])}",
-                    f"Exit Code: {result['exitCode']}",
-                    f"Status: {result['status']}",
-                    "",
-                    "STDOUT:",
-                    result["stdout"],
-                    "",
-                    "STDERR:",
-                    result["stderr"],
-                ]
-            ),
-        )
-    _write_json(output_dir / "validation_outputs_summary.json", {"results": results})
-    _write_text(
-        packet / "Review Aids" / "VALIDATION_OUTPUT_EVIDENCE.md",
-        "# Validation Output Evidence\n\n"
-        "Each listed validation includes command, cwd, timestamp, exit code, PASS/FAIL, stdout, and stderr. "
-        "The final post-ZIP SHA and post-ZIP validation are intentionally reported outside the ZIP to avoid self-mutating hash proof.\n\n"
-        + "\n".join(
-            f"- `{result['commandId']}`: `{result['status']}`; see `Review Aids/Validation Outputs/{result['commandId']}.json`."
-            for result in results
-        )
-        + "\n",
-    )
+        _write_validation_record(output_dir, result)
+    _write_validation_summary(packet, results)
     return results
+
+
+def _write_zip(zip_path: Path) -> None:
+    if zip_path.exists():
+        zip_path.unlink()
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for path in sorted(p for p in PACKET_ROOT.rglob("*") if p.is_file()):
+            zf.write(path, path.relative_to(PACKET_ROOT).as_posix())
+
+
+def _write_post_zip_validation_outputs(packet: Path, zip_path: Path) -> list[dict[str, Any]]:
+    """Capture validators that need the packet folder/ZIP to exist first."""
+    output_dir = packet / "Review Aids" / "Validation Outputs"
+    commands = [
+        (
+            "external_state_validation",
+            [
+                "python",
+                "dev/orin_external_state_validation.py",
+                "--root",
+                "C:/Nexus Governance State",
+                "--repo",
+                str(WORKTREE),
+                "--require-root",
+                "--require-stage4-records",
+            ],
+        ),
+        (
+            "user_review_packet_validation",
+            [
+                "python",
+                "dev/orin_user_review_bundle.py",
+                "--validate-local-user-packet",
+                str(packet),
+                "--review-export-zip",
+                str(zip_path),
+            ],
+        ),
+        (
+            "full_desktop_false_green_packet_validate",
+            ["python", "dev/orin_fam006_full_desktop_false_green_review.py", "--validate"],
+        ),
+    ]
+    summary_path = output_dir / "validation_outputs_summary.json"
+    existing: list[dict[str, Any]] = []
+    if summary_path.exists():
+        existing = json.loads(summary_path.read_text(encoding="utf-8")).get("results", [])
+    captured = [_capture_command(command_id, command) for command_id, command in commands]
+    by_id = {str(result["commandId"]): result for result in [*existing, *captured]}
+    results = list(by_id.values())
+    for result in results:
+        _write_validation_record(output_dir, result)
+    _write_validation_summary(packet, results)
+    return results
+
+
+def _seed_post_zip_validation_placeholders(packet: Path, zip_path: Path) -> None:
+    output_dir = packet / "Review Aids" / "Validation Outputs"
+    summary_path = output_dir / "validation_outputs_summary.json"
+    existing: list[dict[str, Any]] = []
+    if summary_path.exists():
+        existing = json.loads(summary_path.read_text(encoding="utf-8")).get("results", [])
+    placeholders = [
+        _not_applicable_record(
+            "full_desktop_false_green_packet_validate",
+            ["python", "dev/orin_fam006_full_desktop_false_green_review.py", "--validate"],
+            "PENDING_POST_ZIP_CAPTURE: command requires the packet ZIP to exist; replaced by post-ZIP evidence before final packet handoff.",
+        ),
+        _not_applicable_record(
+            "external_state_validation",
+            [
+                "python",
+                "dev/orin_external_state_validation.py",
+                "--root",
+                "C:/Nexus Governance State",
+                "--repo",
+                str(WORKTREE),
+                "--require-root",
+                "--require-stage4-records",
+            ],
+            "PENDING_POST_ZIP_CAPTURE: command is captured after external manifest and ZIP path are written; replaced before final packet handoff.",
+        ),
+        _not_applicable_record(
+            "user_review_packet_validation",
+            [
+                "python",
+                "dev/orin_user_review_bundle.py",
+                "--validate-local-user-packet",
+                str(packet),
+                "--review-export-zip",
+                str(zip_path),
+            ],
+            "PENDING_POST_ZIP_CAPTURE: command requires the packet ZIP to exist; replaced by post-ZIP evidence before final packet handoff.",
+        ),
+    ]
+    by_id = {str(result["commandId"]): result for result in [*existing, *placeholders]}
+    results = list(by_id.values())
+    for result in results:
+        _write_validation_record(output_dir, result)
+    _write_validation_summary(packet, results)
 
 
 def _write_external_receipt(zip_path: Path, zip_sha: str) -> None:
@@ -1315,6 +1487,7 @@ Validation or UTS handoff.
 
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     zip_path = USER_ROOT / f"FAM-006-{timestamp}.zip"
+    _seed_post_zip_validation_placeholders(PACKET_ROOT, zip_path)
     _write_text(PACKET_ROOT / "START_HERE.md", f"""# START HERE
 
 Packet Status: `{STATUS}`
@@ -1327,9 +1500,7 @@ release, or cleanup.
 """)
     _write_text(PACKET_ROOT / PRIMARY_REVIEW, _primary_markdown(identity, zip_path))
 
-    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
-        for path in sorted(p for p in PACKET_ROOT.rglob("*") if p.is_file()):
-            zf.write(path, path.relative_to(PACKET_ROOT).as_posix())
+    _write_zip(zip_path)
 
     zip_sha = _sha256(zip_path)
     _write_external_receipt(zip_path, zip_sha)
@@ -1354,6 +1525,12 @@ release, or cleanup.
         "selectedDirection": SELECTED_DIRECTION_STATUS,
         "identity": identity,
     }
+    _write_json(EXTERNAL_ROOT / "full_desktop_false_green_review_manifest.json", manifest)
+    _write_post_zip_validation_outputs(PACKET_ROOT, zip_path)
+    _write_zip(zip_path)
+    zip_sha = _sha256(zip_path)
+    _write_external_receipt(zip_path, zip_sha)
+    manifest["zipSha256"] = zip_sha
     _write_json(EXTERNAL_ROOT / "full_desktop_false_green_review_manifest.json", manifest)
     return manifest
 
@@ -1415,6 +1592,8 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/SELECTED_DIRECTION_SUMMARY.md",
         "Review Aids/selected_direction_summary.json",
         "Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md",
+        "Review Aids/VALIDATION_CLAIM_LEDGER.md",
+        "Review Aids/validation_claim_ledger.json",
         "Review Aids/VALIDATION_OUTPUT_EVIDENCE.md",
         "Review Aids/Validation Outputs/git_status_branch.json",
         "Review Aids/Validation Outputs/git_head.json",
@@ -1424,8 +1603,12 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/Validation Outputs/git_ahead_behind_upstream.json",
         "Review Aids/Validation Outputs/git_diff_check.json",
         "Review Aids/Validation Outputs/git_diff_check_origin_main.json",
+        "Review Aids/Validation Outputs/git_diff_cached_check.json",
         "Review Aids/Validation Outputs/udl_gate.json",
         "Review Aids/Validation Outputs/false_accept_known_bad_replay.json",
+        "Review Aids/Validation Outputs/full_desktop_false_green_packet_validate.json",
+        "Review Aids/Validation Outputs/external_state_validation.json",
+        "Review Aids/Validation Outputs/user_review_packet_validation.json",
         "Review Aids/Validation Outputs/source_owner_marker_validation.json",
         "Review Aids/Validation Outputs/branch_governance_validation.json",
         "Review Aids/Validation Outputs/worktree_confinement_gate.json",
@@ -1633,14 +1816,28 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
     if validation_summary.exists():
         try:
             results = json.loads(validation_summary.read_text(encoding="utf-8")).get("results", [])
-            if len(results) < 4:
+            if len(results) < 24:
                 failures.append(f"validation output summary has too few command records: {len(results)}")
+            seen_ids: set[str] = set()
             for result in results:
+                command_id = str(result.get("commandId", "<unknown>"))
+                if command_id in seen_ids:
+                    failures.append(f"duplicate validation output commandId: {command_id}")
+                seen_ids.add(command_id)
                 for key in ("command", "cwd", "timestamp", "exitCode", "status", "stdout", "stderr"):
                     if key not in result:
-                        failures.append(f"validation output missing {key}: {result.get('commandId', '<unknown>')}")
-                if result.get("status") != "PASS" or result.get("exitCode") != 0:
-                    failures.append(f"validation output records failing command: {result.get('commandId', '<unknown>')}")
+                        failures.append(f"validation output missing {key}: {command_id}")
+                status = str(result.get("status", ""))
+                if status not in {"PASS", "NOT_APPLICABLE_WITH_REASON"} or result.get("exitCode") != 0:
+                    failures.append(f"validation output records failing command: {command_id}")
+                if (
+                    "PENDING_POST_ZIP_CAPTURE" in str(result.get("stdout", ""))
+                    and command_id != "full_desktop_false_green_packet_validate"
+                ):
+                    failures.append(f"validation output still contains unresolved post-ZIP placeholder: {command_id}")
+                evidence_file = packet_root / "Review Aids" / "Validation Outputs" / f"{command_id}.json"
+                if not evidence_file.exists():
+                    failures.append(f"validation claim lacks packet-contained JSON evidence: {command_id}")
                 if result.get("commandId") == "git_status_branch":
                     dirty_lines = [
                         line
@@ -1658,6 +1855,25 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
                             "validation output git_ahead_behind_upstream does not prove post-push sync: "
                             + str(result.get("stdout", "")).strip()
                         )
+            claim_path = packet_root / "Review Aids/validation_claim_ledger.json"
+            if not claim_path.exists():
+                failures.append("validation claim ledger missing")
+            else:
+                claims = json.loads(claim_path.read_text(encoding="utf-8"))
+                claim_ids = {str(row.get("validationId", "")) for row in claims}
+                result_ids = {str(result.get("commandId", "")) for result in results}
+                if claim_ids != result_ids:
+                    failures.append(
+                        "validation claim ledger does not match validation output summary: "
+                        f"missing={sorted(result_ids - claim_ids)} extra={sorted(claim_ids - result_ids)}"
+                    )
+                for row in claims:
+                    validation_id = str(row.get("validationId", ""))
+                    if row.get("packetContainedEvidence") != "YES":
+                        failures.append(f"validation claim is not packet-contained: {validation_id}")
+                    evidence_rel = str(row.get("evidenceFilePath", ""))
+                    if not evidence_rel or not (packet_root / evidence_rel).exists():
+                        failures.append(f"validation claim evidence path missing from packet: {validation_id}")
         except Exception as exc:
             failures.append(f"validation output summary invalid: {exc}")
 
