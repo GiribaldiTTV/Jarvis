@@ -32,9 +32,24 @@ BRANCH_SLUG = "feature_fam_007_ai_control_center_readiness_diagnostics"
 EXTERNAL_BRANCH_ROOT = Path(r"C:\Nexus Governance State\branches") / BRANCH_SLUG
 BRANCH_STATE = EXTERNAL_BRANCH_ROOT / "branch_state.md"
 BRANCH_PLAN = EXTERNAL_BRANCH_ROOT / "branch_plan.md"
+UDL_PATH = EXTERNAL_BRANCH_ROOT / "unified_defect_ledger.md"
 USER_ROOT = Path(r"C:\Nexus USER")
 PACKET_DIR = USER_ROOT / WORKTREE_LABEL
 ACCEPTED_HISTORICAL_ZIP = USER_ROOT / "FAM-007-20260623-123429.zip"
+PRIMARY_REVIEW_FILE = "VISUAL_ACCEPTANCE_TARGET_REVIEW.md"
+BLOCKED_GATES = (
+    "H1/LV acceptance; USER UTS acceptance; PR Readiness; PR creation; merge; release; "
+    "cleanup; issue mutation; provider/model execution; prompt send; downloads; runtime "
+    "cache behavior; memory/learning/personalization; private Developer/Owner setup; "
+    "installer/shortcut/packaging execution; sibling/Governance mutation; imports; "
+    "v1.8.0 work."
+)
+VISUAL_PACKET_PURPOSE = (
+    "Branch-local visual acceptance target process and review packet. It creates rendered "
+    "targets, legends, selection ledgers, a draft target, rejected-pattern and reusable-"
+    "recipe templates, and validation evidence before any future visible UI/UX "
+    "implementation."
+)
 PROOF_ROOT = Path(
     r"C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI"
     r"\FAM-007-H4\20260623-112831-child-window"
@@ -146,6 +161,88 @@ def _update_field(text: str, field: str, value: str) -> str:
     return text.rstrip() + "\n" + replacement + "\n"
 
 
+def _replace_section(text: str, heading: str, lines: list[str]) -> str:
+    replacement = "\n".join([heading, "", *lines]).rstrip()
+    pattern = re.compile(rf"^{re.escape(heading)}\n.*?(?=^## |\Z)", re.MULTILINE | re.DOTALL)
+    if pattern.search(text):
+        return pattern.sub(lambda _match: replacement + "\n\n", text, count=1)
+    return text.rstrip() + "\n\n" + replacement + "\n"
+
+
+def _update_branch_state_for_visual_packet(text: str, zip_path: Path) -> str:
+    text = _update_field(
+        text,
+        "External State Item Status",
+        (
+            f"Current USER review packet is the branch-local Visual Acceptance Target packet "
+            f"{zip_path}. It is a reviewable visual-target/process packet only. The accepted "
+            f"historical Workstream implementation / H1-LV proof packet "
+            f"{ACCEPTED_HISTORICAL_ZIP} remains preserved as historical evidence. H1/LV "
+            f"acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, "
+            f"cleanup, issue mutation, provider/model execution, prompt send, downloads, "
+            f"runtime cache behavior, memory/learning/personalization, private Developer/Owner "
+            f"setup, installer/shortcut/packaging execution, sibling/Governance mutation, "
+            f"imports, and v1.8.0 remain blocked."
+        ),
+    )
+    text = _update_field(
+        text,
+        "Current Gate",
+        (
+            "USER review of the branch-local Visual Acceptance Target packet; the underlying "
+            "Hardening H1 / Live Validation decision gate remains pending separate USER "
+            "approval and is not accepted by this packet."
+        ),
+    )
+    text = _update_field(
+        text,
+        "Packet Reviewability State",
+        (
+            f"Visual Acceptance Target packet generated for USER review at {zip_path}; "
+            "packet validation is supporting evidence only and is not USER acceptance."
+        ),
+    )
+    text = _update_field(
+        text,
+        "USER Gate State",
+        (
+            "Pending USER review of the Visual Acceptance Target packet; H1/LV acceptance "
+            "and USER UTS acceptance remain pending separate USER decision."
+        ),
+    )
+    text = _update_field(
+        text,
+        "Next Legal Phase",
+        (
+            "USER decision on branch-local Visual Acceptance Target packet. If accepted, "
+            "resume only the next source-truth-routed Hardening H1 / Live Validation decision "
+            "preparation path under separate approval; PR Readiness remains blocked."
+        ),
+    )
+    return text
+
+
+def _update_branch_plan_for_visual_packet(text: str, zip_path: Path) -> str:
+    return _replace_section(
+        text,
+        "## Packet Review State",
+        [
+            (
+                "Packet Reviewability State: `Reviewable branch-local Visual Acceptance Target "
+                f"packet at {zip_path}. Packet validation is not USER acceptance; this packet "
+                "does not accept H1/LV, USER UTS, PR Readiness, PR creation, merge, release, "
+                "or runtime/provider/private/cache/memory/download/packaging work.`"
+            ),
+            "RAR Packet Reviewability State: `Accepted historical RAR evidence remains context only; this Visual Acceptance Target packet is the current USER review packet.`",
+            "USER Gate State: `Pending USER review of the Visual Acceptance Target packet; H1/LV resume requires separate approval.`",
+            f"Primary USER Review File: `{PRIMARY_REVIEW_FILE}`",
+            f"USER Review Folder: `{PACKET_DIR}`",
+            f"USER Review ZIP: `{zip_path}`",
+            "Packet Validation Is USER Acceptance: `No`",
+        ],
+    )
+
+
 def _append_receipt(path: Path, heading: str, lines: list[str]) -> None:
     text = _read_text(path)
     if heading in text:
@@ -176,6 +273,10 @@ def _update_external_state(zip_path: Path) -> None:
         text = _update_field(text, "Source Repo HEAD", head)
         text = _update_field(text, "Source origin/main", origin_main)
         text = _update_field(text, "USER Review ZIP", str(zip_path))
+        if path == BRANCH_STATE:
+            text = _update_branch_state_for_visual_packet(text, zip_path)
+        if path == BRANCH_PLAN:
+            text = _update_branch_plan_for_visual_packet(text, zip_path)
         path.write_text(text.rstrip() + "\n", encoding="utf-8")
         _remove_visual_target_receipts(path)
         _append_receipt(
@@ -185,11 +286,36 @@ def _update_external_state(zip_path: Path) -> None:
                 "Receipt Status: `VISUAL_ACCEPTANCE_TARGET_PACKET_GENERATED_PENDING_USER_REVIEW`",
                 f"USER Review ZIP: `{zip_path}`",
                 f"Accepted Historical Packet: `{ACCEPTED_HISTORICAL_ZIP}`",
-                "Packet Purpose: `Branch-local visual acceptance target process and review packet. It creates rendered targets, legends, selection ledgers, a draft target, rejected-pattern and reusable-recipe templates, and validation evidence before any future visible UI/UX implementation.`",
+                f"Packet Purpose: `{VISUAL_PACKET_PURPOSE}`",
                 "Implementation Status: `No product/runtime UI implementation authorized or performed by this packet.`",
-                "Blocked Gates: `H1/LV acceptance; USER UTS acceptance; PR Readiness; PR creation; merge; release; cleanup; issue mutation; provider/model execution; prompt send; downloads; runtime cache behavior; memory/learning/personalization; private Developer/Owner setup; installer/shortcut/packaging execution; sibling/Governance mutation; imports; v1.8.0 work.`",
+                f"Blocked Gates: `{BLOCKED_GATES}`",
             ],
         )
+    if UDL_PATH.exists():
+        udl_text = _read_text(UDL_PATH)
+        udl_text = re.sub(
+            r"^Current HEAD: `.*?`$",
+            f"Current HEAD: `{head}`",
+            udl_text,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        classification = (
+            "Current HEAD Field Classification: `Active current packet metadata; refreshed "
+            "during Visual Acceptance Target packet regeneration so copied Source Truth "
+            "Context cannot be mistaken for stale proof-snapshot truth.`"
+        )
+        if "Current HEAD Field Classification:" not in udl_text:
+            udl_text = udl_text.replace(f"Current HEAD: `{head}`", f"Current HEAD: `{head}`\n{classification}", 1)
+        else:
+            udl_text = re.sub(
+                r"^Current HEAD Field Classification: `.*?`$",
+                classification,
+                udl_text,
+                count=1,
+                flags=re.MULTILINE,
+            )
+        UDL_PATH.write_text(udl_text.rstrip() + "\n", encoding="utf-8")
 
 
 def _font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
@@ -274,6 +400,11 @@ def _copy_manifest_media() -> None:
             target_dir = PACKET_DIR / "Review Aids" / "Inspectable Evidence" / "other_screenshots"
         target_dir.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target_dir / source.name)
+
+
+def _current_packet_section(text: str) -> str:
+    match = re.search(r"^## Packet Review State\n(?P<body>.*?)(?=^## |\Z)", text, flags=re.MULTILINE | re.DOTALL)
+    return match.group("body") if match else ""
 
 
 def _generate_candidate_media() -> list[RenderOption]:
@@ -494,9 +625,8 @@ LV Gating Rule: Live Validation cannot claim UI green by helper output, screensh
         "Source Truth Context/UIREF-005_design_token_and_shared_rule_baseline.md": REPO_ROOT / "Docs" / "ui_reference_catalog" / "UIREF-005_design_token_and_shared_rule_baseline.md",
         "Source Truth Context/UIREF-006_negative_example_and_enforcement_contract.md": REPO_ROOT / "Docs" / "ui_reference_catalog" / "UIREF-006_negative_example_and_enforcement_contract.md",
     }
-    udl = EXTERNAL_BRANCH_ROOT / "unified_defect_ledger.md"
-    if udl.exists():
-        context_files["Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md"] = udl
+    if UDL_PATH.exists():
+        context_files["Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md"] = UDL_PATH
     for relative, source in context_files.items():
         _copy_file(source, relative)
     if MANIFEST_PATH.exists():
@@ -557,6 +687,37 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
             zip_entries = {info.filename for info in archive.infolist() if not info.is_dir()}
             if folder_entries != zip_entries:
                 failures.append("Folder/ZIP parity failed")
+            image_entries = [entry for entry in zip_entries if entry.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp"))]
+            if len(image_entries) < 6:
+                failures.append(f"Expected at least 6 ZIP images; found {len(image_entries)}")
+            primary_entries = [entry for entry in zip_entries if entry.startswith("USER Review/") and entry.endswith(".md")]
+            if primary_entries != [f"USER Review/{PRIMARY_REVIEW_FILE}"]:
+                failures.append(f"Unexpected primary USER review entries in ZIP: {primary_entries}")
+            required_zip_entries = {
+                "Source Truth Context/current_external_branch_state.md",
+                "Source Truth Context/current_external_branch_plan.md",
+                "Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md",
+            }
+            missing_context = sorted(required_zip_entries - zip_entries)
+            if missing_context:
+                failures.append(f"ZIP missing required Source Truth Context entries: {missing_context}")
+            else:
+                head = _git_value("rev-parse", "HEAD")
+                state_text = archive.read("Source Truth Context/current_external_branch_state.md").decode("utf-8")
+                plan_text = archive.read("Source Truth Context/current_external_branch_plan.md").decode("utf-8")
+                udl_text = archive.read("Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md").decode("utf-8")
+                if str(zip_path) not in state_text or str(zip_path) not in plan_text:
+                    failures.append("Copied Source Truth Context does not name the final ZIP path")
+                if "VISUAL_ACCEPTANCE_TARGET_REVIEW.md" not in plan_text:
+                    failures.append("Copied branch plan does not name the visual acceptance target primary review file")
+                if "WORKSTREAM_IMPLEMENTATION_H1_LV_REVIEW.md" in _current_packet_section(plan_text):
+                    failures.append("Copied branch plan active Packet Review State still names stale H1/LV primary review file")
+                if "H1/LV decision-preparation packet generated" in state_text:
+                    failures.append("Copied branch state still describes the current visual packet as H1/LV decision-prep")
+                if f"Current HEAD: `{head}`" not in udl_text:
+                    failures.append("Copied UDL Current HEAD does not match live HEAD")
+                if "Current HEAD Field Classification:" not in udl_text:
+                    failures.append("Copied UDL does not classify Current HEAD currentness")
             for entry in zip_entries:
                 if entry.lower().endswith(".png"):
                     try:
