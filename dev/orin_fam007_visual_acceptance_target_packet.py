@@ -154,6 +154,18 @@ def _append_receipt(path: Path, heading: str, lines: list[str]) -> None:
     path.write_text(text.rstrip() + body, encoding="utf-8")
 
 
+def _remove_visual_target_receipts(path: Path) -> None:
+    text = _read_text(path)
+    cleaned = re.sub(
+        r"\n## Branch-Local Visual Acceptance Target Packet Receipt - .+?(?=\n## |\Z)",
+        "",
+        text,
+        flags=re.DOTALL,
+    )
+    if cleaned != text:
+        path.write_text(cleaned.rstrip() + "\n", encoding="utf-8")
+
+
 def _update_external_state(zip_path: Path) -> None:
     now = datetime.now().astimezone().isoformat(timespec="seconds")
     head = _git_value("rev-parse", "HEAD")
@@ -165,6 +177,7 @@ def _update_external_state(zip_path: Path) -> None:
         text = _update_field(text, "Source origin/main", origin_main)
         text = _update_field(text, "USER Review ZIP", str(zip_path))
         path.write_text(text.rstrip() + "\n", encoding="utf-8")
+        _remove_visual_target_receipts(path)
         _append_receipt(
             path,
             f"## Branch-Local Visual Acceptance Target Packet Receipt - {now}",
