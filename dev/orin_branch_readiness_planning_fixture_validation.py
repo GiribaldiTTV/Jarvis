@@ -347,6 +347,9 @@ INVALID_REBASELINE_ADOPTION_ACTIVE_REVIEW_NO_PACKET_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_BARE_RAR3_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_bare_rar3_no_packet.md"
 )
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_ROW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_row_no_packet.md"
+)
 INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE = (
     FIXTURE_DIR
     / "invalid_rebaseline_adoption_contradictory_no_decision_no_packet.md"
@@ -356,6 +359,9 @@ INVALID_REBASELINE_ADOPTION_ZIP_OUTSIDE_USER_ROOT_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_ZIP_SUFFIX_PATH_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_zip_suffix_path.md"
+)
+INVALID_REBASELINE_ADOPTION_ZIP_TRAVERSAL_PATH_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_traversal_path.md"
 )
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
@@ -1937,6 +1943,59 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     decision_table = governance._extract_marker_value(
         text, "Repair / Waiver / Defer / Route Decision Table:"
     )
+    unresolved_statuses = (
+        "nonconforming",
+        "unproven",
+        "partial",
+        "exception needed",
+        "source-truth gap",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
+        "issue candidate",
+    )
+
+    def cell_has_unresolved_status(value: str) -> bool:
+        normalized_cell = governance._normalized_planning_value(value)
+        normalized_cell = normalized_cell.strip(" .;:")
+        return any(
+            normalized_cell == status
+            or normalized_cell.startswith(f"{status} ")
+            or f" {status} " in f" {normalized_cell} "
+            for status in unresolved_statuses
+        )
+
+    def cell_has_issue_candidate_status(value: str) -> bool:
+        normalized_cell = governance._normalized_planning_value(value)
+        normalized_cell = normalized_cell.strip(" .;:")
+        return (
+            normalized_cell == "issue candidate"
+            or normalized_cell.startswith("issue candidate ")
+            or f" issue candidate " in f" {normalized_cell} "
+        )
+
+    def row_requires_user_packet(row: list[str]) -> bool:
+        if len(row) <= 10 or not cell_has_unresolved_status(row[8]):
+            return False
+        next_action = governance._normalized_planning_value(row[10])
+        return any(
+            token in next_action
+            for token in (
+                "user",
+                "review",
+                "decision",
+                "waiver",
+                "issue candidate",
+                "issue-candidate",
+                "github issue",
+                "route",
+                "defer",
+            )
+        )
+
+    unresolved_row_user_review_required = any(
+        row_requires_user_packet(row) for row in code_trace_rows
+    )
     active_rar_values = governance._normalized_planning_value(
         " ".join(
             governance._extract_marker_value(text, marker)
@@ -1964,7 +2023,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "review issue candidate",
             "reviews rar issue candidates",
         )
-    )
+    ) or unresolved_row_user_review_required
 
     for quality in (
         "deterministic",
@@ -2000,6 +2059,23 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         normalized_value = value.replace("/", "\\")
         paths: list[str] = []
         invalid_suffix_seen = False
+
+        def canonical_windows_path(path: str) -> str | None:
+            parts = [part for part in path.split("\\") if part]
+            if not parts or re.fullmatch(r"[A-Za-z]:", parts[0]) is None:
+                return None
+            stack = [parts[0]]
+            for part in parts[1:]:
+                if part == ".":
+                    continue
+                if part == "..":
+                    if len(stack) == 1:
+                        return None
+                    stack.pop()
+                    continue
+                stack.append(part)
+            return stack[0] + "\\" + "\\".join(stack[1:])
+
         for match in re.finditer(r"[A-Za-z]:\\[^|\r\n]*?\.zip", normalized_value):
             next_char = normalized_value[match.end() : match.end() + 1]
             after_next = normalized_value[match.end() + 1 : match.end() + 2]
@@ -2009,7 +2085,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             if next_char and next_char not in {" ", "\t", "\r", "\n", ",", ";", ":", ")", "]", "."}:
                 invalid_suffix_seen = True
                 continue
-            paths.append(match.group(0))
+            canonical_path = canonical_windows_path(match.group(0))
+            if canonical_path is None:
+                invalid_suffix_seen = True
+                continue
+            paths.append(canonical_path)
         return paths, invalid_suffix_seen
 
     user_packet_zip_paths, user_packet_zip_invalid_suffix_seen = (
@@ -2088,37 +2168,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     adoption_disposition = governance._extract_marker_value(
         text, "Adoption Disposition:"
     )
-    unresolved_statuses = (
-        "nonconforming",
-        "unproven",
-        "partial",
-        "exception needed",
-        "source-truth gap",
-        "reference gap",
-        "template gap",
-        "shared primitive gap",
-        "issue candidate",
-    )
-
-    def cell_has_unresolved_status(value: str) -> bool:
-        normalized_cell = governance._normalized_planning_value(value)
-        normalized_cell = normalized_cell.strip(" .;:")
-        return any(
-            normalized_cell == status
-            or normalized_cell.startswith(f"{status} ")
-            or f" {status} " in f" {normalized_cell} "
-            for status in unresolved_statuses
-        )
-
-    def cell_has_issue_candidate_status(value: str) -> bool:
-        normalized_cell = governance._normalized_planning_value(value)
-        normalized_cell = normalized_cell.strip(" .;:")
-        return (
-            normalized_cell == "issue candidate"
-            or normalized_cell.startswith("issue candidate ")
-            or f" issue candidate " in f" {normalized_cell} "
-        )
-
     code_trace_has_issue_candidate = any(
         len(row) > 8 and cell_has_issue_candidate_status(row[8])
         for row in code_trace_rows
@@ -6588,6 +6637,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject missing USER packet for bare RAR3 stage"
         )
 
+    unresolved_row_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNRESOLVED_ROW_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        unresolved_row_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved USER-facing row without packet"
+        )
+
     contradictory_no_decision_no_packet_rar_failures = (
         _validate_rebaseline_adoption_review_text(
             INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE.read_text(
@@ -6624,6 +6685,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject suffixed non-ZIP USER packet path"
+        )
+
+    zip_traversal_path_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_TRAVERSAL_PATH_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_traversal_path_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject traversal USER packet ZIP path"
         )
 
     normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
