@@ -1096,6 +1096,9 @@ def _accepted_historical_context_posture_failures(
     live_plan_text = live_plan_path.read_text(encoding="utf-8") if live_plan_path and live_plan_path.is_file() else ""
 
     expected_zip = _normalize_windows_path_text(str(export_zip))
+    accepted_historical_zips = _accepted_historical_same_label_export_zip_paths(
+        _sanitize_folder_name(export_zip.stem.rsplit("-", 2)[0])
+    )
     copied_zip_values = _markdown_field_values(state_text, "USER Review ZIP")
     live_zip_values = _markdown_field_values(live_state_text, "USER Review ZIP")
     if not copied_zip_values:
@@ -1107,10 +1110,14 @@ def _accepted_historical_context_posture_failures(
             f"{state_name}: accepted historical packet mode USER Review ZIP "
             f"{copied_zip_values[0]} does not match final ZIP {export_zip}"
         )
-    if live_zip_values and _normalize_windows_path_text(live_zip_values[0]) != expected_zip:
+    if (
+        export_zip.resolve() not in accepted_historical_zips
+        and live_zip_values
+        and _normalize_windows_path_text(live_zip_values[0]) != expected_zip
+    ):
         failures.append(
             f"{state_name}: accepted historical packet mode is invalid because live external state "
-            f"does not point to this accepted packet; live USER Review ZIP is {live_zip_values[0]}"
+            f"does not point to or preserve this accepted packet; live USER Review ZIP is {live_zip_values[0]}"
         )
 
     acceptance_text = f"{live_state_text}\n{live_plan_text}"
@@ -1428,17 +1435,24 @@ def _proof_index_image_failures(
     return failures
 
 
-def _image_proof_failures(packet_dir: Path, export_zip: Path, folder_entries: set[str]) -> list[str]:
+def _image_proof_failures(
+    packet_dir: Path,
+    export_zip: Path,
+    folder_entries: set[str],
+    *,
+    validate_folder_images: bool = True,
+) -> list[str]:
     failures: list[str] = []
     folder_image_entries = sorted(
         entry
         for entry in folder_entries
         if PurePosixPath(entry).suffix.lower() in IMAGE_PROOF_EXTENSIONS
     )
-    for entry in folder_image_entries:
-        data = (packet_dir / PurePosixPath(entry)).read_bytes()
-        if not _image_signature_valid(data, PurePosixPath(entry).suffix):
-            failures.append(f"{entry}: image proof file has invalid binary signature")
+    if validate_folder_images:
+        for entry in folder_image_entries:
+            data = (packet_dir / PurePosixPath(entry)).read_bytes()
+            if not _image_signature_valid(data, PurePosixPath(entry).suffix):
+                failures.append(f"{entry}: image proof file has invalid binary signature")
 
     with zipfile.ZipFile(export_zip, "r") as archive:
         zip_entries = _archive_file_entries(archive)
@@ -1693,9 +1707,10 @@ def validate_local_user_packet(
     stale_siblings = sorted(
         path for path in same_label_paths if path != export_zip and path not in accepted_historical_zips
     )
-    for stale_zip in stale_siblings:
-        if stale_zip.exists():
-            failures.append(f"Stale same-label USER packet ZIP remains: {stale_zip}")
+    if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        for stale_zip in stale_siblings:
+            if stale_zip.exists():
+                failures.append(f"Stale same-label USER packet ZIP remains: {stale_zip}")
 
     stable_zip = _legacy_stable_export_zip_path(review_root, label)
     if stable_zip.exists():
@@ -1720,14 +1735,15 @@ def validate_local_user_packet(
             f"entries={list(duplicate_zip_entries)}"
         )
 
-    if folder_entries != zip_entries:
+    parity_entries_match = folder_entries == zip_entries
+    if validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL and not parity_entries_match:
         missing = sorted(folder_entries - zip_entries)
         extra = sorted(zip_entries - folder_entries)
         failures.append(
             "Folder/ZIP parity failed: "
             f"missing from ZIP={missing or 'none'} extra in ZIP={extra or 'none'}"
         )
-    else:
+    elif validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
         content_mismatches = sorted(
             entry
             for entry in folder_entries
@@ -1739,11 +1755,12 @@ def validate_local_user_packet(
                 f"for entries={content_mismatches}"
             )
 
-    layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, folder_entries)
+    layout_entries = zip_entries if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else folder_entries
+    layout_failures, primary_files = _local_user_packet_layout_failures(packet_dir, layout_entries)
     failures.extend(layout_failures)
 
     folder_packet_files = _packet_text_files(packet_dir)
-    packet_files = zip_packet_files or folder_packet_files
+    packet_files = zip_packet_files if validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL else (zip_packet_files or folder_packet_files)
     failures.extend(_primary_review_substantive_failures(packet_files, primary_files))
     generated_packet_files = {
         name: text
@@ -1776,7 +1793,14 @@ def validate_local_user_packet(
         )
     )
     if not any("Review export ZIP is not readable" in failure for failure in failures):
-        failures.extend(_image_proof_failures(packet_dir, export_zip, folder_entries))
+        failures.extend(
+            _image_proof_failures(
+                packet_dir,
+                export_zip,
+                layout_entries,
+                validate_folder_images=validation_mode != PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL,
+            )
+        )
     failures.extend(_proof_manifest_false_green_failures(packet_files))
 
     return LocalUserPacketValidationResult(
@@ -1816,6 +1840,11 @@ def _format_local_user_packet_validation_result(result: LocalUserPacketValidatio
     if result.failures:
         lines.append("Failures:")
         lines.extend(f"- {failure}" for failure in result.failures)
+    elif result.validation_mode == PACKET_VALIDATION_MODE_ACCEPTED_HISTORICAL:
+        lines.append(
+            "Final Packet Proof: PASS - accepted historical ZIP artifact validation used the timestamped ZIP "
+            "as the immutable evidence record; current local folder parity is not required for historical ZIPs."
+        )
     else:
         lines.append("Final Packet Proof: PASS - clean folder, timestamped ZIP, stale same-label ZIP cleanup, stable ZIP rejection, file-class layout, one-primary USER review file, and folder/ZIP file-list plus content-hash parity are validated.")
     return "\n".join(lines)
