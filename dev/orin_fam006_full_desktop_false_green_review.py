@@ -28,6 +28,8 @@ EXTERNAL_ROOT = Path(
 KNOWN_BAD_ROOT = EXTERNAL_ROOT / "false_accept_regression_corpus"
 REJECTED_PACKET = USER_ROOT / "FAM-006-20260624-121535.zip"
 REJECTED_SHA256 = "1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3"
+REJECTED_OPTIONS_PACKET = USER_ROOT / "FAM-006-20260624-130151.zip"
+REJECTED_OPTIONS_SHA256 = "0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F"
 PROOF_ROOT = Path(
     "C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI/"
     "fam_006_pre_live_visual_conformance/20260624_121443_feature_studio_visual_fail_repair"
@@ -97,6 +99,256 @@ def _label(draw: ImageDraw.ImageDraw, xy: tuple[int, int], text: str, size: int 
     draw.text(xy, text, fill=(210, 236, 245), font=_font(size))
 
 
+def _wrap_text(text: str, width: int, font: ImageFont.ImageFont) -> list[str]:
+    words = text.split()
+    lines: list[str] = []
+    current = ""
+    probe = Image.new("RGB", (10, 10))
+    draw = ImageDraw.Draw(probe)
+    for word in words:
+        candidate = f"{current} {word}".strip()
+        if draw.textbbox((0, 0), candidate, font=font)[2] <= width or not current:
+            current = candidate
+        else:
+            lines.append(current)
+            current = word
+    if current:
+        lines.append(current)
+    return lines
+
+
+def _draw_button(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], label: str) -> None:
+    draw.rounded_rectangle(box, radius=17, fill=(8, 45, 66), outline=(73, 178, 203), width=2)
+    draw.rounded_rectangle(
+        (box[0] + 3, box[1] + 3, box[2] - 3, box[3] - 3),
+        radius=14,
+        outline=(18, 72, 95),
+        width=1,
+    )
+    text_font = _font(15)
+    bbox = draw.textbbox((0, 0), label.upper(), font=text_font)
+    tx = box[0] + (box[2] - box[0] - (bbox[2] - bbox[0])) // 2
+    ty = box[1] + (box[3] - box[1] - (bbox[3] - bbox[1])) // 2 - 1
+    draw.text((tx, ty), label.upper(), fill=(224, 244, 249), font=text_font)
+
+
+def _draw_truth_row(
+    draw: ImageDraw.ImageDraw,
+    x: int,
+    y: int,
+    width: int,
+    label: str,
+    value: str,
+    *,
+    action: str | None = None,
+) -> int:
+    row_h = 38 if action is None else 46
+    draw.line((x, y, x + width, y), fill=(74, 170, 191), width=2)
+    draw.rectangle((x, y + 1, x + width, y + 11), fill=(7, 36, 52))
+    draw.text((x + 14, y + 12), label.upper(), fill=(111, 194, 211), font=_font(13))
+    value_x = x + 150
+    value_w = width - 170
+    if action:
+        value_w -= 150
+    draw.text((value_x, y + 12), value, fill=(158, 246, 218), font=_font(13))
+    if action:
+        _draw_button(draw, (x + width - 136, y + 7, x + width - 14, y + 39), action)
+    return y + row_h
+
+
+def _draw_window_shell(
+    size: tuple[int, int],
+    title: str,
+    subtitle: str,
+    *,
+    stronger: bool = False,
+) -> tuple[Image.Image, ImageDraw.ImageDraw]:
+    img = Image.new("RGB", size, (3, 11, 17))
+    draw = ImageDraw.Draw(img)
+    w, h = size
+    draw.rounded_rectangle((1, 1, w - 2, h - 2), radius=24, fill=(5, 23, 35), outline=(37, 139, 160), width=2)
+    draw.rounded_rectangle((18, 18, w - 18, 76), radius=20, fill=(5, 26, 41), outline=(24, 82, 104), width=1)
+    if stronger:
+        draw.rounded_rectangle((22, 22, w - 22, 72), radius=17, outline=(47, 151, 169), width=1)
+    draw.text((36, 30), subtitle.upper(), fill=(118, 207, 223), font=_font(11))
+    draw.text((36, 45), title.upper(), fill=(235, 247, 250), font=_font(22))
+    _draw_button(draw, (w - 112, 28, w - 34, 62), "Close")
+    return img, draw
+
+
+def _render_recording_option(option_id: str, media_dir: Path) -> str:
+    specs = {
+        "A1": {
+            "title": "A1 Minimal Shell",
+            "subtitle": "Recording Studio",
+            "rows": [("Target", "Default Overlay Profile"), ("State", "Ready - 2 active monitors")],
+            "note": "Smallest footprint; row density improved but container inheritance stays light.",
+            "size": (520, 300),
+            "group": False,
+            "stronger": False,
+        },
+        "A2": {
+            "title": "A2 Subtle Contained Row Group",
+            "subtitle": "Recording Studio",
+            "rows": [("Target", "Default Overlay Profile / 2 active monitors"), ("State", "Ready")],
+            "note": "Recommended: AI/HUD row-container rhythm without becoming a dashboard card.",
+            "size": (540, 310),
+            "group": True,
+            "stronger": False,
+        },
+        "A3": {
+            "title": "A3 Stronger Parent-Family Card Grammar",
+            "subtitle": "Recording Studio",
+            "rows": [("Target", "Default Overlay Profile / 2 active monitors"), ("State", "Ready"), ("Session", "No recording active")],
+            "note": "Most inherited card feel; largest footprint and highest fake-dashboard risk.",
+            "size": (570, 344),
+            "group": True,
+            "stronger": True,
+        },
+    }
+    spec = specs[option_id]
+    img, draw = _draw_window_shell(spec["size"], spec["subtitle"], spec["title"], stronger=spec["stronger"])
+    x, y, w = 28, 96, spec["size"][0] - 56
+    if spec["group"]:
+        draw.rounded_rectangle((x - 8, y - 10, x + w + 8, y + 48 * len(spec["rows"]) + 14), radius=18, fill=(4, 27, 38), outline=(22, 82, 101), width=1)
+    for label, value in spec["rows"]:
+        y = _draw_truth_row(draw, x, y, w, label, value)
+    note_font = _font(12)
+    note_y = y + 10
+    for line in _wrap_text(spec["note"], w, note_font)[:2]:
+        draw.text((x, note_y), line, fill=(178, 210, 221), font=note_font)
+        note_y += 17
+    button_y = spec["size"][1] - 58
+    _draw_button(draw, (x, button_y, x + 156, button_y + 40), "Start Recording")
+    _draw_button(draw, (x + 172, button_y, x + 342, button_y + 40), "Log Viewer Studio")
+    out = media_dir / f"{option_id.lower()}_nested_card_inheritance.png"
+    img.save(out)
+    return out.as_posix()
+
+
+def _render_log_option(option_id: str, media_dir: Path) -> str:
+    specs = {
+        "C1": {
+            "title": "C1 Tight Vertical Doorway",
+            "rows": [("Native Logs", "Recordings folder"), ("Exported Logs", "Exported Logs folder")],
+            "mode": "stacked",
+            "note": "Tighter vertical stack; actions stay close to truth rows.",
+            "size": (560, 292),
+        },
+        "C2": {
+            "title": "C2 Inline Row Actions",
+            "rows": [("Native Logs", "Recordings folder", "Open"), ("Exported Logs", "Exported Logs folder", "Open")],
+            "mode": "inline",
+            "note": "Recommended: truth and action are tied on each row; less dead space.",
+            "size": (660, 270),
+        },
+        "C3": {
+            "title": "C3 Compact Footer Actions",
+            "rows": [("Native Logs", "Recordings folder"), ("Exported Logs", "Exported Logs folder")],
+            "mode": "footer",
+            "note": "Simplest action rail; must avoid disconnected dead space.",
+            "size": (600, 288),
+        },
+    }
+    spec = specs[option_id]
+    img, draw = _draw_window_shell(spec["size"], "Log Viewer Studio", spec["title"])
+    x, y, w = 28, 96, spec["size"][0] - 56
+    if spec["mode"] == "inline":
+        for label, value, action in spec["rows"]:
+            y = _draw_truth_row(draw, x, y, w, label, value, action=action)
+    else:
+        for label, value in spec["rows"]:
+            y = _draw_truth_row(draw, x, y, w, label, value)
+    note_font = _font(12)
+    note_y = y + 8
+    for line in _wrap_text(spec["note"], w, note_font)[:2]:
+        draw.text((x, note_y), line, fill=(178, 210, 221), font=note_font)
+        note_y += 17
+    if spec["mode"] in {"stacked", "footer"}:
+        button_y = spec["size"][1] - 58
+        _draw_button(draw, (x, button_y, x + 166, button_y + 40), "Open Native Logs")
+        _draw_button(draw, (x + 182, button_y, x + 366, button_y + 40), "Open Exported Logs")
+    out = media_dir / f"{option_id.lower()}_log_viewer_doorway_layout.png"
+    img.save(out)
+    return out.as_posix()
+
+
+def _render_placement_option(option_id: str, media_dir: Path) -> str:
+    specs = {
+        "B1": (
+            "Always open near parent surface",
+            "Default: parent-neighbor every launch",
+            "Same session: user move ignored on reopen",
+            "Restart: parent-neighbor",
+            (620, 190),
+            (690, 220),
+        ),
+        "B2": (
+            "Same-session restore, restart reset",
+            "Default: parent-neighbor",
+            "Same session: restore last user-moved position",
+            "Restart: reset near parent",
+            (620, 190),
+            (1040, 420),
+        ),
+        "B3": (
+            "Persistent last-used position",
+            "Default: parent-neighbor until moved",
+            "Same session: restore moved position",
+            "Restart: persist moved position; needs reset",
+            (1020, 430),
+            (1040, 570),
+        ),
+    }
+    title, default_text, session_text, restart_text, rec_pos, log_pos = specs[option_id]
+    img = Image.new("RGB", (1280, 760), (4, 12, 18))
+    draw = ImageDraw.Draw(img)
+    draw.rectangle((0, 704, 1280, 760), fill=(9, 24, 34))
+    draw.text((38, 28), f"{option_id} - {title}", fill=(232, 246, 250), font=_font(28))
+    # Parent dashboard context.
+    parent = (66, 118, 560, 640)
+    draw.rounded_rectangle(parent, radius=26, fill=(5, 24, 37), outline=(47, 148, 166), width=2)
+    draw.text((96, 152), "HUD DASHBOARD PARENT SURFACE", fill=(232, 246, 250), font=_font(22))
+    draw.rounded_rectangle((96, 250, 530, 424), radius=22, fill=(6, 30, 43), outline=(31, 101, 122), width=2)
+    draw.text((126, 286), "RECORDING CARD", fill=(232, 246, 250), font=_font(20))
+    _draw_button(draw, (326, 354, 514, 396), "Recording Studio")
+    _draw_button(draw, (326, 444, 514, 486), "Log Viewer Studio")
+    # Child windows.
+    for name, pos, color in (
+        ("Recording Studio", rec_pos, (67, 181, 202)),
+        ("Log Viewer Studio", log_pos, (102, 215, 188)),
+    ):
+        x, y = pos
+        draw.rounded_rectangle((x, y, x + 210, y + 116), radius=18, fill=(6, 27, 39), outline=color, width=2)
+        draw.text((x + 20, y + 24), name.upper(), fill=(235, 247, 250), font=_font(15))
+        draw.line((x + 20, y + 56, x + 190, y + 56), fill=color, width=2)
+        draw.text((x + 20, y + 72), "feature-studio child", fill=(169, 214, 223), font=_font(12))
+    # Behavior key.
+    key_x, key_y = 690, 96
+    draw.rounded_rectangle((key_x, key_y, 1220, key_y + 86), radius=18, fill=(6, 29, 43), outline=(35, 119, 140), width=1)
+    for idx, text in enumerate((default_text, session_text, restart_text)):
+        draw.text((key_x + 22, key_y + 16 + idx * 22), text, fill=(206, 232, 239), font=_font(14))
+    draw.line((560, 356, rec_pos[0], rec_pos[1] + 58), fill=(79, 178, 199), width=2)
+    draw.line((560, 468, log_pos[0], log_pos[1] + 58), fill=(102, 215, 188), width=2)
+    draw.text((38, 712), "Full desktop/context diagram: parent surface, Recording Studio, Log Viewer Studio, and placement behavior.", fill=(186, 216, 225), font=_font(15))
+    out = media_dir / f"{option_id.lower()}_child_window_placement_context.png"
+    img.save(out)
+    return out.as_posix()
+
+
+def _create_option_renders(media_dir: Path) -> list[str]:
+    media_dir.mkdir(parents=True, exist_ok=True)
+    paths: list[str] = []
+    for option_id in ("A1", "A2", "A3"):
+        paths.append(_render_recording_option(option_id, media_dir))
+    for option_id in ("B1", "B2", "B3"):
+        paths.append(_render_placement_option(option_id, media_dir))
+    for option_id in ("C1", "C2", "C3"):
+        paths.append(_render_log_option(option_id, media_dir))
+    paths.append(_create_options_board(media_dir))
+    return paths
+
+
 def _create_full_desktop_board(media_dir: Path) -> str:
     media_dir.mkdir(parents=True, exist_ok=True)
     sources = [
@@ -125,58 +377,38 @@ def _create_full_desktop_board(media_dir: Path) -> str:
 
 def _create_options_board(media_dir: Path) -> str:
     media_dir.mkdir(parents=True, exist_ok=True)
-    canvas = Image.new("RGB", (1500, 1080), (4, 14, 22))
+    canvas = Image.new("RGB", (1900, 1420), (4, 14, 22))
     draw = ImageDraw.Draw(canvas)
-    title_font = _font(26)
-    body_font = _font(17)
-    draw.text((42, 32), "FAM-006 Visual / Placement Options For USER Review", fill=(222, 246, 250), font=title_font)
-    blocks = [
-        (
-            "A1 Minimal Shell",
-            "Tight current shell; fastest to scan; risk: may still feel too detached from row/container grammar.",
-        ),
-        (
-            "A2 Subtle Contained Row Group",
-            "Small section container inherits AI/HUD row rhythm without becoming a dashboard card.",
-        ),
-        (
-            "A3 Stronger Parent-Family Card Grammar",
-            "Most immersive inheritance; risk: larger footprint and possible fake-workspace feel.",
-        ),
-        (
-            "B1 Always Parent-Neighbor",
-            "Open next to HUD/Dashboard every time; predictable default; user moves are not preserved.",
-        ),
-        (
-            "B2 Session Restore, Restart Reset",
-            "Same-session user move is respected; app restart returns near parent.",
-        ),
-        (
-            "B3 Persistent Last Position",
-            "Most user control; requires future reset/default-position route and stale-screen recovery.",
-        ),
-        (
-            "C1 Tight Vertical Doorway",
-            "Rows and buttons stay close; avoids fake viewer workspace.",
-        ),
-        (
-            "C2 Inline / Right-Aligned Actions",
-            "Folder truth and action are tied on the same row; may need width discipline.",
-        ),
-        (
-            "C3 Compact Footer Actions",
-            "Clear action area; must avoid disconnected dead space.",
-        ),
+    draw.text((42, 32), "FAM-006 Visual / Placement Options For USER Review", fill=(222, 246, 250), font=_font(30))
+    draw.text(
+        (42, 72),
+        "Rendered mockup evidence only; no runtime UI implementation is performed by this packet.",
+        fill=(171, 213, 224),
+        font=_font(16),
+    )
+    option_files = [
+        ("A1", media_dir / "a1_nested_card_inheritance.png"),
+        ("A2", media_dir / "a2_nested_card_inheritance.png"),
+        ("A3", media_dir / "a3_nested_card_inheritance.png"),
+        ("B1", media_dir / "b1_child_window_placement_context.png"),
+        ("B2", media_dir / "b2_child_window_placement_context.png"),
+        ("B3", media_dir / "b3_child_window_placement_context.png"),
+        ("C1", media_dir / "c1_log_viewer_doorway_layout.png"),
+        ("C2", media_dir / "c2_log_viewer_doorway_layout.png"),
+        ("C3", media_dir / "c3_log_viewer_doorway_layout.png"),
     ]
-    for i, (heading, body) in enumerate(blocks):
+    for i, (option_id, src) in enumerate(option_files):
         row = i // 3
         col = i % 3
-        x = 42 + col * 472
-        y = 96 + row * 302
-        draw.rounded_rectangle((x, y, x + 430, y + 250), radius=24, outline=(46, 143, 164), width=2, fill=(8, 32, 47))
-        draw.text((x + 22, y + 22), heading, fill=(122, 224, 233), font=_font(20))
-        draw.line((x + 22, y + 62, x + 408, y + 62), fill=(57, 143, 162), width=2)
-        draw.multiline_text((x + 22, y + 82), body, fill=(205, 232, 240), font=body_font, spacing=7)
+        x = 42 + col * 610
+        y = 122 + row * 420
+        draw.rounded_rectangle((x, y, x + 570, y + 380), radius=24, outline=(46, 143, 164), width=2, fill=(7, 28, 41))
+        draw.text((x + 18, y + 14), option_id, fill=(122, 224, 233), font=_font(22))
+        if src.exists():
+            thumb = _image_thumb(src, (532, 315))
+            canvas.paste(thumb, (x + 18, y + 52))
+        else:
+            draw.text((x + 18, y + 52), "MISSING RENDER", fill=(255, 116, 116), font=_font(22))
     out = media_dir / "visual_and_placement_options_board.png"
     canvas.save(out)
     return out.as_posix()
@@ -325,29 +557,43 @@ def _visual_options_markdown() -> str:
 
 Status: USER review options only. This packet does not implement runtime UI.
 
+ChatGPT product recommendation is non-binding:
+
+- A2 is likely preferred because it inherits AI Control Center / HUD Dashboard row-container grammar without becoming a fake dashboard.
+- B2 is likely preferred because it respects same-session user placement but resets near parent after restart.
+- C2 is likely preferred because each truth row owns its action and avoids disconnected dead button rows.
+- If C2 creates width pressure, C1 is the safer compact fallback.
+
 ## A. Child-Window Nested-Card Inheritance
 
-| Option | Summary | Pros | Risks |
-| --- | --- | --- | --- |
-| A1 | Current minimal shell with improved row density. | Smallest footprint; least dashboard-card cloning. | May still feel too detached from AI/HUD row-container grammar. |
-| A2 | Subtle contained row group / section-card inheritance from AI Control Center. | Stronger row rhythm while staying compact. | Needs careful density to avoid table/proof-panel feel. |
-| A3 | Stronger parent-family card grammar while preserving compact footprint. | Most immersive family relationship. | Could become too large or fake-workspace-like. |
+| Option | Rendered media | Source-truth basis | Pros | Risks / what USER should critique |
+| --- | --- | --- | --- | --- |
+| A1 | `Review Aids/Evidence/Options/a1_nested_card_inheritance.png` | Compact unique child controller; row density and proof-debug avoidance. | Smallest footprint; least dashboard-card cloning. | May still feel too detached from AI/HUD row-container grammar; critique row grouping and glow rhythm. |
+| A2 | `Review Aids/Evidence/Options/a2_nested_card_inheritance.png` | Subtle contained row group / section-card inheritance from AI Control Center. | Stronger row rhythm while staying compact. | Needs careful density to avoid table/proof-panel feel; critique nested-card inheritance amount. |
+| A3 | `Review Aids/Evidence/Options/a3_nested_card_inheritance.png` | Stronger parent-family card grammar while preserving compact footprint. | Most immersive family relationship. | Could become too large or fake-workspace-like; critique whether it overcopies dashboard/card grammar. |
 
 ## B. Child-Window Placement Behavior
 
-| Option | Summary | Pros | Risks |
-| --- | --- | --- | --- |
-| B1 | Always open near parent surface. | Predictable and parent-tied. | Ignores USER's same-session placement preference. |
-| B2 | Same-session last-used position; restart resets near parent. | Balances user movement with deterministic restart behavior. | Requires clear restart/session definition. |
-| B3 | Persistent last-used position across restarts plus optional reset behavior. | Most user control. | Needs future reset-default-position settings and stale-screen recovery. |
+| Option | Rendered media | Default-open behavior | Same-session behavior | Restart behavior | Risk / validation obligation |
+| --- | --- | --- | --- | --- | --- |
+| B1 | `Review Aids/Evidence/Options/b1_child_window_placement_context.png` | Always near parent. | User move is not preserved on reopen. | Near parent. | Most predictable, but may feel hostile to user placement; prove parent-neighbor opening. |
+| B2 | `Review Aids/Evidence/Options/b2_child_window_placement_context.png` | Near parent. | Restore last user-moved position. | Reset near parent. | Recommended balance; prove same-session restore and restart reset. |
+| B3 | `Review Aids/Evidence/Options/b3_child_window_placement_context.png` | Near parent until moved. | Restore last user-moved position. | Persist moved position. | Requires reset-default-position control and stale-screen recovery proof. |
 
 ## C. Log Viewer Doorway Layout
 
-| Option | Summary | Pros | Risks |
-| --- | --- | --- | --- |
-| C1 | Tighter vertical stack with buttons closer to rows. | Reduces dead space and preserves doorway scope. | Still vertically structured. |
-| C2 | Two-row plus inline/right-aligned actions. | Ties each path to its action. | Needs width discipline for path text. |
-| C3 | Compact footer-action variant. | Clear actions, simple shell. | Must avoid disconnected buttons and empty body. |
+| Option | Rendered media | Doorway scope | Pros | Risks / what USER should critique |
+| --- | --- | --- | --- | --- |
+| C1 | `Review Aids/Evidence/Options/c1_log_viewer_doorway_layout.png` | Native/export folder access only; no graph, previous-log selection, or export customization. | Reduces dead space and preserves compact vertical reading. | Still vertically structured; critique whether actions feel close enough to rows. |
+| C2 | `Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png` | Native/export folder access only; no full-viewer/workspace behavior. | Ties each path/truth row directly to its action. | Needs width discipline for path text; critique row/action pressure. |
+| C3 | `Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png` | Native/export folder access only; footer action lane. | Clear action area and simple shell. | Must avoid disconnected buttons and empty body; critique dead-space risk. |
+
+## Implementation Risk And Proof If Selected
+
+- Selected A option must later prove row grouping, underglow rhythm, density, and compact footprint with implementation screenshots, not helper text.
+- Selected B option must later prove default-open, moved, reopened, restart/unavailable-location, and restore behavior with full-desktop evidence or USER validation where photo/video cannot prove it.
+- Selected C option must later prove native/export folder actions without implying full Log Viewer, graph, export customization, or previous-log selection scope.
+- Any selected option still remains subordinate to Project Vision, FAM-002, FAM-006, UIREF, and the Recording FFV.
 """
 
 
@@ -373,9 +619,10 @@ external manifest, not in the primary USER decision file.
 ## Rejected Packet
 
 - Rejected ZIP: `C:\\Nexus USER\\FAM-006-20260624-121535.zip`
+- Rejected options ZIP: `C:\\Nexus USER\\FAM-006-20260624-130151.zip`
 - Known-bad corpus copy: `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\false_accept_regression_corpus\\FAM-006-20260624-121535.zip`
 
-The rejected packet proof value is recorded in helper output and the external
+The rejected packet proof values are recorded in helper output and the external
 manifest.
 
 ## Full-Desktop Red-Team Result
@@ -431,6 +678,26 @@ See:
 
 - `Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md`
 - `Review Aids/Evidence/Options/visual_and_placement_options_board.png`
+- `Review Aids/Evidence/Options/a1_nested_card_inheritance.png`
+- `Review Aids/Evidence/Options/a2_nested_card_inheritance.png`
+- `Review Aids/Evidence/Options/a3_nested_card_inheritance.png`
+- `Review Aids/Evidence/Options/b1_child_window_placement_context.png`
+- `Review Aids/Evidence/Options/b2_child_window_placement_context.png`
+- `Review Aids/Evidence/Options/b3_child_window_placement_context.png`
+- `Review Aids/Evidence/Options/c1_log_viewer_doorway_layout.png`
+- `Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png`
+- `Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png`
+
+The prior 130151 packet is repaired here because its option board was mostly
+text cards, several option cards were clipped, and validation evidence was not
+complete inside the packet.
+
+## Validation Evidence
+
+See `Review Aids/VALIDATION_OUTPUT_EVIDENCE.md` and
+`Review Aids/Validation Outputs/`. Validation records include command, cwd,
+timestamp, exit code, PASS/FAIL, stdout, and stderr for every command captured
+inside this packet. Final post-ZIP SHA proof is external/non-self-mutating.
 
 ## Next Legal Phase
 
@@ -484,6 +751,67 @@ def _copy_udl(packet: Path) -> None:
             _copy_file(src, target / src_name)
 
 
+def _capture_command(command_id: str, command: list[str]) -> dict[str, Any]:
+    started = datetime.now().isoformat(timespec="seconds")
+    result = subprocess.run(command, cwd=WORKTREE, text=True, capture_output=True)
+    return {
+        "commandId": command_id,
+        "cwd": str(WORKTREE),
+        "timestamp": started,
+        "command": command,
+        "exitCode": result.returncode,
+        "status": "PASS" if result.returncode == 0 else "FAIL",
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+    }
+
+
+def _write_validation_outputs(packet: Path) -> list[dict[str, Any]]:
+    output_dir = packet / "Review Aids" / "Validation Outputs"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    commands = [
+        ("git_status_branch", ["git", "status", "--short", "--branch"]),
+        ("git_diff_check", ["git", "diff", "--check"]),
+        ("git_diff_check_origin_main", ["git", "diff", "--check", "origin/main...HEAD"]),
+        ("udl_gate", ["python", "dev/orin_fam006_unified_defect_ledger.py"]),
+    ]
+    results = [_capture_command(command_id, command) for command_id, command in commands]
+    for result in results:
+        _write_json(output_dir / f"{result['commandId']}.json", result)
+        _write_text(
+            output_dir / f"{result['commandId']}.txt",
+            "\n".join(
+                [
+                    f"Command ID: {result['commandId']}",
+                    f"CWD: {result['cwd']}",
+                    f"Timestamp: {result['timestamp']}",
+                    f"Command: {' '.join(result['command'])}",
+                    f"Exit Code: {result['exitCode']}",
+                    f"Status: {result['status']}",
+                    "",
+                    "STDOUT:",
+                    result["stdout"],
+                    "",
+                    "STDERR:",
+                    result["stderr"],
+                ]
+            ),
+        )
+    _write_json(output_dir / "validation_outputs_summary.json", {"results": results})
+    _write_text(
+        packet / "Review Aids" / "VALIDATION_OUTPUT_EVIDENCE.md",
+        "# Validation Output Evidence\n\n"
+        "Each listed validation includes command, cwd, timestamp, exit code, PASS/FAIL, stdout, and stderr. "
+        "The final post-ZIP SHA and post-ZIP validation are intentionally reported outside the ZIP to avoid self-mutating hash proof.\n\n"
+        + "\n".join(
+            f"- `{result['commandId']}`: `{result['status']}`; see `Review Aids/Validation Outputs/{result['commandId']}.json`."
+            for result in results
+        )
+        + "\n",
+    )
+    return results
+
+
 def _write_external_receipt(zip_path: Path, zip_sha: str) -> None:
     plan = EXTERNAL_ROOT / "branch_plan.md"
     marker_start = "<!-- FAM006_FULL_DESKTOP_FALSE_GREEN_REVIEW_START -->"
@@ -495,6 +823,8 @@ Status: `REPAIR / Pending USER review`.
 
 Rejected packet: `C:\\Nexus USER\\FAM-006-20260624-121535.zip`.
 Rejected packet SHA256: `{REJECTED_SHA256}`.
+Rejected options packet: `C:\\Nexus USER\\FAM-006-20260624-130151.zip`.
+Rejected options packet SHA256: `{REJECTED_OPTIONS_SHA256}`.
 Known-bad corpus copy: `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\false_accept_regression_corpus\\FAM-006-20260624-121535.zip`.
 
 Root cause: focused/cropped row-grammar proof and comparator media were treated
@@ -502,11 +832,15 @@ as sufficient even though the full-desktop proof contradicted the visual
 acceptance claim for scale, placement, dead space, control relationship, and
 child-window composition.
 
+Second root cause: the 130151 repair packet carried the right false-green
+direction but represented visual/spatial decisions with mostly text cards,
+clipped option content, and incomplete in-packet validation output evidence.
+
 Branch-local source-truth disposition: FAM-006 Recording now requires
 full-desktop/full-context contradiction review for material Recording Studio and
 Log Viewer Studio visual acceptance packets, and requires branch-local
-child-window placement/options review before runtime implementation of unresolved
-placement behavior.
+child-window placement/options review with actual rendered visual media before
+runtime implementation of unresolved placement behavior.
 
 Current USER packet: `{zip_path}`.
 Current USER packet SHA256: `{zip_sha}`.
@@ -535,10 +869,15 @@ def generate() -> dict[str, Any]:
 
     KNOWN_BAD_ROOT.mkdir(parents=True, exist_ok=True)
     known_bad_copy = KNOWN_BAD_ROOT / REJECTED_PACKET.name
+    known_bad_options_copy = KNOWN_BAD_ROOT / REJECTED_OPTIONS_PACKET.name
     if REJECTED_PACKET.exists():
         if _sha256(REJECTED_PACKET) != REJECTED_SHA256:
             raise SystemExit("rejected 121535 packet SHA mismatch")
         shutil.copy2(REJECTED_PACKET, known_bad_copy)
+    if REJECTED_OPTIONS_PACKET.exists():
+        if _sha256(REJECTED_OPTIONS_PACKET) != REJECTED_OPTIONS_SHA256:
+            raise SystemExit("rejected 130151 packet SHA mismatch")
+        shutil.copy2(REJECTED_OPTIONS_PACKET, known_bad_options_copy)
 
     _purge_user_hub()
     for folder in ("USER Review", "Review Aids", "Source Truth Context"):
@@ -562,8 +901,8 @@ def generate() -> dict[str, Any]:
             copied_media.append(_copy_file(src, dst))
 
     board = _create_full_desktop_board(full_desktop_dir)
-    options_board = _create_options_board(options_dir)
-    copied_media.extend([board, options_board])
+    option_renders = _create_option_renders(options_dir)
+    copied_media.extend([board, *option_renders])
 
     root_cause = _root_cause_rows()
     defects = _defect_rows()
@@ -577,6 +916,7 @@ def generate() -> dict[str, Any]:
     _write_text(PACKET_ROOT / "Review Aids" / "CHILD_WINDOW_PLACEMENT_DOCTRINE.md", "# FAM-006 Child-Window Placement Doctrine Candidate\n\n" + "\n".join(f"- {rule}" for rule in doctrine["rules"]) + "\n")
     _write_text(PACKET_ROOT / "Review Aids" / "VISUAL_AND_PLACEMENT_OPTIONS.md", _visual_options_markdown())
     _write_json(PACKET_ROOT / "Review Aids" / "packet_media_manifest.json", {"media": copied_media})
+    _write_validation_outputs(PACKET_ROOT)
     _write_text(PACKET_ROOT / "Review Aids" / "FULL_DESKTOP_RED_TEAM_REVIEW.md", """# Full-Desktop Red-Team Review
 
 Verdict: REPAIR.
@@ -618,7 +958,10 @@ release, or cleanup.
         "zipPath": str(zip_path),
         "zipSha256": zip_sha,
         "knownBadCopy": str(known_bad_copy),
+        "knownBadOptionsCopy": str(known_bad_options_copy),
         "rejectedSha256": REJECTED_SHA256,
+        "rejectedOptionsSha256": REJECTED_OPTIONS_SHA256,
+        "optionRenderCount": len(option_renders),
         "identity": identity,
     }
     _write_json(EXTERNAL_ROOT / "full_desktop_false_green_review_manifest.json", manifest)
@@ -638,6 +981,10 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         failures.append("121535 known-bad corpus copy is missing")
     elif _sha256(KNOWN_BAD_ROOT / REJECTED_PACKET.name) != REJECTED_SHA256:
         failures.append("121535 known-bad corpus copy SHA mismatch")
+    if not (KNOWN_BAD_ROOT / REJECTED_OPTIONS_PACKET.name).exists():
+        failures.append("130151 known-bad options packet corpus copy is missing")
+    elif _sha256(KNOWN_BAD_ROOT / REJECTED_OPTIONS_PACKET.name) != REJECTED_OPTIONS_SHA256:
+        failures.append("130151 known-bad options packet corpus copy SHA mismatch")
 
     required = [
         "START_HERE.md",
@@ -649,6 +996,12 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/FULL_DESKTOP_RED_TEAM_REVIEW.md",
         "Review Aids/CHILD_WINDOW_PLACEMENT_DOCTRINE.md",
         "Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md",
+        "Review Aids/VALIDATION_OUTPUT_EVIDENCE.md",
+        "Review Aids/Validation Outputs/git_status_branch.json",
+        "Review Aids/Validation Outputs/git_diff_check.json",
+        "Review Aids/Validation Outputs/git_diff_check_origin_main.json",
+        "Review Aids/Validation Outputs/udl_gate.json",
+        "Review Aids/Validation Outputs/validation_outputs_summary.json",
         "Review Aids/Unified Defect Ledger/unified_defect_ledger.json",
         "Review Aids/Unified Defect Ledger/UNIFIED_DEFECT_LEDGER.md",
         "Review Aids/Unified Defect Ledger/false_green_incident_ledger.json",
@@ -657,6 +1010,15 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/Evidence/Full Desktop/full_desktop_recording_and_log_viewer_after_repair.png",
         "Review Aids/Evidence/Full Desktop/full_desktop_false_green_comparison_board.png",
         "Review Aids/Evidence/Options/visual_and_placement_options_board.png",
+        "Review Aids/Evidence/Options/a1_nested_card_inheritance.png",
+        "Review Aids/Evidence/Options/a2_nested_card_inheritance.png",
+        "Review Aids/Evidence/Options/a3_nested_card_inheritance.png",
+        "Review Aids/Evidence/Options/b1_child_window_placement_context.png",
+        "Review Aids/Evidence/Options/b2_child_window_placement_context.png",
+        "Review Aids/Evidence/Options/b3_child_window_placement_context.png",
+        "Review Aids/Evidence/Options/c1_log_viewer_doorway_layout.png",
+        "Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png",
+        "Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png",
         "Review Aids/Evidence/Rejected 121535 Proof/recording_default.png",
         "Review Aids/Evidence/Rejected 121535 Proof/log_viewer_default.png",
         "Review Aids/Evidence/References/AI Control Center- Accepted.png",
@@ -668,6 +1030,17 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
     for rel in required:
         if not (packet_root / rel).exists():
             failures.append(f"missing required packet artifact: {rel}")
+
+    option_media = sorted((packet_root / "Review Aids/Evidence/Options").glob("*.png"))
+    if len(option_media) < 10:
+        failures.append(f"expected at least 10 option PNG renders/contact sheets, found {len(option_media)}")
+    for path in option_media:
+        try:
+            with Image.open(path) as img:
+                if img.size[0] < 320 or img.size[1] < 180:
+                    failures.append(f"option media too small to review: {path.name} {img.size}")
+        except Exception as exc:
+            failures.append(f"option media unreadable: {path.name}: {exc}")
 
     review_files = [p for p in (packet_root / "USER Review").glob("*.md") if p.is_file()]
     if len(review_files) != 1 or review_files[0].relative_to(packet_root).as_posix() != PRIMARY_REVIEW:
@@ -719,6 +1092,26 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
     for phrase in forbidden:
         if phrase in primary:
             failures.append(f"primary review file contains forbidden acceptance phrase: {phrase}")
+
+    options_text = (packet_root / "Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md").read_text(encoding="utf-8", errors="replace") if (packet_root / "Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md").exists() else ""
+    for token in ("A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "Rendered media", "ChatGPT product recommendation is non-binding"):
+        if token not in options_text:
+            failures.append(f"visual options review aid missing token: {token}")
+
+    validation_summary = packet_root / "Review Aids/Validation Outputs/validation_outputs_summary.json"
+    if validation_summary.exists():
+        try:
+            results = json.loads(validation_summary.read_text(encoding="utf-8")).get("results", [])
+            if len(results) < 4:
+                failures.append(f"validation output summary has too few command records: {len(results)}")
+            for result in results:
+                for key in ("command", "cwd", "timestamp", "exitCode", "status", "stdout", "stderr"):
+                    if key not in result:
+                        failures.append(f"validation output missing {key}: {result.get('commandId', '<unknown>')}")
+                if result.get("status") != "PASS" or result.get("exitCode") != 0:
+                    failures.append(f"validation output records failing command: {result.get('commandId', '<unknown>')}")
+        except Exception as exc:
+            failures.append(f"validation output summary invalid: {exc}")
 
     if zips:
         with zipfile.ZipFile(zips[0]) as zf:

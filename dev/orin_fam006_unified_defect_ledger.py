@@ -69,6 +69,8 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260623-120234.zip",
     "FAM-006-20260623-121602.zip",
     "FAM-006-20260623-123110.zip",
+    "FAM-006-20260624-121535.zip",
+    "FAM-006-20260624-130151.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -76,6 +78,8 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-120234.zip": "D93AADB19ABBDD0973412D301AB14ABF8B115349A352E75868607A32F3CC20FE",
     "FAM-006-20260623-121602.zip": "284D92B4DD0F9F7977018B6B10D3E3550B14FAFAD1026DF5CF9E5DFDEED82CB6",
     "FAM-006-20260623-123110.zip": "5DB6C953EFD4A120122B623A0713C8CB106117C21CC4C27B4DDE171DE796628C",
+    "FAM-006-20260624-121535.zip": "1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3",
+    "FAM-006-20260624-130151.zip": "0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -559,6 +563,31 @@ def seed_defects() -> list[dict[str, Any]]:
                 "FAM006-UDL-018; repair scope changed: yes, branch-local FFV, helper registry, helper, external state, and USER packet were updated."
             ),
         ),
+        _defect(
+            "FAM006-UDL-019",
+            origin="USER/ChatGPT",
+            title="Visual option packet used clipped text cards instead of rendered option evidence",
+            exact_user_wording="FAM-006-20260624-130151.zip had the right false-green direction, but the visual/placement option packet was not reviewable enough because the options board was mostly clipped text cards and validation-output evidence was incomplete.",
+            expected="When visual, spatial, placement, nested-card, or doorway-layout decisions are under USER review, the packet must include actual rendered option media, full desktop/context renders where placement matters, and command/cwd/timestamp/exit-code/stdout/stderr validation output evidence for claimed validations.",
+            actual="The 130151 packet contained a mostly text-card options board, several clipped option cards, no separate rendered A/B/C option media, and incomplete in-packet validation outputs.",
+            evidence="Known-bad packet FAM-006-20260624-130151.zip SHA 0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F; USER/ChatGPT REPAIR verdict on full-desktop option packet.",
+            surfaces="FAM-006 USER packet; visual/placement options board; nested-card inheritance options; child-window placement diagrams; Log Viewer doorway layout options; validation output evidence.",
+            root_cause="The helper generated a text-summary contact sheet for decisions that were inherently visual/spatial, and the packet gate accepted the presence of an options board without requiring option-specific rendered media or validation-output records.",
+            validator_gap="No hard failure for text-only visual options, clipped/unreadable option cards, missing B placement diagrams, missing A/C rendered comparisons, or validation-output summaries without command/cwd/timestamp/exit-code/stdout/stderr.",
+            repair_target="Admit 130151 as known-bad, require A1/A2/A3, B1/B2/B3, and C1/C2/C3 rendered media, require in-packet validation-output records, and regenerate the USER packet from a purged folder.",
+            acceptance="FAM-006 gates fail when rendered option media or validation-output evidence is missing and pass only when the regenerated packet includes actual media for every required option.",
+            proof="dev/orin_fam006_full_desktop_false_green_review.py validates individual option renders, packet-contained validation outputs, and the 130151 known-bad corpus copy.",
+            status="CLOSED_WITH_PROOF",
+            closure="130151 is admitted as known-bad; the repaired packet helper generates actual A/B/C option renders, full placement diagrams, validation-output evidence, and a new timestamped USER packet.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-019: inspected adjacent surfaces/files `dev/orin_fam006_full_desktop_false_green_review.py`, "
+                "`Docs/family_feature_visions/FAM-006_recording.md`, `Docs/validation_helper_registry.md`, 130151 rejected packet output, and active USER packet layout; "
+                "adjacent behavior inspected: text-only option cards, clipped visual decision evidence, missing placement diagrams, missing option-specific renders, missing validation-output records, and stale ZIP purge behavior; "
+                "adjacent proof artifacts inspected: regenerated option PNGs, packet media manifest, validation output JSON/TXT files, known-bad corpus SHA proof, validator gate output, and external full_desktop_false_green_review_manifest.json; "
+                "additional adjacent defects found: none beyond the 130151 option-packet false-green class and already linked FAM006-UDL-018 full-desktop contradiction; "
+                "linked UDL IDs added/reopened: FAM006-UDL-018 and FAM006-UDL-019; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
+            ),
+        ),
     ]
 
 
@@ -798,6 +827,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require branch-local full-desktop false-green review packet, row-specific root-cause ledger, USER defect classification, placement doctrine, and visual options before renewed LV.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-018"],
+        ),
+        _incident(
+            "FAM006-FGI-014",
+            packet="FAM-006-20260624-130151.zip",
+            sha256="0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F",
+            head="1e6f99cfc7dd02b37da77010b22cbdf2085042b6",
+            codex_claim="FAM-006 full-desktop false-green review packet was ACCEPT / reviewable after adding an options board.",
+            rejection="USER/ChatGPT rejected the packet because visual/placement options were mostly text cards, cards were clipped, actual rendered option media were missing, and validation-output evidence was incomplete.",
+            validator_failed="FAM-006 full-desktop false-green packet helper before rendered option media and validation-output evidence gates.",
+            artifact="Review Aids/Evidence/Options/visual_and_placement_options_board.png inside FAM-006-20260624-130151.zip.",
+            ledger_row="FAM006-UDL-019",
+            comparator="The packet described A/B/C decisions instead of showing rendered nested-card, placement, and Log Viewer doorway alternatives.",
+            prevention="Require actual rendered A1/A2/A3, B1/B2/B3, and C1/C2/C3 media plus command/cwd/timestamp/exit-code/stdout/stderr validation output records.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-019", "FAM006-UDL-018"],
         ),
     ]
     for row in rows:

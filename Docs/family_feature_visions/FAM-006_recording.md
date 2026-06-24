@@ -76,6 +76,15 @@ smell, parent/child placement drift, row-container inheritance gaps,
 underglow/divider rhythm mismatch, control label pressure, cropped-proof
 masking, and scope drift between a doorway shell and a full workspace.
 
+When a Recording packet asks USER to choose or revise a visual/spatial option,
+that option must be shown with rendered media rather than text-card summaries.
+Nested-card inheritance options, child-window placement behavior, and Log
+Viewer doorway layout options require packet-contained rendered PNGs/contact
+sheets or equivalent media. Full desktop/context diagrams are required when
+placement, footprint, or parent/child relationship is material. Text-only option
+cards, clipped option text, local-path-only proof, or missing command-output
+evidence keep the packet in `REPAIR`.
+
 ## Relationship To FAM-006
 
 Recording belongs to FAM-006 because it depends on Dashboard/HUD visibility,
@@ -247,6 +256,9 @@ Expected direction:
   focused screenshot that shows readable rows and buttons does not prove that
   the Log Viewer Studio shell is appropriately compact in the USER's desktop
   context.
+- doorway layout options must be actual rendered alternatives when USER review
+  is choosing between vertical stack, inline row actions, footer actions, or a
+  future-leaning shell; prose-only cards are not enough.
 - maximize/fullscreen remains future-gated until source truth decides whether
   loaded-log graph viewing lives inside Log Viewer Studio or opens a separate
   loaded-log viewer window

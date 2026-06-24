@@ -345,8 +345,11 @@ Receipt Date: `2026-06-24`
 Receipt Role: `Durable compact receipt only; active packet proof, exact ZIP, and current USER Gate State live in external state, helper output, Git, and Codex completion packets.`
 Rejected Packet: `C:\Nexus USER\FAM-006-20260624-121535.zip`
 Rejected Packet SHA256: `1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3`
+Rejected Options Packet: `C:\Nexus USER\FAM-006-20260624-130151.zip`
+Rejected Options Packet SHA256: `0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F`
 False-Green Class: `Focused/cropped row-grammar proof underweighted full-desktop context; full-desktop evidence exposed scale, placement, dead-space, control-relationship, and child-window composition contradictions.`
-Branch-Local Repair: `FAM-006 Recording source truth now requires full-desktop/full-window contradiction review for material Recording Studio and Log Viewer Studio visual acceptance packets; branch-local helper dev/orin_fam006_full_desktop_false_green_review.py generates and validates the false-green review packet with media, ledgers, placement doctrine, and options.`
+Options Packet False-Green Class: `The first repair packet carried the correct false-green direction but used mostly clipped text-card option summaries and incomplete in-packet validation-output evidence for decisions that required rendered visual/spatial media.`
+Branch-Local Repair: `FAM-006 Recording source truth now requires full-desktop/full-window contradiction review and rendered option media for material Recording Studio and Log Viewer Studio visual/placement option packets; branch-local helper dev/orin_fam006_full_desktop_false_green_review.py generates and validates the false-green review packet with media, ledgers, placement doctrine, rendered A/B/C options, and validation-output evidence.`
 Boundary: `This receipt does not approve runtime UI repair, H1 acceptance, Live Validation acceptance, UTS acceptance, PR Readiness, PR creation, issue mutation, merge, release, cleanup, Governance worktree mutation, FAM-007 mutation, neutral-main mutation, provider/model/private/cache/memory work, or future-gated Log Viewer implementation.`
 Next Legal Phase: `USER review of the full-desktop visual false-green packet and USER selection or revision of child-window inheritance, placement, and Log Viewer doorway options before bounded runtime repair.`
 

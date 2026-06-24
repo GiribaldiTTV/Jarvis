@@ -20,6 +20,7 @@ from typing import Any
 from PIL import Image
 
 from orin_fam006_unified_defect_ledger import scan_packet_text_hygiene, validate_udl_state
+from orin_fam006_full_desktop_false_green_review import validate as validate_full_desktop_false_green_packet
 from orin_fam006_visual_acceptance_target_packet import validate as validate_visual_acceptance_target_packet
 
 
@@ -30,6 +31,10 @@ EXTERNAL_BRANCH_ROOT = Path(
 )
 KNOWN_BAD_CORPUS_ROOT = EXTERNAL_BRANCH_ROOT / "false_accept_regression_corpus"
 KNOWN_BAD_ZIPS = [
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260624-130151.zip",
+    USER_ROOT / "FAM-006-20260624-130151.zip",
+    KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260624-121535.zip",
+    USER_ROOT / "FAM-006-20260624-121535.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-123110.zip",
     USER_ROOT / "FAM-006-20260623-123110.zip",
     KNOWN_BAD_CORPUS_ROOT / "FAM-006-20260623-121602.zip",
@@ -490,6 +495,16 @@ def _is_accepted_visual_target_packet(root: Path) -> bool:
         and "Implementation Match Proof" in lifecycle_text
         and "does not claim implementation match" in lifecycle_text
     )
+
+
+def _is_full_desktop_false_green_packet(root: Path) -> bool:
+    primary = root / "USER Review" / "FULL_DESKTOP_FALSE_GREEN_REVIEW.md"
+    options = root / "Review Aids" / "VISUAL_AND_PLACEMENT_OPTIONS.md"
+    media = root / "Review Aids" / "Evidence" / "Options" / "visual_and_placement_options_board.png"
+    if not primary.is_file() or not options.is_file() or not media.is_file():
+        return False
+    primary_text = primary.read_text(encoding="utf-8", errors="replace")
+    return "Packet Status: `full-desktop-visual-false-green-review`" in primary_text
 
 
 def _image_size(path: Path) -> tuple[int, int] | None:
@@ -1035,6 +1050,21 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
     failures.extend(_validate_source_truth_context(root))
     failures.extend(f"packet text hygiene: {failure}" for failure in scan_packet_text_hygiene(root))
     is_known_bad = label.startswith("known-bad:")
+    if not is_known_bad and _is_full_desktop_false_green_packet(root):
+        packet_failures = validate_full_desktop_false_green_packet(root)
+        failures.extend(f"full-desktop false-green packet: {failure}" for failure in packet_failures)
+        option_media = sorted((root / "Review Aids" / "Evidence" / "Options").glob("*.png"))
+        return PacketInspection(
+            label=label,
+            path=str(root),
+            accepted=not failures,
+            failures=failures,
+            artifactSummary={
+                "packetClass": "full-desktop-visual-false-green-review",
+                "optionMediaCount": len(option_media),
+                "runtimeImplementationProofRequired": "separate USER-selected implementation-match repair; not claimed by this packet",
+            },
+        )
     if not is_known_bad and _is_accepted_visual_target_packet(root):
         target_failures = validate_visual_acceptance_target_packet(root)
         failures.extend(f"accepted visual target packet: {failure}" for failure in target_failures)

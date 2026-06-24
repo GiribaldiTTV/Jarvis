@@ -971,6 +971,8 @@ def _generic_user_facing_technical_metadata_failures(
             and normalized.endswith(".json")
         ):
             continue
+        if normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Validation Outputs/"):
+            continue
         if (
             normalized != "START_HERE.md"
             and not normalized.startswith(f"{USER_REVIEW_DIR_NAME}/")
