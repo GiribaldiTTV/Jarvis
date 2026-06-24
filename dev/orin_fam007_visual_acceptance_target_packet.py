@@ -71,6 +71,9 @@ PROOF_ROOT = Path(
 )
 PROOF_LOG_ROOT = REPO_ROOT / "dev" / "logs" / "fam_007_ai_control_center_live_resize" / "20260623-112831"
 MANIFEST_PATH = PROOF_LOG_ROOT / "live_resize_manifest.json"
+OPTION_IDS = ("OPTION-A", "OPTION-B", "OPTION-C", "OPTION-D")
+EXPECTED_RENDER_IMAGE_COUNT = len(OPTION_IDS) * 4
+EXPECTED_ANNOTATED_IMAGE_COUNT = len(OPTION_IDS) * 2
 
 REQUIRED_PACKET_FILES = [
     "START_HERE.md",
@@ -493,6 +496,16 @@ Proof: `Current Visual Acceptance Target packet validation fails if the artifact
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This repair does not approve H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling mutation, imports, v1.8.0 work, or global Governance/FAM-002/UIREF mutation.`
 """
+    row_023 = f"""## F7-UDL-023 Option D Row-Grammar Visual Target Candidate - 2026-06-24
+
+Status: `CLOSED_WITH_PROOF`
+Finding: `The prior Visual Acceptance Target packet presented Option A, Option B, and Option C without a distinct hybrid target that carried the USER-approved old AI Control Center row grammar as a reference while preserving the current AI Dashboard / AI Control Center doorway model. That created a risk that USER would have to choose between correct structure and the row-based product feel they explicitly wanted.`
+Required Disposition: `Current FAM-007 visual target packets must present Option D as a branch-local hybrid candidate: Option A source-truth product structure and doorway labels, Option B compact grouping rhythm, accepted old AI Control Center row grammar as a visual grammar reference, and Option C as rejected-risk boundary only. Option D is still a candidate render, not implementation proof or a product/runtime mutation.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Option D clean focused, annotated focused, clean desktop/context, and annotated desktop/context renders; maps Option D through image relevance, annotation, artifact-to-surface, state, rejected-pattern, and primary USER review text; and validates all four options as the curated final-packet image set.`
+Proof: `Current Visual Acceptance Target packet validation fails if Option D, its annotated markers, its row-grammar wording, or its curated render media are missing from the generated folder or ZIP.`
+Current Review Packet: `{zip_path}`
+No-Fake-Preservation Rule: `This repair does not approve runtime UI implementation, H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling/Governance/FAM-002/UIREF mutation, imports, or v1.8.0 work.`
+"""
     if "## F7-UDL-019 " in udl_text:
         udl_text = re.sub(
             r"## F7-UDL-019 .+?(?=\n## |\Z)",
@@ -523,6 +536,16 @@ No-Fake-Preservation Rule: `This repair does not approve H1/LV, USER UTS, PR Rea
         )
     else:
         udl_text = udl_text.rstrip() + "\n\n" + row_022
+    if "## F7-UDL-023 " in udl_text:
+        udl_text = re.sub(
+            r"## F7-UDL-023 .+?(?=\n## |\Z)",
+            lambda _match: row_023,
+            udl_text,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
+        udl_text = udl_text.rstrip() + "\n\n" + row_023
     return udl_text
 
 
@@ -691,6 +714,26 @@ ANNOTATION_LABEL_BOX_HEIGHT = 34
 
 
 def _annotation_targets(width: int, height: int, *, desktop: bool) -> dict[str, tuple[int, int, int, int]]:
+    if desktop and height >= 930:
+        x, y, win_w, win_h = 820, 70, 720, 690
+        return {
+            "CHROME-001": (x, y, x + win_w, y + win_h),
+            "CTRL-001": (x + win_w - 112, y + 26, x + win_w - 28, y + 70),
+            "TITLE-001": (x + 38, y + 30, x + 500, y + 158),
+            "PANEL-001": (x + 28, y + 178, x + win_w - 28, y + 616),
+            "ACTION-001": (x + win_w - 220, y + 272, x + win_w - 44, y + 642),
+            "STATUS-001": (x + 38, y + 116, x + 440, y + 160),
+        }
+    if not desktop and width >= 800 and height >= 820:
+        x, y, win_w, win_h = 48, 40, 720, 690
+        return {
+            "CHROME-001": (x, y, x + win_w, y + win_h),
+            "CTRL-001": (x + win_w - 112, y + 26, x + win_w - 28, y + 70),
+            "TITLE-001": (x + 38, y + 30, x + 500, y + 158),
+            "PANEL-001": (x + 28, y + 178, x + win_w - 28, y + 616),
+            "ACTION-001": (x + win_w - 220, y + 272, x + win_w - 44, y + 642),
+            "STATUS-001": (x + 38, y + 116, x + 440, y + 160),
+        }
     if not desktop and width < 700:
         x, y, win_w, win_h = 20, 20, max(360, width - 40), max(360, height - 40)
         return {
@@ -835,6 +878,129 @@ def _draw_option_mockup(path: Path, option: str, title: str, subtitle: str, desk
     img.save(path)
 
 
+def _text_width(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFont) -> int:
+    box = draw.textbbox((0, 0), text, font=font)
+    return box[2] - box[0]
+
+
+def _draw_status_strip(draw: ImageDraw.ImageDraw, x: int, y: int, labels: list[str]) -> None:
+    font = _font(11)
+    strip_width = 0
+    widths = []
+    for label in labels:
+        width = _text_width(draw, label, font) + 28
+        widths.append(width)
+        strip_width += width
+    draw.rounded_rectangle((x, y, x + strip_width + 12, y + 36), radius=18, fill=(4, 30, 42), outline=(49, 138, 164), width=1)
+    xx = x + 14
+    for label, width in zip(labels, widths):
+        draw.text((xx, y + 12), label, fill=(175, 240, 226), font=font)
+        xx += width
+
+
+def _draw_row_card(
+    draw: ImageDraw.ImageDraw,
+    box: tuple[int, int, int, int],
+    number: str,
+    title: str,
+    description: str,
+    rows: list[tuple[str, str]],
+    action: str | None = None,
+) -> None:
+    x1, y1, x2, y2 = box
+    draw.rounded_rectangle(box, radius=18, fill=(3, 19, 34), outline=(32, 97, 124), width=1)
+    draw.rounded_rectangle((x1 + 16, y1 + 16, x1 + 52, y1 + 52), radius=12, fill=(5, 51, 70), outline=(72, 194, 220), width=1)
+    draw.text((x1 + 25, y1 + 26), number, fill=(120, 234, 239), font=_font(12))
+    draw.text((x1 + 66, y1 + 15), title.upper(), fill=(236, 247, 250), font=_font(16))
+    draw.text((x1 + 66, y1 + 40), description, fill=(148, 194, 205), font=_font(11))
+    yy = y1 + 70
+    label_font = _font(10)
+    value_font = _font(10)
+    for label, value in rows:
+        draw.line((x1 + 22, yy, x2 - 22, yy), fill=(69, 166, 190), width=1)
+        draw.rectangle((x1 + 22, yy + 6, x1 + 25, yy + 20), fill=(80, 189, 207))
+        draw.text((x1 + 34, yy + 5), label.upper(), fill=(118, 180, 196), font=label_font)
+        draw.text((x1 + 196, yy + 5), value, fill=(152, 234, 211), font=value_font)
+        yy += 27
+    if action:
+        action_font = _font(11)
+        button_w = max(124, _text_width(draw, action.upper(), action_font) + 36)
+        bx2 = x2 - 20
+        bx1 = bx2 - button_w
+        by1 = y2 - 42
+        by2 = y2 - 12
+        draw.rounded_rectangle((bx1, by1, bx2, by2), radius=15, fill=(6, 37, 52), outline=(70, 171, 199), width=2)
+        draw.text((bx1 + 18, by1 + 9), action.upper(), fill=(232, 246, 249), font=action_font)
+
+
+def _draw_option_d_mockup(path: Path, desktop: bool) -> None:
+    width, height = (1600, 940) if desktop else (820, 840)
+    img = Image.new("RGB", (width, height), (0, 5, 8))
+    draw = ImageDraw.Draw(img)
+    for gx in range(0, width, 32):
+        draw.line((gx, 0, gx, height), fill=(5, 34, 44), width=1)
+    for gy in range(0, height, 32):
+        draw.line((0, gy, width, gy), fill=(5, 34, 44), width=1)
+    for radius in range(120, 470, 70):
+        draw.ellipse((190 - radius, 390 - radius, 190 + radius, 390 + radius), outline=(8, 50, 64), width=1)
+    win_w, win_h = 720, 690
+    x = 820 if desktop else 48
+    y = 70 if desktop else 40
+    draw.rounded_rectangle((x, y, x + win_w, y + win_h), radius=28, fill=(1, 15, 26), outline=(67, 179, 205), width=2)
+    draw.rounded_rectangle((x + 18, y + 18, x + win_w - 18, y + 162), radius=24, fill=(2, 15, 28), outline=(15, 56, 78), width=1)
+    draw.text((x + 44, y + 36), "NEXUS DESKTOP AI", fill=(96, 220, 239), font=_font(13))
+    draw.text((x + 44, y + 62), "AI Dashboard", fill=(240, 248, 250), font=_font(30))
+    draw.text((x + 44, y + 104), "Top-level AI orientation, trust state, and category doorways.", fill=(152, 200, 210), font=_font(12))
+    draw.rounded_rectangle((x + win_w - 96, y + 28, x + win_w - 28, y + 62), radius=17, fill=(4, 30, 42), outline=(79, 201, 225), width=2)
+    draw.text((x + win_w - 78, y + 37), "-  x", fill=(230, 247, 250), font=_font(13))
+    _draw_status_strip(draw, x + 42, y + 122, ["AI - ORIN", "STATUS - NOT IMPLEMENTED", "PROVIDER - BLOCKED"])
+    card_x1 = x + 28
+    card_x2 = x + win_w - 28
+    _draw_row_card(
+        draw,
+        (card_x1, y + 182, card_x2, y + 346),
+        "01",
+        "AI Status & Trust",
+        "Truthful AI state before any action.",
+        [
+            ("AI", "ORIN not implemented; no real AI executing"),
+            ("Provider", "Blocked; no provider/model path active"),
+            ("Visible data", "None leaves this machine"),
+        ],
+        "Open Control Center",
+    )
+    _draw_row_card(
+        draw,
+        (card_x1, y + 362, card_x2, y + 526),
+        "02",
+        "Readiness & Diagnostics",
+        "Local checks and report doorway.",
+        [
+            ("Local check", "Waiting for USER action"),
+            ("Report", "Local readiness result only"),
+            ("Prompt/data", "Not accepted, sent, stored, or indexed"),
+        ],
+        "Open Diagnostics",
+    )
+    _draw_row_card(
+        draw,
+        (card_x1, y + 542, card_x2, y + 686),
+        "03",
+        "Capabilities & Maintenance",
+        "Install/update intent without execution.",
+        [
+            ("Capability packs", "Install intent blocked; downloads disabled"),
+            ("Updates", "Future-gated; no install execution"),
+        ],
+        "Open Capabilities",
+    )
+    if desktop:
+        draw.rectangle((0, height - 62, width, height), fill=(0, 10, 14))
+        draw.text((24, height - 42), "Option D desktop/context render: compact doorway surface with row grammar inside grouped cards", fill=(130, 190, 198), font=_font(15))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path)
+
+
 def _copy_actual_media() -> list[RenderOption]:
     option_root = PACKET_DIR / "Review Aids" / "Render Media" / "Option-A-current-implementation"
     for kind, source in {
@@ -910,6 +1076,30 @@ def _generate_candidate_media() -> list[RenderOption]:
             )
         )
     return result
+
+
+def _generate_option_d_media() -> list[RenderOption]:
+    folder = "Option-D-row-grammar-doorway"
+    focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / "option-d_focused.png"
+    desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / "option-d_desktop.png"
+    annotated_focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / "option-d_focused_annotated.png"
+    annotated_desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / "option-d_desktop_annotated.png"
+    _draw_option_d_mockup(focused, desktop=False)
+    _draw_option_d_mockup(desktop, desktop=True)
+    _annotate_render(focused, annotated_focused, "OPTION-D", desktop=False)
+    _annotate_render(desktop, annotated_desktop, "OPTION-D", desktop=True)
+    return [
+        RenderOption(
+            "OPTION-D",
+            "Design Candidate Render using deterministic branch-local high-fidelity row-grammar target",
+            "DOORWAY_SHELL",
+            str(focused.relative_to(PACKET_DIR)).replace("\\", "/"),
+            str(desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
+            str(annotated_focused.relative_to(PACKET_DIR)).replace("\\", "/"),
+            str(annotated_desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
+            "Hybrid target: Option A product structure/source-truth labels, Option B compact grouping rhythm, accepted AI Control Center row grammar and full-window feel, with Option C retained only as rejected-risk boundary.",
+        )
+    ]
 
 
 def _options_table(options: list[RenderOption]) -> str:
@@ -999,9 +1189,10 @@ def _artifact_to_surface_ledger_table(options: list[RenderOption]) -> str:
     ]
     for option in options:
         option_note = {
-            "OPTION-A": "Actual current-branch runtime snapshot used as draft target basis; not accepted implementation proof by itself.",
+            "OPTION-A": "Actual current-branch runtime snapshot used as source-structure evidence and comparator; not accepted implementation proof by itself.",
             "OPTION-B": "Deterministic branch-local candidate mockup for possible denser doorway grouping.",
             "OPTION-C": "Deterministic branch-local rejected-risk comparator showing larger settings/workspace mass.",
+            "OPTION-D": "Hybrid row-grammar doorway target using Option A structure, Option B grouping discipline, and the attached accepted AI Control Center row grammar; not implementation proof by itself.",
         }[option.option_id]
         for artifact, artifact_class, proof_target in (
             (option.focused_media, "candidate clean focused render", "focused footprint, density, hierarchy, copy, and doorway layout"),
@@ -1084,9 +1275,13 @@ Any future visible UI/UX change on this branch needs a rendered visual target be
 
 ## Recommended Decision
 
-Recommended: promote `OPTION-A` as the draft target basis because it uses actual current branch runtime screenshot evidence, keeps AI Dashboard as a compact doorway shell, and carries the accepted child/domain window proof. Treat `OPTION-B` as a possible future refinement candidate only if USER wants denser grouping. Treat `OPTION-C` as a rejected-risk comparator because it trends toward the larger workspace/report pattern that caused earlier false-green loops.
+Recommended: review `OPTION-D` as the strongest draft target candidate. It combines `OPTION-A` source-truth product structure and real doorway labels, `OPTION-B` cleaner grouping and compact directory rhythm, and the attached old accepted AI Control Center screenshot as a row-grammar reference for strong title/header, compact deterministic status strip, numbered grouped cards, row-based label/value grammar, useful truthful information, and a realistic full-window product feel. `OPTION-C` remains a rejected-risk boundary because it trends toward the larger workspace/report/status-monitor pattern that caused earlier false-green loops.
 
-Recommendation Boundary: `OPTION-A` is recommended as a draft target basis, not as proof that the current runtime implementation is accepted or complete. If USER accepts `OPTION-A`, later implementation-match proof must still compare actual app evidence against the accepted target and classify any material differences.
+Option D Boundary: the attached old accepted screenshot is a visual grammar reference, not a literal target and not source truth. `OPTION-D` is a branch-local candidate render and draft target basis only; it does not prove current runtime implementation, approve product/runtime UI mutation, or promote a global template.
+
+Anti-Regression Boundary: the AI Dashboard / AI Control Center top-level surface must remain a compact doorway/orientation surface. Row grammar belongs inside grouped doorway cards and focused child/detail surfaces; it must not regress into twelve separate top-level status cards, a status monitor, a debugger surface, or a long report body.
+
+Recommendation Boundary: `OPTION-D` is recommended as a draft target basis, not as proof that the current runtime implementation is accepted or complete. If USER accepts `OPTION-D`, later implementation-match proof must still compare actual app evidence against the accepted target and classify any material differences.
 
 ## USER Decision Needed
 
@@ -1286,6 +1481,8 @@ Target Status: `DRAFT`
 
 Target Boundary: `Branch-local guide/template candidate only; not final implemented product truth by itself.`
 
+Recommended Draft Basis: `OPTION-D pending USER selection`
+
 Selected Option(s): `Pending USER selection`
 
 Surface Purpose: AI Dashboard / AI Control Center should be a compact top-level AI orientation and control-entry doorway. It should tell the USER what AI exists, what state it is in, what is safe or blocked, and where to go for grouped AI subsystems.
@@ -1301,6 +1498,8 @@ State Matrix: default, hover, focus, pressed, disabled, empty/no-data, blocked/e
 Copy Rules: copy must be truthful, compact, user-readable, and must not imply provider/model/cache/memory/download/private setup execution.
 
 Spacing / Density Rules: top-level content stays compact, orienting, trust-critical, or navigational. Long report bodies and setup/detail flows go behind focused surfaces.
+
+Row Grammar Rule: row-based label/value grammar from the attached old accepted AI Control Center image is a visual grammar reference for grouped cards and focused child/detail surfaces. It is not a literal target, not source truth by itself, and must not expand the top-level AI Dashboard into a status monitor, debugger, or long report body.
 
 Button / Control Rules: same-purpose buttons and window controls consume UIREF-002 and UIREF-003 unless a source-truth exception is recorded.
 
@@ -1335,12 +1534,13 @@ Boundary: rejected patterns are candidate/comparator dispositions, not claims th
 | `RPL-005` | fake workspace for deferred feature | capability/provider/private placeholders | implies unavailable capability exists | could imply provider/model/private/cache/memory/download approval | disabled/future-gated state proof required | crosses FAM-008/private/provider boundaries | accepted target could overclaim runtime behavior | use compact future-gated/blocked copy and route future work to owning gates |
 | `RPL-006` | marker-only or local-path proof | packet false-green incidents | USER cannot inspect real artifact | helper PASS could replace USER judgment | missing ZIP-byte media proof | violates packet proof owner boundaries | implementation-match claim lacks artifact of record | include real media in ZIP with annotation and relevance manifests |
 | `RPL-007` | candidate treated as final product truth | previous false-green loops | USER may accept a direction as if runtime is done | bypasses H1/LV/UTS/PR gates | no actual app state proof | conflicts with UIREF-006 overclaim enforcement | implementation differences go unclassified | keep candidate, target, implementation proof, LV proof, UTS proof, and PR proof separate |
+| `RPL-008` | twelve-card status monitor / debugger top-level regression | previous AI Control Center IA failures; `OPTION-C` risk boundary | top-level AI surface stops being a compact doorway/orientation surface | could bypass BP/IA ownership by turning grouped systems into one status board | state coverage explodes without focused child-surface proof | conflicts with AI Home / Control Foyer internal model and Product Experience Contract | visual target can look informative while failing navigation intent | keep AI Dashboard compact; place row grammar inside grouped doorway cards and route detailed reports behind focused surfaces |
 """,
     )
     _write_text("Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md", "# Reusable Design Recipe Template\n\nStatus: `TEMPLATE ONLY - fill after USER accepts a Visual Acceptance Target guide. This template is not final implemented product truth by itself.`\n\n| Field | Value |\n| --- | --- |\n| Accepted surface class |  |\n| Accepted footprint class |  |\n| Token values / dimensions |  |\n| Padding |  |\n| Spacing |  |\n| Button heights |  |\n| Font scale |  |\n| Status chip pattern |  |\n| Title/header grammar |  |\n| Resize behavior |  |\n| Copy pattern |  |\n| State pattern |  |\n| Accepted comparator references |  |\n| Rejected alternatives |  |\n| Future branch reuse notes |  |\n| Proof requirements |  |")
     _write_text("Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md", "# Source-Truth Conflict Classification\n\n| Candidate Decision | Classification | Disposition |\n| --- | --- | --- |\n| Require rendered visual target before future visible UI implementation on this branch | `BRANCH_LOCAL_VISUAL_DECISION` | legal branch-local process; Governance/global version is candidate only |\n| Treat current FAM-007 actual screenshot as branch-local target candidate | `NO_CONFLICT` | comparator seed only, not global template promotion |\n| Require FAM-002/UIREF comparison for same-class controls | `NO_CONFLICT` | matches Project Vision, FAM-002, UIREF-001 through UIREF-006 |\n| Promote AI Dashboard / AI Control Center as global gold standard | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Add reusable global helper/validator for all branches | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Implement product/runtime UI change in this pass | `USER_DECISION_REQUIRED` | not approved by this packet |")
     _write_text("Review Aids/GOVERNANCE_CANDIDATE_ONLY.md", "# Governance Candidate Only\n\nCandidate: create a global Visual Acceptance Target process for all future Nexus visible UI/UX work.\n\nReason: FAM-007 and FAM-006 false-green loops show that implementation-first UI work creates repair loops. A global rule should require substantial rendered targets, annotated and clean render media, annotation manifests, element legends, state matrices, full desktop/context renders, rejected-pattern ledgers, reusable design recipes, and implementation-match proof before visible UI work can proceed.\n\nTemplate Boundary: a global visual target process should say that accepted targets are guides/templates/comparators for implementation alignment, not final product truth by themselves.\n\nApproval Needed: USER-approved Governance/FAM-002 carrier after this branch-local process is reviewed. This FAM-007 pass does not mutate Governance and does not promote a global template.")
-    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, curated decision-relevant packet images, and packet media included in the ZIP.\n\nUDL rows F7-UDL-019 and F7-UDL-021 track annotation readability/bounds and final-packet image relevance. Existing known-bad packet defects remain preserved as historical false-green evidence.")
+    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, curated decision-relevant packet images, and packet media included in the ZIP.\n\nUDL rows F7-UDL-019, F7-UDL-021, F7-UDL-022, and F7-UDL-023 track annotation readability/bounds, final-packet image relevance, comparative-audit ledgers, and the Option D row-grammar hybrid target candidate. Existing known-bad packet defects remain preserved as historical false-green evidence.")
     _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, annotated renders for each option, annotation manifest mapping marker IDs to visual regions, annotation label/leader geometry in bounds, visible marker label text pixels inside each label box, image relevance manifest coverage for every included image, final USER-review image scope, element legend, state matrix, template-not-endstate wording, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
 
     context_files = {
@@ -1645,14 +1845,16 @@ def _option_id_from_annotated_path(path: Path) -> str | None:
         return "OPTION-B"
     if "option-c" in normalized:
         return "OPTION-C"
+    if "option-d" in normalized:
+        return "OPTION-D"
     return None
 
 
 def _validate_annotation_images(packet_dir: Path) -> list[str]:
     failures: list[str] = []
     annotated_images = sorted((packet_dir / "Review Aids" / "Render Media").rglob("*_annotated.png"))
-    if len(annotated_images) < 6:
-        failures.append(f"Expected at least 6 annotated render images; found {len(annotated_images)}")
+    if len(annotated_images) < EXPECTED_ANNOTATED_IMAGE_COUNT:
+        failures.append(f"Expected at least {EXPECTED_ANNOTATED_IMAGE_COUNT} annotated render images; found {len(annotated_images)}")
     for image_path in annotated_images:
         option_id = _option_id_from_annotated_path(image_path)
         if option_id is None:
@@ -1706,8 +1908,8 @@ def _validate_image_relevance_manifest(packet_dir: Path) -> list[str]:
         for path in packet_dir.rglob("*")
         if path.is_file() and path.suffix.casefold() in {".png", ".jpg", ".jpeg", ".gif", ".webp"}
     )
-    if len(image_paths) != 12:
-        failures.append(f"Expected exactly 12 curated final-packet images; found {len(image_paths)}")
+    if len(image_paths) != EXPECTED_RENDER_IMAGE_COUNT:
+        failures.append(f"Expected exactly {EXPECTED_RENDER_IMAGE_COUNT} curated final-packet images; found {len(image_paths)}")
     for relative in image_paths:
         if not relative.startswith("Review Aids/Render Media/"):
             failures.append(f"Final USER packet includes non-curated image outside Render Media: {relative}")
@@ -1751,6 +1953,7 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "OPTION-A",
             "OPTION-B",
             "OPTION-C",
+            "OPTION-D",
         ],
         "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md": [
             "Material visual differences require USER approval",
@@ -1789,11 +1992,14 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "UIREF / FAM boundary risk",
             "Implementation-match risk",
             "candidate/comparator dispositions",
+            "twelve-card status monitor",
         ],
         "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md": [
             "Material Difference Rule",
             "Caveat Handling",
             "artifact-to-surface trace",
+            "Row Grammar Rule",
+            "OPTION-D",
         ],
     }
     for relative, terms in required_terms_by_file.items():
@@ -1817,6 +2023,8 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
         "CAVEAT_LEDGER.md",
         "Material visual differences require USER approval",
         "caveat acceptance only records required follow-up",
+        "OPTION-D",
+        "row grammar",
     ):
         if term.casefold() not in primary_text.casefold():
             failures.append(f"Primary USER decision path missing comparative-audit routing/boundary term: {term}")
@@ -1827,7 +2035,7 @@ def generate() -> Path:
     zip_path = USER_ROOT / f"{WORKTREE_LABEL}-{_stamp()}.zip"
     _purge_packet_root()
     _update_external_state(zip_path)
-    options = _copy_actual_media() + _generate_candidate_media()
+    options = _copy_actual_media() + _generate_candidate_media() + _generate_option_d_media()
     _write_packet_files(options)
     _create_zip(zip_path)
     return zip_path
@@ -1850,12 +2058,12 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         failures.append(f"Expected exactly one primary USER review file; found {len(primary_files)}")
     option_text_path = packet_dir / "Review Aids" / "VISUAL_OPTIONS_PACKET.md"
     option_text = option_text_path.read_text(encoding="utf-8") if option_text_path.exists() else ""
-    for option_id in ("OPTION-A", "OPTION-B", "OPTION-C"):
+    for option_id in OPTION_IDS:
         if option_id not in option_text:
             failures.append(f"Visual option missing: {option_id}")
     media_files = sorted((packet_dir / "Review Aids" / "Render Media").rglob("*.png"))
-    if len(media_files) != 12:
-        failures.append(f"Expected exactly 12 curated render media PNGs; found {len(media_files)}")
+    if len(media_files) != EXPECTED_RENDER_IMAGE_COUNT:
+        failures.append(f"Expected exactly {EXPECTED_RENDER_IMAGE_COUNT} curated render media PNGs; found {len(media_files)}")
     for image_path in media_files:
         try:
             with Image.open(image_path) as image:
@@ -1869,7 +2077,7 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
     annotation_text = annotation_manifest.read_text(encoding="utf-8") if annotation_manifest.exists() else ""
     if not annotation_text:
         failures.append("Annotation manifest missing or empty")
-    for option_id in ("OPTION-A", "OPTION-B", "OPTION-C"):
+    for option_id in OPTION_IDS:
         for index in range(1, len(ANNOTATION_ELEMENTS) + 1):
             marker_id = f"{option_id}-A{index:02d}"
             if marker_id not in annotation_text:
@@ -1897,6 +2105,8 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         "not final implemented product truth by itself",
         "code-to-visual proof",
         "clean and annotated render media",
+        "OPTION-D",
+        "row grammar",
     )
     for term in required_boundary_terms:
         if term not in generated_text:
@@ -1918,11 +2128,11 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
             if folder_entries != zip_entries:
                 failures.append("Folder/ZIP parity failed")
             image_entries = [entry for entry in zip_entries if entry.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp"))]
-            if len(image_entries) != 12:
-                failures.append(f"Expected exactly 12 curated ZIP images; found {len(image_entries)}")
+            if len(image_entries) != EXPECTED_RENDER_IMAGE_COUNT:
+                failures.append(f"Expected exactly {EXPECTED_RENDER_IMAGE_COUNT} curated ZIP images; found {len(image_entries)}")
             annotated_entries = [entry for entry in image_entries if "_annotated" in entry]
-            if len(annotated_entries) != 6:
-                failures.append(f"Expected 6 annotated ZIP images for every option render; found {len(annotated_entries)}")
+            if len(annotated_entries) != EXPECTED_ANNOTATED_IMAGE_COUNT:
+                failures.append(f"Expected {EXPECTED_ANNOTATED_IMAGE_COUNT} annotated ZIP images for every option render; found {len(annotated_entries)}")
             if "Review Aids/ANNOTATION_MANIFEST.md" not in zip_entries:
                 failures.append("ZIP missing annotation manifest")
             if "Review Aids/IMAGE_RELEVANCE_MANIFEST.md" not in zip_entries:
