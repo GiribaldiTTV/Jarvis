@@ -742,6 +742,8 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Current gate: Live Validation Stage 1 USER-operated visual retest remains pending for the existing regenerated detailed-UDL packet. This packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.
 
+        Branch-local governance hardening: This packet now applies the FAM-003 Branch-Local Visual Acceptance Target overlay. Durable repo-wide enforcement, shared settings primitives/templates, and sibling adoption remain future Governance/FAM-002/owning-FAM decisions.
+
         USER action: Review the six Design Candidate Renders, treating A/B/C as retained references and D/E/F as new refinement candidates. Use the Visual Selection Ledger to accept/reject/combine/revise elements and decide whether one candidate or hybrid should become the Draft Branch Visual Acceptance Target after revision.
 
         Archive proof: The final archive checksum is tracked externally after generation. Packet files intentionally do not contain their own final archive checksum.
@@ -756,6 +758,8 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         Verdict requested: choose `ACCEPT OPTION`, `COMBINE`, `REVISE`, or `REJECT ALL` for the visual target direction. This is a design-target review only.
 
         Current product gate: Live Validation Stage 1 USER-operated visual retest is still pending. This review does not accept LV, does not complete UTS, does not approve PR Readiness, and does not authorize merge, release, cleanup, sibling mutation, Governance mutation, or provider/private/cache/memory work.
+
+        Branch-local governance posture: The FAM-003 Branch-Local Visual Acceptance Target overlay is active for this packet. Design Candidate Render evidence is USER-review input only. A candidate becomes the branch comparison target only after USER selection, combination, revision, waiver, or rejection is recorded. Durable repo-wide Visual Acceptance Target enforcement remains a future Governance/FAM-002 candidate.
 
         ## Options
 
@@ -809,7 +813,8 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         Missing / stale / conflicting authority found:
         - No promoted UI implementation template or shared primitive exists in `Docs/ui_reference_catalog/index.md`; UIREF records are references, not implementation proof.
         - Current active LV1 packet remains separate from this visual-target packet.
-        - Current source truth admits FAM-003 branch-local resident/tray/settings work, but reusable global visual-target enforcement must be Governance Candidate Only.
+        - Current source truth admits FAM-003 branch-local resident/tray/settings work and this Branch-Local Visual Acceptance Target overlay, but reusable global visual-target enforcement remains Governance/FAM-002 candidate-only.
+        - Prior packet wording in `Review Aids/GOVERNANCE_CANDIDATE_ONLY.md` was stale after USER approved branch-local hardening; this regenerated packet supersedes that wording.
         """,
     )
 
@@ -988,7 +993,8 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         | Future Tray click/right-click options | `BRANCH_LOCAL_VISUAL_DECISION` + `USER_DECISION_REQUIRED` for implementation | Future-gated; target can reserve IA without fake active controls. |
         | Developer/Owner tray category | `GOVERNANCE_CANDIDATE_ONLY` / FAM-007 future | Must remain hidden/deferred until FAM-007 admits semantics. |
         | AI privacy/provider status in tooltip/menu | `FAMILY_FEATURE_VISION_REPAIR_REQUIRED` only if taxonomy changes | FAM-003 scaffold is dependency evidence; FAM-007 may alter it through BP gates. |
-        | Global reusable visual-target gate for all branches | `GOVERNANCE_CANDIDATE_ONLY` | Needs Governance source-truth change, helper/fixture approval, and USER approval. |
+        | FAM-003 Branch-Local Visual Acceptance Target overlay | `BRANCH_LOCAL_SOURCE_TRUTH_HARDENING` | Admitted for this carrier only; governs Design Candidate Render review, USER_ACCEPTED target selection, and implementation-match proof routing. |
+        | Global reusable visual-target gate for all branches | `GOVERNANCE_CANDIDATE_ONLY` | Needs Governance source-truth change, helper/fixture approval, fixture coverage, and USER approval. |
         """,
     )
 
@@ -1008,14 +1014,32 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
     write(
         PACKET_ROOT / "Review Aids" / "GOVERNANCE_CANDIDATE_ONLY.md",
         """
-        # Governance Candidate Only
+        # Branch-Local vs Durable Governance Disposition
 
-        | Candidate | Reason | USER Approval Needed |
-        | --- | --- | --- |
-        | Repo-wide Visual Acceptance Target phase/gate | Current prompt only approves branch-local process. | Approve Governance intake to add source-truth rule, helper expectations, fixtures, and packet schema. |
-        | Shared implementation templates or primitives for NDAI settings windows | UIREF index has promoted references but no promoted templates/primitives. | Approve FAM-002/Governance carrier for shared tokens/templates. |
-        | Global validator requiring visual targets for every UI diff | Could false-red without precise route rules and fixtures. | Approve helper/validator implementation with positive/negative fixtures. |
-        | Durable Global Settings IA beyond FAM-003 Tray & Quick Access | FAM-003 current scope is minimal resident/settings foundation. | Approve a broader branch/FAM owner after branch planning. |
+        | Item | Current Disposition | Reason | USER Approval Needed |
+        | --- | --- | --- | --- |
+        | FAM-003 Branch-Local Visual Acceptance Target overlay | `ADMITTED_FOR_THIS_BRANCH` | USER approved FAM-003 branch-local source-truth/governance hardening for evidence-first UI/UX review. | None for this packet; USER still must choose, revise, combine, reject, or waive the visual target. |
+        | Repo-wide Visual Acceptance Target phase/gate | `GOVERNANCE_CANDIDATE_ONLY` | This branch may prove the pattern, but durable repo-wide enforcement needs a separate Governance/FAM-002 route. | Approve Governance intake to add source-truth rule, helper expectations, fixtures, and packet schema. |
+        | Shared implementation templates or primitives for NDAI settings windows | `FAM-002_OR_GOVERNANCE_CANDIDATE_ONLY` | UIREF index has promoted references but no promoted templates/primitives. | Approve FAM-002/Governance carrier for shared tokens/templates. |
+        | Global validator requiring visual targets for every UI diff | `GOVERNANCE_CANDIDATE_ONLY` | Could false-red without precise route rules and fixtures. | Approve helper/validator implementation with positive/negative fixtures. |
+        | Durable Global Settings IA beyond FAM-003 Tray & Quick Access | `BROADER_BRANCH_OR_OWNER_CANDIDATE` | FAM-003 current scope is minimal resident/settings foundation. | Approve a broader branch/FAM owner after branch planning. |
+        """,
+    )
+
+    write(
+        PACKET_ROOT / "Review Aids" / "BRANCH_LOCAL_GOVERNANCE_HARDENING.md",
+        """
+        # Branch-Local Governance Hardening Ledger
+
+        Scope: FAM-003 branch-local Visual Acceptance Target packet and supporting helper/validator/source-truth wording only.
+
+        | Defect ID | Finding | Risk | Repair / Closure Proof |
+        | --- | --- | --- | --- |
+        | `GOV-VAT-001` | Prior `GOVERNANCE_CANDIDATE_ONLY.md` wording said the prompt only approved branch-local process and did not reflect USER-approved branch-local governance/source-truth hardening. | Stale packet wording could blur active branch-local overlay versus durable repo-wide candidate status. | Regenerated this file as `Branch-Local vs Durable Governance Disposition`; FAM-003 branch-local overlay is admitted while repo-wide enforcement remains candidate-only. |
+        | `GOV-VAT-002` | Phase governance had strong Live Validation visual proof law but lacked an explicit branch-local Visual Acceptance Target overlay model for pre-implementation or pre-green UI/UX option packets. | Design candidates, screenshots, or helper green could be mistaken for accepted target or implementation match. | `Docs/phase_governance.md` now defines the branch-local overlay, required classifications, evidence rules, packet fields, blockers, and durable-governance routing boundary. |
+        | `GOV-VAT-003` | The FAM-003 visual-target validator did not require branch-local governance hardening markers, seed-defect language, or durable-governance split language. | A packet could pass while omitting the new false-green-prevention semantics. | `dev/orin_fam003_visual_acceptance_target_validation.py` now requires those markers and this regenerated packet carries them. |
+
+        USER/ChatGPT UI findings are seed defects, not the ceiling. Codex Independent Evidence Inspection remains required before any future visual green claim. This ledger does not make the packet LV green, UTS complete, PR-ready, merge-ready, release-ready, or cleanup-ready.
         """,
     )
 
@@ -1108,6 +1132,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         "reusable_design_recipe_template_20260624.md": PACKET_ROOT / "Review Aids" / "REUSABLE_DESIGN_RECIPE_TEMPLATE.md",
         "source_truth_conflict_classification_20260624.md": PACKET_ROOT / "Review Aids" / "SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md",
         "udl_false_green_integration_20260624.md": PACKET_ROOT / "Review Aids" / "UDL_FALSE_GREEN_INTEGRATION.md",
+        "visual_acceptance_governance_hardening_20260624.md": PACKET_ROOT / "Review Aids" / "BRANCH_LOCAL_GOVERNANCE_HARDENING.md",
         "visual_acceptance_target_packet_manifest_20260624.md": PACKET_ROOT / "Review Aids" / "PACKET_MANIFEST.md",
     }
     for name, src in state_map.items():
@@ -1123,6 +1148,7 @@ Receipt Timestamp: `{dt.datetime.now().isoformat(timespec='seconds')}`
 Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target process and USER packet generation; no product/runtime UI implementation, no renewed LV/UTS acceptance, no PR, merge, release, cleanup, issue, sibling, Governance, neutral-main, provider/model/private/cache/memory, installer/startup/shortcut/packaging mutation.`
 Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
 Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
+Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; durable repo-wide enforcement, shared primitives/templates, global helper/fixture gates, and sibling adoption remain future Governance/FAM-002/owning-FAM candidates.`
 Visual Impact Classification: `MATERIAL_UI_UX_CHANGE; EXISTING_SURFACE_LAYOUT_CHANGE; NEW_CONTROL_CLUSTER; SETTINGS_OR_IA_CHANGE; STATUS_ERROR_OR_EMPTY_STATE_CHANGE; VISUAL_SYSTEM_ADOPTION; AMBIGUOUS_VISUAL_CONTRACT; USER_REPORTED_VISUAL_FAILURE; FALSE_GREEN_VISUAL_PROOF_FAILURE.`
 Visual Options Packet: `{PACKET_ROOT}\\Review Aids\\VISUAL_OPTIONS_PACKET.md`
 Render Media Root: `{proof_root}\\render_media`
@@ -1163,6 +1189,7 @@ Receipt Timestamp: `{dt.datetime.now().isoformat(timespec='seconds')}`
 Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target packet generation cleanup repair; standard USER packet lane restored.`
 Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
 Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
+Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; packet now records seed-defect, independent-evidence-inspection, USER_ACCEPTED target, and implementation-match boundaries without promoting repo-wide enforcement.`
 USER Packet Folder: `{PACKET_ROOT}`
 USER Packet ZIP Path: `{zip_path}`
 USER Packet ZIP SHA256: `{digest}`

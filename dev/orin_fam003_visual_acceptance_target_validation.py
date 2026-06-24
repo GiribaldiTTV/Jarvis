@@ -33,6 +33,7 @@ REQUIRED_REVIEW_AIDS = (
     "SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md",
     "UDL_FALSE_GREEN_INTEGRATION.md",
     "GOVERNANCE_CANDIDATE_ONLY.md",
+    "BRANCH_LOCAL_GOVERNANCE_HARDENING.md",
     "ARTIFACT_TO_SURFACE_LEDGER.md",
     "PACKET_MANIFEST.md",
     "VALIDATION_RESULTS.md",
@@ -52,6 +53,7 @@ REQUIRED_STATE_FILES = (
     "reusable_design_recipe_template_20260624.md",
     "source_truth_conflict_classification_20260624.md",
     "udl_false_green_integration_20260624.md",
+    "visual_acceptance_governance_hardening_20260624.md",
 )
 FORBIDDEN_ACTIVE_REVIEW_PATTERNS = (
     re.compile(r"\bUSER_BRANCH_PLAN_REVIEW\.md\b", re.IGNORECASE),
@@ -158,6 +160,13 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "C/A Hybrid",
         "Polished NDAI Compact Shell",
         "Deterministic Dirty Guard",
+        "Branch-Local Visual Acceptance Target overlay",
+        "USER/ChatGPT UI findings are seed defects",
+        "Codex Independent Evidence Inspection",
+        "Durable repo-wide",
+        "GOV-VAT-001",
+        "GOV-VAT-002",
+        "GOV-VAT-003",
     )
     for marker in required_markers:
         if marker not in combined_user_text and marker not in "\n".join(

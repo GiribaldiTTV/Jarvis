@@ -2889,6 +2889,81 @@ was insufficient, patch the smallest reliable validator/helper coverage that
 would have caught the defect, rerun validation, and only then recommend PR
 Readiness or user handoff again.
 
+### Branch-Local Visual Acceptance Target Overlay
+
+An active implementation branch may record a branch-local Visual Acceptance
+Target overlay only when USER approval names the branch, worktree, affected
+surface class, and source-truth owners. The overlay is provisional branch-local
+source truth for that carrier; it is not a durable repo-wide phase, global UI
+standard, implementation template, shared primitive, or reusable validator
+mandate until a later Governance/FAM-002 carrier promotes it.
+
+Applies To: material UI/UX direction on the approved branch, including settings
+surfaces, tray menus, window chrome, dropdowns, lists, filters, buttons, dirty
+guards, state labels, tooltips, and other visible element groups where USER or
+Codex must select or compare a visual direction before implementation or before
+a green claim can be trusted.
+
+Required classification before implementation or green claims:
+
+- material UI/UX changes must be classified before implementation, renewed
+  Live Validation, UTS handoff, PR Readiness, or any visual green claim
+- when a packet includes design options, candidate renders, mockups, reference
+  comparisons, or hybrid recommendations, the packet must label them as
+  `Design Candidate Render`, `Reference`, `Rejected Pattern`,
+  `USER_ACCEPTED`, `REPAIR_REQUIRED`, `WAIVED_WITH_REASON`, or
+  `Not Applicable With Reason`
+- design candidate renders are evidence for USER judgment only; they are not
+  source truth until USER selects, combines, revises, rejects, or waives them
+- a USER-accepted Visual Acceptance Target becomes the comparison target for
+  the affected branch-local surfaces and states
+- future Workstream, Hardening, Live Validation, UTS, or PR Readiness visual
+  green claims for those surfaces require actual implementation evidence
+  compared against the accepted target
+
+Evidence rules:
+
+- the packet must include actual inspectable evidence when evidence is in
+  scope, such as PNG screenshots, contact sheets, videos, ordered frame
+  sequences, code-to-visual traces, state matrices, or explicit proof-gap rows
+- local paths, screenshot existence, marker presence, helper green output,
+  validator green output, attractive screenshots, or packet ZIP parity cannot
+  by themselves prove visual acceptance or implementation match
+- USER/ChatGPT UI findings are seed defects, not the ceiling; Codex must
+  independently inspect nearby element groups, adjacent states, and likely
+  user journeys within the approved scope before reporting the surface green
+- hybrid or additional option recommendations are valid review inputs when the
+  source truth and USER approval allow additional rendered candidates; those
+  options must carry the same evidence, tradeoff, and state-matrix expectations
+  as the original candidates
+- if USER/ChatGPT identifies UI defects, proof gaps, false-green risk, or
+  missing evidence, the owning branch must use the Unified Defect Ledger or
+  equivalent active external branch ledger before broad repair or closure
+
+Required packet fields when a branch-local Visual Acceptance Target packet is
+generated: `Current Gate:`, `Design Candidate Render:`, `Visual Acceptance
+Target:`, `USER_ACCEPTED:`, `REPAIR_REQUIRED:`, `Implementation Match Proof:`,
+`Artifact To Surface Ledger:`, `State Matrix:`, `Rejected Patterns Ledger:`,
+`Source-Truth Conflict Classification:`, `Branch-Local vs Durable Governance
+Disposition:`, `USER / ChatGPT Findings Are Seed Defects:`, `Codex Independent
+Evidence Inspection:`, `Current Gate Preserved:`, and `Not LV Green / Not UTS
+Complete / Not PR-Ready:` or equivalent USER-readable wording.
+
+Blocking conditions: `Visual Impact Classification Missing`, `Design Candidate
+Evidence Missing`, `Visual Acceptance Target USER Decision Missing`, `Candidate
+Render Treated As Source Truth`, `Screenshot Existence Treated As Acceptance`,
+`Implementation Match Proof Missing`, `USER Finding Ceiling Assumed`,
+`Codex Independent Evidence Inspection Missing`, `Branch-Local Visual Overlay
+Overclaimed As Repo-Wide Governance`, `Visual Defect Ledger Missing`, and
+`Visual Target Packet Evidence Missing`.
+
+Routing: a branch-local overlay may repair its own packets, validators,
+fixtures, helper registry rows, and active external branch ledgers only inside
+the approved carrier. Durable repo-wide enforcement, reusable packet schemas,
+shared settings primitives/templates, global helper/fixture gates, and sibling
+worktree adoption remain Governance/FAM-002 or owning-FAM follow-up work unless
+separately approved.
+
 ## Phase Transition Rule
 
 - `Branch Readiness` -> `Branch Planning` only after branch base, branch class, authority record, branch objective, target end-state, complete family-package product planning packet when applicable, project-wide vision alignment, branch-specific vision alignment, product-system concept model, entity/profile model, user workflow model, scale/state planning, expected seam families and risk classes, validation contract, User Test Summary strategy, later-phase expectations, USER critique/decision loop, Codex additional recommendations, and first Branch Planning target are explicit, and no `Branch Readiness Planning Incomplete` blocker remains active unless explicitly USER-waived
