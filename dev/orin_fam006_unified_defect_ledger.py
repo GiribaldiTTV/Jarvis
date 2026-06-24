@@ -691,7 +691,7 @@ def seed_defects() -> list[dict[str, Any]]:
                 "Row-specific adjacent sweep for FAM006-UDL-023: inspected adjacent surfaces/files `dev/orin_fam006_full_desktop_false_green_review.py`, "
                 "`dev/orin_fam006_unified_defect_ledger.py`, `dev/orin_fam006_false_accept_regression_gate.py`, `Docs/family_feature_visions/FAM-006_recording.md`, "
                 "`Docs/validation_helper_registry.md`, active USER packet layout, and external manifest receipt; adjacent behavior inspected: A2 shell height, A2 final-row bottom spacing, "
-                "Log Viewer doorway shell height, Log Viewer final-row bottom spacing, accepted control-pill chrome comparison, validation contract fields, known-bad corpus replay, and packet media inclusion; "
+                "Log Viewer doorway shell height, Log Viewer final-row bottom spacing, accepted control-pill chrome comparison, validation contract fields, row-specific proof media, validator contract fields, known-bad corpus replay, and packet media inclusion; "
                 "additional adjacent defects found: none beyond the 145849 bottom-dead-space / chrome false-green class and already linked FAM006-UDL-018 / FAM006-UDL-019 / FAM006-UDL-020 / FAM006-UDL-021 / FAM006-UDL-022; "
                 "linked UDL IDs added/reopened: FAM006-UDL-018 through FAM006-UDL-023; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
             ),
