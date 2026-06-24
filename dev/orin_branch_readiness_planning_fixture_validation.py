@@ -293,6 +293,9 @@ INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
 )
+INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_DISPOSITION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_disposition.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -383,6 +386,7 @@ EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET = (
 )
 EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET = "Owned Surface Issue Candidate Missing"
 EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET = "Normal Phase Progression Blocked By RAR"
+EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET = "Issue Candidate Disposition Missing"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -1746,6 +1750,51 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     require(issue_candidate_header in text, "Owned Surface Issue Candidate Missing")
     require(rar_decision_header in text, "RAR USER Packet Missing")
 
+    def table_rows_after_header(header: str) -> list[list[str]]:
+        lines = text.splitlines()
+        try:
+            header_index = next(
+                index for index, line in enumerate(lines) if line.strip() == header
+            )
+        except StopIteration:
+            return []
+        rows: list[list[str]] = []
+        for line in lines[header_index + 1 :]:
+            if not line.strip().startswith("|"):
+                if rows:
+                    break
+                continue
+            cells = governance._markdown_table_cells(line)
+            if governance._is_markdown_table_separator(cells):
+                continue
+            rows.append(cells)
+        return rows
+
+    def has_real_issue_candidate_row(rows: list[list[str]]) -> bool:
+        for row in rows:
+            if len(row) < 8:
+                continue
+            candidate = governance._normalized_planning_value(row[0])
+            surface = governance._normalized_planning_value(row[2])
+            element_group = governance._normalized_planning_value(row[3])
+            defect_class = governance._normalized_planning_value(row[4])
+            false_candidate = (
+                not candidate
+                or candidate in {"none", "n/a", "not applicable"}
+                or "no issue candidate" in candidate
+                or "missing candidate" in candidate
+            )
+            if (
+                not false_candidate
+                and surface not in {"", "none", "n/a", "not applicable"}
+                and element_group not in {"", "none", "n/a", "not applicable"}
+                and defect_class not in {"", "none", "n/a", "not applicable"}
+            ):
+                return True
+        return False
+
+    issue_candidate_rows = table_rows_after_header(issue_candidate_header)
+
     for quality in (
         "deterministic",
         "intuitive",
@@ -1791,14 +1840,12 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "RAR Live Adoption Ledger In Repo",
     )
 
-    issue_table = governance._extract_marker_value(text, "Issue-Candidate Table:")
     previous_candidates = governance._extract_marker_value(
         text, "Previous / Historical Branch Issue Candidates:"
     )
     if "none" not in previous_candidates.casefold():
         require(
-            "issue candidate" in issue_table.casefold()
-            and "github issue mutation approved" in text.casefold(),
+            has_real_issue_candidate_row(issue_candidate_rows),
             "Owned Surface Issue Candidate Missing",
         )
 
@@ -1828,14 +1875,17 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "Product Experience Contract Nonconformance Unresolved",
     )
 
-    if "ISSUE CANDIDATE" in text:
+    if "issue candidate" in normalized:
         decision_table = governance._extract_marker_value(
             text, "Repair / Waiver / Defer / Route Decision Table:"
         )
+        normalized_decision_table = governance._normalized_planning_value(
+            decision_table
+        )
         require(
-            "USER review" in decision_table
-            or "pending USER" in decision_table
-            or "issue candidate" in decision_table.casefold(),
+            "user review" in normalized_decision_table
+            or "pending user" in normalized_decision_table
+            or "issue candidate" in normalized_decision_table,
             "Issue Candidate Disposition Missing",
         )
 
@@ -5860,6 +5910,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject normal phase progression while RAR remains active"
+        )
+
+    issue_disposition_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_DISPOSITION_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        issue_disposition_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing mixed-case issue-candidate disposition"
         )
 
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
