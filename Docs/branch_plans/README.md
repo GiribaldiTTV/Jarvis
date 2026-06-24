@@ -58,6 +58,33 @@ Infrastructure and setup can be branch-worthy only when tied to a selected imple
 
 Multi-slice branches are legal when the slices share one FAM, one package objective, one selected implementation route, one owner/worktree, aligned release/PR timing, and one validation/proof path that can cover the grouped scope. Split the work when family ownership, package objective, implementation route, private/runtime/provider action gate, release timing, validation path, risk class, or owner/worktree boundary diverges enough that one bounded Workstream package would blur authority or weaken proof.
 
+## Visual Acceptance Target Planning Requirement
+
+`Docs/phase_governance.md` owns the `Visual Acceptance Target Gate`. Branch plans carry the branch-local application of that gate.
+
+When the selected implementation route includes a material visible UI/UX change, the active external branch plan must record a `Visual Acceptance Target Plan:` before Workstream runtime UI implementation begins. The plan must say whether the change is `Not Applicable With Reason`, `Concept Only`, `Design Candidates Reviewable`, `USER_ACCEPTED Visual Acceptance Target`, `USER_REVISED Visual Acceptance Target`, `USER_WAIVED Visual Acceptance Target`, `Implementation Match Proof Pending`, `Implementation Match Proof PASS`, `Implementation Match Proof REPAIR`, or `Blocked`.
+
+Required branch-plan fields when the gate applies:
+
+- `Visual Acceptance Target Plan:`
+- `Material Visible Change Classification:`
+- `Render Authority Level:`
+- `Design Candidate Packet Path:` when USER selection is needed
+- `Design Candidate Media Included:`
+- `Visual Selection Ledger:`
+- `Rejected Pattern Ledger:`
+- `Source-Truth Conflict Classification:`
+- `USER Visual Target Decision State:`
+- `Accepted Visual Acceptance Target Path:` after USER acceptance or revision
+- `Implementation Match Proof Plan:`
+- `Implementation Match Proof Evidence:` after code changes
+- `Visual Target Exceptions / Waivers:`
+- `Visual Target Next Legal Phase:`
+
+BP1 should discover the visual purpose, source-truth conflicts, reference set, and whether the USER needs options before deciding final branch shape. BP2 should translate the accepted or waived visual direction into implementation proof requirements, state coverage, screenshot/video needs, and rollback. BP3 should verify that Workstream may implement only the USER-accepted/revised/waived target or explicitly route unresolved visual direction back to BP1/BP2. Workstream must not implement a material visible UI/UX change before the target decision is legal. Hardening and Live Validation must compare actual implementation screenshots/video against the accepted target; they cannot replace the missing target with post-hoc visual judgment.
+
+Branch-local external plans may keep detailed target ledgers and packet paths. Repo branch-plan files remain compact pointer and schema owners; they must not become live visual-target ledgers.
+
 When BR2 cannot complete because infrastructure or lane groundwork blocks the selected route, the active branch plan or BR2 packet must include:
 
 - Infrastructure / Lane Groundwork Blockers:

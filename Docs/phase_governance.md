@@ -576,6 +576,70 @@ USER Decision Required: Required to waive the matrix, accept subjective/manual v
 Validation Owner: Future helper/validator hardening should extend branch governance validation, branch-readiness fixture validation, USER review bundle validation, visual/live-validation helpers, source-owner checks, and family-specific runtime validators where machine-checkable. Green validation remains evidence only; Codex must still inspect the actual matrix and evidence relationship.
 Final Disposition: Live Validation, UTS handoff, PR Readiness, and release-facing closeout are invalid while a material matrix row is missing, unadjudicated, overclaimed, unsupported by observed runtime/comparison evidence, or left for USER discovery without explicit manual-validation routing.
 
+### Visual Acceptance Target Gate
+
+Rule Name: `Visual Acceptance Target Gate`
+Owner: `Docs/phase_governance.md` for phase law, render authority levels, blockers, and implementation-gate disposition; `Docs/branch_plans/README.md` for BP1/BP2/BP3 and active branch-plan field shape; `Docs/nexus_vision.md`, `Docs/family_visions/FAM-002_desktop_interface.md`, applicable Family Vision / Family Feature Vision files, and `Docs/ui_reference_catalog/` for visual contract inputs; `Docs/validation_helper_registry.md` for helper/validator guidance; active external branch plans for branch-local decisions and USER-selected targets.
+Applies To: any material visible UI/UX change before runtime implementation, including windows, child windows, existing controls, layouts, copy, buttons, status rows, settings, dialogs, cards, panels, workflows, visual states, density, spacing, footprint, visual-system adoption, or new/changed visual interaction surfaces. Non-visible implementation, text-only docs, non-material typo repair, or invisible backend work may mark the gate `Not Applicable With Reason`.
+Required State: Before runtime implementation begins for a material visible UI/UX change, the branch must create or reference a rendered and reviewable `Visual Acceptance Target` path. The target path must be substantial enough for USER, ChatGPT, and Codex review of scale, monitor footprint, spacing, density, hierarchy, visual rhythm, copy, states, controls, hit areas, resize behavior, relation to surrounding UI, relation to accepted reference surfaces, and source-truth conflicts. The branch must not proceed from visual idea to runtime UI code on vague prose, helper green, a single attractive screenshot, or a local-only mockup that USER cannot review.
+Render Authority Levels:
+
+- `Concept Render`: brainstorming or exploration only; not source truth and not an implementation target unless USER explicitly promotes it through the gate.
+- `Design Candidate Render`: USER-selection evidence; substantial enough to compare options, critique direction, and decide what should become the target.
+- `Visual Acceptance Target`: USER-accepted or USER-revised branch visual contract for the current visible UI/UX change.
+- `Implementation Match Proof`: actual implementation screenshot/video or ordered frames proving the runtime UI matches the accepted target after code changes.
+
+Required Visual Target Packet Contents, when USER choice or review is needed:
+
+- multiple design candidates when direction is unresolved
+- focused renders
+- full desktop/context renders
+- actual state renders or state contact sheets for relevant states
+- element legends with stable element IDs
+- visual selection ledger or template
+- draft Visual Acceptance Target
+- rejected-pattern ledger
+- reusable design recipe/template when useful
+- source-truth conflict classification
+- UDL / false-green integration where applicable
+- validation outputs and packet hygiene proof
+
+Required State Coverage: Visible controls and surfaces must cover relevant states before implementation unless marked `Not Applicable With Reason` with source-truth basis. Relevant states include default, hover, focus, pressed/clicked, disabled/blocked, empty/no-data, loading, error/recovery, active/inactive, open/closed, selected/unselected, resize/default geometry, and any branch-specific state that changes visible behavior.
+Allowed Values:
+
+- `Not Applicable With Reason`
+- `Concept Only`
+- `Design Candidates Reviewable`
+- `USER_ACCEPTED Visual Acceptance Target`
+- `USER_REVISED Visual Acceptance Target`
+- `USER_WAIVED Visual Acceptance Target`
+- `Implementation Match Proof Pending`
+- `Implementation Match Proof PASS`
+- `Implementation Match Proof REPAIR`
+- `Blocked`
+
+Invalid Values:
+
+- `Looks Better`
+- `Looks Close`
+- `Looks Good Enough`
+- `Validator Green Therefore Target Accepted`
+- `Concept Render Treated As Target`
+- `Screenshot Exists Therefore Target Accepted`
+- `Implementation First`
+- `USER Can Fix Later`
+- `Reference Cited But Not Compared`
+- `Template Exists By Inference`
+- `No State Coverage Needed`
+- `Packet Path Only`
+
+Blocking Conditions: `Visual Acceptance Target Missing`, `Visual Acceptance Target Not Reviewable`, `Concept Render Misclassified As Target`, `Design Candidate Media Missing`, `Visual Target State Coverage Missing`, `Visual Selection Ledger Missing`, `Rejected Pattern Ledger Missing`, `Render Authority Level Missing`, `Implementation Started Before Visual Acceptance`, `Implementation Match Proof Missing`, `Implementation Match Proof Not Compared`, `Source-Truth Visual Conflict Unclassified`, `Vague Visual Acceptance Language`, `Visual Target Packet Hygiene Missing`, and `Visual Target USER Decision Missing`.
+Repair Owner: The current branch/worktree owns branch-local visual targets and implementation-match proof for its approved visible UI/UX change. Standing Governance or a USER-approved governance/source-truth carrier owns reusable rule drift, UIREF/template/shared-primitive promotion, and program-wide helper/validator implementation. USER owns target selection, revision, waiver, and deliberate exception approval.
+Repair Path: classify whether the change is material and visible, load the applied Project Vision, Family Vision, Family Feature Vision, Branch Vision, UIREF/reference/template/shared-primitive inputs, create reviewable rendered candidates or a target using packet-clean regeneration when USER review is needed, record conflicts and rejected patterns, obtain USER acceptance/revision/waiver before runtime implementation, then after implementation gather actual screenshot/video proof and compare it against the accepted target before H1/LV/UTS/PR claims.
+USER Decision Required: Required to accept, revise, reject, waive, or request more options for a Visual Acceptance Target; required to approve a deliberate mismatch, source-truth conflict disposition, missing-state exception, target bypass, or program-wide template/shared-primitive promotion.
+Validation Owner: Future helper/validator coverage should extend branch governance validation, branch-readiness fixture validation, USER review bundle validation, UI/RAR visual proof helpers, and source-owner checks where machine-checkable. Green validation remains evidence only; Codex must still inspect the rendered target, packet media, source-truth conflicts, and USER decision state.
+Final Disposition: Runtime UI implementation, renewed H1, Live Validation, UTS handoff, PR Readiness, and release-facing closeout are invalid when a material visible UI/UX change lacks a USER-accepted, USER-revised, or USER-waived Visual Acceptance Target, or when implementation-match proof is missing after code changes.
+
 ### Scope Coverage Manifest Gate
 
 Rule Name: `Scope Coverage Manifest Gate`

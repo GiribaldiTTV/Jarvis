@@ -439,6 +439,25 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
   - `Docs/user_test_summary_guidance.md`
   - `Docs/validation_helper_registry.md`
 
+## Pattern: Implementation Started Before Visual Acceptance Target
+
+- symptom:
+  USER repeatedly rejects a visible UI/UX result after runtime implementation because the branch implemented from prose, inferred style, screenshots, helper output, or broad reference language instead of first producing a rendered and USER-reviewable visual target.
+- layer:
+  Branch Planning, Workstream implementation, Hardening visual proof, Live Validation handoff, USER packets, and helper/validator interpretation.
+- root-cause pattern:
+  Codex treats BP1/BP2/BP3 visual prose, reference names, partial comparator screenshots, or "looks closer" repair language as enough to implement. The branch has no explicit render authority level, no USER-selected Visual Acceptance Target, no rejected-pattern ledger, no state/contact-sheet coverage, or no later Implementation Match Proof comparing actual runtime screenshots/video against the accepted target.
+- fix pattern:
+  route material visible UI/UX work through the `Visual Acceptance Target Gate` before runtime implementation. Produce reviewable Design Candidate Renders when direction is unresolved, include focused and desktop/context renders, include state renders or contact sheets, provide stable element IDs, record a selection ledger, record rejected patterns, classify source-truth conflicts, obtain USER acceptance/revision/waiver of the target, and only then implement. After implementation, gather actual screenshots/video and compare them to the accepted target before H1/LV/UTS/PR green.
+- validation pattern:
+  future helpers should fail on `Visual Acceptance Target Missing`, `Visual Acceptance Target Not Reviewable`, `Concept Render Misclassified As Target`, `Design Candidate Media Missing`, `Visual Target State Coverage Missing`, `Visual Selection Ledger Missing`, `Rejected Pattern Ledger Missing`, `Render Authority Level Missing`, `Implementation Started Before Visual Acceptance`, `Implementation Match Proof Missing`, `Implementation Match Proof Not Compared`, `Source-Truth Visual Conflict Unclassified`, `Vague Visual Acceptance Language`, `Visual Target Packet Hygiene Missing`, or `Visual Target USER Decision Missing` when the defect is machine-checkable.
+- source references:
+  - `Docs/phase_governance.md`
+  - `Docs/branch_plans/README.md`
+  - `Docs/validation_helper_registry.md`
+  - `Docs/nexus_vision.md`
+  - `Docs/family_visions/FAM-002_desktop_interface.md`
+
 ## Pattern: Broad Or Multi-Issue Repair Reported Complete Without Coverage
 
 - symptom:
