@@ -37,6 +37,7 @@ USER_ROOT = Path(r"C:\Nexus USER")
 PACKET_DIR = USER_ROOT / WORKTREE_LABEL
 ACCEPTED_HISTORICAL_ZIP = USER_ROOT / "FAM-007-20260623-123429.zip"
 PRIMARY_REVIEW_FILE = "VISUAL_ACCEPTANCE_TARGET_REVIEW.md"
+RECOVERY_PRIMARY_REVIEW_FILE = "ACCEPTED_HISTORICAL_PACKET_RECOVERY_REVIEW.md"
 BLOCKED_GATES = (
     "H1/LV acceptance; USER UTS acceptance; PR Readiness; PR creation; merge; release; "
     "cleanup; issue mutation; provider/model execution; prompt send; downloads; runtime "
@@ -49,6 +50,17 @@ VISUAL_PACKET_PURPOSE = (
     "targets, legends, selection ledgers, a draft target, rejected-pattern and reusable-"
     "recipe templates, and validation evidence before any future visible UI/UX "
     "implementation."
+)
+VISUAL_NEXT_LEGAL_PHASE = (
+    "USER review of the branch-local Visual Acceptance Target packet only. H1/LV "
+    "acceptance, the later LV1 review gate, USER UTS acceptance, and PR Readiness "
+    "remain separate pending gates requiring later source-truth-routed USER decisions "
+    "after this packet is accepted or revised."
+)
+RECOVERY_NEXT_LEGAL_PHASE = (
+    "USER decision on the accepted-historical packet recovery / retention blocker packet. "
+    "USER may provide the missing accepted historical ZIP, approve a retention waiver, "
+    "or hold the packet chain blocked until the artifact is recovered."
 )
 PROOF_ROOT = Path(
     r"C:\Users\anden\OneDrive\Pictures\Screenshots\Nexus Desktop AI"
@@ -171,6 +183,58 @@ def _replace_section(text: str, heading: str, lines: list[str]) -> str:
     return text.rstrip() + "\n\n" + replacement + "\n"
 
 
+def _section(text: str, heading: str) -> str:
+    text = text.replace("\r\n", "\n")
+    match = re.search(rf"^{re.escape(heading)}\n(?P<body>.*?)(?=^## |\Z)", text, flags=re.MULTILINE | re.DOTALL)
+    return match.group("body") if match else ""
+
+
+def _visual_exact_user_decision_text(zip_path: Path) -> str:
+    return (
+        f"I accept the FAM-007 branch-local Visual Acceptance Target packet at {zip_path} "
+        "as the current USER review packet for visual target/process selection only. I "
+        "accept that the visible current review surface is USER Review/"
+        f"{PRIMARY_REVIEW_FILE}, that packet validation is not USER acceptance, and that "
+        f"the accepted historical packet {ACCEPTED_HISTORICAL_ZIP} remains preserved as "
+        "historical evidence only. This does not approve H1/LV acceptance, the later "
+        "LV1 review gate, USER UTS acceptance, PR Readiness, PR creation, merge, release, "
+        "cleanup, issue mutation, provider/model execution, prompt send, downloads, "
+        "runtime cache behavior, memory/learning/personalization, private Developer/Owner "
+        "setup, installer/shortcut/packaging execution, sibling/Governance mutation, "
+        "imports, or v1.8.0 work."
+    )
+
+
+def _visual_next_legal_phase_lines(zip_path: Path) -> list[str]:
+    return [
+        f"Next Legal Phase: `{VISUAL_NEXT_LEGAL_PHASE}`",
+        f"Exact USER Decision Text: `{_visual_exact_user_decision_text(zip_path)}`",
+    ]
+
+
+def _recovery_exact_user_decision_text(zip_path: Path) -> str:
+    return (
+        f"I accept the FAM-007 accepted-historical packet recovery / retention blocker "
+        f"packet at {zip_path}. I understand that {ACCEPTED_HISTORICAL_ZIP} was not found "
+        "in the searched local roots, that Codex did not recreate or fake the accepted "
+        "historical artifact, and that the current packet chain remains blocked unless I "
+        "provide/upload the missing ZIP, approve a retention waiver, or direct a later "
+        "source-truth-routed recovery path. This does not approve H1/LV acceptance, USER "
+        "UTS acceptance, PR Readiness, PR creation, merge, release, unrelated cleanup, "
+        "issue mutation, provider/model execution, prompt send, downloads, runtime cache "
+        "behavior, memory/learning/personalization, private Developer/Owner setup, "
+        "installer/shortcut/packaging execution, sibling/Governance mutation, imports, "
+        "or v1.8.0 work."
+    )
+
+
+def _recovery_next_legal_phase_lines(zip_path: Path) -> list[str]:
+    return [
+        f"Next Legal Phase: `{RECOVERY_NEXT_LEGAL_PHASE}`",
+        f"Exact USER Decision Text: `{_recovery_exact_user_decision_text(zip_path)}`",
+    ]
+
+
 def _update_branch_state_for_visual_packet(text: str, zip_path: Path) -> str:
     text = _update_field(
         text,
@@ -215,17 +279,13 @@ def _update_branch_state_for_visual_packet(text: str, zip_path: Path) -> str:
     text = _update_field(
         text,
         "Next Legal Phase",
-        (
-            "USER decision on branch-local Visual Acceptance Target packet. If accepted, "
-            "resume only the next source-truth-routed Hardening H1 / Live Validation decision "
-            "preparation path under separate approval; PR Readiness remains blocked."
-        ),
+        VISUAL_NEXT_LEGAL_PHASE,
     )
-    return text
+    return _replace_section(text, "## Next Legal Phase", _visual_next_legal_phase_lines(zip_path))
 
 
 def _update_branch_plan_for_visual_packet(text: str, zip_path: Path) -> str:
-    return _replace_section(
+    text = _replace_section(
         text,
         "## Packet Review State",
         [
@@ -243,6 +303,76 @@ def _update_branch_plan_for_visual_packet(text: str, zip_path: Path) -> str:
             "Packet Validation Is USER Acceptance: `No`",
         ],
     )
+    return _replace_section(text, "## Next Legal Phase", _visual_next_legal_phase_lines(zip_path))
+
+
+def _update_branch_state_for_recovery_packet(text: str, zip_path: Path) -> str:
+    text = _update_field(
+        text,
+        "External State Item Status",
+        (
+            f"Current USER review packet is the accepted-historical packet recovery / "
+            f"retention blocker packet {zip_path}. The accepted historical Workstream "
+            f"implementation / H1-LV proof packet {ACCEPTED_HISTORICAL_ZIP} is missing "
+            f"from local retained artifacts after required search and is not currently "
+            f"preserved. H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, "
+            f"merge, release, unrelated cleanup, issue mutation, provider/model execution, "
+            f"prompt send, downloads, runtime cache behavior, memory/learning/personalization, "
+            f"private Developer/Owner setup, installer/shortcut/packaging execution, "
+            f"sibling/Governance mutation, imports, and v1.8.0 remain blocked."
+        ),
+    )
+    text = _update_field(
+        text,
+        "Current Gate",
+        (
+            "USER review of the accepted-historical packet recovery / retention blocker "
+            "packet; the missing accepted historical ZIP must be provided, waived, or kept "
+            "as a blocker before the Visual Acceptance Target packet can be accepted."
+        ),
+    )
+    text = _update_field(
+        text,
+        "Packet Reviewability State",
+        (
+            f"Accepted-historical recovery / retention blocker packet generated for USER "
+            f"review at {zip_path}; packet validation is supporting evidence only and is "
+            "not USER acceptance."
+        ),
+    )
+    text = _update_field(
+        text,
+        "USER Gate State",
+        (
+            "Pending USER review of accepted-historical artifact recovery / retention "
+            "blocker; H1/LV acceptance and USER UTS acceptance remain pending separate "
+            "USER decision."
+        ),
+    )
+    text = _update_field(text, "Next Legal Phase", RECOVERY_NEXT_LEGAL_PHASE)
+    return _replace_section(text, "## Next Legal Phase", _recovery_next_legal_phase_lines(zip_path))
+
+
+def _update_branch_plan_for_recovery_packet(text: str, zip_path: Path) -> str:
+    text = _replace_section(
+        text,
+        "## Packet Review State",
+        [
+            (
+                "Packet Reviewability State: `Reviewable accepted-historical packet "
+                f"recovery / retention blocker packet at {zip_path}. Packet validation is "
+                "not USER acceptance; the accepted historical ZIP is missing and is not "
+                "claimed preserved by this active packet.`"
+            ),
+            "Accepted Historical Packet: `MISSING - C:\\Nexus USER\\FAM-007-20260623-123429.zip was not recovered in searched local roots.`",
+            "USER Gate State: `Pending USER review of recovery / waiver / blocked-chain decision.`",
+            f"Primary USER Review File: `{RECOVERY_PRIMARY_REVIEW_FILE}`",
+            f"USER Review Folder: `{PACKET_DIR}`",
+            f"USER Review ZIP: `{zip_path}`",
+            "Packet Validation Is USER Acceptance: `No`",
+        ],
+    )
+    return _replace_section(text, "## Next Legal Phase", _recovery_next_legal_phase_lines(zip_path))
 
 
 def _append_receipt(path: Path, heading: str, lines: list[str]) -> None:
@@ -315,6 +445,55 @@ def _update_external_state(zip_path: Path) -> None:
                 classification,
                 udl_text,
                 count=1,
+                flags=re.MULTILINE,
+            )
+        UDL_PATH.write_text(udl_text.rstrip() + "\n", encoding="utf-8")
+
+
+def _update_external_state_for_recovery_packet(zip_path: Path) -> None:
+    now = datetime.now().astimezone().isoformat(timespec="seconds")
+    head = _git_value("rev-parse", "HEAD")
+    origin_main = _git_value("rev-parse", "origin/main")
+    for path in (BRANCH_STATE, BRANCH_PLAN):
+        text = _read_text(path)
+        text = _update_field(text, "Last Updated", now)
+        text = _update_field(text, "Source Repo HEAD", head)
+        text = _update_field(text, "Source origin/main", origin_main)
+        text = _update_field(text, "USER Review ZIP", str(zip_path))
+        if path == BRANCH_STATE:
+            text = _update_branch_state_for_recovery_packet(text, zip_path)
+        if path == BRANCH_PLAN:
+            text = _update_branch_plan_for_recovery_packet(text, zip_path)
+        path.write_text(text.rstrip() + "\n", encoding="utf-8")
+        _append_receipt(
+            path,
+            f"## Accepted-Historical Packet Recovery / Retention Blocker Receipt - {now}",
+            [
+                "Receipt Status: `ACCEPTED_HISTORICAL_PACKET_MISSING_BLOCKER_PACKET_GENERATED_PENDING_USER_REVIEW`",
+                f"USER Review ZIP: `{zip_path}`",
+                f"Missing Accepted Historical Packet: `{ACCEPTED_HISTORICAL_ZIP}`",
+                "Recovery Result: `NOT RECOVERED - do not fake preservation or convert missing historical artifact into PASS.`",
+                "Packet Purpose: `USER decision packet for accepted-historical artifact recovery, retention waiver, or blocked-chain disposition.`",
+                f"Blocked Gates: `{BLOCKED_GATES}`",
+            ],
+        )
+    if UDL_PATH.exists():
+        udl_text = _read_text(UDL_PATH)
+        if "F7-UDL-018" not in udl_text:
+            udl_text += (
+                "\n\n## F7-UDL-018 Accepted-Historical Artifact Missing - 2026-06-24\n\n"
+                "Status: `BLOCKED_SOURCE_TRUTH`\n"
+                f"Missing Artifact: `{ACCEPTED_HISTORICAL_ZIP}`\n"
+                "Finding: `The accepted historical Workstream implementation / H1-LV proof packet is not present in the retained local USER packet root, Recycle Bin, known local workspaces, user profile roots, OneDrive roots, Downloads/Documents/Desktop, artifact roots, or Codex attachment cache searched by this recovery pass.`\n"
+                "Required Disposition: `USER must provide/upload the missing ZIP, approve an explicit retention waiver, or keep the packet chain blocked until recovered.`\n"
+                "No-Fake-Preservation Rule: `Do not recreate the accepted historical packet or claim it is preserved without the original artifact bytes or an explicit USER waiver/source-truth disposition.`\n"
+                f"Current Recovery Packet: `{zip_path}`\n"
+            )
+        else:
+            udl_text = re.sub(
+                r"^Current Recovery Packet: `.*?`$",
+                lambda _match: f"Current Recovery Packet: `{zip_path}`",
+                udl_text,
                 flags=re.MULTILINE,
             )
         UDL_PATH.write_text(udl_text.rstrip() + "\n", encoding="utf-8")
@@ -405,8 +584,7 @@ def _copy_manifest_media() -> None:
 
 
 def _current_packet_section(text: str) -> str:
-    match = re.search(r"^## Packet Review State\n(?P<body>.*?)(?=^## |\Z)", text, flags=re.MULTILINE | re.DOTALL)
-    return match.group("body") if match else ""
+    return _section(text, "## Packet Review State")
 
 
 def _generate_candidate_media() -> list[RenderOption]:
@@ -636,6 +814,249 @@ LV Gating Rule: Live Validation cannot claim UI green by helper output, screensh
     _copy_manifest_media()
 
 
+def _recovery_search_roots() -> list[Path]:
+    return [
+        USER_ROOT,
+        Path(r"C:\$Recycle.Bin"),
+        Path(r"C:\Nexus Worktrees"),
+        Path(r"C:\Nexus Desktop AI"),
+        Path(r"C:\Users\anden\OneDrive\Desktop"),
+        Path(r"C:\Users\anden\OneDrive\Documents"),
+        Path(r"C:\Users\anden\OneDrive\Pictures"),
+        Path(r"C:\Users\anden\Downloads"),
+        Path(r"C:\Users\anden\Documents"),
+        Path(r"C:\Users\anden\Desktop"),
+        Path(r"C:\Users\anden\.codex\attachments"),
+        Path(r"D:\Nexus Artifacts"),
+        Path(r"D:\Nexus Repos"),
+        Path(r"D:\Nexus Worktrees"),
+        Path(r"D:\Nexus Dev ORIN"),
+    ]
+
+
+def _find_accepted_historical_packet() -> tuple[list[Path], list[str]]:
+    matches: list[Path] = []
+    searched: list[str] = []
+    for root in _recovery_search_roots():
+        if not root.exists():
+            searched.append(f"{root} - missing root")
+            continue
+        searched.append(str(root))
+        try:
+            matches.extend(path for path in root.rglob(ACCEPTED_HISTORICAL_ZIP.name) if path.is_file())
+        except (OSError, PermissionError) as exc:
+            searched.append(f"{root} - search error: {exc}")
+    unique = sorted({path.resolve() for path in matches})
+    return unique, searched
+
+
+def _copy_recovery_context() -> None:
+    context_files = {
+        "Source Truth Context/current_external_branch_state.md": BRANCH_STATE,
+        "Source Truth Context/current_external_branch_plan.md": BRANCH_PLAN,
+        "Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md": UDL_PATH,
+        "Source Truth Context/branch_record.md": REPO_ROOT / "Docs" / "branch_records" / "feature_fam_007_ai_control_center_readiness_diagnostics.md",
+        "Source Truth Context/validation_helper_registry.md": REPO_ROOT / "Docs" / "validation_helper_registry.md",
+        "Source Truth Context/phase_governance.md": REPO_ROOT / "Docs" / "phase_governance.md",
+    }
+    for relative, source in context_files.items():
+        if source.exists():
+            _copy_file(source, relative)
+
+
+def _write_recovery_packet_files(zip_path: Path, searched: list[str], matches: list[Path]) -> None:
+    search_rows = "\n".join(f"| `{root}` | searched |" for root in searched)
+    match_text = "\n".join(f"- `{match}`" for match in matches) if matches else "- None found."
+    _write_text(
+        "START_HERE.md",
+        f"""
+# FAM-007 Accepted-Historical Packet Recovery / Retention Blocker
+
+Review Purpose: decide how to handle the missing accepted historical packet artifact.
+
+Local USER Hub Folder: `C:\\Nexus USER\\FAM-007`
+
+Review Order:
+
+1. `USER Review/{RECOVERY_PRIMARY_REVIEW_FILE}`
+2. `Review Aids/ACCEPTED_HISTORICAL_SEARCH_PROOF.md`
+3. `Review Aids/ARTIFACT_DISPOSITION_OPTIONS.md`
+4. `Source Truth Context/current_external_branch_state.md`
+5. `Source Truth Context/current_external_branch_plan.md`
+6. `Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md`
+
+USER Decision This Packet Supports: provide/upload the missing accepted historical ZIP, approve a retention waiver, or keep the packet chain blocked until recovered.
+
+Pending USER Decisions: accepted-historical artifact disposition only. H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, provider/model execution, downloads, cache, memory, private setup, packaging, sibling/Governance mutation, imports, and v1.8.0 remain blocked.
+""",
+    )
+    _write_text(
+        f"USER Review/{RECOVERY_PRIMARY_REVIEW_FILE}",
+        f"""
+# Accepted-Historical Packet Recovery / Retention Review
+
+## Current Decision
+
+Verdict For This Packet: `BLOCKER / USER DECISION REQUIRED`
+
+Missing Accepted Historical Packet: `{ACCEPTED_HISTORICAL_ZIP}`
+
+Current Recovery Packet: `{zip_path}`
+
+## What Happened
+
+What Happened: the active FAM-007 source truth recorded the accepted historical Workstream implementation / H1-LV proof packet as preserved evidence, but the local artifact is missing from the searched roots. Codex did not recover a copy and must not recreate or fake preservation.
+
+## Why This Matters
+
+Why It Matters: accepted-historical validation requires the original timestamped ZIP artifact as the immutable evidence record. UDL rows F7-UDL-016 and F7-UDL-017 rely on that artifact being available and byte-validated in accepted-historical mode.
+
+## Current Disposition
+
+Current Disposition: the Visual Acceptance Target packet chain is blocked on accepted-historical artifact disposition. The branch may not claim the accepted historical packet is preserved while the ZIP is missing.
+
+## USER Options
+
+USER Options:
+
+| Option | Meaning | Result |
+| --- | --- | --- |
+| Provide / upload the missing ZIP | USER supplies the original `FAM-007-20260623-123429.zip` artifact. | Codex restores it to `C:\\Nexus USER`, validates accepted-historical mode, regenerates the Visual Acceptance Target packet, and resumes packet review. |
+| Approve retention waiver | USER explicitly accepts that the local historical ZIP is unavailable and waives local retained-ZIP proof for this chain. | Codex records waiver wording in source truth/external state and regenerates the current packet without claiming local preservation. |
+| Keep blocked | USER does not waive and cannot provide the ZIP. | Packet chain remains blocked until artifact recovery succeeds. |
+
+Not Approved By This Packet: H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, unrelated cleanup, issue mutation, provider/model execution, prompt send, downloads, runtime cache behavior, memory/learning/personalization, private Developer/Owner setup, installer/shortcut/packaging execution, sibling/Governance mutation, imports, or v1.8.0 work.
+
+## Exact USER Decision Supported
+
+Suggested USER Decision Text:
+
+`{_recovery_exact_user_decision_text(zip_path)}`
+""",
+    )
+    _write_text(
+        "Review Aids/ACCEPTED_HISTORICAL_SEARCH_PROOF.md",
+        f"""
+# Accepted-Historical Packet Search Proof
+
+Target Filename: `{ACCEPTED_HISTORICAL_ZIP.name}`
+
+Target Restore Path: `{ACCEPTED_HISTORICAL_ZIP}`
+
+Search Result: `NOT RECOVERED`
+
+Matches Found:
+
+{match_text}
+
+Searched Roots:
+
+| Root | Result |
+| --- | --- |
+{search_rows}
+
+Search Interpretation: no exact retained artifact was found. No same-packet copy can be validated without artifact bytes or a recorded matching SHA/source artifact.
+""",
+    )
+    _write_text(
+        "Review Aids/ARTIFACT_DISPOSITION_OPTIONS.md",
+        """
+# Artifact Disposition Options
+
+| Disposition | Allowed Now | Notes |
+| --- | --- | --- |
+| Restore exact ZIP | Yes, if USER supplies or local search finds it | Must validate in accepted-historical mode after restore. |
+| Mark recovered without ZIP bytes | No | Would fake preservation and reintroduce false-green risk. |
+| Recreate ZIP from current folder | No | Would not be the accepted historical artifact. |
+| Waive local retained-ZIP proof | USER decision required | Must be explicit and source-truth-routed. |
+| Keep chain blocked | Yes | Safest default if the artifact cannot be recovered and USER does not waive. |
+""",
+    )
+    _write_text(
+        "Review Aids/PACKET_CHECK_NOTES.md",
+        """
+# Packet Check Notes
+
+This packet is intentionally a blocker/decision packet. It should validate as a current USER review packet while preserving that the accepted historical ZIP is missing.
+
+Required checks:
+
+- exactly one primary USER review file
+- timestamped ZIP
+- folder/ZIP parity
+- copied Source Truth Context says the accepted historical ZIP is missing, not preserved
+- no H1/LV acceptance
+- no USER UTS acceptance
+- no wording that opens PR Readiness
+- no PR creation approval
+- no packet validation as USER acceptance
+""",
+    )
+    _copy_recovery_context()
+
+
+def generate_recovery_blocker() -> Path:
+    zip_path = USER_ROOT / f"{WORKTREE_LABEL}-{_stamp()}.zip"
+    matches, searched = _find_accepted_historical_packet()
+    if matches:
+        raise RuntimeError(f"Accepted historical packet was found and should be restored instead: {matches[0]}")
+    _purge_packet_root()
+    _update_external_state_for_recovery_packet(zip_path)
+    _write_recovery_packet_files(zip_path, searched, matches)
+    _create_zip(zip_path)
+    return zip_path
+
+
+def validate_recovery_blocker(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tuple[bool, list[str]]:
+    failures: list[str] = []
+    if zip_path is None:
+        zips = sorted(USER_ROOT.glob(f"{WORKTREE_LABEL}-*.zip"), key=lambda path: path.stat().st_mtime, reverse=True)
+        zip_path = zips[0] if zips else None
+    if zip_path is None or not zip_path.exists():
+        return False, ["Timestamped recovery ZIP missing"]
+    primary = packet_dir / "USER Review" / RECOVERY_PRIMARY_REVIEW_FILE
+    if not primary.exists():
+        failures.append(f"Recovery primary review file missing: {RECOVERY_PRIMARY_REVIEW_FILE}")
+    primary_files = list((packet_dir / "USER Review").glob("*.md")) if (packet_dir / "USER Review").exists() else []
+    if len(primary_files) != 1:
+        failures.append(f"Expected exactly one recovery primary USER review file; found {len(primary_files)}")
+    with zipfile.ZipFile(zip_path, "r") as archive:
+        zip_entries = {info.filename for info in archive.infolist() if not info.is_dir()}
+        folder_entries = {path.relative_to(packet_dir).as_posix() for path in _packet_file_entries()}
+        if folder_entries != zip_entries:
+            failures.append("Recovery packet folder/ZIP parity failed")
+        if f"USER Review/{RECOVERY_PRIMARY_REVIEW_FILE}" not in zip_entries:
+            failures.append("Recovery ZIP missing primary review file")
+        state_text = archive.read("Source Truth Context/current_external_branch_state.md").decode("utf-8")
+        plan_text = archive.read("Source Truth Context/current_external_branch_plan.md").decode("utf-8")
+        udl_text = archive.read("Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md").decode("utf-8")
+        active_text = (
+            _section(state_text, "## Next Legal Phase")
+            + "\n"
+            + _section(plan_text, "## Packet Review State")
+            + "\n"
+            + _section(plan_text, "## Next Legal Phase")
+        )
+        if str(zip_path) not in active_text:
+            failures.append("Recovery active copied context does not name final ZIP")
+        for required in ("MISSING", "not currently preserved", "recovery / retention blocker"):
+            if required not in state_text and required not in plan_text:
+                failures.append(f"Recovery copied context missing required blocker wording: {required}")
+        forbidden = [
+            "remains preserved as historical evidence",
+            "I accept the FAM-007 Hardening H1 Green packet",
+            "PR Readiness active",
+            "PR creation approved",
+            "packet validation is USER acceptance",
+        ]
+        for term in forbidden:
+            if term in active_text:
+                failures.append(f"Recovery active copied context contains forbidden wording: {term}")
+        if "F7-UDL-018" not in udl_text or "BLOCKED_SOURCE_TRUTH" not in udl_text:
+            failures.append("Copied UDL missing F7-UDL-018 blocked artifact row")
+    return not failures, failures
+
+
 def _create_zip(zip_path: Path) -> None:
     if zip_path.exists():
         zip_path.unlink()
@@ -710,12 +1131,31 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
                 state_text = archive.read("Source Truth Context/current_external_branch_state.md").decode("utf-8")
                 plan_text = archive.read("Source Truth Context/current_external_branch_plan.md").decode("utf-8")
                 udl_text = archive.read("Source Truth Context/FAM_007_UNIFIED_DEFECT_LEDGER.md").decode("utf-8")
+                state_next_gate = _section(state_text, "## Next Legal Phase")
+                plan_next_gate = _section(plan_text, "## Next Legal Phase")
+                stale_next_gate_terms = [
+                    "Live Validation LV1 Review",
+                    "Hardening H1 Green packet",
+                    "I accept the FAM-007 Hardening H1 Green packet",
+                    "approve bounded Live Validation LV1 review",
+                ]
                 if str(zip_path) not in state_text or str(zip_path) not in plan_text:
                     failures.append("Copied Source Truth Context does not name the final ZIP path")
                 if "VISUAL_ACCEPTANCE_TARGET_REVIEW.md" not in plan_text:
                     failures.append("Copied branch plan does not name the visual acceptance target primary review file")
                 if "WORKSTREAM_IMPLEMENTATION_H1_LV_REVIEW.md" in _current_packet_section(plan_text):
                     failures.append("Copied branch plan active Packet Review State still names stale H1/LV primary review file")
+                if not state_next_gate:
+                    failures.append("Copied branch state missing active Next Legal Phase section")
+                if not plan_next_gate:
+                    failures.append("Copied branch plan missing active Next Legal Phase section")
+                if VISUAL_NEXT_LEGAL_PHASE not in state_next_gate or VISUAL_NEXT_LEGAL_PHASE not in plan_next_gate:
+                    failures.append("Copied active Next Legal Phase sections do not match the Visual Acceptance Target gate")
+                if str(zip_path) not in state_next_gate or str(zip_path) not in plan_next_gate:
+                    failures.append("Copied active Next Legal Phase decision text does not name the final ZIP path")
+                for term in stale_next_gate_terms:
+                    if term in state_next_gate or term in plan_next_gate or term in _current_packet_section(plan_text):
+                        failures.append(f"Copied active current packet sections contain stale H1/LV next-gate text: {term}")
                 if "H1/LV decision-preparation packet generated" in state_text:
                     failures.append("Copied branch state still describes the current visual packet as H1/LV decision-prep")
                 if f"Current HEAD: `{head}`" not in udl_text:
@@ -737,9 +1177,28 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--generate", action="store_true")
     parser.add_argument("--validate", action="store_true")
+    parser.add_argument("--generate-recovery-blocker", action="store_true")
+    parser.add_argument("--validate-recovery-blocker", action="store_true")
     parser.add_argument("--zip", type=Path)
     args = parser.parse_args()
     zip_path = args.zip
+    if args.generate_recovery_blocker:
+        zip_path = generate_recovery_blocker()
+        print(f"Generated recovery blocker packet folder: {PACKET_DIR}")
+        print(f"Generated recovery blocker packet ZIP: {zip_path}")
+        print(f"ZIP SHA256: {_zip_sha256(zip_path)}")
+    if args.validate_recovery_blocker:
+        ok, failures = validate_recovery_blocker(zip_path=zip_path)
+        if ok:
+            print("FAM-007 accepted-historical recovery blocker packet validation: PASS")
+            if zip_path:
+                print(f"ZIP: {zip_path}")
+                print(f"ZIP SHA256: {_zip_sha256(zip_path)}")
+            return 0
+        print("FAM-007 accepted-historical recovery blocker packet validation: FAIL")
+        for failure in failures:
+            print(f"- {failure}")
+        return 1
     if args.generate:
         zip_path = generate()
         print(f"Generated packet folder: {PACKET_DIR}")
@@ -757,7 +1216,7 @@ def main() -> int:
         for failure in failures:
             print(f"- {failure}")
         return 1
-    if not args.generate and not args.validate:
+    if not args.generate and not args.validate and not args.generate_recovery_blocker and not args.validate_recovery_blocker:
         parser.error("choose --generate, --validate, or both")
     return 0
 
