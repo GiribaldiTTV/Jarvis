@@ -308,6 +308,9 @@ INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_pending_review_no_packet.md"
 )
+INVALID_REBASELINE_ADOPTION_ACTIVE_REVIEW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_active_review_no_packet.md"
+)
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
 )
@@ -319,6 +322,9 @@ INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_DISPOSITION_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_NEGATED_ISSUE_DISPOSITION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_negated_issue_disposition.md"
+)
+INVALID_REBASELINE_ADOPTION_REQUIRED_REVIEW_NOT_COMPLETE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_required_review_not_complete.md"
 )
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
@@ -1846,11 +1852,17 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     pending_user_review_required = any(
         phrase in active_rar_values
         for phrase in (
+            "rar3 user review gate",
+            "user review gate remains active",
             "user review pending",
             "pending user review",
             "pending user",
+            "user reviews",
+            "user should review",
+            "review issue candidate",
+            "reviews rar issue candidates",
         )
-    )
+    ) and "no user decision is required" not in active_rar_values
 
     for quality in (
         "deterministic",
@@ -1978,6 +1990,9 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 "user review pending",
                 "pending user review",
                 "pending user",
+                "user reviews",
+                "user should review",
+                "review issue candidate",
             )
         )
         completed_issue_candidate_disposition = any(
@@ -2007,6 +2022,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 "not routed",
                 "not blocked",
                 "without active user decision",
+                "is required before",
+                "required before",
+                "has not happened",
+                "not happened",
             )
         )
         require(
@@ -6129,6 +6148,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject missing USER packet for pending review"
         )
 
+    active_review_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ACTIVE_REVIEW_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        active_review_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing USER packet for active review gate"
+        )
+
     normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE.read_text(
             encoding="utf-8"
@@ -6175,6 +6206,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject negated issue-candidate disposition"
+        )
+
+    required_review_not_complete_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_REQUIRED_REVIEW_NOT_COMPLETE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        required_review_not_complete_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject required-but-incomplete USER review disposition"
         )
 
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
