@@ -832,7 +832,7 @@ class DialogChromeBar(QFrame):
         self.setProperty("windowControlCluster", "compact-minimize-maximize-close" if clustered_controls else "compact-close")
         header_anatomy = "compact-dialog-bar"
         if settings_header:
-            header_anatomy = "ndai-global-settings-single-row-chrome-v18"
+            header_anatomy = "ndai-global-settings-single-row-chrome-v19"
         elif hero_header:
             header_anatomy = "ai-control-center-compact-reference-derived" if compact_hero else "ai-control-center-reference-derived"
         self.setProperty("headerAnatomy", header_anatomy)
@@ -1135,14 +1135,15 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setObjectName("residentAccessSettingsDialog")
         self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
         self.setProperty("visualInheritance", "UIREF-001-UIREF-002-UIREF-003-FAM-002")
-        self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v18")
-        self.setProperty("referenceDerivedHeader", "ndai-global-settings-single-row-chrome-v18")
-        self.setProperty("settingsVisualRepair", "lv1-global-settings-deterministic-layout-repair-v18")
+        self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v19")
+        self.setProperty("referenceDerivedHeader", "ndai-global-settings-single-row-chrome-v19")
+        self.setProperty("settingsVisualRepair", "lv1-global-settings-manage-monitors-dirty-guard-alignment-v19")
+        self.setProperty("dirtyGuardReference", "manage-monitors-modal-save-discard-cancel")
         self.setProperty("uiExposureContract", "real-enabled-meaningful-visible-ui-v1")
         self.setProperty("sharedPrimitiveClaim", "none-promoted-reference-derived-only")
-        self.setProperty("referenceComparatorRequired", "ui-reference-plus-broad-ndai-comparator-v18")
+        self.setProperty("referenceComparatorRequired", "ui-reference-plus-manage-monitors-dirty-guard-comparator-v19")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-620x318-v18")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-620x318-v19")
         self.setMinimumSize(620, 318)
         self.resize(690, 320)
         self._apply_native_settings_palette()
@@ -1182,6 +1183,7 @@ class ResidentAccessSettingsDialog(QDialog):
         shell_layout.addWidget(self.chrome_bar)
 
         body = QWidget(self.shell)
+        self.settings_body = body
         body.setObjectName("residentAccessSettingsBody")
         body.setAttribute(Qt.WA_StyledBackground, True)
         shell_layout.addWidget(body, 1)
@@ -1481,6 +1483,62 @@ class ResidentAccessSettingsDialog(QDialog):
         self.save_button.clicked.connect(self._save_settings)
         footer.addWidget(self.save_button)
         page_layout.addWidget(self.footer_frame)
+
+        self.close_guard_overlay = QFrame(self.shell)
+        self.close_guard_overlay.setObjectName("residentAccessCloseGuardOverlay")
+        self.close_guard_overlay.setAttribute(Qt.WA_StyledBackground, True)
+        self.close_guard_overlay.setProperty("unsavedGuard", "closed")
+        self.close_guard_overlay.setProperty("guardActionLayout", "modal-save-discard-cancel")
+        self.close_guard_overlay.setAccessibleName("Unsaved Quick Access changes close guard")
+        self.close_guard_overlay.hide()
+        overlay_layout = QVBoxLayout(self.close_guard_overlay)
+        overlay_layout.setContentsMargins(14, 14, 14, 14)
+        overlay_layout.setSpacing(0)
+        overlay_layout.addStretch(1)
+
+        self.close_guard_panel = QFrame(self.close_guard_overlay)
+        self.close_guard_panel.setObjectName("residentAccessCloseGuardPanel")
+        self.close_guard_panel.setAttribute(Qt.WA_StyledBackground, True)
+        self.close_guard_panel.setProperty("unsavedGuard", "closed")
+        self.close_guard_panel.setProperty("guardActionLayout", "modal-save-discard-cancel")
+        panel_layout = QVBoxLayout(self.close_guard_panel)
+        panel_layout.setContentsMargins(14, 12, 14, 14)
+        panel_layout.setSpacing(8)
+        self.close_guard_title = QLabel("Unsaved Quick Access changes", self.close_guard_panel)
+        self.close_guard_title.setObjectName("residentAccessCloseGuardTitle")
+        panel_layout.addWidget(self.close_guard_title)
+        self.close_guard_detail = QLabel("Save changes or discard the draft before continuing.", self.close_guard_panel)
+        self.close_guard_detail.setObjectName("residentAccessCloseGuardDetail")
+        self.close_guard_detail.setWordWrap(True)
+        panel_layout.addWidget(self.close_guard_detail)
+        guard_actions = QHBoxLayout()
+        guard_actions.setContentsMargins(0, 2, 0, 0)
+        guard_actions.setSpacing(8)
+        self.guard_save_button = QPushButton("Save", self.close_guard_panel)
+        self.guard_save_button.setObjectName("residentAccessCloseGuardSave")
+        self.guard_save_button.setAccessibleName("Save Quick Access changes and close Global Settings")
+        self.guard_save_button.setProperty("guardAction", "save")
+        self.guard_save_button.setProperty("guardVisualRole", "primary-save")
+        self.guard_save_button.clicked.connect(self._save_settings)
+        guard_actions.addWidget(self.guard_save_button)
+        self.guard_discard_button = QPushButton("Discard", self.close_guard_panel)
+        self.guard_discard_button.setObjectName("residentAccessCloseGuardDiscard")
+        self.guard_discard_button.setAccessibleName("Discard Quick Access changes and close Global Settings")
+        self.guard_discard_button.setProperty("guardAction", "discard")
+        self.guard_discard_button.setProperty("guardVisualRole", "destructive-discard")
+        self.guard_discard_button.clicked.connect(self._discard_and_close)
+        guard_actions.addWidget(self.guard_discard_button)
+        self.guard_cancel_button = QPushButton("Cancel", self.close_guard_panel)
+        self.guard_cancel_button.setObjectName("residentAccessCloseGuardCancel")
+        self.guard_cancel_button.setAccessibleName("Cancel close and keep editing Quick Access settings")
+        self.guard_cancel_button.setProperty("guardAction", "cancel")
+        self.guard_cancel_button.setProperty("guardVisualRole", "neutral-cancel")
+        self.guard_cancel_button.clicked.connect(self._keep_editing)
+        guard_actions.addWidget(self.guard_cancel_button)
+        panel_layout.addLayout(guard_actions)
+        overlay_layout.addWidget(self.close_guard_panel, 0, Qt.AlignCenter)
+        overlay_layout.addStretch(1)
+        self.close_guard_overlay.raise_()
 
         dropdown_arrow_asset = (Path(__file__).resolve().parent / "nexus_dropdown_arrow.svg").as_posix()
         self.setStyleSheet(
@@ -1959,6 +2017,73 @@ class ResidentAccessSettingsDialog(QDialog):
             " border-top: 1px solid rgba(118, 226, 255, 0.10);"
             " border-radius: 0;"
             "}"
+            "#residentAccessCloseGuardOverlay {"
+            " background: qradialgradient(cx:0.50, cy:0.34, radius:0.72, fx:0.50, fy:0.34, stop:0 rgba(255, 214, 108, 0.08), stop:0.58 rgba(1, 8, 16, 0.62), stop:1 rgba(1, 8, 16, 0.74));"
+            " border-radius: 0;"
+            "}"
+            "#residentAccessCloseGuardPanel {"
+            " background: qradialgradient(cx:0.18, cy:0.00, radius:0.76, fx:0.18, fy:0.00, stop:0 rgba(46, 32, 14, 1.00), stop:0.50 rgba(21, 14, 10, 1.00), stop:1 rgba(21, 14, 10, 1.00));"
+            " border: 1px solid rgba(255, 214, 108, 0.24);"
+            " border-radius: 8px;"
+            " min-width: 360px;"
+            " max-width: 420px;"
+            "}"
+            "#residentAccessCloseGuardTitle {"
+            " color: rgba(255, 247, 225, 0.96);"
+            " font-size: 12px;"
+            " font-weight: 850;"
+            "}"
+            "#residentAccessCloseGuardDetail {"
+            " color: rgba(172, 215, 228, 0.84);"
+            " font-size: 12px;"
+            " font-weight: 620;"
+            " line-height: 1.3;"
+            "}"
+            "#residentAccessCloseGuardPanel QPushButton {"
+            " background: rgba(7, 28, 43, 0.70);"
+            " color: rgba(235, 250, 255, 0.96);"
+            " border: 1px solid rgba(118, 226, 255, 0.18);"
+            " border-radius: 6px;"
+            " min-width: 96px;"
+            " min-height: 28px;"
+            " padding: 0 10px;"
+            " font-weight: 760;"
+            "}"
+            "#residentAccessCloseGuardPanel QPushButton:hover, #residentAccessCloseGuardPanel QPushButton:focus {"
+            " background: rgba(13, 43, 65, 0.92);"
+            " border-color: rgba(118, 226, 255, 0.48);"
+            "}"
+            "#residentAccessCloseGuardPanel QPushButton:pressed {"
+            " background: rgba(15, 118, 110, 0.94);"
+            " color: #ffffff;"
+            "}"
+            "QPushButton#residentAccessCloseGuardSave, QPushButton#residentAccessCloseGuardSave:hover, QPushButton#residentAccessCloseGuardSave:focus {"
+            " background: rgba(15, 118, 110, 0.94);"
+            " color: #ecfeff;"
+            " border-color: rgba(153, 246, 228, 0.58);"
+            "}"
+            "QPushButton#residentAccessCloseGuardSave:pressed {"
+            " background: rgba(20, 184, 166, 0.94);"
+            " color: #ffffff;"
+            "}"
+            "QPushButton#residentAccessCloseGuardDiscard, QPushButton#residentAccessCloseGuardDiscard:hover, QPushButton#residentAccessCloseGuardDiscard:focus {"
+            " color: #fecaca;"
+            " border-color: rgba(248, 113, 113, 0.44);"
+            " background: rgba(52, 13, 21, 0.92);"
+            "}"
+            "QPushButton#residentAccessCloseGuardDiscard:pressed {"
+            " background: rgba(127, 29, 29, 0.94);"
+            " color: #ffffff;"
+            "}"
+            "QPushButton#residentAccessCloseGuardCancel, QPushButton#residentAccessCloseGuardCancel:hover, QPushButton#residentAccessCloseGuardCancel:focus {"
+            " color: rgba(214, 226, 234, 0.94);"
+            " border-color: rgba(148, 163, 184, 0.28);"
+            " background: rgba(7, 28, 43, 0.82);"
+            "}"
+            "QPushButton#residentAccessCloseGuardCancel:pressed {"
+            " background: rgba(30, 41, 59, 0.94);"
+            " color: #ffffff;"
+            "}"
             "#residentAccessQuickSlotActions {"
             " background: transparent;"
             " border: none;"
@@ -2115,8 +2240,19 @@ class ResidentAccessSettingsDialog(QDialog):
         self.save_button.setText("Save")
         self.revert_button.setEnabled(dirty)
         self.revert_button.setVisible(not self._close_guard_active)
-        self.discard_button.setVisible(self._close_guard_active and dirty)
-        self.keep_editing_button.setVisible(self._close_guard_active and dirty)
+        self.discard_button.setVisible(False)
+        self.keep_editing_button.setVisible(False)
+        guard_open = self._close_guard_active and dirty
+        self.close_guard_overlay.setVisible(guard_open)
+        self.close_guard_overlay.setProperty("unsavedGuard", "open-save-discard" if guard_open else "closed")
+        self.close_guard_panel.setProperty("unsavedGuard", "open-save-discard" if guard_open else "closed")
+        for widget in (self.close_guard_overlay, self.close_guard_panel):
+            widget.style().unpolish(widget)
+            widget.style().polish(widget)
+        if guard_open:
+            self._position_close_guard_overlay()
+            self.close_guard_overlay.raise_()
+            QTimer.singleShot(0, self.guard_save_button.setFocus)
 
     def _keep_editing(self):
         self._close_guard_active = False
@@ -2365,7 +2501,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         dirty = self._has_unsaved_changes()
         if self._close_guard_active and dirty:
-            change_text = "Unsaved changes"
+            change_text = ""
         elif self._notice_text:
             change_text = self._notice_text
         elif dirty:
@@ -2394,7 +2530,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.tray_expand_button.style().unpolish(self.tray_expand_button)
         self.tray_expand_button.style().polish(self.tray_expand_button)
         self._update_guard_buttons()
-        self.footer_frame.setVisible(self._focus == "quick_access" or dirty or self._close_guard_active)
+        self.footer_frame.setVisible((self._focus == "quick_access" or dirty) and not self._close_guard_active)
 
     def _toggle_tray_children(self):
         self._tray_children_expanded = not self._tray_children_expanded
@@ -2478,6 +2614,12 @@ class ResidentAccessSettingsDialog(QDialog):
             return HTCAPTION
         return 0
 
+    def _position_close_guard_overlay(self):
+        if not hasattr(self, "close_guard_overlay") or not hasattr(self, "settings_body"):
+            return
+        self.close_guard_overlay.setGeometry(self.settings_body.geometry())
+        self.close_guard_overlay.raise_()
+
     def nativeEvent(self, eventType, message):
         if eventType in ("windows_generic_MSG", "windows_dispatcher_MSG"):
             try:
@@ -2503,6 +2645,7 @@ class ResidentAccessSettingsDialog(QDialog):
         if hasattr(self, "resize_grip"):
             self.resize_grip.move(max(0, self.shell.width() - 22), max(0, self.shell.height() - 22))
             self.resize_grip.raise_()
+        self._position_close_guard_overlay()
 
 
 class AIControlCenterCommandPage(QWebEnginePage):

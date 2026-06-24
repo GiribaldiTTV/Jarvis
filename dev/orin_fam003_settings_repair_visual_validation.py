@@ -76,7 +76,9 @@ ACTIVE_FALSE_RETEST_DEFECT_IDS = (
     "F3-LV1-UI-026",
     "F3-LV1-UI-027",
     "F3-LV1-UI-028",
+    "F3-LV1-UI-029",
     "F3-LV1-PROOF-001",
+    "F3-LV1-PROOF-002",
 )
 REFERENCE_SCREENSHOTS: tuple[tuple[str, Path], ...] = (
     (
@@ -93,6 +95,11 @@ REFERENCE_SCREENSHOTS: tuple[tuple[str, Path], ...] = (
             r"\20260622-094707-live-resize\04_window_control_close_hover_focused_window.png"
         ),
     ),
+)
+MANAGE_MONITORS_REFERENCE_SOURCE_FILES: tuple[Path, ...] = (
+    ROOT / "nexus_visual" / "monitoring_hud.html",
+    ROOT / "nexus_visual" / "monitoring_hud.css",
+    ROOT / "nexus_visual" / "monitoring_hud.js",
 )
 
 
@@ -695,23 +702,23 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "element": "Close guard",
         "surface": "Global Settings modal state",
         "fam": "FAM-003",
-        "code": "desktop/desktop_renderer.py::_request_close",
+        "code": "desktop/desktop_renderer.py::_request_close + residentAccessCloseGuardOverlay",
         "role": "prevent silent data loss",
         "rule": "UIREF-004; Project Vision",
-        "copy": "Unsaved changes",
-        "font": "11px status plus buttons",
-        "text": "light cyan / red discard",
-        "background": "dark status/footer",
-        "border": "muted status borders",
-        "effects": "guard-only actions appear",
-        "spacing": "footer action row",
-        "hitbox": "guard action buttons",
-        "icon_label": "Cancel / Discard",
-        "states": "blocked close",
-        "a11y": "Cancel Close",
-        "comparator": "NDAI recovery/guard pattern",
-        "proof": "08_close_guard.png",
-        "checks": "close guard screenshot saved;close guard blocks silent loss",
+        "copy": "Unsaved Quick Access changes / Save changes or discard the draft before continuing. / Save / Discard / Cancel",
+        "font": "12px warning title/detail plus button labels",
+        "text": "warm white / muted cyan / red discard",
+        "background": "dimmed body overlay plus amber modal panel",
+        "border": "amber warning border, 8px radius",
+        "effects": "modal overlay, background blocked, save-focused",
+        "spacing": "centered modal with three equal actions",
+        "hitbox": "96px minimum guard action buttons",
+        "icon_label": "Save / Discard / Cancel",
+        "states": "blocked close, cancel returns dirty, save closes, discard closes",
+        "a11y": "Unsaved Quick Access changes close guard",
+        "comparator": "accepted HUD Dashboard / Manage Monitors dirty guard",
+        "proof": "08_close_guard.png; 13a_accepted_manage_monitors_dirty_guard_reference.png; 18_manage_monitors_dirty_guard_side_by_side.png",
+        "checks": "close guard screenshot saved;accepted Manage Monitors dirty guard source reference loaded;accepted Manage Monitors dirty guard reference artifact written;close guard blocks silent loss;close guard comparator-aligned Save / Discard / Cancel layout;close guard Cancel preserves dirty draft;close guard reopens after Cancel;close guard Save closes after persisting;close guard Discard closes after dropping draft",
     },
     {
         "id": "F3GS-022",
@@ -870,9 +877,9 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "icon_label": "image captions",
         "states": "reference/current/default/dropdown/dirty",
         "a11y": "artifact ledger describes surfaces",
-        "comparator": "accepted AI Control Center and repaired Global Settings",
-        "proof": "REFERENCE_CONFORMANCE_CONTACT_SHEET.png",
-        "checks": "side-by-side reference contact sheet written;accepted reference available: accepted_ai_control_center_default;accepted reference available: accepted_ai_control_center_close_hover",
+        "comparator": "accepted AI Control Center, accepted Manage Monitors dirty guard, and repaired Global Settings",
+        "proof": "REFERENCE_CONFORMANCE_CONTACT_SHEET.png; 18_manage_monitors_dirty_guard_side_by_side.png",
+        "checks": "side-by-side reference contact sheet written;accepted reference available: accepted_ai_control_center_default;accepted reference available: accepted_ai_control_center_close_hover;accepted Manage Monitors dirty guard reference artifact written;Manage Monitors dirty guard side-by-side sheet written",
     },
     {
         "id": "F3GS-029",
@@ -1035,6 +1042,170 @@ def _copy_reference_artifacts(log_dir: Path, artifacts: list[dict[str, str]]) ->
     return rows
 
 
+def _write_manage_monitors_guard_reference(
+    log_dir: Path,
+    artifacts: list[dict[str, str]],
+) -> tuple[list[tuple[str, bool, str]], Path, Path]:
+    from PySide6.QtCore import QRect, Qt
+    from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPen
+
+    required_tokens = {
+        "html_guard_id": "monitoring-hud-monitor-unsaved-guard",
+        "html_action_layout": "modal-save-discard-cancel",
+        "html_save": "monitoring-hud-monitor-unsaved-save",
+        "html_discard": "monitoring-hud-monitor-unsaved-discard",
+        "html_cancel": "monitoring-hud-monitor-unsaved-cancel",
+        "css_open_state": "data-hud-unsaved-state=\"open\"",
+        "css_open_guard": "open-save-discard",
+        "js_open_state": "monitoringHudShowUnsavedGuard",
+        "js_cancel_state": "monitoringHudCancelMonitorUnsavedGuard",
+    }
+    source_text = ""
+    missing_files: list[str] = []
+    for path in MANAGE_MONITORS_REFERENCE_SOURCE_FILES:
+        if path.exists():
+            source_text += f"\n\n/* {path} */\n" + path.read_text(encoding="utf-8")
+        else:
+            missing_files.append(str(path))
+    missing_tokens = [name for name, token in required_tokens.items() if token not in source_text]
+    source_ok = not missing_files and not missing_tokens
+
+    reference_path = log_dir / "13a_accepted_manage_monitors_dirty_guard_reference.png"
+    sheet = QImage(760, 360, QImage.Format.Format_ARGB32)
+    sheet.fill(QColor("#020812"))
+    painter = QPainter(sheet)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+    title_font = QFont("Segoe UI")
+    title_font.setPointSize(10)
+    title_font.setBold(True)
+    body_font = QFont("Segoe UI")
+    body_font.setPointSize(8)
+    painter.setFont(title_font)
+    painter.setPen(QColor("#9ee8f5"))
+    painter.drawText(22, 28, "Accepted Manage Monitors Dirty Guard Source-Rendered Reference")
+
+    window_rect = QRect(28, 56, 704, 264)
+    painter.setPen(QPen(QColor(122, 232, 255, 74), 1))
+    painter.setBrush(QColor(5, 23, 39, 246))
+    painter.drawRoundedRect(window_rect, 8, 8)
+    painter.setBrush(QColor(1, 8, 16, 168))
+    painter.setPen(Qt.NoPen)
+    painter.drawRoundedRect(window_rect.adjusted(0, 0, 0, 0), 8, 8)
+
+    panel_rect = QRect(182, 112, 398, 144)
+    painter.setPen(QPen(QColor(255, 214, 108, 92), 1))
+    painter.setBrush(QColor(23, 18, 12, 246))
+    painter.drawRoundedRect(panel_rect, 8, 8)
+    painter.setFont(title_font)
+    painter.setPen(QColor("#fff7e1"))
+    painter.drawText(panel_rect.adjusted(16, 18, -16, -16), Qt.AlignLeft | Qt.AlignTop, "Unsaved monitor changes")
+    painter.setFont(body_font)
+    painter.setPen(QColor(172, 215, 228, 214))
+    painter.drawText(
+        panel_rect.adjusted(16, 44, -16, -16),
+        Qt.TextWordWrap,
+        "Save changes or discard the draft before continuing.",
+    )
+
+    buttons = [
+        ("Save", QColor(15, 118, 110, 220), QColor(153, 246, 228, 148)),
+        ("Discard", QColor(52, 13, 21, 210), QColor(248, 113, 113, 132)),
+        ("Cancel", QColor(7, 28, 43, 190), QColor(148, 163, 184, 96)),
+    ]
+    x = panel_rect.left() + 16
+    y = panel_rect.bottom() - 46
+    for label, fill, border in buttons:
+        rect = QRect(x, y, 112, 30)
+        painter.setPen(QPen(border, 1))
+        painter.setBrush(fill)
+        painter.drawRoundedRect(rect, 6, 6)
+        painter.setPen(QColor("#ecfeff") if label == "Save" else QColor("#fecaca") if label == "Discard" else QColor("#d6e2ea"))
+        painter.drawText(rect, Qt.AlignCenter, label)
+        x += 120
+
+    painter.setFont(body_font)
+    painter.setPen(QColor(158, 232, 245, 220))
+    painter.drawText(
+        QRect(38, 286, 684, 48),
+        Qt.TextWordWrap,
+        "Reference source: nexus_visual/monitoring_hud.html, .css, .js. "
+        "Required contract tokens: open-save-discard, modal-save-discard-cancel, Save / Discard / Cancel.",
+    )
+    painter.end()
+    image_ok = bool(sheet.save(str(reference_path)))
+    if image_ok:
+        artifacts.append(
+            {
+                "path": str(reference_path),
+                "surface": "accepted Manage Monitors dirty guard reference",
+                "state": "source-rendered modal-save-discard-cancel contract",
+                "width": "760",
+                "height": "360",
+                "saved": "True",
+            }
+        )
+
+    ledger_path = log_dir / "MANAGE_MONITORS_DIRTY_GUARD_REFERENCE.md"
+    ledger_lines = [
+        "# Manage Monitors Dirty Guard Reference",
+        "",
+        "Reference Type: `accepted HUD Dashboard / Manage Monitors source-rendered comparator`",
+        "Boundary: `This is a source-rendered contract reference generated from the accepted HUD DOM/CSS/JS in the active worktree. It is not a new product screenshot claim.`",
+        "",
+        "## Source Files",
+        "",
+    ]
+    ledger_lines.extend(f"- `{path}`" for path in MANAGE_MONITORS_REFERENCE_SOURCE_FILES)
+    ledger_lines.extend(
+        [
+            "",
+            "## Required Tokens",
+            "",
+            "| Token ID | Required Token | Present |",
+            "| --- | --- | --- |",
+        ]
+    )
+    for name, token in required_tokens.items():
+        ledger_lines.append(f"| `{name}` | `{token}` | {'PASS' if token in source_text else 'FAIL'} |")
+    ledger_lines.extend(
+        [
+            "",
+            "## Accepted Contract",
+            "",
+            "- Trigger: dirty Manage Monitors draft plus queued close/select action opens the guard.",
+            "- Modal state: parent child window carries `data-hud-unsaved-state=\"open\"` and the guard carries `data-unsaved-guard=\"open-save-discard\"`.",
+            "- Button order: `Save`, `Discard`, `Cancel`.",
+            "- Behavior: `Cancel` hides the guard and preserves the draft; `Save` persists then continues; `Discard` drops the draft then continues.",
+            "- Visual grammar: amber modal warning panel over a dimmed child-window background.",
+        ]
+    )
+    ledger_path.write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
+    artifacts.append(
+        {
+            "path": str(ledger_path),
+            "surface": "accepted Manage Monitors dirty guard source ledger",
+            "state": "source-token contract",
+            "width": "markdown",
+            "height": "markdown",
+            "saved": str(ledger_path.exists()),
+        }
+    )
+
+    rows = [
+        (
+            "accepted Manage Monitors dirty guard source reference loaded",
+            source_ok,
+            f"missing_files={missing_files}; missing_tokens={missing_tokens}",
+        ),
+        (
+            "accepted Manage Monitors dirty guard reference artifact written",
+            image_ok and reference_path.exists() and ledger_path.exists(),
+            f"{reference_path}; {ledger_path}",
+        ),
+    ]
+    return rows, reference_path, ledger_path
+
+
 def _write_contact_sheet(
     log_dir: Path,
     entries: list[tuple[str, Path]],
@@ -1109,7 +1280,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 false-retest v18 deterministic layout repair for a settings-specific seamless single-row title, native-edge resize, no horizontal rail overflow, child-page indentation, compact row grouping, slot-count placement, clean-state status removal, and renewed USER retest readiness only.",
+        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 false-retest v19 deterministic layout repair with the accepted Manage Monitors modal dirty-guard alignment, settings-specific seamless single-row title, native-edge resize, no horizontal rail overflow, child-page indentation, compact row grouping, slot-count placement, clean-state status removal, and renewed USER retest readiness only if every row closes with proof.",
         "",
         "## Results",
         "",
@@ -1176,8 +1347,15 @@ def _write_fail_capable_defect_ledger(
         "clean state has no redundant saved label",
         "dropdown/list state is not white/native-light",
         "dropdown/list geometry is compact",
+        "accepted Manage Monitors dirty guard source reference loaded",
+        "accepted Manage Monitors dirty guard reference artifact written",
         "close guard blocks silent loss",
         "close guard comparator-aligned Save / Discard / Cancel layout",
+        "close guard Cancel preserves dirty draft",
+        "close guard reopens after Cancel",
+        "close guard Save closes after persisting",
+        "close guard Discard closes after dropping draft",
+        "Manage Monitors dirty guard side-by-side sheet written",
         "numbered reference conformance contact sheet written",
         "accepted AI Control Center default copy written",
         "glyph/control close-up proof",
@@ -1245,6 +1423,10 @@ def _write_artifact_ledger(
     artifacts: list[dict[str, str]],
     rows: list[tuple[str, bool, str]],
     contact_sheet: Path,
+    *,
+    manage_guard_reference_path: Path,
+    manage_guard_ledger_path: Path,
+    manage_guard_side_by_side: Path,
 ) -> tuple[Path, Path, Path, Path]:
     ledger_path = log_dir / "ARTIFACT_TO_SURFACE_LEDGER.md"
     ledger_lines = [
@@ -1292,15 +1474,15 @@ def _write_artifact_ledger(
         "# FAM-003 Global Settings Element-Group Reference Conformance Ledger",
         "",
         "Scope: Global Settings / Nexus Tray / Quick Access settings window only.",
-        "Reference class: UIREF-001 through UIREF-006 plus accepted AI Control Center top-level window evidence as a broad comparator.",
+        "Reference class: UIREF-001 through UIREF-006, accepted AI Control Center top-level window evidence as a broad comparator, and accepted HUD Dashboard / Manage Monitors dirty guard as the close-guard comparator.",
         "Proof model: settings-specific contact sheet, focused screenshots, code-to-visual widget/objectName trace, and fail-capable defect ledger. USER-operated Live Validation remains required.",
-        "Accepted-reference boundary: AI Control Center is the accepted NDAI visual-language comparator, not a Global Settings layout template, title-card target, hero-header target, or shared primitive claim.",
+        "Accepted-reference boundary: AI Control Center is the accepted NDAI visual-language comparator, not a Global Settings layout template, title-card target, hero-header target, or shared primitive claim. Manage Monitors is the accepted dirty-guard behavior/visual comparator for Save / Discard / Cancel modal close-guard proof.",
         "",
         "## Scope Coverage Manifest",
         "",
         "- Reviewed files: desktop/desktop_renderer.py, desktop/resident_access.py, dev/orin_fam003_settings_repair_visual_validation.py.",
-        "- Reviewed windows/surfaces: Global Settings shell, chrome/control cluster, splitter-backed left organizer, parent expand/collapse, pane narrow/default/wide states, selectable Tray parent page, Quick Access child page, slot rows, dropdown/list, row actions, footer, dirty/default/save/close-guard states.",
-        "- Reviewed artifacts: default screenshot, chrome/control screenshot, focus/pressed screenshot, left organizer default/active/collapsed/expanded/narrow/wide screenshots, Tray parent page screenshot, row-action screenshot, dirty screenshot, dropdown/list screenshot, close-guard screenshot, defaults-staged screenshot, max-slot screenshot, saved-state screenshot, accepted AI Control Center reference screenshots, and contact sheet.",
+        "- Reviewed windows/surfaces: Global Settings shell, chrome/control cluster, splitter-backed left organizer, parent expand/collapse, pane narrow/default/wide states, selectable Tray parent page, Quick Access child page, slot rows, dropdown/list, row actions, footer, dirty/default/save/close-guard states, and Manage Monitors guard reference source.",
+        "- Reviewed artifacts: default screenshot, chrome/control screenshot, focus/pressed screenshot, left organizer default/active/collapsed/expanded/narrow/wide screenshots, Tray parent page screenshot, row-action screenshot, dirty screenshot, dropdown/list screenshot, close-guard screenshot, defaults-staged screenshot, max-slot screenshot, saved-state screenshot, accepted AI Control Center reference screenshots, source-rendered Manage Monitors dirty-guard reference, Manage Monitors side-by-side guard sheet, and contact sheet.",
         "- Excluded: full app-wide settings framework, FAM-006 HUD internals, FAM-007 AI/provider/privacy internals, FAM-008 installer/startup/shortcut/update/packaging behavior, and sibling worktree UI. Exclusion reason: outside current FAM-003 bounded repair.",
         "- Sampling: no element-group sampling inside the owned Global Settings / Quick Access surface; every visible owned/touched element group in that surface has a row below.",
         "",
@@ -1335,6 +1517,12 @@ def _write_artifact_ledger(
                 "elementGroupCount": len(ELEMENT_GROUP_LEDGER_ROWS),
                 "elementGroupResults": element_results,
                 "referenceScreenshots": [{"label": label, "path": str(path)} for label, path in REFERENCE_SCREENSHOTS],
+                "manageMonitorsDirtyGuardReference": {
+                    "image": str(manage_guard_reference_path),
+                    "ledger": str(manage_guard_ledger_path),
+                    "sourceFiles": [str(path) for path in MANAGE_MONITORS_REFERENCE_SOURCE_FILES],
+                    "sideBySide": str(manage_guard_side_by_side),
+                },
                 "scopeCoverage": {
                     "reviewedFiles": [
                         "desktop/desktop_renderer.py",
@@ -1354,6 +1542,7 @@ def _write_artifact_ledger(
                         "row actions",
                         "footer",
                         "dirty/default/save/close-guard states",
+                        "accepted Manage Monitors dirty guard source reference",
                     ],
                     "excluded": [
                         "full app-wide Global Settings framework",
@@ -1409,6 +1598,8 @@ def main() -> int:
     rows: list[tuple[str, bool, str]] = []
     artifacts: list[dict[str, str]] = []
     rows.extend(_copy_reference_artifacts(log_dir, artifacts))
+    manage_guard_rows, manage_guard_reference_path, manage_guard_ledger_path = _write_manage_monitors_guard_reference(log_dir, artifacts)
+    rows.extend(manage_guard_rows)
     udl_exists_ok, udl_exists_detail, udl_closed_ok, udl_closed_detail = _visual_udl_status_rows()
     rows.append(("visual UDL exists", udl_exists_ok, udl_exists_detail))
     rows.append(("visual UDL rows closed with proof", udl_closed_ok, udl_closed_detail))
@@ -1482,7 +1673,7 @@ def main() -> int:
         (
             "top-level chrome/control cluster",
             chrome_ok
-            and dialog.chrome_bar.property("headerAnatomy") == "ndai-global-settings-single-row-chrome-v18"
+            and dialog.chrome_bar.property("headerAnatomy") == "ndai-global-settings-single-row-chrome-v19"
             and dialog.chrome_bar.control_cluster.objectName() == "residentAccessSettingsWindowControls"
             and dialog.chrome_bar.minimize_button.isVisible()
             and dialog.chrome_bar.close_button.isVisible()
@@ -1583,7 +1774,7 @@ def main() -> int:
             and 620 <= min_width <= 640
             and 318 <= min_height <= 330
             and dialog.resize_grip.isVisible()
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-620x318-v18",
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-620x318-v19",
             f"resized={resized_width}x{resized_height}; min={min_width}x{min_height}; grip_visible={dialog.resize_grip.isVisible()}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -1837,13 +2028,14 @@ def main() -> int:
             and not dialog.section_badge.isVisible()
             and not dialog.section_detail.isVisible()
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v18"
-            and dialog.property("settingsVisualRepair") == "lv1-global-settings-deterministic-layout-repair-v18"
-            and dialog.property("referenceDerivedHeader") == "ndai-global-settings-single-row-chrome-v18"
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-620x318-v18"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v19"
+            and dialog.property("settingsVisualRepair") == "lv1-global-settings-manage-monitors-dirty-guard-alignment-v19"
+            and dialog.property("referenceDerivedHeader") == "ndai-global-settings-single-row-chrome-v19"
+            and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-620x318-v19"
             and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
-            and dialog.property("referenceComparatorRequired") == "ui-reference-plus-broad-ndai-comparator-v18"
+            and dialog.property("referenceComparatorRequired") == "ui-reference-plus-manage-monitors-dirty-guard-comparator-v19"
             and set(dialog._nav_buttons) == {"tray", "quick_access"}
             and dialog.tray_nav_item.property("settingsCategoryRole") == "selectable-parent-page"
             and dialog.tray_nav_button.text() == "Tray"
@@ -2158,6 +2350,7 @@ def main() -> int:
         )
 
     dialog.reject()
+    QTest.qWait(40)
     app.processEvents()
     guard_path = log_dir / "08_close_guard.png"
     guard_ok, _, _ = _capture(
@@ -2173,29 +2366,111 @@ def main() -> int:
             "close guard blocks silent loss",
             dialog.isVisible()
             and dialog._close_guard_active
-            and dialog.discard_button.isVisible()
-            and dialog.keep_editing_button.isVisible()
+            and dialog.close_guard_overlay.isVisible()
+            and dialog.close_guard_panel.isVisible()
+            and dialog.close_guard_overlay.property("unsavedGuard") == "open-save-discard"
+            and dialog.close_guard_panel.property("guardActionLayout") == "modal-save-discard-cancel"
+            and dialog.close_guard_overlay.accessibleName() == "Unsaved Quick Access changes close guard"
+            and not dialog.footer_frame.isVisible()
+            and not dialog.discard_button.isVisible()
+            and not dialog.keep_editing_button.isVisible()
             and not dialog.revert_button.isVisible()
-            and dialog.change_summary.text() == "Unsaved changes"
-            and dialog.change_summary.width() >= 128
-            and dialog.change_summary.height() <= 24,
-            f"visible={dialog.isVisible()}; guard={dialog._close_guard_active}; summary={dialog.change_summary.text()!r}; status_size={dialog.change_summary.width()}x{dialog.change_summary.height()}; cancel_visible={dialog.keep_editing_button.isVisible()}; revert_visible={dialog.revert_button.isVisible()}",
+            and not dialog.change_summary.isVisible(),
+            f"visible={dialog.isVisible()}; guard={dialog._close_guard_active}; overlay_visible={dialog.close_guard_overlay.isVisible()}; panel_visible={dialog.close_guard_panel.isVisible()}; overlay_state={dialog.close_guard_overlay.property('unsavedGuard')!r}; panel_layout={dialog.close_guard_panel.property('guardActionLayout')!r}; footer_visible={dialog.footer_frame.isVisible()}; summary={dialog.change_summary.text()!r}; summary_visible={dialog.change_summary.isVisible()}",
         )
     )
+    guard_save_x = dialog.guard_save_button.mapTo(dialog.close_guard_panel, QPoint(0, 0)).x()
+    guard_discard_x = dialog.guard_discard_button.mapTo(dialog.close_guard_panel, QPoint(0, 0)).x()
+    guard_cancel_x = dialog.guard_cancel_button.mapTo(dialog.close_guard_panel, QPoint(0, 0)).x()
     rows.append(
         (
             "close guard comparator-aligned Save / Discard / Cancel layout",
             dialog._close_guard_active
-            and dialog.discard_button.isVisible()
-            and dialog.save_button.isVisible()
-            and dialog.keep_editing_button.isVisible()
-            and not dialog.revert_button.isVisible()
-            and dialog.discard_button.text() == "Discard"
-            and dialog.save_button.text() == "Save"
-            and dialog.keep_editing_button.text() == "Cancel",
-            f"discard_visible={dialog.discard_button.isVisible()}; save_visible={dialog.save_button.isVisible()}; cancel_visible={dialog.keep_editing_button.isVisible()}; revert_visible={dialog.revert_button.isVisible()}; buttons={[(button.objectName(), button.text(), button.isVisible(), button.isEnabled()) for button in dialog.findChildren(QPushButton)]}",
+            and dialog.close_guard_overlay.isVisible()
+            and dialog.guard_save_button.isVisible()
+            and dialog.guard_discard_button.isVisible()
+            and dialog.guard_cancel_button.isVisible()
+            and dialog.guard_save_button.text() == "Save"
+            and dialog.guard_discard_button.text() == "Discard"
+            and dialog.guard_cancel_button.text() == "Cancel"
+            and dialog.guard_save_button.property("guardVisualRole") == "primary-save"
+            and dialog.guard_discard_button.property("guardVisualRole") == "destructive-discard"
+            and dialog.guard_cancel_button.property("guardVisualRole") == "neutral-cancel"
+            and guard_save_x < guard_discard_x < guard_cancel_x
+            and dialog.guard_save_button.hasFocus(),
+            f"overlay={dialog.close_guard_overlay.isVisible()}; save=({dialog.guard_save_button.text()!r},{dialog.guard_save_button.isVisible()},{guard_save_x},focus={dialog.guard_save_button.hasFocus()},role={dialog.guard_save_button.property('guardVisualRole')!r}); discard=({dialog.guard_discard_button.text()!r},{dialog.guard_discard_button.isVisible()},{guard_discard_x},role={dialog.guard_discard_button.property('guardVisualRole')!r}); cancel=({dialog.guard_cancel_button.text()!r},{dialog.guard_cancel_button.isVisible()},{guard_cancel_x},role={dialog.guard_cancel_button.property('guardVisualRole')!r}); buttons={[(button.objectName(), button.text(), button.isVisible(), button.isEnabled()) for button in dialog.findChildren(QPushButton)]}",
         )
     )
+
+    dialog.guard_cancel_button.click()
+    app.processEvents()
+    rows.append(
+        (
+            "close guard Cancel preserves dirty draft",
+            dialog.isVisible()
+            and dialog._has_unsaved_changes()
+            and not dialog._close_guard_active
+            and not dialog.close_guard_overlay.isVisible(),
+            f"visible={dialog.isVisible()}; dirty={dialog._has_unsaved_changes()}; guard={dialog._close_guard_active}; overlay_visible={dialog.close_guard_overlay.isVisible()}",
+        )
+    )
+    dialog.reject()
+    QTest.qWait(40)
+    app.processEvents()
+    rows.append(
+        (
+            "close guard reopens after Cancel",
+            dialog.isVisible()
+            and dialog._has_unsaved_changes()
+            and dialog._close_guard_active
+            and dialog.close_guard_overlay.isVisible()
+            and dialog.close_guard_overlay.property("unsavedGuard") == "open-save-discard",
+            f"visible={dialog.isVisible()}; dirty={dialog._has_unsaved_changes()}; guard={dialog._close_guard_active}; overlay_state={dialog.close_guard_overlay.property('unsavedGuard')!r}",
+        )
+    )
+
+    save_probe = ResidentAccessSettingsDialog()
+    save_probe.show()
+    app.processEvents()
+    save_probe_combo = save_probe._slot_combos[0]
+    save_probe_combo.setCurrentIndex((save_probe_combo.currentIndex() + 1) % max(1, save_probe_combo.count()))
+    app.processEvents()
+    save_probe.reject()
+    QTest.qWait(40)
+    app.processEvents()
+    save_probe.guard_save_button.click()
+    app.processEvents()
+    rows.append(
+        (
+            "close guard Save closes after persisting",
+            not save_probe.isVisible()
+            and not save_probe._has_unsaved_changes()
+            and not save_probe._close_guard_active,
+            f"visible={save_probe.isVisible()}; dirty={save_probe._has_unsaved_changes()}; guard={save_probe._close_guard_active}; saved_slots={save_probe._saved_settings.quick_slot_ids}",
+        )
+    )
+    save_probe.deleteLater()
+
+    discard_probe = ResidentAccessSettingsDialog()
+    discard_probe.show()
+    app.processEvents()
+    discard_probe_combo = discard_probe._slot_combos[0]
+    discard_probe_combo.setCurrentIndex((discard_probe_combo.currentIndex() + 1) % max(1, discard_probe_combo.count()))
+    app.processEvents()
+    discard_probe.reject()
+    QTest.qWait(40)
+    app.processEvents()
+    discard_probe.guard_discard_button.click()
+    app.processEvents()
+    rows.append(
+        (
+            "close guard Discard closes after dropping draft",
+            not discard_probe.isVisible()
+            and not discard_probe._close_guard_active,
+            f"visible={discard_probe.isVisible()}; dirty={discard_probe._has_unsaved_changes()}; guard={discard_probe._close_guard_active}; saved_slots={discard_probe._saved_settings.quick_slot_ids}",
+        )
+    )
+    discard_probe.deleteLater()
 
     dialog._keep_editing()
     dialog.set_focus("quick_access")
@@ -2358,6 +2633,7 @@ def main() -> int:
         [
             ("Accepted reference - AI Control Center family grammar", REFERENCE_SCREENSHOTS[0][1]),
             ("Accepted reference - close hover", REFERENCE_SCREENSHOTS[1][1]),
+            ("Accepted reference - Manage Monitors dirty guard", manage_guard_reference_path),
             ("Repaired FAM-003 - settings shell", default_path),
             ("Repaired FAM-003 - moved window", log_dir / "03a_window_moved_by_chrome.png"),
             ("Repaired FAM-003 - resized window", log_dir / "03b_window_resized.png"),
@@ -2416,18 +2692,45 @@ def main() -> int:
                 "saved": "True",
             }
         )
+    manage_guard_side_by_side, manage_guard_side_by_side_ok = _write_contact_sheet(
+        log_dir,
+        [
+            ("Accepted Manage Monitors - modal Save / Discard / Cancel", manage_guard_reference_path),
+            ("Repaired FAM-003 - modal Save / Discard / Cancel", log_dir / "08_close_guard.png"),
+        ],
+        file_name="18_manage_monitors_dirty_guard_side_by_side.png",
+        title="FAM-003 vs Accepted Manage Monitors Dirty Guard",
+    )
+    rows.append(
+        (
+            "Manage Monitors dirty guard side-by-side sheet written",
+            manage_guard_side_by_side_ok and manage_guard_side_by_side.exists(),
+            str(manage_guard_side_by_side),
+        )
+    )
+    artifacts.append(
+        {
+            "path": str(manage_guard_side_by_side),
+            "surface": "Manage Monitors dirty guard side-by-side comparison",
+            "state": "accepted reference vs repaired FAM-003 close guard",
+            "width": "composite",
+            "height": "composite",
+            "saved": str(bool(manage_guard_side_by_side_ok and manage_guard_side_by_side.exists())),
+        }
+    )
     defect_contact_sheet, defect_contact_ok = _write_contact_sheet(
         log_dir,
         [
             ("Before false retest - v15 utility-like shell", ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260624-123116" / "01_default_global_settings_shell.png"),
             ("Rejected v16 - sectioned title row", ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260624-132602" / "02_top_level_chrome_control_cluster.png"),
             ("Accepted reference - broad NDAI comparator", REFERENCE_SCREENSHOTS[0][1]),
-            ("Repaired v18 - default shell", default_path),
-            ("Repaired v18 - seamless title row", chrome_path),
-            ("Repaired v18 - glyph controls", glyph_path),
-            ("Repaired v18 - splitter affordance", splitter_closeup_path),
-            ("Repaired v18 - dropdown", log_dir / "07_dropdown_list_state.png"),
-            ("Repaired v18 - close guard", log_dir / "08_close_guard.png"),
+            ("Accepted reference - Manage Monitors dirty guard", manage_guard_reference_path),
+            ("Repaired v19 - default shell", default_path),
+            ("Repaired v19 - seamless title row", chrome_path),
+            ("Repaired v19 - glyph controls", glyph_path),
+            ("Repaired v19 - splitter affordance", splitter_closeup_path),
+            ("Repaired v19 - dropdown", log_dir / "07_dropdown_list_state.png"),
+            ("Repaired v19 - close guard", log_dir / "08_close_guard.png"),
         ],
         file_name="16_defect_closure_contact_sheet.png",
         title="FAM-003 False-Retest Defect Closure Contact Sheet",
@@ -2461,7 +2764,9 @@ def main() -> int:
             ("Red-team check - resized shell", resized_path),
             ("Red-team check - minimum shell", min_path),
             ("Red-team check - dropdown open", log_dir / "07_dropdown_list_state.png"),
+            ("Red-team reference - Manage Monitors dirty guard", manage_guard_reference_path),
             ("Red-team check - close guard", log_dir / "08_close_guard.png"),
+            ("Red-team check - guard side-by-side", manage_guard_side_by_side),
         ],
         file_name="17_red_team_review_sheet.png",
         title="FAM-003 Codex Red-Team Visual Review Sheet",
@@ -2503,7 +2808,9 @@ def main() -> int:
         ("F3-LV1-UI-026", "USER / ChatGPT", "nav rows stretched and overflow was treated as proof", "04_left_settings_organizer.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "bounded parent/child rail rows with no horizontal overflow", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-027", "USER / ChatGPT", "3 active of 4 header badge was verbose and detached from Add Slot", "01_default_global_settings_shell.png", "3 of 4 placed beside Add Slot", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-028", "USER / ChatGPT", "clean-state Saved label was redundant", "01_default_global_settings_shell.png; 11_post_save_clean_state.png", "quiet clean/post-save state; dirty/guard copy remains meaningful", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-028 coverage", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-029", "USER", "v18 footer/status close guard did not match accepted Manage Monitors modal dirty guard", "08_close_guard.png; 13a_accepted_manage_monitors_dirty_guard_reference.png; 18_manage_monitors_dirty_guard_side_by_side.png; MANAGE_MONITORS_DIRTY_GUARD_REFERENCE.md", "accepted HUD Dashboard / Manage Monitors modal Save / Discard / Cancel dirty guard", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-PROOF-001", "USER / ChatGPT / Codex", "retest packet returned without defect-by-defect proof", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png", "UTS guidance Codex Visual Adjudication gate with UI-023 through UI-029 coverage", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-PROOF-002", "USER / ChatGPT / Codex", "Codex repeatedly returned repaired/retest-candidate packets after unresolved seed defects remained visible", "DEFECT_CLOSURE_PROOF_LEDGER.md; FAIL_CAPABLE_DEFECT_LEDGER.md; 17_red_team_review_sheet.png; 18_manage_monitors_dirty_guard_side_by_side.png", "row-specific root-cause prevention plus fail-capable validator requirements for every reopened current-owned defect", "CLOSED_WITH_PROOF"),
     ]
     for defect_id, origin, prior, proof, comparator, status in closure_rows:
         closure_lines.append(f"| {defect_id} | {origin} | `{prior}` | `{proof}` | {comparator} | {status} |")
@@ -2538,7 +2845,15 @@ def main() -> int:
         }
     )
 
-    ledger_path, manifest_path, element_ledger_path, defect_ledger_path = _write_artifact_ledger(log_dir, artifacts, rows, contact_sheet)
+    ledger_path, manifest_path, element_ledger_path, defect_ledger_path = _write_artifact_ledger(
+        log_dir,
+        artifacts,
+        rows,
+        contact_sheet,
+        manage_guard_reference_path=manage_guard_reference_path,
+        manage_guard_ledger_path=manage_guard_ledger_path,
+        manage_guard_side_by_side=manage_guard_side_by_side,
+    )
     rows.append(
         (
             "artifact and element-group ledgers written",

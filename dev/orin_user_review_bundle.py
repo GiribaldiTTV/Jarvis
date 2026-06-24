@@ -1122,17 +1122,20 @@ def _fam003_lv1_visual_retest_semantic_failures(
         "10_max_slots_unclipped.png",
         "11_post_save_clean_state.png",
         "12_reference_conformance_contact_sheet.png",
+        "13a_accepted_manage_monitors_dirty_guard_reference.png",
         "13_accepted_ai_control_center_default.png",
         "14_glyph_control_closeup.png",
         "15_left_pane_resize_affordance_closeup.png",
         "16_defect_closure_contact_sheet.png",
         "17_red_team_review_sheet.png",
+        "18_manage_monitors_dirty_guard_side_by_side.png",
         "REFERENCE_CONFORMANCE_CONTACT_SHEET.png",
         "ARTIFACT_TO_SURFACE_LEDGER.md",
         "DEFECT_CLOSURE_PROOF_LEDGER.md",
         "ELEMENT_GROUP_REFERENCE_CONFORMANCE_LEDGER.md",
         "FAIL_CAPABLE_DEFECT_LEDGER.md",
         "FAM003_SETTINGS_REPAIR_VISUAL_VALIDATION.md",
+        "MANAGE_MONITORS_DIRTY_GUARD_REFERENCE.md",
         "fam003_settings_visual_fail_repair_manifest.json",
         "resident_access_settings.json",
     )
@@ -1308,7 +1311,9 @@ def _fam003_lv1_visual_retest_semantic_failures(
             "F3-LV1-UI-026",
             "F3-LV1-UI-027",
             "F3-LV1-UI-028",
+            "F3-LV1-UI-029",
             "F3-LV1-PROOF-001",
+            "F3-LV1-PROOF-002",
         ):
             if defect_id not in udl_text:
                 failures.append(
