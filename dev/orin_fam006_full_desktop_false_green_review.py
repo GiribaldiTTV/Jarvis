@@ -706,7 +706,7 @@ def _root_cause_rows() -> list[dict[str, str]]:
             "defectId": "FAM006-FD-FG-006",
             "falseGreenSymptom": "The 153501 packet carried the accepted selected visual direction but did not include packet-contained command evidence for every validation Codex claimed in the return packet.",
             "evidenceThatExposedIt": "USER/ChatGPT review of FAM-006-20260624-153501.zip and the Codex return packet listing validations that were not all backed by in-ZIP validation records.",
-            "whyPacketProofMissedIt": "The packet summarized validation status and included many raw records, but did not require a validation claim ledger tying each PASS/NA claim to packet-contained command/cwd/timestamp/exit/stdout/stderr evidence.",
+            "whyPacketProofMissedIt": "The packet summarized command results and included many raw records, but did not require a validation claim ledger tying each PASS/NA claim to packet-contained command/cwd/timestamp/exit/stdout/stderr evidence.",
             "whyValidatorHelperMissedIt": "The branch-local packet validator checked core validation output records but did not require self-validation, USER packet validation, external-state validation, git diff cached applicability, or exact claim-to-evidence parity.",
             "whyCodexReviewMissedIt": "Codex treated the final chat validation summary and packet helper PASS as sufficient instead of proving every claimed command inside the upload artifact.",
             "whyChatGPTReviewMissedIt": "The upload packet lacked a deterministic claim ledger, so ChatGPT had to infer which validations were actually packet-contained.",
@@ -1112,9 +1112,10 @@ def _validation_claim_ledger(results: list[dict[str, Any]]) -> list[dict[str, st
 
 def _write_validation_claim_outputs(packet: Path, results: list[dict[str, Any]]) -> None:
     ledger = _validation_claim_ledger(results)
-    _write_json(packet / "Review Aids" / "validation_claim_ledger.json", ledger)
+    output_dir = packet / "Review Aids" / "Validation Outputs"
+    _write_json(output_dir / "validation_claim_ledger.json", ledger)
     _write_text(
-        packet / "Review Aids" / "VALIDATION_CLAIM_LEDGER.md",
+        output_dir / "VALIDATION_CLAIM_LEDGER.md",
         _ledger_markdown("FAM-006 Validation Claim Ledger", ledger),
     )
 
@@ -1152,7 +1153,8 @@ def _write_validation_summary(packet: Path, results: list[dict[str, Any]]) -> No
         "Each listed validation includes command, cwd, timestamp, exit code, PASS/FAIL or a "
         "source-truth-bounded NOT_APPLICABLE_WITH_REASON disposition, stdout, and stderr. "
         "The final post-ZIP SHA is reported in the external manifest and Codex return packet "
-        "to avoid self-mutating hash proof.\n\n"
+        "to avoid self-mutating hash proof. The machine-readable validation claim ledger is "
+        "`Review Aids/Validation Outputs/validation_claim_ledger.json`.\n\n"
         + "\n".join(
             f"- `{result['commandId']}`: `{result['status']}`; see `Review Aids/Validation Outputs/{result['commandId']}.json`."
             for result in results
@@ -1629,9 +1631,9 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/SELECTED_DIRECTION_SUMMARY.md",
         "Review Aids/selected_direction_summary.json",
         "Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md",
-        "Review Aids/VALIDATION_CLAIM_LEDGER.md",
-        "Review Aids/validation_claim_ledger.json",
         "Review Aids/VALIDATION_OUTPUT_EVIDENCE.md",
+        "Review Aids/Validation Outputs/VALIDATION_CLAIM_LEDGER.md",
+        "Review Aids/Validation Outputs/validation_claim_ledger.json",
         "Review Aids/Validation Outputs/git_status_branch.json",
         "Review Aids/Validation Outputs/git_head.json",
         "Review Aids/Validation Outputs/git_origin_main.json",
@@ -1892,7 +1894,7 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
                             "validation output git_ahead_behind_upstream does not prove post-push sync: "
                             + str(result.get("stdout", "")).strip()
                         )
-            claim_path = packet_root / "Review Aids/validation_claim_ledger.json"
+            claim_path = packet_root / "Review Aids/Validation Outputs/validation_claim_ledger.json"
             if not claim_path.exists():
                 failures.append("validation claim ledger missing")
             else:
