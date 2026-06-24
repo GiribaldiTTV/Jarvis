@@ -290,6 +290,12 @@ VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
 )
+INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_RESOLVED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unanchored_stage_resolved.md"
+)
+INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_NO_IMPACT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unanchored_stage_no_impact.md"
+)
 INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_code_trace.md"
 )
@@ -353,6 +359,9 @@ INVALID_REBASELINE_ADOPTION_ZIP_SUFFIX_PATH_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
+)
+INVALID_REBASELINE_ADOPTION_ACTIVE_STAGE_NORMAL_PHASE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_active_stage_normal_phase.md"
 )
 INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_concrete_phase_while_active.md"
@@ -453,6 +462,9 @@ EXPECTED_BRANCH_PLANNING_GATE_BYPASS_FAILURE_SNIPPET = (
 )
 EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET = "Project Vision Context"
 EXPECTED_RAR_MARKER_ONLY_FAILURE_SNIPPET = "Rebaseline Adoption Review Missing"
+EXPECTED_RAR_STAGE_FAILURE_SNIPPET = (
+    "Rebaseline Adoption Review Missing: RAR Stage must name RAR0-RAR4"
+)
 EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET = "Code-To-Visual Trace Missing"
 EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET = (
     "Product Experience Contract Nonconformance Unresolved"
@@ -1795,8 +1807,16 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
 
     rar_stage = governance._extract_marker_value(text, "RAR Stage:")
+    normalized_rar_stage = governance._normalized_planning_value(rar_stage).strip(
+        " .;:"
+    )
+    active_rar_stage = re.match(r"^rar[0-4]\b", normalized_rar_stage) is not None
+    resolved_rar_stage = (
+        re.match(r"^resolved\b", normalized_rar_stage) is not None
+        or re.match(r"^no applicable impact\b", normalized_rar_stage) is not None
+    )
     require(
-        re.search(r"\bRAR[0-4]\b|Resolved|No Applicable Impact", rar_stage) is not None,
+        active_rar_stage or resolved_rar_stage,
         "Rebaseline Adoption Review Missing: RAR Stage must name RAR0-RAR4 or a resolved disposition",
     )
 
@@ -2223,7 +2243,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
 
     normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
-    active_rar_context = any(
+    active_rar_context = active_rar_stage or any(
         token in active_rar_values
         for token in (
             "rar user review gate remains active",
@@ -6324,6 +6344,30 @@ line item, not a seam or separate branch.
             "Invalid marker-only RAR fixture did not reject shallow adoption markers"
         )
 
+    unanchored_stage_resolved_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_RESOLVED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_STAGE_FAILURE_SNIPPET not in "\n".join(
+        unanchored_stage_resolved_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unanchored resolved stage wording"
+        )
+
+    unanchored_stage_no_impact_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_NO_IMPACT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_STAGE_FAILURE_SNIPPET not in "\n".join(
+        unanchored_stage_no_impact_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unanchored no-impact stage wording"
+        )
+
     missing_code_trace_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE.read_text(encoding="utf-8")
     )
@@ -6592,6 +6636,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject normal phase progression while RAR remains active"
+        )
+
+    active_stage_normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ACTIVE_STAGE_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        active_stage_normal_phase_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject normal phase progression for active RAR stage"
         )
 
     concrete_phase_rar_failures = _validate_rebaseline_adoption_review_text(
