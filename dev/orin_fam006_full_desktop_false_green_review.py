@@ -34,6 +34,8 @@ REJECTED_SELECTION_PACKET = USER_ROOT / "FAM-006-20260624-132551.zip"
 REJECTED_SELECTION_SHA256 = "DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE"
 REJECTED_DOORWAY_PACKET = USER_ROOT / "FAM-006-20260624-135010.zip"
 REJECTED_DOORWAY_SHA256 = "46008863B7BFE9E4D3B0028AC84A5B62DED4CC30621FAA0BB9311BEEB53F396D"
+REJECTED_BOTTOM_ROW_PACKET = USER_ROOT / "FAM-006-20260624-142638.zip"
+REJECTED_BOTTOM_ROW_SHA256 = "3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D"
 PROOF_ROOT = Path(
     "C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI/"
     "fam_006_pre_live_visual_conformance/20260624_121443_feature_studio_visual_fail_repair"
@@ -200,9 +202,14 @@ def _render_recording_option(option_id: str, media_dir: Path) -> str:
             "subtitle": "Recording Studio",
             "rows": [("Target", "Default Overlay Profile"), ("State", "Ready - 2 active monitors")],
             "note": "",
-            "size": (540, 310),
+            "size": (540, 286),
             "group": True,
             "stronger": False,
+            "button_h": 32,
+            "button_y_offset": 48,
+            "start_w": 132,
+            "log_w": 210,
+            "gap": 12,
         },
         "A3": {
             "title": "A3 Stronger Parent-Family Card Grammar",
@@ -227,9 +234,13 @@ def _render_recording_option(option_id: str, media_dir: Path) -> str:
         for line in _wrap_text(spec["note"], w, note_font)[:2]:
             draw.text((x, note_y), line, fill=(178, 210, 221), font=note_font)
             note_y += 17
-    button_y = spec["size"][1] - 58
-    _draw_button(draw, (x, button_y, x + 156, button_y + 40), "Start Recording")
-    _draw_button(draw, (x + 172, button_y, x + 384, button_y + 40), "Open Log Viewer Studio")
+    button_h = int(spec.get("button_h", 40))
+    button_y = spec["size"][1] - int(spec.get("button_y_offset", 58))
+    start_w = int(spec.get("start_w", 156))
+    log_w = int(spec.get("log_w", 212))
+    gap = int(spec.get("gap", 16))
+    _draw_button(draw, (x, button_y, x + start_w, button_y + button_h), "Start Recording")
+    _draw_button(draw, (x + start_w + gap, button_y, x + start_w + gap + log_w, button_y + button_h), "Open Log Viewer Studio")
     out = media_dir / f"{option_id.lower()}_nested_card_inheritance.png"
     img.save(out)
     return out.as_posix()
@@ -258,8 +269,8 @@ def _render_log_option(option_id: str, media_dir: Path) -> str:
             "title": "Selected Log Viewer Doorway",
             "rows": [("Viewer", "Deferred")],
             "mode": "selected-doorway",
-            "note": "Doorway shell only; no fake native/export data rows, paths, graph, previous-log selection, or export customization.",
-            "size": (560, 276),
+            "note": "",
+            "size": (560, 244),
         },
         "C3": {
             "title": "C3 Compact Footer Actions",
@@ -282,11 +293,12 @@ def _render_log_option(option_id: str, media_dir: Path) -> str:
     else:
         for label, value in spec["rows"]:
             y = _draw_truth_row(draw, x, y, w, label, value)
-    note_font = _font(12)
-    note_y = y + 8
-    for line in _wrap_text(spec["note"], w, note_font)[:2]:
-        draw.text((x, note_y), line, fill=(178, 210, 221), font=note_font)
-        note_y += 17
+    if spec["note"]:
+        note_font = _font(12)
+        note_y = y + 8
+        for line in _wrap_text(spec["note"], w, note_font)[:2]:
+            draw.text((x, note_y), line, fill=(178, 210, 221), font=note_font)
+            note_y += 17
     if spec["mode"] in {"stacked", "footer", "selected-doorway"}:
         button_y = spec["size"][1] - 58
         _draw_button(draw, (x, button_y, x + 166, button_y + 40), "Open Native Logs")
@@ -370,6 +382,30 @@ def _create_option_renders(media_dir: Path) -> list[str]:
     for option_id in ("C1", "C2", "C3", "LOGA"):
         paths.append(_render_log_option(option_id, media_dir))
     paths.append(_create_options_board(media_dir))
+    _write_json(
+        media_dir / "selected_render_contract.json",
+        {
+            "A2": {
+                "status": "REPAIRED",
+                "bottomActionRow": "compact/tight",
+                "buttonHeightPx": 32,
+                "helperCopyInsideNestedCard": False,
+                "targetRow": "TARGET - Default Overlay Profile",
+                "stateRow": "STATE - Ready - 2 active monitors",
+                "action002": "OPEN LOG VIEWER STUDIO",
+                "oversizedControlWell": False,
+            },
+            "LogViewerDoorway": {
+                "status": "REPAIRED",
+                "middleStatusRow": "VIEWER - Deferred",
+                "bottomActions": ["OPEN NATIVE LOGS", "OPEN EXPORTED LOGS"],
+                "helperCopyInsideProductSurface": False,
+                "fakeNativeExportRows": False,
+                "localPathsDisplayedByDefault": False,
+                "selectedInlineRowActionLayout": False,
+            },
+        },
+    )
     return paths
 
 
@@ -587,12 +623,13 @@ def _selected_direction() -> dict[str, Any]:
         "status": SELECTED_DIRECTION_STATUS,
         "selected": {
             "A2 revised": {
-                "summary": "Subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard.",
+                "summary": "Subtle contained row group / nested-card inheritance from AI Control Center / HUD Dashboard with a compact bottom action row.",
                 "mustPreserve": [
                     "No bottom descriptive/helper sentence in the nested card.",
                     "TARGET - Default Overlay Profile.",
                     "STATE - Ready - 2 active monitors.",
                     "ACTION-002 label exactly OPEN LOG VIEWER STUDIO.",
+                    "Compact/tight bottom action row; no oversized control well, giant padded slab, or button dead-zone.",
                 ],
             },
             "B2": {
@@ -663,7 +700,7 @@ Selected direction:
 | Option | Disposition | Rendered media | Reason |
 | --- | --- | --- | --- |
 | A1 | Rejected | `Review Aids/Evidence/Options/a1_nested_card_inheritance.png` | Too plain/minimal; does not carry enough AI Control Center / HUD Dashboard row-container inheritance. |
-| A2 revised | Selected | `Review Aids/Evidence/Options/a2_nested_card_inheritance.png` | Subtle contained row group, no bottom helper copy, preserved `TARGET - Default Overlay Profile`, preserved `STATE - Ready - 2 active monitors`, and ACTION-002 label `OPEN LOG VIEWER STUDIO`. |
+| A2 revised | Selected after repair | `Review Aids/Evidence/Options/a2_nested_card_inheritance.png` | Subtle contained row group, compact bottom action row, no oversized control well, no bottom helper copy, preserved `TARGET - Default Overlay Profile`, preserved `STATE - Ready - 2 active monitors`, and ACTION-002 label `OPEN LOG VIEWER STUDIO`. |
 | A3 | Rejected/deferred | `Review Aids/Evidence/Options/a3_nested_card_inheritance.png` | Too heavy; dashboard-card creep risk for a compact Recording Studio controller. |
 
 ## B. Child-Window Placement Behavior Selection
@@ -681,11 +718,11 @@ Selected direction:
 | C1 / LOG-A base | Partially accepted as base only | `Review Aids/Evidence/Options/c1_log_viewer_doorway_layout.png` | Native/export folder access only; no graph, previous-log selection, or export customization. | Bottom-action doorway structure is useful, but the corrected selected shell must include `VIEWER - Deferred` and avoid fake data rows. |
 | C2 revised | Rejected | `Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png` | Inline/right row actions imply row-level viewer data/functionality. | Rejected after USER correction because the branch does not implement a real Log Viewer data surface yet. |
 | C3 | Rejected/deferred | `Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png` | Native/export folder access only; footer action lane. | Bottom/footer action rail can recreate disconnected-button-row/dead-space issues if not paired with clear deferred status. |
-| Corrected doorway shell | Selected | `Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png` | Doorway shell only; one `VIEWER - Deferred` row and bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions. | Best current direction because it is truthful about deferred viewer scope and avoids fake data rows, local paths, graph, export customization, previous-log selection, and full-workspace implication. |
+| Corrected doorway shell | Selected after repair | `Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png` | Doorway shell only; one `VIEWER - Deferred` row and bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions. | Best current direction because it is truthful about deferred viewer scope and avoids fake data rows, helper/proof copy inside the product surface, local paths, graph, export customization, previous-log selection, and full-workspace implication. |
 
 ## Implementation Risk And Proof For Selected Direction
 
-- A2 revised must later prove row grouping, underglow rhythm, density, compact footprint, TARGET/STATE separation, no bottom helper copy, and `OPEN LOG VIEWER STUDIO` action text with implementation screenshots, not helper text.
+- A2 revised must later prove row grouping, underglow rhythm, density, compact footprint, compact/tight bottom action row, TARGET/STATE separation, no bottom helper copy, and `OPEN LOG VIEWER STUDIO` action text with implementation screenshots, not helper text.
 - B2 must later prove parent-neighbor default placement, same-session moved-position restore, app/computer restart reset-near-parent behavior, and unavailable-location safety with full-desktop evidence or USER validation where photo/video cannot prove it.
 - The corrected Log Viewer doorway shell must later prove `VIEWER - Deferred`, bottom `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` actions, no fake native/export data rows, no local path display by default, no full Log Viewer, no graph, no export customization, and no previous-log selection scope.
 - The selected direction remains subordinate to Project Vision, FAM-002, FAM-006, UIREF, and the Recording FFV.
@@ -717,6 +754,7 @@ external manifest, not in the primary USER decision file.
 - Rejected options ZIP: `C:\\Nexus USER\\FAM-006-20260624-130151.zip`
 - Known-bad corpus copy: `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\false_accept_regression_corpus\\FAM-006-20260624-121535.zip`
 - Rejected selected-direction doorway packet: `C:\\Nexus USER\\FAM-006-20260624-135010.zip`
+- Rejected bottom-row / proof-copy packet: `C:\\Nexus USER\\FAM-006-20260624-142638.zip`
 
 The rejected packet proof values are recorded in helper output and the external
 manifest.
@@ -764,8 +802,9 @@ Required selected semantics:
 - Recording Studio rows preserve `TARGET - Default Overlay Profile` and `STATE - Ready - 2 active monitors`.
 - Recording Studio ACTION-002 label is exactly `OPEN LOG VIEWER STUDIO`.
 - A2 revised has no bottom descriptive/helper sentence inside the nested card.
+- A2 revised uses a compact bottom action row, with no oversized control well, giant padded slab, or button dead-zone.
 - Corrected Log Viewer shell uses bottom `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS`, not generic `OPEN`.
-- Corrected Log Viewer shell displays `VIEWER - Deferred`, does not show fake native/export data rows, does not display local paths by default, and does not imply graph/export customization, previous-log selection, native-log reading from Recording Studio, direct exported-log opening from Recording Studio, or fake full-viewer workspace behavior.
+- Corrected Log Viewer shell displays `VIEWER - Deferred`, does not include helper/proof copy inside the product surface, does not show fake native/export data rows, does not display local paths by default, and does not imply graph/export customization, previous-log selection, native-log reading from Recording Studio, direct exported-log opening from Recording Studio, or fake full-viewer workspace behavior.
 
 Rejected/deferred:
 
@@ -802,6 +841,7 @@ See:
 
 - `Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md`
 - `Review Aids/Evidence/Options/visual_and_placement_options_board.png`
+- `Review Aids/Evidence/Options/selected_render_contract.json`
 - `Review Aids/Evidence/Options/a1_nested_card_inheritance.png`
 - `Review Aids/Evidence/Options/a2_nested_card_inheritance.png`
 - `Review Aids/Evidence/Options/a3_nested_card_inheritance.png`
@@ -904,6 +944,18 @@ def _write_validation_outputs(packet: Path) -> list[dict[str, Any]]:
         ("git_diff_check", ["git", "diff", "--check"]),
         ("git_diff_check_origin_main", ["git", "diff", "--check", "origin/main...HEAD"]),
         ("udl_gate", ["python", "dev/orin_fam006_unified_defect_ledger.py"]),
+        ("false_accept_regression_gate", ["python", "dev/orin_fam006_false_accept_regression_gate.py"]),
+        ("source_owner_marker_validation", ["python", "dev/orin_source_owner_marker_validation.py"]),
+        ("branch_governance_validation", ["python", "dev/orin_branch_governance_validation.py"]),
+        ("worktree_confinement_gate", ["python", "dev/orin_branch_governance_validation.py", "--worktree-confinement-gate"]),
+        ("release_readiness_health_gate", ["python", "dev/orin_branch_governance_validation.py", "--release-readiness-health-gate"]),
+        ("branch_readiness_fixture_validation", ["python", "dev/orin_branch_readiness_planning_fixture_validation.py"]),
+        ("governance_efficiency_validation", ["python", "dev/orin_governance_efficiency_validation.py"]),
+        ("release_body_validation", ["python", "dev/orin_release_body_validation.py"]),
+        ("ai_provider_state_validation", ["python", "dev/orin_ai_provider_state_validation.py"]),
+        ("fam006_surface_validation", ["python", "dev/orin_monitoring_hud_surface_validation.py"]),
+        ("fam006_internal_sandbox_validation", ["python", "dev/orin_monitoring_hud_internal_sandbox_validation.py"]),
+        ("compileall", ["python", "-m", "compileall", "-q", "dev", "desktop", "Audio", "main.py", "nexus_visual"]),
     ]
     results = [_capture_command(command_id, command) for command_id, command in commands]
     for result in results:
@@ -959,6 +1011,8 @@ Rejected selected-direction packet: `C:\\Nexus USER\\FAM-006-20260624-132551.zip
 Rejected selected-direction packet SHA256: `{REJECTED_SELECTION_SHA256}`.
 Rejected selected-direction doorway packet: `C:\\Nexus USER\\FAM-006-20260624-135010.zip`.
 Rejected selected-direction doorway packet SHA256: `{REJECTED_DOORWAY_SHA256}`.
+Rejected bottom-row / proof-copy packet: `C:\\Nexus USER\\FAM-006-20260624-142638.zip`.
+Rejected bottom-row / proof-copy packet SHA256: `{REJECTED_BOTTOM_ROW_SHA256}`.
 Known-bad corpus copy: `C:\\Nexus Governance State\\branches\\feature_fam_006_dashboard_recording_start_stop_local_file\\false_accept_regression_corpus\\FAM-006-20260624-121535.zip`.
 
 Root cause: focused/cropped row-grammar proof and comparator media were treated
@@ -981,6 +1035,12 @@ incorrectly kept C2 inline/right-aligned row actions as the selected Log Viewer
 direction. That layout implied native/export row-level data and viewer actions
 before the current branch had a real Log Viewer data surface.
 
+Fifth root cause: the 142638 repair packet corrected the Log Viewer doorway
+semantics but still rendered A2 with an oversized bottom action/control well and
+put helper/proof commentary inside the selected Log Viewer product surface. It
+also needed actual command-output evidence for every claimed validation and
+final clean post-commit/post-push proof.
+
 Branch-local source-truth disposition: FAM-006 Recording now requires
 full-desktop/full-context contradiction review for material Recording Studio and
 Log Viewer Studio visual acceptance packets, and requires branch-local
@@ -988,14 +1048,15 @@ child-window placement/options review with actual rendered visual media before
 runtime implementation of unresolved placement behavior.
 
 USER selected direction recorded by this packet: A2 revised (subtle contained
-row group, no bottom helper copy, TARGET/STATE separation, ACTION-002 label
-`OPEN LOG VIEWER STUDIO`), B2 (same-session last-used child-window position,
+row group, compact bottom action row, no oversized control well, no bottom
+helper copy, TARGET/STATE separation, ACTION-002 label `OPEN LOG VIEWER
+STUDIO`), B2 (same-session last-used child-window position,
 restart reset/open near parent), and corrected Log Viewer doorway shell
 (`VIEWER - Deferred` middle/status row, bottom `OPEN NATIVE LOGS` and
-`OPEN EXPORTED LOGS` actions, no fake native/export data rows, no local path
-display by default, no native-log reading from Recording Studio, no direct
-exported-log opening from Recording Studio, and no full-viewer workspace
-implication).
+`OPEN EXPORTED LOGS` actions, no helper/proof copy inside the product surface,
+no fake native/export data rows, no local path display by default, no native-log
+reading from Recording Studio, no direct exported-log opening from Recording
+Studio, and no full-viewer workspace implication).
 
 Current USER packet: `{zip_path}`.
 Current USER packet SHA256: `{zip_sha}`.
@@ -1028,6 +1089,7 @@ def generate() -> dict[str, Any]:
     known_bad_options_copy = KNOWN_BAD_ROOT / REJECTED_OPTIONS_PACKET.name
     known_bad_selection_copy = KNOWN_BAD_ROOT / REJECTED_SELECTION_PACKET.name
     known_bad_doorway_copy = KNOWN_BAD_ROOT / REJECTED_DOORWAY_PACKET.name
+    known_bad_bottom_row_copy = KNOWN_BAD_ROOT / REJECTED_BOTTOM_ROW_PACKET.name
     if REJECTED_PACKET.exists():
         if _sha256(REJECTED_PACKET) != REJECTED_SHA256:
             raise SystemExit("rejected 121535 packet SHA mismatch")
@@ -1044,6 +1106,10 @@ def generate() -> dict[str, Any]:
         if _sha256(REJECTED_DOORWAY_PACKET) != REJECTED_DOORWAY_SHA256:
             raise SystemExit("rejected 135010 packet SHA mismatch")
         shutil.copy2(REJECTED_DOORWAY_PACKET, known_bad_doorway_copy)
+    if REJECTED_BOTTOM_ROW_PACKET.exists():
+        if _sha256(REJECTED_BOTTOM_ROW_PACKET) != REJECTED_BOTTOM_ROW_SHA256:
+            raise SystemExit("rejected 142638 packet SHA mismatch")
+        shutil.copy2(REJECTED_BOTTOM_ROW_PACKET, known_bad_bottom_row_copy)
 
     _purge_user_hub()
     for folder in ("USER Review", "Review Aids", "Source Truth Context"):
@@ -1131,10 +1197,12 @@ release, or cleanup.
         "knownBadOptionsCopy": str(known_bad_options_copy),
         "knownBadSelectionCopy": str(known_bad_selection_copy),
         "knownBadDoorwayCopy": str(known_bad_doorway_copy),
+        "knownBadBottomRowCopy": str(known_bad_bottom_row_copy),
         "rejectedSha256": REJECTED_SHA256,
         "rejectedOptionsSha256": REJECTED_OPTIONS_SHA256,
         "rejectedSelectionSha256": REJECTED_SELECTION_SHA256,
         "rejectedDoorwaySha256": REJECTED_DOORWAY_SHA256,
+        "rejectedBottomRowSha256": REJECTED_BOTTOM_ROW_SHA256,
         "optionRenderCount": len(option_renders),
         "selectedDirection": SELECTED_DIRECTION_STATUS,
         "identity": identity,
@@ -1179,6 +1247,10 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         failures.append("135010 known-bad corrected-doorway packet corpus copy is missing")
     elif _sha256(KNOWN_BAD_ROOT / REJECTED_DOORWAY_PACKET.name) != REJECTED_DOORWAY_SHA256:
         failures.append("135010 known-bad corrected-doorway packet corpus copy SHA mismatch")
+    if not (KNOWN_BAD_ROOT / REJECTED_BOTTOM_ROW_PACKET.name).exists():
+        failures.append("142638 known-bad bottom-row/proof-copy packet corpus copy is missing")
+    elif _sha256(KNOWN_BAD_ROOT / REJECTED_BOTTOM_ROW_PACKET.name) != REJECTED_BOTTOM_ROW_SHA256:
+        failures.append("142638 known-bad bottom-row/proof-copy packet corpus copy SHA mismatch")
 
     required = [
         "START_HERE.md",
@@ -1202,6 +1274,18 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/Validation Outputs/git_diff_check.json",
         "Review Aids/Validation Outputs/git_diff_check_origin_main.json",
         "Review Aids/Validation Outputs/udl_gate.json",
+        "Review Aids/Validation Outputs/false_accept_regression_gate.json",
+        "Review Aids/Validation Outputs/source_owner_marker_validation.json",
+        "Review Aids/Validation Outputs/branch_governance_validation.json",
+        "Review Aids/Validation Outputs/worktree_confinement_gate.json",
+        "Review Aids/Validation Outputs/release_readiness_health_gate.json",
+        "Review Aids/Validation Outputs/branch_readiness_fixture_validation.json",
+        "Review Aids/Validation Outputs/governance_efficiency_validation.json",
+        "Review Aids/Validation Outputs/release_body_validation.json",
+        "Review Aids/Validation Outputs/ai_provider_state_validation.json",
+        "Review Aids/Validation Outputs/fam006_surface_validation.json",
+        "Review Aids/Validation Outputs/fam006_internal_sandbox_validation.json",
+        "Review Aids/Validation Outputs/compileall.json",
         "Review Aids/Validation Outputs/validation_outputs_summary.json",
         "Review Aids/Unified Defect Ledger/unified_defect_ledger.json",
         "Review Aids/Unified Defect Ledger/UNIFIED_DEFECT_LEDGER.md",
@@ -1221,6 +1305,7 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
         "Review Aids/Evidence/Options/c2_log_viewer_doorway_layout.png",
         "Review Aids/Evidence/Options/c3_log_viewer_doorway_layout.png",
         "Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png",
+        "Review Aids/Evidence/Options/selected_render_contract.json",
         "Review Aids/Evidence/Rejected 121535 Proof/recording_default.png",
         "Review Aids/Evidence/Rejected 121535 Proof/log_viewer_default.png",
         "Review Aids/Evidence/References/AI Control Center- Accepted.png",
@@ -1347,11 +1432,37 @@ def validate(packet_root: Path = PACKET_ROOT) -> list[str]:
                 "No fake native/export information rows",
                 "No bottom descriptive/helper sentence",
                 "No local path display by default",
+                "Compact/tight bottom action row",
             ):
                 if token not in selected_text:
                     failures.append(f"selected direction summary missing token: {token}")
         except Exception as exc:
             failures.append(f"selected direction summary invalid: {exc}")
+
+    render_contract_path = packet_root / "Review Aids/Evidence/Options/selected_render_contract.json"
+    if render_contract_path.exists():
+        try:
+            contract = json.loads(render_contract_path.read_text(encoding="utf-8"))
+            a2 = contract.get("A2", {})
+            log = contract.get("LogViewerDoorway", {})
+            if a2.get("bottomActionRow") != "compact/tight" or int(a2.get("buttonHeightPx", 99)) > 34:
+                failures.append("A2 selected render contract does not prove compact bottom action row")
+            if a2.get("oversizedControlWell") is not False:
+                failures.append("A2 selected render contract allows oversized control well")
+            if a2.get("helperCopyInsideNestedCard") is not False:
+                failures.append("A2 selected render contract allows helper copy inside nested card")
+            if log.get("helperCopyInsideProductSurface") is not False:
+                failures.append("Log Viewer selected render contract allows helper/proof copy inside product surface")
+            if log.get("middleStatusRow") != "VIEWER - Deferred":
+                failures.append("Log Viewer selected render contract missing VIEWER - Deferred")
+            if log.get("fakeNativeExportRows") is not False:
+                failures.append("Log Viewer selected render contract allows fake native/export rows")
+            if log.get("selectedInlineRowActionLayout") is not False:
+                failures.append("Log Viewer selected render contract allows C2 inline row-action selection")
+        except Exception as exc:
+            failures.append(f"selected render contract invalid: {exc}")
+    else:
+        failures.append("selected render contract missing")
 
     validation_summary = packet_root / "Review Aids/Validation Outputs/validation_outputs_summary.json"
     if validation_summary.exists():

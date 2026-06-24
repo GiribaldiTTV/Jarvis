@@ -73,6 +73,7 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260624-130151.zip",
     "FAM-006-20260624-132551.zip",
     "FAM-006-20260624-135010.zip",
+    "FAM-006-20260624-142638.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -84,6 +85,7 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260624-130151.zip": "0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F",
     "FAM-006-20260624-132551.zip": "DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE",
     "FAM-006-20260624-135010.zip": "46008863B7BFE9E4D3B0028AC84A5B62DED4CC30621FAA0BB9311BEEB53F396D",
+    "FAM-006-20260624-142638.zip": "3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -642,6 +644,31 @@ def seed_defects() -> list[dict[str, Any]]:
                 "linked UDL IDs added/reopened: FAM006-UDL-018, FAM006-UDL-019, FAM006-UDL-020, and FAM006-UDL-021; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-022",
+            origin="USER/ChatGPT",
+            title="Selected-direction packet left oversized A2 action well and Log Viewer proof copy",
+            exact_user_wording="FAM-006-20260624-142638.zip corrected the C2 Log Viewer selection drift, but A2 still has an oversized/heavy bottom action row, the selected Log Viewer render still includes helper/proof commentary inside the product surface, and validation-output evidence must include actual command outputs for claimed validation.",
+            expected="The selected A2 render must preserve TARGET/STATE rows and ACTION-002 `OPEN LOG VIEWER STUDIO` while using a compact/tight bottom action row with no oversized control well, giant padded slab, or dead-zone. The selected Log Viewer doorway shell must show only title/header, `VIEWER - Deferred`, and bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions inside the product surface. Packet validation evidence must include command, cwd, timestamp, exit code, PASS/FAIL, stdout, and stderr for every claimed validation, plus final clean status proof after commit/push when tracked files changed.",
+            actual="The 142638 packet still rendered A2 with a visibly oversized bottom action/control well and rendered explanatory proof/helper copy inside the selected Log Viewer doorway product surface. Its validation evidence needed stronger command-output coverage and final clean proof for the repaired packet.",
+            evidence="Known-bad packet FAM-006-20260624-142638.zip SHA 3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D; USER/ChatGPT REPAIR verdict on selected-direction packet repair / A2 bottom-row + Log Viewer proof-copy fix.",
+            surfaces="FAM-006 USER packet; A2 selected render; selected Log Viewer doorway render; visual/placement options board; validation output evidence; external full_desktop_false_green_review_manifest.json.",
+            root_cause="The packet helper validated corrected Log Viewer semantics but did not inspect selected render density/product-surface copy closely enough, so an improved but still visibly nonconforming A2 action area and Log Viewer proof-copy leak survived as reviewable.",
+            validator_gap="No hard failure for oversized A2 bottom action row, giant control well/dead-zone, Log Viewer helper/proof copy inside the product surface, missing selected render contract, or insufficient command-output validation evidence.",
+            repair_target="Admit 142638 as known-bad, require selected render contract proof for compact A2 and clean Log Viewer doorway surface, require known-bad corpus replay, and regenerate the USER packet from a purged folder after helper commit/push.",
+            acceptance="FAM-006 gates fail when A2 selected render has an oversized bottom action/control well, when Log Viewer selected render includes helper/proof copy inside the product surface, or when validation evidence is summary-only.",
+            proof="dev/orin_fam006_full_desktop_false_green_review.py validates the compact A2 render contract, Log Viewer no-helper-copy contract, 142638 known-bad corpus copy, packet-contained validation outputs, and clean upstream proof.",
+            status="CLOSED_WITH_PROOF",
+            closure="142638 is admitted as known-bad; the repaired helper renders A2 with a compact/tight bottom action row, removes helper/proof copy from the selected Log Viewer doorway product surface, writes selected_render_contract.json, and requires broader command-output validation artifacts.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-022: inspected adjacent surfaces/files `dev/orin_fam006_full_desktop_false_green_review.py`, "
+                "`dev/orin_fam006_unified_defect_ledger.py`, `dev/orin_fam006_false_accept_regression_gate.py`, `Docs/family_feature_visions/FAM-006_recording.md`, "
+                "`Docs/validation_helper_registry.md`, active USER packet layout, and external manifest receipt; adjacent behavior inspected: A2 selected render density, bottom action row height, helper-copy exclusion, "
+                "Log Viewer doorway product-surface copy exclusion, `VIEWER - Deferred` status row, bottom doorway actions, fake row/path exclusion, validator output / validation-output command records, post-push clean proof, and known-bad corpus replay; "
+                "additional adjacent defects found: none beyond the A2 bottom-row / Log Viewer proof-copy false-green class and already linked FAM006-UDL-018 / FAM006-UDL-019 / FAM006-UDL-020 / FAM006-UDL-021; "
+                "linked UDL IDs added/reopened: FAM006-UDL-018, FAM006-UDL-019, FAM006-UDL-020, FAM006-UDL-021, and FAM006-UDL-022; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
+            ),
+        ),
     ]
 
 
@@ -926,6 +953,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require corrected Log Viewer doorway shell media, `VIEWER - Deferred`, bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions, C2 rejection, fake-row exclusion, and known-bad 135010 replay.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-021", "FAM006-UDL-020", "FAM006-UDL-019"],
+        ),
+        _incident(
+            "FAM006-FGI-017",
+            packet="FAM-006-20260624-142638.zip",
+            sha256="3BAEADA9D6CDF77F0032EF6A48B765473B4F5499058A42879F001C96617FD32D",
+            head="2d20a4971e728dabe0e746ed7821876c9974a233",
+            codex_claim="FAM-006 selected-direction packet was ACCEPT / reviewable after A2 revised, B2, and corrected Log Viewer doorway shell were recorded.",
+            rejection="USER/ChatGPT rejected the packet because A2 still had an oversized bottom action/control row, the Log Viewer doorway render still included proof/helper commentary inside the product surface, and validation-output evidence needed actual command outputs for claimed validation.",
+            validator_failed="FAM-006 full-desktop false-green packet helper before compact A2 bottom-row, no-product-surface-helper-copy, and broader validation-output evidence gates.",
+            artifact="Review Aids/Evidence/Options/a2_nested_card_inheritance.png, Review Aids/Evidence/Options/log_viewer_corrected_doorway_shell.png, Review Aids/VALIDATION_OUTPUT_EVIDENCE.md, and validation output summary inside FAM-006-20260624-142638.zip.",
+            ledger_row="FAM006-UDL-022",
+            comparator="The packet had the right selected Log Viewer semantics but the selected visual render still looked like proof copy was part of the product and A2 still read like a heavy control well instead of a compact controller.",
+            prevention="Require selected_render_contract.json, compact A2 bottom row, no Log Viewer helper/proof copy inside product surface, broader command-output validation records, and known-bad 142638 replay.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-022", "FAM006-UDL-021", "FAM006-UDL-020"],
         ),
     ]
     for row in rows:
