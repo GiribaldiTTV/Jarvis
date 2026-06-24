@@ -293,6 +293,9 @@ VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_WORDING_FIXTURE = (
 VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_direct_negated_green.md"
 )
+VALID_REBASELINE_ADOPTION_RESOLVED_NEGATED_BLOCKER_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_resolved_negated_blocker.md"
+)
 INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
 )
@@ -347,6 +350,9 @@ INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_PACKET_PATH_ZIP_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_zip.md"
 )
+INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_explanatory_user_root.md"
+)
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
 )
@@ -367,6 +373,9 @@ INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_EMBEDDED_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_HYPHENATED_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_hyphenated_status.md"
+)
+INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_accepted_reference_issue_candidate.md"
 )
 INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_pending_review_no_packet.md"
@@ -2110,21 +2119,29 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             stack.append(part)
         return stack[0] + "\\" + "\\".join(stack[1:])
 
-    def normalized_user_packet_paths(value: str) -> list[str]:
+    def normalized_user_packet_paths(value: str) -> tuple[list[str], bool]:
         normalized_value = value.replace("/", "\\")
+        spans: list[tuple[int, int]] = []
         paths: list[str] = []
-        for match in re.finditer(
-            r"\b[A-Za-z]:\\Nexus USER\\[A-Za-z0-9_-]+(?:\\[^\s|,;:)\]]+)*",
-            normalized_value,
+        invalid_path_seen = False
+        packet_path_pattern = re.compile(
+            r"\b[A-Za-z]:\\(?:Nexus USER\\[A-Za-z0-9_-]+(?:\\[^\s|,;:)\]]+)*|[^\s|,;:)\]]+)",
             re.IGNORECASE,
-        ):
+        )
+        for match in packet_path_pattern.finditer(normalized_value):
+            if any(match.start() >= start and match.end() <= end for start, end in spans):
+                continue
+            spans.append(match.span())
             next_char = normalized_value[match.end() : match.end() + 1]
             if next_char == ".":
+                invalid_path_seen = True
                 continue
             canonical_path = canonical_windows_path(match.group(0))
-            if canonical_path is not None and not canonical_path.casefold().endswith(".zip"):
-                paths.append(canonical_path)
-        return paths
+            if canonical_path is None or canonical_path.casefold().endswith(".zip"):
+                invalid_path_seen = True
+                continue
+            paths.append(canonical_path)
+        return paths, invalid_path_seen
 
     def normalized_windows_zip_paths(value: str) -> tuple[list[str], bool]:
         normalized_value = value.replace("/", "\\")
@@ -2150,9 +2167,12 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     user_packet_zip_paths, user_packet_zip_invalid_suffix_seen = (
         normalized_windows_zip_paths(user_packet_zip)
     )
-    user_packet_paths = normalized_user_packet_paths(user_packet_path)
+    user_packet_paths, user_packet_path_invalid_seen = normalized_user_packet_paths(
+        user_packet_path
+    )
     user_packet_path_is_rooted = (
-        len(user_packet_paths) == 1
+        not user_packet_path_invalid_seen
+        and len(user_packet_paths) == 1
         and user_packet_paths[0].casefold().startswith("c:\\nexus user\\")
     )
     deterministic_user_zip_paths = [
@@ -2243,15 +2263,26 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         len(row) > 8 and cell_has_issue_candidate_status(row[8])
         for row in code_trace_rows
     )
-    if code_trace_has_issue_candidate:
+    accepted_reference_has_issue_candidate = any(
+        len(row) > 8 and cell_has_issue_candidate_status(row[8])
+        for row in accepted_reference_rows
+    )
+    if code_trace_has_issue_candidate or accepted_reference_has_issue_candidate:
         require(
             has_real_issue_candidate_row(issue_candidate_rows),
             "Owned Surface Issue Candidate Missing",
         )
 
-    unresolved_present = any(
+    code_trace_unresolved_present = any(
         len(row) > 8 and cell_has_unresolved_status(row[8])
         for row in code_trace_rows
+    )
+    accepted_reference_unresolved_present = any(
+        len(row) > 8 and cell_has_unresolved_status(row[8])
+        for row in accepted_reference_rows
+    )
+    unresolved_present = (
+        code_trace_unresolved_present or accepted_reference_unresolved_present
     )
     normalized_adoption_disposition = governance._normalized_planning_value(
         adoption_disposition
@@ -2323,6 +2354,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         has_real_issue_candidate_row(issue_candidate_rows)
         or not previous_candidates_absent
         or code_trace_has_issue_candidate
+        or accepted_reference_has_issue_candidate
     )
     if issue_candidate_disposition_required:
         normalized_issue_candidate_disposition = (
@@ -2383,21 +2415,22 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
 
     normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
-    active_rar_context = active_rar_stage or any(
-        token in active_rar_values
-        for token in (
-            "rar user review gate remains active",
-            "remains active",
-            "pending user",
-            "user review pending",
-            "issue candidate pending",
-            "repair remains required",
-            "repair required",
-            "waiver required",
-            "blocker active",
-            "blocked",
-            "required before normal phase progression",
-        )
+    active_rar_tokens = (
+        "rar user review gate remains active",
+        "remains active",
+        "pending user",
+        "user review pending",
+        "issue candidate pending",
+        "repair remains required",
+        "repair required",
+        "waiver required",
+        "blocker active",
+        "blocked",
+        "required before normal phase progression",
+    )
+    active_rar_context = active_rar_stage or contains_non_negated_phrase(
+        active_rar_values,
+        active_rar_tokens,
     )
     normalized_next_phase = governance._normalized_planning_value(normal_phase)
     phase_advancement_values = " ".join(
@@ -6496,6 +6529,19 @@ line item, not a seam or separate branch.
             + "; ".join(valid_direct_negated_green_failures[:5])
         )
 
+    valid_resolved_negated_blocker_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_RESOLVED_NEGATED_BLOCKER_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_resolved_negated_blocker_failures:
+        failures.append(
+            "Valid resolved RAR fixture with negated blocker wording failed: "
+            + "; ".join(valid_resolved_negated_blocker_failures[:5])
+        )
+
     marker_only_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE.read_text(encoding="utf-8")
     )
@@ -6774,6 +6820,20 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject hyphenated current issue-candidate status"
         )
 
+    accepted_reference_issue_candidate_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_ISSUE_CANDIDATE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        accepted_reference_issue_candidate_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject accepted-reference issue-candidate status"
+        )
+
     pending_review_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE.read_text(
             encoding="utf-8"
@@ -6838,6 +6898,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject USER packet folder marker pointing at ZIP"
+        )
+
+    packet_path_explanatory_user_root_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_PACKET_PATH_EXPLANATORY_USER_ROOT_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        packet_path_explanatory_user_root_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject off-root USER packet folder with later root mention"
         )
 
     bare_rar3_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
