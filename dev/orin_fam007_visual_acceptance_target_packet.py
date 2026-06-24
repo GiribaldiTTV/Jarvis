@@ -479,6 +479,28 @@ def _update_external_state_for_recovery_packet(zip_path: Path) -> None:
         )
     if UDL_PATH.exists():
         udl_text = _read_text(UDL_PATH)
+        udl_text = re.sub(
+            r"^Current HEAD: `.*?`$",
+            f"Current HEAD: `{head}`",
+            udl_text,
+            count=1,
+            flags=re.MULTILINE,
+        )
+        classification = (
+            "Current HEAD Field Classification: `Active current packet metadata; refreshed "
+            "during accepted-historical recovery blocker packet regeneration so copied "
+            "Source Truth Context cannot be mistaken for stale proof-snapshot truth.`"
+        )
+        if "Current HEAD Field Classification:" not in udl_text:
+            udl_text = udl_text.replace(f"Current HEAD: `{head}`", f"Current HEAD: `{head}`\n{classification}", 1)
+        else:
+            udl_text = re.sub(
+                r"^Current HEAD Field Classification: `.*?`$",
+                classification,
+                udl_text,
+                count=1,
+                flags=re.MULTILINE,
+            )
         if "F7-UDL-018" not in udl_text:
             udl_text += (
                 "\n\n## F7-UDL-018 Accepted-Historical Artifact Missing - 2026-06-24\n\n"
@@ -1037,8 +1059,24 @@ def validate_recovery_blocker(packet_dir: Path = PACKET_DIR, zip_path: Path | No
             + "\n"
             + _section(plan_text, "## Next Legal Phase")
         )
+        head = _git_value("rev-parse", "HEAD")
+        source_head_pattern = re.compile(r"^Source Repo HEAD: `(.*?)`\r?$", re.MULTILINE)
+        state_heads = source_head_pattern.findall(state_text)
+        plan_heads = source_head_pattern.findall(plan_text)
+        if not state_heads or state_heads[0] != head:
+            failures.append("Recovery copied branch state Source Repo HEAD does not match live HEAD")
+        if not plan_heads or plan_heads[0] != head:
+            failures.append("Recovery copied branch plan Source Repo HEAD does not match live HEAD")
+        if f"Current HEAD: `{head}`" not in udl_text:
+            failures.append("Recovery copied UDL Current HEAD does not match live HEAD")
+        if "Current HEAD Field Classification:" not in udl_text:
+            failures.append("Recovery copied UDL does not classify Current HEAD currentness")
         if str(zip_path) not in active_text:
             failures.append("Recovery active copied context does not name final ZIP")
+        if str(zip_path) not in udl_text:
+            failures.append("Recovery copied UDL does not name final recovery packet")
+        if udl_text.count("F7-UDL-018") != 1:
+            failures.append("Copied UDL must contain F7-UDL-018 exactly once")
         for required in ("MISSING", "not currently preserved", "recovery / retention blocker"):
             if required not in state_text and required not in plan_text:
                 failures.append(f"Recovery copied context missing required blocker wording: {required}")
