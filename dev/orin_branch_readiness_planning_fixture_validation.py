@@ -284,6 +284,9 @@ VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE = (
 VALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_REVIEWED_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_issue_candidate_reviewed.md"
 )
+VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_active_negated_disclaimers.md"
+)
 INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
 )
@@ -301,6 +304,9 @@ INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_MISSING_TABLE_SEPARATOR_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_table_separator.md"
+)
+INVALID_REBASELINE_ADOPTION_OVERWIDE_TABLE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_overwide_table_rows.md"
 )
 INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_sparse_table_rows.md"
@@ -1860,7 +1866,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
         real_rows: list[list[str]] = []
         for row in rows:
-            if len(row) < expected_columns:
+            if len(row) != expected_columns:
                 continue
             if any(is_placeholder_table_cell(cell) for cell in row[:expected_columns]):
                 continue
@@ -1869,7 +1875,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     def has_real_issue_candidate_row(rows: list[list[str]]) -> bool:
         for row in rows:
-            if len(row) < 8:
+            if len(row) != 8:
                 continue
             candidate = governance._normalized_planning_value(row[0])
             surface = governance._normalized_planning_value(row[2])
@@ -2134,8 +2140,17 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "not closed",
         "cannot close",
     )
-    claims_green = any(
-        phrase in normalized_adoption_disposition for phrase in green_claim_phrases
+    def contains_non_negated_phrase(value: str, phrases: tuple[str, ...]) -> bool:
+        for phrase in phrases:
+            for match in re.finditer(re.escape(phrase), value):
+                prefix = value[max(0, match.start() - 32) : match.start()]
+                if re.search(r"\b(not|no|cannot|can't|without)\b[\w\s-]{0,24}$", prefix):
+                    continue
+                return True
+        return False
+
+    claims_green = contains_non_negated_phrase(
+        normalized_adoption_disposition, green_claim_phrases
     ) and not any(
         phrase in normalized_adoption_disposition for phrase in green_claim_negations
     )
@@ -2230,6 +2245,53 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             active_rar_values,
             normalized_next_phase,
         )
+    )
+
+    def strip_negated_phase_disclaimers(value: str) -> str:
+        clauses = re.split(r"[.;]", value)
+        kept: list[str] = []
+        advancement_tokens = (
+            "branch readiness",
+            "br1",
+            "br2",
+            "bp1",
+            "bp2",
+            "bp3",
+            "workstream",
+            "hardening",
+            "live validation",
+            "lv1",
+            "uts",
+            "pr readiness",
+            "release readiness",
+            "pr creation",
+            "merge",
+            "release",
+        )
+        negation_tokens = (
+            "does not authorize",
+            "do not authorize",
+            "not authorize",
+            "does not approve",
+            "do not approve",
+            "not approve",
+            "does not permit",
+            "do not permit",
+            "not permit",
+            "not authorized",
+            "not approved",
+            "without authorizing",
+        )
+        for clause in clauses:
+            if any(token in clause for token in advancement_tokens) and any(
+                token in clause for token in negation_tokens
+            ):
+                continue
+            kept.append(clause)
+        return " ".join(kept)
+
+    phase_advancement_values = strip_negated_phase_disclaimers(
+        phase_advancement_values
     )
     concrete_advancement_requested = any(
         token in phase_advancement_values
@@ -6239,6 +6301,19 @@ line item, not a seam or separate branch.
             + "; ".join(valid_reviewed_issue_candidate_rar_failures[:5])
         )
 
+    valid_active_negated_disclaimers_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if valid_active_negated_disclaimers_rar_failures:
+        failures.append(
+            "Valid active RAR fixture with negated disclaimers failed: "
+            + "; ".join(valid_active_negated_disclaimers_rar_failures[:5])
+        )
+
     marker_only_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE.read_text(encoding="utf-8")
     )
@@ -6311,6 +6386,19 @@ line item, not a seam or separate branch.
     if "Accepted Reference Comparator Missing" not in missing_table_separator_failures_joined:
         failures.append(
             "Invalid RAR fixture did not reject accepted-reference rows without a markdown separator"
+        )
+
+    overwide_table_rows_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_OVERWIDE_TABLE_ROWS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    overwide_table_failures_joined = "\n".join(overwide_table_rows_rar_failures)
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in overwide_table_failures_joined:
+        failures.append("Invalid RAR fixture did not reject overwide code-trace row")
+    if "Accepted Reference Comparator Missing" not in overwide_table_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject overwide accepted-reference row"
         )
 
     sparse_table_rows_rar_failures = _validate_rebaseline_adoption_review_text(
