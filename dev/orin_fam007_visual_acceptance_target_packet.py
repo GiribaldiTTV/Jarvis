@@ -88,6 +88,7 @@ REQUIRED_PACKET_FILES = [
     "Review Aids/STATE_COVERAGE_STORYBOARD.md",
     "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
     "Review Aids/CAVEAT_LEDGER.md",
+    "Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
     "Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md",
     "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
     "Review Aids/REJECTED_PATTERNS_LEDGER.md",
@@ -531,6 +532,16 @@ Proof: `The regenerated Visual Acceptance Target packet includes Review Aids/UI_
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This row records a governance candidate only. It does not mutate Docs/phase_governance.md, FAM-002, UIREF, sibling worktrees, H1/LV acceptance, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, imports, or v1.8.0 work.`
 """
+    row_025 = f"""## F7-UDL-025 Visual Acceptance Exploration Loop / Variant Generation - 2026-06-24
+
+Status: `CLOSED_WITH_PROOF`
+Finding: `The branch-local Visual Acceptance Target packet could be read as a "pick the cleanest available option" packet instead of a USER-guided exploration and refinement loop. That would let Codex recommendations, available renders, helper PASS, or packet validation substitute for USER visual preference and could lead to near-duplicate variant churn instead of meaningful compliant new directions.`
+Required Disposition: `Current and future FAM-007 Visual Acceptance Target packets must state that clean enough is not the acceptance standard. The standard is USER-selected visual direction after meaningful compliant option exploration. When USER does not accept a target, the next cycle must generate revised, combined, or new real draft-window variants with retained traits, rejected traits, new territory, and material-difference explanation.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md, strengthens START_HERE and the primary USER review file, expands the Visual Selection Ledger template with retained/rejected/new-territory fields, records no-near-duplicate and real-draft-window requirements, and validates exploration-loop, variant-distinctness, and retained/rejected-traits wording in the folder and final ZIP.`
+Proof: `Current Visual Acceptance Target packet validation fails if the packet omits VISUAL_ACCEPTANCE_EXPLORATION_LOOP, the clean-enough rejection standard, retained traits, rejected traits, new territory, material differences, no near-duplicates, real draft-window requirement, or the statement that packet validation proves completeness/currentness only and not USER acceptance or preference.`
+Current Review Packet: `{zip_path}`
+No-Fake-Preservation Rule: `This row records branch-local process hardening and a governance candidate only. It does not mutate runtime UI, Docs/phase_governance.md, Governance, FAM-002, UIREF, sibling worktrees, H1/LV acceptance, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, imports, or v1.8.0 work.`
+"""
     if "## F7-UDL-019 " in udl_text:
         udl_text = re.sub(
             r"## F7-UDL-019 .+?(?=\n## |\Z)",
@@ -581,6 +592,16 @@ No-Fake-Preservation Rule: `This row records a governance candidate only. It doe
         )
     else:
         udl_text = udl_text.rstrip() + "\n\n" + row_024
+    if "## F7-UDL-025 " in udl_text:
+        udl_text = re.sub(
+            r"## F7-UDL-025 .+?(?=\n## |\Z)",
+            lambda _match: row_025,
+            udl_text,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
+        udl_text = udl_text.rstrip() + "\n\n" + row_025
     return udl_text
 
 
@@ -609,6 +630,7 @@ def _update_external_state(zip_path: Path) -> None:
                 "Standalone Historical Packet: `Not retained as a second root USER packet ZIP; historical context remains in external state and copied Source Truth Context only.`",
                 f"Packet Purpose: `{VISUAL_PACKET_PURPOSE}`",
                 "UI/UX Workstream Exit Acceptance Gate: `Governance candidate recorded only; global phase-governance law was not mutated by this FAM-007 pass.`",
+                "Visual Acceptance Exploration Loop: `Branch-local rule recorded: clean enough is not acceptance, packet validation is not USER preference, rejected targets require materially different new/revised/combined real draft-window variants with retained/rejected traits and no near-duplicate label-only changes.`",
                 "Implementation Status: `No product/runtime UI implementation authorized or performed by this packet.`",
                 f"Blocked Gates: `{BLOCKED_GATES}`",
             ],
@@ -1393,11 +1415,14 @@ Review order:
 6. Use `Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md` to map every artifact to the visible surface, element group, source/code path, UIREF owner, and future implementation comparison use.
 7. Use `Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md` and `Review Aids/CAVEAT_LEDGER.md` before accepting with caveats or claiming implementation match.
 8. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
-9. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
+9. Read `Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md` before deciding. Clean enough is not the acceptance standard; the standard is USER-selected visual direction after meaningful compliant option exploration.
+10. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
 
 Annotation ID Boundary: annotation IDs are USER review references for this packet. They do not become source-truth implementation IDs unless a later source-truth owner explicitly promotes them.
 
 Image Scope Rule: this final USER review packet is curated for decision clarity. It includes primary clean focused plus annotated focused render pairs for every option, preserves clean and annotated render media together, and includes secondary desktop/context images where useful for footprint judgment. Repair-cycle/debug evidence belongs in explicitly labeled repair packets or helper output, not in this final USER decision path.
+
+Visual Acceptance Exploration Loop: if USER does not accept the packet's recommendation or current option set, the next cycle must generate new, revised, or combined real NDAI draft-window options. Near-duplicate variants with label-only changes are rejected. Each new option must differ materially in at least one meaningful dimension such as visual grammar, layout, UX flow, grouping, row/info grammar, density, hierarchy, doorway/workspace balance, action placement, state visibility, or child/domain routing.
 """,
     )
     _write_text(
@@ -1424,6 +1449,20 @@ Implementation Difference Boundary: actual implementation may differ from the ac
 Caveat Boundary: USER may accept a visual target with caveats, but caveat acceptance only records required follow-up, deferred elements, source-truth reconciliation needs, and future proof obligations. It never accepts H1/LV, USER UTS, PR Readiness, PR creation, merge, release, runtime mutation, or provider/model/private/cache/memory/download/packaging behavior.
 
 Governance Candidate Boundary: this packet records a proposed `UI/UX Workstream Exit Acceptance Gate` because FAM-007 and FAM-006 showed the same false-green risk. That gate is a candidate for a future Governance/FAM-002/UIREF carrier. This FAM-007 pass does not mutate global phase governance or promote the candidate as binding repo-wide law.
+
+## Visual Acceptance Exploration Loop
+
+Rule ID: `VISUAL_ACCEPTANCE_EXPLORATION_LOOP`
+
+Clean enough is not the acceptance standard. The standard is USER-selected visual direction after meaningful compliant option exploration.
+
+Packet validation proves completeness/currentness only; it does not prove USER acceptance, USER preference, runtime implementation match, H1/LV acceptance, or product readiness.
+
+If USER does not accept the current recommendation or option set, the next visual acceptance cycle must generate new, revised, or combined real NDAI draft-window options. Near-duplicate options with label-only changes are rejected. Each new option must materially differ in at least one meaningful dimension: visual grammar, layout, UX flow, grouping, row/info grammar, density, hierarchy, doorway/workspace balance, action placement, state visibility, or child/domain routing.
+
+Each cycle must record retained traits, rejected traits, new territory, and why the next options materially differ from the prior packet while remaining source-truth, Vision, UIREF, and FAM compliant.
+
+Real Draft Window Requirement: options must look and read like believable NDAI product windows, not rough concepts, generic placeholders, diagram panels, or status-debug boards. Real FAM-007 product language is allowed where source truth permits it; deterministic information appears only where it helps the USER choose the direction.
 
 ## Current Branch Visual Impact Classification
 
@@ -1650,7 +1689,83 @@ Caveat Rule: USER may accept a visual target with caveats, but caveat acceptance
 Caveat Boundary: caveat acceptance does not approve H1/LV acceptance, USER UTS acceptance, PR Readiness, PR creation, merge, release, runtime mutation, provider/model execution, prompt send, downloads, runtime cache behavior, memory/learning/personalization, private Developer/Owner setup, installer/shortcut/packaging execution, sibling/Governance mutation, imports, or v1.8.0 work.
 """,
     )
-    _write_text("Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md", "# Visual Selection Ledger Template\n\n| Decision ID | Surface | Option ID | Element ID | Accepted / Rejected / Combine / Revise | USER Notes | Source-Truth Impact | Branch-Local Vs Durable Design Principle | Implementation Requirement | Proof Requirement | Future Reuse Note |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| `VSL-001` | AI Dashboard / AI Control Center |  |  |  |  |  |  |  |  |  |")
+    _write_text(
+        "Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
+        """
+# Visual Acceptance Exploration Loop
+
+Rule ID: `VISUAL_ACCEPTANCE_EXPLORATION_LOOP`
+
+Purpose: keep FAM-007 visual acceptance as a USER-guided exploration and refinement loop until the USER selects or waives a visual direction.
+
+## Acceptance Standard
+
+Clean enough is not the acceptance standard.
+
+The acceptance standard is USER-selected visual direction after meaningful compliant option exploration.
+
+Packet validation proves completeness/currentness only. It does not prove USER acceptance, USER preference, runtime implementation match, H1/LV acceptance, Live Validation acceptance, UTS acceptance, PR Readiness, or product readiness.
+
+Codex recommendations, ChatGPT review, helper PASS, screenshot existence, packet parity, attractive renders, or the cleanest available option cannot become USER acceptance.
+
+## Variant Generation Rule
+
+If USER does not accept the current target or option set, the next visual acceptance cycle must generate new, revised, or combined options.
+
+Near-duplicates with label-only changes are rejected.
+
+Each new or revised option must materially differ in at least one meaningful dimension:
+
+| Dimension | Example of meaningful difference |
+| --- | --- |
+| visual grammar | different treatment of header, cards, dividers, row grammar, or control grouping |
+| layout | different footprint, columns, card rhythm, or section arrangement |
+| UX flow | different route from top-level doorway to child/domain/focused surface |
+| grouping | different category grouping or subsystem clustering |
+| row/info grammar | different way labels, values, summaries, and state rows are displayed |
+| density | materially different information density without becoming clutter |
+| hierarchy | different title, summary, card, or action emphasis |
+| doorway/workspace balance | different split between compact orientation and deeper workspace surfaces |
+| action placement | materially different placement, grouping, or priority of buttons and launchers |
+| state visibility | different visibility model for provider, blocked, empty, disabled, success, or error states |
+| child/domain routing | different route to AI Control Center, Diagnostics, Capabilities, Settings, or later surfaces |
+
+All variants must remain source-truth, Project Vision, Product Experience Contract, UIREF, FAM-002, Family Vision, and FAM-007 FFV compliant.
+
+## Retained / Rejected Traits Ledger
+
+| Cycle | Source option / evidence | Retained traits | Rejected traits | New territory to explore if USER rejects | Material difference proof |
+| --- | --- | --- | --- | --- | --- |
+| `VAT-CYCLE-20260624-01` | `OPTION-A` current implementation direction | source-truth product structure, real category launcher labels, child/domain window model, compact Dashboard doorway concept | current runtime shape is not accepted by itself; can be too bound to existing implementation; cannot substitute for USER-selected target | keep current route truth while exploring stronger visual grammar and better doorway hierarchy | differs from pure current-runtime proof by adding design-candidate comparison and annotation IDs |
+| `VAT-CYCLE-20260624-01` | `OPTION-B` compact grouping direction | compact spacing, directory rhythm, simple grouped cards | weaker row/info grammar; less mature as a product window | combine compact rhythm with stronger accepted row grammar | differs from Option A in density and grouping rhythm |
+| `VAT-CYCLE-20260624-01` | `OPTION-C` workspace/status-risk boundary | useful negative comparator for what not to regress into | status-monitor/debugger/workspace sprawl; long detail at top level; too much report body | avoid twelve-card/status-monitor/debugger top-level patterns | differs by being retained as rejected-risk evidence, not a target |
+| `VAT-CYCLE-20260624-01` | accepted old AI Control Center visual reference | strong header, compact status strip, numbered cards, row-based label/value grammar, truthful product feel | old surface is not a literal target, not source truth by itself, and does not carry current IA alone | apply its grammar inside grouped doorway cards and focused surfaces | differs by carrying visual grammar without renaming or reverting IA |
+| `VAT-CYCLE-20260624-01` | `OPTION-D / D2` mature row-grammar doorway candidate | hybrid of source-truth doorway IA, compact grouping, old ACC row grammar, precise element IDs, real draft-window posture | still pending USER acceptance; not implementation proof; not global template | if rejected, next cycle must produce materially new variants, not label-only D copies | differs by adding row-level/card-level/status/action IDs and mature draft window shape |
+
+## Real Draft Window Requirement
+
+Every option in a USER-review visual target packet must be a believable NDAI draft window. It must be inspectable like a real product surface, not a rough concept, generic placeholder, diagram panel, debug dashboard, or proof-only screen.
+
+Real FAM-007 product language is allowed where source truth permits it. Deterministic information should appear only where it helps the USER choose the visual direction or understand trust boundaries.
+
+## Anti-Regression Boundary
+
+The packet must preserve these boundaries unless source truth and USER approval change them:
+
+- no twelve-card, status-monitor, or debugger sprawl
+- AI Dashboard remains a compact doorway/orientation surface
+- row grammar belongs inside grouped doorway cards or focused child/detail surfaces, not as endless top-level status cards
+- long reports, diagnostics, setup flows, logs, selectors, provider internals, capability details, memory/cache/private setup, and long workflows route behind category doorways, focused surfaces, child/domain surfaces, or future-gated placeholders
+
+## Governance Boundary
+
+This is a branch-local FAM-007 packet/process repair. A repo-wide Visual Acceptance Exploration Loop belongs to a later Governance/FAM-002/UIREF/reusable-helper carrier after USER approval. This packet records that governance candidate but does not mutate Governance, FAM-002, UIREF, runtime UI, sibling worktrees, issues, PRs, merges, releases, provider/model/private/cache/memory/download/packaging behavior, imports, or v1.8.0 work.
+""",
+    )
+    _write_text(
+        "Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md",
+        "# Visual Selection Ledger Template\n\n| Decision ID | Cycle | Surface | Option ID | Element ID | Accepted / Rejected / Combine / Revise | Retained Traits | Rejected Traits | New Territory Requested | Material Difference Required Next | USER Notes | Source-Truth Impact | Branch-Local Vs Durable Design Principle | Implementation Requirement | Proof Requirement | Future Reuse Note |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| `VSL-001` | `VAT-CYCLE-20260624-01` | AI Dashboard / AI Control Center |  |  |  |  |  |  |  |  |  |  |  |  |  |"
+    )
     _write_text(
         "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
         """
@@ -1716,11 +1831,12 @@ Boundary: rejected patterns are candidate/comparator dispositions, not claims th
 | `RPL-006` | marker-only or local-path proof | packet false-green incidents | USER cannot inspect real artifact | helper PASS could replace USER judgment | missing ZIP-byte media proof | violates packet proof owner boundaries | implementation-match claim lacks artifact of record | include real media in ZIP with annotation and relevance manifests |
 | `RPL-007` | candidate treated as final product truth | previous false-green loops | USER may accept a direction as if runtime is done | bypasses H1/LV/UTS/PR gates | no actual app state proof | conflicts with UIREF-006 overclaim enforcement | implementation differences go unclassified | keep candidate, target, implementation proof, LV proof, UTS proof, and PR proof separate |
 | `RPL-008` | twelve-card status monitor / debugger top-level regression | previous AI Control Center IA failures; `OPTION-C` risk boundary | top-level AI surface stops being a compact doorway/orientation surface | could bypass BP/IA ownership by turning grouped systems into one status board | state coverage explodes without focused child-surface proof | conflicts with AI Home / Control Foyer internal model and Product Experience Contract | visual target can look informative while failing navigation intent | keep AI Dashboard compact; place row grammar inside grouped doorway cards and route detailed reports behind focused surfaces |
+| `RPL-009` | near-duplicate variant generation with label-only changes | visual acceptance exploration loops | creates busywork while failing USER request for meaningful design alternatives | validator could see a new option while USER sees the same design | no material-difference proof | conflicts with Product Experience Contract and USER critique loop | recommendation can become a stale preference trap | every new cycle must change at least one meaningful dimension and record retained/rejected traits |
 """,
     )
     _write_text("Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md", "# Reusable Design Recipe Template\n\nStatus: `TEMPLATE ONLY - fill after USER accepts a Visual Acceptance Target guide. This template is not final implemented product truth by itself.`\n\n| Field | Value |\n| --- | --- |\n| Accepted surface class |  |\n| Accepted footprint class |  |\n| Token values / dimensions |  |\n| Padding |  |\n| Spacing |  |\n| Button heights |  |\n| Font scale |  |\n| Status chip pattern |  |\n| Title/header grammar |  |\n| Resize behavior |  |\n| Copy pattern |  |\n| State pattern |  |\n| Accepted comparator references |  |\n| Rejected alternatives |  |\n| Future branch reuse notes |  |\n| Proof requirements |  |")
-    _write_text("Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md", "# Source-Truth Conflict Classification\n\n| Candidate Decision | Classification | Disposition |\n| --- | --- | --- |\n| Require rendered visual target before future visible UI implementation on this branch | `BRANCH_LOCAL_VISUAL_DECISION` | legal branch-local process; Governance/global version is candidate only |\n| Treat current FAM-007 actual screenshot as branch-local target candidate | `NO_CONFLICT` | comparator seed only, not global template promotion |\n| Require FAM-002/UIREF comparison for same-class controls | `NO_CONFLICT` | matches Project Vision, FAM-002, UIREF-001 through UIREF-006 |\n| Record UI/UX Workstream Exit Acceptance Gate candidate | `GOVERNANCE_CANDIDATE_ONLY` | branch-local candidate wording and UDL row only; no global phase-governance mutation |\n| Promote AI Dashboard / AI Control Center as global gold standard | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Add reusable global helper/validator for all branches | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Implement product/runtime UI change in this pass | `USER_DECISION_REQUIRED` | not approved by this packet |")
-    _write_text("Review Aids/GOVERNANCE_CANDIDATE_ONLY.md", "# Governance Candidate Only\n\nCandidate 1: create a global Visual Acceptance Target process for future Nexus visible UI/UX work.\n\nCandidate 2: create a global UI/UX Workstream Exit Acceptance Gate for branches that implement, materially repair, or materially change UI/UX.\n\nReason: FAM-007 and FAM-006 false-green loops show that implementation-first UI work and helper-green review can create repair loops. A global rule should require substantial rendered targets, annotated and clean render media, annotation manifests, element legends, state matrices, full desktop/context renders, rejected-pattern ledgers, reusable design recipes, implementation-match proof, and explicit USER visual acceptance or waiver before visible UI work progresses past Workstream.\n\nTemplate Boundary: a global visual target process should say that accepted targets are guides/templates/comparators for implementation alignment, not final product truth by themselves.\n\nGate Boundary: a global UI/UX Workstream Exit Acceptance Gate should say that Packet Reviewability State, ChatGPT review, helper PASS, screenshot existence, visual-target acceptance, or packet parity cannot clear USER visual acceptance for an implemented UI/UX change.\n\nApproval Needed: USER-approved Governance/FAM-002/UIREF carrier after this branch-local process is reviewed. This FAM-007 pass does not mutate Governance, FAM-002, UIREF, or promote a global template.")
+    _write_text("Review Aids/SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md", "# Source-Truth Conflict Classification\n\n| Candidate Decision | Classification | Disposition |\n| --- | --- | --- |\n| Require rendered visual target before future visible UI implementation on this branch | `BRANCH_LOCAL_VISUAL_DECISION` | legal branch-local process; Governance/global version is candidate only |\n| Treat current FAM-007 actual screenshot as branch-local target candidate | `NO_CONFLICT` | comparator seed only, not global template promotion |\n| Require FAM-002/UIREF comparison for same-class controls | `NO_CONFLICT` | matches Project Vision, FAM-002, UIREF-001 through UIREF-006 |\n| Record UI/UX Workstream Exit Acceptance Gate candidate | `GOVERNANCE_CANDIDATE_ONLY` | branch-local candidate wording and UDL row only; no global phase-governance mutation |\n| Record Visual Acceptance Exploration Loop rule | `BRANCH_LOCAL_VISUAL_DECISION_WITH_GOVERNANCE_CANDIDATE` | legal branch-local packet/helper repair; repo-wide version belongs to future Governance/FAM-002/UIREF/reusable-helper carrier |\n| Promote AI Dashboard / AI Control Center as global gold standard | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Add reusable global helper/validator for all branches | `GOVERNANCE_CANDIDATE_ONLY` | not done here |\n| Implement product/runtime UI change in this pass | `USER_DECISION_REQUIRED` | not approved by this packet |")
+    _write_text("Review Aids/GOVERNANCE_CANDIDATE_ONLY.md", "# Governance Candidate Only\n\nCandidate 1: create a global Visual Acceptance Target process for future Nexus visible UI/UX work.\n\nCandidate 2: create a global UI/UX Workstream Exit Acceptance Gate for branches that implement, materially repair, or materially change UI/UX.\n\nCandidate 3: create a global Visual Acceptance Exploration Loop rule for UI/UX target selection. The loop should say clean enough is not the acceptance standard; USER-selected visual direction after meaningful compliant option exploration is the standard; packet validation proves completeness/currentness only; rejected packets must generate materially different new, revised, or combined real draft-window options with retained traits, rejected traits, new territory, and no near-duplicate label-only variants.\n\nReason: FAM-007 and FAM-006 false-green loops show that implementation-first UI work and helper-green review can create repair loops. A global rule should require substantial rendered targets, annotated and clean render media, annotation manifests, element legends, state matrices, full desktop/context renders, rejected-pattern ledgers, reusable design recipes, implementation-match proof, retained/rejected-traits ledgers, variant distinctness proof, and explicit USER visual acceptance or waiver before visible UI work progresses past Workstream.\n\nTemplate Boundary: a global visual target process should say that accepted targets are guides/templates/comparators for implementation alignment, not final product truth by themselves.\n\nGate Boundary: a global UI/UX Workstream Exit Acceptance Gate should say that Packet Reviewability State, ChatGPT review, helper PASS, screenshot existence, visual-target acceptance, or packet parity cannot clear USER visual acceptance for an implemented UI/UX change.\n\nExploration Boundary: a global exploration loop should keep Codex recommendations as recommendations, not USER preference or acceptance, and should reject near-duplicate variants that do not explore meaningful new design territory.\n\nApproval Needed: USER-approved Governance/FAM-002/UIREF carrier after this branch-local process is reviewed. This FAM-007 pass does not mutate Governance, FAM-002, UIREF, or promote a global template.")
     _write_text(
         "Review Aids/UI_UX_WORKSTREAM_EXIT_GATE_CANDIDATE.md",
         """
@@ -1753,8 +1869,8 @@ Proposed Blocker Names: `UI/UX Acceptance Pending`, `UI/UX Acceptance Rejected`,
 Exact USER Decision Needed For Global Adoption: approve a Governance/FAM-002/UIREF carrier to codify the UI/UX Workstream Exit Acceptance Gate, update validators/helpers/fixtures, and decide whether existing active UI-bearing branches must run RAR/adoption review against the new gate.
 """,
     )
-    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, curated decision-relevant packet images, and packet media included in the ZIP.\n\nUDL rows F7-UDL-019, F7-UDL-021, F7-UDL-022, F7-UDL-023, and F7-UDL-024 track annotation readability/bounds, final-packet image relevance, comparative-audit ledgers, the Option D / D2 row-grammar hybrid target candidate, and the UI/UX Workstream Exit Acceptance Gate governance candidate. Existing known-bad packet defects remain preserved as historical false-green evidence.")
-    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, annotated renders for each option, annotation manifest mapping marker IDs to visual regions, annotation label/leader geometry in bounds, visible marker label text pixels inside each label box, image relevance manifest coverage for every included image, final USER-review image scope, element legend, state matrix, template-not-endstate wording, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
+    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, curated decision-relevant packet images, packet media included in the ZIP, and an explicit Visual Acceptance Exploration Loop.\n\nUDL rows F7-UDL-019, F7-UDL-021, F7-UDL-022, F7-UDL-023, F7-UDL-024, and F7-UDL-025 track annotation readability/bounds, final-packet image relevance, comparative-audit ledgers, the Option D / D2 row-grammar hybrid target candidate, the UI/UX Workstream Exit Acceptance Gate governance candidate, and the Visual Acceptance Exploration Loop / variant-generation repair. Existing known-bad packet defects remain preserved as historical false-green evidence.")
+    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, annotated renders for each option, annotation manifest mapping marker IDs to visual regions, annotation label/leader geometry in bounds, visible marker label text pixels inside each label box, image relevance manifest coverage for every included image, final USER-review image scope, element legend, state matrix, template-not-endstate wording, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, Visual Acceptance Exploration Loop, variant distinctness wording, retained/rejected traits, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
 
     context_files = {
         "Source Truth Context/current_external_branch_state.md": BRANCH_STATE,
@@ -2203,6 +2319,18 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "future proof obligations",
             "source-truth reconciliation",
         ],
+        "Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md": [
+            "VISUAL_ACCEPTANCE_EXPLORATION_LOOP",
+            "Clean enough is not the acceptance standard",
+            "USER-selected visual direction",
+            "Packet validation proves completeness/currentness only",
+            "Near-duplicates with label-only changes are rejected",
+            "retained traits",
+            "rejected traits",
+            "New territory",
+            "materially differ",
+            "Real Draft Window Requirement",
+        ],
         "Review Aids/STATE_COVERAGE_STORYBOARD.md": [
             "hover",
             "focus",
@@ -2228,6 +2356,7 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "Implementation-match risk",
             "candidate/comparator dispositions",
             "twelve-card status monitor",
+            "near-duplicate variant generation",
         ],
         "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md": [
             "Material Difference Rule",
@@ -2242,6 +2371,12 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "Packet Reviewability Only",
             "Visual Target Treated As Implementation Proof",
             "Governance/FAM-002/UIREF carrier",
+        ],
+        "Review Aids/GOVERNANCE_CANDIDATE_ONLY.md": [
+            "Visual Acceptance Exploration Loop",
+            "clean enough is not the acceptance standard",
+            "USER-selected visual direction",
+            "no near-duplicate label-only variants",
         ],
     }
     for relative, terms in required_terms_by_file.items():
@@ -2263,8 +2398,11 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
         "ARTIFACT_TO_SURFACE_LEDGER.md",
         "IMPLEMENTATION_DIFFERENCE_RULE.md",
         "CAVEAT_LEDGER.md",
+        "VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
         "Material visual differences require USER approval",
         "caveat acceptance only records required follow-up",
+        "Clean enough is not the acceptance standard",
+        "USER-selected visual direction",
         "OPTION-D",
         "row grammar",
     ):
@@ -2339,6 +2477,7 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
         "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
         "Review Aids/CAVEAT_LEDGER.md",
+        "Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
         "Review Aids/STATE_COVERAGE_STORYBOARD.md",
         "Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md",
         "Review Aids/GOVERNANCE_CANDIDATE_ONLY.md",
@@ -2352,6 +2491,14 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         "not final implemented product truth by itself",
         "code-to-visual proof",
         "clean and annotated render media",
+        "Clean enough is not the acceptance standard",
+        "USER-selected visual direction",
+        "retained traits",
+        "rejected traits",
+        "new territory",
+        "materially differ",
+        "Near-duplicates with label-only changes are rejected",
+        "Real Draft Window Requirement",
         "OPTION-D",
         "row grammar",
     )
@@ -2388,6 +2535,7 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
                 "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
                 "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
                 "Review Aids/CAVEAT_LEDGER.md",
+                "Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
                 "Review Aids/STATE_COVERAGE_STORYBOARD.md",
             ):
                 if required_entry not in zip_entries:
