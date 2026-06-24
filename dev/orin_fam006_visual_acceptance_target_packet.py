@@ -42,6 +42,12 @@ UDL_GATE_JSON = EXTERNAL_ROOT / "unified_defect_ledger_gate.json"
 PRIMARY_FILE = "CURRENT_BRANCH_VISUAL_ACCEPTANCE_TARGET_REVIEW.md"
 EXPECTED_DIRS = ("USER Review", "Review Aids", "Source Truth Context")
 TIMESTAMP_FORMAT = "%Y%m%d-%H%M%S"
+RECORDING_SECONDARY_ACTION = "Open Log Viewer Studio"
+RECORDING_SECONDARY_ACTION_UPPER = RECORDING_SECONDARY_ACTION.upper()
+RECORDING_SECONDARY_ACTION_PURPOSE = (
+    "Routes to Log Viewer Studio only; does not directly open native NDAI logs "
+    "or exported logs from Recording Studio."
+)
 
 SOURCE_TRUTH_FILES = [
     "Docs/Main.md",
@@ -418,7 +424,7 @@ OPTIONS = [
         tradeoffs="Strongest Start/Stop prominence; less table-like than status-first layouts.",
         risks="Requires precise button sizing so it does not become bulky again.",
         primary_action="Start Recording",
-        secondary_action="Open Logs",
+        secondary_action=RECORDING_SECONDARY_ACTION,
         rows=(("TARGET", "Default Overlay Profile / 2 active monitors"), ("STATE", "Ready")),
         footer="Compact controller, not a dashboard card.",
     ),
@@ -496,7 +502,7 @@ ACCEPTED_TARGETS = [
         tradeoffs="USER accepted REC-C as the base while requiring REC-A clearer target/state separation.",
         risks="Implementation repair must not reintroduce REC-B proof copy, native-log status rows, mini-dashboard report tables, or giant button wells.",
         primary_action="Start Recording",
-        secondary_action="Open Logs",
+        secondary_action=RECORDING_SECONDARY_ACTION,
         rows=(("TARGET", "Default Overlay Profile"), ("STATE", "Ready - 2 active monitors")),
         footer="Compact controller; native logs remain product artifacts, export is user-requested.",
     ),
@@ -529,7 +535,7 @@ ACCEPTED_SELECTION_ROWS = [
         "Accept REC-C as base; borrow REC-A clearer target/state separation.",
         "Branch-local accepted visual target; not runtime proof.",
         "Use compact detached-controller class.",
-        "One stateful Start Recording / Stop Recording button; one Open Logs route; Target row; State row.",
+        "One stateful Start Recording / Stop Recording button; one route to Log Viewer Studio; Target row; State row.",
         "Later actual implementation screenshots/video must match this target.",
         "Reusable candidate after implementation-match proof passes.",
     ),
@@ -638,8 +644,8 @@ def _callout_specs(option: Option) -> list[CalloutSpec]:
             [
                 CalloutSpec("04", "TARGET-001", "target truth row", "accepted", "Target row only; shows the active Overlay Profile target truth.", (18, body_top + 8, width - 18, body_top + row_h + 4)),
                 CalloutSpec("05", "STATUS-001", "state truth row", "accepted", "State row only; separate from target truth.", (18, body_top + row_h + 8, width - 18, body_top + (row_h * 2) + 4)),
-                CalloutSpec("06", "ACTION-001", "primary Start/Stop action", "accepted", "Primary stateful control only; does not include Open Logs.", (18, action_y, 178, action_y + 32)),
-                CalloutSpec("07", "ACTION-002", "Open Logs secondary action", "accepted", "Secondary route action only; does not share ACTION-001 proof.", (190, action_y, width - 18, action_y + 32)),
+                CalloutSpec("06", "ACTION-001", "primary Start/Stop action", "accepted", "Primary stateful control only; does not include the Log Viewer Studio route.", (18, action_y, 178, action_y + 32)),
+                CalloutSpec("07", "ACTION-002", "Open Log Viewer Studio secondary action", "accepted", RECORDING_SECONDARY_ACTION_PURPOSE, (190, action_y, width - 18, action_y + 32)),
             ]
         )
     else:
@@ -766,7 +772,7 @@ def _draw_state_contact_sheet(option: Option, target: Path) -> None:
 
         draw.text((panel[0] + 10, panel[1] + 10), frame["truth"], font=value, fill="#9FFFE3" if state_style != "disabled" else "#647684")
 
-        button = (x + 14, y + 91, x + 145, y + 119)
+        button = (x + 14, y + 91, x + tile_w - 28, y + 119)
         button_fill = "#092C3E"
         button_outline = "#39B7D1"
         if state_style == "disabled":
@@ -859,10 +865,10 @@ def _accepted_state_frames(option: Option) -> list[dict[str, str]]:
             ("ACTION-001-saved-complete", "ACTION-001 SAVED", "Saved complete: ready for another recording", "Start Recording", "active"),
             ("ACTION-001-disabled", "ACTION-001 DISABLED", "Disabled: target unavailable", "Start Recording", "disabled"),
             ("ACTION-001-blocked-error", "ACTION-001 BLOCKED", "Blocked: no active monitor", "Start Recording", "blocked"),
-            ("ACTION-002-hover", "ACTION-002 HOVER", "Hover: Open Logs secondary action", "Open Logs", "hover"),
-            ("ACTION-002-focus", "ACTION-002 FOCUS", "Focus: Open Logs secondary action", "Open Logs", "focus"),
-            ("ACTION-002-pressed", "ACTION-002 PRESSED", "Pressed: opening Log Viewer Studio", "Open Logs", "pressed"),
-            ("ACTION-002-disabled", "ACTION-002 DISABLED", "Disabled: log route unavailable", "Open Logs", "disabled"),
+            ("ACTION-002-hover", "ACTION-002 HOVER", "Hover: route to Log Viewer Studio", RECORDING_SECONDARY_ACTION, "hover"),
+            ("ACTION-002-focus", "ACTION-002 FOCUS", "Focus: route to Log Viewer Studio", RECORDING_SECONDARY_ACTION, "focus"),
+            ("ACTION-002-pressed", "ACTION-002 PRESSED", "Pressed: opening Log Viewer Studio", RECORDING_SECONDARY_ACTION, "pressed"),
+            ("ACTION-002-disabled", "ACTION-002 DISABLED", "Disabled: Log Viewer Studio route unavailable", RECORDING_SECONDARY_ACTION, "disabled"),
             ("FOOTPRINT-001-fixed-size", "FOOTPRINT PROOF", option.resize_behavior, "Fixed footprint", "ready"),
         ]
     else:
@@ -928,7 +934,10 @@ def _draw_annotated_callout(option: Option, target: Path) -> None:
             offset_y + spec.rect[3],
         )
         draw.rounded_rectangle(rect, radius=8, outline=outline, width=2)
-        badge = (rect[0] + 4, rect[1] + 4, rect[0] + 38, rect[1] + 23)
+        if rect[3] - rect[1] <= 36 and rect[1] >= 28:
+            badge = (rect[0] + 4, rect[1] - 24, rect[0] + 38, rect[1] - 5)
+        else:
+            badge = (rect[0] + 4, rect[1] + 4, rect[0] + 38, rect[1] + 23)
         _rounded(draw, badge, 6, "#061725", outline, 1)
         draw.text((badge[0] + 5, badge[1] + 4), spec.marker, font=_font(8, bold=True), fill="#EAF8FF")
         anchor_x = rect[2] if rect[2] < legend_x else rect[0]
@@ -1113,6 +1122,7 @@ def _accepted_target_record(option: Option, focus: Path, context: Path, states: 
         "rows": [{"label": label, "value": value} for label, value in option.rows],
         "primaryAction": "START RECORDING / STOP RECORDING" if option.surface.startswith("Recording") else option.primary_action.upper(),
         "secondaryAction": option.secondary_action.upper(),
+        "secondaryActionPurpose": RECORDING_SECONDARY_ACTION_PURPOSE if option.surface.startswith("Recording") else "Opens the exported-log folder from Log Viewer Studio only.",
         "rejectedPatterns": rejected_patterns,
         "renderAuthorityLevel": "Visual Acceptance Target",
         "focusedRenderMediaPath": focus.relative_to(PACKET_ROOT).as_posix(),
@@ -1264,7 +1274,7 @@ def _write_packet(stamp: str) -> Path:
         "| --- | --- | --- | --- | --- |",
         "| IMC-REC-001 | Recording Studio | Header `ACTIVE OVERLAY RECORDING`; title `RECORDING STUDIO`; no separated title card. | Focused runtime screenshot and annotated crop. | Blocks H1/LV if missing. |",
         "| IMC-REC-002 | Recording Studio | Target row `Default Overlay Profile`; State row `Ready - 2 active monitors`. | Focused row crop with readable text. | Blocks H1/LV if missing. |",
-        "| IMC-REC-003 | Recording Studio | One stateful primary action: `START RECORDING` changes to `STOP RECORDING`; one secondary `OPEN LOGS`. | Ordered screenshot/video frames before/after click. | Blocks H1/LV if missing. |",
+        "| IMC-REC-003 | Recording Studio | One stateful primary action: `START RECORDING` changes to `STOP RECORDING`; one secondary `OPEN LOG VIEWER STUDIO` route. ACTION-002 must not imply direct native-log reading or direct exported-log opening from Recording Studio. | Ordered screenshot/video frames before/after click. | Blocks H1/LV if missing. |",
         "| IMC-REC-004 | Recording Studio | Reject REC-B proof copy, native-log status row, report-table/minidashboard feel, and internal proof wording. | Negative visual proof / text audit. | Blocks H1/LV if present. |",
         "| IMC-LOG-001 | Log Viewer Studio | Header `RECORDING LOGS`; title `LOG VIEWER STUDIO`; no Recording Studio state names. | Focused runtime screenshot and text audit. | Blocks H1/LV if missing. |",
         "| IMC-LOG-002 | Log Viewer Studio | Row 1 `NATIVE - Recordings folder`; action `OPEN NATIVE LOGS`. | Focused row/action crop and activation proof. | Blocks H1/LV if missing. |",
@@ -1384,12 +1394,20 @@ def _write_packet(stamp: str) -> Path:
         "Runtime Implementation State: `Blocked until separate implementation-match repair approval`",
         "Live Validation State: `Not run; blocked until implementation-match proof`",
         "",
+        "## USER / ChatGPT Semantic Correction Summary",
+        "",
+        "- Corrected Recording Studio ACTION-002 from the prior generic logs wording to `OPEN LOG VIEWER STUDIO`.",
+        "- Recording Studio remains a compact recording controller for Start/Stop plus a route to Log Viewer Studio.",
+        "- ACTION-002 does not directly open native NDAI logs and does not directly open exported logs from Recording Studio.",
+        "- Native NDAI log reading/export behavior remains routed through Log Viewer Studio and future export/readable workflow.",
+        "",
         "## Accepted Recording Studio Target",
         "",
         "- Base: `REC-C` with REC-A target/state separation.",
         "- Header: `ACTIVE OVERLAY RECORDING`; title: `RECORDING STUDIO`.",
         "- Rows: `TARGET - Default Overlay Profile`; `STATE - Ready - 2 active monitors`.",
-        "- Primary stateful button: `START RECORDING / STOP RECORDING`; secondary action: `OPEN LOGS`.",
+        "- Primary stateful button: `START RECORDING / STOP RECORDING`; secondary action: `OPEN LOG VIEWER STUDIO`.",
+        "- ACTION-002 purpose: opens/routes to Log Viewer Studio only; it does not directly open native NDAI logs or exported logs from Recording Studio.",
         "- Rejected: REC-B proof/helper copy, native-log status row, mini-dashboard/report-table feel, internal proof wording.",
         "",
         "## Accepted Log Viewer Studio Target",
@@ -1484,7 +1502,7 @@ def _write_packet(stamp: str) -> Path:
             marker
             + "\n"
             + "Status: `USER_ACCEPTED / Pending separate implementation-match repair approval`.\n\n"
-            + "Accepted Recording Target: `REC-C base with REC-A target/state separation; compact controller; TARGET Default Overlay Profile; STATE Ready - 2 active monitors; START/STOP stateful primary action; OPEN LOGS secondary action; REC-B proof/debug/native-log-status/report-table patterns rejected`.\n\n"
+            + "Accepted Recording Target: `REC-C base with REC-A target/state separation; compact controller; TARGET Default Overlay Profile; STATE Ready - 2 active monitors; START/STOP stateful primary action; OPEN LOG VIEWER STUDIO secondary route action; REC-B proof/debug/native-log-status/report-table patterns rejected`.\n\n"
             + "Accepted Log Viewer Target: `LOG-A base; compact doorway shell; NATIVE Recordings folder with OPEN NATIVE LOGS; EXPORT Exported Logs folder with OPEN EXPORTED LOGS; LOG-B path/debug and LOG-C full viewer workspace rejected/deferred`.\n\n"
             + "Lifecycle: `Visual Acceptance Target is accepted as pre-implementation guidance only. Runtime implementation match, H1, Live Validation, UTS, PR Readiness, issue closeout, merge, release, and cleanup remain pending.`\n\n"
             + f"USER packet: `C:\\Nexus USER\\FAM-006` with primary file `USER Review/{PRIMARY_FILE}`.\n\n"
@@ -1762,6 +1780,14 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
                 if not isinstance(rect, list) or len(rect) != 4:
                     failures.append(f"callout row missing rect for {option.get('targetId')}: {row}")
             if surface == "Recording Studio":
+                if option.get("secondaryAction") != RECORDING_SECONDARY_ACTION_UPPER:
+                    failures.append(
+                        "Recording accepted target ACTION-002 must be "
+                        f"{RECORDING_SECONDARY_ACTION_UPPER}, found {option.get('secondaryAction')}"
+                    )
+                purpose = option.get("secondaryActionPurpose", "")
+                if "Log Viewer Studio" not in purpose or "does not directly open native NDAI logs" not in purpose or "exported logs" not in purpose:
+                    failures.append("Recording ACTION-002 purpose must route to Log Viewer Studio without direct native/export log opening")
                 for token in ("ACTION-002-hover", "ACTION-002-focus", "ACTION-002-pressed", "ACTION-002-disabled"):
                     if token not in rendered_states:
                         failures.append(f"Recording accepted target missing secondary-action state: {token}")
@@ -1840,6 +1866,14 @@ def validate(packet_root: Path = PACKET_ROOT, zip_path: Path | None = None) -> l
     for token, label in text_requirements.items():
         if token not in text_blob:
             failures.append(f"packet missing required {label}: {token}")
+    if "OPEN LOGS" in text_blob:
+        failures.append("packet contains stale Recording Studio ACTION-002 label: OPEN LOGS")
+    if RECORDING_SECONDARY_ACTION_UPPER not in text_blob:
+        failures.append(f"packet missing corrected Recording Studio ACTION-002 label: {RECORDING_SECONDARY_ACTION_UPPER}")
+    if "does not directly open native NDAI logs" not in text_blob:
+        failures.append("packet missing direct-native-log-reading exclusion for Recording Studio ACTION-002")
+    if "does not directly open native NDAI logs or exported logs from Recording Studio" not in text_blob:
+        failures.append("packet missing direct native/export log opening exclusion for Recording Studio ACTION-002")
     rejected_path = packet_root / "Review Aids" / "Rejected Options And Patterns Ledger.md"
     if rejected_path.exists():
         rejected_text = rejected_path.read_text(encoding="utf-8", errors="replace")
