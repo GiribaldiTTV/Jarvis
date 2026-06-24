@@ -275,6 +275,21 @@ VALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
 INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
     FIXTURE_DIR / "invalid_br2_deferred_carryforward_missing_applicability.md"
 )
+VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_review.md"
+)
+INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_code_trace.md"
+)
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
+)
+INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
+)
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
     "is too shallow",
@@ -358,6 +373,12 @@ EXPECTED_BRANCH_PLANNING_GATE_BYPASS_FAILURE_SNIPPET = (
     "Packet Validation Treated As USER Acceptance"
 )
 EXPECTED_BP1_CONTEXT_FAILURE_SNIPPET = "Project Vision Context"
+EXPECTED_RAR_MARKER_ONLY_FAILURE_SNIPPET = "Rebaseline Adoption Review Missing"
+EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET = "Code-To-Visual Trace Missing"
+EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET = (
+    "Product Experience Contract Nonconformance Unresolved"
+)
+EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET = "Owned Surface Issue Candidate Missing"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -1632,6 +1653,189 @@ def _validate_br2_deferred_carryforward_matrix_text(text: str) -> list[str]:
         and "one branch per deferred item" not in normalized,
         "Deferred Carryforward Branch Sprawl",
     )
+    return failures
+
+
+def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
+    failures, require = _collect_failures()
+    normalized = governance._normalized_planning_value(text)
+
+    required_markers = (
+        "RAR Stage:",
+        "Trigger Reason:",
+        "Source-Truth Files Loaded:",
+        "Incoming Standard / Change Summary:",
+        "Merged Standard Source:",
+        "Rebaseline / Re-entry Event:",
+        "Current Branch Implementation Inventory:",
+        "Owned Surface Inventory:",
+        "Affected File Inventory:",
+        "Affected Surface Inventory:",
+        "Affected Branch Artifacts:",
+        "Affected Product Surfaces:",
+        "Implemented / Touched UI-UX Surfaces:",
+        "Implemented / Touched Runtime-Backend Surfaces:",
+        "Affected Proof Claims:",
+        "Merged Standard Comparison Result:",
+        "Frontend / Backend Contract Findings:",
+        "Reference / Template / Primitive Classification:",
+        "Accepted Reference Set / Comparative Synthesis:",
+        "Accepted Reference / Template / Primitive Comparator Matrix:",
+        "UI Reference / Template / Shared Primitive Dependency:",
+        "NDAI Product Experience Contract Comparison:",
+        "UI Element Inventory:",
+        "Backend / State Ownership Trace:",
+        "Screenshot / Video / Contact-Sheet Evidence:",
+        "Visual Element / Element-Group Inspection Ledger:",
+        "Vision-To-Proof Matrix:",
+        "Scope Coverage Manifest:",
+        "Owned-Surface Nonconformance Ledger:",
+        "Current Branch Repair Candidates:",
+        "Previous / Historical Branch Issue Candidates:",
+        "Current Violation Findings:",
+        "Issue-Candidate Table:",
+        "Repair / Waiver / Defer / Route Decision Table:",
+        "Adoption Disposition:",
+        "Repair / Waiver / Blocker:",
+        "Validation Summary:",
+        "USER Packet Path:",
+        "USER Packet ZIP Path:",
+        "Exact Next USER Decision:",
+        "No Repo Live-State Tracking:",
+    )
+    for marker in required_markers:
+        value = governance._extract_marker_value(text, marker)
+        require(bool(value), f"Rebaseline Adoption Review Missing: {marker}")
+        require(
+            governance._planning_word_count(value) >= 3,
+            f"Rebaseline Adoption Review Missing: {marker} is too shallow",
+        )
+
+    rar_stage = governance._extract_marker_value(text, "RAR Stage:")
+    require(
+        re.search(r"\bRAR[0-4]\b|Resolved|No Applicable Impact", rar_stage) is not None,
+        "Rebaseline Adoption Review Missing: RAR Stage must name RAR0-RAR4 or a resolved disposition",
+    )
+
+    code_trace_header = (
+        "| Surface | Element Group | Source File / Code Region | Backend / State Owner | "
+        "Rendered Evidence | Accepted Reference | Visual Match | Behavior Match | "
+        "Status | Defect / Gap | Next Legal Action |"
+    )
+    accepted_reference_header = (
+        "| Element Class | Implementation Authority | Accepted Reference Set | "
+        "Invariant Traits | Feature-Specific Traits | Target Surface | "
+        "Primitive/Template/Reference-Derived/Exception | Evidence | Gap / Issue |"
+    )
+    issue_candidate_header = (
+        "| Issue Candidate | Owner FAM | Surface | Element Group | Defect Class | "
+        "Evidence | Proposed Carrier | GitHub Issue Mutation Approved? |"
+    )
+    rar_decision_header = (
+        "| RAR USER Decision | Meaning | What It Authorizes | What It Does Not Authorize |"
+    )
+    require(code_trace_header in text, "Code-To-Visual Trace Missing")
+    require(
+        accepted_reference_header in text,
+        "Accepted Reference Comparator Missing",
+    )
+    require(issue_candidate_header in text, "Owned Surface Issue Candidate Missing")
+    require(rar_decision_header in text, "RAR USER Packet Missing")
+
+    for quality in (
+        "deterministic",
+        "intuitive",
+        "immersive",
+        "predictable",
+        "reliable",
+        "consistent",
+    ):
+        require(
+            quality in normalized,
+            "NDAI Product Experience Contract Comparison Missing",
+        )
+
+    for forbidden in (
+        "validator green is sufficient",
+        "helper pass is sufficient",
+        "screenshot exists therefore accepted",
+        "template consumed without approved source",
+        "shared primitive consumed without approved source",
+    ):
+        require(
+            forbidden not in normalized,
+            "Circular Validation Evidence",
+        )
+
+    user_packet_path = governance._extract_marker_value(text, "USER Packet Path:")
+    user_packet_zip = governance._extract_marker_value(text, "USER Packet ZIP Path:")
+    require(
+        "c:\\nexus user" in user_packet_path.casefold()
+        or "not required" in user_packet_path.casefold(),
+        "RAR USER Packet Missing",
+    )
+    require(
+        re.search(r"[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip", user_packet_zip) is not None
+        or "not required" in user_packet_zip.casefold(),
+        "RAR USER Packet Missing",
+    )
+
+    no_live_state = governance._extract_marker_value(text, "No Repo Live-State Tracking:")
+    require(
+        "c:\\nexus governance state" in no_live_state.casefold()
+        or "external" in no_live_state.casefold(),
+        "RAR Live Adoption Ledger In Repo",
+    )
+
+    issue_table = governance._extract_marker_value(text, "Issue-Candidate Table:")
+    previous_candidates = governance._extract_marker_value(
+        text, "Previous / Historical Branch Issue Candidates:"
+    )
+    if "none" not in previous_candidates.casefold():
+        require(
+            "issue candidate" in issue_table.casefold()
+            and "github issue mutation approved" in text.casefold(),
+            "Owned Surface Issue Candidate Missing",
+        )
+
+    adoption_disposition = governance._extract_marker_value(
+        text, "Adoption Disposition:"
+    )
+    unresolved_statuses = (
+        "NONCONFORMING",
+        "UNPROVEN",
+        "PARTIAL",
+        "EXCEPTION NEEDED",
+        "SOURCE-TRUTH GAP",
+        "REFERENCE GAP",
+        "TEMPLATE GAP",
+        "SHARED PRIMITIVE GAP",
+    )
+    unresolved_present = any(status in text for status in unresolved_statuses)
+    claims_green = "Adoption Green With Evidence" in adoption_disposition
+    require(
+        not (unresolved_present and claims_green),
+        "Product Experience Contract Nonconformance Unresolved",
+    )
+
+    if "ISSUE CANDIDATE" in text:
+        decision_table = governance._extract_marker_value(
+            text, "Repair / Waiver / Defer / Route Decision Table:"
+        )
+        require(
+            "USER review" in decision_table
+            or "pending USER" in decision_table
+            or "issue candidate" in decision_table.casefold(),
+            "Issue Candidate Disposition Missing",
+        )
+
+    normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
+    if normal_phase:
+        require(
+            "normal phase progression" not in normal_phase.casefold()
+            or "blocked" not in normalized,
+            "Normal Phase Progression Blocked By RAR",
+        )
     return failures
 
 
@@ -5568,6 +5772,57 @@ line item, not a seam or separate branch.
         failures.append(
             "Invalid BR2 Deferred Carryforward matrix fixture did not reject "
             "missing applicability/dependency/grouping proof"
+        )
+
+    valid_rar_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE.read_text(encoding="utf-8")
+    )
+    if valid_rar_failures:
+        failures.append(
+            "Valid RAR adoption review fixture unexpectedly failed: "
+            + "; ".join(valid_rar_failures[:5])
+        )
+
+    marker_only_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_MARKER_ONLY_FAILURE_SNIPPET not in "\n".join(
+        marker_only_rar_failures
+    ):
+        failures.append(
+            "Invalid marker-only RAR fixture did not reject shallow adoption markers"
+        )
+
+    missing_code_trace_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        missing_code_trace_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing code-to-visual trace"
+        )
+
+    unresolved_green_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE.read_text(encoding="utf-8")
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_green_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved nonconformance claimed green"
+        )
+
+    missing_issue_candidate_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        missing_issue_candidate_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing historical issue candidate disposition"
         )
 
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
