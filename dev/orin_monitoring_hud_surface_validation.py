@@ -1632,7 +1632,7 @@ def validate() -> list[str]:
         "Stop Recording",
         "OPEN LOG VIEWER STUDIO",
         'data-resize-contract="not-resizable-position-memory-only"',
-        'data-fixed-controller-height="210"',
+        'data-fixed-controller-height="184"',
         'data-row-primitive="ai-control-center-state-row"',
         "edge-resizable-log-access-shell",
         "edge-resize-native-top-level",
@@ -1664,7 +1664,7 @@ def validate() -> list[str]:
         "Empty until exported</small>",
         "--nexus-feature-studio-title-bg",
         'data-fixed-controller-height="238"',
-        'data-fixed-controller-height="184"',
+        'data-fixed-controller-height="210"',
         "HEIGHT = 238",
         'data-fixed-controller-height="176"',
         "HEIGHT = 176",
@@ -1692,7 +1692,7 @@ def validate() -> list[str]:
     for needle in (
         "monitoringHudStudioNativeDragHandle",
         "DRAG_HEADER_HEIGHT = 64",
-        "HEIGHT = 210",
+        "HEIGHT = 184",
         "WM_NCHITTEST+manual-fallback-geometry-resize",
         "hub-action-content-fit-equal-gutter-32px-pill",
     ):

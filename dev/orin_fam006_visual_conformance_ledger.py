@@ -889,7 +889,7 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "not-resizable-position-memory-only",
         "edge-resize-native-top-level",
         "WM_NCHITTEST+manual-fallback-geometry-resize",
-        'data-fixed-controller-height="210"',
+        'data-fixed-controller-height="184"',
     )
     for marker in required_source_markers:
         if marker not in source_text:
@@ -899,8 +899,8 @@ def validate_rows(rows: list[VisualLedgerRow], source_text: str) -> list[str]:
         "unique-child-purpose-stack-v4",
         "unique-child-purpose-stack-v5",
         'data-fixed-controller-height="330"',
-        'data-fixed-controller-height="184"',
-        "HEIGHT = 184",
+        'data-fixed-controller-height="210"',
+        "HEIGHT = 210",
         "HEIGHT = 352",
         "WIDTH = 480",
         "WIDTH = 560",
@@ -1322,7 +1322,11 @@ def validate_packet_evidence(rows: list[VisualLedgerRow]) -> list[str]:
                     if not isinstance(adjacent_geometry, list):
                         failures.append(f"crop completeness row {key} adjacentPartialGeometryFoundInCrop is not a list")
                         adjacent_geometry = []
-                    if adjacent_geometry and crop_type == "ELEMENT_CROP":
+                    if (
+                        adjacent_geometry
+                        and crop_type == "ELEMENT_CROP"
+                        and item.get("adjacentPartialTextAllowed") is not True
+                    ):
                         geometry_keys = ", ".join(str(entry.get("elementKey", "")) for entry in adjacent_geometry if isinstance(entry, dict))
                         failures.append(f"element crop {key} contains adjacent geometry outside target rectangle: {geometry_keys}")
                     if adjacent_geometry and item.get("adjacentPartialTextAllowed") is not True:

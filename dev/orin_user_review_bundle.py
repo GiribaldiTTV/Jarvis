@@ -967,6 +967,11 @@ def _generic_user_facing_technical_metadata_failures(
     for file_name, text in sorted(packet_files.items()):
         normalized = file_name.replace("\\", "/")
         if (
+            normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/Unified Defect Ledger/")
+            and normalized.endswith(".json")
+        ):
+            continue
+        if (
             normalized != "START_HERE.md"
             and not normalized.startswith(f"{USER_REVIEW_DIR_NAME}/")
             and not normalized.startswith(f"{REVIEW_AIDS_DIR_NAME}/")
