@@ -396,6 +396,9 @@ INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_ZIP_OUTSIDE_USER_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_zip_outside_user_root.md"
 )
+INVALID_REBASELINE_ADOPTION_ZIP_EXPLANATORY_USER_ROOT_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_zip_explanatory_user_root.md"
+)
 INVALID_REBASELINE_ADOPTION_ZIP_SUFFIX_PATH_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_zip_suffix_path.md"
 )
@@ -1994,10 +1997,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "issue candidate",
     )
 
-    def cell_has_unresolved_status(value: str) -> bool:
+    def normalize_rar_status_cell(value: str) -> str:
         normalized_cell = governance._normalized_planning_value(value)
         normalized_cell = normalized_cell.replace("issue-candidate", "issue candidate")
-        normalized_cell = normalized_cell.strip(" .;:")
+        normalized_cell = re.sub(
+            r"\b(current|unresolved|active|pending)-(?=issue candidate\b)",
+            r"\1 ",
+            normalized_cell,
+        )
+        return normalized_cell.strip(" .;:")
+
+    def cell_has_unresolved_status(value: str) -> bool:
+        normalized_cell = normalize_rar_status_cell(value)
         return any(
             normalized_cell == status
             or normalized_cell.startswith(f"{status} ")
@@ -2006,9 +2017,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         )
 
     def cell_has_issue_candidate_status(value: str) -> bool:
-        normalized_cell = governance._normalized_planning_value(value)
-        normalized_cell = normalized_cell.replace("issue-candidate", "issue candidate")
-        normalized_cell = normalized_cell.strip(" .;:")
+        normalized_cell = normalize_rar_status_cell(value)
         return (
             normalized_cell == "issue candidate"
             or normalized_cell.startswith("issue candidate ")
@@ -2145,23 +2154,49 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     def normalized_windows_zip_paths(value: str) -> tuple[list[str], bool]:
         normalized_value = value.replace("/", "\\")
+        spans: list[tuple[int, int]] = []
         paths: list[str] = []
         invalid_suffix_seen = False
+        zip_path_patterns = (
+            re.compile(
+                r"\b[A-Za-z]:\\Nexus USER\\[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip",
+                re.IGNORECASE,
+            ),
+            re.compile(r"\b[A-Za-z]:\\[^\s|,;:)\]]+?\.zip", re.IGNORECASE),
+        )
 
-        for match in re.finditer(r"[A-Za-z]:\\[^|\r\n]*?\.zip", normalized_value):
-            next_char = normalized_value[match.end() : match.end() + 1]
-            after_next = normalized_value[match.end() + 1 : match.end() + 2]
-            if next_char == "." and after_next not in {"", " ", "\t", "\r", "\n"}:
-                invalid_suffix_seen = True
-                continue
-            if next_char and next_char not in {" ", "\t", "\r", "\n", ",", ";", ":", ")", "]", "."}:
-                invalid_suffix_seen = True
-                continue
-            canonical_path = canonical_windows_path(match.group(0))
-            if canonical_path is None:
-                invalid_suffix_seen = True
-                continue
-            paths.append(canonical_path)
+        for pattern in zip_path_patterns:
+            for match in pattern.finditer(normalized_value):
+                if any(
+                    max(match.start(), start) < min(match.end(), end)
+                    for start, end in spans
+                ):
+                    continue
+                spans.append(match.span())
+                next_char = normalized_value[match.end() : match.end() + 1]
+                after_next = normalized_value[match.end() + 1 : match.end() + 2]
+                if next_char == "." and after_next not in {"", " ", "\t", "\r", "\n"}:
+                    invalid_suffix_seen = True
+                    continue
+                if next_char and next_char not in {
+                    " ",
+                    "\t",
+                    "\r",
+                    "\n",
+                    ",",
+                    ";",
+                    ":",
+                    ")",
+                    "]",
+                    ".",
+                }:
+                    invalid_suffix_seen = True
+                    continue
+                canonical_path = canonical_windows_path(match.group(0))
+                if canonical_path is None:
+                    invalid_suffix_seen = True
+                    continue
+                paths.append(canonical_path)
         return paths, invalid_suffix_seen
 
     user_packet_zip_paths, user_packet_zip_invalid_suffix_seen = (
@@ -6962,6 +6997,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject USER packet ZIP outside C:\\Nexus USER"
+        )
+
+    zip_explanatory_user_root_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ZIP_EXPLANATORY_USER_ROOT_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        zip_explanatory_user_root_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject off-root ZIP path with earlier USER-root mention"
         )
 
     zip_suffix_path_rar_failures = _validate_rebaseline_adoption_review_text(
