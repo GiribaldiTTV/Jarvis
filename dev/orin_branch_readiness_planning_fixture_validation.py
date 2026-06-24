@@ -290,6 +290,9 @@ INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_code_trace.md"
 )
+INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_empty_code_trace.md"
+)
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
 )
@@ -298,6 +301,9 @@ INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_untabled.md"
 )
 INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_pending_review_no_packet.md"
@@ -310,6 +316,9 @@ INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_DISPOSITION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_disposition.md"
+)
+INVALID_REBASELINE_ADOPTION_NEGATED_ISSUE_DISPOSITION_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_negated_issue_disposition.md"
 )
 EXPECTED_SHALLOW_FAILURE_SNIPPETS = (
     "placeholder/self-assessed wording",
@@ -1776,13 +1785,15 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         except StopIteration:
             return []
         rows: list[list[str]] = []
+        seen_separator = False
         for line in lines[header_index + 1 :]:
             if not line.strip().startswith("|"):
-                if rows:
+                if rows or seen_separator:
                     break
                 continue
             cells = governance._markdown_table_cells(line)
             if governance._is_markdown_table_separator(cells):
+                seen_separator = True
                 continue
             rows.append(cells)
         return rows
@@ -1812,6 +1823,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     code_trace_rows = table_rows_after_header(code_trace_header)
     issue_candidate_rows = table_rows_after_header(issue_candidate_header)
+    require(bool(code_trace_rows), "Code-To-Visual Trace Missing")
     issue_candidate_disposition = governance._extract_marker_value(
         text, "Issue Candidate Disposition:"
     )
@@ -1921,6 +1933,19 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             for status in unresolved_statuses
         )
 
+    code_trace_has_issue_candidate = any(
+        len(row) > 8
+        and governance._normalized_planning_value(row[8])
+        .strip(" .;:")
+        .startswith("issue candidate")
+        for row in code_trace_rows
+    )
+    if code_trace_has_issue_candidate:
+        require(
+            has_real_issue_candidate_row(issue_candidate_rows),
+            "Owned Surface Issue Candidate Missing",
+        )
+
     unresolved_present = any(
         len(row) > 8 and cell_has_unresolved_status(row[8])
         for row in code_trace_rows
@@ -1937,6 +1962,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     issue_candidate_disposition_required = (
         has_real_issue_candidate_row(issue_candidate_rows)
         or "none" not in previous_candidates.casefold()
+        or code_trace_has_issue_candidate
     )
     if issue_candidate_disposition_required:
         normalized_issue_candidate_disposition = (
@@ -1968,8 +1994,24 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 "blocked",
             )
         )
+        negated_issue_candidate_disposition = any(
+            phrase in normalized_issue_candidate_disposition
+            or phrase in normalized_decision_table
+            for phrase in (
+                "not user reviewed",
+                "not user-reviewed",
+                "no user review",
+                "without user review",
+                "not waived",
+                "not repaired",
+                "not routed",
+                "not blocked",
+                "without active user decision",
+            )
+        )
         require(
-            pending_issue_candidate_review or completed_issue_candidate_disposition,
+            not negated_issue_candidate_disposition
+            and (pending_issue_candidate_review or completed_issue_candidate_disposition),
             "Issue Candidate Disposition Missing",
         )
 
@@ -6009,6 +6051,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject missing code-to-visual trace"
         )
 
+    empty_code_trace_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        empty_code_trace_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject header-only code-to-visual trace"
+        )
+
     unresolved_green_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE.read_text(encoding="utf-8")
     )
@@ -6041,6 +6095,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing historical issue candidate disposition"
+        )
+
+    current_issue_candidate_untabled_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_issue_candidate_untabled_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject untabled current issue candidate"
         )
 
     pending_review_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
@@ -6095,6 +6163,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing mixed-case issue-candidate disposition"
+        )
+
+    negated_issue_disposition_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NEGATED_ISSUE_DISPOSITION_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET not in "\n".join(
+        negated_issue_disposition_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject negated issue-candidate disposition"
         )
 
     failures.extend(_validate_family_feature_vision_scaffolding_source_truth())
