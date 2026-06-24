@@ -42,8 +42,11 @@ REQUIRED_REVIEW_AIDS = (
 REQUIRED_RENDER_FILES = tuple(
     f"{RENDER_MEDIA_PREFIX}/Option {option}/{name}.png"
     for option in ("A", "B", "C", "D", "E", "F")
-    for name in ("focused_surface", "desktop_context", "state_matrix")
-) + (f"{RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png",)
+    for name in ("focused_surface", "annotated_focused_surface", "desktop_context", "state_matrix")
+) + (
+    f"{RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png",
+    f"{RENDER_MEDIA_PREFIX}/visual_options_annotated_contact_sheet.png",
+)
 REQUIRED_STATE_FILES = (
     "visual_acceptance_target_process_20260624.md",
     "visual_impact_classification_20260624.md",
@@ -186,10 +189,22 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "GOV-VAT-002",
         "GOV-VAT-003",
         "GOV-VAT-004",
+        "GOV-VAT-005",
+        "GOV-VAT-006",
+        "VIS-VAT-001",
         "Governance Source-Truth Proof",
         "HARDENING_COMMIT_BOUNDED_DIFF.patch",
+        "CURRENT_REPAIR_BOUNDED_DIFF.patch",
         "Changed File Snapshots",
         "actual pre-archive command receipts",
+        "Legend / Callout Traceability",
+        "color-coded",
+        "text-labeled callouts",
+        "annotated_focused_surface.png",
+        "visual_options_annotated_contact_sheet.png",
+        "guide/template",
+        "not a guaranteed literal final",
+        "Implementation Match Proof must compare actual app evidence",
         "PENDING_EXTERNAL_POST_ZIP_RECEIPT",
     )
     for marker in required_markers:
@@ -241,15 +256,50 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         failures.append("governance validation command receipts missing")
     else:
         receipts_text = _read_text(validation_receipts)
+        self_check_pending = "Packet validator self-check: `PENDING_CURRENT_RUN`" in receipts_text
+        final_pass_recorded = "Packet validator self-check: `FINAL_PASS_RECORDED`" in receipts_text
+        if final_pass_recorded and re.search(r"\|\s*`\d+`\s*\|\s*`FAIL`\s*\|", receipts_text):
+            failures.append("active final validation command receipts contain FAIL")
         for expected in (
             "Validation Command Receipts",
             "git show --stat",
             "git diff --check",
             "origin/main...HEAD",
-            "PASS: FAM-003 visual acceptance target packet is complete and reviewable",
         ):
             if expected not in receipts_text:
                 failures.append(f"governance validation command receipts missing marker: {expected}")
+        if (
+            "PASS: FAM-003 visual acceptance target packet is complete and reviewable"
+            not in receipts_text
+            and not self_check_pending
+        ):
+            failures.append(
+                "governance validation command receipts missing marker: "
+                "PASS: FAM-003 visual acceptance target packet is complete and reviewable"
+            )
+        if not self_check_pending and not final_pass_recorded:
+            failures.append("validation receipts missing packet-validator self-check disposition")
+
+    current_repair_diff = (
+        packet_dir
+        / "Source Truth Context"
+        / "Governance Proof"
+        / "CURRENT_REPAIR_BOUNDED_DIFF.patch"
+    )
+    if not current_repair_diff.exists():
+        failures.append("current repair bounded diff artifact missing")
+    else:
+        current_diff_text = _read_text(current_repair_diff)
+        for expected in (
+            "VIS-VAT-001",
+            "GOV-VAT-005",
+            "GOV-VAT-006",
+            "annotated_focused_surface.png",
+            "visual_options_annotated_contact_sheet.png",
+            "not a guaranteed literal final",
+        ):
+            if expected not in current_diff_text:
+                failures.append(f"current repair bounded diff missing marker: {expected}")
 
     if packet_zip is not None:
         if not packet_zip.exists():

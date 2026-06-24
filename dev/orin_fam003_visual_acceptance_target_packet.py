@@ -43,6 +43,7 @@ HARDENING_CHANGED_FILES = (
     "dev/orin_fam003_visual_acceptance_target_packet.py",
     "dev/orin_fam003_visual_acceptance_target_validation.py",
 )
+CURRENT_REPAIR_CHANGED_FILES = HARDENING_CHANGED_FILES
 
 BG = (2, 8, 18)
 SHELL = (4, 16, 28)
@@ -58,6 +59,25 @@ MUTED_2 = (108, 135, 153)
 GREEN = (30, 160, 135)
 DANGER = (222, 82, 96)
 DISABLED = (69, 82, 101)
+GOLD = (255, 210, 96)
+VIOLET = (190, 158, 255)
+ROSE = (255, 128, 154)
+ORANGE = (255, 163, 92)
+
+LEGEND_ITEMS = (
+    ("CHROME-001", "Nexus top-level chrome", CYAN),
+    ("CTRL-001", "compact window controls", MINT),
+    ("RAIL-001", "main + subcategory rail", GOLD),
+    ("NAV-002", "Tray > Quick Access child", VIOLET),
+    ("SLOT-001", "quick-slot row", ROSE),
+    ("SELECT-001", "route selector/dropdown", ORANGE),
+    ("ACTION-001", "add/defaults/save actions", (120, 220, 170)),
+    ("STATE-001", "saved/dirty/blocked truth", (116, 185, 255)),
+    ("MENU-001", "right-click tray menu", (255, 144, 232)),
+    ("TOOLTIP-001", "tray hover tooltip/status channel", (176, 240, 120)),
+    ("RESIZE-001", "resize affordance", (160, 206, 255)),
+)
+LEGEND_COLORS = {code: color for code, _desc, color in LEGEND_ITEMS}
 
 
 @dataclass(frozen=True)
@@ -482,24 +502,72 @@ def _draw_tray_menu(draw: ImageDraw.ImageDraw, x: int, y: int, option: VisualOpt
 
 
 def _draw_legend(draw: ImageDraw.ImageDraw, x: int, y: int):
-    legends = (
-        ("CHROME-001", "Nexus top-level chrome"),
-        ("CTRL-001", "compact window controls"),
-        ("RAIL-001", "main + subcategory rail"),
-        ("NAV-002", "Tray > Quick Access child"),
-        ("SLOT-001", "quick-slot row"),
-        ("SELECT-001", "route selector/dropdown"),
-        ("ACTION-001", "add/defaults/save actions"),
-        ("STATE-001", "saved/dirty/blocked truth"),
-        ("MENU-001", "right-click tray menu"),
-        ("RESIZE-001", "resize affordance"),
-    )
     draw.text((x, y), "Element legend", fill=TEXT, font=F12B)
-    y += 22
-    for code, desc in legends:
-        draw.text((x, y), code, fill=MINT, font=F8)
-        draw.text((x + 82, y), desc, fill=MUTED, font=F8)
-        y += 17
+    y += 18
+    for idx, (code, desc, color) in enumerate(LEGEND_ITEMS):
+        col = idx // 6
+        row = idx % 6
+        xx = x + col * 218
+        yy = y + row * 15
+        draw.rectangle((xx, yy + 2, xx + 10, yy + 12), fill=color)
+        draw.text((xx + 15, yy), code, fill=color, font=F8)
+        draw.text((xx + 82, yy), desc, fill=MUTED, font=F8)
+
+
+def _draw_callout(
+    draw: ImageDraw.ImageDraw,
+    element_id: str,
+    box: tuple[int, int, int, int],
+    label_xy: tuple[int, int],
+):
+    color = LEGEND_COLORS[element_id]
+    draw.rounded_rectangle(box, radius=5, outline=color, width=3)
+    lx, ly = label_xy
+    label_box = (lx, ly, lx + 88, ly + 21)
+    _rr(draw, label_box, 5, fill=(3, 12, 22), outline=color, width=2)
+    draw.rectangle((lx + 6, ly + 6, lx + 14, ly + 14), fill=color)
+    draw.text((lx + 18, ly + 5), element_id, fill=TEXT, font=F8)
+    bx = box[0] + (box[2] - box[0]) // 2
+    by = box[1] + (box[3] - box[1]) // 2
+    draw.line((lx + 44, ly + 21, bx, by), fill=color, width=2)
+    draw.ellipse((bx - 4, by - 4, bx + 4, by + 4), fill=color)
+
+
+def _callout_specs(option: VisualOption):
+    wx, wy, ww, wh = 26, 84, 800, 340
+    body_y = wy + 46
+    rail_x = wx + 14
+    selected_nav_y = body_y + 32 + option.row_height + option.nav_gap
+    cx = wx + option.rail_width + 30
+    cy = body_y + 44
+    return (
+        ("CHROME-001", (wx, wy, wx + ww, wy + 38), (42, 126)),
+        ("CTRL-001", (wx + ww - 70, wy + 7, wx + ww - 12, wy + 31), (704, 126)),
+        ("RAIL-001", (rail_x, body_y, wx + option.rail_width + 12, wy + wh - 16), (42, 404)),
+        ("NAV-002", (rail_x, selected_nav_y, rail_x + option.rail_width - 18, selected_nav_y + option.row_height), (164, 170)),
+        ("SLOT-001", (cx + 8, cy + 8, wx + ww - 26, wy + wh - 100), (486, 154)),
+        ("SELECT-001", (cx + 42, cy + 20, min(cx + 290, wx + ww - 170), wy + wh - 145), (484, 202)),
+        ("ACTION-001", (wx + ww - 180, wy + wh - 52, wx + ww - 16, wy + wh - 18), (632, 374)),
+        ("STATE-001", (cx, wy + wh - 50, min(cx + 196, wx + ww - 188), wy + wh - 20), (472, 386)),
+        ("MENU-001", (854, 94, 1114, 316), (1122, 96)),
+        ("TOOLTIP-001", (864, 286, 1104, 315), (1122, 286)),
+        ("RESIZE-001", (wx + ww - 24, wy + wh - 24, wx + ww, wy + wh), (716, 408)),
+    )
+
+
+def render_annotated_focused(option: VisualOption) -> Image.Image:
+    image = render_focused(option).copy()
+    draw = ImageDraw.Draw(image)
+    _rr(draw, (24, 730, 1296, 752), 6, fill=(3, 12, 22), outline=LINE_SOFT)
+    draw.text(
+        (38, 736),
+        "Annotated callouts: color + element ID labels map legend rows to visible UI regions. Pixel-level visual acceptance still requires USER/Codex evidence review.",
+        fill=TEXT,
+        font=F10,
+    )
+    for element_id, box, label_xy in _callout_specs(option):
+        _draw_callout(draw, element_id, box, label_xy)
+    return image
 
 
 def render_focused(option: VisualOption) -> Image.Image:
@@ -684,6 +752,19 @@ def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
         str(diff_result["output"]) + "\n",
         encoding="utf-8",
     )
+    current_repair_args = [
+        "git",
+        "diff",
+        "--unified=30",
+        "--",
+        *CURRENT_REPAIR_CHANGED_FILES,
+    ]
+    current_repair_result = _run_command(current_repair_args, timeout=120)
+    current_repair_diff_path = proof_dir / "CURRENT_REPAIR_BOUNDED_DIFF.patch"
+    current_repair_diff_path.write_text(
+        str(current_repair_result["output"]) + "\n",
+        encoding="utf-8",
+    )
 
     technical_ledger_path = proof_dir / "GOVERNANCE_SOURCE_TRUTH_PROOF.md"
     write(
@@ -691,7 +772,7 @@ def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
         f"""
         # Governance Source-Truth Proof
 
-        Proof purpose: close `GOV-VAT-004` by making the packet verify the governance/source-truth/helper/validator hardening claim from evidence inside the packet, not from the Codex digest.
+        Proof purpose: close `GOV-VAT-004`, `VIS-VAT-001`, `GOV-VAT-005`, and `GOV-VAT-006` by making the packet verify governance/source-truth/helper/validator hardening, legend/callout traceability, guide/template wording, and final validation-receipt consistency from evidence inside the packet, not from the Codex digest.
 
         Hardening commit subject: `{HARDENING_COMMIT_SUBJECT}`
         Hardening commit located by Git: `{commit}`
@@ -710,6 +791,7 @@ def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
         ## Bounded Diff Proof
 
         Bounded diff artifact: `Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch`
+        Current repair bounded diff artifact: `Source Truth Context/Governance Proof/CURRENT_REPAIR_BOUNDED_DIFF.patch`
 
         Diff command:
 
@@ -719,13 +801,21 @@ def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
 
         Diff command result: `{diff_result["status"]}` with exit code `{diff_result["exit_code"]}`.
 
+        Current repair diff command:
+
+        ```text
+        {_command_text(current_repair_args)}
+        ```
+
+        Current repair diff command result: `{current_repair_result["status"]}` with exit code `{current_repair_result["exit_code"]}`.
+
         ## Branch-Local Versus Durable Authority
 
-        This proof is branch-local to FAM-003. It proves the current packet carries the FAM-003 visual acceptance target hardening evidence. It does not promote a repo-wide Visual Acceptance Target phase, a shared settings primitive, a global UI template, a sibling adoption rule, LV green, UTS completion, PR readiness, merge readiness, release readiness, cleanup readiness, issue mutation, selected-next mutation, provider/model/private/cache/memory work, or installer/startup/shortcut/packaging work.
+        This proof is branch-local to FAM-003. It proves the current packet carries the FAM-003 visual acceptance target hardening, callout-traceability, wording, and validation-receipt repair evidence. It does not promote a repo-wide Visual Acceptance Target phase, a shared settings primitive, a global UI template, a sibling adoption rule, LV green, UTS completion, PR readiness, merge readiness, release readiness, cleanup readiness, issue mutation, selected-next mutation, provider/model/private/cache/memory work, or installer/startup/shortcut/packaging work.
 
         ## Visual Target Status
 
-        Visual target review remains design-target only. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver.
+        Visual target review remains design-target only. Design Candidate Render evidence is a high-fidelity guide/template for USER expectation alignment, not a guaranteed literal final or end-state screenshot. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver. Later Implementation Match Proof must compare actual app evidence against the accepted guide/target and explain any material differences.
         """,
     )
     ledger_path = PACKET_ROOT / "Review Aids" / "GOVERNANCE_SOURCE_TRUTH_PROOF.md"
@@ -734,12 +824,13 @@ def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
         """
         # Governance Source-Truth Proof Summary
 
-        Proof purpose: close `GOV-VAT-004` by making this packet verify the governance/source-truth/helper/validator hardening claim from packet-contained evidence instead of Codex digest text alone.
+        Proof purpose: close `GOV-VAT-004`, `VIS-VAT-001`, `GOV-VAT-005`, and `GOV-VAT-006` by making this packet verify governance/source-truth/helper/validator hardening, legend/callout traceability, guide/template wording, and final validation-receipt consistency from packet-contained evidence instead of Codex digest text alone.
 
         ## Packet-contained proof
 
         - Direct source snapshots are included under `Source Truth Context/Governance Proof/Changed File Snapshots/`.
         - The bounded hardening diff is included under `Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch`.
+        - The current legibility/wording/validation-receipt repair diff is included under `Source Truth Context/Governance Proof/CURRENT_REPAIR_BOUNDED_DIFF.patch`.
         - The raw governance proof receipt is included under `Source Truth Context/Governance Proof/GOVERNANCE_SOURCE_TRUTH_PROOF.md`.
         - Actual pre-archive command receipts are included under `Source Truth Context/Governance Proof/VALIDATION_COMMAND_RECEIPTS.md`.
 
@@ -749,7 +840,7 @@ def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
 
         ## Visual target status
 
-        Visual target review remains design-target only. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver.
+        Visual target review remains design-target only. Design Candidate Render evidence is a high-fidelity guide/template for USER expectation alignment, not a guaranteed literal final or end-state screenshot. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver. Later Implementation Match Proof must compare actual app evidence against the accepted guide/target and explain any material differences.
         """,
     )
     return commit, diff_path, ledger_path
@@ -796,7 +887,7 @@ def _write_validation_receipts(commit: str):
         / "VALIDATION_COMMAND_RECEIPTS.md"
     )
 
-    def write_receipts(current_receipts: list[dict[str, str | int]]):
+    def write_receipts(current_receipts: list[dict[str, str | int]], *, self_check_pending: bool):
         rows = "\n".join(
             f"| `{idx}` | `{receipt['status']}` | `{receipt['exit_code']}` | `{receipt['command']}` |"
             for idx, receipt in enumerate(current_receipts, start=1)
@@ -804,6 +895,11 @@ def _write_validation_receipts(commit: str):
         details = "\n\n".join(
             f"## Receipt {idx}: {receipt['status']}\n\nCommand:\n\n```text\n{receipt['command']}\n```\n\nExit code: `{receipt['exit_code']}`\n\nOutput:\n\n```text\n{receipt['output'] or '[no output]'}\n```"
             for idx, receipt in enumerate(current_receipts, start=1)
+        )
+        pending_line = (
+            "Packet validator self-check: `PENDING_CURRENT_RUN` - this marker is allowed only before the packet validator receipt is appended."
+            if self_check_pending
+            else "Packet validator self-check: `FINAL_PASS_RECORDED` - final receipts include the packet-validator PASS output."
         )
         write(
             technical_receipts_path,
@@ -817,6 +913,8 @@ def _write_validation_receipts(commit: str):
             {rows}
 
             {details}
+
+            {pending_line}
 
             Final archive parity: `PENDING_EXTERNAL_POST_ZIP_RECEIPT`
 
@@ -838,13 +936,15 @@ def _write_validation_receipts(commit: str):
             | --- | --- |
             {summary_rows}
 
+            {pending_line}
+
             Post-archive folder/archive parity and final archive checksum are recorded outside the archive after generation to avoid self-reference.
 
             Validation interpretation: these receipts are evidence, not USER acceptance. They do not make the packet LV green, UTS complete, PR-ready, merge-ready, release-ready, or cleanup-ready.
             """,
         )
 
-    write_receipts(receipts)
+    write_receipts(receipts, self_check_pending=True)
     receipts.append(
         _run_command(
             [
@@ -856,7 +956,11 @@ def _write_validation_receipts(commit: str):
             timeout=180,
         )
     )
-    write_receipts(receipts)
+    write_receipts(receipts, self_check_pending=False)
+    failing_receipts = [receipt for receipt in receipts if receipt["status"] != "PASS"]
+    if failing_receipts:
+        failed_commands = "; ".join(str(receipt["command"]) for receipt in failing_receipts)
+        raise RuntimeError(f"Visual acceptance packet validation receipts contain failing commands: {failed_commands}")
     copy_if_exists(
         technical_receipts_path,
         STATE_ROOT / "visual_acceptance_target_validation_results_20260624.md",
@@ -908,6 +1012,7 @@ def render_all(proof_root: Path):
         packet_dir.mkdir(parents=True, exist_ok=True)
         renders = {
             "focused_surface.png": render_focused(option),
+            "annotated_focused_surface.png": render_annotated_focused(option),
             "desktop_context.png": render_desktop(option),
             "state_matrix.png": render_state_matrix(option),
         }
@@ -943,6 +1048,51 @@ def render_all(proof_root: Path):
         y += 24
     contact.save(media_root / "visual_options_contact_sheet.png")
     contact.save(packet_media / "visual_options_contact_sheet.png")
+
+    annotated_contact = Image.new("RGB", (1700, 1520), BG)
+    draw = ImageDraw.Draw(annotated_contact)
+    draw.text((24, 18), "FAM-003 Annotated Visual Options Contact Sheet", fill=TEXT, font=F18B)
+    draw.text(
+        (24, 48),
+        "Each thumbnail includes color + ID callouts. Use with ELEMENT_LEGENDS_AND_STATE_COVERAGE.md; do not rely on color alone.",
+        fill=MUTED,
+        font=F11,
+    )
+    for idx, option in enumerate(OPTIONS):
+        source = Image.open(media_root / option.id / "annotated_focused_surface.png")
+        thumb = source.resize((520, 300))
+        col = idx % 3
+        row = idx // 3
+        x = 24 + col * 550
+        y = 90 + row * 530
+        annotated_contact.paste(thumb, (x, y))
+        draw.text((x, y + 314), option.id, fill=MINT, font=F12B)
+        _wrapped(draw, (x, y + 338), option.name, fill=TEXT, font=F12B, width=500)
+        draw.text(
+            (x, y + 392),
+            "Annotated focused surface maps legend IDs to visible UI regions.",
+            fill=MUTED,
+            font=F10,
+        )
+    legend_y = 1194
+    draw.text((24, legend_y), "Callout Legend", fill=TEXT, font=F14B)
+    legend_y += 30
+    for idx, (code, desc, color) in enumerate(LEGEND_ITEMS):
+        col = idx % 3
+        row = idx // 3
+        x = 24 + col * 550
+        y = legend_y + row * 34
+        draw.rectangle((x, y + 5, x + 14, y + 19), fill=color)
+        draw.text((x + 22, y), code, fill=color, font=F10B)
+        draw.text((x + 112, y), desc, fill=MUTED, font=F10)
+    draw.text(
+        (24, 1460),
+        "Design guide only: a USER-accepted target informs implementation; it is not a guaranteed literal final screenshot.",
+        fill=MUTED,
+        font=F11,
+    )
+    annotated_contact.save(media_root / "visual_options_annotated_contact_sheet.png")
+    annotated_contact.save(packet_media / "visual_options_annotated_contact_sheet.png")
 
 
 def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
@@ -988,6 +1138,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         "dev/orin_fam003_visual_acceptance_target_validation.py",
         "dev/orin_fam003_visual_acceptance_target_packet.py",
         "Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch",
+        "Source Truth Context/Governance Proof/CURRENT_REPAIR_BOUNDED_DIFF.patch",
         "Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md",
         "Review Aids/VALIDATION_RESULTS.md",
         r"C:\Nexus USER\UTS - FAM-003.txt",
@@ -1006,7 +1157,9 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Branch-local governance hardening: This packet now applies the FAM-003 Branch-Local Visual Acceptance Target overlay. Durable repo-wide enforcement, shared settings primitives/templates, and sibling adoption remain future Governance/FAM-002/owning-FAM decisions.
 
-        USER action: Review the six Design Candidate Renders, treating A/B/C as retained references and D/E/F as new refinement candidates. Use the Visual Selection Ledger to accept/reject/combine/revise elements and decide whether one candidate or hybrid should become the Draft Branch Visual Acceptance Target after revision.
+        USER action: Review the six Design Candidate Renders, treating A/B/C as retained references and D/E/F as new refinement candidates. Start with the annotated contact sheet and annotated focused surfaces, then use the Visual Selection Ledger to accept/reject/combine/revise elements and decide whether one candidate or hybrid should become the Draft Branch Visual Acceptance Target after revision.
+
+        Visual target meaning: an accepted target is a high-fidelity guide/template for expectation alignment and implementation comparison, not a guaranteed literal final or end-state screenshot.
 
         Archive proof: The final archive checksum is tracked externally after generation. Packet files intentionally do not contain their own final archive checksum.
         """,
@@ -1021,7 +1174,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Current product gate: Live Validation Stage 1 USER-operated visual retest is still pending. This review does not accept LV, does not complete UTS, does not approve PR Readiness, and does not authorize merge, release, cleanup, sibling mutation, Governance mutation, or provider/private/cache/memory work.
 
-        Branch-local governance posture: The FAM-003 Branch-Local Visual Acceptance Target overlay is active for this packet. Design Candidate Render evidence is USER-review input only. A candidate becomes the branch comparison target only after USER selection, combination, revision, waiver, or rejection is recorded. Durable repo-wide Visual Acceptance Target enforcement remains a future Governance/FAM-002 candidate.
+        Branch-local governance posture: The FAM-003 Branch-Local Visual Acceptance Target overlay is active for this packet. Design Candidate Render evidence is USER-review input only. A candidate becomes the branch guide/template and comparison target only after USER selection, combination, revision, waiver, or rejection is recorded. It is not a guaranteed literal final screenshot. Durable repo-wide Visual Acceptance Target enforcement remains a future Governance/FAM-002 candidate.
 
         ## Options
 
@@ -1034,17 +1187,24 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         ## Render Authority
 
-        These files are `Design Candidate Render` artifacts. They are not source truth until USER selection. A `Visual Acceptance Target` becomes binding only after USER accepts it. `Implementation Match Proof` later requires actual app screenshots/video compared against the accepted target.
+        These files are `Design Candidate Render` artifacts. They are not source truth until USER selection. A `Visual Acceptance Target` becomes binding only after USER accepts it, and then only as a high-fidelity guide/template and comparison target for this branch. It is not a guaranteed literal final or end-state screenshot. `Implementation Match Proof` later requires actual app screenshots/video compared against the accepted guide/target, with any material difference explained and routed through source truth or USER approval.
 
         ## Media To Inspect
 
         - `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_annotated_contact_sheet.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/annotated_focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/annotated_focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/annotated_focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/annotated_focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/annotated_focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/focused_surface.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/annotated_focused_surface.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/desktop_context.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/desktop_context.png`
         - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/desktop_context.png`
@@ -1078,6 +1238,9 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         - Current source truth admits FAM-003 branch-local resident/tray/settings work and this Branch-Local Visual Acceptance Target overlay, but reusable global visual-target enforcement remains Governance/FAM-002 candidate-only.
         - Prior packet wording in `Review Aids/GOVERNANCE_CANDIDATE_ONLY.md` was stale after USER approved branch-local hardening; this regenerated packet supersedes that wording.
         - The 082443 packet did not include direct governance/source-truth wording proof, bounded diff proof, or actual command receipts sufficient to verify the governance-hardening claim. This packet admits and closes that as `GOV-VAT-004`.
+        - The 084608 packet made legend-to-render mapping harder than needed. This packet admits and closes that as `VIS-VAT-001` with color-coded plus text-ID callouts, annotated focused surfaces, and an annotated contact sheet.
+        - The 084608 packet could imply accepted visual targets are literal final screenshots. This packet admits and closes that as `GOV-VAT-005` by defining accepted targets as high-fidelity guides/templates and requiring later implementation-match comparison.
+        - The 084608 packet contained a failed self-validation receipt while the digest claimed pass. This packet admits and closes that as `GOV-VAT-006` by recording a pending-current-run self-check only before the packet validator runs and a final all-PASS receipt after it succeeds.
         """,
     )
 
@@ -1116,11 +1279,11 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Render authority level for all options: `Design Candidate Render`.
 
-        | Option ID | Name | Footprint / Surface | Focused Render | Desktop Context Render | State Matrix | USER Critique Prompt |
-        | --- | --- | --- | --- | --- | --- | --- |
+        | Option ID | Name | Footprint / Surface | Focused Render | Annotated Focused Render | Desktop Context Render | State Matrix | USER Critique Prompt |
+        | --- | --- | --- | --- | --- | --- | --- | --- |
         """
         + "\n".join(
-            f"| `{option.id}` | {option.name} | SETTINGS_PANEL + tray menu context | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/focused_surface.png` | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/desktop_context.png` | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/state_matrix.png` | {option.critique} |"
+            f"| `{option.id}` | {option.name} | SETTINGS_PANEL + tray menu context | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/focused_surface.png` | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/annotated_focused_surface.png` | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/desktop_context.png` | `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/state_matrix.png` | {option.critique} |"
             for option in OPTIONS
         )
         + """
@@ -1130,6 +1293,10 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         - FAM-002/UIREF own reusable visual grammar; this packet does not claim a promoted shared primitive or template exists.
         - FAM-006/FAM-007/FAM-008 surfaces remain owner-bounded dependencies, not settings-window fake categories.
         - Windows tray visibility limitations remain honest; FAM-003 cannot force third-party tray permanence.
+
+        Legend / callout use: begin with `visual_options_annotated_contact_sheet.png`; then inspect each option's `annotated_focused_surface.png` beside the clean `focused_surface.png`. Color chips and element IDs both identify the same element groups, so color alone is never required.
+
+        Visual target meaning: if USER accepts an option or hybrid, it becomes a high-fidelity guide/template and comparison target. It is not a guaranteed literal final screenshot. Actual implementation evidence must later be compared against the accepted guide/target.
         """,
     )
 
@@ -1138,22 +1305,25 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         """
         # Element Legends And State Coverage
 
-        | Element ID | Meaning | Required USER Decision Use |
-        | --- | --- | --- |
-        | `CHROME-001` | Nexus top-level window chrome | Accept/reject frame, title strip, resize affordance. |
-        | `CTRL-001` | Compact window controls | Accept/reject minimize/close treatment and hitbox. |
-        | `RAIL-001` | Main category and subcategory rail | Accept/reject rail density, icon size, hierarchy. |
-        | `NAV-001` | Tray parent category | Accept/reject parent category label and selected state. |
-        | `NAV-002` | Quick Access subcategory | Accept/reject child page placement under Tray. |
-        | `SLOT-001` | Quick-slot row | Accept/reject density and visual rhythm. |
-        | `SELECT-001` | Route selector/dropdown | Accept/reject width, list height, dark popup. |
-        | `ACTION-001` | Add / defaults / save actions | Accept/reject action placement and mass. |
-        | `STATE-001` | Saved / dirty / blocked truth text | Accept/reject state placement and copy. |
-        | `MENU-001` | Tray right-click menu | Accept/reject compact categorized menu shape. |
-        | `TOOLTIP-001` | Tray hover tooltip | Must preserve resident status tooltip mechanism. |
-        | `RESIZE-001` | Resize affordance | Accept/reject bottom-right affordance. |
+        | Element ID | Callout Color | Meaning | Required USER Decision Use | Trace Artifact |
+        | --- | --- | --- | --- | --- |
+        | `CHROME-001` | cyan chip + text ID | Nexus top-level window chrome | Accept/reject frame, title strip, resize affordance. | annotated focused surfaces |
+        | `CTRL-001` | mint chip + text ID | Compact window controls | Accept/reject minimize/close treatment and hitbox. | annotated focused surfaces |
+        | `RAIL-001` | gold chip + text ID | Main category and subcategory rail | Accept/reject rail density, icon size, hierarchy. | annotated focused surfaces |
+        | `NAV-002` | violet chip + text ID | Quick Access subcategory under Tray | Accept/reject child page placement under Tray. | annotated focused surfaces |
+        | `SLOT-001` | rose chip + text ID | Quick-slot row | Accept/reject density and visual rhythm. | annotated focused surfaces |
+        | `SELECT-001` | orange chip + text ID | Route selector/dropdown | Accept/reject width, list height, dark popup. | annotated focused surfaces |
+        | `ACTION-001` | green chip + text ID | Add / defaults / save actions | Accept/reject action placement and mass. | annotated focused surfaces |
+        | `STATE-001` | blue chip + text ID | Saved / dirty / blocked truth text | Accept/reject state placement and copy. | annotated focused surfaces and state matrix |
+        | `MENU-001` | magenta chip + text ID | Tray right-click menu | Accept/reject compact categorized menu shape. | annotated focused surfaces |
+        | `TOOLTIP-001` | lime chip + text ID | Tray hover tooltip/status channel | Must preserve resident status tooltip mechanism. | annotated focused surfaces and state matrix |
+        | `RESIZE-001` | soft-blue chip + text ID | Resize affordance | Accept/reject bottom-right affordance. | annotated focused surfaces |
 
         Required state coverage: default, hover, focus, pressed, disabled, empty/no-data, blocked/error, success/complete, dropdown-open, dirty, resized/minimum-size, tray tooltip. If a future target marks any state not applicable, it must use `NOT_APPLICABLE_WITH_REASON`.
+
+        Legend / Callout Traceability: the annotated focused surfaces and annotated contact sheet map every listed element group back to visible UI regions with both color and readable element IDs. Color is a secondary cue; the text ID is the primary trace key.
+
+        `VIS-VAT-001` closure proof: every option has a clean focused render plus an `annotated_focused_surface.png`, and the packet has `visual_options_annotated_contact_sheet.png`. The callouts use both color and readable element IDs; the validator requires these artifacts and marker text. Pixel-level confirmation still requires evidence review by Codex/USER.
         """,
     )
 
@@ -1185,9 +1355,11 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         No product/runtime UI implementation may proceed from this packet until this target is `USER_ACCEPTED` or a source-truth-governed exception is recorded.
 
+        Target meaning: the promoted target is a high-fidelity guide/template and comparison target, not a guaranteed literal final/end-state screenshot. Implementation may differ when source truth, feasibility, runtime proof, or USER-approved revision requires it, but material differences must be explained and compared in Implementation Match Proof.
+
         Required target fields before promotion: selected option(s), selected element decisions, final element map, surface purpose, footprint class, default dimensions, minimum size, resize behavior, state matrix, copy rules, spacing/density rules, button/control rules, status/error/empty rules, accepted references, UIREF obligations, accepted exceptions, source-truth conflict candidates, implementation constraints, proof requirements, implementation-match checklist, and LV gating rule.
 
-        LV gating rule: future LV or UTS cannot claim visual green for affected surfaces until actual implementation proof is compared to the USER-accepted target.
+        LV gating rule: future LV or UTS cannot claim visual green for affected surfaces until actual implementation proof is compared to the USER-accepted guide/target and material deviations are source-truth-grounded or USER-approved.
         """,
     )
 
@@ -1268,9 +1440,9 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Current FAM-003 Visual UDL status: `UDL-VIS-001` through `UDL-VIS-014` are recorded as `CLOSED_WITH_PROOF` for the latest detailed UDL packet. That remains supporting evidence only; USER LV1 retest is still pending.
 
-        This visual-target process prevents future false green by requiring design candidate renders before visible UI implementation, USER_ACCEPTED Visual Acceptance Target before implementation claims, actual render media in the packet rather than local paths only, stable element legends for USER critique, state matrix coverage before LV/UTS, and implementation-match proof against the accepted target before visual green.
+        This visual-target process prevents future false green by requiring design candidate renders before visible UI implementation, USER_ACCEPTED Visual Acceptance Target before implementation claims, actual render media in the packet rather than local paths only, stable element legends plus annotated callouts for USER critique, state matrix coverage before LV/UTS, and implementation-match proof against the accepted guide/target before visual green.
 
-        No current-owned UDL defect blocks generating this visual options packet. This packet does not erase known-bad packets, superseded LV packets, stale-output incidents, or the active LV1 retest pending posture.
+        Current branch-local visual-target defect closures: `VIS-VAT-001`, `GOV-VAT-005`, and `GOV-VAT-006` are closed only for this packet after regenerated media and final all-PASS receipts. This packet does not erase known-bad packets, superseded LV packets, stale-output incidents, or the active LV1 retest pending posture.
         """,
     )
 
@@ -1302,6 +1474,9 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         | `GOV-VAT-002` | Phase governance had strong Live Validation visual proof law but lacked an explicit branch-local Visual Acceptance Target overlay model for pre-implementation or pre-green UI/UX option packets. | Design candidates, screenshots, or helper green could be mistaken for accepted target or implementation match. | `Docs/phase_governance.md` now defines the branch-local overlay, required classifications, evidence rules, packet fields, blockers, and durable-governance routing boundary. |
         | `GOV-VAT-003` | The FAM-003 visual-target validator did not require branch-local governance hardening markers, seed-defect language, or durable-governance split language. | A packet could pass while omitting the new false-green-prevention semantics. | `dev/orin_fam003_visual_acceptance_target_validation.py` now requires those markers and this regenerated packet carries them. |
         | `GOV-VAT-004` | The 082443 governance-hardening packet was visually reviewable but did not include enough direct proof of changed governance/source-truth wording, bounded changed-file diffs, or actual command pass/fail receipts to independently verify the hardening claim. | ChatGPT/USER could only trust the Codex digest rather than packet-contained proof, creating another false-green vector for governance hardening. | This repaired packet includes `Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md`, `Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch`, changed-file snapshots, and actual command receipts in `Review Aids/VALIDATION_RESULTS.md`; `dev/orin_fam003_visual_acceptance_target_validation.py` now requires the new proof markers. |
+        | `VIS-VAT-001` | The 084608 contact sheet and legend were useful but hard to visually map back to the rendered UI without guessing. | USER review could misidentify which legend row corresponds to which visible element, weakening visual acceptance decisions. | `CLOSED_WITH_PROOF`: regenerated packet includes color-coded and text-labeled callouts on every `annotated_focused_surface.png`, plus `visual_options_annotated_contact_sheet.png`; validator requires the artifacts and callout markers. |
+        | `GOV-VAT-005` | Visual Acceptance Target wording could imply that a USER-accepted target/template is a literal guaranteed final or end-state screenshot. | Implementation could be falsely judged only by pixel identity or could overpromise final state before runtime/source-truth proof. | `CLOSED_WITH_PROOF`: phase/branch wording and packet review aids define accepted targets as high-fidelity guides/templates and comparison targets, not guaranteed literal final screenshots; Implementation Match Proof must compare actual evidence and explain deviations. |
+        | `GOV-VAT-006` | The 084608 packet-contained validation receipts recorded a failed packet validator self-check while the Codex digest claimed validation passed. | Packet proof contradicted the closeout and created a false-green risk. | `CLOSED_WITH_PROOF`: generator now marks the packet-validator self-check as `PENDING_CURRENT_RUN` only before the self-check runs, then records `FINAL_PASS_RECORDED` and raises if any final command receipt is not `PASS`; validator rejects active final receipts containing `FAIL`. |
 
         USER/ChatGPT UI findings are seed defects, not the ceiling. Codex Independent Evidence Inspection remains required before any future visual green claim. This ledger does not make the packet LV green, UTS complete, PR-ready, merge-ready, release-ready, or cleanup-ready.
         """,
@@ -1320,12 +1495,14 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
             for option in OPTIONS
             for row in (
                 f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/focused_surface.png` | Option {option.id[-1]} focused Settings + tray menu target | Design Candidate Render |",
+                f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/annotated_focused_surface.png` | Option {option.id[-1]} legend/callout traceability map | Design Candidate Render callout proof for `VIS-VAT-001` |",
                 f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/desktop_context.png` | Option {option.id[-1]} monitor footprint | Design Candidate Render |",
                 f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/state_matrix.png` | Option {option.id[-1]} state coverage | Design Candidate Render |",
             )
         )
         + f"""
         | `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png` | Cross-option comparison | Design Candidate Render |
+        | `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_annotated_contact_sheet.png` | Cross-option legend/callout map | Design Candidate Render callout proof for `VIS-VAT-001` |
         | `Source Truth Context/Current Evidence/01_default_global_settings_shell.png` | Current implementation evidence only | Existing implementation screenshot, not acceptance target |
         """,
     )
@@ -1341,12 +1518,16 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         Review file: `USER Review/FAM003_VISUAL_ACCEPTANCE_TARGET_REVIEW.md`
         Render option count: `{len(OPTIONS)}`
         Focused render count: `{len(OPTIONS)}`
+        Annotated focused render count: `{len(OPTIONS)}`
         Desktop/context render count: `{len(OPTIONS)}`
         State matrix render count: `{len(OPTIONS)}`
         Contact sheet count: `1`
+        Annotated contact sheet count: `1`
         Governance/source-truth proof ledger: `Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md`
         Governance bounded diff artifact: `Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch`
+        Current repair bounded diff artifact: `Source Truth Context/Governance Proof/CURRENT_REPAIR_BOUNDED_DIFF.patch`
         Validation command receipts: `Review Aids/VALIDATION_RESULTS.md`
+        Legend/callout proof: `Review Aids/ELEMENT_LEGENDS_AND_STATE_COVERAGE.md`
 
         Packet hygiene:
         - Stable worktree-labeled folder purged before generation: `YES`
@@ -1422,7 +1603,7 @@ Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target process and USER
 Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
 Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
 Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; durable repo-wide enforcement, shared primitives/templates, global helper/fixture gates, and sibling adoption remain future Governance/FAM-002/owning-FAM candidates.`
-Governance Proof Defect: `GOV-VAT-004 admitted and closed by packet-contained governance/source-truth snapshots, bounded hardening commit diff, changed-file snapshots, and actual command receipts.`
+Governance / Visual Proof Defects: `GOV-VAT-004, VIS-VAT-001, GOV-VAT-005, and GOV-VAT-006 admitted and closed by packet-contained source snapshots, bounded diffs, annotated callout media, guide/template wording, and final all-PASS command receipts.`
 Visual Impact Classification: `MATERIAL_UI_UX_CHANGE; EXISTING_SURFACE_LAYOUT_CHANGE; NEW_CONTROL_CLUSTER; SETTINGS_OR_IA_CHANGE; STATUS_ERROR_OR_EMPTY_STATE_CHANGE; VISUAL_SYSTEM_ADOPTION; AMBIGUOUS_VISUAL_CONTRACT; USER_REPORTED_VISUAL_FAILURE; FALSE_GREEN_VISUAL_PROOF_FAILURE.`
 Visual Options Packet: `{PACKET_ROOT}\\Review Aids\\VISUAL_OPTIONS_PACKET.md`
 Render Media Root: `{proof_root}\\render_media`
@@ -1430,6 +1611,7 @@ USER Packet Folder: `{PACKET_ROOT}`
 USER Packet ZIP Path: `{zip_path}`
 Hash Recording Model: `Final ZIP SHA256 is recorded after ZIP generation in active external state and Codex return output only; packet-internal files intentionally do not contain their own final hash.`
 Branch-Local Helper: `dev/orin_fam003_visual_acceptance_target_validation.py validates packet media, legends, ledgers, draft target, templates, external state files, and folder/ZIP parity. It is branch-local support evidence only and does not prove USER acceptance.`
+Visual Target Meaning: `A USER-accepted target is a high-fidelity guide/template and implementation comparison target, not a guaranteed literal final or end-state screenshot.`
 Governance Candidate Only: `Reusable repo-wide Visual Acceptance Target gate, global helper/fixture enforcement, and shared settings primitives/templates require separate Governance/FAM-002 approval.`
 Next Legal Phase: `USER review of the FAM-003 Visual Acceptance Target packet. If USER accepts or revises a target that differs from current implementation, route to the correct bounded repair before renewed LV1 retest. If USER accepts current-equivalent target with no implementation delta, LV1 USER-operated retest may continue from the current source-truth packet after Codex digests that decision.`
 """
@@ -1463,8 +1645,8 @@ Receipt Timestamp: `{dt.datetime.now().isoformat(timespec='seconds')}`
 Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target packet generation cleanup repair; standard USER packet lane restored.`
 Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
 Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
-Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; packet now records seed-defect, independent-evidence-inspection, USER_ACCEPTED target, and implementation-match boundaries without promoting repo-wide enforcement.`
-Governance Proof Defect: `GOV-VAT-004 closed in the regenerated packet by Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md, Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch, changed-file snapshots, and Review Aids/VALIDATION_RESULTS.md actual command receipts.`
+Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; packet now records seed-defect, independent-evidence-inspection, USER_ACCEPTED target, guide/template boundaries, legend/callout traceability, and implementation-match boundaries without promoting repo-wide enforcement.`
+Governance / Visual Proof Defects: `GOV-VAT-004, VIS-VAT-001, GOV-VAT-005, and GOV-VAT-006 closed in the regenerated packet by Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md, Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch, Source Truth Context/Governance Proof/CURRENT_REPAIR_BOUNDED_DIFF.patch, changed-file snapshots, annotated callout media, and final all-PASS validation receipts.`
 USER Packet Folder: `{PACKET_ROOT}`
 USER Packet ZIP Path: `{zip_path}`
 USER Packet ZIP SHA256: `{digest}`
@@ -1472,6 +1654,7 @@ Folder / ZIP File Count: `{folder_file_count} / {zip_file_count}`
 Packet Cleanup: `Standard C:\\Nexus USER\\FAM-003 folder regenerated from clean output; legacy stable C:\\Nexus USER\\FAM-003.zip removed if present; previous same-label timestamped ZIPs removed; retired FAM-003-Visual-Acceptance folder and ZIP artifacts removed.`
 Render Media Root: `{proof_root}\\render_media`
 Hash Recording Model: `Final ZIP SHA256 is recorded after ZIP generation in active external state and Codex return output only; packet-internal files intentionally do not contain their own final hash.`
+Visual Target Meaning: `A USER-accepted target is a high-fidelity guide/template and implementation comparison target, not a guaranteed literal final or end-state screenshot.`
 Next Legal Phase: `USER review of the FAM-003 Visual Acceptance Target packet. If USER accepts or revises a target that differs from current implementation, route to the correct bounded repair before renewed LV1 retest. If USER accepts current-equivalent target with no implementation delta, LV1 USER-operated retest may continue from the current source-truth packet after Codex digests that decision.`
 """
     markers = (
