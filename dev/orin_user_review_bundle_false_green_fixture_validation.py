@@ -105,6 +105,7 @@ def _run_fixture(
     zip_omit=None,
     validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
     external_state_files=None,
+    extra_zip_names: tuple[str, ...] = (),
 ) -> list[str]:
     with tempfile.TemporaryDirectory(prefix=f"ndai-{name}-") as temp_dir:
         review_root = Path(temp_dir)
@@ -126,6 +127,8 @@ def _run_fixture(
             bundle._current_branch_external_state_dir = lambda: external_state_dir
         try:
             _zip_packet(packet, export_zip, overrides=zip_overrides, omit=zip_omit)
+            for extra_zip_name in extra_zip_names:
+                (review_root / extra_zip_name).write_bytes(b"accepted historical placeholder")
             return validate_local_user_packet(
                 packet,
                 export_zip=export_zip,
@@ -145,6 +148,7 @@ def _assert_failure(
     zip_omit=None,
     validation_mode: str = PACKET_VALIDATION_MODE_ACTIVE_REVIEW,
     external_state_files=None,
+    extra_zip_names: tuple[str, ...] = (),
 ) -> None:
     failures = _run_fixture(
         name,
@@ -153,6 +157,7 @@ def _assert_failure(
         zip_omit=zip_omit,
         validation_mode=validation_mode,
         external_state_files=external_state_files,
+        extra_zip_names=extra_zip_names,
     )
     joined = "\n".join(failures)
     if needle not in joined:
@@ -165,12 +170,14 @@ def _assert_success(
     *,
     validation_mode: str,
     external_state_files,
+    extra_zip_names: tuple[str, ...] = (),
 ) -> None:
     failures = _run_fixture(
         name,
         mutate,
         validation_mode=validation_mode,
         external_state_files=external_state_files,
+        extra_zip_names=extra_zip_names,
     )
     if failures:
         raise AssertionError(f"{name} failed unexpectedly:\n" + "\n".join(failures))
@@ -231,6 +238,58 @@ def _fresh_live_state(head: str):
                 ]
             ),
             "branch_plan.md": f"Source Repo HEAD: `{head}`\nPlanning Snapshot: `packet generation context`\n",
+        }
+    return _files
+
+
+def _snapshot_context_with_historical_zip(packet: Path, export_zip: Path, *, head: str, historical_zip_name: str) -> None:
+    historical_zip = export_zip.with_name(historical_zip_name)
+    (packet / "Source Truth Context" / "current_external_branch_state.md").write_text(
+        "\n".join(
+            [
+                f"Source Repo HEAD: `{head}`",
+                f"USER Review ZIP: `{export_zip}`",
+                "Packet Reviewability State: `Reviewable evidence packet`",
+                f"Accepted Historical Packet: `{historical_zip}`",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    (packet / "Source Truth Context" / "current_external_branch_plan.md").write_text(
+        "\n".join(
+            [
+                f"Source Repo HEAD: `{head}`",
+                "Planning Snapshot: `packet generation context`",
+                f"Accepted Historical Packet: `{historical_zip}`",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+
+
+def _fresh_live_state_with_historical_zip(head: str, historical_zip_name: str):
+    def _files(_packet: Path, export_zip: Path) -> dict[str, str]:
+        historical_zip = export_zip.with_name(historical_zip_name)
+        return {
+            "branch_state.md": "\n".join(
+                [
+                    f"Source Repo HEAD: `{head}`",
+                    f"USER Review ZIP: `{export_zip}`",
+                    "Packet Reviewability State: `Reviewable evidence packet`",
+                    f"Accepted Historical Packet: `{historical_zip}`",
+                    "",
+                ]
+            ),
+            "branch_plan.md": "\n".join(
+                [
+                    f"Source Repo HEAD: `{head}`",
+                    "Planning Snapshot: `packet generation context`",
+                    f"Accepted Historical Packet: `{historical_zip}`",
+                    "",
+                ]
+            ),
         }
     return _files
 
@@ -389,6 +448,27 @@ def main() -> int:
         lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=live_head),
         validation_mode=PACKET_VALIDATION_MODE_NEXT_GATE,
         external_state_files=_fresh_live_state(live_head),
+    )
+    historical_zip_name = "FAM-007-20260623-123429.zip"
+    _assert_success(
+        "next-gate-preserves-recorded-accepted-historical-same-label-zip",
+        lambda packet, export_zip: _snapshot_context_with_historical_zip(
+            packet,
+            export_zip,
+            head=live_head,
+            historical_zip_name=historical_zip_name,
+        ),
+        validation_mode=PACKET_VALIDATION_MODE_NEXT_GATE,
+        external_state_files=_fresh_live_state_with_historical_zip(live_head, historical_zip_name),
+        extra_zip_names=(historical_zip_name,),
+    )
+    _assert_failure(
+        "next-gate-unrecorded-same-label-zip-still-fails",
+        "Stale same-label USER packet ZIP remains",
+        lambda packet, export_zip: _snapshot_context(packet, export_zip, state_head=live_head),
+        validation_mode=PACKET_VALIDATION_MODE_NEXT_GATE,
+        external_state_files=_fresh_live_state(live_head),
+        extra_zip_names=(historical_zip_name,),
     )
     _assert_failure(
         "stale-source-truth-plan-head",
