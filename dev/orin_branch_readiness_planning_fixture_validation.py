@@ -1879,7 +1879,11 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "Product Experience Contract Nonconformance Unresolved",
     )
 
-    if "issue candidate" in normalized:
+    issue_candidate_disposition_required = (
+        has_real_issue_candidate_row(issue_candidate_rows)
+        or "none" not in previous_candidates.casefold()
+    )
+    if issue_candidate_disposition_required:
         issue_candidate_disposition = governance._extract_marker_value(
             text, "Issue Candidate Disposition:"
         )
@@ -1896,7 +1900,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "user review pending" in normalized_decision_table
             or "pending user review" in normalized_decision_table
             or "pending user" in normalized_decision_table
-            or "issue candidate" in normalized_decision_table
             or "user review pending" in normalized_issue_candidate_disposition
             or "pending user review" in normalized_issue_candidate_disposition
             or "pending user" in normalized_issue_candidate_disposition,
