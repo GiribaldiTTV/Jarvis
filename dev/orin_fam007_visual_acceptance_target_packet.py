@@ -122,6 +122,20 @@ class RenderOption:
     description: str
 
 
+@dataclass(frozen=True)
+class AnnotationSpec:
+    option_id: str
+    annotation_id: str
+    element_type: str
+    target_label: str
+    region: tuple[int, int, int, int]
+    marker_style: str
+    color_name: str
+    color: tuple[int, int, int]
+    non_color_cue: str
+    purpose: str
+
+
 def _stamp() -> str:
     return datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -469,10 +483,10 @@ def _update_visual_packet_udl_rows(udl_text: str, zip_path: Path) -> str:
     row_019 = f"""## F7-UDL-019 Visual Target Legend Mapping / Annotation Bounds - 2026-06-24
 
 Status: `CLOSED_WITH_PROOF`
-Finding: `The branch-local Visual Acceptance Target packet generator could create visual legends that were hard to map to exact render regions, and focused annotated renders could clip or truncate callout labels outside the image canvas.`
-Required Disposition: `Future Visual Acceptance Target packets must include clean and annotated renders, stable annotation IDs, color plus non-color cues, an annotation manifest mapping marker ID to element ID and visual region, in-canvas annotation labels, in-bounds target boxes, in-bounds label boxes, in-bounds leader lines, and template-not-endstate wording.`
-Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now renders annotated images with a right-side in-canvas annotation key panel, keeps clean renders beside annotated renders, records label boxes and leader lines in ANNOTATION_MANIFEST.md, and validates annotation geometry plus visible marker label pixels for every annotated render.`
-Proof: `Current Visual Acceptance Target packet validation fails if any annotation target, label box, or leader line extends outside the image canvas, or if the marker label area does not contain visible text pixels.`
+Finding: `The branch-local Visual Acceptance Target packet generator could create visual legends that were hard to map to exact render regions, and focused annotated renders could clip or truncate callout labels outside the image canvas. The prior six broad callouts were still too generic for USER feedback such as "change D-ROW-01B" or "move D-BTN-03."`
+Required Disposition: `Future Visual Acceptance Target packets must include clean and annotated focused render pairs, option-specific group-level and element-level annotation IDs, color plus non-color cues, an annotation manifest mapping each visible ID to element/group type, target label, marker style, visual region, in-canvas label box, leader line, and purpose, plus template-not-endstate wording.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now renders annotated images with option-specific IDs such as A-STATUS-01, D-CARD-02, D-ROW-02B, and D-BTN-03; keeps clean focused renders beside annotated focused renders; records element/group type, target label, marker style, color cue, non-color cue, label boxes, and leader lines in ANNOTATION_MANIFEST.md; and validates annotation geometry, visible ID pixels, group/element coverage, and clean+annotated pairing for every option.`
+Proof: `Current Visual Acceptance Target packet validation fails if any annotation target, label box, or leader line extends outside the image canvas, if a visible ID label cannot be detected, if an option lacks group-level or element-level IDs, if Option D lacks row-level IDs, or if any option lacks the primary clean focused plus annotated focused render pair.`
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This repair does not restore or require a second historical packet ZIP and does not approve H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling mutation, imports, or v1.8.0 work.`
 """
@@ -499,10 +513,10 @@ No-Fake-Preservation Rule: `This repair does not approve H1/LV, USER UTS, PR Rea
     row_023 = f"""## F7-UDL-023 Option D Row-Grammar Visual Target Candidate - 2026-06-24
 
 Status: `CLOSED_WITH_PROOF`
-Finding: `The prior Visual Acceptance Target packet presented Option A, Option B, and Option C without a distinct hybrid target that carried the USER-approved old AI Control Center row grammar as a reference while preserving the current AI Dashboard / AI Control Center doorway model. That created a risk that USER would have to choose between correct structure and the row-based product feel they explicitly wanted.`
-Required Disposition: `Current FAM-007 visual target packets must present Option D as a branch-local hybrid candidate: Option A source-truth product structure and doorway labels, Option B compact grouping rhythm, accepted old AI Control Center row grammar as a visual grammar reference, and Option C as rejected-risk boundary only. Option D is still a candidate render, not implementation proof or a product/runtime mutation.`
-Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Option D clean focused, annotated focused, clean desktop/context, and annotated desktop/context renders; maps Option D through image relevance, annotation, artifact-to-surface, state, rejected-pattern, and primary USER review text; and validates all four options as the curated final-packet image set.`
-Proof: `Current Visual Acceptance Target packet validation fails if Option D, its annotated markers, its row-grammar wording, or its curated render media are missing from the generated folder or ZIP.`
+Finding: `The prior Visual Acceptance Target packet presented Option A, Option B, and Option C without a distinct hybrid target that carried the USER-approved old AI Control Center row grammar as a reference while preserving the current AI Dashboard / AI Control Center doorway model. The first Option D repair added the hybrid target, but its annotation overlay was still too broad to support precise USER feedback about rows, cards, buttons, and status strips.`
+Required Disposition: `Current FAM-007 visual target packets must present Option D as a branch-local hybrid candidate: Option A source-truth product structure and doorway labels, Option B compact grouping rhythm, accepted old AI Control Center row grammar as a visual grammar reference, and Option C as rejected-risk boundary only. Option D annotations must expose row-level, card-level, button-level, status-strip, header, and control-cluster review IDs. Option D is still a candidate render, not implementation proof or a product/runtime mutation.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Option D clean focused, annotated focused, clean desktop/context, and annotated desktop/context renders with IDs such as D-HEADER-01, D-STATUS-01, D-CARD-01, D-ROW-01A, D-ROW-02B, D-BTN-03; maps those IDs through image relevance, annotation, artifact-to-surface, state, rejected-pattern, and primary USER review text; and validates all four options as the curated final-packet image set.`
+Proof: `Current Visual Acceptance Target packet validation fails if Option D, its row-level/card-level/button-level/status-level IDs, its row-grammar wording, or its curated render media are missing from the generated folder or ZIP.`
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This repair does not approve runtime UI implementation, H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling/Governance/FAM-002/UIREF mutation, imports, or v1.8.0 work.`
 """
@@ -699,69 +713,154 @@ def _draw_card(draw: ImageDraw.ImageDraw, box: tuple[int, int, int, int], title:
     draw.text((x2 - 166, button_y + 8), "OPEN SURFACE", fill=(226, 245, 249), font=_font(11))
 
 
-ANNOTATION_ELEMENTS = [
-    ("CHROME-001", "cyan box", "NDAI custom window frame / shell"),
-    ("CTRL-001", "yellow circle", "compact window control cluster"),
-    ("TITLE-001", "magenta bracket", "title strip and subtitle copy"),
-    ("PANEL-001", "green box", "category doorway card or panel body"),
-    ("ACTION-001", "amber arrow", "primary open/action button"),
-    ("STATUS-001", "blue bracket", "compact AI/provider/trust status"),
+ANNOTATION_COLOR_PALETTE = [
+    ("cyan", (80, 218, 238)),
+    ("yellow", (236, 202, 89)),
+    ("magenta", (230, 112, 225)),
+    ("green", (92, 220, 156)),
+    ("amber", (242, 166, 80)),
+    ("blue", (105, 164, 255)),
+    ("mint", (120, 234, 206)),
+    ("white", (232, 246, 249)),
 ]
 
-ANNOTATION_LABEL_PANEL_WIDTH = 260
-ANNOTATION_LABEL_BOX_WIDTH = 216
-ANNOTATION_LABEL_BOX_HEIGHT = 34
+ANNOTATION_LABEL_PANEL_WIDTH = 360
+ANNOTATION_LABEL_BOX_WIDTH = 304
+ANNOTATION_LABEL_BOX_HEIGHT = 28
 
 
-def _annotation_targets(width: int, height: int, *, desktop: bool) -> dict[str, tuple[int, int, int, int]]:
-    if desktop and height >= 930:
-        x, y, win_w, win_h = 820, 70, 720, 690
-        return {
-            "CHROME-001": (x, y, x + win_w, y + win_h),
-            "CTRL-001": (x + win_w - 112, y + 26, x + win_w - 28, y + 70),
-            "TITLE-001": (x + 38, y + 30, x + 500, y + 158),
-            "PANEL-001": (x + 28, y + 178, x + win_w - 28, y + 616),
-            "ACTION-001": (x + win_w - 220, y + 272, x + win_w - 44, y + 642),
-            "STATUS-001": (x + 38, y + 116, x + 440, y + 160),
-        }
-    if not desktop and width >= 800 and height >= 820:
-        x, y, win_w, win_h = 48, 40, 720, 690
-        return {
-            "CHROME-001": (x, y, x + win_w, y + win_h),
-            "CTRL-001": (x + win_w - 112, y + 26, x + win_w - 28, y + 70),
-            "TITLE-001": (x + 38, y + 30, x + 500, y + 158),
-            "PANEL-001": (x + 28, y + 178, x + win_w - 28, y + 616),
-            "ACTION-001": (x + win_w - 220, y + 272, x + win_w - 44, y + 642),
-            "STATUS-001": (x + 38, y + 116, x + 440, y + 160),
-        }
-    if not desktop and width < 700:
-        x, y, win_w, win_h = 20, 20, max(360, width - 40), max(360, height - 40)
-        return {
-            "CHROME-001": (x, y, x + win_w, y + win_h),
-            "CTRL-001": (max(x + win_w - 124, x + 20), y + 20, x + win_w - 24, y + 66),
-            "TITLE-001": (x + 24, y + 26, min(x + win_w - 120, x + 400), y + 116),
-            "PANEL-001": (x + 24, y + 140, x + win_w - 24, min(y + 340, y + win_h - 116)),
-            "ACTION-001": (max(x + win_w - 208, x + 80), y + 248, x + win_w - 28, min(y + 430, y + win_h - 76)),
-            "STATUS-001": (x + 24, max(y + win_h - 118, y + 300), x + win_w - 24, y + win_h - 20),
-        }
-    if desktop:
-        x, y, win_w, win_h = 850, 82, 650, 620
-    else:
-        x, y, win_w, win_h = 48, 48, 650, 620
-    return {
-        "CHROME-001": (x, y, x + win_w, y + win_h),
-        "CTRL-001": (x + win_w - 136, y + 32, x + win_w - 38, y + 76),
-        "TITLE-001": (x + 40, y + 36, x + 430, y + 126),
-        "PANEL-001": (x + 30, y + 168, x + win_w - 30, y + 502),
-        "ACTION-001": (x + win_w - 220, y + 270, x + win_w - 44, y + 486),
-        "STATUS-001": (x + 30, y + 510, x + win_w - 30, y + 674),
-    }
+def _option_letter(option_id: str) -> str:
+    return option_id.split("-")[-1]
+
+
+def _clip_box(box: tuple[int, int, int, int], width: int, height: int) -> tuple[int, int, int, int]:
+    x1, y1, x2, y2 = box
+    return (
+        max(0, min(width - 2, x1)),
+        max(0, min(height - 2, y1)),
+        max(1, min(width, x2)),
+        max(1, min(height, y2)),
+    )
+
+
+def _offset_box(box: tuple[int, int, int, int], x: int, y: int) -> tuple[int, int, int, int]:
+    return (box[0] + x, box[1] + y, box[2] + x, box[3] + y)
+
+
+def _window_geometry(option_id: str, width: int, height: int, *, desktop: bool) -> tuple[int, int, int, int]:
+    if option_id == "OPTION-A":
+        if desktop:
+            return (2670, 78, 560, 560)
+        return (0, 0, 570, 610)
+    if option_id == "OPTION-D":
+        return (820, 70, 720, 690) if desktop else (48, 40, 720, 690)
+    return (850, 82, 650, 620) if desktop else (48, 48, 650, 620)
+
+
+def _annotation_spec(
+    option_id: str,
+    suffix: str,
+    element_type: str,
+    target_label: str,
+    region: tuple[int, int, int, int],
+    marker_style: str,
+    color_index: int,
+    purpose: str,
+) -> AnnotationSpec:
+    color_name, color = ANNOTATION_COLOR_PALETTE[color_index % len(ANNOTATION_COLOR_PALETTE)]
+    return AnnotationSpec(
+        option_id=option_id,
+        annotation_id=f"{_option_letter(option_id)}-{suffix}",
+        element_type=element_type,
+        target_label=target_label,
+        region=region,
+        marker_style=marker_style,
+        color_name=color_name,
+        color=color,
+        non_color_cue=f"text ID plus {marker_style} marker plus leader line",
+        purpose=purpose,
+    )
+
+
+def _generic_option_specs(option_id: str, width: int, height: int, *, desktop: bool) -> list[AnnotationSpec]:
+    x, y, win_w, win_h = _window_geometry(option_id, width, height, desktop=desktop)
+    specs = [
+        ("HEADER-01", "group", "Title/header group", (x + 26, y + 24, x + win_w - 26, y + 128), "bracket", 2, "Identifies the title, subtitle, and top visual hierarchy."),
+        ("CTRL-01", "element", "Window control cluster", (x + win_w - 128, y + 38, x + win_w - 46, y + 68), "circle", 1, "Identifies compact window-level controls."),
+        ("CARD-01", "group", "First category card", (x + 34, y + 174, x + win_w - 34, y + 324), "box", 0, "Identifies the first doorway/card group."),
+        ("BTN-01", "element", "First card open action", (x + win_w - 220, y + 274, x + win_w - 58, y + 304), "arrow", 4, "Identifies the button/action in the first card."),
+        ("CARD-02", "group", "Second category card", (x + 34, y + 346, x + win_w - 34, y + 496), "box", 3, "Identifies the second doorway/card group."),
+        ("BTN-02", "element", "Second card open action", (x + win_w - 220, y + 446, x + win_w - 58, y + 476), "arrow", 5, "Identifies the button/action in the second card."),
+        ("CARD-03", "group", "Status / risk comparator card", (x + 34, y + 518, x + win_w - 34, y + 668), "box", 6, "Identifies the third card/status group."),
+        ("BTN-03", "element", "Third card open action", (x + win_w - 220, y + 618, x + win_w - 58, y + 648), "arrow", 7, "Identifies the button/action in the third card."),
+    ]
+    return [
+        _annotation_spec(option_id, suffix, element_type, label, _clip_box(region, width, height), style, color_index, purpose)
+        for suffix, element_type, label, region, style, color_index, purpose in specs
+    ]
+
+
+def _option_a_specs(width: int, height: int, *, desktop: bool) -> list[AnnotationSpec]:
+    x, y, _win_w, _win_h = _window_geometry("OPTION-A", width, height, desktop=desktop)
+    base_specs = [
+        ("HEADER-01", "group", "AI Dashboard header", (14, 14, 555, 154), "bracket", 2, "Identifies the current implementation title/header group."),
+        ("CTRL-01", "element", "Window control cluster", (493, 16, 553, 46), "circle", 1, "Identifies the current implementation window controls."),
+        ("STATUS-01", "group", "Global AI status strip", (25, 108, 381, 140), "bracket", 5, "Identifies the compact AI / status / provider strip."),
+        ("CARD-01", "group", "Control Center card", (24, 172, 538, 306), "box", 0, "Identifies the current Control Center doorway card."),
+        ("BTN-01", "element", "Open Control Center button", (355, 264, 528, 296), "arrow", 4, "Identifies the first doorway open action."),
+        ("CARD-02", "group", "Diagnostics card", (24, 312, 538, 445), "box", 3, "Identifies the current Diagnostics doorway card."),
+        ("BTN-02", "element", "Open Diagnostics button", (382, 404, 528, 436), "arrow", 5, "Identifies the second doorway open action."),
+        ("CARD-03", "group", "Capabilities card", (24, 453, 538, 586), "box", 6, "Identifies the current Capabilities doorway card."),
+        ("BTN-03", "element", "Open Capabilities button", (381, 546, 528, 577), "arrow", 7, "Identifies the third doorway open action."),
+        ("SCROLL-01", "element", "Scrollable content rail", (543, 172, 554, 577), "bracket", 1, "Identifies the scrollbar/overflow affordance."),
+    ]
+    return [
+        _annotation_spec("OPTION-A", suffix, element_type, label, _clip_box(_offset_box(region, x, y), width, height), style, color_index, purpose)
+        for suffix, element_type, label, region, style, color_index, purpose in base_specs
+    ]
+
+
+def _option_d_specs(width: int, height: int, *, desktop: bool) -> list[AnnotationSpec]:
+    x, y, win_w, _win_h = _window_geometry("OPTION-D", width, height, desktop=desktop)
+    card_x1 = x + 28
+    card_x2 = x + win_w - 28
+    specs = [
+        ("HEADER-01", "group", "AI Dashboard header", (x + 18, y + 18, x + win_w - 18, y + 162), "bracket", 2, "Identifies the hybrid target title/header group."),
+        ("CTRL-01", "element", "Window control cluster", (x + win_w - 96, y + 28, x + win_w - 28, y + 62), "circle", 1, "Identifies compact window-level controls."),
+        ("STATUS-01", "group", "AI / ORIN status strip", (x + 42, y + 122, x + 440, y + 158), "bracket", 5, "Identifies the compact AI / ORIN / provider strip."),
+        ("CARD-01", "group", "AI Status & Trust card", (card_x1, y + 182, card_x2, y + 346), "box", 0, "Identifies the first grouped doorway card."),
+        ("ROW-01A", "element", "AI state row", (card_x1 + 22, y + 252, card_x2 - 22, y + 274), "bracket", 6, "Identifies row 1 in card 01."),
+        ("ROW-01B", "element", "Provider row", (card_x1 + 22, y + 279, card_x2 - 22, y + 301), "bracket", 6, "Identifies row 2 in card 01."),
+        ("ROW-01C", "element", "Visible data row", (card_x1 + 22, y + 306, card_x2 - 22, y + 328), "bracket", 6, "Identifies row 3 in card 01."),
+        ("BTN-01", "element", "Open Control Center button", (card_x2 - 180, y + 304, card_x2 - 20, y + 334), "arrow", 4, "Identifies the first doorway open action."),
+        ("CARD-02", "group", "Readiness & Diagnostics card", (card_x1, y + 362, card_x2, y + 526), "box", 3, "Identifies the second grouped doorway card."),
+        ("ROW-02A", "element", "Local check row", (card_x1 + 22, y + 432, card_x2 - 22, y + 454), "bracket", 6, "Identifies row 1 in card 02."),
+        ("ROW-02B", "element", "Report row", (card_x1 + 22, y + 459, card_x2 - 22, y + 481), "bracket", 6, "Identifies row 2 in card 02."),
+        ("ROW-02C", "element", "Prompt/data row", (card_x1 + 22, y + 486, card_x2 - 22, y + 508), "bracket", 6, "Identifies row 3 in card 02."),
+        ("BTN-02", "element", "Open Diagnostics button", (card_x2 - 160, y + 484, card_x2 - 20, y + 514), "arrow", 5, "Identifies the second doorway open action."),
+        ("CARD-03", "group", "Capabilities & Maintenance card", (card_x1, y + 542, card_x2, y + 686), "box", 7, "Identifies the third grouped doorway card."),
+        ("ROW-03A", "element", "Capability packs row", (card_x1 + 22, y + 612, card_x2 - 22, y + 634), "bracket", 6, "Identifies row 1 in card 03."),
+        ("ROW-03B", "element", "Updates row", (card_x1 + 22, y + 639, card_x2 - 22, y + 661), "bracket", 6, "Identifies row 2 in card 03."),
+        ("BTN-03", "element", "Open Capabilities button", (card_x2 - 164, y + 644, card_x2 - 20, y + 674), "arrow", 4, "Identifies the third doorway open action."),
+    ]
+    return [
+        _annotation_spec("OPTION-D", suffix, element_type, label, _clip_box(region, width, height), style, color_index, purpose)
+        for suffix, element_type, label, region, style, color_index, purpose in specs
+    ]
+
+
+def _annotation_specs(option_id: str, width: int, height: int, *, desktop: bool) -> list[AnnotationSpec]:
+    if option_id == "OPTION-A":
+        return _option_a_specs(width, height, desktop=desktop)
+    if option_id == "OPTION-D":
+        return _option_d_specs(width, height, desktop=desktop)
+    return _generic_option_specs(option_id, width, height, desktop=desktop)
 
 
 def _callout_geometry(target: tuple[int, int, int, int], index: int, canvas_width: int) -> dict[str, tuple[int, ...]]:
     x1, y1, x2, y2 = target
-    label_x = canvas_width - ANNOTATION_LABEL_PANEL_WIDTH + 20
-    label_y = 64 + (index - 1) * 50
+    label_x = canvas_width - ANNOTATION_LABEL_PANEL_WIDTH + 18
+    label_y = 58 + (index - 1) * 42
     label_box = (
         label_x,
         label_y,
@@ -785,37 +884,38 @@ def _draw_callout(
     canvas_width: int,
 ) -> dict[str, tuple[int, ...]]:
     x1, y1, x2, y2 = target
-    draw.rounded_rectangle(target, radius=12, outline=color, width=4)
+    if shape == "circle":
+        draw.ellipse(target, outline=color, width=3)
+    elif shape == "bracket":
+        draw.line((x1, y1, x1, y2), fill=color, width=3)
+        draw.line((x1, y1, min(x1 + 28, x2), y1), fill=color, width=3)
+        draw.line((x1, y2, min(x1 + 28, x2), y2), fill=color, width=3)
+    elif shape == "arrow":
+        draw.rounded_rectangle(target, radius=12, outline=color, width=3)
+        draw.polygon([(x1 - 8, y1 + (y2 - y1) // 2), (x1 + 8, y1 + 5), (x1 + 8, y2 - 5)], fill=color)
+    else:
+        draw.rounded_rectangle(target, radius=12, outline=color, width=3)
     geometry = _callout_geometry(target, index, canvas_width)
     label_box = geometry["label_box"]
     leader_line = geometry["leader_line"]
     label_x, label_y, _, _ = label_box
-    draw.line(leader_line, fill=color, width=3)
-    draw.rounded_rectangle(label_box, radius=10, fill=(1, 14, 23), outline=color, width=3)
+    draw.line(leader_line, fill=color, width=2)
+    draw.rounded_rectangle(label_box, radius=8, fill=(1, 14, 23), outline=color, width=2)
     if shape == "circle":
-        draw.ellipse((label_x + 7, label_y + 7, label_x + 21, label_y + 21), outline=color, width=3)
+        draw.ellipse((label_x + 7, label_y + 7, label_x + 21, label_y + 21), outline=color, width=2)
     elif shape == "bracket":
-        draw.line((label_x + 8, label_y + 7, label_x + 8, label_y + 21), fill=color, width=3)
-        draw.line((label_x + 8, label_y + 7, label_x + 20, label_y + 7), fill=color, width=3)
-        draw.line((label_x + 8, label_y + 21, label_x + 20, label_y + 21), fill=color, width=3)
+        draw.line((label_x + 8, label_y + 7, label_x + 8, label_y + 21), fill=color, width=2)
+        draw.line((label_x + 8, label_y + 7, label_x + 20, label_y + 7), fill=color, width=2)
+        draw.line((label_x + 8, label_y + 21, label_x + 20, label_y + 21), fill=color, width=2)
     elif shape == "arrow":
         draw.polygon([(label_x + 8, label_y + 14), (label_x + 22, label_y + 7), (label_x + 22, label_y + 21)], fill=color)
     else:
-        draw.rectangle((label_x + 7, label_y + 7, label_x + 21, label_y + 21), outline=color, width=3)
-    draw.text((label_x + 28, label_y + 8), label, fill=(238, 248, 252), font=_font(10))
+        draw.rectangle((label_x + 7, label_y + 7, label_x + 21, label_y + 21), outline=color, width=2)
+    draw.text((label_x + 28, label_y + 7), label, fill=(238, 248, 252), font=_font(10))
     return geometry
 
 
 def _annotate_render(source: Path, target: Path, option_id: str, *, desktop: bool) -> list[dict[str, str]]:
-    colors = [
-        (80, 218, 238),
-        (236, 202, 89),
-        (230, 112, 225),
-        (92, 220, 156),
-        (242, 166, 80),
-        (105, 164, 255),
-    ]
-    shapes = ["box", "circle", "bracket", "box", "arrow", "bracket"]
     with Image.open(source) as image:
         base = image.convert("RGB")
     annotated = Image.new("RGB", (base.width + ANNOTATION_LABEL_PANEL_WIDTH, base.height), (0, 5, 8))
@@ -825,24 +925,24 @@ def _annotate_render(source: Path, target: Path, option_id: str, *, desktop: boo
     draw.rectangle((panel_x, 0, annotated.width, annotated.height), fill=(2, 16, 25))
     draw.line((panel_x, 0, panel_x, annotated.height), fill=(59, 161, 190), width=2)
     draw.text((panel_x + 20, 22), "ANNOTATION KEY", fill=(104, 225, 239), font=_font(13))
-    draw.text((panel_x + 20, 40), "IDs stay in-canvas", fill=(158, 205, 213), font=_font(11))
-    targets = _annotation_targets(base.width, base.height, desktop=desktop)
+    draw.text((panel_x + 20, 40), "Use IDs in feedback", fill=(158, 205, 213), font=_font(11))
+    specs = _annotation_specs(option_id, base.width, base.height, desktop=desktop)
     rows: list[dict[str, str]] = []
-    for index, (element_id, cue, purpose) in enumerate(ANNOTATION_ELEMENTS, start=1):
-        marker_id = f"{option_id}-A{index:02d}"
-        target_box = targets[element_id]
-        color = colors[index - 1]
-        geometry = _draw_callout(draw, marker_id, target_box, index, color=color, shape=shapes[index - 1], canvas_width=annotated.width)
+    for index, spec in enumerate(specs, start=1):
+        geometry = _draw_callout(draw, spec.annotation_id, spec.region, index, color=spec.color, shape=spec.marker_style, canvas_width=annotated.width)
         rows.append(
             {
-                "option": option_id,
-                "annotation": marker_id,
-                "element": element_id,
-                "cue": cue,
-                "region": f"{target_box[0]},{target_box[1]},{target_box[2]},{target_box[3]}",
+                "option": spec.option_id,
+                "annotation": spec.annotation_id,
+                "element_type": spec.element_type,
+                "target_label": spec.target_label,
+                "region": f"{spec.region[0]},{spec.region[1]},{spec.region[2]},{spec.region[3]}",
+                "marker_style": spec.marker_style,
+                "color_cue": spec.color_name,
+                "non_color_cue": spec.non_color_cue,
                 "label_box": ",".join(str(value) for value in geometry["label_box"]),
                 "leader_line": ",".join(str(value) for value in geometry["leader_line"]),
-                "purpose": purpose,
+                "purpose": spec.purpose,
                 "file": str(target.relative_to(PACKET_DIR)).replace("\\", "/"),
             }
         )
@@ -868,9 +968,9 @@ def _draw_option_mockup(path: Path, option: str, title: str, subtitle: str, desk
     draw.rounded_rectangle((x + win_w - 128, y + 38, x + win_w - 46, y + 68), radius=15, fill=(4, 28, 40), outline=(79, 201, 225), width=2)
     draw.text((x + win_w - 102, y + 46), "-  x", fill=(230, 247, 250), font=_font(13))
     draw.text((x + 36, y + 146), f"{option} ELEMENT LEGEND", fill=(108, 225, 236), font=_font(12))
-    _draw_card(draw, (x + 34, y + 174, x + win_w - 34, y + 324), "CHROME-001 / TITLE-001", ["NDAI chrome, compact controls, dashboard title group"])
-    _draw_card(draw, (x + 34, y + 346, x + win_w - 34, y + 496), "PANEL-001 / ACTION-001", ["Category doorway card, one primary open action, compact truth copy"])
-    _draw_card(draw, (x + 34, y + 518, x + win_w - 34, y + 668), "STATUS-001 / ERROR-001", ["Provider-visible data none, blocked provider/model/cache/memory paths"])
+    _draw_card(draw, (x + 34, y + 174, x + win_w - 34, y + 324), "Dashboard Header", ["NDAI chrome, compact controls, dashboard title group"])
+    _draw_card(draw, (x + 34, y + 346, x + win_w - 34, y + 496), "Category Doorway", ["One primary open action with compact truth copy"])
+    _draw_card(draw, (x + 34, y + 518, x + win_w - 34, y + 668), "Status Boundary", ["Provider-visible data none, blocked provider/model/cache/memory paths"])
     if desktop:
         draw.rectangle((0, height - 62, width, height), fill=(0, 10, 14))
         draw.text((24, height - 42), "Full desktop/context render: monitor-space footprint and surrounding UI relationship", fill=(130, 190, 198), font=_font(15))
@@ -1128,8 +1228,8 @@ def _decision_options_table(options: list[RenderOption]) -> str:
 
 def _annotation_manifest_table(options: list[RenderOption]) -> str:
     rows = [
-        "| Option ID | Annotation ID | Element ID | Color + non-color cue | Visual region | Label box | Leader line | Purpose | Annotated file |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| Option ID | Annotation ID | Element / group type | Target label / name | Visual region | Marker style | Color cue | Non-color cue | Label box | Leader line | Purpose | Annotated file |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for option in options:
         for image_path, desktop in (
@@ -1139,15 +1239,14 @@ def _annotation_manifest_table(options: list[RenderOption]) -> str:
             target_path = PACKET_DIR / image_path
             with Image.open(target_path) as image:
                 base_width = image.size[0] - ANNOTATION_LABEL_PANEL_WIDTH
-                targets = _annotation_targets(base_width, image.size[1], desktop=desktop)
-            for index, (element_id, cue, purpose) in enumerate(ANNOTATION_ELEMENTS, start=1):
-                marker_id = f"{option.option_id}-A{index:02d}"
-                box = targets[element_id]
+                specs = _annotation_specs(option.option_id, base_width, image.size[1], desktop=desktop)
+            for index, spec in enumerate(specs, start=1):
+                box = spec.region
                 geometry = _callout_geometry(box, index, base_width + ANNOTATION_LABEL_PANEL_WIDTH)
                 label_box = geometry["label_box"]
                 leader_line = geometry["leader_line"]
                 rows.append(
-                    f"| `{option.option_id}` | `{marker_id}` | `{element_id}` | {cue}; visible label `{marker_id}` plus outline/callout line | `{box[0]},{box[1]},{box[2]},{box[3]}` | `{label_box[0]},{label_box[1]},{label_box[2]},{label_box[3]}` | `{leader_line[0]},{leader_line[1]},{leader_line[2]},{leader_line[3]}` | {purpose} | `{image_path}` |"
+                    f"| `{option.option_id}` | `{spec.annotation_id}` | `{spec.element_type}` | {spec.target_label} | `{box[0]},{box[1]},{box[2]},{box[3]}` | `{spec.marker_style}` | `{spec.color_name}` | {spec.non_color_cue} | `{label_box[0]},{label_box[1]},{label_box[2]},{label_box[3]}` | `{leader_line[0]},{leader_line[1]},{leader_line[2]},{leader_line[3]}` | {spec.purpose} | `{image_path}` |"
                 )
     return "\n".join(rows)
 
@@ -1201,7 +1300,7 @@ def _artifact_to_surface_ledger_table(options: list[RenderOption]) -> str:
             (option.annotated_desktop_media, "candidate annotated desktop/context render", "context-level element-group trace and callout mapping"),
         ):
             rows.append(
-                f"| `{artifact}` | `{artifact_class}` | AI Dashboard / AI Control Center visual-target guide | `CHROME-001`, `CTRL-001`, `TITLE-001`, `PANEL-001`, `ACTION-001`, `STATUS-001` | `{source_paths}` | UIREF-001, UIREF-002, UIREF-003, UIREF-004, UIREF-005, UIREF-006 | {proof_target}; {option_note} | Later implementation-match proof must compare actual app screenshots/video against this artifact, explain material differences, and route USER approval when required. |"
+                f"| `{artifact}` | `{artifact_class}` | AI Dashboard / AI Control Center visual-target guide | option-specific review IDs such as `A-STATUS-01`, `B-CARD-02`, `C-BTN-03`, `D-ROW-02B`, and `D-BTN-03` | `{source_paths}` | UIREF-001, UIREF-002, UIREF-003, UIREF-004, UIREF-005, UIREF-006 | {proof_target}; {option_note} | Later implementation-match proof must compare actual app screenshots/video against this artifact, explain material differences, and route USER approval when required. |"
             )
     return "\n".join(rows)
 
@@ -1226,15 +1325,18 @@ Purpose: review a branch-local process that requires rendered visual targets bef
 Review order:
 
 1. Open the primary USER Review file.
-2. Inspect the curated clean and annotated render media under `Review Aids/Render Media`.
+2. For each option, inspect the primary clean focused render and its primary annotated focused render under `Review Aids/Render Media`.
 3. Use `Review Aids/IMAGE_RELEVANCE_MANIFEST.md` to see why each included image is present in this final USER decision packet.
-4. Use `Review Aids/ANNOTATION_MANIFEST.md` and `Review Aids/ELEMENT_LEGENDS.md` to map every callout marker to the exact visual region it identifies.
-5. Use `Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md` to map every artifact to the visible surface, element group, source/code path, UIREF owner, and future implementation comparison use.
-6. Use `Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md` and `Review Aids/CAVEAT_LEDGER.md` before accepting with caveats or claiming implementation match.
-7. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
-8. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
+4. Use the visible annotation IDs in the annotated focused renders for feedback, such as `D-ROW-02B`, `D-CARD-03`, or `D-BTN-03`.
+5. Use `Review Aids/ANNOTATION_MANIFEST.md` and `Review Aids/ELEMENT_LEGENDS.md` to map every visible ID to the exact visual region, marker style, color cue, non-color cue, target label, and purpose.
+6. Use `Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md` to map every artifact to the visible surface, element group, source/code path, UIREF owner, and future implementation comparison use.
+7. Use `Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md` and `Review Aids/CAVEAT_LEDGER.md` before accepting with caveats or claiming implementation match.
+8. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
+9. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
 
-Image Scope Rule: this final USER review packet is curated for decision clarity. It includes only the images needed to compare visual target options, understand clean versus annotated renders, and judge focused/desktop context. Repair-cycle/debug evidence belongs in explicitly labeled repair packets or helper output, not in this final USER decision path.
+Annotation ID Boundary: annotation IDs are USER review references for this packet. They do not become source-truth implementation IDs unless a later source-truth owner explicitly promotes them.
+
+Image Scope Rule: this final USER review packet is curated for decision clarity. It includes primary clean focused plus annotated focused render pairs for every option, preserves clean and annotated render media together, and includes secondary desktop/context images where useful for footprint judgment. Repair-cycle/debug evidence belongs in explicitly labeled repair packets or helper output, not in this final USER decision path.
 """,
     )
     _write_text(
@@ -1251,6 +1353,10 @@ This packet creates a current-branch visual target guide process for FAM-007 vis
 Visual Target Boundary: a USER-accepted visual target is a branch-local guide, comparator, template candidate, or expectation-alignment artifact. It should be as close to the intended product result as practical, but it is not final implemented product truth by itself. Final implementation still requires source-truth reconciliation, code-to-visual proof, validation, and USER review where the current phase requires it.
 
 Image Scope Boundary: this final USER review packet is curated for the current decision. Included images are limited to clean option renders, annotated option renders, and minimal desktop/context renders needed to compare, select, accept, reject, or revise the visual target. Repair/debug proof dumps are intentionally excluded from the primary USER decision packet.
+
+Primary Image Pairing: each option includes one primary clean focused render and one primary annotated focused render. Use the clean render to judge the visual target without overlays. Use the annotated render to cite exact element/group IDs in feedback, such as `D-ROW-01B`, `D-CARD-02`, `D-BTN-03`, or `A-STATUS-01`.
+
+Annotation ID Boundary: annotation IDs are review references for this packet only. They help the USER point to rows, cards, buttons, status strips, and element groups. They are not source-truth implementation IDs unless later source truth explicitly promotes them.
 
 Implementation Difference Boundary: actual implementation may differ from the accepted visual target only with source-truth-grounded explanation. Material visual differences require USER approval or a recorded source-truth-routed justification before implementation-match claims. Helper PASS, screenshot existence, "closer", "better", or packet parity cannot prove implementation match.
 
@@ -1320,21 +1426,33 @@ This decision does not approve H1/LV acceptance, USER UTS acceptance, PR Readine
 
 Use this with `Review Aids/ANNOTATION_MANIFEST.md`. Each annotation uses color plus a non-color cue: a stable marker ID, outline shape, and pointer/callout line. Color alone is never the mapping proof.
 
-| Element ID | Meaning | Visible cue in annotated renders | Applies To |
-| --- | --- | --- | --- |
-| `CHROME-001` | NDAI custom window chrome / frame | cyan box with `OPTION-*-A01` marker | all options |
-| `CTRL-001` | compact window control cluster | yellow circle with `OPTION-*-A02` marker | all options |
-| `TITLE-001` | title strip and subtitle copy | magenta bracket with `OPTION-*-A03` marker | all options |
-| `PANEL-001` | category doorway card or panel body | green box with `OPTION-*-A04` marker | all options |
-| `ACTION-001` | primary open/action button | amber arrow with `OPTION-*-A05` marker | all options |
-| `STATUS-001` | compact AI/provider/trust status | blue bracket with `OPTION-*-A06` marker | all options |
-| `ROW-001` | state row inside child/detail surface | future implementation-match proof marker required | child/detail surfaces |
-| `SCROLL-001` | scrollbar treatment | future implementation-match proof marker required | options with overflow |
-| `RESIZE-001` | resize affordance / behavior | future implementation-match proof marker required | all product windows |
-| `EMPTY-001` | empty/no-data state | future implementation-match proof marker required | future child surfaces |
-| `ERROR-001` | blocked/error/unavailable state | future implementation-match proof marker required | all options |
+ID Syntax: `<option letter>-<element group>-<ordinal or row suffix>`.
 
-Example review language: `I accept ACTION-001 from OPTION-A, reject PANEL-001 from OPTION-C, and want STATUS-001 revised.`
+Examples:
+
+| Example ID | Meaning |
+| --- | --- |
+| `A-STATUS-01` | Option A global status strip |
+| `B-CARD-02` | Option B second card/group |
+| `C-BTN-03` | Option C third button/action |
+| `D-ROW-02B` | Option D second row in card 02 |
+| `D-BTN-03` | Option D third button/action |
+
+Element / Group Classes:
+
+| Class | Meaning | Typical marker |
+| --- | --- | --- |
+| `HEADER` | title/header group | bracket |
+| `CTRL` | window control cluster | circle |
+| `STATUS` | compact AI/provider/trust status strip | bracket |
+| `CARD` | grouped doorway card | box |
+| `ROW` | specific row inside a grouped card | bracket |
+| `BTN` | specific button/action | arrow plus box |
+| `SCROLL` | scrollbar or overflow affordance | bracket |
+
+Review Boundary: these IDs are USER review references for this packet. They do not become source-truth implementation IDs unless a later source-truth owner explicitly promotes them.
+
+Example review language: `Keep D-CARD-02`, `change D-ROW-01B`, `move D-BTN-03`, `revise A-STATUS-01`, or `reject C-CARD-03 as too workspace-like.`
 """,
     )
     _write_text(
@@ -1342,9 +1460,9 @@ Example review language: `I accept ACTION-001 from OPTION-A, reject PANEL-001 fr
         f"""
 # Annotation Manifest
 
-Purpose: map every visible callout marker in the annotated render files to an exact element ID and visual region. The clean renders remain available beside the annotated renders so the USER can inspect the design without callout overlays.
+Purpose: map every visible annotation ID in the annotated render files to an exact element/group type, target name, visual region, marker style, color cue, non-color cue, and purpose. The clean renders remain available beside the annotated renders so the USER can inspect the design without callout overlays.
 
-Annotation Rule: every current visual target option must include color plus a non-color cue such as marker ID, outline shape, bracket, arrow, box, circle, and pointer line. Annotations should identify the region without hiding critical UI content.
+Annotation Rule: every current visual target option must include option-specific review IDs, group-level IDs, element-level IDs, color plus a non-color cue such as marker ID, outline shape, bracket, arrow, box, circle, and pointer line. Annotations should identify the region without hiding critical UI content. IDs are review references only unless later source truth promotes them.
 
 {annotation_table}
 """,
@@ -1389,7 +1507,7 @@ Ledger Rule: a render artifact can become a USER-accepted visual target guide on
 | focus / keyboard focus | window controls and launch buttons | target requirement recorded | focus-visible proof or not-applicable rationale required before visual green | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
 | pressed / clicked | launchers, close/minimize, copy/report actions | target requirement recorded | ordered-frame proof or short video required when claiming interaction behavior | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
 | disabled / future-gated | provider/model/private/cache/memory/download/install/settings routes | target requirement recorded | disabled/future-gated visual state must be shown where a control exists | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
-| provider/model unavailable | trust-boundary, no-provider, provider-visible-data none | compact status group identified by `STATUS-001` | backend-to-visual truth mapping and screenshot proof required | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
+| provider/model unavailable | trust-boundary, no-provider, provider-visible-data none | compact status group identified by option-specific IDs such as `A-STATUS-01` or `D-STATUS-01` | backend-to-visual truth mapping and screenshot proof required | `REQUIRED_BEFORE_LATER_VISUAL_ACCEPTANCE` |
 | generated/report state | local AI readiness report generated | not part of current final visual target images | actual report/focused surface proof required before H1/LV claim | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
 | copy-success / action-result | readiness report copy action | not rendered in final decision packet | success/confirmation proof required before claiming copy-result UI green | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
 | child/domain window open | AI Control Center / Diagnostics / Capabilities child surfaces | Option A carries current child-window proof context as candidate evidence | fresh actual opened-window proof required after target acceptance or runtime change | `DEFERRED_TO_IMPLEMENTATION_PROOF` |
@@ -1868,10 +1986,20 @@ def _validate_annotation_images(packet_dir: Path) -> list[str]:
         if base_width <= 0:
             failures.append(f"Annotated image missing annotation side panel width: {image_path}")
             continue
-        targets = _annotation_targets(base_width, height, desktop=desktop)
-        for index, (element_id, _cue, _purpose) in enumerate(ANNOTATION_ELEMENTS, start=1):
-            marker_id = f"{option_id}-A{index:02d}"
-            target_box = targets[element_id]
+        specs = _annotation_specs(option_id, base_width, height, desktop=desktop)
+        group_count = sum(1 for spec in specs if spec.element_type == "group")
+        element_count = sum(1 for spec in specs if spec.element_type == "element")
+        if group_count < 2:
+            failures.append(f"Annotated image lacks group-level coverage for {option_id}: {image_path}")
+        if element_count < 2:
+            failures.append(f"Annotated image lacks element-level coverage for {option_id}: {image_path}")
+        if option_id == "OPTION-D" and desktop is False:
+            for required in ("D-ROW-01A", "D-ROW-01B", "D-ROW-02B", "D-BTN-03", "D-STATUS-01"):
+                if required not in {spec.annotation_id for spec in specs}:
+                    failures.append(f"Option D focused annotations missing required precise ID: {required}")
+        for index, spec in enumerate(specs, start=1):
+            marker_id = spec.annotation_id
+            target_box = spec.region
             geometry = _callout_geometry(target_box, index, width)
             label_box = geometry["label_box"]
             leader_line = geometry["leader_line"]
@@ -1929,6 +2057,18 @@ def _validate_image_relevance_manifest(packet_dir: Path) -> list[str]:
             failures.append(f"Image relevance row uses invalid final-packet classification {classification!r}: {line}")
         if not why_user_needs_it or not supported_decision:
             failures.append(f"Image relevance row missing USER purpose or supported decision: {line}")
+    option_rows = {option_id: [] for option_id in OPTION_IDS}
+    for relative in image_paths:
+        option_id = _option_id_from_annotated_path(Path(relative)) or (
+            "OPTION-A" if "option_a" in relative.casefold() else None
+        )
+        if option_id in option_rows:
+            option_rows[option_id].append(relative)
+    for option_id, rows in option_rows.items():
+        focused = [row for row in rows if "focused" in row.casefold() and "_annotated" not in row.casefold()]
+        annotated_focused = [row for row in rows if "focused" in row.casefold() and "_annotated" in row.casefold()]
+        if len(focused) != 1 or len(annotated_focused) != 1:
+            failures.append(f"{option_id} missing one clean focused plus one annotated focused primary render pair: clean={focused}, annotated={annotated_focused}")
     primary_text = ""
     for relative in ("START_HERE.md", f"USER Review/{PRIMARY_REVIEW_FILE}"):
         path = packet_dir / relative
@@ -2078,10 +2218,14 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
     if not annotation_text:
         failures.append("Annotation manifest missing or empty")
     for option_id in OPTION_IDS:
-        for index in range(1, len(ANNOTATION_ELEMENTS) + 1):
-            marker_id = f"{option_id}-A{index:02d}"
-            if marker_id not in annotation_text:
-                failures.append(f"Annotation manifest missing marker: {marker_id}")
+        sample_image = next((path for path in media_files if option_id.lower().replace("option-", "option-") in path.as_posix().casefold() or (option_id == "OPTION-A" and "option_a" in path.as_posix().casefold())), None)
+        if sample_image is None:
+            continue
+        with Image.open(sample_image) as image:
+            width, height = image.size
+        for spec in _annotation_specs(option_id, width, height, desktop="desktop" in sample_image.name.casefold()):
+            if spec.annotation_id not in annotation_text:
+                failures.append(f"Annotation manifest missing marker: {spec.annotation_id}")
     generated_text = ""
     for relative in (
         "START_HERE.md",
