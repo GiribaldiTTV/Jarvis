@@ -72,6 +72,7 @@ EXPECTED_KNOWN_BAD = {
     "FAM-006-20260624-121535.zip",
     "FAM-006-20260624-130151.zip",
     "FAM-006-20260624-132551.zip",
+    "FAM-006-20260624-135010.zip",
 }
 KNOWN_BAD_SHA256 = {
     "FAM-006-20260623-071500.reconstructed-known-bad.json": "5605463897BAC7597DE6755DFB824EB7E9BA0B84B6F82A703DEF5FB5679BB373",
@@ -82,6 +83,7 @@ KNOWN_BAD_SHA256 = {
     "FAM-006-20260624-121535.zip": "1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3",
     "FAM-006-20260624-130151.zip": "0929BF53FCAD8F5BC3751BF51CC053351C1103C97D6C8776C288B870FE9BE73F",
     "FAM-006-20260624-132551.zip": "DC225DD9AA20EEB84D4FA2B8185205359D6AA786333CFFFA4E1EA6CF765529DE",
+    "FAM-006-20260624-135010.zip": "46008863B7BFE9E4D3B0028AC84A5B62DED4CC30621FAA0BB9311BEEB53F396D",
 }
 PACKET_REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_Main.md",
@@ -614,6 +616,32 @@ def seed_defects() -> list[dict[str, Any]]:
                 "linked UDL IDs added/reopened: FAM006-UDL-018, FAM006-UDL-019, and FAM006-UDL-020; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-021",
+            origin="USER/ChatGPT",
+            title="Selected-direction packet chose fake Log Viewer row-action semantics",
+            exact_user_wording="FAM-006-20260624-135010.zip correctly recorded A2 revised and B2, but Log Viewer C2 revised is rejected because inline/right-aligned row actions make the deferred Log Viewer Studio look like it has row-level data/actions before a real viewer exists.",
+            expected="The selected Log Viewer direction must be a LOG-A-derived doorway shell: one middle/status row `VIEWER - Deferred`, bottom `OPEN NATIVE LOGS` and `OPEN EXPORTED LOGS` actions, no fake native/export information rows, no local path display by default, no graph/export customization, no previous-log selection, no native-log reading from Recording Studio, no direct exported-log opening from Recording Studio, and no fake full-viewer workspace behavior.",
+            actual="The 135010 packet treated C2 revised inline/right-aligned native/export row actions as selected, which implied row-level viewer data/functionality before current-branch scope includes a real Log Viewer data surface.",
+            evidence="Known-bad packet FAM-006-20260624-135010.zip SHA 46008863B7BFE9E4D3B0028AC84A5B62DED4CC30621FAA0BB9311BEEB53F396D; USER/ChatGPT REPAIR verdict on selected-direction Log Viewer doorway correction.",
+            surfaces="FAM-006 USER packet; selected-direction summary; Log Viewer selected render; visual/placement options board; external full_desktop_false_green_review_manifest.json.",
+            root_cause="The packet helper allowed an option selected for visual row/action proximity to override the source-truth boundary that current Log Viewer Studio is only a doorway shell, not a data-row/action surface.",
+            validator_gap="No hard failure for C2-selected drift, missing `VIEWER - Deferred`, bottom action row absence, fake native/export data rows, local-path default display, or Recording Studio implying direct native/export log actions.",
+            repair_target="Admit 135010 as known-bad, reject C2 revised as selected, require corrected Log Viewer doorway shell media and selected-direction JSON/Markdown, and regenerate the USER packet from a purged folder after helper commit/push.",
+            acceptance="FAM-006 gates fail when the selected Log Viewer direction lacks `VIEWER - Deferred`, uses inline/right-aligned row actions as selected, displays fake data rows, or implies full-viewer/native-export functionality before source truth admits it.",
+            proof="dev/orin_fam006_full_desktop_false_green_review.py validates the corrected doorway shell render, selected-direction summary, 135010 known-bad corpus copy, packet-contained validation outputs, and clean upstream proof.",
+            status="CLOSED_WITH_PROOF",
+            closure="135010 is admitted as known-bad; the repaired helper records A2 revised / B2 / corrected Log Viewer doorway shell, rejects C2 revised, validates `VIEWER - Deferred` and bottom action labels, and requires clean post-push status proof inside the regenerated packet.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-021: inspected adjacent surfaces/files `dev/orin_fam006_full_desktop_false_green_review.py`, "
+                "`dev/orin_fam006_unified_defect_ledger.py`, `dev/orin_fam006_false_accept_regression_gate.py`, `Docs/family_feature_visions/FAM-006_recording.md`, "
+                "`Docs/validation_helper_registry.md`, active USER packet layout, and external manifest receipt; adjacent behavior inspected: selected Log Viewer semantics, C2 rejection, "
+                "`VIEWER - Deferred` status row, bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions, fake native/export row exclusion, local path display exclusion, "
+                "Recording Studio direct native/export action exclusion, rejected/deferred option disposition, post-push clean Git proof, and packet-contained validation-output evidence; "
+                "additional adjacent defects found: none beyond the selected-direction doorway false-green class and already linked FAM006-UDL-018 / FAM006-UDL-019 / FAM006-UDL-020; "
+                "linked UDL IDs added/reopened: FAM006-UDL-018, FAM006-UDL-019, FAM006-UDL-020, and FAM006-UDL-021; repair scope changed: yes, packet helper, known-bad expectations, false-green incident ledger, and external packet receipt were hardened."
+            ),
+        ),
     ]
 
 
@@ -883,6 +911,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require selected-direction JSON/Markdown, exact A2/B2/C2 revised labels and dispositions, known-bad 132551 replay, and clean post-push validation-output proof.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-020", "FAM006-UDL-019", "FAM006-UDL-018"],
+        ),
+        _incident(
+            "FAM006-FGI-016",
+            packet="FAM-006-20260624-135010.zip",
+            sha256="46008863B7BFE9E4D3B0028AC84A5B62DED4CC30621FAA0BB9311BEEB53F396D",
+            head="98092b3aa831ad9a8077c6c87c68973c31355cae",
+            codex_claim="FAM-006 selected-direction packet was ACCEPT / reviewable after A2 revised, B2, and C2 revised were recorded.",
+            rejection="USER/ChatGPT rejected the packet because C2 revised inline/right-aligned row actions imply Log Viewer row-level data/functionality before the current branch implements a real Log Viewer data surface.",
+            validator_failed="FAM-006 full-desktop false-green packet helper before corrected Log Viewer doorway-shell semantic gate.",
+            artifact="Review Aids/SELECTED_DIRECTION_SUMMARY.md, Review Aids/VISUAL_AND_PLACEMENT_OPTIONS.md, and rendered C2 selected media inside FAM-006-20260624-135010.zip.",
+            ledger_row="FAM006-UDL-021",
+            comparator="The packet selected a row-action design when the source-truth-correct current branch direction is a simple doorway shell with `VIEWER - Deferred` and bottom actions.",
+            prevention="Require corrected Log Viewer doorway shell media, `VIEWER - Deferred`, bottom `OPEN NATIVE LOGS` / `OPEN EXPORTED LOGS` actions, C2 rejection, fake-row exclusion, and known-bad 135010 replay.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-021", "FAM006-UDL-020", "FAM006-UDL-019", "FAM006-UDL-018"],
         ),
     ]
     for row in rows:

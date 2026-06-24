@@ -94,9 +94,14 @@ and clean post-commit/post-push Git proof when helper/source changes were
 committed. For the current branch selection, A2 revised preserves `TARGET -
 Default Overlay Profile`, `STATE - Ready - 2 active monitors`, no bottom helper
 copy, and ACTION-002 `OPEN LOG VIEWER STUDIO`; B2 preserves same-session moved
-position with restart reset near parent; C2 revised preserves `OPEN NATIVE LOGS`
-and `OPEN EXPORTED LOGS`, no local path display by default, and no full-viewer
-workspace implication.
+position with restart reset near parent; the corrected Log Viewer selection is a
+LOG-A-derived doorway shell with `VIEWER - Deferred`, bottom `OPEN NATIVE LOGS`
+and `OPEN EXPORTED LOGS` actions, no fake native/export information rows, no
+local path display by default, no native-log reading from Recording Studio, no
+direct exported-log opening from Recording Studio, and no full-viewer workspace
+implication. C2 inline/right-aligned row-action layout is rejected as selected
+direction because it implies row-level Log Viewer data/functionality before the
+current branch implements a real viewer data surface.
 
 ## Relationship To FAM-006
 
