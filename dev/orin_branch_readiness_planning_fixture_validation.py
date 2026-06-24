@@ -365,6 +365,9 @@ INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_UNTABLED_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_EMBEDDED_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_embedded_status.md"
 )
+INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_HYPHENATED_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_hyphenated_status.md"
+)
 INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_pending_review_no_packet.md"
 )
@@ -1984,6 +1987,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     def cell_has_unresolved_status(value: str) -> bool:
         normalized_cell = governance._normalized_planning_value(value)
+        normalized_cell = normalized_cell.replace("issue-candidate", "issue candidate")
         normalized_cell = normalized_cell.strip(" .;:")
         return any(
             normalized_cell == status
@@ -1994,6 +1998,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     def cell_has_issue_candidate_status(value: str) -> bool:
         normalized_cell = governance._normalized_planning_value(value)
+        normalized_cell = normalized_cell.replace("issue-candidate", "issue candidate")
         normalized_cell = normalized_cell.strip(" .;:")
         return (
             normalized_cell == "issue candidate"
@@ -6753,6 +6758,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject embedded current issue-candidate status"
+        )
+
+    current_issue_candidate_hyphenated_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_HYPHENATED_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_issue_candidate_hyphenated_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject hyphenated current issue-candidate status"
         )
 
     pending_review_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
