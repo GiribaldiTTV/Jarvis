@@ -293,6 +293,9 @@ INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_EMPTY_CODE_TRACE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_empty_code_trace.md"
 )
+INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_empty_accepted_reference.md"
+)
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
 )
@@ -323,6 +326,9 @@ INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_concrete_phase_while_active.md"
+)
+INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_generic_phase_claim.md"
 )
 INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_DISPOSITION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_disposition.md"
@@ -1839,8 +1845,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         return False
 
     code_trace_rows = table_rows_after_header(code_trace_header)
+    accepted_reference_rows = table_rows_after_header(accepted_reference_header)
     issue_candidate_rows = table_rows_after_header(issue_candidate_header)
     require(bool(code_trace_rows), "Code-To-Visual Trace Missing")
+    require(bool(accepted_reference_rows), "Accepted Reference Comparator Missing")
     issue_candidate_disposition = governance._extract_marker_value(
         text, "Issue Candidate Disposition:"
     )
@@ -2150,8 +2158,16 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "release",
         )
     )
+    generic_advancement_values = phase_advancement_values
+    for blocker_phrase in (
+        "required before normal phase progression",
+        "before normal phase progression",
+    ):
+        generic_advancement_values = generic_advancement_values.replace(
+            blocker_phrase, ""
+        )
     advancement_requested = (
-        "normal phase progression" in normalized_next_phase
+        "normal phase progression" in generic_advancement_values
         or concrete_advancement_requested
     )
     require(
@@ -6161,6 +6177,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject header-only code-to-visual trace"
         )
 
+    empty_accepted_reference_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if "Accepted Reference Comparator Missing" not in "\n".join(
+        empty_accepted_reference_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject header-only accepted-reference comparator"
+        )
+
     unresolved_green_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE.read_text(encoding="utf-8")
     )
@@ -6287,6 +6315,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject concrete phase progression while RAR remains active"
+        )
+
+    generic_phase_claim_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_GENERIC_PHASE_CLAIM_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        generic_phase_claim_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject generic normal phase progression claim while RAR remains active"
         )
 
     issue_disposition_rar_failures = _validate_rebaseline_adoption_review_text(
