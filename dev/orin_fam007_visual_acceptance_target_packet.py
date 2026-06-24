@@ -15,9 +15,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import re
 import shutil
 import subprocess
+import sys
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime
@@ -74,6 +76,8 @@ MANIFEST_PATH = PROOF_LOG_ROOT / "live_resize_manifest.json"
 OPTION_IDS = ("OPTION-A", "OPTION-B", "OPTION-C", "OPTION-D", "OPTION-E", "OPTION-F")
 EXPECTED_RENDER_IMAGE_COUNT = len(OPTION_IDS) * 4
 EXPECTED_ANNOTATED_IMAGE_COUNT = len(OPTION_IDS) * 2
+DRAFT_TEMPLATE_ROOT = "Review Aids/Draft Window Templates"
+DRAFT_RENDER_AUTHORITY = "Real rendered draft-window/template using branch-local HTML/CSS and PySide6 QWebEngine screenshot capture"
 
 REQUIRED_PACKET_FILES = [
     "START_HERE.md",
@@ -83,12 +87,14 @@ REQUIRED_PACKET_FILES = [
     "Review Aids/ELEMENT_LEGENDS.md",
     "Review Aids/ANNOTATION_MANIFEST.md",
     "Review Aids/IMAGE_RELEVANCE_MANIFEST.md",
+    "Review Aids/DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md",
     "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
     "Review Aids/STATE_COVERAGE_MATRIX.md",
     "Review Aids/STATE_COVERAGE_STORYBOARD.md",
     "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
     "Review Aids/CAVEAT_LEDGER.md",
     "Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
+    "Review Aids/FUTURE_LAYOUT_ARRANGEMENT_CANDIDATES.md",
     "Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md",
     "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
     "Review Aids/REJECTED_PATTERNS_LEDGER.md",
@@ -537,10 +543,20 @@ No-Fake-Preservation Rule: `This row records a governance candidate only. It doe
 Status: `CLOSED_WITH_PROOF`
 Finding: `The branch-local Visual Acceptance Target packet could be read as a "pick the cleanest available option" packet instead of a USER-guided exploration and refinement loop. That would let Codex recommendations, available renders, helper PASS, or packet validation substitute for USER visual preference and could lead to near-duplicate variant churn instead of meaningful compliant new directions.`
 Required Disposition: `Current and future FAM-007 Visual Acceptance Target packets must state that clean enough is not the acceptance standard. The standard is USER-selected visual direction after meaningful compliant option exploration. When USER does not accept a target, the next cycle must generate revised, combined, or new real draft-window variants with retained traits, rejected traits, new territory, and material-difference explanation.`
-Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md, strengthens START_HERE and the primary USER review file, expands the Visual Selection Ledger template with retained/rejected/new-territory fields, records no-near-duplicate and real-draft-window requirements, and validates exploration-loop, variant-distinctness, and retained/rejected-traits wording in the folder and final ZIP. The current cycle adds Option E, a polished two-by-two grouped-card production doorway, and Option F, a wide top summary/action zone with horizontal domain lanes, while preserving A/B/C/D as historical comparison context.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md, strengthens START_HERE and the primary USER review file, expands the Visual Selection Ledger template with retained/rejected/new-territory fields, records no-near-duplicate and real-draft-window requirements, and validates exploration-loop, variant-distinctness, and retained/rejected-traits wording in the folder and final ZIP. The current cycle adds Option E, a polished two-by-two grouped-card production doorway, and Option F, a future layout-arrangement candidate with a wide top summary/action zone and horizontal domain lanes, while preserving A/B/C/D as historical comparison context.`
 Proof: `Current Visual Acceptance Target packet validation fails if the packet omits VISUAL_ACCEPTANCE_EXPLORATION_LOOP, VAT-CYCLE-20260624-02, Option E, Option F, the clean-enough rejection standard, retained traits, rejected traits, new territory, material differences, no near-duplicates, real draft-window requirement, or the statement that packet validation proves completeness/currentness only and not USER acceptance or preference.`
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This row records branch-local process hardening and a governance candidate only. It does not mutate runtime UI, Docs/phase_governance.md, Governance, FAM-002, UIREF, sibling worktrees, H1/LV acceptance, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, imports, or v1.8.0 work.`
+"""
+    row_026 = f"""## F7-UDL-026 Real Draft Window Template Render Repair - 2026-06-24
+
+Status: `CLOSED_WITH_PROOF`
+Finding: `The prior Visual Acceptance Target packet was reviewable as a concept packet, but Options B through F were static concept drawings produced by the helper rather than actual usable rendered draft windows/templates. That let a packet look polished while failing the USER standard for real draft-window/template review.`
+Required Disposition: `Current selectable or current-cycle options must be actual runtime screenshots or real rendered draft-window/template media. Static concept drawings may remain only as clearly labeled historical/rejected/reference evidence and must not be presented as selectable current visual targets.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now renders Options B through F from branch-local HTML/CSS draft-window templates through PySide6 QWebEngine before annotation overlays are added; writes Review Aids/DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md; keeps Option A as actual runtime baseline; demotes Option F as a future user-customizable layout arrangement candidate; and validates focused/desktop HTML template artifacts for every non-runtime option.`
+Proof: `Current Visual Acceptance Target packet validation fails if the draft-window template render manifest is missing, if non-runtime options lack focused and desktop HTML template artifacts, if required real rendered draft-window/template wording is missing, if PIL/ImageDraw is claimed as clean candidate media authority, or if ZIP/folder parity omits the template artifacts.`
+Current Review Packet: `{zip_path}`
+No-Fake-Preservation Rule: `This repair does not mutate runtime UI, create a reusable/global template, mutate Governance/FAM-002/UIREF/sibling worktrees, approve H1/LV, USER UTS, PR Readiness, PR creation, merge, release, issue mutation, provider/model/private/cache/memory/download/packaging, imports, or v1.8.0 work.`
 """
     if "## F7-UDL-019 " in udl_text:
         udl_text = re.sub(
@@ -602,6 +618,16 @@ No-Fake-Preservation Rule: `This row records branch-local process hardening and 
         )
     else:
         udl_text = udl_text.rstrip() + "\n\n" + row_025
+    if "## F7-UDL-026 " in udl_text:
+        udl_text = re.sub(
+            r"## F7-UDL-026 .+?(?=\n## |\Z)",
+            lambda _match: row_026,
+            udl_text,
+            count=1,
+            flags=re.DOTALL,
+        )
+    else:
+        udl_text = udl_text.rstrip() + "\n\n" + row_026
     return udl_text
 
 
@@ -631,6 +657,7 @@ def _update_external_state(zip_path: Path) -> None:
                 f"Packet Purpose: `{VISUAL_PACKET_PURPOSE}`",
                 "UI/UX Workstream Exit Acceptance Gate: `Governance candidate recorded only; global phase-governance law was not mutated by this FAM-007 pass.`",
                 "Visual Acceptance Exploration Loop: `Branch-local rule recorded: clean enough is not acceptance, packet validation is not USER preference, rejected targets require materially different new/revised/combined real draft-window variants with retained/rejected traits and no near-duplicate label-only changes.`",
+                "Real Draft Window Template Repair: `Options B through F are rendered from branch-local HTML/CSS draft-window templates through PySide6 QWebEngine; Option A remains actual runtime baseline; annotation overlays are review aids only.`",
                 "Implementation Status: `No product/runtime UI implementation authorized or performed by this packet.`",
                 f"Blocked Gates: `{BLOCKED_GATES}`",
             ],
@@ -1136,6 +1163,302 @@ def _draw_status_strip(draw: ImageDraw.ImageDraw, x: int, y: int, labels: list[s
         xx += width
 
 
+def _html_escape(value: str) -> str:
+    return (
+        value.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def _css_row(label: str, value: str) -> str:
+    return (
+        '<div class="row">'
+        f'<span class="row-label">{_html_escape(label)}</span>'
+        f'<span class="row-value">{_html_escape(value)}</span>'
+        "</div>"
+    )
+
+
+def _css_card(
+    number: str,
+    title: str,
+    description: str,
+    rows: list[tuple[str, str]],
+    action: str,
+    *,
+    left: int,
+    top: int,
+    width: int,
+    height: int,
+    compact: bool = False,
+) -> str:
+    row_html = "\n".join(_css_row(label, value) for label, value in rows)
+    return f"""
+      <section class="card{' compact' if compact else ''}" style="left:{left}px; top:{top}px; width:{width}px; height:{height}px;">
+        <div class="badge">{_html_escape(number)}</div>
+        <div class="card-copy">
+          <strong>{_html_escape(title)}</strong>
+          <span>{_html_escape(description)}</span>
+        </div>
+        <div class="rows">{row_html}</div>
+        <button class="action">{_html_escape(action)}</button>
+      </section>
+    """
+
+
+def _draft_option_canvas(option_id: str, *, desktop: bool) -> tuple[int, int]:
+    if desktop:
+        if option_id == "OPTION-D":
+            return (1600, 940)
+        if option_id == "OPTION-E":
+            return (1600, 920)
+        if option_id == "OPTION-F":
+            return (1680, 820)
+        return (1600, 900)
+    if option_id == "OPTION-D":
+        return (840, 840)
+    if option_id == "OPTION-E":
+        return (900, 800)
+    if option_id == "OPTION-F":
+        return (980, 690)
+    return (760, 760)
+
+
+def _draft_option_payload(option_id: str) -> dict[str, object]:
+    payloads: dict[str, dict[str, object]] = {
+        "OPTION-B": {
+            "title": "Compact Directory Variant",
+            "subtitle": "Dense doorway shell with stronger category grouping.",
+            "labels": ["AI - ORIN", "PROVIDER - BLOCKED", "DATA - NONE"],
+            "mode": "vertical",
+            "cards": [
+                ("01", "AI Control Center", "Trust state and quick orientation.", [("AI", "ORIN not implemented"), ("Provider", "Blocked; no model path active"), ("Visible data", "None leaves this machine")], "Open Control Center"),
+                ("02", "Readiness & Diagnostics", "Local check and report doorway.", [("Local check", "Waiting for USER action"), ("Report", "Local readiness result only"), ("Prompt/data", "Not accepted, sent, or stored")], "Open Diagnostics"),
+                ("03", "Capabilities & Maintenance", "Capability packs remain blocked.", [("Capability packs", "Install intent blocked"), ("Downloads", "Disabled"), ("Updates", "Future-gated")], "Open Capabilities"),
+            ],
+            "footer": "Historical/rejected comparison retained as a real rendered template, not a selectable final target.",
+        },
+        "OPTION-C": {
+            "title": "Studio-Weighted Variant",
+            "subtitle": "Rejected-risk comparator: too workspace/report weighted for the top level.",
+            "labels": ["AI - ORIN", "STATUS - NOT IMPLEMENTED", "PROVIDER - BLOCKED"],
+            "mode": "vertical",
+            "cards": [
+                ("01", "AI Workspace Panel", "Rejected-risk: this starts to feel like a workspace.", [("Risk", "Too much top-level workspace mass"), ("Provider", "Blocked"), ("Data", "None leaves this machine")], "Open Panel"),
+                ("02", "Diagnostics Report Area", "Rejected-risk: report body appears inline.", [("Risk", "Detail belongs behind child surface"), ("Report", "Doorway only at top level"), ("Prompt/data", "Not sent or stored")], "Open Diagnostics"),
+                ("03", "Maintenance Detail", "Rejected-risk: maintenance detail consumes top level.", [("Risk", "Too much lifecycle detail"), ("Downloads", "Disabled"), ("Updates", "Future-gated")], "Open Capabilities"),
+            ],
+            "footer": "Retained to show what not to accept: a top-level surface that becomes a workspace/report body.",
+        },
+        "OPTION-D": {
+            "title": "AI Dashboard",
+            "subtitle": "Top-level AI orientation, trust state, and category doorways.",
+            "labels": ["AI - ORIN", "STATUS - NOT IMPLEMENTED", "PROVIDER - BLOCKED"],
+            "mode": "d",
+            "cards": [
+                ("01", "AI Status & Trust", "Truthful AI state before any action.", [("AI", "ORIN not implemented; no real AI executing"), ("Provider", "Blocked; no provider/model path active"), ("Visible data", "None leaves this machine")], "Open Control Center"),
+                ("02", "Readiness & Diagnostics", "Local checks and report doorway.", [("Local check", "Waiting for USER action"), ("Report", "Local readiness result only"), ("Prompt/data", "Not accepted, sent, stored, or indexed")], "Open Diagnostics"),
+                ("03", "Capabilities & Maintenance", "Install/update intent without execution.", [("Capability packs", "Install intent blocked; downloads disabled"), ("Updates", "Future-gated; no install execution")], "Open Capabilities"),
+            ],
+            "footer": "Primary behavior-aligned candidate: compact doorway surface with row grammar inside grouped cards.",
+        },
+        "OPTION-E": {
+            "title": "AI Dashboard",
+            "subtitle": "Production doorway draft: compact AI truth, domain launchers, and future-gated handoffs.",
+            "labels": ["AI - ORIN", "STATUS - NOT IMPLEMENTED", "PROVIDER - BLOCKED", "DATA - NONE"],
+            "mode": "grid",
+            "cards": [
+                ("01", "AI Control Center", "Focused control domain for AI trust and status.", [("AI state", "ORIN not implemented"), ("Provider", "Blocked; no model path active"), ("Visible data", "None leaves this machine")], "Open Control Center"),
+                ("02", "Readiness & Diagnostics", "Local checks, readiness report, and safe next steps.", [("Local check", "Waiting for USER action"), ("Readiness report", "Local decision aid only"), ("Prompt/data", "Not sent, stored, or indexed")], "Open Diagnostics"),
+                ("03", "Capabilities", "Capability and maintenance lifecycle doorway.", [("Capability packs", "Install intent blocked"), ("Downloads", "Disabled"), ("Updates", "Future-gated")], "Open Capabilities"),
+                ("04", "AI Settings", "Global settings handoff without FAM-003 mutation.", [("Settings route", "Future Global Settings / AI"), ("Private setup", "Developer and Owner gated"), ("Memory/cache", "Not active")], "Open Settings"),
+            ],
+            "footer": "Polished production doorway candidate; detailed reports, setup, logs, and provider internals open behind domain doors.",
+        },
+        "OPTION-F": {
+            "title": "AI Dashboard",
+            "subtitle": "Wide orientation draft: one trust summary, then horizontal domain lanes.",
+            "labels": ["AI - ORIN", "PROVIDER - BLOCKED", "DATA - NONE"],
+            "mode": "lanes",
+            "cards": [
+                ("01", "Control Center", "Focused AI control domain.", [("Control summary", "Trust state only; no execution")], "Open Control"),
+                ("02", "Diagnostics", "Local checks and report.", [("Diagnostics summary", "Waiting for local action")], "Open Diagnostics"),
+                ("03", "Capabilities", "Packs and maintenance.", [("Capability summary", "Downloads disabled")], "Open Capabilities"),
+            ],
+            "footer": "Future layout-arrangement candidate: wider summary/action zone and horizontal domain lanes.",
+        },
+    }
+    return payloads[option_id]
+
+
+def _draft_template_html(option_id: str, *, desktop: bool) -> str:
+    canvas_width, canvas_height = _draft_option_canvas(option_id, desktop=desktop)
+    win_x, win_y, win_w, win_h = _window_geometry(option_id, canvas_width, canvas_height, desktop=desktop)
+    payload = _draft_option_payload(option_id)
+    labels = payload["labels"]
+    status_cells = "".join(f"<span>{_html_escape(str(label))}</span>" for label in labels)  # type: ignore[arg-type]
+    mode = str(payload["mode"])
+    cards = payload["cards"]  # type: ignore[assignment]
+    if mode == "grid":
+        coords = [(30, 174, 388, 206), (436, 174, 354, 206), (30, 400, 388, 224), (436, 400, 354, 224)]
+    elif mode == "lanes":
+        coords = [(30, 320, 268, 220), (322, 320, 268, 220), (614, 320, 268, 220)]
+    elif mode == "d":
+        coords = [(28, 184, win_w - 56, 170), (28, 370, win_w - 56, 170), (28, 556, win_w - 56, 148)]
+    else:
+        coords = [(34, 186, win_w - 68, 146), (34, 350, win_w - 68, 146), (34, 514, win_w - 68, 146)]
+    card_html = "\n".join(
+        _css_card(
+            number,
+            title,
+            description,
+            rows,
+            action,
+            left=left,
+            top=top,
+            width=width,
+            height=height,
+            compact=mode == "lanes",
+        )
+        for (number, title, description, rows, action), (left, top, width, height) in zip(cards, coords)
+    )
+    summary = ""
+    if mode == "lanes":
+        summary = """
+        <section class="summary-zone">
+          <strong>ORIN is not implemented; provider/model execution is not active.</strong>
+          <span>Use the domain lanes below to open focused AI control, diagnostics, or capability surfaces.</span>
+          <button class="summary-action">Open Diagnostics</button>
+        </section>
+        """
+    footer_html = ""
+    if mode in {"grid", "lanes"}:
+        footer_html = f'<div class="footer">{_html_escape(str(payload["footer"]))}</div>'
+    return f"""<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * {{ box-sizing: border-box; }}
+  html, body {{ width:{canvas_width}px; height:{canvas_height}px; margin:0; overflow:hidden; }}
+  body {{
+    font-family: "Segoe UI", Arial, sans-serif;
+    background:
+      linear-gradient(rgba(42,130,157,.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(42,130,157,.12) 1px, transparent 1px),
+      radial-gradient(circle at 14% 44%, rgba(64,203,240,.18), transparent 22%),
+      #000508;
+    background-size: 32px 32px, 32px 32px, 100% 100%, 100% 100%;
+    color: #eaf7fa;
+  }}
+  .window {{
+    position:absolute; left:{win_x}px; top:{win_y}px; width:{win_w}px; height:{win_h}px;
+    border: 2px solid #48bcd4; border-radius:30px; background:#010f1a;
+    box-shadow: 8px 10px 0 rgba(0,9,14,.88), 0 0 30px rgba(46, 190, 220, .13);
+    overflow:hidden;
+  }}
+  .header {{
+    position:absolute; left:18px; right:18px; top:18px; height:{146 if mode == "d" else 132 if mode == "grid" else 120}px;
+    border-radius:24px; background:#020d19; border:1px solid rgba(63,160,190,.28);
+  }}
+  .brand {{ position:absolute; left:26px; top:18px; color:#60dcef; text-transform:uppercase; font-weight:800; font-size:13px; letter-spacing:1.8px; }}
+  .title {{ position:absolute; left:26px; top:42px; font-size:31px; line-height:33px; font-weight:900; }}
+  .subtitle {{ position:absolute; left:26px; top:82px; max-width:650px; color:#98c8d2; font-weight:800; font-size:12px; }}
+  .controls {{ position:absolute; right:28px; top:28px; width:64px; height:34px; border:2px solid #4fc9e1; border-radius:17px; background:#041e2a; display:flex; align-items:center; justify-content:space-evenly; }}
+  .controls span {{ width:24px; height:24px; border-radius:50%; border:1px solid rgba(126,225,240,.62); display:flex; align-items:center; justify-content:center; color:#e9f8fb; font-weight:900; font-size:13px; }}
+  .strip {{ position:absolute; left:42px; top:{122 if mode == "d" else 112 if mode == "grid" else 142}px; height:36px; border-radius:18px; border:1px solid rgba(73,178,205,.72); background:#041e2a; padding:0 14px; display:flex; gap:20px; align-items:center; color:#b4f0e2; font-weight:900; font-size:11px; text-transform:uppercase; }}
+  .summary-zone {{ position:absolute; left:30px; top:160px; right:30px; height:134px; border-radius:20px; border:1px solid #267391; background:#031422; padding:22px 24px; }}
+  .summary-zone strong {{ display:block; font-size:17px; font-weight:900; }}
+  .summary-zone span {{ display:block; margin-top:12px; color:#94c2cd; font-weight:800; font-size:12px; }}
+  .summary-action {{ position:absolute; right:34px; bottom:20px; }}
+  .card {{ position:absolute; border-radius:18px; border:1px solid #267391; background:#031322; box-shadow: 3px 5px 0 rgba(0,9,14,.84); }}
+  .badge {{ position:absolute; left:16px; top:16px; width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; background:#053346; border:1px solid #48c2dc; color:#78eaef; font-size:12px; font-weight:900; }}
+  .card-copy {{ position:absolute; left:66px; top:14px; right:18px; }}
+  .card-copy strong {{ display:block; font-size:16px; line-height:18px; font-weight:900; text-transform:uppercase; }}
+  .card-copy span {{ display:block; margin-top:4px; color:#98c8d2; font-size:11px; font-weight:800; }}
+  .rows {{ position:absolute; left:22px; right:22px; top:70px; }}
+  .row {{ height:27px; border-top:1px solid #54b2c7; box-shadow: inset 0 1px 0 rgba(7,43,57,.95); display:flex; align-items:center; font-size:10px; font-weight:900; }}
+  .row::before {{ content:""; width:3px; height:14px; background:#50bdd0; margin-right:9px; }}
+  .row-label {{ width:152px; color:#76b4c4; text-transform:uppercase; }}
+  .row-value {{ color:#98ead3; }}
+  .action, .summary-action {{ position:absolute; right:20px; bottom:12px; min-width:122px; height:32px; border-radius:16px; border:2px solid #46abc7; background:#062534; color:#e8f6f9; font-size:10px; font-weight:900; text-transform:uppercase; }}
+  .compact .card-copy strong {{ font-size:14px; }}
+  .compact .rows {{ top:96px; }}
+  .footer {{ position:absolute; left:48px; right:48px; bottom:36px; color:#80bac6; font-size:12px; font-weight:800; }}
+  .desktop-footer {{ position:absolute; left:24px; bottom:20px; right:24px; color:#82bec8; background:#000a0e; font-size:15px; font-weight:800; }}
+</style>
+</head>
+<body>
+  <main class="window" data-real-draft-window-template="true" data-option="{option_id}" data-renderer="PySide6-QWebEngine">
+    <section class="header">
+      <div class="brand">Nexus Desktop AI</div>
+      <div class="title">{_html_escape(str(payload["title"]))}</div>
+      <div class="subtitle">{_html_escape(str(payload["subtitle"]))}</div>
+      <div class="controls" aria-label="Window controls"><span>-</span><span>x</span></div>
+      <div class="strip">{status_cells}</div>
+    </section>
+    {summary}
+    {card_html}
+    {footer_html}
+  </main>
+  {f'<div class="desktop-footer">{_html_escape(str(payload["footer"]))}</div>' if desktop else ''}
+</body>
+</html>
+"""
+
+
+def _ensure_qt_application():
+    os.environ.setdefault("QTWEBENGINE_CHROMIUM_FLAGS", "--disable-gpu --disable-software-rasterizer")
+    os.environ.setdefault("QTWEBENGINE_DISABLE_SANDBOX", "1")
+    from PySide6.QtWidgets import QApplication
+
+    return QApplication.instance() or QApplication(sys.argv)
+
+
+def _render_html_png(html: str, target: Path, *, width: int, height: int) -> None:
+    from PySide6.QtCore import QEventLoop, QTimer, QUrl
+    from PySide6.QtWebEngineWidgets import QWebEngineView
+
+    app = _ensure_qt_application()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    view = QWebEngineView()
+    view.resize(width, height)
+    view.setHtml(html, QUrl.fromLocalFile(str(PACKET_DIR) + os.sep))
+    view.show()
+    loop = QEventLoop()
+    view.loadFinished.connect(lambda _ok: QTimer.singleShot(450, loop.quit))
+    QTimer.singleShot(4000, loop.quit)
+    loop.exec()
+    app.processEvents()
+    pixmap = view.grab()
+    if not pixmap.save(str(target)):
+        view.close()
+        raise RuntimeError(f"Failed to render draft-window template screenshot: {target}")
+    view.close()
+    app.processEvents()
+
+
+def _render_draft_option_media(option_id: str, folder: str, focused: Path, desktop_path: Path) -> tuple[str, str]:
+    template_dir = PACKET_DIR / DRAFT_TEMPLATE_ROOT / folder
+    template_dir.mkdir(parents=True, exist_ok=True)
+    focused_html = _draft_template_html(option_id, desktop=False)
+    desktop_html = _draft_template_html(option_id, desktop=True)
+    focused_template = template_dir / f"{option_id.lower()}_focused_template.html"
+    desktop_template = template_dir / f"{option_id.lower()}_desktop_template.html"
+    focused_template.write_text(focused_html, encoding="utf-8")
+    desktop_template.write_text(desktop_html, encoding="utf-8")
+    focused_width, focused_height = _draft_option_canvas(option_id, desktop=False)
+    desktop_width, desktop_height = _draft_option_canvas(option_id, desktop=True)
+    _render_html_png(focused_html, focused, width=focused_width, height=focused_height)
+    _render_html_png(desktop_html, desktop_path, width=desktop_width, height=desktop_height)
+    return (
+        str(focused_template.relative_to(PACKET_DIR)).replace("\\", "/"),
+        str(desktop_template.relative_to(PACKET_DIR)).replace("\\", "/"),
+    )
+
+
 def _draw_soft_grid(draw: ImageDraw.ImageDraw, width: int, height: int) -> None:
     for gx in range(0, width, 32):
         draw.line((gx, 0, gx, height), fill=(3, 25, 34), width=1)
@@ -1460,14 +1783,13 @@ def _generate_candidate_media() -> list[RenderOption]:
         desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_desktop.png"
         annotated_focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_focused_annotated.png"
         annotated_desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_desktop_annotated.png"
-        _draw_option_mockup(focused, option_id, title, subtitle, desktop=False)
-        _draw_option_mockup(desktop, option_id, title, subtitle, desktop=True)
+        _render_draft_option_media(option_id, folder, focused, desktop)
         _annotate_render(focused, annotated_focused, option_id, desktop=False)
         _annotate_render(desktop, annotated_desktop, option_id, desktop=True)
         result.append(
             RenderOption(
                 option_id,
-                "Design Candidate Render using deterministic branch-local layout mockup",
+                DRAFT_RENDER_AUTHORITY,
                 footprint,
                 str(focused.relative_to(PACKET_DIR)).replace("\\", "/"),
                 str(desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
@@ -1485,14 +1807,13 @@ def _generate_option_d_media() -> list[RenderOption]:
     desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / "option-d_desktop.png"
     annotated_focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / "option-d_focused_annotated.png"
     annotated_desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / "option-d_desktop_annotated.png"
-    _draw_option_d_mockup(focused, desktop=False)
-    _draw_option_d_mockup(desktop, desktop=True)
+    _render_draft_option_media("OPTION-D", folder, focused, desktop)
     _annotate_render(focused, annotated_focused, "OPTION-D", desktop=False)
     _annotate_render(desktop, annotated_desktop, "OPTION-D", desktop=True)
     return [
         RenderOption(
             "OPTION-D",
-            "Design Candidate Render using deterministic branch-local high-fidelity row-grammar target",
+            DRAFT_RENDER_AUTHORITY,
             "DOORWAY_SHELL",
             str(focused.relative_to(PACKET_DIR)).replace("\\", "/"),
             str(desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
@@ -1526,14 +1847,13 @@ def _generate_next_cycle_media() -> list[RenderOption]:
         desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_desktop.png"
         annotated_focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_focused_annotated.png"
         annotated_desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_desktop_annotated.png"
-        draw_func(focused, desktop=False)
-        draw_func(desktop, desktop=True)
+        _render_draft_option_media(option_id, folder, focused, desktop)
         _annotate_render(focused, annotated_focused, option_id, desktop=False)
         _annotate_render(desktop, annotated_desktop, option_id, desktop=True)
         result.append(
             RenderOption(
                 option_id,
-                "Design Candidate Render using deterministic branch-local next-cycle draft-window mockup",
+                DRAFT_RENDER_AUTHORITY,
                 footprint,
                 str(focused.relative_to(PACKET_DIR)).replace("\\", "/"),
                 str(desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
@@ -1619,6 +1939,33 @@ def _image_relevance_manifest_table(options: list[RenderOption]) -> str:
     return "\n".join(rows)
 
 
+def _draft_template_manifest_table(options: list[RenderOption]) -> str:
+    rows = [
+        "| Option ID | Clean media authority | Focused render source | Desktop/context render source | Template artifact status | Review disposition |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for option in options:
+        if option.option_id == "OPTION-A":
+            rows.append(
+                f"| `{option.option_id}` | actual current app/runtime screenshot | `{option.focused_media}` | `{option.desktop_media}` | `No branch-local draft template: runtime baseline only` | current implementation baseline/comparator, not selectable proof by itself |"
+            )
+            continue
+        folder = Path(option.focused_media).parent.name
+        focused_template = f"{DRAFT_TEMPLATE_ROOT}/{folder}/{option.option_id.lower()}_focused_template.html"
+        desktop_template = f"{DRAFT_TEMPLATE_ROOT}/{folder}/{option.option_id.lower()}_desktop_template.html"
+        disposition = {
+            "OPTION-B": "historical compact-directory reference; not recommended as current target",
+            "OPTION-C": "historical/rejected workspace-weighted risk comparator",
+            "OPTION-D": "primary behavior-aligned candidate matured into a real rendered draft-window/template",
+            "OPTION-E": "polished production-doorway candidate regenerated as a real rendered draft-window/template",
+            "OPTION-F": "future user-customizable layout arrangement candidate, not the selected FAM-007 target",
+        }[option.option_id]
+        rows.append(
+            f"| `{option.option_id}` | `{DRAFT_RENDER_AUTHORITY}` | `{focused_template}` -> `{option.focused_media}` | `{desktop_template}` -> `{option.desktop_media}` | `HTML/CSS draft template rendered by PySide6 QWebEngine; annotation overlay added afterward for USER review` | {disposition} |"
+        )
+    return "\n".join(rows)
+
+
 def _artifact_to_surface_ledger_table(options: list[RenderOption]) -> str:
     source_paths = (
         "nexus_visual/ai_control_center.html; nexus_visual/ai_control_center.css; "
@@ -1655,6 +2002,7 @@ def _write_packet_files(options: list[RenderOption]) -> None:
     decision_options_table = _decision_options_table(options)
     annotation_table = _annotation_manifest_table(options)
     image_relevance_table = _image_relevance_manifest_table(options)
+    draft_template_table = _draft_template_manifest_table(options)
     artifact_to_surface_table = _artifact_to_surface_ledger_table(options)
     _write_text(
         "START_HERE.md",
@@ -1672,13 +2020,14 @@ Review order:
 1. Open the primary USER Review file.
 2. For each option, inspect the primary clean focused render and its primary annotated focused render under `Review Aids/Render Media`.
 3. Use `Review Aids/IMAGE_RELEVANCE_MANIFEST.md` to see why each included image is present in this final USER decision packet.
-4. Use the visible annotation IDs in the annotated focused renders for feedback, such as `D-ROW-02B`, `D-CARD-03`, or `D-BTN-03`.
-5. Use `Review Aids/ANNOTATION_MANIFEST.md` and `Review Aids/ELEMENT_LEGENDS.md` to map every visible ID to the exact visual region, marker style, color cue, non-color cue, target label, and purpose.
-6. Use `Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md` to map every artifact to the visible surface, element group, source/code path, UIREF owner, and future implementation comparison use.
-7. Use `Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md` and `Review Aids/CAVEAT_LEDGER.md` before accepting with caveats or claiming implementation match.
-8. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
-9. Read `Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md` before deciding. Clean enough is not the acceptance standard; the standard is USER-selected visual direction after meaningful compliant option exploration.
-10. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
+4. Use `Review Aids/DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md` to distinguish actual-runtime baseline media from real rendered draft-window/template media. Options B through F are rendered from branch-local HTML/CSS templates through PySide6 QWebEngine; they are not freehand static concept drawings.
+5. Use the visible annotation IDs in the annotated focused renders for feedback, such as `D-ROW-02B`, `D-CARD-03`, or `D-BTN-03`.
+6. Use `Review Aids/ANNOTATION_MANIFEST.md` and `Review Aids/ELEMENT_LEGENDS.md` to map every visible ID to the exact visual region, marker style, color cue, non-color cue, target label, and purpose.
+7. Use `Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md` to map every artifact to the visible surface, element group, source/code path, UIREF owner, and future implementation comparison use.
+8. Use `Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md` and `Review Aids/CAVEAT_LEDGER.md` before accepting with caveats or claiming implementation match.
+9. Use the Visual Selection Ledger template to accept, reject, combine, or revise specific options and element IDs.
+10. Read `Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md` before deciding. Clean enough is not the acceptance standard; the standard is USER-selected visual direction after meaningful compliant option exploration.
+11. Review the Draft Branch Visual Acceptance Target. It remains a branch-local guide until USER accepts or revises it, and implementation still requires code-to-visual proof and later review where source truth requires it.
 
 Annotation ID Boundary: annotation IDs are USER review references for this packet. They do not become source-truth implementation IDs unless a later source-truth owner explicitly promotes them.
 
@@ -1724,7 +2073,7 @@ If USER does not accept the current recommendation or option set, the next visua
 
 Each cycle must record retained traits, rejected traits, new territory, and why the next options materially differ from the prior packet while remaining source-truth, Vision, UIREF, and FAM compliant.
 
-Real Draft Window Requirement: options must look and read like believable NDAI product windows, not rough concepts, generic placeholders, diagram panels, or status-debug boards. Real FAM-007 product language is allowed where source truth permits it; deterministic information appears only where it helps the USER choose the direction.
+Real Draft Window Requirement: options must look and read like believable NDAI product windows, not rough concepts, generic placeholders, diagram panels, static concept drawings, or status-debug boards. Current draft options must be produced from rendered draft-window/template sources or actual runtime screenshots. Real FAM-007 product language is allowed where source truth permits it; deterministic information appears only where it helps the USER choose the direction.
 
 ## Current Branch Visual Impact Classification
 
@@ -1753,7 +2102,7 @@ Option D / D2 Boundary: the attached old accepted screenshot is a visual grammar
 
 Option E Boundary: `OPTION-E` is recommended for USER review as the current-cycle polished production doorway candidate. It is not USER acceptance, not runtime implementation proof, and not a global template.
 
-Option F Boundary: `OPTION-F` is retained as a materially different alternate legal direction. It should be selected only if the USER prefers a wider summary/action hierarchy over the grouped-card doorway grid.
+Option F Boundary: `OPTION-F` is retained as a future user-customizable layout arrangement candidate and materially different alternate legal direction. It is not the current selected FAM-007 target. It should be selected only if the USER explicitly chooses the wider summary/action hierarchy over the grouped-card doorway grid.
 
 Anti-Regression Boundary: the AI Dashboard / AI Control Center top-level surface must remain a compact doorway/orientation surface. Row grammar belongs inside grouped doorway cards and focused child/detail surfaces; it must not regress into twelve separate top-level status cards, a status monitor, a debugger surface, or a long report body.
 
@@ -1856,6 +2205,22 @@ Excluded from this final USER decision packet: redundant proof dumps, duplicate 
 """,
     )
     _write_text(
+        "Review Aids/DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md",
+        f"""
+# Draft Window Template Render Manifest
+
+Purpose: prove that the selectable visual packet options are either actual runtime screenshots or real rendered draft-window/template screenshots. This file exists because previous packet cycles let static concept drawings appear equivalent to real draft windows.
+
+Render Standard: Options B through F are generated as branch-local HTML/CSS draft-window templates and rendered through PySide6 QWebEngine before annotation overlays are added. Option A remains the actual current runtime baseline screenshot. Annotation overlays are review aids only and are not the clean render authority.
+
+Non-Authority: PIL/ImageDraw is not the source for clean candidate media in this repaired packet. Static concept drawings and not freehand static concept drawings are acceptable only as rejected/historical/reference artifacts when explicitly labeled, not as selectable current draft-window options. PIL remains allowed only for annotation overlays and image-openability/geometry validation.
+
+Runtime Boundary: this manifest does not mutate runtime UI, does not approve implementation, and does not create a reusable/global template. It repairs this branch-local packet process so USER review sees real draft-window/template media.
+
+{draft_template_table}
+""",
+    )
+    _write_text(
         "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
         f"""
 # Artifact-To-Surface Ledger
@@ -1865,6 +2230,22 @@ Purpose: map each included visual artifact to the USER-facing surface, visible e
 Ledger Rule: a render artifact can become a USER-accepted visual target guide only after USER selection. It is not implementation proof, LV proof, UTS proof, PR Readiness proof, or final product truth by itself.
 
 {artifact_to_surface_table}
+""",
+    )
+    _write_text(
+        "Review Aids/FUTURE_LAYOUT_ARRANGEMENT_CANDIDATES.md",
+        """
+# Future Layout Arrangement Candidates
+
+Current Status: `REFERENCE_ONLY_UNTIL_USER_SELECTS`
+
+Purpose: preserve layout-arrangement ideas that may be useful later without treating them as the current selected FAM-007 target.
+
+| Candidate | Current disposition | Why retained | What must happen before use |
+| --- | --- | --- | --- |
+| `OPTION-F` | `FUTURE_LAYOUT_ARRANGEMENT_CANDIDATE` | explores a wide top summary/action zone and horizontal domain lanes that could later support user-customizable layout arrangements | USER must explicitly select or request this direction, then later implementation proof must compare actual runtime UI against the accepted target |
+
+Boundary: Option F is a real rendered draft-window/template artifact in this packet, but it is not the current selected FAM-007 target and does not authorize runtime UI mutation, settings mutation, layout customization implementation, provider/model/private/cache/memory/download/packaging behavior, PR Readiness, PR creation, merge, release, issue mutation, or sibling/Governance mutation.
 """,
     )
     _write_text(
@@ -2016,7 +2397,7 @@ All variants must remain source-truth, Project Vision, Product Experience Contra
 
 ## Real Draft Window Requirement
 
-Every option in a USER-review visual target packet must be a believable NDAI draft window. It must be inspectable like a real product surface, not a rough concept, generic placeholder, diagram panel, debug dashboard, or proof-only screen.
+Every option in a USER-review visual target packet must be a believable NDAI draft window. It must be inspectable like a real product surface, not a rough concept, generic placeholder, diagram panel, static concept drawings, debug dashboard, or proof-only screen.
 
 Real FAM-007 product language is allowed where source truth permits it. Deterministic information should appear only where it helps the USER choose the visual direction or understand trust boundaries.
 
@@ -2592,6 +2973,20 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "OPTION-E",
             "OPTION-F",
         ],
+        "Review Aids/DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md": [
+            "real rendered draft-window/template",
+            "PySide6 QWebEngine",
+            "not freehand static concept drawings",
+            "PIL/ImageDraw is not the source for clean candidate media",
+            "Option A remains the actual current runtime baseline screenshot",
+            "Options B through F",
+        ],
+        "Review Aids/FUTURE_LAYOUT_ARRANGEMENT_CANDIDATES.md": [
+            "FUTURE_LAYOUT_ARRANGEMENT_CANDIDATE",
+            "OPTION-F",
+            "not the current selected FAM-007 target",
+            "user-customizable layout arrangements",
+        ],
         "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md": [
             "Material visual differences require USER approval",
             "source-truth-grounded",
@@ -2611,6 +3006,7 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "USER-selected visual direction",
             "Packet validation proves completeness/currentness only",
             "Near-duplicates with label-only changes are rejected",
+            "static concept drawings",
             "retained traits",
             "rejected traits",
             "New territory",
@@ -2687,6 +3083,7 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             primary_text += "\n" + path.read_text(encoding="utf-8")
     for term in (
         "ARTIFACT_TO_SURFACE_LEDGER.md",
+        "DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md",
         "IMPLEMENTATION_DIFFERENCE_RULE.md",
         "CAVEAT_LEDGER.md",
         "VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
@@ -2694,6 +3091,7 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
         "caveat acceptance only records required follow-up",
         "Clean enough is not the acceptance standard",
         "USER-selected visual direction",
+        "real rendered draft-window/template",
         "OPTION-E",
         "OPTION-F",
         "OPTION-D",
@@ -2767,11 +3165,13 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         "Review Aids/VISUAL_OPTIONS_PACKET.md",
         "Review Aids/ELEMENT_LEGENDS.md",
         "Review Aids/ANNOTATION_MANIFEST.md",
+        "Review Aids/DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md",
         "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
         "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
         "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
         "Review Aids/CAVEAT_LEDGER.md",
         "Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
+        "Review Aids/FUTURE_LAYOUT_ARRANGEMENT_CANDIDATES.md",
         "Review Aids/STATE_COVERAGE_STORYBOARD.md",
         "Review Aids/REUSABLE_DESIGN_RECIPE_TEMPLATE.md",
         "Review Aids/GOVERNANCE_CANDIDATE_ONLY.md",
@@ -2793,6 +3193,11 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         "materially differ",
         "Near-duplicates with label-only changes are rejected",
         "Real Draft Window Requirement",
+        "real rendered draft-window/template",
+        "PySide6 QWebEngine",
+        "not freehand static concept drawings",
+        "PIL/ImageDraw is not the source for clean candidate media",
+        "future user-customizable layout arrangement candidate",
         "OPTION-D",
         "OPTION-E",
         "OPTION-F",
@@ -2830,8 +3235,22 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
                 failures.append("ZIP missing annotation manifest")
             if "Review Aids/IMAGE_RELEVANCE_MANIFEST.md" not in zip_entries:
                 failures.append("ZIP missing image relevance manifest")
+            if "Review Aids/DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md" not in zip_entries:
+                failures.append("ZIP missing draft-window template render manifest")
+            template_entries = [entry for entry in zip_entries if entry.startswith(f"{DRAFT_TEMPLATE_ROOT}/") and entry.endswith("_template.html")]
+            if len(template_entries) != (len(OPTION_IDS) - 1) * 2:
+                failures.append(f"Expected two HTML draft templates for every non-runtime option; found {len(template_entries)}")
+            for option_id in OPTION_IDS:
+                if option_id == "OPTION-A":
+                    continue
+                option_slug = option_id.lower()
+                matching_templates = [entry for entry in template_entries if option_slug in entry]
+                if len(matching_templates) != 2:
+                    failures.append(f"{option_id} missing focused+desktop rendered draft template HTML artifacts: {matching_templates}")
             for required_entry in (
                 "Review Aids/ARTIFACT_TO_SURFACE_LEDGER.md",
+                "Review Aids/DRAFT_WINDOW_TEMPLATE_RENDER_MANIFEST.md",
+                "Review Aids/FUTURE_LAYOUT_ARRANGEMENT_CANDIDATES.md",
                 "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md",
                 "Review Aids/CAVEAT_LEDGER.md",
                 "Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md",
