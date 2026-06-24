@@ -293,6 +293,9 @@ VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_WORDING_FIXTURE = (
 VALID_REBASELINE_ADOPTION_NO_ISSUE_CANDIDATE_GAP_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_no_issue_candidate_gap.md"
 )
+VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_no_user_review_required.md"
+)
 VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_direct_negated_green.md"
 )
@@ -382,6 +385,9 @@ INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_EMBEDDED_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_HYPHENATED_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_hyphenated_status.md"
+)
+INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_POSITIVE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_current_issue_candidate_positive_status.md"
 )
 INVALID_REBASELINE_ADOPTION_ACCEPTED_REFERENCE_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_accepted_reference_issue_candidate.md"
@@ -2049,10 +2055,39 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 normalized_cell,
             )
             or re.search(
-                r"\bissue candidates?\s+(?:is\s+|are\s+)?(?:not\s+)?(?:applicable|needed|required|present|open|active)\b",
+                r"\bissue candidates?\s+(?:is\s+|are\s+)?not\s+(?:applicable|needed|required|present|open|active)\b",
                 normalized_cell,
             )
         )
+
+    def contains_non_negated_rar_phrase(value: str, phrases: tuple[str, ...]) -> bool:
+        if not value:
+            return False
+        normalized_value = governance._normalized_planning_value(value)
+        for phrase in phrases:
+            normalized_phrase = governance._normalized_planning_value(phrase)
+            for match in re.finditer(re.escape(normalized_phrase), normalized_value):
+                prefix = normalized_value[max(0, match.start() - 48) : match.start()]
+                suffix = normalized_value[match.end() : match.end() + 24]
+                if re.search(
+                    r"(?:^|[\s;:,.(\[])(?:no|not|without)\s+$",
+                    prefix,
+                ):
+                    continue
+                if re.search(
+                    r"(?:^|[\s;:,.(\[])(?:no|not)\s+(?:further\s+|active\s+|current\s+)?$",
+                    prefix,
+                ):
+                    continue
+                if re.search(
+                    r"(?:^|[\s;:,.(\[])(?:is|are|was|were|remains?|remain)\s+not\s+$",
+                    prefix,
+                ):
+                    continue
+                if re.match(r"^\s+needed\b", suffix):
+                    continue
+                return True
+        return False
 
     def cell_has_unresolved_status(value: str) -> bool:
         normalized_cell = normalize_rar_status_cell(value)
@@ -2110,9 +2145,9 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             )
         )
     )
-    pending_user_review_required = any(
-        phrase in active_rar_values
-        for phrase in (
+    pending_user_review_required = contains_non_negated_rar_phrase(
+        active_rar_values,
+        (
             "rar3",
             "rar3 user review gate",
             "user review gate remains active",
@@ -2130,7 +2165,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "user must review",
             "review issue candidate",
             "reviews rar issue candidates",
-        )
+        ),
     ) or unresolved_row_user_review_required
 
     for quality in (
@@ -6619,6 +6654,17 @@ line item, not a seam or separate branch.
             + "; ".join(valid_no_issue_candidate_gap_failures[:5])
         )
 
+    valid_no_user_review_required_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_NO_USER_REVIEW_REQUIRED_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_no_user_review_required_failures:
+        failures.append(
+            "Valid no-USER-review-required RAR fixture unexpectedly failed: "
+            + "; ".join(valid_no_user_review_required_failures[:5])
+        )
+
     valid_direct_negated_green_failures = _validate_rebaseline_adoption_review_text(
         VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE.read_text(
             encoding="utf-8"
@@ -6931,6 +6977,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject hyphenated current issue-candidate status"
+        )
+
+    current_issue_candidate_positive_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CURRENT_ISSUE_CANDIDATE_POSITIVE_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        current_issue_candidate_positive_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject positive current issue-candidate status"
         )
 
     accepted_reference_issue_candidate_failures = (
