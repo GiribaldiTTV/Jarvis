@@ -293,11 +293,20 @@ INVALID_REBASELINE_ADOPTION_MISSING_CODE_TRACE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
 )
+INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_green.md"
+)
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
 )
+INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_pending_review_no_packet.md"
+)
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
+)
+INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_concrete_phase_while_active.md"
 )
 INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_DISPOSITION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_disposition.md"
@@ -393,6 +402,7 @@ EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET = (
 EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET = "Owned Surface Issue Candidate Missing"
 EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET = "Normal Phase Progression Blocked By RAR"
 EXPECTED_RAR_ISSUE_DISPOSITION_FAILURE_SNIPPET = "Issue Candidate Disposition Missing"
+EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET = "RAR USER Packet Missing"
 EXPECTED_BP1_SHALLOW_RECOMMENDATION_FAILURE_SNIPPET = (
     "Codex Recommendations are too shallow"
 )
@@ -1802,6 +1812,33 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     code_trace_rows = table_rows_after_header(code_trace_header)
     issue_candidate_rows = table_rows_after_header(issue_candidate_header)
+    issue_candidate_disposition = governance._extract_marker_value(
+        text, "Issue Candidate Disposition:"
+    )
+    decision_table = governance._extract_marker_value(
+        text, "Repair / Waiver / Defer / Route Decision Table:"
+    )
+    active_rar_values = governance._normalized_planning_value(
+        " ".join(
+            governance._extract_marker_value(text, marker)
+            for marker in (
+                "RAR Stage:",
+                "Issue Candidate Disposition:",
+                "Repair / Waiver / Defer / Route Decision Table:",
+                "Adoption Disposition:",
+                "Repair / Waiver / Blocker:",
+                "Exact Next USER Decision:",
+            )
+        )
+    )
+    pending_user_review_required = any(
+        phrase in active_rar_values
+        for phrase in (
+            "user review pending",
+            "pending user review",
+            "pending user",
+        )
+    )
 
     for quality in (
         "deterministic",
@@ -1830,14 +1867,16 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     user_packet_path = governance._extract_marker_value(text, "USER Packet Path:")
     user_packet_zip = governance._extract_marker_value(text, "USER Packet ZIP Path:")
+    user_packet_path_not_required = "not required" in user_packet_path.casefold()
+    user_packet_zip_not_required = "not required" in user_packet_zip.casefold()
     require(
         "c:\\nexus user" in user_packet_path.casefold()
-        or "not required" in user_packet_path.casefold(),
+        or (user_packet_path_not_required and not pending_user_review_required),
         "RAR USER Packet Missing",
     )
     require(
         re.search(r"[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip", user_packet_zip) is not None
-        or "not required" in user_packet_zip.casefold(),
+        or (user_packet_zip_not_required and not pending_user_review_required),
         "RAR USER Packet Missing",
     )
 
@@ -1869,6 +1908,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "reference gap",
         "template gap",
         "shared primitive gap",
+        "issue candidate",
     )
 
     def cell_has_unresolved_status(value: str) -> bool:
@@ -1899,12 +1939,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         or "none" not in previous_candidates.casefold()
     )
     if issue_candidate_disposition_required:
-        issue_candidate_disposition = governance._extract_marker_value(
-            text, "Issue Candidate Disposition:"
-        )
-        decision_table = governance._extract_marker_value(
-            text, "Repair / Waiver / Defer / Route Decision Table:"
-        )
         normalized_issue_candidate_disposition = (
             governance._normalized_planning_value(issue_candidate_disposition)
         )
@@ -1941,19 +1975,6 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
     if normal_phase:
-        active_rar_values = governance._normalized_planning_value(
-            " ".join(
-                governance._extract_marker_value(text, marker)
-                for marker in (
-                    "RAR Stage:",
-                    "Issue Candidate Disposition:",
-                    "Repair / Waiver / Defer / Route Decision Table:",
-                    "Adoption Disposition:",
-                    "Repair / Waiver / Blocker:",
-                    "Exact Next USER Decision:",
-                )
-            )
-        )
         active_rar_context = any(
             token in active_rar_values
             for token in (
@@ -1970,10 +1991,31 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 "required before normal phase progression",
             )
         )
+        normalized_next_phase = governance._normalized_planning_value(normal_phase)
+        advancement_requested = any(
+            token in normalized_next_phase
+            for token in (
+                "normal phase progression",
+                "branch readiness",
+                "br1",
+                "br2",
+                "bp1",
+                "bp2",
+                "bp3",
+                "workstream",
+                "hardening",
+                "live validation",
+                "lv1",
+                "uts",
+                "pr readiness",
+                "release readiness",
+                "pr creation",
+                "merge",
+                "release",
+            )
+        )
         require(
-            "normal phase progression"
-            not in governance._normalized_planning_value(normal_phase)
-            or not active_rar_context,
+            not (advancement_requested and active_rar_context),
             "Normal Phase Progression Blocked By RAR",
         )
     return failures
@@ -5977,6 +6019,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject unresolved nonconformance claimed green"
         )
 
+    issue_candidate_green_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        issue_candidate_green_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject issue candidate row claimed green"
+        )
+
     missing_issue_candidate_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE.read_text(
             encoding="utf-8"
@@ -5989,6 +6043,24 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject missing historical issue candidate disposition"
         )
 
+    pending_review_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET in "\n".join(
+        pending_review_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid pending-review no-packet RAR fixture failed for the wrong reason"
+        )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        pending_review_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing USER packet for pending review"
+        )
+
     normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE.read_text(
             encoding="utf-8"
@@ -5999,6 +6071,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject normal phase progression while RAR remains active"
+        )
+
+    concrete_phase_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_CONCRETE_PHASE_WHILE_ACTIVE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_NORMAL_PHASE_FAILURE_SNIPPET not in "\n".join(
+        concrete_phase_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject concrete phase progression while RAR remains active"
         )
 
     issue_disposition_rar_failures = _validate_rebaseline_adoption_review_text(
