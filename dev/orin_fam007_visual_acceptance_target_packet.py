@@ -137,7 +137,9 @@ def _accepted_historical_zips() -> set[Path]:
     for source in (BRANCH_STATE, BRANCH_PLAN):
         if source.exists():
             text += "\n" + _read_text(source)
-    return {Path(match.group(1)) for match in re.finditer(r"Accepted Historical Packet:\s*`([^`]+\.zip)`", text)}
+    accepted = {Path(match.group(1)) for match in re.finditer(r"Accepted Historical Packet:\s*`([^`]+\.zip)`", text)}
+    accepted.add(ACCEPTED_HISTORICAL_ZIP)
+    return accepted
 
 
 def _purge_packet_root() -> None:
@@ -661,6 +663,8 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         zip_path = zips[0] if zips else None
     if zip_path is None or not zip_path.exists():
         failures.append("Timestamped ZIP missing")
+    if not ACCEPTED_HISTORICAL_ZIP.exists():
+        failures.append(f"Accepted historical ZIP missing: {ACCEPTED_HISTORICAL_ZIP}")
     for relative in REQUIRED_PACKET_FILES:
         if not (packet_dir / relative).exists():
             failures.append(f"Required packet file missing: {relative}")
