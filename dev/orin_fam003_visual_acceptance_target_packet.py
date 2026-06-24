@@ -11,6 +11,8 @@ import datetime as dt
 import hashlib
 import json
 import shutil
+import subprocess
+import sys
 import textwrap
 import zipfile
 from dataclasses import dataclass
@@ -32,6 +34,14 @@ PACKET_RENDER_MEDIA_ROOT = PACKET_ROOT / "Source Truth Context" / "Proof Artifac
 RETIRED_PACKET_LABELS = ("FAM-003-Visual-Acceptance",)
 CURRENT_PROOF_ROOT = (
     ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260623-140739"
+)
+HARDENING_COMMIT_SUBJECT = "Harden FAM-003 visual acceptance governance"
+HARDENING_CHANGED_FILES = (
+    "Docs/phase_governance.md",
+    "Docs/validation_helper_registry.md",
+    "Docs/branch_records/feature_fam_003_resident_access_quick_actions.md",
+    "dev/orin_fam003_visual_acceptance_target_packet.py",
+    "dev/orin_fam003_visual_acceptance_target_validation.py",
 )
 
 BG = (2, 8, 18)
@@ -604,6 +614,255 @@ def write(path: Path, text: str):
     path.write_text(textwrap.dedent(text).strip() + "\n", encoding="utf-8")
 
 
+def _command_text(args: list[str]) -> str:
+    return " ".join(f'"{arg}"' if " " in arg else arg for arg in args)
+
+
+def _run_command(args: list[str], timeout: int = 180) -> dict[str, str | int]:
+    try:
+        result = subprocess.run(
+            args,
+            cwd=ROOT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            capture_output=True,
+            timeout=timeout,
+            check=False,
+        )
+        output = (result.stdout or "") + (result.stderr or "")
+        return {
+            "command": _command_text(args),
+            "exit_code": result.returncode,
+            "status": "PASS" if result.returncode == 0 else "FAIL",
+            "output": output.strip(),
+        }
+    except Exception as exc:  # pragma: no cover - packet evidence fallback
+        return {
+            "command": _command_text(args),
+            "exit_code": -1,
+            "status": "FAIL",
+            "output": f"{type(exc).__name__}: {exc}",
+        }
+
+
+def _find_hardening_commit() -> str:
+    result = _run_command(
+        ["git", "log", "--grep", HARDENING_COMMIT_SUBJECT, "-1", "--format=%H"],
+        timeout=60,
+    )
+    output = str(result["output"]).splitlines()
+    return output[0].strip() if output and result["status"] == "PASS" else "UNKNOWN"
+
+
+def _safe_snapshot_name(relative_path: str) -> str:
+    return relative_path.replace("/", "__").replace("\\", "__")
+
+
+def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
+    commit = _find_hardening_commit()
+    proof_dir = PACKET_ROOT / "Source Truth Context" / "Governance Proof"
+    snapshots_dir = proof_dir / "Changed File Snapshots"
+    proof_dir.mkdir(parents=True, exist_ok=True)
+    snapshots_dir.mkdir(parents=True, exist_ok=True)
+
+    for relative in HARDENING_CHANGED_FILES:
+        copy_if_exists(ROOT / relative, snapshots_dir / _safe_snapshot_name(relative))
+
+    diff_args = [
+        "git",
+        "show",
+        "--unified=30",
+        "--format=fuller",
+        commit,
+        "--",
+        *HARDENING_CHANGED_FILES,
+    ]
+    diff_result = _run_command(diff_args, timeout=120)
+    diff_path = proof_dir / "HARDENING_COMMIT_BOUNDED_DIFF.patch"
+    diff_path.write_text(
+        str(diff_result["output"]) + "\n",
+        encoding="utf-8",
+    )
+
+    technical_ledger_path = proof_dir / "GOVERNANCE_SOURCE_TRUTH_PROOF.md"
+    write(
+        technical_ledger_path,
+        f"""
+        # Governance Source-Truth Proof
+
+        Proof purpose: close `GOV-VAT-004` by making the packet verify the governance/source-truth/helper/validator hardening claim from evidence inside the packet, not from the Codex digest.
+
+        Hardening commit subject: `{HARDENING_COMMIT_SUBJECT}`
+        Hardening commit located by Git: `{commit}`
+
+        ## Changed File Snapshots
+
+        These snapshots are copied into `Source Truth Context/Governance Proof/Changed File Snapshots/`:
+
+        """
+        + "\n".join(
+            f"- `{relative}` -> `Source Truth Context/Governance Proof/Changed File Snapshots/{_safe_snapshot_name(relative)}`"
+            for relative in HARDENING_CHANGED_FILES
+        )
+        + f"""
+
+        ## Bounded Diff Proof
+
+        Bounded diff artifact: `Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch`
+
+        Diff command:
+
+        ```text
+        {_command_text(diff_args)}
+        ```
+
+        Diff command result: `{diff_result["status"]}` with exit code `{diff_result["exit_code"]}`.
+
+        ## Branch-Local Versus Durable Authority
+
+        This proof is branch-local to FAM-003. It proves the current packet carries the FAM-003 visual acceptance target hardening evidence. It does not promote a repo-wide Visual Acceptance Target phase, a shared settings primitive, a global UI template, a sibling adoption rule, LV green, UTS completion, PR readiness, merge readiness, release readiness, cleanup readiness, issue mutation, selected-next mutation, provider/model/private/cache/memory work, or installer/startup/shortcut/packaging work.
+
+        ## Visual Target Status
+
+        Visual target review remains design-target only. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver.
+        """,
+    )
+    ledger_path = PACKET_ROOT / "Review Aids" / "GOVERNANCE_SOURCE_TRUTH_PROOF.md"
+    write(
+        ledger_path,
+        """
+        # Governance Source-Truth Proof Summary
+
+        Proof purpose: close `GOV-VAT-004` by making this packet verify the governance/source-truth/helper/validator hardening claim from packet-contained evidence instead of Codex digest text alone.
+
+        ## Packet-contained proof
+
+        - Direct source snapshots are included under `Source Truth Context/Governance Proof/Changed File Snapshots/`.
+        - The bounded hardening diff is included under `Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch`.
+        - The raw governance proof receipt is included under `Source Truth Context/Governance Proof/GOVERNANCE_SOURCE_TRUTH_PROOF.md`.
+        - Actual pre-archive command receipts are included under `Source Truth Context/Governance Proof/VALIDATION_COMMAND_RECEIPTS.md`.
+
+        ## Branch-local versus durable authority
+
+        This is branch-local proof for FAM-003. It does not promote a repo-wide Visual Acceptance Target phase, shared primitive, global template, sibling adoption rule, LV green, UTS completion, PR readiness, merge readiness, release readiness, cleanup readiness, issue mutation, selected-next mutation, provider/model/private/cache/memory work, or installer/startup/shortcut/packaging work.
+
+        ## Visual target status
+
+        Visual target review remains design-target only. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver.
+        """,
+    )
+    return commit, diff_path, ledger_path
+
+
+def _write_validation_receipts(commit: str):
+    write(
+        STATE_ROOT / "visual_acceptance_target_validation_results_20260624.md",
+        """
+        # Visual Acceptance Target Validation Results
+
+        Status: `PENDING_PRE_ARCHIVE_COMMAND_RECEIPTS`
+
+        This placeholder exists only so the packet validator can prove the external
+        receipt path during the same generation pass. It is overwritten with actual
+        command receipts before the packet is zipped.
+        """,
+    )
+    base_commands = (
+        ["git", "show", "--stat", "--oneline", commit, "--", *HARDENING_CHANGED_FILES],
+        ["git", "show", "--name-status", "--format=fuller", commit, "--", *HARDENING_CHANGED_FILES],
+        [sys.executable, "dev/orin_external_state_validation.py", "--require-root"],
+        [sys.executable, "dev/orin_branch_governance_validation.py", "--worktree-confinement-gate"],
+        [sys.executable, "dev/orin_branch_governance_validation.py"],
+        [sys.executable, "dev/orin_source_owner_marker_validation.py"],
+        [sys.executable, "dev/orin_branch_readiness_planning_fixture_validation.py"],
+        [sys.executable, "dev/orin_governance_efficiency_validation.py"],
+        [sys.executable, "dev/orin_branch_governance_validation.py", "--release-readiness-health-gate"],
+        [sys.executable, "dev/orin_fam003_resident_access_validation.py"],
+        [sys.executable, "dev/orin_fam003_settings_repair_visual_validation.py"],
+        [sys.executable, "dev/orin_release_body_validation.py"],
+        [sys.executable, "dev/orin_ai_provider_state_validation.py"],
+        [sys.executable, "-m", "compileall", "-q", "dev", "desktop", "Audio", "main.py", "nexus_visual"],
+        ["git", "diff", "--check"],
+        ["git", "diff", "--check", "origin/main...HEAD"],
+        ["git", "diff", "--cached", "--check"],
+    )
+    receipts = [_run_command(list(command), timeout=180) for command in base_commands]
+
+    technical_receipts_path = (
+        PACKET_ROOT
+        / "Source Truth Context"
+        / "Governance Proof"
+        / "VALIDATION_COMMAND_RECEIPTS.md"
+    )
+
+    def write_receipts(current_receipts: list[dict[str, str | int]]):
+        rows = "\n".join(
+            f"| `{idx}` | `{receipt['status']}` | `{receipt['exit_code']}` | `{receipt['command']}` |"
+            for idx, receipt in enumerate(current_receipts, start=1)
+        )
+        details = "\n\n".join(
+            f"## Receipt {idx}: {receipt['status']}\n\nCommand:\n\n```text\n{receipt['command']}\n```\n\nExit code: `{receipt['exit_code']}`\n\nOutput:\n\n```text\n{receipt['output'] or '[no output]'}\n```"
+            for idx, receipt in enumerate(current_receipts, start=1)
+        )
+        write(
+            technical_receipts_path,
+            f"""
+            # Validation Command Receipts
+
+            This file records actual pre-archive command receipts captured during packet generation. Final ZIP SHA256 and post-archive folder/ZIP parity are recorded outside the ZIP after generation to avoid self-hash contradiction.
+
+            | Receipt | Status | Exit Code | Command |
+            | --- | --- | --- | --- |
+            {rows}
+
+            {details}
+
+            Final archive parity: `PENDING_EXTERNAL_POST_ZIP_RECEIPT`
+
+            Validation interpretation: these command receipts are evidence, not USER acceptance. They do not make the packet LV green, UTS complete, PR-ready, merge-ready, release-ready, or cleanup-ready.
+            """,
+        )
+        summary_rows = "\n".join(
+            f"| `{idx}` | `{receipt['status']}` |"
+            for idx, receipt in enumerate(current_receipts, start=1)
+        )
+        write(
+            PACKET_ROOT / "Review Aids" / "VALIDATION_RESULTS.md",
+            f"""
+            # Validation Results
+
+            This USER-facing summary records that actual pre-archive command receipts were captured. Raw command text, commit identifiers, baseline identifiers, and archive hash material live in `Source Truth Context/Governance Proof/VALIDATION_COMMAND_RECEIPTS.md` so this review aid remains readable and does not turn technical metadata into a USER-facing decision file.
+
+            | Receipt | Status |
+            | --- | --- |
+            {summary_rows}
+
+            Post-archive folder/archive parity and final archive checksum are recorded outside the archive after generation to avoid self-reference.
+
+            Validation interpretation: these receipts are evidence, not USER acceptance. They do not make the packet LV green, UTS complete, PR-ready, merge-ready, release-ready, or cleanup-ready.
+            """,
+        )
+
+    write_receipts(receipts)
+    receipts.append(
+        _run_command(
+            [
+                sys.executable,
+                "dev/orin_fam003_visual_acceptance_target_validation.py",
+                "--packet-folder",
+                str(PACKET_ROOT),
+            ],
+            timeout=180,
+        )
+    )
+    write_receipts(receipts)
+    copy_if_exists(
+        technical_receipts_path,
+        STATE_ROOT / "visual_acceptance_target_validation_results_20260624.md",
+    )
+
+
 def copy_if_exists(src: Path, dst: Path):
     if src.exists():
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -728,6 +987,9 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         "dev/orin_user_review_bundle.py",
         "dev/orin_fam003_visual_acceptance_target_validation.py",
         "dev/orin_fam003_visual_acceptance_target_packet.py",
+        "Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch",
+        "Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md",
+        "Review Aids/VALIDATION_RESULTS.md",
         r"C:\Nexus USER\UTS - FAM-003.txt",
     )
 
@@ -815,6 +1077,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         - Current active LV1 packet remains separate from this visual-target packet.
         - Current source truth admits FAM-003 branch-local resident/tray/settings work and this Branch-Local Visual Acceptance Target overlay, but reusable global visual-target enforcement remains Governance/FAM-002 candidate-only.
         - Prior packet wording in `Review Aids/GOVERNANCE_CANDIDATE_ONLY.md` was stale after USER approved branch-local hardening; this regenerated packet supersedes that wording.
+        - The 082443 packet did not include direct governance/source-truth wording proof, bounded diff proof, or actual command receipts sufficient to verify the governance-hardening claim. This packet admits and closes that as `GOV-VAT-004`.
         """,
     )
 
@@ -1038,6 +1301,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         | `GOV-VAT-001` | Prior `GOVERNANCE_CANDIDATE_ONLY.md` wording said the prompt only approved branch-local process and did not reflect USER-approved branch-local governance/source-truth hardening. | Stale packet wording could blur active branch-local overlay versus durable repo-wide candidate status. | Regenerated this file as `Branch-Local vs Durable Governance Disposition`; FAM-003 branch-local overlay is admitted while repo-wide enforcement remains candidate-only. |
         | `GOV-VAT-002` | Phase governance had strong Live Validation visual proof law but lacked an explicit branch-local Visual Acceptance Target overlay model for pre-implementation or pre-green UI/UX option packets. | Design candidates, screenshots, or helper green could be mistaken for accepted target or implementation match. | `Docs/phase_governance.md` now defines the branch-local overlay, required classifications, evidence rules, packet fields, blockers, and durable-governance routing boundary. |
         | `GOV-VAT-003` | The FAM-003 visual-target validator did not require branch-local governance hardening markers, seed-defect language, or durable-governance split language. | A packet could pass while omitting the new false-green-prevention semantics. | `dev/orin_fam003_visual_acceptance_target_validation.py` now requires those markers and this regenerated packet carries them. |
+        | `GOV-VAT-004` | The 082443 governance-hardening packet was visually reviewable but did not include enough direct proof of changed governance/source-truth wording, bounded changed-file diffs, or actual command pass/fail receipts to independently verify the hardening claim. | ChatGPT/USER could only trust the Codex digest rather than packet-contained proof, creating another false-green vector for governance hardening. | This repaired packet includes `Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md`, `Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch`, changed-file snapshots, and actual command receipts in `Review Aids/VALIDATION_RESULTS.md`; `dev/orin_fam003_visual_acceptance_target_validation.py` now requires the new proof markers. |
 
         USER/ChatGPT UI findings are seed defects, not the ceiling. Codex Independent Evidence Inspection remains required before any future visual green claim. This ledger does not make the packet LV green, UTS complete, PR-ready, merge-ready, release-ready, or cleanup-ready.
         """,
@@ -1080,6 +1344,9 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         Desktop/context render count: `{len(OPTIONS)}`
         State matrix render count: `{len(OPTIONS)}`
         Contact sheet count: `1`
+        Governance/source-truth proof ledger: `Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md`
+        Governance bounded diff artifact: `Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch`
+        Validation command receipts: `Review Aids/VALIDATION_RESULTS.md`
 
         Packet hygiene:
         - Stable worktree-labeled folder purged before generation: `YES`
@@ -1122,6 +1389,10 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
     ):
         copy_if_exists(src, context / "Source Snapshots" / src.name)
 
+    hardening_commit, _diff_path, proof_ledger_path = _write_governance_proof_artifacts()
+    copy_if_exists(proof_ledger_path, STATE_ROOT / "governance_proof_packet_repair_20260624.md")
+    _write_validation_receipts(hardening_commit)
+
     state_map = {
         "visual_acceptance_target_process_20260624.md": PACKET_ROOT / "START_HERE.md",
         "visual_impact_classification_20260624.md": PACKET_ROOT / "Review Aids" / "VISUAL_IMPACT_CLASSIFICATION.md",
@@ -1133,7 +1404,9 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         "source_truth_conflict_classification_20260624.md": PACKET_ROOT / "Review Aids" / "SOURCE_TRUTH_CONFLICT_CLASSIFICATION.md",
         "udl_false_green_integration_20260624.md": PACKET_ROOT / "Review Aids" / "UDL_FALSE_GREEN_INTEGRATION.md",
         "visual_acceptance_governance_hardening_20260624.md": PACKET_ROOT / "Review Aids" / "BRANCH_LOCAL_GOVERNANCE_HARDENING.md",
+        "governance_proof_packet_repair_20260624.md": PACKET_ROOT / "Review Aids" / "GOVERNANCE_SOURCE_TRUTH_PROOF.md",
         "visual_acceptance_target_packet_manifest_20260624.md": PACKET_ROOT / "Review Aids" / "PACKET_MANIFEST.md",
+        "visual_acceptance_target_validation_results_20260624.md": PACKET_ROOT / "Review Aids" / "VALIDATION_RESULTS.md",
     }
     for name, src in state_map.items():
         copy_if_exists(src, STATE_ROOT / name)
@@ -1149,6 +1422,7 @@ Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target process and USER
 Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
 Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
 Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; durable repo-wide enforcement, shared primitives/templates, global helper/fixture gates, and sibling adoption remain future Governance/FAM-002/owning-FAM candidates.`
+Governance Proof Defect: `GOV-VAT-004 admitted and closed by packet-contained governance/source-truth snapshots, bounded hardening commit diff, changed-file snapshots, and actual command receipts.`
 Visual Impact Classification: `MATERIAL_UI_UX_CHANGE; EXISTING_SURFACE_LAYOUT_CHANGE; NEW_CONTROL_CLUSTER; SETTINGS_OR_IA_CHANGE; STATUS_ERROR_OR_EMPTY_STATE_CHANGE; VISUAL_SYSTEM_ADOPTION; AMBIGUOUS_VISUAL_CONTRACT; USER_REPORTED_VISUAL_FAILURE; FALSE_GREEN_VISUAL_PROOF_FAILURE.`
 Visual Options Packet: `{PACKET_ROOT}\\Review Aids\\VISUAL_OPTIONS_PACKET.md`
 Render Media Root: `{proof_root}\\render_media`
@@ -1190,6 +1464,7 @@ Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target packet generatio
 Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
 Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
 Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; packet now records seed-defect, independent-evidence-inspection, USER_ACCEPTED target, and implementation-match boundaries without promoting repo-wide enforcement.`
+Governance Proof Defect: `GOV-VAT-004 closed in the regenerated packet by Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md, Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch, changed-file snapshots, and Review Aids/VALIDATION_RESULTS.md actual command receipts.`
 USER Packet Folder: `{PACKET_ROOT}`
 USER Packet ZIP Path: `{zip_path}`
 USER Packet ZIP SHA256: `{digest}`

@@ -34,6 +34,7 @@ REQUIRED_REVIEW_AIDS = (
     "UDL_FALSE_GREEN_INTEGRATION.md",
     "GOVERNANCE_CANDIDATE_ONLY.md",
     "BRANCH_LOCAL_GOVERNANCE_HARDENING.md",
+    "GOVERNANCE_SOURCE_TRUTH_PROOF.md",
     "ARTIFACT_TO_SURFACE_LEDGER.md",
     "PACKET_MANIFEST.md",
     "VALIDATION_RESULTS.md",
@@ -54,6 +55,8 @@ REQUIRED_STATE_FILES = (
     "source_truth_conflict_classification_20260624.md",
     "udl_false_green_integration_20260624.md",
     "visual_acceptance_governance_hardening_20260624.md",
+    "governance_proof_packet_repair_20260624.md",
+    "visual_acceptance_target_validation_results_20260624.md",
 )
 FORBIDDEN_ACTIVE_REVIEW_PATTERNS = (
     re.compile(r"\bUSER_BRANCH_PLAN_REVIEW\.md\b", re.IGNORECASE),
@@ -143,6 +146,21 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         if pattern.search(combined_user_text):
             failures.append(f"forbidden active review wording: {pattern.pattern}")
 
+    review_aid_text = "\n".join(
+        _read_text(packet_dir / "Review Aids" / aid)
+        for aid in REQUIRED_REVIEW_AIDS
+        if (packet_dir / "Review Aids" / aid).exists()
+    )
+    governance_proof_text = ""
+    governance_proof_root = packet_dir / "Source Truth Context" / "Governance Proof"
+    if governance_proof_root.exists():
+        governance_proof_text = "\n".join(
+            _read_text(path)
+            for path in sorted(governance_proof_root.rglob("*"))
+            if path.is_file() and path.suffix.lower() in {".md", ".patch", ".txt"}
+        )
+    supporting_text = "\n".join((review_aid_text, governance_proof_text))
+
     required_markers = (
         "Design Candidate Render",
         "Visual Acceptance Target",
@@ -167,18 +185,71 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "GOV-VAT-001",
         "GOV-VAT-002",
         "GOV-VAT-003",
+        "GOV-VAT-004",
+        "Governance Source-Truth Proof",
+        "HARDENING_COMMIT_BOUNDED_DIFF.patch",
+        "Changed File Snapshots",
+        "actual pre-archive command receipts",
+        "PENDING_EXTERNAL_POST_ZIP_RECEIPT",
     )
     for marker in required_markers:
-        if marker not in combined_user_text and marker not in "\n".join(
-            _read_text(packet_dir / "Review Aids" / aid)
-            for aid in REQUIRED_REVIEW_AIDS
-            if (packet_dir / "Review Aids" / aid).exists()
-        ):
+        if marker not in combined_user_text and marker not in supporting_text:
             failures.append(f"required marker missing from packet text: {marker}")
 
     for state_file in REQUIRED_STATE_FILES:
         if not (state_root / state_file).exists():
             failures.append(f"external visual-target state file missing: {state_file}")
+    governance_diff = (
+        packet_dir
+        / "Source Truth Context"
+        / "Governance Proof"
+        / "HARDENING_COMMIT_BOUNDED_DIFF.patch"
+    )
+    if not governance_diff.exists():
+        failures.append("governance hardening bounded diff artifact missing")
+    else:
+        diff_text = _read_text(governance_diff)
+        for expected in (
+            "Harden FAM-003 visual acceptance governance",
+            "Docs/phase_governance.md",
+            "Docs/validation_helper_registry.md",
+            "dev/orin_fam003_visual_acceptance_target_packet.py",
+            "dev/orin_fam003_visual_acceptance_target_validation.py",
+        ):
+            if expected not in diff_text:
+                failures.append(f"governance hardening bounded diff missing marker: {expected}")
+    snapshots_dir = packet_dir / "Source Truth Context" / "Governance Proof" / "Changed File Snapshots"
+    if not snapshots_dir.is_dir():
+        failures.append("governance changed-file snapshots folder missing")
+    else:
+        for expected_snapshot in (
+            "Docs__phase_governance.md",
+            "Docs__validation_helper_registry.md",
+            "Docs__branch_records__feature_fam_003_resident_access_quick_actions.md",
+            "dev__orin_fam003_visual_acceptance_target_packet.py",
+            "dev__orin_fam003_visual_acceptance_target_validation.py",
+        ):
+            if not (snapshots_dir / expected_snapshot).exists():
+                failures.append(f"governance changed-file snapshot missing: {expected_snapshot}")
+    validation_receipts = (
+        packet_dir
+        / "Source Truth Context"
+        / "Governance Proof"
+        / "VALIDATION_COMMAND_RECEIPTS.md"
+    )
+    if not validation_receipts.exists():
+        failures.append("governance validation command receipts missing")
+    else:
+        receipts_text = _read_text(validation_receipts)
+        for expected in (
+            "Validation Command Receipts",
+            "git show --stat",
+            "git diff --check",
+            "origin/main...HEAD",
+            "PASS: FAM-003 visual acceptance target packet is complete and reviewable",
+        ):
+            if expected not in receipts_text:
+                failures.append(f"governance validation command receipts missing marker: {expected}")
 
     if packet_zip is not None:
         if not packet_zip.exists():
