@@ -580,7 +580,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessSettingsFooter",
         "role": "deterministic settings actions",
         "rule": "UIREF-003; F3-FF01",
-        "copy": "Revert; Save Changes; guard-only Cancel/Discard",
+        "copy": "Revert; Save; guard-only Save/Discard/Cancel",
         "font": "10pt buttons",
         "text": "pale action text",
         "background": "transparent footer",
@@ -1006,7 +1006,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current failure digestion: packet `C:\\Nexus USER\\FAM-003-20260623-125842.zip` is rejected for USER retest because the visual UDL was still a compact summary table instead of the required detailed per-defect schema; this run revalidates the existing V13 visual proof after schema repair.",
+        "- Current repair route: VAT-OPT-G2 is USER_ACCEPTED as a high-fidelity guide/template; this run validates the bounded G2-v14 implementation-match repair while preserving USER-operated LV1 retest as pending.",
         "",
         "## Results",
         "",
@@ -1064,7 +1064,7 @@ def _write_fail_capable_defect_ledger(
         "dropdown/list state is not white/native-light",
         "dropdown/list geometry is compact",
         "close guard blocks silent loss",
-        "close guard comparator-aligned no-cancel layout",
+        "close guard comparator-aligned Save / Discard / Cancel layout",
         "save clears dirty state",
     ]
     conformance_failed = [name for name in conformance_checks if not check_status.get(name, False)]
@@ -1072,7 +1072,7 @@ def _write_fail_capable_defect_ledger(
     conformance_detail = (
         "; ".join(f"{name}: {check_detail.get(name, '')}" for name in conformance_failed)
         if conformance_failed
-        else "V13 visual-UDL Tray parent / Quick Access child IA plus move/resize checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
+        else "VAT-OPT-G2 implementation-match Tray parent / Quick Access child IA plus move/resize checks pass as supporting Codex evidence; final LV acceptance still requires USER UTS PASS or WAIVED."
     )
     ledger_path = log_dir / "FAIL_CAPABLE_DEFECT_LEDGER.md"
     ledger_lines = [
@@ -1452,7 +1452,7 @@ def main() -> int:
             and min_width >= 760
             and min_height >= 320
             and dialog.resize_grip.isVisible()
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x320-v13",
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x320-v14",
             f"resized={resized_width}x{resized_height}; min={min_width}x{min_height}; grip_visible={dialog.resize_grip.isVisible()}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -1572,10 +1572,10 @@ def main() -> int:
             and not dialog.section_badge.isVisible()
             and not dialog.section_detail.isVisible()
             and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-v13"
-            and dialog.property("settingsVisualRepair") == "visual-udl-conformance-v13"
-            and dialog.property("referenceDerivedHeader") == "integrated-ndai-settings-window-frame-v13"
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x320-v13"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-g2-v14"
+            and dialog.property("settingsVisualRepair") == "vat-opt-g2-implementation-match-v14"
+            and dialog.property("referenceDerivedHeader") == "integrated-ndai-settings-window-frame-g2-v14"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-qsizegrip-minimum-760x320-v14"
             and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
             and dialog.property("referenceComparatorRequired") == "accepted-ai-control-center-contact-sheet"
@@ -1584,7 +1584,7 @@ def main() -> int:
             and dialog.tray_nav_button.text() == "Tray"
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_button.isChecked()
-            and dialog.slot_count_badge.text() == f"{len(DEFAULT_QUICK_SLOT_ROUTE_IDS)}/{active_slot_limit} slots"
+            and dialog.slot_count_badge.text() == f"{len(DEFAULT_QUICK_SLOT_ROUTE_IDS)} active of {active_slot_limit}"
             and dialog.slot_count_badge.isVisible()
             and not dialog.tray_overview_container.isVisible()
             and dialog.quick_slot_container.isVisible()
@@ -1616,7 +1616,6 @@ def main() -> int:
         "Down",
         "Quick Access Slots",
         "Rows appear in tray order. Use Save Changes to apply them.",
-        "Add Slot",
         "Remove",
         "Done",
         "(unavailable)",
@@ -1736,8 +1735,8 @@ def main() -> int:
                 )
                 or (
                     button.objectName() == "residentAccessQuickSlotDelete"
-                    and button.text() == "Delete"
-                    and 42 <= button.width() <= 52
+                    and button.text() == "\N{MULTIPLICATION SIGN}"
+                    and 30 <= button.width() <= 38
                     and button.height() <= 22
                 )
                 for button in compact_action_buttons
@@ -1863,9 +1862,9 @@ def main() -> int:
             dialog.isVisible()
             and dialog._close_guard_active
             and dialog.discard_button.isVisible()
-            and not dialog.keep_editing_button.isVisible()
+            and dialog.keep_editing_button.isVisible()
             and not dialog.revert_button.isVisible()
-            and dialog.change_summary.text() == "Save or discard to close"
+            and dialog.change_summary.text() == "Unsaved changes"
             and dialog.change_summary.width() >= 128
             and dialog.change_summary.height() <= 24,
             f"visible={dialog.isVisible()}; guard={dialog._close_guard_active}; summary={dialog.change_summary.text()!r}; status_size={dialog.change_summary.width()}x{dialog.change_summary.height()}; cancel_visible={dialog.keep_editing_button.isVisible()}; revert_visible={dialog.revert_button.isVisible()}",
@@ -1873,14 +1872,15 @@ def main() -> int:
     )
     rows.append(
         (
-            "close guard comparator-aligned no-cancel layout",
+            "close guard comparator-aligned Save / Discard / Cancel layout",
             dialog._close_guard_active
             and dialog.discard_button.isVisible()
             and dialog.save_button.isVisible()
-            and not dialog.keep_editing_button.isVisible()
+            and dialog.keep_editing_button.isVisible()
             and not dialog.revert_button.isVisible()
             and dialog.discard_button.text() == "Discard"
-            and dialog.save_button.text() == "Save Changes",
+            and dialog.save_button.text() == "Save"
+            and dialog.keep_editing_button.text() == "Cancel",
             f"discard_visible={dialog.discard_button.isVisible()}; save_visible={dialog.save_button.isVisible()}; cancel_visible={dialog.keep_editing_button.isVisible()}; revert_visible={dialog.revert_button.isVisible()}; buttons={[(button.objectName(), button.text(), button.isVisible(), button.isEnabled()) for button in dialog.findChildren(QPushButton)]}",
         )
     )
@@ -1977,7 +1977,7 @@ def main() -> int:
             "save clears dirty state",
             not dialog._has_unsaved_changes()
             and not dialog.save_button.isEnabled()
-            and dialog.change_summary.text() == "Saved."
+            and dialog.change_summary.text() == "Saved"
             and dialog.settings_state_chip.text() == "Saved",
             f"dirty={dialog._has_unsaved_changes()}; summary={dialog.change_summary.text()!r}; state_chip={dialog.settings_state_chip.text()!r}",
         )

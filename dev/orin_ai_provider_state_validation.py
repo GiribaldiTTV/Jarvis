@@ -9222,11 +9222,14 @@ def validate() -> list[str]:
     for needle in (
         "ai_control_center_action",
         "ai_control_center_button",
-        "AI Control Center",
+        "AI Status / Command Center",
+        "request_ai_status_from_tray",
+        "TRAY_AI_STATUS_COMMAND_CENTER_ROUTED",
+        "route=fam007-ai-control-center",
         "request_ai_control_center_from_tray",
         "TRAY_AI_CONTROL_CENTER_REQUESTED",
         "TRAY_AI_CONTROL_CENTER_ROUTED",
-        "90: self.request_ai_control_center_from_tray",
+        "120: self.request_ai_status_from_tray",
         "carry_in=f3-ff01-narrow-doorway",
         "provider_visible_data=none",
         "provider_execution=blocked",
@@ -9235,6 +9238,15 @@ def validate() -> list[str]:
         "route_not_visible",
     ):
         _require(needle in tray_controller, f"tray controller native AI doorway is missing {needle!r}", failures)
+    for forbidden in (
+        'append(ai_menu, 90, "AI Control Center", True)',
+        '"AI Control Center",',
+    ):
+        _require(
+            forbidden not in tray_controller,
+            f"tray controller native AI doorway must not expose stale FAM-007 visible label {forbidden!r}",
+            failures,
+        )
 
     for needle in (
         "show_ai_control_center_from_tray",

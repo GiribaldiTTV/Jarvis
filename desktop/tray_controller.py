@@ -284,11 +284,6 @@ class DesktopTrayEntry:
 
             self.ai_menu = self.tray_menu.addMenu("AI")
             self.ai_menu_action = self.ai_menu.menuAction()
-            self.ai_control_center_action = self._add_button_action(
-                "AI Control Center",
-                self.request_ai_control_center_from_tray,
-                parent_menu=self.ai_menu,
-            )
             self.ai_status_action = self._add_button_action(
                 "AI Status / Command Center",
                 self.request_ai_status_from_tray,
@@ -527,7 +522,6 @@ class DesktopTrayEntry:
                 user32.DestroyMenu(quick_access_menu)
 
             ai_menu = user32.CreatePopupMenu()
-            append(ai_menu, 90, "AI Control Center", True)
             append(ai_menu, 120, "AI Status / Command Center", True)
             user32.AppendMenuW(menu, MF_SEPARATOR, 0, None)
             append_submenu(menu, ai_menu, "AI", True)
@@ -819,7 +813,7 @@ class DesktopTrayEntry:
         return bool(self._command_overlay_state().get("visible"))
 
     def _command_overlay_action_text(self):
-        return "Close Command Overlay" if self._command_overlay_visible() else "Open Command Overlay"
+        return "Command Overlay"
 
     def _resident_access_plan(self):
         provider = getattr(self.window, "resident_access_status_snapshot", None)
@@ -837,8 +831,14 @@ class DesktopTrayEntry:
 
     def _route_label_for_menu(self, route):
         route_id = str(route.get("routeId", "") if isinstance(route, dict) else "")
-        if route_id == "command_overlay":
-            return self._command_overlay_action_text()
+        compact_labels = {
+            "command_overlay": self._command_overlay_action_text(),
+            "create_custom_task": "Create Task",
+            "open_saved_actions_folder": "Saved Actions",
+            "tray_visibility_education": "Tray Help",
+        }
+        if route_id in compact_labels:
+            return compact_labels[route_id]
         return str(route.get("label", "Quick Access") if isinstance(route, dict) else "Quick Access")
 
     def _resident_menu_identity_text(self):
@@ -928,7 +928,7 @@ class DesktopTrayEntry:
         open_enabled = hud_route_enabled and not dashboard_visible
         close_enabled = hud_route_enabled and dashboard_visible
         command_overlay_visible = self._command_overlay_visible()
-        command_overlay_text = "Close Command Overlay" if command_overlay_visible else "Open Command Overlay"
+        command_overlay_text = self._command_overlay_action_text()
 
         self._set_action_text(self.monitoring_hud_primary_action, "HUD Feature Settings")
         self._set_button_text(self.monitoring_hud_primary_button, "HUD Feature Settings")

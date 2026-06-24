@@ -165,7 +165,7 @@ def validate_resident_model(failures: list[str]):
     assert_true(
         tuple(menu_structure["quickAccessMenu"]) == DEFAULT_QUICK_SLOT_ROUTE_IDS
         or tuple(menu_structure["quickAccessMenu"])
-        == ("Open Command Overlay", "Create Custom Task", "Open Saved Actions Folder"),
+        == ("Command Overlay", "Create Task", "Saved Actions"),
         f"Quick Access submenu structure drifted: {menu_structure['quickAccessMenu']}",
         failures,
     )
@@ -306,21 +306,16 @@ def validate_static_wiring(failures: list[str]):
     ):
         assert_true(token in tray_text, f"tray resident access token missing: {token}", failures)
     assert_true(
-        '"AI Control Center"' in tray_text
-        and "self.ai_control_center_action = self._add_button_action(" in tray_text
-        and "parent_menu=self.ai_menu" in tray_text,
-        "tray menu must keep AI Control Center inside the AI submenu, not as a duplicate top-level action",
+        '"AI Control Center"' not in tray_text
+        and "self.ai_control_center_action = self._add_button_action(" not in tray_text
+        and 'append(ai_menu, 90, "AI Control Center", True)' not in tray_text,
+        "tray AI submenu must expose only the compact AI Status / Command Center doorway",
         failures,
     )
     assert_true(
-        'self.ai_control_center_button = self.tray_popup.add_button(' not in tray_text,
-        "resident popup must not expose a duplicate AI Control Center button",
-        failures,
-    )
-    assert_true(
-        'append(ai_menu, 90, "AI Control Center", True)' in tray_text
-        and "90: self.request_ai_control_center_from_tray" in tray_text,
-        "native tray menu must keep AI Control Center inside the AI submenu with command 90",
+        '"AI Status / Command Center"' in tray_text
+        and 'append(ai_menu, 120, "AI Status / Command Center", True)' in tray_text,
+        "native tray menu must keep the single FAM-007-owned AI Status / Command Center doorway",
         failures,
     )
     assert_true(
@@ -388,10 +383,10 @@ def validate_static_wiring(failures: list[str]):
         "setAccessibleName(\"Add Quick Access Slot\")",
         "setMinimumSize(760, 320)",
         "surfaceClassification\", \"Nexus-Owned Product Surface",
-        "settingsInformationArchitecture\", \"global-settings-shell-tray-parent-quick-access-child-v13",
-        "settingsVisualRepair\", \"visual-udl-conformance-v13",
-        "referenceDerivedHeader\", \"integrated-ndai-settings-window-frame-v13",
-        "windowResizeBehavior\", \"frameless-top-level-qsizegrip-minimum-760x320-v13",
+        "settingsInformationArchitecture\", \"global-settings-shell-tray-parent-quick-access-child-g2-v14",
+        "settingsVisualRepair\", \"vat-opt-g2-implementation-match-v14",
+        "referenceDerivedHeader\", \"integrated-ndai-settings-window-frame-g2-v14",
+        "windowResizeBehavior\", \"frameless-top-level-qsizegrip-minimum-760x320-v14",
         "uiExposureContract\", \"real-enabled-meaningful-visible-ui-v1",
         "sharedPrimitiveClaim\", \"none-promoted-reference-derived-only",
         "referenceComparatorRequired\", \"accepted-ai-control-center-contact-sheet",
@@ -427,14 +422,14 @@ def validate_static_wiring(failures: list[str]):
         "self.section_badge.setVisible(False)",
         "residentAccessSettingsPageFrame",
         "residentAccessSettingsStateText",
-        "setFixedWidth(176)",
+        "setFixedWidth(166)",
         "setMaxVisibleItems(4)",
         "popup.setMaximumHeight(104)",
         "Quick Access",
         "slot_count_badge",
         "residentAccessSettingsSlotCount",
         "residentAccessSettingsFooter",
-        "QPushButton(\"Restore Defaults\"",
+        "QPushButton(\"Defaults\"",
         "quick_help.setVisible(False)",
         "def _available_quick_slot_limit",
         "self.add_slot_button.setEnabled(len(selected_ids) < self._available_quick_slot_limit())",
@@ -445,13 +440,13 @@ def validate_static_wiring(failures: list[str]):
         "residentAccessQuickSlotDelete",
         "QPushButton(\"\\N{BLACK UP-POINTING TRIANGLE}\"",
         "QPushButton(\"\\N{BLACK DOWN-POINTING TRIANGLE}\"",
-        "QPushButton(\"Delete\"",
-        "setFixedSize(46, 20)",
+        "QPushButton(\"\\N{MULTIPLICATION SIGN}\"",
+        "setFixedSize(34, 20)",
         "Default shortcut order staged.",
-        "QPushButton(\"Save Changes\"",
+        "QPushButton(\"Save\"",
         "Discard",
-        "self.keep_editing_button.setVisible(False)",
-        "Save or discard to close.",
+        "self.keep_editing_button.setVisible(self._close_guard_active and dirty)",
+        "Save, Discard, or Cancel before closing.",
         "def _has_unsaved_changes",
         "def closeEvent",
         "compact_labels = {",
@@ -473,6 +468,10 @@ def validate_static_wiring(failures: list[str]):
         "settingsVisualRepair\", \"settings-ia-window-behavior-v12",
         "referenceDerivedHeader\", \"compact-ndai-settings-window-frame-v12",
         "windowResizeBehavior\", \"frameless-top-level-qsizegrip-minimum-760x350-v12",
+        "settingsInformationArchitecture\", \"global-settings-shell-tray-parent-quick-access-child-v13",
+        "settingsVisualRepair\", \"visual-udl-conformance-v13",
+        "referenceDerivedHeader\", \"integrated-ndai-settings-window-frame-v13",
+        "windowResizeBehavior\", \"frameless-top-level-qsizegrip-minimum-760x320-v13",
         "residentAccessTrayOverviewRow",
         "residentAccessTrayOverviewOpen",
         "residentAccessSettingsStateChip",
@@ -495,7 +494,6 @@ def validate_static_wiring(failures: list[str]):
         'QPushButton("Up"',
         'QPushButton("Down"',
         'QPushButton("X"',
-        "Add Slot",
         "Quick Access Slots",
         "Rows appear in tray order. Use Save Changes to apply them.",
         "Keep Editing",
@@ -519,6 +517,8 @@ def validate_static_wiring(failures: list[str]):
         "setMinimumWidth(250)",
         "Choose up to {MAX_QUICK_SLOT_COUNT} shortcuts for the tray submenu.",
         "Reset Quick Access",
+        "Restore Defaults",
+        "Save Changes",
         "setMinimumSize(820, 520)",
         "setMinimumSize(700, 460)",
         "setMinimumSize(680, 408)",
@@ -609,7 +609,7 @@ def validate_static_wiring(failures: list[str]):
 
     assert_true(
         "button.setMinimumWidth(240)" in tray_text,
-        "tray resident action buttons must keep enough width for long labels",
+        "tray resident action buttons must keep a stable readable hitbox",
         failures,
     )
     assert_true(
@@ -617,6 +617,20 @@ def validate_static_wiring(failures: list[str]):
         "hidden unused quick slots must not keep visible placeholder labels",
         failures,
     )
+    for token in (
+        '"AI Control Center",',
+        '"Open Command Overlay"',
+        '"Close Command Overlay"',
+        '"Create Custom Task"',
+        '"Open Saved Actions Folder"',
+        '"Saved Actions Folder"',
+        '"Tray Visibility Help"',
+    ):
+        assert_true(
+            token not in tray_text,
+            f"tray menu must not expose stale or duplicate FAM-003 label token: {token}",
+            failures,
+        )
 
     for token in (
         "build_resident_access_menu_plan",

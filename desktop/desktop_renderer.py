@@ -983,14 +983,14 @@ class ResidentAccessSettingsDialog(QDialog):
         self.setObjectName("residentAccessSettingsDialog")
         self.setProperty("surfaceClassification", "Nexus-Owned Product Surface")
         self.setProperty("visualInheritance", "UIREF-001-UIREF-002-UIREF-003-FAM-002")
-        self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-parent-quick-access-child-v13")
-        self.setProperty("referenceDerivedHeader", "integrated-ndai-settings-window-frame-v13")
-        self.setProperty("settingsVisualRepair", "visual-udl-conformance-v13")
+        self.setProperty("settingsInformationArchitecture", "global-settings-shell-tray-parent-quick-access-child-g2-v14")
+        self.setProperty("referenceDerivedHeader", "integrated-ndai-settings-window-frame-g2-v14")
+        self.setProperty("settingsVisualRepair", "vat-opt-g2-implementation-match-v14")
         self.setProperty("uiExposureContract", "real-enabled-meaningful-visible-ui-v1")
         self.setProperty("sharedPrimitiveClaim", "none-promoted-reference-derived-only")
         self.setProperty("referenceComparatorRequired", "accepted-ai-control-center-contact-sheet")
         self.setProperty("platformException", "none")
-        self.setProperty("windowResizeBehavior", "frameless-top-level-qsizegrip-minimum-760x320-v13")
+        self.setProperty("windowResizeBehavior", "frameless-top-level-qsizegrip-minimum-760x320-v14")
         self.setMinimumSize(760, 320)
         self.resize(760, 320)
         self._apply_native_settings_palette()
@@ -1145,7 +1145,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.slot_count_badge = QLabel("", self.settings_page_frame)
         self.slot_count_badge.setObjectName("residentAccessSettingsSlotCount")
         self.slot_count_badge.setAlignment(Qt.AlignCenter)
-        self.slot_count_badge.setFixedSize(58, 24)
+        self.slot_count_badge.setFixedSize(96, 24)
         self.settings_state_chip = QLabel("Saved", self.settings_page_frame)
         self.settings_state_chip.setObjectName("residentAccessSettingsStateText")
         self.settings_state_chip.setAlignment(Qt.AlignCenter)
@@ -1213,12 +1213,7 @@ class ResidentAccessSettingsDialog(QDialog):
 
         quick_header = QHBoxLayout()
         quick_header.addStretch(1)
-        self.add_slot_button = QPushButton("Add", self.quick_slot_container)
-        self.add_slot_button.setObjectName("residentAccessAddSlotButton")
-        self.add_slot_button.setAccessibleName("Add Quick Access Slot")
-        self.add_slot_button.clicked.connect(self._add_slot)
-        quick_header.addWidget(self.add_slot_button)
-        self.reset_slots_button = QPushButton("Restore Defaults", self.quick_slot_container)
+        self.reset_slots_button = QPushButton("Defaults", self.quick_slot_container)
         self.reset_slots_button.setObjectName("residentAccessDefaultsButton")
         self.reset_slots_button.setAccessibleName("Restore Default Quick Access Shortcuts (stages changes)")
         self.reset_slots_button.clicked.connect(self._reset_slots)
@@ -1239,6 +1234,16 @@ class ResidentAccessSettingsDialog(QDialog):
         self.quick_slot_rows_layout.setContentsMargins(0, 0, 0, 0)
         self.quick_slot_rows_layout.setSpacing(6)
         quick_slot_layout.addWidget(self.quick_slot_rows)
+        add_row = QHBoxLayout()
+        add_row.setContentsMargins(0, 0, 0, 0)
+        add_row.setSpacing(0)
+        self.add_slot_button = QPushButton("Add Slot", self.quick_slot_container)
+        self.add_slot_button.setObjectName("residentAccessAddSlotButton")
+        self.add_slot_button.setAccessibleName("Add Quick Access Slot")
+        self.add_slot_button.clicked.connect(self._add_slot)
+        add_row.addWidget(self.add_slot_button, 0, Qt.AlignLeft)
+        add_row.addStretch(1)
+        quick_slot_layout.addLayout(add_row)
         page_layout.addWidget(self.quick_slot_container)
         page_layout.addStretch(1)
 
@@ -1272,7 +1277,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self.revert_button.setAccessibleName("Revert Quick Access Settings")
         self.revert_button.clicked.connect(self._revert_settings)
         footer.addWidget(self.revert_button)
-        self.save_button = QPushButton("Save Changes", self.settings_page_frame)
+        self.save_button = QPushButton("Save", self.settings_page_frame)
         self.save_button.setObjectName("residentAccessSaveButton")
         self.save_button.setAccessibleName("Save Quick Access Settings")
         self.save_button.clicked.connect(self._save_settings)
@@ -1797,8 +1802,8 @@ class ResidentAccessSettingsDialog(QDialog):
         compact_labels = {
             "command_overlay": "Command Overlay",
             "create_custom_task": "Create Task",
-            "open_saved_actions_folder": "Saved Actions Folder",
-            "tray_visibility_education": "Tray Visibility",
+            "open_saved_actions_folder": "Saved Actions",
+            "tray_visibility_education": "Tray Help",
         }
         return compact_labels.get(route.route_id, route.label)
 
@@ -1811,20 +1816,21 @@ class ResidentAccessSettingsDialog(QDialog):
     def _update_guard_buttons(self):
         dirty = self._has_unsaved_changes()
         self.save_button.setEnabled(dirty)
+        self.save_button.setText("Save")
         self.revert_button.setEnabled(dirty)
         self.revert_button.setVisible(not self._close_guard_active)
         self.discard_button.setVisible(self._close_guard_active and dirty)
-        self.keep_editing_button.setVisible(False)
+        self.keep_editing_button.setVisible(self._close_guard_active and dirty)
 
     def _keep_editing(self):
         self._close_guard_active = False
-        self._notice_text = "Unsaved changes remain."
+        self._notice_text = "Unsaved changes"
         self._refresh_text()
 
     def _request_close(self):
         if self._has_unsaved_changes():
             self._close_guard_active = True
-            self._notice_text = "Save or discard to close."
+            self._notice_text = "Unsaved changes"
             self._refresh_text()
             return
         super().accept()
@@ -1843,7 +1849,7 @@ class ResidentAccessSettingsDialog(QDialog):
     def closeEvent(self, event):
         if self._has_unsaved_changes():
             self._close_guard_active = True
-            self._notice_text = "Save or discard to close."
+            self._notice_text = "Unsaved changes"
             self._refresh_text()
             event.ignore()
             return
@@ -1885,7 +1891,7 @@ class ResidentAccessSettingsDialog(QDialog):
             row_layout.addWidget(slot_label)
             combo = QComboBox(row)
             combo.setAccessibleName(f"Quick Access Slot {index + 1} Route")
-            combo.setFixedWidth(176)
+            combo.setFixedWidth(166)
             combo.setMaxVisibleItems(4)
             for route in candidates:
                 combo.addItem(self._route_label(route), route.route_id)
@@ -1953,10 +1959,10 @@ class ResidentAccessSettingsDialog(QDialog):
             down_button.clicked.connect(lambda _checked=False, index=index: self._move_slot(index, 1))
             reorder_layout.addWidget(down_button)
             action_layout.addWidget(reorder_group)
-            delete_button = QPushButton("Delete", action_cluster)
+            delete_button = QPushButton("\N{MULTIPLICATION SIGN}", action_cluster)
             delete_button.setObjectName("residentAccessQuickSlotDelete")
             delete_button.setAccessibleName(f"Delete Quick Access Slot {index + 1}")
-            delete_button.setFixedSize(46, 20)
+            delete_button.setFixedSize(34, 20)
             delete_button.setEnabled(len(selected_ids) > 1)
             delete_button.clicked.connect(lambda _checked=False, index=index: self._remove_slot(index))
             action_layout.addWidget(delete_button)
@@ -1975,7 +1981,7 @@ class ResidentAccessSettingsDialog(QDialog):
             show_ai_privacy_status=self._settings.show_ai_privacy_status,
         )
         self._close_guard_active = False
-        self._notice_text = notice or "Unsaved changes."
+        self._notice_text = notice or "Unsaved changes"
         self._rebuild_quick_slot_rows()
         self._refresh_text()
 
@@ -2021,6 +2027,7 @@ class ResidentAccessSettingsDialog(QDialog):
         self._refresh_text()
 
     def _save_settings(self):
+        should_close = self._close_guard_active
         self._settings = ResidentAccessSettings(
             quick_slot_ids=self._selected_slot_ids(),
             menu_budget=self._settings.menu_budget,
@@ -2029,7 +2036,7 @@ class ResidentAccessSettingsDialog(QDialog):
         path = save_resident_access_settings(self._settings)
         self._saved_settings = self._settings
         self._close_guard_active = False
-        self._notice_text = "Saved."
+        self._notice_text = "Saved"
         self._emit_runtime_signal(
             "RESIDENT_ACCESS_SETTINGS_SAVED",
             source="global_settings",
@@ -2037,6 +2044,8 @@ class ResidentAccessSettingsDialog(QDialog):
             path=str(path),
         )
         self._refresh_text(saved=True)
+        if should_close:
+            super().accept()
 
     def _refresh_text(self, saved: bool = False):
         plan = self._plan()
@@ -2046,30 +2055,30 @@ class ResidentAccessSettingsDialog(QDialog):
         self.status_summary.setVisible(False)
         self.section_heading.setText("Tray" if self._focus == "tray" else "Quick Access")
         self.section_badge.setVisible(False)
-        self.slot_count_badge.setText(f"{route_count}/{available_slot_limit} slots")
+        self.slot_count_badge.setText(f"{route_count} active of {available_slot_limit}")
         self.slot_count_badge.setVisible(self._focus == "quick_access")
         self.section_detail.setText("")
         self.section_detail.setVisible(False)
 
         dirty = self._has_unsaved_changes()
         if self._close_guard_active and dirty:
-            change_text = "Save or discard to close"
+            change_text = "Unsaved changes"
         elif self._notice_text:
             change_text = self._notice_text
         elif dirty:
-            change_text = "Unsaved changes."
+            change_text = "Unsaved changes"
         else:
-            change_text = "Saved." if saved else ""
+            change_text = "Saved" if saved else ""
         self.change_summary.setText(change_text)
         if self._close_guard_active and dirty:
-            self.change_summary.setAccessibleName("Unsaved changes. Save or discard before closing.")
+            self.change_summary.setAccessibleName("Unsaved changes. Save, Discard, or Cancel before closing.")
         else:
             self.change_summary.setAccessibleName(change_text or "Quick Access change status")
         self.change_summary.setVisible(bool(change_text))
         if dirty or self._close_guard_active:
             self.settings_state_chip.setText("")
         elif saved or self._notice_text:
-            self.settings_state_chip.setText("Saved" if change_text == "Saved." else "")
+            self.settings_state_chip.setText("Saved" if change_text == "Saved" else "")
         else:
             self.settings_state_chip.setText("Saved")
         self.settings_state_chip.setAccessibleName(f"Quick Access settings state: {self.settings_state_chip.text()}")

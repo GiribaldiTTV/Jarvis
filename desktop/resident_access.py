@@ -39,9 +39,9 @@ TRAY_MENU_STRUCTURE = {
     "nativeStatusRow": False,
     "topLevel": ("Global Settings", "Quick Access", "AI", "Exit Nexus Desktop AI"),
     "quickAccessMenu": (
-        "Open Command Overlay",
-        "Create Custom Task",
-        "Open Saved Actions Folder",
+        "Command Overlay",
+        "Create Task",
+        "Saved Actions",
     ),
     "aiMenu": ("AI Status / Command Center",),
     "deferredOwnerMenus": ("Developer", "Owner"),
@@ -205,7 +205,7 @@ ROUTE_CATALOG: tuple[ResidentAccessRoute, ...] = (
     ),
     ResidentAccessRoute(
         "command_overlay",
-        "Open Command Overlay",
+        "Command Overlay",
         "FAM-003",
         "available",
         "runtime-command",
@@ -214,7 +214,7 @@ ROUTE_CATALOG: tuple[ResidentAccessRoute, ...] = (
     ),
     ResidentAccessRoute(
         "create_custom_task",
-        "Create Custom Task",
+        "Create Task",
         "FAM-003",
         "available",
         "runtime-command",
@@ -223,7 +223,7 @@ ROUTE_CATALOG: tuple[ResidentAccessRoute, ...] = (
     ),
     ResidentAccessRoute(
         "open_saved_actions_folder",
-        "Open Saved Actions Folder",
+        "Saved Actions",
         "FAM-003",
         "available",
         "runtime-command",
@@ -252,7 +252,7 @@ ROUTE_CATALOG: tuple[ResidentAccessRoute, ...] = (
     ),
     ResidentAccessRoute(
         "tray_visibility_education",
-        "Tray Visibility Help",
+        "Tray Help",
         "FAM-008",
         "route-only-copy",
         "owner-bounded-route",
