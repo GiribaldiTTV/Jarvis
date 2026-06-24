@@ -41,9 +41,24 @@ REQUIRED_REVIEW_AIDS = (
 )
 REQUIRED_RENDER_FILES = tuple(
     f"{RENDER_MEDIA_PREFIX}/Option {option}/{name}.png"
-    for option in ("A", "B", "C", "D", "E", "F")
+    for option in ("A", "B", "C", "D", "E", "F", "G")
     for name in ("focused_surface", "annotated_focused_surface", "desktop_context", "state_matrix")
 ) + (
+    *(
+        f"{RENDER_MEDIA_PREFIX}/Option G/{name}.png"
+        for name in (
+            "tray_parent_page",
+            "annotated_tray_parent_page",
+            "quick_access_child_page",
+            "annotated_quick_access_child_page",
+            "dropdown_open_state",
+            "annotated_dropdown_open_state",
+            "dirty_unsaved_state",
+            "annotated_dirty_unsaved_state",
+            "close_guard_state",
+            "annotated_close_guard_state",
+        )
+    ),
     f"{RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png",
     f"{RENDER_MEDIA_PREFIX}/visual_options_annotated_contact_sheet.png",
 )
@@ -178,9 +193,17 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "VAT-OPT-D",
         "VAT-OPT-E",
         "VAT-OPT-F",
+        "VAT-OPT-G",
         "C/A Hybrid",
         "Polished NDAI Compact Shell",
         "Deterministic Dirty Guard",
+        "D/E/F Consolidated Visual Target",
+        "3 active of 4",
+        "Tray is its own selectable parent page",
+        "Quick Access is a child page under Tray",
+        "Save / Discard / Cancel appear only in the close-guard state",
+        "AI Status / Command Center doorway",
+        "FAM-007-owned doorway only",
         "Branch-Local Visual Acceptance Target overlay",
         "USER/ChatGPT UI findings are seed defects",
         "Codex Independent Evidence Inspection",
@@ -192,6 +215,8 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "GOV-VAT-005",
         "GOV-VAT-006",
         "VIS-VAT-001",
+        "VIS-VAT-002",
+        "VIS-VAT-003",
         "Governance Source-Truth Proof",
         "HARDENING_COMMIT_BOUNDED_DIFF.patch",
         "CURRENT_REPAIR_BOUNDED_DIFF.patch",
@@ -201,6 +226,11 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "color-coded",
         "text-labeled callouts",
         "annotated_focused_surface.png",
+        "annotated_tray_parent_page.png",
+        "annotated_quick_access_child_page.png",
+        "annotated_dropdown_open_state.png",
+        "annotated_dirty_unsaved_state.png",
+        "annotated_close_guard_state.png",
         "visual_options_annotated_contact_sheet.png",
         "guide/template",
         "not a guaranteed literal final",
@@ -292,9 +322,13 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         current_diff_text = _read_text(current_repair_diff)
         for expected in (
             "VIS-VAT-001",
+            "VIS-VAT-002",
+            "VIS-VAT-003",
             "GOV-VAT-005",
             "GOV-VAT-006",
             "annotated_focused_surface.png",
+            "annotated_close_guard_state.png",
+            "VAT-OPT-G",
             "visual_options_annotated_contact_sheet.png",
             "not a guaranteed literal final",
         ):

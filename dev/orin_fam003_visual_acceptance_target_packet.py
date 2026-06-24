@@ -219,6 +219,40 @@ OPTIONS = (
             "be proven before any future LV green claim."
         ),
     ),
+    VisualOption(
+        id="VAT-OPT-G",
+        name="D/E/F Consolidated Visual Target",
+        rail_width=122,
+        rail_header="Tray",
+        nav=(("Tray", False, ""), ("Quick Access", True, "")),
+        row_height=19,
+        nav_gap=2,
+        title_large=False,
+        badge="3 active of 4",
+        editor_style="g_consolidated",
+        state_text="Saved",
+        dirty=False,
+        tray_hover=1,
+        critique=(
+            "Consolidates the latest USER/ChatGPT direction: Option D is the base "
+            "layout, Option E contributes only restrained shell polish and clear slot "
+            "copy, and Option F contributes required dirty-save/close-guard behavior "
+            "as proof states rather than as a heavier layout."
+        ),
+    ),
+)
+
+VAT_G_EXTRA_RENDER_NAMES = (
+    "tray_parent_page.png",
+    "annotated_tray_parent_page.png",
+    "quick_access_child_page.png",
+    "annotated_quick_access_child_page.png",
+    "dropdown_open_state.png",
+    "annotated_dropdown_open_state.png",
+    "dirty_unsaved_state.png",
+    "annotated_dirty_unsaved_state.png",
+    "close_guard_state.png",
+    "annotated_close_guard_state.png",
 )
 
 
@@ -422,6 +456,159 @@ def _draw_guard_editor(draw: ImageDraw.ImageDraw, x: int, y: int, w: int):
     _label(draw, (x + w - 68, guard_y + 5, x + w - 12, guard_y + 24), "Discard", fill=(35, 23, 18), outline=(119, 82, 54), font=F8)
 
 
+def _draw_g_quick_access_content(
+    draw: ImageDraw.ImageDraw,
+    x: int,
+    y: int,
+    w: int,
+    mode: str,
+):
+    draw.text((x, y), "Slot", fill=MUTED_2, font=F8)
+    draw.text((x + 42, y), "Quick Access action", fill=MUTED_2, font=F8)
+    draw.text((x + w - 132, y), "Order", fill=MUTED_2, font=F8)
+    _label(draw, (x + w - 74, y - 5, x + w, y + 16), "Defaults", font=F8)
+    row_names = (
+        "Open Command Overlay",
+        "Create Custom Task",
+        "Open Saved Actions Folder",
+        "Empty slot",
+    )
+    for i, name in enumerate(row_names):
+        yy = y + 20 + i * 25
+        empty = name == "Empty slot"
+        row_fill = (4, 17, 30) if not empty else (8, 14, 22)
+        row_outline = (31, 83, 101) if not empty else (34, 48, 62)
+        if mode == "dirty_unsaved" and i == 1:
+            row_outline = (55, 160, 138)
+        _rr(draw, (x, yy, x + w, yy + 21), 4, fill=row_fill, outline=row_outline)
+        draw.rectangle((x, yy + 4, x + 2, yy + 17), fill=MINT if not empty else DISABLED)
+        draw.text((x + 10, yy + 5), str(i + 1), fill=CYAN if not empty else DISABLED, font=F8)
+        selector_box = (x + 42, yy + 3, x + w - 154, yy + 18)
+        _rr(draw, selector_box, 4, fill=BG if not empty else (5, 10, 16), outline=(48, 119, 139) if not empty else (36, 48, 60))
+        draw.text((x + 50, yy + 5), name, fill=TEXT if not empty else MUTED_2, font=F8)
+        draw.text((x + w - 174, yy + 5), "v" if not empty else "+", fill=MINT if not empty else MUTED, font=F8)
+        if empty:
+            _label(draw, (x + w - 98, yy + 3, x + w - 48, yy + 18), "Add", fill=(5, 24, 36), outline=(42, 102, 122), font=F8)
+        else:
+            _label(draw, (x + w - 132, yy + 3, x + w - 96, yy + 18), "^", fill=(4, 18, 30), font=F8)
+            _label(draw, (x + w - 91, yy + 3, x + w - 55, yy + 18), "v", fill=(4, 18, 30), font=F8)
+            _label(
+                draw,
+                (x + w - 48, yy + 3, x + w - 8, yy + 18),
+                "X",
+                fill=(34, 12, 18),
+                outline=(112, 50, 58),
+                text_fill=(255, 210, 214),
+                font=F8,
+            )
+    _label(draw, (x, y + 128, x + 62, y + 149), "Add Slot", font=F8)
+    draw.text((x + 76, y + 133), "One menu phrase: 3 active of 4", fill=MUTED_2, font=F8)
+    if mode == "dropdown_open":
+        pop_x, pop_y = x + 42, y + 40
+        _rr(draw, (pop_x, pop_y, pop_x + 244, pop_y + 89), 6, fill=(3, 12, 21), outline=(54, 131, 149), width=2)
+        for idx, item in enumerate(
+            (
+                "Open Command Overlay",
+                "Create Custom Task",
+                "Open Saved Actions Folder",
+                "Tray Visibility Help",
+            )
+        ):
+            item_y = pop_y + 9 + idx * 19
+            if idx == 0:
+                _rr(draw, (pop_x + 7, item_y - 3, pop_x + 237, item_y + 15), 3, fill=(9, 36, 54))
+            draw.text((pop_x + 14, item_y), item, fill=TEXT if idx == 0 else MUTED, font=F8)
+
+
+def _draw_g_window(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, mode: str):
+    close_guard = mode == "close_guard"
+    dirty = mode in {"dirty_unsaved", "close_guard"}
+    tray_parent = mode == "tray_parent"
+    _rr(draw, (x, y, x + w, y + h), 18, fill=SHELL, outline=(63, 148, 172))
+    _rr(draw, (x + 1, y + 1, x + w - 1, y + 36), 17, fill=(2, 12, 23))
+    draw.line((x + 1, y + 36, x + w - 1, y + 36), fill=LINE_SOFT)
+    draw.text((x + 14, y + 11), "Global Settings", fill=TEXT, font=F12B)
+    _label(draw, (x + w - 66, y + 7, x + w - 43, y + 30), "-", fill=(5, 27, 43), outline=(63, 170, 200), font=F10B)
+    _label(draw, (x + w - 36, y + 7, x + w - 13, y + 30), "x", fill=(5, 27, 43), outline=(63, 170, 200), font=F10B)
+
+    rail_width = 122
+    body_y = y + 46
+    rail_x = x + 14
+    draw.line((x + rail_width + 12, body_y, x + rail_width + 12, y + h - 16), fill=LINE_SOFT)
+    draw.text((rail_x, body_y + 8), "Tray", fill=MINT, font=F9)
+    tray_box = (rail_x, body_y + 32, rail_x + rail_width - 18, body_y + 51)
+    quick_box = (rail_x, body_y + 54, rail_x + rail_width - 18, body_y + 73)
+    for label, selected, row_box in (
+        ("Tray", tray_parent, tray_box),
+        ("Quick Access", not tray_parent, quick_box),
+    ):
+        if selected:
+            _rr(draw, row_box, 3, fill=(7, 31, 47))
+            draw.rectangle((row_box[0], row_box[1] + 3, row_box[0] + 2, row_box[3] - 3), fill=MINT)
+        draw.text((row_box[0] + 7, row_box[1] + 4), label, fill=TEXT if selected else MUTED, font=F10B if selected else F10)
+
+    cx = x + rail_width + 30
+    cw = w - rail_width - 46
+    cy = body_y + 10
+    heading = "Tray" if tray_parent else "Quick Access"
+    badge = "Parent page" if tray_parent else "3 active of 4"
+    draw.text((cx, cy), heading, fill=TEXT, font=F16B)
+    _label(draw, (x + w - 112, cy - 2, x + w - 16, cy + 24), badge, fill=(6, 34, 54), outline=(42, 118, 144), text_fill=CYAN, font=F9)
+    cy += 34
+    _rr(draw, (cx, cy, x + w - 16, y + h - 82), 9, fill=(3, 14, 26), outline=(20, 61, 78))
+    if tray_parent:
+        draw.text((cx + 12, cy + 12), "Tray behavior settings", fill=TEXT, font=F11B)
+        _wrapped(
+            draw,
+            (cx + 12, cy + 36),
+            "This parent page owns the doorway shape. Click behavior, right-click policy, and close-from-tray prompts stay deferred until admitted.",
+            font=F9,
+            fill=MUTED,
+            width=cw - 26,
+            gap=2,
+        )
+        for idx, (label, value) in enumerate(
+            (
+                ("Menu", "Global Settings, Quick Access, AI, Exit"),
+                ("Status", "Tray hover tooltip / status surface"),
+                ("Future", "No fake active controls shown"),
+            )
+        ):
+            yy = cy + 92 + idx * 27
+            _rr(draw, (cx + 12, yy, x + w - 28, yy + 21), 4, fill=(4, 18, 30), outline=(31, 83, 101))
+            draw.text((cx + 24, yy + 5), label, fill=CYAN, font=F8)
+            draw.text((cx + 94, yy + 5), value, fill=MUTED, font=F8)
+    else:
+        _draw_g_quick_access_content(draw, cx + 12, cy + 10, cw - 24, mode)
+
+    fy = y + h - 50
+    draw.line((cx, fy - 8, x + w - 16, fy - 8), fill=LINE_SOFT)
+    if not close_guard:
+        state_text = "Unsaved changes" if dirty else "Saved"
+        draw.text((cx, fy + 6), state_text, fill=CYAN if dirty else MINT, font=F9)
+        _label(draw, (x + w - 168, fy, x + w - 98, fy + 28), "Revert", fill=(14, 24, 41), outline=(55, 80, 96) if dirty else (40, 64, 86), text_fill=TEXT if dirty else MUTED_2, font=F10B)
+        _label(
+            draw,
+            (x + w - 90, fy, x + w - 16, fy + 28),
+            "Save",
+            fill=GREEN if dirty else (14, 24, 41),
+            outline=(55, 160, 138) if dirty else (40, 64, 86),
+            text_fill=TEXT if dirty else MUTED_2,
+            font=F10B,
+        )
+    else:
+        draw.text((cx, fy + 6), "Unsaved changes", fill=CYAN, font=F9)
+        guard_box = (cx + 70, cy + 84, x + w - 76, cy + 188)
+        _rr(draw, guard_box, 10, fill=(12, 17, 26), outline=(255, 210, 96), width=2)
+        draw.text((guard_box[0] + 18, guard_box[1] + 16), "Unsaved changes", fill=TEXT, font=F12B)
+        draw.text((guard_box[0] + 18, guard_box[1] + 40), "Save Quick Access edits before closing?", fill=MUTED, font=F10)
+        button_y = guard_box[3] - 34
+        _label(draw, (guard_box[0] + 18, button_y, guard_box[0] + 78, button_y + 24), "Save", fill=GREEN, outline=(55, 160, 138), font=F9)
+        _label(draw, (guard_box[0] + 88, button_y, guard_box[0] + 158, button_y + 24), "Discard", fill=(35, 23, 18), outline=(119, 82, 54), font=F9)
+        _label(draw, (guard_box[0] + 168, button_y, guard_box[0] + 232, button_y + 24), "Cancel", fill=(14, 24, 41), outline=(55, 80, 96), font=F9)
+    draw.line((x + w - 18, y + h - 4, x + w - 4, y + h - 18), fill=(65, 150, 168))
+
+
 def _draw_window(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int, option: VisualOption):
     _rr(draw, (x, y, x + w, y + h), 20, fill=SHELL, outline=(55, 130, 154))
     _rr(draw, (x + 1, y + 1, x + w - 1, y + 36), 19, fill=(2, 12, 23))
@@ -501,6 +688,21 @@ def _draw_tray_menu(draw: ImageDraw.ImageDraw, x: int, y: int, option: VisualOpt
     draw.text((x + 10, y + 199), "No long status row. Tooltip owns status.", fill=MUTED, font=F8)
 
 
+def _draw_g_tray_menu(draw: ImageDraw.ImageDraw, x: int, y: int, hover: int = 1):
+    _rr(draw, (x, y, x + 260, y + 196), 10, fill=(8, 11, 16), outline=(78, 82, 92))
+    draw.text((x + 14, y + 12), "Tray menu target", fill=TEXT, font=F10B)
+    rows = ("Global Settings", "Quick Access >", "AI >", "Exit Nexus")
+    yy = y + 38
+    for i, row in enumerate(rows):
+        if i in (1, 2, 3):
+            draw.line((x + 10, yy - 5, x + 250, yy - 5), fill=(48, 50, 58))
+        fill = (24, 27, 35) if i == hover else (8, 11, 16)
+        _rr(draw, (x + 8, yy, x + 252, yy + 24), 4, fill=fill)
+        draw.text((x + 18, yy + 6), row, fill=TEXT, font=F10)
+        yy += 29
+    draw.text((x + 10, y + 174), "Status stays in tooltip/status surface.", fill=MUTED, font=F8)
+
+
 def _draw_legend(draw: ImageDraw.ImageDraw, x: int, y: int):
     draw.text((x, y), "Element legend", fill=TEXT, font=F12B)
     y += 18
@@ -555,7 +757,102 @@ def _callout_specs(option: VisualOption):
     )
 
 
+def _g_callout_specs(mode: str):
+    wx, wy, ww, wh = 26, 84, 800, 340
+    body_y = wy + 46
+    rail_x = wx + 14
+    tray_parent = mode == "tray_parent"
+    selected_nav_y = body_y + 32 if tray_parent else body_y + 54
+    cx = wx + 122 + 30
+    cy = body_y + 44
+    specs = [
+        ("CHROME-001", (wx, wy, wx + ww, wy + 38), (42, 126)),
+        ("CTRL-001", (wx + ww - 70, wy + 7, wx + ww - 12, wy + 31), (704, 126)),
+        ("RAIL-001", (rail_x, body_y, wx + 134, wy + wh - 16), (42, 404)),
+        ("NAV-002", (rail_x, selected_nav_y, rail_x + 104, selected_nav_y + 19), (164, 170)),
+        ("MENU-001", (854, 94, 1114, 290), (1122, 96)),
+        ("TOOLTIP-001", (864, 260, 1104, 289), (1122, 286)),
+        ("RESIZE-001", (wx + ww - 24, wy + wh - 24, wx + ww, wy + wh), (716, 408)),
+    ]
+    if tray_parent:
+        specs.extend(
+            [
+                ("STATE-001", (cx + 10, cy + 28, wx + ww - 28, cy + 86), (482, 204)),
+                ("ACTION-001", (cx + 10, cy + 88, wx + ww - 28, cy + 172), (606, 258)),
+            ]
+        )
+    else:
+        specs.extend(
+            [
+                ("SLOT-001", (cx + 8, cy + 8, wx + ww - 26, wy + wh - 100), (486, 154)),
+                ("SELECT-001", (cx + 42, cy + 20, min(cx + 290, wx + ww - 170), wy + wh - 145), (484, 202)),
+                ("ACTION-001", (wx + ww - 180, wy + wh - 52, wx + ww - 16, wy + wh - 18), (632, 374)),
+                ("STATE-001", (cx, wy + wh - 50, min(cx + 196, wx + ww - 188), wy + wh - 20), (472, 386)),
+            ]
+        )
+    return tuple(specs)
+
+
+def render_vat_g_surface(mode: str) -> Image.Image:
+    titles = {
+        "quick_access": "Quick Access child page",
+        "tray_parent": "Tray parent page",
+        "dropdown_open": "Dropdown-open state",
+        "dirty_unsaved": "Unsaved changes state",
+        "close_guard": "Close guard state",
+    }
+    image = Image.new("RGB", (1320, 760), BG)
+    draw = ImageDraw.Draw(image)
+    draw.text((24, 20), "VAT-OPT-G - D/E/F Consolidated Visual Target", fill=TEXT, font=F18B)
+    draw.text((24, 46), f"{titles.get(mode, mode)} - Design Candidate Render, not implementation proof", fill=MUTED, font=F11)
+    window_mode = "quick_access" if mode == "quick_access" else mode
+    _draw_g_window(draw, 26, 84, 800, 340, window_mode)
+    _draw_g_tray_menu(draw, 854, 94, hover=1)
+    _draw_legend(draw, 854, 320)
+    _rr(draw, (24, 450, 1296, 728), 12, fill=(4, 13, 24), outline=LINE_SOFT)
+    draw.text((44, 470), "VAT-OPT-G consolidation rules", fill=TEXT, font=F14B)
+    y = 498
+    for item in (
+        "D is the base: slim footprint, compact rows, clear selector.",
+        "E contributes only restrained polish and the single slot phrase: 3 active of 4.",
+        "F contributes required dirty-save and close-guard proof states.",
+        "AI > remains a compact FAM-007-owned doorway, not provider/runtime status proof.",
+        "Tray status stays outside the menu in the hover tooltip/status channel.",
+    ):
+        draw.text((58, y), f"- {item}", fill=MUTED, font=F10)
+        y += 23
+    draw.text((690, 470), "Evidence-state coverage", fill=TEXT, font=F14B)
+    y = 498
+    for item in (
+        "Tray parent page is selectable and does not show fake active future controls.",
+        "Quick Access is a child page under Tray.",
+        "Dropdown uses a bounded dark list.",
+        "Normal edit state uses bottom Save/Revert only.",
+        "Close guard uses Save / Discard / Cancel only when close is requested.",
+    ):
+        draw.text((704, y), f"- {item}", fill=MUTED, font=F10)
+        y += 23
+    return image
+
+
+def render_vat_g_annotated(mode: str) -> Image.Image:
+    image = render_vat_g_surface(mode).copy()
+    draw = ImageDraw.Draw(image)
+    _rr(draw, (24, 730, 1296, 752), 6, fill=(3, 12, 22), outline=LINE_SOFT)
+    draw.text(
+        (38, 736),
+        "Annotated callouts: color + element ID labels map legend rows to visible UI regions. VAT-OPT-G remains a candidate guide.",
+        fill=TEXT,
+        font=F10,
+    )
+    for element_id, box, label_xy in _g_callout_specs(mode):
+        _draw_callout(draw, element_id, box, label_xy)
+    return image
+
+
 def render_annotated_focused(option: VisualOption) -> Image.Image:
+    if option.id == "VAT-OPT-G":
+        return render_vat_g_annotated("quick_access")
     image = render_focused(option).copy()
     draw = ImageDraw.Draw(image)
     _rr(draw, (24, 730, 1296, 752), 6, fill=(3, 12, 22), outline=LINE_SOFT)
@@ -571,6 +868,8 @@ def render_annotated_focused(option: VisualOption) -> Image.Image:
 
 
 def render_focused(option: VisualOption) -> Image.Image:
+    if option.id == "VAT-OPT-G":
+        return render_vat_g_surface("quick_access")
     image = Image.new("RGB", (1320, 760), BG)
     draw = ImageDraw.Draw(image)
     draw.text((24, 20), f"{option.id} - {option.name}", fill=TEXT, font=F18B)
@@ -604,8 +903,12 @@ def render_desktop(option: VisualOption) -> Image.Image:
     draw.rectangle((0, 1032, 1920, 1080), fill=(13, 18, 26))
     _label(draw, (20, 1040, 54, 1070), "N", fill=(8, 37, 54), outline=(64, 174, 202), font=F12B)
     draw.text((64, 1048), "Nexus Desktop AI", fill=MUTED, font=F11)
-    _draw_window(draw, 470, 260, 760, 320, option)
-    _draw_tray_menu(draw, 1604, 778, option)
+    if option.id == "VAT-OPT-G":
+        _draw_g_window(draw, 470, 260, 760, 320, "quick_access")
+        _draw_g_tray_menu(draw, 1604, 778, hover=1)
+    else:
+        _draw_window(draw, 470, 260, 760, 320, option)
+        _draw_tray_menu(draw, 1604, 778, option)
     _label(draw, (1746, 1040, 1778, 1070), "N", fill=(8, 37, 54), outline=(64, 174, 202), font=F12B)
     draw.line((1762, 1034, 1695, 778), fill=CYAN)
     draw.text(
@@ -620,6 +923,52 @@ def render_desktop(option: VisualOption) -> Image.Image:
 
 
 def render_state_matrix(option: VisualOption) -> Image.Image:
+    if option.id == "VAT-OPT-G":
+        image = Image.new("RGB", (1320, 760), BG)
+        draw = ImageDraw.Draw(image)
+        draw.text((24, 20), "VAT-OPT-G state matrix", fill=TEXT, font=F18B)
+        states = (
+            ("Tray parent", "Selectable parent page; deferred behavior text only."),
+            ("Quick Access", "Child page under Tray with one 3 active of 4 phrase."),
+            ("Dropdown open", "Bounded dark list, no native white popup."),
+            ("Unsaved changes", "User-facing state text; Save/Revert active."),
+            ("Close guard", "Close request shows Save / Discard / Cancel."),
+            ("Tray menu", "Compact menu; no long status wall."),
+            ("AI doorway", "AI > is a FAM-007-owned doorway only."),
+            ("Tooltip/status", "Resident availability lives outside the menu."),
+        )
+        card_w, card_h = 300, 126
+        for idx, (name, desc) in enumerate(states):
+            col = idx % 4
+            row = idx // 4
+            x = 24 + col * (card_w + 20)
+            y = 78 + row * (card_h + 34)
+            outline = LINE
+            fill = PANEL
+            if name == "Dropdown open":
+                outline = ORANGE
+            if name == "Unsaved changes":
+                outline = CYAN
+            if name == "Close guard":
+                outline = GOLD
+            _rr(draw, (x, y, x + card_w, y + card_h), 10, fill=fill, outline=outline, width=2 if name in {"Dropdown open", "Unsaved changes", "Close guard"} else 1)
+            draw.text((x + 14, y + 12), name.upper(), fill=TEXT, font=F11B)
+            _wrapped(draw, (x + 14, y + 36), desc, font=F10, fill=MUTED, width=card_w - 28)
+            if name == "Close guard":
+                _label(draw, (x + 22, y + 86, x + 76, y + 110), "Save", fill=GREEN, font=F8)
+                _label(draw, (x + 84, y + 86, x + 154, y + 110), "Discard", fill=(35, 23, 18), outline=(119, 82, 54), font=F8)
+                _label(draw, (x + 164, y + 86, x + 224, y + 110), "Cancel", fill=(14, 24, 41), font=F8)
+            elif name == "Dropdown open":
+                _rr(draw, (x + 150, y + 72, x + 286, y + 112), 6, fill=(3, 12, 21), outline=ORANGE)
+                draw.text((x + 160, y + 81), "Open Command Overlay", fill=TEXT, font=F8)
+                draw.text((x + 160, y + 98), "Create Custom Task", fill=MUTED, font=F8)
+        draw.text(
+            (24, 704),
+            "VAT-OPT-G is a candidate target. Later implementation-match proof must compare actual UI evidence against these states.",
+            fill=MUTED,
+            font=F11,
+        )
+        return image
     image = Image.new("RGB", (1320, 760), BG)
     draw = ImageDraw.Draw(image)
     draw.text((24, 20), f"{option.id} state matrix", fill=TEXT, font=F18B)
@@ -815,7 +1164,7 @@ def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
 
         ## Visual Target Status
 
-        Visual target review remains design-target only. Design Candidate Render evidence is a high-fidelity guide/template for USER expectation alignment, not a guaranteed literal final or end-state screenshot. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver. Later Implementation Match Proof must compare actual app evidence against the accepted guide/target and explain any material differences.
+        Visual target review remains design-target only. Design Candidate Render evidence is a high-fidelity guide/template for USER expectation alignment, not a guaranteed literal final or end-state screenshot. VAT-OPT-G is a consolidated candidate, not an accepted target. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver. Later Implementation Match Proof must compare actual app evidence against the accepted guide/target and explain any material differences.
         """,
     )
     ledger_path = PACKET_ROOT / "Review Aids" / "GOVERNANCE_SOURCE_TRUTH_PROOF.md"
@@ -840,7 +1189,7 @@ def _write_governance_proof_artifacts() -> tuple[str, Path, Path]:
 
         ## Visual target status
 
-        Visual target review remains design-target only. Design Candidate Render evidence is a high-fidelity guide/template for USER expectation alignment, not a guaranteed literal final or end-state screenshot. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver. Later Implementation Match Proof must compare actual app evidence against the accepted guide/target and explain any material differences.
+        Visual target review remains design-target only. Design Candidate Render evidence is a high-fidelity guide/template for USER expectation alignment, not a guaranteed literal final or end-state screenshot. VAT-OPT-G is a consolidated candidate, not an accepted target. Design Candidate Render evidence remains USER-review input until USER promotes a target to `USER_ACCEPTED`, requests `REPAIR_REQUIRED`, rejects it, combines it, revises it, or records a waiver. Later Implementation Match Proof must compare actual app evidence against the accepted guide/target and explain any material differences.
         """,
     )
     return commit, diff_path, ledger_path
@@ -1019,11 +1368,29 @@ def render_all(proof_root: Path):
         for name, image in renders.items():
             image.save(option_dir / name)
             image.save(packet_dir / name)
+        if option.id == "VAT-OPT-G":
+            extra_renders = {
+                "tray_parent_page.png": render_vat_g_surface("tray_parent"),
+                "annotated_tray_parent_page.png": render_vat_g_annotated("tray_parent"),
+                "quick_access_child_page.png": render_vat_g_surface("quick_access"),
+                "annotated_quick_access_child_page.png": render_vat_g_annotated("quick_access"),
+                "dropdown_open_state.png": render_vat_g_surface("dropdown_open"),
+                "annotated_dropdown_open_state.png": render_vat_g_annotated("dropdown_open"),
+                "dirty_unsaved_state.png": render_vat_g_surface("dirty_unsaved"),
+                "annotated_dirty_unsaved_state.png": render_vat_g_annotated("dirty_unsaved"),
+                "close_guard_state.png": render_vat_g_surface("close_guard"),
+                "annotated_close_guard_state.png": render_vat_g_annotated("close_guard"),
+            }
+            for name, image in extra_renders.items():
+                image.save(option_dir / name)
+                image.save(packet_dir / name)
 
-    contact = Image.new("RGB", (1600, 1450), BG)
+    option_rows = (len(OPTIONS) + 2) // 3
+    contact_height = 84 + option_rows * 500 + 250
+    contact = Image.new("RGB", (1600, contact_height), BG)
     draw = ImageDraw.Draw(contact)
     draw.text((24, 18), "FAM-003 Visual Options Contact Sheet", fill=TEXT, font=F18B)
-    draw.text((24, 46), "A/B/C retained as references. D/E/F add C density + A clarity and dirty-guard maturity.", fill=MUTED, font=F11)
+    draw.text((24, 46), "A/B/C retained as references. D/E/F feed G; G consolidates the requested target direction.", fill=MUTED, font=F11)
     for idx, option in enumerate(OPTIONS):
         source = Image.open(media_root / option.id / "focused_surface.png")
         thumb = source.resize((490, 282))
@@ -1035,7 +1402,7 @@ def render_all(proof_root: Path):
         draw.text((x, y + 296), option.id, fill=MINT, font=F12B)
         _wrapped(draw, (x, y + 320), option.name, fill=TEXT, font=F12B, width=470)
         _wrapped(draw, (x, y + 348), option.critique, fill=MUTED, font=F10, width=470)
-    y = 1105
+    y = 84 + option_rows * 500 + 20
     draw.text((24, y), "Shared non-negotiables", fill=TEXT, font=F14B)
     y += 28
     for item in (
@@ -1049,7 +1416,8 @@ def render_all(proof_root: Path):
     contact.save(media_root / "visual_options_contact_sheet.png")
     contact.save(packet_media / "visual_options_contact_sheet.png")
 
-    annotated_contact = Image.new("RGB", (1700, 1520), BG)
+    annotated_height = 90 + option_rows * 530 + 360
+    annotated_contact = Image.new("RGB", (1700, annotated_height), BG)
     draw = ImageDraw.Draw(annotated_contact)
     draw.text((24, 18), "FAM-003 Annotated Visual Options Contact Sheet", fill=TEXT, font=F18B)
     draw.text(
@@ -1074,7 +1442,7 @@ def render_all(proof_root: Path):
             fill=MUTED,
             font=F10,
         )
-    legend_y = 1194
+    legend_y = 90 + option_rows * 530 + 24
     draw.text((24, legend_y), "Callout Legend", fill=TEXT, font=F14B)
     legend_y += 30
     for idx, (code, desc, color) in enumerate(LEGEND_ITEMS):
@@ -1086,7 +1454,7 @@ def render_all(proof_root: Path):
         draw.text((x + 22, y), code, fill=color, font=F10B)
         draw.text((x + 112, y), desc, fill=MUTED, font=F10)
     draw.text(
-        (24, 1460),
+        (24, annotated_height - 60),
         "Design guide only: a USER-accepted target informs implementation; it is not a guaranteed literal final screenshot.",
         fill=MUTED,
         font=F11,
@@ -1144,6 +1512,28 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         r"C:\Nexus USER\UTS - FAM-003.txt",
     )
 
+    option_summary = "\n".join(
+        f"- `{option.id}`: {option.name}. {option.critique}"
+        for option in OPTIONS
+    )
+    media_lines: list[str] = [
+        f"- `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png`",
+        f"- `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_annotated_contact_sheet.png`",
+    ]
+    for option in OPTIONS:
+        option_label = option.id[-1]
+        for name in (
+            "focused_surface.png",
+            "annotated_focused_surface.png",
+            "desktop_context.png",
+            "state_matrix.png",
+        ):
+            media_lines.append(f"- `{PACKET_RENDER_MEDIA_PREFIX}/Option {option_label}/{name}`")
+        if option.id == "VAT-OPT-G":
+            for name in VAT_G_EXTRA_RENDER_NAMES:
+                media_lines.append(f"- `{PACKET_RENDER_MEDIA_PREFIX}/Option G/{name}`")
+    media_to_inspect = "\n".join(media_lines)
+
     write(
         PACKET_ROOT / "START_HERE.md",
         """
@@ -1153,11 +1543,11 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Review purpose: Select, reject, combine, or revise branch-local visual target direction before any future visible UI/UX implementation or renewed visual repair claims.
 
-        Current gate: Live Validation Stage 1 USER-operated visual retest remains pending for the existing regenerated detailed-UDL packet. This packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.
+        Current gate: USER review of the FAM-003 Visual Acceptance Target packet. LV1 USER-operated visual retest remains paused behind this target decision. This packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.
 
         Branch-local governance hardening: This packet now applies the FAM-003 Branch-Local Visual Acceptance Target overlay. Durable repo-wide enforcement, shared settings primitives/templates, and sibling adoption remain future Governance/FAM-002/owning-FAM decisions.
 
-        USER action: Review the six Design Candidate Renders, treating A/B/C as retained references and D/E/F as new refinement candidates. Start with the annotated contact sheet and annotated focused surfaces, then use the Visual Selection Ledger to accept/reject/combine/revise elements and decide whether one candidate or hybrid should become the Draft Branch Visual Acceptance Target after revision.
+        USER action: Review the seven Design Candidate Renders, treating A/B/C as retained references, D/E/F as source options, and G as the consolidated D/E/F candidate. Start with the annotated contact sheet and annotated focused surfaces, then use the Visual Selection Ledger to accept/reject/combine/revise elements and decide whether one candidate or hybrid should become the Draft Branch Visual Acceptance Target after revision.
 
         Visual target meaning: an accepted target is a high-fidelity guide/template for expectation alignment and implementation comparison, not a guaranteed literal final or end-state screenshot.
 
@@ -1172,18 +1562,13 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Verdict requested: choose `ACCEPT OPTION`, `COMBINE`, `REVISE`, or `REJECT ALL` for the visual target direction. This is a design-target review only.
 
-        Current product gate: Live Validation Stage 1 USER-operated visual retest is still pending. This review does not accept LV, does not complete UTS, does not approve PR Readiness, and does not authorize merge, release, cleanup, sibling mutation, Governance mutation, or provider/private/cache/memory work.
+        Current product gate: USER review of the FAM-003 Visual Acceptance Target packet. LV1 USER-operated visual retest remains paused behind this target decision. This review does not accept LV, does not complete UTS, does not approve PR Readiness, and does not authorize merge, release, cleanup, sibling mutation, Governance mutation, or provider/private/cache/memory work.
 
         Branch-local governance posture: The FAM-003 Branch-Local Visual Acceptance Target overlay is active for this packet. Design Candidate Render evidence is USER-review input only. A candidate becomes the branch guide/template and comparison target only after USER selection, combination, revision, waiver, or rejection is recorded. It is not a guaranteed literal final screenshot. Durable repo-wide Visual Acceptance Target enforcement remains a future Governance/FAM-002 candidate.
 
         ## Options
 
-        - `VAT-OPT-A`: NDAI Slim Tree Settings. Most conservative refinement of current branch layout.
-        - `VAT-OPT-B`: NDAI Section Rail With Micro Icons. Stronger polished settings-app feel, higher width/risk.
-        - `VAT-OPT-C`: NDAI Ultra-Slim List Editor. Most ShareX-like density with NDAI chrome identity.
-        - `VAT-OPT-D`: NDAI C/A Hybrid Compact Selector. Combines C density with A clarity.
-        - `VAT-OPT-E`: Polished NDAI Compact Shell. More authored NDAI shell while staying compact.
-        - `VAT-OPT-F`: NDAI Deterministic Dirty Guard. Tests dirty-save/close-guard maturity with no fake future controls.
+        {option_summary}
 
         ## Render Authority
 
@@ -1191,32 +1576,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         ## Media To Inspect
 
-        - `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_annotated_contact_sheet.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/annotated_focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/annotated_focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/annotated_focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/annotated_focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/annotated_focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/annotated_focused_surface.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/desktop_context.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/desktop_context.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/desktop_context.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/desktop_context.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/desktop_context.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/desktop_context.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option A/state_matrix.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option B/state_matrix.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option C/state_matrix.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option D/state_matrix.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option E/state_matrix.png`
-        - `{PACKET_RENDER_MEDIA_PREFIX}/Option F/state_matrix.png`
+        {media_to_inspect}
 
         ## Decision Summary
 
@@ -1241,6 +1601,8 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         - The 084608 packet made legend-to-render mapping harder than needed. This packet admits and closes that as `VIS-VAT-001` with color-coded plus text-ID callouts, annotated focused surfaces, and an annotated contact sheet.
         - The 084608 packet could imply accepted visual targets are literal final screenshots. This packet admits and closes that as `GOV-VAT-005` by defining accepted targets as high-fidelity guides/templates and requiring later implementation-match comparison.
         - The 084608 packet contained a failed self-validation receipt while the digest claimed pass. This packet admits and closes that as `GOV-VAT-006` by recording a pending-current-run self-check only before the packet validator runs and a final all-PASS receipt after it succeeds.
+        - The 092120 packet forced USER to mentally combine D/E/F rather than providing the requested consolidated candidate. This packet admits and closes that as `VIS-VAT-002` by adding `VAT-OPT-G`.
+        - The source-truth review confirmed `AI >` is a current compact FAM-007-owned doorway in the tray menu, not provider/runtime/privacy-state proof. This packet admits and closes `VIS-VAT-003` by keeping the G render compact and recording that FAM-007 may revise the AI doorway through its legal gates.
         """,
     )
 
@@ -1292,7 +1654,20 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         - FAM-003 owns the resident doorway, tray menu organization, tooltip/status mechanism, and minimal Nexus Tray & Quick Access settings foundation.
         - FAM-002/UIREF own reusable visual grammar; this packet does not claim a promoted shared primitive or template exists.
         - FAM-006/FAM-007/FAM-008 surfaces remain owner-bounded dependencies, not settings-window fake categories.
+        - `AI >` in the tray menu is treated only as the current compact FAM-007-owned AI Status / Command Center doorway; provider, privacy, capability, Developer, and Owner semantics remain FAM-007 future-gated decisions.
         - Windows tray visibility limitations remain honest; FAM-003 cannot force third-party tray permanence.
+
+        ## VAT-OPT-G Required State Evidence
+
+        `VAT-OPT-G` is the consolidated D/E/F candidate. It uses D as the base layout, borrows only E's restrained shell polish and clearer `3 active of 4` slot language, and carries F's dirty-save/dirty-close behavior as required proof states. Inspect these extra G artifacts:
+
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option G/tray_parent_page.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option G/quick_access_child_page.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option G/dropdown_open_state.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option G/dirty_unsaved_state.png`
+        - `{PACKET_RENDER_MEDIA_PREFIX}/Option G/close_guard_state.png`
+
+        G-specific target constraints: Tray is its own selectable parent page; Quick Access is a child page under Tray; deferred Tray settings are compact product-language text rather than fake controls; the tray menu remains compact; tooltip/status owns resident availability copy; Save/Revert stay in the normal bottom action area; Save / Discard / Cancel appear only in the close-guard state.
 
         Legend / callout use: begin with `visual_options_annotated_contact_sheet.png`; then inspect each option's `annotated_focused_surface.png` beside the clean `focused_surface.png`. Color chips and element IDs both identify the same element groups, so color alone is never required.
 
@@ -1321,9 +1696,13 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         Required state coverage: default, hover, focus, pressed, disabled, empty/no-data, blocked/error, success/complete, dropdown-open, dirty, resized/minimum-size, tray tooltip. If a future target marks any state not applicable, it must use `NOT_APPLICABLE_WITH_REASON`.
 
-        Legend / Callout Traceability: the annotated focused surfaces and annotated contact sheet map every listed element group back to visible UI regions with both color and readable element IDs. Color is a secondary cue; the text ID is the primary trace key.
+        VAT-OPT-G extra state traceability: `annotated_tray_parent_page.png`, `annotated_quick_access_child_page.png`, `annotated_dropdown_open_state.png`, `annotated_dirty_unsaved_state.png`, and `annotated_close_guard_state.png` provide color-plus-ID callouts for the consolidated target's parent page, child page, dropdown, unsaved state, and close guard.
+
+        Legend / Callout Traceability: the annotated focused surfaces, VAT-OPT-G annotated state renders, and annotated contact sheet map every listed element group back to visible UI regions with both color and readable element IDs. Color is a secondary cue; the text ID is the primary trace key.
 
         `VIS-VAT-001` closure proof: every option has a clean focused render plus an `annotated_focused_surface.png`, and the packet has `visual_options_annotated_contact_sheet.png`. The callouts use both color and readable element IDs; the validator requires these artifacts and marker text. Pixel-level confirmation still requires evidence review by Codex/USER.
+        `VIS-VAT-002` closure proof: VAT-OPT-G has clean and annotated renders for parent, child, dropdown, unsaved, and close-guard states so the USER no longer has to infer the consolidated target from D/E/F alone.
+        `VIS-VAT-003` closure proof: VAT-OPT-G records `AI >` as an existing compact FAM-007-owned doorway only; the render does not add provider/runtime/privacy-state copy or Dev/Owner categories.
         """,
     )
 
@@ -1442,7 +1821,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
 
         This visual-target process prevents future false green by requiring design candidate renders before visible UI implementation, USER_ACCEPTED Visual Acceptance Target before implementation claims, actual render media in the packet rather than local paths only, stable element legends plus annotated callouts for USER critique, state matrix coverage before LV/UTS, and implementation-match proof against the accepted guide/target before visual green.
 
-        Current branch-local visual-target defect closures: `VIS-VAT-001`, `GOV-VAT-005`, and `GOV-VAT-006` are closed only for this packet after regenerated media and final all-PASS receipts. This packet does not erase known-bad packets, superseded LV packets, stale-output incidents, or the active LV1 retest pending posture.
+        Current branch-local visual-target defect closures: `VIS-VAT-001`, `VIS-VAT-002`, `VIS-VAT-003`, `GOV-VAT-005`, and `GOV-VAT-006` are closed only for this packet after regenerated media and final all-PASS receipts. `VIS-VAT-002` closes the missing consolidated D/E/F candidate by adding VAT-OPT-G. `VIS-VAT-003` closes the AI doorway classification gap by recording `AI >` as a compact FAM-007-owned doorway only, without provider/runtime/privacy-state copy or Developer/Owner categories. This packet does not erase known-bad packets, superseded LV packets, stale-output incidents, or the active LV1 retest pending posture.
         """,
     )
 
@@ -1477,6 +1856,8 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         | `VIS-VAT-001` | The 084608 contact sheet and legend were useful but hard to visually map back to the rendered UI without guessing. | USER review could misidentify which legend row corresponds to which visible element, weakening visual acceptance decisions. | `CLOSED_WITH_PROOF`: regenerated packet includes color-coded and text-labeled callouts on every `annotated_focused_surface.png`, plus `visual_options_annotated_contact_sheet.png`; validator requires the artifacts and callout markers. |
         | `GOV-VAT-005` | Visual Acceptance Target wording could imply that a USER-accepted target/template is a literal guaranteed final or end-state screenshot. | Implementation could be falsely judged only by pixel identity or could overpromise final state before runtime/source-truth proof. | `CLOSED_WITH_PROOF`: phase/branch wording and packet review aids define accepted targets as high-fidelity guides/templates and comparison targets, not guaranteed literal final screenshots; Implementation Match Proof must compare actual evidence and explain deviations. |
         | `GOV-VAT-006` | The 084608 packet-contained validation receipts recorded a failed packet validator self-check while the Codex digest claimed validation passed. | Packet proof contradicted the closeout and created a false-green risk. | `CLOSED_WITH_PROOF`: generator now marks the packet-validator self-check as `PENDING_CURRENT_RUN` only before the self-check runs, then records `FINAL_PASS_RECORDED` and raises if any final command receipt is not `PASS`; validator rejects active final receipts containing `FAIL`. |
+        | `VIS-VAT-002` | The 092120 packet required USER/ChatGPT to combine D/E/F mentally instead of providing the requested consolidated candidate. | USER could approve the wrong partial target or continue the repair loop because the exact hybrid was not rendered. | `CLOSED_WITH_PROOF`: VAT-OPT-G now has clean, annotated, desktop, state-matrix, parent-page, child-page, dropdown-open, unsaved, and close-guard renders plus review-aid routing. |
+        | `VIS-VAT-003` | `AI >` needed source-truth classification before appearing in the consolidated tray render. | The packet could overclaim provider/runtime/privacy behavior or expose fake future AI semantics. | `CLOSED_WITH_PROOF`: VAT-OPT-G keeps `AI >` as the compact FAM-007-owned AI Status / Command Center doorway only, with no provider/runtime/privacy-state wall and no Developer/Owner menu. |
 
         USER/ChatGPT UI findings are seed defects, not the ceiling. Codex Independent Evidence Inspection remains required before any future visual green claim. This ledger does not make the packet LV green, UTS complete, PR-ready, merge-ready, release-ready, or cleanup-ready.
         """,
@@ -1500,6 +1881,22 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
                 f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option {option.id[-1]}/state_matrix.png` | Option {option.id[-1]} state coverage | Design Candidate Render |",
             )
         )
+        + "\n"
+        + "\n".join(
+            f"| `{PACKET_RENDER_MEDIA_PREFIX}/Option G/{name}` | VAT-OPT-G {description} | Design Candidate Render for `VIS-VAT-002` |"
+            for name, description in (
+                ("tray_parent_page.png", "selectable Tray parent page"),
+                ("annotated_tray_parent_page.png", "annotated Tray parent page"),
+                ("quick_access_child_page.png", "Quick Access child page under Tray"),
+                ("annotated_quick_access_child_page.png", "annotated Quick Access child page under Tray"),
+                ("dropdown_open_state.png", "dropdown-open state"),
+                ("annotated_dropdown_open_state.png", "annotated dropdown-open state"),
+                ("dirty_unsaved_state.png", "Unsaved changes state"),
+                ("annotated_dirty_unsaved_state.png", "annotated Unsaved changes state"),
+                ("close_guard_state.png", "Save / Discard / Cancel close guard"),
+                ("annotated_close_guard_state.png", "annotated Save / Discard / Cancel close guard"),
+            )
+        )
         + f"""
         | `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_contact_sheet.png` | Cross-option comparison | Design Candidate Render |
         | `{PACKET_RENDER_MEDIA_PREFIX}/visual_options_annotated_contact_sheet.png` | Cross-option legend/callout map | Design Candidate Render callout proof for `VIS-VAT-001` |
@@ -1521,6 +1918,7 @@ def build_packet_files(stamp: str, proof_root: Path, zip_path: Path):
         Annotated focused render count: `{len(OPTIONS)}`
         Desktop/context render count: `{len(OPTIONS)}`
         State matrix render count: `{len(OPTIONS)}`
+        VAT-OPT-G extra state render count: `{len(VAT_G_EXTRA_RENDER_NAMES)}`
         Contact sheet count: `1`
         Annotated contact sheet count: `1`
         Governance/source-truth proof ledger: `Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md`
@@ -1601,9 +1999,9 @@ def append_external_receipts(proof_root: Path, zip_path: Path):
 Receipt Timestamp: `{dt.datetime.now().isoformat(timespec='seconds')}`
 Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target process and USER packet generation; no product/runtime UI implementation, no renewed LV/UTS acceptance, no PR, merge, release, cleanup, issue, sibling, Governance, neutral-main, provider/model/private/cache/memory, installer/startup/shortcut/packaging mutation.`
 Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
-Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
+Current Gate Preserved: `USER review of the FAM-003 Visual Acceptance Target packet; LV1 USER-operated visual retest remains paused behind this target decision. This visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
 Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; durable repo-wide enforcement, shared primitives/templates, global helper/fixture gates, and sibling adoption remain future Governance/FAM-002/owning-FAM candidates.`
-Governance / Visual Proof Defects: `GOV-VAT-004, VIS-VAT-001, GOV-VAT-005, and GOV-VAT-006 admitted and closed by packet-contained source snapshots, bounded diffs, annotated callout media, guide/template wording, and final all-PASS command receipts.`
+Governance / Visual Proof Defects: `GOV-VAT-004, VIS-VAT-001, VIS-VAT-002, VIS-VAT-003, GOV-VAT-005, and GOV-VAT-006 admitted and closed by packet-contained source snapshots, bounded diffs, VAT-OPT-G clean/annotated state media, annotated callout media, guide/template wording, and final all-PASS command receipts.`
 Visual Impact Classification: `MATERIAL_UI_UX_CHANGE; EXISTING_SURFACE_LAYOUT_CHANGE; NEW_CONTROL_CLUSTER; SETTINGS_OR_IA_CHANGE; STATUS_ERROR_OR_EMPTY_STATE_CHANGE; VISUAL_SYSTEM_ADOPTION; AMBIGUOUS_VISUAL_CONTRACT; USER_REPORTED_VISUAL_FAILURE; FALSE_GREEN_VISUAL_PROOF_FAILURE.`
 Visual Options Packet: `{PACKET_ROOT}\\Review Aids\\VISUAL_OPTIONS_PACKET.md`
 Render Media Root: `{proof_root}\\render_media`
@@ -1611,7 +2009,7 @@ USER Packet Folder: `{PACKET_ROOT}`
 USER Packet ZIP Path: `{zip_path}`
 Hash Recording Model: `Final ZIP SHA256 is recorded after ZIP generation in active external state and Codex return output only; packet-internal files intentionally do not contain their own final hash.`
 Branch-Local Helper: `dev/orin_fam003_visual_acceptance_target_validation.py validates packet media, legends, ledgers, draft target, templates, external state files, and folder/ZIP parity. It is branch-local support evidence only and does not prove USER acceptance.`
-Visual Target Meaning: `A USER-accepted target is a high-fidelity guide/template and implementation comparison target, not a guaranteed literal final or end-state screenshot.`
+Visual Target Meaning: `A USER-accepted target is a high-fidelity guide/template and implementation comparison target, not a guaranteed literal final or end-state screenshot. VAT-OPT-G is a consolidated candidate only until USER selects, revises, combines, or rejects it.`
 Governance Candidate Only: `Reusable repo-wide Visual Acceptance Target gate, global helper/fixture enforcement, and shared settings primitives/templates require separate Governance/FAM-002 approval.`
 Next Legal Phase: `USER review of the FAM-003 Visual Acceptance Target packet. If USER accepts or revises a target that differs from current implementation, route to the correct bounded repair before renewed LV1 retest. If USER accepts current-equivalent target with no implementation delta, LV1 USER-operated retest may continue from the current source-truth packet after Codex digests that decision.`
 """
@@ -1642,11 +2040,11 @@ def append_external_final_receipts(proof_root: Path, zip_path: Path, digest: str
 ## Branch-Local Visual Acceptance Target Final Receipt - 2026-06-24
 
 Receipt Timestamp: `{dt.datetime.now().isoformat(timespec='seconds')}`
-Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target packet generation cleanup repair; standard USER packet lane restored.`
+Task Type: `FAM-003 branch-local UI/UX Visual Acceptance Target packet generation cleanup repair plus VAT-OPT-G consolidated candidate target; standard USER packet lane restored.`
 Legal Carrier: `C:\\Nexus Worktrees\\FAM-003` on `feature/fam-003-resident-access-quick-actions`.
-Current Gate Preserved: `Live Validation Stage 1 - USER-operated visual retest remains pending; this visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
+Current Gate Preserved: `USER review of the FAM-003 Visual Acceptance Target packet; LV1 USER-operated visual retest remains paused behind this target decision. This visual-target packet is not LV green, not UTS complete, not PR-ready, not merge-ready, not release-ready, and not cleanup-ready.`
 Branch-Local Governance Hardening: `FAM-003 Visual Acceptance Target overlay admitted for this carrier only; packet now records seed-defect, independent-evidence-inspection, USER_ACCEPTED target, guide/template boundaries, legend/callout traceability, and implementation-match boundaries without promoting repo-wide enforcement.`
-Governance / Visual Proof Defects: `GOV-VAT-004, VIS-VAT-001, GOV-VAT-005, and GOV-VAT-006 closed in the regenerated packet by Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md, Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch, Source Truth Context/Governance Proof/CURRENT_REPAIR_BOUNDED_DIFF.patch, changed-file snapshots, annotated callout media, and final all-PASS validation receipts.`
+Governance / Visual Proof Defects: `GOV-VAT-004, VIS-VAT-001, VIS-VAT-002, VIS-VAT-003, GOV-VAT-005, and GOV-VAT-006 closed in the regenerated packet by Review Aids/GOVERNANCE_SOURCE_TRUTH_PROOF.md, Source Truth Context/Governance Proof/HARDENING_COMMIT_BOUNDED_DIFF.patch, Source Truth Context/Governance Proof/CURRENT_REPAIR_BOUNDED_DIFF.patch, changed-file snapshots, VAT-OPT-G clean/annotated state media, annotated contact-sheet media, and final all-PASS validation receipts.`
 USER Packet Folder: `{PACKET_ROOT}`
 USER Packet ZIP Path: `{zip_path}`
 USER Packet ZIP SHA256: `{digest}`
@@ -1654,7 +2052,7 @@ Folder / ZIP File Count: `{folder_file_count} / {zip_file_count}`
 Packet Cleanup: `Standard C:\\Nexus USER\\FAM-003 folder regenerated from clean output; legacy stable C:\\Nexus USER\\FAM-003.zip removed if present; previous same-label timestamped ZIPs removed; retired FAM-003-Visual-Acceptance folder and ZIP artifacts removed.`
 Render Media Root: `{proof_root}\\render_media`
 Hash Recording Model: `Final ZIP SHA256 is recorded after ZIP generation in active external state and Codex return output only; packet-internal files intentionally do not contain their own final hash.`
-Visual Target Meaning: `A USER-accepted target is a high-fidelity guide/template and implementation comparison target, not a guaranteed literal final or end-state screenshot.`
+Visual Target Meaning: `A USER-accepted target is a high-fidelity guide/template and implementation comparison target, not a guaranteed literal final or end-state screenshot. VAT-OPT-G remains candidate-only until USER accepts, combines, revises, or rejects it.`
 Next Legal Phase: `USER review of the FAM-003 Visual Acceptance Target packet. If USER accepts or revises a target that differs from current implementation, route to the correct bounded repair before renewed LV1 retest. If USER accepts current-equivalent target with no implementation delta, LV1 USER-operated retest may continue from the current source-truth packet after Codex digests that decision.`
 """
     markers = (
