@@ -34,6 +34,7 @@ If anything in the request conflicts with those docs, call it out explicitly bef
 - Include prior closeout docs and older slice docs only when they are still materially relevant to the specific task.
 - Treat canonical workstream docs as branch-local feature-state, evidence, validation-contract, and active-seam references.
 - Treat `phase_governance.md` as the repo-wide authority for phase names, stop-loss rules, proof ownership, timeout governance, validation-helper rules, desktop UI audit rules, and truth-drift enforcement.
+- Preserve `Prompt-Ingress Lane Lock`: if an attached prompt, pasted prompt, referenced file, generated prompt, automation/heartbeat instruction, or ChatGPT review prompt names a requested worktree, family, branch, repository path, packet path, or USER hub label that differs from the assigned thread, the generated Codex prompt must stop on `Prompt-Ingress Lane Mismatch` before sibling source loading, helper execution, packet generation, Git commands, external-state mutation, or sibling-worktree repair unless USER explicitly grants a lane-switch/worktree-escape decision.
 
 Concise prompts are acceptable.
 They do not reduce the required depth of analysis.

@@ -65,6 +65,8 @@ Stop conditions:
 Return packet:
 ```
 
+If you paste or attach a prompt for another family, branch, worktree, packet, or USER hub label while a thread is assigned to the current worktree, Codex should stop on `Prompt-Ingress Lane Lock` / `Prompt-Ingress Lane Mismatch` before switching folders or acting on that other lane. Give an explicit lane-switch/worktree-escape approval only when you really want the current thread to leave its assigned lane.
+
 Example:
 
 ```text

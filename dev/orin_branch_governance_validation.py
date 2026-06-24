@@ -3210,6 +3210,8 @@ ASSIGNED_WORKTREE_CONFINEMENT_PHRASES = (
     "New Worktree Decision Gate",
     "Worktree Escape User Waiver: Granted",
     "Worktree Escape User Waiver Missing",
+    "Prompt-Ingress Lane Lock",
+    "Prompt-Ingress Lane Mismatch",
     "Expected Worktree Root:",
     "Actual Worktree Root:",
     "No Cross-Worktree Mutation",
