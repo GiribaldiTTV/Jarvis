@@ -41,11 +41,26 @@ REQUIRED_REVIEW_AIDS = (
 )
 REQUIRED_RENDER_FILES = tuple(
     f"{RENDER_MEDIA_PREFIX}/Option {option}/{name}.png"
-    for option in ("A", "B", "C", "D", "E", "F", "G")
+    for option in ("A", "B", "C", "D", "E", "F", "G", "G2")
     for name in ("focused_surface", "annotated_focused_surface", "desktop_context", "state_matrix")
 ) + (
     *(
         f"{RENDER_MEDIA_PREFIX}/Option G/{name}.png"
+        for name in (
+            "tray_parent_page",
+            "annotated_tray_parent_page",
+            "quick_access_child_page",
+            "annotated_quick_access_child_page",
+            "dropdown_open_state",
+            "annotated_dropdown_open_state",
+            "dirty_unsaved_state",
+            "annotated_dirty_unsaved_state",
+            "close_guard_state",
+            "annotated_close_guard_state",
+        )
+    ),
+    *(
+        f"{RENDER_MEDIA_PREFIX}/Option G2/{name}.png"
         for name in (
             "tray_parent_page",
             "annotated_tray_parent_page",
@@ -194,16 +209,26 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "VAT-OPT-E",
         "VAT-OPT-F",
         "VAT-OPT-G",
+        "VAT-OPT-G2",
         "C/A Hybrid",
         "Polished NDAI Compact Shell",
         "Deterministic Dirty Guard",
         "D/E/F Consolidated Visual Target",
+        "Final Clean G",
         "3 active of 4",
         "Tray is its own selectable parent page",
         "Quick Access is a child page under Tray",
         "Save / Discard / Cancel appear only in the close-guard state",
         "AI Status / Command Center doorway",
         "FAM-007-owned doorway only",
+        "product-copy cleanup",
+        "space-efficiency cleanup",
+        "naming cleanup",
+        "Command Overlay",
+        "Create Task",
+        "Saved Actions",
+        "Tray Help",
+        "current runtime source still has BP2 maximum 5",
         "Branch-Local Visual Acceptance Target overlay",
         "USER/ChatGPT UI findings are seed defects",
         "Codex Independent Evidence Inspection",
@@ -217,6 +242,9 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "VIS-VAT-001",
         "VIS-VAT-002",
         "VIS-VAT-003",
+        "VIS-VAT-004",
+        "VIS-VAT-005",
+        "VIS-VAT-006",
         "Governance Source-Truth Proof",
         "HARDENING_COMMIT_BOUNDED_DIFF.patch",
         "CURRENT_REPAIR_BOUNDED_DIFF.patch",
@@ -231,6 +259,8 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
         "annotated_dropdown_open_state.png",
         "annotated_dirty_unsaved_state.png",
         "annotated_close_guard_state.png",
+        "Option G2/dropdown_open_state.png",
+        "Option G2/annotated_close_guard_state.png",
         "visual_options_annotated_contact_sheet.png",
         "guide/template",
         "not a guaranteed literal final",
@@ -324,11 +354,16 @@ def validate(packet_dir: Path, packet_zip: Path | None, state_root: Path) -> lis
             "VIS-VAT-001",
             "VIS-VAT-002",
             "VIS-VAT-003",
+            "VIS-VAT-004",
+            "VIS-VAT-005",
+            "VIS-VAT-006",
             "GOV-VAT-005",
             "GOV-VAT-006",
             "annotated_focused_surface.png",
             "annotated_close_guard_state.png",
             "VAT-OPT-G",
+            "VAT-OPT-G2",
+            "Final Clean G",
             "visual_options_annotated_contact_sheet.png",
             "not a guaranteed literal final",
         ):
