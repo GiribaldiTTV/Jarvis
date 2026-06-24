@@ -299,6 +299,9 @@ INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_malformed_table_rows.md"
 )
+INVALID_REBASELINE_ADOPTION_MISSING_TABLE_SEPARATOR_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_missing_table_separator.md"
+)
 INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_sparse_table_rows.md"
 )
@@ -310,6 +313,9 @@ INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
+)
+INVALID_REBASELINE_ADOPTION_PLACEHOLDER_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_placeholder_issue_candidate.md"
 )
 INVALID_REBASELINE_ADOPTION_HISTORICAL_NONE_PROSE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_historical_none_prose.md"
@@ -1823,6 +1829,12 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             if governance._is_markdown_table_separator(cells):
                 seen_separator = True
                 continue
+            if not seen_separator:
+                if offset + 1 < len(lines):
+                    next_cells = governance._markdown_table_cells(lines[offset + 1])
+                    if governance._is_markdown_table_separator(next_cells):
+                        break
+                continue
             if seen_separator and offset + 1 < len(lines):
                 next_cells = governance._markdown_table_cells(lines[offset + 1])
                 if governance._is_markdown_table_separator(next_cells):
@@ -1830,17 +1842,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             rows.append(cells)
         return rows
 
+    def is_placeholder_table_cell(value: str) -> bool:
+        normalized = governance._normalized_planning_value(value).strip(" .;:")
+        return normalized in {"", "tbd", "todo", "placeholder"} or normalized.startswith(
+            ("tbd ", "todo ", "placeholder ")
+        )
+
     def substantive_rows(rows: list[list[str]], expected_columns: int) -> list[list[str]]:
-        placeholder_values = {"", "tbd", "todo", "placeholder"}
         real_rows: list[list[str]] = []
         for row in rows:
             if len(row) < expected_columns:
                 continue
-            normalized_cells = [
-                governance._normalized_planning_value(cell).strip(" .;:")
-                for cell in row[:expected_columns]
-            ]
-            if any(cell in placeholder_values for cell in normalized_cells):
+            if any(is_placeholder_table_cell(cell) for cell in row[:expected_columns]):
                 continue
             real_rows.append(row)
         return real_rows
@@ -1853,6 +1866,8 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             surface = governance._normalized_planning_value(row[2])
             element_group = governance._normalized_planning_value(row[3])
             defect_class = governance._normalized_planning_value(row[4])
+            evidence = governance._normalized_planning_value(row[5])
+            proposed_carrier = governance._normalized_planning_value(row[6])
             false_candidate = (
                 not candidate
                 or candidate in {"none", "n/a", "not applicable"}
@@ -1861,9 +1876,15 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             )
             if (
                 not false_candidate
+                and not any(
+                    is_placeholder_table_cell(cell)
+                    for cell in (row[0], row[2], row[3], row[4], row[5], row[6])
+                )
                 and surface not in {"", "none", "n/a", "not applicable"}
                 and element_group not in {"", "none", "n/a", "not applicable"}
                 and defect_class not in {"", "none", "n/a", "not applicable"}
+                and evidence not in {"", "none", "n/a", "not applicable"}
+                and proposed_carrier not in {"", "none", "n/a", "not applicable"}
             ):
                 return True
         return False
@@ -1938,10 +1959,20 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     user_packet_zip = governance._extract_marker_value(text, "USER Packet ZIP Path:")
     user_packet_path_not_required = "not required" in user_packet_path.casefold()
     user_packet_zip_not_required = "not required" in user_packet_zip.casefold()
-    normalized_user_packet_zip = user_packet_zip.replace("/", "\\").casefold()
-    user_packet_zip_in_user_root = "c:\\nexus user\\" in normalized_user_packet_zip
-    user_packet_zip_has_timestamp = (
-        re.search(r"[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip", user_packet_zip) is not None
+
+    def normalized_windows_zip_paths(value: str) -> list[str]:
+        normalized_value = value.replace("/", "\\")
+        return re.findall(r"[A-Za-z]:\\[^|\r\n]*?\.zip", normalized_value)
+
+    user_packet_zip_paths = normalized_windows_zip_paths(user_packet_zip)
+    deterministic_user_zip_paths = [
+        path
+        for path in user_packet_zip_paths
+        if path.casefold().startswith("c:\\nexus user\\")
+        and re.search(r"\\[A-Za-z0-9_-]+-\d{8}-\d{6}\.zip$", path) is not None
+    ]
+    user_packet_zip_is_deterministic = (
+        len(user_packet_zip_paths) == 1 and len(deterministic_user_zip_paths) == 1
     )
     require(
         "c:\\nexus user" in user_packet_path.casefold()
@@ -1949,7 +1980,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "RAR USER Packet Missing",
     )
     require(
-        (user_packet_zip_has_timestamp and user_packet_zip_in_user_root)
+        user_packet_zip_is_deterministic
         or (user_packet_zip_not_required and not pending_user_review_required),
         "RAR USER Packet Missing",
     )
@@ -6233,6 +6264,23 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject malformed accepted-reference row"
         )
 
+    missing_table_separator_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_MISSING_TABLE_SEPARATOR_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    missing_table_separator_failures_joined = "\n".join(
+        missing_table_separator_rar_failures
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in missing_table_separator_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject code-trace rows without a markdown separator"
+        )
+    if "Accepted Reference Comparator Missing" not in missing_table_separator_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject accepted-reference rows without a markdown separator"
+        )
+
     sparse_table_rows_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE.read_text(
             encoding="utf-8"
@@ -6280,6 +6328,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing historical issue candidate disposition"
+        )
+
+    placeholder_issue_candidate_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_PLACEHOLDER_ISSUE_CANDIDATE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_ISSUE_CANDIDATE_FAILURE_SNIPPET not in "\n".join(
+        placeholder_issue_candidate_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject placeholder issue-candidate row"
         )
 
     historical_none_prose_rar_failures = _validate_rebaseline_adoption_review_text(
