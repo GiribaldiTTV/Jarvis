@@ -59,6 +59,23 @@ element states are proven as `PASS`, explicitly `WAIVED_WITH_REASON`, or
 `Not Applicable With Reason` against the accepted vision chain and reference
 surfaces.
 
+Full-desktop and full-window context proof is controlling when Recording Studio
+or Log Viewer Studio acceptance depends on scale, footprint, placement,
+parent/child relationship, dead space, or desktop composition. Focused crops are
+required for element inspection, but they cannot green-light a material visual
+claim by themselves when full-context evidence shows a contradiction. If a USER
+or packet review surfaces a full-desktop contradiction after a focused visual
+packet claimed green, the packet must reopen as `REPAIR` until the contradiction
+is classified, source-truth impact is recorded, and any required options or
+runtime repair path is returned to USER review.
+
+Recording visual review packets must include a red-team full-context pass before
+they can support renewed H1, Live Validation, UTS, or PR Readiness. The pass must
+look for dead space, disconnected controls, oversized footprint, fake-workspace
+smell, parent/child placement drift, row-container inheritance gaps,
+underglow/divider rhythm mismatch, control label pressure, cropped-proof
+masking, and scope drift between a doorway shell and a full workspace.
+
 ## Relationship To FAM-006
 
 Recording belongs to FAM-006 because it depends on Dashboard/HUD visibility,
@@ -161,6 +178,13 @@ Expected direction:
 - no active resize affordance in the current compact Recording Studio contract;
   Recording Studio should keep its compact controller size while preserving the
   USER-moved position
+- deterministic default placement must be proven or optioned before runtime
+  implementation closes. Branch-local proposed doctrine is: feature-studio
+  child windows open near their parent surface by default unless USER selects a
+  different behavior; same-session reopen may restore the last USER-moved
+  position; after app or computer restart the window defaults near the parent
+  unless USER selects persistent last-position behavior plus a later reset
+  route.
 - reset-to-default position behavior remains future-gated until the global
   settings/reset-default-window-position surface is admitted
 
@@ -218,6 +242,11 @@ Expected direction:
   feasible
 - resize affordance for the admitted Log Viewer Studio shell because later log
   review content and path/status readability need screen-space flexibility
+- doorway footprint, row/action relationship, and placement behavior must be
+  proven with full-desktop/full-context evidence or packeted visual options. A
+  focused screenshot that shows readable rows and buttons does not prove that
+  the Log Viewer Studio shell is appropriately compact in the USER's desktop
+  context.
 - maximize/fullscreen remains future-gated until source truth decides whether
   loaded-log graph viewing lives inside Log Viewer Studio or opens a separate
   loaded-log viewer window

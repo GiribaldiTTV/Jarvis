@@ -535,6 +535,30 @@ def seed_defects() -> list[dict[str, Any]]:
                 "linked UDL IDs added/reopened: FAM006-UDL-016 and FAM006-UDL-017; repair scope changed: yes, packet source-context and adjacent-sweep gates both hardened."
             ),
         ),
+        _defect(
+            "FAM006-UDL-018",
+            origin="USER/ChatGPT",
+            title="Full-desktop proof contradicted focused visual ACCEPT packet",
+            exact_user_wording="FAM-006-20260624-121535.zip claimed ACCEPT, but full-desktop evidence showed Log Viewer Studio scale/dead-space and child-window placement/composition failures that focused crops hid.",
+            expected="Material Recording Studio / Log Viewer Studio visual packets must treat full-desktop or full-window context as controlling evidence for scale, placement, dead space, parent/child relationship, and composition; a focused crop cannot green-light a contradicted visual claim.",
+            actual="The 121535 packet passed focused row-grammar and comparator gates while the included full-desktop screenshot exposed obvious visual contradictions.",
+            evidence="Known-bad packet FAM-006-20260624-121535.zip SHA 1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3; full_desktop_recording_and_log_viewer_after_repair.png.",
+            surfaces="Recording Studio; Log Viewer Studio; full-desktop proof; visual conformance packet; child-window placement/options.",
+            root_cause="The branch-local visual gates required focused evidence and crop/comparator completeness but did not require a full-desktop red-team contradiction ledger before accepting visual readiness.",
+            validator_gap="No full-context visual false-green packet gate, no child-window placement doctrine check, and no requirement to classify USER-reported full-desktop defects before renewed LV.",
+            repair_target="Admit 121535 as known-bad, require full-desktop false-green packet validation, add branch-local source-truth carrydown, and packet visual/placement options for USER review.",
+            acceptance="FAM-006 full-desktop false-green helper rejects missing full-context evidence, missing USER defect rows, generic root-cause rows, missing placement doctrine, and missing visual options.",
+            proof="dev/orin_fam006_full_desktop_false_green_review.py validates the regenerated false-green packet and external state records the known-bad 121535 corpus copy.",
+            status="CLOSED_WITH_PROOF",
+            closure="121535 is admitted as known-bad, full-desktop contradiction handling is packeted with media and source-truth carrydown, and renewed LV remains blocked pending USER review.",
+            adjacent_sweep=(
+                "Row-specific adjacent sweep for FAM006-UDL-018: inspected adjacent surfaces/files `Docs/family_feature_visions/FAM-006_recording.md`, "
+                "`Docs/validation_helper_registry.md`, `dev/orin_fam006_full_desktop_false_green_review.py`, the 121535 rejected packet media, "
+                "and external branch_plan.md; adjacent behavior inspected: crop-only acceptance, full-desktop contradiction, child-window placement options, "
+                "USER packet media inclusion, proof artifact completeness, and validator/helper full-context enforcement; additional adjacent defects found: none beyond this full-context false-green class; linked UDL IDs added/reopened: "
+                "FAM006-UDL-018; repair scope changed: yes, branch-local FFV, helper registry, helper, external state, and USER packet were updated."
+            ),
+        ),
     ]
 
 
@@ -759,6 +783,21 @@ def seed_incidents(defects: list[dict[str, Any]]) -> list[dict[str, Any]]:
             prevention="Require Docs_nexus_startup_contract.md in this scope and reject duplicated/generic adjacentDefectSweepResult fields.",
             scope="FAM-006-local",
             linked=["FAM006-UDL-016", "FAM006-UDL-017"],
+        ),
+        _incident(
+            "FAM006-FGI-013",
+            packet="FAM-006-20260624-121535.zip",
+            sha256="1ED2108CD4EC129476303C0E267D5B0F2D8A573770675B5BD57157534B65A6D3",
+            head="9c487aef9240a648183acf519b6cd95dfdd4caa7",
+            codex_claim="FAM-006 row-grammar / footprint repair packet was ACCEPT and ready for USER review.",
+            rejection="USER/ChatGPT rejected the packet because full-desktop evidence exposed Log Viewer scale/dead-space, disconnected composition, and placement/context issues hidden by focused crops.",
+            validator_failed="FAM-006 visual conformance and false-ACCEPT gates before full-desktop contradiction and child-window placement option enforcement.",
+            artifact="Review Aids/Evidence/20260624_121443_feature_studio_visual_fail_repair/full_desktop_recording_and_log_viewer_after_repair.png inside FAM-006-20260624-121535.zip.",
+            ledger_row="FAM006-UDL-018",
+            comparator="Full-desktop proof contradicted focused crop/comparator proof for material visual acceptance.",
+            prevention="Require branch-local full-desktop false-green review packet, row-specific root-cause ledger, USER defect classification, placement doctrine, and visual options before renewed LV.",
+            scope="FAM-006-local",
+            linked=["FAM006-UDL-018"],
         ),
     ]
     for row in rows:
