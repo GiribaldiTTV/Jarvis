@@ -1260,12 +1260,15 @@ def _write_post_zip_validation_outputs(packet: Path, zip_path: Path) -> list[dic
     existing: list[dict[str, Any]] = []
     if summary_path.exists():
         existing = json.loads(summary_path.read_text(encoding="utf-8")).get("results", [])
-    captured = [_capture_command(command_id, command) for command_id, command in commands]
-    by_id = {str(result["commandId"]): result for result in [*existing, *captured]}
+    by_id = {str(result["commandId"]): result for result in existing}
+    for command_id, command in commands:
+        result = _capture_command(command_id, command)
+        by_id[command_id] = result
+        results = list(by_id.values())
+        for current in results:
+            _write_validation_record(output_dir, current)
+        _write_validation_summary(packet, results)
     results = list(by_id.values())
-    for result in results:
-        _write_validation_record(output_dir, result)
-    _write_validation_summary(packet, results)
     return results
 
 
