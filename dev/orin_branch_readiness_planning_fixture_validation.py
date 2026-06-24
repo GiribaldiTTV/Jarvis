@@ -326,8 +326,14 @@ INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_SEPARATE_NEGATION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_green_separate_negation.md"
 )
+INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_GREEN_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_validation_summary_green.md"
+)
 INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_issue_candidate_green.md"
+)
+INVALID_REBASELINE_ADOPTION_REQUIRED_USER_REVIEW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_required_user_review_no_packet.md"
 )
 INVALID_REBASELINE_ADOPTION_MISSING_ISSUE_CANDIDATE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_missing_issue_candidate.md"
@@ -2026,6 +2032,13 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "pending user",
             "user reviews",
             "user should review",
+            "user review required",
+            "user review is required",
+            "user review is still required",
+            "requires user review",
+            "required user review",
+            "must review",
+            "user must review",
             "review issue candidate",
             "reviews rar issue candidates",
         )
@@ -2220,8 +2233,23 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 return True
         return False
 
+    green_claim_scope = governance._normalized_planning_value(
+        " ".join(
+            governance._extract_marker_value(text, marker)
+            for marker in (
+                "Merged Standard Comparison Result:",
+                "Current Violation Findings:",
+                "Issue Candidate Disposition:",
+                "Repair / Waiver / Defer / Route Decision Table:",
+                "Adoption Disposition:",
+                "Repair / Waiver / Blocker:",
+                "Validation Summary:",
+                "Exact Next USER Decision:",
+            )
+        )
+    )
     claims_green = contains_non_negated_phrase(
-        normalized_adoption_disposition, green_claim_phrases
+        green_claim_scope, green_claim_phrases
     )
     require(
         not (unresolved_present and claims_green),
@@ -6544,6 +6572,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject unresolved green claim with separate negation"
         )
 
+    validation_summary_green_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_GREEN_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        validation_summary_green_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved green claim outside Adoption Disposition"
+        )
+
     issue_candidate_green_rar_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE.read_text(
             encoding="utf-8"
@@ -6648,6 +6688,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing USER packet for active review gate"
+        )
+
+    required_user_review_no_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_REQUIRED_USER_REVIEW_NO_PACKET_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        required_user_review_no_packet_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject required USER review without packet proof"
         )
 
     bare_rar3_no_packet_rar_failures = _validate_rebaseline_adoption_review_text(
