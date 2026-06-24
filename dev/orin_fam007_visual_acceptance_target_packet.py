@@ -71,7 +71,7 @@ PROOF_ROOT = Path(
 )
 PROOF_LOG_ROOT = REPO_ROOT / "dev" / "logs" / "fam_007_ai_control_center_live_resize" / "20260623-112831"
 MANIFEST_PATH = PROOF_LOG_ROOT / "live_resize_manifest.json"
-OPTION_IDS = ("OPTION-A", "OPTION-B", "OPTION-C", "OPTION-D")
+OPTION_IDS = ("OPTION-A", "OPTION-B", "OPTION-C", "OPTION-D", "OPTION-E", "OPTION-F")
 EXPECTED_RENDER_IMAGE_COUNT = len(OPTION_IDS) * 4
 EXPECTED_ANNOTATED_IMAGE_COUNT = len(OPTION_IDS) * 2
 
@@ -487,8 +487,8 @@ def _update_visual_packet_udl_rows(udl_text: str, zip_path: Path) -> str:
 Status: `CLOSED_WITH_PROOF`
 Finding: `The branch-local Visual Acceptance Target packet generator could create visual legends that were hard to map to exact render regions, and focused annotated renders could clip or truncate callout labels outside the image canvas. The prior six broad callouts were still too generic for USER feedback such as "change D-ROW-01B" or "move D-BTN-03."`
 Required Disposition: `Future Visual Acceptance Target packets must include clean and annotated focused render pairs, option-specific group-level and element-level annotation IDs, color plus non-color cues, an annotation manifest mapping each visible ID to element/group type, target label, marker style, visual region, in-canvas label box, leader line, and purpose, plus template-not-endstate wording.`
-Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now renders annotated images with option-specific IDs such as A-STATUS-01, D-CARD-02, D-ROW-02B, and D-BTN-03; keeps clean focused renders beside annotated focused renders; records element/group type, target label, marker style, color cue, non-color cue, label boxes, and leader lines in ANNOTATION_MANIFEST.md; and validates annotation geometry, visible ID pixels, group/element coverage, and clean+annotated pairing for every option.`
-Proof: `Current Visual Acceptance Target packet validation fails if any annotation target, label box, or leader line extends outside the image canvas, if a visible ID label cannot be detected, if an option lacks group-level or element-level IDs, if Option D lacks row-level IDs, or if any option lacks the primary clean focused plus annotated focused render pair.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now renders annotated images with option-specific IDs such as A-STATUS-01, D-CARD-02, D-ROW-02B, E-CARD-04, E-BTN-04, F-SUMMARY-01, and F-BTN-00; keeps clean focused renders beside annotated focused renders; records element/group type, target label, marker style, color cue, non-color cue, label boxes, and leader lines in ANNOTATION_MANIFEST.md; and validates annotation geometry, visible ID pixels, group/element coverage, and clean+annotated pairing for every option.`
+Proof: `Current Visual Acceptance Target packet validation fails if any annotation target, label box, or leader line extends outside the image canvas, if a visible ID label cannot be detected, if an option lacks group-level or element-level IDs, if Option D, Option E, or Option F lacks precise required IDs, or if any option lacks the primary clean focused plus annotated focused render pair.`
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This repair does not restore or require a second historical packet ZIP and does not approve H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling mutation, imports, or v1.8.0 work.`
 """
@@ -517,7 +517,7 @@ No-Fake-Preservation Rule: `This repair does not approve H1/LV, USER UTS, PR Rea
 Status: `CLOSED_WITH_PROOF`
 Finding: `The prior Visual Acceptance Target packet presented Option A, Option B, and Option C without a distinct hybrid target that carried the USER-approved old AI Control Center row grammar as a reference while preserving the current AI Dashboard / AI Control Center doorway model. The first Option D repair added the hybrid target, but its annotation overlay was still too broad to support precise USER feedback about rows, cards, buttons, and status strips.`
 Required Disposition: `Current FAM-007 visual target packets must present Option D as a branch-local hybrid candidate: Option A source-truth product structure and doorway labels, Option B compact grouping rhythm, accepted old AI Control Center row grammar as a visual grammar reference, and Option C as rejected-risk boundary only. Option D annotations must expose row-level, card-level, button-level, status-strip, header, and control-cluster review IDs. Option D is still a candidate render, not implementation proof or a product/runtime mutation.`
-Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Option D / D2 clean focused, annotated focused, clean desktop/context, and annotated desktop/context renders with IDs such as D-HEADER-01, D-STATUS-01, D-CARD-01, D-ROW-01A, D-ROW-02B, D-BTN-03; maps those IDs through image relevance, annotation, artifact-to-surface, state, rejected-pattern, and primary USER review text; and validates all four options as the curated final-packet image set. The D2 refinement makes the option read as a mature draft window rather than a generated concept while keeping the compact grouped-doorway boundary.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Option D / D2 clean focused, annotated focused, clean desktop/context, and annotated desktop/context renders with IDs such as D-HEADER-01, D-STATUS-01, D-CARD-01, D-ROW-01A, D-ROW-02B, D-BTN-03; maps those IDs through image relevance, annotation, artifact-to-surface, state, rejected-pattern, and primary USER review text; and validates the retained historical/context options as part of the curated final-packet image set. The D2 refinement makes the option read as a mature draft window rather than a generated concept while keeping the compact grouped-doorway boundary.`
 Proof: `Current Visual Acceptance Target packet validation fails if Option D, its row-level/card-level/button-level/status-level IDs, its row-grammar wording, or its curated render media are missing from the generated folder or ZIP.`
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This repair does not approve runtime UI implementation, H1/LV, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, sibling/Governance/FAM-002/UIREF mutation, imports, or v1.8.0 work.`
@@ -537,8 +537,8 @@ No-Fake-Preservation Rule: `This row records a governance candidate only. It doe
 Status: `CLOSED_WITH_PROOF`
 Finding: `The branch-local Visual Acceptance Target packet could be read as a "pick the cleanest available option" packet instead of a USER-guided exploration and refinement loop. That would let Codex recommendations, available renders, helper PASS, or packet validation substitute for USER visual preference and could lead to near-duplicate variant churn instead of meaningful compliant new directions.`
 Required Disposition: `Current and future FAM-007 Visual Acceptance Target packets must state that clean enough is not the acceptance standard. The standard is USER-selected visual direction after meaningful compliant option exploration. When USER does not accept a target, the next cycle must generate revised, combined, or new real draft-window variants with retained traits, rejected traits, new territory, and material-difference explanation.`
-Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md, strengthens START_HERE and the primary USER review file, expands the Visual Selection Ledger template with retained/rejected/new-territory fields, records no-near-duplicate and real-draft-window requirements, and validates exploration-loop, variant-distinctness, and retained/rejected-traits wording in the folder and final ZIP.`
-Proof: `Current Visual Acceptance Target packet validation fails if the packet omits VISUAL_ACCEPTANCE_EXPLORATION_LOOP, the clean-enough rejection standard, retained traits, rejected traits, new territory, material differences, no near-duplicates, real draft-window requirement, or the statement that packet validation proves completeness/currentness only and not USER acceptance or preference.`
+Repair: `dev/orin_fam007_visual_acceptance_target_packet.py now generates Review Aids/VISUAL_ACCEPTANCE_EXPLORATION_LOOP.md, strengthens START_HERE and the primary USER review file, expands the Visual Selection Ledger template with retained/rejected/new-territory fields, records no-near-duplicate and real-draft-window requirements, and validates exploration-loop, variant-distinctness, and retained/rejected-traits wording in the folder and final ZIP. The current cycle adds Option E, a polished two-by-two grouped-card production doorway, and Option F, a wide top summary/action zone with horizontal domain lanes, while preserving A/B/C/D as historical comparison context.`
+Proof: `Current Visual Acceptance Target packet validation fails if the packet omits VISUAL_ACCEPTANCE_EXPLORATION_LOOP, VAT-CYCLE-20260624-02, Option E, Option F, the clean-enough rejection standard, retained traits, rejected traits, new territory, material differences, no near-duplicates, real draft-window requirement, or the statement that packet validation proves completeness/currentness only and not USER acceptance or preference.`
 Current Review Packet: `{zip_path}`
 No-Fake-Preservation Rule: `This row records branch-local process hardening and a governance candidate only. It does not mutate runtime UI, Docs/phase_governance.md, Governance, FAM-002, UIREF, sibling worktrees, H1/LV acceptance, USER UTS, PR Readiness, PR creation, merge, release, provider/model/private/cache/memory/download/packaging, imports, or v1.8.0 work.`
 """
@@ -808,6 +808,10 @@ def _window_geometry(option_id: str, width: int, height: int, *, desktop: bool) 
         return (0, 0, 570, 610)
     if option_id == "OPTION-D":
         return (810, 58, 748, 722) if desktop else (36, 36, 748, 722)
+    if option_id == "OPTION-E":
+        return (760, 54, 820, 728) if desktop else (34, 34, 820, 728)
+    if option_id == "OPTION-F":
+        return (700, 82, 910, 620) if desktop else (34, 34, 910, 620)
     return (850, 82, 650, 660) if desktop else (48, 48, 650, 660)
 
 
@@ -903,11 +907,73 @@ def _option_d_specs(width: int, height: int, *, desktop: bool) -> list[Annotatio
     ]
 
 
+def _option_e_specs(width: int, height: int, *, desktop: bool) -> list[AnnotationSpec]:
+    x, y, win_w, _win_h = _window_geometry("OPTION-E", width, height, desktop=desktop)
+    left_x1 = x + 30
+    left_x2 = x + 418
+    right_x1 = x + 436
+    right_x2 = x + win_w - 30
+    specs = [
+        ("HEADER-01", "group", "Production doorway header", (x + 18, y + 18, x + win_w - 18, y + 150), "bracket", 2, "Identifies the polished title/header group and trust summary."),
+        ("CTRL-01", "element", "Window control cluster", (x + win_w - 92, y + 28, x + win_w - 28, y + 62), "circle", 1, "Identifies compact window-level controls."),
+        ("STATUS-01", "group", "AI trust status strip", (x + 42, y + 112, x + 538, y + 146), "bracket", 5, "Identifies compact ORIN/provider/data truth."),
+        ("CARD-01", "group", "AI Control Center doorway", (left_x1, y + 174, left_x2, y + 380), "box", 0, "Identifies the main focused control domain doorway."),
+        ("ROW-01A", "element", "AI state row", (left_x1 + 20, y + 252, left_x2 - 20, y + 275), "bracket", 6, "Identifies control-center AI truth row."),
+        ("ROW-01B", "element", "Provider boundary row", (left_x1 + 20, y + 280, left_x2 - 20, y + 303), "bracket", 6, "Identifies provider/model blocked truth row."),
+        ("BTN-01", "element", "Open Control Center button", (left_x2 - 182, y + 336, left_x2 - 20, y + 368), "arrow", 4, "Identifies primary focused-domain action."),
+        ("CARD-02", "group", "Readiness & Diagnostics doorway", (right_x1, y + 174, right_x2, y + 380), "box", 3, "Identifies diagnostics/readiness domain doorway."),
+        ("ROW-02A", "element", "Local check row", (right_x1 + 20, y + 252, right_x2 - 20, y + 275), "bracket", 6, "Identifies local check state."),
+        ("ROW-02B", "element", "Report doorway row", (right_x1 + 20, y + 280, right_x2 - 20, y + 303), "bracket", 6, "Identifies readiness report placement."),
+        ("BTN-02", "element", "Open Diagnostics button", (right_x2 - 158, y + 336, right_x2 - 20, y + 368), "arrow", 5, "Identifies diagnostics domain action."),
+        ("CARD-03", "group", "Capabilities doorway", (left_x1, y + 400, left_x2, y + 624), "box", 7, "Identifies capability/maintenance doorway."),
+        ("ROW-03A", "element", "Capability pack row", (left_x1 + 20, y + 486, left_x2 - 20, y + 509), "bracket", 6, "Identifies blocked capability-pack state."),
+        ("BTN-03", "element", "Open Capabilities button", (left_x2 - 164, y + 580, left_x2 - 20, y + 612), "arrow", 4, "Identifies capability domain action."),
+        ("CARD-04", "group", "Activity and settings handoff card", (right_x1, y + 400, right_x2, y + 624), "box", 7, "Identifies compact future-gated activity/settings doorway."),
+        ("ROW-04A", "element", "Settings handoff row", (right_x1 + 20, y + 486, right_x2 - 20, y + 509), "bracket", 6, "Identifies FAM-003 settings route without mutation."),
+        ("BTN-04", "element", "Open Settings handoff button", (right_x2 - 142, y + 580, right_x2 - 20, y + 612), "arrow", 5, "Identifies future-gated settings action."),
+    ]
+    return [
+        _annotation_spec("OPTION-E", suffix, element_type, label, _clip_box(region, width, height), style, color_index, purpose)
+        for suffix, element_type, label, region, style, color_index, purpose in specs
+    ]
+
+
+def _option_f_specs(width: int, height: int, *, desktop: bool) -> list[AnnotationSpec]:
+    x, y, win_w, _win_h = _window_geometry("OPTION-F", width, height, desktop=desktop)
+    card_y1 = y + 320
+    card_y2 = y + 540
+    card_w = 268
+    specs = [
+        ("HEADER-01", "group", "Wide orientation header", (x + 18, y + 18, x + win_w - 18, y + 138), "bracket", 2, "Identifies wide title/header hierarchy."),
+        ("CTRL-01", "element", "Window control cluster", (x + win_w - 92, y + 28, x + win_w - 28, y + 62), "circle", 1, "Identifies compact window-level controls."),
+        ("SUMMARY-01", "group", "Top summary and state zone", (x + 30, y + 160, x + win_w - 30, y + 294), "box", 0, "Identifies the alternate strong top summary zone."),
+        ("STATUS-01", "group", "AI/provider/data status row", (x + 52, y + 246, x + 560, y + 282), "bracket", 5, "Identifies compact trust-state row in the top zone."),
+        ("BTN-00", "element", "Primary Diagnostics action", (x + win_w - 238, y + 238, x + win_w - 52, y + 274), "arrow", 4, "Identifies primary action placement in the summary zone."),
+        ("CARD-01", "group", "Control Center lane", (x + 30, card_y1, x + 30 + card_w, card_y2), "box", 3, "Identifies first horizontal domain lane."),
+        ("ROW-01A", "element", "Control summary row", (x + 50, card_y1 + 96, x + 30 + card_w - 20, card_y1 + 119), "bracket", 6, "Identifies control lane state row."),
+        ("BTN-01", "element", "Open Control action", (x + 30 + card_w - 156, card_y2 - 44, x + 30 + card_w - 20, card_y2 - 12), "arrow", 4, "Identifies first lane action."),
+        ("CARD-02", "group", "Diagnostics lane", (x + 322, card_y1, x + 322 + card_w, card_y2), "box", 7, "Identifies second horizontal domain lane."),
+        ("ROW-02A", "element", "Diagnostics summary row", (x + 342, card_y1 + 96, x + 322 + card_w - 20, card_y1 + 119), "bracket", 6, "Identifies diagnostics lane state row."),
+        ("BTN-02", "element", "Open Diagnostics action", (x + 322 + card_w - 150, card_y2 - 44, x + 322 + card_w - 20, card_y2 - 12), "arrow", 5, "Identifies second lane action."),
+        ("CARD-03", "group", "Capabilities lane", (x + 614, card_y1, x + 614 + card_w, card_y2), "box", 7, "Identifies third horizontal domain lane."),
+        ("ROW-03A", "element", "Capability summary row", (x + 634, card_y1 + 96, x + 614 + card_w - 20, card_y1 + 119), "bracket", 6, "Identifies capability lane state row."),
+        ("BTN-03", "element", "Open Capabilities action", (x + 614 + card_w - 150, card_y2 - 44, x + 614 + card_w - 20, card_y2 - 12), "arrow", 4, "Identifies third lane action."),
+    ]
+    return [
+        _annotation_spec("OPTION-F", suffix, element_type, label, _clip_box(region, width, height), style, color_index, purpose)
+        for suffix, element_type, label, region, style, color_index, purpose in specs
+    ]
+
+
 def _annotation_specs(option_id: str, width: int, height: int, *, desktop: bool) -> list[AnnotationSpec]:
     if option_id == "OPTION-A":
         return _option_a_specs(width, height, desktop=desktop)
     if option_id == "OPTION-D":
         return _option_d_specs(width, height, desktop=desktop)
+    if option_id == "OPTION-E":
+        return _option_e_specs(width, height, desktop=desktop)
+    if option_id == "OPTION-F":
+        return _option_f_specs(width, height, desktop=desktop)
     return _generic_option_specs(option_id, width, height, desktop=desktop)
 
 
@@ -1184,6 +1250,158 @@ def _draw_option_d_mockup(path: Path, desktop: bool) -> None:
     img.save(path)
 
 
+def _draw_option_e_mockup(path: Path, desktop: bool) -> None:
+    width, height = (1600, 920) if desktop else (900, 800)
+    img = Image.new("RGB", (width, height), (0, 5, 8))
+    draw = ImageDraw.Draw(img)
+    _draw_soft_grid(draw, width, height)
+    _draw_corner_glow(draw, 230, 360)
+    win_w, win_h = 820, 728
+    x = 760 if desktop else 34
+    y = 54 if desktop else 34
+    draw.rounded_rectangle((x + 8, y + 10, x + win_w + 8, y + win_h + 10), radius=32, fill=(0, 11, 17))
+    draw.rounded_rectangle((x, y, x + win_w, y + win_h), radius=30, fill=(1, 15, 26), outline=(72, 188, 212), width=2)
+    draw.rounded_rectangle((x + 18, y + 18, x + win_w - 18, y + 150), radius=24, fill=(2, 12, 23), outline=(18, 62, 82), width=1)
+    draw.text((x + 44, y + 34), "NEXUS DESKTOP AI", fill=(96, 220, 239), font=_font(13))
+    draw.text((x + 44, y + 58), "AI Dashboard", fill=(240, 248, 250), font=_font(31))
+    draw.text((x + 44, y + 98), "Production doorway draft: compact AI truth, domain launchers, and future-gated handoffs.", fill=(152, 200, 210), font=_font(12))
+    draw.rounded_rectangle((x + win_w - 92, y + 28, x + win_w - 28, y + 62), radius=17, fill=(4, 30, 42), outline=(79, 201, 225), width=2)
+    draw.text((x + win_w - 75, y + 37), "-  x", fill=(230, 247, 250), font=_font(13))
+    _draw_status_strip(draw, x + 42, y + 112, ["AI - ORIN", "STATUS - NOT IMPLEMENTED", "PROVIDER - BLOCKED", "DATA - NONE"])
+    left_x1 = x + 30
+    left_x2 = x + 418
+    right_x1 = x + 436
+    right_x2 = x + win_w - 30
+    _draw_row_card(
+        draw,
+        (left_x1, y + 174, left_x2, y + 380),
+        "01",
+        "AI Control Center",
+        "Focused control domain for AI trust and status.",
+        [
+            ("AI state", "ORIN not implemented"),
+            ("Provider", "Blocked; no model path active"),
+            ("Visible data", "None leaves this machine"),
+        ],
+        "Open Control Center",
+    )
+    _draw_row_card(
+        draw,
+        (right_x1, y + 174, right_x2, y + 380),
+        "02",
+        "Readiness & Diagnostics",
+        "Local checks, readiness report, and safe next steps.",
+        [
+            ("Local check", "Waiting for USER action"),
+            ("Readiness report", "Local decision aid only"),
+            ("Prompt/data", "Not sent, stored, or indexed"),
+        ],
+        "Open Diagnostics",
+    )
+    _draw_row_card(
+        draw,
+        (left_x1, y + 400, left_x2, y + 624),
+        "03",
+        "Capabilities",
+        "Capability and maintenance lifecycle doorway.",
+        [
+            ("Capability packs", "Install intent blocked"),
+            ("Downloads", "Disabled"),
+            ("Updates", "Future-gated"),
+        ],
+        "Open Capabilities",
+    )
+    _draw_row_card(
+        draw,
+        (right_x1, y + 400, right_x2, y + 624),
+        "04",
+        "AI Settings",
+        "Global settings handoff without FAM-003 mutation.",
+        [
+            ("Settings route", "Future Global Settings / AI"),
+            ("Private setup", "Developer and Owner gated"),
+            ("Memory/cache", "Not active"),
+        ],
+        "Open Settings",
+    )
+    draw.text((x + 48, y + 668), "Top level stays compact: detailed reports, setup, logs, and provider internals open behind domain doors.", fill=(128, 186, 198), font=_font(12))
+    if desktop:
+        draw.rectangle((0, height - 62, width, height), fill=(0, 10, 14))
+        draw.text((24, height - 42), "Option E desktop/context render: polished two-by-two production doorway draft", fill=(130, 190, 198), font=_font(15))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path)
+
+
+def _draw_option_f_card(
+    draw: ImageDraw.ImageDraw,
+    box: tuple[int, int, int, int],
+    number: str,
+    title: str,
+    summary: str,
+    row: str,
+    action: str,
+) -> None:
+    x1, y1, x2, y2 = box
+    draw.rounded_rectangle((x1 + 3, y1 + 5, x2 + 3, y2 + 5), radius=18, fill=(0, 9, 14))
+    draw.rounded_rectangle(box, radius=18, fill=(3, 19, 34), outline=(38, 115, 145), width=1)
+    draw.rounded_rectangle((x1 + 16, y1 + 16, x1 + 52, y1 + 52), radius=12, fill=(5, 51, 70), outline=(72, 194, 220), width=1)
+    draw.text((x1 + 25, y1 + 26), number, fill=(120, 234, 239), font=_font(12))
+    draw.text((x1 + 66, y1 + 16), title.upper(), fill=(236, 247, 250), font=_font(14))
+    draw.text((x1 + 18, y1 + 68), summary, fill=(148, 194, 205), font=_font(11))
+    draw.line((x1 + 20, y1 + 96, x2 - 20, y1 + 96), fill=(84, 178, 199), width=1)
+    draw.rectangle((x1 + 20, y1 + 104, x1 + 23, y1 + 118), fill=(80, 189, 207))
+    draw.text((x1 + 32, y1 + 102), row, fill=(152, 234, 211), font=_font(10))
+    action_font = _font(10)
+    button_w = max(126, _text_width(draw, action.upper(), action_font) + 30)
+    bx2 = x2 - 20
+    bx1 = bx2 - button_w
+    by1 = y2 - 44
+    by2 = y2 - 12
+    draw.rounded_rectangle((bx1, by1, bx2, by2), radius=15, fill=(6, 37, 52), outline=(70, 171, 199), width=2)
+    draw.text((bx1 + 15, by1 + 10), action.upper(), fill=(232, 246, 249), font=action_font)
+
+
+def _draw_option_f_mockup(path: Path, desktop: bool) -> None:
+    width, height = (1680, 820) if desktop else (980, 690)
+    img = Image.new("RGB", (width, height), (0, 5, 8))
+    draw = ImageDraw.Draw(img)
+    _draw_soft_grid(draw, width, height)
+    _draw_corner_glow(draw, 310, 320)
+    win_w, win_h = 910, 620
+    x = 700 if desktop else 34
+    y = 82 if desktop else 34
+    draw.rounded_rectangle((x + 8, y + 10, x + win_w + 8, y + win_h + 10), radius=32, fill=(0, 11, 17))
+    draw.rounded_rectangle((x, y, x + win_w, y + win_h), radius=30, fill=(1, 15, 26), outline=(72, 188, 212), width=2)
+    draw.rounded_rectangle((x + 18, y + 18, x + win_w - 18, y + 138), radius=24, fill=(2, 13, 25), outline=(18, 61, 82), width=1)
+    draw.text((x + 44, y + 36), "NEXUS DESKTOP AI", fill=(96, 220, 239), font=_font(13))
+    draw.text((x + 44, y + 60), "AI Dashboard", fill=(240, 248, 250), font=_font(31))
+    draw.text((x + 44, y + 101), "Wide orientation draft: one trust summary, then horizontal domain lanes.", fill=(152, 200, 210), font=_font(12))
+    draw.rounded_rectangle((x + win_w - 92, y + 28, x + win_w - 28, y + 62), radius=17, fill=(4, 30, 42), outline=(79, 201, 225), width=2)
+    draw.text((x + win_w - 75, y + 37), "-  x", fill=(230, 247, 250), font=_font(13))
+    draw.rounded_rectangle((x + 30, y + 160, x + win_w - 30, y + 294), radius=20, fill=(3, 20, 34), outline=(38, 115, 145), width=1)
+    draw.text((x + 54, y + 182), "ORIN is not implemented; provider/model execution is not active.", fill=(236, 247, 250), font=_font(17))
+    draw.text((x + 54, y + 214), "Use the domain lanes below to open focused AI control, diagnostics, or capability surfaces.", fill=(148, 194, 205), font=_font(12))
+    _draw_status_strip(draw, x + 52, y + 246, ["AI - ORIN", "PROVIDER - BLOCKED", "DATA - NONE"])
+    action_font = _font(11)
+    bx2 = x + win_w - 52
+    bx1 = bx2 - 186
+    by1 = y + 238
+    draw.rounded_rectangle((bx1, by1, bx2, by1 + 36), radius=18, fill=(6, 37, 52), outline=(70, 171, 199), width=2)
+    draw.text((bx1 + 18, by1 + 11), "OPEN DIAGNOSTICS", fill=(232, 246, 249), font=action_font)
+    card_y1 = y + 320
+    card_y2 = y + 540
+    card_w = 268
+    _draw_option_f_card(draw, (x + 30, card_y1, x + 30 + card_w, card_y2), "01", "Control Center", "Focused AI control domain.", "Trust state only; no execution", "Open Control")
+    _draw_option_f_card(draw, (x + 322, card_y1, x + 322 + card_w, card_y2), "02", "Diagnostics", "Local checks and report.", "Waiting for local action", "Open Diagnostics")
+    _draw_option_f_card(draw, (x + 614, card_y1, x + 614 + card_w, card_y2), "03", "Capabilities", "Packs and maintenance.", "Downloads disabled", "Open Capabilities")
+    draw.text((x + 48, y + 574), "Alternate hierarchy: fewer vertical rows, stronger summary/action zone, horizontal domain scan.", fill=(128, 186, 198), font=_font(12))
+    if desktop:
+        draw.rectangle((0, height - 62, width, height), fill=(0, 10, 14))
+        draw.text((24, height - 42), "Option F desktop/context render: wide summary plus horizontal domain-lane draft", fill=(130, 190, 198), font=_font(15))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    img.save(path)
+
+
 def _copy_actual_media() -> list[RenderOption]:
     option_root = PACKET_DIR / "Review Aids" / "Render Media" / "Option-A-current-implementation"
     for kind, source in {
@@ -1285,6 +1503,48 @@ def _generate_option_d_media() -> list[RenderOption]:
     ]
 
 
+def _generate_next_cycle_media() -> list[RenderOption]:
+    specs = [
+        (
+            "OPTION-E",
+            "Option-E-production-doorway",
+            _draw_option_e_mockup,
+            "DOORWAY_SHELL",
+            "Next-cycle production doorway variant: a polished two-by-two grouped card grid with stronger finished-window rhythm, compact trust strip, AI Settings handoff, and row grammar kept inside grouped doorway cards.",
+        ),
+        (
+            "OPTION-F",
+            "Option-F-wide-orientation-lanes",
+            _draw_option_f_mockup,
+            "WIDE_ORIENTATION_LANES",
+            "Next-cycle alternate hierarchy variant: a wider top summary/action zone with horizontal domain lanes, fewer vertical rows, and a materially different scan path from the row-grammar doorway grid.",
+        ),
+    ]
+    result = []
+    for option_id, folder, draw_func, footprint, description in specs:
+        focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_focused.png"
+        desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_desktop.png"
+        annotated_focused = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_focused_annotated.png"
+        annotated_desktop = PACKET_DIR / "Review Aids" / "Render Media" / folder / f"{option_id.lower()}_desktop_annotated.png"
+        draw_func(focused, desktop=False)
+        draw_func(desktop, desktop=True)
+        _annotate_render(focused, annotated_focused, option_id, desktop=False)
+        _annotate_render(desktop, annotated_desktop, option_id, desktop=True)
+        result.append(
+            RenderOption(
+                option_id,
+                "Design Candidate Render using deterministic branch-local next-cycle draft-window mockup",
+                footprint,
+                str(focused.relative_to(PACKET_DIR)).replace("\\", "/"),
+                str(desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
+                str(annotated_focused.relative_to(PACKET_DIR)).replace("\\", "/"),
+                str(annotated_desktop.relative_to(PACKET_DIR)).replace("\\", "/"),
+                description,
+            )
+        )
+    return result
+
+
 def _options_table(options: list[RenderOption]) -> str:
     rows = [
         "| Option ID | Surface | Footprint | Authority | Clean Focused Render | Annotated Focused Render | Clean Desktop / Context Render | Annotated Desktop / Context Render | USER critique focus |",
@@ -1375,6 +1635,8 @@ def _artifact_to_surface_ledger_table(options: list[RenderOption]) -> str:
             "OPTION-B": "Deterministic branch-local candidate mockup for possible denser doorway grouping.",
             "OPTION-C": "Deterministic branch-local rejected-risk comparator showing larger settings/workspace mass.",
             "OPTION-D": "Mature D2-style hybrid row-grammar doorway target using Option A structure, Option B grouping discipline, and the attached accepted AI Control Center row grammar; not implementation proof by itself.",
+            "OPTION-E": "Next-cycle production doorway variant with a polished two-by-two grouped-card grid, AI Settings handoff, and row grammar kept inside compact domain cards; not implementation proof by itself.",
+            "OPTION-F": "Next-cycle alternate legal direction with a wide top summary/action zone and horizontal domain lanes; not implementation proof by itself.",
         }[option.option_id]
         for artifact, artifact_class, proof_target in (
             (option.focused_media, "candidate clean focused render", "focused footprint, density, hierarchy, copy, and doorway layout"),
@@ -1383,7 +1645,7 @@ def _artifact_to_surface_ledger_table(options: list[RenderOption]) -> str:
             (option.annotated_desktop_media, "candidate annotated desktop/context render", "context-level element-group trace and callout mapping"),
         ):
             rows.append(
-                f"| `{artifact}` | `{artifact_class}` | AI Dashboard / AI Control Center visual-target guide | option-specific review IDs such as `A-STATUS-01`, `B-CARD-02`, `C-BTN-03`, `D-ROW-02B`, and `D-BTN-03` | `{source_paths}` | UIREF-001, UIREF-002, UIREF-003, UIREF-004, UIREF-005, UIREF-006 | {proof_target}; {option_note} | Later implementation-match proof must compare actual app screenshots/video against this artifact, explain material differences, and route USER approval when required. |"
+                f"| `{artifact}` | `{artifact_class}` | AI Dashboard / AI Control Center visual-target guide | option-specific review IDs such as `A-STATUS-01`, `B-CARD-02`, `C-BTN-03`, `D-ROW-02B`, `E-CARD-04`, `E-BTN-04`, `F-SUMMARY-01`, and `F-BTN-00` | `{source_paths}` | UIREF-001, UIREF-002, UIREF-003, UIREF-004, UIREF-005, UIREF-006 | {proof_target}; {option_note} | Later implementation-match proof must compare actual app screenshots/video against this artifact, explain material differences, and route USER approval when required. |"
             )
     return "\n".join(rows)
 
@@ -1483,13 +1745,19 @@ Any future visible UI/UX change on this branch needs a rendered visual target be
 
 ## Recommended Decision
 
-Recommended: review `OPTION-D` / `D2` as the strongest mature draft target candidate. It combines `OPTION-A` source-truth product structure and real doorway labels, `OPTION-B` cleaner grouping and compact directory rhythm, and the attached old accepted AI Control Center screenshot as a row-grammar reference for strong title/header, compact deterministic status strip, numbered grouped cards, row-based label/value grammar, useful truthful information, and a realistic full-window product feel. `OPTION-C` remains a rejected-risk boundary because it trends toward the larger workspace/report/status-monitor pattern that caused earlier false-green loops.
+Current-cycle recommendation: review `OPTION-E` first as the strongest new draft target candidate for this cycle. It keeps `OPTION-D / D2` row grammar and doorway discipline, but moves the target into a more polished production-window direction with a two-by-two grouped-card grid, clearer domain launchers, AI Settings handoff, and compact trust strip. Review `OPTION-F` as the materially different alternate legal direction: a wider top summary/action zone with horizontal domain lanes and a different scan path.
+
+Retained Comparison Context: `OPTION-A` remains actual current-runtime structure evidence, not acceptance. `OPTION-B` remains compact grouping reference. `OPTION-C` remains a rejected-risk boundary because it trends toward larger workspace/report/status-monitor mass. `OPTION-D / D2` remains the strongest previous row-grammar doorway candidate, not USER-accepted final direction.
 
 Option D / D2 Boundary: the attached old accepted screenshot is a visual grammar reference, not a literal target and not source truth. `OPTION-D` is a branch-local candidate render and draft target basis only; it does not prove current runtime implementation, approve product/runtime UI mutation, or promote a global template.
 
+Option E Boundary: `OPTION-E` is recommended for USER review as the current-cycle polished production doorway candidate. It is not USER acceptance, not runtime implementation proof, and not a global template.
+
+Option F Boundary: `OPTION-F` is retained as a materially different alternate legal direction. It should be selected only if the USER prefers a wider summary/action hierarchy over the grouped-card doorway grid.
+
 Anti-Regression Boundary: the AI Dashboard / AI Control Center top-level surface must remain a compact doorway/orientation surface. Row grammar belongs inside grouped doorway cards and focused child/detail surfaces; it must not regress into twelve separate top-level status cards, a status monitor, a debugger surface, or a long report body.
 
-Recommendation Boundary: `OPTION-D` is recommended as a draft target basis, not as proof that the current runtime implementation is accepted or complete. If USER accepts `OPTION-D`, later implementation-match proof must still compare actual app evidence against the accepted target and classify any material differences.
+Recommendation Boundary: `OPTION-E` is recommended as a draft target basis, not as proof that the current runtime implementation is accepted or complete. If USER accepts `OPTION-E`, `OPTION-F`, a combination, or a revised direction, later implementation-match proof must still compare actual app evidence against the accepted target and classify any material differences.
 
 ## USER Decision Needed
 
@@ -1539,6 +1807,8 @@ Examples:
 | `C-BTN-03` | Option C third button/action |
 | `D-ROW-02B` | Option D second row in card 02 |
 | `D-BTN-03` | Option D third button/action |
+| `E-CARD-04` | Option E AI Settings handoff card |
+| `F-SUMMARY-01` | Option F wide top summary zone |
 
 Element / Group Classes:
 
@@ -1554,7 +1824,7 @@ Element / Group Classes:
 
 Review Boundary: these IDs are USER review references for this packet. They do not become source-truth implementation IDs unless a later source-truth owner explicitly promotes them.
 
-Example review language: `Keep D-CARD-02`, `change D-ROW-01B`, `move D-BTN-03`, `revise A-STATUS-01`, or `reject C-CARD-03 as too workspace-like.`
+Example review language: `Keep E-CARD-02`, `change D-ROW-01B`, `move E-BTN-04`, `revise F-SUMMARY-01`, or `reject C-CARD-03 as too workspace-like.`
 """,
     )
     _write_text(
@@ -1741,6 +2011,8 @@ All variants must remain source-truth, Project Vision, Product Experience Contra
 | `VAT-CYCLE-20260624-01` | `OPTION-C` workspace/status-risk boundary | useful negative comparator for what not to regress into | status-monitor/debugger/workspace sprawl; long detail at top level; too much report body | avoid twelve-card/status-monitor/debugger top-level patterns | differs by being retained as rejected-risk evidence, not a target |
 | `VAT-CYCLE-20260624-01` | accepted old AI Control Center visual reference | strong header, compact status strip, numbered cards, row-based label/value grammar, truthful product feel | old surface is not a literal target, not source truth by itself, and does not carry current IA alone | apply its grammar inside grouped doorway cards and focused surfaces | differs by carrying visual grammar without renaming or reverting IA |
 | `VAT-CYCLE-20260624-01` | `OPTION-D / D2` mature row-grammar doorway candidate | hybrid of source-truth doorway IA, compact grouping, old ACC row grammar, precise element IDs, real draft-window posture | still pending USER acceptance; not implementation proof; not global template | if rejected, next cycle must produce materially new variants, not label-only D copies | differs by adding row-level/card-level/status/action IDs and mature draft window shape |
+| `VAT-CYCLE-20260624-02` | `OPTION-E` polished production doorway candidate | D/D2 row grammar, compact trust strip, grouped doorway card discipline, source-truth AI Dashboard / AI Control Center IA | avoids treating D as accepted; avoids status-monitor sprawl; avoids label-only D copy | two-by-two grouped-card grid, AI Settings handoff, stronger production-window polish, clearer domain launchers | materially differs from D by changing card rhythm, hierarchy, action placement, grouped system density, and settings handoff |
+| `VAT-CYCLE-20260624-02` | `OPTION-F` wide orientation lanes candidate | compact trust truth, domain doorway purpose, category launch behavior, no-provider/provider-blocked boundaries | rejects vertical-row dominance and explores whether a wider summary/action model reads better | wide top summary/action zone, horizontal domain lanes, fewer vertical rows, alternate scan path | materially differs from D/E by changing footprint, hierarchy, card flow, summary emphasis, and action priority |
 
 ## Real Draft Window Requirement
 
@@ -1764,7 +2036,7 @@ This is a branch-local FAM-007 packet/process repair. A repo-wide Visual Accepta
     )
     _write_text(
         "Review Aids/VISUAL_SELECTION_LEDGER_TEMPLATE.md",
-        "# Visual Selection Ledger Template\n\n| Decision ID | Cycle | Surface | Option ID | Element ID | Accepted / Rejected / Combine / Revise | Retained Traits | Rejected Traits | New Territory Requested | Material Difference Required Next | USER Notes | Source-Truth Impact | Branch-Local Vs Durable Design Principle | Implementation Requirement | Proof Requirement | Future Reuse Note |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| `VSL-001` | `VAT-CYCLE-20260624-01` | AI Dashboard / AI Control Center |  |  |  |  |  |  |  |  |  |  |  |  |  |"
+        "# Visual Selection Ledger Template\n\n| Decision ID | Cycle | Surface | Option ID | Element ID | Accepted / Rejected / Combine / Revise | Retained Traits | Rejected Traits | New Territory Requested | Material Difference Required Next | USER Notes | Source-Truth Impact | Branch-Local Vs Durable Design Principle | Implementation Requirement | Proof Requirement | Future Reuse Note |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| `VSL-001` | `VAT-CYCLE-20260624-02` | AI Dashboard / AI Control Center |  |  |  |  |  |  |  |  |  |  |  |  |  |"
     )
     _write_text(
         "Review Aids/DRAFT_BRANCH_VISUAL_ACCEPTANCE_TARGET.md",
@@ -1777,7 +2049,7 @@ Target Status: `DRAFT`
 
 Target Boundary: `Branch-local guide/template candidate only; not final implemented product truth by itself.`
 
-Recommended Draft Basis: `OPTION-D / D2 pending USER selection`
+Recommended Draft Basis: `OPTION-E pending USER selection; OPTION-F retained as alternate legal direction; OPTION-D / D2 retained as prior-cycle comparison context`
 
 Selected Option(s): `Pending USER selection`
 
@@ -1869,8 +2141,8 @@ Proposed Blocker Names: `UI/UX Acceptance Pending`, `UI/UX Acceptance Rejected`,
 Exact USER Decision Needed For Global Adoption: approve a Governance/FAM-002/UIREF carrier to codify the UI/UX Workstream Exit Acceptance Gate, update validators/helpers/fixtures, and decide whether existing active UI-bearing branches must run RAR/adoption review against the new gate.
 """,
     )
-    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, curated decision-relevant packet images, packet media included in the ZIP, and an explicit Visual Acceptance Exploration Loop.\n\nUDL rows F7-UDL-019, F7-UDL-021, F7-UDL-022, F7-UDL-023, F7-UDL-024, and F7-UDL-025 track annotation readability/bounds, final-packet image relevance, comparative-audit ledgers, the Option D / D2 row-grammar hybrid target candidate, the UI/UX Workstream Exit Acceptance Gate governance candidate, and the Visual Acceptance Exploration Loop / variant-generation repair. Existing known-bad packet defects remain preserved as historical false-green evidence.")
-    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, annotated renders for each option, annotation manifest mapping marker IDs to visual regions, annotation label/leader geometry in bounds, visible marker label text pixels inside each label box, image relevance manifest coverage for every included image, final USER-review image scope, element legend, state matrix, template-not-endstate wording, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, Visual Acceptance Exploration Loop, variant distinctness wording, retained/rejected traits, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
+    _write_text("Review Aids/UDL_FALSE_GREEN_STATUS.md", "# UDL / False-Green Status\n\nCurrent branch has a Unified Defect Ledger and multiple false-green packet/proof repair receipts.\n\nThis visual target packet prevents another implementation-first loop by requiring rendered design candidate media, annotated and clean visual-to-legend mapping, full desktop/context render media, stable element IDs, state coverage, a draft target guide, rejected-pattern ledger, reusable design recipe template, curated decision-relevant packet images, packet media included in the ZIP, and an explicit Visual Acceptance Exploration Loop.\n\nUDL rows F7-UDL-019, F7-UDL-021, F7-UDL-022, F7-UDL-023, F7-UDL-024, and F7-UDL-025 track annotation readability/bounds, final-packet image relevance, comparative-audit ledgers, the Option D / D2 row-grammar hybrid target candidate, the UI/UX Workstream Exit Acceptance Gate governance candidate, and the Visual Acceptance Exploration Loop / variant-generation repair. The current cycle adds Option E and Option F under F7-UDL-025 instead of creating a separate sprawl row. Existing known-bad packet defects remain preserved as historical false-green evidence.")
+    _write_text("Review Aids/VALIDATION_SUMMARY.md", "# Packet Check Notes\n\nPacket-local checks are run by `dev/orin_fam007_visual_acceptance_target_packet.py --validate`.\n\nRequired checks include required files, exactly one primary USER review file, render media in the packet, image openability, focused and full desktop/context render media for each option, annotated renders for each option, annotation manifest mapping marker IDs to visual regions, annotation label/leader geometry in bounds, visible marker label text pixels inside each label box, image relevance manifest coverage for every included image, final USER-review image scope, element legend, state matrix, template-not-endstate wording, Visual Selection Ledger template, Draft Branch Visual Acceptance Target, Rejected Patterns Ledger, Reusable Design Recipe template, Visual Acceptance Exploration Loop, VAT-CYCLE-20260624-02, Option E, Option F, variant distinctness wording, retained/rejected traits, timestamped ZIP, and folder/ZIP parity.\n\nDetailed command results stay in Codex/helper output and final digest rather than in USER-facing text walls.")
 
     context_files = {
         "Source Truth Context/current_external_branch_state.md": BRANCH_STATE,
@@ -2176,6 +2448,10 @@ def _option_id_from_annotated_path(path: Path) -> str | None:
         return "OPTION-C"
     if "option-d" in normalized:
         return "OPTION-D"
+    if "option-e" in normalized or "option_e" in normalized:
+        return "OPTION-E"
+    if "option-f" in normalized or "option_f" in normalized:
+        return "OPTION-F"
     return None
 
 
@@ -2208,6 +2484,14 @@ def _validate_annotation_images(packet_dir: Path) -> list[str]:
             for required in ("D-ROW-01A", "D-ROW-01B", "D-ROW-02B", "D-BTN-03", "D-STATUS-01"):
                 if required not in {spec.annotation_id for spec in specs}:
                     failures.append(f"Option D focused annotations missing required precise ID: {required}")
+        if option_id == "OPTION-E" and desktop is False:
+            for required in ("E-CARD-04", "E-BTN-04", "E-STATUS-01", "E-ROW-02B"):
+                if required not in {spec.annotation_id for spec in specs}:
+                    failures.append(f"Option E focused annotations missing required precise ID: {required}")
+        if option_id == "OPTION-F" and desktop is False:
+            for required in ("F-SUMMARY-01", "F-BTN-00", "F-CARD-03", "F-STATUS-01"):
+                if required not in {spec.annotation_id for spec in specs}:
+                    failures.append(f"Option F focused annotations missing required precise ID: {required}")
         for index, spec in enumerate(specs, start=1):
             marker_id = spec.annotation_id
             target_box = spec.region
@@ -2305,6 +2589,8 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "OPTION-B",
             "OPTION-C",
             "OPTION-D",
+            "OPTION-E",
+            "OPTION-F",
         ],
         "Review Aids/IMPLEMENTATION_DIFFERENCE_RULE.md": [
             "Material visual differences require USER approval",
@@ -2328,6 +2614,9 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "retained traits",
             "rejected traits",
             "New territory",
+            "VAT-CYCLE-20260624-02",
+            "OPTION-E",
+            "OPTION-F",
             "materially differ",
             "Real Draft Window Requirement",
         ],
@@ -2364,6 +2653,8 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
             "artifact-to-surface trace",
             "Row Grammar Rule",
             "OPTION-D",
+            "OPTION-E",
+            "OPTION-F",
         ],
         "Review Aids/UI_UX_WORKSTREAM_EXIT_GATE_CANDIDATE.md": [
             "GOVERNANCE_CANDIDATE_ONLY",
@@ -2403,6 +2694,8 @@ def _validate_comparative_audit_repair_aids(packet_dir: Path) -> list[str]:
         "caveat acceptance only records required follow-up",
         "Clean enough is not the acceptance standard",
         "USER-selected visual direction",
+        "OPTION-E",
+        "OPTION-F",
         "OPTION-D",
         "row grammar",
     ):
@@ -2415,7 +2708,7 @@ def generate() -> Path:
     zip_path = USER_ROOT / f"{WORKTREE_LABEL}-{_stamp()}.zip"
     _purge_packet_root()
     _update_external_state(zip_path)
-    options = _copy_actual_media() + _generate_candidate_media() + _generate_option_d_media()
+    options = _copy_actual_media() + _generate_candidate_media() + _generate_option_d_media() + _generate_next_cycle_media()
     _write_packet_files(options)
     _create_zip(zip_path)
     return zip_path
@@ -2458,8 +2751,9 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
     if not annotation_text:
         failures.append("Annotation manifest missing or empty")
     for option_id in OPTION_IDS:
-        sample_image = next((path for path in media_files if option_id.lower().replace("option-", "option-") in path.as_posix().casefold() or (option_id == "OPTION-A" and "option_a" in path.as_posix().casefold())), None)
+        sample_image = next((path for path in media_files if _option_id_from_annotated_path(path) == option_id), None)
         if sample_image is None:
+            failures.append(f"Cannot find sample render for annotation manifest validation: {option_id}")
             continue
         with Image.open(sample_image) as image:
             width, height = image.size
@@ -2500,6 +2794,11 @@ def validate(packet_dir: Path = PACKET_DIR, zip_path: Path | None = None) -> tup
         "Near-duplicates with label-only changes are rejected",
         "Real Draft Window Requirement",
         "OPTION-D",
+        "OPTION-E",
+        "OPTION-F",
+        "VAT-CYCLE-20260624-02",
+        "two-by-two grouped-card grid",
+        "wide top summary/action zone",
         "row grammar",
     )
     for term in required_boundary_terms:
