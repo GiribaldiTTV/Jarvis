@@ -299,6 +299,9 @@ INVALID_REBASELINE_ADOPTION_EMPTY_ACCEPTED_REFERENCE_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_MALFORMED_TABLE_ROWS_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_malformed_table_rows.md"
 )
+INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_sparse_table_rows.md"
+)
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_nonconformance_green.md"
 )
@@ -1837,7 +1840,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
                 governance._normalized_planning_value(cell).strip(" .;:")
                 for cell in row[:expected_columns]
             ]
-            if all(cell in placeholder_values for cell in normalized_cells):
+            if any(cell in placeholder_values for cell in normalized_cells):
                 continue
             real_rows.append(row)
         return real_rows
@@ -6228,6 +6231,21 @@ line item, not a seam or separate branch.
     if "Accepted Reference Comparator Missing" not in malformed_table_failures_joined:
         failures.append(
             "Invalid RAR fixture did not reject malformed accepted-reference row"
+        )
+
+    sparse_table_rows_rar_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_SPARSE_TABLE_ROWS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    sparse_table_failures_joined = "\n".join(sparse_table_rows_rar_failures)
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in sparse_table_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject sparse code-trace row"
+        )
+    if "Accepted Reference Comparator Missing" not in sparse_table_failures_joined:
+        failures.append(
+            "Invalid RAR fixture did not reject sparse accepted-reference row"
         )
 
     unresolved_green_rar_failures = _validate_rebaseline_adoption_review_text(
