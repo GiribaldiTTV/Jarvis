@@ -311,6 +311,10 @@ INVALID_REBASELINE_ADOPTION_PENDING_REVIEW_NO_PACKET_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_ACTIVE_REVIEW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_active_review_no_packet.md"
 )
+INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR
+    / "invalid_rebaseline_adoption_contradictory_no_decision_no_packet.md"
+)
 INVALID_REBASELINE_ADOPTION_NORMAL_PHASE_WHILE_ACTIVE_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_normal_phase_while_active.md"
 )
@@ -1862,7 +1866,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "review issue candidate",
             "reviews rar issue candidates",
         )
-    ) and "no user decision is required" not in active_rar_values
+    )
 
     for quality in (
         "deterministic",
@@ -1962,9 +1966,37 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         len(row) > 8 and cell_has_unresolved_status(row[8])
         for row in code_trace_rows
     )
-    claims_green = (
-        "adoption green with evidence"
-        in governance._normalized_planning_value(adoption_disposition)
+    normalized_adoption_disposition = governance._normalized_planning_value(
+        adoption_disposition
+    )
+    green_claim_phrases = (
+        "adoption green with evidence",
+        "green with evidence",
+        "resolved with evidence",
+        "all rar checks are green",
+        "all rebaseline adoption checks are green",
+        "all adoption checks are green",
+        "rar checks are green",
+        "adoption checks are green",
+        "rar green",
+        "adoption green",
+        "rar closed",
+        "adoption closed",
+    )
+    green_claim_negations = (
+        "not green",
+        "not adoption green",
+        "not rar green",
+        "cannot be green",
+        "green blocked",
+        "not resolved with evidence",
+        "not closed",
+        "cannot close",
+    )
+    claims_green = any(
+        phrase in normalized_adoption_disposition for phrase in green_claim_phrases
+    ) and not any(
+        phrase in normalized_adoption_disposition for phrase in green_claim_negations
     )
     require(
         not (unresolved_present and claims_green),
@@ -6158,6 +6190,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject missing USER packet for active review gate"
+        )
+
+    contradictory_no_decision_no_packet_rar_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_CONTRADICTORY_NO_DECISION_NO_PACKET_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        contradictory_no_decision_no_packet_rar_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject missing USER packet for contradictory active review gate"
         )
 
     normal_phase_rar_failures = _validate_rebaseline_adoption_review_text(

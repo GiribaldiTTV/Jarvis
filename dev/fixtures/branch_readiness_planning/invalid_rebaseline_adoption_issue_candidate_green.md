@@ -35,7 +35,7 @@ Current Violation Findings: no current branch nonconformance is claimed green; h
 Issue-Candidate Table: Issue Candidate F6-HIST-001 is pending USER review; GitHub issue mutation approved? No.
 Issue Candidate Disposition: Issue Candidate F6-HIST-001 remains pending USER review and GitHub issue mutation is not approved.
 Repair / Waiver / Defer / Route Decision Table: USER review pending for Issue Candidate F6-HIST-001 before advancement.
-Adoption Disposition: Adoption Green With Evidence despite a pending issue-candidate row.
+Adoption Disposition: Resolved With Evidence despite a pending issue-candidate row.
 Repair / Waiver / Blocker: RAR USER Review Gate remains active until USER reviews issue candidates.
 Validation Summary: fixture validation should fail because issue-candidate rows cannot be green by inference.
 USER Packet Path: C:\Nexus USER\FAM-006 contains the deterministic RAR review packet for USER inspection.
