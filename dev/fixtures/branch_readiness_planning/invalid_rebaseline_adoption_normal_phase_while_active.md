@@ -33,6 +33,7 @@ Current Branch Repair Candidates: none before USER review because current studio
 Previous / Historical Branch Issue Candidates: Issue Candidate F6-HIST-001 records HUD Dashboard top-level close-control review against UIREF-002.
 Current Violation Findings: no current branch nonconformance is claimed green; historical HUD issue remains USER-reviewed issue candidate.
 Issue-Candidate Table: Issue Candidate F6-HIST-001 is pending USER review; GitHub issue mutation approved? No.
+Issue Candidate Disposition: Issue Candidate F6-HIST-001 remains pending USER review and GitHub issue mutation is not approved.
 Repair / Waiver / Defer / Route Decision Table: USER review pending for Issue Candidate F6-HIST-001; approving the issue candidate authorizes issue creation only if USER separately approves that GitHub action.
 Adoption Disposition: Issue Candidate Packet USER-Reviewed is required before normal phase progression.
 Repair / Waiver / Blocker: RAR USER Review Gate remains active until USER reviews issue candidates or waives them.

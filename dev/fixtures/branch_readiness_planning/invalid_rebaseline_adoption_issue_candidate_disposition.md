@@ -33,6 +33,7 @@ Current Branch Repair Candidates: none before USER review because current studio
 Previous / Historical Branch Issue Candidates: Issue Candidate F6-HIST-001 records HUD Dashboard top-level close-control review against UIREF-002.
 Current Violation Findings: no current branch nonconformance is claimed green; historical HUD issue remains mixed-case issue candidate.
 Issue-Candidate Table: real historical candidate row exists below, but the decision table omits USER review routing.
+Issue Candidate Disposition: Normal planning continuation was recorded without USER review routing.
 Repair / Waiver / Defer / Route Decision Table: normal planning can continue after local validation.
 Adoption Disposition: Deferred To Next Legal Gate With Reason for historical surface.
 Repair / Waiver / Blocker: decision routing is incomplete.

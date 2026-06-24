@@ -278,6 +278,9 @@ INVALID_BR2_DEFERRED_CARRYFORWARD_MATRIX_FIXTURE = (
 VALID_REBASELINE_ADOPTION_REVIEW_FIXTURE = (
     FIXTURE_DIR / "valid_rebaseline_adoption_review.md"
 )
+VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE = (
+    FIXTURE_DIR / "valid_rebaseline_adoption_resolved_normal_phase.md"
+)
 INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_marker_only.md"
 )
@@ -1702,6 +1705,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "Previous / Historical Branch Issue Candidates:",
         "Current Violation Findings:",
         "Issue-Candidate Table:",
+        "Issue Candidate Disposition:",
         "Repair / Waiver / Defer / Route Decision Table:",
         "Adoption Disposition:",
         "Repair / Waiver / Blocker:",
@@ -1876,32 +1880,57 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
 
     if "issue candidate" in normalized:
+        issue_candidate_disposition = governance._extract_marker_value(
+            text, "Issue Candidate Disposition:"
+        )
         decision_table = governance._extract_marker_value(
             text, "Repair / Waiver / Defer / Route Decision Table:"
+        )
+        normalized_issue_candidate_disposition = (
+            governance._normalized_planning_value(issue_candidate_disposition)
         )
         normalized_decision_table = governance._normalized_planning_value(
             decision_table
         )
         require(
-            "user review" in normalized_decision_table
+            "user review pending" in normalized_decision_table
+            or "pending user review" in normalized_decision_table
             or "pending user" in normalized_decision_table
-            or "issue candidate" in normalized_decision_table,
+            or "issue candidate" in normalized_decision_table
+            or "user review pending" in normalized_issue_candidate_disposition
+            or "pending user review" in normalized_issue_candidate_disposition
+            or "pending user" in normalized_issue_candidate_disposition,
             "Issue Candidate Disposition Missing",
         )
 
     normal_phase = governance._extract_marker_value(text, "Next Legal Phase:")
     if normal_phase:
+        active_rar_values = governance._normalized_planning_value(
+            " ".join(
+                governance._extract_marker_value(text, marker)
+                for marker in (
+                    "RAR Stage:",
+                    "Issue Candidate Disposition:",
+                    "Repair / Waiver / Defer / Route Decision Table:",
+                    "Adoption Disposition:",
+                    "Repair / Waiver / Blocker:",
+                    "Exact Next USER Decision:",
+                )
+            )
+        )
         active_rar_context = any(
-            token in normalized
+            token in active_rar_values
             for token in (
                 "rar user review gate remains active",
+                "remains active",
                 "pending user",
                 "user review pending",
                 "issue candidate pending",
                 "repair remains required",
                 "repair required",
                 "waiver required",
-                "blocker",
+                "blocker active",
+                "blocked",
                 "required before normal phase progression",
             )
         )
@@ -5856,6 +5885,17 @@ line item, not a seam or separate branch.
         failures.append(
             "Valid RAR adoption review fixture unexpectedly failed: "
             + "; ".join(valid_rar_failures[:5])
+        )
+
+    valid_resolved_rar_failures = _validate_rebaseline_adoption_review_text(
+        VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if valid_resolved_rar_failures:
+        failures.append(
+            "Valid resolved RAR normal-phase fixture unexpectedly failed: "
+            + "; ".join(valid_resolved_rar_failures[:5])
         )
 
     marker_only_rar_failures = _validate_rebaseline_adoption_review_text(

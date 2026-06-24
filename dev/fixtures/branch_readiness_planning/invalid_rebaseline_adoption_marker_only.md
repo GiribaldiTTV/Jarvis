@@ -33,6 +33,7 @@ Current Branch Repair Candidates: TBD.
 Previous / Historical Branch Issue Candidates: TBD.
 Current Violation Findings: TBD.
 Issue-Candidate Table: TBD.
+Issue Candidate Disposition: TBD.
 Repair / Waiver / Defer / Route Decision Table: TBD.
 Adoption Disposition: TBD.
 Repair / Waiver / Blocker: TBD.

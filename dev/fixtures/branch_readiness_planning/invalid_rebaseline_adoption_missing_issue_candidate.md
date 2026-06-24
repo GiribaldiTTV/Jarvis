@@ -33,6 +33,7 @@ Current Branch Repair Candidates: none recorded.
 Previous / Historical Branch Issue Candidates: Historical HUD Dashboard close-control mismatch requires issue candidate routing.
 Current Violation Findings: none claimed for current branch.
 Issue-Candidate Table: None recorded even though historical owned-surface drift is named.
+Issue Candidate Disposition: Missing disposition despite historical owned-surface drift.
 Repair / Waiver / Defer / Route Decision Table: future route mentioned without issue candidate.
 Adoption Disposition: Deferred To Next Legal Gate With Reason for historical surface.
 Repair / Waiver / Blocker: issue-candidate review remains missing.

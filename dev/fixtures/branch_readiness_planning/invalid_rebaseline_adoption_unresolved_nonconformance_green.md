@@ -33,6 +33,7 @@ Current Branch Repair Candidates: HUD close-control repair remains open.
 Previous / Historical Branch Issue Candidates: none recorded.
 Current Violation Findings: HUD top-level close control is NONCONFORMING.
 Issue-Candidate Table: none with reason; GitHub issue mutation approved? No.
+Issue Candidate Disposition: No issue candidate is applicable because previous candidates are none.
 Repair / Waiver / Defer / Route Decision Table: repair remains required before green.
 Adoption Disposition: Adoption Green With Evidence despite unresolved row.
 Repair / Waiver / Blocker: no blocker recorded.
