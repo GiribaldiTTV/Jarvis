@@ -21,6 +21,10 @@ from PIL import Image
 
 from orin_fam006_unified_defect_ledger import scan_packet_text_hygiene, validate_udl_state
 from orin_fam006_full_desktop_false_green_review import validate as validate_full_desktop_false_green_packet
+from orin_fam006_runtime_ui_immersion_options import (
+    is_runtime_ui_immersion_options_packet,
+    validate_packet as validate_runtime_ui_immersion_options_packet,
+)
 from orin_fam006_visual_acceptance_target_packet import validate as validate_visual_acceptance_target_packet
 
 
@@ -152,6 +156,7 @@ REQUIRED_SOURCE_TRUTH_CONTEXT_FILES = {
     "Docs_user_test_summary_guidance.md",
     "Docs_validation_helper_registry.md",
     "Docs_incident_patterns.md",
+    "Docs_external_operational_state_store_reform_plan.md",
     "feature_fam_006_dashboard_recording_start_stop_local_file.md",
     "external_branch_plan.md",
 }
@@ -1143,6 +1148,22 @@ def _inspect_packet_root(root: Path, label: str) -> PacketInspection:
                 "acceptedTargetJson": str(target_json),
                 "acceptedTargetMediaCount": len(accepted_media),
                 "runtimeImplementationProofRequired": "separate implementation-match packet; not claimed by this accepted target packet",
+            },
+        )
+    if not is_known_bad and is_runtime_ui_immersion_options_packet(root):
+        option_failures = validate_runtime_ui_immersion_options_packet(root)
+        failures.extend(f"runtime UI immersion options packet: {failure}" for failure in option_failures)
+        option_media = sorted((root / "Review Aids" / "Rendered Media").glob("*.png"))
+        return PacketInspection(
+            label=label,
+            path=str(root),
+            accepted=not failures,
+            failures=failures,
+            artifactSummary={
+                "packetClass": "runtime-ui-immersion-studio-redesign-options",
+                "renderedMediaCount": len(option_media),
+                "runtimeImplementationProofRequired": "separate USER-selected implementation-match repair; not claimed by this packet",
+                "liveValidationClaimed": False,
             },
         )
     evidence_roots = sorted((root / "Review Aids" / "Evidence").glob("*")) if (root / "Review Aids" / "Evidence").exists() else []

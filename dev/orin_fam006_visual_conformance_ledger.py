@@ -20,6 +20,8 @@ from orin_fam006_unified_defect_ledger import validate_udl_state
 ROOT = Path(__file__).resolve().parents[1]
 USER_ROOT = Path("C:/Nexus USER")
 PACKET_ROOT = USER_ROOT / "FAM-006"
+RUNTIME_UI_OPTIONS_PRIMARY = "RUNTIME_UI_IMMERSION_STUDIO_REDESIGN_OPTIONS_REVIEW.md"
+RUNTIME_UI_OPTIONS_STATUS = "fam006-runtime-ui-immersion-studio-redesign-options"
 PROOF_ROOT = Path("C:/Users/anden/OneDrive/Pictures/Screenshots/Nexus Desktop AI")
 
 AI_CONTROL_CENTER_COMPARATOR = (
@@ -371,6 +373,14 @@ COMPARATOR_CROP_RULES = {
 
 def _read(relative: str) -> str:
     return (ROOT / relative).read_text(encoding="utf-8")
+
+
+def is_runtime_ui_immersion_options_packet() -> bool:
+    primary = PACKET_ROOT / "USER Review" / RUNTIME_UI_OPTIONS_PRIMARY
+    if not primary.is_file():
+        return False
+    text = primary.read_text(encoding="utf-8", errors="replace")
+    return RUNTIME_UI_OPTIONS_STATUS in text
 
 
 def _sha256(path: Path) -> str:
@@ -1427,6 +1437,42 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--write", type=Path, help="Write ledger JSON/Markdown to this folder.")
     args = parser.parse_args()
+
+    if is_runtime_ui_immersion_options_packet():
+        udl_gate = validate_udl_state(PACKET_ROOT if PACKET_ROOT.exists() else None)
+        failures = []
+        if udl_gate["status"] != "PASS":
+            failures.extend(f"UDL gate: {failure}" for failure in udl_gate.get("failures", []))
+        proof = {
+            "status": "PASS" if not failures else "FAIL",
+            "packetClass": "runtime-ui-immersion-studio-redesign-options",
+            "disposition": "NOT_APPLICABLE_DESIGN_OPTIONS_PACKET",
+            "reason": (
+                "The exhaustive visual conformance ledger enforces implementation-proof crop/row maps. "
+                "The current packet is rendered design-options review evidence and does not claim runtime implementation, H1, LV, UTS, or PR readiness."
+            ),
+            "rowCount": 0,
+            "helperRunPacketHygieneSnapshot": {
+                "snapshotScope": "helper-run observation only for design-options packet",
+                **packet_hygiene_summary(),
+            },
+            "unifiedDefectLedgerGate": udl_gate,
+            "failures": failures,
+        }
+        if args.write:
+            args.write.mkdir(parents=True, exist_ok=True)
+            (args.write / "EXHAUSTIVE_VISUAL_CONFORMANCE_LEDGER.md").write_text(
+                "# FAM-006 Stop-The-Line Exhaustive Visual Conformance Ledger\n\n"
+                "Status: NOT_APPLICABLE_DESIGN_OPTIONS_PACKET.\n\n"
+                "This packet is review-only rendered design options. Implementation-proof visual conformance remains required after USER selects a design and approves bounded runtime implementation-match repair.\n",
+                encoding="utf-8",
+            )
+            (args.write / "exhaustive_visual_conformance_ledger.json").write_text(
+                json.dumps(proof, indent=2),
+                encoding="utf-8",
+            )
+        print(json.dumps(proof, indent=2))
+        return 0 if not failures else 1
 
     # Product/runtime source is scanned for stale visual markers. Validators may
     # mention forbidden strings as rejection patterns, so they are intentionally
