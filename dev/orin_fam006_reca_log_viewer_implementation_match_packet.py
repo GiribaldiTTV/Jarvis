@@ -152,11 +152,44 @@ def _purge_packet() -> None:
     if LATEST_POINTER.exists():
         try:
             old = json.loads(_read(LATEST_POINTER))
-            old_zip = Path(str(old.get("zip", "")))
+            old_zip = Path(str(old.get("zipPath") or old.get("zip") or ""))
             if old_zip.exists() and old_zip != ACCEPTED_SELECTION_ZIP:
                 old_zip.unlink()
         except Exception:
             pass
+    _remove_stale_same_status_zips()
+
+
+def _zip_has_packet_status(path: Path, status: str) -> bool:
+    try:
+        with zipfile.ZipFile(path) as archive:
+            names = set(archive.namelist())
+            candidates = ["START_HERE.md", f"USER Review/{PRIMARY_REVIEW}"]
+            for name in candidates:
+                if name not in names:
+                    continue
+                text = archive.read(name).decode("utf-8", errors="replace")
+                if status in text:
+                    return True
+    except (OSError, zipfile.BadZipFile):
+        return False
+    return False
+
+
+def _same_status_packet_zips() -> list[Path]:
+    return sorted(
+        path
+        for path in USER_ROOT.glob("FAM-006-*.zip")
+        if path.is_file() and path != ACCEPTED_SELECTION_ZIP and _zip_has_packet_status(path, PACKET_STATUS)
+    )
+
+
+def _remove_stale_same_status_zips(keep: Path | None = None) -> None:
+    keep_resolved = keep.resolve() if keep else None
+    for path in _same_status_packet_zips():
+        if keep_resolved and path.resolve() == keep_resolved:
+            continue
+        path.unlink()
 
 
 def _copy_file(source: Path, target: Path) -> None:
@@ -375,6 +408,7 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
     zip_path = USER_ROOT / f"FAM-006-{stamp}.zip"
     if zip_path.exists():
         zip_path.unlink()
+    _remove_stale_same_status_zips()
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(PACKET_ROOT.rglob("*")):
             if path.is_file():
@@ -393,6 +427,7 @@ def _zip_packet(stamp: str) -> dict[str, Any]:
     }
     _write_json(EXTERNAL_BRANCH_ROOT / "reca_log_viewer_implementation_match_post_zip_manifest.json", proof)
     _write_json(LATEST_POINTER, proof)
+    _remove_stale_same_status_zips(keep=zip_path)
     return proof
 
 
@@ -582,6 +617,12 @@ Accept, revise, hold, or reject this REC-A + Log Viewer runtime implementation-m
 
 def validate() -> int:
     failures = _validate_packet_shape()
+    same_status_zips = _same_status_packet_zips()
+    if len(same_status_zips) > 1:
+        failures.append(
+            "multiple current implementation-match ZIPs found: "
+            + ", ".join(str(path) for path in same_status_zips)
+        )
     print(json.dumps({"status": "PASS" if not failures else "FAIL", "failures": failures}, indent=2))
     return 0 if not failures else 1
 
