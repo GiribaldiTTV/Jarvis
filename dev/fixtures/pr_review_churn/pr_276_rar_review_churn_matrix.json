@@ -213,13 +213,15 @@
         "accepted reference gap requires USER review",
         "resolved named-surface no-op row",
         "partial no-op active rows",
-        "comparator gap without packet proof"
+        "comparator gap without packet proof",
+        "visual mismatch or behavior unproven with conforming status cell"
       ],
       "sibling_variant_replay": [
         "UIREF comparator row",
         "AI Control Center accepted-reference row",
         "HUD Dashboard named surface row",
-        "Backend-to-visual trace row"
+        "Backend-to-visual trace row",
+        "comparison-column mismatch with green status text"
       ]
     },
     {

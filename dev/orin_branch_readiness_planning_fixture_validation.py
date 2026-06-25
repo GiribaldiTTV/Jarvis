@@ -2291,6 +2291,17 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         "shared primitive gap",
         "issue candidate",
     )
+    unresolved_comparison_statuses = (
+        "mismatch",
+        "unproven",
+        "partial",
+        "nonconforming",
+        "exception needed",
+        "source-truth gap",
+        "reference gap",
+        "template gap",
+        "shared primitive gap",
+    )
 
     def normalize_rar_status_cell(value: str) -> str:
         normalized_cell = governance._normalized_planning_value(value)
@@ -2392,6 +2403,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             or normalized_cell.startswith(f"{status} ")
             or f" {status} " in f" {normalized_cell} "
             for status in unresolved_statuses
+            if not cell_negates_unresolved_status(value, status)
+        )
+
+    def cell_has_unresolved_comparison(value: str) -> bool:
+        normalized_cell = normalize_rar_status_cell(value)
+        if normalized_cell in {"none", "n/a", "not applicable", "not applicable with reason"}:
+            return False
+        return any(
+            normalized_cell == status
+            or normalized_cell.startswith(f"{status} ")
+            or f" {status} " in f" {normalized_cell} "
+            for status in unresolved_comparison_statuses
             if not cell_negates_unresolved_status(value, status)
         )
 
@@ -2916,14 +2939,30 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         and not negated_issue_candidate_disposition
     )
 
+    def row_has_unresolved_rar_evidence(row: list[str]) -> bool:
+        if len(row) <= 8:
+            return False
+        status_cell = row[8]
+        issue_candidate_dispositioned = (
+            cell_has_issue_candidate_status(status_cell)
+            and issue_candidate_disposition_completed
+        )
+        status_unresolved = cell_has_unresolved_status(status_cell)
+        comparison_unresolved = (
+            len(row) > 7
+            and (
+                cell_has_unresolved_comparison(row[6])
+                or cell_has_unresolved_comparison(row[7])
+            )
+        )
+        return (status_unresolved or comparison_unresolved) and not issue_candidate_dispositioned
+
     code_trace_unresolved_present = any(
-        len(row) > 8 and cell_has_unresolved_status(row[8])
-        and not (cell_has_issue_candidate_status(row[8]) and issue_candidate_disposition_completed)
+        row_has_unresolved_rar_evidence(row)
         for row in code_trace_rows
     )
     accepted_reference_unresolved_present = any(
-        len(row) > 8 and cell_has_unresolved_status(row[8])
-        and not (cell_has_issue_candidate_status(row[8]) and issue_candidate_disposition_completed)
+        row_has_unresolved_rar_evidence(row)
         for row in accepted_reference_rows
     )
     unresolved_present = (
@@ -7363,6 +7402,26 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Generated RAR adversarial matrix did not reject resolved RAR with unresolved product-experience row"
+        )
+
+    generated_resolved_visual_mismatch_text = (
+        VALID_REBASELINE_ADOPTION_RESOLVED_NORMAL_PHASE_FIXTURE.read_text(
+            encoding="utf-8"
+        ).replace(
+            "| None | None | Not Applicable With Reason | None | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | Not Applicable With Reason | CONFORMING | None | Continue |",
+            "| HUD Dashboard | Window control cluster | desktop/desktop_renderer.py | FAM-006 desktop renderer | screenshot | UIREF-002 | Mismatch | Unproven | CONFORMING | comparison columns remain unresolved | Continue |",
+        )
+    )
+    generated_resolved_visual_mismatch_failures = (
+        _validate_rebaseline_adoption_review_text(
+            generated_resolved_visual_mismatch_text
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        generated_resolved_visual_mismatch_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject resolved RAR with unresolved visual/behavior comparison cells"
         )
 
     valid_reviewed_issue_candidate_rar_failures = (
