@@ -300,7 +300,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "background": "#020914 / #04101b dark shell",
         "border": "1px restrained cyan, 20px radius",
         "effects": "subtle depth only",
-        "spacing": "780x360 compact two-column settings layout",
+        "spacing": "720x340 compact two-column settings layout",
         "hitbox": "top-level compact settings window",
         "icon_label": "window title only",
         "states": "default, dirty, saved",
@@ -524,7 +524,7 @@ ELEMENT_GROUP_LEDGER_ROWS: tuple[dict[str, str], ...] = (
         "code": "desktop/desktop_renderer.py::residentAccessQuickSlotContainer",
         "role": "current settings control group",
         "rule": "F3-FF01; UIREF-003",
-        "copy": "Slots; Add; Defaults; Top to bottom sets menu order.",
+        "copy": "Menu order; Top to bottom in the tray menu.; Add Slot; Defaults",
         "font": "11-13px compact",
         "text": "muted body plus bright headings",
         "background": "subtle dark section",
@@ -1329,7 +1329,7 @@ def _write_report(log_dir: Path, rows: list[tuple[str, bool, str]]) -> Path:
         "- Source files: desktop/desktop_renderer.py, desktop/resident_access.py.",
         "- Proof class: side-by-side accepted-reference comparison plus focused state screenshots.",
         "- Acceptance boundary: supporting Codex proof; USER-operated UTS remains required.",
-        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 false-retest v19 deterministic layout repair with the accepted Manage Monitors modal dirty-guard alignment, settings-specific seamless single-row title, native-edge resize, no horizontal rail overflow, child-page indentation, compact row grouping, slot-count placement, clean-state status removal, and renewed USER retest readiness only if every row closes with proof.",
+        "- Current repair route: VAT-OPT-G2 remains the accepted guide/template, but this run validates the LV1 same-defect v20 product-grade repair with the accepted Manage Monitors modal dirty-guard alignment, settings-specific seamless single-row title, native-edge resize, no horizontal rail overflow, child-page indentation, compact row grouping, useful settings copy, slot-count placement, clean-state status removal, and renewed USER retest readiness only if every recurrence row closes with proof.",
         "",
         "## Results",
         "",
@@ -1682,23 +1682,23 @@ def main() -> int:
     rows.append(
         (
             "default screenshot saved",
-            default_ok and 680 <= width <= 700 and 318 <= height <= 326,
+            default_ok and 710 <= width <= 730 and 336 <= height <= 346,
             f"{default_path} ({width}x{height})",
         )
     )
     rows.append(
         (
             "architecture-first Global Settings geometry",
-            680 <= width <= 700 and 318 <= height <= 326,
+            710 <= width <= 730 and 336 <= height <= 346,
             f"window={width}x{height}; required compact deterministic settings shell, not old sparse Quick Access utility form",
         )
     )
     rows.append(
         (
             "settings shell fills the window intentionally",
-            width <= 700
-            and height <= 326
-            and 112 <= dialog.nav_shell.width() <= 190
+            width <= 730
+            and height <= 346
+            and 116 <= dialog.nav_shell.width() <= 194
             and getattr(dialog, "settings_splitter", None) is not None
             and dialog.settings_splitter.handleWidth() == 5
             and dialog.tray_nav_item.isVisible()
@@ -1708,8 +1708,8 @@ def main() -> int:
             and dialog.subpage_nav_rail.isVisible()
             and dialog.settings_page_frame.isVisible()
             and dialog.quick_slot_container.isVisible()
-            and dialog.quick_slot_container.height() >= 150
-            and default_footer_gap <= 28,
+            and dialog.quick_slot_container.height() >= 154
+            and default_footer_gap <= 24,
             f"window={width}x{height}; nav_width={dialog.nav_shell.width()}; splitter_handle={getattr(dialog, 'settings_splitter', None).handleWidth() if getattr(dialog, 'settings_splitter', None) is not None else '<missing>'}; tray_visible={dialog.tray_nav_item.isVisible()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}; page_visible={dialog.settings_page_frame.isVisible()}; slot_panel_height={dialog.quick_slot_container.height()}; footer_gap={default_footer_gap}",
         )
     )
@@ -1728,7 +1728,7 @@ def main() -> int:
         (
             "top-level chrome/control cluster",
             chrome_ok
-            and dialog.chrome_bar.property("headerAnatomy") == "ndai-global-settings-single-row-chrome-v19"
+            and dialog.chrome_bar.property("headerAnatomy") == "ndai-global-settings-single-row-chrome-v20"
             and dialog.chrome_bar.control_cluster.objectName() == "residentAccessSettingsWindowControls"
             and dialog.chrome_bar.minimize_button.isVisible()
             and dialog.chrome_bar.close_button.isVisible()
@@ -1826,10 +1826,10 @@ def main() -> int:
             and min_ok
             and resized_width >= 850
             and resized_height >= 400
-            and 620 <= min_width <= 640
-            and 318 <= min_height <= 330
+            and 640 <= min_width <= 660
+            and 330 <= min_height <= 342
             and dialog.resize_grip.isVisible()
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-620x318-v19",
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-640x330-v20",
             f"resized={resized_width}x{resized_height}; min={min_width}x{min_height}; grip_visible={dialog.resize_grip.isVisible()}; behavior={dialog.property('windowResizeBehavior')!r}",
         )
     )
@@ -1868,10 +1868,10 @@ def main() -> int:
             and dialog.quick_access_nav_button.text() == "Quick Access"
             and dialog.quick_access_nav_caption.text() == ""
             and not dialog.quick_access_nav_caption.isVisible()
-            and 112 <= dialog.nav_shell.width() <= 190
+            and 116 <= dialog.nav_shell.width() <= 194
             and dialog.quick_access_nav_item.x() > dialog.tray_nav_item.x()
-            and dialog.tray_nav_item.width() <= 92
-            and dialog.quick_access_nav_item.width() <= 86
+            and dialog.tray_nav_item.width() <= 96
+            and dialog.quick_access_nav_item.width() <= 88
             and not dialog.nav_boundary.isVisible(),
             f"{nav_path} ({nav_width}x{nav_height}); nav={list(dialog._nav_buttons)}; tray={dialog.tray_nav_button.text()!r}/{dialog.tray_nav_item.property('settingsCategoryRole')!r}; checked={dialog.quick_access_nav_button.isChecked()}; expander={dialog.tray_expand_button.property('glyphButton')!r}; icons={getattr(dialog.tray_nav_icon, 'icon_kind', '')!r}/{getattr(dialog.quick_access_nav_icon, 'icon_kind', '')!r}; caption={dialog.quick_access_nav_caption.text()!r}; caption_visible={dialog.quick_access_nav_caption.isVisible()}; nav_width={dialog.nav_shell.width()}",
         )
@@ -1885,8 +1885,8 @@ def main() -> int:
             and tray_nav_height <= 24
             and quick_nav_height <= 24
             and dialog.tray_nav_indicator.width() <= 2
-            and dialog.tray_nav_icon.width() <= 18
-            and dialog.quick_access_nav_icon.width() <= 16
+            and dialog.tray_nav_icon.width() <= 10
+            and dialog.quick_access_nav_icon.width() <= 10
             and dialog.tray_nav_item.property("settingsNavDensity") == "slim-parent-row"
             and dialog.quick_access_nav_item.property("settingsNavDensity") == "two-level-subpage-row",
             f"tray_row={tray_nav_height}; quick_row={quick_nav_height}; indicator={dialog.tray_nav_indicator.width()}x{dialog.tray_nav_indicator.height()}; parent_icon={dialog.tray_nav_icon.width()}x{dialog.tray_nav_icon.height()}; child_icon={dialog.quick_access_nav_icon.width()}x{dialog.quick_access_nav_icon.height()}; nav_width={dialog.nav_shell.width()}",
@@ -1957,7 +1957,7 @@ def main() -> int:
         )
     )
 
-    dialog.settings_splitter.setSizes([100, 560])
+    dialog.settings_splitter.setSizes([104, 584])
     app.processEvents()
     narrow_path = log_dir / "04d_left_pane_minimum_no_horizontal_scroll.png"
     narrow_ok, narrow_width, narrow_height = _capture(
@@ -1972,7 +1972,7 @@ def main() -> int:
         (
             "left pane minimum width has no horizontal overflow",
             narrow_ok
-            and 100 <= dialog.nav_shell.width() <= 122
+            and 104 <= dialog.nav_shell.width() <= 126
             and hbar_max == 0
             and dialog.nav_content.width() <= dialog.nav_scroll_area.viewport().width()
             and dialog.quick_access_nav_item.x() > dialog.tray_nav_item.x(),
@@ -1980,7 +1980,7 @@ def main() -> int:
         )
     )
 
-    dialog.settings_splitter.setSizes([180, 500])
+    dialog.settings_splitter.setSizes([184, 520])
     app.processEvents()
     wide_path = log_dir / "04e_left_pane_wide.png"
     wide_ok, wide_width, wide_height = _capture(
@@ -1994,11 +1994,11 @@ def main() -> int:
         (
             "left pane wide resize stays deterministic",
             wide_ok
-            and 170 <= dialog.nav_shell.width() <= 200
+            and 174 <= dialog.nav_shell.width() <= 204
             and dialog.subpage_nav_rail.isVisible()
             and dialog.quick_access_nav_item.isVisible()
-            and dialog.tray_nav_item.width() <= 92
-            and dialog.quick_access_nav_item.width() <= 86,
+            and dialog.tray_nav_item.width() <= 96
+            and dialog.quick_access_nav_item.width() <= 88,
             f"{wide_path} ({wide_width}x{wide_height}); nav_width={dialog.nav_shell.width()}; parent_width={dialog.tray_nav_item.width()}; child_width={dialog.quick_access_nav_item.width()}; subpage_visible={dialog.subpage_nav_rail.isVisible()}",
         )
     )
@@ -2014,7 +2014,7 @@ def main() -> int:
         )
     )
 
-    dialog.settings_splitter.setSizes([120, 522])
+    dialog.settings_splitter.setSizes([124, 548])
     dialog.set_focus("quick_access")
     app.processEvents()
 
@@ -2081,16 +2081,18 @@ def main() -> int:
             dialog.section_heading.text() == "Quick Access"
             and dialog.section_badge.text() == "Tray"
             and not dialog.section_badge.isVisible()
-            and not dialog.section_detail.isVisible()
-            and not dialog.section_scope.isVisible()
-            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v19"
-            and dialog.property("settingsVisualRepair") == "lv1-global-settings-manage-monitors-dirty-guard-alignment-v19"
-            and dialog.property("referenceDerivedHeader") == "ndai-global-settings-single-row-chrome-v19"
+            and dialog.section_detail.isVisible()
+            and dialog.section_detail.text() == "Choose the shortcuts shown in the tray menu."
+            and dialog.section_scope.isVisible()
+            and dialog.section_scope.text() == "NEXUS TRAY / QUICK ACCESS"
+            and dialog.property("settingsInformationArchitecture") == "global-settings-shell-tray-parent-quick-access-child-deterministic-rail-v20"
+            and dialog.property("settingsVisualRepair") == "lv1-global-settings-product-grade-same-defect-repair-v20"
+            and dialog.property("referenceDerivedHeader") == "ndai-global-settings-single-row-chrome-v20"
             and dialog.property("dirtyGuardReference") == "manage-monitors-modal-save-discard-cancel"
-            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-620x318-v19"
+            and dialog.property("windowResizeBehavior") == "frameless-top-level-native-edge-hit-test-qsizegrip-splitter-minimum-640x330-v20"
             and dialog.property("uiExposureContract") == "real-enabled-meaningful-visible-ui-v1"
             and dialog.property("sharedPrimitiveClaim") == "none-promoted-reference-derived-only"
-            and dialog.property("referenceComparatorRequired") == "ui-reference-plus-manage-monitors-dirty-guard-comparator-v19"
+            and dialog.property("referenceComparatorRequired") == "ui-reference-plus-product-grade-same-defect-comparator-v20"
             and set(dialog._nav_buttons) == {"tray", "quick_access"}
             and dialog.tray_nav_item.property("settingsCategoryRole") == "selectable-parent-page"
             and dialog.tray_nav_button.text() == "Tray"
@@ -2110,7 +2112,7 @@ def main() -> int:
             and dialog.quick_slot_container.objectName() == "residentAccessQuickSlotContainer"
             and dialog.footer_frame.objectName() == "residentAccessSettingsFooter"
             and not dialog.route_summary.isVisible(),
-            f"heading={dialog.section_heading.text()!r}; category={dialog.tray_nav_button.text()!r}; section_badge_visible={dialog.section_badge.isVisible()}; detail_visible={dialog.section_detail.isVisible()}; slot_badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}; route_visible={dialog.route_summary.isVisible()}",
+            f"heading={dialog.section_heading.text()!r}; category={dialog.tray_nav_button.text()!r}; section_badge_visible={dialog.section_badge.isVisible()}; scope={dialog.section_scope.text()!r}/{dialog.section_scope.isVisible()}; detail={dialog.section_detail.text()!r}/{dialog.section_detail.isVisible()}; slot_badge={dialog.slot_count_badge.text()!r}; nav={list(dialog._nav_buttons)}; buttons={button_texts}; route_visible={dialog.route_summary.isVisible()}",
         )
     )
     stale_product_text = {
@@ -2780,12 +2782,12 @@ def main() -> int:
             ("Rejected v16 - sectioned title row", ROOT / "dev" / "logs" / "fam003_settings_repair_visual_validation" / "20260624-132602" / "02_top_level_chrome_control_cluster.png"),
             ("Accepted reference - broad NDAI comparator", REFERENCE_SCREENSHOTS[0][1]),
             ("Accepted reference - Manage Monitors dirty guard", manage_guard_reference_path),
-            ("Repaired v19 - default shell", default_path),
-            ("Repaired v19 - seamless title row", chrome_path),
-            ("Repaired v19 - glyph controls", glyph_path),
-            ("Repaired v19 - splitter affordance", splitter_closeup_path),
-            ("Repaired v19 - dropdown", log_dir / "07_dropdown_list_state.png"),
-            ("Repaired v19 - close guard", log_dir / "08_close_guard.png"),
+            ("Repaired v20 - product-grade shell", default_path),
+            ("Repaired v20 - seamless title row", chrome_path),
+            ("Repaired v20 - glyph controls", glyph_path),
+            ("Repaired v20 - splitter affordance", splitter_closeup_path),
+            ("Repaired v20 - dropdown", log_dir / "07_dropdown_list_state.png"),
+            ("Repaired v20 - close guard", log_dir / "08_close_guard.png"),
         ],
         file_name="16_defect_closure_contact_sheet.png",
         title="FAM-003 False-Retest Defect Closure Contact Sheet",
@@ -2850,16 +2852,16 @@ def main() -> int:
     closure_rows = [
         ("F3-LV1-UI-001", "USER / ChatGPT", "20260624-123116/02_top_level_chrome_control_cluster.png", "02_top_level_chrome_control_cluster.png; 12_reference_conformance_contact_sheet.png", "settings-specific single-row title row plus broad NDAI comparator", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-015", "USER", "20260624-123116/04_left_settings_organizer.png", "15_left_pane_resize_affordance_closeup.png", "quiet 5px left-pane resize affordance", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-016", "USER", "corner-grip-only v15 proof / stale 700x360 v17 floor", "03b_window_resized.png; 03c_window_minimum_size.png", "620x318 minimum plus native-edge resize behavior", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-017", "USER", "20260624-123116/01_default_global_settings_shell.png", "01_default_global_settings_shell.png; 05_row_action_default_disabled_state.png", "690x320 deterministic shell with compact row grouping", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-016", "USER", "corner-grip-only v15 proof / stale 700x360 v17 floor", "03b_window_resized.png; 03c_window_minimum_size.png", "640x330 minimum plus native-edge resize behavior", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-017", "USER", "20260624-123116/01_default_global_settings_shell.png", "01_default_global_settings_shell.png; 05_row_action_default_disabled_state.png", "720x340 deterministic shell with compact row grouping and useful settings copy", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-018", "USER", "v15 ^ / v / x text buttons", "14_glyph_control_closeup.png", "UIREF-003 polished control state grammar", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-019", "USER", "plain utility caption title", "02_top_level_chrome_control_cluster.png", "settings-specific seamless single-row title grammar", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-020", "USER", "flat utility text hierarchy / visible Saved label", "01_default_global_settings_shell.png; 05_tray_parent_page.png; 11_post_save_clean_state.png", "Project Vision product experience contract plus quiet clean-state copy discipline", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-021", "USER / ChatGPT", "compact utility-panel overall impression", "16_defect_closure_contact_sheet.png; 17_red_team_review_sheet.png", "Project Vision; FAM-002; UIREF-001..006", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-020", "USER", "flat utility text hierarchy / visible Saved label", "01_default_global_settings_shell.png; 05_tray_parent_page.png; 11_post_save_clean_state.png", "Project Vision product experience contract plus compact settings scope/detail, menu-order copy, and quiet clean-state discipline", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-021", "USER / ChatGPT", "compact utility-panel overall impression", "16_defect_closure_contact_sheet.png; 17_red_team_review_sheet.png", "Project Vision; FAM-002; UIREF-001..006; v20 product-grade full-surface expected-vs-actual adjudication", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-022", "USER", "20260624-132602/02_top_level_chrome_control_cluster.png", "02_top_level_chrome_control_cluster.png; 16_defect_closure_contact_sheet.png; 17_red_team_review_sheet.png", "Global Settings is its own settings-window class: no title card, no stacked title, no sectioned title row", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-023", "USER / ChatGPT", "v17 left rail child row was nearly peer-level", "04_left_settings_organizer.png; 04a_left_nav_active_child.png", "Tray parent with visibly subordinate Quick Access child", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-024", "USER / ChatGPT", "v17 default 780x360 canvas was too large", "01_default_global_settings_shell.png", "690x320 content-deterministic default shell", "CLOSED_WITH_PROOF"),
-        ("F3-LV1-UI-025", "USER / ChatGPT", "v17 minimum 700x360 was over-restrictive", "03c_window_minimum_size.png; 04d_left_pane_minimum_no_horizontal_scroll.png", "620x318 minimum with no visible horizontal rail overflow", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-024", "USER / ChatGPT", "v17 default 780x360 canvas was too large", "01_default_global_settings_shell.png", "720x340 content-deterministic default shell", "CLOSED_WITH_PROOF"),
+        ("F3-LV1-UI-025", "USER / ChatGPT", "v17 minimum 700x360 was over-restrictive", "03c_window_minimum_size.png; 04d_left_pane_minimum_no_horizontal_scroll.png", "640x330 minimum with no visible horizontal rail overflow", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-026", "USER / ChatGPT", "nav rows stretched and overflow was treated as proof", "04_left_settings_organizer.png; 04d_left_pane_minimum_no_horizontal_scroll.png; 04e_left_pane_wide.png", "bounded parent/child rail rows with no horizontal overflow", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-027", "USER / ChatGPT", "3 active of 4 header badge was verbose and detached from Add Slot", "01_default_global_settings_shell.png", "3 of 4 placed beside Add Slot", "CLOSED_WITH_PROOF"),
         ("F3-LV1-UI-028", "USER / ChatGPT", "clean-state Saved label was redundant", "01_default_global_settings_shell.png; 11_post_save_clean_state.png", "quiet clean/post-save state; dirty/guard copy remains meaningful", "CLOSED_WITH_PROOF"),

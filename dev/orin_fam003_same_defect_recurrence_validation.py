@@ -1,8 +1,10 @@
-"""Validate the FAM-003 same-defect false-closure loop breaker.
+"""Validate the FAM-003 same-defect false-closure gate.
 
 This is a branch-local proof gate. It does not prove visual conformance and it
-does not make LV green. It proves that the current branch state blocks a new
-LV1 retest candidate while recurring defects remain reopened.
+does not make LV green. It proves that the current branch state either blocks
+a new LV1 retest candidate while recurring defects remain reopened, or that the
+recurring rows have v20 branch-local closure proof before a fresh packet is
+generated.
 """
 
 from __future__ import annotations
@@ -40,9 +42,7 @@ PRIOR_FALSE_PACKETS = (
     "FAM-003-20260624-145524.zip",
     "FAM-003-20260624-153928.zip",
 )
-REQUIRED_LEDGER_PHRASES = (
-    "Retest Candidate Gate: `BLOCKED`",
-    "Posture: `LOOP-BREAKER ONLY`",
+COMMON_REQUIRED_LEDGER_PHRASES = (
     "row-by-row red-team adjudication table",
     "`NOT CLOSED` support",
     "accepted reference comparisons",
@@ -50,6 +50,16 @@ REQUIRED_LEDGER_PHRASES = (
     "expected-vs-actual reasoning",
     "marker strings, screenshot existence, state existence, or validator green alone cannot close",
     "Result: `PASS - WOULD BLOCK`",
+)
+BLOCKED_MODE_PHRASES = (
+    "Retest Candidate Gate: `BLOCKED`",
+    "Posture: `LOOP-BREAKER ONLY`",
+)
+REPAIRED_MODE_PHRASES = (
+    "Retest Candidate Gate: `PASS - READY FOR FRESH LV1 RETEST PACKET`",
+    "Posture: `REPAIRED PROOF / PACKET PENDING`",
+    "V20 Same-Defect Repair Closure Receipt",
+    "Proof Root: `C:\\Nexus Worktrees\\FAM-003\\dev\\logs\\fam003_settings_repair_visual_validation\\20260624-164416`",
 )
 ALLOWED_STATUSES = {
     "OPEN",
@@ -100,12 +110,18 @@ def main() -> int:
     rows: list[tuple[str, bool, str]] = []
     ledger_text = _read(RECURRENCE_LEDGER)
     udl_text = _read(UDL)
+    blocked_mode = "Retest Candidate Gate: `BLOCKED`" in ledger_text
+    repaired_mode = "Retest Candidate Gate: `PASS - READY FOR FRESH LV1 RETEST PACKET`" in ledger_text
 
     _row(rows, "same-defect recurrence ledger exists", bool(ledger_text), str(RECURRENCE_LEDGER))
     _row(rows, "active false-green UDL exists", bool(udl_text), str(UDL))
+    _row(rows, "recurrence gate mode is recognized", blocked_mode or repaired_mode, f"blocked={blocked_mode}; repaired={repaired_mode}")
 
-    for phrase in REQUIRED_LEDGER_PHRASES:
+    for phrase in COMMON_REQUIRED_LEDGER_PHRASES:
         _row(rows, f"ledger phrase present: {phrase}", phrase in ledger_text, str(RECURRENCE_LEDGER))
+    mode_phrases = BLOCKED_MODE_PHRASES if blocked_mode else REPAIRED_MODE_PHRASES
+    for phrase in mode_phrases:
+        _row(rows, f"ledger mode phrase present: {phrase}", phrase in ledger_text, str(RECURRENCE_LEDGER))
 
     table_statuses = _table_statuses(ledger_text)
     missing_table_rows = [
@@ -119,12 +135,20 @@ def main() -> int:
     _row(rows, "recurrence table includes required rows", not missing_table_rows, str(missing_table_rows))
     _row(rows, "recurrence table statuses are legal", not illegal_table_statuses, str(illegal_table_statuses))
 
-    reopened_bad = [
-        f"{defect_id}={table_statuses.get(defect_id, '<missing>')}"
-        for defect_id in REOPENED_IDS
-        if table_statuses.get(defect_id) != "REOPENED"
-    ]
-    _row(rows, "recurring UI/proof rows are reopened", not reopened_bad, str(reopened_bad))
+    if blocked_mode:
+        reopened_bad = [
+            f"{defect_id}={table_statuses.get(defect_id, '<missing>')}"
+            for defect_id in REOPENED_IDS
+            if table_statuses.get(defect_id) != "REOPENED"
+        ]
+        _row(rows, "recurring UI/proof rows are reopened", not reopened_bad, str(reopened_bad))
+    else:
+        closed_bad = [
+            f"{defect_id}={table_statuses.get(defect_id, '<missing>')}"
+            for defect_id in REOPENED_IDS
+            if table_statuses.get(defect_id) != "CLOSED_WITH_PROOF"
+        ]
+        _row(rows, "recurring UI/proof rows are closed with proof", not closed_bad, str(closed_bad))
     _row(
         rows,
         "loop-breaker proof row is closed with proof",
@@ -132,12 +156,13 @@ def main() -> int:
         f"{LOOP_BREAKER_ID}={table_statuses.get(LOOP_BREAKER_ID, '<missing>')}",
     )
 
+    expected_udl_status = "REOPENED" if blocked_mode else "CLOSED_WITH_PROOF"
     udl_bad = [
         f"{defect_id}={_latest_udl_status(udl_text, defect_id) or '<missing>'}"
         for defect_id in REOPENED_IDS
-        if _latest_udl_status(udl_text, defect_id) != "REOPENED"
+        if _latest_udl_status(udl_text, defect_id) != expected_udl_status
     ]
-    _row(rows, "active UDL latest recurring rows are reopened", not udl_bad, str(udl_bad))
+    _row(rows, f"active UDL latest recurring rows are {expected_udl_status}", not udl_bad, str(udl_bad))
     proof3_status = _latest_udl_status(udl_text, LOOP_BREAKER_ID)
     _row(
         rows,
@@ -151,20 +176,38 @@ def main() -> int:
 
     for state_file in STATE_FILES:
         text = _read(state_file)
-        ok = (
-            "same_defect_recurrence_ledger_20260624.md" in text
-            and "Retest Candidate Gate: `BLOCKED" in text
-            and "USER retest candidate blocked" in text
-        )
-        _row(rows, f"active state records blocked gate: {state_file.name}", ok, str(state_file))
+        if blocked_mode:
+            ok = (
+                "same_defect_recurrence_ledger_20260624.md" in text
+                and "Retest Candidate Gate: `BLOCKED" in text
+                and "USER retest candidate blocked" in text
+            )
+            label = "active state records blocked gate"
+        else:
+            ok = (
+                "same_defect_recurrence_ledger_20260624.md" in text
+                and "same-defect v20 repair proof complete" in text
+                and "fresh USER retest packet generation pending" in text
+            )
+            label = "active state records repaired gate"
+        _row(rows, f"{label}: {state_file.name}", ok, str(state_file))
 
     uts_text = _read(UTS_PATH)
-    uts_ok = (
-        "Result: BLOCKED - LOOP-BREAKER ONLY" in uts_text
-        and "No USER LV1 visual retest action is requested" in uts_text
-        and "FAM-003-20260624-153928.zip" in uts_text
-    )
-    _row(rows, "UTS handoff is blocked, not retest pending", uts_ok, str(UTS_PATH))
+    if blocked_mode:
+        uts_ok = (
+            "Result: BLOCKED - LOOP-BREAKER ONLY" in uts_text
+            and "No USER LV1 visual retest action is requested" in uts_text
+            and "FAM-003-20260624-153928.zip" in uts_text
+        )
+        uts_label = "UTS handoff is blocked, not retest pending"
+    else:
+        uts_ok = (
+            "Result: REPAIRED - RETEST PACKET PENDING" in uts_text
+            and "No USER LV1 visual retest action is requested until a fresh packet is generated" in uts_text
+            and "20260624-164416" in uts_text
+        )
+        uts_label = "UTS handoff waits for fresh retest packet"
+    _row(rows, uts_label, uts_ok, str(UTS_PATH))
 
     bundle_text = _read(Path(__file__).with_name("orin_user_review_bundle.py"))
     bundle_ok = (
@@ -182,7 +225,10 @@ def main() -> int:
     if failed:
         print("FAIL: FAM-003 same-defect recurrence validation failed")
         return 1
-    print("PASS: FAM-003 same-defect recurrence gate blocks false retest candidates")
+    if repaired_mode:
+        print("PASS: FAM-003 same-defect recurrence gate is repaired and ready for fresh packet generation")
+    else:
+        print("PASS: FAM-003 same-defect recurrence gate blocks false retest candidates")
     return 0
 
 
