@@ -344,6 +344,9 @@ INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_SEPARATE_NEGATION_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_UNRESOLVED_GREEN_CONJUNCTION_NEGATION_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_green_conjunction_negation.md"
 )
+INVALID_REBASELINE_ADOPTION_UNRESOLVED_NO_ISSUE_CANDIDATE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_unresolved_no_issue_candidate.md"
+)
 INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_GREEN_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_validation_summary_green.md"
 )
@@ -352,6 +355,9 @@ INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
 )
 INVALID_REBASELINE_ADOPTION_REQUIRED_USER_REVIEW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_required_user_review_no_packet.md"
+)
+INVALID_REBASELINE_ADOPTION_USER_DECISION_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_user_decision_no_packet.md"
 )
 INVALID_REBASELINE_ADOPTION_PACKET_PATH_WRONG_ROOT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_packet_path_wrong_root.md"
@@ -2091,13 +2097,13 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
 
     def cell_has_unresolved_status(value: str) -> bool:
         normalized_cell = normalize_rar_status_cell(value)
-        if cell_negates_issue_candidate_status(value):
-            return False
+        issue_candidate_negated = cell_negates_issue_candidate_status(value)
         return any(
             normalized_cell == status
             or normalized_cell.startswith(f"{status} ")
             or f" {status} " in f" {normalized_cell} "
             for status in unresolved_statuses
+            if not (status == "issue candidate" and issue_candidate_negated)
         )
 
     def cell_has_issue_candidate_status(value: str) -> bool:
@@ -2163,6 +2169,16 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "required user review",
             "must review",
             "user must review",
+            "user decision",
+            "user decision needed",
+            "user decision required",
+            "requires user decision",
+            "user approval",
+            "approval required",
+            "user waiver",
+            "waiver required",
+            "waiver decision",
+            "before waiver",
             "review issue candidate",
             "reviews rar issue candidates",
         ),
@@ -6865,6 +6881,18 @@ line item, not a seam or separate branch.
             "Invalid RAR fixture did not reject unresolved green claim after unrelated negation"
         )
 
+    unresolved_no_issue_candidate_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_UNRESOLVED_NO_ISSUE_CANDIDATE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_UNRESOLVED_GREEN_FAILURE_SNIPPET not in "\n".join(
+        unresolved_no_issue_candidate_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject unresolved status with no issue-candidate wording"
+        )
+
     validation_summary_green_failures = _validate_rebaseline_adoption_review_text(
         INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_GREEN_FIXTURE.read_text(
             encoding="utf-8"
@@ -7049,6 +7077,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject required USER review without packet proof"
+        )
+
+    user_decision_no_packet_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_USER_DECISION_NO_PACKET_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        user_decision_no_packet_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject required USER decision without packet proof"
         )
 
     packet_path_wrong_root_failures = _validate_rebaseline_adoption_review_text(
