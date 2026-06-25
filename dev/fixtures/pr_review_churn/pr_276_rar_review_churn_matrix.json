@@ -1,0 +1,332 @@
+{
+  "schema": "nexus-pr-review-churn-matrix-v1",
+  "pr": 276,
+  "scope": "PR #276 RAR/UIREF parser helper/validator review-churn prevention",
+  "purpose": "Prevent another Codex Connector comment loop by proving source-truth, implementation, fixture, and generated sibling-mutation coverage before requesting another PR review.",
+  "changed_file_coverage": {
+    "dev/orin_branch_governance_validation.py": [
+      "pr2-thread-pagination-and-approval-latch"
+    ],
+    "dev/orin_branch_readiness_planning_fixture_validation.py": [
+      "rar-status-green-parser",
+      "rar-phase-advancement-parser",
+      "rar-issue-candidate-disposition-parser",
+      "rar-user-packet-proof-parser",
+      "rar-code-to-visual-reference-parser",
+      "rar-table-row-parser",
+      "rar-path-suffix-parser"
+    ],
+    "dev/orin_pr_review_churn_validation.py": [
+      "pr2-thread-pagination-and-approval-latch",
+      "rar-status-green-parser",
+      "rar-phase-advancement-parser",
+      "rar-issue-candidate-disposition-parser",
+      "rar-user-packet-proof-parser",
+      "rar-code-to-visual-reference-parser",
+      "rar-table-row-parser",
+      "rar-path-suffix-parser"
+    ]
+  },
+  "families": [
+    {
+      "family_id": "rar-status-green-parser",
+      "title": "RAR status and green-claim parser false-green coverage",
+      "representative_comment_patterns": [
+        "Nonconforming / Unproven rows accepted under mixed case",
+        "Unresolved product-experience rows allowed to coexist with green or resolved posture",
+        "Resolved or no-impact closeout accepted while enforced rows remain unresolved"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/branch_records/feature_release_readiness_source_truth_intake.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_unresolved_nonconformance_green.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_unresolved_hyphenated_nonconformance_green.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_unresolved_green_separate_negation.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_unresolved_green_conjunction_negation.md",
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_direct_negated_green.md"
+      ],
+      "generated_mutation_coverage": [
+        "mixed-case status cells",
+        "hyphenated unresolved/nonconformance wording",
+        "resolved closeout with unresolved row",
+        "no applicable impact with active enforced row"
+      ],
+      "sibling_variant_replay": [
+        "Adoption green wording in validation summary",
+        "Resolved RAR stage with unresolved accepted-reference row",
+        "No applicable impact posture with unresolved code-to-visual row"
+      ]
+    },
+    {
+      "family_id": "rar-phase-advancement-parser",
+      "title": "RAR active-gate phase advancement and negation parser coverage",
+      "representative_comment_patterns": [
+        "Normal phase progression accepted while RAR remains active",
+        "Blocked/held wording misread as phase advancement",
+        "Although/though/while connector hides affirmative phase movement"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/pr_watcher_mode_contract.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_normal_phase_while_active.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_active_stage_normal_phase.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_mixed_disclaimer_phase_advance.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_comma_mixed_disclaimer_phase_advance.md",
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_resolved_normal_phase.md",
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_negated_ready_for_phase.md"
+      ],
+      "generated_mutation_coverage": [
+        "although connector phase advancement",
+        "though connector phase advancement",
+        "while connector phase advancement",
+        "blocked-until wording that must pass",
+        "not-blocked wording that must not prove completion"
+      ],
+      "sibling_variant_replay": [
+        "Next Legal Phase row",
+        "Validation summary row",
+        "RAR decision table row",
+        "Exact next USER decision row"
+      ]
+    },
+    {
+      "family_id": "rar-issue-candidate-disposition-parser",
+      "title": "RAR issue-candidate row, status, and disposition coverage",
+      "representative_comment_patterns": [
+        "Issue Candidate status casing skipped",
+        "Issue-Candidate Table marker accepted without a real row",
+        "Reviewed candidate packet misread as incomplete disposition"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/branch_plans/README.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_missing_issue_candidate.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_issue_candidate_disposition.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_negated_issue_disposition.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_current_issue_candidate_hyphenated_status.md",
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_issue_candidate_reviewed.md",
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_issue_candidate_reviewed_closed.md"
+      ],
+      "generated_mutation_coverage": [
+        "Issue Candidate status casing variants",
+        "CURRENT/ISSUE-CANDIDATE compound status",
+        "No issue candidate row placeholder",
+        "USER-reviewed closeout wording",
+        "GitHub issue mutation approval remains false"
+      ],
+      "sibling_variant_replay": [
+        "Historical issue candidate",
+        "Current branch issue candidate",
+        "Reviewed but not issue-created candidate",
+        "Candidate table marker without row"
+      ]
+    },
+    {
+      "family_id": "rar-user-packet-proof-parser",
+      "title": "RAR USER packet folder, timestamped ZIP, and USER judgment proof coverage",
+      "representative_comment_patterns": [
+        "USER review or judgment required while packet path remains not required",
+        "USER Packet Path and ZIP labels mismatch",
+        "Stable or off-root packet/ZIP accepted"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/validation_helper_registry.md",
+        "Docs/pr_watcher_mode_contract.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_required_user_review_no_packet.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_user_decision_no_packet.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_packet_path_wrong_root.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_packet_path_zip.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_zip_outside_user_root.md",
+        "dev/fixtures/branch_readiness_planning/valid_rebaseline_adoption_review.md"
+      ],
+      "generated_mutation_coverage": [
+        "USER judgment phrase family",
+        "inverse needs USER judgment wording",
+        "RAR USER Decision table row",
+        "Next Legal Phase USER review wording",
+        "folder/ZIP label mismatch"
+      ],
+      "sibling_variant_replay": [
+        "RAR2 packet-gated USER review",
+        "RAR3 packet-gated USER review",
+        "Non-RAR3 route-selection judgment",
+        "Timestamped ZIP label match"
+      ]
+    },
+    {
+      "family_id": "rar-code-to-visual-reference-parser",
+      "title": "RAR code-to-visual trace and accepted-reference comparator coverage",
+      "representative_comment_patterns": [
+        "Missing-proof surface accepted as no-op",
+        "Accepted-reference comparator gap accepted without USER packet",
+        "Named material surface accepted without substantive trace row"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/ui_reference_catalog/README.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_missing_code_trace.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_empty_code_trace.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_empty_accepted_reference.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_missing_proof_surface_noop_rows.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_accepted_reference_gap_no_packet.md"
+      ],
+      "generated_mutation_coverage": [
+        "no verified proof yet for named surface",
+        "accepted reference gap requires USER review",
+        "resolved named-surface no-op row",
+        "partial no-op active rows",
+        "comparator gap without packet proof"
+      ],
+      "sibling_variant_replay": [
+        "UIREF comparator row",
+        "AI Control Center accepted-reference row",
+        "HUD Dashboard named surface row",
+        "Backend-to-visual trace row"
+      ]
+    },
+    {
+      "family_id": "rar-table-row-parser",
+      "title": "RAR table row grammar and structural parser coverage",
+      "representative_comment_patterns": [
+        "Malformed table row accepted",
+        "Sparse or overwide trace row accepted",
+        "Header-only RAR decision table accepted"
+      ],
+      "source_truth": [
+        "Docs/phase_governance.md",
+        "Docs/branch_plans/README.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_malformed_table_rows.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_missing_table_separator.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_overwide_table_rows.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_sparse_table_rows.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_header_only_rar_decision.md"
+      ],
+      "generated_mutation_coverage": [
+        "missing separator row",
+        "overwide code-to-visual row",
+        "sparse accepted-reference row",
+        "header-only decision table",
+        "table preface without rows"
+      ],
+      "sibling_variant_replay": [
+        "Code-To-Visual table",
+        "Accepted Reference table",
+        "Issue Candidate table",
+        "RAR USER Decision table"
+      ]
+    },
+    {
+      "family_id": "rar-path-suffix-parser",
+      "title": "RAR USER packet path and ZIP suffix/traversal parser coverage",
+      "representative_comment_patterns": [
+        "Extra suffix after matched folder or ZIP token accepted",
+        "Wrapper punctuation followed by .md or .tmp accepted",
+        "Traversal or child-folder packet path accepted"
+      ],
+      "source_truth": [
+        "Docs/validation_helper_registry.md",
+        "Docs/phase_governance.md",
+        "Docs/pr_watcher_mode_contract.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_readiness_planning_fixture_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_packet_path_suffix.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_zip_suffix_path.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_packet_path_traversal.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_zip_traversal_path.md",
+        "dev/fixtures/branch_readiness_planning/invalid_rebaseline_adoption_zip_child_folder.md"
+      ],
+      "generated_mutation_coverage": [
+        "folder path chained wrapper suffix",
+        "ZIP path chained wrapper suffix",
+        "terminal punctuation allowed",
+        "inline code wrapping allowed",
+        "root-normalizing traversal rejected"
+      ],
+      "sibling_variant_replay": [
+        "C:\\Nexus USER\\FAM-006).md",
+        "C:\\Nexus USER\\FAM-006-YYYYMMDD-HHMMSS.zip).tmp",
+        "C:\\Nexus USER\\FAM-006.",
+        "`C:\\Nexus USER\\FAM-006`"
+      ]
+    },
+    {
+      "family_id": "pr2-thread-pagination-and-approval-latch",
+      "title": "PR2 review-thread pagination, current-head approval latch, and merge-ready proof coverage",
+      "representative_comment_patterns": [
+        "Only first review-thread page inspected",
+        "Resolved/outdated/current unresolved counts missing",
+        "Merge-ready claimed without current-head Codex Connector approval latch"
+      ],
+      "source_truth": [
+        "Docs/pr_watcher_mode_contract.md",
+        "Docs/phase_governance.md",
+        "Docs/validation_helper_registry.md"
+      ],
+      "implementation": [
+        "dev/orin_branch_governance_validation.py",
+        "dev/orin_pr_review_churn_validation.py"
+      ],
+      "fixture_coverage": [
+        "dev/fixtures/pr_review_churn/pr_276_rar_review_churn_matrix.json",
+        "dev/fixtures/branch_readiness_planning/valid_pr_fold_down_packet.md"
+      ],
+      "generated_mutation_coverage": [
+        "reviewThreads pagination count mismatch",
+        "unresolved current thread present",
+        "unresolved outdated-only thread report",
+        "missing current-head green latch under --require-current-green"
+      ],
+      "sibling_variant_replay": [
+        "pre-request mode reports latch but does not require it",
+        "merge-ready mode requires current-head latch",
+        "all review thread pages must be fetched before PASS"
+      ]
+    }
+  ]
+}

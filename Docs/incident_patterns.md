@@ -62,10 +62,13 @@ Branch-local "what worked" notes should stay in the canonical workstream doc fir
 - fix pattern:
   stop PR continuation on `Review Churn Root-Cause Gate Active`, build a Review-Comment Pattern Matrix from all same-family comments, identify the missing source-truth rule, parser assumption, helper/validator seam, fixture family, generated mutation/adversarial case, and sibling-risk set, then repair the durable owner and validator harness before any further review request
 - validation pattern:
-  require proof that each repaired family has source-truth coverage, code enforcement, static positive/negative fixtures, generated mutation/adversarial variants or an equivalent harness, targeted validator output, full registered validation, and a final digest listing remaining sibling risks as cleared, waived, routed, or blocked
+  require proof that each repaired family has source-truth coverage, code enforcement, static positive/negative fixtures, generated mutation/adversarial variants or an equivalent harness, targeted validator output, full registered validation, every GitHub review-thread page inspected, total/resolved/unresolved/outdated/unresolved-current thread counts reported, every Codex Connector review comment clustered into a covered family, changed helper/validator/parser file coverage proven, and a final local Codex Connector simulation digest listing remaining sibling risks as cleared, waived, routed, or blocked
 - source references:
   - `Docs/phase_governance.md`
   - `Docs/validation_helper_registry.md`
+  - `Docs/pr_watcher_mode_contract.md`
+  - `dev/orin_pr_review_churn_validation.py`
+  - `dev/fixtures/pr_review_churn/`
   - `dev/orin_branch_readiness_planning_fixture_validation.py`
 
 ## Pattern: Packet Validation Must Not Become USER Acceptance

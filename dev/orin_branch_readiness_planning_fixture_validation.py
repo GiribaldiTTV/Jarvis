@@ -9,6 +9,7 @@ planning.
 
 from __future__ import annotations
 
+import json
 import inspect
 import re
 import tempfile
@@ -25,6 +26,13 @@ import orin_worktree_rebaseline_audit as rebaseline
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_DIR = ROOT / "dev" / "fixtures" / "branch_readiness_planning"
+PR_REVIEW_CHURN_MATRIX_FIXTURE = (
+    ROOT
+    / "dev"
+    / "fixtures"
+    / "pr_review_churn"
+    / "pr_276_rar_review_churn_matrix.json"
+)
 SHALLOW_FIXTURE = FIXTURE_DIR / "shallow_live_validation_product_plan.md"
 CONCRETE_FIXTURE = FIXTURE_DIR / "concrete_live_validation_product_plan.md"
 VALID_BRANCH_RUNTIME_PLAN_FIXTURE = (
@@ -3641,6 +3649,136 @@ def _validate_merge_stable_projection_helpers() -> list[str]:
             "from adjacent merge-status blocks"
         ),
     )
+    return failures
+
+
+def _validate_pr_review_churn_matrix_fixture() -> list[str]:
+    failures, require = _collect_failures()
+    relative_matrix = PR_REVIEW_CHURN_MATRIX_FIXTURE.relative_to(ROOT)
+    require(
+        PR_REVIEW_CHURN_MATRIX_FIXTURE.exists(),
+        f"{relative_matrix}: PR review churn matrix fixture is missing",
+    )
+    if not PR_REVIEW_CHURN_MATRIX_FIXTURE.exists():
+        return failures
+
+    try:
+        matrix = json.loads(PR_REVIEW_CHURN_MATRIX_FIXTURE.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"{relative_matrix}: invalid JSON: {exc}"]
+
+    require(
+        matrix.get("schema") == "nexus-pr-review-churn-matrix-v1",
+        f"{relative_matrix}: unexpected schema",
+    )
+    families = matrix.get("families")
+    require(
+        isinstance(families, list) and bool(families),
+        f"{relative_matrix}: families must be a non-empty list",
+    )
+    if not isinstance(families, list):
+        return failures
+
+    required_families = {
+        "rar-status-green-parser",
+        "rar-phase-advancement-parser",
+        "rar-issue-candidate-disposition-parser",
+        "rar-user-packet-proof-parser",
+        "rar-code-to-visual-reference-parser",
+        "rar-table-row-parser",
+        "rar-path-suffix-parser",
+        "pr2-thread-pagination-and-approval-latch",
+    }
+    observed_families = {
+        family.get("family_id") for family in families if isinstance(family, dict)
+    }
+    require(
+        required_families.issubset(observed_families),
+        (
+            f"{relative_matrix}: missing required PR review churn families "
+            f"{sorted(required_families - observed_families)}"
+        ),
+    )
+    require(
+        len(observed_families) == len(families),
+        f"{relative_matrix}: duplicate or missing family_id values",
+    )
+
+    required_list_fields = (
+        "representative_comment_patterns",
+        "source_truth",
+        "implementation",
+        "fixture_coverage",
+        "generated_mutation_coverage",
+        "sibling_variant_replay",
+    )
+    for family in families:
+        if not isinstance(family, dict):
+            failures.append(f"{relative_matrix}: family entry must be an object")
+            continue
+        family_id = family.get("family_id", "<missing-family-id>")
+        for field in required_list_fields:
+            value = family.get(field)
+            require(
+                isinstance(value, list) and bool(value),
+                f"{relative_matrix}: {family_id} {field} must be a non-empty list",
+            )
+            if not isinstance(value, list):
+                continue
+            require(
+                all(isinstance(item, str) and item.strip() for item in value),
+                f"{relative_matrix}: {family_id} {field} contains a blank value",
+            )
+        for field in ("source_truth", "implementation", "fixture_coverage"):
+            for item in family.get(field, []):
+                if not isinstance(item, str) or not item.strip():
+                    continue
+                item_path = ROOT / item.replace("\\", "/")
+                require(
+                    item_path.exists(),
+                    f"{relative_matrix}: {family_id} references missing {field} path {item}",
+                )
+
+    changed_file_coverage = matrix.get("changed_file_coverage")
+    require(
+        isinstance(changed_file_coverage, dict) and bool(changed_file_coverage),
+        f"{relative_matrix}: changed_file_coverage must be a non-empty object",
+    )
+    if isinstance(changed_file_coverage, dict):
+        for path, family_ids in changed_file_coverage.items():
+            require(
+                isinstance(path, str) and path.startswith("dev/") and path.endswith(".py"),
+                f"{relative_matrix}: changed-file coverage key must be a dev Python helper path",
+            )
+            require(
+                (ROOT / str(path)).exists(),
+                f"{relative_matrix}: changed-file coverage path is missing: {path}",
+            )
+            require(
+                isinstance(family_ids, list) and bool(family_ids),
+                f"{relative_matrix}: {path} must map to one or more review families",
+            )
+            if not isinstance(family_ids, list):
+                continue
+            for family_id in family_ids:
+                require(
+                    family_id in observed_families,
+                    f"{relative_matrix}: {path} references unknown review family {family_id}",
+                )
+                matching_family = next(
+                    (
+                        family
+                        for family in families
+                        if isinstance(family, dict)
+                        and family.get("family_id") == family_id
+                    ),
+                    {},
+                )
+                require(
+                    path in matching_family.get("implementation", []),
+                    f"{relative_matrix}: {path} must also appear in implementation coverage for {family_id}",
+                )
+
     return failures
 
 
@@ -8705,6 +8843,7 @@ line item, not a seam or separate branch.
     failures.extend(_validate_merge_stable_projection_helpers())
 
     failures.extend(_validate_rebaseline_overlap_helper_matrix())
+    failures.extend(_validate_pr_review_churn_matrix_fixture())
 
     failures.extend(_validate_user_review_bundle_identity_guard())
     failures.extend(_validate_workstream_entry_packet_existing_bp1_substance_guard())

@@ -1,0 +1,553 @@
+# NEXUS-SOURCE-OWNER: schema=source-owner-v1; owner=VALIDATOR-HELPER; ledger=SRCOWN-FIRSTPASS-VALIDATOR-010; surface=pr-review-churn-validation; status=shared
+"""Validate local PR review-churn prevention before re-requesting Codex review.
+
+This helper intentionally treats GitHub/Codex Connector data as live evidence,
+not durable repo truth. The durable part is the local review-churn matrix fixture:
+it records which parser/helper/validator families must have source-truth,
+implementation, fixture, and generated sibling-mutation coverage.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import subprocess
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+
+ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_MATRIX = (
+    ROOT
+    / "dev"
+    / "fixtures"
+    / "pr_review_churn"
+    / "pr_276_rar_review_churn_matrix.json"
+)
+CONNECTOR_LOGINS = {"chatgpt-codex-connector", "codex"}
+HELPER_FILE_PATTERNS = (
+    "validation",
+    "validator",
+    "helper",
+    "parser",
+    "bundle",
+    "audit",
+    "harness",
+)
+
+
+@dataclass(frozen=True)
+class FamilyRule:
+    family_id: str
+    keywords: tuple[str, ...]
+
+
+FAMILY_RULES: tuple[FamilyRule, ...] = (
+    FamilyRule(
+        "rar-status-green-parser",
+        (
+            "status",
+            "nonconforming",
+            "unproven",
+            "green",
+            "case",
+            "normalize",
+            "disposition",
+            "resolved",
+            "no applicable impact",
+        ),
+    ),
+    FamilyRule(
+        "rar-phase-advancement-parser",
+        (
+            "normal phase",
+            "phase progression",
+            "pr readiness",
+            "workstream",
+            "blocked",
+            "not blocked",
+            "although",
+            "though",
+            "while",
+            "next legal phase",
+        ),
+    ),
+    FamilyRule(
+        "rar-issue-candidate-disposition-parser",
+        (
+            "issue-candidate",
+            "issue candidate",
+            "github issue",
+            "candidate row",
+            "disposition marker",
+            "user-reviewed",
+            "reviewed packet",
+        ),
+    ),
+    FamilyRule(
+        "rar-user-packet-proof-parser",
+        (
+            "user packet",
+            "user review packet",
+            "packet path",
+            "packet zip",
+            "zip path",
+            "timestamped zip",
+            "folder label",
+            "zip label",
+            "user judgment",
+            "user adjudication",
+            "user review required",
+            "route selection",
+        ),
+    ),
+    FamilyRule(
+        "rar-code-to-visual-reference-parser",
+        (
+            "code-to-visual",
+            "accepted reference",
+            "comparator",
+            "missing proof",
+            "proof surface",
+            "noop",
+            "no-op",
+            "named material surface",
+            "visual",
+        ),
+    ),
+    FamilyRule(
+        "rar-table-row-parser",
+        (
+            "table",
+            "row",
+            "separator",
+            "malformed",
+            "overwide",
+            "sparse",
+            "header",
+            "actual table",
+        ),
+    ),
+    FamilyRule(
+        "rar-path-suffix-parser",
+        (
+            "suffix",
+            "punctuation",
+            "wrapper",
+            ".tmp",
+            ".md",
+            ".zip",
+            "inline-code",
+            "terminal punctuation",
+            "traversal",
+        ),
+    ),
+    FamilyRule(
+        "pr2-thread-pagination-and-approval-latch",
+        (
+            "review thread",
+            "unresolved",
+            "outdated",
+            "resolved",
+            "current head",
+            "thumbs-up",
+            "approval latch",
+            "all pages",
+            "pagination",
+        ),
+    ),
+)
+
+
+def _run(args: list[str], *, stdin: str | None = None) -> str:
+    result = subprocess.run(
+        args,
+        input=stdin,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=ROOT,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"{' '.join(args)} failed with exit {result.returncode}: {result.stderr.strip()}"
+        )
+    return result.stdout
+
+
+def _split_repo(repo: str) -> tuple[str, str]:
+    if "/" not in repo:
+        raise ValueError("--repo must be OWNER/NAME")
+    owner, name = repo.split("/", 1)
+    return owner, name
+
+
+def _graphql(query: str, variables: dict[str, Any]) -> dict[str, Any]:
+    payload = json.dumps({"query": query, "variables": variables})
+    raw = _run(["gh", "api", "graphql", "--input", "-"], stdin=payload)
+    data = json.loads(raw)
+    if data.get("errors"):
+        raise RuntimeError(json.dumps(data["errors"], indent=2))
+    return data["data"]
+
+
+def _rest_paginated(path: str) -> list[dict[str, Any]]:
+    raw = _run(["gh", "api", "--paginate", "--slurp", path])
+    pages = json.loads(raw)
+    items: list[dict[str, Any]] = []
+    for page in pages:
+        if isinstance(page, list):
+            items.extend(page)
+    return items
+
+
+def _fetch_review_threads(owner: str, name: str, number: int) -> tuple[dict[str, Any], list[dict[str, Any]], int]:
+    query = """
+query($owner:String!,$name:String!,$number:Int!,$cursor:String){
+  repository(owner:$owner,name:$name){
+    pullRequest(number:$number){
+      headRefOid
+      mergeable
+      mergeStateStatus
+      reviewDecision
+      reviewThreads(first:100, after:$cursor){
+        totalCount
+        pageInfo{hasNextPage endCursor}
+        nodes{
+          id
+          isResolved
+          isOutdated
+          comments(first:50){
+            nodes{
+              id
+              author{login}
+              body
+              path
+              line
+              originalLine
+              createdAt
+              pullRequestReview{commit{oid}}
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+    cursor: str | None = None
+    threads: list[dict[str, Any]] = []
+    pull_request: dict[str, Any] | None = None
+    page_count = 0
+    total_count = 0
+    while True:
+        data = _graphql(
+            query,
+            {"owner": owner, "name": name, "number": number, "cursor": cursor},
+        )
+        pull_request = data["repository"]["pullRequest"]
+        page = pull_request["reviewThreads"]
+        total_count = int(page["totalCount"])
+        page_count += 1
+        threads.extend(page["nodes"])
+        page_info = page["pageInfo"]
+        if not page_info["hasNextPage"]:
+            break
+        cursor = page_info["endCursor"]
+    assert pull_request is not None
+    if len(threads) != total_count:
+        raise RuntimeError(
+            f"reviewThreads pagination returned {len(threads)} of {total_count} threads"
+        )
+    return pull_request, threads, page_count
+
+
+def _load_matrix(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _normalize(text: str) -> str:
+    return re.sub(r"\s+", " ", text.casefold()).strip()
+
+
+def _is_connector_login(login: str) -> bool:
+    normalized = login.casefold().removesuffix("[bot]")
+    return normalized in CONNECTOR_LOGINS
+
+
+def _classify_comment(body: str) -> list[str]:
+    normalized = _normalize(body)
+    families = [
+        rule.family_id
+        for rule in FAMILY_RULES
+        if any(keyword in normalized for keyword in rule.keywords)
+    ]
+    return families or ["unknown"]
+
+
+def _connector_thread_comments(threads: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    comments: list[dict[str, Any]] = []
+    for thread in threads:
+        for comment in thread.get("comments", {}).get("nodes", []):
+            author = (comment.get("author") or {}).get("login", "")
+            if not _is_connector_login(author):
+                continue
+            item = dict(comment)
+            item["threadId"] = thread["id"]
+            item["isResolved"] = bool(thread.get("isResolved"))
+            item["isOutdated"] = bool(thread.get("isOutdated"))
+            item["families"] = _classify_comment(comment.get("body", ""))
+            comments.append(item)
+    return comments
+
+
+def _thread_counts(threads: list[dict[str, Any]]) -> dict[str, int]:
+    unresolved = [
+        thread for thread in threads if not bool(thread.get("isResolved"))
+    ]
+    unresolved_current = [
+        thread
+        for thread in threads
+        if not bool(thread.get("isResolved")) and not bool(thread.get("isOutdated"))
+    ]
+    return {
+        "total": len(threads),
+        "resolved": len(threads) - len(unresolved),
+        "unresolved": len(unresolved),
+        "unresolved_current": len(unresolved_current),
+        "outdated": sum(1 for thread in threads if bool(thread.get("isOutdated"))),
+    }
+
+
+def _changed_files(base: str) -> list[str]:
+    commands = (
+        ["git", "diff", "--name-only", f"{base}...HEAD"],
+        ["git", "diff", "--name-only"],
+        ["git", "diff", "--cached", "--name-only"],
+        ["git", "ls-files", "--others", "--exclude-standard"],
+    )
+    paths: set[str] = set()
+    for command in commands:
+        raw = _run(command)
+        paths.update(line.strip() for line in raw.splitlines() if line.strip())
+    return sorted(paths)
+
+
+def _is_helper_validator_parser(path: str) -> bool:
+    normalized = path.replace("\\", "/").casefold()
+    if not normalized.startswith("dev/") or not normalized.endswith(".py"):
+        return False
+    name = Path(normalized).name
+    return any(pattern in name for pattern in HELPER_FILE_PATTERNS)
+
+
+def _extract_latest_green(
+    owner: str, name: str, number: int, head_oid: str
+) -> tuple[bool, str]:
+    issue_comments = _rest_paginated(
+        f"repos/{owner}/{name}/issues/{number}/comments"
+    )
+    review_summaries = _rest_paginated(f"repos/{owner}/{name}/pulls/{number}/reviews")
+    green_patterns = (
+        "didn't find any major issues",
+        "didn\u2019t find any major issues",
+        "did not find any major issues",
+        "didnt find any major issues",
+        "no major issues",
+        "looks good",
+    )
+    candidates: list[tuple[str, str, str]] = []
+    for item in issue_comments:
+        author = (item.get("user") or {}).get("login", "")
+        body = item.get("body") or ""
+        if _is_connector_login(author) and any(
+            pattern in body.casefold() for pattern in green_patterns
+        ):
+            candidates.append((item.get("created_at") or "", body, item.get("html_url") or ""))
+    for item in review_summaries:
+        author = (item.get("user") or {}).get("login", "")
+        body = item.get("body") or ""
+        commit_id = item.get("commit_id") or ""
+        if _is_connector_login(author) and any(
+            pattern in body.casefold() for pattern in green_patterns
+        ):
+            candidates.append((item.get("submitted_at") or "", body + f"\nReviewed commit: {commit_id}", item.get("html_url") or ""))
+    if not candidates:
+        return False, "No Codex Connector green comment/review found."
+    candidates.sort(key=lambda item: item[0])
+    timestamp, body, url = candidates[-1]
+    head_bound = head_oid[:10].casefold() in body.casefold() or head_oid.casefold() in body.casefold()
+    detail = f"{timestamp} {url}".strip()
+    if not head_bound:
+        detail += " (green evidence found, but not text-bound to current head)"
+    return head_bound, detail
+
+
+def _validate_matrix(
+    matrix: dict[str, Any],
+    observed_families: set[str],
+    changed_helper_files: list[str],
+) -> list[str]:
+    failures: list[str] = []
+    family_entries = matrix.get("families")
+    if not isinstance(family_entries, list) or not family_entries:
+        return ["Review churn matrix has no family entries"]
+
+    entries = {entry.get("family_id"): entry for entry in family_entries}
+    if len(entries) != len(family_entries):
+        failures.append("Review churn matrix has duplicate or missing family_id values")
+
+    required_list_fields = (
+        "source_truth",
+        "implementation",
+        "fixture_coverage",
+        "generated_mutation_coverage",
+        "representative_comment_patterns",
+        "sibling_variant_replay",
+    )
+    for family_id, entry in entries.items():
+        if not family_id:
+            continue
+        for field in required_list_fields:
+            value = entry.get(field)
+            if not isinstance(value, list) or not value:
+                failures.append(f"{family_id}: matrix field {field} must be a non-empty list")
+                continue
+            if any(not isinstance(item, str) or not item.strip() for item in value):
+                failures.append(f"{family_id}: matrix field {field} contains a blank item")
+        for field in ("source_truth", "implementation", "fixture_coverage"):
+            for item in entry.get(field, []):
+                if not isinstance(item, str) or item.startswith("generated:"):
+                    continue
+                path = ROOT / item.replace("\\", "/")
+                if not path.exists():
+                    failures.append(f"{family_id}: coverage path does not exist: {item}")
+
+    unknown_families = sorted(observed_families - set(entries))
+    for family_id in unknown_families:
+        failures.append(f"Observed connector family lacks matrix coverage: {family_id}")
+
+    file_coverage = matrix.get("changed_file_coverage", {})
+    if not isinstance(file_coverage, dict):
+        failures.append("Review churn matrix changed_file_coverage must be an object")
+        file_coverage = {}
+    for changed_file in changed_helper_files:
+        families = file_coverage.get(changed_file)
+        if not isinstance(families, list) or not families:
+            failures.append(
+                f"Changed helper/validator/parser lacks family coverage: {changed_file}"
+            )
+            continue
+        for family_id in families:
+            if family_id not in entries:
+                failures.append(
+                    f"{changed_file}: changed-file coverage references unknown family {family_id}"
+                )
+            else:
+                entry = entries[family_id]
+                if changed_file not in entry.get("implementation", []):
+                    failures.append(
+                        f"{changed_file}: family {family_id} does not list the file as implementation coverage"
+                    )
+    return failures
+
+
+def build_report(args: argparse.Namespace) -> tuple[int, str]:
+    owner, name = _split_repo(args.repo)
+    pull_request, threads, page_count = _fetch_review_threads(owner, name, args.pr)
+    matrix = _load_matrix(Path(args.matrix))
+    comments = _connector_thread_comments(threads)
+    thread_counts = _thread_counts(threads)
+    changed_files = _changed_files(args.base)
+    changed_helper_files = [
+        path for path in changed_files if _is_helper_validator_parser(path)
+    ]
+    observed_families = {
+        family
+        for comment in comments
+        for family in comment.get("families", [])
+    }
+    family_counts = {
+        family_id: sum(1 for comment in comments if family_id in comment["families"])
+        for family_id in sorted(observed_families)
+    }
+
+    failures: list[str] = []
+    if thread_counts["unresolved_current"]:
+        failures.append(
+            f"Unresolved current review threads remain: {thread_counts['unresolved_current']}"
+        )
+    if "unknown" in observed_families:
+        failures.append("At least one connector review comment was not classified")
+    failures.extend(_validate_matrix(matrix, observed_families - {"unknown"}, changed_helper_files))
+    green_bound, green_detail = _extract_latest_green(
+        owner, name, args.pr, pull_request["headRefOid"]
+    )
+    if args.require_current_green and not green_bound:
+        failures.append("Current-head Codex Connector green approval latch is missing")
+
+    lines = [
+        "PR Review Churn Validation",
+        f"Repository: {args.repo}",
+        f"PR: {args.pr}",
+        f"Head SHA: {pull_request['headRefOid']}",
+        f"Mergeability: {pull_request.get('mergeable')} / {pull_request.get('mergeStateStatus')}",
+        f"Review-thread pages inspected: {page_count}",
+        (
+            "Review-thread counts: "
+            f"total={thread_counts['total']}, "
+            f"resolved={thread_counts['resolved']}, "
+            f"unresolved={thread_counts['unresolved']}, "
+            f"unresolved_current={thread_counts['unresolved_current']}, "
+            f"outdated={thread_counts['outdated']}"
+        ),
+        f"Connector review comments collected: {len(comments)}",
+        "Connector family counts:",
+    ]
+    for family_id, count in family_counts.items():
+        lines.append(f"- {family_id}: {count}")
+    lines.extend(
+        [
+            "Changed helper/validator/parser files:",
+            *[f"- {path}" for path in changed_helper_files],
+            f"Latest current-head green proof: {'BOUND' if green_bound else 'NOT BOUND'} - {green_detail}",
+        ]
+    )
+    if failures:
+        lines.append("Result: FAIL")
+        lines.extend(f"- {failure}" for failure in failures)
+        return 1, "\n".join(lines)
+    lines.append("Result: PASS")
+    return 0, "\n".join(lines)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--pr", type=int, required=True)
+    parser.add_argument("--repo", default="GiribaldiTTV/Nexus-Desktop-AI")
+    parser.add_argument("--base", default="origin/main")
+    parser.add_argument("--matrix", default=str(DEFAULT_MATRIX))
+    parser.add_argument(
+        "--require-current-green",
+        action="store_true",
+        help="Fail unless a Codex Connector green comment/review is bound to the live head.",
+    )
+    args = parser.parse_args(argv)
+    try:
+        code, report = build_report(args)
+    except Exception as exc:  # pragma: no cover - command-line reporting
+        print(f"FAIL: PR review churn validation could not complete: {exc}")
+        return 1
+    print(report)
+    return code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
