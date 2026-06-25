@@ -524,10 +524,6 @@
       emitCommand(copied ? "copy-readiness-report" : "copy-readiness-report-blocked");
     });
   });
-  attachActivationHandler(byId("ai-dashboard-settings-action"), () => {
-    emitCommand("open-settings-future-gated");
-  });
-
   byId("ai-control-center-card-hub")?.addEventListener("scroll", syncCustomScrollbar, { passive: true });
   byId("ai-control-center-scrollbar-track")?.addEventListener("mousedown", (event) => {
     event.preventDefault();

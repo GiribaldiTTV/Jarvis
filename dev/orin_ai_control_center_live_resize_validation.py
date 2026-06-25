@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 
 from PySide6.QtCore import QPoint, QRect, Qt
-from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPen
+from PySide6.QtGui import QColor, QFont, QImage, QPainter
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication
 
@@ -477,143 +477,19 @@ def _write_side_by_side_board(
     }
 
 
-def _draw_settings_gear(painter: QPainter, x: int, y: int, size: int, color: QColor) -> None:
-    pen = QPen(color, 2)
-    painter.setPen(pen)
-    center_x = x + size // 2
-    center_y = y + size // 2
-    outer = max(6, size // 3)
-    inner = max(3, size // 8)
-    for dx, dy in ((0, -outer), (0, outer), (-outer, 0), (outer, 0), (-outer + 3, -outer + 3), (outer - 3, -outer + 3), (-outer + 3, outer - 3), (outer - 3, outer - 3)):
-        painter.drawLine(center_x, center_y, center_x + dx, center_y + dy)
-    painter.setBrush(QColor(5, 22, 36))
-    painter.drawEllipse(center_x - outer, center_y - outer, outer * 2, outer * 2)
-    painter.setBrush(QColor(2, 10, 20))
-    painter.drawEllipse(center_x - inner, center_y - inner, inner * 2, inner * 2)
-
-
-def _write_settings_cog_options_board(log_root: Path) -> dict[str, object]:
-    board_path = log_root / "15_settings_cog_visual_acceptance_options.png"
-    manifest_path = log_root / "15_settings_cog_visual_acceptance_options.json"
-    options = [
-        {
-            "id": "A",
-            "label": "Title strip trailing",
-            "runtime": "implemented visual-only candidate",
-            "tradeoff": "Closest current rhythm; controls stay separate.",
-        },
-        {
-            "id": "B",
-            "label": "Header trailing",
-            "runtime": "visual option only",
-            "tradeoff": "More visible; near window controls.",
-        },
-        {
-            "id": "C",
-            "label": "Inside status pill",
-            "runtime": "visual option only",
-            "tradeoff": "Most compact; can crowd status text.",
-        },
-    ]
-    width, height = 1080, 610
-    image = QImage(width, height, QImage.Format_ARGB32)
-    image.fill(QColor(2, 10, 20))
-    painter = QPainter(image)
-    painter.setRenderHint(QPainter.Antialiasing, True)
-    painter.setPen(QColor(126, 248, 218))
-    title_font = QFont("Segoe UI", 17)
-    title_font.setBold(True)
-    painter.setFont(title_font)
-    painter.drawText(28, 38, "AI Dashboard Settings Cog Visual Acceptance Options")
-    painter.setPen(QColor(188, 232, 244))
-    body_font = QFont("Segoe UI", 10)
-    body_font.setBold(False)
-    painter.setFont(body_font)
-    painter.drawText(28, 62, "All options are visual/future-gated. Tooltip label: Settings. Active Global Settings behavior: blocked.")
-
-    card_w = 326
-    card_h = 430
-    card_y = 104
-    for index, option in enumerate(options):
-        x = 28 + index * (card_w + 24)
-        painter.setPen(QPen(QColor(122, 232, 255, 110), 1))
-        painter.setBrush(QColor(3, 14, 26))
-        painter.drawRoundedRect(x, card_y, card_w, card_h, 20, 20)
-        painter.setPen(QColor(116, 240, 255))
-        heading_font = QFont("Segoe UI", 12)
-        heading_font.setBold(True)
-        painter.setFont(heading_font)
-        painter.drawText(x + 18, card_y + 30, f"Option {option['id']} - {option['label']}")
-
-        title_y = card_y + 64
-        painter.setPen(QPen(QColor(122, 232, 255, 80), 1))
-        painter.setBrush(QColor(4, 18, 32))
-        painter.drawRoundedRect(x + 18, title_y, card_w - 36, 152, 18, 18)
-        painter.setPen(QColor(103, 224, 255))
-        small_font = QFont("Segoe UI", 8)
-        small_font.setBold(True)
-        painter.setFont(small_font)
-        painter.drawText(x + 34, title_y + 25, "NEXUS DESKTOP AI")
-        painter.setPen(QColor(235, 252, 255))
-        title_font_small = QFont("Segoe UI", 16)
-        title_font_small.setBold(True)
-        painter.setFont(title_font_small)
-        painter.drawText(x + 34, title_y + 58, "AI Dashboard")
-
-        painter.setPen(QPen(QColor(122, 232, 255, 100), 1))
-        painter.setBrush(QColor(7, 42, 62))
-        painter.drawRoundedRect(x + card_w - 98, title_y + 12, 58, 28, 14, 14)
-        painter.setPen(QColor(235, 252, 255))
-        painter.drawText(x + card_w - 85, title_y + 31, "-   x")
-
-        pill_x = x + 34
-        pill_y = title_y + 92
-        pill_w = card_w - 104
-        painter.setBrush(QColor(4, 28, 42))
-        painter.setPen(QPen(QColor(122, 232, 255, 90), 1))
-        painter.drawRoundedRect(pill_x, pill_y, pill_w, 35, 16, 16)
-        painter.setPen(QColor(188, 232, 244))
-        pill_font = QFont("Segoe UI", 7)
-        pill_font.setBold(True)
-        painter.setFont(pill_font)
-        painter.drawText(pill_x + 12, pill_y + 22, "AI PERSONA - NONE")
-
-        cog_size = 31
-        if option["id"] == "A":
-            cog_x, cog_y = x + card_w - 78, pill_y + 2
-        elif option["id"] == "B":
-            cog_x, cog_y = x + card_w - 82, title_y + 54
-        else:
-            cog_x, cog_y = pill_x + pill_w - 38, pill_y + 2
-        painter.setPen(QPen(QColor(122, 232, 255, 150), 1))
-        painter.setBrush(QColor(7, 42, 62))
-        painter.drawEllipse(cog_x, cog_y, cog_size, cog_size)
-        _draw_settings_gear(painter, cog_x + 5, cog_y + 5, 21, QColor(235, 252, 255))
-        painter.setPen(QPen(QColor(122, 232, 255, 150), 1))
-        painter.setBrush(QColor(3, 14, 24))
-        tooltip_x = max(x + 24, min(cog_x - 74, x + card_w - 126))
-        tooltip_y = cog_y - 34
-        painter.drawRoundedRect(tooltip_x, tooltip_y, 96, 25, 12, 12)
-        painter.setPen(QColor(235, 252, 255))
-        painter.setFont(pill_font)
-        painter.drawText(tooltip_x + 20, tooltip_y + 17, "SETTINGS")
-
-        painter.setPen(QColor(216, 244, 250))
-        painter.setFont(body_font)
-        painter.drawText(QRect(x + 18, title_y + 198, card_w - 42, 38), Qt.TextWordWrap, f"Runtime: {option['runtime']}")
-        painter.drawText(QRect(x + 18, title_y + 238, card_w - 42, 38), Qt.TextWordWrap, option["tradeoff"])
-        painter.drawText(QRect(x + 18, title_y + 278, card_w - 42, 42), Qt.TextWordWrap, "Behavior: future-gated; no settings window opens.")
-
-    painter.end()
-    ok = image.save(str(board_path))
+def _write_settings_option_b_disposition(log_root: Path) -> dict[str, object]:
+    manifest_path = log_root / "15_settings_option_b_removal_deferment.json"
     payload = {
-        "ok": bool(ok and board_path.exists()),
-        "path": str(board_path),
-        "options": options,
-        "tooltipLabel": "Settings",
+        "ok": True,
+        "selectedOption": "B",
+        "selectedOptionLabel": "Remove And Defer",
+        "currentRuntimeSettingsAffordance": "removed-from-current-workstream-exit-path",
+        "fam003Dependency": "global-settings-window-required-before-future-settings-entry",
         "activeGlobalSettingsBehavior": False,
-        "implementedRuntimeOption": "A",
-        "classification": "visual-acceptance-options-only",
+        "settingsWindowOpened": False,
+        "settingsBehaviorImplementationBlocked": True,
+        "implementedRuntimeOption": "B",
+        "classification": "option-b-implementation-disposition-only",
     }
     manifest_path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     payload["jsonPath"] = str(manifest_path)
@@ -1657,6 +1533,7 @@ def main() -> int:
                   }))
                 ])),
                 capabilityHubRows: document.querySelectorAll('[data-dashboard-hub-card="capabilities-maintenance"] .monitoring-hud__state-row').length,
+                settingsRouteMetadata: document.getElementById("monitoring-hud")?.dataset.settingsRoute || "",
                 settingsTooltipText: document.getElementById("ai-dashboard-settings-tooltip")?.textContent.trim() || "",
                 settingsRoutePresent: Boolean(document.querySelector("[data-dashboard-utility-row='settings-route']")),
                 settingsVisualAcceptance: document.querySelector("[data-dashboard-utility-row='settings-route']")?.dataset.settingsVisualAcceptance || "",
@@ -1693,45 +1570,7 @@ def main() -> int:
         )
     )
     dashboard_probe["visualGrammar"] = _run_visual_grammar_probe(app, dialog)
-    settings_cog_options = _write_settings_cog_options_board(log_root)
-    settings_future_gated_click_probe = json.loads(
-        _run_js(
-            app,
-            dialog,
-            """
-            (() => {
-              const button = document.getElementById("ai-dashboard-settings-action");
-              if (button) button.click();
-              return JSON.stringify({
-                clicked: Boolean(button),
-                settingsState: button?.dataset.settingsState || "",
-                settingsWindowOpened: button?.dataset.settingsWindowOpened || "",
-                ariaDisabled: button?.getAttribute("aria-disabled") || "",
-                route: button?.dataset.settingsRoute || ""
-              });
-            })();
-            """,
-        )
-    )
-    _pump(app, 120)
-    _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const button = document.getElementById("ai-dashboard-settings-action");
-          if (button) button.dataset.tooltipProof = "visible";
-          return "true";
-        })();
-        """,
-    )
-    _pump(app, 160)
-    settings_hover = {
-        "ok": True,
-        "button": "ai-dashboard-settings-action",
-        "state": "future-gated-visual-only",
-        "tooltipProof": "visible",
-    }
+    settings_option_b_disposition = _write_settings_option_b_disposition(log_root)
     settings_tooltip_probe = json.loads(
         _run_js(
             app,
@@ -1765,20 +1604,7 @@ def main() -> int:
         "rowGutterCardDensity": _capture_window_region(app, dialog, log_root, "06_row_gutter_card_density", proof_rects.get("rowGutterCardDensity")),
         "buttonPlacement": _capture_window_region(app, dialog, log_root, "07_button_placement", proof_rects.get("buttonPlacement")),
         "firstCardDensity": _capture_window_region(app, dialog, log_root, "08_first_card_density", proof_rects.get("firstCard")),
-        "settingsCogTooltip": _capture_window_region(app, dialog, log_root, "16_settings_cog_tooltip", proof_rects.get("header")),
     }
-    _run_js(
-        app,
-        dialog,
-        """
-        (() => {
-          const button = document.getElementById("ai-dashboard-settings-action");
-          if (button) delete button.dataset.tooltipProof;
-          return "true";
-        })();
-        """,
-    )
-    _pump(app, 100)
     fam007_h4_root = Path.home() / "OneDrive" / "Pictures" / "Screenshots" / "Nexus Desktop AI" / "FAM-007-H4"
     main_runtime_ai_control_center_reference = _capture_main_runtime_ai_control_center_reference(log_root)
     previous_parent_dashboard_reference = _copy_reference_image(
@@ -2108,31 +1934,26 @@ def main() -> int:
             dashboard_probe.get("activeAiText") is False
             and dashboard_probe.get("trustProviderText") is False
         ),
-        "settingsCogFutureGatedVisualOnly": (
+        "settingsCogRemovedAndDeferred": (
             dashboard_probe.get("visibleSettingsFutureText") is False
             and dashboard_probe.get("nativeTitleTooltipCount") == 0
-            and dashboard_probe.get("settingsRoutePresent") is True
-            and dashboard_probe.get("settingsRouteVisible") is True
-            and dashboard_probe.get("settingsButtonPresent") is True
-            and dashboard_probe.get("settingsButtonVisible") is True
-            and dashboard_probe.get("settingsButtonState") == "future-gated-visual-only"
-            and dashboard_probe.get("settingsVisualAcceptance") == "candidate-a-visible-title-strip-trailing"
-            and dashboard_probe.get("settingsBehavior") == "future-gated-no-window-open"
-            and dashboard_probe.get("settingsTooltipText") == "Settings"
-            and settings_tooltip_probe.get("text") == "Settings"
-            and settings_tooltip_probe.get("visible") is True
-            and settings_tooltip_probe.get("label") == "Settings"
-            and settings_tooltip_probe.get("state") == "future-gated-visual-only"
-            and settings_future_gated_click_probe.get("settingsWindowOpened") == "false"
-            and any("AI_DASHBOARD_SETTINGS_ROUTE_FUTURE_GATED" in event and "settings_window_opened=false" in event for event in events)
+            and dashboard_probe.get("settingsRouteMetadata") == "option-b-deferred-until-fam003-global-settings-window"
+            and dashboard_probe.get("settingsRoutePresent") is False
+            and dashboard_probe.get("settingsRouteVisible") is False
+            and dashboard_probe.get("settingsButtonPresent") is False
+            and dashboard_probe.get("settingsButtonVisible") is False
+            and dashboard_probe.get("settingsTooltipText") == ""
+            and settings_tooltip_probe.get("present") is False
+            and settings_tooltip_probe.get("visible") is False
             and settings_tooltip_probe.get("titleCount") == 0
         ),
-        "settingsCogVisualAcceptanceOptionsProven": (
-            settings_cog_options.get("ok") is True
-            and settings_cog_options.get("tooltipLabel") == "Settings"
-            and settings_cog_options.get("activeGlobalSettingsBehavior") is False
-            and settings_cog_options.get("implementedRuntimeOption") == "A"
-            and len(settings_cog_options.get("options") or []) == 3
+        "settingsOptionBSelectionDispositionProven": (
+            settings_option_b_disposition.get("ok") is True
+            and settings_option_b_disposition.get("selectedOption") == "B"
+            and settings_option_b_disposition.get("currentRuntimeSettingsAffordance") == "removed-from-current-workstream-exit-path"
+            and settings_option_b_disposition.get("activeGlobalSettingsBehavior") is False
+            and settings_option_b_disposition.get("settingsWindowOpened") is False
+            and settings_option_b_disposition.get("implementedRuntimeOption") == "B"
         ),
         "fullDesktopProofNotDuplicated": (
             len(opened_desktop_hashes) == 0
@@ -2191,10 +2012,8 @@ def main() -> int:
             "acceptedComparatorDesktopLauncher": main_runtime_ai_control_center_reference.get("desktopLauncher"),
         },
         "deferredLaunchProbe": deferred_launch_probe,
-        "settingsHover": settings_hover,
         "settingsTooltipProbe": settings_tooltip_probe,
-        "settingsFutureGatedClickProbe": settings_future_gated_click_probe,
-        "settingsCogVisualAcceptanceOptions": settings_cog_options,
+        "settingsOptionBDisposition": settings_option_b_disposition,
         "defaultScrollIntentProbe": scrolled_probe,
         "childChromeProbe": child_chrome_probe,
         "childControlBehavior": child_control_behavior,
@@ -2262,9 +2081,9 @@ def main() -> int:
         audit_source = Path(str(visual_grammar_audit.get(audit_key, "")))
         if audit_source.exists():
             (user_evidence_root / audit_source.name).write_bytes(audit_source.read_bytes())
-    settings_options_json = Path(str(settings_cog_options.get("jsonPath", "")))
-    if settings_options_json.exists():
-        (user_evidence_root / settings_options_json.name).write_bytes(settings_options_json.read_bytes())
+    settings_disposition_json = Path(str(settings_option_b_disposition.get("jsonPath", "")))
+    if settings_disposition_json.exists():
+        (user_evidence_root / settings_disposition_json.name).write_bytes(settings_disposition_json.read_bytes())
 
     if status != "PASS":
         print(f"FAIL: FAM-007 AI Dashboard parent-only validation failed. Manifest: {manifest_path}")
