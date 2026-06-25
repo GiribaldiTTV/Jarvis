@@ -1038,6 +1038,13 @@ FAM003_RECURRING_DEFECT_IDS = (
     "F3-LV1-UI-020",
     "F3-LV1-UI-021",
     "F3-LV1-PROOF-002",
+    "F3-LV1-UI-030",
+    "F3-LV1-UI-031",
+    "F3-LV1-UI-032",
+    "F3-LV1-UI-033",
+    "F3-LV1-UI-034",
+    "F3-LV1-UI-035",
+    "F3-LV1-UI-036",
 )
 FAM003_LOOP_BREAKER_DEFECT_ID = "F3-LV1-PROOF-003"
 
@@ -1362,6 +1369,13 @@ def _fam003_lv1_visual_retest_semantic_failures(
             "F3-LV1-UI-027",
             "F3-LV1-UI-028",
             "F3-LV1-UI-029",
+            "F3-LV1-UI-030",
+            "F3-LV1-UI-031",
+            "F3-LV1-UI-032",
+            "F3-LV1-UI-033",
+            "F3-LV1-UI-034",
+            "F3-LV1-UI-035",
+            "F3-LV1-UI-036",
             "F3-LV1-PROOF-001",
             "F3-LV1-PROOF-002",
         ):
