@@ -446,7 +446,8 @@
         "Resolved/outdated/current unresolved counts missing",
         "Merge-ready claimed without current-head Codex Connector approval latch",
         "Codex Connector thumbs-up approval latch ignored",
-        "Stale approval accepted because commit timestamp predates an older review request"
+        "Stale approval accepted because commit timestamp predates an older review request",
+        "Timeline lookup omitted the current-head commit on long PRs"
       ],
       "source_truth": [
         "Docs/pr_watcher_mode_contract.md",
@@ -471,6 +472,7 @@
         "stale Codex Connector thumbs-up reaction before current head",
         "force-pushed or cherry-picked head with old commit timestamp",
         "PR timeline PullRequestCommit before latest review request",
+        "paginated PR timeline lookup for current-head commit and later review request",
         "long review thread with more than 50 connector comments"
       ],
       "sibling_variant_replay": [
@@ -480,7 +482,8 @@
         "all pull review-comment pages must be fetched before PASS",
         "thumbs-up approval latch accepted when bound to the latest review request on the current head",
         "thumbs-up approval latch rejected when only an older head request was approved",
-        "current-head review request binding uses PR timeline order, not commit author or committer time"
+        "current-head review request binding uses PR timeline order, not commit author or committer time",
+        "current-head review request binding paginates beyond the latest 100 timeline items"
       ]
     }
   ]

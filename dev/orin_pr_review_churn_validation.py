@@ -436,9 +436,14 @@ def _classifier_guardrail_failures() -> list[str]:
         failures.append(
             "Approval-latch guardrail found stale timestamp binding helper"
         )
-    if "PullRequestCommit" not in helper_source or "IssueComment" not in helper_source:
+    if (
+        "PullRequestCommit" not in helper_source
+        or "IssueComment" not in helper_source
+        or "hasPreviousPage" not in helper_source
+        or "startCursor" not in helper_source
+    ):
         failures.append(
-            "Approval-latch guardrail must use PR timeline order for current-head review requests"
+            "Approval-latch guardrail must use paginated PR timeline order for current-head review requests"
         )
     return failures
 
@@ -522,10 +527,11 @@ def _latest_review_request_after_head(
     owner: str, name: str, number: int, head_oid: str
 ) -> dict[str, Any] | None:
     query = """
-query($owner:String!,$name:String!,$number:Int!){
+query($owner:String!,$name:String!,$number:Int!,$cursor:String){
   repository(owner:$owner,name:$name){
     pullRequest(number:$number){
-      timelineItems(last:100, itemTypes:[PULL_REQUEST_COMMIT,ISSUE_COMMENT]){
+      timelineItems(last:100, before:$cursor, itemTypes:[PULL_REQUEST_COMMIT,ISSUE_COMMENT]){
+        pageInfo{hasPreviousPage startCursor}
         nodes{
           __typename
           ... on PullRequestCommit { commit { oid } }
@@ -536,8 +542,27 @@ query($owner:String!,$name:String!,$number:Int!){
   }
 }
 """
-    data = _graphql(query, {"owner": owner, "name": name, "number": number})
-    nodes = data["repository"]["pullRequest"]["timelineItems"]["nodes"]
+    nodes: list[dict[str, Any]] = []
+    cursor: str | None = None
+    while True:
+        data = _graphql(
+            query,
+            {"owner": owner, "name": name, "number": number, "cursor": cursor},
+        )
+        timeline = data["repository"]["pullRequest"]["timelineItems"]
+        page_nodes = timeline["nodes"]
+        nodes = page_nodes + nodes
+        page_info = timeline["pageInfo"]
+        if any(
+            node.get("__typename") == "PullRequestCommit"
+            and (node.get("commit") or {}).get("oid") == head_oid
+            for node in page_nodes
+        ):
+            break
+        if not page_info["hasPreviousPage"]:
+            break
+        cursor = page_info["startCursor"]
+
     head_index = -1
     for index, node in enumerate(nodes):
         if (
