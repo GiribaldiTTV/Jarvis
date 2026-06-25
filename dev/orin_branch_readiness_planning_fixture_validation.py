@@ -2235,7 +2235,7 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             return False
         return True
 
-    active_review_claims_material_surfaces = active_rar_stage and any(
+    review_claims_material_surfaces = any(
         marker_claims_material_surface(governance._extract_marker_value(text, marker))
         for marker in (
             "Owned Surface Inventory:",
@@ -2245,7 +2245,10 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             "Implemented / Touched Runtime-Backend Surfaces:",
         )
     )
-    if active_review_claims_material_surfaces:
+    trace_proof_required_for_material_surfaces = (
+        (active_rar_stage or resolved_rar_stage) and review_claims_material_surfaces
+    )
+    if trace_proof_required_for_material_surfaces:
         require(
             all(
                 not is_noop_evidence_row(row)
@@ -3066,6 +3069,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     phase_disclaimer_tokens = tuple(
         token for token in negation_tokens if token not in {"blocked", "held"}
     )
+    phase_blocker_tokens = (
+        "blocked",
+        "remains blocked",
+        "stays blocked",
+        "held",
+        "remains held",
+        "stays held",
+        "paused",
+        "remains paused",
+        "deferred",
+        "remains deferred",
+    )
     phase_action_token_pattern = (
         r"proceed(?:s|ed|ing)?|advance(?:s|d|ment|ing)?|enter(?:s|ed|ing)?|"
         r"resume(?:s|d|ing)?|move(?:s|d|ing)?|continue(?:s|d|ing)?|"
@@ -3073,6 +3088,9 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
     phase_disclaimer_token_pattern = "|".join(
         re.escape(token).replace(r"\ ", r"\s+") for token in phase_disclaimer_tokens
+    )
+    phase_blocker_token_pattern = "|".join(
+        re.escape(token).replace(r"\ ", r"\s+") for token in phase_blocker_tokens
     )
     negated_phase_list_pattern = re.compile(
         rf"\b(?:{phase_disclaimer_token_pattern})\b"
@@ -3082,6 +3100,18 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
     )
     phase_claim_clause_pattern = r"[,.;]|\b(?:and|but|however|yet)\b"
 
+    def phase_clause_explicitly_blocks_or_holds(clause: str) -> bool:
+        if not any(token in clause for token in advancement_tokens):
+            return False
+        if not re.search(rf"\b(?:{phase_blocker_token_pattern})\b", clause):
+            return False
+        if re.search(
+            rf"\b(?:not|no\s+longer)\s+blocked\b|\bno\s+blockers?\b",
+            clause,
+        ) and re.search(rf"\b(?:{phase_action_token_pattern})\b", clause):
+            return False
+        return True
+
     def strip_negated_phase_disclaimers(value: str) -> str:
         value = negated_phase_list_pattern.sub(" ", value)
         clauses = re.split(phase_claim_clause_pattern, value)
@@ -3090,6 +3120,8 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             if any(token in clause for token in advancement_tokens) and any(
                 token in clause for token in phase_disclaimer_tokens
             ):
+                continue
+            if phase_clause_explicitly_blocks_or_holds(clause):
                 continue
             kept.append(clause)
         return " ".join(kept)
@@ -7269,6 +7301,24 @@ line item, not a seam or separate branch.
             "Generated RAR adversarial matrix falsely rejected negated ready-for phase wording"
         )
 
+    generated_blocked_phase_disclaimer_text = (
+        VALID_REBASELINE_ADOPTION_ACTIVE_NEGATED_DISCLAIMERS_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+        .replace(
+            "Exact Next USER Decision: USER reviews RAR issue candidates; normal phase progression is not authorized; this does not authorize PR creation, merge, or release.",
+            "Exact Next USER Decision: USER keeps Workstream blocked until RAR3 closes; PR creation remains blocked pending separate approval.",
+        )
+    )
+    generated_blocked_phase_disclaimer_failures = (
+        _validate_rebaseline_adoption_review_text(generated_blocked_phase_disclaimer_text)
+    )
+    if generated_blocked_phase_disclaimer_failures:
+        failures.append(
+            "Generated RAR adversarial matrix falsely rejected blocked/held phase disclaimer wording: "
+            + "; ".join(generated_blocked_phase_disclaimer_failures[:5])
+        )
+
     valid_direct_negated_green_failures = _validate_rebaseline_adoption_review_text(
         VALID_REBASELINE_ADOPTION_DIRECT_NEGATED_GREEN_FIXTURE.read_text(
             encoding="utf-8"
@@ -7452,6 +7502,27 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Generated RAR adversarial matrix did not reject missing-proof surface wording with no-op rows"
+        )
+
+    generated_resolved_surface_noop_text = (
+        INVALID_REBASELINE_ADOPTION_NOOP_ACTIVE_ROWS_FIXTURE.read_text(encoding="utf-8")
+        .replace(
+            "RAR Stage: RAR3 USER Review Gate remains active for affected surface review.",
+            "RAR Stage: Resolved after RAR4 disposition and validation closeout.",
+        )
+        .replace(
+            "Next Legal Phase: RAR3 USER Review Gate remains active until USER reviews issue candidates or waives them.",
+            "Next Legal Phase: normal phase progression after resolved RAR closeout.",
+        )
+    )
+    generated_resolved_surface_noop_failures = _validate_rebaseline_adoption_review_text(
+        generated_resolved_surface_noop_text
+    )
+    if EXPECTED_RAR_CODE_TRACE_FAILURE_SNIPPET not in "\n".join(
+        generated_resolved_surface_noop_failures
+    ):
+        failures.append(
+            "Generated RAR adversarial matrix did not reject resolved RAR with named surfaces and no-op trace rows"
         )
 
     partial_noop_active_rows_failures = _validate_rebaseline_adoption_review_text(
