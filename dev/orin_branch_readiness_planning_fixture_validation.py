@@ -317,6 +317,9 @@ INVALID_REBASELINE_ADOPTION_MARKER_ONLY_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_RESOLVED_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unanchored_stage_resolved.md"
 )
+INVALID_REBASELINE_ADOPTION_NEGATED_RESOLVED_STAGE_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_negated_resolved_stage.md"
+)
 INVALID_REBASELINE_ADOPTION_UNANCHORED_STAGE_NO_IMPACT_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_unanchored_stage_no_impact.md"
 )
@@ -1979,9 +1982,24 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
         " .;:"
     )
     active_rar_stage = re.match(r"^rar[0-4]\b", normalized_rar_stage) is not None
+    negated_resolved_rar_stage = (
+        re.match(
+            r"^resolved\b[\s?:,;/-]*(?:no|not|false|pending|unresolved|blocked)\b",
+            normalized_rar_stage,
+        )
+        is not None
+        or re.match(
+            r"^no applicable impact\b[\s?:,;/-]*(?:no|not|false|pending|unresolved|blocked)\b",
+            normalized_rar_stage,
+        )
+        is not None
+    )
     resolved_rar_stage = (
-        re.match(r"^resolved\b", normalized_rar_stage) is not None
-        or re.match(r"^no applicable impact\b", normalized_rar_stage) is not None
+        not negated_resolved_rar_stage
+        and (
+            re.match(r"^resolved\b", normalized_rar_stage) is not None
+            or re.match(r"^no applicable impact\b", normalized_rar_stage) is not None
+        )
     )
     require(
         active_rar_stage or resolved_rar_stage,
@@ -7080,6 +7098,18 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject unanchored resolved stage wording"
+        )
+
+    negated_resolved_stage_failures = _validate_rebaseline_adoption_review_text(
+        INVALID_REBASELINE_ADOPTION_NEGATED_RESOLVED_STAGE_FIXTURE.read_text(
+            encoding="utf-8"
+        )
+    )
+    if EXPECTED_RAR_STAGE_FAILURE_SNIPPET not in "\n".join(
+        negated_resolved_stage_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject negated resolved stage wording"
         )
 
     unanchored_stage_no_impact_failures = _validate_rebaseline_adoption_review_text(
