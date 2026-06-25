@@ -423,11 +423,13 @@
       ],
       "generated_mutation_coverage": [
         "unrelated status/case/row wording returns unknown",
+        "standalone unknown wording returns unknown",
         "comment-family matching meta-comment maps to classifier family",
         "code-to-visual comparison drift maps to RAR code-to-visual family"
       ],
       "sibling_variant_replay": [
         "status row text without RAR or PR-review context",
+        "standalone unknown text without classifier/churn context",
         "new unknown family must block until matrix coverage is added",
         "classifier comments are not hidden under broad RAR parser keywords"
       ]

@@ -215,7 +215,6 @@ FAMILY_RULES: tuple[FamilyRule, ...] = (
             "family matching",
             "substring matcher",
             "unknown observed families",
-            "unknown",
             "covered family",
             "matrix",
             "churn gate",
@@ -399,6 +398,11 @@ def _classifier_guardrail_failures() -> list[str]:
     if "pr2-comment-family-classifier" not in _classify_comment(classifier_comment):
         failures.append(
             "Comment-family classifier did not classify the classifier guardrail family"
+        )
+    standalone_unknown = "An unrelated validator message contains the word unknown."
+    if _classify_comment(standalone_unknown) != ["unknown"]:
+        failures.append(
+            "Comment-family classifier overmatched standalone unknown wording"
         )
     visual_comment = (
         "A Code-To-Visual row records Visual Match as Mismatch and Behavior Match "
