@@ -365,6 +365,9 @@ INVALID_REBASELINE_ADOPTION_ISSUE_CANDIDATE_GREEN_FIXTURE = (
 INVALID_REBASELINE_ADOPTION_REQUIRED_USER_REVIEW_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_required_user_review_no_packet.md"
 )
+INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_REVIEW_NO_PACKET_FIXTURE = (
+    FIXTURE_DIR / "invalid_rebaseline_adoption_validation_summary_review_no_packet.md"
+)
 INVALID_REBASELINE_ADOPTION_USER_DECISION_NO_PACKET_FIXTURE = (
     FIXTURE_DIR / "invalid_rebaseline_adoption_user_decision_no_packet.md"
 )
@@ -2185,10 +2188,13 @@ def _validate_rebaseline_adoption_review_text(text: str) -> list[str]:
             governance._extract_marker_value(text, marker)
             for marker in (
                 "RAR Stage:",
+                "Merged Standard Comparison Result:",
+                "Current Violation Findings:",
                 "Issue Candidate Disposition:",
                 "Repair / Waiver / Defer / Route Decision Table:",
                 "Adoption Disposition:",
                 "Repair / Waiver / Blocker:",
+                "Validation Summary:",
                 "Exact Next USER Decision:",
             )
         )
@@ -7219,6 +7225,20 @@ line item, not a seam or separate branch.
     ):
         failures.append(
             "Invalid RAR fixture did not reject required USER review without packet proof"
+        )
+
+    validation_summary_review_no_packet_failures = (
+        _validate_rebaseline_adoption_review_text(
+            INVALID_REBASELINE_ADOPTION_VALIDATION_SUMMARY_REVIEW_NO_PACKET_FIXTURE.read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    if EXPECTED_RAR_USER_PACKET_FAILURE_SNIPPET not in "\n".join(
+        validation_summary_review_no_packet_failures
+    ):
+        failures.append(
+            "Invalid RAR fixture did not reject validation-summary review requirement without USER packet"
         )
 
     user_decision_no_packet_failures = _validate_rebaseline_adoption_review_text(
